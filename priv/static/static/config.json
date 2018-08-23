@@ -1,10 +1,10 @@
 {
   "theme": "pleroma-dark",
-  "background": "/static/aurora_borealis.jpg",
+  "background": "/static/bg.jpg",
   "logo": "/static/logo.png",
-  "redirectRootNoLogin": "/main/all",
+  "redirectRootNoLogin": "/registration",
   "redirectRootLogin": "/main/friends",
-  "chatDisabled": false,
+  "chatDisabled": true,
   "showWhoToFollowPanel": false,
   "whoToFollowProvider": "https://vinayaka.distsn.org/cgi-bin/vinayaka-user-match-osa-api.cgi?{{host}}+{{user}}",
   "whoToFollowProviderDummy2": "https://followlink.osa-p.net/api/get_recommend.json?acct=@{{user}}@{{host}}",

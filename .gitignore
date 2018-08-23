@@ -17,9 +17,9 @@ erl_crash.dump
 # data and you should not commit them into version control.
 #
 # Alternatively, you may comment the line below and commit the
-# secrets files as long as you replace their contents by environment
-# variables.
-/config/*.secret.exs
+# secrets files as long as you replace their contents by environment variables.
+config/*.secret.exs
+config/secret.exs
 
 # Database setup file, some may forget to delete it
 /config/setup_db.psql
@@ -29,3 +29,4 @@ erl_crash.dump
 
 # Editor config
 /.vscode
+

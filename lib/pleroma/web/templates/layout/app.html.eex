@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset=utf-8 />
-    <title>Pleroma</title>
+    <title>Pub of the Commons</title>
     <style>
       body {
         background-color: #282c37;
@@ -68,7 +68,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Pleroma</h1>
+      <h1>Pub of the Commons</h1>
       <%= render @view_module, @view_template, assigns %>
     </div>
   </body>
