@@ -1,28 +1,19 @@
-# Pleroma
+# Pub of the Commons
 
-## About Pleroma
+## About the project
 
-Pleroma is an OStatus-compatible social networking server written in Elixir, compatible with GNU Social and Mastodon. It is high-performance and can run on small devices like a Raspberry Pi.
+The Pub of the Commons (otherwise known as CommonsPub) is an ActivityPub federated server written in Elixir. 
 
-For clients it supports both the [GNU Social API with Qvitter extensions](https://twitter-api.readthedocs.io/en/latest/index.html) and the [Mastodon client API](https://github.com/tootsuite/documentation/blob/master/Using-the-API/API.md).
+It is  high-performance and can run on small devices like a Raspberry Pi, and compatible with other fediverse apps like Mastodon.
 
-Mobile clients that are known to work well:
+It was forked from Pleroma with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases. 
 
-* Twidere
-* Tusky
-* Pawoo (Android + iOS)
-* Subway Tooter
-* Amaroq (iOS)
-* Tootdon (Android + iOS)
-* Tootle (iOS)
-
-No release has been made yet, but several servers have been online for months already. If you want to run your own server, feel free to contact us at @lain@pleroma.soykaf.com or in our dev chat at #pleroma on freenode or via matrix at https://matrix.heldscal.la/#/room/#freenode_#pleroma:matrix.org.
 
 ## Installation
 
-### Docker
+### Kubernetes / Docker 
 
-While we don't provide docker files, other people have written very good ones. Take a look at https://github.com/Angristan/dockerfiles/tree/master/pleroma or https://github.com/sn0w/pleroma-docker.
+Work in progress.
 
 ### Dependencies
 
@@ -30,13 +21,14 @@ While we don't provide docker files, other people have written very good ones. T
 * Elixir version 1.5 or newer. If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf).
 * Build-essential tools
 
-### Configuration
+---
+### Manual installation
 
   * Run `mix deps.get` to install elixir dependencies.
 
-  * Run `mix generate_config`. This will ask you a few questions about your instance and generate a configuration file in `config/generated_config.exs`. Check that and copy it to either `config/dev.secret.exs` or `config/prod.secret.exs`. It will also create a `config/setup_db.psql`; you may want to double-check this file in case you wanted a different username, or database name than the default. Then you need to run the script as PostgreSQL superuser (i.e. `sudo su postgres -c "psql -f config/setup_db.psql"`). It will create a pleroma db user, database and will setup needed extensions that need to be set up. Postgresql super-user privileges are only needed for this step.
+  * Run `mix generate_config`. This will ask you a few questions about your instance and generate a configuration file in `config/generated_config.exs`. Check that and copy it to either `config/dev.secret.exs` or `config/prod.secret.exs`. It will also create a `config/setup_db.psql`; you may want to double-check this file in case you wanted a different username, or database name than the default. Then you need to run the script as PostgreSQL superuser (i.e. `sudo su postgres -c "psql -f config/setup_db.psql"`). It will create a db user, database and will setup needed extensions that need to be set up. Postgresql super-user privileges are only needed for this step.
 
-  * For these next steps, the default will be to run pleroma using the dev configuration file, `config/dev.secret.exs`. To run them using the prod config file, prefix each command at the shell with `MIX_ENV=prod`. For example: `MIX_ENV=prod mix phx.server`.
+  * For these next steps, the default will be to run the server using the dev configuration file, `config/dev.secret.exs`. To run them using the prod config file, prefix each command at the shell with `MIX_ENV=prod`. For example: `MIX_ENV=prod mix phx.server`.
 
   * Run `mix ecto.migrate` to run the database migrations. You will have to do this again after certain updates.
 
@@ -45,17 +37,19 @@ While we don't provide docker files, other people have written very good ones. T
   * The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/pleroma.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
   The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
 
-  * [Not tested with system reboot yet!] You'll also want to set up Pleroma to be run as a systemd service. Example .service file can be found in `installation/pleroma.service` you can put it in `/etc/systemd/system/`.
 
 ## Running
 
 * By default, it listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ### Frontends
-Pleroma comes with two frontends. The first one, Pleroma FE, can be reached by normally visiting the site. The other one, based on the Mastodon project, can be found by visiting the /web path of your site.
+Pub of the Commons does not ship with a front-end, as each use case will likely a custom client app, though compatibility between clients and sharing code (such as React components) will be encouraged. 
 
 ### As systemd service (with provided .service file)
-Running `service pleroma start`
+[Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/pleroma.service` you can put it in `/etc/systemd/system/`.
+
+Running: `service pleroma start`
+
 Logs can be watched by using `journalctl -fu pleroma.service`
 
 ### Standalone/run by other means
@@ -63,12 +57,12 @@ Run `mix phx.server` in repository's root, it will output log into stdout/stderr
 
 ### Using an upstream proxy for federation
 
-Add the following to your `dev.secret.exs` or `prod.secret.exs` if you want to proxify all http requests that pleroma makes to an upstream proxy server:
+Add the following to your `dev.secret.exs` or `prod.secret.exs` if you want to proxify all http requests that the server makes to an upstream proxy server:
 
     config :pleroma, :http,
       proxy_url: "127.0.0.1:8123"
 
-This is useful for running pleroma inside Tor or i2p.
+This is useful for running the server inside Tor or i2p.
 
 ## Admin Tasks
 
@@ -91,3 +85,111 @@ Run `mix set_moderator username [true|false]` to make user a moderator or not.
 ### No incoming federation
 
 Check that you correctly forward the "host" header to backend. It is needed to validate signatures.
+
+---
+# Configuring the server
+
+In the `config/` directory, you will find the following relevant files:
+
+* `config.exs`: default base configuration
+* `dev.exs`: default additional configuration for `MIX_ENV=dev`
+* `prod.exs`: default additional configuration for `MIX_ENV=prod`
+
+
+Do not modify files in the list above.
+Instead, overload the settings by editing the following files:
+
+* `dev.secret.exs`: custom additional configuration for `MIX_ENV=dev`
+* `prod.secret.exs`: custom additional configuration for `MIX_ENV=prod`
+
+## Uploads configuration
+
+To configure where to upload files, and wether or not 
+you want to remove automatically EXIF data from pictures
+being uploaded.
+
+    config :pleroma, Pleroma.Upload,
+      uploads: "uploads",
+      strip_exif: false
+
+* `uploads`: where to put the uploaded files, relative to the app's main directory.
+* `strip_exif`: whether or not to remove EXIF data from uploaded pics automatically. 
+   This needs Imagemagick installed on the system ( apt install imagemagick ).
+
+
+## Block functionality
+
+    config :pleroma, :activitypub,
+      accept_blocks: true,
+      unfollow_blocked: true,
+      outgoing_blocks: true
+
+    config :pleroma, :user, deny_follow_blocked: true
+
+* `accept_blocks`: whether to accept incoming block activities from
+   other instances
+* `unfollow_blocked`: whether blocks result in people getting
+   unfollowed
+* `outgoing_blocks`: whether to federate blocks to other instances
+* `deny_follow_blocked`: whether to disallow following an account that
+   has blocked the user in question
+
+## Message Rewrite Filters (MRFs)
+
+Modify incoming and outgoing posts.
+
+    config :pleroma, :instance,
+      rewrite_policy: Pleroma.Web.ActivityPub.MRF.NoOpPolicy
+
+`rewrite_policy` specifies which MRF policies to apply.
+It can either be a single policy or a list of policies.
+Currently, MRFs availible by default are:
+
+* `Pleroma.Web.ActivityPub.MRF.NoOpPolicy`
+* `Pleroma.Web.ActivityPub.MRF.DropPolicy`
+* `Pleroma.Web.ActivityPub.MRF.SimplePolicy`
+* `Pleroma.Web.ActivityPub.MRF.RejectNonPublic`
+
+Some policies, such as SimplePolicy and RejectNonPublic,
+can be additionally configured in their respective sections.
+
+### NoOpPolicy
+
+Does not modify posts (this is the default `rewrite_policy`)
+
+### DropPolicy
+
+Drops all posts.
+It generally does not make sense to use this in production.
+
+### SimplePolicy
+
+Restricts the visibility of posts from certain instances.
+
+    config :pleroma, :mrf_simple,
+      media_removal: [],
+      media_nsfw: [],
+      federated_timeline_removal: [],
+      reject: [],
+      accept: []
+
+* `media_removal`: posts from these instances will have attachments 
+   removed
+* `media_nsfw`: posts from these instances will have attachments marked
+   as nsfw
+* `federated_timeline_removal`: posts from these instances will be 
+   marked as unlisted
+* `reject`: posts from these instances will be dropped
+* `accept`: if not empty, only posts from these instances will be accepted
+
+### RejectNonPublic
+
+Drops posts with non-public visibility settings.
+
+    config :pleroma :mrf_rejectnonpublic
+      allow_followersonly: false,
+      allow_direct: false,
+
+* `allow_followersonly`: whether to allow follower-only posts through
+   the filter
+* `allow_direct`: whether to allow direct messages through the filter
