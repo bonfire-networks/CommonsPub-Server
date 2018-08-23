@@ -16,6 +16,8 @@ config :pleroma, Pleroma.Upload,
 
 config :pleroma, :emoji, shortcode_globs: ["/emoji/custom/**/*.png"]
 
+config :pleroma, :uri_schemes, additionnal_schemes: []
+
 # Configures the endpoint
 config :pleroma, Pleroma.Web.Endpoint,
   url: [host: "localhost"],
@@ -110,6 +112,13 @@ config :pleroma, :gopher,
   enabled: false,
   ip: {0, 0, 0, 0},
   port: 9999
+
+config :pleroma, :suggestions,
+  enabled: false,
+  third_party_engine:
+    "http://vinayaka.distsn.org/cgi-bin/vinayaka-user-match-suggestions-api.cgi?{{host}}+{{user}}",
+  timeout: 300_000,
+  web: "https://vinayaka.distsn.org/?{{host}}+{{user}}"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
