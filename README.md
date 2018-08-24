@@ -2,16 +2,18 @@
 
 ## About the project
 
-The Pub of the Commons (otherwise known as CommonsPub) is an ActivityPub federated server written in Elixir. 
+The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
-It is  high-performance and can run on small devices like a Raspberry Pi, and compatible with other fediverse apps like Mastodon.
+It written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi.
 
-It was forked from Pleroma with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases. 
+It was forked from Pleroma with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
 
 
 ## Installation
 
 ### Kubernetes / Docker 
+
+Docker 17.09 or newer is required. 
 
 Work in progress.
 
@@ -40,10 +42,10 @@ Work in progress.
 
 ## Running
 
-* By default, it listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
+By default, CommonsPub listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ### Frontends
-Pub of the Commons does not ship with a front-end, as each use case will likely a custom client app, though compatibility between clients and sharing code (such as React components) will be encouraged. 
+Pub of the Commons does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
 
 ### As systemd service (with provided .service file)
 [Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/pleroma.service` you can put it in `/etc/systemd/system/`.
