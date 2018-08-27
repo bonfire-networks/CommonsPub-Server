@@ -8,7 +8,7 @@ use Mix.Config
 # General application configuration
 config :pleroma, ecto_repos: [Pleroma.Repo]
 
-config :pleroma, Pleroma.Repo, types: Pleroma.PostgresTypes #, adapter: Ecto.Adapters.Postgres
+config :pleroma, Pleroma.Repo, types: Pleroma.PostgresTypes, adapter: Ecto.Adapters.Postgres
 
 
 config :pleroma, Pleroma.Upload,
