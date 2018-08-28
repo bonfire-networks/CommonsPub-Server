@@ -8,6 +8,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.OAuth.{Authorization, Token, App}
   alias Comeonin.Pbkdf2
+  alias Pleroma.Web.TwitterAPI.{TwitterAPI}
   import Ecto.Query
   require Logger
 
@@ -1129,3 +1130,24 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 end
+
+def register(conn, _) do
+  conn
+  |> render(MastodonView, "register.html", %{error: false})
+end
+
+def register_post(conn, params) do
+  with {:ok, user} <- TwitterAPI.register_user(params) do
+    {:ok, app} <- get_or_make_app(),
+    {:ok, auth} <- Authorization.create_authorization(app, user),
+    {:ok, token} <- Token.exchange_token(app, auth) do
+  conn
+  |> put_session(:oauth_token, token.token)
+  |> redirect(to: "/web/getting-started")
+  else
+    _e ->
+      conn
+      |> render(MastodonView, "register.html", %{error: "Wrong details"})
+  end
+end
+

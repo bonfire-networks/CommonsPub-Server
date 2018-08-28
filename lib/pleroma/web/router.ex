@@ -342,6 +342,8 @@ defmodule Pleroma.Web.Router do
 
     get("/web/login", MastodonAPIController, :login)
     post("/web/login", MastodonAPIController, :login_post)
+    get("/web/register", MastodonAPIController, :register)
+    post("/web/register", MastodonAPIController, :register_post)
     get("/web/*path", MastodonAPIController, :index)
     delete("/auth/sign_out", MastodonAPIController, :logout)
   end
