@@ -1135,8 +1135,8 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     |> render(MastodonView, "register.html", %{error: false})
   end
 
-  def register_post(conn, params) do
-    with {:ok, user} <- TwitterAPI.register_user(params),
+  def register_post(conn, %{"register" => register}) do
+    with {:ok, user} <- TwitterAPI.register_user(register),
          {:ok, app} <- get_or_make_app(),
          {:ok, auth} <- Authorization.create_authorization(app, user),
          {:ok, token} <- Token.exchange_token(app, auth) do
