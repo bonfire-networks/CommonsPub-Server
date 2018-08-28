@@ -960,7 +960,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
       |> render(MastodonView, "index.html", %{initial_state: initial_state})
     else
       conn
-      |> redirect(to: "/?login")
+      |> redirect(to: "/web/login")
     end
   end
 

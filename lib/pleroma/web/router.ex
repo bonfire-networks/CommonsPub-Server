@@ -340,8 +340,8 @@ defmodule Pleroma.Web.Router do
   scope "/", Pleroma.Web.MastodonAPI do
     pipe_through(:mastodon_html)
 
-    get("/web/register", MastodonAPIController, :register)
-    post("/web/register", MastodonAPIController, :register_post)
+    get("/register", MastodonAPIController, :register)
+    post("/register", MastodonAPIController, :register_post)
 
     get("/web/login", MastodonAPIController, :login)
     post("/web/login", MastodonAPIController, :login_post)
