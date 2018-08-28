@@ -340,11 +340,14 @@ defmodule Pleroma.Web.Router do
   scope "/", Pleroma.Web.MastodonAPI do
     pipe_through(:mastodon_html)
 
-    get("/web/login", MastodonAPIController, :login)
-    post("/web/login", MastodonAPIController, :login_post)
     get("/web/register", MastodonAPIController, :register)
     post("/web/register", MastodonAPIController, :register_post)
+
+    get("/web/login", MastodonAPIController, :login)
+    post("/web/login", MastodonAPIController, :login_post)
+
     get("/web/*path", MastodonAPIController, :index)
+
     delete("/auth/sign_out", MastodonAPIController, :logout)
   end
 
@@ -357,24 +360,24 @@ defmodule Pleroma.Web.Router do
     get("/:sig/:url", MediaProxyController, :remote)
   end
 
-  scope "/", Fallback do
-    get("/registration/:token", RedirectController, :registration_page)
-    get("/*path", RedirectController, :redirector)
-  end
+  # scope "/", Fallback do
+  #   get("/registration/:token", RedirectController, :registration_page)
+  #   get("/*path", RedirectController, :redirector)
+  # end
 end
 
-defmodule Fallback.RedirectController do
-  use Pleroma.Web, :controller
+# defmodule Fallback.RedirectController do
+#   use Pleroma.Web, :controller
 
-  def redirector(conn, _params) do
-    if Mix.env() != :test do
-      conn
-      |> put_resp_content_type("text/html")
-      |> send_file(200, "priv/static/index.html")
-    end
-  end
+#   def redirector(conn, _params) do
+#     if Mix.env() != :test do
+#       conn
+#       |> put_resp_content_type("text/html")
+#       |> send_file(200, "priv/static/index.html")
+#     end
+#   end
 
-  def registration_page(conn, params) do
-    redirector(conn, params)
-  end
-end
+#   def registration_page(conn, params) do
+#     redirector(conn, params)
+#   end
+# end

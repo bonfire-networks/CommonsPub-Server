@@ -56,7 +56,7 @@ config :pleroma, :http, proxy_url: nil
 config :pleroma, :instance,
   version: version,
   name: "Pub of the Commons",
-  email: "example@example.com",
+  email: "example@example.local",
   description: "A Pub of the Commons instance, a generic fediverse server",
   limit: 5000,
   upload_limit: 16_000_000,
