@@ -1,12 +1,13 @@
 # MoodleNet Federated Server - based on the 'Pub of the Commons' ActivityPub Server
 
-## About the project
+
+## About Pub of the Commons
 
 The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
 It written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi.
 
-It was forked from Pleroma with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
+It was forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma) with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
 
 
 ## Installation
