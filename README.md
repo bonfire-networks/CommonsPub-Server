@@ -1,4 +1,4 @@
-# Pub of the Commons
+# MoodleNet Federated Server - based on the 'Pub of the Commons' ActivityPub Server
 
 ## About the project
 
@@ -13,7 +13,7 @@ It was forked from Pleroma with the intention of moving as much functionality as
 
 ### With Docker (recommended)
 
-See the [server-deploy repo](https://gitlab.com/OpenCoop/CommonsPub/server-deploy), for a docker-compose based setup process.
+See the [server-deploy repo](https://gitlab.com/moodlenet/server-deploy), for a docker-compose based setup process.
 
 
 ---
