@@ -10,11 +10,7 @@ defmodule Mix.Tasks.GenerateInviteToken do
 
       IO.puts(
         "Url: #{
-          Pleroma.Web.Router.Helpers.redirect_url(
-            Pleroma.Web.MastodonAPI,
-            :register,
-            invite: token.token
-          )
+          Pleroma.Web.Endpoint.url('/register') <> URI.encode_query("invite": token.token)
         }"
       )
     else
