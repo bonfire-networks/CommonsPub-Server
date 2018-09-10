@@ -13,5 +13,6 @@
 <br>
 <%= password_input f, :confirm, placeholder: "Confirm your password" %>
 <br>
+<%= hidden_input f, :token, value: @conn.params["invite"] %>
 <%= submit "Sign Up" %>
 <% end %>
