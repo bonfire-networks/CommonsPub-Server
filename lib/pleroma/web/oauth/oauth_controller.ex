@@ -39,14 +39,17 @@ defmodule Pleroma.Web.OAuth.OAuthController do
         })
       else
         connector = if String.contains?(redirect_uri, "?"), do: "&", else: "?"
-        url = "#{redirect_uri}#{connector}code=#{auth.token}"
+        url = "#{redirect_uri}#{connector}"
+        url_params = %{:code => auth.token}
 
-        url =
+        url_params =
           if params["state"] do
-            url <> "&state=#{params["state"]}"
+            Map.put(url_params, :state, params["state"])
           else
-            url
+            url_params
           end
+
+        url = "#{url}#{Plug.Conn.Query.encode(url_params)}"
 
         redirect(conn, external: url)
       end
@@ -60,11 +63,13 @@ defmodule Pleroma.Web.OAuth.OAuthController do
          fixed_token = fix_padding(params["code"]),
          %Authorization{} = auth <-
            Repo.get_by(Authorization, token: fixed_token, app_id: app.id),
-         {:ok, token} <- Token.exchange_token(app, auth) do
+         {:ok, token} <- Token.exchange_token(app, auth),
+         {:ok, inserted_at} <- DateTime.from_naive(token.inserted_at, "Etc/UTC") do
       response = %{
         token_type: "Bearer",
         access_token: token.token,
         refresh_token: token.refresh_token,
+        created_at: DateTime.to_unix(inserted_at),
         expires_in: 60 * 10,
         scope: "read write follow"
       }
@@ -114,6 +119,18 @@ defmodule Pleroma.Web.OAuth.OAuthController do
       |> Map.put("username", name)
 
     token_exchange(conn, params)
+  end
+
+  def token_revoke(conn, %{"token" => token} = params) do
+    with %App{} = app <- get_app_from_request(conn, params),
+         %Token{} = token <- Repo.get_by(Token, token: token, app_id: app.id),
+         {:ok, %Token{}} <- Repo.delete(token) do
+      json(conn, %{})
+    else
+      _error ->
+        # RFC 7009: invalid tokens [in the request] do not cause an error response
+        json(conn, %{})
+    end
   end
 
   defp fix_padding(token) do

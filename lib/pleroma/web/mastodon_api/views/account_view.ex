@@ -13,6 +13,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     image = User.avatar_url(user) |> MediaProxy.url()
     header = User.banner_url(user) |> MediaProxy.url()
     user_info = User.user_info(user)
+    bot = (user.info["source_data"]["type"] || "Person") in ["Application", "Service"]
 
     emojis =
       (user.info["source_data"]["tag"] || [])
@@ -26,9 +27,14 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
         }
       end)
 
+    fields =
+      (user.info["source_data"]["attachment"] || [])
+      |> Enum.filter(fn %{"type" => t} -> t == "PropertyValue" end)
+      |> Enum.map(fn fields -> Map.take(fields, ["name", "value"]) end)
+
     %{
       id: to_string(user.id),
-      username: hd(String.split(user.nickname, "@")),
+      username: username_from_nickname(user.nickname),
       acct: user.nickname,
       display_name: user.name || user.nickname,
       locked: user_info.locked,
@@ -43,11 +49,12 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
       header: header,
       header_static: header,
       emojis: emojis,
-      fields: [],
+      fields: fields,
+      bot: bot,
       source: %{
         note: "",
-        privacy: "public",
-        sensitive: "false"
+        privacy: user_info.default_scope,
+        sensitive: false
       }
     }
   end
@@ -56,7 +63,7 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
     %{
       id: to_string(user.id),
       acct: user.nickname,
-      username: hd(String.split(user.nickname, "@")),
+      username: username_from_nickname(user.nickname),
       url: user.ap_id
     }
   end
@@ -68,12 +75,20 @@ defmodule Pleroma.Web.MastodonAPI.AccountView do
       followed_by: User.following?(target, user),
       blocking: User.blocks?(user, target),
       muting: false,
+      muting_notifications: false,
       requested: false,
-      domain_blocking: false
+      domain_blocking: false,
+      showing_reblogs: false
     }
   end
 
   def render("relationships.json", %{user: user, targets: targets}) do
     render_many(targets, AccountView, "relationship.json", user: user, as: :target)
   end
+
+  defp username_from_nickname(string) when is_binary(string) do
+    hd(String.split(string, "@"))
+  end
+
+  defp username_from_nickname(_), do: nil
 end

@@ -2,11 +2,12 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
   use Pleroma.Web, :controller
   alias Pleroma.{Repo, Object, Activity, User, Notification, Stats}
   alias Pleroma.Web
-  alias Pleroma.Web.MastodonAPI.{StatusView, AccountView, MastodonView, ListView}
+  alias Pleroma.Web.MastodonAPI.{StatusView, AccountView, MastodonView, ListView, FilterView}
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Utils
   alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.OAuth.{Authorization, Token, App}
+  alias Pleroma.Web.MediaProxy
   alias Comeonin.Pbkdf2
   alias Pleroma.Web.TwitterAPI.TwitterAPI
   import Ecto.Query
@@ -125,7 +126,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
   end
 
   @instance Application.get_env(:pleroma, :instance)
-  @mastodon_api_level "2.3.3"
+  @mastodon_api_level "2.4.3"
 
   def masto_instance(conn, _params) do
     response = %{
@@ -654,9 +655,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     json(conn, %{})
   end
 
-  def search2(%{assigns: %{user: user}} = conn, %{"q" => query} = params) do
-    accounts = User.search(query, params["resolve"] == "true")
-
+  def status_search(query) do
     fetched =
       if Regex.match?(~r/https?:/, query) do
         with {:ok, object} <- ActivityPub.fetch_object_from_id(query) do
@@ -681,7 +680,13 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
         order_by: [desc: :id]
       )
 
-    statuses = Repo.all(q) ++ fetched
+    Repo.all(q) ++ fetched
+  end
+
+  def search2(%{assigns: %{user: user}} = conn, %{"q" => query} = params) do
+    accounts = User.search(query, params["resolve"] == "true")
+
+    statuses = status_search(query)
 
     tags_path = Web.base_url() <> "/tag/"
 
@@ -705,31 +710,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
   def search(%{assigns: %{user: user}} = conn, %{"q" => query} = params) do
     accounts = User.search(query, params["resolve"] == "true")
 
-    fetched =
-      if Regex.match?(~r/https?:/, query) do
-        with {:ok, object} <- ActivityPub.fetch_object_from_id(query) do
-          [Activity.get_create_activity_by_object_ap_id(object.data["id"])]
-        else
-          _e -> []
-        end
-      end || []
-
-    q =
-      from(
-        a in Activity,
-        where: fragment("?->>'type' = 'Create'", a.data),
-        where: "https://www.w3.org/ns/activitystreams#Public" in a.recipients,
-        where:
-          fragment(
-            "to_tsvector('english', ?->'object'->>'content') @@ plainto_tsquery('english', ?)",
-            a.data,
-            ^query
-          ),
-        limit: 20,
-        order_by: [desc: :id]
-      )
-
-    statuses = Repo.all(q) ++ fetched
+    statuses = status_search(query)
 
     tags =
       String.split(query)
@@ -851,9 +832,14 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
         |> Map.put("type", "Create")
         |> Map.put("blocking_user", user)
 
-      # adding title is a hack to not make empty lists function like a public timeline
+      # we must filter the following list for the user to avoid leaking statuses the user
+      # does not actually have permission to see (for more info, peruse security issue #270).
+      following_to =
+        following
+        |> Enum.filter(fn x -> x in user.following end)
+
       activities =
-        ActivityPub.fetch_activities([title | following], params)
+        ActivityPub.fetch_activities_bounded(following_to, following, params)
         |> Enum.reverse()
 
       conn
@@ -1045,6 +1031,8 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
       NaiveDateTime.to_iso8601(created_at)
       |> String.replace(~r/(\.\d+)?$/, ".000Z", global: false)
 
+    id = id |> to_string
+
     case activity.data["type"] do
       "Create" ->
         %{
@@ -1090,6 +1078,65 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 
+  def get_filters(%{assigns: %{user: user}} = conn, params) do
+    filters = Pleroma.Filter.get_filters(user)
+    res = FilterView.render("filters.json", filters: filters)
+    json(conn, res)
+  end
+
+  def create_filter(
+        %{assigns: %{user: user}} = conn,
+        %{"phrase" => phrase, "context" => context} = params
+      ) do
+    query = %Pleroma.Filter{
+      user_id: user.id,
+      phrase: phrase,
+      context: context,
+      hide: Map.get(params, "irreversible", nil),
+      whole_word: Map.get(params, "boolean", true)
+      # expires_at
+    }
+
+    {:ok, response} = Pleroma.Filter.create(query)
+    res = FilterView.render("filter.json", filter: response)
+    json(conn, res)
+  end
+
+  def get_filter(%{assigns: %{user: user}} = conn, %{"id" => filter_id} = params) do
+    filter = Pleroma.Filter.get(filter_id, user)
+    res = FilterView.render("filter.json", filter: filter)
+    json(conn, res)
+  end
+
+  def update_filter(
+        %{assigns: %{user: user}} = conn,
+        %{"phrase" => phrase, "context" => context, "id" => filter_id} = params
+      ) do
+    query = %Pleroma.Filter{
+      user_id: user.id,
+      filter_id: filter_id,
+      phrase: phrase,
+      context: context,
+      hide: Map.get(params, "irreversible", nil),
+      whole_word: Map.get(params, "boolean", true)
+      # expires_at
+    }
+
+    {:ok, response} = Pleroma.Filter.update(query)
+    res = FilterView.render("filter.json", filter: response)
+    json(conn, res)
+  end
+
+  def delete_filter(%{assigns: %{user: user}} = conn, %{"id" => filter_id} = params) do
+    query = %Pleroma.Filter{
+      user_id: user.id,
+      filter_id: filter_id
+    }
+
+    {:ok, response} = Pleroma.Filter.delete(query)
+    json(conn, %{})
+  end
+
   def errors(conn, _) do
     conn
     |> put_status(500)
@@ -1102,6 +1149,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     if Keyword.get(@suggestions, :enabled, false) do
       api = Keyword.get(@suggestions, :third_party_engine, "")
       timeout = Keyword.get(@suggestions, :timeout, 5000)
+      limit = Keyword.get(@suggestions, :limit, 23)
 
       host =
         Application.get_env(:pleroma, Pleroma.Web.Endpoint)
@@ -1115,9 +1163,22 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
              @httpoison.get(url, [], timeout: timeout, recv_timeout: timeout),
            {:ok, data} <- Jason.decode(body) do
         data2 =
-          Enum.slice(data, 0, 40)
+          Enum.slice(data, 0, limit)
           |> Enum.map(fn x ->
-            Map.put(x, "id", User.get_or_fetch(x["acct"]).id)
+            Map.put(
+              x,
+              "id",
+              case User.get_or_fetch(x["acct"]) do
+                %{id: id} -> id
+                _ -> 0
+              end
+            )
+          end)
+          |> Enum.map(fn x ->
+            Map.put(x, "avatar", MediaProxy.url(x["avatar"]))
+          end)
+          |> Enum.map(fn x ->
+            Map.put(x, "avatar_static", MediaProxy.url(x["avatar_static"]))
           end)
 
         conn
@@ -1130,6 +1191,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 
+<<<<<<< HEAD
   def register(conn, _) do
     conn
     |> render(MastodonView, "register.html", %{error: false})
@@ -1148,5 +1210,9 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
         conn
         |> render(MastodonView, "register.html", %{error: "Wrong details"})
     end
+=======
+  def filters(conn, _) do
+    json(conn, [])
+>>>>>>> mayel/pleroma-develop
   end
 end

@@ -11,7 +11,7 @@ defmodule Pleroma.Web.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  plug(Plug.Static, at: "/media", from: Pleroma.Upload.upload_path(), gzip: false)
+  plug(Plug.Static, at: "/media", from: Pleroma.Uploaders.Local.upload_path(), gzip: false)
 
   plug(
     Plug.Static,
@@ -49,7 +49,11 @@ defmodule Pleroma.Web.Endpoint do
     Plug.Session,
     store: :cookie,
     key: "_pleroma_key",
-    signing_salt: "CqaoopA2"
+    signing_salt: "CqaoopA2",
+    http_only: true,
+    secure:
+      Application.get_env(:pleroma, Pleroma.Web.Endpoint) |> Keyword.get(:secure_cookie_flag),
+    extra: "SameSite=Strict"
   )
 
   plug(Pleroma.Web.Router)
