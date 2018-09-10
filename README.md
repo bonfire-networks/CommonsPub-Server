@@ -77,6 +77,12 @@ This is useful for running the server inside Tor or i2p.
 
 ## Admin Tasks
 
+If you're running with Docker, all the `mix` commands below should be preceded by `docker exec -it [name_of_commonspub_container]`. You can use your keyboard's tab key to autocomplete thhe container name, which may look something like `commonspub_commonspub_1`.
+
+### Invite a User (when registrations are closed)
+
+Run `mix generate_invite_token` and you will receive an URL which includes an invite code that one person can use to sign up.
+ 
 ### Register a User
 
 Run `mix register_user <name> <nickname> <email> <bio> <password>`. The `name` appears on statuses, while the nickname corresponds to the user, e.g. `@nickname@instance.tld`

@@ -12,8 +12,8 @@ defmodule Mix.Tasks.GenerateInviteToken do
         "Url: #{
           Pleroma.Web.Router.Helpers.redirect_url(
             Pleroma.Web.Endpoint,
-            :registration_page,
-            token.token
+            :register,
+            invite: token.token
           )
         }"
       )
