@@ -1191,7 +1191,6 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 
-<<<<<<< HEAD
   def register(conn, _) do
     conn
     |> render(MastodonView, "register.html", %{error: false})
@@ -1210,9 +1209,9 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
         conn
         |> render(MastodonView, "register.html", %{error: "Wrong details"})
     end
-=======
+  end
+
   def filters(conn, _) do
     json(conn, [])
->>>>>>> mayel/pleroma-develop
   end
 end
