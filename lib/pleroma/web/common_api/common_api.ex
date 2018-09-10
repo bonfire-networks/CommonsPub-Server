@@ -1,5 +1,5 @@
 defmodule Pleroma.Web.CommonAPI do
-  alias Pleroma.{Repo, Activity, Object}
+  alias Pleroma.{User, Repo, Activity, Object}
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Formatter
 
@@ -61,8 +61,13 @@ defmodule Pleroma.Web.CommonAPI do
       do: visibility
 
   def get_visibility(%{"in_reply_to_status_id" => status_id}) when not is_nil(status_id) do
-    inReplyTo = get_replied_to_activity(status_id)
-    Pleroma.Web.MastodonAPI.StatusView.get_visibility(inReplyTo.data["object"])
+    case get_replied_to_activity(status_id) do
+      nil ->
+        "public"
+
+      inReplyTo ->
+        Pleroma.Web.MastodonAPI.StatusView.get_visibility(inReplyTo.data["object"])
+    end
   end
 
   def get_visibility(_), do: "public"
@@ -118,6 +123,18 @@ defmodule Pleroma.Web.CommonAPI do
   end
 
   def update(user) do
+    user =
+      with emoji <- emoji_from_profile(user),
+           source_data <- (user.info["source_data"] || %{}) |> Map.put("tag", emoji),
+           new_info <- Map.put(user.info, "source_data", source_data),
+           change <- User.info_changeset(user, %{info: new_info}),
+           {:ok, user} <- User.update_and_set_cache(change) do
+        user
+      else
+        _e ->
+          user
+      end
+
     ActivityPub.update(%{
       local: true,
       to: [user.follower_address],

@@ -206,7 +206,19 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIControllerTest do
       |> assign(:user, user)
       |> get("/api/v1/accounts/verify_credentials")
 
-    assert %{"id" => id} = json_response(conn, 200)
+    assert %{"id" => id, "source" => %{"privacy" => "public"}} = json_response(conn, 200)
+    assert id == to_string(user.id)
+  end
+
+  test "verify_credentials default scope unlisted", %{conn: conn} do
+    user = insert(:user, %{info: %{"default_scope" => "unlisted"}})
+
+    conn =
+      conn
+      |> assign(:user, user)
+      |> get("/api/v1/accounts/verify_credentials")
+
+    assert %{"id" => id, "source" => %{"privacy" => "unlisted"}} = json_response(conn, 200)
     assert id == to_string(user.id)
   end
 
@@ -248,6 +260,125 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIControllerTest do
       assert %{"error" => _} = json_response(conn, 403)
 
       assert Repo.get(Activity, activity.id) == activity
+    end
+  end
+
+  describe "filters" do
+    test "creating a filter", %{conn: conn} do
+      user = insert(:user)
+
+      filter = %Pleroma.Filter{
+        phrase: "knights",
+        context: ["home"]
+      }
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> post("/api/v1/filters", %{"phrase" => filter.phrase, context: filter.context})
+
+      assert response = json_response(conn, 200)
+      assert response["phrase"] == filter.phrase
+      assert response["context"] == filter.context
+    end
+
+    test "fetching a list of filters", %{conn: conn} do
+      user = insert(:user)
+
+      query_one = %Pleroma.Filter{
+        user_id: user.id,
+        filter_id: 1,
+        phrase: "knights",
+        context: ["home"]
+      }
+
+      query_two = %Pleroma.Filter{
+        user_id: user.id,
+        filter_id: 2,
+        phrase: "who",
+        context: ["home"]
+      }
+
+      {:ok, filter_one} = Pleroma.Filter.create(query_one)
+      {:ok, filter_two} = Pleroma.Filter.create(query_two)
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> get("/api/v1/filters")
+
+      assert response = json_response(conn, 200)
+    end
+
+    test "get a filter", %{conn: conn} do
+      user = insert(:user)
+
+      query = %Pleroma.Filter{
+        user_id: user.id,
+        filter_id: 2,
+        phrase: "knight",
+        context: ["home"]
+      }
+
+      {:ok, filter} = Pleroma.Filter.create(query)
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> get("/api/v1/filters/#{filter.filter_id}")
+
+      assert response = json_response(conn, 200)
+    end
+
+    test "update a filter", %{conn: conn} do
+      user = insert(:user)
+
+      query = %Pleroma.Filter{
+        user_id: user.id,
+        filter_id: 2,
+        phrase: "knight",
+        context: ["home"]
+      }
+
+      {:ok, filter} = Pleroma.Filter.create(query)
+
+      new = %Pleroma.Filter{
+        phrase: "nii",
+        context: ["home"]
+      }
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> put("/api/v1/filters/#{query.filter_id}", %{
+          phrase: new.phrase,
+          context: new.context
+        })
+
+      assert response = json_response(conn, 200)
+      assert response["phrase"] == new.phrase
+      assert response["context"] == new.context
+    end
+
+    test "delete a filter", %{conn: conn} do
+      user = insert(:user)
+
+      query = %Pleroma.Filter{
+        user_id: user.id,
+        filter_id: 2,
+        phrase: "knight",
+        context: ["home"]
+      }
+
+      {:ok, filter} = Pleroma.Filter.create(query)
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> delete("/api/v1/filters/#{filter.filter_id}")
+
+      assert response = json_response(conn, 200)
+      assert response == %{}
     end
   end
 
@@ -367,6 +498,30 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIControllerTest do
       assert [%{"id" => id}] = json_response(conn, 200)
 
       assert id == to_string(activity_two.id)
+    end
+
+    test "list timeline does not leak non-public statuses for unfollowed users", %{conn: conn} do
+      user = insert(:user)
+      other_user = insert(:user)
+      {:ok, activity_one} = TwitterAPI.create_status(other_user, %{"status" => "Marisa is cute."})
+
+      {:ok, activity_two} =
+        TwitterAPI.create_status(other_user, %{
+          "status" => "Marisa is cute.",
+          "visibility" => "private"
+        })
+
+      {:ok, list} = Pleroma.List.create("name", user)
+      {:ok, list} = Pleroma.List.follow(list, other_user)
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> get("/api/v1/timelines/list/#{list.id}")
+
+      assert [%{"id" => id}] = json_response(conn, 200)
+
+      assert id == to_string(activity_one.id)
     end
   end
 
@@ -689,6 +844,18 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIControllerTest do
       other_user = Repo.get(User, other_user.id)
 
       assert User.following?(other_user, user) == true
+    end
+
+    test "verify_credentials", %{conn: conn} do
+      user = insert(:user, %{info: %{"default_scope" => "private"}})
+
+      conn =
+        conn
+        |> assign(:user, user)
+        |> get("/api/v1/accounts/verify_credentials")
+
+      assert %{"id" => id, "source" => %{"privacy" => "private"}} = json_response(conn, 200)
+      assert id == to_string(user.id)
     end
 
     test "/api/v1/follow_requests/:id/reject works" do

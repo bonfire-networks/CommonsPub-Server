@@ -16,7 +16,7 @@ defmodule Pleroma.Formatter do
   def parse_mentions(text) do
     # Modified from https://www.w3.org/TR/html5/forms.html#valid-e-mail-address
     regex =
-      ~r/@[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*/u
+      ~r/@[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]*@?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*/u
 
     Regex.scan(regex, text)
     |> List.flatten()
@@ -154,12 +154,15 @@ defmodule Pleroma.Formatter do
           MediaProxy.url(file)
         }' />"
       )
+      |> HtmlSanitizeEx.basic_html()
     end)
   end
 
-  def get_emoji(text) do
+  def get_emoji(text) when is_binary(text) do
     Enum.filter(@emoji, fn {emoji, _} -> String.contains?(text, ":#{emoji}:") end)
   end
+
+  def get_emoji(_), do: []
 
   def get_custom_emoji() do
     @emoji
