@@ -1,28 +1,25 @@
-import React, { Component } from 'react';
-import {
+import * as React from 'react';
+const {
   Chrome,
   Nav,
   NavItem,
   NavItemText,
-  NavItemIcon,
   Header,
   Body,
   HeaderItem,
   HeaderItemWrapper,
   HeaderItemIcon,
   HeaderItemText,
-} from '@zendeskgarden/react-chrome'
+} = require('@zendeskgarden/react-chrome')
 
-import logo from './logo.svg';
+
+const logo = require('./logo.svg');
 import './App.css';
 import '@zendeskgarden/react-chrome/dist/styles.css'
 
-class App extends Component {
-  constructor () {
-    super()
-    this.state = {
-      menuOpen: true
-    }
+class App extends React.Component {
+  state: any = {
+    menuOpen: true
   }
 
   toggleMenu () {
@@ -51,7 +48,7 @@ class App extends Component {
               <HeaderItemText>MoodleNet</HeaderItemText>
             </HeaderItem>
             <HeaderItemWrapper maxX>
-              <span></span>
+              <span />
             </HeaderItemWrapper>
           </Header>
           <header className="App-header">
