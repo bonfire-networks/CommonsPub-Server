@@ -1,4 +1,6 @@
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
+# MoodleNet Web Client
+
+This React project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
@@ -6,7 +8,6 @@ You can find the most recent version of this guide [here](https://github.com/fac
 ## Table of Contents
 
 - [Updating to New Releases](#updating-to-new-releases)
-- [Sending Feedback](#sending-feedback)
 - [Folder Structure](#folder-structure)
 - [Available Scripts](#available-scripts)
   - [npm start](#npm-start)
@@ -103,7 +104,7 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Alternatives to Ejecting](#alternatives-to-ejecting)
 - [Something Missing?](#something-missing)
 
-## Updating to New Releases
+## Updating to New Releases of Create React App
 
 Create React App is divided into two packages:
 
@@ -116,13 +117,10 @@ When you run `create-react-app`, it always creates the project with the latest v
 
 To update an existing project to a new version of `react-scripts`, [open the changelog](https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md), find the version you’re currently on (check `package.json` in this folder if you’re not sure), and apply the migration instructions for the newer versions.
 
-In most cases bumping the `react-scripts` version in `package.json` and running `npm install` in this folder should be enough, but it’s good to consult the [changelog](https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md) for potential breaking changes.
+In most cases bumping the `react-scripts` version in `package.json` and running `yarn` in this folder should be enough, but it’s good to consult the [changelog](https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md) for potential breaking changes.
 
 We commit to keeping the breaking changes minimal so you can upgrade `react-scripts` painlessly.
 
-## Sending Feedback
-
-We are always open to [your feedback](https://github.com/facebookincubator/create-react-app/issues).
 
 ## Folder Structure
 
@@ -308,11 +306,6 @@ Prettier is an opinionated code formatter with support for JavaScript, CSS and J
 
 To format our code whenever we make a commit in git, we need to install the following dependencies:
 
-```sh
-npm install --save husky lint-staged prettier
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add husky lint-staged prettier
@@ -364,13 +357,7 @@ If you use a custom server for your app in production and want to modify the tit
 
 ## Installing a Dependency
 
-The generated project includes React and ReactDOM as dependencies. It also includes a set of scripts used by Create React App as a development dependency. You may install other dependencies (for example, React Router) with `npm`:
-
-```sh
-npm install --save react-router
-```
-
-Alternatively you may use `yarn`:
+The generated project includes React and ReactDOM as dependencies. It also includes a set of scripts used by Create React App as a development dependency. You may install other dependencies (for example, React Router) with `yarn`:
 
 ```sh
 yarn add react-router
@@ -553,11 +540,6 @@ Following this rule often makes CSS preprocessors less useful, as features like 
 
 First, let’s install the command-line interface for Sass:
 
-```sh
-npm install --save node-sass-chokidar
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add node-sass-chokidar
@@ -597,12 +579,6 @@ This will allow you to do imports like
 At this point you might want to remove all CSS files from the source control, and add `src/**/*.css` to your `.gitignore` file. It is generally a good practice to keep the build products outside of the source control.
 
 As a final step, you may find it convenient to run `watch-css` automatically with `npm start`, and run `build-css` as a part of `npm run build`. You can use the `&&` operator to execute two scripts sequentially. However, there is no cross-platform way to run two scripts in parallel, so we will install a package for this:
-
-```sh
-npm install --save npm-run-all
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add npm-run-all
@@ -765,12 +741,6 @@ You don’t have to use [React Bootstrap](https://react-bootstrap.github.io) tog
 Install React Bootstrap and Bootstrap from npm. React Bootstrap does not include Bootstrap CSS so this needs to be installed as well:
 
 ```sh
-npm install --save react-bootstrap bootstrap@3
-```
-
-Alternatively you may use `yarn`:
-
-```sh
 yarn add react-bootstrap bootstrap@3
 ```
 
@@ -810,7 +780,7 @@ Recent versions of [Flow](http://flowtype.org/) work with Create React App proje
 
 To add Flow to a Create React App project, follow these steps:
 
-1. Run `npm install --save flow-bin` (or `yarn add flow-bin`).
+1. Run `yarn add flow-bin`
 2. Add `"flow": "flow"` to the `scripts` section of your `package.json`.
 3. Run `npm run flow init` (or `yarn flow init`) to create a [`.flowconfig` file](https://flowtype.org/docs/advanced-configuration.html) in the root directory.
 4. Add `// @flow` to any files you want to type check (for example, to `src/App.js`).
@@ -824,12 +794,6 @@ To learn more about Flow, check out [its documentation](https://flowtype.org/).
 ## Adding a Router
 
 Create React App doesn't prescribe a specific routing solution, but [React Router](https://reacttraining.com/react-router/) is the most popular one.
-
-To add it, run:
-
-```sh
-npm install --save react-router-dom
-```
 
 Alternatively you may use `yarn`:
 
@@ -1026,20 +990,6 @@ The global `fetch` function allows to easily makes AJAX requests. It takes in a 
 This project also includes a [Promise polyfill](https://github.com/then/promise) which provides a full implementation of Promises/A+. A Promise represents the eventual result of an asynchronous operation, you can find more information about Promises [here](https://www.promisejs.org/) and [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). Both axios and `fetch()` use Promises under the hood. You can also use the [`async / await`](https://davidwalsh.name/async-await) syntax to reduce the callback nesting.
 
 You can learn more about making AJAX requests from React components in [the FAQ entry on the React website](https://reactjs.org/docs/faq-ajax.html).
-
-## Integrating with an API Backend
-
-These tutorials will help you to integrate your app with an API backend running on another port,
-using `fetch()` to access it.
-
-### Node
-Check out [this tutorial](https://www.fullstackreact.com/articles/using-create-react-app-with-a-server/).
-You can find the companion GitHub repository [here](https://github.com/fullstackreact/food-lookup-demo).
-
-### Ruby on Rails
-
-Check out [this tutorial](https://www.fullstackreact.com/articles/how-to-get-create-react-app-to-work-with-your-rails-api/).
-You can find the companion GitHub repository [here](https://github.com/fullstackreact/food-lookup-demo-rails).
 
 ## Proxying API Requests in Development
 
@@ -1346,11 +1296,6 @@ When you encounter bugs caused by changing components, you will gain a deeper in
 
 If you’d like to test components in isolation from the child components they render, we recommend using [`shallow()` rendering API](http://airbnb.io/enzyme/docs/api/shallow.html) from [Enzyme](http://airbnb.io/enzyme/). To install it, run:
 
-```sh
-npm install --save enzyme enzyme-adapter-react-16 react-test-renderer
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add enzyme enzyme-adapter-react-16 react-test-renderer
@@ -1412,11 +1357,6 @@ expect(wrapper).toContainReact(welcome)
 
 To enable this, install `jest-enzyme`:
 
-```sh
-npm install --save jest-enzyme
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add jest-enzyme
@@ -1434,11 +1374,6 @@ As an alternative or companion to `enzyme`, you may consider using `react-testin
 
 To install `react-testing-library` and `jest-dom`, you can run:
 
-```sh
-npm install --save react-testing-library jest-dom
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add react-testing-library jest-dom
@@ -1782,12 +1717,6 @@ Styleguidist combines a style guide, where all your components are presented on 
 First, install Styleguidist:
 
 ```sh
-npm install --save react-styleguidist
-```
-
-Alternatively you may use `yarn`:
-
-```sh
 yarn add react-styleguidist
 ```
 
@@ -1932,11 +1861,6 @@ bloat is coming from.
 
 To add Source map explorer to a Create React App project, follow these steps:
 
-```sh
-npm install --save source-map-explorer
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add source-map-explorer
@@ -2192,11 +2116,6 @@ Now, whenever you run `npm run build`, you will see a cheat sheet with instructi
 
 To publish it at [https://myusername.github.io/my-app](https://myusername.github.io/my-app), run:
 
-```sh
-npm install --save gh-pages
-```
-
-Alternatively you may use `yarn`:
 
 ```sh
 yarn add gh-pages
@@ -2402,7 +2321,7 @@ If none of these solutions help please leave a comment [in this thread](https://
 
 If you run `npm test` and the console gets stuck after printing `react-scripts test --env=jsdom` to the console there might be a problem with your [Watchman](https://facebook.github.io/watchman/) installation as described in [facebookincubator/create-react-app#713](https://github.com/facebookincubator/create-react-app/issues/713).
 
-We recommend deleting `node_modules` in your project and running `npm install` (or `yarn` if you use it) first. If it doesn't help, you can try one of the numerous workarounds mentioned in these issues:
+We recommend deleting `node_modules` in your project and running `yarn` first. If it doesn't help, you can try one of the numerous workarounds mentioned in these issues:
 
 * [facebook/jest#1767](https://github.com/facebook/jest/issues/1767)
 * [facebook/watchman#358](https://github.com/facebook/watchman/issues/358)
@@ -2481,6 +2400,4 @@ In the future, we might start automatically compiling incompatible third-party m
 
 [Ejecting](#npm-run-eject) lets you customize anything, but from that point on you have to maintain the configuration and scripts yourself. This can be daunting if you have many similar projects. In such cases instead of ejecting we recommend to *fork* `react-scripts` and any other packages you need. [This article](https://auth0.com/blog/how-to-configure-create-react-app/) dives into how to do it in depth. You can find more discussion in [this issue](https://github.com/facebookincubator/create-react-app/issues/682).
 
-## Something Missing?
 
-If you have ideas for more “How To” recipes that should be on this page, [let us know](https://github.com/facebookincubator/create-react-app/issues) or [contribute some!](https://github.com/facebookincubator/create-react-app/edit/master/packages/react-scripts/template/README.md)
