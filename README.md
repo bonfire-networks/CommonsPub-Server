@@ -3,7 +3,7 @@
 
 ## About Pub of the Commons
 
-The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+The [Pub of the Commons (otherwise known as `CommonsPub`)](https://gitlab.com/moodlenet/servers/federated) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
 It is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi.
 
