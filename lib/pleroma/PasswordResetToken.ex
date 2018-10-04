@@ -1,4 +1,12 @@
 defmodule Pleroma.PasswordResetToken do
+  @moduledoc """
+
+  Pleroma.Accounts.PasswordResetToken
+
+  ## FIXME
+    * It should not use Repo in this module
+  """
+
   use Ecto.Schema
 
   import Ecto.Changeset

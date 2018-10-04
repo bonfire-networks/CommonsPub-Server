@@ -1,4 +1,14 @@
 defmodule Pleroma.User do
+  # There are plans to split this table in different ones:
+
+  # Pleroma.Accounts.User?
+  # Pleroma.Accounts.PasswordAuthentication
+
+  # Pleroma.ActivityPub.Actor
+  # Pleroma.ActivityPub.Follow
+
+  # # FIXME
+  #   * It should not use Web
   use Ecto.Schema
 
   import Ecto.{Changeset, Query}

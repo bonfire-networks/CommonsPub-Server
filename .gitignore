@@ -30,3 +30,5 @@ config/secret.exs
 # Editor config
 /.vscode
 
+cover
+priv/repo/structure.sql
