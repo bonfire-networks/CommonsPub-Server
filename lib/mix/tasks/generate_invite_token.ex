@@ -10,7 +10,7 @@ defmodule Mix.Tasks.GenerateInviteToken do
 
       IO.puts(
         "Url: #{
-          Pleroma.Web.Endpoint.url() <> "/register?" <> URI.encode_query("invite": token.token)
+          Pleroma.Web.Endpoint.url() <> "/register?" <> URI.encode_query(invite: token.token)
         }"
       )
     else

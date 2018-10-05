@@ -31,7 +31,7 @@ defmodule Pleroma.UserInviteToken do
     Repo.insert(token)
   end
 
-  #Create a `Ecto.Changeset` to set `Pleroma.UserInviteToken` as used.
+  # Create a `Ecto.Changeset` to set `Pleroma.UserInviteToken` as used.
   def used_changeset(struct) do
     struct
     |> cast(%{}, [])

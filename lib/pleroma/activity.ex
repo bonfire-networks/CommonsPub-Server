@@ -89,6 +89,7 @@ defmodule Pleroma.Activity do
     create_activity_by_object_id_query([ap_id])
     |> Repo.one()
   end
+
   # just matching everything to return nil seems a shortcut
   def get_create_activity_by_object_ap_id(_), do: nil
 

@@ -1,10 +1,87 @@
+# Alex' Thoughts 05/10/18
+
+## Pleroma.Web.ActivityPub
+
+This could be a completely independent library.
+Maybe it is a good idea to keep separate ActivityStream (vocabulary and schemas) from ActivityPub (protocol and notifications).
+I don't know if schema `Notification` should live in any library.
+Specs talk about notifications but it isn't an object or something similar.
+
+### Inbox & Outbox current implementation
+
+I thought it could be like "InboxItem" in FunkWhale implementation: http://docs-funkwhale-funkwhale-549-music-federation-documentation.preview.funkwhale.audio/federation/index.html#activity-creation-and-delivery
+`InboxItem` table could be a really good idea.
+`Inbox` is a term very clear and specific in the ActivityPub specification,
+and furthermore, it would be possible to implement an generic "Inbox" get.
+
+However, it seems we don't implement `Inbox` external `get`s or "Outbox" internal `post`s: https://www.w3.org/TR/activitypub/#Overview
+
+Checking how a message is sent from external server to an actor's `Inbox` I discovered we only support:
+  * `Create` Activity types for
+    * `Article`, `Note` & `Video` Object type
+  * `Follow` Activity type.
+  * `Accept` (follows?)
+  * `Reject` (follows?)
+  * `Like`
+  * `Announce`
+  * `Update`
+    * `Person`, `Application`, `Service`, `Organization`
+  * `Delete`
+  * `Undo`
+    * `Announce`, `Follow`, `Block`, `Like`
+  * `Block`
+
+We'll have to implement all of them.
+This is going to be really hard to make generic or to add hooks to the possible specific application.
+
+Secondly, reading the actor's `Outbox` it seems we are not sending the actor's activity,
+we are sending actor's profile:
+  * summary
+  * name
+  * following list
+  * etc
+
+ActivityPub specs says:
+
+>>>
+ The outbox is discovered through the outbox property of an actor's profile. The outbox MUST be an OrderedCollection.
+
+The outbox stream contains activities the user has published, subject to the ability of the requestor to retrieve the activity (that is, the contents of the outbox are filtered by the permissions of the person reading it). If a user submits a request without Authorization the server should respond with all of the Public posts. This could potentially be all relevant objects published by the user, though the number of available items is left to the discretion of those implementing and deploying the server.
+
+The outbox accepts HTTP POST requests, with behaviour described in Client to Server Interactions.
+>>>
+
+So this has to be fixed.
+
+I still don't know if `Notification` in our code would be similar to `InboxItem`,
+but a good idea at least for ActivityPub library.
+
+### Pleroma.Web.ActivityPub.Transmogrifier
+
+The code around the `Inbox` implementation is in this module.
+I didn't know what this module does but it has a little bit of doc:
+
+> A module to handle coding from internal to wire ActivityPub and back.
+
+It has difficult to understand function names like `fix_object` which doc says:
+
+> Modifies an incoming AP object (mastodon format) to our internal format.
+
+We have to split this module better.
+For a generic library we should have any code related to Mastodon or any other app.
+Of course, it is going to be very useful to have a mapper from external to internal data.
+We have to find a better name.
+
+
 # Alex' Thoughts 04/10/18
 
 ## Applications and Libraries
 
 What is a Elixir/Erlang application, from elixir docs https://hexdocs.pm/elixir/Application.html:
-    > Applications are the idiomatic way to package software in Erlang/OTP. To get the idea, they are similar to the “library” concept common in other programming languages, but with some additional characteristics.
-        An application is a component implementing some specific functionality, with a standardized directory structure, configuration, and lifecycle. Applications are loaded, started, and stopped.
+>>>
+Applications are the idiomatic way to package software in Erlang/OTP. To get the idea, they are similar to the “library” concept common in other programming languages, but with some additional characteristics.
+An application is a component implementing some specific functionality, with a standardized directory structure, configuration, and lifecycle. Applications are loaded, started, and stopped.
+>>>
 
 We currently have only a single application, Pleroma.
 I don't think we need more in the short or medium term.

@@ -11,6 +11,8 @@ defmodule Pleroma.Web.ActivityPub.UserView do
 
   # the instance itself is not a Person, but instead an Application
   def render("user.json", %{user: %{nickname: nil} = user}) do
+    # This is already done outbox controller?
+    # This logic should not behere
     {:ok, user} = WebFinger.ensure_keys_present(user)
     {:ok, _, public_key} = Salmon.keys_from_pem(user.info["keys"])
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)

@@ -403,7 +403,6 @@ defmodule Pleroma.Web.Router do
     get("/:sig/:url", MediaProxyController, :remote)
   end
 
-
   scope "/", Fallback do
     get("/registration/:token", RedirectController, :registration_page)
     get("/*path", RedirectController, :redirector)
