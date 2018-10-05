@@ -2,7 +2,8 @@ defmodule Pleroma.Web.OStatus.ActivityRepresenterTest do
   use Pleroma.DataCase
 
   alias Pleroma.Web.OStatus.ActivityRepresenter
-  alias Pleroma.{User, Activity, Object}
+  alias Pleroma.{User, Activity}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.OStatus
 
@@ -65,9 +66,8 @@ defmodule Pleroma.Web.OStatus.ActivityRepresenterTest do
 
     note_object = Object.get_by_ap_id(note.data["object"]["id"])
 
-    Repo.update!(
-      Object.change(note_object, %{data: Map.put(note_object.data, "external_url", "someurl")})
-    )
+    new_data = Map.put(note_object.data, "external_url", "someurl")
+    ActivityStream.update_object(note_object, new_data)
 
     user = User.get_cached_by_ap_id(answer.data["actor"])
 

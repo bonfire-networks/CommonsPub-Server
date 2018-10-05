@@ -2,7 +2,8 @@ defmodule Pleroma.Web.TwitterAPI.ControllerTest do
   use Pleroma.Web.ConnCase
   alias Pleroma.Web.TwitterAPI.Representers.ActivityRepresenter
   alias Pleroma.Builders.{ActivityBuilder, UserBuilder}
-  alias Pleroma.{Repo, Activity, User, Object, Notification}
+  alias Pleroma.{Repo, Activity, User, Notification}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.TwitterAPI.UserView
   alias Pleroma.Web.TwitterAPI.NotificationView

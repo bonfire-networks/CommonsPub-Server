@@ -7,7 +7,7 @@ defmodule Pleroma.Web.TwitterAPI.ActivityView do
   alias Pleroma.Web.TwitterAPI.TwitterAPI
   alias Pleroma.Web.TwitterAPI.Representers.ObjectRepresenter
   alias Pleroma.Activity
-  alias Pleroma.Object
+  alias ActivityStream.Object
   alias Pleroma.User
   alias Pleroma.Repo
   alias Pleroma.Formatter

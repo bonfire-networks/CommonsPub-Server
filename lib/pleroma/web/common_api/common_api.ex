@@ -1,5 +1,6 @@
 defmodule Pleroma.Web.CommonAPI do
-  alias Pleroma.{User, Repo, Activity, Object}
+  alias Pleroma.{User, Repo, Activity}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Formatter
 

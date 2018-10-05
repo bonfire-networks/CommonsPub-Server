@@ -1,3 +1,36 @@
+# Alex' Thoughts 08/10/18
+
+## Pleroma.Web.ActivityPub Outbox
+
+Trying tests around ActivityPub, I was wrong about `get` actor's `Outbox`.
+It returns correctly the outbox the ordered collection.
+I mistakenly thought it returned the user profile instead.
+
+However, I found the following comment:
+
+```
+# XXX: technically note_count is wrong for this, but it's better than nothing
+```
+
+In my case I found the `totalItems` was 0, when it should be 1.
+
+Furthermore, it fetches the activities in the view.
+This is a bad practice.
+The view should only format the given arguments,
+in this case, format to JSON.
+The given argument is just an user.
+It should receive the activities as well.
+
+More importantly, the following is a fragment of ActivityPub spec:
+
+>>>
+The outbox stream contains activities the user has published, subject to the ability of the requestor to retrieve the activity (that is, the contents of the outbox are filtered by the permissions of the person reading it). If a user submits a request without Authorization the server should respond with all of the Public posts. This could potentially be all relevant objects published by the user, though the number of available items is left to the discretion of those implementing and deploying the server.
+>>>
+
+Upon fetching, the code is not considering the user who made the request.
+It is going to receive the same information if you're the owner of the outbox
+than an unauthorized user.
+
 # Alex' Thoughts 05/10/18
 
 ## Pleroma.Web.ActivityPub

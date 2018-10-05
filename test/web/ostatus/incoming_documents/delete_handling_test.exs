@@ -2,7 +2,8 @@ defmodule Pleroma.Web.OStatus.DeleteHandlingTest do
   use Pleroma.DataCase
 
   import Pleroma.Factory
-  alias Pleroma.{Repo, Activity, Object}
+  alias Pleroma.{Repo, Activity}
+  alias ActivityStream.Object
   alias Pleroma.Web.OStatus
 
   describe "deletions" do

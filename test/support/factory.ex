@@ -40,7 +40,7 @@ defmodule Pleroma.Factory do
       }
     }
 
-    %Pleroma.Object{
+    %ActivityStream.Object{
       data: data
     }
   end
@@ -48,8 +48,8 @@ defmodule Pleroma.Factory do
   def direct_note_factory do
     user2 = insert(:user)
 
-    %Pleroma.Object{data: data} = note_factory()
-    %Pleroma.Object{data: Map.merge(data, %{"to" => [user2.ap_id]})}
+    %ActivityStream.Object{data: data} = note_factory()
+    %ActivityStream.Object{data: Map.merge(data, %{"to" => [user2.ap_id]})}
   end
 
   def direct_note_activity_factory do

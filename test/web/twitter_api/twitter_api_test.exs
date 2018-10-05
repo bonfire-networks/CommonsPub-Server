@@ -2,7 +2,8 @@ defmodule Pleroma.Web.TwitterAPI.TwitterAPITest do
   use Pleroma.DataCase
   alias Pleroma.Builders.UserBuilder
   alias Pleroma.Web.TwitterAPI.{TwitterAPI, UserView}
-  alias Pleroma.{Activity, User, Object, Repo, UserInviteToken}
+  alias Pleroma.{Activity, User, Repo, UserInviteToken}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.TwitterAPI.ActivityView
 
@@ -358,7 +359,7 @@ defmodule Pleroma.Web.TwitterAPI.TwitterAPITest do
     end
 
     test "returns an existing mapping for an existing object" do
-      {:ok, object} = Object.context_mapping("random context") |> Repo.insert()
+      {:ok, object} = ActivityStream.create_object(%{"id" => "random context"})
       conversation_id = TwitterAPI.context_to_conversation_id("random context")
 
       assert conversation_id == object.id

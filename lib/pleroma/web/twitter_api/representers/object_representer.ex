@@ -1,6 +1,6 @@
 defmodule Pleroma.Web.TwitterAPI.Representers.ObjectRepresenter do
   use Pleroma.Web.TwitterAPI.Representers.BaseRepresenter
-  alias Pleroma.Object
+  alias ActivityStream.Object
 
   def to_map(%Object{data: %{"url" => [url | _]}} = object, _opts) do
     data = object.data

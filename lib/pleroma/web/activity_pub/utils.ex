@@ -1,5 +1,6 @@
 defmodule Pleroma.Web.ActivityPub.Utils do
-  alias Pleroma.{Repo, Web, Object, Activity, User}
+  alias Pleroma.{Repo, Web, Activity, User}
+  alias ActivityStream.Object
   alias Pleroma.Web.Router.Helpers
   alias Pleroma.Web.Endpoint
   alias Ecto.{Changeset, UUID}
@@ -61,9 +62,9 @@ defmodule Pleroma.Web.ActivityPub.Utils do
 
   def create_context(context) do
     context = context || generate_id("contexts")
-    changeset = Object.context_mapping(context)
-
-    case Repo.insert(changeset) do
+    %{"id" => context}
+    |> ActivityStream.create_object()
+    |> case do
       {:ok, object} ->
         object
 
@@ -129,7 +130,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   """
   def insert_full_object(%{"object" => %{"type" => type} = object_data})
       when is_map(object_data) and type in ["Article", "Note", "Video"] do
-    with {:ok, _} <- Object.create(object_data) do
+    with {:ok, _} <- ActivityStream.create_object(object_data) do
       :ok
     end
   end

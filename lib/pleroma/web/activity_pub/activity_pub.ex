@@ -1,5 +1,6 @@
 defmodule Pleroma.Web.ActivityPub.ActivityPub do
-  alias Pleroma.{Activity, Repo, Object, Upload, User, Notification}
+  alias Pleroma.{Activity, Repo, Upload, User, Notification}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.{Transmogrifier, MRF}
   alias Pleroma.Web.WebFinger
   alias Pleroma.Web.Federator
@@ -577,7 +578,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
 
   def upload(file) do
     data = Upload.store(file, Application.get_env(:pleroma, :instance)[:dedupe_media])
-    Repo.insert(%Object{data: data})
+    ActivityStream.create_object(data)
   end
 
   def user_data_from_user_object(data) do

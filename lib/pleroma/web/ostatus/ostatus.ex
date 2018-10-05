@@ -5,7 +5,8 @@ defmodule Pleroma.Web.OStatus do
   import Pleroma.Web.XML
   require Logger
 
-  alias Pleroma.{Repo, User, Web, Object, Activity}
+  alias Pleroma.{Repo, User, Web, Activity}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.{WebFinger, Websub}
   alias Pleroma.Web.OStatus.{FollowHandler, UnfollowHandler, NoteHandler, DeleteHandler}

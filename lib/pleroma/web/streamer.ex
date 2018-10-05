@@ -1,7 +1,8 @@
 defmodule Pleroma.Web.Streamer do
   use GenServer
   require Logger
-  alias Pleroma.{User, Notification, Activity, Object, Repo}
+  alias Pleroma.{User, Notification, Activity, Repo}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
 
   def init(args) do

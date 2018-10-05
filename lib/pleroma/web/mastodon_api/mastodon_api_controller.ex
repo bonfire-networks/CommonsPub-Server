@@ -1,6 +1,7 @@
 defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
   use Pleroma.Web, :controller
-  alias Pleroma.{Repo, Object, Activity, User, Notification, Stats}
+  alias Pleroma.{Repo, Activity, User, Notification, Stats}
+  alias ActivityStream.Object
   alias Pleroma.Web
   alias Pleroma.Web.MastodonAPI.{StatusView, AccountView, MastodonView, ListView, FilterView}
   alias Pleroma.Web.ActivityPub.ActivityPub
@@ -441,8 +442,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
          description <- data["description"] do
       new_data = %{object.data | "name" => description}
 
-      change = Object.change(object, %{data: new_data})
-      {:ok, media_obj} = Repo.update(change)
+      {:ok, media_obj} = ActivityStream.update_object(object, new_data)
 
       data =
         new_data
@@ -461,8 +461,7 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
           object.data
         end
 
-      change = Object.change(object, %{data: objdata})
-      {:ok, object} = Repo.update(change)
+      {:ok, media_obj} = ActivityStream.update_object(object, objdata)
 
       objdata =
         objdata

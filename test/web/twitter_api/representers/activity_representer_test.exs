@@ -1,6 +1,7 @@
 defmodule Pleroma.Web.TwitterAPI.Representers.ActivityRepresenterTest do
   use Pleroma.DataCase
-  alias Pleroma.{User, Activity, Object}
+  alias Pleroma.{User, Activity}
+  alias ActivityStream.Object
   alias Pleroma.Web.TwitterAPI.Representers.{ActivityRepresenter, ObjectRepresenter}
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Builders.UserBuilder
@@ -85,7 +86,7 @@ defmodule Pleroma.Web.TwitterAPI.Representers.ActivityRepresenterTest do
     content = HtmlSanitizeEx.strip_tags(content_html)
     date = DateTime.from_naive!(~N[2016-05-24 13:26:08.003], "Etc/UTC") |> DateTime.to_iso8601()
 
-    {:ok, convo_object} = Object.context_mapping("2hu") |> Repo.insert()
+    {:ok, convo_object} = ActivityStream.create_object(%{"id" => "2hu"})
 
     to = [
       User.ap_followers(user),

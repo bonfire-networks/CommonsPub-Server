@@ -1,7 +1,7 @@
 defmodule Pleroma.Web.OStatus.DeleteHandler do
   require Logger
   alias Pleroma.Web.XML
-  alias Pleroma.Object
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
 
   def handle_delete(entry, _doc \\ nil) do

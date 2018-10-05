@@ -1,11 +1,14 @@
-defmodule Pleroma.Object do
+defmodule ActivityStream.Object do
+  alias ActivityStream.Object
+  @type t :: %Object{data: map, inserted_at: Datetime.t(), updated_at: Datetime.t()}
   # This should be Pleroma.ActivityStream.Object
   #
   # FIXME
   # * It should not use Repo in this module
   # * I'd move query functions to a new module Pleroma.ActivityStream.ObjectQueries
   use Ecto.Schema
-  alias Pleroma.{Repo, Object}
+  alias Pleroma.{Repo}
+  alias ActivityStream.Object
   import Ecto.{Query, Changeset}
 
   schema "objects" do
@@ -14,12 +17,8 @@ defmodule Pleroma.Object do
     timestamps()
   end
 
-  def create(data) do
-    Object.change(%Object{}, %{data: data})
-    |> Repo.insert()
-  end
-
-  def change(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}) do
+    params = %{data: params}
     struct
     |> cast(params, [:data])
     |> validate_required([:data])
@@ -60,10 +59,5 @@ defmodule Pleroma.Object do
         end
       end)
     end
-  end
-
-  # What?
-  def context_mapping(context) do
-    Object.change(%Object{}, %{data: %{"id" => context}})
   end
 end

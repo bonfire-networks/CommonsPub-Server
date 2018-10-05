@@ -1,5 +1,6 @@
 defmodule Pleroma.Web.TwitterAPI.TwitterAPI do
-  alias Pleroma.{UserInviteToken, User, Activity, Repo, Object}
+  alias Pleroma.{UserInviteToken, User, Activity, Repo}
+  alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.TwitterAPI.UserView
   alias Pleroma.Web.{OStatus, CommonAPI}
@@ -247,9 +248,9 @@ defmodule Pleroma.Web.TwitterAPI.TwitterAPI do
       id
     else
       _e ->
-        changeset = Object.context_mapping(context)
-
-        case Repo.insert(changeset) do
+        %{"id" => context}
+        |> ActivityStream.create_object()
+        |> case do
           {:ok, %{id: id}} ->
             id
 

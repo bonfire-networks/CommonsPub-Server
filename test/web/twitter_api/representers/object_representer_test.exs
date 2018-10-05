@@ -1,7 +1,7 @@
 defmodule Pleroma.Web.TwitterAPI.Representers.ObjectReprenterTest do
   use Pleroma.DataCase
 
-  alias Pleroma.Object
+  alias ActivityStream.Object
   alias Pleroma.Web.TwitterAPI.Representers.ObjectRepresenter
 
   test "represent an image attachment" do

@@ -12,7 +12,8 @@ defmodule Pleroma.User do
   use Ecto.Schema
 
   import Ecto.{Changeset, Query}
-  alias Pleroma.{Repo, User, Object, Web, Activity, Notification}
+  alias Pleroma.{Repo, User, Web, Activity, Notification}
+  alias ActivityStream.Object
   alias Comeonin.Pbkdf2
   alias Pleroma.Web.{OStatus, Websub}
   alias Pleroma.Web.ActivityPub.{Utils, ActivityPub}
