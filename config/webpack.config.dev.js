@@ -5,7 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
-const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+const InterpolateHtmlPlugin = require('interpolate-html-plugin');
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin');
 const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin');
@@ -84,10 +84,7 @@ module.exports = {
     // for React Native Web.
     extensions: ['.web.js', '.mjs', '.js', '.json', '.web.jsx', '.jsx', '.tsx', '.ts'],
     alias: {
-      
-      // Support React Native Web
-      // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      'react-native': 'react-native-web',
+      '~': paths.appSrc
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -115,7 +112,6 @@ module.exports = {
             options: {
               formatter: eslintFormatter,
               eslintPath: require.resolve('eslint'),
-              
             },
             loader: require.resolve('eslint-loader'),
           },
@@ -138,14 +134,12 @@ module.exports = {
               name: 'static/media/[name].[hash:8].[ext]',
             },
           },
-          // Process JS with Babel.
           {
-            test: /\.(ts|tsx|js|jsx|mjs)$/,
+            test: /\.tsx?$/,
             include: paths.appSrc,
             loader: require.resolve('awesome-typescript-loader'),
             options: {
               useBabel: true,
-              compact: true,
             },
           },
           // "postcss" loader applies autoprefixer to our CSS.
@@ -208,16 +202,16 @@ module.exports = {
     ],
   },
   plugins: [
-    // Makes some environment variables available in index.html.
-    // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
-    // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    // In development, this will be an empty string.
-    new InterpolateHtmlPlugin(env.raw),
     // Generates an `index.html` file with the <script> injected.
     new HtmlWebpackPlugin({
       inject: true,
       template: paths.appHtml,
     }),
+    // Makes some environment variables available in index.html.
+    // The public URL is available as %PUBLIC_URL% in index.html, e.g.:
+    // <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
+    // In development, this will be an empty string.
+    new InterpolateHtmlPlugin(env.raw),
     // Add module names to factory functions so they appear in browser profiler.
     new webpack.NamedModulesPlugin(),
     // Makes some environment variables available to the JS code, for example:
