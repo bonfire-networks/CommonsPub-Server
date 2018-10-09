@@ -4,4 +4,3 @@ module.exports = {
 	components: 'src/components/**/*.tsx',
 	webpackConfig
 }
-
