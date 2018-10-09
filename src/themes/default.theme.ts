@@ -12,6 +12,7 @@ export const vars = {
     base5: '#c9c9c9',
     base6: '#ffffff'
   },
+  fontFamily: '"Open Sans", sans-serif',
   fontWeight: {
     light: 300,
     regular: 400,
@@ -33,28 +34,35 @@ export const theme = {
   ...vars,
   // zendesk garden
   'chrome.chrome': {
-    fontFamily: '"Open Sans", sans-serif'
+    fontFamily: vars.fontFamily
   },
   'typography.xxxl': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h1
   },
   'typography.xxl': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h2
   },
   'typography.xl': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h3
   },
   'typography.lg': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h4
   },
   'typography.md': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h5
   },
   'typography.sm': {
+    fontFamily: vars.fontFamily,
     fontSize: vars.fontSize.h6
   },
   'buttons.button': `
         && {
+            font-family: ${vars.fontFamily};
             background-color: ${vars.colour.primary};
             color: ${vars.colour.base6};
             border: 2px solid ${vars.colour.primary};

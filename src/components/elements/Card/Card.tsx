@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import styled from '../../../themes/styled';
-import { moodlenet } from '../../../themes/themes';
 
 import H4 from '../../typography/H4/H4';
 import Button from '../Button/Button';
@@ -14,12 +13,6 @@ export const StyledCard = styled.div`
   margin-bottom: 20px;
   border-top: 1px solid ${props => props.theme.styles.colour.primary};
 `;
-
-StyledCard.defaultProps = {
-  theme: {
-    styles: moodlenet
-  }
-};
 
 export type CardProps = {
   title: string;
