@@ -48,7 +48,7 @@ const subNavItems = {
   )
 };
 
-export class Nav extends React.Component {
+export default class Nav extends React.Component {
   state: any = {
     navOpen: true,
     activeNav: NavItems.Communities,

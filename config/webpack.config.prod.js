@@ -39,6 +39,7 @@ const cssFilename = 'static/css/[name].[contenthash:8].css';
 // It compiles slowly and is focused on producing a fast and minimal bundle.
 // The development configuration is different and lives in a separate file.
 module.exports = {
+  mode: 'production',
   // Don't attempt to continue if there are any errors.
   bail: true,
   // We generate sourcemaps in production. This is slow but gives good results.
@@ -275,30 +276,29 @@ module.exports = {
     }),
   ],
   optimization: {
-    minimize: false,
-    // minimizer: [
-    //   new TerserPlugin({
-    //     cache: true,
-    //     parallel: true,
-    //     terserOptions: {
-    //       compress: {
-    //         warnings: false,
-    //         // Disabled because of an issue with Uglify breaking seemingly valid code:
-    //         // https://github.com/facebookincubator/create-react-app/issues/2376
-    //         // Pending further investigation:
-    //         // https://github.com/mishoo/UglifyJS2/issues/2011
-    //         comparisons: false,
-    //       },
-    //       output: {
-    //         comments: false,
-    //         // Turned on because emoji and regex is not minified properly using default
-    //         // https://github.com/facebookincubator/create-react-app/issues/2488
-    //         ascii_only: true,
-    //       },
-    //       sourceMap: shouldUseSourceMap
-    //     }
-    //   })
-    // ],
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        terserOptions: {
+          compress: {
+            warnings: false,
+            // Disabled because of an issue with Uglify breaking seemingly valid code:
+            // https://github.com/facebookincubator/create-react-app/issues/2376
+            // Pending further investigation:
+            // https://github.com/mishoo/UglifyJS2/issues/2011
+            comparisons: false,
+          },
+          output: {
+            comments: false,
+            // Turned on because emoji and regex is not minified properly using default
+            // https://github.com/facebookincubator/create-react-app/issues/2488
+            ascii_only: true,
+          },
+          sourceMap: shouldUseSourceMap
+        }
+      })
+    ],
   },
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.

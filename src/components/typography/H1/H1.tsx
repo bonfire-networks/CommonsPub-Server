@@ -1,4 +1,6 @@
 import * as React from 'react';
-import { XXL } from '@zendeskgarden/react-typography';
+import { XXXL } from '@zendeskgarden/react-typography';
 
-export const H1 = ({ children }) => <XXL className="H1">{children}</XXL>;
+export default function H1({ children }) {
+  return <XXXL className="H1">{children}</XXXL>;
+}

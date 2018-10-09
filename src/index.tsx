@@ -1,8 +1,20 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import { App } from './components/chrome/App/App';
+
 import registerServiceWorker from './registerServiceWorker';
+import App from './components/chrome/App/App';
+import { injectGlobal } from './themes/styled';
+
+injectGlobal`
+    body, html {
+        border: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+`;
 
 ReactDOM.render(<App />, document.getElementById('root'));
+
 registerServiceWorker();

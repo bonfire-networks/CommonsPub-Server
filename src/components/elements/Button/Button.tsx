@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-const { Button } = require('@zendeskgarden/react-buttons');
+const { Button: ZenButton } = require('@zendeskgarden/react-buttons');
 
-export const MoodleButton = ({ children }) => {
-  return <Button>{children}</Button>;
-};
+export default function Button({ children }) {
+  return <ZenButton>{children}</ZenButton>;
+}

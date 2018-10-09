@@ -1,11 +1,37 @@
 import * as React from 'react';
 
-const { H4 } = require('../../typography/H4/H4');
-const { MoodleButton } = require('../Button/Button');
+import styled from '../../../themes/styled';
+import { moodlenet } from '../../../themes/themes';
 
-export const Card = ({ title }) => (
-  <div className="Card">
-    <H4>{title}</H4>
-    <MoodleButton>View</MoodleButton>
-  </div>
-);
+import H4 from '../../typography/H4/H4';
+import Button from '../Button/Button';
+
+export const StyledCard = styled.div`
+  background-color: white;
+  padding: 15px;
+  box-shadow: 0 0 3px lightgrey;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-top: 1px solid ${props => props.theme.styles.colour.primary};
+`;
+
+StyledCard.defaultProps = {
+  theme: {
+    styles: moodlenet
+  }
+};
+
+export type CardProps = {
+  title: string;
+};
+
+const Card: React.SFC<CardProps> = ({ title }) => {
+  return (
+    <StyledCard>
+      <H4>{title}</H4>
+      <Button>View</Button>
+    </StyledCard>
+  );
+};
+
+export default Card;

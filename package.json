@@ -7,6 +7,7 @@
     "@babel/runtime": "7.1.2",
     "@types/node": "10.10.1",
     "@types/react": "16.4.14",
+    "@types/styled-components": "3.0.1",
     "@zendeskgarden/css-avatars": "3.0.8",
     "@zendeskgarden/react-avatars": "3.0.14",
     "@zendeskgarden/react-buttons": "3.6.2",
