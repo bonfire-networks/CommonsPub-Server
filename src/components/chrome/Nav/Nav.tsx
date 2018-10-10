@@ -1,13 +1,13 @@
 import * as React from 'react';
-const {
-  Nav: ZenNav,
+import {
+  Nav as ZenNav,
   NavItem,
   NavItemText,
   NavItemIcon,
   SubNav,
   SubNavItem,
   SubNavItemText
-} = require('@zendeskgarden/react-chrome');
+} from '@zendeskgarden/react-chrome';
 
 const logo = require('../../../static/img/moodle-logo.png');
 

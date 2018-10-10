@@ -6,7 +6,7 @@ import H1 from '../../components/typography/H1/H1';
 
 export default function CommunitiesFeatured() {
   return (
-    <React.Fragment>
+    <>
       <Grid>
         <Row>
           <Col sm={12}>
@@ -36,6 +36,6 @@ export default function CommunitiesFeatured() {
           </Col>
         </Row>
       </Grid>
-    </React.Fragment>
+    </>
   );
 }

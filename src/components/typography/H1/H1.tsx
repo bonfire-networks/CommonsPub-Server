@@ -1,6 +1,17 @@
 import * as React from 'react';
 import { XXXL } from '@zendeskgarden/react-typography';
 
-export default function H1({ children }) {
-  return <XXXL className="H1">{children}</XXXL>;
+export interface HeadingProps {
+  children?: any;
+  tag?: string;
 }
+
+const H1 = ({ children, tag = 'h1', ...props }: HeadingProps) => {
+  return (
+    <XXXL tag={tag} {...props}>
+      {children}
+    </XXXL>
+  );
+};
+
+export default H1;

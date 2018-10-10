@@ -1,5 +1,0 @@
-Menu example:
-
-```jsx
-<Menu />
-```

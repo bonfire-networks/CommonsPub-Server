@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { XXL } from '@zendeskgarden/react-typography';
 
-export default function H2({ children }) {
-  return <XXL className="H2">{children}</XXL>;
-}
+import { HeadingProps } from '../H1/H1';
+
+const H2 = ({ children, tag = 'h2', ...props }: HeadingProps) => {
+  return (
+    <XXL tag={tag} {...props}>
+      {children}
+    </XXL>
+  );
+};
+
+export default H2;

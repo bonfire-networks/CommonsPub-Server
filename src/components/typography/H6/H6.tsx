@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { SM } from '@zendeskgarden/react-typography';
 
-export function H6({ children }) {
-  return <SM className="H6">{children}</SM>;
-}
+import { HeadingProps } from '../H1/H1';
+
+const H6 = ({ children, tag = 'h6', ...props }: HeadingProps) => {
+  return (
+    <SM tag={tag} {...props}>
+      {children}
+    </SM>
+  );
+};
+
+export default H6;

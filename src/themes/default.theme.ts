@@ -1,4 +1,6 @@
-export const vars = {
+import createTheme from './create';
+
+export const theme = createTheme({
   colour: {
     primary: '#f98012',
     // secondary colours
@@ -9,7 +11,7 @@ export const vars = {
     base2: '#3c3c3c',
     base3: '#848383',
     base4: '#c9c9c9',
-    base5: '#c9c9c9',
+    base5: '#f7f7f7',
     base6: '#ffffff'
   },
   fontFamily: '"Open Sans", sans-serif',
@@ -20,63 +22,23 @@ export const vars = {
     bold: 700
   },
   fontSize: {
-    h1: '60px',
-    h2: '48px',
-    h3: '40px',
-    h4: '30px',
-    h5: '24px',
-    h6: '18px',
-    p: '16px'
+    // headings
+    xxxl: '60px',
+    xxl: '48px',
+    xl: '40px',
+    lg: '30px',
+    md: '24px',
+    sm: '18px',
+    // paragraph
+    xs: '16px'
+  },
+  lineHeight: {
+    xxxl: '72px',
+    xxl: '61px',
+    xl: '58px',
+    lg: '44px',
+    md: '38px',
+    sm: '29px',
+    xs: '18px'
   }
-};
-
-export const theme = {
-  ...vars,
-  // zendesk garden
-  'chrome.chrome': {
-    fontFamily: vars.fontFamily
-  },
-  'typography.xxxl': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h1
-  },
-  'typography.xxl': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h2
-  },
-  'typography.xl': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h3
-  },
-  'typography.lg': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h4
-  },
-  'typography.md': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h5
-  },
-  'typography.sm': {
-    fontFamily: vars.fontFamily,
-    fontSize: vars.fontSize.h6
-  },
-  'buttons.button': `
-        && {
-            font-family: ${vars.fontFamily};
-            background-color: ${vars.colour.primary};
-            color: ${vars.colour.base6};
-            border: 2px solid ${vars.colour.primary};
-            
-            :hover {
-                background-color: ${vars.colour.base6};
-                border-color: ${vars.colour.primary};
-                color: ${vars.colour.primary};
-            }
-            
-            :disabled {
-                opacity: 0.5;
-                cursor: default;
-            }
-        }
-    `
-};
+});

@@ -1,7 +1,44 @@
 import * as React from 'react';
 
-const { Button: ZenButton } = require('@zendeskgarden/react-buttons');
+import { Button as ZenButton } from '@zendeskgarden/react-buttons';
 
-export default function Button({ children }) {
-  return <ZenButton>{children}</ZenButton>;
+interface ButtonProps {
+  children?: any;
+  secondary?: boolean;
+  className?: string;
+  // copied from https://garden.zendesk.com/react-components/buttons/#button
+  active?: boolean;
+  basic?: boolean;
+  buttonRef?: Function;
+  danger?: boolean;
+  disabled?: boolean;
+  focused?: boolean;
+  hovered?: boolean;
+  link?: boolean;
+  muted?: boolean;
+  pill?: boolean;
+  primary?: boolean;
+  selected?: boolean;
+  size?: 'small' | 'large';
+  stretched?: boolean;
 }
+
+const Button: React.SFC<ButtonProps> = ({
+  children,
+  secondary = false,
+  className = '',
+  ...props
+}) => {
+  if (secondary) {
+    className += ' secondary';
+  }
+  return (
+    <ZenButton className={className} {...props}>
+      {children}
+    </ZenButton>
+  );
+};
+
+// TODO why is this @ts-ignore directive necessary?
+// @ts-ignore
+export default Button;

@@ -356,6 +356,27 @@
     classnames "^2.2.5"
     dom-helpers "^3.3.1"
 
+"@zendeskgarden/react-selection@^4.6.0":
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-selection/-/react-selection-4.6.0.tgz#59554db5c26b0f6a21ac53569d156a7f7b1d44bc"
+  dependencies:
+    classnames "^2.2.5"
+    dom-helpers "^3.3.1"
+
+"@zendeskgarden/react-tags@1.1.20":
+  version "1.1.20"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tags/-/react-tags-1.1.20.tgz#544378b904cf33f41edde51398c1efb14e6e65de"
+  dependencies:
+    classnames "^2.2.5"
+
+"@zendeskgarden/react-textfields@3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-textfields/-/react-textfields-3.4.1.tgz#ab9c860f8ec5586e49a3e0665244dd6416b41d6d"
+  dependencies:
+    "@zendeskgarden/react-selection" "^4.6.0"
+    "@zendeskgarden/react-utilities" "^0.2.2"
+    classnames "^2.2.5"
+
 "@zendeskgarden/react-theming@3.1.3":
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/@zendeskgarden/react-theming/-/react-theming-3.1.3.tgz#006bf284eacd2b2c1d0e1f0f29534cd80b79a838"

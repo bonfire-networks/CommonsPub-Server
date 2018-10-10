@@ -2,7 +2,7 @@ import * as React from 'react';
 import ReactDOM from 'react-dom';
 
 import registerServiceWorker from './registerServiceWorker';
-import App from './components/chrome/App/App';
+import App from './containers/App/App';
 import { injectGlobal } from './themes/styled';
 
 injectGlobal`
