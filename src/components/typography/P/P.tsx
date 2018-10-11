@@ -1,5 +1,5 @@
 import * as React from 'react';
 
-export default function P({ children }) {
-  return <p>{children}</p>;
+export default function({ children, ...props }) {
+  return <p {...props}>{children}</p>;
 }

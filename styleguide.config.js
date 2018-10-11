@@ -2,13 +2,12 @@ const path = require('path')
 
 const webpackConfig = require('./config/webpack.config.dev.js')
 
-// these are plugins we don't need for generation of the style guide
+// these are components we don't need for generation of the style guide
 // and may even cause generation to fail if included
 const removePlugins = [
   'HtmlWebpackPlugin',
   'InterpolateHtmlPlugin',
 ]
-
 webpackConfig.plugins = webpackConfig.plugins.filter(plugin => {
   return !removePlugins.includes(plugin.constructor.name)
 })

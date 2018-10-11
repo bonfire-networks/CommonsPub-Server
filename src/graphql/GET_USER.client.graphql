@@ -1,0 +1,6 @@
+query GetUserQuery {
+    user @client {
+        isAuthenticated,
+        data
+    }
+}

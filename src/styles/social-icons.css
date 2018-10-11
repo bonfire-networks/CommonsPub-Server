@@ -1,0 +1,21 @@
+i.twitter,
+i.facebook,
+i.google {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  margin: 10px;
+  vertical-align: middle;
+  background-position: left -34px;
+  background-repeat: no-repeat;
+}
+
+i.twitter {
+  background-image: url(../static/img/social-icons/twitter.png);
+}
+i.facebook {
+  background-image: url(../static/img/social-icons/facebook.png);
+}
+i.google {
+  background-image: url(../static/img/social-icons/google.png);
+}

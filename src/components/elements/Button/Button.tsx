@@ -1,5 +1,4 @@
 import * as React from 'react';
-
 import { Button as ZenButton } from '@zendeskgarden/react-buttons';
 
 interface ButtonProps {
@@ -21,6 +20,9 @@ interface ButtonProps {
   selected?: boolean;
   size?: 'small' | 'large';
   stretched?: boolean;
+  type?: string;
+  style?: object;
+  title?: string;
 }
 
 const Button: React.SFC<ButtonProps> = ({
