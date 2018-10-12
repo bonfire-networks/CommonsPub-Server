@@ -1,4 +1,16 @@
 defmodule Pleroma.Web.ActivityPub.MRF.SimplePolicy do
+  # This is for filter and modify content.
+  # It is cool!
+  # However it cold be improved in several ways.
+  # Currently it seems like the configuration is done in compilation time.
+  # This means if we want to change the configuration we have to recompile,
+  # bump a new version of the software and make a deployment.
+  #
+  # A better solution would be that the configuration lives in database.
+  # Adding a cache will make as fast as currently.
+  # The admin should have an interface to change this configuration.
+  # The configuration should be, IMHO, public.
+  # This way the user may know what filters and changes are made in realtime.
   alias Pleroma.User
   @behaviour Pleroma.Web.ActivityPub.MRF
 

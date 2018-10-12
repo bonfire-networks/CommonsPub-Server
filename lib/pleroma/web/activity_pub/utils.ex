@@ -1,4 +1,9 @@
 defmodule Pleroma.Web.ActivityPub.Utils do
+  # I don't understand why there are two modules ActivityPub and ActivityPub.Utils
+  # I don't see the differences between them
+  # This is module, that could be a private module for ActivityPub because its name,
+  # is called from MastodonAPI, TwitterAPI
+  # Why a function should be here and not in ActivityPub?
   alias Pleroma.{Repo, Web, Activity, User}
   alias ActivityStream.Object
   alias Pleroma.Web.Router.Helpers
@@ -60,6 +65,12 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     "#{Web.base_url()}/#{type}/#{UUID.generate()}"
   end
 
+  # In pleroma all activities should have a context
+  # One is created if is not already created
+  # https://www.w3.org/TR/activitystreams-vocabulary/#dfn-context
+  #
+  # "context_id" is not a standard in AP. It is an implementation details.
+  # It should be hidden so it does not conflict with future extensions
   def create_context(context) do
     context = context || generate_id("contexts")
     %{"id" => context}
@@ -79,6 +90,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   Enqueues an activity for federation if it's local
   """
   def maybe_federate(%Activity{local: true} = activity) do
+    # Only federates local messages, it makes sense
     priority =
       case activity.data["type"] do
         "Delete" -> 10
@@ -97,6 +109,15 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   also adds it to an included object
   """
   def lazy_put_activity_defaults(map) do
+    # It seems all the activities should have a context
+    # Probably a Mastodon requirement
+    # One is created if is not already set
+    #
+    # AS def:
+    # > Identifies the context within which the object exists or an activity was performed.
+    # > The notion of "context" used is intentionally vague. The intended function is to serve as a
+    # > means of grouping objects and activities that share a common originating context or purpose.
+    # > An example could be all activities relating to a common project or event.
     %{data: %{"id" => context}, id: context_id} = create_context(map["context"])
 
     map =
@@ -106,6 +127,11 @@ defmodule Pleroma.Web.ActivityPub.Utils do
       |> Map.put_new("context", context)
       |> Map.put_new("context_id", context_id)
 
+    # So here is checking if the activity object is just the ID or is the full object.
+    # If it is an object adds some properties that are required by Mastodon/Pleroma
+    # If not it just returns the activity with the object id.
+    # I think this is incosistent, later we have to deal again with if object is
+    # the full object or the id again. It feels we need a better abstraction.
     if is_map(map["object"]) do
       object = lazy_put_object_defaults(map["object"], map)
       %{map | "object" => object}
@@ -118,6 +144,9 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   Adds an id and published date if they aren't there.
   """
   def lazy_put_object_defaults(map, activity \\ %{}) do
+    # It seems context is needed by Mastodon/Pleroma
+    # "context_id" is not a standard in AP. It is an implementation details.
+    # It should be hidden so it does not conflict with future extensions
     map
     |> Map.put_new_lazy("id", &generate_object_id/0)
     |> Map.put_new_lazy("published", &make_date/0)
@@ -129,6 +158,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   Inserts a full object if it is contained in an activity.
   """
   def insert_full_object(%{"object" => %{"type" => type} = object_data})
+  # IMPORTANT: Only inserts Articles, Note or Video
       when is_map(object_data) and type in ["Article", "Note", "Video"] do
     with {:ok, _} <- ActivityStream.create_object(object_data) do
       :ok
@@ -466,6 +496,13 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   #### Create-related helpers
 
   def make_create_data(params, additional) do
+    # It continously adding a default published date around the whole code
+    # It should be done at the very beginning of receving the data.
+    # ie: if we received an invalid publication without published date
+    # maybe is better to save this way or discard if it is mandatory.
+    # ie: if we receive from the client an invalid date it should be verified
+    # ie: if we dont receive published date from a client we can add in this case
+    # All this different cases are just simple resolved adding a default date (now)
     published = params.published || make_date()
 
     %{

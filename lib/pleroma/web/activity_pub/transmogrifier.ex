@@ -13,6 +13,8 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
 
   require Logger
 
+  # It only accepts one actor by Activity.
+  # In AP this can be more than one!
   def get_actor(%{"actor" => actor}) when is_binary(actor) do
     actor
   end
@@ -69,6 +71,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Make to, cc, bto and bcc always a list, Good!
   def fix_addressing(map) do
     map
     |> fix_addressing_list("to")
@@ -200,8 +203,17 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   # TODO: validate those with a Ecto scheme
   # - tags
   # - emoji
+  # So for the Activity Create it only accepts Article, Note and Video.
+  # There are a lot of more object types.
+  # It is used in two places:
+  #  * Incoming request to inbox
+  #  * To fetch data when we only have the id.
+  #    This is very wrong :(
+  #    because it generates imaginary activities
+  #    when we receive an object that does not exists in our database
   def handle_incoming(%{"type" => "Create", "object" => %{"type" => objtype} = object} = data)
       when objtype in ["Article", "Note", "Video"] do
+    # one actor only
     actor = get_actor(data)
 
     data =
@@ -209,6 +221,17 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
       |> fix_addressing
 
     with nil <- Activity.get_create_activity_by_object_ap_id(object["id"]),
+         # Get or fetch and create the actor in the database
+         # The code to do this is difficult to follow jumps to a lot of places:
+         #   * To user model
+         #     * To ActivityPub
+         #       * To Transmogrifier again
+         #         * To ActivityPub
+         #           * To Transmogrifier agian
+         #         * To User model
+         #         * Possibly async code :O
+         #       * To user model
+         # So there is not an hierarchy, all modules call to each other, no abstractions
          %User{} = user <- User.get_or_fetch_by_ap_id(data["actor"]) do
       object = fix_object(data["object"])
 
