@@ -117,7 +117,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
             }
 
             &.secondary {
-                background-color: ${theme.colour.base6};
+                background-color: transparent;
                 color: ${theme.colour.base1};
                 border: 2px solid ${theme.colour.base1};
             }
@@ -152,8 +152,10 @@ export default function createTheme(theme: MoodleThemeInterface) {
     //TODO how to style "selected" tag as per style guide? is selected === focused?
     'tags.tag_view': `
         && {
+            padding: 15px;
             background-color: ${theme.colour.base5};
             border: 1px solid ${theme.colour.base4};
+            cursor: pointer;
         }
     `
   };

@@ -9,10 +9,20 @@ const LogoH1 = styled.h1`
   margin: 0;
 `;
 
-export default () => (
-  <LogoH1>
-    <Link to="/" title="MoodleNet">
-      <img src={moodleNetLogo} alt="MoodleNet" />
-    </Link>
-  </LogoH1>
-);
+type LogoProps = {
+  link?: boolean;
+};
+
+export default ({ link = true }: LogoProps) => {
+  let image = <img src={moodleNetLogo} alt="MoodleNet" />;
+
+  if (link) {
+    image = (
+      <Link to={link ? '/' : '#'} title="MoodleNet">
+        {image}
+      </Link>
+    );
+  }
+
+  return <LogoH1>{image}</LogoH1>;
+};

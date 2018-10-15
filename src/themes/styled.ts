@@ -50,6 +50,10 @@ export interface ThemeInterface {
   styles: MoodleThemeInterface;
 }
 
+export interface StyledThemeInterface {
+  theme: ThemeInterface;
+}
+
 const {
   default: styled,
   css,

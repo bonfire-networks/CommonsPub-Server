@@ -100,7 +100,7 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
                 placeholder="Enter your username"
                 value={this.state.username}
                 validation={this.getValidation(ValidationField.username)}
-                onChange={evt => {
+                onChange={(evt: any) => {
                   this.setState({
                     username: evt.target.value
                   });
@@ -121,7 +121,7 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
                 placeholder="Enter your password"
                 value={this.state.password}
                 validation={this.getValidation(ValidationField.password)}
-                onChange={evt => {
+                onChange={(evt: any) => {
                   this.setState({
                     password: evt.target.value
                   });

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Tag as ZenTag, Close } from '@zendeskgarden/react-tags';
 
 export type TagProps = {
+  onClick?: Function;
   closeable?: boolean;
   onClose?: Function;
   focused?: boolean;

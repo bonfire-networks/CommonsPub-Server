@@ -22,7 +22,9 @@ import '../../styles/flag-icons.css';
 import '../../styles/loader.css';
 
 export const AppStyles = styled.div`
-  font-family: ${props => props.theme.styles.fontFamily};
+  * {
+    font-family: ${props => props.theme.styles.fontFamily};
+  }
 `;
 
 export default class App extends React.Component {

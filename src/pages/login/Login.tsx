@@ -1,7 +1,7 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
-import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
+import { Link, Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
@@ -240,7 +240,7 @@ class Login extends React.Component<LoginProps, LoginState> {
                   pointerEvents: 'none'
                 }}
               >
-                ———
+                <span style={{ fontFamily: 'sans-serif' }}>———</span>
                 <span
                   style={{
                     color: 'grey',
@@ -250,7 +250,7 @@ class Login extends React.Component<LoginProps, LoginState> {
                 >
                   OR
                 </span>
-                ———
+                <span style={{ fontFamily: 'sans-serif' }}>———</span>
               </P>
               <LoginForm
                 validation={this.state.validation}
@@ -289,7 +289,9 @@ class Login extends React.Component<LoginProps, LoginState> {
                   // paddingBottom: '5%',
                 }}
               >
-                <Button>Create account</Button>
+                <Link to="/sign-up">
+                  <Button>Create account</Button>
+                </Link>
                 <Spacer />
                 <Button secondary>Browse as guest</Button>
               </Row>
