@@ -44,7 +44,7 @@ interface MenuState {
 }
 
 export default class extends React.Component<MenuProps, MenuState> {
-  static state = {
+  state = {
     openMenuName: null,
     open: false
   };

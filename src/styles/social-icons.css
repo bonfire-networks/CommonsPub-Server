@@ -19,3 +19,9 @@ i.facebook {
 i.google {
   background-image: url(../static/img/social-icons/google.png);
 }
+
+*:hover > i.twitter,
+*:hover > i.facebook,
+*:hover > i.google {
+  background-position: left top;
+}

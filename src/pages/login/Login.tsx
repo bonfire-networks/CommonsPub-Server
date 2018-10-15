@@ -1,11 +1,11 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
-import { Route, Redirect, RouteComponentProps } from 'react-router-dom';
-import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
+import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
-import styled from '../../themes/styled';
+import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import Body from '../../components/chrome/Body/Body';
@@ -13,7 +13,7 @@ import Button from '../../components/elements/Button/Button';
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
-import { ThemeInterface } from '../../themes/styled';
+import { ValidationField, ValidationObject, ValidationType } from './types';
 
 const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
 const { SetUserQuery } = require('../../graphql/SET_USER.client.graphql');
@@ -75,45 +75,109 @@ interface LoginProps extends RouteComponentProps {
 interface LoginState {
   redirectTo: string | null;
   authenticating: boolean;
+  validation: ValidationObject[];
 }
+
+type CredentialsObject = {
+  username: string;
+  password: string;
+};
+
+const DEMO_CREDENTIALS = {
+  username: 'moodle',
+  password: 'moodle'
+};
 
 class Login extends React.Component<LoginProps, LoginState> {
   state = {
     redirectTo: null,
-    authenticating: false
+    authenticating: false,
+    validation: []
   };
+
+  static validateCredentials(credentials: CredentialsObject) {
+    const validation: ValidationObject[] = [];
+
+    if (!credentials.username.length) {
+      validation.push({
+        field: ValidationField.username,
+        type: ValidationType.error,
+        message: 'The username field cannot be empty'
+      } as ValidationObject);
+    }
+    if (!credentials.password.length) {
+      validation.push({
+        field: ValidationField.password,
+        type: ValidationType.error,
+        message: 'The password field cannot be empty'
+      } as ValidationObject);
+    }
+
+    return validation;
+  }
 
   constructor(props) {
     super(props);
     this.onLoginFormSubmit = this.onLoginFormSubmit.bind(this);
+    this.onLoginFormInputChange = this.onLoginFormInputChange.bind(this);
   }
 
   /**
    * Submit the login form credentials to authenticate the user.
-   * TODO implement real auth + validation when we know what the backend looks like
-   * @param e {Event}
+   * @param credentials {Object}
    */
-  async onLoginFormSubmit(e) {
-    e.preventDefault();
+  async onLoginFormSubmit(credentials) {
+    const validation = Login.validateCredentials(credentials);
+
+    if (validation.length) {
+      this.setState({ validation });
+      return;
+    }
 
     this.setState({
       authenticating: true
     });
 
+    // TODO implement real auth when we know what the backend looks like
     setTimeout(async () => {
+      if (
+        credentials.username !== DEMO_CREDENTIALS.username ||
+        credentials.password !== DEMO_CREDENTIALS.password
+      ) {
+        this.setState({
+          authenticating: false,
+          validation: [
+            {
+              field: null,
+              type: ValidationType.warning,
+              message:
+                'Could not log in. Please check your credentials or use the link below to reset your password.'
+            } as ValidationObject
+          ]
+        });
+        return;
+      }
+
       if (this.props.updateUser) {
         await this.props.updateUser({
           variables: {
             isAuthenticated: true,
-            user: {}
+            data: {}
           }
-        });
-
-        this.setState({
-          redirectTo: '/'
         });
       }
     }, 1000);
+  }
+
+  /** Clear the validation messages for a field and also generic validations when its value changes. */
+  onLoginFormInputChange(field: ValidationField) {
+    this.setState({
+      validation: this.state.validation.filter(
+        (validation: ValidationObject) => {
+          return validation.field !== field && validation.field !== null;
+        }
+      )
+    });
   }
 
   render() {
@@ -189,7 +253,9 @@ class Login extends React.Component<LoginProps, LoginState> {
                 ———
               </P>
               <LoginForm
-                onLoginFormSubmit={this.onLoginFormSubmit}
+                validation={this.state.validation}
+                onSubmit={this.onLoginFormSubmit}
+                onInputChange={this.onLoginFormInputChange}
                 authenticating={this.state.authenticating}
               />
             </Col>
@@ -247,7 +313,7 @@ export interface Args {
 // get the user auth object from local cache
 const withUser = graphql<{}, Args>(GetUserQuery);
 
-// get user mutation resolver so we can set the user in the local cache
+// get user mutation so we can set the user in the local cache
 const withUserAuthentication = graphql<{}, Args>(SetUserQuery, {
   name: 'updateUser'
   // TODO enforce proper types for OperationOption
