@@ -1,4 +1,7 @@
 defmodule Pleroma.Web.ActivityPub.ActivityPub do
+  # This modules mix different concerns
+  # it has functions to create and persist activities
+  # but also activitity queries and other external utility functions
   alias Pleroma.{Activity, Repo, Upload, User, Notification}
   alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.{Transmogrifier, MRF}
@@ -192,6 +195,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
            ),
          # Inserts if not inserted before
          # context could be nil before, but here it is set :S
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(create_data, local),
          :ok <- maybe_federate(activity),
          # This is better doing it in database
@@ -200,28 +204,37 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Creates an accept activity, just for following
+  # Called from Twitter, Mastodon and Transmogrifier.
   def accept(%{to: to, actor: actor, object: object} = params) do
     # only accept false as false value
     local = !(params[:local] == false)
 
     with data <- %{"to" => to, "type" => "Accept", "actor" => actor, "object" => object},
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Creates an reject activity, just for following
+  # Called from Twitter, Mastodon (and not in Transmogrifier, a bug here).
   def reject(%{to: to, actor: actor, object: object} = params) do
     # only accept false as false value
     local = !(params[:local] == false)
 
     with data <- %{"to" => to, "type" => "Reject", "actor" => actor, "object" => object},
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Creates an update activity
+  # Used to update the bio, banner, avatar, etc
+  # Used only in Transmogrifier
   def update(%{to: to, cc: cc, actor: actor, object: object} = params) do
     # only accept false as false value
     local = !(params[:local] == false)
@@ -233,12 +246,15 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
            "actor" => actor,
            "object" => object
          },
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Creates a like activity
+  # Used in transmogrifier
   # TODO: This is weird, maybe we shouldn't check here if we can make the activity.
   def like(
         %User{ap_id: ap_id} = user,
@@ -246,9 +262,12 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
         activity_id \\ nil,
         local \\ true
       ) do
+    # Functions in utils
     with nil <- get_existing_like(ap_id, object),
          like_data <- make_like_data(user, object, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(like_data, local),
+         # very slow operation!
          {:ok, object} <- add_like_to_object(activity, object),
          :ok <- maybe_federate(activity) do
       {:ok, activity, object}
@@ -258,6 +277,9 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # This should be a undo like in activity pub vocabulary
+  # In fact it is called when the undo activity is received
+  # Used in transmogrifier
   def unlike(
         %User{} = actor,
         %Object{} = object,
@@ -266,8 +288,11 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       ) do
     with %Activity{} = like_activity <- get_existing_like(actor.ap_id, object),
          unlike_data <- make_unlike_data(actor, like_activity, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, unlike_activity} <- insert(unlike_data, local),
+         # Remove? Maybe a new activity would be more correct
          {:ok, _activity} <- Repo.delete(like_activity),
+         # very slow operation!
          {:ok, object} <- remove_like_from_object(like_activity, object),
          :ok <- maybe_federate(unlike_activity) do
       {:ok, unlike_activity, like_activity, object}
@@ -276,6 +301,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # AKA retweet, it creates the activity
   def announce(
         %User{ap_id: _} = user,
         %Object{data: %{"id" => _}} = object,
@@ -284,6 +310,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       ) do
     with true <- is_public?(object),
          announce_data <- make_announce_data(user, object, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(announce_data, local),
          {:ok, object} <- add_announce_to_object(activity, object),
          :ok <- maybe_federate(activity) do
@@ -293,17 +320,22 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Undo a retweet activity
   def unannounce(
         %User{} = actor,
         %Object{} = object,
         activity_id \\ nil,
         local \\ true
       ) do
+    # Functions defined in utils
     with %Activity{} = announce_activity <- get_existing_announce(actor.ap_id, object),
          unannounce_data <- make_unannounce_data(actor, announce_activity, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, unannounce_activity} <- insert(unannounce_data, local),
          :ok <- maybe_federate(unannounce_activity),
+         # I don't see the point of deleting but probably it is needed to work properly
          {:ok, _activity} <- Repo.delete(announce_activity),
+         # Really slow operation
          {:ok, object} <- remove_announce_from_object(announce_activity, object) do
       {:ok, unannounce_activity, object}
     else
@@ -311,24 +343,29 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Creates follow activity
   def follow(follower, followed, activity_id \\ nil, local \\ true) do
     with data <- make_follow_data(follower, followed, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Creates unfollow actiivty
   def unfollow(follower, followed, activity_id \\ nil, local \\ true) do
     with %Activity{} = follow_activity <- fetch_latest_follow(follower, followed),
          {:ok, follow_activity} <- update_follow_state(follow_activity, "cancelled"),
          unfollow_data <- make_unfollow_data(follower, followed, follow_activity, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(unfollow_data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Deletes an message
   def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local \\ true) do
     user = User.get_cached_by_ap_id(actor)
 
@@ -340,7 +377,9 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     }
 
     with Repo.delete(object),
+         # Deletes all activities related to this object
          Repo.delete_all(Activity.all_non_create_by_object_ap_id_q(id)),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(data, local),
          :ok <- maybe_federate(activity),
          {:ok, _actor} <- User.decrease_note_count(user) do
@@ -348,11 +387,14 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Block activity
   def block(blocker, blocked, activity_id \\ nil, local \\ true) do
     ap_config = Application.get_env(:pleroma, :activitypub)
     unfollow_blocked = Keyword.get(ap_config, :unfollow_blocked)
     outgoing_blocks = Keyword.get(ap_config, :outgoing_blocks)
 
+    # Unfollow the blocked person
+    # I don't see the point to have a configuration about this
     with true <- unfollow_blocked do
       follow_activity = fetch_latest_follow(blocker, blocked)
 
@@ -361,8 +403,10 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       end
     end
 
+    # This is interesting, should the block activities be federated?
     with true <- outgoing_blocks,
          block_data <- make_block_data(blocker, blocked, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(block_data, local),
          :ok <- maybe_federate(activity) do
       {:ok, activity}
@@ -371,15 +415,19 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Unblock actiivty
   def unblock(blocker, blocked, activity_id \\ nil, local \\ true) do
     with %Activity{} = block_activity <- fetch_latest_block(blocker, blocked),
          unblock_data <- make_unblock_data(blocker, blocked, block_activity, activity_id),
+         # Same pattern: insert and send to other servers only if it is necessary
          {:ok, activity} <- insert(unblock_data, local),
+         # interesting, here does not check the conf, so undo block are always federated :O
          :ok <- maybe_federate(activity) do
       {:ok, activity}
     end
   end
 
+  # Load a conversation. All shares the same context_id
   def fetch_activities_for_context(context, opts \\ %{}) do
     public = ["https://www.w3.org/ns/activitystreams#Public"]
 
@@ -393,6 +441,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       |> restrict_blocked(opts)
       |> restrict_recipients(recipients, opts["user"])
 
+    # No limits or pagination!
     query =
       from(
         activity in query,
@@ -410,17 +459,21 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     Repo.all(query)
   end
 
+  # Used often
+  # receives a lot of opts to get the exact query
   def fetch_public_activities(opts \\ %{}) do
     q = fetch_activities_query(["https://www.w3.org/ns/activitystreams#Public"], opts)
 
     q
     |> restrict_unlisted()
     |> Repo.all()
+    # This can be done in query time...
     |> Enum.reverse()
   end
 
   @valid_visibilities ~w[direct unlisted public private]
 
+  # A lot of functions to make the query exactly like it is needed it
   defp restrict_visibility(query, %{visibility: "direct"}) do
     public = "https://www.w3.org/ns/activitystreams#Public"
 
@@ -577,6 +630,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     from(activity in query, where: activity.id > ^since)
   end
 
+  # Wow this is a complex query
   defp restrict_blocked(query, %{"blocking_user" => %User{info: info}}) do
     blocks = info["blocks"] || []
     domain_blocks = info["domain_blocks"] || []
@@ -646,6 +700,8 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     ActivityStream.create_object(data)
   end
 
+  # This function should be in Transmogrifier because it is translating
+  # "mastodon user" from AP object
   def user_data_from_user_object(data) do
     avatar =
       data["icon"]["url"] &&
@@ -693,6 +749,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     {:ok, user_data}
   end
 
+  # Fetch an user from an external server
   def fetch_and_prepare_user_from_ap_id(ap_id) do
     with {:ok, %{status_code: 200, body: body}} <-
            @httpoison.get(ap_id, [Accept: "application/activity+json"], follow_redirect: true),
@@ -703,7 +760,9 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Strange code, I don't fully understand it
   def make_user_from_ap_id(ap_id) do
+    # This is call is done again in upgrade_user_from_ap_id
     if _user = User.get_by_ap_id(ap_id) do
       Transmogrifier.upgrade_user_from_ap_id(ap_id)
     else
@@ -715,6 +774,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Webfinger, this is needed because Mastodon thing
   def make_user_from_nickname(nickname) do
     with {:ok, %{"ap_id" => ap_id}} when not is_nil(ap_id) <- WebFinger.finger(nickname) do
       make_user_from_ap_id(ap_id)
@@ -746,9 +806,11 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     public = is_public?(activity)
 
     remote_inboxes =
+      # I don't understand why it goes to Salmon just to get remote users??
       (Pleroma.Web.Salmon.remote_users(activity) ++ followers)
       |> Enum.filter(fn user -> User.ap_enabled?(user) end)
       |> Enum.map(fn %{info: %{"source_data" => data}} ->
+        # Using sharedInbox to make less requests!
         (data["endpoints"] && data["endpoints"]["sharedInbox"]) || data["inbox"]
       end)
       |> Enum.uniq()
@@ -758,6 +820,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     json = Jason.encode!(data)
 
     Enum.each(remote_inboxes, fn inbox ->
+      # This is really calling to publish_one in async way
       Federator.enqueue(:publish_single_ap, %{
         inbox: inbox,
         json: json,
@@ -767,6 +830,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end)
   end
 
+  # Just sign and send
   def publish_one(%{inbox: inbox, json: json, actor: actor, id: id}) do
     Logger.info("Federating #{id} to #{inbox}")
     host = URI.parse(inbox).host
@@ -794,6 +858,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
 
   # TODO:
   # This will create a Create activity, which we need internally at the moment.
+  # BAD: imaginary activities
   def fetch_object_from_id(id) do
     if object = Object.get_cached_by_ap_id(id) do
       {:ok, object}
@@ -840,6 +905,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     end
   end
 
+  # Utility functions
   def is_public?(activity) do
     "https://www.w3.org/ns/activitystreams#Public" in (activity.data["to"] ++
                                                          (activity.data["cc"] || []))

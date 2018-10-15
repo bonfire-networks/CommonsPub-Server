@@ -256,12 +256,15 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A follow message was received by the server
   def handle_incoming(
         %{"type" => "Follow", "object" => followed, "actor" => follower, "id" => id} = data
       ) do
     with %User{local: true} = followed <- User.get_cached_by_ap_id(followed),
          %User{} = follower <- User.get_or_fetch_by_ap_id(follower),
          {:ok, activity} <- ActivityPub.follow(follower, followed, id, false) do
+      # It accepts automatically if is not a "private" account.
+      # Mastodon stuff again
       if not User.locked?(followed) do
         ActivityPub.accept(%{
           to: [follower.ap_id],
@@ -305,6 +308,11 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # An accept message was received by the server
+  # It assumes the accept is for a follow activity.
+  # However this has not to be the case in ActivityPub,
+  # you can accept more things in general.
+  # Fortunelly it makes some verification at least.
   def handle_incoming(
         %{"type" => "Accept", "object" => follow_object, "actor" => actor, "id" => id} = data
       ) do
@@ -329,12 +337,17 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Again it assumes the reject is for a follow activity.
+  # And again it is doing some checks :)
   def handle_incoming(
         %{"type" => "Reject", "object" => follow_object, "actor" => actor, "id" => id} = data
       ) do
     with %User{} = followed <- User.get_or_fetch_by_ap_id(actor),
          {:ok, follow_activity} <- get_follow_activity(follow_object, followed),
          %User{local: true} = follower <- User.get_cached_by_ap_id(follow_activity.data["actor"]),
+         # I  don't understand why it creates an accept activity
+         # for a reject activity :S
+         # Probably a bug
          {:ok, activity} <-
            ActivityPub.accept(%{
              to: follow_activity.data["to"],
@@ -351,6 +364,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A like activity is received
   def handle_incoming(
         %{"type" => "Like", "object" => object_id, "actor" => actor, "id" => id} = _data
       ) do
@@ -364,6 +378,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A retweet is received
   def handle_incoming(
         %{"type" => "Announce", "object" => object_id, "actor" => actor, "id" => id} = _data
       ) do
@@ -377,6 +392,8 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # An updated activity received by the server.
+  # Just for account profile
   def handle_incoming(
         %{"type" => "Update", "object" => %{"type" => object_type} = object, "actor" => actor_id} =
           data
@@ -764,6 +781,11 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     Repo.update_all(q, [])
   end
 
+  # This updates an external user fetching it again from the external server
+  # IMPORTANT Because the followers are save in array this is really slow
+  # Or maybe it is changing the id... I don't know
+  # Exactly it seems like a mix task to fix something previous
+  # but it is also used in ActivityPub so it is really confusing!
   def upgrade_user_from_ap_id(ap_id, async \\ true) do
     with %User{local: false} = user <- User.get_by_ap_id(ap_id),
          {:ok, data} <- ActivityPub.fetch_and_prepare_user_from_ap_id(ap_id) do
