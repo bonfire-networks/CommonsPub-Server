@@ -4,6 +4,10 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   # This is module, that could be a private module for ActivityPub because its name,
   # is called from MastodonAPI, TwitterAPI
   # Why a function should be here and not in ActivityPub?
+  # The most of the functions are query related:
+  # ie: When we received an undo activity we have to check to the previous activity
+  # Because it is using JSONB for storing data some of them are quite complex
+  # and difficult to understand, but they seem fine.
   alias Pleroma.{Repo, Web, Activity, User}
   alias ActivityStream.Object
   alias Pleroma.Web.Router.Helpers

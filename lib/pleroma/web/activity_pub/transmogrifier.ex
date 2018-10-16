@@ -2,6 +2,8 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   @moduledoc """
   A module to handle coding from internal to wire ActivityPub and back.
   """
+  # This module does more things that doc says.
+  # It is the module which actually handle all the incoming AP requests!
   alias Pleroma.User
   alias ActivityStream.Object
   alias Pleroma.Activity
@@ -282,6 +284,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # This function is not used!
   defp mastodon_follow_hack(%{"id" => id, "actor" => follower_id}, followed) do
     with true <- id =~ "follows",
          %User{local: true} = follower <- User.get_cached_by_ap_id(follower_id),
@@ -429,6 +432,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   end
 
   # TODO: Make secure.
+  # Remove a tweet message received by the server
   def handle_incoming(
         %{"type" => "Delete", "object" => object_id, "actor" => actor, "id" => _id} = _data
       ) do
@@ -444,6 +448,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a retweet message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -462,6 +467,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a follow message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -483,6 +489,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   @ap_config Application.get_env(:pleroma, :activitypub)
   @accept_blocks Keyword.get(@ap_config, :accept_blocks)
 
+  # Undo a block message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -502,6 +509,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A block message received by the server
   def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = data
       ) do
@@ -517,6 +525,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a like message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -569,7 +578,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   #  """
   #  internal -> Mastodon
   #  """
-
+  # The following functions they are just to translate to Mastodon stuff
   def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Note"} = object} = data) do
     object =
       object
@@ -732,6 +741,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     |> Map.put("attachment", attachments)
   end
 
+  # This is a process to change from an old format to a new one :S
   defp user_upgrade_task(user) do
     old_follower_address = User.ap_followers(user)
 
