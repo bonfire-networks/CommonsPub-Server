@@ -1,19 +1,22 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
-import { Link, Redirect, Route, RouteComponentProps } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
 import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
+import Link from '../../components/elements/Link/Link';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import Body from '../../components/chrome/Body/Body';
 import Button from '../../components/elements/Button/Button';
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
+import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
+import { DUMMY_USER } from '../../apollo/client';
 
 const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
 const { SetUserQuery } = require('../../graphql/SET_USER.client.graphql');
@@ -162,7 +165,7 @@ class Login extends React.Component<LoginProps, LoginState> {
         await this.props.updateUser({
           variables: {
             isAuthenticated: true,
-            data: {}
+            data: DUMMY_USER
           }
         });
       }
@@ -303,13 +306,11 @@ class Login extends React.Component<LoginProps, LoginState> {
   }
 }
 
-type User = {
-  isAuthenticated: boolean;
-  user: object;
-};
-
 export interface Args {
-  data: User;
+  data: {
+    isAuthenticated: boolean;
+    user: User;
+  };
 }
 
 // get the user auth object from local cache

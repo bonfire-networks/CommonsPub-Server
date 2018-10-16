@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { withRouter } from 'react-router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Nav as ZenNav,
   NavItem,
@@ -8,8 +10,8 @@ import {
   SubNavItem,
   SubNavItemText
 } from '@zendeskgarden/react-chrome';
-
-const logo = require('../../../static/img/moodle-logo.png');
+import { faTh, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { RouterProps } from 'react-router';
 
 enum NavItems {
   Communities,
@@ -22,70 +24,154 @@ enum SubNavItems {
   Following
 }
 
+const navPathnames = {
+  [NavItems.Communities]: '/communities',
+  [NavItems.Collections]: '/collections'
+};
+
+const subNavPathnames = {
+  [SubNavItems.Featured]: '/featured',
+  [SubNavItems.Yours]: '/yours',
+  [SubNavItems.Following]: '/following'
+};
+
+const navMatch = new Map([
+  [/^\/communities/, NavItems.Communities],
+  [/^\/collections/, NavItems.Collections]
+]);
+
+const subNavMatch = new Map([
+  [/^\/communities\/?$/, SubNavItems.Featured],
+  [/^\/collections\/?$/, SubNavItems.Featured],
+  [/^\/(communities|collections)\/featured/, SubNavItems.Featured],
+  [/^\/(communities|collections)\/following/, SubNavItems.Following],
+  [/^\/(communities|collections)\/yours/, SubNavItems.Yours]
+]);
+
 const subNavItems = {
-  [NavItems.Communities]: ({ current }) => (
+  [NavItems.Communities]: ({ current, onClick }) => (
     <>
-      <SubNavItem current={current === SubNavItems.Featured}>
+      <SubNavItem
+        current={current === SubNavItems.Featured}
+        onClick={() => onClick(SubNavItems.Featured)}
+      >
         <SubNavItemText>Featured</SubNavItemText>
       </SubNavItem>
-      <SubNavItem current={current === SubNavItems.Yours}>
+      <SubNavItem
+        current={current === SubNavItems.Yours}
+        onClick={() => onClick(SubNavItems.Yours)}
+      >
         <SubNavItemText>Yours</SubNavItemText>
       </SubNavItem>
     </>
   ),
-  [NavItems.Collections]: ({ current }) => (
+  [NavItems.Collections]: ({ current, onClick }) => (
     <>
-      <SubNavItem current={current === SubNavItems.Featured}>
-        <SubNavItemText>Featured</SubNavItemText>,
+      <SubNavItem
+        current={current === SubNavItems.Featured}
+        onClick={() => onClick(SubNavItems.Featured)}
+      >
+        <SubNavItemText>Featured</SubNavItemText>
       </SubNavItem>
-      <SubNavItem current={current === SubNavItems.Following}>
-        <SubNavItemText>Following</SubNavItemText>,
+      <SubNavItem
+        current={current === SubNavItems.Following}
+        onClick={() => onClick(SubNavItems.Following)}
+      >
+        <SubNavItemText>Following</SubNavItemText>
       </SubNavItem>
-      <SubNavItem current={current === SubNavItems.Yours}>
-        <SubNavItemText>Yours</SubNavItemText>,
+      <SubNavItem
+        current={current === SubNavItems.Yours}
+        onClick={() => onClick(SubNavItems.Yours)}
+      >
+        <SubNavItemText>Yours</SubNavItemText>
       </SubNavItem>
     </>
   )
 };
 
-export default class Nav extends React.Component {
+class Nav extends React.Component<RouterProps, {}> {
   state: any = {
-    navOpen: true,
-    activeNav: NavItems.Communities,
-    activeSubNav: SubNavItems.Featured
+    open: false,
+    activeNav: null,
+    activeSubNav: null
   };
+
+  constructor(props) {
+    super(props);
+
+    console.log(props);
+
+    for (const [re, item] of navMatch) {
+      if (re.test(props.location.pathname)) {
+        this.state.activeNav = item;
+      }
+    }
+    for (const [re, item] of subNavMatch) {
+      if (re.test(props.location.pathname)) {
+        this.state.activeSubNav = item;
+      }
+    }
+
+    if (!this.state.activeNav) {
+      this.state.activeNav = NavItems.Communities;
+    }
+
+    this.toggleSubNav = this.toggleSubNav.bind(this);
+  }
 
   toggleMenu() {
     this.setState({
-      navOpen: !this.state.navOpen
+      open: !this.state.open
     });
+  }
+
+  toggleNav(nav) {
+    this.setState({
+      activeNav: nav,
+      activeSubNav: SubNavItems.Featured
+    });
+    this.props.history.push(
+      navPathnames[nav] + subNavPathnames[SubNavItems.Featured]
+    );
+  }
+
+  toggleSubNav(subNav) {
+    this.setState({
+      activeSubNav: subNav
+    });
+    this.props.history.push(
+      navPathnames[this.state.activeNav] + subNavPathnames[subNav]
+    );
   }
 
   render() {
     return (
       <>
-        <ZenNav expanded={this.state.navOpen}>
-          <NavItem logo title="MoodleNet" onClick={() => this.toggleMenu()}>
-            <NavItemIcon>
-              <img src={logo} />
-            </NavItemIcon>
-            <NavItemText>MoodleNet</NavItemText>
-          </NavItem>
+        <ZenNav expanded={this.state.open}>
           <NavItem
             title="Communities"
+            onClick={() => this.toggleNav(NavItems.Communities)}
             current={this.state.activeNav === NavItems.Communities}
           >
+            <NavItemIcon>
+              <FontAwesomeIcon icon={faUsers} />
+            </NavItemIcon>
             <NavItemText>Communities</NavItemText>
           </NavItem>
           <NavItem
             title="Collections"
+            onClick={() => this.toggleNav(NavItems.Collections)}
             current={this.state.activeNav === NavItems.Collections}
           >
+            <NavItemIcon>
+              <FontAwesomeIcon icon={faTh} />
+            </NavItemIcon>
             <NavItemText>Collections</NavItemText>
           </NavItem>
         </ZenNav>
         <SubNav>
-          {...subNavItems[this.state.activeNav]({
+          {subNavItems[this.state.activeNav]({
+            onClick: this.toggleSubNav,
             current: this.state.activeSubNav
           })}
         </SubNav>
@@ -93,3 +179,5 @@ export default class Nav extends React.Component {
     );
   }
 }
+
+export default withRouter(Nav as any);

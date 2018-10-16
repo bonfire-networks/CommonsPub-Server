@@ -4,6 +4,8 @@ import { ThemedStyledComponentsModule } from 'styled-components';
 export interface MoodleThemeInterface {
   colour: {
     primary: string;
+    primaryAlt: string;
+    primaryDark: string;
     community: string;
     collection: string;
     base1: string;

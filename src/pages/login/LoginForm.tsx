@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { Col, Row } from '@zendeskgarden/react-grid';
 import { Label, Message, TextField } from '@zendeskgarden/react-textfields';
 
@@ -7,6 +6,7 @@ import styled from '../../themes/styled';
 import TextInput from '../../components/inputs/Text/Text';
 import Button from '../../components/elements/Button/Button';
 import Loader from '../../components/elements/Loader/Loader';
+import Link from '../../components/elements/Link/Link';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
 type SubmitColProps = {

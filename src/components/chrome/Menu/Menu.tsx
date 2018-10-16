@@ -1,12 +1,24 @@
 import * as React from 'react';
-import { Menu as ZenMenu, Item } from '@zendeskgarden/react-menus';
-import { Avatar } from '@zendeskgarden/react-avatars';
+import OnClickOutside from 'react-click-outside';
+import compose from 'recompose/compose';
+import { graphql } from 'react-apollo';
+import { withTheme } from '@zendeskgarden/react-theming';
 
-import styled from '../../../themes/styled';
+import NotificationsMenuBody from './Notifications.MenuBody';
+import SearchMenuBody from './Search.MenuBody';
+import UserMenuBody from './User.MenuBody';
+import User from '../../../types/User';
+import styled, { StyledThemeInterface } from '../../../themes/styled';
+import MenuNav, { MenuItems } from './MenuNav';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const avatar = require('../../../static/img/avatar.png');
-const search = require('../../../static/img/search.png');
-const notifications = require('../../../static/img/notifications.png');
+const { GetUserQuery } = require('../../../graphql/GET_USER.client.graphql');
+
+//TODO replace with some utility like lodash or polyfill `Object.values`
+function values(obj) {
+  return Object.keys(obj).map(k => obj[k]);
+}
 
 interface MenuContainerProps {
   show?: boolean;
@@ -14,27 +26,63 @@ interface MenuContainerProps {
 }
 
 const MenuContainer = styled.div`
-  order: 3;
-  max-width: 300px;
-  width: ${(props: MenuContainerProps) => (props.open ? '25%' : '0%')};
+  width: 300px;
+  left: ${(props: MenuContainerProps) => (props.open ? 0 : 300)}px;
+  overflow: hidden;
 `;
 
-const MenuNav = styled.ul`
+interface MenuBodyProps {
+  width: number;
+  open: boolean;
+}
+
+const MenuBody = styled.div<MenuBodyProps>`
+  width: ${props => props.width}px;
+  padding: 60px 10px 0 10px;
+  height: 100%;
+  overflow: auto;
+  z-index: 10;
   position: fixed;
-  top: 0;
-  right: 0;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: row;
+  box-shadow: 0 0 10px lightgrey;
+  background-color: ${props => props.theme.styles.colour.base5};
+  border-left: 1px solid ${props => props.theme.styles.colour.base4};
+  right: ${props => (props.open ? 0 : -Math.max(...values(menuWidths)))}px;
+  transition: all 0.2s ease-in-out;
 `;
 
-const MenuNavItem = styled.li``;
+const MenuBodyInner = styled.div<any>`
+  width: ${props => props.width}px;
+  padding-top: 10px;
+  border-top: 1px solid ${props => props.theme.styles.colour.base4};
+`;
 
-const MenuBody = styled.div``;
+const MenuClose = styled.div`
+  cursor: pointer;
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  font-size: 29px;
+  color: grey;
 
-interface MenuProps {
+  &:active {
+    color: black;
+  }
+`;
+
+const menuWidths = {
+  [MenuItems.notifications]: 280, // size of a Notification +  20px for padding
+  [MenuItems.search]: 350,
+  [MenuItems.user]: 260
+};
+
+interface MenuProps extends StyledThemeInterface {
+  data: {
+    //TODO use actual User type from graphql once defined, if possible
+    user: {
+      data: any;
+      isAuthenticated: boolean;
+    };
+  };
   show?: boolean;
 }
 
@@ -43,7 +91,7 @@ interface MenuState {
   open: boolean;
 }
 
-export default class extends React.Component<MenuProps, MenuState> {
+class Menu extends React.Component<MenuProps, MenuState> {
   state = {
     openMenuName: null,
     open: false
@@ -52,14 +100,20 @@ export default class extends React.Component<MenuProps, MenuState> {
   constructor(props: MenuProps) {
     super(props);
     this.toggleMenu = this.toggleMenu.bind(this);
+    this.closeMenu = this.closeMenu.bind(this);
+  }
+
+  closeMenu() {
+    // don't unset openMenuName otherwise the menu body content
+    // will disappear as the menu closes
+    this.setState({
+      open: false
+    });
   }
 
   toggleMenu(menuName) {
     if (this.state.openMenuName === menuName) {
-      this.setState({
-        openMenuName: null,
-        open: false
-      });
+      this.closeMenu();
     }
 
     this.setState({
@@ -68,47 +122,58 @@ export default class extends React.Component<MenuProps, MenuState> {
     });
   }
 
+  getMenuBodyComponent() {
+    const activeMenu = this.state.openMenuName;
+    if (!activeMenu) {
+      return null;
+    }
+    const Component = {
+      [MenuItems.notifications]: NotificationsMenuBody,
+      [MenuItems.search]: SearchMenuBody,
+      [MenuItems.user]: UserMenuBody
+    }[activeMenu] as React.ComponentType<{ user: User }>;
+    return <Component user={this.props.data.user.data as User} />;
+  }
+
   render() {
+    // we use this to set the menu container width AND the inner menu
+    // body width. we set the inner menu body width to prevent its content
+    // being fluid on resize of the container when the user navigates
+    // between menus that are different sizes, e.g. move from search to notifs
+    const menuWidth = menuWidths[String(this.state.openMenuName)] || 300;
+
     return (
-      <MenuContainer show={this.props.show} open={this.state.open}>
-        <MenuNav>
-          <MenuNavItem onClick={() => this.toggleMenu('Search')}>
-            <img width={30} height={30} src={search} alt="Search" />
-          </MenuNavItem>
-          <MenuNavItem>
-            <ZenMenu
-              trigger={({ ref }) => (
-                <img
-                  ref={ref}
-                  width={30}
-                  height={30}
-                  src={notifications}
-                  alt="Notifications"
-                />
-              )}
+      <OnClickOutside style={{ width: 0 }} onClickOutside={this.closeMenu}>
+        <MenuContainer show={this.props.show} open={this.state.open}>
+          <MenuNav
+            fixed={true}
+            user={this.props.data.user}
+            toggleMenu={this.toggleMenu}
+          />
+          <MenuBody width={menuWidth} open={this.state.open}>
+            <MenuClose
+              title={`Close the ${this.state.openMenuName} menu`}
+              onClick={this.closeMenu}
             >
-              <Item>1</Item>
-              <Item>2</Item>
-              <Item>3</Item>
-            </ZenMenu>
-          </MenuNavItem>
-          <MenuNavItem>
-            <ZenMenu
-              trigger={({ ref }) => (
-                <Avatar innerRef={ref}>
-                  <img src={avatar} alt="Joe Bloggs" />
-                </Avatar>
-              )}
-            >
-              <Item>Your Profile</Item>
-              <Item>Settings</Item>
-              <Item>About MoodleNet</Item>
-              <Item>Sign out</Item>
-            </ZenMenu>
-          </MenuNavItem>
-        </MenuNav>
-        <MenuBody>menu body</MenuBody>
-      </MenuContainer>
+              <FontAwesomeIcon icon={faTimes} />
+            </MenuClose>
+            <MenuNav
+              fixed={false}
+              user={this.props.data.user}
+              activeMenu={this.state.open ? this.state.openMenuName : null}
+              toggleMenu={this.toggleMenu}
+            />
+            <MenuBodyInner width={menuWidth - 20}>
+              {this.getMenuBodyComponent()}
+            </MenuBodyInner>
+          </MenuBody>
+        </MenuContainer>
+      </OnClickOutside>
     );
   }
 }
+
+export default compose(
+  withTheme,
+  graphql(GetUserQuery)
+)(Menu);

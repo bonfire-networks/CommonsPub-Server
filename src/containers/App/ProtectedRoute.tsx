@@ -13,9 +13,10 @@ function ProtectedRoute({ component: Component, data, ...rest }) {
     <Route
       {...rest}
       render={(props: ProtectedRouteProps) => {
-        if (data.user.isAuthenticated) {
-          return <Component {...props} />;
-        }
+        // TODO reinstate after dev
+        // if (data.user.isAuthenticated) {
+        return <Component {...props} />;
+        // }
         return (
           <Redirect
             to={{

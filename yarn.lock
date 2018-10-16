@@ -431,6 +431,13 @@
     react-portal "^4.1.2"
     tabbable "^1.1.2"
 
+"@zendeskgarden/react-pagination@4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-pagination/-/react-pagination-4.3.4.tgz#a2dde554a14841b492d249e09ff4c4d8a8767b5c"
+  dependencies:
+    "@zendeskgarden/react-selection" "^4.6.0"
+    classnames "^2.2.5"
+
 "@zendeskgarden/react-select@2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@zendeskgarden/react-select/-/react-select-2.5.1.tgz#2585262353802daa909442a26085f05ce451a7ea"
@@ -455,6 +462,13 @@
     classnames "^2.2.5"
     dom-helpers "^3.3.1"
 
+"@zendeskgarden/react-tabs@3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tabs/-/react-tabs-3.3.0.tgz#2d95441f8237c6429aad9fb16c7dac38749faf67"
+  dependencies:
+    "@zendeskgarden/react-selection" "^4.6.0"
+    classnames "^2.2.5"
+
 "@zendeskgarden/react-tags@1.1.20":
   version "1.1.20"
   resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tags/-/react-tags-1.1.20.tgz#544378b904cf33f41edde51398c1efb14e6e65de"
@@ -473,21 +487,21 @@
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/@zendeskgarden/react-theming/-/react-theming-3.1.3.tgz#006bf284eacd2b2c1d0e1f0f29534cd80b79a838"
 
-"@zendeskgarden/react-tooltips@^4.3.10":
-  version "4.3.10"
-  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tooltips/-/react-tooltips-4.3.10.tgz#5d5f7bbdf711a4610a982a6ec081d490d2152584"
+"@zendeskgarden/react-tooltips@4.3.13", "@zendeskgarden/react-tooltips@^4.3.13":
+  version "4.3.13"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tooltips/-/react-tooltips-4.3.13.tgz#17d13e4dd2e4b8014975d1d296cd52e9521a580e"
   dependencies:
-    "@zendeskgarden/react-selection" "^4.5.1"
+    "@zendeskgarden/react-selection" "^4.6.0"
     classnames "^2.2.5"
     react-popper "0.8.2"
     react-portal "^4.1.2"
     render-fragment "^0.1.1"
 
-"@zendeskgarden/react-tooltips@^4.3.13":
-  version "4.3.13"
-  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tooltips/-/react-tooltips-4.3.13.tgz#17d13e4dd2e4b8014975d1d296cd52e9521a580e"
+"@zendeskgarden/react-tooltips@^4.3.10":
+  version "4.3.10"
+  resolved "https://registry.yarnpkg.com/@zendeskgarden/react-tooltips/-/react-tooltips-4.3.10.tgz#5d5f7bbdf711a4610a982a6ec081d490d2152584"
   dependencies:
-    "@zendeskgarden/react-selection" "^4.6.0"
+    "@zendeskgarden/react-selection" "^4.5.1"
     classnames "^2.2.5"
     react-popper "0.8.2"
     react-portal "^4.1.2"
@@ -7190,6 +7204,10 @@ react-apollo@2.2.4:
     lodash.flowright "^3.5.0"
     lodash.isequal "^4.5.0"
     prop-types "^15.6.0"
+
+react-click-outside@tj/react-click-outside:
+  version "1.1.1"
+  resolved "https://codeload.github.com/tj/react-click-outside/tar.gz/a833ddc5be47490307f9fcc6ed09d8c353108510"
 
 react-codemirror2@^5.1.0:
   version "5.1.0"

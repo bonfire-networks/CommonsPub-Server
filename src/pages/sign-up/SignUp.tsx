@@ -12,6 +12,8 @@ import PreviousStep from './PreviousStep';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import P from '../../components/typography/P/P';
+import H4 from '../../components/typography/H4/H4';
+import User from '../../types/User';
 
 const SignUpBody = styled(Body)`
   display: flex;
@@ -21,6 +23,7 @@ const SignUpBody = styled(Body)`
 //TODO media queries/responsivity
 const Sidebar = styled.div`
   width: 25%;
+  min-width: 500px;
   height: 100%;
   padding: 25px;
   background-color: ${(props: StyledThemeInterface) =>
@@ -29,6 +32,7 @@ const Sidebar = styled.div`
 
 //TODO media queries/responsivity
 const UserProfile = styled.div`
+  overflow: auto;
   width: 75%;
   height: 100%;
   margin-left: 1%;
@@ -44,7 +48,9 @@ const UserProfileImage = styled.div<any>`
   background-color: ${props => props.theme.styles.colour.base4};
   background-image: ${props =>
     props.backgroundImage
-      ? `url(${props.backgroundImage}), linear-gradient(white, grey)`
+      ? `linear-gradient(transparent, rgba(0, 0, 0, .75)), url(${
+          props.backgroundImage
+        })`
       : ''};
   background-position: center;
   background-size: 100% auto;
@@ -56,6 +62,15 @@ const UserProfileImage = styled.div<any>`
 `;
 
 const liftUserAvatar = -75;
+
+const AvatarPlaceholder = styled.div`
+  font-size: 12px;
+  position: absolute;
+  top: 150px;
+  text-align: center;
+  text-shadow: 1px 1px 0 #00000069;
+  transition: all 0.2s linear;
+`;
 
 //TODO don't use any props type
 const UserAvatar = styled.div<any>`
@@ -76,12 +91,44 @@ const UserAvatar = styled.div<any>`
   align-items: center;
   justify-content: center;
   font-size: 4rem;
+
+  // avatar placeholder
+  > div {
+    font-size: 6px;
+    pointer-events: none;
+  }
+
+  &:hover > div {
+    top: 50%;
+    font-size: 12px;
+  }
+  // end avatar placeholder
+
+  // avatar font awesome icon
+  svg {
+    top: 0;
+    position: relative;
+    transition: all 0.2s linear;
+    pointer-events: none;
+  }
+
+  &:hover svg {
+    font-size: 30px;
+    top: -25px;
+  }
+  // end avatar font awesome icon
 `;
 
 const UserDetails = styled.div`
   position: relative;
   top: ${liftUserAvatar}px;
   text-align: center;
+`;
+
+const SignUpProfileSection = styled.div`
+  position: relative;
+  top: ${liftUserAvatar}px;
+  padding: 50px;
 `;
 
 const FileInput = styled.input`
@@ -91,7 +138,16 @@ const FileInput = styled.input`
   position: absolute;
   top: -100px;
   left: 0;
+
+  &:focus {
+    outline: 0;
+  }
 `;
+
+const stepScrollTo = {
+  1: 0,
+  2: 650
+};
 
 //TODO this should be offloaded to an API
 function generateEmojiId(): string {
@@ -134,19 +190,7 @@ interface SignUpMatchParams {
 
 interface SignUpState {
   currentStep: number;
-  user: {
-    username: string;
-    password: string;
-    email: string;
-    emojiId: string;
-    avatarImage?: string;
-    profileImage?: string;
-    role: string;
-    location: string;
-    language: string;
-    interests: string[];
-    languages: string[];
-  };
+  user: User;
 }
 
 interface SignUpProps extends RouteComponentProps<SignUpMatchParams> {}
@@ -158,18 +202,33 @@ const FadedFallbackText = ({ value, fallback }) =>
     <span style={{ color: 'lightgrey' }}>{fallback}</span>
   );
 
-const Interests = ({ interests }) => <div>interests</div>;
+const Step2Section = styled.div<any>`
+  opacity: ${props => (props.active ? 1 : 0.1)};
+  pointer-events: ${props => (props.active ? 'unset' : 'none')};
+  transition: opacity 1.75s linear;
+`;
 
-const Languages = ({ languages }) => <div>languages</div>;
+const Interests = ({ active, interests }) => (
+  <Step2Section active={active}>
+    <H4>Interests</H4>
+  </Step2Section>
+);
+
+const Languages = ({ active, languages }) => (
+  <Step2Section active={active}>
+    <H4>Languages</H4>
+  </Step2Section>
+);
 
 export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   static stepComponents = [Step1, Step2];
+
+  _profileElem: HTMLElement;
 
   state = {
     currentStep: -1,
     user: {
       username: '',
-      password: '',
       email: '',
       emojiId: generateEmojiId(),
       avatarImage: undefined,
@@ -179,7 +238,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
       language: 'en-gb',
       interests: [] as string[],
       languages: [] as string[]
-    }
+    } as User
   };
 
   constructor(props) {
@@ -187,11 +246,10 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
 
     this.state.currentStep = Number(props.match.params.step);
 
-    //TODO reinstate when dev for sign up is done
-    // if (!this.state.user.username && this.state.currentStep > 1) {
-    //   window.location.href = '/sign-up';
-    //   return;
-    // }
+    if (!this.state.user.username && this.state.currentStep > 1) {
+      this.props.history.replace('/sign-up');
+      return;
+    }
 
     this.randomizeEmojiId = this.randomizeEmojiId.bind(this);
     this.linkUserState = this.linkUserState.bind(this);
@@ -235,6 +293,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     const prevStep = Number(this.state.currentStep) - 1;
     if (prevStep > 0) {
       this.props.history.push(`/sign-up/${prevStep}`);
+      this.scrollForStep(prevStep);
     }
   }
 
@@ -248,6 +307,32 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
       return;
     }
     this.props.history.push(`/sign-up/${nextStep}`);
+    this.scrollForStep(nextStep);
+  }
+
+  scrollForStep(step) {
+    // https://gist.github.com/andjosh/6764939#gistcomment-2047675
+    function scrollTo(element, to = 0, duration = 1000) {
+      const start = element.scrollTop;
+      const change = to - start;
+      const increment = 20;
+      let currentTime = 0;
+      const animateScroll = () => {
+        currentTime += increment;
+        element.scrollTop = easeInOutQuad(currentTime, start, change, duration);
+        if (currentTime < duration) {
+          setTimeout(animateScroll, increment);
+        }
+      };
+      animateScroll();
+    }
+    function easeInOutQuad(t, b, c, d) {
+      t /= d / 2;
+      if (t < 1) return (c / 2) * t * t + b;
+      t--;
+      return (-c / 2) * (t * (t - 2) - 1) + b;
+    }
+    scrollTo(this._profileElem, stepScrollTo[step]);
   }
 
   /**
@@ -329,9 +414,9 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
             {this.getStepComponent()}
           </Grid>
         </Sidebar>
-        <UserProfile>
+        <UserProfile innerRef={e => (this._profileElem = e)}>
           <UserProfileImage
-            title="Click to upload a profile background"
+            title="Click to select a profile background"
             backgroundImage={this.state.user.profileImage}
           >
             <FileInput
@@ -341,6 +426,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
             {!this.state.user.profileImage ? (
               <div
                 style={{
+                  pointerEvents: 'none',
                   position: 'relative',
                   top: '-20px',
                   textAlign: 'center'
@@ -349,19 +435,20 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
                 <FontAwesomeIcon icon={faImage} />
                 <P
                   style={{
+                    pointerEvents: 'none',
                     marginTop: '-12px',
                     fontSize: '.8rem',
                     textShadow: '1px 1px 0 lightgrey'
                   }}
                 >
-                  Click to upload
+                  Click to select
                   <br />a profile background
                 </P>
               </div>
             ) : null}
           </UserProfileImage>
           <UserAvatar
-            title="Click to upload your profile image"
+            title="Click to select your profile image"
             backgroundImage={this.state.user.avatarImage}
           >
             <FileInput
@@ -369,7 +456,13 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
               type="file"
             />
             {!this.state.user.avatarImage ? (
-              <FontAwesomeIcon icon={faUser} />
+              <>
+                <FontAwesomeIcon icon={faUser} />
+                <AvatarPlaceholder>
+                  Click to select
+                  <br />a profile picture
+                </AvatarPlaceholder>
+              </>
             ) : null}
           </UserAvatar>
           <UserDetails>
@@ -392,12 +485,18 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
               />
             </H6>
           </UserDetails>
-          {this.state.currentStep > 1 ? (
-            <Interests interests={this.state.user.interests} />
-          ) : null}
-          {this.state.currentStep > 1 ? (
-            <Languages languages={this.state.user.languages} />
-          ) : null}
+          <SignUpProfileSection>
+            <Interests
+              active={this.state.currentStep > 1}
+              interests={this.state.user.interests}
+            />
+            <Languages
+              active={this.state.currentStep > 1}
+              languages={this.state.user.languages}
+            />
+          </SignUpProfileSection>
+          {/*padding forces profile to be scrollable*/}
+          <div style={{ height: '75%', width: '100%' }} />
         </UserProfile>
       </SignUpBody>
     );

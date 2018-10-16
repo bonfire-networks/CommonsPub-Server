@@ -1,6 +1,24 @@
 query GetUserQuery {
     user @client {
-        isAuthenticated,
-        data
+        __typename
+        isAuthenticated
+        data {
+            id
+            username
+            email
+            emojiId
+            role
+            location
+            language
+            languages
+            interests
+            notifications {
+                __typename
+                id
+                when
+                type
+                content
+            }
+        }
     }
 }

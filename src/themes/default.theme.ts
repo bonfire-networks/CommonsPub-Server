@@ -3,6 +3,8 @@ import createTheme from './create';
 export const theme = createTheme({
   colour: {
     primary: '#f98012',
+    primaryAlt: '#FF9D00',
+    primaryDark: '#BA5900',
     // secondary colours
     community: '#3f51b5',
     collection: '#2196f3',

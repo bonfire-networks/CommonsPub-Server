@@ -16,12 +16,18 @@ import '@zendeskgarden/react-avatars/dist/styles.css';
 import '@zendeskgarden/react-textfields/dist/styles.css';
 import '@zendeskgarden/react-tags/dist/styles.css';
 import '@zendeskgarden/react-select/dist/styles.css';
+import '@zendeskgarden/react-checkboxes/dist/styles.css';
+import '@zendeskgarden/react-pagination/dist/styles.css';
+import '@zendeskgarden/react-tabs/dist/styles.css';
+import '@zendeskgarden/react-tooltips/dist/styles.css';
 
 import '../../styles/social-icons.css';
 import '../../styles/flag-icons.css';
 import '../../styles/loader.css';
 
 export const AppStyles = styled.div`
+  font-family: ${props => props.theme.styles.fontFamily};
+
   * {
     font-family: ${props => props.theme.styles.fontFamily};
   }

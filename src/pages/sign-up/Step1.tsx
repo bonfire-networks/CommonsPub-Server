@@ -14,11 +14,15 @@ const Spacer = styled.div`
   width: 100%;
 `;
 
+const OverflowCol = styled(Col)`
+  overflow: auto;
+`;
+
 export default ({ user, goToNextStep, randomizeEmojiId, linkUserState }) => {
   return (
     <>
       <Row>
-        <Col>
+        <OverflowCol>
           <H6 style={{ borderBottom: '1px solid lightgrey' }}>
             <span style={{ color: 'darkgrey', fontSize: '.6em' }}>1.</span>{' '}
             Personal details
@@ -91,7 +95,7 @@ export default ({ user, goToNextStep, randomizeEmojiId, linkUserState }) => {
               maxLength={50}
             />
           </TextField>
-        </Col>
+        </OverflowCol>
       </Row>
       <Row style={{ flexGrow: 1 }} />
       <Row>

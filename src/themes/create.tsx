@@ -2,6 +2,7 @@ import { MoodleThemeInterface } from './styled';
 
 export default function createTheme(theme: MoodleThemeInterface) {
   //TODO remove !important within textfieldStyles by increasing specificity of these styles somehow
+  //language=SCSS
   const textfieldStyles = `
         && {
             border-width: 2px;
@@ -23,6 +24,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
         }
     `;
 
+  //language=SCSS
   const chromeStyles = `
         && {
             background-color: ${theme.colour.base6};
@@ -45,10 +47,89 @@ export default function createTheme(theme: MoodleThemeInterface) {
     // - text fields
     'textfields.input': textfieldStyles,
     'textfields.textarea': textfieldStyles,
+    // - checkbox fields
+    //language=SCSS
+    'checkboxes.checkbox_view': `
+        && {
+            height: 35px;
+        }
+    `,
+    //TODO style the zengarden checkbox `Message` component
+    //language=SCSS
+    'checkboxes.input': `
+        &&&& ~ label {
+            padding: 0 0 0 40px;
+            height: 35px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            justify-content: flex-start;
+            line-height: 1;
+        }
+
+        &&&& ~ label:before {
+            content: '';
+            display: block;
+            position: absolute;
+            height: 30px;
+            width: 30px;
+            background-color: white;
+            border-radius: 3px;
+            border: 2px solid ${theme.colour.base4};
+            cursor: pointer;
+            margin: 0;
+            left: 0;
+            top: 0;
+        }
+
+        &&&&:disabled ~ label:before {
+            cursor: default;            
+        }
+        
+        &&&&:hover ~ label:before,
+        &&&& ~ label[class*=is-hover]:before {
+            border: 2px solid ${theme.colour.primary};
+        }
+        
+        &&&&:checked ~ label:before {
+            border: 2px solid ${theme.colour.primary};
+            background-color: ${theme.colour.primary};
+        }
+        
+        &&&&:focus ~ label:before {
+            border: 2px solid ${theme.colour.primary};
+        }
+        
+        &&&&:active ~ label:before {
+            background-color: ${theme.colour.base5};
+        }
+        
+        &&&&:active:checked ~ label:before {
+            border: 2px solid ${theme.colour.primary};
+            background-color: ${theme.colour.primary};
+        }
+    `,
     // - chrome
     'chrome.chrome': chromeStyles,
     'chrome.body': chromeStyles,
+    'chrome.nav': `
+        && {
+            background-color: ${theme.colour.primary};
+        }    
+    `,
+    'chrome.subnav': `
+        && {
+            background-color: ${theme.colour.primaryAlt};
+        }    
+    `,
+    'chrome.nav_item': `
+        &&&&[class*=is-current] {
+            background-color: ${theme.colour.primaryAlt};
+        }    
+    `,
     // - headings
+    //language=SCSS
     'typography.xxxl': `
         && {
             font-size: ${theme.fontSize.xxxl};
@@ -57,6 +138,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
             letter-spacing: 0;
         }
     `,
+    //language=SCSS
     'typography.xxl': `
         && {
             font-size: ${theme.fontSize.xxl};
@@ -65,6 +147,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
             letter-spacing: 0;
         }
     `,
+    //language=SCSS
     'typography.xl': `
         && {
             font-size: ${theme.fontSize.xl};
@@ -73,6 +156,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
             letter-spacing: 0;
         }
     `,
+    //language=SCSS
     'typography.lg': `
         && {
             font-size: ${theme.fontSize.lg};
@@ -81,6 +165,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
             letter-spacing: 0;
         }
     `,
+    //language=SCSS
     'typography.md': `
         && {
             font-size: ${theme.fontSize.md};
@@ -90,6 +175,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
         }
     `,
     // - paragraph
+    //language=SCSS
     'typography.sm': `
         && {
             font-size: ${theme.fontSize.sm};
@@ -101,8 +187,10 @@ export default function createTheme(theme: MoodleThemeInterface) {
         }
     `,
     // - buttons
+    //language=SCSS
     'buttons.button': `
-        &&,
+        // double "&&" increases the specificity by concatenating the Button classname with itself
+        &&&&,
         &&[class*=is-active] {
             font-weight: ${theme.fontWeight.semibold};
             background-color: ${theme.colour.primary};
@@ -150,12 +238,37 @@ export default function createTheme(theme: MoodleThemeInterface) {
     `,
     // - tags
     //TODO how to style "selected" tag as per style guide? is selected === focused?
+    //language=SCSS
     'tags.tag_view': `
         && {
             padding: 15px;
             background-color: ${theme.colour.base5};
             border: 1px solid ${theme.colour.base4};
             cursor: pointer;
+        }
+    `,
+    // - pagination
+    //language=SCSS
+    'pagination.page': `
+        &&[class*=is-current] {
+            background-color: ${theme.colour.primary};
+            color: white;
+        }
+    `,
+    // - tabs
+    //language=SCSS
+    'tabs.tab': `
+        &&&& {
+            font-weight: bold;
+        }
+  
+        &&&&[class*=is-selected] {
+            color: ${theme.colour.primary};      
+            border-color: ${theme.colour.primary};
+        }
+  
+        &&&&:hover {
+            color: ${theme.colour.primary};
         }
     `
   };

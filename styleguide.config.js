@@ -8,15 +8,25 @@ const removePlugins = [
   'HtmlWebpackPlugin',
   'InterpolateHtmlPlugin',
 ]
+
 webpackConfig.plugins = webpackConfig.plugins.filter(plugin => {
   return !removePlugins.includes(plugin.constructor.name)
 })
 
+webpackConfig.module.rules.push({
+  test: /\.mjs$/,
+  include: /node_modules/,
+  type: 'javascript/auto',
+});
+
 module.exports = {
   components: 'src/components/**/*.tsx',
   ignore: [
-    'src/components/chrome/**/*.tsx',
-    'src/components/typography/LI/*.tsx'
+    //TODO maybe don't ignore these chrome components?
+    'src/components/chrome/{Body,Menu,Nav}/*.tsx',
+    'src/components/typography/LI/*.tsx',
+    'src/components/elements/flag/*.tsx',
+    'src/components/inputs/LanguageSelect/*.tsx',
   ],
   propsParser:
   require('react-docgen-typescript')

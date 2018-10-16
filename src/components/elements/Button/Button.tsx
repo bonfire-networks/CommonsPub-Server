@@ -2,15 +2,13 @@ import * as React from 'react';
 import { Button as ZenButton } from '@zendeskgarden/react-buttons';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<object> {
-  children?: any;
   secondary?: boolean;
-  className?: string;
-  // copied from https://garden.zendesk.com/react-components/buttons/#button
+  // non-HTML attrs. copied from:
+  // https://garden.zendesk.com/react-components/buttons/#button
   active?: boolean;
   basic?: boolean;
   buttonRef?: Function;
   danger?: boolean;
-  disabled?: boolean;
   focused?: boolean;
   hovered?: boolean;
   link?: boolean;
@@ -20,9 +18,6 @@ interface ButtonProps extends React.ButtonHTMLAttributes<object> {
   selected?: boolean;
   size?: 'small' | 'large';
   stretched?: boolean;
-  type?: string;
-  style?: object;
-  title?: string;
 }
 
 const Button: React.SFC<ButtonProps> = ({
