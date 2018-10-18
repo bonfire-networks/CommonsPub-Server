@@ -13,6 +13,16 @@ import {
 import { faTh, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { RouterProps } from 'react-router';
 
+import styled from '../../../themes/styled';
+
+const SubNavItemHeader = styled(SubNavItem)<any>`
+  font-weight: bold;
+  pointer-events: none;
+  color: black !important;
+  text-shadow: 1px 1px 0 rgba(255, 151, 0, 0.4);
+  font-size: 1.25em !important;
+`;
+
 enum NavItems {
   Communities,
   Collections
@@ -51,6 +61,7 @@ const subNavMatch = new Map([
 const subNavItems = {
   [NavItems.Communities]: ({ current, onClick }) => (
     <>
+      <SubNavItemHeader>Communities</SubNavItemHeader>
       <SubNavItem
         current={current === SubNavItems.Featured}
         onClick={() => onClick(SubNavItems.Featured)}
@@ -67,6 +78,7 @@ const subNavItems = {
   ),
   [NavItems.Collections]: ({ current, onClick }) => (
     <>
+      <SubNavItemHeader>Collections</SubNavItemHeader>
       <SubNavItem
         current={current === SubNavItems.Featured}
         onClick={() => onClick(SubNavItems.Featured)}

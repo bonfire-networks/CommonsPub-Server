@@ -119,7 +119,8 @@ export default function createTheme(theme: MoodleThemeInterface) {
         }    
     `,
     'chrome.subnav': `
-        && {
+        &&&& {
+            padding: 11px 20px;
             background-color: ${theme.colour.primaryAlt};
         }    
     `,
