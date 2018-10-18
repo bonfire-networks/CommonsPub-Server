@@ -88,7 +88,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -99,7 +99,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -110,7 +110,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -121,7 +121,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -132,7 +132,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -143,7 +143,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -154,7 +154,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],
@@ -165,7 +165,7 @@ export const DUMMY_RESOURCES = [
     title:
       'Runaway Russia: An American Woman Reports on the Russian Revolution',
     description,
-    source: '#',
+    source: 'https://wikipedia.org',
     likesCount: rand(),
     backgroundImage: resourceBg,
     collection: DUMMY_COLLECTIONS[0],

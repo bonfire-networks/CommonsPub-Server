@@ -4,6 +4,8 @@ import styled from '../../../themes/styled';
 import Button from '../Button/Button';
 import slugify from '../../../util/slugify';
 import { Link } from 'react-router-dom';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export enum CardType {
   community = 'community',
@@ -65,6 +67,7 @@ const CardButton = styled(Button)<any>`
 
 const ResourceBottom = styled.div`
   display: flex;
+  align-items: center;
 
   a,
   a:hover,
@@ -74,7 +77,9 @@ const ResourceBottom = styled.div`
     text-decoration: none;
   }
 
+  // likes
   div:nth-child(2) {
+    align-items: center;
     display: flex;
     justify-content: flex-end;
     flex-grow: 1;
@@ -140,10 +145,12 @@ export function ResourceCard({
       <StyledCard className="small" backgroundImage={backgroundImage}>
         <CardTitle small>{title}</CardTitle>
         <ResourceBottom>
-          <Link to={source as any}>
-            <div>Source</div>
-          </Link>
-          <div>{likesCount} likes</div>
+          <a target="_blank" href={source}>
+            Source
+          </a>
+          <div>
+            {likesCount} <FontAwesomeIcon icon={faHeart} />
+          </div>
         </ResourceBottom>
       </StyledCard>
     </Outer>
