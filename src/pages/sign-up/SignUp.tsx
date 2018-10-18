@@ -314,6 +314,9 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   scrollForStep(step) {
     // https://gist.github.com/andjosh/6764939#gistcomment-2047675
     function scrollTo(element, to = 0, duration = 1000) {
+      if (!element) {
+        return;
+      }
       const start = element.scrollTop;
       const change = to - start;
       const increment = 20;

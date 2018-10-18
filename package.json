@@ -8,7 +8,9 @@
     "precommit": "lint-staged",
     "test": "node scripts/test.js --env=jsdom",
     "styleguide": "styleguidist server",
-    "styleguide:build": "styleguidist build"
+    "styleguide:build": "styleguidist build",
+    "ol:start:app": "sudo PORT=3002 ./node_modules/forever/bin/forever -c \"npm run start\" ./",
+    "ol:start:styleguide": "sudo ./node_modules/forever/bin/forever -c \"npm run styleguide\" ./"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,md}": [
