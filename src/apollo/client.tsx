@@ -63,10 +63,10 @@ export default new ApolloClient({
       user: {
         __typename: 'User',
         // TODO reinstate after dev
-        // isAuthenticated: false,
-        // data: null,
-        isAuthenticated: true,
-        data: DUMMY_USER
+        isAuthenticated: false,
+        data: null
+        // isAuthenticated: true,
+        // data: DUMMY_USER
       }
     },
     resolvers

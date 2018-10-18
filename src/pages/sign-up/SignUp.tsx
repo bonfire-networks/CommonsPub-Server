@@ -261,6 +261,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
 
   componentWillReceiveProps(nextProps) {
     this.state.currentStep = Number(nextProps.match.params.step);
+    this.scrollForStep(this.state.currentStep);
   }
 
   getStepComponent() {
