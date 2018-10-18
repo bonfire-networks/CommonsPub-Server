@@ -99,8 +99,6 @@ class Nav extends React.Component<RouterProps, {}> {
   constructor(props) {
     super(props);
 
-    console.log(props);
-
     for (const [re, item] of navMatch) {
       if (re.test(props.location.pathname)) {
         this.state.activeNav = item;

@@ -3,9 +3,10 @@ import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 
 import H1 from '../../components/typography/H1/H1';
 import P from '../../components/typography/P/P';
-import CommunityCard from '../../components/elements/Card/Card';
 import styled from 'styled-components';
 import Logo from '../../components/brand/Logo/Logo';
+import Main from '../../components/chrome/Main/Main';
+import { CommunityCard } from '../../components/elements/Card/Card';
 
 const cardBg = require('../../static/img/styleguide/the-red-group-community.png');
 
@@ -13,12 +14,6 @@ const PageTitle = styled(H1)`
   font-size: 30px !important;
   margin-block-start: 0;
   margin-block-end: 0;
-`;
-
-const Main = styled.div`
-  margin: 10px 15px;
-  max-width: 1000px;
-  overflow: hidden;
 `;
 
 const rand = () => Math.max(1, Math.floor(Math.random() * 20));
@@ -59,18 +54,18 @@ const cards = [
   }
 ];
 
-export default function CommunitiesFeatured() {
+export default function CommunitiesYours() {
   return (
     <Main>
       <Grid>
         <Row>
-          <Col sm={12}>
+          <Col sm={6}>
             <Logo />
             <PageTitle>Your Communities</PageTitle>
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col size={6}>
             <P>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               Vestibulum ornare pretium tellus ut laoreet. Donec nec pulvinar
@@ -82,21 +77,13 @@ export default function CommunitiesFeatured() {
           </Col>
         </Row>
         <Row>
-          <Col size={12} style={{ display: 'flex' }}>
+          <Col size={10} style={{ display: 'flex', flexWrap: 'wrap' }}>
             {cards.map(card => {
               return <CommunityCard key={card.id} {...card} />;
             })}
-          </Col>
-        </Row>
-        <Row>
-          <Col size={12} style={{ display: 'flex' }}>
             {cards.map(card => {
               return <CommunityCard key={card.id} {...card} />;
             })}
-          </Col>
-        </Row>
-        <Row>
-          <Col size={12} style={{ display: 'flex' }}>
             {cards.map(card => {
               return <CommunityCard key={card.id} {...card} />;
             })}

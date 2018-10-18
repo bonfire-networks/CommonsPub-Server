@@ -6,6 +6,7 @@ import H6 from '../../typography/H6/H6';
 import Button from '../../elements/Button/Button';
 import Tag from '../../elements/Tag/Tag';
 import Link from '../../elements/Link/Link';
+import { withRouter } from 'react-router';
 
 const SearchHeading = styled(H6)`
   margin-block-start: 0.5em;
@@ -37,7 +38,7 @@ neck`;
 
 const links = ['The Russian Revolution', 'Joseph Stalin', 'Lenin'];
 
-export default withTheme(({ theme }: any) => {
+export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
   return (
     <div>
       <SearchHeading>
@@ -45,15 +46,18 @@ export default withTheme(({ theme }: any) => {
         <span style={{ color: theme.styles.colour.primary }}>MoodleNet</span>
       </SearchHeading>
       <form
+        action="/search"
         onSubmit={e => {
           e.preventDefault();
-          const el: HTMLInputElement | null = document.getElementById(
+          const el: HTMLInputElement = document.getElementById(
             'searchInput'
           ) as HTMLInputElement;
-          alert('search submitted: ' + (el ? el.value : ''));
+          history.push('/search?q=' + el.value);
+          closeMenu();
         }}
       >
         <Text
+          name="q"
           id="searchInput"
           placeholder="e.g. history lessons"
           button={<Button type="submit">Search</Button>}
@@ -78,4 +82,4 @@ export default withTheme(({ theme }: any) => {
       </div>
     </div>
   );
-});
+}) as any);

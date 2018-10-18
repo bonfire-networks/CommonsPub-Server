@@ -3,12 +3,12 @@ import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 
 import H1 from '../../components/typography/H1/H1';
 
+import styled from '../../themes/styled';
 import P from '../../components/typography/P/P';
-import CommunityCard from '../../components/elements/Card/Card';
-import styled from 'styled-components';
+import Main from '../../components/chrome/Main/Main';
 import Logo from '../../components/brand/Logo/Logo';
-
-const cardBg = require('../../static/img/styleguide/the-red-group-community.png');
+import { CommunityCard } from '../../components/elements/Card/Card';
+import { DUMMY_COMMUNITIES } from '../../__DEV__/dummy-cards';
 
 const PageTitle = styled(H1)`
   font-size: 30px !important;
@@ -16,60 +16,19 @@ const PageTitle = styled(H1)`
   margin-block-end: 0;
 `;
 
-const Main = styled.div`
-  margin: 10px 15px;
-  max-width: 1000px;
-  overflow: hidden;
-`;
-
-const rand = () => Math.max(1, Math.floor(Math.random() * 20));
-
-const cards = [
-  {
-    id: 0,
-    title: 'The Red Group',
-    backgroundImage: cardBg,
-    contentCounts: {
-      Members: rand(),
-      Collections: rand()
-    },
-    onButtonClick: () => alert('card btn clicked')
-  },
-  {
-    id: 1,
-    title: 'The Red Group',
-    backgroundImage: cardBg,
-    contentCounts: {
-      Members: rand(),
-      Collections: rand()
-    },
-    onButtonClick: () => alert('card btn clicked')
-  },
-  {
-    id: 2,
-    title: 'The Red Group',
-    backgroundImage: cardBg,
-    contentCounts: {
-      Members: rand(),
-      Collections: rand()
-    },
-    onButtonClick: () => alert('card btn clicked')
-  }
-];
-
 export default function CommunitiesFeatured() {
   return (
     <>
       <Main>
         <Grid>
           <Row>
-            <Col sm={12}>
+            <Col size={6}>
               <Logo />
               <PageTitle>Featured Communities</PageTitle>
             </Col>
           </Row>
           <Row>
-            <Col>
+            <Col size={6}>
               <P>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Vestibulum ornare pretium tellus ut laoreet. Donec nec pulvinar
@@ -82,22 +41,14 @@ export default function CommunitiesFeatured() {
             </Col>
           </Row>
           <Row>
-            <Col size={12} style={{ display: 'flex' }}>
-              {cards.map(card => {
+            <Col size={10} style={{ display: 'flex', flexWrap: 'wrap' }}>
+              {DUMMY_COMMUNITIES.map(card => {
                 return <CommunityCard key={card.id} {...card} />;
               })}
-            </Col>
-          </Row>
-          <Row>
-            <Col size={12} style={{ display: 'flex' }}>
-              {cards.map(card => {
+              {DUMMY_COMMUNITIES.map(card => {
                 return <CommunityCard key={card.id} {...card} />;
               })}
-            </Col>
-          </Row>
-          <Row>
-            <Col size={12} style={{ display: 'flex' }}>
-              {cards.map(card => {
+              {DUMMY_COMMUNITIES.map(card => {
                 return <CommunityCard key={card.id} {...card} />;
               })}
             </Col>

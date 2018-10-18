@@ -131,8 +131,14 @@ class Menu extends React.Component<MenuProps, MenuState> {
       [MenuItems.notifications]: NotificationsMenuBody,
       [MenuItems.search]: SearchMenuBody,
       [MenuItems.user]: UserMenuBody
-    }[activeMenu] as React.ComponentType<{ user: User }>;
-    return <Component user={this.props.data.user.data as User} />;
+      //TODO lift prop type
+    }[activeMenu] as React.ComponentType<{ closeMenu: Function; user: User }>;
+    return (
+      <Component
+        closeMenu={this.closeMenu}
+        user={this.props.data.user.data as User}
+      />
+    );
   }
 
   render() {
