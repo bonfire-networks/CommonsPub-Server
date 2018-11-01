@@ -8,7 +8,7 @@ defmodule Pleroma.Web.OStatus do
   alias Pleroma.{Repo, User, Web, Activity}
   alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.{WebFinger, Websub}
+  alias Pleroma.Web.{WebFinger}
   alias Pleroma.Web.OStatus.{FollowHandler, UnfollowHandler, NoteHandler, DeleteHandler}
   alias Pleroma.Web.ActivityPub.Transmogrifier
 
@@ -299,9 +299,8 @@ defmodule Pleroma.Web.OStatus do
   end
 
   def gather_user_info(username) do
-    with {:ok, webfinger_data} <- WebFinger.finger(username),
-         {:ok, feed_data} <- Websub.gather_feed_data(webfinger_data["topic"]) do
-      {:ok, Map.merge(webfinger_data, feed_data) |> Map.put("fqn", username)}
+    with {:ok, webfinger_data} <- WebFinger.finger(username) do
+      {:ok, Map.put(webfinger_data, "fqn", username)}
     else
       e ->
         Logger.debug(fn -> "Couldn't gather info for #{username}" end)

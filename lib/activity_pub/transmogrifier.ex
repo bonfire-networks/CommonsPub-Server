@@ -764,8 +764,6 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
 
     Repo.update_all(q, [])
 
-    maybe_retire_websub(user.ap_id)
-
     # Only do this for recent activties, don't go through the whole db.
     # Only look at the last 1000 activities.
     since = (Repo.aggregate(Activity, :max, :id) || 0) - 1_000
@@ -823,19 +821,6 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
       {:ok, user}
     else
       e -> e
-    end
-  end
-
-  def maybe_retire_websub(ap_id) do
-    # some sanity checks
-    if is_binary(ap_id) && String.length(ap_id) > 8 do
-      q =
-        from(
-          ws in Pleroma.Web.Websub.WebsubClientSubscription,
-          where: fragment("? like ?", ws.topic, ^"#{ap_id}%")
-        )
-
-      Repo.delete_all(q)
     end
   end
 

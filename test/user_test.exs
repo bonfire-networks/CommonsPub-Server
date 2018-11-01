@@ -2,7 +2,6 @@ defmodule Pleroma.UserTest do
   alias Pleroma.Builders.UserBuilder
   alias Pleroma.{User, Repo, Activity}
   alias Pleroma.Web.OStatus
-  alias Pleroma.Web.Websub.WebsubClientSubscription
   alias Pleroma.Web.CommonAPI
   use Pleroma.DataCase
 
@@ -54,23 +53,6 @@ defmodule Pleroma.UserTest do
 
     {:error, _} = User.follow(blockee, blocker)
   end
-
-  # This is a somewhat useless test.
-  # test "following a remote user will ensure a websub subscription is present" do
-  #   user = insert(:user)
-  #   {:ok, followed} = OStatus.make_user("shp@social.heldscal.la")
-
-  #   assert followed.local == false
-
-  #   {:ok, user} = User.follow(user, followed)
-  #   assert User.ap_followers(followed) in user.following
-
-  #   query = from w in WebsubClientSubscription,
-  #   where: w.topic == ^followed.info["topic"]
-  #   websub = Repo.one(query)
-
-  #   assert websub
-  # end
 
   test "unfollow takes a user and another user" do
     followed = insert(:user)
@@ -150,11 +132,6 @@ defmodule Pleroma.UserTest do
       fetched_user = User.get_or_fetch_by_nickname("NICK")
 
       assert user == fetched_user
-    end
-
-    test "fetches an external user via ostatus if no user exists" do
-      fetched_user = User.get_or_fetch_by_nickname("shp@social.heldscal.la")
-      assert fetched_user.nickname == "shp@social.heldscal.la"
     end
 
     test "returns nil if no user could be fetched" do

@@ -15,7 +15,7 @@ defmodule Pleroma.User do
   alias Pleroma.{Repo, User, Web, Activity, Notification}
   alias ActivityStream.Object
   alias Comeonin.Pbkdf2
-  alias Pleroma.Web.{OStatus, Websub}
+  alias Pleroma.Web.{OStatus}
   alias Pleroma.Web.ActivityPub.{Utils, ActivityPub}
 
   schema "users" do
@@ -235,10 +235,6 @@ defmodule Pleroma.User do
         {:error, "Could not follow user: #{followed.nickname} blocked you."}
 
       true ->
-        if !followed.local && follower.local && !ap_enabled?(followed) do
-          Websub.subscribe(follower, followed)
-        end
-
         following =
           [ap_followers | follower.following]
           |> Enum.uniq()
@@ -330,9 +326,7 @@ defmodule Pleroma.User do
   end
 
   def fetch_by_nickname(nickname) do
-    ap_try = ActivityPub.make_user_from_nickname(nickname)
-
-    case ap_try do
+    case ActivityPub.make_user_from_nickname(nickname) do
       {:ok, user} -> {:ok, user}
       _ -> OStatus.make_user(nickname)
     end

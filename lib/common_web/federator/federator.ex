@@ -2,14 +2,13 @@ defmodule Pleroma.Web.Federator do
   use GenServer
   alias Pleroma.User
   alias Pleroma.Activity
-  alias Pleroma.Web.{WebFinger, Websub}
+  alias Pleroma.Web.{WebFinger}
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.Transmogrifier
   alias Pleroma.Web.ActivityPub.Utils
   require Logger
 
-  @websub Application.get_env(:pleroma, :websub)
   @ostatus Application.get_env(:pleroma, :ostatus)
   @httpoison Application.get_env(:pleroma, :httpoison)
   @instance Application.get_env(:pleroma, :instance)
@@ -21,12 +20,6 @@ defmodule Pleroma.Web.Federator do
   end
 
   def start_link do
-    spawn(fn ->
-      # 1 minute
-      Process.sleep(1000 * 60 * 1)
-      enqueue(:refresh_subscriptions, nil)
-    end)
-
     GenServer.start_link(
       __MODULE__,
       %{
@@ -37,27 +30,6 @@ defmodule Pleroma.Web.Federator do
     )
   end
 
-  def handle(:refresh_subscriptions, _) do
-    Logger.debug("Federator running refresh subscriptions")
-    Websub.refresh_subscriptions()
-
-    spawn(fn ->
-      # 6 hours
-      Process.sleep(1000 * 60 * 60 * 6)
-      enqueue(:refresh_subscriptions, nil)
-    end)
-  end
-
-  def handle(:request_subscription, websub) do
-    Logger.debug("Refreshing #{websub.topic}")
-
-    with {:ok, websub} <- Websub.request_subscription(websub) do
-      Logger.debug("Successfully refreshed #{websub.topic}")
-    else
-      _e -> Logger.debug("Couldn't refresh #{websub.topic}")
-    end
-  end
-
   def handle(:publish, activity) do
     Logger.debug(fn -> "Running publish for #{activity.data["id"]}" end)
 
@@ -65,9 +37,6 @@ defmodule Pleroma.Web.Federator do
       {:ok, actor} = WebFinger.ensure_keys_present(actor)
 
       if ActivityPub.is_public?(activity) do
-        Logger.info(fn -> "Sending #{activity.data["id"]} out via WebSub" end)
-        Websub.publish(Pleroma.Web.OStatus.feed_path(actor), actor, activity)
-
         Logger.info(fn -> "Sending #{activity.data["id"]} out via Salmon" end)
         Pleroma.Web.Salmon.publish(actor, activity)
 
@@ -80,14 +49,6 @@ defmodule Pleroma.Web.Federator do
       Logger.info(fn -> "Sending #{activity.data["id"]} out via AP" end)
       Pleroma.Web.ActivityPub.ActivityPub.publish(actor, activity)
     end
-  end
-
-  def handle(:verify_websub, websub) do
-    Logger.debug(fn ->
-      "Running WebSub verification for #{websub.id} (#{websub.topic}, #{websub.callback})"
-    end)
-
-    @websub.verify(websub)
   end
 
   def handle(:incoming_doc, doc) do
@@ -118,29 +79,6 @@ defmodule Pleroma.Web.Federator do
 
   def handle(:publish_single_ap, params) do
     ActivityPub.publish_one(params)
-  end
-
-  def handle(:publish_single_websub, %{xml: xml, topic: topic, callback: callback, secret: secret}) do
-    signature = @websub.sign(secret || "", xml)
-    Logger.debug(fn -> "Pushing #{topic} to #{callback}" end)
-
-    with {:ok, %{status_code: code}} <-
-           @httpoison.post(
-             callback,
-             xml,
-             [
-               {"Content-Type", "application/atom+xml"},
-               {"X-Hub-Signature", "sha1=#{signature}"}
-             ],
-             timeout: 10000,
-             recv_timeout: 20000,
-             hackney: [pool: :default]
-           ) do
-      Logger.debug(fn -> "Pushed to #{callback}, code #{code}" end)
-    else
-      e ->
-        Logger.debug(fn -> "Couldn't push to #{callback}, #{inspect(e)}" end)
-    end
   end
 
   def handle(type, _) do
