@@ -5,8 +5,8 @@ defmodule Mix.Tasks.GenerateConfig do
   def run(_) do
     IO.puts("Answer a few questions to generate a new config\n")
     IO.puts("--- THIS WILL OVERWRITE YOUR config/generated_config.exs! ---\n")
-    domain = IO.gets("What is your domain name? (e.g. pleroma.soykaf.com): ") |> String.trim()
-    name = IO.gets("What is the name of your instance? (e.g. Pleroma/Soykaf): ") |> String.trim()
+    domain = IO.gets("What is your domain name? (e.g. pub.libre.coop): ") |> String.trim()
+    name = IO.gets("What is the name of your instance? (e.g. Libre Coop): ") |> String.trim()
     email = IO.gets("What's your admin email address: ") |> String.trim()
 
     secret = :crypto.strong_rand_bytes(64) |> Base.encode64() |> binary_part(0, 64)

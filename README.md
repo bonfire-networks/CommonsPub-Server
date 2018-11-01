@@ -97,6 +97,11 @@ You can make users moderators. They will then be able to delete any post.
 
 Run `mix set_moderator username [true|false]` to make user a moderator or not.
 
+### Monitoring
+
+You can use `iex -S mix run`  to run the app in interactive mode and then enter `:observer.start()` to launch [Erlang's observer](http://erlang.org/doc/apps/observer/observer_ug.html), which among other things will show you an applications tree:
+![Observer example](installation/threads_tree.png)
+
 ## Troubleshooting
 
 ### No incoming federation
