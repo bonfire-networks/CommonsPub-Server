@@ -202,36 +202,16 @@ defmodule Pleroma.Web.Router do
     plug(:accepts, ["activity+json"])
   end
 
-  pipeline :ostatus do
-    plug(:accepts, ["xml", "atom", "html", "activity+json"])
-  end
-
-  scope "/", Pleroma.Web do
-    pipe_through(:ostatus)
-
-    get("/objects/:uuid", OStatus.OStatusController, :object)
-    get("/activities/:uuid", OStatus.OStatusController, :activity)
-    get("/notice/:id", OStatus.OStatusController, :notice)
-    get("/users/:nickname/feed", OStatus.OStatusController, :feed)
-    get("/users/:nickname", OStatus.OStatusController, :feed_redirect)
-
-    if @federating do
-      post("/users/:nickname/salmon", OStatus.OStatusController, :salmon_incoming)
-      post("/push/hub/:nickname", Websub.WebsubController, :websub_subscription_request)
-      get("/push/subscriptions/:id", Websub.WebsubController, :websub_subscription_confirmation)
-      post("/push/subscriptions/:id", Websub.WebsubController, :websub_incoming)
-    end
-  end
-
   pipeline :activitypub do
     plug(:accepts, ["activity+json"])
     plug(Pleroma.Web.Plugs.HTTPSignaturePlug)
   end
 
   scope "/", Pleroma.Web.ActivityPub do
-    # XXX: not really ostatus
-    pipe_through(:ostatus)
+    pipe_through(:ap_relay)
 
+    get("/objects/:uuid", ActivityPubController, :object)
+    get("/users/:nickname", ActivityPubController, :user)
     get("/users/:nickname/followers", ActivityPubController, :followers)
     get("/users/:nickname/following", ActivityPubController, :following)
     get("/users/:nickname/outbox", ActivityPubController, :outbox)

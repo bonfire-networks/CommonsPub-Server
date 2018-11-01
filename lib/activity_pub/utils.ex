@@ -38,11 +38,6 @@ defmodule Pleroma.Web.ActivityPub.Utils do
           "manuallyApprovesFollowers" => "as:manuallyApprovesFollowers",
           "sensitive" => "as:sensitive",
           "Hashtag" => "as:Hashtag",
-          "ostatus" => "http://ostatus.org#",
-          "atomUri" => "ostatus:atomUri",
-          "inReplyToAtomUri" => "ostatus:inReplyToAtomUri",
-          "conversation" => "ostatus:conversation",
-          "toot" => "http://joinmastodon.org/ns#",
           "Emoji" => "toot:Emoji"
         }
       ]
@@ -62,7 +57,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   end
 
   def generate_object_id do
-    Helpers.o_status_url(Endpoint, :object, UUID.generate())
+    Helpers.activity_pub_url(Endpoint, :object, UUID.generate())
   end
 
   def generate_id(type) do

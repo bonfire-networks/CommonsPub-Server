@@ -57,7 +57,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   # It does not seem to be used
   # Only checks if public? what about a private object fetched by the owner or a `to` or `cc` user
   def object(conn, %{"uuid" => uuid}) do
-    with ap_id <- o_status_url(conn, :object, uuid),
+    with ap_id <- activity_pub_url(conn, :object, uuid),
          %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
          {_, true} <- {:public?, ActivityPub.is_public?(object)} do
       conn
