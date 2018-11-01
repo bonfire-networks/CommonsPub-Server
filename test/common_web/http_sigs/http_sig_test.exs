@@ -5,10 +5,10 @@ defmodule Pleroma.Web.HTTPSignaturesTest do
   alias Pleroma.Web.HTTPSignatures
   import Pleroma.Factory
 
-  @private_key hd(:public_key.pem_decode(File.read!("test/web/http_sigs/priv.key")))
+  @private_key hd(:public_key.pem_decode(File.read!("test/common_web/http_sigs/priv.key")))
                |> :public_key.pem_entry_decode()
 
-  @public_key hd(:public_key.pem_decode(File.read!("test/web/http_sigs/pub.key")))
+  @public_key hd(:public_key.pem_decode(File.read!("test/common_web/http_sigs/pub.key")))
               |> :public_key.pem_entry_decode()
 
   @headers %{
