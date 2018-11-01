@@ -85,114 +85,6 @@ defmodule Pleroma.Web.Router do
     post("/revoke", OAuthController, :token_revoke)
   end
 
-  scope "/api/v1", Pleroma.Web.MastodonAPI do
-    pipe_through(:authenticated_api)
-
-    patch("/accounts/update_credentials", MastodonAPIController, :update_credentials)
-    get("/accounts/verify_credentials", MastodonAPIController, :verify_credentials)
-    get("/accounts/relationships", MastodonAPIController, :relationships)
-    get("/accounts/search", MastodonAPIController, :account_search)
-    post("/accounts/:id/follow", MastodonAPIController, :follow)
-    post("/accounts/:id/unfollow", MastodonAPIController, :unfollow)
-    post("/accounts/:id/block", MastodonAPIController, :block)
-    post("/accounts/:id/unblock", MastodonAPIController, :unblock)
-    post("/accounts/:id/mute", MastodonAPIController, :relationship_noop)
-    post("/accounts/:id/unmute", MastodonAPIController, :relationship_noop)
-
-    get("/follow_requests", MastodonAPIController, :follow_requests)
-    post("/follow_requests/:id/authorize", MastodonAPIController, :authorize_follow_request)
-    post("/follow_requests/:id/reject", MastodonAPIController, :reject_follow_request)
-
-    post("/follows", MastodonAPIController, :follow)
-
-    get("/blocks", MastodonAPIController, :blocks)
-
-    get("/mutes", MastodonAPIController, :empty_array)
-
-    get("/timelines/home", MastodonAPIController, :home_timeline)
-
-    get("/timelines/direct", MastodonAPIController, :dm_timeline)
-
-    get("/favourites", MastodonAPIController, :favourites)
-
-    post("/statuses", MastodonAPIController, :post_status)
-    delete("/statuses/:id", MastodonAPIController, :delete_status)
-
-    post("/statuses/:id/reblog", MastodonAPIController, :reblog_status)
-    post("/statuses/:id/unreblog", MastodonAPIController, :unreblog_status)
-    post("/statuses/:id/favourite", MastodonAPIController, :fav_status)
-    post("/statuses/:id/unfavourite", MastodonAPIController, :unfav_status)
-
-    post("/notifications/clear", MastodonAPIController, :clear_notifications)
-    post("/notifications/dismiss", MastodonAPIController, :dismiss_notification)
-    get("/notifications", MastodonAPIController, :notifications)
-    get("/notifications/:id", MastodonAPIController, :get_notification)
-
-    post("/media", MastodonAPIController, :upload)
-    put("/media/:id", MastodonAPIController, :update_media)
-
-    get("/lists", MastodonAPIController, :get_lists)
-    get("/lists/:id", MastodonAPIController, :get_list)
-    delete("/lists/:id", MastodonAPIController, :delete_list)
-    post("/lists", MastodonAPIController, :create_list)
-    put("/lists/:id", MastodonAPIController, :rename_list)
-    get("/lists/:id/accounts", MastodonAPIController, :list_accounts)
-    post("/lists/:id/accounts", MastodonAPIController, :add_to_list)
-    delete("/lists/:id/accounts", MastodonAPIController, :remove_from_list)
-
-    get("/domain_blocks", MastodonAPIController, :domain_blocks)
-    post("/domain_blocks", MastodonAPIController, :block_domain)
-    delete("/domain_blocks", MastodonAPIController, :unblock_domain)
-
-    get("/filters", MastodonAPIController, :get_filters)
-    post("/filters", MastodonAPIController, :create_filter)
-    get("/filters/:id", MastodonAPIController, :get_filter)
-    put("/filters/:id", MastodonAPIController, :update_filter)
-    delete("/filters/:id", MastodonAPIController, :delete_filter)
-
-    get("/suggestions", MastodonAPIController, :suggestions)
-
-    get("/filters", MastodonAPIController, :filters)
-  end
-
-  scope "/api/web", Pleroma.Web.MastodonAPI do
-    pipe_through(:authenticated_api)
-
-    put("/settings", MastodonAPIController, :put_settings)
-  end
-
-  scope "/api/v1", Pleroma.Web.MastodonAPI do
-    pipe_through(:api)
-    get("/instance", MastodonAPIController, :masto_instance)
-    get("/instance/peers", MastodonAPIController, :peers)
-    post("/apps", MastodonAPIController, :create_app)
-    get("/custom_emojis", MastodonAPIController, :custom_emojis)
-
-    get("/timelines/public", MastodonAPIController, :public_timeline)
-    get("/timelines/tag/:tag", MastodonAPIController, :hashtag_timeline)
-    get("/timelines/list/:list_id", MastodonAPIController, :list_timeline)
-
-    get("/statuses/:id", MastodonAPIController, :get_status)
-    get("/statuses/:id/context", MastodonAPIController, :get_context)
-    get("/statuses/:id/card", MastodonAPIController, :empty_object)
-    get("/statuses/:id/favourited_by", MastodonAPIController, :favourited_by)
-    get("/statuses/:id/reblogged_by", MastodonAPIController, :reblogged_by)
-
-    get("/accounts/:id/statuses", MastodonAPIController, :user_statuses)
-    get("/accounts/:id/followers", MastodonAPIController, :followers)
-    get("/accounts/:id/following", MastodonAPIController, :following)
-    get("/accounts/:id", MastodonAPIController, :user)
-
-    get("/trends", MastodonAPIController, :empty_array)
-
-    get("/search", MastodonAPIController, :search)
-  end
-
-  scope "/api/v2", Pleroma.Web.MastodonAPI do
-    pipe_through(:api)
-    get("/search", MastodonAPIController, :search2)
-  end
-
   scope "/api", Pleroma.Web do
     pipe_through(:config)
 
@@ -215,6 +107,20 @@ defmodule Pleroma.Web.Router do
     get("/users/:nickname/followers", ActivityPubController, :followers)
     get("/users/:nickname/following", ActivityPubController, :following)
     get("/users/:nickname/outbox", ActivityPubController, :outbox)
+  end
+
+  scope "/", Pleroma.Web.MastodonAPI do
+    pipe_through(:mastodon_html)
+
+    get("/register", MastodonAPIController, :register)
+    post("/register", MastodonAPIController, :register_post)
+
+    get("/web/login", MastodonAPIController, :login)
+    post("/web/login", MastodonAPIController, :login_post)
+
+    get("/web/*path", MastodonAPIController, :index)
+
+    delete("/auth/sign_out", MastodonAPIController, :logout)
   end
 
   if @federating do
@@ -242,20 +148,6 @@ defmodule Pleroma.Web.Router do
     scope "/nodeinfo", Pleroma.Web do
       get("/:version", Nodeinfo.NodeinfoController, :nodeinfo)
     end
-  end
-
-  scope "/", Pleroma.Web.MastodonAPI do
-    pipe_through(:mastodon_html)
-
-    get("/register", MastodonAPIController, :register)
-    post("/register", MastodonAPIController, :register_post)
-
-    get("/web/login", MastodonAPIController, :login)
-    post("/web/login", MastodonAPIController, :login_post)
-
-    get("/web/*path", MastodonAPIController, :index)
-
-    delete("/auth/sign_out", MastodonAPIController, :logout)
   end
 
   pipeline :remote_media do

@@ -962,49 +962,6 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 
-  def login(conn, _) do
-    conn
-    |> render(MastodonView, "login.html", %{error: false})
-  end
-
-  defp get_or_make_app() do
-    with %App{} = app <- Repo.get_by(App, client_name: "Mastodon-Local") do
-      {:ok, app}
-    else
-      _e ->
-        cs =
-          App.register_changeset(%App{}, %{
-            client_name: "Mastodon-Local",
-            redirect_uris: ".",
-            scopes: "read,write,follow"
-          })
-
-        Repo.insert(cs)
-    end
-  end
-
-  def login_post(conn, %{"authorization" => %{"name" => name, "password" => password}}) do
-    with %User{} = user <- User.get_by_nickname_or_email(name),
-         true <- Pbkdf2.checkpw(password, user.password_hash),
-         {:ok, app} <- get_or_make_app(),
-         {:ok, auth} <- Authorization.create_authorization(app, user),
-         {:ok, token} <- Token.exchange_token(app, auth) do
-      conn
-      |> put_session(:oauth_token, token.token)
-      |> redirect(to: "/web/getting-started")
-    else
-      _e ->
-        conn
-        |> render(MastodonView, "login.html", %{error: "Wrong username or password"})
-    end
-  end
-
-  def logout(conn, _) do
-    conn
-    |> clear_session
-    |> redirect(to: "/")
-  end
-
   def relationship_noop(%{assigns: %{user: user}} = conn, %{"id" => id}) do
     Logger.debug("Unimplemented, returning unmodified relationship")
 
@@ -1211,7 +1168,47 @@ defmodule Pleroma.Web.MastodonAPI.MastodonAPIController do
     end
   end
 
-  def filters(conn, _) do
-    json(conn, [])
+  def login(conn, _) do
+    conn
+    |> render(MastodonView, "login.html", %{error: false})
   end
+
+  defp get_or_make_app() do
+    with %App{} = app <- Repo.get_by(App, client_name: "Mastodon-Local") do
+      {:ok, app}
+    else
+      _e ->
+        cs =
+          App.register_changeset(%App{}, %{
+            client_name: "Mastodon-Local",
+            redirect_uris: ".",
+            scopes: "read,write,follow"
+          })
+
+        Repo.insert(cs)
+    end
+  end
+
+  def login_post(conn, %{"authorization" => %{"name" => name, "password" => password}}) do
+    with %User{} = user <- User.get_by_nickname_or_email(name),
+         true <- Pbkdf2.checkpw(password, user.password_hash),
+         {:ok, app} <- get_or_make_app(),
+         {:ok, auth} <- Authorization.create_authorization(app, user),
+         {:ok, token} <- Token.exchange_token(app, auth) do
+      conn
+      |> put_session(:oauth_token, token.token)
+      |> redirect(to: "/web/getting-started")
+    else
+      _e ->
+        conn
+        |> render(MastodonView, "login.html", %{error: "Wrong username or password"})
+    end
+  end
+
+  def logout(conn, _) do
+    conn
+    |> clear_session
+    |> redirect(to: "/")
+  end
+
 end

@@ -27,7 +27,7 @@ defmodule Pleroma.Web do
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/pleroma/web/templates",
+        root: "lib/common_web/templates",
         namespace: Pleroma.Web
 
       # Import convenience functions from controllers
