@@ -1,7 +1,7 @@
 defmodule Pleroma.Web.MastodonAPI.FilterView do
   use Pleroma.Web, :view
   alias Pleroma.Web.MastodonAPI.FilterView
-  alias Pleroma.Web.CommonAPI.Utils
+  alias Pleroma.Web.CommonAPI
 
   def render("filters.json", %{filters: filters} = opts) do
     render_many(filters, FilterView, "filter.json", opts)
@@ -10,7 +10,7 @@ defmodule Pleroma.Web.MastodonAPI.FilterView do
   def render("filter.json", %{filter: filter}) do
     expires_at =
       if filter.expires_at do
-        Utils.to_masto_date(filter.expires_at)
+        CommonAPI.to_masto_date(filter.expires_at)
       else
         nil
       end

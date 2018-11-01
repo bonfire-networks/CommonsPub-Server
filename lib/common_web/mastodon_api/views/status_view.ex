@@ -2,7 +2,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
   use Pleroma.Web, :view
   alias Pleroma.Web.MastodonAPI.{AccountView, StatusView}
   alias Pleroma.{User, Activity}
-  alias Pleroma.Web.CommonAPI.Utils
+  alias Pleroma.Web.CommonAPI
   alias Pleroma.Web.MediaProxy
   alias Pleroma.Repo
 
@@ -40,7 +40,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
         %{activity: %{data: %{"type" => "Announce", "object" => object}} = activity} = opts
       ) do
     user = User.get_cached_by_ap_id(activity.data["actor"])
-    created_at = Utils.to_masto_date(activity.data["published"])
+    created_at = CommonAPI.to_masto_date(activity.data["published"])
 
     reblogged = Activity.get_create_activity_by_object_ap_id(object)
     reblogged = render("status.json", Map.put(opts, :activity, reblogged))
@@ -103,7 +103,7 @@ defmodule Pleroma.Web.MastodonAPI.StatusView do
     attachment_data = attachment_data ++ if object["type"] == "Video", do: [object], else: []
     attachments = render_many(attachment_data, StatusView, "attachment.json", as: :attachment)
 
-    created_at = Utils.to_masto_date(object["published"])
+    created_at = CommonAPI.to_masto_date(object["published"])
 
     reply_to = get_reply_to(activity, opts)
     reply_to_user = reply_to && User.get_cached_by_ap_id(reply_to.data["actor"])

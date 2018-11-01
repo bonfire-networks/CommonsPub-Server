@@ -7,7 +7,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   alias Pleroma.Web.ActivityPub.{Transmogrifier, MRF}
   alias Pleroma.Web.WebFinger
   alias Pleroma.Web.Federator
-  alias Pleroma.Web.OStatus
   import Ecto.Query
   import Pleroma.Web.ActivityPub.Utils
   require Logger
@@ -893,14 +892,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       else
         object = %Object{} ->
           {:ok, object}
-
-        _e ->
-          Logger.info("Couldn't get object via AP, trying out OStatus fetching...")
-
-          case OStatus.fetch_activity_from_url(id) do
-            {:ok, [activity | _]} -> {:ok, Object.normalize(activity.data["object"])}
-            e -> e
-          end
+        e -> e
       end
     end
   end
