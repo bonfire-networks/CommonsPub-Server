@@ -4,6 +4,10 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   # This is module, that could be a private module for ActivityPub because its name,
   # is called from MastodonAPI, TwitterAPI
   # Why a function should be here and not in ActivityPub?
+  # The most of the functions are query related:
+  # ie: When we received an undo activity we have to check to the previous activity
+  # Because it is using JSONB for storing data some of them are quite complex
+  # and difficult to understand, but they seem fine.
   alias Pleroma.{Repo, Web, Activity, User}
   alias ActivityStream.Object
   alias Pleroma.Web.Router.Helpers
@@ -174,6 +178,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     # could probably be taken from cache.
     relevant_activities = Activity.all_by_object_ap_id(id)
 
+    # IMPORTANT: This is really slow!!
     Enum.map(relevant_activities, fn activity ->
       new_activity_data = activity.data |> Map.put("object", object.data)
       changeset = Changeset.change(activity, data: new_activity_data)
@@ -187,6 +192,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   Returns an existing like if a user already liked an object
   """
   def get_existing_like(actor, %{data: %{"id" => id}}) do
+    # Does it perform ok? It has the needed indexes?
     query =
       from(
         activity in Activity,
@@ -235,6 +241,8 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   end
 
   def add_like_to_object(%Activity{data: %{"actor" => actor}}, object) do
+    # likes array is slow for a lot of likes
+    # should be a table itself
     likes = if is_list(object.data["likes"]), do: object.data["likes"], else: []
 
     with likes <- [actor | likes] |> Enum.uniq() do

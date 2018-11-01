@@ -2,6 +2,8 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   @moduledoc """
   A module to handle coding from internal to wire ActivityPub and back.
   """
+  # This module does more things that doc says.
+  # It is the module which actually handle all the incoming AP requests!
   alias Pleroma.User
   alias ActivityStream.Object
   alias Pleroma.Activity
@@ -256,12 +258,15 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A follow message was received by the server
   def handle_incoming(
         %{"type" => "Follow", "object" => followed, "actor" => follower, "id" => id} = data
       ) do
     with %User{local: true} = followed <- User.get_cached_by_ap_id(followed),
          %User{} = follower <- User.get_or_fetch_by_ap_id(follower),
          {:ok, activity} <- ActivityPub.follow(follower, followed, id, false) do
+      # It accepts automatically if is not a "private" account.
+      # Mastodon stuff again
       if not User.locked?(followed) do
         ActivityPub.accept(%{
           to: [follower.ap_id],
@@ -279,6 +284,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # This function is not used!
   defp mastodon_follow_hack(%{"id" => id, "actor" => follower_id}, followed) do
     with true <- id =~ "follows",
          %User{local: true} = follower <- User.get_cached_by_ap_id(follower_id),
@@ -305,6 +311,11 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # An accept message was received by the server
+  # It assumes the accept is for a follow activity.
+  # However this has not to be the case in ActivityPub,
+  # you can accept more things in general.
+  # Fortunelly it makes some verification at least.
   def handle_incoming(
         %{"type" => "Accept", "object" => follow_object, "actor" => actor, "id" => id} = data
       ) do
@@ -329,12 +340,17 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Again it assumes the reject is for a follow activity.
+  # And again it is doing some checks :)
   def handle_incoming(
         %{"type" => "Reject", "object" => follow_object, "actor" => actor, "id" => id} = data
       ) do
     with %User{} = followed <- User.get_or_fetch_by_ap_id(actor),
          {:ok, follow_activity} <- get_follow_activity(follow_object, followed),
          %User{local: true} = follower <- User.get_cached_by_ap_id(follow_activity.data["actor"]),
+         # I  don't understand why it creates an accept activity
+         # for a reject activity :S
+         # Probably a bug
          {:ok, activity} <-
            ActivityPub.accept(%{
              to: follow_activity.data["to"],
@@ -351,6 +367,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A like activity is received
   def handle_incoming(
         %{"type" => "Like", "object" => object_id, "actor" => actor, "id" => id} = _data
       ) do
@@ -364,6 +381,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A retweet is received
   def handle_incoming(
         %{"type" => "Announce", "object" => object_id, "actor" => actor, "id" => id} = _data
       ) do
@@ -377,6 +395,8 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # An updated activity received by the server.
+  # Just for account profile
   def handle_incoming(
         %{"type" => "Update", "object" => %{"type" => object_type} = object, "actor" => actor_id} =
           data
@@ -412,6 +432,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   end
 
   # TODO: Make secure.
+  # Remove a tweet message received by the server
   def handle_incoming(
         %{"type" => "Delete", "object" => object_id, "actor" => actor, "id" => _id} = _data
       ) do
@@ -427,6 +448,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a retweet message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -445,6 +467,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a follow message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -466,6 +489,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   @ap_config Application.get_env(:pleroma, :activitypub)
   @accept_blocks Keyword.get(@ap_config, :accept_blocks)
 
+  # Undo a block message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -485,6 +509,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # A block message received by the server
   def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = data
       ) do
@@ -500,6 +525,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
+  # Undo a like message received by the server
   def handle_incoming(
         %{
           "type" => "Undo",
@@ -552,7 +578,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
   #  """
   #  internal -> Mastodon
   #  """
-
+  # The following functions they are just to translate to Mastodon stuff
   def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Note"} = object} = data) do
     object =
       object
@@ -715,6 +741,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     |> Map.put("attachment", attachments)
   end
 
+  # This is a process to change from an old format to a new one :S
   defp user_upgrade_task(user) do
     old_follower_address = User.ap_followers(user)
 
@@ -764,6 +791,11 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     Repo.update_all(q, [])
   end
 
+  # This updates an external user fetching it again from the external server
+  # IMPORTANT Because the followers are save in array this is really slow
+  # Or maybe it is changing the id... I don't know
+  # Exactly it seems like a mix task to fix something previous
+  # but it is also used in ActivityPub so it is really confusing!
   def upgrade_user_from_ap_id(ap_id, async \\ true) do
     with %User{local: false} = user <- User.get_by_ap_id(ap_id),
          {:ok, data} <- ActivityPub.fetch_and_prepare_user_from_ap_id(ap_id) do
