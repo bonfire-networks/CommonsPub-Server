@@ -15,7 +15,6 @@ defmodule Pleroma.User do
   alias Pleroma.{Repo, User, Web, Activity, Notification}
   alias ActivityStream.Object
   alias Comeonin.Pbkdf2
-  alias Pleroma.Web.{OStatus}
   alias Pleroma.Web.ActivityPub.{Utils, ActivityPub}
 
   schema "users" do
@@ -667,10 +666,7 @@ defmodule Pleroma.User do
           user
 
         _ ->
-          case OStatus.make_user(ap_id) do
-            {:ok, user} -> user
-            _ -> {:error, "Could not fetch by AP id"}
-          end
+          {:error, "Could not fetch by AP id"}
       end
     end
   end
@@ -706,11 +702,6 @@ defmodule Pleroma.User do
     {:ok, key}
   end
 
-  # OStatus Magic Key
-  def public_key_from_info(%{"magic_key" => magic_key}) do
-    {:ok, Pleroma.Web.Salmon.decode_key(magic_key)}
-  end
-
   def get_public_key_for_ap_id(ap_id) do
     with %User{} = user <- get_or_fetch_by_ap_id(ap_id),
          {:ok, public_key} <- public_key_from_info(user.info) do
@@ -742,19 +733,4 @@ defmodule Pleroma.User do
       get_or_fetch_by_nickname(uri_or_nickname)
     end
   end
-
-  def ensure_keys_present(user) do
-    info = user.info || %{}
-
-    if info["keys"] do
-      {:ok, user}
-    else
-      {:ok, pem} = Pleroma.Web.Salmon.generate_rsa_pem()
-      info = Map.put(info, "keys", pem)
-
-      Ecto.Changeset.change(user, info: info)
-      |> User.update_and_set_cache()
-    end
-  end
-
 end

@@ -754,8 +754,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
     public = is_public?(activity)
 
     remote_inboxes =
-      # I don't understand why it goes to Salmon just to get remote users??
-      (Pleroma.Web.Salmon.remote_users(activity) ++ followers)
+      (remote_users(activity) ++ followers)
       |> Enum.filter(fn user -> User.ap_enabled?(user) end)
       |> Enum.map(fn %{info: %{"source_data" => data}} ->
         # Using sharedInbox to make less requests!
@@ -776,6 +775,14 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
         id: activity.data["id"]
       })
     end)
+  end
+
+  def remote_users(%{data: %{"to" => to} = data}) do
+    to = to ++ (data["cc"] || [])
+
+    to
+    |> Enum.map(fn id -> User.get_cached_by_ap_id(id) end)
+    |> Enum.filter(fn user -> user && !user.local end)
   end
 
   # Just sign and send

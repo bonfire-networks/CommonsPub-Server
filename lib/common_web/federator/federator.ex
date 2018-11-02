@@ -33,12 +33,9 @@ defmodule Pleroma.Web.Federator do
     Logger.debug(fn -> "Running publish for #{activity.data["id"]}" end)
 
     with actor when not is_nil(actor) <- User.get_cached_by_ap_id(activity.data["actor"]) do
-      {:ok, actor} = User.ensure_keys_present(actor)
+      {:ok, actor} = Pleroma.Signature.ensure_keys_present(actor)
 
       if ActivityPub.is_public?(activity) do
-        Logger.info(fn -> "Sending #{activity.data["id"]} out via Salmon" end)
-        Pleroma.Web.Salmon.publish(actor, activity)
-
         if Mix.env() != :test do
           Logger.info(fn -> "Relaying #{activity.data["id"]} out" end)
           Pleroma.Web.ActivityPub.Relay.publish(activity)

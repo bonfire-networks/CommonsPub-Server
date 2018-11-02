@@ -1,7 +1,6 @@
 defmodule Pleroma.UserTest do
   alias Pleroma.Builders.UserBuilder
   alias Pleroma.{User, Repo, Activity}
-  alias Pleroma.Web.OStatus
   alias Pleroma.Web.CommonAPI
   use Pleroma.DataCase
 

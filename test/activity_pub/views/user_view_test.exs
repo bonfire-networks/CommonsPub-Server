@@ -7,7 +7,7 @@ defmodule Pleroma.Web.ActivityPub.UserViewTest do
 
   test "Renders a user, including the public key" do
     user = insert(:user)
-    {:ok, user} = User.ensure_keys_present(user)
+    {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
 
     result = UserView.render("user.json", %{user: user})
 

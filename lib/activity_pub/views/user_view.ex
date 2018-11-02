@@ -1,6 +1,5 @@
 defmodule Pleroma.Web.ActivityPub.UserView do
   use Pleroma.Web, :view
-  alias Pleroma.Web.Salmon
   alias Pleroma.User
   alias Pleroma.Repo
   alias Pleroma.Web.ActivityPub.ActivityPub
@@ -12,8 +11,8 @@ defmodule Pleroma.Web.ActivityPub.UserView do
   def render("user.json", %{user: %{nickname: nil} = user}) do
     # This is already done outbox controller?
     # This logic should not behere
-    {:ok, user} = User.ensure_keys_present(user)
-    {:ok, _, public_key} = Salmon.keys_from_pem(user.info["keys"])
+    {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
+    {:ok, _, public_key} = Pleroma.Signature.keys_from_pem(user.info["keys"])
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 
@@ -40,8 +39,8 @@ defmodule Pleroma.Web.ActivityPub.UserView do
   end
 
   def render("user.json", %{user: user}) do
-    {:ok, user} = User.ensure_keys_present(user)
-    {:ok, _, public_key} = Salmon.keys_from_pem(user.info["keys"])
+    {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
+    {:ok, _, public_key} = Pleroma.Signature.keys_from_pem(user.info["keys"])
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 

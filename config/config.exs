@@ -47,7 +47,6 @@ config :mime, :types, %{
   "application/ld+json" => ["activity+json"]
 }
 
-config :pleroma, :ostatus, Pleroma.Web.OStatus
 config :pleroma, :httpoison, Pleroma.HTTP
 
 version =
