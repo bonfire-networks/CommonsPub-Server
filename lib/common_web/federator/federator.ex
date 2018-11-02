@@ -2,7 +2,6 @@ defmodule Pleroma.Web.Federator do
   use GenServer
   alias Pleroma.User
   alias Pleroma.Activity
-  alias Pleroma.Web.{WebFinger}
   alias Pleroma.Web.ActivityPub.ActivityPub
   alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.Transmogrifier
@@ -34,7 +33,7 @@ defmodule Pleroma.Web.Federator do
     Logger.debug(fn -> "Running publish for #{activity.data["id"]}" end)
 
     with actor when not is_nil(actor) <- User.get_cached_by_ap_id(activity.data["actor"]) do
-      {:ok, actor} = WebFinger.ensure_keys_present(actor)
+      {:ok, actor} = User.ensure_keys_present(actor)
 
       if ActivityPub.is_public?(activity) do
         Logger.info(fn -> "Sending #{activity.data["id"]} out via Salmon" end)

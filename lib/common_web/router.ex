@@ -62,10 +62,6 @@ defmodule Pleroma.Web.Router do
     plug(Pleroma.Plugs.EnsureUserKeyPlug)
   end
 
-  pipeline :well_known do
-    plug(:accepts, ["json", "jrd+json", "xml", "xrd+xml"])
-  end
-
   pipeline :config do
     plug(:accepts, ["json", "xml"])
   end
@@ -109,20 +105,6 @@ defmodule Pleroma.Web.Router do
     get("/users/:nickname/outbox", ActivityPubController, :outbox)
   end
 
-  scope "/", Pleroma.Web.MastodonAPI do
-    pipe_through(:mastodon_html)
-
-    get("/register", MastodonAPIController, :register)
-    post("/register", MastodonAPIController, :register_post)
-
-    get("/web/login", MastodonAPIController, :login)
-    post("/web/login", MastodonAPIController, :login_post)
-
-    get("/web/*path", MastodonAPIController, :index)
-
-    delete("/auth/sign_out", MastodonAPIController, :logout)
-  end
-
   if @federating do
     if @allow_relay do
       scope "/relay", Pleroma.Web.ActivityPub do
@@ -135,18 +117,6 @@ defmodule Pleroma.Web.Router do
       pipe_through(:activitypub)
       post("/users/:nickname/inbox", ActivityPubController, :inbox)
       post("/inbox", ActivityPubController, :inbox)
-    end
-
-    scope "/.well-known", Pleroma.Web do
-      pipe_through(:well_known)
-
-      get("/host-meta", WebFinger.WebFingerController, :host_meta)
-      get("/webfinger", WebFinger.WebFingerController, :webfinger)
-      get("/nodeinfo", Nodeinfo.NodeinfoController, :schemas)
-    end
-
-    scope "/nodeinfo", Pleroma.Web do
-      get("/:version", Nodeinfo.NodeinfoController, :nodeinfo)
     end
   end
 

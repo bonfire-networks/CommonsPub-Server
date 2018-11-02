@@ -45,7 +45,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Don't understand this, why is not just generated when the user is created?
          # This happening in almost in each endpoint, but it also repeated in the views!!
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("user.json", %{user: user}))
@@ -72,7 +72,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def following(conn, %{"nickname" => nickname, "page" => page}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       {page, _} = Integer.parse(page)
 
       # We don't pass the following users to the view.
@@ -89,7 +89,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def following(conn, %{"nickname" => nickname}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
 
       conn
       |> put_resp_header("content-type", "application/activity+json")
@@ -100,7 +100,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def followers(conn, %{"nickname" => nickname, "page" => page}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       {page, _} = Integer.parse(page)
 
       # Again queries and pagination in the view
@@ -115,7 +115,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def followers(conn, %{"nickname" => nickname}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("followers.json", %{user: user}))
@@ -125,7 +125,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def outbox(conn, %{"nickname" => nickname, "max_id" => max_id}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       # Again queries and pagination in the view
       conn
       |> put_resp_header("content-type", "application/activity+json")
@@ -173,7 +173,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     # I don't understand this and params are not used
     with %User{} = user <- Relay.get_actor(),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Web.WebFinger.ensure_keys_present(user) do
+         {:ok, user} <- User.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("user.json", %{user: user}))

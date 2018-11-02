@@ -5,7 +5,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
   alias Pleroma.{Activity, Repo, Upload, User, Notification}
   alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.{Transmogrifier, MRF}
-  alias Pleroma.Web.WebFinger
   alias Pleroma.Web.Federator
   import Ecto.Query
   import Pleroma.Web.ActivityPub.Utils
@@ -729,15 +728,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       else
         e -> {:error, e}
       end
-    end
-  end
-
-  # Webfinger, this is needed because Mastodon thing
-  def make_user_from_nickname(nickname) do
-    with {:ok, %{"ap_id" => ap_id}} when not is_nil(ap_id) <- WebFinger.finger(nickname) do
-      make_user_from_ap_id(ap_id)
-    else
-      _e -> {:error, "No AP id in WebFinger"}
     end
   end
 

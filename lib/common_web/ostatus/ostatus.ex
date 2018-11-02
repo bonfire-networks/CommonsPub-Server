@@ -8,7 +8,6 @@ defmodule Pleroma.Web.OStatus do
   alias Pleroma.{Repo, User, Web, Activity}
   alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.{WebFinger}
   alias Pleroma.Web.OStatus.{FollowHandler, UnfollowHandler, NoteHandler, DeleteHandler}
   alias Pleroma.Web.ActivityPub.Transmogrifier
 
@@ -299,13 +298,14 @@ defmodule Pleroma.Web.OStatus do
   end
 
   def gather_user_info(username) do
-    with {:ok, webfinger_data} <- WebFinger.finger(username) do
-      {:ok, Map.put(webfinger_data, "fqn", username)}
-    else
-      e ->
-        Logger.debug(fn -> "Couldn't gather info for #{username}" end)
-        {:error, e}
-    end
+    # with {:ok, webfinger_data} <- WebFinger.finger(username) do
+    #   {:ok, Map.put(webfinger_data, "fqn", username)}
+    # else
+    #   e ->
+    #     Logger.debug(fn -> "Couldn't gather info for #{username}" end)
+    #     {:error, e}
+    # end
+    {:error, :unknown}
   end
 
   # Regex-based 'parsing' so we don't have to pull in a full html parser

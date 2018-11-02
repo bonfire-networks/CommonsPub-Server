@@ -325,11 +325,8 @@ defmodule Pleroma.User do
     Cachex.fetch!(:user_cache, key, fn _ -> user_info(user) end)
   end
 
-  def fetch_by_nickname(nickname) do
-    case ActivityPub.make_user_from_nickname(nickname) do
-      {:ok, user} -> {:ok, user}
-      _ -> OStatus.make_user(nickname)
-    end
+  def fetch_by_nickname(_nickname) do
+    {:error, :unknown}
   end
 
   def get_or_fetch_by_nickname(nickname) do
@@ -745,4 +742,19 @@ defmodule Pleroma.User do
       get_or_fetch_by_nickname(uri_or_nickname)
     end
   end
+
+  def ensure_keys_present(user) do
+    info = user.info || %{}
+
+    if info["keys"] do
+      {:ok, user}
+    else
+      {:ok, pem} = Pleroma.Web.Salmon.generate_rsa_pem()
+      info = Map.put(info, "keys", pem)
+
+      Ecto.Changeset.change(user, info: info)
+      |> User.update_and_set_cache()
+    end
+  end
+
 end
