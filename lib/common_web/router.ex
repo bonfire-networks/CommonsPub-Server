@@ -158,25 +158,4 @@ defmodule Pleroma.Web.Router do
     pipe_through(:remote_media)
     get("/:sig/:url", MediaProxyController, :remote)
   end
-
-  scope "/", Fallback do
-    get("/registration/:token", RedirectController, :registration_page)
-    get("/*path", RedirectController, :redirector)
-  end
-end
-
-defmodule Fallback.RedirectController do
-  use Pleroma.Web, :controller
-
-  def redirector(conn, _params) do
-    if Mix.env() != :test do
-      conn
-      |> put_resp_content_type("text/html")
-      |> send_file(200, "priv/static/index.html")
-    end
-  end
-
-  def registration_page(conn, params) do
-    redirector(conn, params)
-  end
 end
