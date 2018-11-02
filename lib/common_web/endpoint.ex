@@ -1,12 +1,6 @@
 defmodule Pleroma.Web.Endpoint do
   use Phoenix.Endpoint, otp_app: :pleroma
 
-  if Application.get_env(:pleroma, :chat) |> Keyword.get(:enabled) do
-    socket("/socket", Pleroma.Web.UserSocket)
-  end
-
-  socket("/api/v1", Pleroma.Web.MastodonAPI.MastodonSocket)
-
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phoenix.digest

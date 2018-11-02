@@ -108,16 +108,9 @@ config :pleroma, :media_proxy,
 
 # base_url: "https://cache.pleroma.social"
 
-config :pleroma, :chat, enabled: true
-
 config :ecto, json_library: Jason
 
 config :phoenix, :format_encoders, json: Jason
-
-config :pleroma, :gopher,
-  enabled: false,
-  ip: {0, 0, 0, 0},
-  port: 9999
 
 config :pleroma, :suggestions,
   enabled: false,

@@ -40,26 +40,12 @@ defmodule Pleroma.Application do
           id: :cachex_idem
         ),
         worker(Pleroma.Web.Federator, []),
-        worker(Pleroma.Gopher.Server, []),
         worker(Pleroma.Stats, [])
-      ] ++
-        if Mix.env() == :test,
-          do: [],
-          else:
-            [worker(Pleroma.Web.Streamer, [])] ++
-              if(
-                !chat_enabled(),
-                do: [],
-                else: [worker(Pleroma.Web.ChatChannel.ChatChannelState, [])]
-              )
+      ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Pleroma.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  defp chat_enabled do
-    Application.get_env(:pleroma, :chat, []) |> Keyword.get(:enabled)
   end
 end
