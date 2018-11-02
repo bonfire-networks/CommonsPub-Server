@@ -12,7 +12,7 @@ defmodule Pleroma.NotificationTest do
       third_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{
+        CommonAPI.post(user, %{
           "status" => "hey @#{other_user.nickname} and @#{third_user.nickname}"
         })
 
@@ -49,7 +49,7 @@ defmodule Pleroma.NotificationTest do
       other_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{"status" => "hey @#{other_user.nickname}"})
+        CommonAPI.post(user, %{"status" => "hey @#{other_user.nickname}"})
 
       {:ok, [notification]} = Notification.create_notifications(activity)
       {:ok, notification} = Notification.get(other_user, notification.id)
@@ -62,7 +62,7 @@ defmodule Pleroma.NotificationTest do
       other_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{"status" => "hey @#{other_user.nickname}"})
+        CommonAPI.post(user, %{"status" => "hey @#{other_user.nickname}"})
 
       {:ok, [notification]} = Notification.create_notifications(activity)
       {:error, _notification} = Notification.get(user, notification.id)
@@ -75,7 +75,7 @@ defmodule Pleroma.NotificationTest do
       other_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{"status" => "hey @#{other_user.nickname}"})
+        CommonAPI.post(user, %{"status" => "hey @#{other_user.nickname}"})
 
       {:ok, [notification]} = Notification.create_notifications(activity)
       {:ok, notification} = Notification.dismiss(other_user, notification.id)
@@ -88,7 +88,7 @@ defmodule Pleroma.NotificationTest do
       other_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{"status" => "hey @#{other_user.nickname}"})
+        CommonAPI.post(user, %{"status" => "hey @#{other_user.nickname}"})
 
       {:ok, [notification]} = Notification.create_notifications(activity)
       {:error, _notification} = Notification.dismiss(user, notification.id)
@@ -102,14 +102,14 @@ defmodule Pleroma.NotificationTest do
       third_user = insert(:user)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{
+        CommonAPI.post(user, %{
           "status" => "hey @#{other_user.nickname} and @#{third_user.nickname} !"
         })
 
       {:ok, _notifs} = Notification.create_notifications(activity)
 
       {:ok, activity} =
-        TwitterAPI.create_status(user, %{
+        CommonAPI.post(user, %{
           "status" => "hey again @#{other_user.nickname} and @#{third_user.nickname} !"
         })
 
