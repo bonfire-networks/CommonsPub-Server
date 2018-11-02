@@ -40,7 +40,6 @@ defmodule Pleroma.Application do
           id: :cachex_idem
         ),
         worker(Pleroma.Web.Federator, []),
-        worker(Pleroma.Stats, [])
       ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
