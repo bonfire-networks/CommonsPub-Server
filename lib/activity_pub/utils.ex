@@ -337,27 +337,6 @@ defmodule Pleroma.Web.ActivityPub.Utils do
     Repo.one(query)
   end
 
-  @doc """
-  Make announce activity data for the given actor and object
-  """
-  # for relayed messages, we only want to send to subscribers
-  def make_announce_data(
-        %User{ap_id: ap_id, nickname: nil} = user,
-        %Object{data: %{"id" => id}} = object,
-        activity_id
-      ) do
-    data = %{
-      "type" => "Announce",
-      "actor" => ap_id,
-      "object" => id,
-      "to" => [user.follower_address],
-      "cc" => [],
-      "context" => object.data["context"]
-    }
-
-    if activity_id, do: Map.put(data, "id", activity_id), else: data
-  end
-
   def make_announce_data(
         %User{ap_id: ap_id} = user,
         %Object{data: %{"id" => id}} = object,

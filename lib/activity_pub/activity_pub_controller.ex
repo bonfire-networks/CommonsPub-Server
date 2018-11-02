@@ -4,7 +4,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   alias Pleroma.Web.ActivityPub.{ObjectView, UserView}
   alias ActivityStream.Object
   alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.Federator
 
   require Logger
@@ -16,7 +15,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   # activity_pub_path  GET     /users/:nickname/followers                  Pleroma.Web.ActivityPub.ActivityPubController :followers
   # activity_pub_path  GET     /users/:nickname/following                  Pleroma.Web.ActivityPub.ActivityPubController :following
   # activity_pub_path  GET     /users/:nickname/outbox                     Pleroma.Web.ActivityPub.ActivityPubController :outbox
-  # activity_pub_path  GET     /relay                                      Pleroma.Web.ActivityPub.ActivityPubController :relay
   # activity_pub_path  POST    /users/:nickname/inbox                      Pleroma.Web.ActivityPub.ActivityPubController :inbox
   # activity_pub_path  POST    /inbox                                      Pleroma.Web.ActivityPub.ActivityPubController :inbox
   #
@@ -38,7 +36,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   # post sharedInbox: publish public activities and activities sent to followers.
   # get sharedInbox: list public activities and activities sent to followers.
   #
-
 
   # It does not seem to be used
   def user(conn, %{"nickname" => nickname}) do
@@ -90,7 +87,6 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
          {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
-
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("following.json", %{user: user}))
@@ -150,36 +146,11 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   end
 
   def inbox(conn, params) do
-    headers = Enum.into(conn.req_headers, %{})
-
-    if !String.contains?(headers["signature"] || "", params["actor"]) do
-      Logger.info("Signature not from author, relayed message, fetching from source")
-      # Ok so we fetch the object from the source but we are not doing anything with it after...
-      # or the fetch function is making more than fetch?
-      # Ok, so it seems it persists and doing more thing after fetching it!
-      # In fact is calling the famous Transmogrifier.handle_incoming function
-      ActivityPub.fetch_object_from_id(params["object"]["id"])
-    else
-      Logger.info("Signature error - make sure you are forwarding the HTTP Host header!")
-      Logger.info("Could not validate #{params["actor"]}")
-      Logger.info(inspect(conn.req_headers))
-    end
+    Logger.info("Signature error - make sure you are forwarding the HTTP Host header!")
+    Logger.info("Could not validate #{params["actor"]}")
+    Logger.info(inspect(conn.req_headers))
 
     json(conn, "ok")
-  end
-
-  def relay(conn, params) do
-    # This is get or create an actor
-    # I don't understand this and params are not used
-    with %User{} = user <- Relay.get_actor(),
-         # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
-      conn
-      |> put_resp_header("content-type", "application/activity+json")
-      |> json(UserView.render("user.json", %{user: user}))
-    else
-      nil -> {:error, :not_found}
-    end
   end
 
   def errors(conn, {:error, :not_found}) do

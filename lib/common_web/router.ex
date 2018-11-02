@@ -4,7 +4,6 @@ defmodule Pleroma.Web.Router do
   alias Pleroma.{Repo, User, Web.Router}
 
   @instance Application.get_env(:pleroma, :instance)
-  @allow_relay Keyword.get(@instance, :allow_relay)
 
   pipeline :api do
     plug(:accepts, ["json"])
@@ -27,7 +26,7 @@ defmodule Pleroma.Web.Router do
     post("/revoke", OAuthController, :token_revoke)
   end
 
-  pipeline :ap_relay do
+  pipeline :read_activitypub do
     plug(:accepts, ["activity+json"])
   end
 
@@ -37,20 +36,13 @@ defmodule Pleroma.Web.Router do
   end
 
   scope "/", Pleroma.Web.ActivityPub do
-    pipe_through(:ap_relay)
+    pipe_through(:read_activitypub)
 
     get("/objects/:uuid", ActivityPubController, :object)
     get("/users/:nickname", ActivityPubController, :user)
     get("/users/:nickname/followers", ActivityPubController, :followers)
     get("/users/:nickname/following", ActivityPubController, :following)
     get("/users/:nickname/outbox", ActivityPubController, :outbox)
-  end
-
-  if @allow_relay do
-    scope "/relay", Pleroma.Web.ActivityPub do
-      pipe_through(:ap_relay)
-      get("/", ActivityPubController, :relay)
-    end
   end
 
   scope "/", Pleroma.Web.ActivityPub do
