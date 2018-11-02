@@ -115,51 +115,10 @@ defmodule Pleroma.Web.ActivityPub.ActivityPub do
       # Notification are really a Mastodon/Pleroma/Twitter thing
       # It mixed with AP stuff
       Notification.create_notifications(activity)
-      stream_out(activity)
       {:ok, activity}
     else
       %Activity{} = activity -> {:ok, activity}
       error -> {:error, error}
-    end
-  end
-
-  def stream_out(activity) do
-    public = "https://www.w3.org/ns/activitystreams#Public"
-
-    # Only streams (by websocket, not related with Federation) Create and Announce activities
-    # So only new tweets and retweet! Not even likes!
-    # It mixed with AP stuff
-    if activity.data["type"] in ["Create", "Announce"] do
-      Pleroma.Web.Streamer.stream("user", activity)
-      Pleroma.Web.Streamer.stream("list", activity)
-
-      if Enum.member?(activity.data["to"], public) do
-        Pleroma.Web.Streamer.stream("public", activity)
-
-        if activity.local do
-          Pleroma.Web.Streamer.stream("public:local", activity)
-        end
-
-        activity.data["object"]
-        |> Map.get("tag", [])
-        |> Enum.filter(fn tag -> is_bitstring(tag) end)
-        |> Enum.map(fn tag -> Pleroma.Web.Streamer.stream("hashtag:" <> tag, activity) end)
-
-        if activity.data["object"]["attachment"] != [] do
-          Pleroma.Web.Streamer.stream("public:media", activity)
-
-          if activity.local do
-            Pleroma.Web.Streamer.stream("public:local:media", activity)
-          end
-        end
-      else
-        if !Enum.member?(activity.data["cc"] || [], public) &&
-             !Enum.member?(
-               activity.data["to"],
-               User.get_by_ap_id(activity.data["actor"]).follower_address
-             ),
-           do: Pleroma.Web.Streamer.stream("direct", activity)
-      end
     end
   end
 

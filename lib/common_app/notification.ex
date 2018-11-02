@@ -95,7 +95,6 @@ defmodule Pleroma.Notification do
              user.ap_id == activity.data["actor"] do
       notification = %Notification{user_id: user.id, activity: activity}
       {:ok, notification} = Repo.insert(notification)
-      Pleroma.Web.Streamer.stream("user", notification)
       notification
     end
   end
