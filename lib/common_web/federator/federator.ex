@@ -3,15 +3,10 @@ defmodule Pleroma.Web.Federator do
   alias Pleroma.User
   alias Pleroma.Activity
   alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.ActivityPub.Relay
   alias Pleroma.Web.ActivityPub.Transmogrifier
   alias Pleroma.Web.ActivityPub.Utils
   require Logger
 
-  @ostatus Application.get_env(:pleroma, :ostatus)
-  @httpoison Application.get_env(:pleroma, :httpoison)
-  @instance Application.get_env(:pleroma, :instance)
-  @federating Keyword.get(@instance, :federating)
   @max_jobs 20
 
   def init(args) do
@@ -47,11 +42,6 @@ defmodule Pleroma.Web.Federator do
     end
   end
 
-  def handle(:incoming_doc, doc) do
-    Logger.info("Got document, trying to parse")
-    @ostatus.handle_incoming(doc)
-  end
-
   def handle(:incoming_ap_doc, params) do
     Logger.info("Handling incoming AP activity")
 
@@ -62,6 +52,7 @@ defmodule Pleroma.Web.Federator do
          # I don't know, maybe has different `to:`
          nil <- Activity.normalize(params["id"]),
          {:ok, _activity} <- Transmogrifier.handle_incoming(params) do
+      nil
     else
       %Activity{} ->
         Logger.info("Already had #{params["id"]}")
@@ -83,12 +74,10 @@ defmodule Pleroma.Web.Federator do
   end
 
   def enqueue(type, payload, priority \\ 1) do
-    if @federating do
-      if Mix.env() == :test do
-        handle(type, payload)
-      else
-        GenServer.cast(__MODULE__, {:enqueue, type, payload, priority})
-      end
+    if Mix.env() == :test do
+      handle(type, payload)
+    else
+      GenServer.cast(__MODULE__, {:enqueue, type, payload, priority})
     end
   end
 

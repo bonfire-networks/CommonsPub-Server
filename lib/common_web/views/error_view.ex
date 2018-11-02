@@ -6,7 +6,8 @@ defmodule Pleroma.Web.ErrorView do
   end
 
   def render("500.json", _assigns) do
-    %{errors: %{detail: "Internal server error"}}
+    # %{errors: %{detail: "Internal server error"}}
+    "Internal server error"
   end
 
   # In case no render clause matches or no
