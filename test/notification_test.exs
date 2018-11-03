@@ -1,9 +1,9 @@
-defmodule Pleroma.NotificationTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.TwitterAPI.TwitterAPI
-  alias Pleroma.Web.CommonAPI
-  alias Pleroma.{User, Notification}
-  import Pleroma.Factory
+defmodule MoodleNet.NotificationTest do
+  use MoodleNet.DataCase
+  alias MoodleNetWeb.TwitterAPI.TwitterAPI
+  alias MoodleNetWeb.CommonAPI
+  alias MoodleNet.{User, Notification}
+  import MoodleNet.Factory
 
   describe "create_notifications" do
     test "notifies someone when they are directly addressed" do

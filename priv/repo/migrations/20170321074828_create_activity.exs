@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreatePleroma.Activity do
+defmodule MoodleNet.Repo.Migrations.CreateMoodleNet.Activity do
   use Ecto.Migration
 
   def change do

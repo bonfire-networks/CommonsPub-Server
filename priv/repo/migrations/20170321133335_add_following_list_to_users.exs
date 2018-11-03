@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddFollowingListToUsers do
+defmodule MoodleNet.Repo.Migrations.AddFollowingListToUsers do
   use Ecto.Migration
 
   def change do

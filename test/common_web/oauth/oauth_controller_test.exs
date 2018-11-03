@@ -1,9 +1,9 @@
-defmodule Pleroma.Web.OAuth.OAuthControllerTest do
-  use Pleroma.Web.ConnCase
-  import Pleroma.Factory
+defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
+  use MoodleNetWeb.ConnCase
+  import MoodleNet.Factory
 
-  alias Pleroma.Repo
-  alias Pleroma.Web.OAuth.{Authorization, Token}
+  alias MoodleNet.Repo
+  alias MoodleNetWeb.OAuth.{Authorization, Token}
 
   test "redirects with oauth authorization" do
     user = insert(:user)

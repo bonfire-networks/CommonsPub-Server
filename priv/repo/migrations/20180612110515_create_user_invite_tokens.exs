@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateUserInviteTokens do
+defmodule MoodleNet.Repo.Migrations.CreateUserInviteTokens do
   use Ecto.Migration
 
   def change do

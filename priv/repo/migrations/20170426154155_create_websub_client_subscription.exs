@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateWebsubClientSubscription do
+defmodule MoodleNet.Repo.Migrations.CreateWebsubClientSubscription do
   use Ecto.Migration
 
   def change do

@@ -1,15 +1,15 @@
-defmodule Pleroma.Web.ActivityPub.UserView do
-  use Pleroma.Web, :view
-  alias Pleroma.User
-  alias Pleroma.Repo
-  alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.ActivityPub.Transmogrifier
-  alias Pleroma.Web.ActivityPub.Utils
+defmodule ActivityPub.UserView do
+  use MoodleNetWeb, :view
+  alias MoodleNet.User
+  alias MoodleNet.Repo
+  alias ActivityPub
+  alias ActivityPub.Transmogrifier
+  alias ActivityPub.Utils
   import Ecto.Query
 
   def render("user.json", %{user: user}) do
-    {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
-    {:ok, _, public_key} = Pleroma.Signature.keys_from_pem(user.info["keys"])
+    {:ok, user} = MoodleNet.Signature.ensure_keys_present(user)
+    {:ok, _, public_key} = MoodleNet.Signature.keys_from_pem(user.info["keys"])
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 
@@ -31,7 +31,7 @@ defmodule Pleroma.Web.ActivityPub.UserView do
         "publicKeyPem" => public_key
       },
       "endpoints" => %{
-        "sharedInbox" => "#{Pleroma.Web.Endpoint.url()}/inbox"
+        "sharedInbox" => "#{MoodleNetWeb.Endpoint.url()}/inbox"
       },
       "icon" => %{
         "type" => "Image",

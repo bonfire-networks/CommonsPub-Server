@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddUniqueIndexToAPID do
+defmodule MoodleNet.Repo.Migrations.AddUniqueIndexToAPID do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.LongerBios do
+defmodule MoodleNet.Repo.Migrations.LongerBios do
   use Ecto.Migration
 
   def change do

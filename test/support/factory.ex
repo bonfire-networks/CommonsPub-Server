@@ -1,8 +1,8 @@
-defmodule Pleroma.Factory do
-  use ExMachina.Ecto, repo: Pleroma.Repo
+defmodule MoodleNet.Factory do
+  use ExMachina.Ecto, repo: MoodleNet.Repo
 
   def user_factory do
-    user = %Pleroma.User{
+    user = %MoodleNet.User{
       name: sequence(:name, &"Test テスト User #{&1}"),
       email: sequence(:email, &"user#{&1}@example.com"),
       nickname: sequence(:nickname, &"nick#{&1}"),
@@ -12,9 +12,9 @@ defmodule Pleroma.Factory do
 
     %{
       user
-      | ap_id: Pleroma.User.ap_id(user),
-        follower_address: Pleroma.User.ap_followers(user),
-        following: [Pleroma.User.ap_id(user)]
+      | ap_id: MoodleNet.User.ap_id(user),
+        follower_address: MoodleNet.User.ap_followers(user),
+        following: [MoodleNet.User.ap_id(user)]
     }
   end
 
@@ -26,7 +26,7 @@ defmodule Pleroma.Factory do
     data = %{
       "type" => "Note",
       "content" => text,
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_object_id(),
+      "id" => ActivityPub.Utils.generate_object_id(),
       "actor" => user.ap_id,
       "to" => ["https://www.w3.org/ns/activitystreams#Public"],
       "published" => DateTime.utc_now() |> DateTime.to_iso8601(),
@@ -40,7 +40,7 @@ defmodule Pleroma.Factory do
       }
     }
 
-    %ActivityStream.Object{
+    %ActivityPub.Object{
       data: data
     }
   end
@@ -48,15 +48,15 @@ defmodule Pleroma.Factory do
   def direct_note_factory do
     user2 = insert(:user)
 
-    %ActivityStream.Object{data: data} = note_factory()
-    %ActivityStream.Object{data: Map.merge(data, %{"to" => [user2.ap_id]})}
+    %ActivityPub.Object{data: data} = note_factory()
+    %ActivityPub.Object{data: Map.merge(data, %{"to" => [user2.ap_id]})}
   end
 
   def direct_note_activity_factory do
     dm = insert(:direct_note)
 
     data = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_activity_id(),
+      "id" => ActivityPub.Utils.generate_activity_id(),
       "type" => "Create",
       "actor" => dm.data["actor"],
       "to" => dm.data["to"],
@@ -65,7 +65,7 @@ defmodule Pleroma.Factory do
       "context" => dm.data["context"]
     }
 
-    %Pleroma.Activity{
+    %MoodleNet.Activity{
       data: data,
       actor: data["actor"],
       recipients: data["to"]
@@ -76,7 +76,7 @@ defmodule Pleroma.Factory do
     note = insert(:note)
 
     data = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_activity_id(),
+      "id" => ActivityPub.Utils.generate_activity_id(),
       "type" => "Create",
       "actor" => note.data["actor"],
       "to" => note.data["to"],
@@ -85,7 +85,7 @@ defmodule Pleroma.Factory do
       "context" => note.data["context"]
     }
 
-    %Pleroma.Activity{
+    %MoodleNet.Activity{
       data: data,
       actor: data["actor"],
       recipients: data["to"]
@@ -105,7 +105,7 @@ defmodule Pleroma.Factory do
       "context" => note_activity.data["context"]
     }
 
-    %Pleroma.Activity{
+    %MoodleNet.Activity{
       data: data,
       actor: user.ap_id,
       recipients: data["to"]
@@ -117,14 +117,14 @@ defmodule Pleroma.Factory do
     user = insert(:user)
 
     data = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_activity_id(),
+      "id" => ActivityPub.Utils.generate_activity_id(),
       "actor" => user.ap_id,
       "type" => "Like",
       "object" => note_activity.data["object"]["id"],
       "published_at" => DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
-    %Pleroma.Activity{
+    %MoodleNet.Activity{
       data: data
     }
   end
@@ -134,21 +134,21 @@ defmodule Pleroma.Factory do
     followed = insert(:user)
 
     data = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_activity_id(),
+      "id" => ActivityPub.Utils.generate_activity_id(),
       "actor" => follower.ap_id,
       "type" => "Follow",
       "object" => followed.ap_id,
       "published_at" => DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
-    %Pleroma.Activity{
+    %MoodleNet.Activity{
       data: data,
       actor: follower.ap_id
     }
   end
 
   def oauth_app_factory do
-    %Pleroma.Web.OAuth.App{
+    %MoodleNetWeb.OAuth.App{
       client_name: "Some client",
       redirect_uris: "https://example.com/callback",
       scopes: "read",

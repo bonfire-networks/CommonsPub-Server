@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddObjectActivityIndexPartTwo do
+defmodule MoodleNet.Repo.Migrations.AddObjectActivityIndexPartTwo do
   use Ecto.Migration
 
   def change do

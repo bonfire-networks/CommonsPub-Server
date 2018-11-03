@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateOAuthAuthorizations do
+defmodule MoodleNet.Repo.Migrations.CreateOAuthAuthorizations do
   use Ecto.Migration
 
   def change do

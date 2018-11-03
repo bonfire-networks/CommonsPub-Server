@@ -1,5 +1,5 @@
 Postgrex.Types.define(
-  Pleroma.PostgresTypes,
+  MoodleNet.PostgresTypes,
   [] ++ Ecto.Adapters.Postgres.extensions(),
   json: Jason
 )

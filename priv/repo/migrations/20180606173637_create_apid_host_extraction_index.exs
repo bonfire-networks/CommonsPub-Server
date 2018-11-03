@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateApidHostExtractionIndex do
+defmodule MoodleNet.Repo.Migrations.CreateApidHostExtractionIndex do
   use Ecto.Migration
   @disable_ddl_transaction true
 

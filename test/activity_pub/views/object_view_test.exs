@@ -1,8 +1,8 @@
-defmodule Pleroma.Web.ActivityPub.ObjectViewTest do
-  use Pleroma.DataCase
-  import Pleroma.Factory
+defmodule ActivityPub.ObjectViewTest do
+  use MoodleNet.DataCase
+  import MoodleNet.Factory
 
-  alias Pleroma.Web.ActivityPub.ObjectView
+  alias ActivityPub.ObjectView
 
   test "renders a note object" do
     note = insert(:note)

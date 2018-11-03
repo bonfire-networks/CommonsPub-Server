@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddSortIndexToActivities do
+defmodule MoodleNet.Repo.Migrations.AddSortIndexToActivities do
   use Ecto.Migration
   @disable_ddl_transaction true
 

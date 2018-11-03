@@ -1,4 +1,4 @@
-defmodule Pleroma.DataCase do
+defmodule MoodleNet.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -16,21 +16,21 @@ defmodule Pleroma.DataCase do
 
   using do
     quote do
-      alias Pleroma.Repo
+      alias MoodleNet.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Pleroma.DataCase
+      import MoodleNet.DataCase
     end
   end
 
   setup tags do
     Cachex.clear(:user_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pleroma.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Pleroma.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
 
     :ok

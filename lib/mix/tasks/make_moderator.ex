@@ -1,11 +1,11 @@
 defmodule Mix.Tasks.SetModerator do
   use Mix.Task
   import Mix.Ecto
-  alias Pleroma.{Repo, User}
+  alias MoodleNet.{Repo, User}
 
   @shortdoc "Set moderator status"
   def run([nickname | rest]) do
-    Application.ensure_all_started(:pleroma)
+    Application.ensure_all_started(:moodle_net)
 
     moderator =
       case rest do

@@ -1,14 +1,14 @@
-defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.ActivityPub.Transmogrifier
-  alias Pleroma.Web.ActivityPub.Utils
-  alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Activity
-  alias Pleroma.User
-  alias Pleroma.Repo
+defmodule ActivityPub.TransmogrifierTest do
+  use MoodleNet.DataCase
+  alias ActivityPub.Transmogrifier
+  alias ActivityPub.Utils
+  alias ActivityPub
+  alias MoodleNet.Activity
+  alias MoodleNet.User
+  alias MoodleNet.Repo
 
-  import Pleroma.Factory
-  alias Pleroma.Web.CommonAPI
+  import MoodleNet.Factory
+  alias MoodleNetWeb.CommonAPI
 
   describe "handle_incoming" do
     test "it ignores an incoming notice if we already have it" do
@@ -647,7 +647,7 @@ defmodule Pleroma.Web.ActivityPub.TransmogrifierTest do
       }
 
       expected_tag = %{
-        "href" => Pleroma.Web.Endpoint.url() <> "/tags/2hu",
+        "href" => MoodleNetWeb.Endpoint.url() <> "/tags/2hu",
         "type" => "Hashtag",
         "name" => "#2hu"
       }

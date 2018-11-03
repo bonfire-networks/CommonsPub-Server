@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddSecondObjectIndexToActivty do
+defmodule MoodleNet.Repo.Migrations.AddSecondObjectIndexToActivty do
   use Ecto.Migration
 
   @disable_ddl_transaction true

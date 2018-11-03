@@ -1,9 +1,9 @@
-defmodule Pleroma.Web.ActivityPub.ActivityPubControllerTest do
-  use Pleroma.Web.ConnCase
-  import Pleroma.Factory
-  alias Pleroma.Web.ActivityPub.{UserView, ObjectView}
-  alias Pleroma.{Repo, User}
-  alias Pleroma.Activity
+defmodule ActivityPubControllerTest do
+  use MoodleNetWeb.ConnCase
+  import MoodleNet.Factory
+  alias ActivityPub.{UserView, ObjectView}
+  alias MoodleNet.{Repo, User}
+  alias MoodleNet.Activity
 
   describe "/users/:nickname" do
     test "it returns a json representation of the user", %{conn: conn} do

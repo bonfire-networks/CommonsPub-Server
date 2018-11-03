@@ -1,7 +1,7 @@
-defmodule Pleroma.Web.Plugs.HTTPSignaturePlugTest do
-  use Pleroma.Web.ConnCase
-  alias Pleroma.Web.HTTPSignatures
-  alias Pleroma.Web.Plugs.HTTPSignaturePlug
+defmodule MoodleNetWeb.Plugs.HTTPSignaturePlugTest do
+  use MoodleNetWeb.ConnCase
+  alias MoodleNetWeb.HTTPSignatures
+  alias MoodleNetWeb.Plugs.HTTPSignaturePlug
 
   import Plug.Conn
   import Mock

@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddRecipientsToActivities do
+defmodule MoodleNet.Repo.Migrations.AddRecipientsToActivities do
   use Ecto.Migration
 
   def change do

@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.DeactivateUser do
   use Mix.Task
-  alias Pleroma.User
+  alias MoodleNet.User
 
   @shortdoc "Toggle deactivation status for a user"
   def run([nickname]) do

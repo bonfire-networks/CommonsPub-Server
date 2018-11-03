@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.ActuallyDropLocalIndex do
+defmodule MoodleNet.Repo.Migrations.ActuallyDropLocalIndex do
   use Ecto.Migration
 
   def change do

@@ -1,13 +1,13 @@
-defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.ActivityPub.Utils
-  alias Pleroma.Web.CommonAPI
-  alias Pleroma.{Activity, User}
-  alias ActivityStream.Object
-  alias Pleroma.Builders.ActivityBuilder
+defmodule ActivityPubOldTest do
+  use MoodleNet.DataCase
+  alias ActivityPub
+  alias ActivityPub.Utils
+  alias MoodleNetWeb.CommonAPI
+  alias MoodleNet.{Activity, User}
+  alias ActivityPub.Object
+  alias MoodleNet.Builders.ActivityBuilder
 
-  import Pleroma.Factory
+  import MoodleNet.Factory
 
   describe "building a user from his ap id" do
     test "it returns a user" do
@@ -471,8 +471,8 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubTest do
   describe "update" do
     test "it creates an update activity with the new user data" do
       user = insert(:user)
-      {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
-      user_data = Pleroma.Web.ActivityPub.UserView.render("user.json", %{user: user})
+      {:ok, user} = MoodleNet.Signature.ensure_keys_present(user)
+      user_data = ActivityPub.UserView.render("user.json", %{user: user})
 
       {:ok, update} =
         ActivityPub.update(%{

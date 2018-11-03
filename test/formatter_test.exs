@@ -1,8 +1,8 @@
-defmodule Pleroma.FormatterTest do
-  alias Pleroma.Formatter
-  use Pleroma.DataCase
+defmodule MoodleNet.FormatterTest do
+  alias MoodleNet.Formatter
+  use MoodleNet.DataCase
 
-  import Pleroma.Factory
+  import MoodleNet.Factory
 
   describe ".add_hashtag_links" do
     test "turns hashtags into links" do
@@ -79,10 +79,10 @@ defmodule Pleroma.FormatterTest do
 
       assert Formatter.add_links({[], text}) |> Formatter.finalize() == expected
 
-      text = "https://pleroma.com https://pleroma.com/sucks"
+      text = "https://moodle_net.com https://moodle_net.com/sucks"
 
       expected =
-        "<a href=\"https://pleroma.com\">https://pleroma.com</a> <a href=\"https://pleroma.com/sucks\">https://pleroma.com/sucks</a>"
+        "<a href=\"https://moodle_net.com\">https://moodle_net.com</a> <a href=\"https://moodle_net.com/sucks\">https://moodle_net.com/sucks</a>"
 
       assert Formatter.add_links({[], text}) |> Formatter.finalize() == expected
 
@@ -107,7 +107,7 @@ defmodule Pleroma.FormatterTest do
 
       archaeme_remote = insert(:user, %{nickname: "archaeme@archae.me"})
 
-      mentions = Pleroma.Formatter.parse_mentions(text)
+      mentions = MoodleNet.Formatter.parse_mentions(text)
 
       {subs, text} = Formatter.add_user_links({[], text}, mentions)
 

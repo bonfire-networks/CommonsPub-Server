@@ -1,12 +1,12 @@
-defmodule Pleroma.Builders.ActivityBuilder do
-  alias Pleroma.Builders.UserBuilder
-  alias Pleroma.Web.ActivityPub.ActivityPub
+defmodule MoodleNet.Builders.ActivityBuilder do
+  alias MoodleNet.Builders.UserBuilder
+  alias ActivityPub
 
   def build(data \\ %{}, opts \\ %{}) do
-    user = opts[:user] || Pleroma.Factory.insert(:user)
+    user = opts[:user] || MoodleNet.Factory.insert(:user)
 
     activity = %{
-      "id" => Pleroma.Web.ActivityPub.Utils.generate_object_id(),
+      "id" => ActivityPub.Utils.generate_object_id(),
       "actor" => user.ap_id,
       "to" => ["https://www.w3.org/ns/activitystreams#Public"],
       "type" => "Create",
@@ -33,7 +33,7 @@ defmodule Pleroma.Builders.ActivityBuilder do
   end
 
   def public_and_non_public do
-    user = Pleroma.Factory.insert(:user)
+    user = MoodleNet.Factory.insert(:user)
 
     public = build(%{"id" => 1}, %{user: user})
     non_public = build(%{"id" => 2, "to" => [user.follower_address]}, %{user: user})

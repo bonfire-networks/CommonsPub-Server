@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddContextIndex do
+defmodule MoodleNet.Repo.Migrations.AddContextIndex do
   use Ecto.Migration
   @disable_ddl_transaction true
 

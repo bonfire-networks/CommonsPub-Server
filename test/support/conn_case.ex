@@ -1,4 +1,4 @@
-defmodule Pleroma.Web.ConnCase do
+defmodule MoodleNetWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -19,19 +19,19 @@ defmodule Pleroma.Web.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      import Pleroma.Web.Router.Helpers
+      import MoodleNetWeb.Router.Helpers
 
       # The default endpoint for testing
-      @endpoint Pleroma.Web.Endpoint
+      @endpoint MoodleNetWeb.Endpoint
     end
   end
 
   setup tags do
     Cachex.clear(:user_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pleroma.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Pleroma.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}

@@ -1,13 +1,13 @@
-defmodule Pleroma.Web.ActivityPub.UserViewTest do
-  use Pleroma.DataCase
-  import Pleroma.Factory
-  alias Pleroma.User
+defmodule ActivityPub.UserViewTest do
+  use MoodleNet.DataCase
+  import MoodleNet.Factory
+  alias MoodleNet.User
 
-  alias Pleroma.Web.ActivityPub.UserView
+  alias ActivityPub.UserView
 
   test "Renders a user, including the public key" do
     user = insert(:user)
-    {:ok, user} = Pleroma.Signature.ensure_keys_present(user)
+    {:ok, user} = MoodleNet.Signature.ensure_keys_present(user)
 
     result = UserView.render("user.json", %{user: user})
 

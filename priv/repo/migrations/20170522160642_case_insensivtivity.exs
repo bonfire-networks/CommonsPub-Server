@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CaseInsensivtivity do
+defmodule MoodleNet.Repo.Migrations.CaseInsensivtivity do
   use Ecto.Migration
 
   def up do

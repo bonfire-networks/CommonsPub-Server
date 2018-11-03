@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateNotifications do
+defmodule MoodleNet.Repo.Migrations.CreateNotifications do
   use Ecto.Migration
 
   def change do

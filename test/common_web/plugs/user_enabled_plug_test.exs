@@ -1,8 +1,8 @@
-defmodule Pleroma.Plugs.UserEnabledPlugTest do
-  use Pleroma.Web.ConnCase, async: true
+defmodule MoodleNet.Plugs.UserEnabledPlugTest do
+  use MoodleNetWeb.ConnCase, async: true
 
-  alias Pleroma.Plugs.UserEnabledPlug
-  import Pleroma.Factory
+  alias MoodleNet.Plugs.UserEnabledPlug
+  import MoodleNet.Factory
 
   test "doesn't do anything if the user isn't set", %{conn: conn} do
     ret_conn =

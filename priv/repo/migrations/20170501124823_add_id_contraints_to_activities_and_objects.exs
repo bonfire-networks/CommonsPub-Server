@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddIdContraintsToActivitiesAndObjects do
+defmodule MoodleNet.Repo.Migrations.AddIdContraintsToActivitiesAndObjects do
   use Ecto.Migration
 
   def change do

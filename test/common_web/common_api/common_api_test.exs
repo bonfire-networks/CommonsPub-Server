@@ -1,11 +1,11 @@
-defmodule Pleroma.Web.CommonAPI.Test do
-  use Pleroma.DataCase
-  alias Pleroma.Web.CommonAPI
-  alias Pleroma.User
-  alias Pleroma.Web.Endpoint
-  alias Pleroma.Builders.{UserBuilder}
+defmodule MoodleNetWeb.CommonAPI.Test do
+  use MoodleNet.DataCase
+  alias MoodleNetWeb.CommonAPI
+  alias MoodleNet.User
+  alias MoodleNetWeb.Endpoint
+  alias MoodleNet.Builders.{UserBuilder}
 
-  import Pleroma.Factory
+  import MoodleNet.Factory
 
   test "it de-duplicates tags" do
     user = insert(:user)

@@ -1,6 +1,6 @@
-defmodule Pleroma.Web.FederatorTest do
-  alias Pleroma.Web.Federator
-  use Pleroma.DataCase
+defmodule MoodleNetWeb.FederatorTest do
+  alias MoodleNetWeb.Federator
+  use MoodleNet.DataCase
 
   test "enqueues an element according to priority" do
     queue = [%{item: 1, priority: 2}]

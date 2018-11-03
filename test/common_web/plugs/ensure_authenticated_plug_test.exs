@@ -1,8 +1,8 @@
-defmodule Pleroma.Plugs.EnsureAuthenticatedPlugTest do
-  use Pleroma.Web.ConnCase, async: true
+defmodule MoodleNet.Plugs.EnsureAuthenticatedPlugTest do
+  use MoodleNetWeb.ConnCase, async: true
 
-  alias Pleroma.Plugs.EnsureAuthenticatedPlug
-  alias Pleroma.User
+  alias MoodleNet.Plugs.EnsureAuthenticatedPlug
+  alias MoodleNet.User
 
   test "it halts if no user is assigned", %{conn: conn} do
     conn =

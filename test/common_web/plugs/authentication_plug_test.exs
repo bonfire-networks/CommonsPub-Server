@@ -1,8 +1,8 @@
-defmodule Pleroma.Plugs.AuthenticationPlugTest do
-  use Pleroma.Web.ConnCase, async: true
+defmodule MoodleNet.Plugs.AuthenticationPlugTest do
+  use MoodleNetWeb.ConnCase, async: true
 
-  alias Pleroma.Plugs.AuthenticationPlug
-  alias Pleroma.User
+  alias MoodleNet.Plugs.AuthenticationPlug
+  alias MoodleNet.User
 
   setup %{conn: conn} do
     user = %User{

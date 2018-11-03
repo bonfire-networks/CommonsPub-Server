@@ -1,4 +1,4 @@
-defmodule Pleroma.Web.ActivityPub.Utils do
+defmodule ActivityPub.Utils do
   # I don't understand why there are two modules ActivityPub and ActivityPub.Utils
   # I don't see the differences between them
   # This is module, that could be a private module for ActivityPub because its name,
@@ -8,10 +8,10 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   # ie: When we received an undo activity we have to check to the previous activity
   # Because it is using JSONB for storing data some of them are quite complex
   # and difficult to understand, but they seem fine.
-  alias Pleroma.{Repo, Web, Activity, User}
-  alias ActivityStream.Object
-  alias Pleroma.Web.Router.Helpers
-  alias Pleroma.Web.Endpoint
+  alias MoodleNet.{Repo, Activity, User}
+  alias ActivityPub.Object
+  alias MoodleNetWeb.Router.Helpers
+  alias MoodleNetWeb.Endpoint
   alias Ecto.{Changeset, UUID}
   import Ecto.Query
   require Logger
@@ -61,10 +61,10 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   end
 
   def generate_id(type) do
-    "#{Web.base_url()}/#{type}/#{UUID.generate()}"
+    "#{MoodleNetWeb.base_url()}/#{type}/#{UUID.generate()}"
   end
 
-  # In pleroma all activities should have a context
+  # In moodle_net all activities should have a context
   # One is created if is not already created
   # https://www.w3.org/TR/activitystreams-vocabulary/#dfn-context
   #
@@ -73,7 +73,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   def create_context(context) do
     context = context || generate_id("contexts")
     %{"id" => context}
-    |> ActivityStream.create_object()
+    |> ActivityPub.create_object()
     |> case do
       {:ok, object} ->
         object
@@ -97,7 +97,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
         _ -> 5
       end
 
-    Pleroma.Web.Federator.enqueue(:publish, activity, priority)
+    MoodleNetWeb.Federator.enqueue(:publish, activity, priority)
     :ok
   end
 
@@ -127,7 +127,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
       |> Map.put_new("context_id", context_id)
 
     # So here is checking if the activity object is just the ID or is the full object.
-    # If it is an object adds some properties that are required by Mastodon/Pleroma
+    # If it is an object adds some properties that are required by Mastodon/MoodleNet
     # If not it just returns the activity with the object id.
     # I think this is incosistent, later we have to deal again with if object is
     # the full object or the id again. It feels we need a better abstraction.
@@ -143,7 +143,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   Adds an id and published date if they aren't there.
   """
   def lazy_put_object_defaults(map, activity \\ %{}) do
-    # It seems context is needed by Mastodon/Pleroma
+    # It seems context is needed by Mastodon/MoodleNet
     # "context_id" is not a standard in AP. It is an implementation details.
     # It should be hidden so it does not conflict with future extensions
     map
@@ -159,7 +159,7 @@ defmodule Pleroma.Web.ActivityPub.Utils do
   def insert_full_object(%{"object" => %{"type" => type} = object_data})
   # IMPORTANT: Only inserts Articles, Note or Video
       when is_map(object_data) and type in ["Article", "Note", "Video"] do
-    with {:ok, _} <- ActivityStream.create_object(object_data) do
+    with {:ok, _} <- ActivityPub.create_object(object_data) do
       :ok
     end
   end

@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.RegisterUser do
   use Mix.Task
-  alias Pleroma.{Repo, User}
+  alias MoodleNet.{Repo, User}
 
   @shortdoc "Register user"
   def run([name, nickname, email, bio, password]) do

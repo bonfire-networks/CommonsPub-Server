@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddTrigramExtension do
+defmodule MoodleNet.Repo.Migrations.AddTrigramExtension do
   use Ecto.Migration
   require Logger
 

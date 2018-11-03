@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.RemoveRecipientsToAndCcFieldsFromActivities do
+defmodule MoodleNet.Repo.Migrations.RemoveRecipientsToAndCcFieldsFromActivities do
   use Ecto.Migration
 
   def change do

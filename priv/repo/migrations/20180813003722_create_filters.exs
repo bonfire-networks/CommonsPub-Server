@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.CreateFilters do
+defmodule MoodleNet.Repo.Migrations.CreateFilters do
   use Ecto.Migration
 
   def change do

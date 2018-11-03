@@ -6,7 +6,7 @@ The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated 
 
 The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
-It was forked from Pleroma with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
+It was forked from MoodleNet with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
 
 The first projects using it are:
 
@@ -45,7 +45,7 @@ See the [server-deploy repo](https://gitlab.com/OpenCoop/CommonsPub/server-deplo
 
 * You can check if your instance is configured correctly by running it with `mix phx.server` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
 
-* The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/pleroma.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
+* The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/moodle_net.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
   The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
 
 
@@ -57,11 +57,11 @@ By default, CommonsPub listens on port 4000 (TCP), so you can access it on http:
 Pub of the Commons does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
 
 ### As systemd service (with provided .service file)
-[Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/pleroma.service` you can put it in `/etc/systemd/system/`.
+[Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/moodle_net.service` you can put it in `/etc/systemd/system/`.
 
-Running: `service pleroma start`
+Running: `service moodle_net start`
 
-Logs can be watched by using `journalctl -fu pleroma.service`
+Logs can be watched by using `journalctl -fu moodle_net.service`
 
 ### Standalone/run by other means
 Run `mix phx.server` in repository's root, it will output log into stdout/stderr
@@ -70,7 +70,7 @@ Run `mix phx.server` in repository's root, it will output log into stdout/stderr
 
 Add the following to your `dev.secret.exs` or `prod.secret.exs` if you want to proxify all http requests that the server makes to an upstream proxy server:
 
-    config :pleroma, :http,
+    config :moodle_net, :http,
       proxy_url: "127.0.0.1:8123"
 
 This is useful for running the server inside Tor or i2p.
@@ -130,7 +130,7 @@ To configure where to upload files, and wether or not
 you want to remove automatically EXIF data from pictures
 being uploaded.
 
-    config :pleroma, Pleroma.Upload,
+    config :moodle_net, MoodleNet.Upload,
       uploads: "uploads",
       strip_exif: false
 
@@ -141,12 +141,12 @@ being uploaded.
 
 ## Block functionality
 
-    config :pleroma, :activitypub,
+    config :moodle_net, :activitypub,
       accept_blocks: true,
       unfollow_blocked: true,
       outgoing_blocks: true
 
-    config :pleroma, :user, deny_follow_blocked: true
+    config :moodle_net, :user, deny_follow_blocked: true
 
 * `accept_blocks`: whether to accept incoming block activities from
    other instances
@@ -160,17 +160,17 @@ being uploaded.
 
 Modify incoming and outgoing posts.
 
-    config :pleroma, :instance,
-      rewrite_policy: Pleroma.Web.ActivityPub.MRF.NoOpPolicy
+    config :moodle_net, :instance,
+      rewrite_policy: MoodleNet.Web.ActivityPub.MRF.NoOpPolicy
 
 `rewrite_policy` specifies which MRF policies to apply.
 It can either be a single policy or a list of policies.
 Currently, MRFs availible by default are:
 
-* `Pleroma.Web.ActivityPub.MRF.NoOpPolicy`
-* `Pleroma.Web.ActivityPub.MRF.DropPolicy`
-* `Pleroma.Web.ActivityPub.MRF.SimplePolicy`
-* `Pleroma.Web.ActivityPub.MRF.RejectNonPublic`
+* `MoodleNet.Web.ActivityPub.MRF.NoOpPolicy`
+* `MoodleNet.Web.ActivityPub.MRF.DropPolicy`
+* `MoodleNet.Web.ActivityPub.MRF.SimplePolicy`
+* `MoodleNet.Web.ActivityPub.MRF.RejectNonPublic`
 
 Some policies, such as SimplePolicy and RejectNonPublic,
 can be additionally configured in their respective sections.
@@ -188,7 +188,7 @@ It generally does not make sense to use this in production.
 
 Restricts the visibility of posts from certain instances.
 
-    config :pleroma, :mrf_simple,
+    config :moodle_net, :mrf_simple,
       media_removal: [],
       media_nsfw: [],
       federated_timeline_removal: [],
@@ -208,7 +208,7 @@ Restricts the visibility of posts from certain instances.
 
 Drops posts with non-public visibility settings.
 
-    config :pleroma :mrf_rejectnonpublic
+    config :moodle_net :mrf_rejectnonpublic
       allow_followersonly: false,
       allow_direct: false,
 

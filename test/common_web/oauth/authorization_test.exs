@@ -1,7 +1,7 @@
-defmodule Pleroma.Web.OAuth.AuthorizationTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.OAuth.{Authorization, App}
-  import Pleroma.Factory
+defmodule MoodleNetWeb.OAuth.AuthorizationTest do
+  use MoodleNet.DataCase
+  alias MoodleNetWeb.OAuth.{Authorization, App}
+  import MoodleNet.Factory
 
   test "create an authorization token for a valid app" do
     {:ok, app} =

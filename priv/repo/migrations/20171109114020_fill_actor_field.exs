@@ -1,7 +1,7 @@
-defmodule Pleroma.Repo.Migrations.FillActorField do
+defmodule MoodleNet.Repo.Migrations.FillActorField do
   use Ecto.Migration
 
-  alias Pleroma.{Repo, Activity}
+  alias MoodleNet.{Repo, Activity}
 
   def up do
     max = Repo.aggregate(Activity, :max, :id)

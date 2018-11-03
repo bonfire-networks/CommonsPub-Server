@@ -1,9 +1,9 @@
-defmodule Pleroma.Mixfile do
+defmodule MoodleNet.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :pleroma,
+      app: :moodle_net,
       version: "0.9.0",
       elixir: "~> 1.7.3",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -18,7 +18,7 @@ defmodule Pleroma.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Pleroma.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
+    [mod: {MoodleNet.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
   end
 
   # Specifies which paths to compile per environment.

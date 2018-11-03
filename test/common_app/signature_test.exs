@@ -1,6 +1,6 @@
-defmodule Pleroma.SignatureTest do
-  use Pleroma.DataCase, async: true
-  alias Pleroma.Signature
+defmodule MoodleNet.SignatureTest do
+  use MoodleNet.DataCase, async: true
+  alias MoodleNet.Signature
 
   @magickey "RSA.pu0s-halox4tu7wmES1FVSx6u-4wc0YrUFXcqWXZG4-27UmbCOpMQftRCldNRfyA-qLbz-eqiwQhh-1EwUvjsD4cYbAHNGHwTvDOyx5AKthQUP44ykPv7kjKGh3DWKySJvcs9tlUG87hlo7AvnMo9pwRS_Zz2CacQ-MKaXyDepk=.AQAB"
 

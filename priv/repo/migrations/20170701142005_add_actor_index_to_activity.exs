@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddActorIndexToActivity do
+defmodule MoodleNet.Repo.Migrations.AddActorIndexToActivity do
   use Ecto.Migration
 
   def change do

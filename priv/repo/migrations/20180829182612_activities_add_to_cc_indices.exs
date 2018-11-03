@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.ActivitiesAddToCcIndices do
+defmodule MoodleNet.Repo.Migrations.ActivitiesAddToCcIndices do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddTagIndex do
+defmodule MoodleNet.Repo.Migrations.AddTagIndex do
   use Ecto.Migration
 
   @disable_ddl_transaction true

@@ -1,5 +1,5 @@
-defmodule Pleroma.Builders.UserBuilder do
-  alias Pleroma.{User, Repo}
+defmodule MoodleNet.Builders.UserBuilder do
+  alias MoodleNet.{User, Repo}
 
   def build(data \\ %{}) do
     user = %User{

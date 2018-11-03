@@ -1,9 +1,9 @@
 # http signatures
 # Test data from https://tools.ietf.org/html/draft-cavage-http-signatures-08#appendix-C
-defmodule Pleroma.Web.HTTPSignaturesTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.HTTPSignatures
-  import Pleroma.Factory
+defmodule MoodleNetWeb.HTTPSignaturesTest do
+  use MoodleNet.DataCase
+  alias MoodleNetWeb.HTTPSignatures
+  import MoodleNet.Factory
 
   @private_key hd(:public_key.pem_decode(File.read!("test/common_web/http_sigs/priv.key")))
                |> :public_key.pem_entry_decode()

@@ -1,8 +1,8 @@
-defmodule Pleroma.Repo.Migrations.AddFollowerAddressToUser do
+defmodule MoodleNet.Repo.Migrations.AddFollowerAddressToUser do
   use Ecto.Migration
   import Ecto.Query
   import Supervisor.Spec
-  alias Pleroma.{Repo, User}
+  alias MoodleNet.{Repo, User}
 
   def up do
     alter table(:users) do
@@ -14,9 +14,9 @@ defmodule Pleroma.Repo.Migrations.AddFollowerAddressToUser do
 
     # children = [
     #   # Start the endpoint when the application starts
-    #   supervisor(Pleroma.Web.Endpoint, [])
+    #   supervisor(MoodleNet.Web.Endpoint, [])
     # ]
-    # opts = [strategy: :one_for_one, name: Pleroma.Supervisor]
+    # opts = [strategy: :one_for_one, name: MoodleNet.Supervisor]
     # Supervisor.start_link(children, opts)
 
     # Enum.each(Repo.all(User), fn (user) ->

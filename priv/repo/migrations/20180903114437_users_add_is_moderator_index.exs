@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.UsersAddIsModeratorIndex do
+defmodule MoodleNet.Repo.Migrations.UsersAddIsModeratorIndex do
   use Ecto.Migration
 
   def change do

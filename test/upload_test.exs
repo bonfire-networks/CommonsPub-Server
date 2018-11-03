@@ -1,6 +1,6 @@
-defmodule Pleroma.UploadTest do
-  alias Pleroma.Upload
-  use Pleroma.DataCase
+defmodule MoodleNet.UploadTest do
+  alias MoodleNet.Upload
+  use MoodleNet.DataCase
 
   describe "Storing a file" do
     test "copies the file to the configured folder with deduping" do

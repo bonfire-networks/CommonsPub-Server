@@ -1,10 +1,10 @@
-defmodule Pleroma.Web.ActivityPub.ActivityPubController do
-  use Pleroma.Web, :controller
-  alias Pleroma.{User}
-  alias Pleroma.Web.ActivityPub.{ObjectView, UserView}
-  alias ActivityStream.Object
-  alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.Federator
+defmodule ActivityPubWeb.ActivityPubController do
+  use MoodleNetWeb, :controller
+  alias MoodleNet.{User}
+  alias ActivityPub.{ObjectView, UserView}
+  alias ActivityPub.Object
+  alias ActivityPub
+  alias MoodleNetWeb.Federator
 
   require Logger
 
@@ -12,11 +12,11 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
 
   # There are many endpoints here, however not all of them are used:
   #
-  # activity_pub_path  GET     /users/:nickname/followers                  Pleroma.Web.ActivityPub.ActivityPubController :followers
-  # activity_pub_path  GET     /users/:nickname/following                  Pleroma.Web.ActivityPub.ActivityPubController :following
-  # activity_pub_path  GET     /users/:nickname/outbox                     Pleroma.Web.ActivityPub.ActivityPubController :outbox
-  # activity_pub_path  POST    /users/:nickname/inbox                      Pleroma.Web.ActivityPub.ActivityPubController :inbox
-  # activity_pub_path  POST    /inbox                                      Pleroma.Web.ActivityPub.ActivityPubController :inbox
+  # activity_pub_path  GET     /users/:nickname/followers                  ActivityPubWeb.ActivityPubController :followers
+  # activity_pub_path  GET     /users/:nickname/following                  ActivityPubWeb.ActivityPubController :following
+  # activity_pub_path  GET     /users/:nickname/outbox                     ActivityPubWeb.ActivityPubController :outbox
+  # activity_pub_path  POST    /users/:nickname/inbox                      ActivityPubWeb.ActivityPubController :inbox
+  # activity_pub_path  POST    /inbox                                      ActivityPubWeb.ActivityPubController :inbox
   #
   # So we don't know if the rest of them are working.
   # I don't understand the last one either: an inbox is owned by an actor
@@ -42,7 +42,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Don't understand this, why is not just generated when the user is created?
          # This happening in almost in each endpoint, but it also repeated in the views!!
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("user.json", %{user: user}))
@@ -69,7 +69,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def following(conn, %{"nickname" => nickname, "page" => page}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       {page, _} = Integer.parse(page)
 
       # We don't pass the following users to the view.
@@ -86,7 +86,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def following(conn, %{"nickname" => nickname}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("following.json", %{user: user}))
@@ -96,7 +96,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def followers(conn, %{"nickname" => nickname, "page" => page}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       {page, _} = Integer.parse(page)
 
       # Again queries and pagination in the view
@@ -111,7 +111,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def followers(conn, %{"nickname" => nickname}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       conn
       |> put_resp_header("content-type", "application/activity+json")
       |> json(UserView.render("followers.json", %{user: user}))
@@ -121,7 +121,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
   def outbox(conn, %{"nickname" => nickname, "max_id" => max_id}) do
     with %User{} = user <- User.get_cached_by_nickname(nickname),
          # Ensure keys again
-         {:ok, user} <- Pleroma.Signature.ensure_keys_present(user) do
+         {:ok, user} <- MoodleNet.Signature.ensure_keys_present(user) do
       # Again queries and pagination in the view
       conn
       |> put_resp_header("content-type", "application/activity+json")
@@ -135,7 +135,7 @@ defmodule Pleroma.Web.ActivityPub.ActivityPubController do
     outbox(conn, %{"nickname" => nickname, "max_id" => nil})
   end
 
-  # Cool! Seems like a previous plug validate the signture: Pleroma.Web.Plugs,HTTPSignaturePlug
+  # Cool! Seems like a previous plug validate the signture: MoodleNetWeb.Plugs,HTTPSignaturePlug
   # TODO: Ensure that this inbox is a recipient of the message
   def inbox(%{assigns: %{valid_signature: true}} = conn, params) do
     # So this is handle in Federator asynchronously

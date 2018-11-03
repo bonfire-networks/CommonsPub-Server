@@ -1,16 +1,16 @@
-defmodule Pleroma.UserTest do
-  alias Pleroma.Builders.UserBuilder
-  alias Pleroma.{User, Repo, Activity}
-  alias Pleroma.Web.CommonAPI
-  use Pleroma.DataCase
+defmodule MoodleNet.UserTest do
+  alias MoodleNet.Builders.UserBuilder
+  alias MoodleNet.{User, Repo, Activity}
+  alias MoodleNetWeb.CommonAPI
+  use MoodleNet.DataCase
 
-  import Pleroma.Factory
+  import MoodleNet.Factory
   import Ecto.Query
 
   test "ap_id returns the activity pub id for the user" do
     user = UserBuilder.build()
 
-    expected_ap_id = "#{Pleroma.Web.base_url()}/users/#{user.nickname}"
+    expected_ap_id = "#{MoodleNetWeb.base_url()}/users/#{user.nickname}"
 
     assert expected_ap_id == User.ap_id(user)
   end

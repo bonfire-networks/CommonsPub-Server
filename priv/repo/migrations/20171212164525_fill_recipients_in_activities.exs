@@ -1,6 +1,6 @@
-defmodule Pleroma.Repo.Migrations.FillRecipientsInActivities do
+defmodule MoodleNet.Repo.Migrations.FillRecipientsInActivities do
   use Ecto.Migration
-  alias Pleroma.{Repo, Activity}
+  alias MoodleNet.{Repo, Activity}
 
   def up do
     max = Repo.aggregate(Activity, :max, :id)

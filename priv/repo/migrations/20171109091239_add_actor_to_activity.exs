@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddActorToActivity do
+defmodule MoodleNet.Repo.Migrations.AddActorToActivity do
   use Ecto.Migration
 
   @disable_ddl_transaction true

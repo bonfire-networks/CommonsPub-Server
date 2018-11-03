@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddUserAndHub do
+defmodule MoodleNet.Repo.Migrations.AddUserAndHub do
   use Ecto.Migration
 
   def change do

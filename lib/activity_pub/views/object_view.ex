@@ -1,6 +1,6 @@
-defmodule Pleroma.Web.ActivityPub.ObjectView do
-  use Pleroma.Web, :view
-  alias Pleroma.Web.ActivityPub.Transmogrifier
+defmodule ActivityPub.ObjectView do
+  use MoodleNetWeb, :view
+  alias ActivityPub.Transmogrifier
 
   def render("object.json", %{object: object}) do
     base = %{

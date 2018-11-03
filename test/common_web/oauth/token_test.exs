@@ -1,9 +1,9 @@
-defmodule Pleroma.Web.OAuth.TokenTest do
-  use Pleroma.DataCase
-  alias Pleroma.Web.OAuth.{App, Token, Authorization}
-  alias Pleroma.Repo
+defmodule MoodleNetWeb.OAuth.TokenTest do
+  use MoodleNet.DataCase
+  alias MoodleNetWeb.OAuth.{App, Token, Authorization}
+  alias MoodleNet.Repo
 
-  import Pleroma.Factory
+  import MoodleNet.Factory
 
   test "exchanges a auth token for an access token" do
     {:ok, app} =

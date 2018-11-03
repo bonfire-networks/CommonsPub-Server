@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.SetLocked do
   use Mix.Task
   import Mix.Ecto
-  alias Pleroma.{Repo, User}
+  alias MoodleNet.{Repo, User}
 
   @shortdoc "Set locked status"
   def run([nickname | rest]) do

@@ -1,7 +1,7 @@
-defmodule Pleroma.Plugs.EnsureUserKeyPlugTest do
-  use Pleroma.Web.ConnCase, async: true
+defmodule MoodleNet.Plugs.EnsureUserKeyPlugTest do
+  use MoodleNetWeb.ConnCase, async: true
 
-  alias Pleroma.Plugs.EnsureUserKeyPlug
+  alias MoodleNet.Plugs.EnsureUserKeyPlug
 
   test "if the conn has a user key set, it does nothing", %{conn: conn} do
     conn =

@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.DropLocalIndexOnActivities do
+defmodule MoodleNet.Repo.Migrations.DropLocalIndexOnActivities do
   use Ecto.Migration
 
   def change do

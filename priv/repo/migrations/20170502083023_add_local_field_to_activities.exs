@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddLocalFieldToActivities do
+defmodule MoodleNet.Repo.Migrations.AddLocalFieldToActivities do
   use Ecto.Migration
 
   def change do

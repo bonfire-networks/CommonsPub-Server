@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddUniqueIndexToEmailAndNickname do
+defmodule MoodleNet.Repo.Migrations.AddUniqueIndexToEmailAndNickname do
   use Ecto.Migration
 
   def change do

@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddMastodonApps do
+defmodule MoodleNet.Repo.Migrations.AddMastodonApps do
   use Ecto.Migration
 
   def change do

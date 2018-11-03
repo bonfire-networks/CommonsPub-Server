@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddFTSIndexToActivities do
+defmodule MoodleNet.Repo.Migrations.AddFTSIndexToActivities do
   use Ecto.Migration
   @disable_ddl_transaction true
 

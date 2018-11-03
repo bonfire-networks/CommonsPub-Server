@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :pleroma, Pleroma.Web.Endpoint,
+config :moodle_net, MoodleNetWeb.Endpoint,
   http: [
     port: 4000,
     protocol_options: [max_request_line_length: 8192, max_header_value_length: 8192]
@@ -41,11 +41,11 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
-config :pleroma, Pleroma.Repo,
+config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "pleroma_dev",
+  database: "moodle_net_dev",
   hostname: "localhost",
   pool_size: 10
 

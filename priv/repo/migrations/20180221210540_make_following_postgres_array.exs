@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.MakeFollowingPostgresArray do
+defmodule MoodleNet.Repo.Migrations.MakeFollowingPostgresArray do
   use Ecto.Migration
 
   def change do

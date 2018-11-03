@@ -1,4 +1,4 @@
-defmodule Pleroma.Repo.Migrations.AddListFollowIndex do
+defmodule MoodleNet.Repo.Migrations.AddListFollowIndex do
   use Ecto.Migration
 
   def change do

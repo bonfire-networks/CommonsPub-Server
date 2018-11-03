@@ -1,15 +1,15 @@
-defmodule Pleroma.Web.ActivityPub.Transmogrifier do
+defmodule ActivityPub.Transmogrifier do
   @moduledoc """
   A module to handle coding from internal to wire ActivityPub and back.
   """
   # This module does more things that doc says.
   # It is the module which actually handle all the incoming AP requests!
-  alias Pleroma.User
-  alias ActivityStream.Object
-  alias Pleroma.Activity
-  alias Pleroma.Repo
-  alias Pleroma.Web.ActivityPub.ActivityPub
-  alias Pleroma.Web.ActivityPub.Utils
+  alias MoodleNet.User
+  alias ActivityPub.Object
+  alias MoodleNet.Activity
+  alias MoodleNet.Repo
+  alias ActivityPub
+  alias ActivityPub.Utils
 
   import Ecto.Query
 
@@ -166,7 +166,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
         mapping |> Map.put(name, data["icon"]["url"])
       end)
 
-    # we merge mastodon and pleroma emoji into a single mapping, to allow for both wire formats
+    # we merge mastodon and moodle_net emoji into a single mapping, to allow for both wire formats
     emoji = Map.merge(object["emoji"] || %{}, emoji)
 
     object
@@ -486,7 +486,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
     end
   end
 
-  @ap_config Application.get_env(:pleroma, :activitypub)
+  @ap_config Application.get_env(:moodle_net, :activitypub)
   @accept_blocks Keyword.get(@ap_config, :accept_blocks)
 
   # Undo a block message received by the server
@@ -665,7 +665,7 @@ defmodule Pleroma.Web.ActivityPub.Transmogrifier do
       (object["tag"] || [])
       |> Enum.map(fn tag ->
         %{
-          "href" => Pleroma.Web.Endpoint.url() <> "/tags/#{tag}",
+          "href" => MoodleNetWeb.Endpoint.url() <> "/tags/#{tag}",
           "name" => "##{tag}",
           "type" => "Hashtag"
         }
