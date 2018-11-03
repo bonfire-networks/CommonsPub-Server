@@ -6,7 +6,7 @@ defmodule MoodleNet.Repo.Migrations.CreateWebsubServerSubscription do
       add :topic, :string
       add :callback, :string
       add :secret, :string
-      add :valid_until, :naive_datetime
+      add :valid_until, :naive_datetime_usec
       add :state, :string
 
       timestamps()

@@ -5,7 +5,7 @@ defmodule Mix.Tasks.SetLocked do
 
   @shortdoc "Set locked status"
   def run([nickname | rest]) do
-    ensure_started(Repo, [])
+    Application.ensure_all_started(Repo)
 
     locked =
       case rest do

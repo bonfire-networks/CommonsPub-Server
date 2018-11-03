@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.OAuth.Authorization do
 
   schema "oauth_authorizations" do
     field(:token, :string)
-    field(:valid_until, :naive_datetime)
+    field(:valid_until, :naive_datetime_usec)
     field(:used, :boolean, default: false)
     belongs_to(:user, MoodleNet.User)
     belongs_to(:app, App)

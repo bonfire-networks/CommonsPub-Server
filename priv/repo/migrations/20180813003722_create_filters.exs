@@ -8,7 +8,7 @@ defmodule MoodleNet.Repo.Migrations.CreateFilters do
       add :hide, :boolean
       add :phrase, :string
       add :context, {:array, :string}
-      add :expires_at, :datetime
+      add :expires_at, :naive_datetime_usec
       add :whole_word, :boolean
 
       timestamps()

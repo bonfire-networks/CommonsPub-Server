@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.OAuth.Token do
   schema "oauth_tokens" do
     field(:token, :string)
     field(:refresh_token, :string)
-    field(:valid_until, :naive_datetime)
+    field(:valid_until, :naive_datetime_usec)
     belongs_to(:user, MoodleNet.User)
     belongs_to(:app, App)
 
