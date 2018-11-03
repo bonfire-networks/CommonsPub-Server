@@ -10,7 +10,7 @@ defmodule ActivityPub.Utils do
   # and difficult to understand, but they seem fine.
   alias MoodleNet.{Repo, Activity, User}
   alias ActivityPub.Object
-  alias MoodleNetWeb.Router.Helpers
+  alias ActivityPubWeb.Router.Helpers, as: Routes
   alias MoodleNetWeb.Endpoint
   alias Ecto.{Changeset, UUID}
   import Ecto.Query
@@ -57,7 +57,7 @@ defmodule ActivityPub.Utils do
   end
 
   def generate_object_id do
-    Helpers.activity_pub_url(Endpoint, :object, UUID.generate())
+    Routes.activity_pub_url(Endpoint, :object, UUID.generate())
   end
 
   def generate_id(type) do
