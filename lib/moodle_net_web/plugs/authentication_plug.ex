@@ -1,7 +1,7 @@
 defmodule MoodleNet.Plugs.AuthenticationPlug do
   alias Comeonin.Pbkdf2
   import Plug.Conn
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   def init(options) do
     options

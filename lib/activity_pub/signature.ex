@@ -33,7 +33,7 @@ defmodule MoodleNet.Signature do
       info = Map.put(info, "keys", pem)
 
       Ecto.Changeset.change(user, info: info)
-      |> MoodleNet.User.update_and_set_cache()
+      |> MoodleNet.Accounts.User.update_and_set_cache()
     end
   end
 

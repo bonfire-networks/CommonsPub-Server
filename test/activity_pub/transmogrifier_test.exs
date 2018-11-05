@@ -4,7 +4,7 @@ defmodule ActivityPub.TransmogrifierTest do
   alias ActivityPub.Utils
   alias ActivityPub
   alias MoodleNet.Activity
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNet.Repo
 
   import MoodleNet.Factory

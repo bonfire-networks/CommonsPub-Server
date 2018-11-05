@@ -3,7 +3,8 @@ defmodule ActivityPubOldTest do
   alias ActivityPub
   alias ActivityPub.Utils
   alias MoodleNetWeb.CommonAPI
-  alias MoodleNet.{Activity, User}
+  alias MoodleNet.Activity
+  alias MoodleNet.Accounts.User
   alias ActivityPub.Object
   alias MoodleNet.Builders.ActivityBuilder
 

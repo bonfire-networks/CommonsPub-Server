@@ -1,6 +1,6 @@
 defmodule MoodleNet.Plugs.OAuthPlug do
   import Plug.Conn
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNet.Repo
   alias MoodleNetWeb.OAuth.Token
 

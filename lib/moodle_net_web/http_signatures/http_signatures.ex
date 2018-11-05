@@ -1,6 +1,6 @@
 # https://tools.ietf.org/html/draft-cavage-http-signatures-08
 defmodule MoodleNetWeb.HTTPSignatures do
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias ActivityPub.Utils
   alias ActivityPub
   require Logger

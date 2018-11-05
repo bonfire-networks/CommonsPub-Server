@@ -1,5 +1,5 @@
 defmodule MoodleNet.Formatter do
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNetWeb.MediaProxy
 
   @tag_regex ~r/\#\w+/u

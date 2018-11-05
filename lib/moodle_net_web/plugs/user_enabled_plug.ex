@@ -1,6 +1,6 @@
 defmodule MoodleNet.Plugs.UserEnabledPlug do
   import Plug.Conn
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   def init(options) do
     options

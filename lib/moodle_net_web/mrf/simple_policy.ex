@@ -11,7 +11,7 @@ defmodule ActivityPubWeb.MRF.SimplePolicy do
   # The admin should have an interface to change this configuration.
   # The configuration should be, IMHO, public.
   # This way the user may know what filters and changes are made in realtime.
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   @behaviour ActivityPubWeb.MRF
 
   @mrf_policy Application.get_env(:moodle_net, :mrf_simple)

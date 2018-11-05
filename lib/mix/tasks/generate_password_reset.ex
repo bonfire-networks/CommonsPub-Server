@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.GeneratePasswordReset do
   use Mix.Task
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   @shortdoc "Generate password reset link for user"
   def run([nickname]) do

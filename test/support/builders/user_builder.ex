@@ -1,5 +1,6 @@
 defmodule MoodleNet.Builders.UserBuilder do
-  alias MoodleNet.{User, Repo}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Repo
 
   def build(data \\ %{}) do
     user = %User{

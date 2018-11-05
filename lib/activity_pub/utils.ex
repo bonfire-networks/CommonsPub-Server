@@ -8,7 +8,8 @@ defmodule ActivityPub.Utils do
   # ie: When we received an undo activity we have to check to the previous activity
   # Because it is using JSONB for storing data some of them are quite complex
   # and difficult to understand, but they seem fine.
-  alias MoodleNet.{Repo, Activity, User}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.{Repo, Activity}
   alias ActivityPub.Object
   alias ActivityPubWeb.Router.Helpers, as: Routes
   alias MoodleNetWeb.Endpoint

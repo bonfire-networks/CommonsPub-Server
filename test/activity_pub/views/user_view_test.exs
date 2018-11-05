@@ -1,7 +1,7 @@
 defmodule ActivityPub.UserViewTest do
   use MoodleNet.DataCase
   import MoodleNet.Factory
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   alias ActivityPub.UserView
 

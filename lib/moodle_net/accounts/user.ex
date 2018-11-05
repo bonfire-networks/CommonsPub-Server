@@ -1,4 +1,4 @@
-defmodule MoodleNet.User do
+defmodule MoodleNet.Accounts.User do
   # There are plans to split this table in different ones:
 
   # MoodleNet.Accounts.User?
@@ -11,13 +11,18 @@ defmodule MoodleNet.User do
   #   * It should not use Web
   use Ecto.Schema
 
+  alias MoodleNet.Accounts.User
   import Ecto.{Changeset, Query}
-  alias MoodleNet.{Repo, User, Activity, Notification}
+  alias MoodleNet.{Repo, Activity, Notification}
   alias ActivityPub.Object
   alias Comeonin.Pbkdf2
   alias ActivityPub.Utils
 
-  schema "users" do
+  alias ActivityPub.Actor
+
+  schema "accounts_users" do
+    belongs_to :primary_actor, ActivityPub.Actor
+    field(:following_count, :integer, default: 0)
     field(:bio, :string)
     field(:email, :string)
     field(:name, :string)
@@ -37,19 +42,6 @@ defmodule MoodleNet.User do
     timestamps()
   end
 
-  def avatar_url(user) do
-    case user.avatar do
-      %{"url" => [%{"href" => href} | _]} -> href
-      _ -> "#{MoodleNetWeb.base_url()}/images/avi.png"
-    end
-  end
-
-  def banner_url(user) do
-    case user.info["banner"] do
-      %{"url" => [%{"href" => href} | _]} -> href
-      _ -> "#{MoodleNetWeb.base_url()}/images/banner.png"
-    end
-  end
 
   def ap_id(%User{nickname: nickname}) do
     "#{MoodleNetWeb.base_url()}/users/#{nickname}"

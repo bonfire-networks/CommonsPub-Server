@@ -11,7 +11,8 @@ defmodule MoodleNet.PasswordResetToken do
 
   import Ecto.Changeset
 
-  alias MoodleNet.{User, PasswordResetToken, Repo}
+  alias MoodleNet.{PasswordResetToken, Repo}
+  alias MoodleNet.Accounts.User
 
   schema "password_reset_tokens" do
     belongs_to(:user, User)

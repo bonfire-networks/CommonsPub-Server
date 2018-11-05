@@ -1,6 +1,6 @@
 defmodule MoodleNetWeb.Federator do
   use GenServer
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNet.Activity
   alias ActivityPub
   alias ActivityPub.Transmogrifier

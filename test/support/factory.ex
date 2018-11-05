@@ -2,7 +2,7 @@ defmodule MoodleNet.Factory do
   use ExMachina.Ecto, repo: MoodleNet.Repo
 
   def user_factory do
-    user = %MoodleNet.User{
+    user = %MoodleNet.Accounts.User{
       name: sequence(:name, &"Test テスト User #{&1}"),
       email: sequence(:email, &"user#{&1}@example.com"),
       nickname: sequence(:nickname, &"nick#{&1}"),
@@ -12,9 +12,9 @@ defmodule MoodleNet.Factory do
 
     %{
       user
-      | ap_id: MoodleNet.User.ap_id(user),
-        follower_address: MoodleNet.User.ap_followers(user),
-        following: [MoodleNet.User.ap_id(user)]
+      | ap_id: MoodleNet.Accounts.User.ap_id(user),
+        follower_address: MoodleNet.Accounts.User.ap_followers(user),
+        following: [MoodleNet.Accounts.User.ap_id(user)]
     }
   end
 

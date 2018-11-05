@@ -1,14 +1,15 @@
 defmodule MoodleNetWeb.OAuth.Token do
   use Ecto.Schema
 
-  alias MoodleNet.{User, Repo}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Repo
   alias MoodleNetWeb.OAuth.{Token, App, Authorization}
 
   schema "oauth_tokens" do
     field(:token, :string)
     field(:refresh_token, :string)
     field(:valid_until, :naive_datetime_usec)
-    belongs_to(:user, MoodleNet.User)
+    belongs_to(:user, MoodleNet.Accounts.User)
     belongs_to(:app, App)
 
     timestamps()

@@ -2,7 +2,8 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
   use MoodleNetWeb, :controller
 
   alias MoodleNetWeb.OAuth.{Authorization, Token, App}
-  alias MoodleNet.{Repo, User}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Repo
   alias Comeonin.Pbkdf2
 
   plug(:fetch_session)

@@ -1,5 +1,5 @@
 defmodule ActivityPubWeb.MRF.RejectNonPublic do
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   @behaviour ActivityPubWeb.MRF
 
   @mrf_rejectnonpublic Application.get_env(:moodle_net, :mrf_rejectnonpublic)

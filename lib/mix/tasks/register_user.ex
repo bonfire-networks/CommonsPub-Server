@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.RegisterUser do
   use Mix.Task
-  alias MoodleNet.{Repo, User}
+  alias MoodleNet.Repo
+  alias MoodleNet.Accounts.User
 
   @shortdoc "Register user"
   def run([name, nickname, email, bio, password]) do

@@ -1,5 +1,5 @@
 defmodule MoodleNetWeb.CommonAPI do
-  alias MoodleNet.{User, Repo, Activity}
+  alias MoodleNet.Accounts.User
   alias ActivityPub.Object
   alias ActivityPub
   alias MoodleNet.Formatter
@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.CommonAPI do
   alias ActivityPub.Object
   alias ActivityPub.Utils
   alias MoodleNetWeb.Endpoint
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias Calendar.Strftime
   alias Comeonin.Pbkdf2
 

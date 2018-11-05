@@ -1,11 +1,12 @@
 defmodule MoodleNet.Notification do
   use Ecto.Schema
-  alias MoodleNet.{User, Activity, Notification, Repo}
+  alias MoodleNet.{Activity, Notification, Repo}
+  alias MoodleNet.Accounts.User
   import Ecto.Query
 
   schema "notifications" do
     field(:seen, :boolean, default: false)
-    belongs_to(:user, MoodleNet.User)
+    belongs_to(:user, MoodleNet.Accounts.User)
     belongs_to(:activity, MoodleNet.Activity)
 
     timestamps()

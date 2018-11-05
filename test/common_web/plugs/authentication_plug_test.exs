@@ -2,7 +2,7 @@ defmodule MoodleNet.Plugs.AuthenticationPlugTest do
   use MoodleNetWeb.ConnCase, async: true
 
   alias MoodleNet.Plugs.AuthenticationPlug
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   setup %{conn: conn} do
     user = %User{

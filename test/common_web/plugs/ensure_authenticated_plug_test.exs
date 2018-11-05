@@ -2,7 +2,7 @@ defmodule MoodleNet.Plugs.EnsureAuthenticatedPlugTest do
   use MoodleNetWeb.ConnCase, async: true
 
   alias MoodleNet.Plugs.EnsureAuthenticatedPlug
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
 
   test "it halts if no user is assigned", %{conn: conn} do
     conn =

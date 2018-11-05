@@ -81,7 +81,8 @@ defmodule ActivityPub do
   # This modules mix different concerns
   # it has functions to create and persist activities
   # but also activitity queries and other external utility functions
-  alias MoodleNet.{Activity, Repo, Upload, User, Notification}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.{Activity, Repo, Upload, Notification}
   alias ActivityPub.Object
   alias ActivityPub.Transmogrifier
   alias ActivityPubWeb.MRF

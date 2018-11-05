@@ -1,6 +1,6 @@
 defmodule ActivityPub.UserView do
   use MoodleNetWeb, :view
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNet.Repo
   alias ActivityPub
   alias ActivityPub.Transmogrifier

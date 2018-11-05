@@ -1,6 +1,6 @@
 defmodule ActivityPubWeb.ActivityPubController do
   use ActivityPubWeb, :controller
-  alias MoodleNet.{User}
+  alias MoodleNet.Accounts.User
   alias ActivityPub.{ObjectView, UserView}
   alias ActivityPub.Object
   alias ActivityPub

@@ -1,7 +1,8 @@
 defmodule MoodleNetWeb.OAuth.Authorization do
   use Ecto.Schema
 
-  alias MoodleNet.{User, Repo}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Repo
   alias MoodleNetWeb.OAuth.{Authorization, App}
 
   import Ecto.{Changeset}
@@ -10,7 +11,7 @@ defmodule MoodleNetWeb.OAuth.Authorization do
     field(:token, :string)
     field(:valid_until, :naive_datetime_usec)
     field(:used, :boolean, default: false)
-    belongs_to(:user, MoodleNet.User)
+    belongs_to(:user, MoodleNet.Accounts.User)
     belongs_to(:app, App)
 
     timestamps()

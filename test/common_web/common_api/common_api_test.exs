@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.CommonAPI.Test do
   use MoodleNet.DataCase
   alias MoodleNetWeb.CommonAPI
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias MoodleNetWeb.Endpoint
   alias MoodleNet.Builders.{UserBuilder}
 

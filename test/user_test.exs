@@ -1,6 +1,7 @@
-defmodule MoodleNet.UserTest do
+defmodule MoodleNet.Accounts.UserTest do
   alias MoodleNet.Builders.UserBuilder
-  alias MoodleNet.{User, Repo, Activity}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.{Repo, Activity}
   alias MoodleNetWeb.CommonAPI
   use MoodleNet.DataCase
 

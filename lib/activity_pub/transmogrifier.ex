@@ -4,7 +4,7 @@ defmodule ActivityPub.Transmogrifier do
   """
   # This module does more things that doc says.
   # It is the module which actually handle all the incoming AP requests!
-  alias MoodleNet.User
+  alias MoodleNet.Accounts.User
   alias ActivityPub.Object
   alias MoodleNet.Activity
   alias MoodleNet.Repo

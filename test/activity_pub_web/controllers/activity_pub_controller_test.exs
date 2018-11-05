@@ -2,7 +2,8 @@ defmodule ActivityPubControllerTest do
   use MoodleNetWeb.ConnCase
   import MoodleNet.Factory
   alias ActivityPub.{UserView, ObjectView}
-  alias MoodleNet.{Repo, User}
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Repo
   alias MoodleNet.Activity
 
   describe "/users/:nickname" do
