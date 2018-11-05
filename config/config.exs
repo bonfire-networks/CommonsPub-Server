@@ -108,9 +108,8 @@ config :moodle_net, :media_proxy,
 
 # base_url: "https://cache.moodle_net.social"
 
-config :ecto, json_library: Jason
-
 config :phoenix, :format_encoders, json: Jason
+config :phoenix, :json_library, Jason
 
 config :moodle_net, :suggestions,
   enabled: false,

@@ -1,13 +1,8 @@
 defmodule MoodleNetWeb.UserSocket do
   use Phoenix.Socket
-  alias MoodleNet.User
 
   ## Channels
-  # channel "room:*", MoodleNetWeb.RoomChannel
-
-  ## Transports
-  transport(:websocket, Phoenix.Transports.WebSocket)
-  # transport :longpoll, Phoenix.Transports.LongPoll
+  # channel "room:*", ActivityPubWeb.RoomChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -20,13 +15,8 @@ defmodule MoodleNetWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(%{"token" => token}, socket) do
-    with {:ok, user_id} <- Phoenix.Token.verify(socket, "user socket", token, max_age: 84600),
-         %User{} = user <- MoodleNet.Repo.get(User, user_id) do
-      {:ok, assign(socket, :user_name, user.nickname)}
-    else
-      _e -> :error
-    end
+  def connect(_params, socket, _connect_info) do
+    {:ok, socket}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
@@ -36,7 +26,7 @@ defmodule MoodleNetWeb.UserSocket do
   # Would allow you to broadcast a "disconnect" event and terminate
   # all active sockets and channels for a given user:
   #
-  #     MoodleNetWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
+  #     ActivityPubWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
   def id(_socket), do: nil

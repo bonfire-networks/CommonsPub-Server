@@ -7,6 +7,9 @@
 /test/uploads
 /.elixir_ls
 doc
+/assets/node_modules
+/priv/static
+
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*

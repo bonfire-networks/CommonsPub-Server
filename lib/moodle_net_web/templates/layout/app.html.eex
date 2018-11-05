@@ -1,75 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset=utf-8 />
-    <title>Pub of the Commons</title>
-    <style>
-      body {
-        background-color: #282c37;
-        font-family: sans-serif;
-        color:white;
-        text-align: center;
-      }
-
-      .container {
-        margin: 50px auto;
-        max-width: 320px;
-        padding: 0;
-        padding: 40px 40px 40px 40px;
-        background-color: #313543;
-        border-radius: 4px;
-      }
-
-      h1 {
-        margin: 0;
-      }
-
-      h2 {
-        color: #9baec8;
-        font-weight: normal;
-        font-size: 20px;
-        margin-bottom: 40px;
-      }
-
-      form {
-        width: 100%;
-      }
-
-      input {
-        box-sizing: border-box;
-        width: 100%;
-        padding: 10px;
-        margin-top: 20px;
-        background-color: rgba(0,0,0,.1);
-        color: white;
-        border: 0;
-        border-bottom: 2px solid #9baec8;
-        font-size: 14px;
-      }
-
-      input:focus {
-        border-bottom: 2px solid #4b8ed8;
-      }
-
-      button {
-        box-sizing: border-box;
-        width: 100%;
-        color: white;
-        background-color: #419bdd;
-        border-radius: 4px;
-        border: none;
-        padding: 10px;
-        margin-top: 30px;
-        text-transform: uppercase;
-        font-weight: 500;
-        font-size: 16px;
-      }
-    </style>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MoodleNet</title>
+    <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.scss") %>"/>
   </head>
   <body>
-    <div class="container">
-      <h1>Pub of the Commons</h1>
+    <header>
+      <section class="container">
+        <nav role="navigation">
+          <ul>
+            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
+          </ul>
+        </nav>
+        <a href="http://phoenixframework.org/" class="phx-logo">
+          <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
+        </a>
+      </section>
+    </header>
+    <main role="main" class="container">
+      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= render @view_module, @view_template, assigns %>
-    </div>
+    </main>
+    <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

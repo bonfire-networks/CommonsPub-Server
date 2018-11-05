@@ -40,6 +40,8 @@ defmodule MoodleNet.Mixfile do
       {:jason, "~> 1.0"},
       {:gettext, "~> 0.15"},
       {:cowboy, "~> 2.5"},
+      {:plug_cowboy, "~> 2.0"},
+      {:plug, "~> 1.7"},
       {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       {:trailing_format_plug, "~> 0.0.7"},
