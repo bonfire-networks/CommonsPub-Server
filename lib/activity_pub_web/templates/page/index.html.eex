@@ -3,6 +3,7 @@
   <p>A productive web framework that<br/>does not compromise speed and maintainability.</p>
 </section>
 
+<button type="button" class="btn btn-primary">Primary</button>
 <section class="row">
   <article class="column">
     <h2>Resources</h2>

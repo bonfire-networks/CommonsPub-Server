@@ -21,14 +21,14 @@ defmodule MoodleNetWeb do
       use Phoenix.Controller, namespace: MoodleNetWeb
       import Plug.Conn
       import MoodleNetWeb.{Gettext, Router.Helpers}
-      alias AppWeb.Router.Helpers, as: Routes
+      alias MoodleNetWeb.Router.Helpers, as: Routes
     end
   end
 
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/common_web/templates",
+        root: "lib/moodle_net_web/templates",
         namespace: MoodleNetWeb
 
       # Import convenience functions from controllers
@@ -36,7 +36,7 @@ defmodule MoodleNetWeb do
 
       # Remove imports
       import MoodleNetWeb.{ErrorHelpers, Gettext, Router.Helpers}
-      alias AppWeb.Router.Helpers, as: Routes
+      alias MoodleNetWeb.Router.Helpers, as: Routes
     end
   end
 

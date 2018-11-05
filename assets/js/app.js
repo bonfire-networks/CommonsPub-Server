@@ -10,7 +10,6 @@ import css from "../css/app.scss"
 // Import dependencies
 //
 import "phoenix_html"
-import 'bootstrap'
 
 // Import local files
 //

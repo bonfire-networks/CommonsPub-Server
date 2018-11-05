@@ -1,9 +1,13 @@
 defmodule MoodleNetWeb.Router do
   use MoodleNetWeb, :router
 
-  alias MoodleNet.{Repo, User, Web.Router}
-
-  @instance Application.get_env(:moodle_net, :instance)
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
 
   pipeline :api do
     plug(:accepts, ["json"])

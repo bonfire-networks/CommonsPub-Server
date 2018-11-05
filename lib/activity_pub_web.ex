@@ -19,7 +19,8 @@ defmodule ActivityPubWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: ActivityPubWeb
+      # Make this namespace configurable
+      use Phoenix.Controller, namespace: MoodleNetWeb
 
       import Plug.Conn
       import ActivityPubWeb.Gettext

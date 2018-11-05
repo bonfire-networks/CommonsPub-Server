@@ -9,19 +9,24 @@ defmodule MoodleNetWeb.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  plug(Plug.Static, at: "/media", from: MoodleNet.Uploaders.Local.upload_path(), gzip: false)
+  # plug(Plug.Static, at: "/media", from: MoodleNet.Uploaders.Local.upload_path(), gzip: false)
 
-  plug(
-    Plug.Static,
+  # Serve at "/" the static files from "priv/static" directory.
+  #
+  # You should set gzip to true if you are running phx.digest
+  # when deploying your static files in production.
+  plug(Plug.Static,
     at: "/",
     from: :moodle_net,
-    only: ~w(index.html static finmoji emoji packs sounds images instance sw.js favicon.png)
+    gzip: false,
+    only:
+      ~w(css fonts images js robots.txt index.html static finmoji emoji packs sounds images instance sw.js favicon.ico)
   )
 
-  # Code reloading can be explicitly enabled under the
-  # :code_reloader configuration of your endpoint.
   if code_reloading? do
-    plug(Phoenix.CodeReloader)
+    socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
+    plug Phoenix.LiveReloader
+    plug Phoenix.CodeReloader
   end
 
   plug(TrailingFormatPlug)
