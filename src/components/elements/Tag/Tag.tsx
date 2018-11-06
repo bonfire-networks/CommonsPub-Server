@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Tag as ZenTag, Close } from '@zendeskgarden/react-tags';
 
+import styled from '../../../themes/styled';
+
 export type TagProps = {
   onClick?: Function;
   closeable?: boolean;
@@ -25,5 +27,11 @@ const Tag: React.SFC<TagProps> = ({
     </ZenTag>
   );
 };
+
+export const TagContainer = styled.div`
+  ${ZenTag} {
+    margin: 0 10px 10px 0;
+  }
+`;
 
 export default Tag;

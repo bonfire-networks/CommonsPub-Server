@@ -18,7 +18,7 @@ const OverflowCol = styled(Col)`
   overflow: auto;
 `;
 
-export default ({ user, goToNextStep, randomizeEmojiId, linkUserState }) => {
+export default ({ user, randomizeEmojiId, linkUserState }) => {
   return (
     <>
       <Row>
@@ -96,15 +96,6 @@ export default ({ user, goToNextStep, randomizeEmojiId, linkUserState }) => {
             />
           </TextField>
         </OverflowCol>
-      </Row>
-      <Row style={{ flexGrow: 1 }} />
-      <Row>
-        <Col style={{ display: 'flex', alignItems: 'center', color: 'grey' }}>
-          Next: your interests
-        </Col>
-        <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={goToNextStep}>Continue</Button>
-        </Col>
       </Row>
     </>
   );

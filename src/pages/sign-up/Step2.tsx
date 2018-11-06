@@ -1,17 +1,9 @@
 import * as React from 'react';
 import { Col, Row } from '@zendeskgarden/react-grid';
-import { Tag as ZenTag } from '@zendeskgarden/react-tags';
 
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
-import Button from '../../components/elements/Button/Button';
-import styled from '../../themes/styled';
-import Tag from '../../components/elements/Tag/Tag';
-
-const Spacer = styled.div`
-  width: 10px;
-  height: 10px;
-`;
+import Tag, { TagContainer } from '../../components/elements/Tag/Tag';
 
 //TODO get tags from the API
 const words = `offer
@@ -31,12 +23,6 @@ occur
 support
 shell
 neck`;
-
-const TagContainer = styled.div`
-  ${ZenTag} {
-    margin: 0 5px 5px 0;
-  }
-`;
 
 // https://stackoverflow.com/a/6274381/2039244
 function shuffle(a) {
@@ -65,7 +51,14 @@ export default ({ user, goToNextStep, toggleInterest }) => {
           </P>
           <TagContainer>
             {words2.map(word => (
-              <Tag key={word}>{word}</Tag>
+              <Tag
+                closeable={user.interests.includes(word)}
+                focused={user.interests.includes(word)}
+                key={word}
+                onClick={() => toggleInterest(word)}
+              >
+                {word}
+              </Tag>
             ))}
           </TagContainer>
           <P style={{ fontWeight: 'bold' }}>Popular on MoodleNet</P>
@@ -73,27 +66,14 @@ export default ({ user, goToNextStep, toggleInterest }) => {
           <TagContainer>
             {words1.map(word => (
               <Tag
+                focused={user.interests.includes(word)}
                 key={word}
-                type={user.interests.includes(word) ? 'green' : undefined}
                 onClick={() => toggleInterest(word)}
               >
                 {word}
               </Tag>
             ))}
           </TagContainer>
-        </Col>
-      </Row>
-      <Row style={{ flexGrow: 1 }} />
-      <Row>
-        <Col style={{ display: 'flex', alignItems: 'center', color: 'grey' }}>
-          Next: discover
-        </Col>
-        <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button secondary onClick={goToNextStep}>
-            Skip
-          </Button>
-          <Spacer />
-          <Button onClick={goToNextStep}>Continue</Button>
         </Col>
       </Row>
     </>

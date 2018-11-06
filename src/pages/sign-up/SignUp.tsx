@@ -1,19 +1,18 @@
 import * as React from 'react';
 import { Redirect, RouteComponentProps } from 'react-router';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faUser } from '@fortawesome/free-solid-svg-icons';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 
 import styled, { StyledThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
 import Body from '../../components/chrome/Body/Body';
-import H6 from '../../components/typography/H6/H6';
 import PreviousStep from './PreviousStep';
+import Tag, { TagContainer } from '../../components/elements/Tag/Tag';
 import Step1 from './Step1';
 import Step2 from './Step2';
-import P from '../../components/typography/P/P';
-import H4 from '../../components/typography/H4/H4';
+import UserProfile from '../user/UserProfile';
 import User from '../../types/User';
+import H4 from '../../components/typography/H4/H4';
+import Button from '../../components/elements/Button/Button';
 
 const SignUpBody = styled(Body)`
   display: flex;
@@ -28,120 +27,6 @@ const Sidebar = styled.div`
   padding: 25px;
   background-color: ${(props: StyledThemeInterface) =>
     props.theme.styles.colour.base5};
-`;
-
-//TODO media queries/responsivity
-const UserProfile = styled.div`
-  overflow: auto;
-  width: 75%;
-  height: 100%;
-  margin-left: 1%;
-  background-color: ${(props: StyledThemeInterface) =>
-    props.theme.styles.colour.base5};
-`;
-
-//TODO don't use any props type
-const UserProfileImage = styled.div<any>`
-  position: relative;
-  width: 100%;
-  height: 400px;
-  background-color: ${props => props.theme.styles.colour.base4};
-  background-image: ${props =>
-    props.backgroundImage
-      ? `linear-gradient(transparent, rgba(0, 0, 0, .75)), url(${
-          props.backgroundImage
-        })`
-      : ''};
-  background-position: center;
-  background-size: 100% auto;
-  color: ${props => props.theme.styles.colour.base3};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 6rem;
-`;
-
-const liftUserAvatar = -75;
-
-const AvatarPlaceholder = styled.div`
-  font-size: 12px;
-  position: absolute;
-  top: 150px;
-  text-align: center;
-  text-shadow: 1px 1px 0 #00000069;
-  transition: all 0.2s linear;
-`;
-
-//TODO don't use any props type
-const UserAvatar = styled.div<any>`
-  overflow: hidden;
-  height: 150px;
-  width: 150px;
-  border-radius: 75px;
-  background-color: ${props => props.theme.styles.colour.base3};
-  background-image: ${props => `url(${props.backgroundImage})`};
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  color: ${props => props.theme.styles.colour.base5};
-  position: relative;
-  top: ${liftUserAvatar}px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4rem;
-
-  // avatar placeholder
-  > div {
-    font-size: 6px;
-    pointer-events: none;
-  }
-
-  &:hover > div {
-    top: 50%;
-    font-size: 12px;
-  }
-  // end avatar placeholder
-
-  // avatar font awesome icon
-  svg {
-    top: 0;
-    position: relative;
-    transition: all 0.2s linear;
-    pointer-events: none;
-  }
-
-  &:hover svg {
-    font-size: 30px;
-    top: -25px;
-  }
-  // end avatar font awesome icon
-`;
-
-const UserDetails = styled.div`
-  position: relative;
-  top: ${liftUserAvatar}px;
-  text-align: center;
-`;
-
-const SignUpProfileSection = styled.div`
-  position: relative;
-  top: ${liftUserAvatar}px;
-  padding: 50px;
-`;
-
-const FileInput = styled.input`
-  cursor: pointer;
-  height: calc(100% + 100px);
-  width: 100%;
-  position: absolute;
-  top: -100px;
-  left: 0;
-
-  &:focus {
-    outline: 0;
-  }
 `;
 
 const stepScrollTo = {
@@ -195,12 +80,9 @@ interface SignUpState {
 
 interface SignUpProps extends RouteComponentProps<SignUpMatchParams> {}
 
-const FadedFallbackText = ({ value, fallback }) =>
-  value ? (
-    <span>{value}</span>
-  ) : (
-    <span style={{ color: 'lightgrey' }}>{fallback}</span>
-  );
+const SignUpProfileSection = styled.div<any>`
+  padding: 50px;
+`;
 
 const Step2Section = styled.div<any>`
   opacity: ${props => (props.active ? 1 : 0.1)};
@@ -208,9 +90,21 @@ const Step2Section = styled.div<any>`
   transition: opacity 1.75s linear;
 `;
 
-const Interests = ({ active, interests }) => (
+const Interests = ({ active, interests, onTagClick }) => (
   <Step2Section active={active}>
     <H4>Interests</H4>
+    <TagContainer>
+      {interests.map(interest => (
+        <Tag
+          focused
+          closeable
+          key={interest}
+          onClick={() => onTagClick(interest)}
+        >
+          {interest}
+        </Tag>
+      ))}
+    </TagContainer>
   </Step2Section>
 );
 
@@ -265,20 +159,23 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   }
 
   getStepComponent() {
-    const stepProps = {
-      user: this.state.user,
-      goToNextStep: this.goToNextStep,
-      goToPreviousStep: this.goToPreviousStep,
-      randomizeEmojiId: this.randomizeEmojiId,
-      linkUserState: this.linkUserState,
-      toggleInterest: this.toggleUserInterest
-    };
     const stepIdx = this.state.currentStep - 1;
     let Step = SignUp.stepComponents[stepIdx];
     if (!Step) {
       return null;
     }
-    return <Step {...stepProps} />;
+    return (
+      <Step
+        {...{
+          user: this.state.user,
+          goToNextStep: this.goToNextStep,
+          goToPreviousStep: this.goToPreviousStep,
+          randomizeEmojiId: this.randomizeEmojiId,
+          linkUserState: this.linkUserState,
+          toggleInterest: this.toggleUserInterest
+        }}
+      />
+    );
   }
 
   randomizeEmojiId() {
@@ -369,7 +266,14 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     });
   }
 
-  setUserImage(name: string): (evt: React.SyntheticEvent) => void {
+  /**
+   * Load an image from the user file system and set as `imageTypeName` on the
+   * state so it can be displayed without uploading.
+   * @param imageTypeName the type of image being set
+   */
+  setUserImage(
+    imageTypeName: 'profileImage' | 'avatarImage'
+  ): (evt: React.SyntheticEvent) => void {
     return (evt: any) => {
       const reader = new FileReader();
 
@@ -379,7 +283,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
           this.setState({
             user: {
               ...this.state.user,
-              [name]: reader.result as string
+              [imageTypeName]: reader.result as string
             }
           });
         },
@@ -390,6 +294,10 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
         reader.readAsDataURL(evt.target.files[0]);
       }
     };
+  }
+
+  private getNextStepName() {
+    return ['your interests', 'discover'][this.state.currentStep - 1];
   }
 
   render() {
@@ -416,92 +324,53 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
               </Col>
             </Row>
             {this.getStepComponent()}
-          </Grid>
-        </Sidebar>
-        <UserProfile innerRef={e => (this._profileElem = e)}>
-          <UserProfileImage
-            title="Click to select a profile background"
-            backgroundImage={this.state.user.profileImage}
-          >
-            <FileInput
-              onChange={this.setUserImage('profileImage')}
-              type="file"
-            />
-            {!this.state.user.profileImage ? (
-              <div
-                style={{
-                  pointerEvents: 'none',
-                  position: 'relative',
-                  top: '-20px',
-                  textAlign: 'center'
-                }}
-              >
-                <FontAwesomeIcon icon={faImage} />
-                <P
+            <Row style={{ flexGrow: 1 }} />
+            <Row>
+              {this.getNextStepName() ? (
+                <Col
                   style={{
-                    pointerEvents: 'none',
-                    marginTop: '-12px',
-                    fontSize: '.8rem',
-                    textShadow: '1px 1px 0 lightgrey'
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'grey'
                   }}
                 >
-                  Click to select
-                  <br />a profile background
-                </P>
-              </div>
-            ) : null}
-          </UserProfileImage>
-          <UserAvatar
-            title="Click to select your profile image"
-            backgroundImage={this.state.user.avatarImage}
-          >
-            <FileInput
-              onChange={this.setUserImage('avatarImage')}
-              type="file"
-            />
-            {!this.state.user.avatarImage ? (
-              <>
-                <FontAwesomeIcon icon={faUser} />
-                <AvatarPlaceholder>
-                  Click to select
-                  <br />a profile picture
-                </AvatarPlaceholder>
-              </>
-            ) : null}
-          </UserAvatar>
-          <UserDetails>
-            <H6>{this.state.user.emojiId}</H6>
-            <H6>
-              <FadedFallbackText
-                value={this.state.user.username}
-                fallback="joebloggs84"
-              />
-            </H6>
-            <H6>
-              <FadedFallbackText
-                value={this.state.user.role}
-                fallback="Head Teacher"
-              />
-              <span style={{ color: 'lightgrey' }}>&nbsp;—&nbsp;</span>
-              <FadedFallbackText
-                value={this.state.user.location}
-                fallback="London, UK"
-              />
-            </H6>
-          </UserDetails>
-          <SignUpProfileSection>
-            <Interests
-              active={this.state.currentStep > 1}
-              interests={this.state.user.interests}
-            />
-            <Languages
-              active={this.state.currentStep > 1}
-              languages={this.state.user.languages}
-            />
-          </SignUpProfileSection>
-          {/*padding forces profile to be scrollable*/}
-          <div style={{ height: '75%', width: '100%' }} />
-        </UserProfile>
+                  Next: {this.getNextStepName()}
+                </Col>
+              ) : null}
+              <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {this.state.currentStep > 1 ? (
+                  <>
+                    <Button secondary onClick={this.goToNextStep}>
+                      Skip
+                    </Button>
+                    <div style={{ height: '10px', width: '10px' }} />
+                  </>
+                ) : null}
+                <Button onClick={this.goToNextStep}>Continue</Button>
+              </Col>
+            </Row>
+          </Grid>
+        </Sidebar>
+        <UserProfile
+          innerRef={e => (this._profileElem = e)}
+          user={this.state.user}
+          setUserImage={this.setUserImage}
+          body={({ containerProps }) => {
+            return (
+              <SignUpProfileSection {...containerProps}>
+                <Interests
+                  onTagClick={this.toggleUserInterest}
+                  active={this.state.currentStep > 1}
+                  interests={this.state.user.interests}
+                />
+                <Languages
+                  active={this.state.currentStep > 1}
+                  languages={this.state.user.languages}
+                />
+              </SignUpProfileSection>
+            );
+          }}
+        />
       </SignUpBody>
     );
   }
