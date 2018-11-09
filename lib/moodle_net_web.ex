@@ -22,6 +22,9 @@ defmodule MoodleNetWeb do
       import Plug.Conn
       import MoodleNetWeb.{Gettext, Router.Helpers}
       alias MoodleNetWeb.Router.Helpers, as: Routes
+      alias MoodleNetWeb.Plugs.ScrubParams
+
+      action_fallback(MoodleNetWeb.FallbackController)
     end
   end
 
@@ -36,6 +39,7 @@ defmodule MoodleNetWeb do
 
       # Remove imports
       import MoodleNetWeb.{ErrorHelpers, Gettext, Router.Helpers}
+      import Phoenix.HTML.Form
       alias MoodleNetWeb.Router.Helpers, as: Routes
     end
   end

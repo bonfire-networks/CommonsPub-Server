@@ -1,38 +1,55 @@
 defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   use MoodleNetWeb.ConnCase
-  import MoodleNet.Factory
+  alias MoodleNet.NewFactory, as: Factory
 
   alias MoodleNet.Repo
-  alias MoodleNetWeb.OAuth.{Authorization, Token}
+  alias MoodleNet.OAuth.{Authorization, Token}
 
-  test "redirects with oauth authorization" do
-    user = insert(:user)
-    app = insert(:oauth_app)
+  test "returns error with invalid credentials", %{conn: conn} do
+    user = Factory.user()
+    app = Factory.oauth_app()
+
+    conn
+    |> post("/oauth/authorize", %{
+      "authorization" => %{
+        "email" => user.email,
+        "password" => "wrong_password",
+        "client_id" => app.client_id,
+        "redirect_uri" => app.redirect_uri,
+        "state" => "statepassed"
+      }
+    })
+    |> json_response(401)
+  end
+
+  test "redirects with oauth authorization", %{conn: conn} do
+    user = Factory.user()
+    app = Factory.oauth_app()
 
     conn =
-      build_conn()
+      conn
       |> post("/oauth/authorize", %{
         "authorization" => %{
-          "name" => user.nickname,
-          "password" => "test",
+          "email" => user.email,
+          "password" => "password",
           "client_id" => app.client_id,
-          "redirect_uri" => app.redirect_uris,
+          "redirect_uri" => app.redirect_uri,
           "state" => "statepassed"
         }
       })
 
     target = redirected_to(conn)
-    assert target =~ app.redirect_uris
+    assert target =~ app.redirect_uri
 
     query = URI.parse(target).query |> URI.query_decoder() |> Map.new()
 
     assert %{"state" => "statepassed", "code" => code} = query
-    assert Repo.get_by(Authorization, token: code)
+    assert Repo.get_by(Authorization, hash: code)
   end
 
   test "issues a token for an all-body request" do
-    user = insert(:user)
-    app = insert(:oauth_app)
+    user = Factory.user()
+    app = Factory.oauth_app()
 
     {:ok, auth} = Authorization.create_authorization(app, user)
 
@@ -51,8 +68,8 @@ defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   end
 
   test "issues a token for request with HTTP basic auth client credentials" do
-    user = insert(:user)
-    app = insert(:oauth_app)
+    user = Factory.user()
+    app = Factory.oauth_app()
 
     {:ok, auth} = Authorization.create_authorization(app, user)
 
@@ -74,8 +91,8 @@ defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   end
 
   test "rejects token exchange with invalid client credentials" do
-    user = insert(:user)
-    app = insert(:oauth_app)
+    user = Factory.user()
+    app = Factory.oauth_app()
 
     {:ok, auth} = Authorization.create_authorization(app, user)
 
@@ -94,7 +111,7 @@ defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   end
 
   test "rejects an invalid authorization code" do
-    app = insert(:oauth_app)
+    app = Factory.oauth_app()
 
     conn =
       build_conn()

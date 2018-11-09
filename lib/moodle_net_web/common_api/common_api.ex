@@ -9,7 +9,6 @@ defmodule MoodleNetWeb.CommonAPI do
   alias MoodleNetWeb.Endpoint
   alias MoodleNet.Accounts.User
   alias Calendar.Strftime
-  alias Comeonin.Pbkdf2
 
   def delete(activity_id, user) do
     with %Activity{data: %{"object" => %{"id" => object_id}}} <- Repo.get(Activity, activity_id),
@@ -350,15 +349,6 @@ defmodule MoodleNetWeb.CommonAPI do
       name
     else
       String.slice(name, 0..30) <> "…"
-    end
-  end
-
-  def confirm_current_password(user, password) do
-    with %User{local: true} = db_user <- Repo.get(User, user.id),
-         true <- Pbkdf2.checkpw(password, db_user.password_hash) do
-      {:ok, db_user}
-    else
-      _ -> {:error, "Invalid password."}
     end
   end
 

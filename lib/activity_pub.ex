@@ -49,6 +49,18 @@ defmodule ActivityPub do
     true
   end
 
+  alias ActivityPub.Actor
+  alias Ecto.Multi
+
+  def create_actor(multi, params, opts \\ []) do
+    key = Keyword.get(opts, :key, :actor)
+    pre_key = String.to_atom("_pre_#{key}")
+
+    multi
+    |> Multi.insert(pre_key, Actor.create_local_changeset(params))
+    |> Multi.run(key, & Actor.set_uris(&2[pre_key]) |> &1.update())
+  end
+
   @doc """
   Returns an object given and ID.
 

@@ -53,6 +53,7 @@ defmodule MoodleNet.Mixfile do
       {:mogrify, "~> 0.6.1"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
+      {:faker, "~> 0.11", only: [:dev, :test]},
       # {:ex_machina, "~> 2.2", only: :test},
       {:ex_machina, git: "https://github.com/thoughtbot/ex_machina", ref: "master", only: :test},
       {:credo, "~> 0.9.3", only: [:dev, :test]},

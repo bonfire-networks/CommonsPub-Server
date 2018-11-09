@@ -1,43 +1,28 @@
 defmodule MoodleNet.Accounts.User do
-  # There are plans to split this table in different ones:
-
-  # MoodleNet.Accounts.User?
-  # MoodleNet.Accounts.PasswordAuthentication
-
-  # ActivityPub.Actor
-  # ActivityPub.Follow
-
-  # # FIXME
-  #   * It should not use Web
   use Ecto.Schema
 
   alias MoodleNet.Accounts.User
   import Ecto.{Changeset, Query}
   alias MoodleNet.{Repo, Activity, Notification}
   alias ActivityPub.Object
-  alias Comeonin.Pbkdf2
   alias ActivityPub.Utils
 
   alias ActivityPub.Actor
 
   schema "accounts_users" do
     belongs_to :primary_actor, ActivityPub.Actor
-    field(:following_count, :integer, default: 0)
-    field(:bio, :string)
-    field(:email, :string)
-    field(:name, :string)
-    field(:nickname, :string)
-    field(:password_hash, :string)
-    field(:password, :string, virtual: true)
-    field(:password_confirmation, :string, virtual: true)
-    field(:following, {:array, :string}, default: [])
-    field(:ap_id, :string)
-    field(:avatar, :map)
-    field(:local, :boolean, default: true)
-    field(:info, :map, default: %{})
-    field(:follower_address, :string)
+    field(:bio, :string, virtual: true)
+    field(:email, :string, virtual: true)
+    field(:name, :string, virtual: true)
+    field(:nickname, :string, virtual: true)
+    field(:following, {:array, :string}, default: [], virtual: true)
+    field(:ap_id, :string, virtual: true)
+    field(:avatar, :map, virtual: true)
+    field(:local, :boolean, default: true, virtual: true)
+    field(:info, :map, default: %{}, virtual: true)
+    field(:follower_address, :string, virtual: true)
     field(:search_distance, :float, virtual: true)
-    has_many(:notifications, Notification)
+    # has_many(:notifications, Notification)
 
     timestamps()
   end
@@ -101,73 +86,6 @@ defmodule MoodleNet.Accounts.User do
       end
     else
       changes
-    end
-  end
-
-  def update_changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:bio, :name])
-    |> unique_constraint(:nickname)
-    |> validate_format(:nickname, ~r/^[a-zA-Z\d]+$/)
-    |> validate_length(:bio, max: 5000)
-    |> validate_length(:name, min: 1, max: 100)
-  end
-
-  def upgrade_changeset(struct, params \\ %{}) do
-    struct
-    |> cast(params, [:bio, :name, :info, :follower_address, :avatar])
-    |> unique_constraint(:nickname)
-    |> validate_format(:nickname, ~r/^[a-zA-Z\d]+$/)
-    |> validate_length(:bio, max: 5000)
-    |> validate_length(:name, max: 100)
-  end
-
-  def password_update_changeset(struct, params) do
-    changeset =
-      struct
-      |> cast(params, [:password, :password_confirmation])
-      |> validate_required([:password, :password_confirmation])
-      |> validate_confirmation(:password)
-
-    if changeset.valid? do
-      hashed = Pbkdf2.hashpwsalt(changeset.changes[:password])
-
-      changeset
-      |> put_change(:password_hash, hashed)
-    else
-      changeset
-    end
-  end
-
-  def reset_password(user, data) do
-    update_and_set_cache(password_update_changeset(user, data))
-  end
-
-  def register_changeset(struct, params \\ %{}) do
-    changeset =
-      struct
-      |> cast(params, [:bio, :email, :name, :nickname, :password, :password_confirmation])
-      |> validate_required([:email, :name, :nickname, :password, :password_confirmation])
-      |> validate_confirmation(:password)
-      |> unique_constraint(:email)
-      |> unique_constraint(:nickname)
-      |> validate_format(:nickname, ~r/^[a-zA-Z\d]+$/)
-      |> validate_format(:email, @email_regex)
-      |> validate_length(:bio, max: 1000)
-      |> validate_length(:name, min: 1, max: 100)
-
-    if changeset.valid? do
-      hashed = Pbkdf2.hashpwsalt(changeset.changes[:password])
-      ap_id = User.ap_id(%User{nickname: changeset.changes[:nickname]})
-      followers = User.ap_followers(%User{nickname: changeset.changes[:nickname]})
-
-      changeset
-      |> put_change(:password_hash, hashed)
-      |> put_change(:ap_id, ap_id)
-      |> put_change(:following, [followers])
-      |> put_change(:follower_address, followers)
-    else
-      changeset
     end
   end
 

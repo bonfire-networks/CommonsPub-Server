@@ -1,11 +1,8 @@
 defmodule MoodleNet.Accounts.PasswordAuth do
   use Ecto.Schema
 
-  alias MoodleNet.Accounts.User
-
   schema "accounts_password_auths" do
-    belongs_to :user, User
-    field(:email, :string)
+    belongs_to :user, MoodleNet.Accounts.NewUser
     field(:password_hash, :string)
     field(:password, :string, virtual: true)
 
@@ -14,10 +11,10 @@ defmodule MoodleNet.Accounts.PasswordAuth do
 
   import Ecto.Changeset
 
-  def create_changeset(attrs) do
+  def create_changeset(user_id, attrs) do
     %__MODULE__{}
-    |> cast(attrs, [:user_id, :password, :email])
-    |> unique_constraint(:email)
+    |> cast(attrs, [:password])
+    |> change(user_id: user_id)
     |> foreign_key_constraint(:user_id)
     |> common_changeset()
   end
@@ -31,13 +28,13 @@ defmodule MoodleNet.Accounts.PasswordAuth do
 
   defp common_changeset(changeset) do
     changeset
-    |> validate_required([:password, :email, :user_id])
+    |> validate_required([:password, :user_id])
     |> validate_length(:password, min: 6)
-    |> hash
+    |> hash()
   end
 
   defp hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
-    put_change(changeset, :password_hash, Comeonin.Bcrypt.hashpwsalt(password))
+    put_change(changeset, :password_hash, Comeonin.Pbkdf2.hashpwsalt(password))
   end
 
   defp hash(changeset) do

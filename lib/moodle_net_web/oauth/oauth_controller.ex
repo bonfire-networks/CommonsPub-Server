@@ -1,15 +1,9 @@
 defmodule MoodleNetWeb.OAuth.OAuthController do
   use MoodleNetWeb, :controller
 
-  alias MoodleNetWeb.OAuth.{Authorization, Token, App}
-  alias MoodleNet.Accounts.User
-  alias MoodleNet.Repo
-  alias Comeonin.Pbkdf2
+  alias MoodleNet.{Accounts, OAuth}
 
-  plug(:fetch_session)
-  plug(:fetch_flash)
-
-  action_fallback(MoodleNetWeb.OAuth.FallbackController)
+  # action_fallback(MoodleNetWeb.OAuth.FallbackController)
 
   def authorize(conn, params) do
     render(conn, "show.html", %{
@@ -21,93 +15,98 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
     })
   end
 
-  def create_authorization(conn, %{
-        "authorization" =>
-          %{
-            "name" => name,
-            "password" => password,
-            "client_id" => client_id,
-            "redirect_uri" => redirect_uri
-          } = params
-      }) do
-    with %User{} = user <- User.get_by_nickname_or_email(name),
-         true <- Pbkdf2.checkpw(password, user.password_hash),
-         %App{} = app <- Repo.get_by(App, client_id: client_id),
-         {:ok, auth} <- Authorization.create_authorization(app, user) do
-      if redirect_uri == "urn:ietf:wg:oauth:2.0:oob" do
-        render(conn, "results.html", %{
-          auth: auth
-        })
+  defmodule AuthorizationParams do
+    use Ecto.Schema
+
+    embedded_schema do
+      field(:email, :string)
+      field(:password, :string)
+      field(:client_id, :string)
+      field(:state, :string)
+      field(:redirect_uri, :string)
+      field(:redirect_uri_map, :map)
+    end
+
+    @keys [:email, :password, :client_id, :redirect_uri, :state]
+
+    def parse(params) do
+      Ecto.Changeset.cast(%__MODULE__{}, params, @keys)
+      |> Ecto.Changeset.validate_required(@keys -- [:state])
+      |> cast_uri_map()
+      |> Ecto.Changeset.apply_action(:insert)
+    end
+
+    defp cast_uri_map(%{valid?: false} = ch), do: ch
+
+    defp cast_uri_map(ch) do
+      ch
+      |> Ecto.Changeset.get_field(:redirect_uri)
+      |> URI.parse()
+      |> case do
+        uri = %URI{scheme: "urn", path: "ietf:wg:oauth:2.0:oob"} ->
+          Ecto.Changeset.change(ch, redirect_uri_map: uri)
+
+        uri = %URI{scheme: scheme, host: host}
+        when scheme in ["https", "http"] and not is_nil(host) ->
+          Ecto.Changeset.change(ch, redirect_uri_map: uri)
+
+        _ ->
+          Ecto.Changeset.add_error(ch, :redirect_uri, "Invalid redirect uri")
+      end
+    end
+  end
+
+  plug(ScrubParams, "authorization" when action == :create_authorization)
+
+  def create_authorization(conn, params) do
+    with {:ok, params} <- AuthorizationParams.parse(params["authorization"]),
+         {:ok, user} <- Accounts.authenticate_by_email_and_pass(params.email, params.password),
+         app = OAuth.get_app_by!(client_id: params.client_id),
+         {:ok, auth} <- OAuth.create_authorization(user.id, app.id) do
+      if params.redirect_uri == "urn:ietf:wg:oauth:2.0:oob" do
+        render(conn, "results.html", %{auth: auth})
       else
-        connector = if String.contains?(redirect_uri, "?"), do: "&", else: "?"
-        url = "#{redirect_uri}#{connector}"
-        url_params = %{:code => auth.token}
-
-        url_params =
-          if params["state"] do
-            Map.put(url_params, :state, params["state"])
-          else
-            url_params
-          end
-
-        url = "#{url}#{Plug.Conn.Query.encode(url_params)}"
-
+        url = build_redirect_url(params.redirect_uri_map, auth.hash, params.state)
         redirect(conn, external: url)
       end
     end
   end
 
+  defp build_redirect_url(uri, token, state) do
+    params = %{code: token}
+    params = if state, do: Map.put(params, :state, state), else: params
+
+    new_query =
+      (uri.query || "")
+      |> URI.decode_query(params)
+      |> URI.encode_query()
+
+    uri
+    |> Map.put(:query, new_query)
+    |> URI.to_string()
+  end
+
   # TODO
   # - proper scope handling
   def token_exchange(conn, %{"grant_type" => "authorization_code"} = params) do
-    with %App{} = app <- get_app_from_request(conn, params),
-         fixed_token = fix_padding(params["code"]),
-         %Authorization{} = auth <-
-           Repo.get_by(Authorization, token: fixed_token, app_id: app.id),
-         {:ok, token} <- Token.exchange_token(app, auth),
-         {:ok, inserted_at} <- DateTime.from_naive(token.inserted_at, "Etc/UTC") do
-      response = %{
-        token_type: "Bearer",
-        access_token: token.token,
-        refresh_token: token.refresh_token,
-        created_at: DateTime.to_unix(inserted_at),
-        expires_in: 60 * 10,
-        scope: "read write follow"
-      }
-
-      json(conn, response)
-    else
-      _error ->
-        put_status(conn, 400)
-        |> json(%{error: "Invalid credentials"})
-    end
+    with {:ok, {client_id, client_secret}} <- fetch_client_credentials(conn, params),
+         app = OAuth.get_app_by!(client_id: client_id, client_secret: client_secret),
+         fixed_token = remove_padding(params["code"]),
+         auth = OAuth.get_auth_by!(hash: fixed_token, app_id: app.id),
+         {:ok, token} <- OAuth.exchange_token(app, auth),
+         do: render(conn, "token.json", token: token)
   end
 
   # TODO
   # - investigate a way to verify the user wants to grant read/write/follow once scope handling is done
-  def token_exchange(
-        conn,
-        %{"grant_type" => "password", "username" => name, "password" => password} = params
-      ) do
-    with %App{} = app <- get_app_from_request(conn, params),
-         %User{} = user <- User.get_by_nickname_or_email(name),
-         true <- Pbkdf2.checkpw(password, user.password_hash),
-         {:ok, auth} <- Authorization.create_authorization(app, user),
-         {:ok, token} <- Token.exchange_token(app, auth) do
-      response = %{
-        token_type: "Bearer",
-        access_token: token.token,
-        refresh_token: token.refresh_token,
-        expires_in: 60 * 10,
-        scope: "read write follow"
-      }
-
-      json(conn, response)
-    else
-      _error ->
-        put_status(conn, 400)
-        |> json(%{error: "Invalid credentials"})
-    end
+  def token_exchange(conn, params) do
+    with %{"grant_type" => "password", "username" => name, "password" => password} <- params,
+         {:ok, {client_id, client_secret}} <- fetch_client_credentials(conn, params),
+         app = OAuth.get_app_by!(client_id: client_id, client_secret: client_secret),
+         {:ok, user} <- Accounts.authenticate_by_email_and_pass(name, password),
+         {:ok, auth} <- OAuth.create_authorization(user.id, app.id),
+         {:ok, token} <- OAuth.exchange_token(app, auth),
+         do: render(conn, "token.json", token: token)
   end
 
   def token_exchange(
@@ -122,45 +121,46 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
     token_exchange(conn, params)
   end
 
+  plug(MoodleNetWeb.Plugs.ScrubParams, "token" when action == :token_revoke)
+
   def token_revoke(conn, %{"token" => token} = params) do
-    with %App{} = app <- get_app_from_request(conn, params),
-         %Token{} = token <- Repo.get_by(Token, token: token, app_id: app.id),
-         {:ok, %Token{}} <- Repo.delete(token) do
-      json(conn, %{})
-    else
-      _error ->
-        # RFC 7009: invalid tokens [in the request] do not cause an error response
-        json(conn, %{})
+    with {:ok, {client_id, client_secret}} <- fetch_client_credentials(conn, params),
+         app = OAuth.get_app_by!(client_id: client_id, client_secret: client_secret) do
+      # RFC 7009: invalid tokens [in the request] do not cause an error response
+      OAuth.delete_token(token, app.id)
+      send_resp(conn, :no_content, "")
     end
   end
 
-  defp fix_padding(token) do
+  defp remove_padding(token) do
     token
     |> Base.url_decode64!(padding: false)
     |> Base.url_encode64()
   end
 
-  defp get_app_from_request(conn, params) do
-    # Per RFC 6749, HTTP Basic is preferred to body params
-    {client_id, client_secret} =
-      with ["Basic " <> encoded] <- get_req_header(conn, "authorization"),
-           {:ok, decoded} <- Base.decode64(encoded),
-           [id, secret] <-
-             String.split(decoded, ":")
-             |> Enum.map(fn s -> URI.decode_www_form(s) end) do
-        {id, secret}
-      else
-        _ -> {params["client_id"], params["client_secret"]}
-      end
+  defp fetch_client_credentials(conn, params) do
+    fetch_client_credentials_header(conn) || fetch_client_credentials_params(params) ||
+      {:error, :client_credentials_not_received}
+  end
 
-    if client_id && client_secret do
-      Repo.get_by(
-        App,
-        client_id: client_id,
-        client_secret: client_secret
-      )
+  defp fetch_client_credentials_header(conn) do
+    with ["Basic " <> encoded] <- get_req_header(conn, "authorization"),
+         {:ok, decoded} <- Base.decode64(encoded),
+         [id, secret] <-
+           String.split(decoded, ":")
+           |> Enum.map(&URI.decode_www_form/1) do
+      {:ok, {id, secret}}
     else
-      nil
+      _ -> nil
     end
   end
+
+  defp fetch_client_credentials_params(%{
+         "client_id" => client_id,
+         "client_secret" => client_secret
+       })
+       when not is_nil(client_id) and not is_nil(client_secret),
+       do: {:ok, {client_id, client_secret}}
+
+  defp fetch_client_credentials_params(_), do: nil
 end

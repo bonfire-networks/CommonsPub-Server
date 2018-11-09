@@ -7,7 +7,6 @@ defmodule MoodleNet.Builders.UserBuilder do
       email: "test@example.org",
       name: "Test Name",
       nickname: "testname",
-      password_hash: Comeonin.Pbkdf2.hashpwsalt("test"),
       bio: "A tester.",
       ap_id: "some id"
     }

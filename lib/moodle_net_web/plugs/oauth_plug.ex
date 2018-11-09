@@ -1,30 +1,40 @@
 defmodule MoodleNet.Plugs.OAuthPlug do
   import Plug.Conn
   alias MoodleNet.Accounts.User
-  alias MoodleNet.Repo
-  alias MoodleNetWeb.OAuth.Token
 
-  def init(options) do
-    options
-  end
+  def init(opts), do: opts
 
   def call(%{assigns: %{user: %User{}}} = conn, _), do: conn
 
   def call(conn, _) do
-    token =
-      case get_req_header(conn, "authorization") do
-        ["Bearer " <> header] -> header
-        _ -> get_session(conn, :oauth_token)
-      end
-
-    with token when not is_nil(token) <- token,
-         %Token{user_id: user_id} <- Repo.get_by(Token, token: token),
-         %User{} = user <- Repo.get(User, user_id),
-         false <- !!user.info["deactivated"] do
-      conn
-      |> assign(:user, user)
+    with {:ok, token} <- get_token(conn),
+         {:ok, user} <- MoodleNet.OAuth.get_user_by_token(token) do
+           conn
+           |> assign(:user, user)
+           |> assign(:token, token)
     else
-      _ -> conn
+      error -> 
+           conn
+           |> assign(:user, nil)
+           |> assign(:token, nil)
+           |> assign(:oauth_error, error)
+    end
+  end
+
+  defp get_token(conn) do
+    get_token_by_session(conn) || get_token_by_header(conn) || {:error, :no_token}
+  end
+
+  defp get_token_by_session(conn) do
+    if token = get_session(conn, :oauth_token) do
+      {:ok, token}
+    end
+  end
+
+  defp get_token_by_header(conn) do
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] -> {:ok, token}
+      _ -> nil
     end
   end
 end
