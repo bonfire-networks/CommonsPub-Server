@@ -30,7 +30,7 @@ defmodule MoodleNet.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.0-rc"},
+      {:phoenix, "~> 1.4.0"},
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_ecto, "~> 4.0"},
@@ -56,6 +56,7 @@ defmodule MoodleNet.Mixfile do
       {:faker, "~> 0.11", only: [:dev, :test]},
       # {:ex_machina, "~> 2.2", only: :test},
       {:ex_machina, git: "https://github.com/thoughtbot/ex_machina", ref: "master", only: :test},
+      {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
       {:mock, "~> 0.3.1", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},

@@ -55,10 +55,10 @@ config :moodle_net, MoodleNetWeb.Endpoint,
     patterns: [
       ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-      ~r{lib/moodle_net_web/views/.*(ex)$},
-      ~r{lib/moodle_net_web/templates/.*(eex)$},
-      ~r{lib/activity_pub_web/views/.*(ex)$},
-      ~r{lib/activity_pub_web/templates/.*(eex)$}
+      ~r{lib/moodle_net_web/.*_view.*(ex)$},
+      ~r{lib/moodle_net_web/.*/templates/.*(eex)$},
+      ~r{lib/activity_pub_web/.*_view.*(ex)$},
+      ~r{lib/activity_pub_web/.*/templates/.*(eex)$}
     ]
   ]
 

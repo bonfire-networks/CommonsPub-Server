@@ -9,8 +9,8 @@ defmodule MoodleNetWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug(:accepts, ["json"])
+  pipeline :api_html do
+    plug(:accepts, ["json", "html"])
     plug(:fetch_session)
     plug(MoodleNet.Plugs.OAuthPlug)
   end
@@ -24,13 +24,13 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/v1" do
-    pipe_through(:api)
-    resources("/users", MoodleNetWeb.Accounts.UserController, only: [:create])
+    pipe_through(:api_html)
+    resources("/users", MoodleNetWeb.Accounts.UserController, only: [:new, :create])
     resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:create])
   end
 
   scope "/api/v1" do
-    pipe_through([:api, :ensure_authenticated])
+    pipe_through([:api_html, :ensure_authenticated])
 
     resources("/sessions", MoodleNetWeb.Accounts.SessionController,
       only: [:delete],
@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/oauth", MoodleNetWeb.OAuth do
-    pipe_through(:api)
+    pipe_through(:api_html)
     get("/authorize", OAuthController, :authorize)
     post("/authorize", OAuthController, :create_authorization)
     post("/token", OAuthController, :token_exchange)

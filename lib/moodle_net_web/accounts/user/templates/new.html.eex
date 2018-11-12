@@ -1,0 +1,26 @@
+<div class="row justify-content-md-center">
+  <div class="col col-md-6">
+
+    <h2>Register</h2>
+
+    <%= form_for @conn, user_path(@conn, :create), [as: :user], fn f -> %>
+      <div class="form-group">
+        <label for="user_email">Email address</label>
+        <%= text_input f, :email, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <label for="user_preferred_username">Username</label>
+        <%= text_input f, :preferred_username, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <label for="user_password">Password</label>
+        <%= password_input f, :password, class: "form-control" %>
+        <small class="form-text text-muted">Minimum 6 characters</small>
+      </div>
+
+      <%= submit "Register", class: "btn btn-primary"%>
+    <% end %>
+  </div>
+</div>

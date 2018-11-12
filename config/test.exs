@@ -25,11 +25,5 @@ config :pbkdf2_elixir, rounds: 1
 
 config :moodle_net, :httpoison, HTTPoisonMock
 
-try do
-  import_config "test.secret.exs"
-rescue
-  _ ->
-    IO.puts(
-      "You may want to create test.secret.exs to declare custom database connection parameters."
-    )
-end
+config :phoenix_integration,
+  endpoint: MoodleNetWeb.Endpoint

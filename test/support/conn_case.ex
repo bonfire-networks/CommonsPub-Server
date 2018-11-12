@@ -21,6 +21,8 @@ defmodule MoodleNetWeb.ConnCase do
       use Phoenix.ConnTest
       import MoodleNetWeb.Router.Helpers
 
+      alias MoodleNet.NewFactory, as: Factory
+
       # The default endpoint for testing
       @endpoint MoodleNetWeb.Endpoint
     end
@@ -34,6 +36,19 @@ defmodule MoodleNetWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = Phoenix.ConnTest.build_conn()
+
+    accept_header = case tags[:format] do
+      :json ->
+        "application/json"
+      :json_ld ->
+        "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+      _ ->
+        "text/html"
+    end
+
+    conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
+
+    {:ok, conn: conn}
   end
 end

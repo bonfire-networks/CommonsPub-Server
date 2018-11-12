@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
   <body>
+    <%= render "topbar.html", assigns %>
     <div class="container">
       <%= render @view_module, @view_template, assigns %>
     </div>

@@ -147,9 +147,9 @@ defmodule MoodleNet.Factory do
   end
 
   def oauth_app_factory do
-    %MoodleNetWeb.OAuth.App{
+    %MoodleNet.OAuth.App{
       client_name: "Some client",
-      redirect_uris: "https://example.com/callback",
+      redirect_uri: "https://example.com/callback",
       scopes: "read",
       website: "https://example.com",
       client_id: "aaabbb==",
