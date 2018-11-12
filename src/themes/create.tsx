@@ -163,7 +163,6 @@ export default function createTheme(theme: MoodleThemeInterface) {
     //language=SCSS
     'typography.lg': `
         && {
-            margin-block-start: .65em;
             margin-block-end: .65em;
             font-size: ${theme.fontSize.lg};
             line-height: ${theme.lineHeight.lg};
