@@ -22,8 +22,7 @@ webpackConfig.module.rules.push({
 module.exports = {
   components: 'src/components/**/*.tsx',
   ignore: [
-    //TODO maybe don't ignore these chrome components?
-    'src/components/chrome/{Body,Menu,Nav}/*.tsx',
+    'src/components/chrome/{Body,Menu,Nav,Main}/*.tsx',
     'src/components/typography/LI/*.tsx',
     'src/components/elements/flag/*.tsx',
     'src/components/inputs/LanguageSelect/*.tsx',

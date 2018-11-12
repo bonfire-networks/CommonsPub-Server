@@ -276,6 +276,32 @@ export default function createTheme(theme: MoodleThemeInterface) {
         &&&&:hover {
             color: ${theme.colour.primary};
         }
+    `,
+    // - avatars
+    //language=SCSS
+    'avatars.avatar': `
+        &&&& {
+          position: relative;
+          width: 40px;
+          height: 40px;
+        }
+      
+       &&&&[class*=large] {
+         width: 80px;
+         height: 80px;
+       }
+      
+       &&.marked:after {
+         content: '';
+         position: absolute;
+         display: block;
+         width: 10px;
+         height: 10px;
+         border-radius: 20px;
+         background-color: #60C3FF;
+         top: 0;
+         right: 0;
+       }
     `
   };
 }
