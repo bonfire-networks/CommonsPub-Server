@@ -29,6 +29,9 @@ const Tag: React.SFC<TagProps> = ({
 };
 
 export const TagContainer = styled.div`
+  min-height: 55px;
+  margin: 0 0 10px 0;
+
   ${ZenTag} {
     margin: 0 10px 10px 0;
   }

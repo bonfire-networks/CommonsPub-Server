@@ -163,6 +163,8 @@ export default function createTheme(theme: MoodleThemeInterface) {
     //language=SCSS
     'typography.lg': `
         && {
+            margin-block-start: .65em;
+            margin-block-end: .65em;
             font-size: ${theme.fontSize.lg};
             line-height: ${theme.lineHeight.lg};
             font-weight: ${theme.fontWeight.bold};
@@ -244,6 +246,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
     //language=SCSS
     'tags.tag_view': `
         && {
+            min-height: 45px;
             padding: 15px;
             box-shadow: 0 0 0 2px transparent;
             background-color: ${theme.colour.base5};

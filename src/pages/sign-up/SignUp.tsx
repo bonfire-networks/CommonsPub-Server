@@ -74,6 +74,7 @@ interface SignUpMatchParams {
 }
 
 interface SignUpState {
+  redirect?: string | null;
   currentStep: number;
   user: User;
 }
@@ -94,23 +95,41 @@ const Interests = ({ active, interests, onTagClick }) => (
   <Step2Section active={active}>
     <H4>Interests</H4>
     <TagContainer>
-      {interests.map(interest => (
-        <Tag
-          focused
-          closeable
-          key={interest}
-          onClick={() => onTagClick(interest)}
-        >
-          {interest}
-        </Tag>
-      ))}
+      {interests.length
+        ? interests.map(interest => (
+            <Tag
+              focused
+              closeable
+              key={interest}
+              onClick={() => onTagClick(interest)}
+            >
+              {interest}
+            </Tag>
+          ))
+        : 'None selected'}
     </TagContainer>
+    <Button onClick={() => alert('add interest clicked')}>Add interest</Button>
   </Step2Section>
 );
 
 const Languages = ({ active, languages }) => (
   <Step2Section active={active}>
     <H4>Languages</H4>
+    <TagContainer>
+      {languages.length
+        ? languages.map(lang => (
+            <Tag
+              focused
+              closeable
+              key={lang}
+              onClick={() => alert('lang clicked')}
+            >
+              {lang}
+            </Tag>
+          ))
+        : 'None selected'}
+    </TagContainer>
+    <Button onClick={() => alert('add lang clicked')}>Add language</Button>
   </Step2Section>
 );
 
@@ -119,7 +138,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
 
   _profileElem: HTMLElement;
 
-  state = {
+  state: SignUpState = {
     currentStep: -1,
     user: {
       username: '',
@@ -141,19 +160,24 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     this.state.currentStep = Number(props.match.params.step);
 
     if (!this.state.user.username && this.state.currentStep > 1) {
-      this.props.history.replace('/sign-up');
+      this.state.redirect = '/sign-up/1';
       return;
     }
 
-    this.randomizeEmojiId = this.randomizeEmojiId.bind(this);
-    this.linkUserState = this.linkUserState.bind(this);
-    this.goToNextStep = this.goToNextStep.bind(this);
-    this.goToPreviousStep = this.goToPreviousStep.bind(this);
-    this.toggleUserInterest = this.toggleUserInterest.bind(this);
-    this.setUserImage = this.setUserImage.bind(this);
+    // FIXME an error occurs when methods are passed by ref after binding if:
+    //  - user goes straight to /sign-up/2/
+    //  - gets redirects to /sign-up/1
+    //  - clicks something to invoke bound method (e.g. Continue btn which calls #goToNextStep)
+    // this.randomizeEmojiId = this.randomizeEmojiId.bind(this);
+    // this.linkUserState = this.linkUserState.bind(this);
+    // this.goToPreviousStep = this.goToPreviousStep.bind(this);
+    // this.toggleUserInterest = this.toggleUserInterest.bind(this);
+    // this.createSetUserImageCallback = this.createSetUserImageCallback.bind(this);
+    // this.goToNextStep = this.goToNextStep.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
+    this.state.redirect = null;
     this.state.currentStep = Number(nextProps.match.params.step);
     this.scrollForStep(this.state.currentStep);
   }
@@ -168,11 +192,11 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
       <Step
         {...{
           user: this.state.user,
-          goToNextStep: this.goToNextStep,
-          goToPreviousStep: this.goToPreviousStep,
-          randomizeEmojiId: this.randomizeEmojiId,
-          linkUserState: this.linkUserState,
-          toggleInterest: this.toggleUserInterest
+          goToNextStep: this.goToNextStep.bind(this),
+          goToPreviousStep: this.goToPreviousStep.bind(this),
+          randomizeEmojiId: this.randomizeEmojiId.bind(this),
+          linkUserState: this.linkUserState.bind(this),
+          toggleInterest: this.toggleUserInterest.bind(this)
         }}
       />
     );
@@ -267,11 +291,11 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   }
 
   /**
-   * Load an image from the user file system and set as `imageTypeName` on the
-   * state so it can be displayed without uploading.
+   * Create function that loads an image from the user file system and set
+   * as `imageTypeName` on the state so it can be displayed without uploading.
    * @param imageTypeName the type of image being set
    */
-  setUserImage(
+  createSetUserImageCallback(
     imageTypeName: 'profileImage' | 'avatarImage'
   ): (evt: React.SyntheticEvent) => void {
     return (evt: any) => {
@@ -303,6 +327,8 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   render() {
     if (!('step' in this.props.match.params)) {
       return <Redirect to="/sign-up/1" />;
+    } else if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />;
     }
 
     return (
@@ -316,7 +342,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
                 <Logo link={false} />
                 <PreviousStep
                   active={this.state.currentStep > 1}
-                  onClick={this.goToPreviousStep}
+                  onClick={() => this.goToPreviousStep()}
                   title={`Go back to Step ${this.state.currentStep - 1}`}
                 >
                   &lt;
@@ -340,13 +366,13 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
               <Col style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {this.state.currentStep > 1 ? (
                   <>
-                    <Button secondary onClick={this.goToNextStep}>
+                    <Button secondary onClick={() => this.goToNextStep()}>
                       Skip
                     </Button>
                     <div style={{ height: '10px', width: '10px' }} />
                   </>
                 ) : null}
-                <Button onClick={this.goToNextStep}>Continue</Button>
+                <Button onClick={() => this.goToNextStep()}>Continue</Button>
               </Col>
             </Row>
           </Grid>
@@ -354,12 +380,12 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
         <UserProfile
           innerRef={e => (this._profileElem = e)}
           user={this.state.user}
-          setUserImage={this.setUserImage}
+          setUserImage={type => this.createSetUserImageCallback(type)}
           body={({ containerProps }) => {
             return (
               <SignUpProfileSection {...containerProps}>
                 <Interests
-                  onTagClick={this.toggleUserInterest}
+                  onTagClick={interest => this.toggleUserInterest(interest)}
                   active={this.state.currentStep > 1}
                   interests={this.state.user.interests}
                 />

@@ -46,7 +46,7 @@ export default () => (
       <Switch>
         <Route exact path="/login" component={Login} />
         <Route exact path="/sign-up" component={SignUp} />
-        <Route exact path="/sign-up/:step([12])" component={SignUp} />
+        <Route exact path="/sign-up/:step" component={SignUp} />
         <ProtectedRoute
           path="/"
           component={() => (
