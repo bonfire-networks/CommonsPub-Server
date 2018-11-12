@@ -22,8 +22,7 @@ defmodule MoodleNetWeb.Accounts.UserController do
 
         "html" ->
           conn
-          |> put_status(:created)
-          |> text("OK")
+          |> redirect(to: APRoutes.actor_path(conn, :show, actor.id))
       end
     end
   end

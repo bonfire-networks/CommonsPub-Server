@@ -22,6 +22,7 @@ defmodule MoodleNetWeb do
       import Plug.Conn
       import MoodleNetWeb.{Gettext, Router.Helpers}
       alias MoodleNetWeb.Router.Helpers, as: Routes
+      alias ActivityPubWeb.Router.Helpers, as: APRoutes
       alias MoodleNetWeb.Plugs.ScrubParams
 
       action_fallback(MoodleNetWeb.FallbackController)

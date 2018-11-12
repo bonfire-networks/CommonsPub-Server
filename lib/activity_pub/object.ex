@@ -11,14 +11,31 @@ defmodule ActivityPub.Object do
   alias ActivityPub.Object
   import Ecto.{Query, Changeset}
 
+  @behaviour Access
   schema "objects" do
     field(:data, :map)
 
     timestamps()
   end
 
+  @impl Access
+  def fetch(%__MODULE__{data: data}, key) do
+    Map.fetch(data, key)
+  end
+
+  @impl Access
+  def get_and_update(%__MODULE__{data: data}, key, function) do
+    Map.get_and_update(data, key, function)
+  end
+
+  @impl Access
+  def pop(%__MODULE__{data: data}, key) do
+    Map.pop(data, key)
+  end
+
   def changeset(struct, params \\ %{}) do
     params = %{data: params}
+
     struct
     |> cast(params, [:data])
     |> validate_required([:data])
@@ -43,21 +60,16 @@ defmodule ActivityPub.Object do
 
   # This should be the default function
   def get_cached_by_ap_id(ap_id) do
-    # FIXME Bad practice, we should never check the current environment
-    if Mix.env() == :test do
-      get_by_ap_id(ap_id)
-    else
-      key = "object:#{ap_id}"
+    key = "object:#{ap_id}"
 
-      Cachex.fetch!(:user_cache, key, fn _ ->
-        object = get_by_ap_id(ap_id)
+    Cachex.fetch!(:user_cache, key, fn _ ->
+      object = get_by_ap_id(ap_id)
 
-        if object do
-          {:commit, object}
-        else
-          {:ignore, object}
-        end
-      end)
-    end
+      if object do
+        {:commit, object}
+      else
+        {:ignore, object}
+      end
+    end)
   end
 end

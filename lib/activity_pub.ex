@@ -61,6 +61,10 @@ defmodule ActivityPub do
     |> Multi.run(key, & Actor.set_uris(&2[pre_key]) |> &1.update())
   end
 
+  def get_actor!(id) do
+    Repo.get!(Actor, id)
+  end
+
   @doc """
   Returns an object given and ID.
 

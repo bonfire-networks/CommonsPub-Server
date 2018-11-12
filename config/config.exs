@@ -41,10 +41,8 @@ config :logger, :console,
   metadata: [:request_id]
 
 config :mime, :types, %{
-  "application/xml" => ["xml"],
-  "application/xrd+xml" => ["xrd+xml"],
-  "application/activity+json" => ["activity+json"],
-  "application/ld+json" => ["activity+json"]
+  "application/activity+json" => ["json"],
+  "application/ld+json" => ["json"]
 }
 
 config :moodle_net, :httpoison, MoodleNet.HTTP

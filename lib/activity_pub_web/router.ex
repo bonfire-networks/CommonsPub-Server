@@ -16,16 +16,18 @@ defmodule ActivityPubWeb.Router do
   end
 
   pipeline :read_activitypub do
-    plug(:accepts, ["activity+json"])
+    plug(:accepts, ["json", "html"])
   end
 
   pipeline :activitypub do
-    plug(:accepts, ["activity+json"])
+    plug(:accepts, ["json", "html"])
     plug(MoodleNetWeb.Plugs.HTTPSignaturePlug)
   end
 
   scope "/", ActivityPubWeb do
     pipe_through(:read_activitypub)
+
+    resources("actors", ActorController, only: [:show])
 
     get("/objects/:uuid", ActivityPubController, :object)
     get("/users/:nickname", ActivityPubController, :user)

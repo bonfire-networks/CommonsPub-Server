@@ -11,12 +11,12 @@ defmodule MoodleNet.Accounts.NewUser do
     timestamps()
   end
 
-  def changeset(actor_id, attrs) do
+  def changeset(actor, attrs) do
     %__MODULE__{}
     |> Ecto.Changeset.cast(attrs, [:email])
     |> Ecto.Changeset.validate_format(:email, ~r/.+\@.+\..+/)
-    |> Ecto.Changeset.change(primary_actor_id: actor_id)
-    |> Ecto.Changeset.validate_required([:primary_actor_id, :email])
+    |> Ecto.Changeset.put_assoc(:primary_actor, actor)
+    |> Ecto.Changeset.validate_required([:primary_actor, :email])
     |> Ecto.Changeset.unique_constraint(:email)
     |> lower_case_email()
   end

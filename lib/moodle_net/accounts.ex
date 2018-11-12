@@ -24,7 +24,7 @@ defmodule MoodleNet.Accounts do
   def register_user(attrs \\ %{}) do
     Multi.new()
     |> ActivityPub.create_actor(attrs)
-    |> Multi.run(:user, &(NewUser.changeset(&2.actor.id, attrs) |> &1.insert()))
+    |> Multi.run(:user, &(NewUser.changeset(&2.actor, attrs) |> &1.insert()))
     |> Multi.run(
       :password_auth,
       &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
