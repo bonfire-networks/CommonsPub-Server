@@ -113,17 +113,20 @@ export default function createTheme(theme: MoodleThemeInterface) {
     // - chrome
     'chrome.chrome': chromeStyles,
     'chrome.body': chromeStyles,
+    //language=SCSS
     'chrome.nav': `
         && {
             background-color: ${theme.colour.primary};
         }    
     `,
+    //language=SCSS
     'chrome.subnav': `
         &&&& {
             padding: 11px 20px;
             background-color: ${theme.colour.primaryAlt};
         }    
     `,
+    //language=SCSS
     'chrome.nav_item': `
         &&&&[class*=is-current] {
             background-color: ${theme.colour.primaryAlt};
@@ -238,11 +241,11 @@ export default function createTheme(theme: MoodleThemeInterface) {
         }
     `,
     // - tags
-    //TODO how to style "selected" tag as per style guide? is selected === focused?
     //language=SCSS
     'tags.tag_view': `
         && {
             padding: 15px;
+            box-shadow: 0 0 0 2px transparent;
             background-color: ${theme.colour.base5};
             border: 1px solid ${theme.colour.base4};
             cursor: pointer;
