@@ -2,6 +2,7 @@ defmodule MoodleNetWeb.Accounts.UserController do
   use MoodleNetWeb, :controller
 
   alias MoodleNet.{Accounts, OAuth}
+  alias MoodleNet.Plugs.Auth
 
   plug(:accepts, ["html"] when action in [:new])
 
@@ -22,6 +23,8 @@ defmodule MoodleNetWeb.Accounts.UserController do
 
         "html" ->
           conn
+          |> Auth.login(user, token.hash)
+          |> put_flash(:info, "Welcome!")
           |> redirect(to: APRoutes.actor_path(conn, :show, actor.id))
       end
     end

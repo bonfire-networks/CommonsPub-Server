@@ -55,15 +55,15 @@ defmodule MoodleNetWeb.Accoutns.UserControllerIntegrationTest do
 
   @tag format: :html
   test "works", %{conn: conn} do
-    conn
-    |> get("api/v1/users/new")
-    |> follow_form(%{
-      user: %{
+    params = %{
         email: "alex@moodle.net",
         password: "password",
         preferred_username: "alex"
       }
-    })
-    |> assert_response(status: 201)
+
+    conn
+    |> get("api/v1/users/new")
+    |> follow_form(%{user: params})
+    |> assert_response(status: 200, html: params[:email])
   end
 end

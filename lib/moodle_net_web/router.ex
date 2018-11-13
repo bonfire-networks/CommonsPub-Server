@@ -1,36 +1,38 @@
 defmodule MoodleNetWeb.Router do
   use MoodleNetWeb, :router
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_flash
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
+  # pipeline :browser do
+  #   plug :accepts, ["html"]
+  #   plug :fetch_session
+  #   plug :fetch_flash
+  #   plug :protect_from_forgery
+  #   plug :put_secure_browser_headers
+  # end
+
+  pipeline :api_browser do
+    # Not sure this is ok?
+    # Mixing browser and api stuff does not seem right...
+    plug(:accepts, ["html", "json"])
+    plug(:fetch_session)
+    plug(:fetch_flash)
+    # plug(:protect_from_forgery)
+    # plug(:put_secure_browser_headers)
+    plug(MoodleNet.Plugs.Auth)
   end
 
-  pipeline :api_html do
-    plug(:accepts, ["json", "html"])
-    plug(:fetch_session)
-    plug(MoodleNet.Plugs.OAuthPlug)
-  end
+  pipe_through(:api_browser)
 
   pipeline :ensure_authenticated do
     plug(MoodleNet.Plugs.EnsureAuthenticatedPlug)
   end
 
-  pipeline :oauth do
-    plug(:accepts, ["html", "json"])
-  end
-
   scope "/api/v1" do
-    pipe_through(:api_html)
     resources("/users", MoodleNetWeb.Accounts.UserController, only: [:new, :create])
-    resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:create])
+    resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:new, :create])
   end
 
   scope "/api/v1" do
-    pipe_through([:api_html, :ensure_authenticated])
+    pipe_through(:ensure_authenticated)
 
     resources("/sessions", MoodleNetWeb.Accounts.SessionController,
       only: [:delete],
@@ -39,7 +41,6 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/oauth", MoodleNetWeb.OAuth do
-    pipe_through(:api_html)
     get("/authorize", OAuthController, :authorize)
     post("/authorize", OAuthController, :create_authorization)
     post("/token", OAuthController, :token_exchange)
@@ -57,5 +58,9 @@ defmodule MoodleNetWeb.Router do
     get("/:sig/:url", MediaProxyController, :remote)
   end
 
-  forward "/", ActivityPubWeb.Router
+  scope "/" do
+    get "/", MoodleNetWeb.PageController, :index
+
+    forward "/", ActivityPubWeb.Router
+  end
 end

@@ -40,10 +40,13 @@ defmodule MoodleNetWeb do
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
 
-      # Remove imports
-      import MoodleNetWeb.{ErrorHelpers, Gettext, Router.Helpers}
-      import Phoenix.HTML.Form
+      import MoodleNetWeb.ErrorHelpers
+      import MoodleNetWeb.Gettext
+
+      use Phoenix.HTML
+
       alias MoodleNetWeb.Router.Helpers, as: Routes
+      alias ActivityPubWeb.Router.Helpers, as: APRoutes
     end
   end
 

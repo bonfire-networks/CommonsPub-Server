@@ -1,27 +1,37 @@
 defmodule MoodleNet.Plugs.EnsureAuthenticatedPlugTest do
-  use MoodleNetWeb.ConnCase, async: true
+  use MoodleNetWeb.PlugCase, async: true
 
   alias MoodleNet.Plugs.EnsureAuthenticatedPlug
   alias MoodleNet.Accounts.User
 
-  test "it halts if no user is assigned", %{conn: conn} do
-    conn =
-      conn
-      |> EnsureAuthenticatedPlug.call(%{})
+  describe "in json format" do
+    @tag format: :json
+    test "it halts if no user is assigned", %{conn: conn} do
+      assert %{status: 403, halted: true} = EnsureAuthenticatedPlug.call(conn, %{})
+    end
 
-    assert conn.status == 403
-    assert conn.halted == true
+    @tag format: :json
+    test "it continues if a user is assigned", %{conn: conn} do
+      conn = assign(conn, :current_user, %User{})
+
+      assert conn == EnsureAuthenticatedPlug.call(conn, %{})
+    end
   end
 
-  test "it continues if a user is assigned", %{conn: conn} do
-    conn =
-      conn
-      |> assign(:user, %User{})
+  describe "in html format" do
+    @tag format: :html
+    test "it halts if no user is assigned", %{conn: conn} do
+      assert conn = EnsureAuthenticatedPlug.call(conn, %{})
+      assert conn.halted
+      assert redirected_to(conn)
+      assert get_flash(conn, :error)
+    end
 
-    ret_conn =
-      conn
-      |> EnsureAuthenticatedPlug.call(%{})
+    @tag format: :html
+    test "it continues if a user is assigned", %{conn: conn} do
+      conn = assign(conn, :current_user, %User{})
 
-    assert ret_conn == conn
+      assert conn == EnsureAuthenticatedPlug.call(conn, %{})
+    end
   end
 end
