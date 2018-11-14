@@ -254,66 +254,6 @@ defmodule ActivityPub.Utils do
     end
   end
 
-  #### Follow-related helpers
-
-  @doc """
-  Updates a follow activity's state (for locked accounts).
-  """
-  def update_follow_state(%Activity{} = activity, state) do
-    with new_data <-
-           activity.data
-           |> Map.put("state", state),
-         changeset <- Changeset.change(activity, data: new_data),
-         {:ok, activity} <- Repo.update(changeset) do
-      {:ok, activity}
-    end
-  end
-
-  @doc """
-  Makes a follow activity data for the given follower and followed
-  """
-  def make_follow_data(
-        %User{ap_id: follower_id},
-        %User{ap_id: followed_id} = followed,
-        activity_id
-      ) do
-    data = %{
-      "type" => "Follow",
-      "actor" => follower_id,
-      "to" => [followed_id],
-      "cc" => ["https://www.w3.org/ns/activitystreams#Public"],
-      "object" => followed_id
-    }
-
-    data = if activity_id, do: Map.put(data, "id", activity_id), else: data
-    data = if User.locked?(followed), do: Map.put(data, "state", "pending"), else: data
-
-    data
-  end
-
-  def fetch_latest_follow(%User{ap_id: follower_id}, %User{ap_id: followed_id}) do
-    query =
-      from(
-        activity in Activity,
-        where:
-          fragment(
-            "? ->> 'type' = 'Follow'",
-            activity.data
-          ),
-        where: activity.actor == ^follower_id,
-        where:
-          fragment(
-            "? @> ?",
-            activity.data,
-            ^%{object: followed_id}
-          ),
-        order_by: [desc: :id],
-        limit: 1
-      )
-
-    Repo.one(query)
-  end
-
   #### Announce-related helpers
 
   @doc """
@@ -415,65 +355,6 @@ defmodule ActivityPub.Utils do
     with announcements <- announcements |> List.delete(actor) do
       update_element_in_object("announcement", announcements, object)
     end
-  end
-
-  #### Unfollow-related helpers
-
-  def make_unfollow_data(follower, followed, follow_activity, activity_id) do
-    data = %{
-      "type" => "Undo",
-      "actor" => follower.ap_id,
-      "to" => [followed.ap_id],
-      "object" => follow_activity.data
-    }
-
-    if activity_id, do: Map.put(data, "id", activity_id), else: data
-  end
-
-  #### Block-related helpers
-  def fetch_latest_block(%User{ap_id: blocker_id}, %User{ap_id: blocked_id}) do
-    query =
-      from(
-        activity in Activity,
-        where:
-          fragment(
-            "? ->> 'type' = 'Block'",
-            activity.data
-          ),
-        where: activity.actor == ^blocker_id,
-        where:
-          fragment(
-            "? @> ?",
-            activity.data,
-            ^%{object: blocked_id}
-          ),
-        order_by: [desc: :id],
-        limit: 1
-      )
-
-    Repo.one(query)
-  end
-
-  def make_block_data(blocker, blocked, activity_id) do
-    data = %{
-      "type" => "Block",
-      "actor" => blocker.ap_id,
-      "to" => [blocked.ap_id],
-      "object" => blocked.ap_id
-    }
-
-    if activity_id, do: Map.put(data, "id", activity_id), else: data
-  end
-
-  def make_unblock_data(blocker, blocked, block_activity, activity_id) do
-    data = %{
-      "type" => "Undo",
-      "actor" => blocker.ap_id,
-      "to" => [blocked.ap_id],
-      "object" => block_activity.data
-    }
-
-    if activity_id, do: Map.put(data, "id", activity_id), else: data
   end
 
   #### Create-related helpers

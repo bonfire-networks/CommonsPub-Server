@@ -36,6 +36,17 @@ defmodule MoodleNet.NewFactory do
 
   alias MoodleNet.Accounts
 
+  def actor(attrs \\ %{}) do
+    attrs = attributes(:user, attrs)
+
+    {:ok, %{actor: actor}} =
+      Ecto.Multi.new()
+      |> ActivityPub.create_actor(attrs)
+      |> MoodleNet.Repo.transaction()
+
+    actor
+  end
+
   def user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
     {:ok, %{user: user}} = Accounts.register_user(attrs)

@@ -67,22 +67,22 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       timestamps(updated_at: false)
     end
 
-    create(unique_index(:activity_pub_follows, [:follower_id, :following_id]))
+    create(unique_index(:activity_pub_follows, [:follower_id, :following_id], name: :activity_pub_follows_unique_index))
 
-    # create_counter_trigger(
-    #   :followers_count,
-    #   :activity_pub_actors,
-    #   :id,
-    #   :activity_pub_follows,
-    #   :following_id
-    # )
+    create_counter_trigger(
+      :followers_count,
+      :activity_pub_actors,
+      :id,
+      :activity_pub_follows,
+      :following_id
+    )
 
-    # create_counter_trigger(
-    #   :followings_count,
-    #   :activity_pub_actors,
-    #   :id,
-    #   :activity_pub_follows,
-    #   :follower_id
-    # )
+    create_counter_trigger(
+      :following_count,
+      :activity_pub_actors,
+      :id,
+      :activity_pub_follows,
+      :follower_id
+    )
   end
 end

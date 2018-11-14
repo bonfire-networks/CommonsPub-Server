@@ -8,6 +8,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+# config :logger, level: :debug
 
 config :moodle_net, MoodleNet.Upload, uploads: "test/uploads"
 

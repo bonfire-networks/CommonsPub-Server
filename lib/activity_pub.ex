@@ -18,7 +18,7 @@ defmodule ActivityPub do
       iex> ActivityPub.valid_iri?("https://social.example/alyssa/")
       true
   """
-  @spec valid_iri?(String.t) :: boolean
+  @spec valid_iri?(String.t()) :: boolean
   def valid_iri?(iri), do: validate_iri(iri) == :ok
 
   @doc """
@@ -42,7 +42,12 @@ defmodule ActivityPub do
       iex> ActivityPub.validate_iri("https://social.example/alyssa")
       :ok
   """
-  @spec validate_iri(String.t) :: :ok | {:error, :invalid_scheme} | {:error, :invalid_host} | {:error, :invalid_path} | {:error, :not_string}
+  @spec validate_iri(String.t()) ::
+          :ok
+          | {:error, :invalid_scheme}
+          | {:error, :invalid_host}
+          | {:error, :invalid_path}
+          | {:error, :not_string}
   def validate_iri(iri), do: IRI.validate(iri)
 
   def is_local?(iri) do
@@ -58,11 +63,28 @@ defmodule ActivityPub do
 
     multi
     |> Multi.insert(pre_key, Actor.create_local_changeset(params))
-    |> Multi.run(key, & Actor.set_uris(&2[pre_key]) |> &1.update())
+    |> Multi.run(key, &(Actor.set_uris(&2[pre_key]) |> &1.update()))
   end
 
   def get_actor!(id) do
     Repo.get!(Actor, id)
+  end
+
+  def follow(multi, follower, following, opts \\ []) do
+    key = Keyword.get(opts, :key, :follow)
+    ch = ActivityPub.Follow.create_changeset(follower, following)
+
+    Multi.insert(multi, key, ch,
+      returning: true,
+      conflict_target: [:follower_id, :following_id],
+      on_conflict: {:replace, [:follower_id]}
+    )
+  end
+
+  def unfollow(multi, follower, following, opts \\ []) do
+    key = Keyword.get(opts, :key, :unfollow)
+    query = ActivityPub.Follow.delete_query(follower, following)
+    Multi.delete_all(multi, key, query)
   end
 
   @doc """
@@ -79,8 +101,10 @@ defmodule ActivityPub do
       This is the third option, so it is only used when the database is disabled or it couldn't be found.
       Default value is `true`.
   """
-  @spec get_object(binary, map | Keyword.t) :: {:ok, Object.t} | {:error, :not_found} | {:error, :invalid_id}
+  @spec get_object(binary, map | Keyword.t()) ::
+          {:ok, Object.t()} | {:error, :not_found} | {:error, :invalid_id}
   def get_object(id, opts \\ %{cache: true, database: true, external: true})
+
   def get_object(id, opts) do
   end
 
@@ -397,28 +421,6 @@ defmodule ActivityPub do
     end
   end
 
-  # Creates follow activity
-  def follow(follower, followed, activity_id \\ nil, local \\ true) do
-    with data <- make_follow_data(follower, followed, activity_id),
-         # Same pattern: insert and send to other servers only if it is necessary
-         {:ok, activity} <- insert(data, local),
-         :ok <- maybe_federate(activity) do
-      {:ok, activity}
-    end
-  end
-
-  # Creates unfollow actiivty
-  def unfollow(follower, followed, activity_id \\ nil, local \\ true) do
-    with %Activity{} = follow_activity <- fetch_latest_follow(follower, followed),
-         {:ok, follow_activity} <- update_follow_state(follow_activity, "cancelled"),
-         unfollow_data <- make_unfollow_data(follower, followed, follow_activity, activity_id),
-         # Same pattern: insert and send to other servers only if it is necessary
-         {:ok, activity} <- insert(unfollow_data, local),
-         :ok <- maybe_federate(activity) do
-      {:ok, activity}
-    end
-  end
-
   # Deletes an message
   def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local \\ true) do
     user = User.get_cached_by_ap_id(actor)
@@ -441,46 +443,6 @@ defmodule ActivityPub do
     end
   end
 
-  # Block activity
-  def block(blocker, blocked, activity_id \\ nil, local \\ true) do
-    ap_config = Application.get_env(:moodle_net, :activitypub)
-    unfollow_blocked = Keyword.get(ap_config, :unfollow_blocked)
-    outgoing_blocks = Keyword.get(ap_config, :outgoing_blocks)
-
-    # Unfollow the blocked person
-    # I don't see the point to have a configuration about this
-    with true <- unfollow_blocked do
-      follow_activity = fetch_latest_follow(blocker, blocked)
-
-      if follow_activity do
-        unfollow(blocker, blocked, nil, local)
-      end
-    end
-
-    # This is interesting, should the block activities be federated?
-    with true <- outgoing_blocks,
-         block_data <- make_block_data(blocker, blocked, activity_id),
-         # Same pattern: insert and send to other servers only if it is necessary
-         {:ok, activity} <- insert(block_data, local),
-         :ok <- maybe_federate(activity) do
-      {:ok, activity}
-    else
-      _e -> {:ok, nil}
-    end
-  end
-
-  # Unblock actiivty
-  def unblock(blocker, blocked, activity_id \\ nil, local \\ true) do
-    with %Activity{} = block_activity <- fetch_latest_block(blocker, blocked),
-         unblock_data <- make_unblock_data(blocker, blocked, block_activity, activity_id),
-         # Same pattern: insert and send to other servers only if it is necessary
-         {:ok, activity} <- insert(unblock_data, local),
-         # interesting, here does not check the conf, so undo block are always federated :O
-         :ok <- maybe_federate(activity) do
-      {:ok, activity}
-    end
-  end
-
   # Load a conversation. All shares the same context_id
   def fetch_activities_for_context(context, opts \\ %{}) do
     public = ["https://www.w3.org/ns/activitystreams#Public"]
@@ -492,7 +454,6 @@ defmodule ActivityPub do
 
     query =
       query
-      |> restrict_blocked(opts)
       |> restrict_recipients(recipients, opts["user"])
 
     # No limits or pagination!
@@ -684,21 +645,6 @@ defmodule ActivityPub do
     from(activity in query, where: activity.id > ^since)
   end
 
-  # Wow this is a complex query
-  defp restrict_blocked(query, %{"blocking_user" => %User{info: info}}) do
-    blocks = info["blocks"] || []
-    domain_blocks = info["domain_blocks"] || []
-
-    from(
-      activity in query,
-      where: fragment("not (? = ANY(?))", activity.actor, ^blocks),
-      where: fragment("not (?->'to' \\?| ?)", activity.data, ^blocks),
-      where: fragment("not (split_part(?, '/', 3) = ANY(?))", activity.actor, ^domain_blocks)
-    )
-  end
-
-  defp restrict_blocked(query, _), do: query
-
   defp restrict_unlisted(query) do
     from(
       activity in query,
@@ -730,7 +676,6 @@ defmodule ActivityPub do
     |> restrict_type(opts)
     |> restrict_favorited_by(opts)
     |> restrict_recent(opts)
-    |> restrict_blocked(opts)
     |> restrict_media(opts)
     |> restrict_visibility(opts)
     |> restrict_replies(opts)
@@ -945,7 +890,9 @@ defmodule ActivityPub do
       else
         object = %Object{} ->
           {:ok, object}
-        e -> e
+
+        e ->
+          e
       end
     end
   end

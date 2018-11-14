@@ -17,10 +17,13 @@ defmodule MoodleNet.DataCase do
   using do
     quote do
       alias MoodleNet.Repo
+      alias MoodleNet.NewFactory, as: Factory
 
-      import Ecto
-      import Ecto.Changeset
-      import Ecto.Query
+      alias Ecto.Multi
+
+      # import Ecto
+      # import Ecto.Changeset
+      # import Ecto.Query
       import MoodleNet.DataCase
     end
   end
