@@ -1,7 +1,8 @@
 ```js
-const { TabPanel } = require('./Tabs.tsx');
+const { Tabs, TabPanel } = require('./Tabs.tsx');
+const Button = require('../../elements/Button/Button').default;
 
-<Tabs selectedKey="tab-1">
+<Tabs selectedKey="tab-1" button={<Button>Hanging button</Button>}>
   <TabPanel label="Tab" key="tab-1">
     Tab 1 content
   </TabPanel>
