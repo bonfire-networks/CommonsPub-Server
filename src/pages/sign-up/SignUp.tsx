@@ -31,7 +31,7 @@ const Sidebar = styled.div`
 
 const stepScrollTo = {
   1: 0,
-  2: 650
+  2: 450
 };
 
 //TODO this should be offloaded to an API
@@ -91,22 +91,30 @@ const Step2Section = styled.div<any>`
   transition: opacity 1.75s linear;
 `;
 
+const TagsNoneSelected = ({ what }) => {
+  return (
+    <div style={{ paddingTop: '8px', color: 'grey' }}>No {what} selected</div>
+  );
+};
+
 const Interests = ({ active, interests, onTagClick }) => (
   <Step2Section active={active}>
     <H4>Interests</H4>
     <TagContainer>
-      {interests.length
-        ? interests.map(interest => (
-            <Tag
-              focused
-              closeable
-              key={interest}
-              onClick={() => onTagClick(interest)}
-            >
-              {interest}
-            </Tag>
-          ))
-        : 'None selected'}
+      {interests.length ? (
+        interests.map(interest => (
+          <Tag
+            focused
+            closeable
+            key={interest}
+            onClick={() => onTagClick(interest)}
+          >
+            {interest}
+          </Tag>
+        ))
+      ) : (
+        <TagsNoneSelected what="interests" />
+      )}
     </TagContainer>
     <Button onClick={() => alert('add interest clicked')}>Add interest</Button>
   </Step2Section>
@@ -116,18 +124,20 @@ const Languages = ({ active, languages }) => (
   <Step2Section active={active}>
     <H4>Languages</H4>
     <TagContainer>
-      {languages.length
-        ? languages.map(lang => (
-            <Tag
-              focused
-              closeable
-              key={lang}
-              onClick={() => alert('lang clicked')}
-            >
-              {lang}
-            </Tag>
-          ))
-        : 'None selected'}
+      {languages.length ? (
+        languages.map(lang => (
+          <Tag
+            focused
+            closeable
+            key={lang}
+            onClick={() => alert('lang clicked')}
+          >
+            {lang}
+          </Tag>
+        ))
+      ) : (
+        <TagsNoneSelected what="languages" />
+      )}
     </TagContainer>
     <Button onClick={() => alert('add lang clicked')}>Add language</Button>
   </Step2Section>
@@ -136,13 +146,16 @@ const Languages = ({ active, languages }) => (
 export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   static stepComponents = [Step1, Step2];
 
+  // container of the user profile, ref. is used
+  // to scroll container on sign up step change
   _profileElem: HTMLElement;
 
   state: SignUpState = {
     currentStep: -1,
     user: {
-      username: '',
+      name: '',
       email: '',
+      bio: '',
       emojiId: generateEmojiId(),
       avatarImage: undefined,
       profileImage: undefined,
@@ -159,7 +172,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
 
     this.state.currentStep = Number(props.match.params.step);
 
-    if (!this.state.user.username && this.state.currentStep > 1) {
+    if (!this.state.user.name && this.state.currentStep > 1) {
       this.state.redirect = '/sign-up/1';
       return;
     }
@@ -351,7 +364,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
             </Row>
             {this.getStepComponent()}
             <Row style={{ flexGrow: 1 }} />
-            <Row>
+            <Row style={{ minHeight: '42px', marginTop: '10px' }}>
               {this.getNextStepName() ? (
                 <Col
                   style={{
@@ -384,14 +397,14 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
           body={({ containerProps }) => {
             return (
               <SignUpProfileSection {...containerProps}>
+                <Languages
+                  active={this.state.currentStep > 1}
+                  languages={this.state.user.languages}
+                />
                 <Interests
                   onTagClick={interest => this.toggleUserInterest(interest)}
                   active={this.state.currentStep > 1}
                   interests={this.state.user.interests}
-                />
-                <Languages
-                  active={this.state.currentStep > 1}
-                  languages={this.state.user.languages}
                 />
               </SignUpProfileSection>
             );

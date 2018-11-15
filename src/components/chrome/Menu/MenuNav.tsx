@@ -100,8 +100,8 @@ export default withTheme(
                 top: '-2px'
               }}
               src={avatar}
-              alt={user.data.username}
-              title={`Hi, ${user.data.username}!`}
+              alt={user.data.name}
+              title={`Hi, ${user.data.name}!`}
             />
           </Avatar>
         </MenuNavItem>

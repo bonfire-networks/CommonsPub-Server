@@ -27,7 +27,7 @@ const UserMenu = styled.div`
 export default ({ user }) => {
   return (
     <UserMenu>
-      <UserLink title="Go to Edit profile" to={`/user/${user.username}`}>
+      <UserLink title="Go to Edit profile" to={`/user`}>
         <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;Edit profile
       </UserLink>
       <br />

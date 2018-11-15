@@ -82,12 +82,12 @@ interface LoginState {
 }
 
 type CredentialsObject = {
-  username: string;
+  email: string;
   password: string;
 };
 
 const DEMO_CREDENTIALS = {
-  username: 'moodle',
+  email: 'moodle@moodle.net',
   password: 'moodle'
 };
 
@@ -101,11 +101,11 @@ class Login extends React.Component<LoginProps, LoginState> {
   static validateCredentials(credentials: CredentialsObject) {
     const validation: ValidationObject[] = [];
 
-    if (!credentials.username.length) {
+    if (!credentials.email.length) {
       validation.push({
-        field: ValidationField.username,
+        field: ValidationField.email,
         type: ValidationType.error,
-        message: 'The username field cannot be empty'
+        message: 'The email field cannot be empty'
       } as ValidationObject);
     }
     if (!credentials.password.length) {
@@ -144,7 +144,7 @@ class Login extends React.Component<LoginProps, LoginState> {
     // TODO implement real auth when we know what the backend looks like
     setTimeout(async () => {
       if (
-        credentials.username !== DEMO_CREDENTIALS.username ||
+        credentials.email !== DEMO_CREDENTIALS.email ||
         credentials.password !== DEMO_CREDENTIALS.password
       ) {
         this.setState({

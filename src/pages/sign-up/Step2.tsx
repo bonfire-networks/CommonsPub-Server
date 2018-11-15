@@ -10,12 +10,16 @@ import styled from '../../themes/styled';
 import User from '../../types/User';
 
 //TODO get tags from the API
-const words = `offer,segment,slave,duck,instant,market,degree,populate,chick,dear,enemy,reply,drink,occur,support,shell,neck`.split(
-  ','
-);
+const words = `Applied Sciences, K12, Performing Arts, Humanities, Higher Education, Social Sciences, Vocational Education, Professional Education, Formal Sciences, Natural Sciences, Visual Arts`
+  .split(',')
+  .map(s => s.trim());
 
 const InterestsSearchResultsContainer = styled.div`
   margin: 20px 0 0 0;
+`;
+
+const OverflowCol = styled(Col)`
+  overflow: auto;
 `;
 
 function InterestsSearchResults({ status, count, result, children }) {
@@ -115,7 +119,7 @@ export default class extends React.Component<Step2Props, Step2State> {
     return (
       <>
         <Row>
-          <Col>
+          <OverflowCol>
             <H6 style={{ borderBottom: '1px solid lightgrey' }}>
               <span style={{ color: 'darkgrey', fontSize: '.7em' }}>2.</span>{' '}
               Your Interests
@@ -156,7 +160,7 @@ export default class extends React.Component<Step2Props, Step2State> {
                 </Tag>
               ))}
             </TagContainer>
-          </Col>
+          </OverflowCol>
         </Row>
       </>
     );

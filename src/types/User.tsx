@@ -1,6 +1,7 @@
 export default interface User {
-  username: string;
+  name: string;
   email: string;
+  bio: string;
   emojiId: string;
   avatarImage?: string;
   profileImage?: string;

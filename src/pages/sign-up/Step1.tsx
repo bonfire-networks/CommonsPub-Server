@@ -5,6 +5,7 @@ import { Col, Row } from '@zendeskgarden/react-grid';
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import TextInput from '../../components/inputs/Text/Text';
+import TextArea from '../../components/inputs/TextArea/Textarea';
 import Button from '../../components/elements/Button/Button';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import styled from '../../themes/styled';
@@ -32,11 +33,11 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             details below to build it.
           </P>
           <TextField>
-            <Label>Username</Label>
+            <Label>Name</Label>
             <TextInput
-              value={user.username}
-              onChange={linkUserState('username')}
-              placeholder="e.g. joebloggs84"
+              value={user.name}
+              onChange={linkUserState('name')}
+              placeholder="e.g. Moodler Joe"
               maxLength={20}
             />
           </TextField>
@@ -66,8 +67,18 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               value={user.email}
               onChange={linkUserState('email')}
-              placeholder="e.g. joebloggs@example.com"
+              placeholder="e.g. joe@moodle.net"
               maxLength={100}
+            />
+          </TextField>
+          <Spacer />
+          <TextField>
+            <Label>Bio</Label>
+            <TextArea
+              value={user.bio}
+              onChange={linkUserState('bio')}
+              placeholder="Tell us a bit about yourself"
+              maxLength={250}
             />
           </TextField>
           <Spacer />

@@ -38,13 +38,13 @@ type LoginFormProps = {
 };
 
 type LoginFormState = {
-  username: string;
+  email: string;
   password: string;
 };
 
 export default class extends React.Component<LoginFormProps, LoginFormState> {
   state = {
-    username: '',
+    email: '',
     password: ''
   };
 
@@ -95,22 +95,20 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
         <Row>
           <Col>
             <TextField>
-              <Label>Username:</Label>
+              <Label>Email address:</Label>
               <TextInput
-                placeholder="Enter your username"
-                value={this.state.username}
-                validation={this.getValidation(ValidationField.username)}
+                placeholder="Enter your email address"
+                value={this.state.email}
+                validation={this.getValidation(ValidationField.email)}
                 onChange={(evt: any) => {
                   this.setState({
-                    username: evt.target.value
+                    email: evt.target.value
                   });
-                  onInputChange(ValidationField.username, evt.target.value);
+                  onInputChange(ValidationField.email, evt.target.value);
                 }}
               />
-              <Message
-                validation={this.getValidation(ValidationField.username)}
-              >
-                {this.getValidationMessage(ValidationField.username)}
+              <Message validation={this.getValidation(ValidationField.email)}>
+                {this.getValidationMessage(ValidationField.email)}
               </Message>
             </TextField>
             <Spacer />

@@ -1,8 +1,9 @@
 export default `
   type User {
     id: Int!
-    username: String!
+    name: String!
     email: String!
+    bio: String!
     emojiId: String!
     role: String!
     location: String!

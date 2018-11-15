@@ -4,7 +4,7 @@ query GetUserQuery {
         isAuthenticated
         data {
             id
-            username
+            name
             email
             emojiId
             role

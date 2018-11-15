@@ -6,7 +6,7 @@ export enum ValidationType {
 }
 
 export enum ValidationField {
-  username,
+  email,
   password
 }
 

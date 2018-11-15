@@ -189,10 +189,7 @@ export default function(props: UserProfileProps) {
       <UserDetails>
         <H6>{props.user.emojiId}</H6>
         <H6>
-          <FadedFallbackText
-            value={props.user.username}
-            fallback="joebloggs84"
-          />
+          <FadedFallbackText value={props.user.name} fallback="Moodler Joe" />
         </H6>
         <H6>
           <FadedFallbackText value={props.user.role} fallback="Head Teacher" />

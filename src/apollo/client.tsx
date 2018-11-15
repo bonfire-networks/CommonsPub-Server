@@ -8,8 +8,9 @@ import { NotificationType } from '../components/elements/Notification/Notificati
 export const DUMMY_USER = {
   __typename: 'User',
   id: 0,
-  username: 'MoodlerJoe',
+  name: 'Moodler Joe',
   email: 'moodlerjoe@example.com',
+  bio: 'I <3 Moodle',
   emojiId: '',
   role: '',
   location: '',
