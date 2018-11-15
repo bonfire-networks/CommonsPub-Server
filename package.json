@@ -101,6 +101,7 @@
     "styled-components": "3.4.9",
     "sw-precache-webpack-plugin": "0.11.5",
     "terser-webpack-plugin": "1.1.0",
+    "time-ago": "0.2.1",
     "tslib": "1.9.3",
     "typescript": "3.0.3",
     "uglifyjs-webpack-plugin": "2.0.1",
