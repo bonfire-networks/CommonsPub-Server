@@ -29,7 +29,7 @@ defmodule ActivityPubWeb.ActorView do
         publicKeyPem: "TODO"
       },
       endpoints: %{sharedInbox: actor.shared_inbox_uri},
-      icon: nil,
+      icon: ActivityPub.Actor.avatar_url(actor),
       image: nil
     }
   end

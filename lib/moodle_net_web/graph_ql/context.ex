@@ -1,9 +1,7 @@
-defmodule MoodleNet.Context do
+defmodule MoodleNet.GraphQL.Context do
   @behaviour Plug
 
   import Plug.Conn
-  alias MoodleNet.{Repo}
-  alias MoodleNet.OAuth.Token
 
   def init(opts), do: opts
 
@@ -22,16 +20,11 @@ defmodule MoodleNet.Context do
   end
 
   defp authorize(conn) do
-    token =
-    case get_req_header(conn, "authorization") do
-      ["Bearer " <> header] -> header
-      _ -> get_session(conn, :oauth_token)
-    end
-    with token when not is_nil(token) <- token,
-        %Token{user_id: user_id} <- Repo.get_by(Token, token: token)
+    MoodleNet.Plugs.Auth.call(conn, [])
+    with current_user when not is_nil(current_user) <- conn.assigns[:current_user]
         do
-          IO.inspect user_id
-      {:ok, user_id}
+          IO.inspect current_user
+      {:ok, current_user}
       else
       err -> {:error, err}
     end

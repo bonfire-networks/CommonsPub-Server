@@ -55,12 +55,13 @@ defmodule ActivityPub.Actor do
     Ecto.Changeset.change(actor, uris)
   end
 
-  # def avatar_url(user) do
-  #   case user.avatar do
-  #     %{"url" => [%{"href" => href} | _]} -> href
-  #     _ -> "#{MoodleNetWeb.base_url()}/images/avi.png"
-  #   end
-  # end
+  def avatar_url(user) do
+    case user.avatar do
+      %{"url" => [%{"href" => href} | _]} -> href
+      _ -> "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+      # _ -> "#{MoodleNetWeb.base_url()}/images/avi.png"
+    end
+  end
 
   # def banner_url(user) do
   #   case user.info["banner"] do

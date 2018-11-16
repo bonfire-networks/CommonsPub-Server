@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.Router do
   pipeline :api_browser do
     # Not sure this is ok?
     # Mixing browser and api stuff does not seem right...
-    plug(:accepts, ["html", "json"])
+    plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
     plug(:fetch_session)
     plug(:fetch_flash)
     # plug(:protect_from_forgery)
@@ -41,14 +41,15 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :graphql do
-    plug MoodleNet.Context
+    plug MoodleNet.GraphQL.Context
+    plug :accepts, ["json"]
   end
 
-  scope "/graphql" do
+  scope "/api/graphql" do
     pipe_through :graphql
 
     forward "/", Absinthe.Plug.GraphiQL,
-    schema: MoodleNet.Schema,
+    schema: MoodleNet.GraphQL.Schema,
     interface: :simple
   end
 
