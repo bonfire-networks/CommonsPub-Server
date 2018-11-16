@@ -40,6 +40,19 @@ defmodule MoodleNetWeb.Router do
     )
   end
 
+  pipeline :graphql do
+    plug MoodleNet.Context
+  end
+
+  scope "/graphql" do
+    pipe_through :graphql
+
+    forward "/", Absinthe.Plug.GraphiQL,
+    schema: MoodleNet.Schema,
+    interface: :simple
+  end
+
+
   scope "/oauth", MoodleNetWeb.OAuth do
     get("/authorize", OAuthController, :authorize)
     post("/authorize", OAuthController, :create_authorization)
