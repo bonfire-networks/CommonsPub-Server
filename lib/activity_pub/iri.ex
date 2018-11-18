@@ -23,14 +23,12 @@ defmodule ActivityPub.IRI do
           :ok
           | {:error, :invalid_scheme}
           | {:error, :invalid_host}
-          | {:error, :invalid_path}
           | {:error, :not_string}
 
   def validate(string) when is_binary(string) do
     case URI.parse(string) do
       %{scheme: scheme} when scheme not in ["http", "https"] -> {:error, :invalid_scheme}
       %{host: nil} -> {:error, :invalid_host}
-      %{path: path} when path in [nil, "/"] -> {:error, :invalid_path}
       _ -> :ok
     end
   end

@@ -36,9 +36,6 @@ defmodule ActivityPub do
       iex> ActivityPub.validate_iri("https://")
       {:error, :invalid_host}
 
-      iex> ActivityPub.validate_iri("https://social.example/")
-      {:error, :invalid_path}
-
       iex> ActivityPub.validate_iri("https://social.example/alyssa")
       :ok
   """
@@ -46,7 +43,6 @@ defmodule ActivityPub do
           :ok
           | {:error, :invalid_scheme}
           | {:error, :invalid_host}
-          | {:error, :invalid_path}
           | {:error, :not_string}
   def validate_iri(iri), do: IRI.validate(iri)
 
