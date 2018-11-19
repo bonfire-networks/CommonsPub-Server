@@ -54,7 +54,19 @@ export const DUMMY_COLLECTIONS = [
       Resources: rand()
     },
     community: DUMMY_COMMUNITIES[0],
-    onButtonClick: () => alert('card btn clicked')
+    onButtonClick: () => alert('card btn clicked'),
+    creatorId: 123,
+    contributors: [
+      {
+        id: 123,
+        name: 'Moodler Joe',
+        avatarImage: 'https://picsum.photos/100/100?random'
+      },
+      {
+        name: 'Moodler Joe',
+        avatarImage: 'https://picsum.photos/100/100?random'
+      }
+    ]
   },
   {
     id: 1,
@@ -66,7 +78,9 @@ export const DUMMY_COLLECTIONS = [
       Resources: rand()
     },
     community: DUMMY_COMMUNITIES[0],
-    onButtonClick: () => alert('card btn clicked')
+    onButtonClick: () => alert('card btn clicked'),
+    creatorId: 123,
+    contributors: []
   },
   {
     id: 2,
@@ -78,7 +92,9 @@ export const DUMMY_COLLECTIONS = [
       Resources: rand()
     },
     community: DUMMY_COMMUNITIES[0],
-    onButtonClick: () => alert('card btn clicked')
+    onButtonClick: () => alert('card btn clicked'),
+    creatorId: 123,
+    contributors: []
   }
 ];
 
