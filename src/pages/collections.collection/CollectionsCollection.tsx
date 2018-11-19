@@ -1,19 +1,25 @@
 import * as React from 'react';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 
+import styled from '../../themes/styled';
 import Link from '../../components/elements/Link/Link';
 import Logo from '../../components/brand/Logo/Logo';
 import slugify from '../../util/slugify';
 import Main from '../../components/chrome/Main/Main';
 import P from '../../components/typography/P/P';
+import Avatar from '../../components/elements/Avatar/Avatar';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
+import { DUMMY_COLLECTIONS, DUMMY_RESOURCES } from '../../__DEV__/dummy-cards';
 import {
   CollectionCard,
   ResourceCard
 } from '../../components/elements/Card/Card';
-import { DUMMY_COLLECTIONS, DUMMY_RESOURCES } from '../../__DEV__/dummy-cards';
 
 const card = DUMMY_COLLECTIONS[0];
+
+const Contributors = styled.div`
+  margin: 20px 0;
+`;
 
 enum TabsEnum {
   Resources = 'Resources',
@@ -56,10 +62,25 @@ export default class CommunitiesFeatured extends React.Component {
                 >
                   <CollectionCard large {...card} />
                   <div>
+                    {/*TODO use correct header typography component*/}
                     <h3>{card.title}</h3>
                     <P>{card.description}</P>
                   </div>
                 </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col size={6}>
+                <h3>Contributors</h3>
+                <Contributors>
+                  {card.contributors.map((c, i) => {
+                    return (
+                      <Avatar key={i} marked={c.id === card.creatorId}>
+                        <img src={c.avatarImage} alt={c.name} />
+                      </Avatar>
+                    );
+                  })}
+                </Contributors>
               </Col>
             </Row>
             <Row>

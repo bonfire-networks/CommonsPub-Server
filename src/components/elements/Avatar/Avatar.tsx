@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Avatar } from '@zendeskgarden/react-avatars';
 
 type AvatarProps = {
-  size: 'small' | 'large';
+  size?: 'small' | 'large';
   marked?: boolean;
   className?: string;
   children?: any;
@@ -10,6 +10,7 @@ type AvatarProps = {
 
 export default ({
   children,
+  size = 'small',
   marked = false,
   className = '',
   ...props
