@@ -1,7 +1,20 @@
 import * as React from 'react';
 import { Avatar } from '@zendeskgarden/react-avatars';
 
-export default ({ children, marked, className = '', ...props }) => {
+type AvatarProps = {
+  size?: 'small' | 'large';
+  marked?: boolean;
+  className?: string;
+  children?: any;
+};
+
+export default ({
+  children,
+  size = 'small',
+  marked = false,
+  className = '',
+  ...props
+}: AvatarProps) => {
   if (marked) {
     className += ' marked';
   }
