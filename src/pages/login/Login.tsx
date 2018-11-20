@@ -4,6 +4,7 @@ import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
+import { Trans } from '@lingui/macro';
 
 import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
@@ -206,7 +207,6 @@ class Login extends React.Component<LoginProps, LoginState> {
             <Col>
               <Logo />
             </Col>
-            {/* TODO why need to display: flex? */}
             <Col
               justifyContent="end"
               alignSelf="center"
@@ -218,7 +218,9 @@ class Login extends React.Component<LoginProps, LoginState> {
           <Row>
             <Col md={6}>
               <LoginHeading>
-                Log in using your social media account
+                <Trans id="login.form.prompt">
+                  Log in using your social media account
+                </Trans>
               </LoginHeading>
               <CenteredButtonGroup>
                 <Button

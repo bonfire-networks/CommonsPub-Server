@@ -7,6 +7,7 @@ import {
 
 import styled, { StyledThemeInterface } from '../../../themes/styled';
 import Flag from '../../elements/Flag/Flag';
+import { LocaleContext } from '../../../containers/App/App';
 
 type LanguageSelectState = {
   selectedKey?: string;
@@ -24,18 +25,23 @@ const SelectField = styled(ZenSelectField)`
 `;
 
 export const languageNames = {
-  'en-gb': 'English, United Kingdom',
-  'en-us': 'English, United States'
+  en_GB: 'English, United Kingdom',
+  en_US: 'English, United States',
+  fr: 'French'
 };
 
 const options = [
-  <Item key="en-gb">
+  <Item key="en_GB">
     <Flag flag="gb" />
-    &nbsp; {languageNames['en-gb']}
+    &nbsp; {languageNames['en_GB']}
   </Item>,
-  <Item key="en-us">
+  <Item key="en_US">
     <Flag flag="us" />
-    &nbsp; {languageNames['en-us']}
+    &nbsp; {languageNames['en_US']}
+  </Item>,
+  <Item key="fr">
+    <Flag flag="fr" />
+    &nbsp; {languageNames['fr']}
   </Item>
 ];
 
@@ -47,7 +53,7 @@ export default class extends React.Component<
   LanguageSelectState
 > {
   state = {
-    selectedKey: 'en-gb'
+    selectedKey: 'en_GB'
   };
 
   constructor(props) {
@@ -55,20 +61,33 @@ export default class extends React.Component<
   }
 
   render() {
+    let flagClass = this.state.selectedKey;
+
+    if (this.state.selectedKey.includes('_')) {
+      flagClass = this.state.selectedKey.split('_')[1].toLowerCase();
+    }
+
     return (
-      <SelectField {...this.props}>
-        <Select
-          selectedKey={this.state.selectedKey}
-          onChange={selectedKey => this.setState({ selectedKey })}
-          options={options}
-        >
-          <Flag flag={this.state.selectedKey.split('-')[1]} />
-          &nbsp;&nbsp;
-          {this.props.fullWidth
-            ? languageNames[this.state.selectedKey]
-            : this.state.selectedKey}
-        </Select>
-      </SelectField>
+      <LocaleContext.Consumer>
+        {({ setLocale }) => (
+          <SelectField {...this.props}>
+            <Select
+              selectedKey={this.state.selectedKey}
+              onChange={selectedKey => {
+                setLocale(selectedKey);
+                this.setState({ selectedKey });
+              }}
+              options={options}
+            >
+              <Flag flag={flagClass} />
+              &nbsp;&nbsp;
+              {this.props.fullWidth
+                ? languageNames[this.state.selectedKey]
+                : this.state.selectedKey}
+            </Select>
+          </SelectField>
+        )}
+      </LocaleContext.Consumer>
     );
   }
 }
