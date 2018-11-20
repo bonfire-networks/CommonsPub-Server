@@ -8,7 +8,7 @@ use Mix.Config
 # General application configuration
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
-config :moodle_net, MoodleNet.Repo, types: MoodleNet.PostgresTypes, adapter: Ecto.Adapters.Postgres
+# config :moodle_net, MoodleNet.Repo, types: MoodleNet.PostgresTypes, adapter: Ecto.Adapters.Postgres
 
 config :moodle_net, MoodleNet.Upload,
   uploader: MoodleNet.Uploaders.Local,

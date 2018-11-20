@@ -1,6 +1,5 @@
 defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   use MoodleNetWeb.ConnCase
-  alias MoodleNet.NewFactory, as: Factory
 
   alias MoodleNet.Repo
   alias MoodleNet.OAuth.{Authorization, Token}

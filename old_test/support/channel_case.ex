@@ -1,9 +1,9 @@
-defmodule MoodleNetWeb.ConnCase do
+defmodule MoodleNetWeb.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
-  tests that require setting up a connection.
+  channel tests.
 
-  Such tests rely on `Phoenix.ConnTest` and also
+  Such tests rely on `Phoenix.ChannelTest` and also
   import other functionality to make it easier
   to build common datastructures and query the data layer.
 
@@ -17,11 +17,8 @@ defmodule MoodleNetWeb.ConnCase do
 
   using do
     quote do
-      # Import conveniences for testing with connections
-      use Phoenix.ConnTest
-      import MoodleNetWeb.Router.Helpers
-
-      alias MoodleNet.Factory
+      # Import conveniences for testing with channels
+      use Phoenix.ChannelTest
 
       # The default endpoint for testing
       @endpoint MoodleNetWeb.Endpoint
@@ -29,26 +26,12 @@ defmodule MoodleNetWeb.ConnCase do
   end
 
   setup tags do
-    Cachex.clear(:user_cache)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
 
-    conn = Phoenix.ConnTest.build_conn()
-
-    accept_header = case tags[:format] do
-      :json ->
-        "application/json"
-      :json_ld ->
-        "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
-      _ ->
-        "text/html"
-    end
-
-    conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
-
-    {:ok, conn: conn}
+    :ok
   end
 end

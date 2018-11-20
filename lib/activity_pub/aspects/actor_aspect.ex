@@ -13,10 +13,9 @@ defmodule ActivityPub.ActorAspect do
     field(:endpoints, {:map, :string})
   end
 
-  @fields [:inbox, :outbox, :following, :followers, :liked, :preferred_username, :streams, :endpoints]
   def parse(%{} = input) do
     %__MODULE__{}
-    |> Ecto.Changeset.cast(input, @fields)
+    |> Ecto.Changeset.cast(input, __MODULE__.__schema__(:fields))
     |> Ecto.Changeset.apply_action(:insert)
   end
 

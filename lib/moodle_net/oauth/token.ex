@@ -7,7 +7,7 @@ defmodule MoodleNet.OAuth.Token do
     field(:hash, :string)
     field(:refresh_hash, :string)
     field(:valid_until, :naive_datetime_usec)
-    belongs_to(:user, MoodleNet.Accounts.NewUser)
+    belongs_to(:user, MoodleNet.Accounts.User)
     belongs_to(:app, MoodleNetWeb.OAuth.App)
 
     timestamps()

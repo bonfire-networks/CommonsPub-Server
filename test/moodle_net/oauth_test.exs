@@ -1,7 +1,6 @@
 defmodule MoodleNet.OAuthTest do
   use MoodleNet.DataCase, async: true
 
-  # alias MoodleNet.NewFactory, as: Factory
   alias MoodleNet.OAuth
   alias MoodleNet.OAuth.{App, Token}
 
@@ -52,7 +51,7 @@ defmodule MoodleNet.OAuthTest do
 
   describe "create_token" do
     test "works" do
-      user = MoodleNet.NewFactory.user()
+      user = Factory.user()
       OAuth.get_local_app()
 
       assert {:ok, %Token{}} = OAuth.create_token(user.id)
@@ -61,7 +60,7 @@ defmodule MoodleNet.OAuthTest do
 
   describe "get_user_by_token" do
     test "works" do
-      %{id: user_id} = MoodleNet.NewFactory.user()
+      %{id: user_id} = Factory.user()
       assert {:ok, token} = OAuth.create_token(user_id)
       assert {:ok, %{id: ^user_id}} = OAuth.get_user_by_token(token.hash)
 

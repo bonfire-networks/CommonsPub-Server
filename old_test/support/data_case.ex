@@ -17,7 +17,7 @@ defmodule MoodleNet.DataCase do
   using do
     quote do
       alias MoodleNet.Repo
-      alias MoodleNet.Factory
+      alias MoodleNet.NewFactory, as: Factory
 
       alias Ecto.Multi
 

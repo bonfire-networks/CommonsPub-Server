@@ -1,4 +1,4 @@
-defmodule MoodleNet.Accounts.NewUser do
+defmodule MoodleNet.Accounts.User do
   use Ecto.Schema
 
   alias ActivityPub.Actor

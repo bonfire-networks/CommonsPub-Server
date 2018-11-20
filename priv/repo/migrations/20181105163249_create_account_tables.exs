@@ -3,33 +3,36 @@ defmodule MoodleNet.Repo.Migrations.CreateAccountTables do
 
   def change do
     create table(:accounts_users) do
-      add :email, :citext, null: false
-      add_foreign_key(:primary_actor_id, "activity_pub_actors")
+      add(:email, :citext, null: false)
+      add_foreign_key(:primary_actor_id, "activity_pub_actor_aspects", column: :local_id)
 
       timestamps()
     end
+
     create(unique_index("accounts_users", :email))
 
     create table(:accounts_password_auths) do
-      add_foreign_key(:user_id, "accounts_users")
-      add :password_hash, :text, null: false
+      add(
+        :user_id,
+        references("accounts_users", type: :bigint, on_update: :update_all, on_delete: :delete_all),
+        null: false
+      )
+
+      add(:password_hash, :text, null: false)
 
       timestamps()
     end
+
     create(unique_index("accounts_password_auths", :user_id))
 
     create table(:accounts_reset_password_token) do
-      add_foreign_key(:password_auth_id, "accounts_password_auths")
-      add :token, :text, null: false
-      add :used, :boolean, null: false, default: false
-
-      timestamps()
-    end
-
-    create table(:notifications_notifications) do
-      add_foreign_key(:user_id, "accounts_users")
-      add :activity_id, references("activity_pub_activities", on_delete: :delete_all, on_update: :update_all), null: false
-      add :seen, :boolean, null: false, default: false
+      add(
+        :password_auth_id,
+        references("accounts_password_auths", type: :bigint, on_update: :update_all, on_delete: :delete_all),
+        null: false
+      )
+      add(:token, :text, null: false)
+      add(:used, :boolean, null: false, default: false)
 
       timestamps()
     end

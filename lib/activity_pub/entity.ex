@@ -20,6 +20,7 @@ defmodule ActivityPub.Entity do
     field(:"@context", :map)
     field(:id, :string)
     field(:type, StringListType)
+    field(:local_id, :integer)
 
     for aspect <- @aspects do
       embeds_one(aspect.internal_field(), aspect)

@@ -2,7 +2,7 @@ defmodule MoodleNet.Accounts.PasswordAuth do
   use Ecto.Schema
 
   schema "accounts_password_auths" do
-    belongs_to :user, MoodleNet.Accounts.NewUser
+    belongs_to :user, MoodleNet.Accounts.User
     field(:password_hash, :string)
     field(:password, :string, virtual: true)
 

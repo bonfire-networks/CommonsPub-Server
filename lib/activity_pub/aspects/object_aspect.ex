@@ -20,7 +20,7 @@ defmodule ActivityPub.ObjectAspect do
     field(:preview, EntityType, default: [])
     field(:published, :utc_datetime)
     field(:replies, EntityType, default: [])
-    field(:startTime, :utc_datetime)
+    field(:start_time, :utc_datetime)
     field(:summary, LanguageValueType, default: %{})
     field(:tag, EntityType, default: [])
     field(:updated, :utc_datetime)
@@ -33,10 +33,9 @@ defmodule ActivityPub.ObjectAspect do
     field(:duration , :string)
   end
 
-  @fields [:attachment, :attributed_to, :audience, :content, :context, :name, :end_time, :generator, :icon, :image, :in_reply_to, :location, :preview, :published, :replies, :startTime, :summary, :tag, :updated, :url, :to, :bto, :cc, :bcc, :media_type, :duration]
   def parse(%{} = input) do
     %__MODULE__{}
-    |> Ecto.Changeset.cast(input, @fields)
+    |> Ecto.Changeset.cast(input, __MODULE__.__schema__(:fields))
     |> Ecto.Changeset.apply_action(:insert)
   end
 

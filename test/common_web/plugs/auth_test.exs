@@ -1,8 +1,8 @@
 defmodule MoodleNet.Plugs.AuthTest do
   use MoodleNetWeb.PlugCase, async: true
 
-  alias MoodleNet.Accounts.NewUser
-  alias MoodleNet.NewFactory, as: Factory
+  alias MoodleNet.Accounts.User
+  alias MoodleNet.Factory
 
   alias MoodleNet.Plugs.Auth
 
@@ -19,7 +19,7 @@ defmodule MoodleNet.Plugs.AuthTest do
     assert %{
              halted: false,
              assigns: %{
-               current_user: %NewUser{id: ^user_id},
+               current_user: %User{id: ^user_id},
                auth_token: ^hash
              }
            } =
@@ -35,7 +35,7 @@ defmodule MoodleNet.Plugs.AuthTest do
     assert %{
              halted: false,
              assigns: %{
-               current_user: %NewUser{id: ^user_id},
+               current_user: %User{id: ^user_id},
                auth_token: ^hash
              }
            } =

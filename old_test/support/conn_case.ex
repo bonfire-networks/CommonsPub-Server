@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.ConnCase do
       use Phoenix.ConnTest
       import MoodleNetWeb.Router.Helpers
 
-      alias MoodleNet.Factory
+      alias MoodleNet.NewFactory, as: Factory
 
       # The default endpoint for testing
       @endpoint MoodleNetWeb.Endpoint

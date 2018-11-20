@@ -38,8 +38,7 @@ defmodule MoodleNet.Application do
             ]
           ],
           id: :cachex_idem
-        ),
-        worker(MoodleNetWeb.Federator, []),
+        )
       ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

@@ -2,7 +2,7 @@ defmodule MoodleNet.AccountsTest do
   use MoodleNet.DataCase, async: true
 
   alias MoodleNet.Accounts
-  alias MoodleNet.Accounts.{NewUser, PasswordAuth}
+  alias MoodleNet.Accounts.{User, PasswordAuth}
 
   @register_attrs %{
           password: "password",
@@ -49,7 +49,7 @@ defmodule MoodleNet.AccountsTest do
     test "works" do
       assert {:ok, ret} = Accounts.register_user(@register_attrs)
       assert %{user: %{id: user_id}} = ret
-      assert {:ok, %NewUser{id: ^user_id}} =
+      assert {:ok, %User{id: ^user_id}} =
         Accounts.authenticate_by_email_and_pass(@register_attrs.email, @register_attrs.password)
 
       assert {:error, :unauthorized} =
