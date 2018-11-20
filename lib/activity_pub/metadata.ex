@@ -17,7 +17,8 @@ defmodule ActivityPub.Metadata do
 
   @primary_key false
   embedded_schema do
-    field(:load)
+    field(:status, :string)
+    field(:sql, :any, virtual: true)
 
     for type <- @types do
       field_name = from_type_to_field(type)
@@ -26,8 +27,8 @@ defmodule ActivityPub.Metadata do
     end
   end
 
-  def build(types) when is_list(types) do
-    Enum.reduce(types, %__MODULE__{}, &add_type(&2, &1))
+  def build(types, status, sql \\ nil) when is_list(types) do
+    Enum.reduce(types, %__MODULE__{sql: sql, status: status}, &add_type(&2, &1))
   end
 
   defp set_type(%__MODULE__{} = meta, type, value) when type in @types,
@@ -54,7 +55,7 @@ defmodule ActivityPub.Metadata do
 
   def inspect(%__MODULE__{} = meta, opts) do
     pruned = %{
-      load: meta.load,
+      status: meta.status,
       types: types(meta)
     }
 

@@ -61,7 +61,11 @@ defmodule ActivityPub.Types do
     "Tombstone" => {~w[Object], []},
     "Video" => {~w[Object], []},
 
-    "Mention" => {~w[Link], []}
+    "Mention" => {~w[Link], []},
+
+    "MoodleNetCommunity" => {~w[Object Group Collection], []},
+    "MoodleNetCollection" => {~w[Object Group Collection], []},
+    "MoodleNetEducationalResource" => {~w[Object Group Collection], []},
   }
 
   def all(), do: Map.keys(@type_map)

@@ -3,6 +3,8 @@ defmodule ActivityPub.EntityType do
 
   def type, do: :map
 
+  # FIXME
+  def cast(%Ecto.Association.NotLoaded{}), do: {:ok, []}
   def cast(list) do
     ret =
       list
@@ -26,7 +28,7 @@ defmodule ActivityPub.EntityType do
     end
   end
 
-  def single_cast(%{__ap__: _} = e), do: {:ok, e}
+  def single_cast(%{__struct__: ActivityPub.Entity} = e), do: {:ok, e}
   def single_cast(map) when is_map(map), do: ActivityPub.Entity.parse(map)
   def single_cast(_), do: :error
 

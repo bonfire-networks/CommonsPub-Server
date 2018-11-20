@@ -1,7 +1,7 @@
 defmodule ActivityPub.SQLObject do
   use Ecto.Schema
 
-  alias ActivityPub.Entity
+  alias ActivityPub.{Entity, UrlBuilder}
 
   alias ActivityPub.{
     ObjectAspect,
@@ -11,19 +11,22 @@ defmodule ActivityPub.SQLObject do
   }
 
   alias ActivityPub.{
-    SQLObjectAspect,
+    SQLObject,
     SQLActorAspect,
     SQLActivityAspect,
-    SQLCollectionAspect
+    SQLCollectionAspect,
+    SQL.ObjectToObject
   }
 
   alias ActivityPub.{LanguageValueType, StringListType, EntityType}
 
   @primary_key {:local_id, :id, autogenerate: true}
+
   schema "activity_pub_objects" do
     field(:"@context", :map)
     field(:id, :string)
     field(:type, StringListType)
+    field(:local, :boolean, default: false)
 
     has_one(:actor, SQLActorAspect, foreign_key: :local_id)
     # has_one(:activity, SQLActorAspect, foreign_key: :local_id)
@@ -44,16 +47,36 @@ defmodule ActivityPub.SQLObject do
 
     field(:extension_fields, :map)
 
+    many_to_many(:attributed_to, SQLObject,
+      join_through: "activity_pub_attributed_tos",
+      join_keys: [subject_id: :local_id, object_id: :local_id]
+    )
+
     timestamps()
   end
 
-  def create_changeset(entity) do
+  def create_changeset(%Entity{} = entity) do
     changes =
       entity
       |> take_entity_fields()
       |> Map.merge(take_object_fields(entity.object))
 
-    Ecto.Changeset.change(%__MODULE__{}, changes)
+    %__MODULE__{}
+    |> Ecto.Changeset.change(changes)
+    |> put_assocs(entity)
+  end
+
+  defp put_assocs(ch, entity) do
+    ch
+    |> Ecto.Changeset.put_assoc(:attributed_to, put_attributed_to(entity))
+  end
+
+  defp put_attributed_to(entity) do
+    for assoc <- entity[:attributed_to], assoc.metadata.sql, do: assoc.metadata.sql
+  end
+
+  def set_id_changeset(%__MODULE__{local_id: local_id} = o) do
+    Ecto.Changeset.change(o, id: UrlBuilder.id(local_id), local: true)
   end
 
   defp take_entity_fields(map) do
@@ -82,7 +105,10 @@ defmodule ActivityPub.SQLObject do
   end
 
   def to_aspect(%__MODULE__{} = sql) do
-    {:ok, a} = ObjectAspect.parse(Map.from_struct(sql))
+    {:ok, a} =
+      sql
+      |> Map.take(__MODULE__.__schema__(:fields))
+      |> ObjectAspect.parse()
     a
   end
 end

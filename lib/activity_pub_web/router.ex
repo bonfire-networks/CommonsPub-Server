@@ -6,6 +6,6 @@ defmodule ActivityPubWeb.Router do
   end
 
   scope "/", ActivityPubWeb do
-    resources("actors", ActorController, only: [:show])
+    resources("/actors", ActorController, only: [:show])
   end
 end

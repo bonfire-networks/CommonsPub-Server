@@ -7,6 +7,8 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:"@context", :json)
       add(:id, :text)
       add(:type, {:array, :text})
+      add(:local, :boolean, null: false)
+
       add(:content, :jsonb)
       add(:name, :jsonb)
       add(:end_time, :utc_datetime)
@@ -29,7 +31,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       timestamps()
     end
 
-    create table(:activity_pub_actor_aspects) do
+    create table(:activity_pub_actor_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false)
       add(:inbox, :text)
       add(:outbox, :text)
@@ -44,31 +46,35 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
     end
     create(unique_index(:activity_pub_actor_aspects, :local_id))
 
-    create table(:activity_pub_activity_aspects) do
+    create table(:activity_pub_activity_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
     end
     create(unique_index(:activity_pub_activity_aspects, :local_id))
 
-    create table(:activity_pub_collection_aspects) do
+    create table(:activity_pub_collection_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
       add(:total_items, :integer, default: 0)
     end
     create(unique_index(:activity_pub_collection_aspects, :local_id))
 
     create table(:activity_pub_activity_objects) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
-      add_foreign_key(:object_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      add_foreign_key(:object_id, "activity_pub_objects")
 
       timestamps(updated_at: false)
     end
 
     create table(:activity_pub_activity_actors) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
-      add_foreign_key(:object_id, "activity_pub_actor_aspects", column: :local_id)
+      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      add_foreign_key(:object_id, "activity_pub_actor_aspects")
 
       timestamps(updated_at: false)
     end
 
+    create table(:activity_pub_attributed_tos) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:object_id, "activity_pub_objects")
+    end
 
     # create table(:activity_pub_activity_origins) do
     #   add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)

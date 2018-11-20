@@ -12,7 +12,14 @@ defmodule ActivityPub.Entity do
 
   alias ActivityPub.{StringListType, Metadata, Types}
 
-  @aspects [ObjectAspect, ActorAspect, ActivityAspect, CollectionAspect, CollectionPageAspect, LinkAspect]
+  @aspects [
+    ObjectAspect,
+    ActorAspect,
+    ActivityAspect,
+    CollectionAspect,
+    CollectionPageAspect,
+    LinkAspect
+  ]
   @behaviour Access
   @primary_key false
 
@@ -40,13 +47,12 @@ defmodule ActivityPub.Entity do
       |> Enum.flat_map(&Types.get_ancestors/1)
       |> Enum.uniq()
 
-
     aspects =
       types
       |> Enum.flat_map(&Types.get_aspects/1)
       |> Enum.uniq()
 
-    metadata = Metadata.build(types)
+    metadata = Metadata.build(types, :parsed)
     extension_fields = calc_extension_fields(aspects, input)
 
     ch =
@@ -82,7 +88,7 @@ defmodule ActivityPub.Entity do
       |> Types.get_aspects()
       |> Enum.reduce(e, fn aspect, e -> add_aspect(e, aspect) end)
       |> Map.put(:type, [new_type | types])
-      |> Map.update!(:meta, & Metadata.add_type(&1, new_type))
+      |> Map.update!(:meta, &Metadata.add_type(&1, new_type))
     end
   end
 
@@ -138,9 +144,12 @@ defmodule ActivityPub.Entity do
     def get_and_update(%__MODULE__{} = e, key, f)
         when not is_nil(:erlang.map_get(unquote(name), e)) and is_atom(key) and
                key in unquote(atom_fields) do
-      e
-      |> Map.fetch!(unquote(name))
-      |> get_and_update(key, f)
+      {prev, new} =
+        e
+        |> Map.fetch!(unquote(name))
+        |> Map.get_and_update(key, f)
+
+      {prev, Map.put(e, unquote(name), new)}
     end
 
     def get_and_update(%__MODULE__{} = e, key, f)
@@ -152,9 +161,12 @@ defmodule ActivityPub.Entity do
     def pop(%__MODULE__{} = e, key)
         when not is_nil(:erlang.map_get(unquote(name), e)) and is_atom(key) and
                key in unquote(atom_fields) do
-      e
-      |> Map.fetch!(unquote(name))
-      |> pop(key)
+      {prev, new} =
+        e
+        |> Map.fetch!(unquote(name))
+        |> Map.pop(key)
+
+      {prev, Map.put(e, unquote(name), new)}
     end
 
     def pop(%__MODULE__{} = e, key)
@@ -176,11 +188,16 @@ defmodule ActivityPub.Entity do
   def get_and_update(%__MODULE__{} = e, key, f) when is_atom(key),
     do: get_and_update(e, to_string(key), f)
 
-  def get_and_update(%__MODULE__{extension_fields: map}, key, f) when is_binary(key),
-    do: Map.get_and_update(map, key, f)
+  def get_and_update(%__MODULE__{extension_fields: map} = e, key, f) when is_binary(key) do
+    {prev, new} = Map.get_and_update(map, key, f)
+    {prev, Map.put(e, :extension_fields, new)}
+  end
 
   def pop(%__MODULE__{} = e, key) when is_atom(key), do: pop(e, to_string(key))
-  def pop(%__MODULE__{extension_fields: map}, key) when is_binary(key), do: Map.pop(map, key)
+  def pop(%__MODULE__{extension_fields: map} = e, key) when is_binary(key) do
+    {prev, new} = Map.pop(map, key)
+    {prev, Map.put(e, :extension_fields, key)}
+  end
 
   defp calc_extension_fields(aspects, input) do
     parsed_fields =

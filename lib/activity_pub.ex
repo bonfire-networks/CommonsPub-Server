@@ -3,6 +3,10 @@ defmodule ActivityPub do
 
   alias MoodleNet.Repo
 
+  defdelegate parse(attrs), to: ActivityPub.Entity
+  defdelegate persist(entity), to: ActivityPub.SQL
+  defdelegate load(local_id), to: ActivityPub.SQL
+
   @doc """
   Returns true if the given argument is a valid ActivityPub IRI,
   otherwise, returns false.

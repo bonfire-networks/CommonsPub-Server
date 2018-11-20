@@ -22,6 +22,20 @@ defmodule MoodleNet.Factory do
     }
   end
 
+  def attributes(:community) do
+    %{
+      "content" => Faker.Lorem.sentence(),
+      "name" => Faker.Pokemon.name()
+    }
+  end
+
+  def attributes(:collection) do
+    %{
+      "content" => Faker.Lorem.sentence(),
+      "name" => Faker.Beer.brand()
+    }
+  end
+
   def attributes(factory_name, attrs) do
     attrs =
       Enum.into(attrs, %{}, fn
@@ -63,6 +77,12 @@ defmodule MoodleNet.Factory do
 
   def oauth_app(attrs \\ %{}) do
     attrs = attributes(:oauth_app, attrs)
-    {:ok, app} =OAuth.create_app(attrs)
+    {:ok, app} = OAuth.create_app(attrs)
+  end
+
+  def community(attrs \\ %{}) do
+    attrs = attributes(:community, attrs)
+    {:ok, c} = MoodleNet.create_community(attrs)
+    c
   end
 end
