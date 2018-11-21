@@ -17,7 +17,7 @@ import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
 import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
-import { DUMMY_USER } from '../../apollo/client';
+import { DUMMY_USER } from '../../__DEV__/dummy-user';
 
 const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
 const { SetUserQuery } = require('../../graphql/SET_USER.client.graphql');
