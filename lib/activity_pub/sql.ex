@@ -104,12 +104,14 @@ defmodule ActivityPub.SQL do
      |> to_entity()
   end
 
+  def to_entity(nil), do: nil
   def to_entity(%SQLObject{} = sql) do
     sql = Repo.preload(sql, [:actor])
 
     %Entity{
       id: sql.id,
       local_id: sql.local_id,
+      local: sql.local,
       type: sql.type,
       "@context": Map.get(sql, :"@context"),
       extension_fields: sql.extension_fields

@@ -1,9 +1,9 @@
-defmodule MoodleNet.GraphQL.Schema do
+defmodule MoodleNetWeb.GraphQL.Schema do
   use Absinthe.Schema
 
-  import_types(MoodleNet.GraphQL.Schema.JSON)
-  import_types(MoodleNet.GraphQL.Schema.Accounts)
-  import_types(MoodleNet.GraphQL.Schema.Community)
+  import_types(MoodleNetWeb.GraphQL.Schema.JSON)
+  import_types(MoodleNetWeb.GraphQL.Schema.Accounts)
+  import_types(MoodleNetWeb.GraphQL.Schema.Community)
 
   alias MoodleNetWeb.GraphQL.Resolvers
 
@@ -14,18 +14,21 @@ defmodule MoodleNet.GraphQL.Schema do
         comms =
           MoodleNet.list_communities()
           |> Enum.map(fn comm ->
+            IO.inspect(comm)
             %{
               id: comm[:id],
+              local_id: comm[:local_id],
+              local: comm[:local],
+              type: comm[:type],
               name: comm[:name],
               content: comm[:content],
-              local: comm[:local],
               summary: comm[:summary],
-              type: comm[:type],
-              followingCount: comm[:following_count],
-              followersCount: comm[:followers_count],
+              preferred_username: comm[:preferred_username],
+              following_count: comm[:following_count],
+              followers_count: comm[:followers_count],
               jsonData: comm.extension_fields,
               icon: nil,
-              primaryLanguage: comm[:primary_language]
+              primary_language: comm[:primary_language]
             }
           end)
 

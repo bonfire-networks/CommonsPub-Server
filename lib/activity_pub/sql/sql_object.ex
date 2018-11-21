@@ -26,7 +26,7 @@ defmodule ActivityPub.SQLObject do
     field(:"@context", :map)
     field(:id, :string)
     field(:type, StringListType)
-    field(:local, :boolean, default: false)
+    field(:local, :boolean)
 
     has_one(:actor, SQLActorAspect, foreign_key: :local_id)
     # has_one(:activity, SQLActorAspect, foreign_key: :local_id)
@@ -56,13 +56,9 @@ defmodule ActivityPub.SQLObject do
   end
 
   def create_changeset(%Entity{} = entity) do
-    changes =
-      entity
-      |> take_entity_fields()
-      |> Map.merge(take_object_fields(entity.object))
-
     %__MODULE__{}
-    |> Ecto.Changeset.change(changes)
+    |> Ecto.Changeset.change(take_entity_fields(entity))
+    |> Ecto.Changeset.change(take_object_fields(entity.object))
     |> put_assocs(entity)
   end
 
@@ -80,7 +76,7 @@ defmodule ActivityPub.SQLObject do
   end
 
   defp take_entity_fields(map) do
-    Map.take(map, [:"@context", :id, :type])
+    Map.take(map, [:"@context", :id, :type, :local, :local_id, :extension_fields])
   end
 
   defp take_object_fields(map) do

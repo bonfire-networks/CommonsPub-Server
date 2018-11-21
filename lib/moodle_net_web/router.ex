@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :graphql do
-    plug MoodleNet.GraphQL.Context
+    plug MoodleNetWeb.GraphQL.Context
     plug :accepts, ["json"]
   end
 
@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.Router do
     pipe_through :graphql
 
     forward "/", Absinthe.Plug.GraphiQL,
-      schema: MoodleNet.GraphQL.Schema,
+      schema: MoodleNetWeb.GraphQL.Schema,
       interface: :simple
   end
 

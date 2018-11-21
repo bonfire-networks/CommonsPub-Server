@@ -28,6 +28,7 @@ defmodule ActivityPub.Entity do
     field(:id, :string)
     field(:type, StringListType)
     field(:local_id, :integer)
+    field(:local, :boolean)
 
     for aspect <- @aspects do
       embeds_one(aspect.internal_field(), aspect)
@@ -36,6 +37,15 @@ defmodule ActivityPub.Entity do
     embeds_one(:metadata, Metadata)
 
     field(:extension_fields, :map)
+  end
+
+  defp set_local_field(ch) do
+    local =
+      ch
+      |> Ecto.Changeset.get_field(:id)
+      |> ActivityPub.UrlBuilder.local?()
+
+    Ecto.Changeset.change(ch, local: local)
   end
 
   def parse(%{} = input) do
@@ -64,6 +74,7 @@ defmodule ActivityPub.Entity do
         extension_fields: extension_fields,
         metadata: metadata
       )
+      |> set_local_field()
 
     Enum.reduce(aspects, ch, fn aspect, ch ->
       field = aspect.internal_field()
@@ -176,10 +187,11 @@ defmodule ActivityPub.Entity do
     end
   end
 
-  def fetch(%__MODULE__{} = e, key) when key in [:"@context", :id, :type, :local],
-    do: Map.fetch(e, key)
+  def fetch(%__MODULE__{} = e, key) when key in [:"@context", :id, :type, :local, :local_id] do
+    Map.fetch(e, key)
+  end
 
-  def fetch(%__MODULE__{} = e, key) when key in ~w(@context id type),
+  def fetch(%__MODULE__{} = e, key) when key in ~w(@context id type local local_id),
     do: Map.fetch(e, String.to_atom(key))
 
   def fetch(%__MODULE__{} = e, key) when is_atom(key), do: fetch(e, to_string(key))
@@ -194,6 +206,7 @@ defmodule ActivityPub.Entity do
   end
 
   def pop(%__MODULE__{} = e, key) when is_atom(key), do: pop(e, to_string(key))
+
   def pop(%__MODULE__{extension_fields: map} = e, key) when is_binary(key) do
     {prev, new} = Map.pop(map, key)
     {prev, Map.put(e, :extension_fields, key)}

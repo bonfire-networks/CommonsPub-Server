@@ -23,7 +23,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:media_type, :text)
       add(:duration, :text)
 
-      add(:extension_fields, :map)
+      add(:extension_fields, :map, default: %{}, null: false)
 
       add(:like_count, :integer, default: 0, null: false)
       add(:share_count, :integer, default: 0, null: false)

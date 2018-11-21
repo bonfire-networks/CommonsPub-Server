@@ -1,25 +1,26 @@
-defmodule MoodleNet.GraphQL.Schema.Community do
+defmodule MoodleNetWeb.GraphQL.Schema.Community do
   use Absinthe.Schema.Notation
 
   object :community do
+    field :id, :string
     field :local_id, :id
-    field :id, :id
-    field :content, :json
-    field :name, :json
-
-    field :preferred_username, :string
     field :local, :boolean
+    field :type, list_of(:string)
 
+    field :name, :json
+    field :content, :json
     field :summary, :json
 
-    field :type, list_of(:string)
-    field :followingCount, :integer
-    field :followersCount, :integer
+    field :preferred_username, :string
+
+
+    field :following_count, :integer
+    field :followers_count, :integer
 
     # field :memberships, list_of(Relationship)
     # field :otherRelationships, list_of(Relationship) # any profile relation that isn't of type following, followers, or group membership
 
-    field :json, :json
+    field :json_data, :json
 
     field :icon, :string
     # field :following, list_of(Profile)

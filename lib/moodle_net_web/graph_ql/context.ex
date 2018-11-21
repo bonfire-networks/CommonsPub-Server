@@ -1,4 +1,4 @@
-defmodule MoodleNet.GraphQL.Context do
+defmodule MoodleNetWeb.GraphQL.Context do
   @behaviour Plug
 
   import Plug.Conn

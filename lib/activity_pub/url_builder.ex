@@ -11,7 +11,16 @@ defmodule ActivityPub.UrlBuilder do
       followers: "#{id}/followers",
       liked: "#{id}/liked",
       shared_inbox: "#{MoodleNetWeb.base_url()}/shared_inbox",
-      proxy_url: "#{id}/proxy",
+      proxy_url: "#{id}/proxy"
     }
+  end
+
+  def local?(nil), do: false
+  def local?(id) when is_binary(id) do
+    uri_id = URI.parse(id)
+    uri_base = URI.parse(MoodleNetWeb.base_url())
+
+    uri_id.scheme == uri_base.scheme and uri_id.host == uri_base.host and
+      uri_id.port == uri_base.port
   end
 end

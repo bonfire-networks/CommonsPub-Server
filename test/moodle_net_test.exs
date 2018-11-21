@@ -7,6 +7,7 @@ defmodule MoodleNetTest do
       assert {:ok, community} = MoodleNet.create_community(attrs)
       assert community[:name] == %{"und" => attrs["name"]}
       assert community[:content] == %{"und" => attrs["content"]}
+      assert community[:followers_count] == 0
     end
   end
 

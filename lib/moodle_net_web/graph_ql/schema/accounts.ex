@@ -1,4 +1,4 @@
-defmodule MoodleNet.GraphQL.Schema.Accounts do
+defmodule MoodleNetWeb.GraphQL.Schema.Accounts do
   use Absinthe.Schema.Notation
 
   # object :instance do
