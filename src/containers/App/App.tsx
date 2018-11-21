@@ -85,7 +85,6 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   render() {
-    console.log(this.state);
     if (!this.state.catalogs[this.state.locale]) {
       return (
         <p>Sorry, we encountered a problem loading the chosen language.</p>
