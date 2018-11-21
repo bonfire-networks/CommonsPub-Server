@@ -66,4 +66,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     #   end
     # end
   end
+
+  mutation do
+
+    @desc "Create a user"
+    field :user_create, type: :user do
+      arg :user, non_null(:user_input)
+      resolve &Resolvers.Accounts.user_create/3
+    end
+
+  end
+
 end

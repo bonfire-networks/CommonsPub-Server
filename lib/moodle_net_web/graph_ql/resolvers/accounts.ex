@@ -58,6 +58,10 @@ defmodule MoodleNetWeb.GraphQL.Resolvers.Accounts do
     {:ok, Enum.map(actors, fn actor -> actor_map(actor) end)}
   end
 
+  def user_create(_parent, _args, _resolution) do
 
+    {:ok, MoodleNet.Accounts.register_user(_args.user) }
+
+  end
 
 end
