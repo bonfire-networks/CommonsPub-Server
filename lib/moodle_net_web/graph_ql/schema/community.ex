@@ -19,7 +19,7 @@ defmodule MoodleNet.GraphQL.Schema.Community do
     # field :memberships, list_of(Relationship)
     # field :otherRelationships, list_of(Relationship) # any profile relation that isn't of type following, followers, or group membership
 
-    field :jsonData, :json
+    field :json, :json
 
     field :icon, :string
     # field :following, list_of(Profile)
