@@ -59,8 +59,8 @@ defmodule MoodleNetWeb.GraphQL.Resolvers.Accounts do
   end
 
   def user_create(_parent, _args, _resolution) do
-
-    {:ok, MoodleNet.Accounts.register_user(_args.user) }
+    {:ok, %{actor: actor, user: user}} = MoodleNet.Accounts.register_user(_args.user)
+    {:ok, user}
 
   end
 

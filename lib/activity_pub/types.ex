@@ -63,9 +63,10 @@ defmodule ActivityPub.Types do
 
     "Mention" => {~w[Link], []},
 
-    "MoodleNetCommunity" => {~w[Object Actor Group Collection], []},
-    "MoodleNetCollection" => {~w[Object Actor Group Collection], []},
-    "MoodleNetEducationalResource" => {~w[Object Actor Group Collection], []},
+    "MoodleNet:Community" => {~w[Object Actor Group Collection], []},
+    "MoodleNet:Collection" => {~w[Object Actor Group Collection], []},
+    # "MoodleNet:EducationalResource" => {~w[Link], []},
+    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], []},
   }
 
   def all(), do: Map.keys(@type_map)

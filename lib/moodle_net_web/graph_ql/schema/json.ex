@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.Schema.JSON do
   defp decode(%Absinthe.Blueprint.Input.String{value: value}) do
     case Jason.decode(value) do
       {:ok, result} -> {:ok, result}
-      _ -> :error
+      _ -> {:ok, value}
     end
   end
 

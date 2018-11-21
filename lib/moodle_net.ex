@@ -11,7 +11,7 @@ defmodule MoodleNet do
   def list_collection(community, opts \\ %{}) do
     ActivityPub.SQL.query()
     |> ActivityPub.SQL.with_type("MoodleNetCollection")
-    |> ActivityPub.SQL.with_relation(:attributed_to, community[:local_id])
+    # |> ActivityPub.SQL.with_relation(:attributed_to, community[:local_id])
     |> ActivityPub.SQL.paginate(opts)
     |> ActivityPub.SQL.all()
   end

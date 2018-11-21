@@ -25,9 +25,7 @@ defmodule MoodleNet.Accounts do
     actor_attrs = attrs
                   |> Map.put("type", "Person")
                   |> Map.delete(:password)
-                  |> Map.delete(:email)
                   |> Map.delete("password")
-                  |> Map.delete("email")
     {:ok, actor_entity} = ActivityPub.parse(actor_attrs)
     {:ok, actor_entity} = ActivityPub.SQL.persist(actor_entity)
 

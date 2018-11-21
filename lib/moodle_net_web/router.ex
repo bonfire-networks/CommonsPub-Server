@@ -29,6 +29,7 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :graphql do
+    plug(MoodleNet.Plugs.Auth)
     plug MoodleNetWeb.GraphQL.Context
     plug :accepts, ["json"]
   end
