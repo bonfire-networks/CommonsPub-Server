@@ -70,10 +70,6 @@ defmodule ActivityPub do
     Repo.get!(Actor, id)
   end
 
-  def list_actors!() do
-    Repo.all(Actor)
-  end
-
   def follow(multi, follower, following, opts \\ []) do
     key = Keyword.get(opts, :key, :follow)
     ch = ActivityPub.Follow.create_changeset(follower, following)

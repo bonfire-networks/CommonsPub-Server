@@ -38,7 +38,7 @@ defmodule MoodleNet.Mixfile do
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, "~> 0.14"},
-      {:jason, "~> 1.1"},
+      {:jason, "~> 1.0"},
       {:gettext, "~> 0.15"},
       {:cowboy, "~> 2.5"},
       {:plug_cowboy, "~> 2.0"},
