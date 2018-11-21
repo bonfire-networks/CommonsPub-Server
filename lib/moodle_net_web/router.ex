@@ -39,7 +39,8 @@ defmodule MoodleNetWeb.Router do
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
-      interface: :simple
+      interface: :simple,
+      json_codec: Jason
   end
 
   scope "/api/v1" do
