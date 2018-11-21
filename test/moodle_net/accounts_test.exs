@@ -2,20 +2,23 @@ defmodule MoodleNet.AccountsTest do
   use MoodleNet.DataCase, async: true
 
   alias MoodleNet.Accounts
-  alias MoodleNet.Accounts.{NewUser, PasswordAuth}
+  alias MoodleNet.Accounts.{User, PasswordAuth}
 
   @register_attrs %{
-          password: "password",
-          email: "alex@moodle.net",
-          preferred_username: "alex"
-        }
+    password: "password",
+    email: "alex@moodle.net",
+    preferred_username: "alex",
+    name: "Alex Cas",
+    extra_field: "extra"
+  }
 
   describe "register_user" do
     test "works" do
       assert {:ok, ret} = Accounts.register_user(@register_attrs)
       assert @register_attrs.email == ret.user.email
-      assert @register_attrs.preferred_username == ret.actor.preferred_username
+      assert @register_attrs.preferred_username == ret.actor[:preferred_username]
       assert ret.actor
+      assert ret.actor[:extra_field] == "extra"
     end
 
     test "fails with invalid password values" do
@@ -49,7 +52,7 @@ defmodule MoodleNet.AccountsTest do
     test "works" do
       assert {:ok, ret} = Accounts.register_user(@register_attrs)
       assert %{user: %{id: user_id}} = ret
-      assert {:ok, %NewUser{id: ^user_id}} =
+      assert {:ok, %User{id: ^user_id}} =
         Accounts.authenticate_by_email_and_pass(@register_attrs.email, @register_attrs.password)
 
       assert {:error, :unauthorized} =

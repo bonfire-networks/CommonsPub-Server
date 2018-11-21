@@ -6,7 +6,7 @@ defmodule ActivityPub.Migration do
       def add_foreign_key(key, table, opts \\ [null: false]) do
         add(
           key,
-          references(table, type: :bigint, on_update: :update_all, on_delete: :delete_all),
+          references(table, type: :bigint, on_update: :update_all, on_delete: :delete_all, column: :local_id),
           opts
         )
       end

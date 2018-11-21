@@ -1,6 +1,5 @@
 defmodule MoodleNet.NotificationTest do
   use MoodleNet.DataCase
-  alias MoodleNetWeb.TwitterAPI.TwitterAPI
   alias MoodleNetWeb.CommonAPI
   alias MoodleNet.Accounts.User
   alias MoodleNet.Notification

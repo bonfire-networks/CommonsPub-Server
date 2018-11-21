@@ -1,6 +1,5 @@
 defmodule MoodleNetWeb.Accounts.SessionControllerTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.NewFactory, as: Factory
 
   describe "create" do
     @tag format: :json

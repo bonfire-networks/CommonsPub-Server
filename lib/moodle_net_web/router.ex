@@ -12,7 +12,9 @@ defmodule MoodleNetWeb.Router do
   pipeline :api_browser do
     # Not sure this is ok?
     # Mixing browser and api stuff does not seem right...
-    plug(:accepts, ["html", "json"])
+    # FIXME
+    plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
+
     plug(:fetch_session)
     plug(:fetch_flash)
     # plug(:protect_from_forgery)
@@ -24,6 +26,20 @@ defmodule MoodleNetWeb.Router do
 
   pipeline :ensure_authenticated do
     plug(MoodleNet.Plugs.EnsureAuthenticatedPlug)
+  end
+
+  pipeline :graphql do
+    plug(MoodleNet.Plugs.Auth)
+    plug MoodleNetWeb.GraphQL.Context
+    plug :accepts, ["json"]
+  end
+
+  scope "/api/graphql" do
+    pipe_through :graphql
+
+    forward "/", Absinthe.Plug.GraphiQL,
+      schema: MoodleNetWeb.GraphQL.Schema,
+      interface: :simple
   end
 
   scope "/api/v1" do

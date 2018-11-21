@@ -75,5 +75,4 @@ defmodule MoodleNet.Signature do
         end
       end
   end
-
 end

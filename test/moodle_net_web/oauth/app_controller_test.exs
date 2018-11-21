@@ -1,6 +1,5 @@
 defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   use MoodleNetWeb.ConnCase
-  alias MoodleNet.NewFactory, as: Factory
 
   describe "create" do
     test "creates app", %{conn: conn} do

@@ -7,7 +7,7 @@ defmodule MoodleNet.Accounts do
   alias MoodleNet.Repo
   alias Ecto.Multi
 
-  alias MoodleNet.Accounts.{NewUser, PasswordAuth}
+  alias MoodleNet.Accounts.{User, PasswordAuth}
 
   @doc """
   Creates a user.
@@ -22,9 +22,16 @@ defmodule MoodleNet.Accounts do
 
   """
   def register_user(attrs \\ %{}) do
+    actor_attrs = attrs
+                  |> Map.put("type", "Person")
+                  |> Map.delete(:password)
+                  |> Map.delete("password")
+    {:ok, actor_entity} = ActivityPub.parse(actor_attrs)
+    {:ok, actor_entity} = ActivityPub.SQL.persist(actor_entity)
+
     Multi.new()
-    |> ActivityPub.create_actor(attrs)
-    |> Multi.run(:user, &(NewUser.changeset(&2.actor, attrs) |> &1.insert()))
+    |> Multi.run(:actor, fn _, _ -> {:ok, actor_entity} end)
+    |> Multi.run(:user, &(User.changeset(&2.actor[:local_id], attrs) |> &1.insert()))
     |> Multi.run(
       :password_auth,
       &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
@@ -51,7 +58,7 @@ defmodule MoodleNet.Accounts do
   defp user_and_password_auth_query(email) do
     import Ecto.Query
 
-    from(u in NewUser,
+    from(u in User,
       where: u.email == ^email,
       inner_join: p in PasswordAuth,
       on: p.user_id == u.id,
