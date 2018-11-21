@@ -1,10 +1,11 @@
 defmodule MoodleNet do
   import ActivityPub.Guards
 
-  def list_communities(opts \\ []) do
-    # ActivityPub.Query.query()
-    # |> ActivityPub.Query.where(type: "MoodleNetCommunity")
-    # |> ActivityPub.Query.all()
+  def list_communities(opts \\ %{}) do
+    ActivityPub.SQL.query()
+    |> ActivityPub.SQL.with_type("MoodleNetCommunity")
+    |> ActivityPub.SQL.paginate(opts)
+    |> ActivityPub.SQL.all()
   end
 
   def create_community(attrs) do

@@ -19,6 +19,15 @@ defmodule ActivityPub.SQL do
   alias MoodleNet.Repo
 
   def persist(%Entity{} = e) do
+    e.id
+    |> get_by_id()
+    |> case do
+      nil -> do_persist(e)
+      %Entity{} = new -> {:ok, new}
+    end
+  end
+
+  defp do_persist(%Entity{} = e) do
     e = persist_assocs(e)
     object_ch = SQLObject.create_changeset(e)
 
@@ -43,12 +52,16 @@ defmodule ActivityPub.SQL do
     |> Repo.transaction()
     |> case do
       {:ok, result} ->
-        new_entity = result
-                     |> join_result()
-                     |> to_entity()
-                     |> join_assocs(e)
+        new_entity =
+          result
+          |> join_result()
+          |> to_entity()
+          |> join_assocs(e)
+
         {:ok, new_entity}
-      e -> e
+
+      e ->
+        e
     end
   end
 
@@ -68,28 +81,38 @@ defmodule ActivityPub.SQL do
   end
 
   defp persist_attributed_to(e) do
-    persisted_attributed_to = Enum.map(e[:attributed_to], fn e ->
-      {:ok, persisted} = persist(e)
-      persisted
-    end)
-    
+    persisted_attributed_to =
+      Enum.map(e[:attributed_to], fn e ->
+        {:ok, persisted} = persist(e)
+        persisted
+      end)
+
     put_in(e, [:attributed_to], persisted_attributed_to)
   end
 
-  def load(local_id) do
-    {:ok, SQLObject
-    |> Repo.get_by(local_id: local_id)
-    |> Repo.preload(:actor)
-    |> to_entity()}
+  def get_by_id(nil), do: nil
+
+  def get_by_id(id) when is_binary(id) do
+     SQLObject
+     |> Repo.get_by(id: id)
+     |> to_entity()
   end
 
-  defp to_entity(%SQLObject{} = sql) do
+  def get_by_local_id(local_id) do
+     SQLObject
+     |> Repo.get_by(local_id: local_id)
+     |> to_entity()
+  end
+
+  def to_entity(%SQLObject{} = sql) do
+    sql = Repo.preload(sql, [:actor])
+
     %Entity{
       id: sql.id,
       local_id: sql.local_id,
       type: sql.type,
       "@context": Map.get(sql, :"@context"),
-      extension_fields: sql.extension_fields,
+      extension_fields: sql.extension_fields
     }
     |> Map.put(:object, SQLObject.to_aspect(sql))
     |> Map.put(:actor, SQLActorAspect.to_aspect(sql.actor))
@@ -98,14 +121,46 @@ defmodule ActivityPub.SQL do
 
   def preload(%Entity{metadata: %{sql: sql}} = e, list) do
     list = List.wrap(list)
-    preload = Enum.map(list, & {&1, [:actor]})
+    preload = Enum.map(list, &{&1, [:actor]})
     sql = Repo.preload(sql, preload)
 
     Enum.reduce(list, e, fn field_name, e ->
-      assocs = sql
-               |> Map.get(field_name)
-               |> Enum.map(&to_entity/1)
+      assocs =
+        sql
+        |> Map.get(field_name)
+        |> Enum.map(&to_entity/1)
+
       put_in(e, [field_name], assocs)
     end)
+  end
+
+  def query() do
+    import Ecto.Query, only: [from: 2]
+
+    from(obj in SQLObject,
+      as: :obj,
+      left_join: actor in assoc(obj, :actor),
+      preload: [actor: actor]
+    )
+  end
+
+  def with_type(query, type) when is_binary(type) do
+    import Ecto.Query, only: [from: 2]
+
+    from([obj: obj] in query,
+      where: fragment("? @> array[?]", obj.type, ^type)
+    )
+  end
+
+  alias ActivityPub.SQL.Paginate
+
+  def paginate(query, opts \\ %{}) do
+    Paginate.call(query, opts)
+  end
+
+  def all(query) do
+    query
+    |> Repo.all()
+    |> Enum.map(&to_entity/1)
   end
 end

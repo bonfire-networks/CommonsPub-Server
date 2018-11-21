@@ -31,6 +31,9 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       timestamps()
     end
 
+    create(unique_index(:activity_pub_objects, :id, where: "id IS NOT NULL"))
+    create(index(:activity_pub_objects, :type))
+
     create table(:activity_pub_actor_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false)
       add(:inbox, :text)

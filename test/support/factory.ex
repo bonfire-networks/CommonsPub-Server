@@ -85,4 +85,10 @@ defmodule MoodleNet.Factory do
     {:ok, c} = MoodleNet.create_community(attrs)
     c
   end
+
+  def collection(community, attrs \\ %{}) do
+    attrs = attributes(:collection, attrs)
+    {:ok, c} = MoodleNet.create_collection(community, attrs)
+    c
+  end
 end
