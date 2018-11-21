@@ -14,22 +14,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
         comms =
           MoodleNet.list_communities()
           |> Enum.map(fn comm ->
-            IO.inspect(comm)
-            %{
-              id: comm[:id],
-              local_id: comm[:local_id],
-              local: comm[:local],
-              type: comm[:type],
-              name: comm[:name],
-              content: comm[:content],
-              summary: comm[:summary],
-              preferred_username: comm[:preferred_username],
-              following_count: comm[:following_count],
-              followers_count: comm[:followers_count],
-              jsonData: comm.extension_fields,
-              icon: nil,
-              primary_language: comm[:primary_language]
-            }
+            collections = MoodleNet.list_collection(comm) |> Enum.map(&to_map/1)
+            comm
+            |> to_map()
+            |> Map.put(:collections, collections)
           end)
 
         {:ok, comms}
@@ -77,4 +65,21 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   end
 
+  def to_map(comm) do
+    %{
+      id: comm[:id],
+      local_id: comm[:local_id],
+      local: comm[:local],
+      type: comm[:type],
+      name: comm[:name],
+      content: comm[:content],
+      summary: comm[:summary],
+      preferred_username: comm[:preferred_username],
+      following_count: comm[:following_count],
+      followers_count: comm[:followers_count],
+      json_data: comm.extension_fields,
+      icon: nil,
+      primary_language: comm[:primary_language]
+    }
+  end
 end

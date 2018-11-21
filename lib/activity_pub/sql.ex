@@ -165,4 +165,12 @@ defmodule ActivityPub.SQL do
     |> Repo.all()
     |> Enum.map(&to_entity/1)
   end
+
+  def with_relation(query, :attributed_to, ext_id) do
+    import Ecto.Query, only: [from: 2]
+    from [obj: obj] in query,
+      join: rel in fragment("activity_pub_attributed_tos"), #^(from "activity_pub_attributed_tos", where: [subject_id: ^ext_id]), #assoc(obj, :attributed_to),
+      # on: rel.subject_id == ^ext_id
+      on: obj.local_id == rel.object_id #and rel.subject_id == ^ext_id
+  end
 end

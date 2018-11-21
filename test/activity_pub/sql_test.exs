@@ -80,7 +80,7 @@ defmodule ActivityPub.SQLTest do
       assert [persisted_person] = persisted_note[:attributed_to]
       assert persisted_person[:name] == %{"und" => "Alex"}
 
-      assert {:ok, loaded_note} = SQL.load(persisted_note.local_id)
+      assert loaded_note = SQL.get_by_local_id(persisted_note.local_id)
       assert loaded_note[:content] == %{"und" => map[:content]}
 
       assert loaded_note[:attributed_to] == []

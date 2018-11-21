@@ -46,7 +46,22 @@ defmodule MoodleNetTest do
       # assert [loaded_com] = MoodleNet.list_communities(limit: 1, order: :desc, starting_after: community_2[:local_id])
       # assert loaded_com[:name] == community[:name]
       # assert loaded_com[:content] == community[:content]
+    end
+  end
 
+  describe "list_collections" do
+    test "works" do
+      community = Factory.community()
+      collection = Factory.collection(community)
+
+      community_2 = Factory.community()
+      collection_2 = Factory.collection(community_2)
+
+      assert [loaded_col] = MoodleNet.list_collection(community)
+      assert collection[:local_id] == loaded_col[:local_id]
+
+      assert [loaded_col] = MoodleNet.list_collection(community_2)
+      assert collection_2[:local_id] == loaded_col[:local_id]
     end
   end
 end
