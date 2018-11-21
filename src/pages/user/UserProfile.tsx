@@ -187,13 +187,13 @@ export default function(props: UserProfileProps) {
         ) : null}
       </UserAvatar>
       <UserDetails>
-        <H6>{props.user.emojiId}</H6>
+        <H6>{props.user.preferredUsername}</H6>
         <H6>
           <FadedFallbackText value={props.user.name} fallback="Moodler Joe" />
         </H6>
         <H6>
-          <FadedFallbackText value={props.user.role} fallback="Head Teacher" />
-          <span style={{ color: 'lightgrey' }}>&nbsp;—&nbsp;</span>
+          {/*<FadedFallbackText value={props.user.role} fallback="Head Teacher" />*/}
+          {/*<span style={{ color: 'lightgrey' }}>&nbsp;—&nbsp;</span>*/}
           <FadedFallbackText
             value={props.user.location}
             fallback="London, UK"

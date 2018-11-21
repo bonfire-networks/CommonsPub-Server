@@ -79,12 +79,12 @@ export default withTheme(
             trigger={
               <NotifMenuNavItemTrigger>
                 <FontAwesomeIcon icon={faCircle} />
-                <NotifCount>{user.data.notifications.length}</NotifCount>
+                <NotifCount>{/*{user.data.notifications.length}*/}0</NotifCount>
               </NotifMenuNavItemTrigger>
             }
           >
             <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
-              {user.data.notifications.length} unread notifications
+              {/*{user.data.notifications.length} unread notifications*/}0
             </div>
           </Tooltip>
         </NotifMenuNavItem>

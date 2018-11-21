@@ -2,7 +2,7 @@ import * as React from 'react';
 import { graphql } from 'react-apollo';
 import { Route, Redirect, RouteComponentProps } from 'react-router-dom';
 
-const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 
 interface ProtectedRouteProps extends RouteComponentProps {
   redirectUnauthenticatedTo?: string;
@@ -29,7 +29,7 @@ function ProtectedRoute({ component: Component, data, ...rest }) {
   );
 }
 
-const WrappedComponent = graphql(GetUserQuery)(ProtectedRoute);
+const WrappedComponent = graphql(getUserQuery)(ProtectedRoute);
 
 export default function({ ...props }) {
   return <WrappedComponent {...props} />;

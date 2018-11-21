@@ -57,7 +57,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               disabled
               style={{ backgroundColor: 'white' }}
-              value={user.emojiId}
+              value={user.preferredUsername}
               button={<Button onClick={randomizeEmojiId}>Shuffle</Button>}
             />
           </TextField>
@@ -96,16 +96,16 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
               maxLength={50}
             />
           </TextField>
-          <Spacer />
-          <TextField>
-            <Label>Role</Label>
-            <TextInput
-              value={user.role}
-              onChange={linkUserState('role')}
-              placeholder="e.g. Head Teacher"
-              maxLength={50}
-            />
-          </TextField>
+          {/*<Spacer />*/}
+          {/*<TextField>*/}
+          {/*<Label>Role</Label>*/}
+          {/*<TextInput*/}
+          {/*value={user.role}*/}
+          {/*onChange={linkUserState('role')}*/}
+          {/*placeholder="e.g. Head Teacher"*/}
+          {/*maxLength={50}*/}
+          {/*/>*/}
+          {/*</TextField>*/}
         </OverflowCol>
       </Row>
     </>

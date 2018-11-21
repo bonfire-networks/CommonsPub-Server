@@ -1,7 +1,7 @@
-import updateUser from './updateUser';
+import setUser from './setUser';
 
 export default {
   Mutation: {
-    updateUser
+    setUser
   }
 };

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Button as ZenButton } from '@zendeskgarden/react-buttons';
 
+import Loader from '../Loader/Loader';
+
 interface ButtonProps extends React.ButtonHTMLAttributes<object> {
   secondary?: boolean;
   // non-HTML attrs. copied from:
@@ -20,12 +22,18 @@ interface ButtonProps extends React.ButtonHTMLAttributes<object> {
   stretched?: boolean;
 }
 
-const Button: React.SFC<ButtonProps> = ({
+export const LoaderButton = ({ text, loading, type = 'submit', ...props }) => (
+  <Button disabled={loading} type={type} {...props}>
+    {loading ? <Loader /> : text}
+  </Button>
+);
+
+export default function Button({
   children,
   secondary = false,
   className = '',
   ...props
-}) => {
+}: ButtonProps) {
   if (secondary) {
     className += ' secondary';
   }
@@ -34,8 +42,4 @@ const Button: React.SFC<ButtonProps> = ({
       {children}
     </ZenButton>
   );
-};
-
-// TODO why is this @ts-ignore directive necessary?
-// @ts-ignore
-export default Button;
+}

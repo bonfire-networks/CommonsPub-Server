@@ -17,10 +17,10 @@ import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
 import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
-import { DUMMY_USER } from '../../__DEV__/dummy-user';
 
-const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
-const { SetUserQuery } = require('../../graphql/SET_USER.client.graphql');
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
+const { setUserQuery } = require('../../graphql/setUser.client.graphql');
+const { loginMutation } = require('../../graphql/login.graphql');
 
 const CenteredButtonGroup = styled.div`
   display: flex;
@@ -57,6 +57,12 @@ const LoginHeading = styled(H6)`
   text-shadow: 2px 2px 0 ${props => props.theme.styles.colour.base5};
 `;
 
+/**
+ * @param Component
+ * @param data {Object} the user object from local cache
+ * @param rest
+ * @constructor
+ */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
   return (
     <Route
@@ -71,7 +77,8 @@ function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
 }
 
 interface LoginProps extends RouteComponentProps {
-  updateUser?: Function;
+  setLocalUser: Function;
+  login: Function;
   data: object;
   theme: ThemeInterface;
 }
@@ -86,11 +93,11 @@ type CredentialsObject = {
   email: string;
   password: string;
 };
-
-const DEMO_CREDENTIALS = {
-  email: 'moodle@moodle.net',
-  password: 'moodle'
-};
+//
+// const DEMO_CREDENTIALS = {
+//   email: 'moodle@moodle.net',
+//   password: 'moodle'
+// };
 
 class Login extends React.Component<LoginProps, LoginState> {
   state = {
@@ -138,39 +145,47 @@ class Login extends React.Component<LoginProps, LoginState> {
       return;
     }
 
-    this.setState({
-      authenticating: true
+    this.setState({ authenticating: true });
+
+    let result;
+
+    try {
+      result = await this.props.login({
+        variables: credentials
+      });
+
+      console.log(result);
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        authenticating: false,
+        validation: [
+          {
+            field: null,
+            type: ValidationType.warning,
+            message:
+              'Could not log in. Please check your credentials or use the link below to reset your password.'
+          } as ValidationObject
+        ]
+      });
+      return;
+    }
+
+    this.setState({ authenticating: false });
+
+    const userData = result.data.login;
+
+    // TODO pull key out into constant
+    localStorage.setItem('user_access_token', userData.token);
+
+    delete userData.token;
+
+    await this.props.setLocalUser({
+      variables: {
+        isAuthenticated: true,
+        data: userData
+      }
     });
-
-    // TODO implement real auth when we know what the backend looks like
-    setTimeout(async () => {
-      if (
-        credentials.email !== DEMO_CREDENTIALS.email ||
-        credentials.password !== DEMO_CREDENTIALS.password
-      ) {
-        this.setState({
-          authenticating: false,
-          validation: [
-            {
-              field: null,
-              type: ValidationType.warning,
-              message:
-                'Could not log in. Please check your credentials or use the link below to reset your password.'
-            } as ValidationObject
-          ]
-        });
-        return;
-      }
-
-      if (this.props.updateUser) {
-        await this.props.updateUser({
-          variables: {
-            isAuthenticated: true,
-            data: DUMMY_USER
-          }
-        });
-      }
-    }, 1000);
   }
 
   /** Clear the validation messages for a field and also generic validations when its value changes. */
@@ -316,16 +331,22 @@ export interface Args {
 }
 
 // get the user auth object from local cache
-const withUser = graphql<{}, Args>(GetUserQuery);
+const withUser = graphql<{}, Args>(getUserQuery);
 
 // get user mutation so we can set the user in the local cache
-const withUserAuthentication = graphql<{}, Args>(SetUserQuery, {
-  name: 'updateUser'
+const withSetLocalUser = graphql<{}, Args>(setUserQuery, {
+  name: 'setLocalUser'
+  // TODO enforce proper types for OperationOption
+} as OperationOption<{}, {}>);
+
+const withLogin = graphql<{}, Args>(loginMutation, {
+  name: 'login'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
 export default compose(
   withTheme,
   withUser,
-  withUserAuthentication
+  withSetLocalUser,
+  withLogin
 )(RedirectIfAuthenticated);

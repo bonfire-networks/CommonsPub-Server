@@ -1,8 +1,8 @@
-const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 
-export default (_, { isAuthenticated, data }, { cache }) => {
+export default function setUser(_, { isAuthenticated, data }, { cache }) {
   const previousState = cache.readQuery({
-    query: GetUserQuery
+    query: getUserQuery
   });
 
   const cacheData = {
@@ -14,9 +14,9 @@ export default (_, { isAuthenticated, data }, { cache }) => {
   };
 
   cache.writeQuery({
-    query: GetUserQuery,
+    query: getUserQuery,
     data: cacheData
   });
 
   return null;
-};
+}

@@ -1,0 +1,6 @@
+mutation setUserQuery($isAuthenticated: Boolean, $data: User!) {
+    setUser(isAuthenticated: $isAuthenticated, data: $data) @client {
+        isAuthenticated,
+        data
+    }
+}

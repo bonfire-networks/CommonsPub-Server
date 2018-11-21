@@ -4,9 +4,8 @@ import { Label, Message, TextField } from '@zendeskgarden/react-textfields';
 
 import styled from '../../themes/styled';
 import TextInput from '../../components/inputs/Text/Text';
-import Button from '../../components/elements/Button/Button';
-import Loader from '../../components/elements/Loader/Loader';
 import Link from '../../components/elements/Link/Link';
+import { LoaderButton } from '../../components/elements/Button/Button';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
 type SubmitColProps = {
@@ -153,9 +152,7 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
             </Link>
           </SubmitCol>
           <SubmitCol alignRight>
-            <Button disabled={authenticating} type="submit">
-              {authenticating ? <Loader /> : 'Sign in'}
-            </Button>
+            <LoaderButton loading={authenticating} text="Sign in" />
           </SubmitCol>
         </Row>
       </LoginForm>

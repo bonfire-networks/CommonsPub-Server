@@ -13,7 +13,7 @@ import MenuNav, { MenuItems } from './MenuNav';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const { GetUserQuery } = require('../../../graphql/GET_USER.client.graphql');
+const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
 
 //TODO replace with some utility like lodash or polyfill `Object.values`
 function values(obj) {
@@ -181,5 +181,5 @@ class Menu extends React.Component<MenuProps, MenuState> {
 
 export default compose(
   withTheme,
-  graphql(GetUserQuery)
+  graphql(getUserQuery)
 )(Menu);

@@ -1,18 +1,24 @@
 import * as React from 'react';
 import { Redirect, RouteComponentProps } from 'react-router';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import { graphql, OperationOption } from 'react-apollo';
+import compose from 'recompose/compose';
 
 import styled, { StyledThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
 import Body from '../../components/chrome/Body/Body';
 import PreviousStep from './PreviousStep';
-import Tag, { TagContainer } from '../../components/elements/Tag/Tag';
 import Step1 from './Step1';
 import Step2 from './Step2';
 import UserProfile from '../user/UserProfile';
 import User from '../../types/User';
-import H4 from '../../components/typography/H4/H4';
-import Button from '../../components/elements/Button/Button';
+import Button, { LoaderButton } from '../../components/elements/Button/Button';
+import { Args } from '../login/Login';
+import { Interests, Languages, SignUpProfileSection } from './Profile';
+import { getDataURL, scrollTo, generateEmojiId } from './util';
+
+const { userCreateMutation } = require('../../graphql/userCreate.graphql');
+const { setUserQuery } = require('../../graphql/setUser.client.graphql');
 
 const SignUpBody = styled(Body)`
   display: flex;
@@ -34,39 +40,15 @@ const stepScrollTo = {
   2: 450
 };
 
-//TODO this should be offloaded to an API
-function generateEmojiId(): string {
-  const emojis = [
-    '😀',
-    '😃',
-    '😣',
-    '😐',
-    '🤥',
-    '🍏',
-    '🍎',
-    '🍐',
-    '🍊',
-    '🍋',
-    '🐶',
-    '🐱',
-    '🐭',
-    '🐹',
-    '🐰',
-    '😀',
-    '😃',
-    '😄',
-    '😁',
-    '😆',
-    '🌹',
-    '💐',
-    '🍁',
-    '🐴'
-  ];
-  let id = '';
-  for (let i = 0; i < 3; i++) {
-    id += emojis[Math.floor(Math.random() * emojis.length)];
-  }
-  return id;
+interface RegisterResult {
+  data: {
+    userCreate: any;
+    errors?: [];
+  };
+}
+
+interface SignUpUser extends User {
+  password: string;
 }
 
 interface SignUpMatchParams {
@@ -74,76 +56,22 @@ interface SignUpMatchParams {
 }
 
 interface SignUpState {
+  registering: boolean;
   redirect?: string | null;
   currentStep: number;
-  user: User;
+  user: SignUpUser;
 }
 
-interface SignUpProps extends RouteComponentProps<SignUpMatchParams> {}
+interface SignUpProps extends RouteComponentProps<SignUpMatchParams> {
+  setLocalUser: Function;
+  register: (
+    {
+      variables: { user: object }
+    }
+  ) => RegisterResult;
+}
 
-const SignUpProfileSection = styled.div<any>`
-  padding: 50px;
-`;
-
-const Step2Section = styled.div<any>`
-  opacity: ${props => (props.active ? 1 : 0.1)};
-  pointer-events: ${props => (props.active ? 'unset' : 'none')};
-  transition: opacity 1.75s linear;
-`;
-
-const TagsNoneSelected = ({ what }) => {
-  return (
-    <div style={{ paddingTop: '8px', color: 'grey' }}>No {what} selected</div>
-  );
-};
-
-const Interests = ({ active, interests, onTagClick }) => (
-  <Step2Section active={active}>
-    <H4>Interests</H4>
-    <TagContainer>
-      {interests.length ? (
-        interests.map(interest => (
-          <Tag
-            focused
-            closeable
-            key={interest}
-            onClick={() => onTagClick(interest)}
-          >
-            {interest}
-          </Tag>
-        ))
-      ) : (
-        <TagsNoneSelected what="interests" />
-      )}
-    </TagContainer>
-    <Button onClick={() => alert('add interest clicked')}>Add interest</Button>
-  </Step2Section>
-);
-
-const Languages = ({ active, languages }) => (
-  <Step2Section active={active}>
-    <H4>Languages</H4>
-    <TagContainer>
-      {languages.length ? (
-        languages.map(lang => (
-          <Tag
-            focused
-            closeable
-            key={lang}
-            onClick={() => alert('lang clicked')}
-          >
-            {lang}
-          </Tag>
-        ))
-      ) : (
-        <TagsNoneSelected what="languages" />
-      )}
-    </TagContainer>
-    <Button onClick={() => alert('add lang clicked')}>Add language</Button>
-  </Step2Section>
-);
-
-export default class SignUp extends React.Component<SignUpProps, SignUpState> {
+class SignUp extends React.Component<SignUpProps, SignUpState> {
   static stepComponents = [Step1, Step2];
 
   // container of the user profile, ref. is used
@@ -152,19 +80,20 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
 
   state: SignUpState = {
     currentStep: -1,
+    registering: false,
     user: {
       name: '',
       email: '',
       bio: '',
-      emojiId: generateEmojiId(),
+      password: '',
+      preferredUsername: generateEmojiId(),
       avatarImage: undefined,
       profileImage: undefined,
-      role: '',
       location: '',
       language: 'en-gb',
       interests: [] as string[],
       languages: [] as string[]
-    } as User
+    } as SignUpUser
   };
 
   constructor(props) {
@@ -219,7 +148,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     this.setState({
       user: {
         ...this.state.user,
-        emojiId: generateEmojiId()
+        preferredUsername: generateEmojiId()
       }
     });
   }
@@ -232,44 +161,87 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     }
   }
 
-  goToNextStep() {
-    const nextStep = Number(this.state.currentStep) + 1;
-    if (nextStep > SignUp.stepComponents.length) {
-      // the user has completed sign up, set them in the local cache and
-      // redirect them to the homepage
-      //TODO set in local cache
-      this.props.history.push('/');
-      return;
+  private nextStepIndex() {
+    return Number(this.state.currentStep) + 1;
+  }
+
+  private isFinalStep() {
+    return this.nextStepIndex() > SignUp.stepComponents.length;
+  }
+
+  private getNextStepButton() {
+    if (this.isFinalStep()) {
+      return (
+        <LoaderButton
+          text="Sign up"
+          loading={this.state.registering}
+          onClick={() => this.doRegistration()}
+        />
+      );
     }
+    return <Button onClick={() => this.goToNextStep()}>Continue</Button>;
+  }
+
+  private async goToNextStep() {
+    const nextStep = this.nextStepIndex();
     this.props.history.push(`/sign-up/${nextStep}`);
     this.scrollForStep(nextStep);
   }
 
-  scrollForStep(step) {
-    // https://gist.github.com/andjosh/6764939#gistcomment-2047675
-    function scrollTo(element, to = 0, duration = 1000) {
-      if (!element) {
-        return;
-      }
-      const start = element.scrollTop;
-      const change = to - start;
-      const increment = 20;
-      let currentTime = 0;
-      const animateScroll = () => {
-        currentTime += increment;
-        element.scrollTop = easeInOutQuad(currentTime, start, change, duration);
-        if (currentTime < duration) {
-          setTimeout(animateScroll, increment);
+  private async doRegistration() {
+    this.setState({ registering: true });
+
+    let result: RegisterResult;
+
+    try {
+      const payload = {
+        variables: {
+          user: {
+            email: this.state.user.email,
+            preferredUsername: this.state.user.preferredUsername,
+            password: this.state.user.password,
+            summary: this.state.user.bio
+          }
         }
       };
-      animateScroll();
+
+      result = await this.props.register(payload);
+
+      this.setState({ registering: false });
+
+      console.log(result);
+
+      if (result.data.errors) {
+        alert(JSON.stringify(result.data.errors));
+        return;
+      }
+    } catch (err) {
+      this.setState({ registering: false });
+      console.log(err);
+      alert('registration failed: ' + err.message);
+      return;
     }
-    function easeInOutQuad(t, b, c, d) {
-      t /= d / 2;
-      if (t < 1) return (c / 2) * t * t + b;
-      t--;
-      return (-c / 2) * (t * (t - 2) - 1) + b;
-    }
+
+    alert('registration successful');
+
+    const userData = result.data.userCreate;
+
+    // TODO pull key out into constant
+    localStorage.setItem('user_access_token', userData.token);
+
+    delete userData.token;
+
+    await this.props.setLocalUser({
+      variables: {
+        isAuthenticated: true,
+        data: userData
+      }
+    });
+
+    this.props.history.push('/');
+  }
+
+  private scrollForStep(step) {
     scrollTo(this._profileElem, stepScrollTo[step]);
   }
 
@@ -311,29 +283,20 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
   createSetUserImageCallback(
     imageTypeName: 'profileImage' | 'avatarImage'
   ): (evt: React.SyntheticEvent) => void {
-    return (evt: any) => {
-      const reader = new FileReader();
-
-      reader.addEventListener(
-        'load',
-        () => {
-          this.setState({
-            user: {
-              ...this.state.user,
-              [imageTypeName]: reader.result as string
-            }
-          });
-        },
-        false
-      );
-
-      if (evt.target.files[0]) {
-        reader.readAsDataURL(evt.target.files[0]);
-      }
+    return evt => {
+      getDataURL(evt, result => {
+        this.setState({
+          user: {
+            ...this.state.user,
+            [imageTypeName]: result
+          }
+        });
+      });
     };
   }
 
   private getNextStepName() {
+    // TODO pull array out of class
     return ['your interests', 'discover'][this.state.currentStep - 1];
   }
 
@@ -385,7 +348,7 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
                     <div style={{ height: '10px', width: '10px' }} />
                   </>
                 ) : null}
-                <Button onClick={() => this.goToNextStep()}>Continue</Button>
+                {this.getNextStepButton()}
               </Col>
             </Row>
           </Grid>
@@ -414,3 +377,19 @@ export default class SignUp extends React.Component<SignUpProps, SignUpState> {
     );
   }
 }
+
+// get user mutation so we can set the user in the local cache
+const withSetLocalUser = graphql<{}, Args>(setUserQuery, {
+  name: 'setLocalUser'
+  // TODO enforce proper types for OperationOption
+} as OperationOption<{}, {}>);
+
+const withRegister = graphql<{}, Args>(userCreateMutation, {
+  name: 'register'
+  // TODO enforce proper types for OperationOption
+} as OperationOption<{}, {}>);
+
+export default compose(
+  withSetLocalUser,
+  withRegister
+)(SignUp);

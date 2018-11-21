@@ -37,7 +37,7 @@ export const AppStyles = styled.div`
 
 export const LocaleContext = React.createContext({
   catalogs: {},
-  locale: 'en',
+  locale: 'en_GB',
   setLocale: locale => {}
 });
 
@@ -50,11 +50,11 @@ type AppState = {
 export default class App extends React.Component<{}, AppState> {
   state = {
     catalogs: {
-      en: require(process.env.NODE_ENV === 'development'
-        ? '../../locales/en/messages.json'
-        : '../../locales/en/messages.js')
+      en_GB: require(process.env.NODE_ENV === 'development'
+        ? '../../locales/en_GB/messages.json'
+        : '../../locales/en_GB/messages.js')
     },
-    locale: 'en',
+    locale: 'en_GB',
     setLocale: this.setLocale.bind(this)
   };
 

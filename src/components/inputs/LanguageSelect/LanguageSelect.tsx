@@ -45,9 +45,6 @@ const options = [
   </Item>
 ];
 
-/**
- * TODO this is a dummy implementation of localisation toggling
- */
 export default class extends React.Component<
   LanguageSelectProps,
   LanguageSelectState
