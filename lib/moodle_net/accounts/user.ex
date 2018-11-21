@@ -1,12 +1,12 @@
 defmodule MoodleNet.Accounts.User do
   use Ecto.Schema
 
-  alias ActivityPub.Actor
   alias MoodleNet.Accounts.PasswordAuth
 
   schema "accounts_users" do
     field(:email, :string)
-    belongs_to :primary_actor, Actor
+    field(:primary_actor_id, :integer)
+    # belongs_to :primary_actor, Actor
 
     timestamps()
   end
@@ -15,8 +15,9 @@ defmodule MoodleNet.Accounts.User do
     %__MODULE__{}
     |> Ecto.Changeset.cast(attrs, [:email])
     |> Ecto.Changeset.validate_format(:email, ~r/.+\@.+\..+/)
-    |> Ecto.Changeset.put_assoc(:primary_actor, actor)
-    |> Ecto.Changeset.validate_required([:primary_actor, :email])
+    # |> Ecto.Changeset.put_assoc(:primary_actor, actor)
+    |> Ecto.Changeset.change(primary_actor_id: actor)
+    |> Ecto.Changeset.validate_required([:primary_actor_id, :email])
     |> Ecto.Changeset.unique_constraint(:email)
     |> lower_case_email()
   end

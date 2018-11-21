@@ -22,9 +22,18 @@ defmodule MoodleNet.Accounts do
 
   """
   def register_user(attrs \\ %{}) do
+    actor_attrs = attrs
+                  |> Map.put("type", "Person")
+                  |> Map.delete(:password)
+                  |> Map.delete(:email)
+                  |> Map.delete("password")
+                  |> Map.delete("email")
+    {:ok, actor_entity} = ActivityPub.parse(actor_attrs)
+    {:ok, actor_entity} = ActivityPub.SQL.persist(actor_entity)
+
     Multi.new()
-    |> ActivityPub.create_actor(attrs)
-    |> Multi.run(:user, &(User.changeset(&2.actor, attrs) |> &1.insert()))
+    |> Multi.run(:actor, fn _, _ -> {:ok, actor_entity} end)
+    |> Multi.run(:user, &(User.changeset(&2.actor[:local_id], attrs) |> &1.insert()))
     |> Multi.run(
       :password_auth,
       &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
