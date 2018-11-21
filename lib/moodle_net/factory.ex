@@ -25,7 +25,10 @@ defmodule MoodleNet.Factory do
   def attributes(:community) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "name" => Faker.Pokemon.name()
+      "name" => Faker.Pokemon.name(),
+      "preferred_username" => Faker.Internet.user_name(),
+      "summary" => Faker.Lorem.sentence(),
+      "primaryLanguage" => "es",
     }
   end
 

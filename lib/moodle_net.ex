@@ -8,6 +8,14 @@ defmodule MoodleNet do
     |> ActivityPub.SQL.all()
   end
 
+  def list_collection(community, opts \\ %{}) do
+    ActivityPub.SQL.query()
+    |> ActivityPub.SQL.with_type("MoodleNetCommunity")
+    |> ActivityPub.SQL.with_relation(:attributed_to, community)
+    |> ActivityPub.SQL.paginate(opts)
+    |> ActivityPub.SQL.all()
+  end
+
   def create_community(attrs) do
     attrs = Map.put(attrs, "type", "MoodleNetCommunity")
 

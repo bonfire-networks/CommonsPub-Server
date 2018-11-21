@@ -45,6 +45,9 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:streams, :jsonb)
       add(:endpoints, :jsonb)
 
+      add(:followers_count, :integer, default: 0, null: false)
+      add(:following_count, :integer, default: 0, null: false)
+
       timestamps()
     end
     create(unique_index(:activity_pub_actor_aspects, :local_id))

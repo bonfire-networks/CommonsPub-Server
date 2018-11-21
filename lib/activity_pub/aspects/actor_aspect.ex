@@ -11,6 +11,9 @@ defmodule ActivityPub.ActorAspect do
     field(:preferred_username, :string)
     field(:streams, {:map, :string})
     field(:endpoints, {:map, :string})
+
+    field(:followers_count, :integer, default: 0)
+    field(:following_count, :integer, default: 0)
   end
 
   def parse(%{} = input) do

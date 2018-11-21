@@ -14,6 +14,9 @@ defmodule ActivityPub.SQLActorAspect do
     field(:streams, {:map, :string})
     field(:endpoints, {:map, :string})
 
+    field(:followers_count, :integer, default: 0)
+    field(:following_count, :integer, default: 0)
+
     timestamps()
   end
 

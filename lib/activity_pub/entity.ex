@@ -176,7 +176,7 @@ defmodule ActivityPub.Entity do
     end
   end
 
-  def fetch(%__MODULE__{} = e, key) when key in [:"@context", :id, :type],
+  def fetch(%__MODULE__{} = e, key) when key in [:"@context", :id, :type, :local],
     do: Map.fetch(e, key)
 
   def fetch(%__MODULE__{} = e, key) when key in ~w(@context id type),
