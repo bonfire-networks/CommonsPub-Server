@@ -84,6 +84,7 @@ defmodule ActivityPub.Entity do
           Ecto.Changeset.put_embed(ch, field, object)
 
         {:error, _e} ->
+          IO.inspect(_e, label: "#{aspect} Error")
           # FIXME improve errors!
           Ecto.Changeset.add_error(ch, field, "is invalid")
       end

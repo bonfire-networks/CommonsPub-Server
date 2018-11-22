@@ -52,6 +52,7 @@ defmodule MoodleNetWeb.Endpoint do
     signing_salt: "CqAoopA2"
   )
 
+  plug(CORSPlug)
   plug(MoodleNetWeb.Router)
 
   @doc """

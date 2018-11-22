@@ -49,7 +49,12 @@ defmodule ActivityPub.SQLObject do
 
     many_to_many(:attributed_to, SQLObject,
       join_through: "activity_pub_attributed_tos",
-      join_keys: [subject_id: :local_id, object_id: :local_id]
+      join_keys: [subject_id: :local_id, target_id: :local_id]
+    )
+
+    many_to_many(:contexts, SQLObject,
+      join_through: "activity_pub_contexts",
+      join_keys: [subject_id: :local_id, target_id: :local_id]
     )
 
     timestamps()

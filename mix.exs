@@ -53,7 +53,10 @@ defmodule MoodleNet.Mixfile do
       {:mogrify, "~> 0.6.1"},
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
-      {:faker, "~> 0.11", only: [:dev, :test]},
+      {:cors_plug, "~> 2.0"},
+      # FIXME using prod as well for the moment
+      # {:faker, "~> 0.11", only: [:dev, :test]},
+      {:faker, "~> 0.11"},
       {:recase, "~> 0.2"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},

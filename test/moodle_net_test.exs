@@ -57,11 +57,14 @@ defmodule MoodleNetTest do
       community_2 = Factory.community()
       collection_2 = Factory.collection(community_2)
 
-      assert [loaded_col] = MoodleNet.list_collection(community)
+      assert [loaded_col] = MoodleNet.list_collections(community)
       assert collection[:local_id] == loaded_col[:local_id]
 
-      assert [loaded_col] = MoodleNet.list_collection(community_2)
+      assert [loaded_col] = MoodleNet.list_collections(community_2)
       assert collection_2[:local_id] == loaded_col[:local_id]
+
+      assert [loaded_com] = MoodleNet.list_communities_with_collection(collection)
+      assert community[:local_id] == loaded_com[:local_id]
     end
   end
 end

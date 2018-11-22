@@ -93,18 +93,19 @@ defmodule ActivityPub.SQL do
   def get_by_id(nil), do: nil
 
   def get_by_id(id) when is_binary(id) do
-     SQLObject
-     |> Repo.get_by(id: id)
-     |> to_entity()
+    SQLObject
+    |> Repo.get_by(id: id)
+    |> to_entity()
   end
 
   def get_by_local_id(local_id) do
-     SQLObject
-     |> Repo.get_by(local_id: local_id)
-     |> to_entity()
+    SQLObject
+    |> Repo.get_by(local_id: local_id)
+    |> to_entity()
   end
 
   def to_entity(nil), do: nil
+
   def to_entity(%SQLObject{} = sql) do
     sql = Repo.preload(sql, [:actor])
 
@@ -160,17 +161,35 @@ defmodule ActivityPub.SQL do
     Paginate.call(query, opts)
   end
 
+  def print_query(query) do
+    {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
+    IO.puts(query_str)
+    IO.inspect(args)
+    query
+  end
+
   def all(query) do
     query
+    |> print_query()
     |> Repo.all()
     |> Enum.map(&to_entity/1)
   end
 
-  def with_relation(query, :attributed_to, ext_id) do
+  def belongs_to(query, :attributed_to, ext_id) do
     import Ecto.Query, only: [from: 2]
-    from [obj: obj] in query,
-      join: rel in fragment("activity_pub_attributed_tos"), #^(from "activity_pub_attributed_tos", where: [subject_id: ^ext_id]), #assoc(obj, :attributed_to),
-      # on: rel.subject_id == ^ext_id
-      on: obj.local_id == rel.object_id #and rel.subject_id == ^ext_id
+
+    from([obj: obj] in query,
+      join: rel in fragment("activity_pub_attributed_tos"),
+      on: obj.local_id == rel.subject_id and rel.target_id == ^ext_id
+    )
+  end
+
+  def has(query, :attributed_to, ext_id) do
+    import Ecto.Query, only: [from: 2]
+
+    from([obj: obj] in query,
+      join: rel in fragment("activity_pub_attributed_tos"),
+      on: obj.local_id == rel.target_id and rel.subject_id == ^ext_id
+    )
   end
 end

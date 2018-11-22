@@ -25,8 +25,8 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
       add(:extension_fields, :map, default: %{}, null: false)
 
-      add(:like_count, :integer, default: 0, null: false)
-      add(:share_count, :integer, default: 0, null: false)
+      add(:likes_count, :integer, default: 0, null: false)
+      add(:shares_count, :integer, default: 0, null: false)
 
       timestamps()
     end
@@ -79,15 +79,48 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
     create table(:activity_pub_attributed_tos) do
       add_foreign_key(:subject_id, "activity_pub_objects")
-      add_foreign_key(:object_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    # create table(:activity_pub_activity_origins) do
-    #   add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
-    #   add_foreign_key(:object_id, "activity_pub_objects", column: :local_id)
+    create table(:activity_pub_contexts) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
 
-    #   timestamps(updated_at: false)
-    # end
+    create table(:activity_pub_icons) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_images) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_locations) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_replies) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_tags) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_describes) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_activity_origins) do
+      add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
+      add_foreign_key(:target_id, "activity_pub_objects", column: :local_id)
+    end
 
     create table(:activity_pub_follows) do
       add_foreign_key(:follower_id, "activity_pub_actor_aspects")
@@ -95,7 +128,6 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
       timestamps(updated_at: false)
     end
-
     create(unique_index(:activity_pub_follows, [:follower_id, :following_id], name: :activity_pub_follows_unique_index))
 
     create_counter_trigger(
@@ -112,6 +144,31 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       :local_id,
       :activity_pub_follows,
       :follower_id
+    )
+
+    create table(:activity_pub_likes) do
+      add_foreign_key(:liker_id, "activity_pub_objects")
+      add_foreign_key(:liked_id, "activity_pub_objects")
+
+      timestamps(updated_at: false)
+    end
+
+    create(unique_index(:activity_pub_likes, [:liker_id, :liked_id], name: :activity_pub_likes_unique_index))
+
+    # create_counter_trigger(
+    #   :followers_count,
+    #   :activity_pub_actor_aspects,
+    #   :local_id,
+    #   :activity_pub_follows,
+    #   :following_id
+    # )
+
+    create_counter_trigger(
+      :likes_count,
+      :activity_pub_objects,
+      :local_id,
+      :activity_pub_likes,
+      :liked_id
     )
   end
 
