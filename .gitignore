@@ -25,3 +25,6 @@ yarn-error.log*
 
 # i18n
 /src/locales/_build
+
+## env
+.env*
