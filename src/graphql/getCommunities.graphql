@@ -1,5 +1,5 @@
-query getCommunitiesQuery($parentId: Int!) {
-    collections(parentId: $parentId) {
+query getCommunitiesQuery {
+    communities {
         id
         localId
         preferredUsername

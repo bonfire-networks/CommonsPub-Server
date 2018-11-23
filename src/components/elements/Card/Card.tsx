@@ -96,41 +96,62 @@ const typeSlug = {
 };
 
 //TODO split this into separate props interfaces for each card type as it is becoming cumbersome and not useful for actual type checking anymore
+export interface SubCardProps {
+  key?: any;
+  onButtonClick?: Function;
+  large?: boolean;
+  link?: boolean | string;
+  following?: boolean;
+  entity: Community | Collection | Resource;
+}
+
 export interface CardProps {
-  community: Community;
-  collection: Collection;
-  resource: Resource;
-  onButtonClick: Function;
+  key?: any;
+  onButtonClick?: Function;
   type: CardType;
   large?: boolean;
   link?: boolean | string;
   following?: boolean;
+  entity: Community | Collection | Resource;
 }
 
-export function CommunityCard({ ...props }: CardProps) {
+export function CommunityCard({ ...props }: SubCardProps) {
   return <Card type={CardType.community} {...props} />;
 }
 
-export function CollectionCard({ ...props }: CardProps) {
+export function CollectionCard({ ...props }: SubCardProps) {
   return <Card type={CardType.collection} {...props} />;
 }
 
+export interface ResourceCardProps {
+  key?: any;
+  onButtonClick?: Function;
+  large?: boolean;
+  link?: boolean | string;
+  following?: boolean;
+  entity: Resource;
+}
+
 /**
- * @param resource {Resource} resource entity
+ * @param entity {Resource} resource entity
  * @param link {string} card anchor href
  * @constructor
  */
-export function ResourceCard({ resource, link = true }: CardProps) {
-  const Outer = makeCardOuterComponent({ link, entity: resource });
+export function ResourceCard({ entity, link = true }: ResourceCardProps) {
+  const Outer = makeCardOuterComponent({
+    link,
+    type: CardType.resource,
+    entity: entity
+  });
   return (
     <Outer>
-      <StyledCard className="small" backgroundImage={resource.icon}>
-        <CardTitle small>{resource.name}</CardTitle>
+      <StyledCard className="small" backgroundImage={entity.icon}>
+        <CardTitle small>{entity.name}</CardTitle>
         <ResourceBottom>
-          <a target="_blank" href={resource.source}>
+          <a target="_blank" href={entity.source}>
             Source
           </a>
-          <ContentCounts type={CardType.resource} entity={resource} />
+          <ContentCounts type={CardType.resource} entity={entity} />
         </ResourceBottom>
       </StyledCard>
     </Outer>
@@ -151,12 +172,10 @@ export default function Card({
   large = false,
   link = true,
   following = false,
-  community,
-  collection,
+  entity,
   onButtonClick
 }: CardProps) {
-  const entity = community || collection;
-  const Outer = makeCardOuterComponent({ link, entity });
+  const Outer = makeCardOuterComponent({ type, link, entity });
 
   const buttonText = {
     [CardType.collection]: ['Follow', 'Following'],
@@ -182,7 +201,7 @@ export default function Card({
             type={type}
             hovered={type === CardType.community}
             secondary={type === CardType.collection}
-            onClick={onButtonClick as any /*TODO don't use any type*/}
+            onClick={onButtonClick ? onButtonClick : () => {}}
           >
             {buttonText}
           </CardButton>
@@ -227,7 +246,7 @@ function ContentCounts({
   return null;
 }
 
-function makeCardOuterComponent({ link, entity }) {
+function makeCardOuterComponent({ type, link, entity }) {
   //TODO lift this Outer stuff as it is shared with the Card component
   const Outer = link ? CardLink : React.Fragment;
   const outerProps = link
@@ -236,7 +255,7 @@ function makeCardOuterComponent({ link, entity }) {
           typeof link === 'string'
             ? link
             : // TODO use preferredUsername instead of localId when it is available
-              `/${typeSlug[CardType.resource]}/${slugify(entity.localId)}`
+              `/${typeSlug[type]}/${slugify(entity.localId)}`
       }
     : {};
   return ({ children }) => <Outer {...outerProps}>{children}</Outer>;

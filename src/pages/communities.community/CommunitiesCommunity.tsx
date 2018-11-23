@@ -1,33 +1,73 @@
 import * as React from 'react';
+import compose from 'recompose/compose';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import { RouteComponentProps } from 'react-router';
+import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import Link from '../../components/elements/Link/Link';
 import Main from '../../components/chrome/Main/Main';
 import Logo from '../../components/brand/Logo/Logo';
+import P from '../../components/typography/P/P';
+import Community from '../../types/Community';
+import Loader from '../../components/elements/Loader/Loader';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 import {
   CommunityCard,
   CollectionCard
 } from '../../components/elements/Card/Card';
-import {
-  DUMMY_COMMUNITIES,
-  DUMMY_COLLECTIONS
-} from '../../__DEV__/dummy-cards';
-import P from '../../components/typography/P/P';
 
-const card = DUMMY_COMMUNITIES[0];
+const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
   Collections = 'Collections',
   Discussion = 'Discussion'
 }
 
-export default class CommunitiesFeatured extends React.Component {
+interface Data extends GraphqlQueryControls {
+  community: Community;
+}
+
+type State = {
+  tab: TabsEnum;
+};
+
+interface Props
+  extends RouteComponentProps<{
+      community: string;
+    }> {
+  data: Data;
+}
+
+class CommunitiesFeatured extends React.Component<Props, State> {
   state = {
     tab: TabsEnum.Collections
   };
 
   render() {
+    let collections;
+    let community;
+
+    if (this.props.data.error) {
+      console.error(this.props.data.error);
+      collections = <span>Error loading collections</span>;
+    } else if (this.props.data.loading) {
+      collections = <Loader />;
+    } else if (this.props.data.community.collections) {
+      community = this.props.data.community;
+
+      if (this.props.data.community.collections.length) {
+        collections = this.props.data.community.collections.map(collection => {
+          return <CollectionCard key={community.id} entity={collection} />;
+        });
+      } else {
+        collections = <span>This community has no collections.</span>;
+      }
+    }
+
+    if (!community) {
+      return <Loader />;
+    }
+
     return (
       <>
         <Main>
@@ -41,7 +81,7 @@ export default class CommunitiesFeatured extends React.Component {
               <Col size={6}>
                 <Link to="/communities">Communities</Link>
                 {' > '}
-                <span>{card.title}</span>
+                <span>{community.name}</span>
               </Col>
             </Row>
             <Row>
@@ -53,10 +93,15 @@ export default class CommunitiesFeatured extends React.Component {
                     flexDirection: 'row'
                   }}
                 >
-                  <CommunityCard large link={false} key={card.id} {...card} />
+                  <CommunityCard
+                    large
+                    link={false}
+                    key={community.id}
+                    entity={community}
+                  />
                   <div>
-                    <h3>{card.title}</h3>
-                    <P>{card.description}</P>
+                    <h3>{community.name}</h3>
+                    <P>{community.summary}</P>
                   </div>
                 </div>
               </Col>
@@ -72,11 +117,7 @@ export default class CommunitiesFeatured extends React.Component {
                     label={TabsEnum.Collections}
                     key={TabsEnum.Collections}
                   >
-                    <div style={{ display: 'flex' }}>
-                      {DUMMY_COLLECTIONS.map(card => {
-                        return <CollectionCard key={card.id} {...card} />;
-                      })}
-                    </div>
+                    <div style={{ display: 'flex' }}>{collections}</div>
                   </TabPanel>
                   <TabPanel
                     label={TabsEnum.Discussion}
@@ -93,3 +134,20 @@ export default class CommunitiesFeatured extends React.Component {
     );
   }
 }
+
+const withGetCollections = graphql<
+  {},
+  {
+    data: {
+      community: Community;
+    };
+  }
+>(getCommunityQuery, {
+  options: (props: Props) => ({
+    variables: {
+      context: parseInt(props.match.params.community)
+    }
+  })
+}) as OperationOption<{}, {}>;
+
+export default compose(withGetCollections)(CommunitiesFeatured);

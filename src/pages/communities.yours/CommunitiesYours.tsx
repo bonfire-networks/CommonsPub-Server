@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Grid, Row, Col } from '@zendeskgarden/react-grid';
-import { graphql } from 'react-apollo';
+import compose from 'recompose/compose';
+import { Col, Grid, Row } from '@zendeskgarden/react-grid';
+import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import H1 from '../../components/typography/H1/H1';
 import P from '../../components/typography/P/P';
@@ -8,6 +9,7 @@ import styled from 'styled-components';
 import Logo from '../../components/brand/Logo/Logo';
 import Main from '../../components/chrome/Main/Main';
 import Community from '../../types/Community';
+import Loader from '../../components/elements/Loader/Loader';
 import { CommunityCard } from '../../components/elements/Card/Card';
 
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
@@ -18,12 +20,34 @@ const PageTitle = styled(H1)`
   margin-block-end: 0;
 `;
 
-interface Props {
+interface Data extends GraphqlQueryControls {
   communities: Community[];
+}
+
+interface Props {
+  data: Data;
 }
 
 class CommunitiesYours extends React.Component<Props> {
   render() {
+    let body;
+
+    if (this.props.data.error) {
+      body = <span>Error loading communities</span>;
+    } else if (this.props.data.loading) {
+      body = <Loader />;
+    } else {
+      body = this.props.data.communities.map(community => {
+        return (
+          <CommunityCard
+            key={community.id}
+            onButtonClick={() => alert('card btn clicked')}
+            entity={community}
+          />
+        );
+      });
+    }
+
     return (
       <Main>
         <Grid>
@@ -48,11 +72,7 @@ class CommunitiesYours extends React.Component<Props> {
           </Row>
           <Row>
             <Col size={10} style={{ display: 'flex', flexWrap: 'wrap' }}>
-              {this.props.communities.map(community => {
-                return (
-                  <CommunityCard key={community.id} community={community} />
-                );
-              })}
+              {body}
             </Col>
           </Row>
         </Grid>
@@ -61,4 +81,13 @@ class CommunitiesYours extends React.Component<Props> {
   }
 }
 
-export default graphql(getCommunitiesQuery)(CommunitiesYours);
+const withGetCommunities = graphql<
+  {},
+  {
+    data: {
+      communities: Community[];
+    };
+  }
+>(getCommunitiesQuery) as OperationOption<{}, {}>;
+
+export default compose(withGetCommunities)(CommunitiesYours);

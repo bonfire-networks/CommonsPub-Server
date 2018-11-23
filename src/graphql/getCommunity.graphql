@@ -1,5 +1,5 @@
-query getCollectionsQuery($context: Int!) {
-    collections(context: $context) {
+query getCommunityQuery($context: Int!) {
+    community(localId: $context) {
         id
         localId
         preferredUsername
@@ -9,7 +9,7 @@ query getCollectionsQuery($context: Int!) {
         followersCount
         followingCount
 
-        resources {
+        collections {
             id
             localId
             preferredUsername
@@ -18,7 +18,10 @@ query getCollectionsQuery($context: Int!) {
             icon
             followersCount
             followingCount
-            jsonData
+
+            context {
+                localId
+            }
         }
     }
 }

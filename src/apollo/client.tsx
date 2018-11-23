@@ -7,6 +7,7 @@ import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
 import { Socket as PhoenixSocket } from 'phoenix';
 import { createHttpLink } from 'apollo-link-http';
 import { hasSubscription } from '@jumpn/utils-graphql';
+import apolloLogger from 'apollo-link-logger';
 import * as AbsintheSocket from '@absinthe/socket';
 
 import resolvers from './resolvers';
@@ -48,11 +49,14 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // used for graphql query and mutations
-const httpLink = ApolloLink.from([
-  stateLink,
-  authLink,
-  createHttpLink({ uri: GRAPHQL_ENDPOINT })
-]);
+const httpLink = ApolloLink.from(
+  [
+    process.env.NODE_ENV === 'development' ? apolloLogger : null,
+    stateLink,
+    authLink,
+    createHttpLink({ uri: GRAPHQL_ENDPOINT })
+  ].filter(Boolean)
+);
 
 // used for graphql subscriptions
 const absintheSocket = createAbsintheSocketLink(
@@ -95,8 +99,12 @@ export default async function initialise() {
       data: result.data.me
     };
   } catch (err) {
+    console.error(err);
+
     if (err.message.includes('You are not logged in')) {
       localStorage.removeItem('user_access_token');
+    } else {
+      //TODO handle unknown error / warn user?
     }
 
     localUser = {

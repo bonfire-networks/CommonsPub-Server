@@ -1429,6 +1429,10 @@ apollo-link-http@1.5.6:
     apollo-link "^1.2.4"
     apollo-link-http-common "^0.2.6"
 
+apollo-link-logger@1.2.3:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/apollo-link-logger/-/apollo-link-logger-1.2.3.tgz#1f3e6f7849ce7a7e3aa822141fe062cfa278b1e1"
+
 apollo-link-retry@2.2.6:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/apollo-link-retry/-/apollo-link-retry-2.2.6.tgz#aa17e08b4a115ddcbdd70444ced254d3c915fc44"

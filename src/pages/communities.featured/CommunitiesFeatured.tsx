@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import compose from 'recompose/compose';
+import { Col, Grid, Row } from '@zendeskgarden/react-grid';
+import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import H1 from '../../components/typography/H1/H1';
-
-import styled from '../../themes/styled';
 import P from '../../components/typography/P/P';
-import Main from '../../components/chrome/Main/Main';
+import styled from 'styled-components';
 import Logo from '../../components/brand/Logo/Logo';
+import Main from '../../components/chrome/Main/Main';
+import Community from '../../types/Community';
+import Loader from '../../components/elements/Loader/Loader';
 import { CommunityCard } from '../../components/elements/Card/Card';
-import { DUMMY_COMMUNITIES } from '../../__DEV__/dummy-cards';
+
+const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 const PageTitle = styled(H1)`
   font-size: 30px !important;
@@ -16,13 +20,39 @@ const PageTitle = styled(H1)`
   margin-block-end: 0;
 `;
 
-export default function CommunitiesFeatured() {
-  return (
-    <>
+interface Data extends GraphqlQueryControls {
+  communities: Community[];
+}
+
+interface Props {
+  data: Data;
+}
+
+class CommunitiesYours extends React.Component<Props> {
+  render() {
+    let body;
+
+    if (this.props.data.error) {
+      body = <span>Error loading communities</span>;
+    } else if (this.props.data.loading) {
+      body = <Loader />;
+    } else {
+      body = this.props.data.communities.map(community => {
+        return (
+          <CommunityCard
+            key={community.id}
+            onButtonClick={() => alert('card btn clicked')}
+            entity={community}
+          />
+        );
+      });
+    }
+
+    return (
       <Main>
         <Grid>
           <Row>
-            <Col size={6}>
+            <Col sm={6}>
               <Logo />
               <PageTitle>Featured Communities</PageTitle>
             </Col>
@@ -42,19 +72,22 @@ export default function CommunitiesFeatured() {
           </Row>
           <Row>
             <Col size={10} style={{ display: 'flex', flexWrap: 'wrap' }}>
-              {DUMMY_COMMUNITIES.map(card => {
-                return <CommunityCard key={card.id} {...card} />;
-              })}
-              {DUMMY_COMMUNITIES.map(card => {
-                return <CommunityCard key={card.id} {...card} />;
-              })}
-              {DUMMY_COMMUNITIES.map(card => {
-                return <CommunityCard key={card.id} {...card} />;
-              })}
+              {body}
             </Col>
           </Row>
         </Grid>
       </Main>
-    </>
-  );
+    );
+  }
 }
+
+const withGetCommunities = graphql<
+  {},
+  {
+    data: {
+      communities: Community[];
+    };
+  }
+>(getCommunitiesQuery) as OperationOption<{}, {}>;
+
+export default compose(withGetCommunities)(CommunitiesYours);
