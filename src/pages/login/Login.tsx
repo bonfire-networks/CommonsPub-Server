@@ -19,7 +19,8 @@ import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
-const { setUserQuery } = require('../../graphql/setUser.client.graphql');
+const { setUserMutation } = require('../../graphql/setUser.client.graphql');
+// TODO make the login mutation also retrieve the user so a separate request is not necessary
 const { loginMutation } = require('../../graphql/login.graphql');
 
 const CenteredButtonGroup = styled.div`
@@ -334,7 +335,7 @@ export interface Args {
 const withUser = graphql<{}, Args>(getUserQuery);
 
 // get user mutation so we can set the user in the local cache
-const withSetLocalUser = graphql<{}, Args>(setUserQuery, {
+const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
   name: 'setLocalUser'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);

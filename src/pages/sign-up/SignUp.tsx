@@ -18,7 +18,7 @@ import { Interests, Languages, SignUpProfileSection } from './Profile';
 import { getDataURL, scrollTo, generateEmojiId } from './util';
 
 const { userCreateMutation } = require('../../graphql/userCreate.graphql');
-const { setUserQuery } = require('../../graphql/setUser.client.graphql');
+const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 
 const SignUpBody = styled(Body)`
   display: flex;
@@ -379,7 +379,7 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
 }
 
 // get user mutation so we can set the user in the local cache
-const withSetLocalUser = graphql<{}, Args>(setUserQuery, {
+const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
   name: 'setLocalUser'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);

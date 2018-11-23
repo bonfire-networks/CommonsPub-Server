@@ -1,5 +1,5 @@
 import { ApolloLink } from 'apollo-link';
-import { ApolloClient } from 'apollo-client';
+import { ApolloClient, ApolloQueryResult } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { setContext } from 'apollo-link-context';
 import { withClientState } from 'apollo-link-state';
@@ -13,15 +13,18 @@ import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
-const cache = new InMemoryCache();
+const { meQuery } = require('../graphql/me.graphql');
+const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
+const cache = new InMemoryCache();
 const token = localStorage.getItem('user_access_token');
+const user = localStorage.getItem('user_data');
 
 const defaults = {
   user: {
     __typename: 'User',
-    isAuthenticated: token ? token : false,
-    data: null // TODO get user if already authenticated
+    isAuthenticated: !!token,
+    data: user ? JSON.parse(user) : null
   }
 };
 
@@ -64,7 +67,46 @@ const link = ApolloLink.split(
   httpLink
 );
 
-export default new ApolloClient({
+const client = new ApolloClient({
   cache,
   link
 });
+
+interface MeQueryResult extends ApolloQueryResult<object> {
+  // TODO don't use any type
+  me: any;
+}
+
+/**
+ * Initialise the Apollo client by fetching the logged in user
+ * if the user has an existing token in local storage.
+ * @returns {ApolloClient} the apollo client
+ */
+export default async function initialise() {
+  let localUser;
+
+  try {
+    const result = await client.query<MeQueryResult>({
+      query: meQuery
+    });
+    localUser = {
+      isAuthenticated: true,
+      data: result.data.me
+    };
+  } catch (err) {
+    if (err.message.includes('You are not logged in')) {
+      localStorage.removeItem('user_access_token');
+    }
+    localUser = {
+      isAuthenticated: false,
+      data: null
+    };
+  }
+
+  await client.mutate({
+    variables: localUser,
+    mutation: setUserMutation
+  });
+
+  return client;
+}

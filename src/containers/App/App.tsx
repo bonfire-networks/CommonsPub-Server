@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { ApolloProvider } from 'react-apollo';
 import { Catalogs } from '@lingui/core';
 
 import styled from '../../themes/styled';
 import Router from './Router';
-import apolloClient from '../../apollo/client';
 import { moodlenet } from '../../themes';
 import { ThemeProvider } from '@zendeskgarden/react-theming';
 import { Chrome } from '@zendeskgarden/react-chrome';
@@ -92,22 +90,20 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     return (
-      <ApolloProvider client={apolloClient}>
-        <ThemeProvider theme={moodlenet}>
-          <LocaleContext.Provider value={this.state}>
-            <I18nProvider
-              language={this.state.locale}
-              catalogs={this.state.catalogs}
-            >
-              <AppStyles>
-                <Chrome>
-                  <Router />
-                </Chrome>
-              </AppStyles>
-            </I18nProvider>
-          </LocaleContext.Provider>
-        </ThemeProvider>
-      </ApolloProvider>
+      <ThemeProvider theme={moodlenet}>
+        <LocaleContext.Provider value={this.state}>
+          <I18nProvider
+            language={this.state.locale}
+            catalogs={this.state.catalogs}
+          >
+            <AppStyles>
+              <Chrome>
+                <Router />
+              </Chrome>
+            </AppStyles>
+          </I18nProvider>
+        </LocaleContext.Provider>
+      </ThemeProvider>
     );
   }
 }
