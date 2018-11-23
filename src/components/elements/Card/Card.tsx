@@ -1,11 +1,14 @@
 import * as React from 'react';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styled from '../../../themes/styled';
 import Button from '../Button/Button';
 import slugify from '../../../util/slugify';
+import Community from '../../../types/Community';
+import Collection from '../../../types/Collection';
+import Resource from '../../../types/Resource';
 import { Link } from 'react-router-dom';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export enum CardType {
   community = 'community',
@@ -51,7 +54,7 @@ const CardTitle = styled.div<{ small?: boolean }>`
   flex-grow: 1;
 `;
 
-const ContentCounts = styled.div`
+const ContentCountsContainer = styled.div`
   margin: 10px 0;
 `;
 
@@ -94,16 +97,14 @@ const typeSlug = {
 
 //TODO split this into separate props interfaces for each card type as it is becoming cumbersome and not useful for actual type checking anymore
 export interface CardProps {
-  title: string;
-  backgroundImage?: string;
+  community: Community;
+  collection: Collection;
+  resource: Resource;
   onButtonClick: Function;
-  contentCounts?: object;
-  type?: CardType | string;
-  joined?: boolean;
-  likesCount?: number;
-  source?: string;
+  type: CardType;
   large?: boolean;
   link?: boolean | string;
+  following?: boolean;
 }
 
 export function CommunityCard({ ...props }: CardProps) {
@@ -115,42 +116,21 @@ export function CollectionCard({ ...props }: CardProps) {
 }
 
 /**
- *
- * @param title
- * @param source
- * @param link
- * @param likesCount
- * @param backgroundImage
+ * @param resource {Resource} resource entity
+ * @param link {string} card anchor href
  * @constructor
  */
-export function ResourceCard({
-  title,
-  source,
-  link = true,
-  likesCount,
-  backgroundImage
-}: CardProps) {
-  //TODO lift this Outer stuff as it is shared with the Card component
-  const Outer = link ? CardLink : React.Fragment;
-  const outerProps = link
-    ? {
-        to:
-          typeof link === 'string'
-            ? link
-            : `/${typeSlug[CardType.resource]}/${slugify(title)}`
-      }
-    : {};
+export function ResourceCard({ resource, link = true }: CardProps) {
+  const Outer = makeCardOuterComponent({ link, entity: resource });
   return (
-    <Outer {...outerProps}>
-      <StyledCard className="small" backgroundImage={backgroundImage}>
-        <CardTitle small>{title}</CardTitle>
+    <Outer>
+      <StyledCard className="small" backgroundImage={resource.icon}>
+        <CardTitle small>{resource.name}</CardTitle>
         <ResourceBottom>
-          <a target="_blank" href={source}>
+          <a target="_blank" href={resource.source}>
             Source
           </a>
-          <div>
-            {likesCount} <FontAwesomeIcon icon={faHeart} />
-          </div>
+          <ContentCounts type={CardType.resource} entity={resource} />
         </ResourceBottom>
       </StyledCard>
     </Outer>
@@ -158,78 +138,45 @@ export function ResourceCard({
 }
 
 /**
- *
  * @param type
  * @param joined
  * @param large
  * @param link
- * @param title
- * @param source
- * @param likesCount
- * @param backgroundImage
  * @param onButtonClick
- * @param contentCounts
+ * @param joined
  * @constructor
  */
 export default function Card({
   type,
-  joined = false,
   large = false,
   link = true,
-  title,
-  source,
-  likesCount,
-  backgroundImage,
-  onButtonClick,
-  contentCounts
+  following = false,
+  community,
+  collection,
+  onButtonClick
 }: CardProps) {
-  type = String(type);
-
-  const countKeys = contentCounts ? Object.keys(contentCounts) : [];
+  const entity = community || collection;
+  const Outer = makeCardOuterComponent({ link, entity });
 
   const buttonText = {
     [CardType.collection]: ['Follow', 'Following'],
     [CardType.community]: ['Join', 'Member']
-  }[type][+joined];
+  }[String(type)][+following];
 
-  const Outer = link ? CardLink : React.Fragment;
-  const outerProps = link
-    ? {
-        to:
-          typeof link === 'string'
-            ? link
-            : `/${typeSlug[type]}/${slugify(title)}`
-      }
-    : {};
-
-  if (title.length > 50) {
+  let title = entity.name;
+  if (entity.name.length > 50) {
     title = title.substr(0, 50) + '...';
   }
 
   return (
-    <Outer {...outerProps}>
+    <Outer>
       <StyledCard
         title={title}
         className={large ? 'large' : 'small'}
-        backgroundImage={backgroundImage}
+        backgroundImage={entity.icon}
       >
         <CardTitle>{title}</CardTitle>
-        {contentCounts ? (
-          <ContentCounts>
-            {countKeys.map((key, i) => {
-              let separator: JSX.Element | null = null;
-              if (i < countKeys.length - 1 && countKeys.length > 1) {
-                separator = <span> &bull; </span>;
-              }
-              return (
-                <span key={i}>
-                  {contentCounts[key]} {key}
-                  {separator}
-                </span>
-              );
-            })}
-          </ContentCounts>
-        ) : null}
+        <ContentCounts type={type} entity={entity} />
         <div>
           <CardButton
             type={type}
@@ -243,4 +190,54 @@ export default function Card({
       </StyledCard>
     </Outer>
   );
+}
+
+type ContentCountsProps = {
+  entity: Community | Collection | Resource;
+  type: CardType | string;
+};
+
+function ContentCounts({
+  entity,
+  type
+}: ContentCountsProps): JSX.Element | null {
+  if (type === CardType.collection) {
+    entity = entity as Collection;
+    return (
+      <ContentCountsContainer>
+        {entity.followingCount} Members &bull; {entity.resourcesCount} Resources
+      </ContentCountsContainer>
+    );
+  } else if (type === CardType.community) {
+    entity = entity as Community;
+    return (
+      <ContentCountsContainer>
+        {entity.followingCount} Members &bull; {entity.collectionsCount}{' '}
+        Collections
+      </ContentCountsContainer>
+    );
+  } else if (type === CardType.resource) {
+    entity = entity as Resource;
+    return (
+      <ContentCountsContainer>
+        {entity.likesCount} <FontAwesomeIcon icon={faHeart} color="red" />
+      </ContentCountsContainer>
+    );
+  }
+  return null;
+}
+
+function makeCardOuterComponent({ link, entity }) {
+  //TODO lift this Outer stuff as it is shared with the Card component
+  const Outer = link ? CardLink : React.Fragment;
+  const outerProps = link
+    ? {
+        to:
+          typeof link === 'string'
+            ? link
+            : // TODO use preferredUsername instead of localId when it is available
+              `/${typeSlug[CardType.resource]}/${slugify(entity.localId)}`
+      }
+    : {};
+  return ({ children }) => <Outer {...outerProps}>{children}</Outer>;
 }

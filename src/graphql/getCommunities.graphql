@@ -1,0 +1,12 @@
+query getCommunitiesQuery($parentId: Int!) {
+    collections(parentId: $parentId) {
+        id
+        localId
+        preferredUsername
+        name
+        summary
+        icon
+        followersCount
+        followingCount
+    }
+}

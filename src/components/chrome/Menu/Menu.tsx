@@ -25,16 +25,16 @@ interface MenuContainerProps {
   open?: boolean;
 }
 
+interface MenuBodyProps {
+  width: number;
+  open: boolean;
+}
+
 const MenuContainer = styled.div`
   width: 300px;
   left: ${(props: MenuContainerProps) => (props.open ? 0 : 300)}px;
   overflow: hidden;
 `;
-
-interface MenuBodyProps {
-  width: number;
-  open: boolean;
-}
 
 const MenuBody = styled.div<MenuBodyProps>`
   width: ${props => props.width}px;
@@ -70,7 +70,7 @@ const MenuClose = styled.div`
 `;
 
 const menuWidths = {
-  [MenuItems.notifications]: 280, // size of a Notification +  20px for padding
+  [MenuItems.notifications]: 280, // size of a Notification + 20px for padding
   [MenuItems.search]: 350,
   [MenuItems.user]: 260
 };

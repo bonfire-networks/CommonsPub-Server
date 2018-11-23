@@ -89,6 +89,7 @@ export default async function initialise() {
     const result = await client.query<MeQueryResult>({
       query: meQuery
     });
+
     localUser = {
       isAuthenticated: true,
       data: result.data.me
@@ -97,6 +98,7 @@ export default async function initialise() {
     if (err.message.includes('You are not logged in')) {
       localStorage.removeItem('user_access_token');
     }
+
     localUser = {
       isAuthenticated: false,
       data: null
