@@ -23,6 +23,9 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:media_type, :text)
       add(:duration, :text)
 
+      # FIXME
+      add(:url, {:array, :text})
+
       add(:extension_fields, :map, default: %{}, null: false)
 
       add(:likes_count, :integer, default: 0, null: false)

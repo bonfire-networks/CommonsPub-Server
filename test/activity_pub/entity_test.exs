@@ -20,7 +20,8 @@ defmodule ActivityPub.EntityTest do
         content: "This is a content",
         name: "This is my name",
         end_time: "2015-01-01T06:00:00-08:00",
-        new_field: "extra"
+        new_field: "extra",
+        url: "https://alex.gitlab.com/profile"
       }
 
       assert {:ok, entity} = Entity.parse(map)
@@ -33,6 +34,8 @@ defmodule ActivityPub.EntityTest do
 
       assert entity[:new_field] == map.new_field
       assert entity["new_field"] == map.new_field
+
+      assert entity[:url] == [map.url]
     end
 
     test "activities" do

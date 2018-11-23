@@ -24,7 +24,9 @@ defmodule ActivityPub.ObjectAspect do
     field(:summary, LanguageValueType, default: %{})
     field(:tag, EntityType, default: [])
     field(:updated, :utc_datetime)
-    field(:url, EntityType, default: [])
+    # FIXME url is a relation
+    # field(:url, EntityType, default: [])
+    field(:url, StringListType, default: [])
     field(:to, StringListType, default: [])
     field(:bto, StringListType, default: [])
     field(:cc, StringListType, default: [])

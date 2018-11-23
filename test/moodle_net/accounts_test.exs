@@ -4,21 +4,19 @@ defmodule MoodleNet.AccountsTest do
   alias MoodleNet.Accounts
   alias MoodleNet.Accounts.{User, PasswordAuth}
 
-  @register_attrs %{
-    password: "password",
-    email: "alex@moodle.net",
-    preferred_username: "alex",
-    name: "Alex Cas",
-    extra_field: "extra"
-  }
-
   describe "register_user" do
     test "works" do
-      assert {:ok, ret} = Accounts.register_user(@register_attrs)
-      assert @register_attrs.email == ret.user.email
-      assert @register_attrs.preferred_username == ret.actor[:preferred_username]
+      icon_attrs = Factory.attributes(:image)
+      attrs = Factory.attributes(:user)
+              |> Map.put("icon", icon_attrs)
+              |> Map.put("extra_field", "extra")
+      assert {:ok, ret} = Accounts.register_user(attrs)
+      assert attrs["email"] == ret.user.email
+      assert attrs["preferred_username"] == ret.actor[:preferred_username]
       assert ret.actor
-      assert ret.actor[:extra_field] == "extra"
+      assert ret.actor[:extra_field] == attrs["extra_field"]
+      assert [icon] = ret.actor[:icon]
+      assert icon[:url] == icon_attrs["url"]
     end
 
     test "fails with invalid password values" do

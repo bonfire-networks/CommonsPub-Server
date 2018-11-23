@@ -52,10 +52,32 @@ defmodule ActivityPub.SQLObject do
       join_keys: [subject_id: :local_id, target_id: :local_id]
     )
 
-    many_to_many(:contexts, SQLObject,
+    many_to_many(:context, SQLObject,
       join_through: "activity_pub_contexts",
       join_keys: [subject_id: :local_id, target_id: :local_id]
     )
+
+    many_to_many(:icon, SQLObject,
+      join_through: "activity_pub_icons",
+      join_keys: [subject_id: :local_id, target_id: :local_id]
+    )
+
+    many_to_many(:in_reply_to, SQLObject,
+      join_through: "activity_pub_in_reply_tos",
+      join_keys: [subject_id: :local_id, target_id: :local_id]
+    )
+
+    many_to_many(:replies, SQLObject,
+      join_through: "activity_pub_in_reply_tos",
+      join_keys: [subject_id: :local_id, target_id: :local_id]
+    )
+
+    # FIXME
+    field(:url, StringListType, default: [])
+    # many_to_many(:urls, SQLObject,
+    #   join_through: "activity_pub_urls",
+    #   join_keys: [subject_id: :local_id, target_id: :local_id]
+    # )
 
     timestamps()
   end
@@ -70,10 +92,30 @@ defmodule ActivityPub.SQLObject do
   defp put_assocs(ch, entity) do
     ch
     |> Ecto.Changeset.put_assoc(:attributed_to, put_attributed_to(entity))
+    |> Ecto.Changeset.put_assoc(:context, put_context(entity))
+    |> Ecto.Changeset.put_assoc(:icon, put_icon(entity))
+    |> Ecto.Changeset.put_assoc(:in_reply_to, put_in_reply_to(entity))
+    |> Ecto.Changeset.put_assoc(:replies, put_replies(entity))
   end
 
   defp put_attributed_to(entity) do
     for assoc <- entity[:attributed_to], assoc.metadata.sql, do: assoc.metadata.sql
+  end
+
+  defp put_context(entity) do
+    for assoc <- entity[:context], assoc.metadata.sql, do: assoc.metadata.sql
+  end
+
+  defp put_icon(entity) do
+    for assoc <- entity[:icon], assoc.metadata.sql, do: assoc.metadata.sql
+  end
+
+  defp put_in_reply_to(entity) do
+    for assoc <- entity[:in_reply_to], assoc.metadata.sql, do: assoc.metadata.sql
+  end
+
+  defp put_replies(entity) do
+    for assoc <- entity[:replies], assoc.metadata.sql, do: assoc.metadata.sql
   end
 
   def set_id_changeset(%__MODULE__{local_id: local_id} = o) do
@@ -99,10 +141,13 @@ defmodule ActivityPub.SQLObject do
       :bcc,
       :media_type,
       :duration,
-      :extension_fields
+      :extension_fields,
+      :url
     ]
 
-    Map.take(map, f)
+    # FIXME MAYBE?
+    # Map.take(map, f)
+    Map.take(map, __MODULE__.__schema__(:fields))
   end
 
   def to_aspect(%__MODULE__{} = sql) do

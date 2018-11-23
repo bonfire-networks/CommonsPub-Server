@@ -54,7 +54,7 @@ defmodule ActivityPub.SQLTest do
       }
 
       assert {:ok, entity} = Entity.parse(map)
-      assert {:ok, persisted_entity} = SQL.persist(entity) |> IO.inspect()
+      assert {:ok, persisted_entity} = SQL.persist(entity)
       assert persisted_entity[:id]
       assert persisted_entity[:followers]
       assert persisted_entity[:following]
