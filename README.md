@@ -6,7 +6,7 @@ The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated 
 
 The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
-It was forked from MoodleNet with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
+It was forked from Pleroma with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
 
 The first projects using it are:
 
