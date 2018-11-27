@@ -117,6 +117,8 @@ config :moodle_net, :suggestions,
   limit: 23,
   web: "https://vinayaka.distsn.org/?{{host}}+{{user}}"
 
+config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

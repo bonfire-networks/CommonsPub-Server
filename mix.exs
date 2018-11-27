@@ -4,8 +4,8 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.9.0",
-      elixir: "~> 1.7.3",
+      version: "0.0.1",
+      elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -54,6 +54,7 @@ defmodule MoodleNet.Mixfile do
       {:ex_aws, "~> 2.0"},
       {:ex_aws_s3, "~> 2.0"},
       {:cors_plug, "~> 2.0"},
+      {:distillery, "~> 2.0"},
       # FIXME using prod as well for the moment
       # {:faker, "~> 0.11", only: [:dev, :test]},
       {:faker, "~> 0.11"},
