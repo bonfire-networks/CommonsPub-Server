@@ -4,6 +4,8 @@ import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
+
+import { i18nMark } from '@lingui/react';
 import { Trans } from '@lingui/macro';
 
 import styled, { ThemeInterface } from '../../themes/styled';
@@ -22,6 +24,21 @@ const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 // TODO make the login mutation also retrieve the user so a separate request is not necessary
 const { loginMutation } = require('../../graphql/login.graphql');
+
+const tt = {
+  with: {
+    fb: 'Sign in with Facebook',
+    g: 'Sign in with Google',
+    tw: 'Sign in with Twitter'
+  },
+  validation: {
+    email: i18nMark('The email field cannot be empty'),
+    password: i18nMark('The password field cannot be empty'),
+    credentials: i18nMark(
+      'Could not log in. Please check your credentials or use the link below to reset your password.'
+    )
+  }
+};
 
 const CenteredButtonGroup = styled.div`
   display: flex;
@@ -114,14 +131,14 @@ class Login extends React.Component<LoginProps, LoginState> {
       validation.push({
         field: ValidationField.email,
         type: ValidationType.error,
-        message: 'The email field cannot be empty'
+        message: tt.validation.email
       } as ValidationObject);
     }
     if (!credentials.password.length) {
       validation.push({
         field: ValidationField.password,
         type: ValidationType.error,
-        message: 'The password field cannot be empty'
+        message: tt.validation.password
       } as ValidationObject);
     }
 
@@ -164,8 +181,7 @@ class Login extends React.Component<LoginProps, LoginState> {
           {
             field: null,
             type: ValidationType.warning,
-            message:
-              'Could not log in. Please check your credentials or use the link below to reset your password.'
+            message: tt.validation.credentials
           } as ValidationObject
         ]
       });
@@ -234,23 +250,18 @@ class Login extends React.Component<LoginProps, LoginState> {
           <Row>
             <Col md={6}>
               <LoginHeading>
-                <Trans id="login.form.prompt">
-                  Log in using your social media account
-                </Trans>
+                <Trans>Sign in using your social media account</Trans>
               </LoginHeading>
               <CenteredButtonGroup>
-                <Button
-                  style={{ width: '33.33%' }}
-                  title="Log in with Facebook"
-                >
+                <Button style={{ width: '33.33%' }} title={tt.with.fb}>
                   <i className="facebook" />
                 </Button>
                 <Spacer />
-                <Button style={{ width: '33.33%' }} title="Log in with Google">
+                <Button style={{ width: '33.33%' }} title={tt.with.g}>
                   <i className="google" />
                 </Button>
                 <Spacer />
-                <Button style={{ width: '33.33%' }} title="Log in with Twitter">
+                <Button style={{ width: '33.33%' }} title={tt.with.tw}>
                   <i className="twitter" />
                 </Button>
               </CenteredButtonGroup>
@@ -282,39 +293,41 @@ class Login extends React.Component<LoginProps, LoginState> {
             </Col>
             <FirstTimeCol offsetSm={1} md={5}>
               <Row>
-                <LoginHeading>First time?</LoginHeading>
+                <LoginHeading>
+                  <Trans>First time?</Trans>
+                </LoginHeading>
+              </Row>
+              <Row>
                 {/*TODO why isn't the margin collapsing between the H6 & P?*/}
                 <P style={{ marginTop: 0 }}>
-                  You don't need an account to use{' '}
-                  <span
-                    style={{
-                      color: this.props.theme.styles.colour.primary,
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    MoodleNet
-                  </span>
-                  . You can browse as a guest using the button below.
+                  <Trans
+                    id="You don't need an account to browse {site_name}."
+                    values={{ site_name: 'MoodleNet' }}
+                  />
                 </P>
-                <P>
-                  To participate in discussions you need to sign up. Create an
-                  account on the left or use a social media account to log in.
-                </P>
+
+                <Button secondary>
+                  <Trans>Browse as a guest</Trans>
+                </Button>
               </Row>
-              <Row
-                style={{
-                  marginTop: '20px'
-                  // display: 'flex',
-                  // alignItems: 'flex-end',
-                  // flexGrow: 1,
-                  // paddingBottom: '5%',
-                }}
-              >
+              <Row>
+                <P
+                  style={{
+                    marginTop: '40px'
+                  }}
+                >
+                  <Trans>
+                    You need to sign up to participate in discussions. You can
+                    use a social media account to sign in, or create an account
+                    manually.
+                  </Trans>
+                </P>
+
                 <Link to="/sign-up">
-                  <Button>Create account</Button>
+                  <Button>
+                    <Trans>Create an account</Trans>
+                  </Button>
                 </Link>
-                <Spacer />
-                <Button secondary>Browse as guest</Button>
               </Row>
             </FirstTimeCol>
           </Row>
