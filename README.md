@@ -143,6 +143,18 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](#running-tests) for more information.
 
+### `npm add-locale`
+
+Adds a locale for localisation, with [lingui library](https://lingui.js.org/ref/react.html).<br>
+
+### `npm extract`
+
+Extracts new/updated strings from the codebase into JSON files for localisation (they need to be encapsulated with [lingui library](https://lingui.js.org/ref/react.html)'s <Trans>).<br>
+
+### `npm compile`
+
+Compiles localisation files for production.<br>
+
 ### `npm run build`
 
 Builds the app for production to the `build` folder.<br>
