@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.GraphQL.Schema.Accounts do
     field :preferred_username, :string
     field :name, :json
     field :summary, :json
-    field :role, :string
+    field :location, :string
     field :token, :string
   end
 
@@ -36,9 +36,13 @@ defmodule MoodleNetWeb.GraphQL.Schema.Accounts do
     field :email, non_null(:string)
     field :password, non_null(:string)
     field :preferred_username, non_null(:string)
-    field :name, :json
-    field :summary, :json
-    field :role, :string
+    field :name, :string
+    field :summary, :string
+    field :location, :string
   end
 
+  input_object :login_input do
+    field :email, non_null(:string)
+    field :password, non_null(:string)
+  end
 end
