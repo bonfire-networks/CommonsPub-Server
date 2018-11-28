@@ -7,7 +7,6 @@ defmodule ActivityPub.Entity do
     ActivityAspect,
     CollectionAspect,
     CollectionPageAspect,
-    LinkAspect
   }
 
   alias ActivityPub.{StringListType, Metadata, Types}
@@ -18,7 +17,6 @@ defmodule ActivityPub.Entity do
     ActivityAspect,
     CollectionAspect,
     CollectionPageAspect,
-    LinkAspect
   ]
   @behaviour Access
   @primary_key false
