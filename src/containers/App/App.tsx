@@ -49,7 +49,7 @@ export default class App extends React.Component<{}, AppState> {
   state = {
     catalogs: {
       en_GB: require(process.env.NODE_ENV === 'development'
-        ? '../../locales/en_GB/messages.json'
+        ? '../../locales/en_GB/messages.po'
         : '../../locales/en_GB/messages.js')
     },
     locale: 'en_GB',
@@ -64,7 +64,7 @@ export default class App extends React.Component<{}, AppState> {
 
       if (process.env.NODE_ENV === 'development') {
         catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
-        `@lingui/loader!../../locales/${locale}/messages.json`);
+        `@lingui/loader!../../locales/${locale}/messages.po`);
       } else {
         catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
         `../../locales/${locale}/messages.js`);
