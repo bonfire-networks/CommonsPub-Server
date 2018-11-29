@@ -1,5 +1,48 @@
 defmodule ActivityPub.Context do
+  # FIXME Sure this can be done much better
+  # but I don't understand completely JSON-LD context
+
   defstruct values: [], language: "und"
+
+  @behaviour Ecto.Type
+
+  @impl Ecto.Type
+  def type(), do: :map
+
+  @impl Ecto.Type
+  def cast(value) do
+    case parse(value) do
+      {:error, _} -> :error
+      {:ok, _ } = ret -> ret
+    end
+  end
+
+  @impl Ecto.Type
+  def load(%{"no_prefix" => no_prefix, "language" => language} = map) do
+    values = no_prefix ++
+      map
+      |> Map.drop(["no_prefix", "language"])
+      |> Map.to_list()
+    {:ok, %__MODULE__{
+      language: language,
+      values: values
+    }}
+  end
+
+  @impl Ecto.Type
+  def dump(%__MODULE__{values: values, language: language} = ctxt) do
+    initial = %{"language" => language, "no_prefix" => []}
+    ret = Enum.reduce(values, initial, fn
+      {prefix, value}, map ->
+        Map.put(initial, prefix, value)
+      value, map when is_binary(value) ->
+        %{map | values: [value | map.values]}
+    end)
+
+    {:ok, ret}
+  end
+
+  def dump(_), do: :error
 
   alias ActivityPub.ParseError
 

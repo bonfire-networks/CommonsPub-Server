@@ -1,15 +1,24 @@
 defmodule ActivityPub.Metadata do
-  defstruct aspects: %{}, types: %{}, status: nil, persistence: nil
+  @enforce_keys [:local]
+  defstruct [
+    aspects: %{},
+    types: %{},
+    status: nil,
+    persistence: nil,
+    local: :nil,
+    verified: false
+  ]
 
-  def new(type_list, aspect_list, status) do
+  def new(type_list, aspect_list, fields \\ []) do
     types = Enum.into(type_list, %{}, &{&1, true})
     aspects = Enum.into(aspect_list, %{}, &{&1, true})
 
-    %__MODULE__{
-      aspects: aspects,
-      types: types,
-      status: status
-    }
+    fields =
+      fields
+      |> Keyword.put(:types, types)
+      |> Keyword.put(:aspects, aspects)
+
+    struct!(__MODULE__, fields)
   end
 
   def aspects(%__MODULE__{aspects: aspect_map}) do
