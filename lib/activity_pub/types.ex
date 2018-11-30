@@ -7,6 +7,7 @@ defmodule ActivityPub.Types do
     CollectionAspect,
     CollectionPageAspect
   }
+  alias ActivityPub.BuildError
 
   @type_map %{
     "Link" => {[], [LinkAspect]},
@@ -70,12 +71,11 @@ defmodule ActivityPub.Types do
     "MoodleNet:EducationalResource" => {~w[Object Page WebPage], []}
   }
 
-  def parse(value) do
-    # FIXME better errors: ParseError
+  def build(value) do
     case ActivityPub.StringListType.cast(value) do
       {:ok, []} -> {:ok, ["Object"]}
       {:ok, list} -> {:ok, Enum.flat_map(list, &ancestors(&1)) |> Enum.uniq()}
-      r -> r
+      :error -> %BuildError{path: ["type"], value: value, message: "is invalid"}
     end
   end
 

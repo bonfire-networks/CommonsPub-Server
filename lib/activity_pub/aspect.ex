@@ -1,5 +1,5 @@
 defmodule ActivityPub.Aspect do
-  alias ActivityPub.{Association, Context, ParseError}
+  alias ActivityPub.{Association, Context}
   alias ActivityPub.Entity
 
   # FIXME make this more dynamic?
@@ -39,6 +39,14 @@ defmodule ActivityPub.Aspect do
       def parse(params, %Context{} = context) when is_map(params) do
         ActivityPub.Aspect.parse(__MODULE__, params, context)
       end
+
+      # def build_fields(entity, params) when is_map(params) do
+      #   ActivityPub.Aspect.build_fields(__MODULE__, entity, params)
+      # end
+
+      # def build_assocs(entity, params) when is_map(params) do
+      #   ActivityPub.Aspect.build_assocs(__MODULE__, entity, params)
+      # end
     end
   end
 
@@ -135,15 +143,18 @@ defmodule ActivityPub.Aspect do
     Module.put_attribute(mod, :aspect_struct_fields, {name, default})
   end
 
-  def __aspect__(fields, _assocs) do
+  def __aspect__(fields, assocs) do
     types_quoted =
       for {name, type} <- fields do
         {[:type, name], Macro.escape(type)}
       end
 
-    [
-      types_quoted
-    ]
+    assoc_quoted =
+      for {name, assoc} <- assocs do
+        {[:association, name], Macro.escape(assoc)}
+      end
+
+    [types_quoted, assoc_quoted]
   end
 
   defmacro assoc(name, opts \\ []) do
@@ -163,63 +174,32 @@ defmodule ActivityPub.Aspect do
     :ok
   end
 
+  def build_assocs(aspect, entity, params) do
+    params = Map.drop(params, aspect.__aspect__(:associations))
+    {:ok, entity, params}
+  end
+
   def parse(aspect, params, context, previous_keys \\ []) do
     params = convert_params(params)
 
     try do
-      fields = aspect.__aspect__(:fields)
+      # fields = aspect.__aspect__(:fields)
 
-      {parsed, params} =
-        Enum.reduce(fields, {%{}, params}, &process_param(&1, &2, aspect, context))
+      # {parsed, params} =
+      #   Enum.reduce(fields, {%{}, params}, &process_param(&1, &2, aspect, context))
 
       assocs = aspect.__aspect__(:associations)
 
       {parsed, params} =
         Enum.reduce(
           assocs,
-          {parsed, params},
+          {%{}, params},
           &process_assoc(&1, &2, aspect, context, previous_keys)
         )
 
       {:ok, parsed, params}
     catch
       {:error, _} = ret -> ret
-    end
-  end
-
-  defp process_param(key, {parsed, params}, aspect, context) do
-    type = aspect.__aspect__(:type, key)
-
-    case cast_param(type, to_string(key), params, context) do
-      {:ok, value, params} ->
-        parsed = Map.put(parsed, key, value)
-        {parsed, params}
-
-      {:error, value} ->
-        error = %ParseError{key: to_string(key), value: value, message: "is invalid"}
-        throw({:error, error})
-    end
-  end
-
-  defp cast_param(ActivityPub.LanguageValueType, key, params, %{language: lang}) do
-    map_key = "#{key}_map"
-    value = Map.get(params, map_key) || Map.get(params, key)
-    params = params |> Map.delete(key) |> Map.delete(map_key)
-
-    with {:ok, value} <- ActivityPub.LanguageValueType.cast(value, lang) do
-      {:ok, value, params}
-    else
-      _ -> {:error, value}
-    end
-  end
-
-  defp cast_param(type, key, params, _) do
-    {value, params} = Map.pop(params, key)
-
-    with {:ok, value} <- Ecto.Type.cast(type, value) do
-      {:ok, value, params}
-    else
-      _ -> {:error, value}
     end
   end
 

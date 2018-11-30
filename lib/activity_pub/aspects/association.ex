@@ -1,3 +1,3 @@
 defmodule ActivityPub.Association do
-  defstruct [single: false]
+  defstruct [cardinality: :many]
 end

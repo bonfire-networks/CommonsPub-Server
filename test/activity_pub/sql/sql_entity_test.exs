@@ -4,16 +4,15 @@ defmodule ActivityPub.SQLEntityTest do
   alias ActivityPub.Entity
   alias ActivityPub.SQLEntity
 
-  describe "persist" do
-    test "works" do
+  @moduletag :skip
+  describe "create" do
+    test "works with new entities" do
       map = %{
-        id: "https://alex.gitlab.com/",
         type: "Object",
         content: "This is a content",
         name: "This is my name",
         end_time: "2015-01-01T06:00:00-08:00",
         new_field: "extra",
-        url: "https://alex.gitlab.com/profile"
       }
 
       assert {:ok, entity} = Entity.parse(map)

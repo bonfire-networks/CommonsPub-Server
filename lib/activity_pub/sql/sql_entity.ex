@@ -18,24 +18,29 @@ defmodule ActivityPub.SQLEntity do
     timestamps()
 
     require ActivityPub.SQLAspect
+
     for sql_aspect <- SQLAspect.all() do
       ActivityPub.SQLAspect.inject_in_sql_entity_schema(sql_aspect)
     end
   end
 
-  def persist(entity) when APG.is_entity(entity) do
-    {:ok, %{entity: sql_entity}} =
-      Multi.new()
-    |> Multi.insert(:_entity, create_changeset(entity))
-    |> Multi.run(:entity, &set_ap_id/2)
-    |> MoodleNet.Repo.transaction()
+  def create(entity) when APG.is_entity(entity) do
+    case Entity.status(entity) do
+      :new ->
+        {:ok, %{entity: sql_entity}} =
+          Multi.new()
+          |> Multi.insert(:_entity, create_changeset(entity))
+          |> Multi.run(:entity, &set_ap_id/2)
+          |> MoodleNet.Repo.transaction()
 
-    {:ok, to_entity(sql_entity)}
+        {:ok, to_entity(sql_entity)}
+    end
   end
 
   defp create_changeset(entity) do
-    ch = %__MODULE__{}
-    |> Ecto.Changeset.change(from_entity_fields(entity))
+    ch =
+      %__MODULE__{}
+      |> Ecto.Changeset.change(from_entity_fields(entity))
 
     Entity.aspects(entity)
     |> Enum.reduce(ch, fn aspect, ch ->
@@ -72,7 +77,7 @@ defmodule ActivityPub.SQLEntity do
     preload_aspect_names =
       entity
       |> Entity.aspects()
-      |> Enum.filter(& &1.persistence().persistence_method() == :table)
+      |> Enum.filter(&(&1.persistence().persistence_method() == :table))
       |> Enum.map(& &1.name())
 
     # FIXME set to nil not implemented aspects
@@ -95,9 +100,11 @@ defmodule ActivityPub.SQLEntity do
   # FIXME move to sql_aspect
   defp aspect_data(%__MODULE__{} = sql_entity, aspect) do
     sql_aspect = aspect.persistence()
+
     case sql_aspect.persistence_method() do
       x when x in [:table, :embedded] ->
         Map.fetch!(sql_entity, aspect.name())
+
       :fields ->
         sql_entity
     end

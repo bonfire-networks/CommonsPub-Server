@@ -24,34 +24,6 @@ defmodule ActivityPub.AspectTest do
     assert :string == Foo.__aspect__(:type, :id)
   end
 
-  describe "parse" do
-    test "casts values" do
-      params = %{"no_field" => "awesome", "id" => "any_id"}
-      assert {:ok, parsed, rest_params} = Foo.parse(params, %Context{})
-      assert parsed == %{id: "any_id", translatable: %{}, url: []}
-      assert rest_params == %{"no_field" => "awesome"}
-    end
-
-    test "returns errors" do
-      params = %{"no_field" => "awesome", "id" => 1}
-      assert {:error, error} = Foo.parse(params, %Context{})
-      assert %ActivityPub.ParseError{key: "id", message: "is invalid", value: 1} = error
-    end
-
-    test "works with translatable fields" do
-      params = %{"translatable" => "string"}
-      context = %Context{language: "es"}
-
-      assert {:ok, parsed, %{}} = Foo.parse(params, context)
-      assert %{translatable: %{"es" => "string"}} = parsed
-
-      value = %{"en" => "string", "fr" => "string"}
-      params = %{"translatable_map" => value}
-      assert {:ok, parsed, %{}} = Foo.parse(params, context)
-      assert %{id: nil, translatable: ^value} = parsed
-    end
-  end
-
   # Errors
   test "field name clash" do
     assert_raise ArgumentError, "field/association :name is already set on aspect", fn ->

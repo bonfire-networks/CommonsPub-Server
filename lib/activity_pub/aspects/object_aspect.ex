@@ -14,11 +14,11 @@ defmodule ActivityPub.ObjectAspect do
     assoc(:generator)
     assoc(:icon)
     assoc(:image)
-    assoc(:in_reply_to)
+    assoc(:in_reply_to, cardinality: :one)
     assoc(:location)
     assoc(:preview)
     field(:published, :utc_datetime)
-    assoc(:replies)
+    assoc(:replies, cardinality: :one)
     field(:start_time, :utc_datetime)
     field(:summary, LanguageValueType, default: %{})
     assoc(:tag)
@@ -31,6 +31,6 @@ defmodule ActivityPub.ObjectAspect do
     field(:cc, StringListType, default: [])
     field(:bcc, StringListType, default: [])
     field(:media_type, :string)
-    field(:duration , :string)
+    field(:duration, :string)
   end
 end

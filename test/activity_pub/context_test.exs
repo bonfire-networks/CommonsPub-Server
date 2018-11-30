@@ -1,11 +1,11 @@
 defmodule ActivityPub.ContextTest do
   use MoodleNet.DataCase, async: true
 
-  alias ActivityPub.{Context, ParseError}
+  alias ActivityPub.{Context, BuildError}
 
-  describe "parse" do
+  describe "build" do
     test "works with nil" do
-      assert {:ok, %Context{}} == Context.parse(nil)
+      assert {:ok, %Context{}} == Context.build(nil)
     end
 
     test "works with maps" do
@@ -15,7 +15,7 @@ defmodule ActivityPub.ContextTest do
         "@language" => "en"
       }
 
-      assert {:ok, value} = Context.parse(map)
+      assert {:ok, value} = Context.build(map)
 
       assert value == %Context{
                language: "en",
@@ -27,7 +27,7 @@ defmodule ActivityPub.ContextTest do
     end
 
     test "works with strings" do
-      assert {:ok, value} = Context.parse("https://www.w3.org/ns/activitystreams")
+      assert {:ok, value} = Context.build("https://www.w3.org/ns/activitystreams")
 
       assert value == %Context{
                language: "und",
@@ -43,7 +43,7 @@ defmodule ActivityPub.ContextTest do
         }
       ]
 
-      assert {:ok, value} = Context.parse(param)
+      assert {:ok, value} = Context.build(param)
 
       assert value == %Context{
                language: "und",
@@ -55,11 +55,11 @@ defmodule ActivityPub.ContextTest do
     end
 
     test "returns errors" do
-      assert {:error, %ParseError{
+      assert {:error, %BuildError{
         message: "is invalid",
         value: true,
-        key: "@context"
-      }} = Context.parse(true)
+        path: ["@context"]
+      }} = Context.build(true)
     end
 
     # FIXME
@@ -77,7 +77,7 @@ defmodule ActivityPub.ContextTest do
           }
         }
       ]
-      assert {:ok, _value} = Context.parse(param)
+      assert {:ok, _value} = Context.build(param)
     end
   end
 end

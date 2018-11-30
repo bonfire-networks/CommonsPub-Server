@@ -79,6 +79,7 @@ defmodule ActivityPub.SQLAspect do
       case persistence_method do
         :table ->
           def create_changeset(changeset, entity) when APG.has_aspect(entity, unquote(aspect)) do
+            # FIXME move the body function to real function: out of a macro
             changes = Entity.fields_for(entity, unquote(aspect))
             assoc_ch = Ecto.Changeset.change(struct(unquote(sql_aspect)), changes)
             Ecto.Changeset.put_assoc(changeset, unquote(aspect).name(), assoc_ch)

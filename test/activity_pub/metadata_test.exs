@@ -6,9 +6,8 @@ defmodule ActivityPub.MetadataTest do
   describe "new" do
     test "works" do
       types = ["Object", "Activity", "Follow", "CustomFollowType"]
-      aspects = [ActivityPub.ObjectAspect, ActivityPub.ActivityAspect]
 
-      assert Metadata.new(types, aspects, local: true)
+      assert Metadata.new(types)
     end
   end
 
@@ -25,8 +24,8 @@ defmodule ActivityPub.MetadataTest do
       def is_meta(_), do: false
     end
 
-    no_meta = Map.from_struct(%Metadata{local: false})
-    meta = %Metadata{local: false}
+    no_meta = Map.from_struct(Metadata.not_loaded())
+    meta = Metadata.not_loaded()
 
     assert IsMetadata.is_meta(meta)
     refute IsMetadata.is_meta(no_meta)
@@ -43,9 +42,9 @@ defmodule ActivityPub.MetadataTest do
       def is_actor(_), do: false
     end
 
-    object = Metadata.new(["Object"], [], local: true)
-    person = Metadata.new(["Object", "Actor", "Person"], [], local: true)
-    link = Metadata.new(["Link"], [], local: true)
+    object = Metadata.new(["Object"])
+    person = Metadata.new(["Object", "Actor", "Person"])
+    link = Metadata.new(["Link"])
 
     assert HasType.is_object(object)
     assert HasType.is_object(person)
@@ -57,10 +56,10 @@ defmodule ActivityPub.MetadataTest do
   end
 
   test "has_aspect guard works" do
-    alias ActivityPub.{LinkAspect, ObjectAspect, ActorAspect}
 
     defmodule HasAspect do
       import ActivityPub.Metadata.Guards
+      alias ActivityPub.{ObjectAspect, ActorAspect}
 
       def is_object(o) when has_aspect(o, ObjectAspect), do: true
       def is_object(_), do: false
@@ -69,9 +68,9 @@ defmodule ActivityPub.MetadataTest do
       def is_actor(_), do: false
     end
 
-    object = Metadata.new([], [ObjectAspect], local: true)
-    person = Metadata.new([], [ObjectAspect, ActorAspect], local: true)
-    link = Metadata.new([], [LinkAspect], local: true)
+    object = Metadata.new(["Object"])
+    person = Metadata.new(["Object", "Actor", "Person"])
+    link = Metadata.new(["Link"])
 
     assert HasAspect.is_object(object)
     assert HasAspect.is_object(person)

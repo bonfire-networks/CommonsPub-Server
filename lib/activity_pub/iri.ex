@@ -20,7 +20,6 @@ defmodule ActivityPub.IRI do
   # > of reliably preserving the base context necessary to properly resolve
   # > relative references.
 
-  # FIXME better error: ParseError
   def parse(params, key) do
     case params[key] do
       nil ->
@@ -33,8 +32,8 @@ defmodule ActivityPub.IRI do
 
           {:error, msg} ->
             {:error,
-             %ActivityPub.ParseError{
-               key: key,
+             %ActivityPub.BuildError{
+               path: [key],
                value: value,
                message: to_string(msg)
              }}

@@ -9,15 +9,16 @@ defmodule ActivityPub.TypesTest do
   }
 
   alias ActivityPub.Types
+  alias ActivityPub.BuildError
 
-  test "parse/1 works" do
-    assert Types.parse(nil) == {:ok, ["Object"]}
-    assert Types.parse("Object") == {:ok, ["Object"]}
-    assert Types.parse(["Object"]) == {:ok, ["Object"]}
-    assert Types.parse(["Person"]) == {:ok, ["Object", "Actor", "Person"]}
+  test "build/1 works" do
+    assert Types.build(nil) == {:ok, ["Object"]}
+    assert Types.build("Object") == {:ok, ["Object"]}
+    assert Types.build(["Object"]) == {:ok, ["Object"]}
+    assert Types.build(["Person"]) == {:ok, ["Object", "Actor", "Person"]}
 
-    assert Types.parse("Unknown") == {:ok, ["Object", "Unknown"]}
-    assert Types.parse(true) == :error
+    assert Types.build("Unknown") == {:ok, ["Object", "Unknown"]}
+    assert %BuildError{path: ["type"], value: true, message: "is invalid"} = Types.build(true)
   end
 
   test "aspects/1 works" do

@@ -4,6 +4,9 @@ defmodule ActivityPub.Context do
 
   defstruct values: [], language: "und"
 
+  @activity_pub_ns "https://www.w3.org/ns/activitystreams"
+  def default(), do: %__MODULE__{values: [@activity_pub_ns]}
+
   @behaviour Ecto.Type
 
   @impl Ecto.Type
@@ -11,7 +14,7 @@ defmodule ActivityPub.Context do
 
   @impl Ecto.Type
   def cast(value) do
-    case parse(value) do
+    case build(value) do
       {:error, _} -> :error
       {:ok, _ } = ret -> ret
     end
@@ -44,32 +47,32 @@ defmodule ActivityPub.Context do
 
   def dump(_), do: :error
 
-  alias ActivityPub.ParseError
+  alias ActivityPub.BuildError
 
-  def parse(value) do
+  def build(value) do
     value
     |> List.wrap()
-    |> Enum.reduce(%__MODULE__{}, &parse_single/2)
+    |> Enum.reduce(%__MODULE__{}, &build_single/2)
     |> case do
       {:error, _} = ret -> ret
       context -> {:ok, context}
     end
   end
 
-  defp parse_single(_, {:error, _} = ret), do: ret
+  defp build_single(_, {:error, _} = ret), do: ret
 
-  defp parse_single(string, context) when is_binary(string) do
+  defp build_single(string, context) when is_binary(string) do
     %{context | values: [string | context.values]}
   end
 
-  defp parse_single(map, context) when is_map(map) do
-    Enum.reduce(map, context, &parse_single/2)
+  defp build_single(map, context) when is_map(map) do
+    Enum.reduce(map, context, &build_single/2)
   end
 
-  defp parse_single({"@language", lang}, context), do: %{context | language: lang}
+  defp build_single({"@language", lang}, context), do: %{context | language: lang}
 
-  defp parse_single({prefix, value}, context) when is_binary(prefix) and is_binary(value),
+  defp build_single({prefix, value}, context) when is_binary(prefix) and is_binary(value),
     do: %{context | values: [{prefix, value} | context.values]}
 
-  defp parse_single(invalid_value, _context), do: {:error, %ParseError{key: "@context", value: invalid_value, message: "is invalid"}}
+  defp build_single(invalid_value, _context), do: {:error, %BuildError{path: ["@context"], value: invalid_value, message: "is invalid"}}
 end
