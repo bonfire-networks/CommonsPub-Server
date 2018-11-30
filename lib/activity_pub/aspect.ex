@@ -1,11 +1,11 @@
 defmodule ActivityPub.Aspect do
   alias ActivityPub.{Association, Context, ParseError}
-  alias ActivityPub.Entito, as: Entity
+  alias ActivityPub.Entity
 
   # FIXME make this more dynamic?
   @type_aspects %{
     # "Link" => [ActivityPub.LinkAspect],
-    "Object" => [ActivityPub.ObjectAspecto]
+    "Object" => [ActivityPub.ObjectAspect]
   }
 
   @aspects @type_aspects |> Map.values() |> List.flatten() |> Enum.uniq()
@@ -32,8 +32,8 @@ defmodule ActivityPub.Aspect do
             |> Module.split()
             |> List.last()
             |> Recase.to_snake()
-            |> String.trim_trailing("_aspecto")
             |> String.to_atom()
+
       def name(), do: @name
 
       def parse(params, %Context{} = context) when is_map(params) do

@@ -30,13 +30,13 @@ defmodule ActivityPub.Context do
   end
 
   @impl Ecto.Type
-  def dump(%__MODULE__{values: values, language: language} = ctxt) do
+  def dump(%__MODULE__{values: values, language: language}) do
     initial = %{"language" => language, "no_prefix" => []}
     ret = Enum.reduce(values, initial, fn
       {prefix, value}, map ->
-        Map.put(initial, prefix, value)
+        Map.put(map, prefix, value)
       value, map when is_binary(value) ->
-        %{map | values: [value | map.values]}
+        %{map | "no_prefix" => [value | map["no_prefix"]]}
     end)
 
     {:ok, ret}
@@ -71,5 +71,5 @@ defmodule ActivityPub.Context do
   defp parse_single({prefix, value}, context) when is_binary(prefix) and is_binary(value),
     do: %{context | values: [{prefix, value} | context.values]}
 
-  defp parse_single(invalid_value, context), do: {:error, %ParseError{key: "@context", value: invalid_value, message: "is invalid"}}
+  defp parse_single(invalid_value, _context), do: {:error, %ParseError{key: "@context", value: invalid_value, message: "is invalid"}}
 end

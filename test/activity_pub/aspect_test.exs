@@ -2,20 +2,8 @@ defmodule ActivityPub.AspectTest do
   use MoodleNet.DataCase
   alias ActivityPub.{LanguageValueType, Context}
 
-  test "all works" do
-    assert [ActivityPub.LinkAspect] == ActivityPub.Aspect.all()
-  end
-
-  test "for_type works" do
-    assert [ActivityPub.LinkAspect] == ActivityPub.Aspect.for_type("Link")
-  end
-
-  test "for_types works" do
-    assert [ActivityPub.LinkAspect] == ActivityPub.Aspect.for_types(["Link"])
-  end
-
   defmodule Foo do
-    use ActivityPub.Aspect
+    use ActivityPub.Aspect, persistence: :any
 
     aspect do
       field(:id, :string)
@@ -40,14 +28,14 @@ defmodule ActivityPub.AspectTest do
     test "casts values" do
       params = %{"no_field" => "awesome", "id" => "any_id"}
       assert {:ok, parsed, rest_params} = Foo.parse(params, %Context{})
-      assert parsed == %{id: "any_id", translatable: %{}}
+      assert parsed == %{id: "any_id", translatable: %{}, url: []}
       assert rest_params == %{"no_field" => "awesome"}
     end
 
     test "returns errors" do
       params = %{"no_field" => "awesome", "id" => 1}
-      assert {:error, :id, error} = Foo.parse(params, %Context{})
-      assert error =~ ~r/invalid value:/
+      assert {:error, error} = Foo.parse(params, %Context{})
+      assert %ActivityPub.ParseError{key: "id", message: "is invalid", value: 1} = error
     end
 
     test "works with translatable fields" do
@@ -55,12 +43,12 @@ defmodule ActivityPub.AspectTest do
       context = %Context{language: "es"}
 
       assert {:ok, parsed, %{}} = Foo.parse(params, context)
-      assert parsed == %{id: nil, translatable: %{"es" => "string"}}
+      assert %{translatable: %{"es" => "string"}} = parsed
 
       value = %{"en" => "string", "fr" => "string"}
       params = %{"translatable_map" => value}
       assert {:ok, parsed, %{}} = Foo.parse(params, context)
-      assert parsed == %{id: nil, translatable: value}
+      assert %{id: nil, translatable: ^value} = parsed
     end
   end
 
@@ -68,7 +56,7 @@ defmodule ActivityPub.AspectTest do
   test "field name clash" do
     assert_raise ArgumentError, "field/association :name is already set on aspect", fn ->
       defmodule AspectFieldNameClash do
-        use ActivityPub.Aspect
+        use ActivityPub.Aspect, persistence: :any
 
         aspect do
           field(:name, :string)
@@ -81,7 +69,7 @@ defmodule ActivityPub.AspectTest do
   test "invalid field type" do
     assert_raise ArgumentError, "invalid or unknown type {:apa} for field :name", fn ->
       defmodule AspectInvalidFieldType do
-        use ActivityPub.Aspect
+        use ActivityPub.Aspect, persistence: :any
 
         aspect do
           field(:name, {:apa})
@@ -91,7 +79,7 @@ defmodule ActivityPub.AspectTest do
 
     assert_raise ArgumentError, "invalid or unknown type OMG for field :name", fn ->
       defmodule AspectInvalidFieldType do
-        use ActivityPub.Aspect
+        use ActivityPub.Aspect, persistence: :any
 
         aspect do
           field(:name, OMG)
@@ -111,7 +99,7 @@ defmodule ActivityPub.AspectTest do
       end
 
       defmodule AspectInvalidFieldType do
-        use ActivityPub.Aspect
+        use ActivityPub.Aspect, persistence: :any
 
         aspect do
           field(:name, FooSchema)

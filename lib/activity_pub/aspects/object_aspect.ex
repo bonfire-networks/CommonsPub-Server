@@ -1,28 +1,27 @@
 defmodule ActivityPub.ObjectAspect do
-  use Ecto.Schema
+  use ActivityPub.Aspect, persistence: ActivityPub.SQLObjectAspect
 
-  alias ActivityPub.{LanguageValueType, StringListType, EntityType}
+  alias ActivityPub.{LanguageValueType, StringListType}
 
-  @primary_key false
-  embedded_schema do
-    field(:attachment, EntityType, default: [])
-    field(:attributed_to, EntityType, default: [])
-    field(:audience, EntityType, default: [])
+  aspect do
+    assoc(:attachment)
+    assoc(:attributed_to)
+    assoc(:audience)
     field(:content, LanguageValueType, default: %{})
-    field(:context, EntityType, default: [])
+    assoc(:context)
     field(:name, LanguageValueType, default: %{})
     field(:end_time, :utc_datetime)
-    field(:generator, EntityType, default: [])
-    field(:icon, EntityType, default: [])
-    field(:image, EntityType, default: [])
-    field(:in_reply_to, EntityType, default: [])
-    field(:location, EntityType, default: [])
-    field(:preview, EntityType, default: [])
+    assoc(:generator)
+    assoc(:icon)
+    assoc(:image)
+    assoc(:in_reply_to)
+    assoc(:location)
+    assoc(:preview)
     field(:published, :utc_datetime)
-    field(:replies, EntityType, default: [])
+    assoc(:replies)
     field(:start_time, :utc_datetime)
     field(:summary, LanguageValueType, default: %{})
-    field(:tag, EntityType, default: [])
+    assoc(:tag)
     field(:updated, :utc_datetime)
     # FIXME url is a relation
     # field(:url, EntityType, default: [])
@@ -34,12 +33,4 @@ defmodule ActivityPub.ObjectAspect do
     field(:media_type, :string)
     field(:duration , :string)
   end
-
-  def parse(%{} = input) do
-    %__MODULE__{}
-    |> Ecto.Changeset.cast(input, __MODULE__.__schema__(:fields))
-    |> Ecto.Changeset.apply_action(:insert)
-  end
-
-  def internal_field(), do: :object
 end

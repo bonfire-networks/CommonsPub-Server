@@ -9,7 +9,7 @@ defmodule ActivityPub.Metadata do
     verified: false
   ]
 
-  def new(type_list, aspect_list, fields \\ []) do
+  def new(type_list, aspect_list, fields \\ []) when is_list(fields) do
     types = Enum.into(type_list, %{}, &{&1, true})
     aspects = Enum.into(aspect_list, %{}, &{&1, true})
 
@@ -25,7 +25,7 @@ defmodule ActivityPub.Metadata do
     Enum.map(aspect_map, fn {aspect, true} -> aspect end)
   end
 
-  def types(%__MODULE__{types: type_map} = meta) do
+  def types(%__MODULE__{types: type_map}) do
     Enum.map(type_map, fn {type, true} -> type end)
   end
 

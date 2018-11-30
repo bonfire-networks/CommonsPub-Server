@@ -1,6 +1,6 @@
 defmodule ActivityPub.SQLAspect do
   alias ActivityPub.SQLObjectAspect
-  alias ActivityPub.Entito, as: Entity
+  alias ActivityPub.Entity
 
   def all(), do: [SQLObjectAspect]
 

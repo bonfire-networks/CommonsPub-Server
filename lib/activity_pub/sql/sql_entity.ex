@@ -3,7 +3,7 @@ defmodule ActivityPub.SQLEntity do
   alias Ecto.Multi
   require ActivityPub.Guards, as: APG
 
-  alias ActivityPub.Entito, as: Entity
+  alias ActivityPub.Entity
   alias ActivityPub.{SQLAspect, Context, UrlBuilder}
   alias MoodleNet.Repo
 

@@ -74,7 +74,7 @@ defmodule ActivityPub.Types do
     # FIXME better errors: ParseError
     case ActivityPub.StringListType.cast(value) do
       {:ok, []} -> {:ok, ["Object"]}
-      {:ok, list} -> {:ok, Enum.flat_map(list, &get_ancestors(&1)) |> Enum.uniq()}
+      {:ok, list} -> {:ok, Enum.flat_map(list, &ancestors(&1)) |> Enum.uniq()}
       r -> r
     end
   end
@@ -82,14 +82,16 @@ defmodule ActivityPub.Types do
   def all(), do: Map.keys(@type_map)
 
   for {type, {ancestors, _}} <- @type_map do
-    def get_ancestors(unquote(type)), do: List.insert_at(unquote(ancestors), -1, unquote(type))
+    def ancestors(unquote(type)), do: List.insert_at(unquote(ancestors), -1, unquote(type))
   end
 
-  def get_ancestors(type), do: ["Object", type]
+  def ancestors(type) when is_binary(type), do: ["Object", type]
+  def ancestors(list) when is_list(list), do: Enum.flat_map(list, &ancestors/1) |> Enum.uniq()
 
   for {type, {_, aspects}} <- @type_map do
-    def get_aspects(unquote(type)), do: unquote(aspects)
+    def aspects(unquote(type)), do: unquote(aspects)
   end
 
-  def get_aspects(_), do: []
+  def aspects(list) when is_list(list), do: Enum.flat_map(list, &aspects/1) |> Enum.uniq()
+  def aspects(_), do: []
 end

@@ -1,22 +1,11 @@
 defmodule ActivityPub.CollectionPageAspect do
-  use Ecto.Schema
+  use ActivityPub.Aspect, persistence: ActivityPub.SQLCollectionPageAspect
 
-  @primary_key false
-  embedded_schema do
+  aspect do
     # FIXME make just single
-    field(:part_of, ActivityPub.EntityType, default: [])
-    field(:next, ActivityPub.EntityType, default: [])
-    field(:prev, ActivityPub.EntityType, default: [])
+    assoc(:part_of)
+    assoc(:next)
+    assoc(:prev)
   end
-
-  @fields [:part_of, :next, :prev]
-
-  def parse(%{} = input) do
-    %__MODULE__{}
-    |> Ecto.Changeset.cast(input, @fields)
-    |> Ecto.Changeset.apply_action(:insert)
-  end
-
-  def internal_field(), do: :collection_page
 end
 

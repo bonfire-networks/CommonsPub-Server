@@ -8,7 +8,7 @@ defmodule ActivityPub.MetadataTest do
       types = ["Object", "Activity", "Follow", "CustomFollowType"]
       aspects = [ActivityPub.ObjectAspect, ActivityPub.ActivityAspect]
 
-      assert Metadata.new(types, aspects, :parsed)
+      assert Metadata.new(types, aspects, local: true)
     end
   end
 
@@ -25,8 +25,8 @@ defmodule ActivityPub.MetadataTest do
       def is_meta(_), do: false
     end
 
-    no_meta = Map.from_struct(%Metadata{})
-    meta = %Metadata{}
+    no_meta = Map.from_struct(%Metadata{local: false})
+    meta = %Metadata{local: false}
 
     assert IsMetadata.is_meta(meta)
     refute IsMetadata.is_meta(no_meta)
@@ -43,9 +43,9 @@ defmodule ActivityPub.MetadataTest do
       def is_actor(_), do: false
     end
 
-    object = Metadata.new(["Object"], [], :parsed)
-    person = Metadata.new(["Object", "Actor", "Person"], [], :parsed)
-    link = Metadata.new(["Link"], [], :parsed)
+    object = Metadata.new(["Object"], [], local: true)
+    person = Metadata.new(["Object", "Actor", "Person"], [], local: true)
+    link = Metadata.new(["Link"], [], local: true)
 
     assert HasType.is_object(object)
     assert HasType.is_object(person)
@@ -69,9 +69,9 @@ defmodule ActivityPub.MetadataTest do
       def is_actor(_), do: false
     end
 
-    object = Metadata.new([], [ObjectAspect], :parsed)
-    person = Metadata.new([], [ObjectAspect, ActorAspect], :parsed)
-    link = Metadata.new([], [LinkAspect], :parsed)
+    object = Metadata.new([], [ObjectAspect], local: true)
+    person = Metadata.new([], [ObjectAspect, ActorAspect], local: true)
+    link = Metadata.new([], [LinkAspect], local: true)
 
     assert HasAspect.is_object(object)
     assert HasAspect.is_object(person)

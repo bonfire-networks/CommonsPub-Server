@@ -1,25 +1,14 @@
 defmodule ActivityPub.CollectionAspect do
-  use Ecto.Schema
+  use ActivityPub.Aspect, persistence: ActivityPub.SQLCollectionAspect
 
-  @primary_key false
-  embedded_schema do
+  aspect do
     field(:total_items, :integer)
     # FIXME make just single
-    field(:current, ActivityPub.EntityType, default: [])
-    field(:first, ActivityPub.EntityType, default: [])
-    field(:last, ActivityPub.EntityType, default: [])
-    field(:items, ActivityPub.EntityType, default: [])
+    assoc(:current)
+    assoc(:first)
+    assoc(:last)
+    assoc(:items)
 
     field(:__ordered__, :boolean)
   end
-
-  @fields [:current, :first, :last, :items]
-
-  def parse(%{} = input) do
-    %__MODULE__{}
-    |> Ecto.Changeset.cast(input, @fields)
-    |> Ecto.Changeset.apply_action(:insert)
-  end
-
-  def internal_field(), do: :collection
 end

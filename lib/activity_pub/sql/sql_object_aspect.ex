@@ -1,5 +1,5 @@
 defmodule ActivityPub.SQLObjectAspect do
-  alias ActivityPub.ObjectAspecto, as: ObjectAspect
+  alias ActivityPub.ObjectAspect
 
   use ActivityPub.SQLAspect,
     aspect: ObjectAspect,

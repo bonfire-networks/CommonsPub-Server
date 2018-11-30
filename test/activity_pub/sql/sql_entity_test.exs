@@ -1,7 +1,7 @@
 defmodule ActivityPub.SQLEntityTest do
   use MoodleNet.DataCase, async: true
 
-  alias ActivityPub.Entito, as: Entity
+  alias ActivityPub.Entity
   alias ActivityPub.SQLEntity
 
   describe "persist" do
