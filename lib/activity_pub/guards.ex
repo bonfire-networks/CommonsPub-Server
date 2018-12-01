@@ -5,5 +5,12 @@ defmodule ActivityPub.Guards do
   defguard is_entity(e) when APMG.is_metadata(:erlang.map_get(:__ap__, e))
   defguard has_type(e, type) when APMG.has_type(:erlang.map_get(:__ap__, e), type)
   defguard has_aspect(e, aspect) when APMG.has_aspect(:erlang.map_get(:__ap__, e), aspect)
+  defguard has_status(e, status) when APMG.has_status(:erlang.map_get(:__ap__, e), status)
+
+  defmacro status(e) do
+    quote bind_quoted: [e: e] do
+      :erlang.map_get(:status, :erlang.map_get(:meta, e))
+    end
+  end
 
 end

@@ -14,11 +14,13 @@ defmodule ActivityPub.ObjectAspect do
     assoc(:generator)
     assoc(:icon)
     assoc(:image)
-    assoc(:in_reply_to, cardinality: :one)
+    # FIXME
+    # assoc(:in_reply_to, cardinality: :one)
     assoc(:location)
     assoc(:preview)
     field(:published, :utc_datetime)
-    assoc(:replies, cardinality: :one)
+    # FIXME
+    # assoc(:replies, cardinality: :one)
     field(:start_time, :utc_datetime)
     field(:summary, LanguageValueType, default: %{})
     assoc(:tag)

@@ -74,4 +74,7 @@ defmodule ActivityPub.Metadata.Guards do
 
   defguard has_aspect(meta, aspect)
            when is_metadata(meta) and :erlang.map_get(aspect, :erlang.map_get(:aspects, meta))
+
+  defguard has_status(meta, status)
+           when is_metadata(meta) and :erlang.map_get(:status, meta) == status
 end

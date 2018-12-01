@@ -67,55 +67,58 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
     create(unique_index(:activity_pub_collection_aspects, :local_id))
 
     create table(:activity_pub_activity_objects) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      add_foreign_key(:object_id, "activity_pub_objects")
+      add_foreign_key(:subject_id, "activity_pub_activity_aspects")
+      add_foreign_key(:target_id, "activity_pub_objects")
 
-      timestamps(updated_at: false)
+      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      # add_foreign_key(:object_id, "activity_pub_objects")
+
+      # timestamps(updated_at: false)
     end
 
     create table(:activity_pub_activity_actors) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      add_foreign_key(:object_id, "activity_pub_actor_aspects")
+      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      # add_foreign_key(:object_id, "activity_pub_actor_aspects")
 
-      timestamps(updated_at: false)
+      # timestamps(updated_at: false)
     end
 
-    create table(:activity_pub_attributed_tos) do
+    create table(:activity_pub_object_attributed_tos) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_contexts) do
+    create table(:activity_pub_object_contexts) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_icons) do
+    create table(:activity_pub_object_icons) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_images) do
+    create table(:activity_pub_object_images) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_locations) do
+    create table(:activity_pub_object_locations) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_replies) do
+    create table(:activity_pub_object_replies) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_tags) do
+    create table(:activity_pub_object_tags) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create table(:activity_pub_describes) do
+    create table(:activity_pub_object_describes) do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end

@@ -28,13 +28,19 @@ defmodule ActivityPub.Aspect do
       Module.register_attribute(__MODULE__, :aspect_assocs, accumulate: true)
       Module.register_attribute(__MODULE__, :aspect_struct_fields, accumulate: true)
 
+      # FIXME better name than "name"
       @name __MODULE__
             |> Module.split()
             |> List.last()
             |> Recase.to_snake()
             |> String.to_atom()
-
+      @name Keyword.get(options, :name, @name)
       def name(), do: @name
+
+      # FIXME better name than "short_name"
+      @short_name @name |> to_string() |> String.trim_trailing("_aspect") |> String.to_atom()
+      @short_name Keyword.get(options, :short_name, @short_name)
+      def short_name(), do: @short_name
 
       def parse(params, %Context{} = context) when is_map(params) do
         ActivityPub.Aspect.parse(__MODULE__, params, context)

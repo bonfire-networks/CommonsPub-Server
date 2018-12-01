@@ -1,8 +1,8 @@
 defmodule ActivityPub.SQLAspect do
-  alias ActivityPub.SQLObjectAspect
+  alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect}
   alias ActivityPub.Entity
 
-  def all(), do: [SQLObjectAspect]
+  def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect]
 
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
@@ -28,14 +28,44 @@ defmodule ActivityPub.SQLAspect do
         :table ->
           has_one(aspect.name(), sql_aspect, foreign_key: :local_id)
 
+        :embedded ->
+          embeds_one(aspect.name(), sql_aspect)
+
         :fields ->
           ActivityPub.SQLAspect.inject_fields(aspect)
+      end
+
+      for assoc_name <- aspect.__aspect__(:associations) do
+        short_name = aspect.short_name()
+        # FIXME use options!!
+        table_name = "activity_pub_#{short_name}_#{assoc_name}s"
+
+        aspect.__aspect__(:association, assoc_name)
+        |> case do
+          %{cardinality: :one} ->
+            # FIXME
+            many_to_many(assoc_name, __MODULE__,
+              join_through: table_name,
+              join_keys: [subject_id: :local_id, target_id: :local_id]
+            )
+
+          # has_one(assoc_name, table_name, foreign_key: :local_id)
+          %{cardinality: :many} ->
+            many_to_many(assoc_name, __MODULE__,
+              join_through: table_name,
+              join_keys: [subject_id: :local_id, target_id: :local_id]
+            )
+        end
       end
     end
   end
 
   defmacro create_schema(persistence_method, aspect, sql_aspect) do
-    quote bind_quoted: [persistence_method: persistence_method, aspect: aspect, sql_aspect: sql_aspect] do
+    quote bind_quoted: [
+            persistence_method: persistence_method,
+            aspect: aspect,
+            sql_aspect: sql_aspect
+          ] do
       case persistence_method do
         :table ->
           use Ecto.Schema
@@ -70,7 +100,11 @@ defmodule ActivityPub.SQLAspect do
   end
 
   defmacro def_create_changeset(persistence_method, aspect, sql_aspect) do
-    quote bind_quoted: [persistence_method: persistence_method, aspect: aspect, sql_aspect: sql_aspect] do
+    quote bind_quoted: [
+            persistence_method: persistence_method,
+            aspect: aspect,
+            sql_aspect: sql_aspect
+          ] do
       require ActivityPub.Guards, as: APG
 
       def create_changeset(changeset, entity) when not APG.has_aspect(entity, unquote(aspect)),

@@ -1,7 +1,7 @@
 defmodule ActivityPub.Entity do
   require ActivityPub.Guards, as: APG
 
-  alias ActivityPub.{UrlBuilder, Metadata}
+  alias ActivityPub.{Metadata}
 
   def aspects(entity = %{__ap__: meta}) when APG.is_entity(entity),
     do: Metadata.aspects(meta)
@@ -11,6 +11,20 @@ defmodule ActivityPub.Entity do
   end
 
   def fields_for(_, _), do: %{}
+
+  def assocs_for(entity, aspect) when APG.has_aspect(entity, aspect),
+    do: Map.take(entity, aspect.__aspect__(:associations))
+
+  def assocs_for(_, _), do: %{}
+
+  def assocs(e) when APG.is_entity(e) do
+    e
+    |> aspects()
+    |> Enum.reduce(%{}, fn aspect, acc ->
+      Map.take(e, aspect.__aspect__(:associations))
+      |> Map.merge(acc)
+    end)
+  end
 
   def extension_fields(entity) when APG.is_entity(entity) do
     Enum.reduce(entity, %{}, fn
