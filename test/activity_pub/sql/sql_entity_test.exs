@@ -4,52 +4,59 @@ defmodule ActivityPub.SQLEntityTest do
   alias ActivityPub.Entity
   alias ActivityPub.SQLEntity
 
-  describe "create" do
+  describe "insert" do
     test "works with new entities" do
       map = %{
         type: "Object",
         content: "This is a content",
         name: "This is my name",
         end_time: "2015-01-01T06:00:00-08:00",
-        new_field: "extra"
+        extension_field: "extra"
       }
 
       assert {:ok, entity} = ActivityPub.new(map)
-      assert {:ok, persisted} = SQLEntity.create(entity)
+      assert {:ok, persisted} = SQLEntity.insert(entity)
       refute entity.id
       assert persisted.id
       assert Map.drop(entity, [:__ap__, :id]) == Map.drop(persisted, [:__ap__, :id])
     end
 
     test "works with new assocs" do
-      # map = %{
-      #   type: "Create",
-      #   summary: "Alex created a note",
-      #   actor: %{
-      #     type: "Person",
-      #     name: "Alex",
-      #     preferred_username: "alexcastano",
-      #   },
-      #   object: %{
-      #     type: "Note",
-      #     content: "This is a content",
-      #     end_time: "2015-01-01T06:00:00-08:00",
-      #     new_field: "extra"
-      #   }
-      # }
-
       map = %{
-        attributed_to: %{
-          name: "alex"
+        type: "Create",
+        summary: "Alex inserted a note",
+        actor: %{
+          type: "Person",
+          name: "Alex",
+          preferred_username: "alexcastano",
         },
-        content: "content"
+        object: %{
+          type: "Note",
+          content: "This is a content",
+          end_time: "2015-01-01T06:00:00-08:00",
+          extension_field: "extra"
+        }
       }
+
+      # map = %{
+      #   attributed_to: %{
+      #     name: "alex"
+      #   },
+      #   content: "content"
+      # }
       assert {:ok, entity} = ActivityPub.new(map)
-      assert {:ok, persisted} = SQLEntity.create(entity)
-      IO.inspect(persisted)
-      # refute entity.id
-      # assert persisted.id
-      # assert Map.drop(entity, [:__ap__, :id]) == Map.drop(persisted, [:__ap__, :id])
+      assert {:ok, persisted} = SQLEntity.insert(entity)
+      assert persisted.type == ["Object", "Activity", "Create"]
+      assert persisted.summary == %{"und" => map.summary}
+
+      assert [actor] = persisted.actor
+      assert actor.name == %{"und" => map.actor.name}
+      assert actor.preferred_username == map.actor.preferred_username
+
+      assert [object] = persisted.object
+      assert object.content == %{"und" => map.object.content}
+      assert %DateTime{} = object.end_time
+      assert object["extension_field"] == map.object.extension_field
     end
 
     test "fails with not loaded assocs" do
@@ -59,7 +66,7 @@ defmodule ActivityPub.SQLEntityTest do
       }
 
       assert {:ok, entity} = ActivityPub.new(map)
-      assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.create(entity)
+      assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.insert(entity)
       IO.inspect(ch)
     end
   end

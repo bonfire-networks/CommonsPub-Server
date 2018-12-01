@@ -40,9 +40,9 @@ defmodule ActivityPub.BuilderTest do
                generator: [],
                icon: [],
                image: [],
-               in_reply_to: nil,
+               # in_reply_to: nil,
                location: [],
-               replies: nil,
+               # replies: nil,
                tag: []
              } = entity
     end

@@ -25,46 +25,78 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
-  def create(entity) when APG.is_entity(entity) and APG.has_status(entity, :new) do
-    with {:ok, %{entity: sql_entity}} <- create_new(entity) do
+  def insert(entity) when APG.is_entity(entity) and APG.has_status(entity, :new) do
+    with {:ok, %{entity: sql_entity}} <- insert_new(entity) do
       {:ok, to_entity(sql_entity)}
     end
   end
 
-  defp create_new(entity) do
+  defp insert_new(entity) do
     Multi.new()
-    |> Multi.insert(:_entity, create_changeset(entity))
+    |> Multi.insert(:_entity, insert_changeset(entity))
     |> Multi.run(:entity, &set_ap_id/2)
     |> MoodleNet.Repo.transaction()
   end
 
-  defp create_changeset(entity) when APG.has_status(entity, :new) do
+  defp insert_changeset(entity) when APG.has_status(entity, :new) do
     ch =
       %__MODULE__{}
       |> Ecto.Changeset.change(from_entity_fields(entity))
 
-    ch =
-      Entity.aspects(entity)
-      |> Enum.reduce(ch, fn aspect, ch ->
-        aspect.persistence().create_changeset(ch, entity)
-      end)
-
-    Entity.assocs(entity)
-    |> Enum.reduce(ch, fn
-      {name, list}, ch when is_list(list) ->
-        chs = for data <- list, do: create_changeset(data)
-        Ecto.Changeset.put_assoc(ch, name, chs)
-      {name, data}, ch ->
-        Ecto.Changeset.put_assoc(ch, name, create_changeset(data))
+    Entity.aspects(entity)
+    |> Enum.reduce(ch, fn aspect, ch ->
+      insert_changeset_for_aspect(ch, entity, aspect)
     end)
   end
 
-  defp create_changeset(entity) when APG.has_status(entity, :loaded), do: entity
-  defp create_changeset(entity) when APG.is_entity(entity) do
+  defp insert_changeset(entity) when APG.has_status(entity, :loaded), do: entity
+
+  defp insert_changeset(entity) when APG.is_entity(entity) do
     Ecto.Changeset.change(%__MODULE__{})
-    |> Ecto.Changeset.add_error(:status, "invalid status: #{Entity.status(entity)}. Only status :new and :loaded are valid to create a new entity.")
+    |> Ecto.Changeset.add_error(
+      :status,
+      "invalid status: #{Entity.status(entity)}. Only status :new and :loaded are valid to insert a new entity."
+    )
   end
-  defp create_changeset(nil), do: nil
+
+  defp insert_changeset(nil), do: nil
+
+  defp insert_changeset_for_aspect(ch, entity, aspect) do
+    sql_aspect = aspect.persistence()
+    field_changes = Entity.fields_for(entity, aspect)
+    assoc_changes = Entity.assocs_for(entity, aspect)
+
+    case sql_aspect.persistence_method() do
+      :table ->
+        assoc_ch =
+          struct(sql_aspect)
+          |> Ecto.Changeset.change(field_changes)
+          |> put_assocs_in_changeset(assoc_changes)
+
+        Ecto.Changeset.put_assoc(ch, aspect.name(), assoc_ch)
+
+      :embedded ->
+        assoc_ch = Ecto.Changeset.change(sql_aspect, field_changes)
+
+        Ecto.Changeset.put_embed(ch, aspect.name(), assoc_ch)
+        |> put_assocs_in_changeset(assoc_changes)
+
+      :fields ->
+        Ecto.Changeset.change(ch, field_changes)
+        |> put_assocs_in_changeset(assoc_changes)
+    end
+  end
+
+  defp put_assocs_in_changeset(changeset, assoc_changes) do
+    Enum.reduce(assoc_changes, changeset, fn
+      {name, list}, ch when is_list(list) ->
+        chs = for data <- list, do: insert_changeset(data)
+        Ecto.Changeset.put_assoc(ch, name, chs)
+
+      {name, data}, ch ->
+        Ecto.Changeset.put_assoc(ch, name, insert_changeset(data))
+    end)
+  end
 
   defp from_entity_fields(entity) when APG.is_entity(entity) do
     entity
@@ -102,7 +134,6 @@ defmodule ActivityPub.SQLEntity do
     |> Map.merge(sql_entity.extension_fields)
     |> Map.merge(entity)
 
-
     # loaded_params =
     #   generate_loaded_data(loaded_aspects)
     #   |> Map.merge(no_loaded_params)
@@ -133,98 +164,64 @@ defmodule ActivityPub.SQLEntity do
   end
 
   defp load_fields(%__MODULE__{} = sql_entity, aspects) do
-    aspects
-    |> Enum.reduce(%{}, fn aspect, acc ->
-      sql_aspect = aspect.persistence()
+    Enum.reduce(aspects, %{}, fn aspect, acc ->
+      case get_sql_fields_for_aspect(sql_entity, aspect) do
+        %Ecto.Association.NotLoaded{} ->
+          aspect.__aspect__(:fields)
+          |> Enum.into(acc, &{&1, %FieldNotLoaded{}})
 
-      case sql_aspect.persistence_method() do
-        :fields ->
-          sql_entity
+        sql_data ->
+          sql_data
           |> Map.take(aspect.__aspect__(:fields))
           |> Map.merge(acc)
-
-        :embedded ->
-          sql_entity
-          |> Map.fetch!(aspect.name())
-          |> Map.take(aspect.__aspect__(:fields))
-          |> Map.merge(acc)
-
-        :table ->
-          case Map.fetch!(sql_entity, aspect.name()) do
-            %Ecto.Association.NotLoaded{} ->
-              aspect.__aspect__(:fields)
-              |> Enum.into(acc, &{&1, %FieldNotLoaded{}})
-
-            sql_data ->
-              sql_data
-              |> Map.take(aspect.__aspect__(:fields))
-              |> Map.merge(acc)
-          end
       end
     end)
   end
 
   defp load_assocs(%__MODULE__{} = sql_entity, aspects) do
-    for aspect <- aspects,
-        assoc_name <- aspect.__aspect__(:associations),
-        into: %{} do
-      case Map.fetch!(sql_entity, assoc_name) do
+    Enum.reduce(aspects, %{}, fn aspect, acc ->
+      case get_sql_assocs_for_aspect(sql_entity, aspect) do
         %Ecto.Association.NotLoaded{} ->
-          {assoc_name, %AssociationNotLoaded{}}
-
-        data ->
-          {assoc_name, data}
+          aspect.__aspect__(:associations)
+          |> Enum.into(acc, &{&1, %AssociationNotLoaded{}})
+        sql_data ->
+          aspect.__aspect__(:associations)
+          |> Enum.reduce(acc, fn assoc_name, acc ->
+            case Map.fetch!(sql_data, assoc_name) do
+              %Ecto.Association.NotLoaded{} ->
+                Map.put(acc, assoc_name, %AssociationNotLoaded{})
+              list when is_list(list) ->
+                assoc = for sql_entity <- list, do: to_entity(sql_entity)
+                Map.put(acc, assoc_name, assoc)
+              %__MODULE__{} = sql_entity ->
+                Map.put(acc, assoc_name, to_entity(sql_entity))
+              nil ->
+                Map.put(acc, assoc_name, nil)
+            end
+          end)
       end
-    end
-  end
-
-  defp generate_not_loaded_data(not_loaded_aspects) do
-    Enum.reduce(not_loaded_aspects, %{}, fn aspect, params ->
-      params =
-        aspect.__aspect__(:fields)
-        |> Enum.into(params, &{&1, %FieldNotLoaded{}})
-
-      # FIXME maybe the assocs are loaded
-      aspect.__aspect__(:associations)
-      |> Enum.into(params, &{&1, %AssociationNotLoaded{}})
     end)
   end
 
-  def generate_loaded_data(loaded_aspects) do
-    Enum.reduce(loaded_aspects, %{}, fn {aspect, sql_data}, params ->
-      params =
-        sql_data
-        |> Map.take(aspect.__aspect__(:fields))
-        |> Map.merge(params)
-
-      # FIXME assocs!
-      aspect.__aspect__(:associations)
-      |> Enum.into(params, fn assoc_name ->
-        value =
-          if aspect.__aspect__(:association, assoc_name).cardinality == :many, do: [], else: nil
-
-        {assoc_name, value}
-      end)
-    end)
-  end
-
-  defp to_entity_fields(%__MODULE__{} = sql_entity) do
-    sql_entity
-    |> Map.take([:id, :type, :"@context"])
-    |> Map.merge(sql_entity.extension_fields)
-  end
-
-  # FIXME move to sql_aspect
-  defp aspect_data(%__MODULE__{} = sql_entity, aspect) do
-    sql_aspect = aspect.persistence()
-
-    case sql_aspect.persistence_method() do
+  defp get_sql_fields_for_aspect(%__MODULE__{} = sql_entity, aspect) do
+    aspect.persistence().persistence_method()
+    |> case do
       x when x in [:table, :embedded] ->
         Map.fetch!(sql_entity, aspect.name())
 
       :fields ->
         sql_entity
     end
-    |> Map.take(aspect.__aspect__(:fields))
+  end
+
+  defp get_sql_assocs_for_aspect(%__MODULE__{} = sql_entity, aspect) do
+    aspect.persistence().persistence_method()
+    |> case do
+      x when x in [:fields, :embedded] ->
+        sql_entity
+
+      :table ->
+        Map.fetch!(sql_entity, aspect.name())
+    end
   end
 end

@@ -1,6 +1,5 @@
 defmodule ActivityPub.SQLAspect do
   alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect}
-  alias ActivityPub.Entity
 
   def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect]
 
@@ -16,7 +15,6 @@ defmodule ActivityPub.SQLAspect do
       require ActivityPub.SQLAspect
 
       ActivityPub.SQLAspect.create_schema(persistence_method, aspect, __MODULE__)
-      ActivityPub.SQLAspect.def_create_changeset(persistence_method, aspect, __MODULE__)
     end
   end
 
@@ -30,32 +28,11 @@ defmodule ActivityPub.SQLAspect do
 
         :embedded ->
           embeds_one(aspect.name(), sql_aspect)
+          ActivityPub.SQLAspect.inject_assocs(aspect)
 
         :fields ->
           ActivityPub.SQLAspect.inject_fields(aspect)
-      end
-
-      for assoc_name <- aspect.__aspect__(:associations) do
-        short_name = aspect.short_name()
-        # FIXME use options!!
-        table_name = "activity_pub_#{short_name}_#{assoc_name}s"
-
-        aspect.__aspect__(:association, assoc_name)
-        |> case do
-          %{cardinality: :one} ->
-            # FIXME
-            many_to_many(assoc_name, __MODULE__,
-              join_through: table_name,
-              join_keys: [subject_id: :local_id, target_id: :local_id]
-            )
-
-          # has_one(assoc_name, table_name, foreign_key: :local_id)
-          %{cardinality: :many} ->
-            many_to_many(assoc_name, __MODULE__,
-              join_through: table_name,
-              join_keys: [subject_id: :local_id, target_id: :local_id]
-            )
-        end
+          ActivityPub.SQLAspect.inject_assocs(aspect)
       end
     end
   end
@@ -73,6 +50,7 @@ defmodule ActivityPub.SQLAspect do
           @primary_key {:local_id, :id, autogenerate: true}
           schema @table_name do
             ActivityPub.SQLAspect.inject_fields(aspect)
+            ActivityPub.SQLAspect.inject_assocs(aspect)
           end
 
         :embedded_schema ->
@@ -99,31 +77,29 @@ defmodule ActivityPub.SQLAspect do
     end
   end
 
-  defmacro def_create_changeset(persistence_method, aspect, sql_aspect) do
-    quote bind_quoted: [
-            persistence_method: persistence_method,
-            aspect: aspect,
-            sql_aspect: sql_aspect
-          ] do
-      require ActivityPub.Guards, as: APG
+  defmacro inject_assocs(aspect) do
+    quote bind_quoted: [aspect: aspect] do
+      for assoc_name <- aspect.__aspect__(:associations) do
+        # FIXME use options!!
+        short_name = aspect.short_name()
+        table_name = "activity_pub_#{short_name}_#{assoc_name}s"
 
-      def create_changeset(changeset, entity) when not APG.has_aspect(entity, unquote(aspect)),
-        do: changeset
+        aspect.__aspect__(:association, assoc_name)
+        |> case do
+          %{cardinality: :one} ->
+            # FIXME
+            many_to_many(assoc_name, ActivityPub.SQLEntity,
+              join_through: table_name,
+              join_keys: [subject_id: :local_id, target_id: :local_id]
+            )
 
-      case persistence_method do
-        :table ->
-          def create_changeset(changeset, entity) when APG.has_aspect(entity, unquote(aspect)) do
-            # FIXME move the body function to real function: out of a macro
-            changes = Entity.fields_for(entity, unquote(aspect))
-            assoc_ch = Ecto.Changeset.change(struct(unquote(sql_aspect)), changes)
-            Ecto.Changeset.put_assoc(changeset, unquote(aspect).name(), assoc_ch)
-          end
-
-        :fields ->
-          def create_changeset(changeset, entity) when APG.has_aspect(entity, unquote(aspect)) do
-            changes = Entity.fields_for(entity, unquote(aspect))
-            Ecto.Changeset.change(changeset, changes)
-          end
+          # has_one(assoc_name, table_name, foreign_key: :local_id)
+          %{cardinality: :many} ->
+            many_to_many(assoc_name, ActivityPub.SQLEntity,
+              join_through: table_name,
+              join_keys: [subject_id: :local_id, target_id: :local_id]
+            )
+        end
       end
     end
   end
