@@ -1,6 +1,6 @@
 defmodule ActivityPub.AspectTest do
   use MoodleNet.DataCase
-  alias ActivityPub.{LanguageValueType, Context}
+  alias ActivityPub.{LanguageValueType}
 
   defmodule Foo do
     use ActivityPub.Aspect, persistence: :any

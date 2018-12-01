@@ -1,4 +1,7 @@
 defmodule ActivityPub do
+
+  defdelegate new(params), to: ActivityPub.Builder
+
   # alias ActivityPub.{IRI}
 
   # alias MoodleNet.Repo

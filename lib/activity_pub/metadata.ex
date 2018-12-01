@@ -29,6 +29,19 @@ defmodule ActivityPub.Metadata do
     }
   end
 
+  def load(sql) do
+    types = Enum.into(sql.type, %{}, &{&1, true})
+    aspect_list = ActivityPub.Types.aspects(sql.type)
+    aspects = Enum.into(aspect_list, %{}, &{&1, true})
+    %__MODULE__{
+      types: types,
+      aspects: aspects,
+      status: :loaded,
+      persistence: sql,
+      verified: true
+    }
+  end
+
   def aspects(%__MODULE__{aspects: aspect_map}) do
     Enum.map(aspect_map, fn {aspect, true} -> aspect end)
   end
