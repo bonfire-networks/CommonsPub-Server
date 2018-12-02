@@ -2,7 +2,7 @@ defmodule ActivityPub.UrlBuilder do
   defp base_url() do
     # FIXME
     # MoodleNetWeb.base_url()
-    "http://localhost:4000/"
+    "http://localhost:4000"
   end
 
   def id(local_id) do

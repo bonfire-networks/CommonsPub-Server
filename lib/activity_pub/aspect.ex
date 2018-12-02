@@ -1,20 +1,5 @@
 defmodule ActivityPub.Aspect do
-  alias ActivityPub.{Association, Context}
-  alias ActivityPub.Entity
-
-  # FIXME make this more dynamic?
-  @type_aspects %{
-    # "Link" => [ActivityPub.LinkAspect],
-    "Object" => [ActivityPub.ObjectAspect]
-  }
-
-  @aspects @type_aspects |> Map.values() |> List.flatten() |> Enum.uniq()
-  def all(), do: @aspects
-
-  def for_type(type) when is_binary(type), do: Map.get(@type_aspects, type, [])
-
-  def for_types(types) when is_list(types),
-    do: Enum.flat_map(types, &Map.get(@type_aspects, &1, []))
+  alias ActivityPub.{Association}
 
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
@@ -41,18 +26,6 @@ defmodule ActivityPub.Aspect do
       @short_name @name |> to_string() |> String.trim_trailing("_aspect") |> String.to_atom()
       @short_name Keyword.get(options, :short_name, @short_name)
       def short_name(), do: @short_name
-
-      def parse(params, %Context{} = context) when is_map(params) do
-        ActivityPub.Aspect.parse(__MODULE__, params, context)
-      end
-
-      # def build_fields(entity, params) when is_map(params) do
-      #   ActivityPub.Aspect.build_fields(__MODULE__, entity, params)
-      # end
-
-      # def build_assocs(entity, params) when is_map(params) do
-      #   ActivityPub.Aspect.build_assocs(__MODULE__, entity, params)
-      # end
     end
   end
 
@@ -183,76 +156,5 @@ defmodule ActivityPub.Aspect do
   def build_assocs(aspect, entity, params) do
     params = Map.drop(params, aspect.__aspect__(:associations))
     {:ok, entity, params}
-  end
-
-  def parse(aspect, params, context, previous_keys \\ []) do
-    params = convert_params(params)
-
-    try do
-      # fields = aspect.__aspect__(:fields)
-
-      # {parsed, params} =
-      #   Enum.reduce(fields, {%{}, params}, &process_param(&1, &2, aspect, context))
-
-      assocs = aspect.__aspect__(:associations)
-
-      {parsed, params} =
-        Enum.reduce(
-          assocs,
-          {%{}, params},
-          &process_assoc(&1, &2, aspect, context, previous_keys)
-        )
-
-      {:ok, parsed, params}
-    catch
-      {:error, _} = ret -> ret
-    end
-  end
-
-  defp process_assoc(key, {parsed, params}, _aspect, context, previous_keys) do
-    {value, params} = Map.pop(params, to_string(key))
-
-    previous_keys = [key | previous_keys]
-
-    assocs =
-      value
-      |> List.wrap()
-      |> Enum.with_index()
-      |> Enum.map(fn {assoc_params, index} ->
-        case Entity.parse(assoc_params, context, [index | previous_keys]) do
-          {:ok, assoc} -> assoc
-          {:error, _} = ret -> throw(ret)
-        end
-      end)
-
-    parsed = Map.put(parsed, key, assocs)
-
-    {parsed, params}
-  end
-
-  defp convert_params(params) do
-    params
-    |> Enum.reduce(nil, fn
-      {key, _value}, nil when is_binary(key) ->
-        nil
-
-      {key, _value}, _ when is_binary(key) ->
-        raise Ecto.CastError,
-          type: :map,
-          value: params,
-          message:
-            "expected params to be a map with atoms or string keys, " <>
-              "got a map with mixed keys: #{inspect(params)}"
-
-      {key, value}, nil when is_atom(key) ->
-        [{Atom.to_string(key), value}]
-
-      {key, value}, acc when is_atom(key) ->
-        [{Atom.to_string(key), value} | acc]
-    end)
-    |> case do
-      nil -> params
-      list -> :maps.from_list(list)
-    end
   end
 end

@@ -11,9 +11,36 @@ defmodule ActivityPub.SQLAspect do
       persistence_method = Keyword.fetch!(options, :persistence_method)
       def persistence_method(), do: unquote(persistence_method)
 
-      @table_name Keyword.get(options, :table_name)
       require ActivityPub.SQLAspect
 
+      case persistence_method do
+        :table ->
+          @table_name Keyword.get(options, :table_name)
+          @field_name Keyword.get(options, :field_name, aspect.name())
+
+        :embedded ->
+          if Keyword.has_key?(options, :table_name),
+            do: raise(ArgumentError, "embedded SQLAspect does not need option :table_name")
+
+          @table_name nil
+          @field_name Keyword.get(options, :field_name, aspect.name())
+
+        :fields ->
+          if Keyword.has_key?(options, :table_name),
+            do: raise(ArgumentError, "fields SQLAspect does not need option :table_name")
+
+          if Keyword.has_key?(options, :field_name),
+            do: raise(ArgumentError, "fields SQLAspect does not need option :field_name")
+
+          @table_name nil
+          @field_name nil
+      end
+
+      def table_name(), do: @table_name
+      def field_name(), do: @field_name
+
+      @associations ActivityPub.SQLAspect.build_assocations(aspect, options)
+      def __sql_aspect__(:associations), do: @associations
       ActivityPub.SQLAspect.create_schema(persistence_method, aspect, __MODULE__)
     end
   end
@@ -28,11 +55,11 @@ defmodule ActivityPub.SQLAspect do
 
         :embedded ->
           embeds_one(aspect.name(), sql_aspect)
-          ActivityPub.SQLAspect.inject_assocs(aspect)
+          ActivityPub.SQLAspect.inject_assocs(sql_aspect.__sql_aspect__(:associations))
 
         :fields ->
           ActivityPub.SQLAspect.inject_fields(aspect)
-          ActivityPub.SQLAspect.inject_assocs(aspect)
+          ActivityPub.SQLAspect.inject_assocs(sql_aspect.__sql_aspect__(:associations))
       end
     end
   end
@@ -50,7 +77,7 @@ defmodule ActivityPub.SQLAspect do
           @primary_key {:local_id, :id, autogenerate: true}
           schema @table_name do
             ActivityPub.SQLAspect.inject_fields(aspect)
-            ActivityPub.SQLAspect.inject_assocs(aspect)
+            ActivityPub.SQLAspect.inject_assocs(@associations)
           end
 
         :embedded_schema ->
@@ -77,30 +104,24 @@ defmodule ActivityPub.SQLAspect do
     end
   end
 
-  defmacro inject_assocs(aspect) do
-    quote bind_quoted: [aspect: aspect] do
-      for assoc_name <- aspect.__aspect__(:associations) do
-        # FIXME use options!!
-        short_name = aspect.short_name()
-        table_name = "activity_pub_#{short_name}_#{assoc_name}s"
-
-        aspect.__aspect__(:association, assoc_name)
-        |> case do
-          %{cardinality: :one} ->
-            # FIXME
-            many_to_many(assoc_name, ActivityPub.SQLEntity,
-              join_through: table_name,
-              join_keys: [subject_id: :local_id, target_id: :local_id]
-            )
-
-          # has_one(assoc_name, table_name, foreign_key: :local_id)
-          %{cardinality: :many} ->
-            many_to_many(assoc_name, ActivityPub.SQLEntity,
-              join_through: table_name,
-              join_keys: [subject_id: :local_id, target_id: :local_id]
-            )
-        end
+  defmacro inject_assocs(associations) do
+    quote bind_quoted: [associations: associations] do
+      for {assoc_name, table_name, _assoc} <- associations do
+        many_to_many(assoc_name, ActivityPub.SQLEntity,
+          join_through: table_name,
+          join_keys: [subject_id: :local_id, target_id: :local_id]
+        )
       end
+    end
+  end
+
+  def build_assocations(aspect, opts) do
+    assoc_prefix = Keyword.get(opts, :assoc_prefix, "activity_pub_#{aspect.short_name()}_")
+
+    for assoc_name <- aspect.__aspect__(:associations) do
+      table_name = "#{assoc_prefix}#{assoc_name}s"
+      assoc = aspect.__aspect__(:association, assoc_name)
+      {assoc_name, table_name, assoc}
     end
   end
 end

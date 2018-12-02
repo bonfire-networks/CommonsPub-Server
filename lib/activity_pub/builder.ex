@@ -3,7 +3,6 @@ defmodule ActivityPub.Builder do
 
   alias ActivityPub.{Entity, Context, Types, Metadata}
   alias ActivityPub.BuildError
-  alias ActivityPub.UrlBuilder
 
   require ActivityPub.Guards, as: APG
 

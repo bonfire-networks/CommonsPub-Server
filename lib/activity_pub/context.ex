@@ -22,10 +22,11 @@ defmodule ActivityPub.Context do
 
   @impl Ecto.Type
   def load(%{"no_prefix" => no_prefix, "language" => language} = map) do
-    values = no_prefix ++
+    values =
       map
       |> Map.drop(["no_prefix", "language"])
       |> Map.to_list()
+    values = values ++ no_prefix
     {:ok, %__MODULE__{
       language: language,
       values: values

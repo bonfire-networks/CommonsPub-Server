@@ -25,6 +25,16 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
+  def get_by_local_id(id) when is_integer(id) do
+    Repo.get(__MODULE__, id)
+    |> to_entity()
+  end
+
+  def get_by_id(id) when is_binary(id) do
+    Repo.get_by(__MODULE__, id)
+    |> to_entity()
+  end
+
   def insert(entity) when APG.is_entity(entity) and APG.has_status(entity, :new) do
     with {:ok, %{entity: sql_entity}} <- insert_new(entity) do
       {:ok, to_entity(sql_entity)}
@@ -35,7 +45,7 @@ defmodule ActivityPub.SQLEntity do
     Multi.new()
     |> Multi.insert(:_entity, insert_changeset(entity))
     |> Multi.run(:entity, &set_ap_id/2)
-    |> MoodleNet.Repo.transaction()
+    |> Repo.transaction()
   end
 
   defp insert_changeset(entity) when APG.has_status(entity, :new) do
@@ -102,7 +112,6 @@ defmodule ActivityPub.SQLEntity do
     entity
     # FIXME add context and local_id
     |> Map.take([:"@context", :id, :type])
-    # |> Map.take([:id, :type])
     |> Map.put(:local, Entity.local?(entity))
     |> Map.put(:extension_fields, Entity.extension_fields(entity))
   end
@@ -118,6 +127,7 @@ defmodule ActivityPub.SQLEntity do
   def set_ap_id(_repo, %{_entity: %{id: id} = e}) when not is_nil(id),
     do: {:ok, e}
 
+  def to_entity(nil), do: nil
   def to_entity(%__MODULE__{} = sql_entity) do
     entity = %{
       __ap__: Metadata.load(sql_entity),
@@ -193,10 +203,8 @@ defmodule ActivityPub.SQLEntity do
               list when is_list(list) ->
                 assoc = for sql_entity <- list, do: to_entity(sql_entity)
                 Map.put(acc, assoc_name, assoc)
-              %__MODULE__{} = sql_entity ->
-                Map.put(acc, assoc_name, to_entity(sql_entity))
-              nil ->
-                Map.put(acc, assoc_name, nil)
+              value ->
+                Map.put(acc, assoc_name, to_entity(value))
             end
           end)
       end

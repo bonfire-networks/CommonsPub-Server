@@ -1,7 +1,6 @@
 defmodule ActivityPub.SQLEntityTest do
   use MoodleNet.DataCase, async: true
 
-  alias ActivityPub.Entity
   alias ActivityPub.SQLEntity
 
   describe "insert" do
@@ -38,12 +37,6 @@ defmodule ActivityPub.SQLEntityTest do
         }
       }
 
-      # map = %{
-      #   attributed_to: %{
-      #     name: "alex"
-      #   },
-      #   content: "content"
-      # }
       assert {:ok, entity} = ActivityPub.new(map)
       assert {:ok, persisted} = SQLEntity.insert(entity)
       assert persisted.type == ["Object", "Activity", "Create"]
@@ -67,7 +60,7 @@ defmodule ActivityPub.SQLEntityTest do
 
       assert {:ok, entity} = ActivityPub.new(map)
       assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.insert(entity)
-      IO.inspect(ch)
+      assert [%{status: _}] = errors_on(ch)[:attributed_to]
     end
   end
 end
