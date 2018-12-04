@@ -59,7 +59,7 @@ defmodule ActivityPub.SQLEntity do
     end)
   end
 
-  defp insert_changeset(entity) when APG.has_status(entity, :loaded), do: entity
+  defp insert_changeset(entity) when APG.has_status(entity, :loaded), do: Entity.persistence(entity)
 
   defp insert_changeset(entity) when APG.is_entity(entity) do
     Ecto.Changeset.change(%__MODULE__{})
@@ -143,35 +143,12 @@ defmodule ActivityPub.SQLEntity do
     |> Map.merge(load_assocs(sql_entity, aspects))
     |> Map.merge(sql_entity.extension_fields)
     |> Map.merge(entity)
-
-    # loaded_params =
-    #   generate_loaded_data(loaded_aspects)
-    #   |> Map.merge(no_loaded_params)
-    #   |> Map.merge(loaded_params)
-    #   |> Map.merge(sql_entity.extension_fields)
-
-    # sql_aspects = 
-    # {:ok, entity} =
-    #   sql_entity
-    #   |> to_entity_fields()
-    #   |> Entity.parse()
-
-    # preload_aspect_names =
-    #   entity
-    #   |> Entity.aspects()
-    #   |> Enum.filter(&(&1.persistence().persistence_method() == :table))
-    #   |> Enum.map(& &1.name())
-
-    # # FIXME set to nil not implemented aspects
-    # sql_entity = Repo.preload(sql_entity, preload_aspect_names)
-
-    # entity
-    # |> Entity.aspects()
-    # |> Enum.reduce(entity, fn aspect, entity ->
-    #   aspect_data = aspect_data(sql_entity, aspect)
-    #   Map.merge(entity, aspect_data)
-    # end)
   end
+
+  def to_entity(sql_entities) when is_list(sql_entities),
+    do: Enum.map(sql_entities, &to_entity/1)
+
+  def to_entity({"select", any, %__MODULE__{} = sql_entity}), do: {"select", any, to_entity(sql_entity)}
 
   defp load_fields(%__MODULE__{} = sql_entity, aspects) do
     Enum.reduce(aspects, %{}, fn aspect, acc ->

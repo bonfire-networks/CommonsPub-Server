@@ -10,11 +10,14 @@ defmodule ActivityPub.Types do
   alias ActivityPub.BuildError
 
   @type_map %{
-    "Link" => {[], [LinkAspect]},
+    # "Link" => {[], [LinkAspect]},
+    "Link" => {[], []},
     "Object" => {[], [ObjectAspect]},
-    "Collection" => {~w[Object], [CollectionAspect]},
+    # "Collection" => {~w[Object], [CollectionAspect]},
+    "Collection" => {~w[Object], []},
     "OrderedCollection" => {~w[Object Collection], []},
-    "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
+    # "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
+    "CollectionPage" => {~w[Object Collection], []},
     "OrderedCollectionPage" => {~w[Object Collection OrderedCollection CollectionPage], []},
     "Actor" => {~w[Object], [ActorAspect]},
     "Application" => {~w[Object Actor], []},

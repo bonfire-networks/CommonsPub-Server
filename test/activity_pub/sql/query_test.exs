@@ -44,7 +44,7 @@ defmodule ActivityPub.SQL.QueryTest do
              |> MapSet.new()
   end
 
-  alias ActivityPub.SQL.{FieldNotLoaded}
+  alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   describe "preload_aspect/2" do
     test "works" do
@@ -67,6 +67,34 @@ defmodule ActivityPub.SQL.QueryTest do
       Query.new()
       |> Query.preload_aspect([:activity, :actor])
       |> Query.preload_aspect([:activity, :actor])
+    end
+  end
+
+  describe "preload_assoc/2" do
+    test "works with single entity" do
+      activity =
+        insert(%{type: "Create", object: %{content: "foo"}})
+        |> ActivityPub.Entity.local_id()
+        |> ActivityPub.get_by_local_id()
+
+
+      assert %AssociationNotLoaded{} = activity.object
+      activity = Query.preload_assoc(activity, :object)
+      assert %{"und" => "foo"} = get_in(activity, [:object, Access.at(0), :content])
+    end
+
+    test "works with multiple entities" do
+      insert(%{type: "Create", object: %{content: "foo"}})
+      insert(%{type: "Create", object: %{content: "bar"}})
+
+      [foo, bar] = Query.new() |> Query.with_type("Create") |> Query.all()
+      assert %AssociationNotLoaded{} = foo.object
+      assert %AssociationNotLoaded{} = bar.object
+
+      [bar, foo] = Query.preload_assoc([bar, foo], :object)
+
+      assert %{"und" => "foo"} = get_in(foo, [:object, Access.at(0), :content])
+      assert %{"und" => "bar"} = get_in(bar, [:object, Access.at(0), :content])
     end
   end
 

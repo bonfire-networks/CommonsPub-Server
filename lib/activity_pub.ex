@@ -1,14 +1,8 @@
 defmodule ActivityPub do
 
   defdelegate new(params), to: ActivityPub.Builder
-
-  # alias ActivityPub.{IRI}
-
-  # alias MoodleNet.Repo
-
-  # defdelegate parse(attrs), to: ActivityPub.Entity
-  # defdelegate persist(entity), to: ActivityPub.SQL
-  # defdelegate load(local_id), to: ActivityPub.SQL
+  defdelegate insert(params), to: ActivityPub.SQLEntity
+  defdelegate get_by_local_id(params), to: ActivityPub.SQLEntity
 
   # @doc """
   # Returns true if the given argument is a valid ActivityPub IRI,

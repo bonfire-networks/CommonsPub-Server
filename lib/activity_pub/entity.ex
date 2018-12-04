@@ -42,4 +42,6 @@ defmodule ActivityPub.Entity do
 
   def local_id(%{__ap__: %{persistence: nil}} = e) when APG.is_entity(e), do: nil
   def local_id(%{__ap__: %{persistence: sql}} = e) when APG.is_entity(e), do: sql.local_id
+
+  def persistence(%{__ap__: %{persistence: persistence}} = e) when APG.is_entity(e), do: persistence
 end

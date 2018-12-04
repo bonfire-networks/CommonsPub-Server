@@ -20,7 +20,7 @@ defmodule ActivityPub.SQLEntityTest do
       assert Map.drop(entity, [:__ap__, :id]) == Map.drop(persisted, [:__ap__, :id])
     end
 
-    test "works with new assocs" do
+    test "works with new entity assocs" do
       map = %{
         type: "Create",
         summary: "Alex inserted a note",
@@ -50,6 +50,33 @@ defmodule ActivityPub.SQLEntityTest do
       assert object.content == %{"und" => map.object.content}
       assert %DateTime{} = object.end_time
       assert object["extension_field"] == map.object.extension_field
+    end
+
+    test "works with existing entity assocs" do
+      assert {:ok, person} = ActivityPub.new(%{
+          type: "Person",
+          name: "Alex",
+          preferred_username: "alexcastano",
+        })
+      assert {:ok, person} = SQLEntity.insert(person)
+
+      map = %{
+        type: "Create",
+        summary: "Alex inserted a note",
+        actor: person,
+        object: %{
+          type: "Note",
+          content: "This is a content",
+          end_time: "2015-01-01T06:00:00-08:00",
+          extension_field: "extra"
+        }
+      }
+      assert {:ok, entity} = ActivityPub.new(map)
+      assert {:ok, persisted} = SQLEntity.insert(entity)
+      assert persisted.type == ["Object", "Activity", "Create"]
+      assert persisted.summary == %{"und" => map.summary}
+
+      assert hd(persisted.actor) == person
     end
 
     test "fails with not loaded assocs" do

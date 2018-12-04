@@ -13,7 +13,7 @@ defmodule MoodleNet.Application do
         # Start the Ecto repository
         supervisor(MoodleNet.Repo, []),
         # Start the endpoint when the application starts
-        # supervisor(MoodleNetWeb.Endpoint, []),
+        supervisor(MoodleNetWeb.Endpoint, []),
         # Start your own worker by calling: MoodleNet.Worker.start_link(arg1, arg2, arg3)
         # worker(MoodleNet.Worker, [arg1, arg2, arg3]),
         # worker(Cachex, [

@@ -1,37 +1,37 @@
-# defmodule ActivityPub.GuardsTest do
-#   use MoodleNet.DataCase, async: true
+defmodule ActivityPub.GuardsTest do
+  use MoodleNet.DataCase, async: true
 
-#   alias ActivityPub.Entity
+  defmodule Foo do
+    import ActivityPub.Guards
 
-#   defmodule Foo do
-#     require ActivityPub.Guards
+    def is_entity?(e) when is_entity(e), do: true
+    def is_entity?(_), do: false
 
-#     def activity?(e) when is_activity(e), do: true
-#     def activity?(e), do: false
+    def has_activity_type(e) when has_type(e, "Activity"), do: true
+    def has_activity_type(_), do: false
 
-#     def follow?(e) when is_follow(e), do: true
-#     def follow?(e), do: false
+    def has_actor_aspect(e) when has_aspect(e, ActivityPub.ActorAspect), do: true
+    def has_actor_aspect(_), do: false
 
-#     def actor?(e) when is_actor(e), do: true
-#     def actor?(e), do: false
-#   end
+    def has_status_new(e) when has_status(e, :new), do: true
+    def has_status_new(_), do: false
+  end
 
-#   @tag :skip
-#   test "works" do
-#     assert {:ok, follow} = Entity.parse(%{type: "Follow"})
-#     assert {:ok, add} = Entity.parse(%{type: "Add"})
-#     assert {:ok, person} = Entity.parse(%{type: "Person"})
+  test "works" do
+    assert {:ok, actor} = ActivityPub.new(%{type: "Person"})
+    assert {:ok, activity} = ActivityPub.new(%{type: "Follow"})
 
-#     assert Foo.follow?(follow)
-#     refute Foo.follow?(add)
-#     refute Foo.follow?(person)
+    assert Foo.is_entity?(actor)
+    refute Foo.is_entity?(%{})
 
-#     assert Foo.activity?(follow)
-#     assert Foo.activity?(add)
-#     refute Foo.activity?(person)
+    assert Foo.has_activity_type(activity)
+    refute Foo.has_activity_type(actor)
 
-#     refute Foo.actor?(follow)
-#     refute Foo.actor?(add)
-#     assert Foo.actor?(person)
-#   end
-# end
+    refute Foo.has_actor_aspect(activity)
+    assert Foo.has_actor_aspect(actor)
+
+    assert Foo.has_status_new(actor)
+    assert {:ok, persisted} = ActivityPub.insert(actor)
+    refute Foo.has_status_new(persisted)
+  end
+end
