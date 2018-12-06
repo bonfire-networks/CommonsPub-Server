@@ -1,8 +1,8 @@
-# Pub of the Commons
+# CommonsPub
 
 ## About the project
 
-The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+CommonsPub is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
 The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
@@ -95,7 +95,7 @@ There is a `Makefile` with two commands:
 By default, CommonsPub listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ### Frontends
-Pub of the Commons does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
+CommonsPub does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
 
 ### As systemd service (with provided .service file)
 [Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/moodle_net.service` you can put it in `/etc/systemd/system/`.
