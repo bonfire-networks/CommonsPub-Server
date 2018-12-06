@@ -12,12 +12,16 @@
 
 alias MoodleNet.Factory
 
-communities = for _ <- 1..3, do: Factory.community()
-collections = for _ <- 1..5, do: Factory.collection(Enum.random(communities))
-# _resources = for _ <- 1..10, do: Factory.resource(Enum.random(collections))
+MoodleNet.Repo.transaction(fn ->
+  communities = for _ <- 1..3, do: Factory.community()
+  collections = for _ <- 1..5, do: Factory.collection(Enum.random(communities))
+  _resources = for _ <- 1..10, do: Factory.resource(Enum.random(collections))
 
-# actors = for _ <- 1..5, do: Factory.actor()
+  actors = for _ <- 1..5, do: Factory.actor()
 
-# commentables = communities ++ collections
+  commentables = communities ++ collections
 
-# _comments = for _ <- 1..10, do: Factory.comment(Enum.random(actors), Enum.random(commentables))
+  threads = for _ <- 1..10, do: Factory.comment(Enum.random(actors), Enum.random(commentables))
+  _replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(threads))
+  {:ok, nil}
+end)

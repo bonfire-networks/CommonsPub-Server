@@ -148,8 +148,6 @@ defmodule ActivityPub.SQLEntity do
   def to_entity(sql_entities) when is_list(sql_entities),
     do: Enum.map(sql_entities, &to_entity/1)
 
-  def to_entity({"select", any, %__MODULE__{} = sql_entity}), do: {"select", any, to_entity(sql_entity)}
-
   defp load_fields(%__MODULE__{} = sql_entity, aspects) do
     Enum.reduce(aspects, %{}, fn aspect, acc ->
       case get_sql_fields_for_aspect(sql_entity, aspect) do
@@ -208,5 +206,12 @@ defmodule ActivityPub.SQLEntity do
       :table ->
         Map.fetch!(sql_entity, aspect.name())
     end
+  end
+
+  def preload(entity, assocs_or_aspects) when APG.has_status(entity, :loaded) do
+    entity
+    |> Entity.persistence()
+    |> Repo.preload(assocs_or_aspects)
+    |> to_entity()
   end
 end

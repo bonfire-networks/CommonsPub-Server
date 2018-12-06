@@ -1,109 +1,116 @@
 defmodule MoodleNetWeb.GraphQL.Schema do
   use Absinthe.Schema
 
+  alias MoodleNetWeb.GraphQL.MoodleNetSchema
   import_types(MoodleNetWeb.GraphQL.Schema.JSON)
-  import_types(MoodleNetWeb.GraphQL.Schema.Accounts)
   import_types(MoodleNetWeb.GraphQL.MoodleNetSchema)
-
-  alias MoodleNetWeb.GraphQL.Resolvers.MoodleNetResolver
 
   query do
     @desc "Get list of communities"
     field :communities, non_null(list_of(non_null(:community))) do
-      resolve(&MoodleNetResolver.list_communities/2)
+      resolve(&MoodleNetSchema.list_communities/2)
     end
 
     @desc "Get a community"
     field :community, :community do
       arg(:local_id, non_null(:integer))
-      resolve(&MoodleNetResolver.get_community/2)
+      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Community"))
     end
 
     @desc "Get list of collections"
     field :collections, non_null(list_of(non_null(:collection))) do
-      arg(:context, non_null(:integer))
-      resolve(&MoodleNetResolver.list_collections/2)
+      arg(:community_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.list_collections/2)
     end
 
     @desc "Get a collection"
     field :collection, :collection do
       arg(:local_id, non_null(:integer))
-      resolve(&MoodleNetResolver.get_collection/2)
+      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Collection"))
     end
 
     @desc "Get list of resources"
     field :resources, non_null(list_of(non_null(:resource))) do
-      arg(:context, non_null(:integer))
-      resolve(&MoodleNetResolver.list_resources/2)
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.list_resources/2)
     end
 
     @desc "Get a resource"
     field :resource, :resource do
       arg(:local_id, non_null(:integer))
-      resolve(&MoodleNetResolver.get_resource/2)
+      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:EducationalResource"))
     end
 
+    @desc "Get list of comments"
+    field :comments, non_null(list_of(non_null(:comment))) do
+      arg(:context_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.list_comments/2)
+    end
+
+    @desc "Get list of replies"
+    field :replies, non_null(list_of(non_null(:comment))) do
+      arg(:in_reply_to_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.list_replies/2)
+    end
+
+    @desc "Get a comment"
+    field :comment, non_null(:comment) do
+      arg(:local_id, non_null(:integer))
+      resolve(MoodleNetSchema.resolve_by_id_and_type("Note"))
+    end
 
     @desc "Get my user"
-    field :me, type: :user do
-      resolve(fn
-        _, %{context: %{current_user: nil}} ->
-          {:error, "You are not logged in"}
-
-        _, %{context: %{current_user: current_user}} ->
-          ret =
-            ActivityPub.SQL.get_by_local_id(current_user.primary_actor_id)
-            |> MoodleNetResolver.to_map()
-
-          {:ok, ret}
-      end)
+    field :me, type: :me do
+      resolve(&MoodleNetSchema.me/2)
     end
   end
 
   mutation do
+    @desc "Create a community"
+    field :create_community, type: :community do
+      arg(:community, non_null(:community_input))
+      resolve(&MoodleNetSchema.create_community/3)
+    end
+
+    @desc "Create a collection"
+    field :create_collection, type: :collection do
+      arg(:community_local_id, non_null(:integer))
+      arg(:collection, non_null(:collection_input))
+      resolve(&MoodleNetSchema.create_collection/3)
+    end
+
+    @desc "Create a resource"
+    field :create_resource, type: :resource do
+      arg(:collection_local_id, non_null(:integer))
+      arg(:resource, non_null(:resource_input))
+      resolve(&MoodleNetSchema.create_resource/3)
+    end
+
+    @desc "Create a new thread"
+    field :create_thread, type: :comment do
+      arg(:context_local_id, non_null(:integer))
+      arg(:comment, non_null(:comment_input))
+      resolve(&MoodleNetSchema.create_thread/2)
+    end
+
+    @desc "Create a reply"
+    field :create_reply, type: :comment do
+      arg(:in_reply_to_local_id, non_null(:integer))
+      arg(:comment, non_null(:comment_input))
+      resolve(&MoodleNetSchema.create_reply/2)
+    end
+
     @desc "Create a user"
-    field :user_create, type: :user do
+    field :create_user, type: :auth_payload do
       arg(:user, non_null(:user_input))
-      resolve(fn _, args, _ ->
-        with {:ok, %{actor: actor, user: user}} <- MoodleNet.Accounts.register_user(args.user),
-             {:ok, token} <- MoodleNet.OAuth.create_token(user.id) do
-          ret =
-            actor
-            |> MoodleNetResolver.to_map()
-            |> Map.put(:token, token.hash)
-
-          {:ok, ret}
-        else
-          {:error, _, %Ecto.Changeset{} = ch, _} ->
-            error =
-              %{fields: MoodleNetWeb.ChangesetView.translate_errors(ch)}
-              |> Map.put(:message, "Validation errors")
-
-            {:error, error}
-        end
-      end)
+      resolve(&MoodleNetSchema.create_user/2)
     end
 
     @desc "Login"
-    field :login, type: :user do
+    field :create_session, type: :auth_payload do
       arg(:email, non_null(:string))
       arg(:password, non_null(:string))
-
-      resolve(fn _, %{email: email, password: password}, _ ->
-        with {:ok, user} <- MoodleNet.Accounts.authenticate_by_email_and_pass(email, password),
-             {:ok, token} <- MoodleNet.OAuth.create_token(user.id) do
-          ret =
-            user.primary_actor_id
-            |> ActivityPub.SQL.get_by_local_id()
-            |> MoodleNetResolver.to_map()
-            |> Map.put(:token, token.hash)
-
-          {:ok, ret}
-        else
-          e ->
-            {:error, "Invalid credentials"}
-        end
-      end)
+      resolve(&MoodleNetSchema.create_session/2)
     end
   end
 end

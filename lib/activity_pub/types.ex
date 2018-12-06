@@ -3,10 +3,11 @@ defmodule ActivityPub.Types do
     ObjectAspect,
     ActorAspect,
     ActivityAspect,
-    LinkAspect,
-    CollectionAspect,
-    CollectionPageAspect
+    # LinkAspect,
+    # CollectionAspect,
+    # CollectionPageAspect
   }
+
   alias ActivityPub.BuildError
 
   @type_map %{

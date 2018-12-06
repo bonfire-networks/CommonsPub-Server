@@ -91,17 +91,6 @@ defmodule MoodleNet.Factory do
 
   alias MoodleNet.Accounts
 
-  # def actor(attrs \\ %{}) do
-  #   attrs = attributes(:user, attrs)
-
-  #   {:ok, %{actor: actor}} =
-  #     Ecto.Multi.new()
-  #     |> ActivityPub.create_actor(attrs)
-  #     |> MoodleNet.Repo.transaction()
-
-  #   actor
-  # end
-
   def user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
     {:ok, %{user: user}} = Accounts.register_user(attrs)
@@ -147,7 +136,13 @@ defmodule MoodleNet.Factory do
 
   def comment(author, context, attrs \\ %{}) do
     attrs = attributes(:comment, attrs)
-    {:ok, c} = MoodleNet.create_comment(author, context, attrs)
+    {:ok, c} = MoodleNet.create_thread(author, context, attrs)
+    c
+  end
+
+  def reply(author, in_reply_to, attrs \\ %{}) do
+    attrs = attributes(:comment, attrs)
+    {:ok, c} = MoodleNet.create_reply(author, in_reply_to, attrs)
     c
   end
 end

@@ -39,7 +39,7 @@ defmodule ActivityPub.SQLAspect do
       def table_name(), do: @table_name
       def field_name(), do: @field_name
 
-      @associations ActivityPub.SQLAspect.build_assocations(aspect, options)
+      @associations ActivityPub.SQLAspect.build_associations(aspect, options)
       def __sql_aspect__(:associations), do: @associations
       ActivityPub.SQLAspect.create_schema(persistence_method, aspect, __MODULE__)
     end
@@ -106,22 +106,34 @@ defmodule ActivityPub.SQLAspect do
 
   defmacro inject_assocs(associations) do
     quote bind_quoted: [associations: associations] do
-      for {assoc_name, table_name, _assoc} <- associations do
+      for {assoc_name, table_name, assoc} <- associations do
+        join_keys =
+          if assoc.inv do
+            [target_id: :local_id, subject_id: :local_id]
+          else
+            [subject_id: :local_id, target_id: :local_id]
+          end
+
         many_to_many(assoc_name, ActivityPub.SQLEntity,
           join_through: table_name,
-          join_keys: [subject_id: :local_id, target_id: :local_id]
+          join_keys: join_keys
         )
       end
     end
   end
 
-  def build_assocations(aspect, opts) do
+  def build_associations(aspect, opts) do
     assoc_prefix = Keyword.get(opts, :assoc_prefix, "activity_pub_#{aspect.short_name()}_")
 
     for assoc_name <- aspect.__aspect__(:associations) do
-      table_name = "#{assoc_prefix}#{assoc_name}s"
       assoc = aspect.__aspect__(:association, assoc_name)
-      {assoc_name, table_name, assoc}
+      if inv_name = assoc.inv do
+        table_name = "#{assoc_prefix}#{inv_name}s"
+        {assoc_name, to_string(table_name), assoc}
+      else
+        table_name = "#{assoc_prefix}#{assoc_name}s"
+        {assoc_name, table_name, assoc}
+      end
     end
   end
 end
