@@ -5,9 +5,13 @@ defmodule MoodleNet.Factory do
     %{
       "email" => Faker.Internet.safe_email(),
       "name" => name,
-      "username" => name |> String.downcase() |> String.replace(~r/[^a-z0-9]/, "_"),
+      "preferred_username" => name |> String.downcase() |> String.replace(~r/[^a-z0-9]/, "_"),
       "password" => "password",
-      "locale" => "es"
+      "locale" => "es",
+      "icon" => attributes(:image),
+      "primaryLanguage" => "es",
+      "summary" => Faker.Lorem.sentence(),
+      "location" => %{type: "Place", content: Faker.Pokemon.location()}
     }
   end
 
@@ -25,8 +29,8 @@ defmodule MoodleNet.Factory do
   def attributes(:community) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "name" => Faker.Pokemon.name(),
       "preferred_username" => Faker.Internet.user_name(),
+      "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
       "primaryLanguage" => "es",
       "icon" => attributes(:image)
@@ -37,7 +41,11 @@ defmodule MoodleNet.Factory do
     %{
       "content" => Faker.Lorem.sentence(),
       "name" => Faker.Beer.brand(),
-      "icon" => attributes(:image)
+      "icon" => attributes(:image),
+      "preferred_username" => Faker.Internet.user_name(),
+      "name" => Faker.Pokemon.name(),
+      "summary" => Faker.Lorem.sentence(),
+      "primaryLanguage" => "es",
     }
   end
 
@@ -47,7 +55,8 @@ defmodule MoodleNet.Factory do
       "name" => Faker.Industry.industry(),
       "url" => Faker.Internet.url(),
       "summary" => Faker.Lorem.sentence(),
-      "icon" => attributes(:image)
+      "icon" => attributes(:image),
+      "primaryLanguage" => "es",
     }
   end
 

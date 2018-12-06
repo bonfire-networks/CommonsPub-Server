@@ -88,6 +88,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add_foreign_key(:subject_id, "activity_pub_objects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
+    create(unique_index("activity_pub_object_attributed_tos", [:subject_id, :target_id]))
 
     create table(:activity_pub_object_contexts) do
       add_foreign_key(:subject_id, "activity_pub_objects")

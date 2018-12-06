@@ -95,8 +95,8 @@ defmodule MoodleNet do
       when has_type(author, "Person") and has_type(context, "MoodleNet:Community")
       when has_type(author, "Person") and has_type(context, "MoodleNet:Collection") do
     attrs
-    |> Map.put(:context, context)
-    |> Map.put(:attributed_to, author)
+    |> Map.put(:context, [context])
+    |> Map.put(:attributed_to, [author])
     |> create_comment()
   end
 
@@ -105,9 +105,9 @@ defmodule MoodleNet do
     context = Query.new() |> Query.belongs_to(:context, in_reply_to) |> Query.one()
 
     attrs
-    |> Map.put(:context, context)
-    |> Map.put(:in_reply_to, in_reply_to)
-    |> Map.put(:attributed_to, author)
+    |> Map.put(:context, [context])
+    |> Map.put(:in_reply_to, [in_reply_to])
+    |> Map.put(:attributed_to, [author])
     |> create_comment()
   end
 

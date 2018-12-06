@@ -61,8 +61,6 @@ defmodule MoodleNet.Mixfile do
       {:recase, "~> 0.2"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
-      # {:ex_machina, "~> 2.2", only: :test},
-      {:ex_machina, git: "https://github.com/thoughtbot/ex_machina", ref: "master", only: :test},
       {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
       {:mock, "~> 0.3.1", only: :test},

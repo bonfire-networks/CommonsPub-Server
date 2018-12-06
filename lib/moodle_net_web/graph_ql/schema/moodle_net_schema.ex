@@ -517,6 +517,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp from_language_value(string) when is_binary(string), do: string
   defp from_language_value(%{"und" => value}), do: value
   defp from_language_value(%{}), do: nil
+  defp from_language_value(_), do: nil
 
   defp to_icon([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
@@ -574,7 +575,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     case children do
       [] -> nil
       [child] -> child
-      _ -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
+      # FIXME 
+      [child | _] -> child
+      # _ -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
     end
   end
 

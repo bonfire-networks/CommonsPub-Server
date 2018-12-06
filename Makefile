@@ -17,6 +17,14 @@ build: ## Build the Docker image
 		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
 		-t moodlenet:latest .
 
+build_with_cache: ## Build the Docker image
+	docker build \
+		--build-arg APP_NAME=$(APP_NAME) \
+		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
+		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
+		-t moodlenet:latest .
+
 run: ## Run the app in Docker
 	docker run\
 		--env-file config/docker.env \
