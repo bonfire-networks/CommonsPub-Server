@@ -1,5 +1,5 @@
 query getCommunityQuery($context: Int!) {
-    community(localId: $context) {
+    community(local_id: $context) {
         id
         localId
         preferredUsername
@@ -18,10 +18,6 @@ query getCommunityQuery($context: Int!) {
             icon
             followersCount
             followingCount
-
-            context {
-                localId
-            }
         }
     }
 }
