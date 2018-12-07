@@ -171,7 +171,6 @@ class Login extends React.Component<LoginProps, LoginState> {
       result = await this.props.login({
         variables: credentials
       });
-
       console.log(result);
     } catch (err) {
       console.log(err);
@@ -190,13 +189,13 @@ class Login extends React.Component<LoginProps, LoginState> {
 
     this.setState({ authenticating: false });
 
-    const userData = result.data.login;
+    const userData = result.data.createSession;
 
     // TODO pull key out into constant
     localStorage.setItem('user_access_token', userData.token);
 
     delete userData.token;
-
+    console.log(userData);
     await this.props.setLocalUser({
       variables: {
         isAuthenticated: true,
