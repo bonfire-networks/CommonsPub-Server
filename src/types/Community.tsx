@@ -1,4 +1,5 @@
 import Collection from './Collection';
+import Comment from './Comment';
 
 export default interface Community {
   // no. of people following that are not members
@@ -13,4 +14,5 @@ export default interface Community {
   preferredUsername: string;
   summary: string;
   collections: Collection[];
+  comments: Comment[];
 }

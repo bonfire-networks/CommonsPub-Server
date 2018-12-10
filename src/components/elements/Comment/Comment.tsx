@@ -5,7 +5,7 @@ import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 import styled from '../../../themes/styled';
 import Avatar from '../Avatar/Avatar';
-import User from '../../../types/User';
+import Author from '../../../types/Author';
 import { Link } from 'react-router-dom';
 
 const CommentContainer = styled.div<any>`
@@ -50,7 +50,7 @@ type Comment = {
 
 type CommentProps = {
   child?: boolean;
-  author: User;
+  author: Author;
   comment: Comment;
   onHeartClicked?: Function;
   onCommentClicked?: Function;
