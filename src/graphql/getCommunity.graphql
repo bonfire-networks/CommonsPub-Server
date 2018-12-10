@@ -8,7 +8,14 @@ query getCommunityQuery($context: Int!) {
         icon
         followersCount
         followingCount
-
+        comments {
+          id
+          author {
+            id
+            name
+          }
+          content
+        }
         collections {
             id
             localId

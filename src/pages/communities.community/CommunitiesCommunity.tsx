@@ -3,22 +3,24 @@ import compose from 'recompose/compose';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { RouteComponentProps } from 'react-router';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
+import styled from 'styled-components';
 
-import Link from '../../components/elements/Link/Link';
 import Main from '../../components/chrome/Main/Main';
-import Logo from '../../components/brand/Logo/Logo';
-import P from '../../components/typography/P/P';
+// import P from '../../components/typography/P/P';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
-import {
-  CommunityCard,
-  CollectionCard
-} from '../../components/elements/Card/Card';
+import Breadcrumb from './breadcrumb';
+import { CollectionCard } from '../../components/elements/Card/Card';
+import H6 from '../../components/typography/H6/H6';
+import P from '../../components/typography/P/P';
+import Button from '../../components/elements/Button/Button';
+import Comment from '../../components/elements/Comment/Comment';
 
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
+  Overview = 'Overview',
   Collections = 'Collections',
   Discussion = 'Discussion'
 }
@@ -46,13 +48,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
-
+    let comments;
     if (this.props.data.error) {
       console.error(this.props.data.error);
       collections = <span>Error loading collections</span>;
+      comments = <span>Error loading comments</span>;
     } else if (this.props.data.loading) {
       collections = <Loader />;
-    } else if (this.props.data.community.collections) {
+      comments = <Loader />;
+    } else if (this.props.data.community) {
       community = this.props.data.community;
 
       if (this.props.data.community.collections.length) {
@@ -60,7 +64,33 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           return <CollectionCard key={community.id} entity={collection} />;
         });
       } else {
-        collections = <span>This community has no collections.</span>;
+        collections = (
+          <OverviewCollection>
+            <P>This community has no collections.</P>
+            <Button>Create the first collection</Button>
+          </OverviewCollection>
+        );
+      }
+      if (this.props.data.community.comments.length) {
+        comments = this.props.data.community.comments.map(comment => {
+          let author = {
+            id: comment.author.id,
+            name: comment.author.name,
+            avatarImage: 'https://picsum.photos/200/300'
+          };
+          let message = {
+            body: comment.content,
+            timestamp: comment.published
+          };
+          return <Comment key={comment.id} author={author} comment={message} />;
+        });
+      } else {
+        comments = (
+          <OverviewCollection>
+            <P>This community has no discussions yet.</P>
+            <Button>Start a new thread</Button>
+          </OverviewCollection>
+        );
       }
     }
 
@@ -72,47 +102,26 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       <>
         <Main>
           <Grid>
+            <Breadcrumb name={community.name} />
             <Row>
-              <Col sm={6}>
-                <Logo />
-              </Col>
-            </Row>
-            <Row>
-              <Col size={6}>
-                <Link to="/communities">Communities</Link>
-                {' > '}
-                <span>{community.name}</span>
-              </Col>
-            </Row>
-            <Row>
-              <Col size={6}>
-                <div
-                  style={{
-                    marginTop: '1em',
-                    display: 'flex',
-                    flexDirection: 'row'
-                  }}
+              <Hero>
+                <Background
+                  style={{ backgroundImage: `url(${community.image})` }}
                 >
-                  <CommunityCard
-                    large
-                    link={false}
-                    key={community.id}
-                    entity={community}
-                  />
-                  <div>
-                    <h3>{community.name}</h3>
-                    <P>{community.summary}</P>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-            <Row />
-            <Row>
-              <Col size={12}>
+                  <Title>{community.name}</Title>
+                </Background>
                 <Tabs
                   selectedKey={this.state.tab}
                   onChange={tab => this.setState({ tab })}
                 >
+                  <TabPanel label={TabsEnum.Overview} key={TabsEnum.Overview}>
+                    <div style={{ display: 'flex' }}>
+                      <WrapperBox>
+                        <H6>Summary</H6>
+                        <P>{community.summary}</P>
+                      </WrapperBox>
+                    </div>
+                  </TabPanel>
                   <TabPanel
                     label={TabsEnum.Collections}
                     key={TabsEnum.Collections}
@@ -123,10 +132,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     label={TabsEnum.Discussion}
                     key={TabsEnum.Discussion}
                   >
-                    discussions
+                    {comments}
                   </TabPanel>
                 </Tabs>
-              </Col>
+              </Hero>
+            </Row>
+            <Row>
+              <Col size={12} />
             </Row>
           </Grid>
         </Main>
@@ -134,6 +146,68 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     );
   }
 }
+
+const WrapperBox = styled.div`
+  padding: 0 8px;
+  & h6 {
+    margin: 0 !important;
+  }
+  & p {
+    margin-top: 8px !important;
+  }
+`;
+
+const OverviewCollection = styled.div`
+  padding: 0 8px;
+  margin-bottom: 8px;
+  & p {
+    margin-top: 0 !important;
+  }
+`;
+
+const Hero = styled.div`
+  box-shadow: 0 1px 2px 0 rgba(255, 255, 255, 0.1);
+  background: #fff;
+  border: 1px solid #f3f3f3;
+  border-radius: 4px;
+  width: 100%;
+  position: relative;
+  margin-top: 16px;
+`;
+
+const Background = styled.div`
+  height: 200px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: #f8f8f8;
+  position: relative;
+  &:after {
+    position: absolute;
+    content: '';
+    background: rgb(0, 0, 0);
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    display: block;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+`;
+
+const Title = styled.div`
+  position: absolute;
+  bottom: 20px;
+  left: 30px;
+  color: #fff;
+  z-index: 9;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+`;
 
 const withGetCollections = graphql<
   {},

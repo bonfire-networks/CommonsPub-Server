@@ -27,7 +27,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
   //language=SCSS
   const chromeStyles = `
         && {
-            background-color: ${theme.colour.base6};
+            background-color: #FBFBFD;
         }
     `;
 
