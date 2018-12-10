@@ -23,6 +23,10 @@ const SubNavItemHeader = styled(SubNavItem)<any>`
   font-size: 1.25em !important;
 `;
 
+const SidebarWrapper = styled.div`
+  width: 240px;
+  display: flex;
+`;
 enum NavItems {
   Communities,
   Collections
@@ -156,7 +160,7 @@ class Nav extends React.Component<RouterProps, {}> {
 
   render() {
     return (
-      <>
+      <SidebarWrapper>
         <ZenNav expanded={this.state.open}>
           <NavItem
             title="Communities"
@@ -185,7 +189,7 @@ class Nav extends React.Component<RouterProps, {}> {
             current: this.state.activeSubNav
           })}
         </SubNav>
-      </>
+      </SidebarWrapper>
     );
   }
 }
