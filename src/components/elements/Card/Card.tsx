@@ -115,10 +115,20 @@ export interface CardProps {
   entity: Community | Collection | Resource;
 }
 
+/**
+ * Card component for a community.
+ * @param props {Object} community card props
+ * @constructor
+ */
 export function CommunityCard({ ...props }: SubCardProps) {
   return <Card type={CardType.community} {...props} />;
 }
 
+/**
+ * Card component for a collection.
+ * @param props {Object} collection card props
+ * @constructor
+ */
 export function CollectionCard({ ...props }: SubCardProps) {
   return <Card type={CardType.collection} {...props} />;
 }
@@ -133,6 +143,7 @@ export interface ResourceCardProps {
 }
 
 /**
+ * Card component for a resource.
  * @param entity {Resource} resource entity
  * @param link {string} card anchor href
  * @constructor
@@ -159,12 +170,13 @@ export function ResourceCard({ entity, link = true }: ResourceCardProps) {
 }
 
 /**
- * @param type
- * @param joined
- * @param large
- * @param link
+ * Generic card component.
+ * @param type {CardType} type of card
+ * @param following {Boolean} is the user following whatever the card represents
+ * @param large {Boolean} should the card appear as large
+ * @param link {}
  * @param onButtonClick
- * @param joined
+ * @param entity
  * @constructor
  */
 export default function Card({
@@ -216,6 +228,13 @@ type ContentCountsProps = {
   type: CardType | string;
 };
 
+/**
+ * Component that renders the "following" count or other
+ * relevant metrics for a card.
+ * @param entity {Object} entity the card represents, e.g. community or resource
+ * @param type {CardType} type of the entity the card represents
+ * @constructor
+ */
 function ContentCounts({
   entity,
   type
@@ -246,6 +265,12 @@ function ContentCounts({
   return null;
 }
 
+/**
+ * Make a Card component wrapper, such as a Link.
+ * @param type {CardType} the card component type
+ * @param link {String|Boolean} if true, generates link to entity, otherwise uses link directly as href of Link
+ * @param entity {Object} the entity that the card represents, e.g. a community or resource
+ */
 function makeCardOuterComponent({ type, link, entity }) {
   //TODO lift this Outer stuff as it is shared with the Card component
   const Outer = link ? CardLink : React.Fragment;

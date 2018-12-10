@@ -1,0 +1,1100 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>moodlenet</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">moodlenet</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> moodlenet</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="moodlenet-web-client">MoodleNet Web Client</h1>
+				<p>This React project was bootstrapped with <a href="https://github.com/facebookincubator/create-react-app">Create React App</a>.
+					It has changed dramatically since its initial creation so the CRA documentation is no longer relevant and has been
+				removed from the README, however this notice is left here just in case it can be informative and for posterity.</p>
+				<h2 id="glossary">Glossary</h2>
+				<ul>
+					<li><a href="#structure">Structure</a><ul>
+							<li><a href="#high-level-folder-structure">High level folder structure</a></li>
+							<li><a href="#application-source-folder-structure">Application source folder structure</a></li>
+						</ul>
+					</li>
+					<li><a href="#scripts">Scripts</a><ul>
+							<li><a href="#npm-start"><code>npm start</code></a></li>
+							<li><a href="#npm-add-locale"><code>npm add-locale</code></a></li>
+							<li><a href="#npm-extract"><code>npm extract</code></a></li>
+							<li><a href="#npm-compile"><code>npm compile</code></a></li>
+							<li><a href="#npm-build"><code>npm build</code></a></li>
+						</ul>
+					</li>
+					<li><a href="#libraries">Libraries</a></li>
+					<li><a href="#theme">Theme</a><ul>
+							<li><a href="#theme-structure">Theme structure</a></li>
+							<li><a href="#themed-components">Themed components</a></li>
+							<li><a href="#adding-a-theme">Adding a theme</a></li>
+							<li><a href="#using-a-theme">Using a theme</a></li>
+							<li><a href="#themeing-zendesk-garden">Themeing Zendesk Garden</a></li>
+							<li><a href="#grid-system">Grid system</a></li>
+						</ul>
+					</li>
+					<li><a href="#localisation">Localisation</a><ul>
+							<li><a href="#set-up">Set up</a></li>
+							<li><a href="#usage">Usage</a></li>
+							<li><a href="#simple-language-strings">Simple language strings</a></li>
+							<li><a href="#language-strings-as-reference">Language strings as reference</a></li>
+							<li><a href="#plural-language-strings">Plural language strings</a></li>
+							<li><a href="#interpolated-language-strings">Interpolated language strings</a></li>
+							<li><a href="#updating-language-files">Updating language files</a></li>
+						</ul>
+					</li>
+					<li><a href="#dependencies">Dependencies</a></li>
+				</ul>
+				<h2 id="structure">Structure</h2>
+				<h3 id="high-level-folder-structure-">High level folder structure:</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Folder</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>/build</code></td>
+							<td>the output directory containing static assets &amp; application files</td>
+						</tr>
+						<tr>
+							<td><code>/config</code></td>
+							<td>contains all configuration for the build tooling, i.e. webpack</td>
+						</tr>
+						<tr>
+							<td><code>/public</code></td>
+							<td>files that will be copied into the <code>build</code> folder</td>
+						</tr>
+						<tr>
+							<td><code>/scripts</code></td>
+							<td>&quot;run&quot; files should be invoked via their respective <code>npm run</code> command</td>
+						</tr>
+						<tr>
+							<td><code>/src</code></td>
+							<td>the application source</td>
+						</tr>
+				</tbody></table>
+				<h3 id="application-source-folder-structure-">Application source folder structure:</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Folder</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>/src/apollo</code></td>
+							<td>all (react-)apollo boilerplate, type definitions, and resolvers</td>
+						</tr>
+						<tr>
+							<td><code>/src/components</code></td>
+							<td>all react components are stored here which are reusable, organised by type</td>
+						</tr>
+						<tr>
+							<td><code>/src/containers</code></td>
+							<td>high-level react container components which handle routing, state, and localisation set-up</td>
+						</tr>
+						<tr>
+							<td><code>/src/graphql</code></td>
+							<td>contains queries &amp; (local state) mutation grapql query definitions</td>
+						</tr>
+						<tr>
+							<td><code>/src/locales</code></td>
+							<td>locale folders define the available locales (managed by linguijs) and each contains its locale&#39;s language data</td>
+						</tr>
+						<tr>
+							<td><code>/src/pages</code></td>
+							<td>user-facing application pages which are used in routing in the App container</td>
+						</tr>
+						<tr>
+							<td><code>/src/static</code></td>
+							<td>static assets such as images that are used within the application code (for example, images can be <code>require</code>&#39;d with webpack)</td>
+						</tr>
+						<tr>
+							<td><code>/src/styleguide</code></td>
+							<td>contains files pertaining to react-styleguidist, such as a Wrapper component used to display all components in the styleguide within the Zen Garden theme provider</td>
+						</tr>
+						<tr>
+							<td><code>/src/styles</code></td>
+							<td>css files go in here, for styles that are not component-specific (i.e. not generated with <code>styled-component</code>) or for which a library relies on (e.g. flag icons)</td>
+						</tr>
+						<tr>
+							<td><code>/src/themes</code></td>
+							<td>the application Zen Garden theme set configuration and own theme files, with the <code>default.theme.ts</code> being the MoodleNet theme</td>
+						</tr>
+						<tr>
+							<td><code>/src/types</code></td>
+							<td>application typescript types, enums, &amp; interfaces</td>
+						</tr>
+						<tr>
+							<td><code>/src/util</code></td>
+							<td>application utility functions</td>
+						</tr>
+				</tbody></table>
+				<h2 id="scripts">Scripts</h2>
+				<p>In the project directory, you can run:</p>
+				<h3 id="npm-start"><code>npm start</code></h3>
+				<p>Runs the app in the development mode.
+				Open <a href="http://localhost:3000">http://localhost:3000</a> to view it in the browser.</p>
+				<p>The page will reload if you make edits.
+				You will also see any lint errors in the console.</p>
+				<h3 id="npm-add-locale"><code>npm add-locale</code></h3>
+				<p>Adds a locale for localisation, with <a href="https://lingui.js.org/ref/react.html">lingui library</a>.<br></p>
+				<h3 id="npm-extract"><code>npm extract</code></h3>
+				<p>Extracts new/updated strings from the codebase into JSON files for localisation (they need to be encapsulated with <a href="https://lingui.js.org/ref/react.html">lingui library</a>&#39;s <Trans>).<br></p>
+				<h3 id="npm-compile"><code>npm compile</code></h3>
+				<p>Compiles localisation files for production.<br></p>
+				<h3 id="npm-build"><code>npm build</code></h3>
+				<p>Builds the app for production to the <code>build</code> folder.<br>
+				It correctly bundles React in production mode and optimizes the build for the best performance.</p>
+				<p>The build is minified and the filenames include the hashes.<br></p>
+				<h2 id="libraries">Libraries</h2>
+				<p>This section mentions notable libraries and tools used within the application and links to their documentation.</p>
+				<ul>
+					<li>TypeScript (<a href="https://www.typescriptlang.org">https://www.typescriptlang.org</a>)</li>
+					<li>webpack (<a href="https://webpack.js.org">https://webpack.js.org</a>) </li>
+					<li></li>
+				</ul>
+				<h2 id="theme">Theme</h2>
+				<p>The application uses the <a href="https://zendeskgarden.github.io">Zendesk Garden</a> toolkit for its React and CSS component suites
+					and also as it comes the &quot;themeing&quot; built-in. This means we apply our own &quot;MoodlNet style&quot; to the components in the Zendesk
+				Garden toolkit.</p>
+				<p>This section details how themeing is implemented in the application, how to develop new components that are themed, how
+				to edit the default theme, and how to introduce new themes.</p>
+				<h3 id="theme-structure">Theme structure</h3>
+				<p>Files that are used in themeing are described in the table below.</p>
+				<table>
+					<thead>
+						<tr>
+							<th>File</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td><code>themes/create.ts</code></td>
+							<td>a utility function that generates a Zendesk Garden-specific theme object definition from a theme variable hash</td>
+						</tr>
+						<tr>
+							<td><code>themes/default.theme.ts</code></td>
+							<td>the default MoodleNet theme</td>
+						</tr>
+						<tr>
+							<td><code>themes/index.ts</code></td>
+							<td>exports all available themes within the application</td>
+						</tr>
+						<tr>
+							<td><code>themes/styled.ts</code></td>
+							<td>defines and gathers all theme and <code>styled-components</code> interfaces and utilities into one file</td>
+						</tr>
+				</tbody></table>
+				<h3 id="themed-components">Themed components</h3>
+				<p>Zendesk Garden comes with lots of built-in components, visual components are defined in CSS (i.e. created with class names)
+				and some of these are also available as React components. Some React components are not available in CSS and vice-versa.</p>
+				<p>The components can be viewed here:</p>
+				<ul>
+					<li><a href="zendeskgarden.github.io/css-components/">Zendesk CSS components</a></li>
+					<li><a href="https://zendeskgarden.github.io/react-components/">React components</a> </li>
+				</ul>
+				<p>In this application any Zendesk component that is used should be wrapped within a local component. For example, see
+				the Pagination component (<code>src/components/Pagination/Pagination.tsx</code>), which looks like this:</p>
+				<p><code>`</code>typescript jsx
+					import * as React from &#39;react&#39;;
+				import { Pagination } from &#39;@zendeskgarden/react-pagination&#39;;</p>
+				<p>export default function({ ...props }) {
+					return &lt;Pagination {...props} /&gt;;
+				}</p>
+				<pre><code>
+The reasons for this are 1) it is easy to see within the component directory hierarcy which components are already
+available and have been styled and 2) we can build extra MoodleNet-specific functionality into the components this way.
+
+<span class="hljs-comment">### Adding a theme</span>
+
+It is relatively easy to <span class="hljs-keyword">create</span> a <span class="hljs-keyword">new</span> theme:
+
+- copy the <span class="hljs-string">`themes/default.theme.ts`</span> <span class="hljs-keyword">file</span> <span class="hljs-keyword">to</span> a <span class="hljs-keyword">new</span> <span class="hljs-keyword">file</span>, e.g. <span class="hljs-string">`dark.theme.ts`</span>
+- amend the theme <span class="hljs-keyword">variables</span> <span class="hljs-keyword">in</span> the <span class="hljs-keyword">new</span> theme <span class="hljs-keyword">file</span> <span class="hljs-keyword">to</span> whatever you <span class="hljs-keyword">like</span>
+- <span class="hljs-keyword">add</span> an <span class="hljs-keyword">export</span> <span class="hljs-keyword">in</span> <span class="hljs-string">`themes/index.ts`</span> <span class="hljs-keyword">for</span> the <span class="hljs-keyword">new</span> theme <span class="hljs-keyword">file</span>, making sure <span class="hljs-keyword">to</span> <span class="hljs-keyword">rename</span> the <span class="hljs-string">`theme`</span> <span class="hljs-keyword">export</span> <span class="hljs-keyword">to</span> something <span class="hljs-keyword">unique</span>:
+
+    <span class="hljs-string">``</span><span class="hljs-string">`js
+    // for example
+    export { theme as dark } from './dark.theme';</span></code></pre><ul>
+					<li>that&#39;s it!</li>
+				</ul>
+				<h3 id="using-a-theme">Using a theme</h3>
+				<p>The application does not (yet) have a way for the user to choose a theme. The theme in use is configured in code. </p>
+				<p>To use a different theme:</p>
+				<ul>
+					<li>open the App container (<code>src/containers/App/App.tsx</code>)</li>
+					<li>import the them you want to use (or amend the existing import for the <code>moodlent</code> theme)</li>
+					<li>update the <code>ThemeProvider</code> JSX element <code>theme</code> prop to use the new theme definition</li>
+				</ul>
+				<h3 id="themeing-zendesk-garden">Themeing Zendesk Garden</h3>
+				<p>The Zendesk Garden suite is themed using the <code>ThemeProvider</code> component, which takes as a prop
+					a theme definition. This theme definition contains the theme variables (as in a theme file created above
+					in <a href="#adding-a-theme">Adding a theme</a>) and also component-specific styles, which are defined using
+				Zendesk Garden&#39;s own component naming scheme.</p>
+				<p>For example, to theme the Pagination Zendesk Garden component, we add a key in our theme definition
+					object which is the component&#39;s canonical &quot;name&quot; in the theme system. This isn&#39;t actually referenced anywhere
+					in the Zendesk Garden documentation so the easiest way to find it out is by looking at the source code of the
+				component.</p>
+				<p>For example, for the Pagination Page sub-component we can see the canonical component name in
+				<code>node_modules/@zendeskgarden/react-pagination/dist/index.js</code>:</p>
+				<pre><code><span class="hljs-keyword">var</span> COMPONENT_ID = <span class="hljs-string">'pagination.page'</span>;</code></pre><p>Now we can style the component in our <code>createTheme</code> function in <code>themes/create.tsx</code> by adding a key
+				in the definition like so:</p>
+				<pre><code class="language-js">  {
+    <span class="hljs-comment">//...</span>
+    <span class="hljs-string">'pagination.page'</span>: <span class="hljs-string">`
+        &amp;&amp;[class*=is-current] {
+            background-color: <span class="hljs-subst">${theme.colour.primary}</span>;
+            color: white;
+        }
+    `</span>,
+    <span class="hljs-comment">//...</span>
+  } </code></pre>
+				<p>The styles can be written using SASS syntax. It is necessary to use a double ampersand to target the
+				component element, as (presumably) this style will be merged into Zendesk Garden&#39;s own declaration for the element.</p>
+				<h3 id="grid-system">Grid system</h3>
+				<p>The application makes use of the Zendesk Garden <a href="https://garden.zendesk.com/react-components/grid/">Grid components</a>.
+				This is a typical responsive column &amp; row grid framework.</p>
+				<blockquote>
+					<p>The Grid component is an implementation over the <a href="http://getbootstrap.com/docs/4.0/layout/overview/">Bootstrap v4 Flexbox Grid</a>.
+					Their documentation is a great resource to explore all of the unique customizations available within this package. </p>
+				</blockquote>
+				<p>Given that grid columns adapt to the dimensions of the user agent viewport, when possible components should always
+					be built with the capability to reduce their size to fit within their container, and should not therefore
+				use fixed widths.</p>
+				<h2 id="localisation">Localisation</h2>
+				<p><a href="https://lingui.js.org/">LinguiJS</a> is the localisation library used for i18n.</p>
+				<h3 id="set-up">Set up</h3>
+				<ul>
+					<li><p>LinguiJS is configured in the <code>.linguirc</code> file in the root of the application.</p>
+					</li>
+					<li><p>It comes with a provider component that sets up i18n within the application and makes components
+							within the app able to consume the language strings of the user&#39;s chosen locale. The provider
+						is configured in the App container (<code>src/containers/App/App.tsx</code>).</p>
+					</li>
+					<li><p>The app uses React 16 Context to manage the chosen locale and maintain a state around this.
+						The context (state) is also set up and handled within the aforementioned App container.</p>
+					</li>
+					<li><p>Any component can &quot;consume&quot; the locale context by using the <code>LocaleContext</code> exported from the App
+							container. This allows any component to access the API for changing the active locale. For example,
+							the LanguageSelect component (<code>/src/components/inputs/LanguageSelect/LanguageSelect.tsx</code>) is wrapped
+						in the <code>LocaleContext.Consumer</code> component, giving it the <code>setLocale</code> function:</p>
+						<pre><code class="language-jsx">    &lt;LocaleContext.Consumer&gt;
+      {({ setLocale }) =&gt; (
+        <span class="hljs-comment">//...</span>
+      )})
+    &lt;<span class="hljs-regexp">/LocaleContext.Consumer&gt;</span></code></pre>
+					</li>
+				</ul>
+				<h3 id="usage">Usage</h3>
+				<p>Wherever you write visible text, i.e. anything user-facing, the copy should be written using the LinguiJS
+					components. The text used within the LinguiJS components can then be extracted using the CLI operations
+				provided by the library, which are detailed in the <a href="#scripts">Scripts</a> section of this document.</p>
+				<p>Examples of using the LinguiJS library are given below.</p>
+				<h4 id="simple-language-strings">Simple language strings</h4>
+				<ul>
+					<li><p>First import the <a href="https://lingui.js.org/ref/react.html#trans"><code>Trans</code> component</a>:</p>
+						<pre><code class="language-js">  <span class="hljs-keyword">import</span> { Trans } <span class="hljs-keyword">from</span> <span class="hljs-string">'@lingui/macro'</span>;
+  <span class="hljs-string">`</span></code></pre>
+					</li>
+					<li><p><em>Note:</em> the <code>Trans</code> component is imported from the <code>macro</code> package, not the <code>react</code> package! </p>
+					</li>
+					<li><p>Then consume the <code>Trans</code> component wherever text is used, like so:</p>
+						<pre><code class="language-jsx">  &lt;Trans&gt;Sign <span class="hljs-keyword">in</span> using your social media account&lt;<span class="hljs-regexp">/Trans&gt;</span></code></pre>
+					</li>
+				</ul>
+				<h4 id="language-strings-as-reference">Language strings as reference</h4>
+				<ul>
+					<li><p>Import the <a href="https://lingui.js.org/ref/react.html#i18nmark"><code>i18nMark</code> function</a>.</p>
+						<pre><code class="language-js">  <span class="hljs-keyword">import</span> { i18nMark } <span class="hljs-keyword">from</span> <span class="hljs-string">'@lingui/react'</span>;</code></pre>
+					</li>
+					<li><p>Define the language string however you like. It is usually the case that a file will contain more than one
+							language string accessed via reference, in this case organise the strings within an object with properties
+						that describe their purpose. For example, from the Login page:</p>
+						<pre><code class="language-js">  <span class="hljs-keyword">const</span> tt = {
+    <span class="hljs-comment">//...</span>
+    validation: {
+      <span class="hljs-attr">email</span>: i18nMark(<span class="hljs-string">'The email field cannot be empty'</span>),
+      <span class="hljs-comment">//...</span>
+    }
+  }
+  <span class="hljs-string">`</span></code></pre>
+					</li>
+					<li><p><em>Note:</em> the <code>validation.email</code> string is wrapped in a call to <code>i18nMark</code>. As the string is not passed to (as props
+							or directly as children) to the <code>Trans</code> component it will not be picked up automatically by the LinguiJS extract
+							script. In order to &quot;mark&quot; the string as a language string to be included in the compiled language files we must
+						wrap it in a call to <code>i18nMark</code>.  </p>
+					</li>
+					<li><p>Then consume the strings. Again, for example, from the Login page:</p>
+						<pre><code class="language-jsx">  validation.push({
+    <span class="hljs-attr">field</span>: ValidationField.email,
+    <span class="hljs-attr">type</span>: ValidationType.error,
+    <span class="hljs-attr">message</span>: tt.validation.email <span class="hljs-comment">// &lt;- notice the string reference here</span>
+  } <span class="hljs-keyword">as</span> ValidationObject);</code></pre>
+					</li>
+				</ul>
+				<h4 id="plural-language-strings">Plural language strings</h4>
+				<p>LinguiJS has a <code>Plural</code> component, which is like the <code>Trans</code> component but used where the
+				language contains pluralization.</p>
+				<blockquote>
+					<p><Plural> component handles pluralization of words or phrases.
+					Selected plural form depends on active language and value props.</p>
+				</blockquote>
+				<p>The LinguiJS documentation is very comprehensive and should be referred to for usage of the <code>Plural</code> component:</p>
+				<p><a href="https://lingui.js.org/ref/react.html#plural">https://lingui.js.org/ref/react.html#plural</a></p>
+				<h4 id="interpolated-language-string">Interpolated language string</h4>
+				<p>It is very common to interpolate values into language strings. This can be done using the <code>Trans</code> and <code>Plural</code>
+					components, where the interpolated string names are denoted with curly braces (but still within the actual string)
+					and the component is given a key/value hash via a <code>values</code> prop, where a key of the hash is the name of a string
+				to be interpolated. For example, from the Login page:</p>
+				<pre><code class="language-jsx">&lt;Trans
+  id=<span class="hljs-string">"You don't need an account to browse {site_name}."</span>
+  values={{ <span class="hljs-attr">site_name</span>: <span class="hljs-string">'MoodleNet'</span> }}
+/&gt;</code></pre>
+				<p>It is possible then to have <code>site_name</code> or any other interpolated string value produced dynamically and inserted
+					during runtime. If interpolated values also require localisation then you would use a language string hash,
+					as above in <a href="#language-strings-as-reference">Language strings as reference</a>, making sure to use the <code>i18nMark</code>
+				function to mark them for extraction by the LinguiJS CLI.     </p>
+				<h3 id="updating-language-files">Updating language files</h3>
+				<p>Whenever updates are made to any language within the application you must run the LinguiJS <code>extract</code> script.
+					This will pull out all the language strings and add or update them in the specific locale messages files, which
+				live in <code>locales</code>.</p>
+				<p>All changes to the language within the application, including changes to the files within <code>locales</code>, should
+				be committed alongside other changes.    </p>
+				<h2 id="dependencies">Dependencies</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Development Only</th>
+							<th>Package</th>
+							<th>Description</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td>| <code>@absinthe/*</code></td>
+							<td>the JS Absinthe toolkit used to interface with the Elixir Phoenix backend with GraphQL</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>@babel/*</code></td>
+							<td>compiles down ESNext syntax and functionality &amp; includes runtime polyfills</td>
+						</tr>
+						<tr>
+							<td>| <code>@fortawesome/*</code></td>
+							<td>a collection of react components and pre-packaged FontAwesome icon SVGs</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>@jumpn/utils-graphql</code></td>
+							<td>a collection of utilities used to interrogate GraphQL links, such as is it a subscription, which determines what channel to communicate on (WebSocket if yes, HTTP if no)</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>@lingui/*</code></td>
+							<td>lib for localisation of react applications, includes scripts for parsing the app code and pulling out language into locale files (which lives in <code>/locales/</code>), and react components such as localisation provider which sets up the react tree to get the correct language data depending on chosen locale</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>@types/*</code></td>
+							<td>the <code>@types</code> package namespace contains type definitions for some of packages we use, as TypeScript is opt-in an they are not included by default in some packages</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>@zendeskgarden/*</code></td>
+							<td>the themeing library which comes with a set of React components and an interface and provider which is used to apply a custom theme</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-cache-inmemory</code></td>
+							<td>standalone cache for apollo, it caches responses from the graphql backend</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-client</code></td>
+							<td>a client for graphql</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-link-context</code></td>
+							<td>allows setting the <em>context</em> of apollo operations, used for example to set the Auth Bearer token in HTTP request headers</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-link-http</code></td>
+							<td>allows the application to make graphql requests over HTTP</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-link-logger</code></td>
+							<td>logs apollo operations as they happen, used in development for debugging apollo queries</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-link-retry</code></td>
+							<td>allows apollo to automatically retry failed requests to the graphql backend</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>apollo-link-state</code></td>
+							<td>like Redux but is queryable through graphql queries</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>autoprefixer</code></td>
+							<td>used to automatically apply vendor prefixes to styles output by webpack (via postcss)</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>awesome-typescript-loader</code></td>
+							<td>a webpack loader that compiles TypeScript files</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>babel-core</code></td>
+							<td>this is necessary even though we have <code>@babel/core</code> because some older libs depend on it (it is actually just the &quot;bridge&quot; which is installed)</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>babel-plugin-async-import</code></td>
+							<td>allows Babel to compile the async import syntax (<code>import()</code>)</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>babel-plugin-macros</code></td>
+							<td>allows us to use Babel macros, such as the one included with <code>linguijs</code> that pulls out language data to create the locales</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>case-sensitive-paths-webpack-plugin</code></td>
+							<td>see <code>webpack.config.dev.js</code></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>chalk</code></td>
+							<td>used to create colour in terminal logs using ascii escape codes</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>cross-env</code></td>
+							<td>allows us to apply environment variables in npm scripts that run across all platforms</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>css-loader</code></td>
+							<td>allows webpack to process CSS files</td>
+						</tr>
+						<tr>
+							<td>| <code>dotenv</code></td>
+							<td>loads and processes <code>.env</code> files and applies contents to the environment (<code>process.env</code>)</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>dotenv-expand</code></td>
+							<td>allows interpolation of environment variables within the <code>.env</code> files themselves</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>eslint</code></td>
+							<td>used for linting application code</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>eslint-config-react-app</code></td>
+							<td>an ESLint config that CRA applications come bundles with</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>eslint-loader</code></td>
+							<td>allows webpack to run application files through ESLint</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>file-loader</code></td>
+							<td>allows webpack to copy files into the build directory</td>
+						</tr>
+						<tr>
+							<td>| <code>flag-icon-css</code></td>
+							<td>used to generate flag icons</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>fs-extra</code></td>
+							<td>a better FS lib that comes with extra filesystem operations and is promisied</td>
+						</tr>
+						<tr>
+							<td>| <code>graphql</code></td>
+							<td>the JS implementation of graphql, used by other graphql libs</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>graphql-tag</code></td>
+							<td>a template literal tag that processes graphql query strings into their object representations</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>html-webpack-plugin</code></td>
+							<td>used in webpack to produce an <code>index.html</code> file, that includes script and style tags for all application stuff that is generated via webpack</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>husky</code></td>
+							<td>used by <code>lint-staged</code> to configure git hooks</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>interpolate-html-plugin</code></td>
+							<td>see <code>webpack.config.dev.js</code></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>lint-staged</code></td>
+							<td>used to lint staged code before it is committed</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>mini-css-extract-plugin</code></td>
+							<td>pulls out CSS styles from application bundles into their own stylesheet files</td>
+						</tr>
+						<tr>
+							<td>| <code>object-assign</code></td>
+							<td><code>Object.assign</code> polyfill for older browsers (&lt;=IE8)</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>phoenix</code></td>
+							<td>JavaScript toolkit for interfacing with an Elixir Phoenix backend</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>postcss-flexbugs-fixes</code></td>
+							<td>fixes flexbox issues to make flexbox use cross-browser compatible</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>postcss-loader</code></td>
+							<td>allows webpack to make use of the postcss toolkit and plugin ecosystem</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>prettier</code></td>
+							<td>code formatter that automatically fixes linting problems and keeps the code looking according to a default code style</td>
+						</tr>
+						<tr>
+							<td>| <code>promise</code></td>
+							<td>simple implementation of promises</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>raf</code></td>
+							<td>requestAnimationFrame polyfill for node and the browser</td>
+						</tr>
+						<tr>
+							<td>| <code>react</code></td>
+							<td>used to build the user-interface of the application</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>react-apollo</code></td>
+							<td>react components for connecting apollo and react, e.g. a provider that gives all components a context with which to make request to graphql backend</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>react-click-outside</code></td>
+							<td>HOC used for catching clicks outside of a component, for example in order to close a menu when the user clicks off the menu</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>react-dev-utils</code></td>
+							<td>webpack utilities used by CRA</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>react-docgen-typescript</code></td>
+							<td>used by <code>react-styleguidist</code> to generate propType docs for react components from TypeScript prop definitions</td>
+						</tr>
+						<tr>
+							<td>| <code>react-dom</code></td>
+							<td>react lib to render react trees into the browser&#39;s DOM</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>react-loadable</code></td>
+							<td>makes loading components async and code-splitting easy in react-land</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>react-router-dom</code></td>
+							<td>react router DOM-specific renderer</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>react-styleguidist</code></td>
+							<td>used to produce and display a styleguide for the application components</td>
+						</tr>
+						<tr>
+							<td>| <code>recompose</code></td>
+							<td>utilities for react, such as HOC compose function to make multiple HOCs more readable</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>style-loader</code></td>
+							<td>webpack loader used in development to insert CSS as style tags</td>
+						</tr>
+						<tr>
+							<td>| <code>styled-components</code></td>
+							<td>used to write CSS-in-JS</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>sw-precache-webpack-plugin</code></td>
+							<td>produces a service worker for the application via webpack that caches application files and makes the web app load offline</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>terser-webpack-plugin</code></td>
+							<td>minifier for webpack</td>
+						</tr>
+						<tr>
+							<td>| <code>time-ago</code></td>
+							<td>produces readable strings for how long ago something happened from a timestamp, e.g. &quot;5 minutes ago&quot;</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>tslib</code></td>
+							<td>TypeScript runtime</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>| <code>typescript</code></td>
+							<td>TypeScript</td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>url-loader</code></td>
+							<td>allows webpack to inline files (e.g. images) into base64 strings if they are below a certain byte limit</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>webpack</code></td>
+							<td>application build tool, bundles the application into compiled and servable files</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>webpack-dev-server</code></td>
+							<td>used to create a development server that reacts to changes in app files and serves them on-the-fly</td>
+						</tr>
+						<tr>
+							<td>X</td>
+							<td><code>webpack-manifest-plugin</code></td>
+							<td>see <code>webpack.config.dev.js</code></td>
+						</tr>
+						<tr>
+							<td>| <code>whatwg-fetch</code></td>
+							<td><code>window.fetch</code> polyfill</td>
+							<td></td>
+						</tr>
+				</tbody></table>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Internals</span>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_apollo_client_.html">"src/apollo/client"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_apollo_resolvers_index_.html">"src/apollo/resolvers/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_apollo_resolvers_setuser_.html">"src/apollo/resolvers/set<wbr>User"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_apollo_typedefs_.html">"src/apollo/type<wbr>Defs"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_brand_logo_logo_.html">"src/components/brand/<wbr>Logo/<wbr>Logo"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_body_body_.html">"src/components/chrome/<wbr>Body/<wbr>Body"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_main_main_.html">"src/components/chrome/<wbr>Main/<wbr>Main"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_menu_menu_.html">"src/components/chrome/<wbr>Menu/<wbr>Menu"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_menu_menunav_.html">"src/components/chrome/<wbr>Menu/<wbr>Menu<wbr>Nav"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_menu_notifications_menubody_.html">"src/components/chrome/<wbr>Menu/<wbr>Notifications.<wbr>Menu<wbr>Body"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_menu_search_menubody_.html">"src/components/chrome/<wbr>Menu/<wbr>Search.<wbr>Menu<wbr>Body"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_menu_user_menubody_.html">"src/components/chrome/<wbr>Menu/<wbr>User.<wbr>Menu<wbr>Body"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_nav_nav_.html">"src/components/chrome/<wbr>Nav/<wbr>Nav"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_chrome_tabs_tabs_.html">"src/components/chrome/<wbr>Tabs/<wbr>Tabs"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_avatar_avatar_.html">"src/components/elements/<wbr>Avatar/<wbr>Avatar"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_button_button_.html">"src/components/elements/<wbr>Button/<wbr>Button"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_card_card_.html">"src/components/elements/<wbr>Card/<wbr>Card"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_comment_comment_.html">"src/components/elements/<wbr>Comment/<wbr>Comment"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_flag_flag_.html">"src/components/elements/<wbr>Flag/<wbr>Flag"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_link_link_.html">"src/components/elements/<wbr>Link/<wbr>Link"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_loader_loader_.html">"src/components/elements/<wbr>Loader/<wbr>Loader"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_notification_notification_.html">"src/components/elements/<wbr>Notification/<wbr>Notification"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_pagination_pagination_.html">"src/components/elements/<wbr>Pagination/<wbr>Pagination"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_elements_tag_tag_.html">"src/components/elements/<wbr>Tag/<wbr>Tag"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_inputs_checkbox_checkbox_.html">"src/components/inputs/<wbr>Checkbox/<wbr>Checkbox"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_inputs_languageselect_languageselect_.html">"src/components/inputs/<wbr>Language<wbr>Select/<wbr>Language<wbr>Select"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_inputs_text_text_.html">"src/components/inputs/<wbr>Text/<wbr>Text"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_inputs_textarea_textarea_.html">"src/components/inputs/<wbr>Text<wbr>Area/<wbr>Textarea"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_styleguide_colourblock_colourblock_.html">"src/components/styleguide/<wbr>Colour<wbr>Block/<wbr>Colour<wbr>Block"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_styleguide_fontweight_fontweight_.html">"src/components/styleguide/<wbr>Font<wbr>Weight/<wbr>Font<wbr>Weight"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h1_h1_.html">"src/components/typography/<wbr>H1/<wbr>H1"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h2_h2_.html">"src/components/typography/<wbr>H2/<wbr>H2"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h3_h3_.html">"src/components/typography/<wbr>H3/<wbr>H3"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h4_h4_.html">"src/components/typography/<wbr>H4/<wbr>H4"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h5_h5_.html">"src/components/typography/<wbr>H5/<wbr>H5"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_h6_h6_.html">"src/components/typography/<wbr>H6/<wbr>H6"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_li_li_.html">"src/components/typography/LI/LI"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_p_p_.html">"src/components/typography/<wbr>P/P"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_components_typography_ul_ul_.html">"src/components/typography/UL/UL"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_constants_.html">"src/constants"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_containers_app_app_.html">"src/containers/<wbr>App/<wbr>App"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_containers_app_protectedroute_.html">"src/containers/<wbr>App/<wbr>Protected<wbr>Route"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_containers_app_router_.html">"src/containers/<wbr>App/<wbr>Router"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_index_.html">"src/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_locales_en_gb_messages_.html">"src/locales/en_<wbr>GB/messages"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_locales_en_us_messages_.html">"src/locales/en_<wbr>US/messages"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_locales_es_messages_.html">"src/locales/es/messages"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_locales_fr_messages_.html">"src/locales/fr/messages"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_collections_collection_collectionscollection_.html">"src/pages/collections.collection/<wbr>Collections<wbr>Collection"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_communities_community_communitiescommunity_.html">"src/pages/communities.community/<wbr>Communities<wbr>Community"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_communities_featured_communitiesfeatured_.html">"src/pages/communities.featured/<wbr>Communities<wbr>Featured"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_communities_yours_communitiesyours_.html">"src/pages/communities.yours/<wbr>Communities<wbr>Yours"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_login_login_.html">"src/pages/login/<wbr>Login"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_login_loginform_.html">"src/pages/login/<wbr>Login<wbr>Form"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_login_types_.html">"src/pages/login/types"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_not_found_notfound_.html">"src/pages/not-<wbr>found/<wbr>Not<wbr>Found"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_resources_resource_resourcesresource_.html">"src/pages/resources.resource/<wbr>Resources<wbr>Resource"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_search_search_.html">"src/pages/search/<wbr>Search"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_previousstep_.html">"src/pages/sign-<wbr>up/<wbr>Previous<wbr>Step"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_profile_.html">"src/pages/sign-<wbr>up/<wbr>Profile"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_signup_.html">"src/pages/sign-<wbr>up/<wbr>Sign<wbr>Up"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_step1_.html">"src/pages/sign-<wbr>up/<wbr>Step1"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_step2_.html">"src/pages/sign-<wbr>up/<wbr>Step2"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_sign_up_util_.html">"src/pages/sign-<wbr>up/util"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_pages_user_userprofile_.html">"src/pages/user/<wbr>User<wbr>Profile"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_registerserviceworker_.html">"src/register<wbr>Service<wbr>Worker"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_styleguide_wrapper_.html">"src/styleguide/<wbr>Wrapper"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_themes_create_.html">"src/themes/create"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_themes_default_theme_.html">"src/themes/default.theme"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_themes_index_.html">"src/themes/index"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_themes_styled_.html">"src/themes/styled"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_types_collection_.html">"src/types/<wbr>Collection"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_types_community_.html">"src/types/<wbr>Community"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_types_resource_.html">"src/types/<wbr>Resource"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_types_user_.html">"src/types/<wbr>User"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_src_util_slugify_.html">"src/util/slugify"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_styleguide_config_.html">"styleguide.config"</a>
+					</li>
+					<li class="label tsd-is-external">
+						<span>Externals</span>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_config_env_.html">"config/env"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_config_paths_.html">"config/paths"</a>
+					</li>
+					<li class=" tsd-kind-external-module tsd-is-external">
+						<a href="modules/_config_webpack_config_dev_.html">"config/webpack.config.dev"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>

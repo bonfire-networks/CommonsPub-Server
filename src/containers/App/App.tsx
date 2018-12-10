@@ -45,6 +45,20 @@ type AppState = {
   setLocale: (locale) => void;
 };
 
+/**
+ * App container.
+ *
+ * Sets up app-wide state which contains which locale is in use, for example.
+ *
+ * It also wraps the whole application tree in various providers:
+ *
+ *  - ThemeProvider: used to theme all Zendesk Garden components
+ *
+ *  - LocaleContext.Provider: used to give children access to the
+ *    application locale API in order to set the active locale
+ *
+ *  - I18nProvider: used to enable localisation throughout the app
+ */
 export default class App extends React.Component<{}, AppState> {
   state = {
     catalogs: {

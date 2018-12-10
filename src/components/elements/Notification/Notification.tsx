@@ -82,6 +82,13 @@ const NotificationContentInner = styled.div`
   margin-left: 10px;
 `;
 
+/**
+ * Loader component.
+ * @param type {NotificationType} notification type
+ * @param content {String} notification inner content, i.e. message
+ * @param when {String} when notification was received
+ * @param props {Object} props of the notification
+ */
 export default function({
   type,
   content,

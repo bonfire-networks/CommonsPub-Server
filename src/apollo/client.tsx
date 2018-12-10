@@ -36,6 +36,11 @@ const stateLink = withClientState({
   typeDefs
 });
 
+/**
+ * This context link is used to assign the necessary Authorization header
+ * to all HTTP requests to the GraphQL backend. In the case that the user
+ * is authenticated it sets their access token as the value, otherwise null.
+ */
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from localstorage if it exists
   const token = localStorage.getItem('user_access_token');

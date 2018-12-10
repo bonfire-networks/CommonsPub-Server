@@ -28,6 +28,14 @@ type LinkProps = {
   active?: boolean;
 } & RouterLinkProps;
 
+/**
+ * Link component.
+ * @param className {String} additional class names for the link
+ * @param hovered {Boolean} whether the link should appear in hovered state
+ * @param active {Boolean} whether the link should appear in active state
+ * @param children {JSX.Element} children of the link
+ * @param props {Object} props of the link
+ */
 export default function({
   className = '',
   hovered,

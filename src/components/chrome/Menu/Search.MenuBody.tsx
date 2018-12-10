@@ -38,6 +38,11 @@ neck`;
 
 const links = ['The Russian Revolution', 'Joseph Stalin', 'Lenin'];
 
+/**
+ * The Search page of the Menu. It allows the user to start a search
+ * for a term across collections and communities and more or to
+ * see popular search phrases and search using them.
+ */
 export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
   return (
     <div>

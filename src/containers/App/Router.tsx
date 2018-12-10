@@ -40,6 +40,13 @@ const SignUp = Loadable({
   delay: 1000
 });
 
+/**
+ * The application routes definition.
+ *
+ * Note that all routes requiring the user to be authenticated are within
+ * the ProtectedRoute component, which then delegates further routing to a
+ * Switch route component.
+ */
 export default () => (
   <Router>
     <AppInner>

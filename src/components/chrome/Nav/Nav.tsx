@@ -101,6 +101,11 @@ const subNavItems = {
   )
 };
 
+/**
+ * Left-side navigation menu that is always present, allows user to view
+ * different pages of the application such as their collections and
+ * communities.
+ */
 class Nav extends React.Component<RouterProps, {}> {
   state: any = {
     open: false,

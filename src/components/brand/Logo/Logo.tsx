@@ -13,12 +13,16 @@ type LogoProps = {
   link?: boolean;
 };
 
+/**
+ * MoodleNet Logo component.
+ * @param link {Boolean} wrap Logo component in a Link to the homepage
+ */
 export default ({ link = true }: LogoProps) => {
   let image = <img src={moodleNetLogo} alt="MoodleNet" />;
 
   if (link) {
     image = (
-      <Link to={link ? '/' : '#'} title="MoodleNet">
+      <Link to="/" title="MoodleNet">
         {image}
       </Link>
     );

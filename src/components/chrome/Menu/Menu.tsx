@@ -91,6 +91,13 @@ interface MenuState {
   open: boolean;
 }
 
+/**
+ * The Menu component displays user notifications, the search menu,
+ * and user options. There are two parts to the user menu. This is the
+ * "main menu" that appears in from the right when the user clicks
+ * on a MenuNav button.
+ * @class
+ */
 class Menu extends React.Component<MenuProps, MenuState> {
   state = {
     openMenuName: null,

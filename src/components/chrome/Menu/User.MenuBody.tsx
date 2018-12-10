@@ -24,6 +24,11 @@ const UserMenu = styled.div`
   }
 `;
 
+/**
+ * The user's "User" menu that allows them to access their profile,
+ * settings, and log out.
+ * @param user {Object} the user object
+ */
 export default ({ user }) => {
   return (
     <UserMenu>

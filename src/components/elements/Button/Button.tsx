@@ -28,6 +28,14 @@ export const LoaderButton = ({ text, loading, type = 'submit', ...props }) => (
   </Button>
 );
 
+/**
+ * Button component.
+ * @param children {JSX.Element} children of button
+ * @param secondary {Boolean} whether button should be styled as secondary button
+ * @param className {String} additional class names of the button
+ * @param props {Object} button props
+ * @constructor
+ */
 export default function Button({
   children,
   secondary = false,

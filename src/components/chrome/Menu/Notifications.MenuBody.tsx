@@ -2,6 +2,7 @@ import * as React from 'react';
 
 // import Notification from '../../elements/Notification/Notification';
 
+// TODO get user notifications from graphql and display here
 export default ({ user }) => {
   return (
     <div>

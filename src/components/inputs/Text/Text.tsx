@@ -27,6 +27,12 @@ const WithButton = styled.div`
   }
 `;
 
+/**
+ * Text component.
+ * @param button {JSX.Element} children of text component
+ * @param props {Object} props of text component
+ * @constructor
+ */
 export default function Text({ button, ...props }: TextArgs) {
   if (button) {
     return (

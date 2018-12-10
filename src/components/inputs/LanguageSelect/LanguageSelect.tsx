@@ -45,7 +45,11 @@ const options = [
   </Item>
 ];
 
-export default class extends React.Component<
+/**
+ * LanguageSelect component.
+ * Allows the user to select the active locale being used in the application.
+ */
+export default class LanguageSelect extends React.Component<
   LanguageSelectProps,
   LanguageSelectState
 > {
