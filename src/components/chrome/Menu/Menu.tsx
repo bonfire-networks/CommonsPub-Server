@@ -1,5 +1,5 @@
 import * as React from 'react';
-import OnClickOutside from 'react-click-outside';
+// import OnClickOutside from 'react-click-outside';
 import compose from 'recompose/compose';
 import { graphql } from 'react-apollo';
 import { withTheme } from '@zendeskgarden/react-theming';
@@ -10,8 +10,8 @@ import UserMenuBody from './User.MenuBody';
 import User from '../../../types/User';
 import styled, { StyledThemeInterface } from '../../../themes/styled';
 import MenuNav, { MenuItems } from './MenuNav';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faTimes } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
 
@@ -32,8 +32,9 @@ interface MenuBodyProps {
 
 const MenuContainer = styled.div`
   width: 300px;
-  left: ${(props: MenuContainerProps) => (props.open ? 0 : 300)}px;
-  overflow: hidden;
+  // left: ${(props: MenuContainerProps) => (props.open ? 0 : 300)}px;
+  // overflow: hidden;
+  display: flex;
 `;
 
 const MenuBody = styled.div<MenuBodyProps>`
@@ -43,31 +44,31 @@ const MenuBody = styled.div<MenuBodyProps>`
   overflow: auto;
   z-index: 10;
   position: fixed;
-  box-shadow: 0 0 10px lightgrey;
-  background-color: ${props => props.theme.styles.colour.base5};
+  // box-shadow: 0 0 10px lightgrey;
+  background-color: #fff;
   border-left: 1px solid ${props => props.theme.styles.colour.base4};
-  right: ${props => (props.open ? 0 : -Math.max(...values(menuWidths)))}px;
+  // right: ${props => (props.open ? 0 : -Math.max(...values(menuWidths)))}px;
   transition: all 0.2s ease-in-out;
 `;
 
 const MenuBodyInner = styled.div<any>`
-  width: ${props => props.width}px;
+  // width: ${props => props.width}px;
   padding-top: 10px;
   border-top: 1px solid ${props => props.theme.styles.colour.base4};
 `;
 
-const MenuClose = styled.div`
-  cursor: pointer;
-  position: absolute;
-  top: 12px;
-  left: 14px;
-  font-size: 29px;
-  color: grey;
+// const MenuClose = styled.div`
+//   cursor: pointer;
+//   position: absolute;
+//   top: 12px;
+//   left: 14px;
+//   font-size: 29px;
+//   color: grey;
 
-  &:active {
-    color: black;
-  }
-`;
+//   &:active {
+//     color: black;
+//   }
+// `;
 
 const menuWidths = {
   [MenuItems.notifications]: 280, // size of a Notification + 20px for padding
@@ -101,7 +102,7 @@ interface MenuState {
 class Menu extends React.Component<MenuProps, MenuState> {
   state = {
     openMenuName: null,
-    open: false
+    open: true
   };
 
   constructor(props: MenuProps) {
@@ -153,35 +154,38 @@ class Menu extends React.Component<MenuProps, MenuState> {
     // body width. we set the inner menu body width to prevent its content
     // being fluid on resize of the container when the user navigates
     // between menus that are different sizes, e.g. move from search to notifs
-    const menuWidth = menuWidths[String(this.state.openMenuName)] || 300;
+    // const menuWidth = menuWidths[String(this.state.openMenuName)] || 300;
+    const menuWidth = 300;
 
     return (
-      <OnClickOutside style={{ width: 0 }} onClickOutside={this.closeMenu}>
-        <MenuContainer show={this.props.show} open={this.state.open}>
-          <MenuNav
-            fixed={true}
-            user={this.props.data.user}
-            toggleMenu={this.toggleMenu}
-          />
-          <MenuBody width={menuWidth} open={this.state.open}>
-            <MenuClose
+      // <OnClickOutside style={{ width: 0 }} onClickOutside={this.closeMenu}>
+      // <OnClickOutside style={{ width: 0 }}>
+      <MenuContainer show={this.props.show} open={this.state.open}>
+        <MenuNav
+          fixed={true}
+          user={this.props.data.user}
+          toggleMenu={this.toggleMenu}
+        />
+        <MenuBody width={menuWidth} open={this.state.open}>
+          {/* <MenuClose
               title={`Close the ${this.state.openMenuName} menu`}
               onClick={this.closeMenu}
             >
               <FontAwesomeIcon icon={faTimes} />
-            </MenuClose>
-            <MenuNav
-              fixed={false}
-              user={this.props.data.user}
-              activeMenu={this.state.open ? this.state.openMenuName : null}
-              toggleMenu={this.toggleMenu}
-            />
-            <MenuBodyInner width={menuWidth - 20}>
-              {this.getMenuBodyComponent()}
-            </MenuBodyInner>
-          </MenuBody>
-        </MenuContainer>
-      </OnClickOutside>
+            </MenuClose> */}
+          <MenuNav
+            fixed={false}
+            user={this.props.data.user}
+            activeMenu={this.state.open ? this.state.openMenuName : null}
+            toggleMenu={this.toggleMenu}
+          />
+          {/* <MenuBodyInner width={menuWidth - 20}> */}
+          <MenuBodyInner width={menuWidth}>
+            {this.getMenuBodyComponent()}
+          </MenuBodyInner>
+        </MenuBody>
+      </MenuContainer>
+      // </OnClickOutside>
     );
   }
 }
