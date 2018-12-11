@@ -39,11 +39,12 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
     create table(:activity_pub_actor_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false)
-      add(:inbox, :text)
-      add(:outbox, :text)
-      add(:following, :text)
-      add(:followers, :text)
-      add(:liked, :text)
+
+      add_foreign_key(:inbox_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:outbox_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:following_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:followers_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:liked_id, "activity_pub_objects", column: :local_id)
       add(:preferred_username, :text)
       add(:streams, :jsonb)
       add(:endpoints, :jsonb)
@@ -60,6 +61,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
     create table(:activity_pub_collection_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
+      add(:__ordered__, :boolean)
       add(:total_items, :integer, default: 0)
     end
     create(unique_index(:activity_pub_collection_aspects, :local_id))
@@ -179,7 +181,22 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       :activity_pub_likes,
       :liked_id
     )
+
+    create table(:activity_pub_collections_items) do
+      add_foreign_key(:subject_id, "activity_pub_collection_aspects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+    create(unique_index(:activity_pub_collections_items, [:subject_id, :target_id]))
+
+    create_counter_trigger(
+      :total_items,
+      :activity_pub_collection_aspects,
+      :local_id,
+      :activity_pub_collections_items,
+      :subject_id
+    )
   end
+
 
     # create table(:activity_pub_actors_relations) do
     #   add_foreign_key(:subject_actor_id, "activity_pub_actors")

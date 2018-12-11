@@ -2,6 +2,7 @@ defmodule ActivityPub.SQLEntityTest do
   use MoodleNet.DataCase, async: true
 
   alias ActivityPub.SQLEntity
+  alias ActivityPub.Entity
 
   describe "insert" do
     test "works with new entities" do
@@ -89,5 +90,19 @@ defmodule ActivityPub.SQLEntityTest do
       assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.insert(entity)
       assert [%{status: _}] = errors_on(ch)[:attributed_to]
     end
+  end
+
+  test "get_by_local_id/1" do
+    assert {:ok, entity} = ActivityPub.new(%{content: "content"})
+    assert {:ok, persisted} = SQLEntity.insert(entity)
+    assert loaded = persisted |> Entity.local_id() |> SQLEntity.get_by_local_id()
+    assert loaded.content == persisted.content
+  end
+
+  test "get_by_id/1" do
+    assert {:ok, entity} = ActivityPub.new(%{content: "content"})
+    assert {:ok, persisted} = SQLEntity.insert(entity)
+    assert loaded = persisted.id |> SQLEntity.get_by_id()
+    assert loaded.content == persisted.content
   end
 end
