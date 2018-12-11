@@ -7,14 +7,23 @@ defmodule ActivityPub.SQL.CollectionStatementTest do
     person_a = Factory.actor()
     person_b = Factory.actor()
 
-    assert 1 = Subject.add(person_a.followers, person_b)
-    assert 0 = Subject.add(person_a.followers, person_b)
+    followers = AP.reload(person_a.followers)
+    assert followers.total_items == 0
 
-    assert Subject.in?(person_a.followers, person_b)
-    refute Subject.in?(person_a.followers, person_a)
+    assert 1 = Subject.add(followers, person_b)
+    assert 0 = Subject.add(followers, person_b)
 
-    assert 1 = Subject.remove(person_a.followers, person_b)
-    assert 0 = Subject.remove(person_a.followers, person_b)
+    assert Subject.in?(followers, person_b)
+    refute Subject.in?(followers, person_a)
+
+    followers = AP.reload(person_a.followers)
+    assert followers.total_items == 1
+
+    assert 1 = Subject.remove(followers, person_b)
+    assert 0 = Subject.remove(followers, person_b)
+
+    followers = AP.reload(person_a.followers)
+    assert followers.total_items == 0
 
     refute Subject.in?(person_a.followers, person_b)
   end

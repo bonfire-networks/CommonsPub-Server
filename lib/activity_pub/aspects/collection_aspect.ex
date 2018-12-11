@@ -13,8 +13,8 @@ defmodule ActivityPub.CollectionAspect do
     # FIXME private attribute for the field?
     field(:__ordered__, :boolean)
     # FIXME This should be in SQLCollectionAspect only
-    field(:__table__, :string)
-    field(:__keys__, :string)
+    # field(:__table__, :string)
+    # field(:__keys__, :string)
   end
 
   def autogenerate(:total_items, _), do: {:ok, 0}
