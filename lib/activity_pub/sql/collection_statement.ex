@@ -1,3 +1,4 @@
+# FIXME I don't like this name
 defmodule ActivityPub.SQL.CollectionStatement do
   import ActivityPub.Guards
   alias MoodleNet.Repo
