@@ -95,10 +95,15 @@ The build is minified and the filenames include the hashes.<br>
 
 ## Libraries
 
-This section mentions notable libraries and tools used within the application and links to their documentation.
+This section mentions notable libraries and tools used within the application and provides links to their documentation.
 
-- TypeScript (https://www.typescriptlang.org)
-- webpack (https://webpack.js.org) 
+- React, UI framework (https://reactjs.org/docs/getting-started.html)
+- TypeScript, programming language (https://www.typescriptlang.org)
+- webpack, build tool (https://webpack.js.org)
+- Zendesk Garden, UI component framework (https://zendeskgarden.github.io)
+- React Apollo, GraphQL client (https://www.apollographql.com/docs/react/)
+- Phoenix.js, Phoenix channels JS client (https://hexdocs.pm/phoenix/js/index.html)
+- React Styleguidist, UI styleguide (https://react-styleguidist.js.org)
 - 
 
 ## Theme
