@@ -6,7 +6,7 @@
     }
   },
   messages: {
-    'Browse as a guest': 'Browse as a guest',
+    'Browse as a guest': 'french',
     'Could not log in. Please check your credentials or use the link below to reset your password.':
       'Could not log in. Please check your credentials or use the link below to reset your password.',
     'Create an account': 'Create an account',

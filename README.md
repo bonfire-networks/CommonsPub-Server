@@ -104,7 +104,6 @@ This section mentions notable libraries and tools used within the application an
 - React Apollo, GraphQL client (https://www.apollographql.com/docs/react/)
 - Phoenix.js, Phoenix channels JS client (https://hexdocs.pm/phoenix/js/index.html)
 - React Styleguidist, UI styleguide (https://react-styleguidist.js.org)
-- 
 
 ## Theme
 
