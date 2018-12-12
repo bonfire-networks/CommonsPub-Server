@@ -10,7 +10,8 @@
     "styleguide:build": "styleguidist build",
     "add-locale": "lingui add-locale",
     "extract": "lingui extract",
-    "compile": "lingui compile"
+    "compile": "lingui compile",
+    "docs": "typedoc --out docs src"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx,json,css,md}": [
