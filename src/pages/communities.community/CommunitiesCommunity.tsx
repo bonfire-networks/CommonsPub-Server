@@ -11,7 +11,8 @@ import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 import Breadcrumb from './breadcrumb';
-import { CollectionCard } from '../../components/elements/Card/Card';
+// import { CollectionCard } from '../../components/elements/Card/Card';
+import CollectionCard from '../../components/elements/Collection/Collection';
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import Button from '../../components/elements/Button/Button';
@@ -67,7 +68,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           <Wrapper>
             <CollectionList>
               {this.props.data.community.collections.map((collection, i) => (
-                <CollectionCard key={i} entity={collection} />
+                <CollectionCard key={i} collection={collection} />
               ))}
             </CollectionList>
             <Button onClick={this.props.handleNewCollection}>
@@ -168,13 +169,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 }
 
 const Wrapper = styled.div`
-  margin: 10px;
+  flex: 1;
 `;
 
 const CollectionList = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-column-gap: 8px;
+  flex: 1;
 `;
 
 const WrapperBox = styled.div`
