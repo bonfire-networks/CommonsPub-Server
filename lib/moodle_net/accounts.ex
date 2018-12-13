@@ -22,21 +22,27 @@ defmodule MoodleNet.Accounts do
 
   """
   def register_user(attrs \\ %{}) do
-    actor_attrs = attrs
-                  |> Map.put("type", "Person")
-                  |> Map.delete(:password)
-                  |> Map.delete("password")
-    {:ok, actor_entity} = ActivityPub.parse(actor_attrs)
-    {:ok, actor_entity} = ActivityPub.SQL.persist(actor_entity)
+    # FIXME this should be a only transaction
+    actor_attrs =
+      attrs
+      |> Map.put("type", "Person")
+      |> Map.delete(:password)
+      |> Map.delete("password")
 
-    Multi.new()
-    |> Multi.run(:actor, fn _, _ -> {:ok, actor_entity} end)
-    |> Multi.run(:user, &(User.changeset(&2.actor[:local_id], attrs) |> &1.insert()))
-    |> Multi.run(
-      :password_auth,
-      &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
-    )
-    |> Repo.transaction()
+    with {:ok, actor} <- ActivityPub.new(actor_attrs),
+         {:ok, actor} <- ActivityPub.insert(actor) do
+      actor_local_id = ActivityPub.Entity.local_id(actor)
+      ch = User.changeset(actor_local_id, attrs)
+
+      Multi.new()
+      |> Multi.run(:actor, fn _, _ -> {:ok, actor} end)
+      |> Multi.insert(:user, ch)
+      |> Multi.run(
+        :password_auth,
+        &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
+      )
+      |> Repo.transaction()
+    end
   end
 
   def authenticate_by_email_and_pass(email, given_pass) do

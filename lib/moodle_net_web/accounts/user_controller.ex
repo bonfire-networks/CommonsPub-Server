@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.Accounts.UserController do
 
   plug(:accepts, ["html"] when action in [:new])
 
-  def new(conn, params) do
+  def new(conn, _params) do
     render(conn, "new.html")
   end
 

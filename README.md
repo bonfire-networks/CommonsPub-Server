@@ -1,8 +1,8 @@
-# Pub of the Commons
+# CommonsPub
 
 ## About the project
 
-The Pub of the Commons (otherwise known as `CommonsPub`) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+CommonsPub is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
 The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
@@ -19,8 +19,49 @@ The first projects using it are:
 
 ### With Docker (recommended)
 
-See the [server-deploy repo](https://gitlab.com/OpenCoop/CommonsPub/server-deploy), for a docker-compose based setup process.
+The docker image can be found in: https://hub.docker.com/r/moodlenet/moodlenet/
 
+The docker images needs the environment variables to work.
+An updated list of them can be found in the file `config/docker.env` in this same repository.
+
+The easiest way to launch the docker image is using the `docker-compose` tool.
+The `docker-compose.yml` uses the previous `config/docker.env` to launch a `moodlenet` container
+and all the dependencies, currently, only a postgres container is needed it.
+
+
+#### Docker commands
+
+The first time you launch the docker instance the database is not created.
+There are several commands to make the first launch easier.
+We will use `docker-compose` to show the commands:
+
+* `docker-compose run --rm web bin/moodle_net create_db` creates the database
+* `docker-compose run --rm web bin/moodle_net migrate_db` creates the database and runs the migrations
+* `docker-compose run --rm web bin/moodle_net drop_db` drops the database
+
+Other important commands are:
+
+* `docker-compose up` launches the service, by default at the port 4000.
+* `docker-compose run --rm web /bin/sh` runs a simple shell inside of the container, useful to explore the image
+* `docker-compose run --rm web bin/moodle_net console` runs an `iex` console
+* `docker-compose exec web bin/moodle_net remote_console` runs an `iex` console when the service is already running.
+* `docker-compose run --rm web bin/moodle_net help` returns all the possible commands
+
+There is a command that currently is not working: `seed_db`.
+The reason is that to generate ActivityPub ID we need the URL where the server is running,
+but `Phoenix` is not launched in this command.
+
+However, we can still do it.
+To seed the database we can run the following command in an `iex` console:
+
+`iex> MoodleNet.ReleaseTasks.seed_db([])`
+
+#### Build Docker image
+
+There is a `Makefile` with two commands:
+
+* `make build` which builds the docker image in `moodlenet:latest` and `moodlenet:$VERSION-$BUILD`
+* `make run` which can be used to run the docker built docker image without `docker-compose`
 
 ---
 ### Manual installation
@@ -54,7 +95,7 @@ See the [server-deploy repo](https://gitlab.com/OpenCoop/CommonsPub/server-deplo
 By default, CommonsPub listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ### Frontends
-Pub of the Commons does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
+CommonsPub does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
 
 ### As systemd service (with provided .service file)
 [Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/moodle_net.service` you can put it in `/etc/systemd/system/`.

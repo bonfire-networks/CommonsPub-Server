@@ -19,6 +19,28 @@ defmodule ActivityPub.IRI do
   # > document due to the fact that many JSON parser implementations are not capable
   # > of reliably preserving the base context necessary to properly resolve
   # > relative references.
+
+  def parse(params, key) do
+    case params[key] do
+      nil ->
+        {:ok, nil}
+
+      value ->
+        case validate(value) do
+          :ok ->
+            {:ok, value}
+
+          {:error, msg} ->
+            {:error,
+             %ActivityPub.BuildError{
+               path: [key],
+               value: value,
+               message: to_string(msg)
+             }}
+        end
+    end
+  end
+
   @spec validate(String.t()) ::
           :ok
           | {:error, :invalid_scheme}

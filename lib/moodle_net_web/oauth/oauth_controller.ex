@@ -109,17 +109,18 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
          do: render(conn, "token.json", token: token)
   end
 
-  def token_exchange(
-        conn,
-        %{"grant_type" => "password", "name" => name, "password" => password} = params
-      ) do
-    params =
-      params
-      |> Map.delete("name")
-      |> Map.put("username", name)
+  # FIXME
+  # def token_exchange(
+  #       conn,
+  #       %{"grant_type" => "password", "name" => name, "password" => password} = params
+  #     ) do
+  #   params =
+  #     params
+  #     |> Map.delete("name")
+  #     |> Map.put("username", name)
 
-    token_exchange(conn, params)
-  end
+  #   token_exchange(conn, params)
+  # end
 
   plug(MoodleNetWeb.Plugs.ScrubParams, "token" when action == :token_revoke)
 

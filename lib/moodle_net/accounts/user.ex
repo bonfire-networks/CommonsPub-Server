@@ -1,8 +1,6 @@
 defmodule MoodleNet.Accounts.User do
   use Ecto.Schema
 
-  alias MoodleNet.Accounts.PasswordAuth
-
   schema "accounts_users" do
     field(:email, :string)
     field(:primary_actor_id, :integer)

@@ -36,21 +36,23 @@ defmodule MoodleNetWeb.PlugCase do
 
     conn = Phoenix.ConnTest.build_conn(method, route, params)
 
-    conn = case tags[:format] do
-      :json -> Plug.Conn.put_req_header(conn, "accept", "application/json")
-      :html -> Plug.Conn.put_req_header(conn, "accept", "text/html")
-      _ -> conn
-    end
+    conn =
+      case tags[:format] do
+        :json -> Plug.Conn.put_req_header(conn, "accept", "application/json")
+        :html -> Plug.Conn.put_req_header(conn, "accept", "text/html")
+        _ -> conn
+      end
 
-    conn = conn
-    |> Plug.Conn.put_private(:phoenix_endpoint, MoodleNetWeb.Endpoint)
-    |> Map.put(:secret_key_base, @secret)
-    |> Plug.Session.call(@signing_opts)
-    |> Phoenix.Controller.accepts(["html", "json"])
-    |> Plug.Conn.fetch_query_params()
-    |> Plug.Conn.fetch_session()
-    |> Phoenix.Controller.fetch_flash()
+    conn =
+      conn
+      |> Plug.Conn.put_private(:phoenix_endpoint, MoodleNetWeb.Endpoint)
+      |> Map.put(:secret_key_base, @secret)
+      |> Plug.Session.call(@signing_opts)
+      |> Phoenix.Controller.accepts(["html", "json"])
+      |> Plug.Conn.fetch_query_params()
+      |> Plug.Conn.fetch_session()
+      |> Phoenix.Controller.fetch_flash()
 
-    ret = %{conn: conn}
+    %{conn: conn}
   end
 end

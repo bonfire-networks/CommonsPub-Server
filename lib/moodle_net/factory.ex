@@ -5,9 +5,13 @@ defmodule MoodleNet.Factory do
     %{
       "email" => Faker.Internet.safe_email(),
       "name" => name,
-      "username" => name |> String.downcase() |> String.replace(~r/[^a-z0-9]/, "_"),
+      "preferred_username" => name |> String.downcase() |> String.replace(~r/[^a-z0-9]/, "_"),
       "password" => "password",
-      "locale" => "es"
+      "locale" => "es",
+      "icon" => attributes(:image),
+      "primaryLanguage" => "es",
+      "summary" => Faker.Lorem.sentence(),
+      "location" => %{type: "Place", content: Faker.Pokemon.location()}
     }
   end
 
@@ -25,17 +29,60 @@ defmodule MoodleNet.Factory do
   def attributes(:community) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "name" => Faker.Pokemon.name(),
       "preferred_username" => Faker.Internet.user_name(),
+      "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
       "primaryLanguage" => "es",
+      "icon" => attributes(:image)
     }
   end
 
   def attributes(:collection) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "name" => Faker.Beer.brand()
+      "name" => Faker.Beer.brand(),
+      "icon" => attributes(:image),
+      "preferred_username" => Faker.Internet.user_name(),
+      "name" => Faker.Pokemon.name(),
+      "summary" => Faker.Lorem.sentence(),
+      "primaryLanguage" => "es",
+    }
+  end
+
+  def attributes(:resource) do
+    %{
+      "content" => Faker.Lorem.sentence(),
+      "name" => Faker.Industry.industry(),
+      "url" => Faker.Internet.url(),
+      "summary" => Faker.Lorem.sentence(),
+      "icon" => attributes(:image),
+      "primaryLanguage" => "es",
+    }
+  end
+
+  def attributes(:comment) do
+    %{
+      "content" => Faker.Lorem.sentence(),
+      "primary_language" => "fr",
+    }
+  end
+
+  def attributes(:image) do
+    img_id = Faker.random_between(1, 1000)
+    %{
+      "type" => "Image",
+      "url" => "https://picsum.photos/405/275=#{img_id}",
+      "width" => 405,
+      "height" => 275
+    }
+  end
+
+  def attributes(:icon) do
+    %{
+      "type" => "Image",
+      "url" => Faker.Avatar.image_url(300, 300),
+      "width" => 300,
+      "height" => 300
     }
   end
 
@@ -53,23 +100,14 @@ defmodule MoodleNet.Factory do
 
   alias MoodleNet.Accounts
 
-  def actor(attrs \\ %{}) do
+  def full_user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
-
-    {:ok, %{actor: actor}} =
-      Ecto.Multi.new()
-      |> ActivityPub.create_actor(attrs)
-      |> MoodleNet.Repo.transaction()
-
-    actor
+    {:ok, ret} = Accounts.register_user(attrs)
+    ret
   end
 
-  def user(attrs \\ %{}) do
-    attrs = attributes(:user, attrs)
-    {:ok, %{user: user}} = Accounts.register_user(attrs)
-    user
-  end
-
+  def user(attrs \\ %{}), do: full_user(attrs).user
+  def actor(attrs \\ %{}), do: full_user(attrs).actor
 
   alias MoodleNet.OAuth
 
@@ -81,6 +119,7 @@ defmodule MoodleNet.Factory do
   def oauth_app(attrs \\ %{}) do
     attrs = attributes(:oauth_app, attrs)
     {:ok, app} = OAuth.create_app(attrs)
+    app
   end
 
   def community(attrs \\ %{}) do
@@ -92,6 +131,24 @@ defmodule MoodleNet.Factory do
   def collection(community, attrs \\ %{}) do
     attrs = attributes(:collection, attrs)
     {:ok, c} = MoodleNet.create_collection(community, attrs)
+    c
+  end
+
+  def resource(context, attrs \\ %{}) do
+    attrs = attributes(:resource, attrs)
+    {:ok, c} = MoodleNet.create_resource(context, attrs)
+    c
+  end
+
+  def comment(author, context, attrs \\ %{}) do
+    attrs = attributes(:comment, attrs)
+    {:ok, c} = MoodleNet.create_thread(author, context, attrs)
+    c
+  end
+
+  def reply(author, in_reply_to, attrs \\ %{}) do
+    attrs = attributes(:comment, attrs)
+    {:ok, c} = MoodleNet.create_reply(author, in_reply_to, attrs)
     c
   end
 end

@@ -1,22 +1,30 @@
 defmodule ActivityPub.Types do
-  alias ActivityPub.{ObjectAspect, ActorAspect, ActivityAspect, LinkAspect, CollectionAspect, CollectionPageAspect}
+  alias ActivityPub.{
+    ObjectAspect,
+    ActorAspect,
+    ActivityAspect,
+    # LinkAspect,
+    CollectionAspect,
+    # CollectionPageAspect
+  }
+
+  alias ActivityPub.BuildError
 
   @type_map %{
-    "Link" => {[], [LinkAspect]},
+    # "Link" => {[], [LinkAspect]},
+    "Link" => {[], []},
     "Object" => {[], [ObjectAspect]},
-
     "Collection" => {~w[Object], [CollectionAspect]},
     "OrderedCollection" => {~w[Object Collection], []},
-    "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
+    # "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
+    "CollectionPage" => {~w[Object Collection], []},
     "OrderedCollectionPage" => {~w[Object Collection OrderedCollection CollectionPage], []},
-
     "Actor" => {~w[Object], [ActorAspect]},
     "Application" => {~w[Object Actor], []},
     "Group" => {~w[Object Actor], []},
     "Organization" => {~w[Object Actor], []},
     "Person" => {~w[Object Actor], []},
     "Service" => {~w[Object Actor], []},
-
     "Activity" => {~w[Object], [ActivityAspect]},
     "IntransitiveActivity" => {~w[Object Activity], []},
     "Accept" => {~w[Object Activity], []},
@@ -47,7 +55,6 @@ defmodule ActivityPub.Types do
     "Undo" => {~w[Object Activity], []},
     "Update" => {~w[Object Activity], []},
     "View" => {~w[Object Activity], []},
-
     "Article" => {~w[Object], []},
     "Audio" => {~w[Object], []},
     "Document" => {~w[Object], []},
@@ -60,26 +67,34 @@ defmodule ActivityPub.Types do
     "Relationship" => {~w[Object], []},
     "Tombstone" => {~w[Object], []},
     "Video" => {~w[Object], []},
-
     "Mention" => {~w[Link], []},
-
     "MoodleNet:Community" => {~w[Object Actor Group Collection], []},
     "MoodleNet:Collection" => {~w[Object Actor Group Collection], []},
     # "MoodleNet:EducationalResource" => {~w[Link], []},
-    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], []},
+    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], []}
   }
+
+  def build(value) do
+    case ActivityPub.StringListType.cast(value) do
+      {:ok, []} -> {:ok, ["Object"]}
+      {:ok, list} -> {:ok, Enum.flat_map(list, &ancestors(&1)) |> Enum.uniq()}
+      :error -> %BuildError{path: ["type"], value: value, message: "is invalid"}
+    end
+  end
 
   def all(), do: Map.keys(@type_map)
 
   for {type, {ancestors, _}} <- @type_map do
-    def get_ancestors(unquote(type)), do: List.insert_at(unquote(ancestors), -1, unquote(type))
+    def ancestors(unquote(type)), do: List.insert_at(unquote(ancestors), -1, unquote(type))
   end
 
-  def get_ancestors(type), do: ["Object", type]
+  def ancestors(type) when is_binary(type), do: ["Object", type]
+  def ancestors(list) when is_list(list), do: Enum.flat_map(list, &ancestors/1) |> Enum.uniq()
 
   for {type, {_, aspects}} <- @type_map do
-    def get_aspects(unquote(type)), do: unquote(aspects)
+    def aspects(unquote(type)), do: unquote(aspects)
   end
 
-  def get_aspects(_), do: []
+  def aspects(list) when is_list(list), do: Enum.flat_map(list, &aspects/1) |> Enum.uniq()
+  def aspects(_), do: []
 end

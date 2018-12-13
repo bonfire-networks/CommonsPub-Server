@@ -7,7 +7,7 @@ defmodule ActivityPub.SQL.Paginate do
     query
     |> where(^dynamic_where(params))
     |> limit(^params[:limit])
-    |> order_by([obj: obj], [{^params[:order], obj.local_id}])
+    |> order_by([entity: entity], [{^params[:order], entity.local_id}])
   end
 
   defp normalize_params(query_params) do
@@ -42,13 +42,13 @@ defmodule ActivityPub.SQL.Paginate do
   defp starting_after_filter(dynamic, %{starting_after: nil}), do: dynamic
 
   defp starting_after_filter(dynamic, %{starting_after: id}) do
-    dynamic([obj: obj], obj.local_id < ^id and ^dynamic)
+    dynamic([entity: entity], entity.local_id < ^id and ^dynamic)
   end
 
   defp ending_before_filter(dynamic, %{ending_before: nil}), do: dynamic
 
   defp ending_before_filter(dynamic, %{ending_before: id}) do
-    dynamic([obj: obj], obj.local_id > ^id and ^dynamic)
+    dynamic([entity: entity], entity.local_id > ^id and ^dynamic)
   end
 
   def meta(query_params, values) do

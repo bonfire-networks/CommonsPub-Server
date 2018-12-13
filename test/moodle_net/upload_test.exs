@@ -2,6 +2,7 @@ defmodule MoodleNet.UploadTest do
   alias MoodleNet.Upload
   use MoodleNet.DataCase
 
+  @moduletag :skip
   describe "Storing a file" do
     test "copies the file to the configured folder with deduping" do
       File.cp!("test/fixtures/image.jpg", "test/fixtures/image_tmp.jpg")

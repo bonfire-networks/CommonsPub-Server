@@ -23,10 +23,13 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:media_type, :text)
       add(:duration, :text)
 
+      # FIXME
+      add(:url, {:array, :text})
+
       add(:extension_fields, :map, default: %{}, null: false)
 
-      add(:like_count, :integer, default: 0, null: false)
-      add(:share_count, :integer, default: 0, null: false)
+      add(:likes_count, :integer, default: 0, null: false)
+      add(:shares_count, :integer, default: 0, null: false)
 
       timestamps()
     end
@@ -36,19 +39,18 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
     create table(:activity_pub_actor_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false)
-      add(:inbox, :text)
-      add(:outbox, :text)
-      add(:following, :text)
-      add(:followers, :text)
-      add(:liked, :text)
+
+      add_foreign_key(:inbox_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:outbox_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:following_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:followers_id, "activity_pub_objects", column: :local_id)
+      add_foreign_key(:liked_id, "activity_pub_objects", column: :local_id)
       add(:preferred_username, :text)
       add(:streams, :jsonb)
       add(:endpoints, :jsonb)
 
       add(:followers_count, :integer, default: 0, null: false)
       add(:following_count, :integer, default: 0, null: false)
-
-      timestamps()
     end
     create(unique_index(:activity_pub_actor_aspects, :local_id))
 
@@ -59,35 +61,77 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
     create table(:activity_pub_collection_aspects, primary_key: false) do
       add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
+      add(:__ordered__, :boolean)
       add(:total_items, :integer, default: 0)
     end
     create(unique_index(:activity_pub_collection_aspects, :local_id))
 
     create table(:activity_pub_activity_objects) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      add_foreign_key(:object_id, "activity_pub_objects")
+      add_foreign_key(:subject_id, "activity_pub_activity_aspects")
+      add_foreign_key(:target_id, "activity_pub_objects")
 
-      timestamps(updated_at: false)
+      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      # add_foreign_key(:object_id, "activity_pub_objects")
+
+      # timestamps(updated_at: false)
     end
 
     create table(:activity_pub_activity_actors) do
-      add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      add_foreign_key(:object_id, "activity_pub_actor_aspects")
+      add_foreign_key(:subject_id, "activity_pub_activity_aspects")
+      add_foreign_key(:target_id, "activity_pub_objects")
 
-      timestamps(updated_at: false)
+      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
+      # add_foreign_key(:object_id, "activity_pub_actor_aspects")
+
+      # timestamps(updated_at: false)
     end
 
-    create table(:activity_pub_attributed_tos) do
+    create table(:activity_pub_object_attributed_tos) do
       add_foreign_key(:subject_id, "activity_pub_objects")
-      add_foreign_key(:object_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+    create(unique_index("activity_pub_object_attributed_tos", [:subject_id, :target_id]))
+
+    create table(:activity_pub_object_contexts) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    # create table(:activity_pub_activity_origins) do
-    #   add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
-    #   add_foreign_key(:object_id, "activity_pub_objects", column: :local_id)
+    create table(:activity_pub_object_icons) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
 
-    #   timestamps(updated_at: false)
-    # end
+    create table(:activity_pub_object_images) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_object_locations) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    # FIXME this needs a unique index
+    create table(:activity_pub_object_in_reply_tos) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_object_tags) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_object_describes) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+
+    create table(:activity_pub_activity_origins) do
+      add_foreign_key(:activity_id, "activity_pub_activity_aspects", column: :local_id)
+      add_foreign_key(:target_id, "activity_pub_objects", column: :local_id)
+    end
 
     create table(:activity_pub_follows) do
       add_foreign_key(:follower_id, "activity_pub_actor_aspects")
@@ -95,7 +139,6 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
       timestamps(updated_at: false)
     end
-
     create(unique_index(:activity_pub_follows, [:follower_id, :following_id], name: :activity_pub_follows_unique_index))
 
     create_counter_trigger(
@@ -113,7 +156,47 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       :activity_pub_follows,
       :follower_id
     )
+
+    create table(:activity_pub_likes) do
+      add_foreign_key(:liker_id, "activity_pub_objects")
+      add_foreign_key(:liked_id, "activity_pub_objects")
+
+      timestamps(updated_at: false)
+    end
+
+    create(unique_index(:activity_pub_likes, [:liker_id, :liked_id], name: :activity_pub_likes_unique_index))
+
+    # create_counter_trigger(
+    #   :followers_count,
+    #   :activity_pub_actor_aspects,
+    #   :local_id,
+    #   :activity_pub_follows,
+    #   :following_id
+    # )
+
+    create_counter_trigger(
+      :likes_count,
+      :activity_pub_objects,
+      :local_id,
+      :activity_pub_likes,
+      :liked_id
+    )
+
+    create table(:activity_pub_collection_items) do
+      add_foreign_key(:subject_id, "activity_pub_collection_aspects")
+      add_foreign_key(:target_id, "activity_pub_objects")
+    end
+    create(unique_index(:activity_pub_collection_items, [:subject_id, :target_id]))
+
+    create_counter_trigger(
+      :total_items,
+      :activity_pub_collection_aspects,
+      :local_id,
+      :activity_pub_collection_items,
+      :subject_id
+    )
   end
+
 
     # create table(:activity_pub_actors_relations) do
     #   add_foreign_key(:subject_actor_id, "activity_pub_actors")

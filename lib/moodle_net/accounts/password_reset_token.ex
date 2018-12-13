@@ -40,14 +40,15 @@ defmodule MoodleNet.PasswordResetToken do
     |> put_change(:used, true)
   end
 
-  def reset_password(token, data) do
-    with %{used: false} = token <- Repo.get_by(PasswordResetToken, %{token: token}),
-         %User{} = user <- Repo.get(User, token.user_id),
-         {:ok, _user} <- User.reset_password(user, data),
-         {:ok, token} <- Repo.update(used_changeset(token)) do
-      {:ok, token}
-    else
-      _e -> {:error, token}
-    end
-  end
+  # def reset_password(token, data) do
+  #   with %{used: false} = token <- Repo.get_by(PasswordResetToken, %{token: token}),
+  #        %User{} = user <- Repo.get(User, token.user_id),
+  #        # FIXME
+  #        # {:ok, update_password_ch} <- (user, data),
+  #        {:ok, token} <- Repo.update(used_changeset(token)) do
+  #     {:ok, token}
+  #   else
+  #     _e -> {:error, token}
+  #   end
+  # end
 end

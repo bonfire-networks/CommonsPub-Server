@@ -32,8 +32,9 @@ defmodule MoodleNet.Signature do
       {:ok, pem} = generate_rsa_pem()
       info = Map.put(info, "keys", pem)
 
+      # FIXME old
       Ecto.Changeset.change(user, info: info)
-      |> MoodleNet.Accounts.User.update_and_set_cache()
+      # |> MoodleNet.Accounts.User.update_and_set_cache()
     end
   end
 

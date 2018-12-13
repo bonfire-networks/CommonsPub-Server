@@ -1,8 +1,7 @@
 defmodule ActivityPub.LinkAspect do
-  use Ecto.Schema
+  use ActivityPub.Aspect, persistence: ActivityPub.SQLLinkAspect
 
-  @primary_key false
-  embedded_schema do
+  aspect do
     field(:href, :string)
     field(:rel, :string)
     field(:media_type, :string)
@@ -12,12 +11,4 @@ defmodule ActivityPub.LinkAspect do
     field(:width, :string)
     field(:preview, :string)
   end
-
-  def parse(%{} = input) do
-    %__MODULE__{}
-    |> Ecto.Changeset.cast(input, __MODULE__.__schema__(:fields))
-    |> Ecto.Changeset.apply_action(:insert)
-  end
-
-  def internal_field(), do: :link
 end

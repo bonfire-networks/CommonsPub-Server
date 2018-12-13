@@ -1,10 +1,6 @@
 defmodule MoodleNet.OAuth.Authorization do
   use Ecto.Schema
 
-  alias MoodleNet.Accounts.User
-  alias MoodleNet.Repo
-  alias MoodleNet.OAuth.{Authorization, App}
-
   alias Ecto.Changeset
 
   schema "oauth_authorizations" do
@@ -12,7 +8,7 @@ defmodule MoodleNet.OAuth.Authorization do
     field(:valid_until, :naive_datetime_usec)
     field(:used, :boolean, default: false)
     belongs_to(:user, MoodleNet.Accounts.User)
-    belongs_to(:app, App)
+    belongs_to(:app, MoodleNet.OAuth.App)
 
     timestamps()
   end
@@ -20,7 +16,7 @@ defmodule MoodleNet.OAuth.Authorization do
   def build(user_id, app_id) do
     hash = MoodleNet.Token.random_key()
 
-    %Authorization{}
+    %__MODULE__{}
     |> Changeset.change(
       hash: hash,
       used: false,
@@ -34,13 +30,13 @@ defmodule MoodleNet.OAuth.Authorization do
 
   defp expiration_time(), do: NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 10)
 
-  def use_changeset(%Authorization{used: true} = auth) do
+  def use_changeset(%__MODULE__{used: true} = auth) do
     auth
     |> Changeset.change()
     |> Changeset.add_error(:used, "already used")
   end
 
-  def use_changeset(%Authorization{} = auth) do
+  def use_changeset(%__MODULE__{} = auth) do
     if expired?(auth) do
       auth
       |> Changeset.change()
@@ -50,6 +46,6 @@ defmodule MoodleNet.OAuth.Authorization do
     end
   end
 
-  def expired?(%Authorization{valid_until: valid_until}),
+  def expired?(%__MODULE__{valid_until: valid_until}),
     do: NaiveDateTime.compare(valid_until, NaiveDateTime.utc_now()) == :gt
 end

@@ -1,10 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.Context do
   @behaviour Plug
 
-  import Plug.Conn
-
   def init(opts), do: opts
-
 
   def call(conn, _) do
     context = build_context(conn)

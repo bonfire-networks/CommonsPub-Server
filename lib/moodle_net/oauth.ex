@@ -4,7 +4,6 @@ defmodule MoodleNet.OAuth do
   """
 
   alias MoodleNet.Repo
-  alias MoodleNet.Accounts.{User}
   alias MoodleNet.OAuth.{App, Authorization, Token}
   alias Ecto.Multi
 

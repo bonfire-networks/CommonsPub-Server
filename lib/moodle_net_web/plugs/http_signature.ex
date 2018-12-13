@@ -1,6 +1,4 @@
 defmodule MoodleNetWeb.Plugs.HTTPSignaturePlug do
-  alias MoodleNetWeb.HTTPSignatures
-  alias ActivityPub.Utils
   import Plug.Conn
   require Logger
 
@@ -13,7 +11,7 @@ defmodule MoodleNetWeb.Plugs.HTTPSignaturePlug do
   end
 
   def call(conn, _opts) do
-    user = Utils.get_ap_id(conn.params["actor"])
+    user = ActivityPub.SQLEntity.get_by_local_id(conn.params["actor"])
     Logger.debug("Checking sig for #{user}")
     [signature | _] = get_req_header(conn, "signature")
 
@@ -36,7 +34,7 @@ defmodule MoodleNetWeb.Plugs.HTTPSignaturePlug do
             conn
           end
 
-        assign(conn, :valid_signature, HTTPSignatures.validate_conn(conn))
+        assign(conn, :valid_signature, MoodleNetWeb.HTTPSignatures.validate_conn(conn))
 
       signature ->
         Logger.debug("Signature not from actor")
