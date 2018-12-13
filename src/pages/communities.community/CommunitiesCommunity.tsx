@@ -1,5 +1,5 @@
 import * as React from 'react';
-import compose from 'recompose/compose';
+import { compose, withState, withHandlers } from 'recompose';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { RouteComponentProps } from 'react-router';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
@@ -16,6 +16,7 @@ import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import Button from '../../components/elements/Button/Button';
 import Comment from '../../components/elements/Comment/Comment';
+import CommunityModal from '../../components/elements/CommunityModal';
 
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
@@ -38,6 +39,8 @@ interface Props
       community: string;
     }> {
   data: Data;
+  handleNewCollection: any;
+  isOpen: boolean;
 }
 
 class CommunitiesFeatured extends React.Component<Props, State> {
@@ -60,14 +63,25 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       community = this.props.data.community;
 
       if (this.props.data.community.collections.length) {
-        collections = this.props.data.community.collections.map(collection => {
-          return <CollectionCard key={community.id} entity={collection} />;
-        });
+        collections = (
+          <Wrapper>
+            <CollectionList>
+              {this.props.data.community.collections.map((collection, i) => (
+                <CollectionCard key={i} entity={collection} />
+              ))}
+            </CollectionList>
+            <Button onClick={this.props.handleNewCollection}>
+              Create a new collection
+            </Button>
+          </Wrapper>
+        );
       } else {
         collections = (
           <OverviewCollection>
             <P>This community has no collections.</P>
-            <Button>Create the first collection</Button>
+            <Button onClick={this.props.handleNewCollection}>
+              Create the first collection
+            </Button>
           </OverviewCollection>
         );
       }
@@ -97,7 +111,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     if (!community) {
       return <Loader />;
     }
-
+    console.log(community);
     return (
       <>
         <Main>
@@ -141,11 +155,27 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <Col size={12} />
             </Row>
           </Grid>
+          <CommunityModal
+            toggleModal={this.props.handleNewCollection}
+            modalIsOpen={this.props.isOpen}
+            communityId={community.localId}
+            communityExternalId={community.id}
+          />
         </Main>
       </>
     );
   }
 }
+
+const Wrapper = styled.div`
+  margin: 10px;
+`;
+
+const CollectionList = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-column-gap: 8px;
+`;
 
 const WrapperBox = styled.div`
   padding: 0 8px;
@@ -224,4 +254,10 @@ const withGetCollections = graphql<
   })
 }) as OperationOption<{}, {}>;
 
-export default compose(withGetCollections)(CommunitiesFeatured);
+export default compose(
+  withGetCollections,
+  withState('isOpen', 'onOpen', false),
+  withHandlers({
+    handleNewCollection: props => () => props.onOpen(!props.isOpen)
+  })
+)(CommunitiesFeatured);
