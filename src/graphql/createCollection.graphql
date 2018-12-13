@@ -16,27 +16,10 @@ input CollectionInput {
         localId
         name
         summary
-        content
         preferredUsername
-        primaryLanguage
         icon
-        published
-        updated
-        resourcesCount
-        communities {
-          id
-          localId
-          name
-          summary
-          content
-          preferredUsername
-          primaryLanguage
-          icon
-          followersCount
-          followingCount
-          published
-          updated
-        }
+        followersCount
+        followingCount
       }
 
 }
