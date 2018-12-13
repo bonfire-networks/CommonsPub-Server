@@ -1,0 +1,42 @@
+input CollectionInput {
+    name: String!
+    summary: String!
+    content: String!
+    preferredUsername: String!
+    primaryLanguage: String
+    icon: String!
+}
+
+ mutation createCollectionMutation($communityId: String!, $collection: CollectionInput!) {
+    createCollection(
+      communityLocalId: $communityId,
+      collection: $collection
+    ) {
+        id
+        localId
+        name
+        summary
+        content
+        preferredUsername
+        primaryLanguage
+        icon
+        published
+        updated
+        resourcesCount
+        communities {
+          id
+          localId
+          name
+          summary
+          content
+          preferredUsername
+          primaryLanguage
+          icon
+          followersCount
+          followingCount
+          published
+          updated
+        }
+      }
+
+}
