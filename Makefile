@@ -9,21 +9,27 @@ help:
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build: ## Build the Docker image
+	@echo APP_NAME=$(APP_NAME)
+	@echo APP_VSN=$(APP_VSN)
 	docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
 		-t moodlenet:latest .
+	@echo moodlenet:$(APP_VSN)-$(APP_BUILD)
+	@echo moodlenet:latest
 
 build_with_cache: ## Build the Docker image
+	@echo APP_NAME=$(APP_NAME)
+	@echo APP_VSN=$(APP_VSN)
 	docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
 		-t moodlenet:latest .
+	@echo moodlenet:$(APP_VSN)-$(APP_BUILD)
+	@echo moodlenet:latest
 
 run: ## Run the app in Docker
 	docker run\
