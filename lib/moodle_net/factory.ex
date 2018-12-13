@@ -100,17 +100,14 @@ defmodule MoodleNet.Factory do
 
   alias MoodleNet.Accounts
 
-  def user(attrs \\ %{}) do
+  def full_user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
-    {:ok, %{user: user}} = Accounts.register_user(attrs)
-    user
+    {:ok, ret} = Accounts.register_user(attrs)
+    ret
   end
 
-  def actor(attrs \\ %{}) do
-    user = user(attrs)
-    ActivityPub.get_by_local_id(user.primary_actor_id)
-  end
-
+  def user(attrs \\ %{}), do: full_user(attrs).user
+  def actor(attrs \\ %{}), do: full_user(attrs).actor
 
   alias MoodleNet.OAuth
 

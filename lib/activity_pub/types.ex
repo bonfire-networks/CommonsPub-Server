@@ -4,7 +4,7 @@ defmodule ActivityPub.Types do
     ActorAspect,
     ActivityAspect,
     # LinkAspect,
-    # CollectionAspect,
+    CollectionAspect,
     # CollectionPageAspect
   }
 
@@ -14,8 +14,7 @@ defmodule ActivityPub.Types do
     # "Link" => {[], [LinkAspect]},
     "Link" => {[], []},
     "Object" => {[], [ObjectAspect]},
-    # "Collection" => {~w[Object], [CollectionAspect]},
-    "Collection" => {~w[Object], []},
+    "Collection" => {~w[Object], [CollectionAspect]},
     "OrderedCollection" => {~w[Object Collection], []},
     # "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
     "CollectionPage" => {~w[Object Collection], []},

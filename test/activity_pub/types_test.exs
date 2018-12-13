@@ -5,7 +5,7 @@ defmodule ActivityPub.TypesTest do
     ObjectAspect,
     ActorAspect,
     # LinkAspect,
-    # CollectionAspect,
+    CollectionAspect,
   }
 
   alias ActivityPub.Types
@@ -29,7 +29,7 @@ defmodule ActivityPub.TypesTest do
     assert Types.aspects(["Object", "Actor", "Group", "Collection"]) == [
              ObjectAspect,
              ActorAspect,
-             # CollectionAspect
+             CollectionAspect
            ]
   end
 

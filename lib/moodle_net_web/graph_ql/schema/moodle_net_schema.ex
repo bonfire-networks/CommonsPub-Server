@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :me do
     field(:id, :id)
-    field(:local_id, :string)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
     field(:preferred_username, :string)
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :user do
     field(:id, :id)
-    field(:local_id, :string)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
     field(:preferred_username, :string)
@@ -64,7 +64,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :community do
     field(:id, :string)
-    field(:local_id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
@@ -89,6 +89,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:comments, non_null(list_of(non_null(:comment))), do: resolve(with_assoc(:context_inv)))
 
+    field(:followers, non_null(list_of(non_null(:user))),
+      do: resolve(with_assoc(:followers, collection: true))
+    )
+
     field(:published, :string)
     field(:updated, :string)
   end
@@ -104,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :collection do
     field(:id, :string)
-    field(:local_id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
@@ -121,6 +125,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:primary_language, :string)
     field(:resources_count, :integer)
+
+    field(:followers, non_null(list_of(non_null(:user))),
+      do: resolve(with_assoc(:followers, collection: true))
+    )
 
     field(:resources, non_null(list_of(non_null(:resource))),
       do: resolve(with_assoc(:attributed_to_inv))
@@ -147,7 +155,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :resource do
     field(:id, :string)
-    field(:local_id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
@@ -171,7 +179,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   input_object :resource_input do
     field(:id, :string)
-    field(:local_id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
     field(:name, :string)
@@ -184,7 +192,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   object :comment do
     field(:id, :string)
-    field(:local_id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
@@ -311,7 +319,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  def create_community(_, %{community: attrs}, info) do
+  def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
 
     with {:ok, community} = MoodleNet.create_community(attrs) do
@@ -320,7 +328,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  def create_collection(_, %{collection: attrs, community_local_id: comm_id}, info) do
+  def create_follow(%{actor_local_id: id}, info) do
+    with {:ok, follower} <- current_actor(info),
+         {:ok, following} <- fetch_actor(id),
+         params = %{type: "Follow", actor: follower, object: following},
+         {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity),
+         do: {:ok, true}
+  end
+
+  def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
     if community = get_by_id_and_type(comm_id, "MoodleNet:Community") do
       attrs = set_icon(attrs)
 
@@ -333,7 +350,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  def create_resource(_, %{resource: attrs, collection_local_id: col_id}, info) do
+  def create_resource(%{resource: attrs, collection_local_id: col_id}, info) do
     if collection = get_by_id_and_type(col_id, "MoodleNet:Collection") do
       attrs = set_icon(attrs)
 
@@ -380,6 +397,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
       _ ->
         {:error, "context not found"}
+    end
+  end
+
+  defp fetch_actor(local_id) do
+    get_by_id_and_type(local_id, "Actor")
+    |> case do
+      nil -> {:error, "actor not found"}
+      actor -> {:ok, actor}
     end
   end
 
@@ -548,20 +573,25 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Enum.map(& &1.name)
   end
 
-  defp with_assoc(assoc, opts \\ [single: false])
+  defp with_assoc(assoc, opts \\ [])
 
   defp with_assoc(assoc, opts) do
     fn parent, _, info ->
       fields = requested_fields(info)
-      preload_assoc_args = {assoc, fields}
+      preload_args = {assoc, fields}
+
+      args =
+        if Keyword.get(opts, :collection, false),
+          do: {__MODULE__, :preload_collection, preload_args},
+          else: {__MODULE__, :preload_assoc, preload_args}
 
       batch(
-        {__MODULE__, :preload_assoc, preload_assoc_args},
+        args,
         parent,
         fn children_map ->
           children =
             children_map[Entity.local_id(parent)]
-            |> ensure_single(opts[:single])
+            |> ensure_single(Keyword.get(opts, :single, false))
 
           {:ok, children}
         end
@@ -573,11 +603,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp ensure_single(children, true) do
     case children do
-      [] -> nil
-      [child] -> child
-      # FIXME 
-      [child | _] -> child
-      # _ -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
+      [] ->
+        nil
+
+      [child] ->
+        child
+
+      # FIXME this is a huge bug
+      [child | _] ->
+        child
+        # _ -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
     end
   end
 
@@ -593,6 +628,27 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       children =
         parent
         |> Map.get(assoc)
+        |> Enum.map(&Entity.local_id/1)
+        |> Enum.flat_map(&child_map[&1])
+
+      {Entity.local_id(parent), children}
+    end)
+  end
+
+  def preload_collection({assoc, fields}, parent_list) do
+    parent_list = Query.preload_assoc(parent_list, {assoc, :items})
+    [p] = parent_list
+    p.followers.items
+    child_list = Enum.flat_map(parent_list, &get_in(&1, [assoc, :items]))
+
+    child_map =
+      prepare(child_list, fields)
+      |> Enum.group_by(&Entity.local_id/1)
+
+    Map.new(parent_list, fn parent ->
+      children =
+        parent
+        |> get_in([assoc, :items])
         |> Enum.map(&Entity.local_id/1)
         |> Enum.flat_map(&child_map[&1])
 

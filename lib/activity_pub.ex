@@ -3,6 +3,9 @@ defmodule ActivityPub do
   defdelegate new(params), to: ActivityPub.Builder
   defdelegate insert(params), to: ActivityPub.SQLEntity
   defdelegate get_by_local_id(params), to: ActivityPub.SQLEntity
+  defdelegate get_by_id(params), to: ActivityPub.SQLEntity
+  defdelegate reload(params), to: ActivityPub.SQL.Query
+  defdelegate apply(params), to: ActivityPub.ApplyAction
 
   # @doc """
   # Returns true if the given argument is a valid ActivityPub IRI,

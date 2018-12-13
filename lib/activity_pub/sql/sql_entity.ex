@@ -31,8 +31,14 @@ defmodule ActivityPub.SQLEntity do
   end
 
   def get_by_id(id) when is_binary(id) do
-    Repo.get_by(__MODULE__, id)
-    |> to_entity()
+    case UrlBuilder.get_local_id(id) do
+      {:ok, local_id} -> get_by_local_id(local_id)
+      :error -> Repo.get_by(__MODULE__, id: id) |> to_entity()
+    end
+  end
+
+  def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    entity |> Entity.local_id() |> get_by_local_id()
   end
 
   def insert(entity) when APG.is_entity(entity) and APG.has_status(entity, :new) do
@@ -43,8 +49,7 @@ defmodule ActivityPub.SQLEntity do
 
   defp insert_new(entity) do
     Multi.new()
-    |> Multi.insert(:_entity, insert_changeset(entity))
-    |> Multi.run(:entity, &set_ap_id/2)
+    |> Multi.insert(:entity, insert_changeset(entity))
     |> Repo.transaction()
   end
 
@@ -116,22 +121,11 @@ defmodule ActivityPub.SQLEntity do
     |> Map.put(:extension_fields, Entity.extension_fields(entity))
   end
 
-  def set_ap_id(repo, %{_entity: %{id: nil, local_id: local_id, local: true} = e}) do
-    id = UrlBuilder.id(local_id)
-
-    e
-    |> Ecto.Changeset.change(id: id)
-    |> repo.update()
-  end
-
-  def set_ap_id(_repo, %{_entity: %{id: id} = e}) when not is_nil(id),
-    do: {:ok, e}
-
   def to_entity(nil), do: nil
   def to_entity(%__MODULE__{} = sql_entity) do
     entity = %{
       __ap__: Metadata.load(sql_entity),
-      id: sql_entity.id,
+      id: calc_ap_id(sql_entity),
       "@context": Map.fetch!(sql_entity, :"@context"),
       type: sql_entity.type
     }
@@ -147,6 +141,9 @@ defmodule ActivityPub.SQLEntity do
 
   def to_entity(sql_entities) when is_list(sql_entities),
     do: Enum.map(sql_entities, &to_entity/1)
+
+  defp calc_ap_id(%__MODULE__{local: true, local_id: local_id}), do: UrlBuilder.id(local_id)
+  defp calc_ap_id(%__MODULE__{id: id}), do: id
 
   defp load_fields(%__MODULE__{} = sql_entity, aspects) do
     Enum.reduce(aspects, %{}, fn aspect, acc ->

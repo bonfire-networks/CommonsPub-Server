@@ -143,6 +143,11 @@ defmodule ActivityPub.Aspect do
   end
 
   def __assoc__(mod, name, opts) do
+    opts =
+      opts
+      |> Keyword.put(:aspect, mod)
+      |> Keyword.put(:name, name)
+
     assoc = struct(Association, opts)
     Module.put_attribute(mod, :aspect_assocs, {name, assoc})
     put_struct_field(mod, name, assoc)

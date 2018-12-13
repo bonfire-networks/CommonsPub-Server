@@ -6,6 +6,8 @@ defmodule ActivityPub.SQL.Query do
   alias MoodleNet.Repo
   alias ActivityPub.SQL.Paginate
 
+  alias ActivityPub.SQLAssociations.{ManyToMany, BelongsTo}
+
   def new() do
     from(entity in SQLEntity, as: :entity)
   end
@@ -23,6 +25,15 @@ defmodule ActivityPub.SQL.Query do
     |> to_entity()
   end
 
+  def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    Entity.aspects(entity)
+
+    new()
+    |> where(local_id: Entity.local_id(entity))
+    |> preload_aspect(Entity.aspects(entity))
+    |> one()
+  end
+
   def paginate(%Ecto.Query{} = query, opts \\ %{}) do
     Paginate.call(query, opts)
   end
@@ -34,13 +45,17 @@ defmodule ActivityPub.SQL.Query do
   end
 
   def where(%Ecto.Query{} = query, clauses) do
-    from e in query,
+    from(e in query,
       where: ^clauses
+    )
   end
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
     short_name = sql_aspect.aspect().short_name()
     field_name = sql_aspect.field_name()
+
+    def preload_aspect(%Ecto.Query{} = query, unquote(sql_aspect.aspect())),
+      do: preload_aspect(query, unquote(short_name))
 
     case sql_aspect.persistence_method() do
       m when m in [:fields, :embedded] ->
@@ -102,96 +117,125 @@ defmodule ActivityPub.SQL.Query do
     do: has(query, assoc_name, Entity.local_id(entity))
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
-    for {assoc_name, table_name, assoc} <- sql_aspect.__sql_aspect__(:associations) do
-      if assoc.inv do
-        def has(%Ecto.Query{} = query, unquote(assoc_name), ext_id) when is_integer(ext_id) do
+    Enum.map(sql_aspect.__sql_aspect__(:associations), fn
+      %ManyToMany{inv: false} = assoc ->
+        def has(%Ecto.Query{} = query, unquote(assoc.name), ext_id) when is_integer(ext_id) do
           from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
-            on: entity.local_id == rel.target_id and rel.subject_id == ^ext_id
-          )
-        end
-
-        def has(%Ecto.Query{} = query, unquote(assoc_name), entities) when is_list(entities) do
-          ext_ids = to_local_ids(entities)
-          from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
-            on: entity.local_id == rel.target_id and rel.subject_id in ^ext_ids
-          )
-        end
-
-        def belongs_to(%Ecto.Query{} = query, unquote(assoc_name), ext_id)
-            when is_integer(ext_id) do
-          from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
             on: entity.local_id == rel.subject_id and rel.target_id == ^ext_id
           )
         end
 
-        def belongs_to(%Ecto.Query{} = query, unquote(assoc_name), entities)
-            when is_list(entities) do
+        def has(%Ecto.Query{} = query, unquote(assoc.name), entities) when is_list(entities) do
           ext_ids = to_local_ids(entities)
-          from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
-            on: entity.local_id == rel.subject_id and rel.target_id in ^ext_ids
-          )
-        end
-      else
-        def has(%Ecto.Query{} = query, unquote(assoc_name), ext_id) when is_integer(ext_id) do
-          from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
-            on: entity.local_id == rel.subject_id and rel.target_id == ^ext_id
-          )
-        end
 
-        def has(%Ecto.Query{} = query, unquote(assoc_name), entities) when is_list(entities) do
-          ext_ids = to_local_ids(entities)
           from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
             on: entity.local_id == rel.subject_id and rel.target_id in ^ext_ids
           )
         end
 
-        def belongs_to(%Ecto.Query{} = query, unquote(assoc_name), ext_id)
+        def belongs_to(%Ecto.Query{} = query, unquote(assoc.name), ext_id)
             when is_integer(ext_id) do
           from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
             on: entity.local_id == rel.target_id and rel.subject_id == ^ext_id
           )
         end
 
-        def belongs_to(%Ecto.Query{} = query, unquote(assoc_name), entities)
+        def belongs_to(%Ecto.Query{} = query, unquote(assoc.name), entities)
             when is_list(entities) do
           ext_ids = to_local_ids(entities)
+
           from([entity: entity] in query,
-            join: rel in fragment(unquote(table_name)),
-            as: unquote(assoc_name),
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
             on: entity.local_id == rel.target_id and rel.subject_id in ^ext_ids
           )
         end
-      end
+
+      %ManyToMany{} = assoc ->
+        def has(%Ecto.Query{} = query, unquote(assoc.name), ext_id) when is_integer(ext_id) do
+          from([entity: entity] in query,
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
+            on: entity.local_id == rel.target_id and rel.subject_id == ^ext_id
+          )
+        end
+
+        def has(%Ecto.Query{} = query, unquote(assoc.name), entities) when is_list(entities) do
+          ext_ids = to_local_ids(entities)
+
+          from([entity: entity] in query,
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
+            on: entity.local_id == rel.target_id and rel.subject_id in ^ext_ids
+          )
+        end
+
+        def belongs_to(%Ecto.Query{} = query, unquote(assoc.name), ext_id)
+            when is_integer(ext_id) do
+          from([entity: entity] in query,
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
+            on: entity.local_id == rel.subject_id and rel.target_id == ^ext_id
+          )
+        end
+
+        def belongs_to(%Ecto.Query{} = query, unquote(assoc.name), entities)
+            when is_list(entities) do
+          ext_ids = to_local_ids(entities)
+
+          from([entity: entity] in query,
+            join: rel in fragment(unquote(assoc.table_name)),
+            as: unquote(assoc.name),
+            on: entity.local_id == rel.subject_id and rel.target_id in ^ext_ids
+          )
+        end
+
+      %BelongsTo{} ->
+        []
+    end)
+  end
+
+  defp normalize_preloads(preload) when is_atom(preload), do: normalize_preloads([preload])
+
+  defp normalize_preloads(preloads) when is_list(preloads) do
+    Enum.map(preloads, &normalize_preload/1)
+  end
+
+  defp normalize_preload({preload, preload_assoc}) when is_atom(preload_assoc),
+    do: normalize_preload({preload, [preload_assoc]})
+
+  defp normalize_preload({preload, preload_assocs}) when is_list(preload_assocs) do
+    normalized_preloads = normalize_preloads(preload_assocs)
+
+    case normalize_preload(preload) do
+      {aspect, assoc} ->
+        {aspect, [{assoc, normalized_preloads}]}
+
+      assoc ->
+        {assoc, normalized_preloads}
     end
   end
 
+  # FIXME normalize assoc should be private
   for sql_aspect <- ActivityPub.SQLAspect.all() do
     case sql_aspect.persistence_method() do
       :table ->
         field_name = sql_aspect.field_name()
 
-        for {assoc_name, _, _} <- sql_aspect.__sql_aspect__(:associations) do
-          defp normalize_assoc(unquote(assoc_name)),
-            do: {unquote(field_name), unquote(assoc_name)}
+        for assoc <- sql_aspect.__sql_aspect__(:associations) do
+          defp normalize_preload(unquote(assoc.name)),
+            do: {unquote(field_name), unquote(assoc.name)}
         end
 
       m when m in [:fields, :embedded] ->
-        for {assoc_name, _, _} <- sql_aspect.__sql_aspect__(:associations) do
-          defp normalize_assoc(unquote(assoc_name)), do: unquote(assoc_name)
+        for assoc <- sql_aspect.__sql_aspect__(:associations) do
+          defp normalize_preload(unquote(assoc.name)), do: unquote(assoc.name)
         end
     end
   end
@@ -204,7 +248,7 @@ defmodule ActivityPub.SQL.Query do
 
   def preload_assoc(entity, preloads) when APG.has_status(entity, :loaded) do
     sql_entity = Entity.persistence(entity)
-    preloads = Enum.map(preloads, &normalize_assoc/1)
+    preloads = normalize_preloads(preloads)
 
     Repo.preload(sql_entity, preloads)
     |> to_entity()
@@ -213,7 +257,7 @@ defmodule ActivityPub.SQL.Query do
   def preload_assoc([e | _] = entities, preloads) when APG.is_entity(e) do
     sql_entities = loaded_sql_entities!(entities)
 
-    preloads = Enum.map(preloads, &normalize_assoc/1)
+    preloads = Enum.map(preloads, &normalize_preload/1)
 
     Repo.preload(sql_entities, preloads)
     |> to_entity()
@@ -222,7 +266,7 @@ defmodule ActivityPub.SQL.Query do
   def preload_assoc([e | _] = entities, preloads) when APG.is_entity(e) do
     sql_entities = loaded_sql_entities!(entities)
 
-    preloads = Enum.map(preloads, &normalize_assoc/1)
+    preloads = normalize_preloads(preloads)
 
     Repo.preload(sql_entities, preloads)
     |> to_entity()

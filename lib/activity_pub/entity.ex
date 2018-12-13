@@ -3,6 +3,8 @@ defmodule ActivityPub.Entity do
 
   alias ActivityPub.{Metadata}
 
+  # FIXME Inject here the builder with a list of aspects (and a list of types)?
+
   def aspects(entity = %{__ap__: meta}) when APG.is_entity(entity),
     do: Metadata.aspects(meta)
 

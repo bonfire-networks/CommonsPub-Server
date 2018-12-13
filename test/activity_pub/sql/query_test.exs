@@ -27,6 +27,13 @@ defmodule ActivityPub.SQL.QueryTest do
     end
   end
 
+  test "reload/1" do
+    map = %{type: "Person", preferred_username: "alex"}
+    assert person = insert(map)
+    assert reloaded = Query.reload(person)
+    assert reloaded.preferred_username == "alex"
+  end
+
   test "with_type/2 works" do
     assert %{id: person_id} = insert(%{type: "Person"})
     assert [] = Query.new() |> Query.with_type("Activity") |> Query.all()
@@ -35,13 +42,6 @@ defmodule ActivityPub.SQL.QueryTest do
 
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Person") |> Query.one()
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Actor") |> Query.one()
-
-    assert MapSet.new([person_id, activity_id]) ==
-             Query.new()
-             |> Query.with_type("Object")
-             |> Query.all()
-             |> Enum.map(& &1.id)
-             |> MapSet.new()
   end
 
   alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
@@ -50,15 +50,23 @@ defmodule ActivityPub.SQL.QueryTest do
     test "works" do
       insert(%{type: "Person", preferred_username: "alexcastano"})
 
-      assert loaded_actor = Query.new() |> Query.one()
+      assert loaded_actor = Query.new() |> Query.with_type("Person") |> Query.one()
       assert %FieldNotLoaded{} = loaded_actor.preferred_username
 
-      assert loaded_actor = Query.new() |> Query.preload_aspect(:actor) |> Query.one()
+      assert loaded_actor =
+               Query.new()
+               |> Query.with_type("Person")
+               |> Query.preload_aspect(:actor)
+               |> Query.one()
+
       assert "alexcastano" = loaded_actor.preferred_username
 
       # object aspect is already loaded so it is allowed but do nothing
       assert loaded_actor_2 =
-               Query.new() |> Query.preload_aspect([:object, :actor]) |> Query.one()
+               Query.new()
+               |> Query.with_type("Person")
+               |> Query.preload_aspect([:object, :actor])
+               |> Query.one()
 
       assert loaded_actor_2 == loaded_actor
     end
@@ -77,7 +85,6 @@ defmodule ActivityPub.SQL.QueryTest do
         |> ActivityPub.Entity.local_id()
         |> ActivityPub.get_by_local_id()
 
-
       assert %AssociationNotLoaded{} = activity.object
       activity = Query.preload_assoc(activity, :object)
       assert %{"und" => "foo"} = get_in(activity, [:object, Access.at(0), :content])
@@ -95,6 +102,20 @@ defmodule ActivityPub.SQL.QueryTest do
 
       assert %{"und" => "foo"} = get_in(foo, [:object, Access.at(0), :content])
       assert %{"und" => "bar"} = get_in(bar, [:object, Access.at(0), :content])
+    end
+
+    test "works with deeper assocs" do
+      actor = insert(%{type: "Person"})
+      activity =
+        insert(%{type: "Create", actor: actor})
+        |> ActivityPub.Entity.local_id()
+        |> ActivityPub.get_by_local_id()
+
+      activity = Query.preload_assoc(activity, actor: :followers)
+      assert followers = get_in(activity, [:actor, Access.at(0), :followers])
+      import ActivityPub.Guards
+      assert has_type(followers, "Collection")
+      assert %ActivityPub.SQL.AssociationNotLoaded{} = get_in(activity, [:actor, Access.at(0), :following])
     end
   end
 
