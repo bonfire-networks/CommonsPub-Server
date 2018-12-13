@@ -53,6 +53,7 @@
     "@types/node": "10.10.1",
     "@types/react": "16.7.6",
     "@types/react-dom": "16.0.9",
+    "@types/react-portal": "4.0.1",
     "@types/react-router-dom": "4.3.1",
     "@types/styled-components": "3.0.1",
     "@zendeskgarden/css-avatars": "3.0.8",
@@ -100,6 +101,7 @@
     "eslint-plugin-react": "7.4.0",
     "file-loader": "2.0.0",
     "flag-icon-css": "3.2.0",
+    "formik": "1.4.0",
     "fs-extra": "3.0.1",
     "graphql": "14.0.2",
     "graphql-tag": "2.10.0",
@@ -110,6 +112,7 @@
     "mini-css-extract-plugin": "0.4.3",
     "object-assign": "4.1.1",
     "phoenix": "1.4.0",
+    "polished": "2.3.1",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "3.0.0",
     "prettier": "1.14.3",
@@ -137,6 +140,10 @@
     "webpack": "4.20.2",
     "webpack-dev-server": "3.1.9",
     "webpack-manifest-plugin": "2.0.4",
-    "whatwg-fetch": "2.0.3"
+    "whatwg-fetch": "2.0.3",
+    "yup": "0.26.6"
+  },
+  "devDependencies": {
+    "@lingui/loader": "2.7.2"
   }
 }
