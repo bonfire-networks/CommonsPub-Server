@@ -59,7 +59,7 @@ class CommunitiesFeatured extends React.Component<Props> {
     } else {
       collection = this.props.data.collection;
     }
-
+    console.log(this.props.data);
     if (!collection) {
       // TODO better handling of no collection
       return <span>Could not load collection.</span>;

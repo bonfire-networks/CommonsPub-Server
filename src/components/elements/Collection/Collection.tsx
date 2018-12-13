@@ -3,24 +3,35 @@ import styled from '../../../themes/styled';
 import Collection from '../../../types/Collection';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
+import { Link } from 'react-router-dom';
 
 interface CollectionProps {
   collection: Collection;
+  communityId: string;
 }
 
-const Collection: React.SFC<CollectionProps> = ({ collection }) => (
-  <Wrapper>
-    <Img style={{ backgroundImage: `url(${collection.icon})` }} />
-    <Infos>
-      <Title>{collection.name}</Title>
-      <Desc>{collection.summary}</Desc>
-      <Actions>
-        <ActionItem>{collection.followersCount} Followers</ActionItem>
-        <ActionItem>{collection.resourcesCount || 0} Resources</ActionItem>
-      </Actions>
-    </Infos>
-  </Wrapper>
-);
+const Collection: React.SFC<CollectionProps> = ({
+  collection,
+  communityId
+}) => {
+  return (
+    <Wrapper>
+      <Link
+        to={`/communities/${communityId}/collections/${collection.localId}`}
+      >
+        <Img style={{ backgroundImage: `url(${collection.icon})` }} />
+        <Infos>
+          <Title>{collection.name}</Title>
+          <Desc>{collection.summary}</Desc>
+          <Actions>
+            <ActionItem>{collection.followersCount} Followers</ActionItem>
+            <ActionItem>{collection.resourcesCount || 0} Resources</ActionItem>
+          </Actions>
+        </Infos>
+      </Link>
+    </Wrapper>
+  );
+};
 
 const Actions = styled.div`
   margin-top: 20px;
@@ -39,6 +50,11 @@ const Wrapper = styled.div`
   border-bottom: 1px solid #ebe8e8;
   padding: 10px;
   cursor: pointer;
+  & a {
+    display: flex;
+    color: inherit;
+    text-decoration: none;
+  }
   &:hover {
     background: #f5f5f5;
   }

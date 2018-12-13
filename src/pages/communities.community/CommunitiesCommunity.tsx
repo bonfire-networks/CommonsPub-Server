@@ -68,7 +68,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           <Wrapper>
             <CollectionList>
               {this.props.data.community.collections.map((collection, i) => (
-                <CollectionCard key={i} collection={collection} />
+                <CollectionCard
+                  communityId={this.props.data.community.localId}
+                  key={i}
+                  collection={collection}
+                />
               ))}
             </CollectionList>
             <Button onClick={this.props.handleNewCollection}>
