@@ -103,6 +103,20 @@ defmodule ActivityPub.SQL.QueryTest do
       assert %{"und" => "foo"} = get_in(foo, [:object, Access.at(0), :content])
       assert %{"und" => "bar"} = get_in(bar, [:object, Access.at(0), :content])
     end
+
+    test "works with deeper assocs" do
+      actor = insert(%{type: "Person"})
+      activity =
+        insert(%{type: "Create", actor: actor})
+        |> ActivityPub.Entity.local_id()
+        |> ActivityPub.get_by_local_id()
+
+      activity = Query.preload_assoc(activity, actor: :followers)
+      assert followers = get_in(activity, [:actor, Access.at(0), :followers])
+      import ActivityPub.Guards
+      assert has_type(followers, "Collection")
+      assert %ActivityPub.SQL.AssociationNotLoaded{} = get_in(activity, [:actor, Access.at(0), :following])
+    end
   end
 
   test "has/3 and belongs_to/3 work" do

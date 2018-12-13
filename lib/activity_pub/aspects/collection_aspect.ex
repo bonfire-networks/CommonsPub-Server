@@ -8,7 +8,7 @@ defmodule ActivityPub.CollectionAspect do
     # assoc(:current, functional: true)
     # assoc(:first, functional: true)
     # assoc(:last, functional: true)
-    # assoc(:items)
+    assoc(:items)
 
     # FIXME private attribute for the field?
     field(:__ordered__, :boolean)

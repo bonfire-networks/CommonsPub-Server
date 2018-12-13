@@ -117,6 +117,7 @@ defmodule ActivityPub.SQLAspect do
             join_through: assoc.table_name,
             join_keys: assoc.join_keys
           )
+
         %BelongsTo{} = assoc ->
           belongs_to(assoc.name, ActivityPub.SQLEntity, references: :local_id)
       end)
@@ -137,6 +138,8 @@ defmodule ActivityPub.SQLAspect do
       if inv_name = assoc.inv,
         do: "#{assoc_prefix}#{inv_name}s",
         else: "#{assoc_prefix}#{assoc.name}s"
+
+    table_name = String.replace(table_name, ~r/ss$/, "s")
 
     join_keys =
       if assoc.inv do
@@ -159,6 +162,7 @@ defmodule ActivityPub.SQLAspect do
 
   defp build_assoc(%{functional: true} = assoc, aspect, opts) do
     foreign_key = "#{assoc.name}_id"
+
     %BelongsTo{
       aspect: aspect,
       sql_aspect: __MODULE__,

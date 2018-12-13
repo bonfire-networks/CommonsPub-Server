@@ -1,5 +1,5 @@
 defmodule ActivityPub.ApplyActionTest do
-  use ActivityPub.DataCase, async: true
+  use MoodleNet.DataCase, async: true
 
   alias ActivityPub.SQL.CollectionStatement
 
@@ -7,18 +7,21 @@ defmodule ActivityPub.ApplyActionTest do
 
   describe "follow" do
     test "works" do
-      follower = Factory.actor()
-      following = Factory.actor()
+      follower_actor = Factory.actor()
+      following_actor = Factory.actor()
 
       create = %{
         type: "Follow",
-        actor: follower,
-        object: following,
+        actor: follower_actor,
+        object: following_actor,
       }
-
+      assert {:ok, create} = ActivityPub.new(create)
       assert {:ok, create} = apply(create)
 
-      assert CollectionStatement.in?(create.actor.follower, create.object)
+      refute CollectionStatement.in?(follower_actor.followers, following_actor)
+      refute CollectionStatement.in?(following_actor.following, follower_actor)
+      assert CollectionStatement.in?(following_actor.followers, follower_actor)
+      assert CollectionStatement.in?(follower_actor.following, following_actor)
     end
   end
 end

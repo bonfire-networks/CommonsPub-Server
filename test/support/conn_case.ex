@@ -29,7 +29,6 @@ defmodule MoodleNetWeb.ConnCase do
   end
 
   setup tags do
-    Cachex.clear(:user_cache)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
@@ -49,6 +48,17 @@ defmodule MoodleNetWeb.ConnCase do
 
     conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
 
-    {:ok, conn: conn}
+    ret = %{conn: conn}
+
+    ret =
+      if tags[:user] do
+        %{user: user, actor: actor} = MoodleNet.Factory.full_user()
+        conn = Plug.Conn.assign(conn, :current_user, user)
+        %{conn: conn, user: user, actor: actor}
+      else
+        ret
+      end
+
+    {:ok, ret}
   end
 end

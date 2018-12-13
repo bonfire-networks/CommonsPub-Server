@@ -22,12 +22,19 @@ defmodule ActivityPub.ApplyAction do
     do: {:ok, activity}
 
   defp side_effect(follow) when has_type(follow, "Follow") do
-    # FIXME verify type of actor and object
-    follower_actor = follow.actor |> Query.preload_assoc(:follower)
-    following_actor = follow.object |> Query.preload_assoc(:following)
+    # FIXME verify type of actors and objects
+    following_collections =
+      follow.actor
+      |> Query.preload_assoc(:following)
+      |> Enum.map(& &1.following)
 
-    CollectionStatement.add(follower_actor.follower, following_actor)
-    CollectionStatement.add(following_actor.following, follower_actor)
+    followers_collections =
+      follow.object
+      |> Query.preload_assoc(:followers)
+      |> Enum.map(& &1.followers)
+
+    CollectionStatement.add(following_collections, follow.object)
+    CollectionStatement.add(followers_collections, follow.actor)
 
     :ok
   end

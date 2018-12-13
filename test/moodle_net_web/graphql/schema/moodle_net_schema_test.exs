@@ -4,6 +4,113 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   @moduletag format: :json
 
+  @tag :user
+  test "follows", %{conn: conn, actor: actor} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        follow(
+          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("follow")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        followers {
+          id
+          localId
+          local
+          type
+          preferredUsername
+          name
+          summary
+          location
+          icon
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+
+    assert [user_map] = community_map["followers"]
+    assert user_map["id"] == actor.id
+    assert user_map["localId"] == ActivityPub.Entity.local_id(actor)
+    assert user_map["local"] == ActivityPub.Entity.local?(actor)
+    assert user_map["type"] == actor.type
+    assert user_map["preferredUsername"] == actor.preferred_username
+    assert user_map["name"] == actor.name["und"]
+    assert user_map["summary"] == actor.summary["und"]
+    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+
+
+    collection = Factory.collection(community)
+    query = """
+      mutation {
+        follow(
+          actorLocalId: #{ActivityPub.Entity.local_id(collection)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("follow")
+
+    query = """
+    {
+      collections(communityLocalId: #{ActivityPub.Entity.local_id(community)}) {
+        id
+        localId
+        followers {
+          id
+          localId
+          local
+          type
+          preferredUsername
+          name
+          summary
+          location
+          icon
+        }
+      }
+    }
+    """
+
+    assert [collection_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collections")
+
+    assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == ActivityPub.Entity.local_id(collection)
+    assert collection_map["followers"] == [user_map]
+  end
+
   test "works", %{conn: conn} do
     query = """
       mutation {

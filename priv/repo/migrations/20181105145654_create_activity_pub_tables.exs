@@ -182,17 +182,17 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       :liked_id
     )
 
-    create table(:activity_pub_collections_items) do
+    create table(:activity_pub_collection_items) do
       add_foreign_key(:subject_id, "activity_pub_collection_aspects")
       add_foreign_key(:target_id, "activity_pub_objects")
     end
-    create(unique_index(:activity_pub_collections_items, [:subject_id, :target_id]))
+    create(unique_index(:activity_pub_collection_items, [:subject_id, :target_id]))
 
     create_counter_trigger(
       :total_items,
       :activity_pub_collection_aspects,
       :local_id,
-      :activity_pub_collections_items,
+      :activity_pub_collection_items,
       :subject_id
     )
   end
