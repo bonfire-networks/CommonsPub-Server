@@ -1,7 +1,5 @@
 # https://tools.ietf.org/html/draft-cavage-http-signatures-08
 defmodule MoodleNetWeb.HTTPSignatures do
-  alias MoodleNet.Accounts.User
-  alias ActivityPub.Utils
   alias ActivityPub
   require Logger
 
@@ -29,27 +27,29 @@ defmodule MoodleNetWeb.HTTPSignatures do
     :public_key.verify(sigstring, :sha256, sig, public_key)
   end
 
-  def validate_conn(conn) do
+  def validate_conn(_conn) do
     # TODO: How to get the right key and see if it is actually valid for that request.
     # For now, fetch the key for the actor.
-    with actor_id <- Utils.get_ap_id(conn.params["actor"]),
-         {:ok, public_key} <- User.get_public_key_for_ap_id(actor_id) do
-      if validate_conn(conn, public_key) do
-        true
-      else
-        Logger.debug("Could not validate, re-fetching user and trying one more time")
-        # Fetch user anew and try one more time
-        with actor_id <- Utils.get_ap_id(conn.params["actor"]),
-             {:ok, _user} <- ActivityPub.make_user_from_ap_id(actor_id),
-             {:ok, public_key} <- User.get_public_key_for_ap_id(actor_id) do
-          validate_conn(conn, public_key)
-        end
-      end
-    else
-      _e ->
-        Logger.debug("Could not public key!")
-        false
-    end
+    # FIXME
+    # with actor_id <- Utils.get_ap_id(conn.params["actor"]),
+    #      {:ok, public_key} <- User.get_public_key_for_ap_id(actor_id) do
+    #   if validate_conn(conn, public_key) do
+    #     true
+    #   else
+    #     Logger.debug("Could not validate, re-fetching user and trying one more time")
+    #     # Fetch user anew and try one more time
+    #     with actor_id <- Utils.get_ap_id(conn.params["actor"]),
+    #          {:ok, _user} <- ActivityPub.make_user_from_ap_id(actor_id),
+    #          {:ok, public_key} <- User.get_public_key_for_ap_id(actor_id) do
+    #       validate_conn(conn, public_key)
+    #     end
+    #   end
+    # else
+    #   _e ->
+    #     Logger.debug("Could not public key!")
+    #     false
+    # end
+    true
   end
 
   def validate_conn(conn, public_key) do

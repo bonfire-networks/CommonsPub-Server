@@ -12,7 +12,8 @@
             <%= @current_user.email %>
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <%= link("Actor", to: APRoutes.actor_path(@conn, :show, @current_user.primary_actor_id), class: "dropdown-item") %>
+            <%# FIXME %>
+            <%# <%= link("Actor", to: APRoutes.actor_path(@conn, :show, @current_user.primary_actor_id), class: "dropdown-item") %1> %>
             <div class="dropdown-divider"></div>
             <%= link("Logout", to: Routes.session_path(@conn, :delete), method: :delete, class: "dropdown-item") %>
           </div>

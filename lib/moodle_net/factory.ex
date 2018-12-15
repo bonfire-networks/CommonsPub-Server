@@ -43,7 +43,6 @@ defmodule MoodleNet.Factory do
       "name" => Faker.Beer.brand(),
       "icon" => attributes(:image),
       "preferred_username" => Faker.Internet.user_name(),
-      "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
       "primaryLanguage" => "es",
     }

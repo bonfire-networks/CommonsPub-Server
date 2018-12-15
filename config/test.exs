@@ -24,7 +24,7 @@ config :moodle_net, MoodleNet.Repo,
 # Reduce hash rounds for testing
 config :pbkdf2_elixir, rounds: 1
 
-config :moodle_net, :httpoison, HTTPoisonMock
+config :moodle_net, :httpoison, HTTPoison
 
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint

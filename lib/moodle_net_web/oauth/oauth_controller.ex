@@ -128,7 +128,7 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
     with {:ok, {client_id, client_secret}} <- fetch_client_credentials(conn, params),
          app = OAuth.get_app_by!(client_id: client_id, client_secret: client_secret) do
       # RFC 7009: invalid tokens [in the request] do not cause an error response
-      OAuth.delete_token(token, app.id)
+      OAuth.revoke_token(token, app.id)
       send_resp(conn, :no_content, "")
     end
   end
