@@ -24,6 +24,19 @@ defmodule ActivityPub.SQL.Query do
     |> to_entity()
   end
 
+  # FIXME add test to those two functions
+  def first(%Ecto.Query{} = query, order_by \\ :local_id) do
+    query
+    |> Ecto.Query.first(order_by)
+    |> one()
+  end
+
+  def last(%Ecto.Query{} = query, order_by \\ :local_id) do
+    query
+    |> Ecto.Query.last(order_by)
+    |> one()
+  end
+
   def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
     Entity.aspects(entity)
 
@@ -148,8 +161,9 @@ defmodule ActivityPub.SQL.Query do
     do: has(query, assoc_name, to_local_ids(list))
 
   def has?(subject, rel, target)
-      when APG.is_entity(subject) and APG.is_entity(target) and APG.has_status(subject, :loaded) and
-             APG.has_status(target, :loaded),
+      when APG.is_entity(subject) and APG.has_status(subject, :loaded) and APG.is_entity(target) and
+             APG.has_status(target, :loaded)
+      when APG.is_entity(subject) and APG.has_status(subject, :loaded) and is_integer(target),
       do: do_has?(subject, rel, target)
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
@@ -223,24 +237,34 @@ defmodule ActivityPub.SQL.Query do
     end)
   end
 
-  defp normalize_preloads(preload) when is_atom(preload), do: normalize_preloads([preload])
+  defp normalize_preload_assocs(assoc) when is_atom(assoc), do: normalize_preload_assocs([assoc])
 
-  defp normalize_preloads(preloads) when is_list(preloads) do
-    Enum.map(preloads, &normalize_preload/1)
+  defp normalize_preload_assocs(assocs) when is_list(assocs) do
+    Enum.map(assocs, &normalize_preload_assoc/1)
   end
 
-  defp normalize_preload({preload, preload_assoc}) when is_atom(preload_assoc),
-    do: normalize_preload({preload, [preload_assoc]})
+  defp normalize_preload_assoc({assoc, preload_assoc}) when is_atom(preload_assoc),
+    do: normalize_preload_assoc({assoc, [preload_assoc]})
 
-  defp normalize_preload({preload, preload_assocs}) when is_list(preload_assocs) do
-    normalized_preloads = normalize_preloads(preload_assocs)
+  defp normalize_preload_assoc({assoc, preload_assocs}) when is_list(preload_assocs) do
+    normalize_preload_assoc({assoc, {[], preload_assocs}})
+  end
 
-    case normalize_preload(preload) do
+  defp normalize_preload_assoc({assoc, {preload_aspects, preload_assocs}})
+       when is_list(preload_aspects) and is_list(preload_assocs) do
+    normalized_aspects = normalize_aspects(preload_aspects)
+    normalized_preloads = normalize_preload_assocs(preload_assocs)
+
+    preloads = normalized_aspects ++ normalized_preloads
+
+    # FIXME assoc can be repetead in normalized_aspects, take a look
+    # maybe it is a problem maybe not
+    case normalize_preload_assoc(assoc) do
       {aspect, assoc} ->
-        {aspect, [{assoc, normalized_preloads}]}
+        {aspect, [{assoc, preloads}]}
 
       assoc ->
-        {assoc, normalized_preloads}
+        {assoc, preloads}
     end
   end
 
@@ -251,13 +275,13 @@ defmodule ActivityPub.SQL.Query do
         field_name = sql_aspect.field_name()
 
         for assoc <- sql_aspect.__sql_aspect__(:associations) do
-          defp normalize_preload(unquote(assoc.name)),
+          defp normalize_preload_assoc(unquote(assoc.name)),
             do: {unquote(field_name), unquote(assoc.name)}
         end
 
       m when m in [:fields, :embedded] ->
         for assoc <- sql_aspect.__sql_aspect__(:associations) do
-          defp normalize_preload(unquote(assoc.name)), do: unquote(assoc.name)
+          defp normalize_preload_assoc(unquote(assoc.name)), do: unquote(assoc.name)
         end
     end
   end
@@ -270,7 +294,7 @@ defmodule ActivityPub.SQL.Query do
 
   def preload_assoc(entity, preloads) when APG.has_status(entity, :loaded) do
     sql_entity = Entity.persistence(entity)
-    preloads = normalize_preloads(preloads)
+    preloads = normalize_preload_assocs(preloads)
 
     Repo.preload(sql_entity, preloads)
     |> to_entity()
@@ -279,16 +303,7 @@ defmodule ActivityPub.SQL.Query do
   def preload_assoc([e | _] = entities, preloads) when APG.is_entity(e) do
     sql_entities = loaded_sql_entities!(entities)
 
-    preloads = Enum.map(preloads, &normalize_preload/1)
-
-    Repo.preload(sql_entities, preloads)
-    |> to_entity()
-  end
-
-  def preload_assoc([e | _] = entities, preloads) when APG.is_entity(e) do
-    sql_entities = loaded_sql_entities!(entities)
-
-    preloads = normalize_preloads(preloads)
+    preloads = normalize_preload_assocs(preloads)
 
     Repo.preload(sql_entities, preloads)
     |> to_entity()

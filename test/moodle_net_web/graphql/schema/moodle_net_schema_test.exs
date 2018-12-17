@@ -5,6 +5,141 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   @moduletag format: :json
 
   @tag :user
+  test "unlike", %{conn: conn} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
+  @tag :user
+  test "likes", %{conn: conn, actor: actor} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        like(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("like")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        likesCount
+        likers {
+          id
+          localId
+          local
+          type
+          preferredUsername
+          name
+          summary
+          location
+          icon
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["likesCount"] == 1
+
+    assert [user_map] = community_map["likers"]
+    assert user_map["id"] == actor.id
+    assert user_map["localId"] == ActivityPub.Entity.local_id(actor)
+    assert user_map["local"] == ActivityPub.Entity.local?(actor)
+    assert user_map["type"] == actor.type
+    assert user_map["preferredUsername"] == actor.preferred_username
+    assert user_map["name"] == actor.name["und"]
+    assert user_map["summary"] == actor.summary["und"]
+    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("unlike")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        likesCount
+        likers {
+          id
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["likesCount"] == 0
+
+    assert [] = community_map["likers"]
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
+  @tag :user
   test "follows", %{conn: conn, actor: actor} do
     community = Factory.community()
 
@@ -27,6 +162,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       communities {
         id
         localId
+        followersCount
         followers {
           id
           localId
@@ -51,6 +187,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     assert community_map["id"] == community.id
     assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["followersCount"] == 1
 
     assert [user_map] = community_map["followers"]
     assert user_map["id"] == actor.id
@@ -63,8 +200,62 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
     assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
 
+    query = """
+      mutation {
+        unfollow(
+          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("unfollow")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        followersCount
+        followers {
+          id
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["followersCount"] == 0
+
+    assert [] = community_map["followers"]
 
     collection = Factory.collection(community)
+
+    query = """
+      mutation {
+        unfollow(
+          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
     query = """
       mutation {
         follow(
@@ -262,7 +453,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated
@@ -287,7 +477,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert community["preferredUsername"] == "community_preferredUser"
     assert community["primaryLanguage"] == "community_language"
     assert community["icon"] == "https://imag.es/community"
-    assert community["followersCount"] == 10
     assert community["followingCount"] == 15
 
     query = """
@@ -323,7 +512,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated
@@ -398,7 +586,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             icon
             published
             updated
-            followersCount
             followingCount
           }
         }
@@ -438,7 +625,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           local
           type
           content
-          likesCount
           repliesCount
           published
           updated
@@ -460,7 +646,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -482,7 +667,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -516,7 +700,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert comment_1["updated"]
     assert comment_1["published"]
     assert comment_1["content"] == "comment_1"
-    assert comment_1["likesCount"] == 12
     assert comment_1["repliesCount"] == 1
 
     assert comment_1["replies"] == []
@@ -538,7 +721,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           local
           type
           content
-          likesCount
           repliesCount
           published
           updated
@@ -560,7 +742,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -583,7 +764,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -618,7 +798,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert comment_2["updated"]
     assert comment_2["published"]
     assert comment_2["content"] == "comment_2"
-    assert comment_2["likesCount"] == 12
     assert comment_2["repliesCount"] == 1
 
     in_reply_to = Map.drop(comment_1, ["replies", "inReplyTo"])
@@ -637,7 +816,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
         preferredUsername
         primaryLanguage
         icon
-        followersCount
         followingCount
         published
         updated
@@ -761,7 +939,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated

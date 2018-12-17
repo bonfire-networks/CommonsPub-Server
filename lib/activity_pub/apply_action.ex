@@ -37,6 +37,22 @@ defmodule ActivityPub.ApplyAction do
     :ok
   end
 
+  defp side_effect(undo = %{object: [like]}) when has_type(undo, "Undo") and has_type(like, "Like") do
+    Alter.remove(like.actor, :liked, like.object)
+    Alter.remove(like.object, :likers, like.actor)
+
+    :ok
+  end
+
+  defp side_effect(undo = %{object: [follow]}) when has_type(undo, "Undo") and has_type(follow, "Follow") do
+    Alter.remove(follow.actor, :following, follow.object)
+    Alter.remove(follow.object, :followers, follow.actor)
+
+    :ok
+  end
+
+  defp side_effect(_), do: :ok
+
   # TODO
   defp insert_into_inbox(_activity) do
     :ok
