@@ -112,6 +112,24 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.create_follow/2)
     end
 
+    @desc "Unfollow an actor"
+    field :unfollow, type: :boolean do
+      arg(:actor_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.destroy_follow/2)
+    end
+
+    @desc "Like an object"
+    field :like, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.create_like/2)
+    end
+
+    @desc "Unlike an object"
+    field :unlike, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.destroy_like/2)
+    end
+
     @desc "Login"
     field :create_session, type: :auth_payload do
       arg(:email, non_null(:string))

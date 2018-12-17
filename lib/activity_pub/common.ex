@@ -13,4 +13,5 @@ defmodule ActivityPub.SQL.Common do
   def local_id(entity) when is_entity(entity) and not has_status(entity, :loaded),
     do: raise ArgumentError, "Entity must be loaded to persist correctly"
 
+  def local_id(id) when is_integer(id), do: id
 end

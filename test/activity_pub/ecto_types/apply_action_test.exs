@@ -22,6 +22,18 @@ defmodule ActivityPub.ApplyActionTest do
       refute Query.has?(following_actor, :following, follower_actor)
       assert Query.has?(following_actor, :followers, follower_actor)
       assert Query.has?(follower_actor, :following, following_actor)
+
+      undo = %{
+        type: "Undo",
+        actor: follower_actor,
+        object: follow
+      }
+
+      assert {:ok, undo} = ActivityPub.new(undo)
+      assert {:ok, _undo} = apply(undo)
+
+      refute Query.has?(following_actor, :followers, follower_actor)
+      refute Query.has?(follower_actor, :following, following_actor)
     end
   end
 
@@ -42,6 +54,18 @@ defmodule ActivityPub.ApplyActionTest do
       refute Query.has?(liked_actor, :liked, liker_actor)
       assert Query.has?(liker_actor, :liked, liked_actor)
       assert Query.has?(liked_actor, :likers, liker_actor)
+
+      undo = %{
+        type: "Undo",
+        actor: liker_actor,
+        object: like
+      }
+
+      assert {:ok, undo} = ActivityPub.new(undo)
+      assert {:ok, _undo} = apply(undo)
+
+      refute Query.has?(liker_actor, :liked, liked_actor)
+      refute Query.has?(liked_actor, :likers, liker_actor)
     end
   end
 end

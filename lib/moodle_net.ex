@@ -118,4 +118,64 @@ defmodule MoodleNet do
       ActivityPub.insert(entity)
     end
   end
+
+  def follow(follower, following) do
+    params = %{type: "Follow", actor: follower, object: following}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def like(liker, liked) do
+    params = %{type: "Like", actor: liker, object: liked}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def undo_follow(follower, following) do
+    with :ok <- find_current_relation(follower, :following, following),
+         {:ok, follow} <- find_activity("Follow", follower, following),
+         params = %{type: "Undo", actor: follower, object: follow},
+         {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def undo_like(liker, liked) do
+    with :ok <- find_current_relation(liker, :liked, liked),
+         {:ok, like} <- find_activity("Like", liker, liked),
+         params = %{type: "Undo", actor: liker, object: like},
+         {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  defp find_current_relation(subject, relation, object) do
+    if Query.has?(subject, relation, object),
+      do: :ok,
+      else: {:error, "Not found previous activity"}
+  end
+
+  defp find_activity(type, actor, object) do
+    Query.new()
+    |> Query.with_type(type)
+    |> Query.has(:actor, actor)
+    |> Query.has(:object, object)
+    |> Query.last()
+    |> case do
+      nil ->
+        {:error, "Not found previous activity"}
+
+      activity ->
+        activity = Query.preload_assoc(activity, actor: {[:actor], []}, object: {[:actor], []})
+        {:ok, activity}
+    end
+  end
 end

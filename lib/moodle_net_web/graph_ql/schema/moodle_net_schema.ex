@@ -76,6 +76,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:following_count, :integer)
     field(:followers_count, :integer)
+    field(:likes_count, :integer)
 
     field(:icon, :string)
 
@@ -92,6 +93,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:followers, non_null(list_of(non_null(:user))),
       do: resolve(with_assoc(:followers, collection: true))
     )
+
+    field(:likers, non_null(list_of(non_null(:user))), do: resolve(with_assoc(:likers)))
 
     field(:published, :string)
     field(:updated, :string)
@@ -120,6 +123,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:following_count, :integer)
     field(:followers_count, :integer)
+    field(:likes_count, :integer)
 
     field(:icon, :string)
 
@@ -139,6 +143,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:communities, non_null(list_of(non_null(:community))),
       do: resolve(with_assoc(:attributed_to))
     )
+
+    field(:likers, non_null(list_of(non_null(:user))), do: resolve(with_assoc(:likers)))
 
     field(:published, :string)
     field(:updated, :string)
@@ -165,13 +171,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:icon, :string)
 
-    field(:primary_language, :string)
     field(:likes_count, :integer)
+    field(:primary_language, :string)
     field(:url, :string)
 
     field(:collections, non_null(list_of(non_null(:collection))),
       do: resolve(with_assoc(:attributed_to))
     )
+
+    field(:likers, non_null(list_of(non_null(:user))), do: resolve(with_assoc(:likers)))
 
     field(:published, :string)
     field(:updated, :string)
@@ -201,6 +209,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:replies_count, :integer)
     field(:published, :string)
     field(:updated, :string)
+
+    field(:likers, non_null(list_of(non_null(:user))), do: resolve(with_assoc(:likers)))
 
     field(:author, :user, do: resolve(with_assoc(:attributed_to, single: true)))
     field(:in_reply_to, :comment, do: resolve(with_assoc(:in_reply_to, single: true)))
@@ -331,10 +341,25 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   def create_follow(%{actor_local_id: id}, info) do
     with {:ok, follower} <- current_actor(info),
          {:ok, following} <- fetch_actor(id),
-         params = %{type: "Follow", actor: follower, object: following},
-         {:ok, activity} = ActivityPub.new(params),
-         {:ok, _activity} <- ActivityPub.apply(activity),
-         do: {:ok, true}
+         do: MoodleNet.follow(follower, following)
+  end
+
+  def destroy_follow(%{actor_local_id: id}, info) do
+    with {:ok, follower} <- current_actor(info) do
+      MoodleNet.undo_follow(follower, id)
+    end
+  end
+
+  def create_like(%{local_id: id}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, liked} <- fetch(id),
+         do: MoodleNet.like(liker, liked)
+  end
+
+  def destroy_like(%{local_id: id}, info) do
+    with {:ok, liker} <- current_actor(info) do
+      MoodleNet.undo_like(liker, id)
+    end
   end
 
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
@@ -397,6 +422,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
       _ ->
         {:error, "context not found"}
+    end
+  end
+
+  defp fetch(local_id) do
+    ActivityPub.SQLEntity.get_by_local_id(local_id)
+    |> case do
+      nil -> {:error, "object not found"}
+      obj -> {:ok, obj}
     end
   end
 
@@ -508,8 +541,21 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp preload_assoc_cond(entities, assocs, fields) do
     assocs = Enum.filter(assocs, &(to_string(&1) in fields))
 
-    entities
-    |> Query.preload_assoc(assocs)
+    assocs = add_assoc_for_counters(assocs, fields, followers: "followersCount")
+
+    Query.preload_assoc(entities, assocs)
+  end
+
+  defp add_assoc_for_counters(assocs, fields, keyword) do
+    Enum.reduce(keyword, assocs, fn {collection, field}, assocs ->
+      add_assoc_for_counter(assocs, fields, field, collection)
+    end)
+  end
+
+  defp add_assoc_for_counter(assocs, fields, field, collection) do
+    if field in fields,
+      do: [{collection, {[:collection], []}} | assocs],
+      else: assocs
   end
 
   defp preload_aspect_cond(entities, aspects, _fields) do
@@ -528,9 +574,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Map.update(:preferred_username, nil, &from_language_value/1)
     |> Map.update(:icon, nil, &to_icon/1)
     |> Map.update(:location, nil, &to_location/1)
-    |> Map.put(:followers_count, 10)
+    |> Map.put(:followers_count, count_items(entity, :followers))
     |> Map.put(:following_count, 15)
-    |> Map.put(:likes_count, 12)
+    |> Map.put(:likes_count, entity[:likers_count])
     |> Map.put(:resources_count, 3)
     |> Map.put(:replies_count, 1)
     |> Map.put(:email, entity["email"])
@@ -563,6 +609,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   defp to_location(_), do: nil
+
+  defp count_items(entity, collection) do
+    case entity[collection] do
+      %ActivityPub.SQL.AssociationNotLoaded{} -> nil
+      collection -> collection[:total_items]
+    end
+  end
 
   defp requested_fields(info), do: Absinthe.Resolution.project(info) |> Enum.map(& &1.name)
 
