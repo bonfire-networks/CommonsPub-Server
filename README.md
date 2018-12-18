@@ -1,6 +1,5 @@
-# CommonsPub
+# MoodleNet Federated Server - based on the 'Pub of the Commons' ActivityPub Server
 
-## About the project
 
 CommonsPub is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
