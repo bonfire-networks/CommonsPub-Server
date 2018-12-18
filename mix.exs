@@ -1,11 +1,11 @@
-defmodule Pleroma.Mixfile do
+defmodule MoodleNet.Mixfile do
   use Mix.Project
 
   def project do
     [
-      app: :pleroma,
-      version: "0.9.0",
-      elixir: "~> 1.4",
+      app: :moodle_net,
+      version: "0.0.2",
+      elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -18,7 +18,7 @@ defmodule Pleroma.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Pleroma.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
+    [mod: {MoodleNet.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
   end
 
   # Specifies which paths to compile per environment.
@@ -30,25 +30,44 @@ defmodule Pleroma.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.3.3"},
-      {:phoenix_pubsub, "~> 1.0.2"},
-      {:phoenix_ecto, "~> 3.3"},
-      {:postgrex, ">= 0.13.5"},
+      {:phoenix, "~> 1.4.0"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:phoenix_html, "~> 2.11"},
+      {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_live_reload, "~> 1.2-rc", only: :dev},
+      {:ecto, "~> 3.0"},
+      {:ecto_sql, "~> 3.0"},
+      {:postgrex, "~> 0.14"},
+      {:jason, "~> 1.1"},
       {:gettext, "~> 0.15"},
-      {:cowboy, "~> 1.1.2", override: true},
+      {:cowboy, "~> 2.5"},
+      {:plug_cowboy, "~> 2.0"},
+      {:plug, "~> 1.7"},
       {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       {:trailing_format_plug, "~> 0.0.7"},
       {:html_sanitize_ex, "~> 1.3.0"},
-      {:phoenix_html, "~> 2.10"},
       {:calendar, "~> 0.17.4"},
       {:cachex, "~> 3.0.2"},
       {:httpoison, "~> 1.2.0"},
-      {:jason, "~> 1.0"},
       {:mogrify, "~> 0.6.1"},
-      {:ex_machina, "~> 2.2", only: :test},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:cors_plug, "~> 2.0"},
+      {:distillery, "~> 2.0"},
+      # FIXME using prod as well for the moment
+      # {:faker, "~> 0.11", only: [:dev, :test]},
+      {:faker, "~> 0.11"},
+      {:recase, "~> 0.2"},
+      {:absinthe, "~> 1.4"},
+      {:absinthe_plug, "~> 1.4"},
+      {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
-      {:mock, "~> 0.3.1", only: :test}
+      {:mock, "~> 0.3.1", only: :test},
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:crypt,
+       git: "https://github.com/msantos/crypt", ref: "1f2b58927ab57e72910191a7ebaeff984382a1d3"}
     ]
   end
 

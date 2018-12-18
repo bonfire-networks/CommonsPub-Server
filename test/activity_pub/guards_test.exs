@@ -1,0 +1,37 @@
+defmodule ActivityPub.GuardsTest do
+  use MoodleNet.DataCase, async: true
+
+  defmodule Foo do
+    import ActivityPub.Guards
+
+    def is_entity?(e) when is_entity(e), do: true
+    def is_entity?(_), do: false
+
+    def has_activity_type(e) when has_type(e, "Activity"), do: true
+    def has_activity_type(_), do: false
+
+    def has_actor_aspect(e) when has_aspect(e, ActivityPub.ActorAspect), do: true
+    def has_actor_aspect(_), do: false
+
+    def has_status_new(e) when has_status(e, :new), do: true
+    def has_status_new(_), do: false
+  end
+
+  test "works" do
+    assert {:ok, actor} = ActivityPub.new(%{type: "Person"})
+    assert {:ok, activity} = ActivityPub.new(%{type: "Follow"})
+
+    assert Foo.is_entity?(actor)
+    refute Foo.is_entity?(%{})
+
+    assert Foo.has_activity_type(activity)
+    refute Foo.has_activity_type(actor)
+
+    refute Foo.has_actor_aspect(activity)
+    assert Foo.has_actor_aspect(actor)
+
+    assert Foo.has_status_new(actor)
+    assert {:ok, persisted} = ActivityPub.insert(actor)
+    refute Foo.has_status_new(persisted)
+  end
+end

@@ -1,4 +1,4 @@
-defmodule Pleroma.Web.ConnCase do
+defmodule MoodleNetWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -19,21 +19,46 @@ defmodule Pleroma.Web.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-      import Pleroma.Web.Router.Helpers
+      import MoodleNetWeb.Router.Helpers
+
+      alias MoodleNet.Factory
 
       # The default endpoint for testing
-      @endpoint Pleroma.Web.Endpoint
+      @endpoint MoodleNetWeb.Endpoint
     end
   end
 
   setup tags do
-    Cachex.clear(:user_cache)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Pleroma.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Pleroma.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = Phoenix.ConnTest.build_conn()
+
+    accept_header = case tags[:format] do
+      :json ->
+        "application/json"
+      :json_ld ->
+        "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+      _ ->
+        "text/html"
+    end
+
+    conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
+
+    ret = %{conn: conn}
+
+    ret =
+      if tags[:user] do
+        %{user: user, actor: actor} = MoodleNet.Factory.full_user()
+        conn = Plug.Conn.assign(conn, :current_user, user)
+        %{conn: conn, user: user, actor: actor}
+      else
+        ret
+      end
+
+    {:ok, ret}
   end
 end

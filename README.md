@@ -1,21 +1,66 @@
 # MoodleNet Federated Server - based on the 'Pub of the Commons' ActivityPub Server
 
 
-## About Pub of the Commons
+CommonsPub is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
-The [Pub of the Commons (otherwise known as `CommonsPub`)](https://gitlab.com/moodlenet/servers/federated) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
-It is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi.
+It was forked from Pleroma with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
 
-It was forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma) with the intention of moving as much functionality as possible into libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
+The first projects using it are:
+
+* [MoodleNet](https://moodle.com/moodlenet) to empower communities of educators to connect, learn, and curate open content together
+
+* [Open Cooperative Ecosystem](https://opencoopecosystem.net/) to empower economic activities driven by human and ecological needs rather than profit
 
 
 ## Installation
 
 ### With Docker (recommended)
 
-See the [server-deploy repo](https://gitlab.com/moodlenet/server-deploy), for a docker-compose based setup process.
+The docker image can be found in: https://hub.docker.com/r/moodlenet/moodlenet/
 
+The docker images needs the environment variables to work.
+An updated list of them can be found in the file `config/docker.env` in this same repository.
+
+The easiest way to launch the docker image is using the `docker-compose` tool.
+The `docker-compose.yml` uses the previous `config/docker.env` to launch a `moodlenet` container
+and all the dependencies, currently, only a postgres container is needed it.
+
+
+#### Docker commands
+
+The first time you launch the docker instance the database is not created.
+There are several commands to make the first launch easier.
+We will use `docker-compose` to show the commands:
+
+* `docker-compose run --rm web bin/moodle_net create_db` creates the database
+* `docker-compose run --rm web bin/moodle_net migrate_db` creates the database and runs the migrations
+* `docker-compose run --rm web bin/moodle_net drop_db` drops the database
+
+Other important commands are:
+
+* `docker-compose up` launches the service, by default at the port 4000.
+* `docker-compose run --rm web /bin/sh` runs a simple shell inside of the container, useful to explore the image
+* `docker-compose run --rm web bin/moodle_net console` runs an `iex` console
+* `docker-compose exec web bin/moodle_net remote_console` runs an `iex` console when the service is already running.
+* `docker-compose run --rm web bin/moodle_net help` returns all the possible commands
+
+There is a command that currently is not working: `seed_db`.
+The reason is that to generate ActivityPub ID we need the URL where the server is running,
+but `Phoenix` is not launched in this command.
+
+However, we can still do it.
+To seed the database we can run the following command in an `iex` console:
+
+`iex> MoodleNet.ReleaseTasks.seed_db([])`
+
+#### Build Docker image
+
+There is a `Makefile` with two commands:
+
+* `make build` which builds the docker image in `moodlenet:latest` and `moodlenet:$VERSION-$BUILD`
+* `make run` which can be used to run the docker built docker image without `docker-compose`
 
 ---
 ### Manual installation
@@ -40,7 +85,7 @@ See the [server-deploy repo](https://gitlab.com/moodlenet/server-deploy), for a 
 
 * You can check if your instance is configured correctly by running it with `mix phx.server` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
 
-* The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/pleroma.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
+* The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/moodle_net.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
   The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
 
 
@@ -49,14 +94,14 @@ See the [server-deploy repo](https://gitlab.com/moodlenet/server-deploy), for a 
 By default, CommonsPub listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ### Frontends
-Pub of the Commons does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
+CommonsPub does not ship with a front-end, as each use case will likely have a customised client app, though compatibility between clients and not reinventing the wheel (such as sharing React.js components) is encouraged. 
 
 ### As systemd service (with provided .service file)
-[Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/pleroma.service` you can put it in `/etc/systemd/system/`.
+[Not tested with system reboot yet!] You'll also want to set up the server to be run as a systemd service. Example .service file can be found in `installation/moodle_net.service` you can put it in `/etc/systemd/system/`.
 
-Running: `service pleroma start`
+Running: `service moodle_net start`
 
-Logs can be watched by using `journalctl -fu pleroma.service`
+Logs can be watched by using `journalctl -fu moodle_net.service`
 
 ### Standalone/run by other means
 Run `mix phx.server` in repository's root, it will output log into stdout/stderr
@@ -65,13 +110,19 @@ Run `mix phx.server` in repository's root, it will output log into stdout/stderr
 
 Add the following to your `dev.secret.exs` or `prod.secret.exs` if you want to proxify all http requests that the server makes to an upstream proxy server:
 
-    config :pleroma, :http,
+    config :moodle_net, :http,
       proxy_url: "127.0.0.1:8123"
 
 This is useful for running the server inside Tor or i2p.
 
 ## Admin Tasks
 
+If you're running with Docker, all the `mix` commands below should be preceded by `docker exec -it [name_of_commonspub_container]`. You can use your keyboard's tab key to autocomplete thhe container name, which may look something like `commonspub_commonspub_1`.
+
+### Invite a User (when registrations are closed)
+
+Run `mix generate_invite_token` and you will receive an URL which includes an invite code that one person can use to sign up.
+ 
 ### Register a User
 
 Run `mix register_user <name> <nickname> <email> <bio> <password>`. The `name` appears on statuses, while the nickname corresponds to the user, e.g. `@nickname@instance.tld`
@@ -85,6 +136,11 @@ Run `mix generate_password_reset username` to generate a password reset link tha
 You can make users moderators. They will then be able to delete any post.
 
 Run `mix set_moderator username [true|false]` to make user a moderator or not.
+
+### Monitoring
+
+You can use `iex -S mix run`  to run the app in interactive mode and then enter `:observer.start()` to launch [Erlang's observer](http://erlang.org/doc/apps/observer/observer_ug.html), which among other things will show you an applications tree:
+![Observer example](installation/threads_tree.png)
 
 ## Troubleshooting
 
@@ -114,7 +170,7 @@ To configure where to upload files, and wether or not
 you want to remove automatically EXIF data from pictures
 being uploaded.
 
-    config :pleroma, Pleroma.Upload,
+    config :moodle_net, MoodleNet.Upload,
       uploads: "uploads",
       strip_exif: false
 
@@ -125,12 +181,12 @@ being uploaded.
 
 ## Block functionality
 
-    config :pleroma, :activitypub,
+    config :moodle_net, :activitypub,
       accept_blocks: true,
       unfollow_blocked: true,
       outgoing_blocks: true
 
-    config :pleroma, :user, deny_follow_blocked: true
+    config :moodle_net, :user, deny_follow_blocked: true
 
 * `accept_blocks`: whether to accept incoming block activities from
    other instances
@@ -144,17 +200,17 @@ being uploaded.
 
 Modify incoming and outgoing posts.
 
-    config :pleroma, :instance,
-      rewrite_policy: Pleroma.Web.ActivityPub.MRF.NoOpPolicy
+    config :moodle_net, :instance,
+      rewrite_policy: MoodleNet.Web.ActivityPub.MRF.NoOpPolicy
 
 `rewrite_policy` specifies which MRF policies to apply.
 It can either be a single policy or a list of policies.
 Currently, MRFs availible by default are:
 
-* `Pleroma.Web.ActivityPub.MRF.NoOpPolicy`
-* `Pleroma.Web.ActivityPub.MRF.DropPolicy`
-* `Pleroma.Web.ActivityPub.MRF.SimplePolicy`
-* `Pleroma.Web.ActivityPub.MRF.RejectNonPublic`
+* `MoodleNet.Web.ActivityPub.MRF.NoOpPolicy`
+* `MoodleNet.Web.ActivityPub.MRF.DropPolicy`
+* `MoodleNet.Web.ActivityPub.MRF.SimplePolicy`
+* `MoodleNet.Web.ActivityPub.MRF.RejectNonPublic`
 
 Some policies, such as SimplePolicy and RejectNonPublic,
 can be additionally configured in their respective sections.
@@ -172,7 +228,7 @@ It generally does not make sense to use this in production.
 
 Restricts the visibility of posts from certain instances.
 
-    config :pleroma, :mrf_simple,
+    config :moodle_net, :mrf_simple,
       media_removal: [],
       media_nsfw: [],
       federated_timeline_removal: [],
@@ -192,7 +248,7 @@ Restricts the visibility of posts from certain instances.
 
 Drops posts with non-public visibility settings.
 
-    config :pleroma :mrf_rejectnonpublic
+    config :moodle_net :mrf_rejectnonpublic
       allow_followersonly: false,
       allow_direct: false,
 

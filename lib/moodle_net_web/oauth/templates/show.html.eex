@@ -1,0 +1,17 @@
+<p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
+<p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+<h2>OAuth Authorization</h2>
+<%= form_for @conn, o_auth_path(@conn, :authorize), [as: "authorization"], fn f -> %>
+  <%= label f, :name, "Name or email" %>
+  <%= text_input f, :name %>
+  <br>
+  <%= label f, :password, "Password" %>
+  <%= password_input f, :password %>
+  <br>
+  <%= hidden_input f, :client_id, value: @client_id %>
+  <%= hidden_input f, :response_type, value: @response_type %>
+  <%= hidden_input f, :redirect_uri, value: @redirect_uri %>
+  <%= hidden_input f, :scope, value: @scope %>
+  <%= hidden_input f, :state, value: @state%>
+  <%= submit "Authorize" %>
+<% end %>
