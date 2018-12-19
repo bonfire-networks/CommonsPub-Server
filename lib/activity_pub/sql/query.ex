@@ -109,6 +109,10 @@ defmodule ActivityPub.SQL.Query do
   def preload_aspect(e, _preloads) when APG.is_entity(e) and not APG.has_status(e, :loaded),
     do: preload_error(e)
 
+  def preload_aspect(entity, :all) when APG.is_entity(entity) do
+    preload_aspect(entity, Entity.aspects(entity))
+  end
+
   def preload_aspect(entity, preloads) when APG.has_status(entity, :loaded) do
     [entity] = preload_aspect([entity], preloads)
     entity

@@ -1,9 +1,9 @@
 defmodule ActivityPub.SQLAspect do
-  alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect}
+  alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect, SQLResourceAspect}
 
   alias ActivityPub.SQL.Associations.{ManyToMany, BelongsTo, Collection}
 
-  def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect]
+  def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect, SQLResourceAspect]
 
   # FIXME make this similar to aspect where the user can redifine
   # assocs and fields to be persisted in another way than the default!
@@ -102,7 +102,9 @@ defmodule ActivityPub.SQLAspect do
   defmacro inject_fields(aspect) do
     quote bind_quoted: [aspect: aspect] do
       for name <- aspect.__aspect__(:fields) do
-        type = aspect.__aspect__(:type, name)
+        field_def = aspect.__aspect__(:field, name)
+
+        type = if field_def.functional, do: field_def.type, else: {:array, field_def.type}
 
         field(name, type)
       end

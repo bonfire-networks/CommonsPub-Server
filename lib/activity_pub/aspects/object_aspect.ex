@@ -1,7 +1,7 @@
 defmodule ActivityPub.ObjectAspect do
   use ActivityPub.Aspect, persistence: ActivityPub.SQLObjectAspect
 
-  alias ActivityPub.{LanguageValueType, StringListType}
+  alias ActivityPub.{LanguageValueType}
 
   aspect do
     assoc(:attachment)
@@ -29,11 +29,11 @@ defmodule ActivityPub.ObjectAspect do
     field(:updated, :utc_datetime)
     # FIXME url is a relation
     # field(:url, EntityType, default: [])
-    field(:url, StringListType, default: [])
-    field(:to, StringListType, default: [])
-    field(:bto, StringListType, default: [])
-    field(:cc, StringListType, default: [])
-    field(:bcc, StringListType, default: [])
+    field(:url, :string, functional: false)
+    field(:to, :string, functional: false)
+    field(:bto, :string, functional: false)
+    field(:cc, :string, functional: false)
+    field(:bcc, :string, functional: false)
     field(:media_type, :string)
     field(:duration, :string)
 

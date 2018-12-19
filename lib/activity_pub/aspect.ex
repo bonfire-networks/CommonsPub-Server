@@ -1,5 +1,5 @@
 defmodule ActivityPub.Aspect do
-  alias ActivityPub.{Association}
+  alias ActivityPub.{Field, Association}
 
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
@@ -108,7 +108,14 @@ defmodule ActivityPub.Aspect do
   end
 
   defp define_field(mod, name, type, opts) do
-    Module.put_attribute(mod, :aspect_fields, {name, type})
+    opts =
+      opts
+      |> Keyword.put(:aspect, mod)
+      |> Keyword.put(:name, name)
+      |> Keyword.put(:type, type)
+
+    field = Field.build(opts)
+    Module.put_attribute(mod, :aspect_fields, {name, field})
     put_struct_field(mod, name, Keyword.get(opts, :default))
   end
 
@@ -124,8 +131,13 @@ defmodule ActivityPub.Aspect do
 
   def __aspect__(fields, assocs) do
     types_quoted =
-      for {name, type} <- fields do
-        {[:type, name], Macro.escape(type)}
+      for {name, field} <- fields do
+        {[:type, name], Macro.escape(field.type)}
+      end
+
+    field_quoted =
+      for {name, field} <- fields do
+        {[:field, name], Macro.escape(field)}
       end
 
     assoc_quoted =
@@ -133,7 +145,7 @@ defmodule ActivityPub.Aspect do
         {[:association, name], Macro.escape(assoc)}
       end
 
-    [types_quoted, assoc_quoted]
+    [types_quoted, field_quoted, assoc_quoted]
   end
 
   defmacro assoc(name, opts \\ []) do

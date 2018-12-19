@@ -22,6 +22,7 @@ MoodleNet.Repo.transaction(fn ->
   commentables = communities ++ collections
 
   threads = for _ <- 1..10, do: Factory.comment(Enum.random(actors), Enum.random(commentables))
-  _replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(threads))
+  replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(threads))
+  _replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(replies))
   {:ok, nil}
 end)
