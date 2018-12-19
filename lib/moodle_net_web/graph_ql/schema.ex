@@ -163,5 +163,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       arg(:password, non_null(:string))
       resolve(&MoodleNetSchema.create_session/2)
     end
+
+    @desc "Logout"
+    field :delete_session, type: :boolean do
+      resolve(&MoodleNetSchema.delete_session/2)
+    end
   end
 end

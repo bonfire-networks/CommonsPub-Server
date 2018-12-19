@@ -4,6 +4,52 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   @moduletag format: :json
 
+  test "delete session", %{conn: conn} do
+    actor = Factory.actor()
+
+    query = """
+      mutation {
+        createSession(
+          email: "#{actor["email"]}"
+          password: "password"
+        ) {
+          token
+        }
+      }
+    """
+
+    assert token =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("createSession")
+             |> Map.fetch!("token")
+
+    conn = conn |> put_req_header("authorization", "Bearer #{token}")
+
+    query = """
+      mutation {
+        deleteSession
+      }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteSession")
+
+    assert "You are not logged in" ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+             |> hd()
+             |> Map.fetch!("message")
+  end
+
   @tag :user
   test "update resource", %{conn: conn} do
     community = Factory.community()

@@ -366,6 +366,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def delete_session(_, info) do
+    with {:ok, _} <- current_user(info) do
+      MoodleNet.OAuth.revoke_token(info.context.auth_token)
+      {:ok, true}
+    end
+  end
+
   def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
 
@@ -704,8 +711,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp requested_fields(info, inner_key) do
     Absinthe.Resolution.project(info)
     |> Enum.find(&(&1.name == to_string(inner_key)))
-    |> Map.fetch!(:selections)
-    |> Enum.map(& &1.name)
+    |> case do
+      nil ->
+        []
+
+      inner ->
+        inner
+        |> Map.get(:selections)
+        |> Enum.map(& &1.name)
+    end
   end
 
   defp with_assoc(assoc, opts \\ [])

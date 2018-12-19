@@ -9,6 +9,9 @@ defmodule MoodleNetWeb.GraphQL.Context do
   end
 
   defp build_context(conn) do
-    %{current_user: conn.assigns.current_user}
+    %{
+      current_user: conn.assigns.current_user,
+      auth_token: conn.assigns.auth_token
+    }
   end
 end
