@@ -66,6 +66,20 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
     end
     create(unique_index(:activity_pub_collection_aspects, :local_id))
 
+    create table(:activity_pub_resource_aspects, primary_key: false) do
+      add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
+      add(:same_as, :string)
+      add(:in_language, {:array, :text})
+      add(:public_access, :boolean)
+      add(:is_accesible_for_free, :boolean)
+      add(:license, :string)
+      add(:learning_resource_type, :string)
+      add(:educational_use, {:array, :string})
+      add(:time_required, :integer)
+      add(:typical_age_range, :string)
+    end
+    create(unique_index(:activity_pub_resource_aspects, :local_id))
+
     create table(:activity_pub_activity_objects) do
       add_foreign_key(:subject_id, "activity_pub_activity_aspects")
       add_foreign_key(:target_id, "activity_pub_objects")

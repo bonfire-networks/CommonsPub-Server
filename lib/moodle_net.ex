@@ -69,6 +69,16 @@ defmodule MoodleNet do
     end
   end
 
+  def update_community(community, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, community) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(community, changes)
+    end
+  end
+
   def create_collection(community, attrs) when has_type(community, "MoodleNet:Community") do
     attrs =
       attrs
@@ -80,6 +90,16 @@ defmodule MoodleNet do
     end
   end
 
+  def update_collection(collection, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, collection) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(collection, changes)
+    end
+  end
+
   def create_resource(collection, attrs) when has_type(collection, "MoodleNet:Collection") do
     attrs =
       attrs
@@ -88,6 +108,16 @@ defmodule MoodleNet do
 
     with {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
+    end
+  end
+
+  def update_resource(resource, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, resource) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(resource, changes)
     end
   end
 

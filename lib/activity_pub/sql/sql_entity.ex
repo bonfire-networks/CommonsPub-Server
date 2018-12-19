@@ -116,10 +116,59 @@ defmodule ActivityPub.SQLEntity do
 
   defp from_entity_fields(entity) when APG.is_entity(entity) do
     entity
-    # FIXME add context and local_id
     |> Map.take([:"@context", :id, :type])
     |> Map.put(:local, Entity.local?(entity))
     |> Map.put(:extension_fields, Entity.extension_fields(entity))
+  end
+
+  def update(entity, changes) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    with entity = ActivityPub.SQL.Query.preload_aspect(entity, :all),
+         {:ok, entity} <- ActivityPub.Builder.update(entity, changes),
+         {:ok, sql_entity} <- update_from_entity(entity) do
+      {:ok, to_entity(sql_entity)}
+    end
+  end
+
+  defp update_from_entity(entity)
+       when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    sql_entity = Entity.persistence(entity)
+    ch = Ecto.Changeset.change(sql_entity)
+
+    ch =
+      Entity.aspects(entity)
+      |> Enum.reduce(ch, fn aspect, ch ->
+        update_changeset_for_aspect(ch, entity, sql_entity, aspect)
+      end)
+
+    ch = Ecto.Changeset.change(ch, extension_fields: Entity.extension_fields(entity))
+
+    Repo.update(ch)
+  end
+
+  defp update_changeset_for_aspect(ch, entity, sql_entity, aspect) do
+    sql_aspect = aspect.persistence()
+    fields = Entity.fields_for(entity, aspect)
+
+    case sql_aspect.persistence_method() do
+      :table ->
+        assoc_ch =
+          sql_entity
+          |> Map.fetch!(aspect.name())
+          |> Ecto.Changeset.change(fields)
+
+        Ecto.Changeset.put_assoc(ch, aspect.name(), assoc_ch)
+
+      :embedded ->
+        assoc_ch =
+          sql_entity
+          |> Map.fetch!(aspect.name())
+          |> Ecto.Changeset.change(fields)
+
+        Ecto.Changeset.put_embed(ch, aspect.name(), assoc_ch)
+
+      :fields ->
+        Ecto.Changeset.change(ch, fields)
+    end
   end
 
   def to_entity(nil), do: nil
@@ -185,10 +234,11 @@ defmodule ActivityPub.SQLEntity do
             case Map.fetch!(sql_data, assoc_name) do
               %Ecto.Association.NotLoaded{} ->
                 local_id = not_loaded_assoc_local_id(sql_assoc, sql_data)
+
                 Map.put(acc, assoc_name, %AssociationNotLoaded{
                   sql_assoc: sql_assoc,
                   sql_aspect: sql_aspect,
-                  local_id: local_id,
+                  local_id: local_id
                 })
 
               list when is_list(list) ->
@@ -201,7 +251,6 @@ defmodule ActivityPub.SQLEntity do
           end)
       end
     end)
-
   end
 
   defp not_loaded_assoc_local_id(%ActivityPub.SQL.Associations.Collection{name: name}, sql_data) do
@@ -231,13 +280,5 @@ defmodule ActivityPub.SQLEntity do
       :table ->
         Map.fetch!(sql_entity, aspect.name())
     end
-  end
-
-  # FIXME I think this is not used anymore
-  def preload(entity, assocs_or_aspects) when APG.has_status(entity, :loaded) do
-    entity
-    |> Entity.persistence()
-    |> Repo.preload(assocs_or_aspects)
-    |> to_entity()
   end
 end

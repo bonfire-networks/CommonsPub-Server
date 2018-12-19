@@ -5,7 +5,7 @@ defmodule ActivityPub.Types do
     ActivityAspect,
     # LinkAspect,
     CollectionAspect,
-    # CollectionPageAspect
+    ResourceAspect,
   }
 
   alias ActivityPub.BuildError
@@ -71,7 +71,7 @@ defmodule ActivityPub.Types do
     "MoodleNet:Community" => {~w[Object Actor Group Collection], []},
     "MoodleNet:Collection" => {~w[Object Actor Group Collection], []},
     # "MoodleNet:EducationalResource" => {~w[Link], []},
-    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], []}
+    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], [ResourceAspect]}
   }
 
   def build(value) do

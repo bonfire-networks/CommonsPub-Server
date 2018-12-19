@@ -46,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     )
   end
 
-  input_object :user_input do
+  input_object :registration_input do
     field(:email, non_null(:string))
     field(:password, non_null(:string))
     field(:preferred_username, non_null(:string))
@@ -55,6 +55,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:location, :string)
     field(:icon, :string)
     field(:primary_language, :string)
+  end
+
+  input_object :update_profile_input do
+    field(:preferred_username, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:primary_language, :string)
+    field(:location, :string)
+    field(:icon, :string)
   end
 
   input_object :login_input do
@@ -183,6 +192,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:published, :string)
     field(:updated, :string)
+
+    field(:same_as, :string)
+    field(:in_language, list_of(non_null(:string)))
+    field(:public_access, :boolean)
+    field(:is_accesible_for_free, :boolean)
+    field(:license, :string)
+    field(:learning_resource_type, :string)
+    field(:educational_use, list_of(non_null(:string)))
+    field(:time_required, :integer)
+    field(:typical_age_range, :string)
   end
 
   input_object :resource_input do
@@ -196,6 +215,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:icon, :string)
     field(:primary_language, :string)
     field(:url, :string)
+    field(:same_as, :string)
+    field(:in_language, list_of(non_null(:string)))
+    field(:public_access, :boolean)
+    field(:is_accesible_for_free, :boolean)
+    field(:license, :string)
+    field(:learning_resource_type, :string)
+    field(:educational_use, list_of(non_null(:string)))
+    field(:time_required, :integer)
+    field(:typical_age_range, :string)
   end
 
   object :comment do
@@ -315,6 +343,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def update_profile(%{profile: attrs}, info) do
+    with {:ok, current_actor} <- current_actor(info),
+         {:ok, current_actor} <- MoodleNet.Accounts.update_user(current_actor, attrs) do
+      fields = requested_fields(info)
+      current_actor = prepare(current_actor, fields)
+      {:ok, current_actor}
+    end
+  end
+
   def create_session(%{email: email, password: password}, info) do
     with {:ok, user} <- MoodleNet.Accounts.authenticate_by_email_and_pass(email, password),
          {:ok, token} <- MoodleNet.OAuth.create_token(user.id) do
@@ -333,6 +370,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     attrs = set_icon(attrs)
 
     with {:ok, community} = MoodleNet.create_community(attrs) do
+      fields = requested_fields(info)
+      {:ok, prepare(community, fields)}
+    end
+  end
+
+  def update_community(%{community: changes, community_local_id: id}, info) do
+    with {:ok, community} <- fetch_community(id),
+         {:ok, community} <- MoodleNet.update_community(community, changes) do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
@@ -363,15 +408,19 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
-    if community = get_by_id_and_type(comm_id, "MoodleNet:Community") do
-      attrs = set_icon(attrs)
+    with {:ok, community} <- fetch_community(comm_id),
+         attrs = set_icon(attrs),
+         {:ok, collection} = MoodleNet.create_collection(community, attrs) do
+      fields = requested_fields(info)
+      {:ok, prepare(collection, fields)}
+    end
+  end
 
-      with {:ok, collection} = MoodleNet.create_collection(community, attrs) do
-        fields = requested_fields(info)
-        {:ok, prepare(collection, fields)}
-      end
-    else
-      {:error, "community not found"}
+  def update_collection(%{collection: changes, collection_local_id: id}, info) do
+    with {:ok, collection} <- fetch_collection(id),
+         {:ok, collection} <- MoodleNet.update_collection(collection, changes) do
+      fields = requested_fields(info)
+      {:ok, prepare(collection, fields)}
     end
   end
 
@@ -385,6 +434,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       end
     else
       {:error, "collection not found"}
+    end
+  end
+
+  def update_resource(%{resource: changes, resource_local_id: id}, info) do
+    with {:ok, resource} <- fetch_resource(id),
+         {:ok, resource} <- MoodleNet.update_resource(resource, changes) do
+      fields = requested_fields(info)
+      {:ok, prepare(resource, fields)}
     end
   end
 
@@ -437,6 +494,30 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     get_by_id_and_type(local_id, "Actor")
     |> case do
       nil -> {:error, "actor not found"}
+      actor -> {:ok, actor}
+    end
+  end
+
+  defp fetch_community(local_id) do
+    get_by_id_and_type(local_id, "MoodleNet:Community")
+    |> case do
+      nil -> {:error, "community not found"}
+      actor -> {:ok, actor}
+    end
+  end
+
+  defp fetch_collection(local_id) do
+    get_by_id_and_type(local_id, "MoodleNet:Collection")
+    |> case do
+      nil -> {:error, "collection not found"}
+      actor -> {:ok, actor}
+    end
+  end
+
+  defp fetch_resource(local_id) do
+    get_by_id_and_type(local_id, "MoodleNet:EducationalResource")
+    |> case do
+      nil -> {:error, "resource not found"}
       actor -> {:ok, actor}
     end
   end
@@ -513,6 +594,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp prepare(e, fields) when APG.has_type(e, "MoodleNet:EducationalResource") do
     e
     |> preload_assoc_cond([:icon], fields)
+    |> preload_aspect_cond([:resource_aspect], fields)
     |> prepare_common_fields()
   end
 
