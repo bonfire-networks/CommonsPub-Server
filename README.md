@@ -69,8 +69,8 @@ There is a `Makefile` with two commands:
 #### 1. Install dependencies
 
 * Postgresql version 9.6 or newer
-* Elixir version 1.5 or newer. If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf).
 * Build-essential tools
+* Elixir version 1.7.4 with OTP 21 (or newer). If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf) (run `asdf install` in this directory).
 
 #### 2. Install the app
 
