@@ -1,7 +1,7 @@
 defmodule ActivityPub.ApplyActionTest do
   use MoodleNet.DataCase, async: true
 
-  alias ActivityPub.SQL.CollectionStatement
+  alias ActivityPub.SQL.{Query}
 
   import ActivityPub, only: [apply: 1]
 
@@ -10,18 +10,62 @@ defmodule ActivityPub.ApplyActionTest do
       follower_actor = Factory.actor()
       following_actor = Factory.actor()
 
-      create = %{
+      follow = %{
         type: "Follow",
         actor: follower_actor,
         object: following_actor,
       }
-      assert {:ok, create} = ActivityPub.new(create)
-      assert {:ok, create} = apply(create)
+      assert {:ok, follow} = ActivityPub.new(follow)
+      assert {:ok, follow} = apply(follow)
 
-      refute CollectionStatement.in?(follower_actor.followers, following_actor)
-      refute CollectionStatement.in?(following_actor.following, follower_actor)
-      assert CollectionStatement.in?(following_actor.followers, follower_actor)
-      assert CollectionStatement.in?(follower_actor.following, following_actor)
+      refute Query.has?(follower_actor, :followers, following_actor)
+      refute Query.has?(following_actor, :following, follower_actor)
+      assert Query.has?(following_actor, :followers, follower_actor)
+      assert Query.has?(follower_actor, :following, following_actor)
+
+      undo = %{
+        type: "Undo",
+        actor: follower_actor,
+        object: follow
+      }
+
+      assert {:ok, undo} = ActivityPub.new(undo)
+      assert {:ok, _undo} = apply(undo)
+
+      refute Query.has?(following_actor, :followers, follower_actor)
+      refute Query.has?(follower_actor, :following, following_actor)
+    end
+  end
+
+  describe "like" do
+    test "works" do
+      liker_actor = Factory.actor()
+      liked_actor = Factory.actor()
+
+      like = %{
+        type: "Like",
+        actor: liker_actor,
+        object: liked_actor,
+      }
+      assert {:ok, like} = ActivityPub.new(like)
+      assert {:ok, like} = apply(like)
+
+      refute Query.has?(liker_actor, :likers, liked_actor)
+      refute Query.has?(liked_actor, :liked, liker_actor)
+      assert Query.has?(liker_actor, :liked, liked_actor)
+      assert Query.has?(liked_actor, :likers, liker_actor)
+
+      undo = %{
+        type: "Undo",
+        actor: liker_actor,
+        object: like
+      }
+
+      assert {:ok, undo} = ActivityPub.new(undo)
+      assert {:ok, _undo} = apply(undo)
+
+      refute Query.has?(liker_actor, :liked, liked_actor)
+      refute Query.has?(liked_actor, :likers, liker_actor)
     end
   end
 end

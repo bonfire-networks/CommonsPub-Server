@@ -69,6 +69,16 @@ defmodule MoodleNet do
     end
   end
 
+  def update_community(community, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, community) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(community, changes)
+    end
+  end
+
   def create_collection(community, attrs) when has_type(community, "MoodleNet:Community") do
     attrs =
       attrs
@@ -80,6 +90,16 @@ defmodule MoodleNet do
     end
   end
 
+  def update_collection(collection, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, collection) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(collection, changes)
+    end
+  end
+
   def create_resource(collection, attrs) when has_type(collection, "MoodleNet:Collection") do
     attrs =
       attrs
@@ -88,6 +108,16 @@ defmodule MoodleNet do
 
     with {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
+    end
+  end
+
+  def update_resource(resource, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    icon = Query.new() |> Query.belongs_to(:icon, resource) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
+      ActivityPub.update(resource, changes)
     end
   end
 
@@ -116,6 +146,66 @@ defmodule MoodleNet do
 
     with {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
+    end
+  end
+
+  def follow(follower, following) do
+    params = %{type: "Follow", actor: follower, object: following}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def like(liker, liked) do
+    params = %{type: "Like", actor: liker, object: liked}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def undo_follow(follower, following) do
+    with :ok <- find_current_relation(follower, :following, following),
+         {:ok, follow} <- find_activity("Follow", follower, following),
+         params = %{type: "Undo", actor: follower, object: follow},
+         {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def undo_like(liker, liked) do
+    with :ok <- find_current_relation(liker, :liked, liked),
+         {:ok, like} <- find_activity("Like", liker, liked),
+         params = %{type: "Undo", actor: liker, object: like},
+         {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  defp find_current_relation(subject, relation, object) do
+    if Query.has?(subject, relation, object),
+      do: :ok,
+      else: {:error, "Not found previous activity"}
+  end
+
+  defp find_activity(type, actor, object) do
+    Query.new()
+    |> Query.with_type(type)
+    |> Query.has(:actor, actor)
+    |> Query.has(:object, object)
+    |> Query.last()
+    |> case do
+      nil ->
+        {:error, "Not found previous activity"}
+
+      activity ->
+        activity = Query.preload_assoc(activity, actor: {[:actor], []}, object: {[:actor], []})
+        {:ok, activity}
     end
   end
 end

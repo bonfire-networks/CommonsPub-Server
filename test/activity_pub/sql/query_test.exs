@@ -106,6 +106,7 @@ defmodule ActivityPub.SQL.QueryTest do
 
     test "works with deeper assocs" do
       actor = insert(%{type: "Person"})
+
       activity =
         insert(%{type: "Create", actor: actor})
         |> ActivityPub.Entity.local_id()
@@ -115,7 +116,9 @@ defmodule ActivityPub.SQL.QueryTest do
       assert followers = get_in(activity, [:actor, Access.at(0), :followers])
       import ActivityPub.Guards
       assert has_type(followers, "Collection")
-      assert %ActivityPub.SQL.AssociationNotLoaded{} = get_in(activity, [:actor, Access.at(0), :following])
+
+      assert %ActivityPub.SQL.AssociationNotLoaded{} =
+               get_in(activity, [:actor, Access.at(0), :following])
     end
   end
 
@@ -132,5 +135,18 @@ defmodule ActivityPub.SQL.QueryTest do
              Query.new()
              |> Query.belongs_to(:attributed_to, child)
              |> Query.one()
+  end
+
+  describe "has?/3" do
+    test "works with many_to_many associations" do
+      child = %{attributed_to: [parent]} = insert(%{attributed_to: %{}})
+
+      assert Query.has?(child, :attributed_to, parent)
+      refute Query.has?(parent, :attributed_to, child)
+
+      # when the assoc is not loaded
+      child = Query.reload(child)
+      assert Query.has?(child, :attributed_to, parent)
+    end
   end
 end

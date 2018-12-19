@@ -2,7 +2,8 @@ defmodule MoodleNetWeb.MediaProxy.MediaProxyController do
   use MoodleNetWeb, :controller
   require Logger
 
-  @httpoison Application.get_env(:moodle_net, :httpoison)
+  # FIXME
+  @httpoison Application.get_env(:moodle_net, :httpoison, nil)
 
   @max_body_length 25 * 1_048_576
 

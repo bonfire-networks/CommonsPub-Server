@@ -28,7 +28,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
 
       add(:extension_fields, :map, default: %{}, null: false)
 
-      add(:likes_count, :integer, default: 0, null: false)
+      add(:likers_count, :integer, default: 0, null: false)
       add(:shares_count, :integer, default: 0, null: false)
 
       timestamps()
@@ -65,6 +65,20 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:total_items, :integer, default: 0)
     end
     create(unique_index(:activity_pub_collection_aspects, :local_id))
+
+    create table(:activity_pub_resource_aspects, primary_key: false) do
+      add_foreign_key(:local_id, "activity_pub_objects", primary_key: true, null: false, column: :local_id)
+      add(:same_as, :string)
+      add(:in_language, {:array, :text})
+      add(:public_access, :boolean)
+      add(:is_accesible_for_free, :boolean)
+      add(:license, :string)
+      add(:learning_resource_type, :string)
+      add(:educational_use, {:array, :string})
+      add(:time_required, :integer)
+      add(:typical_age_range, :string)
+    end
+    create(unique_index(:activity_pub_resource_aspects, :local_id))
 
     create table(:activity_pub_activity_objects) do
       add_foreign_key(:subject_id, "activity_pub_activity_aspects")
@@ -157,29 +171,19 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       :follower_id
     )
 
-    create table(:activity_pub_likes) do
-      add_foreign_key(:liker_id, "activity_pub_objects")
-      add_foreign_key(:liked_id, "activity_pub_objects")
-
-      timestamps(updated_at: false)
+    create table(:activity_pub_object_likers) do
+      add_foreign_key(:subject_id, "activity_pub_objects")
+      add_foreign_key(:target_id, "activity_pub_objects")
     end
 
-    create(unique_index(:activity_pub_likes, [:liker_id, :liked_id], name: :activity_pub_likes_unique_index))
-
-    # create_counter_trigger(
-    #   :followers_count,
-    #   :activity_pub_actor_aspects,
-    #   :local_id,
-    #   :activity_pub_follows,
-    #   :following_id
-    # )
+    create(unique_index(:activity_pub_object_likers, [:subject_id, :target_id], name: :activity_pub_likes_unique_index))
 
     create_counter_trigger(
-      :likes_count,
+      :likers_count,
       :activity_pub_objects,
       :local_id,
-      :activity_pub_likes,
-      :liked_id
+      :activity_pub_object_likers,
+      :subject_id
     )
 
     create table(:activity_pub_collection_items) do

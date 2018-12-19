@@ -9,6 +9,8 @@ defmodule MoodleNet.Accounts do
 
   alias MoodleNet.Accounts.{User, PasswordAuth}
 
+  alias ActivityPub.SQL.Query
+
   @doc """
   Creates a user.
 
@@ -42,6 +44,19 @@ defmodule MoodleNet.Accounts do
         &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
       )
       |> Repo.transaction()
+    end
+  end
+
+  def update_user(actor, changes) do
+    {icon_url, changes} = Map.pop(changes, :icon)
+    {location_content, changes} = Map.pop(changes, :location)
+    icon = Query.new() |> Query.belongs_to(:icon, actor) |> Query.one()
+    location = Query.new() |> Query.belongs_to(:location, actor) |> Query.one()
+
+    # FIXME this should be a transaction
+    with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
+         {:ok, _location} <- ActivityPub.update(location, content: location_content) do
+      ActivityPub.update(actor, changes)
     end
   end
 

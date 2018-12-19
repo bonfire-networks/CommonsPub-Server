@@ -1,4 +1,4 @@
-defmodule ActivityPub.SQLAssociations.BelongsTo do
+defmodule ActivityPub.SQL.Associations.BelongsTo do
   @enforce_keys [:sql_aspect, :aspect, :name]
   defstruct sql_aspect: nil,
     aspect: nil,

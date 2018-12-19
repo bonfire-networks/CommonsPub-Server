@@ -25,7 +25,8 @@ defmodule MoodleNetWeb.Accounts.UserController do
           conn
           |> Auth.login(user, token.hash)
           |> put_flash(:info, "Welcome!")
-          |> redirect(to: APRoutes.actor_path(conn, :show, actor.id))
+          # |> redirect(to: APRoutes.actor_path(conn, :show, actor.id))
+          |> redirect(to: "/")
       end
     end
   end

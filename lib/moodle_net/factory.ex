@@ -43,7 +43,6 @@ defmodule MoodleNet.Factory do
       "name" => Faker.Beer.brand(),
       "icon" => attributes(:image),
       "preferred_username" => Faker.Internet.user_name(),
-      "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
       "primaryLanguage" => "es",
     }
@@ -57,6 +56,15 @@ defmodule MoodleNet.Factory do
       "summary" => Faker.Lorem.sentence(),
       "icon" => attributes(:image),
       "primaryLanguage" => "es",
+      "same_as" => "https://hq.moodle.net/r/98765",
+      "in_language" => ["en-GB"],
+      "public_access" => true,
+      "is_accesible_for_free" => true,
+      "license" => "http://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "learning_resource_type" => "?",
+      "educational_use" => ["group work", "assignment"],
+      "time_required" => 60,
+      "typical_age_range" => "10-12"
     }
   end
 

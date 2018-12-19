@@ -1,6 +1,6 @@
 defmodule ActivityPub.ApplyAction do
   import ActivityPub.Guards
-  alias ActivityPub.SQL.{CollectionStatement, Query}
+  alias ActivityPub.SQL.{Alter}
   alias ActivityPub.SQLEntity
 
   def apply(entity) when not has_type(entity, "Activity"),
@@ -23,21 +23,35 @@ defmodule ActivityPub.ApplyAction do
 
   defp side_effect(follow) when has_type(follow, "Follow") do
     # FIXME verify type of actors and objects
-    following_collections =
-      follow.actor
-      |> Query.preload_assoc(:following)
-      |> Enum.map(& &1.following)
-
-    followers_collections =
-      follow.object
-      |> Query.preload_assoc(:followers)
-      |> Enum.map(& &1.followers)
-
-    CollectionStatement.add(following_collections, follow.object)
-    CollectionStatement.add(followers_collections, follow.actor)
+    Alter.add(follow.actor, :following, follow.object)
+    Alter.add(follow.object, :followers, follow.actor)
 
     :ok
   end
+
+  defp side_effect(like) when has_type(like, "Like") do
+    # FIXME verify type of actors
+    Alter.add(like.actor, :liked, like.object)
+    Alter.add(like.object, :likers, like.actor)
+
+    :ok
+  end
+
+  defp side_effect(undo = %{object: [like]}) when has_type(undo, "Undo") and has_type(like, "Like") do
+    Alter.remove(like.actor, :liked, like.object)
+    Alter.remove(like.object, :likers, like.actor)
+
+    :ok
+  end
+
+  defp side_effect(undo = %{object: [follow]}) when has_type(undo, "Undo") and has_type(follow, "Follow") do
+    Alter.remove(follow.actor, :following, follow.object)
+    Alter.remove(follow.object, :followers, follow.actor)
+
+    :ok
+  end
+
+  defp side_effect(_), do: :ok
 
   # TODO
   defp insert_into_inbox(_activity) do

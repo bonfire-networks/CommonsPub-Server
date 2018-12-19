@@ -5,6 +5,483 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   @moduletag format: :json
 
   @tag :user
+  test "update resource", %{conn: conn} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+    resource = Factory.resource(collection)
+
+    query = """
+    mutation {
+      updateResource(
+        resource_local_id: #{ActivityPub.Entity.local_id(resource)},
+        resource: {
+          name: "resource_name"
+          summary: "resource_summary"
+          content:"resource_content"
+          url: "resource_url"
+          primaryLanguage: "resource_language"
+          icon: "https://imag.es/resource"
+          sameAs: "same_as",
+          inLanguage: ["language"],
+          publicAccess: true,
+          isAccesibleForFree: true,
+          license: "license",
+          learningResourceType: "learning_resource_type",
+          educationalUse: ["educational_use"],
+          timeRequired: 60,
+          typicalAgeRange: "typical_age_range"
+        }
+      ) {
+        id
+        localId
+        name
+        summary
+        content
+        url
+        primaryLanguage
+        icon
+        published
+        updated
+        sameAs
+        inLanguage
+        publicAccess
+        isAccesibleForFree
+        license
+        learningResourceType
+        educationalUse
+        timeRequired
+        typicalAgeRange
+      }
+    }
+    """
+
+    assert ret_resource =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("updateResource")
+
+    assert ret_resource["id"]
+    assert ret_resource["localId"]
+    assert ret_resource["published"]
+    assert ret_resource["updated"]
+    assert ret_resource["name"] == "resource_name"
+    assert ret_resource["summary"] == "resource_summary"
+    assert ret_resource["content"] == "resource_content"
+    assert ret_resource["url"] == "resource_url"
+    assert ret_resource["primaryLanguage"] == "resource_language"
+    assert ret_resource["icon"] == "https://imag.es/resource"
+    assert ret_resource["sameAs"] == "same_as"
+    assert ret_resource["inLanguage"] == ["language"]
+    assert ret_resource["publicAccess"] == true
+    assert ret_resource["isAccesibleForFree"] == true
+    assert ret_resource["license"] == "license"
+    assert ret_resource["learningResourceType"] == "learning_resource_type"
+    assert ret_resource["educationalUse"] == ["educational_use"]
+    assert ret_resource["timeRequired"] == 60
+    assert ret_resource["typicalAgeRange"] == "typical_age_range"
+
+    query = """
+    {
+      resource(local_id: #{ActivityPub.Entity.local_id(resource)}) { id
+        localId
+        name
+        summary
+        content
+        url
+        primaryLanguage
+        icon
+        published
+        updated
+        sameAs
+        inLanguage
+        publicAccess
+        isAccesibleForFree
+        license
+        learningResourceType
+        educationalUse
+        timeRequired
+        typicalAgeRange
+      }
+    }
+    """
+
+    assert ret_resource_2 =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resource")
+
+    assert ret_resource == ret_resource_2
+  end
+
+  @tag :user
+  test "update collection", %{conn: conn} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+
+    query = """
+    mutation {
+      updateCollection(
+        collection_local_id: #{ActivityPub.Entity.local_id(collection)},
+        collection: {
+          name: "collection_name"
+          summary: "collection_summary"
+          content:"collection_content"
+          preferredUsername: "collection_preferredUser"
+          primaryLanguage:"collection_language"
+          icon:"https://imag.es/collection"
+        }
+      ) {
+        id
+        localId
+        name
+        summary
+        content
+        preferredUsername
+        primaryLanguage
+        icon
+        published
+        updated
+        resourcesCount
+      }
+    }
+    """
+
+    assert ret_collection =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("updateCollection")
+
+    assert ret_collection["id"] == collection.id
+    assert ret_collection["localId"]
+    assert ret_collection["published"]
+    assert ret_collection["updated"]
+    assert ret_collection["resourcesCount"] == 3
+    assert ret_collection["name"] == "collection_name"
+    assert ret_collection["summary"] == "collection_summary"
+    assert ret_collection["content"] == "collection_content"
+    assert ret_collection["preferredUsername"] == "collection_preferredUser"
+    assert ret_collection["primaryLanguage"] == "collection_language"
+    assert ret_collection["icon"] == "https://imag.es/collection"
+
+    query = """
+    {
+      collection(local_id: #{ActivityPub.Entity.local_id(collection)}) {
+        id
+        localId
+        name
+        summary
+        content
+        preferredUsername
+        primaryLanguage
+        icon
+        published
+        updated
+        resourcesCount
+      }
+    }
+    """
+
+    assert ret_collection_2 =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+
+    assert ret_collection == ret_collection_2
+  end
+
+  @tag :user
+  test "update community", %{conn: conn} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        updateCommunity(
+          community_local_id: #{ActivityPub.Entity.local_id(community)}
+          community: {
+            name: "community_name"
+            summary: "community_summary"
+            content:"community_content"
+            preferredUsername: "community_preferredUser"
+            primaryLanguage:"community_language"
+            icon:"https://imag.es/community"
+          }
+        ) {
+          id
+          localId
+          name
+          summary
+          content
+          preferredUsername
+          primaryLanguage
+          icon
+          followingCount
+          published
+          updated
+        }
+      }
+    """
+
+    assert ret_community =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("updateCommunity")
+
+    assert ret_community["id"] == community.id
+    assert ret_community["localId"]
+    assert ret_community["published"]
+    assert ret_community["updated"]
+    assert ret_community["name"] == "community_name"
+    assert ret_community["summary"] == "community_summary"
+    assert ret_community["content"] == "community_content"
+    assert ret_community["preferredUsername"] == "community_preferredUser"
+    assert ret_community["primaryLanguage"] == "community_language"
+    assert ret_community["icon"] == "https://imag.es/community"
+
+    query = """
+    {
+      community(local_id: #{ActivityPub.Entity.local_id(community)}) {
+        id
+        localId
+        name
+        summary
+        content
+        preferredUsername
+        primaryLanguage
+        icon
+        followingCount
+        published
+        updated
+      }
+    }
+    """
+
+    assert ret_community_2 =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("community")
+
+    assert ret_community == ret_community_2
+  end
+
+  @tag :user
+  test "update profile", %{conn: conn} do
+    query = """
+      mutation {
+        updateProfile(
+          profile: {
+            preferredUsername: "alexcastano"
+            name: "Alejandro Castaño"
+            summary: "Summary"
+            location: "MoodleNet"
+            icon: "https://imag.es/alexcastano"
+            primaryLanguage: "Elixir"
+          }
+        ) {
+          id
+          localId
+          local
+          type
+          preferredUsername
+          name
+          summary
+          location
+          icon
+          email
+          primaryLanguage
+        }
+      }
+    """
+
+    assert me =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("updateProfile")
+
+    assert me["preferredUsername"] == "alexcastano"
+    assert me["name"] == "Alejandro Castaño"
+    assert me["summary"] == "Summary"
+    assert me["primaryLanguage"] == "Elixir"
+    assert me["location"] == "MoodleNet"
+    assert me["icon"] == "https://imag.es/alexcastano"
+
+    query = """
+    {
+      me {
+        id
+        localId
+        local
+        type
+        preferredUsername
+        name
+        summary
+        location
+        icon
+        email
+        primaryLanguage
+      }
+    }
+    """
+
+    assert me_2 =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("me")
+
+    assert me == me_2
+  end
+
+  @tag :user
+  test "unlike", %{conn: conn} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
+  @tag :user
+  test "likes", %{conn: conn, actor: actor} do
+    community = Factory.community()
+
+    query = """
+      mutation {
+        like(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("like")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        likesCount
+        likers {
+          id
+          localId
+          local
+          type
+          preferredUsername
+          name
+          summary
+          location
+          icon
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["likesCount"] == 1
+
+    assert [user_map] = community_map["likers"]
+    assert user_map["id"] == actor.id
+    assert user_map["localId"] == ActivityPub.Entity.local_id(actor)
+    assert user_map["local"] == ActivityPub.Entity.local?(actor)
+    assert user_map["type"] == actor.type
+    assert user_map["preferredUsername"] == actor.preferred_username
+    assert user_map["name"] == actor.name["und"]
+    assert user_map["summary"] == actor.summary["und"]
+    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("unlike")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        likesCount
+        likers {
+          id
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["likesCount"] == 0
+
+    assert [] = community_map["likers"]
+
+    query = """
+      mutation {
+        unlike(
+          localId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
+  @tag :user
   test "follows", %{conn: conn, actor: actor} do
     community = Factory.community()
 
@@ -27,6 +504,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       communities {
         id
         localId
+        followersCount
         followers {
           id
           localId
@@ -51,6 +529,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     assert community_map["id"] == community.id
     assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["followersCount"] == 1
 
     assert [user_map] = community_map["followers"]
     assert user_map["id"] == actor.id
@@ -63,8 +542,62 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
     assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
 
+    query = """
+      mutation {
+        unfollow(
+          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("unfollow")
+
+    query = """
+    {
+      communities {
+        id
+        localId
+        followersCount
+        followers {
+          id
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert community_map["id"] == community.id
+    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["followersCount"] == 0
+
+    assert [] = community_map["followers"]
 
     collection = Factory.collection(community)
+
+    query = """
+      mutation {
+        unfollow(
+          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+        )
+      }
+    """
+
+    assert [%{"message" => "Not found previous activity"}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
     query = """
       mutation {
         follow(
@@ -262,7 +795,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated
@@ -287,7 +819,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert community["preferredUsername"] == "community_preferredUser"
     assert community["primaryLanguage"] == "community_language"
     assert community["icon"] == "https://imag.es/community"
-    assert community["followersCount"] == 10
     assert community["followingCount"] == 15
 
     query = """
@@ -323,7 +854,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated
@@ -361,8 +891,17 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           summary: "resource_summary"
           content:"resource_content"
           url: "resource_url"
-          primaryLanguage:"resource_language"
-          icon:"https://imag.es/resource"
+          primaryLanguage: "resource_language"
+          icon: "https://imag.es/resource"
+          sameAs: "same_as",
+          inLanguage: ["language"],
+          publicAccess: true,
+          isAccesibleForFree: true,
+          license: "license",
+          learningResourceType: "learning_resource_type",
+          educationalUse: ["educational_use"],
+          timeRequired: 60,
+          typicalAgeRange: "typical_age_range"
         }
       ) {
         id
@@ -375,6 +914,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
         icon
         published
         updated
+        sameAs
+        inLanguage
+        publicAccess
+        isAccesibleForFree
+        license
+        learningResourceType
+        educationalUse
+        timeRequired
+        typicalAgeRange
         collections {
           id
           localId
@@ -398,7 +946,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             icon
             published
             updated
-            followersCount
             followingCount
           }
         }
@@ -424,6 +971,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert resource["primaryLanguage"] == "resource_language"
     assert resource["icon"] == "https://imag.es/resource"
     assert resource["collections"] == [collection]
+    assert resource["sameAs"] == "same_as"
+    assert resource["inLanguage"] == ["language"]
+    assert resource["publicAccess"] == true
+    assert resource["isAccesibleForFree"] == true
+    assert resource["license"] == "license"
+    assert resource["learningResourceType"] == "learning_resource_type"
+    assert resource["educationalUse"] == ["educational_use"]
+    assert resource["timeRequired"] == 60
+    assert resource["typicalAgeRange"] == "typical_age_range"
 
     query = """
     mutation {
@@ -438,7 +994,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           local
           type
           content
-          likesCount
           repliesCount
           published
           updated
@@ -460,7 +1015,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -482,7 +1036,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -516,7 +1069,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert comment_1["updated"]
     assert comment_1["published"]
     assert comment_1["content"] == "comment_1"
-    assert comment_1["likesCount"] == 12
     assert comment_1["repliesCount"] == 1
 
     assert comment_1["replies"] == []
@@ -538,7 +1090,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           local
           type
           content
-          likesCount
           repliesCount
           published
           updated
@@ -560,7 +1111,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -583,7 +1133,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             local
             type
             content
-            likesCount
             repliesCount
             published
             updated
@@ -618,7 +1167,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert comment_2["updated"]
     assert comment_2["published"]
     assert comment_2["content"] == "comment_2"
-    assert comment_2["likesCount"] == 12
     assert comment_2["repliesCount"] == 1
 
     in_reply_to = Map.drop(comment_1, ["replies", "inReplyTo"])
@@ -637,7 +1185,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
         preferredUsername
         primaryLanguage
         icon
-        followersCount
         followingCount
         published
         updated
@@ -667,6 +1214,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             icon
             published
             updated
+            sameAs
+            inLanguage
+            publicAccess
+            isAccesibleForFree
+            license
+            learningResourceType
+            educationalUse
+            timeRequired
+            typicalAgeRange
           }
         }
       }
@@ -751,6 +1307,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           icon
           published
           updated
+          sameAs
+          inLanguage
+          publicAccess
+          isAccesibleForFree
+          license
+          learningResourceType
+          educationalUse
+          timeRequired
+          typicalAgeRange
         }
         communities {
           id
@@ -761,7 +1326,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           preferredUsername
           primaryLanguage
           icon
-          followersCount
           followingCount
           published
           updated

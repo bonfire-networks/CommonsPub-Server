@@ -64,7 +64,8 @@ defmodule ActivityPub.SQLEntity do
     end)
   end
 
-  defp insert_changeset(entity) when APG.has_status(entity, :loaded), do: Entity.persistence(entity)
+  defp insert_changeset(entity) when APG.has_status(entity, :loaded),
+    do: Entity.persistence(entity)
 
   defp insert_changeset(entity) when APG.is_entity(entity) do
     Ecto.Changeset.change(%__MODULE__{})
@@ -115,13 +116,63 @@ defmodule ActivityPub.SQLEntity do
 
   defp from_entity_fields(entity) when APG.is_entity(entity) do
     entity
-    # FIXME add context and local_id
     |> Map.take([:"@context", :id, :type])
     |> Map.put(:local, Entity.local?(entity))
     |> Map.put(:extension_fields, Entity.extension_fields(entity))
   end
 
+  def update(entity, changes) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    with entity = ActivityPub.SQL.Query.preload_aspect(entity, :all),
+         {:ok, entity} <- ActivityPub.Builder.update(entity, changes),
+         {:ok, sql_entity} <- update_from_entity(entity) do
+      {:ok, to_entity(sql_entity)}
+    end
+  end
+
+  defp update_from_entity(entity)
+       when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    sql_entity = Entity.persistence(entity)
+    ch = Ecto.Changeset.change(sql_entity)
+
+    ch =
+      Entity.aspects(entity)
+      |> Enum.reduce(ch, fn aspect, ch ->
+        update_changeset_for_aspect(ch, entity, sql_entity, aspect)
+      end)
+
+    ch = Ecto.Changeset.change(ch, extension_fields: Entity.extension_fields(entity))
+
+    Repo.update(ch)
+  end
+
+  defp update_changeset_for_aspect(ch, entity, sql_entity, aspect) do
+    sql_aspect = aspect.persistence()
+    fields = Entity.fields_for(entity, aspect)
+
+    case sql_aspect.persistence_method() do
+      :table ->
+        assoc_ch =
+          sql_entity
+          |> Map.fetch!(aspect.name())
+          |> Ecto.Changeset.change(fields)
+
+        Ecto.Changeset.put_assoc(ch, aspect.name(), assoc_ch)
+
+      :embedded ->
+        assoc_ch =
+          sql_entity
+          |> Map.fetch!(aspect.name())
+          |> Ecto.Changeset.change(fields)
+
+        Ecto.Changeset.put_embed(ch, aspect.name(), assoc_ch)
+
+      :fields ->
+        Ecto.Changeset.change(ch, fields)
+    end
+  end
+
   def to_entity(nil), do: nil
+
   def to_entity(%__MODULE__{} = sql_entity) do
     entity = %{
       __ap__: Metadata.load(sql_entity),
@@ -147,7 +198,7 @@ defmodule ActivityPub.SQLEntity do
 
   defp load_fields(%__MODULE__{} = sql_entity, aspects) do
     Enum.reduce(aspects, %{}, fn aspect, acc ->
-      case get_sql_fields_for_aspect(sql_entity, aspect) do
+      case get_sql_data_for_aspect_fields(sql_entity, aspect) do
         %Ecto.Association.NotLoaded{} ->
           aspect.__aspect__(:fields)
           |> Enum.into(acc, &{&1, %FieldNotLoaded{}})
@@ -162,19 +213,38 @@ defmodule ActivityPub.SQLEntity do
 
   defp load_assocs(%__MODULE__{} = sql_entity, aspects) do
     Enum.reduce(aspects, %{}, fn aspect, acc ->
-      case get_sql_assocs_for_aspect(sql_entity, aspect) do
+      sql_aspect = aspect.persistence()
+
+      case get_sql_data_for_aspect_assocs(sql_entity, aspect) do
         %Ecto.Association.NotLoaded{} ->
-          aspect.__aspect__(:associations)
-          |> Enum.into(acc, &{&1, %AssociationNotLoaded{}})
+          sql_aspect.__sql_aspect__(:associations)
+          |> Enum.into(acc, fn sql_assoc ->
+            {sql_assoc.name,
+             %AssociationNotLoaded{
+               sql_assoc: sql_assoc,
+               sql_aspect: sql_aspect
+             }}
+          end)
+
         sql_data ->
-          aspect.__aspect__(:associations)
-          |> Enum.reduce(acc, fn assoc_name, acc ->
+          sql_aspect.__sql_aspect__(:associations)
+          |> Enum.reduce(acc, fn sql_assoc, acc ->
+            assoc_name = sql_assoc.name
+
             case Map.fetch!(sql_data, assoc_name) do
               %Ecto.Association.NotLoaded{} ->
-                Map.put(acc, assoc_name, %AssociationNotLoaded{})
+                local_id = not_loaded_assoc_local_id(sql_assoc, sql_data)
+
+                Map.put(acc, assoc_name, %AssociationNotLoaded{
+                  sql_assoc: sql_assoc,
+                  sql_aspect: sql_aspect,
+                  local_id: local_id
+                })
+
               list when is_list(list) ->
                 assoc = for sql_entity <- list, do: to_entity(sql_entity)
                 Map.put(acc, assoc_name, assoc)
+
               value ->
                 Map.put(acc, assoc_name, to_entity(value))
             end
@@ -183,7 +253,14 @@ defmodule ActivityPub.SQLEntity do
     end)
   end
 
-  defp get_sql_fields_for_aspect(%__MODULE__{} = sql_entity, aspect) do
+  defp not_loaded_assoc_local_id(%ActivityPub.SQL.Associations.Collection{name: name}, sql_data) do
+    key = String.to_atom("#{name}_id")
+    Map.get(sql_data, key)
+  end
+
+  defp not_loaded_assoc_local_id(_, _), do: nil
+
+  defp get_sql_data_for_aspect_fields(%__MODULE__{} = sql_entity, aspect) do
     aspect.persistence().persistence_method()
     |> case do
       x when x in [:table, :embedded] ->
@@ -194,7 +271,7 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
-  defp get_sql_assocs_for_aspect(%__MODULE__{} = sql_entity, aspect) do
+  defp get_sql_data_for_aspect_assocs(%__MODULE__{} = sql_entity, aspect) do
     aspect.persistence().persistence_method()
     |> case do
       x when x in [:fields, :embedded] ->
@@ -203,12 +280,5 @@ defmodule ActivityPub.SQLEntity do
       :table ->
         Map.fetch!(sql_entity, aspect.name())
     end
-  end
-
-  def preload(entity, assocs_or_aspects) when APG.has_status(entity, :loaded) do
-    entity
-    |> Entity.persistence()
-    |> Repo.preload(assocs_or_aspects)
-    |> to_entity()
   end
 end

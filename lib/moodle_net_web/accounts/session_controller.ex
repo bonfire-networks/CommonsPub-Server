@@ -29,7 +29,8 @@ defmodule MoodleNetWeb.Accounts.SessionController do
           conn
           |> Auth.login(user, token.hash)
           |> put_flash(:info, "Welcome back!")
-          |> redirect(to: APRoutes.actor_path(conn, :show, user.primary_actor_id))
+          # |> redirect(to: APRoutes.actor_path(conn, :show, user.primary_actor_id))
+          |> redirect(to: "/")
       end
     end
   end

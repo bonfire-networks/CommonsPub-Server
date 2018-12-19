@@ -1,14 +1,15 @@
 defmodule ActivityPubWeb.MRF.RejectNonPublic do
-  alias MoodleNet.Accounts.User
   @behaviour ActivityPubWeb.MRF
 
   @mrf_rejectnonpublic Application.get_env(:moodle_net, :mrf_rejectnonpublic)
-  @allow_followersonly Keyword.get(@mrf_rejectnonpublic, :allow_followersonly)
-  @allow_direct Keyword.get(@mrf_rejectnonpublic, :allow_direct)
+  @allow_followersonly Keyword.get(@mrf_rejectnonpublic, :allow_followersonly, true)
+  @allow_direct Keyword.get(@mrf_rejectnonpublic, :allow_direct, true)
 
   @impl true
   def filter(%{"type" => "Create"} = object) do
-    user = User.get_cached_by_ap_id(object["actor"])
+    # FIXME
+    user = nil
+    # user = User.get_cached_by_ap_id(object["actor"])
     public = "https://www.w3.org/ns/activitystreams#Public"
 
     # Determine visibility
@@ -28,17 +29,17 @@ defmodule ActivityPubWeb.MRF.RejectNonPublic do
         {:ok, object}
 
       "followers" ->
-        with true <- @allow_followersonly do
+        if @allow_followersonly do
           {:ok, object}
         else
-          _e -> {:reject, nil}
+          {:reject, nil}
         end
 
       "direct" ->
-        with true <- @allow_direct do
+        if @allow_direct do
           {:ok, object}
         else
-          _e -> {:reject, nil}
+          {:reject, nil}
         end
     end
   end

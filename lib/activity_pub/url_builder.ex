@@ -21,7 +21,7 @@ defmodule ActivityPub.UrlBuilder do
     uri_id = URI.parse(id)
     uri_base = URI.parse(base_url())
 
-    with uri_id.scheme == uri_base.scheme and uri_id.host == uri_base.host and
+    with true <- uri_id.scheme == uri_base.scheme and uri_id.host == uri_base.host and
            uri_id.port == uri_base.port,
          "/activity_pub/" <> local_id <- uri_id.path,
          local_id = String.to_integer(local_id) do

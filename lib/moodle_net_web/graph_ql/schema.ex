@@ -72,6 +72,13 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.create_community/2)
     end
 
+    @desc "Update a community"
+    field :update_community, type: :community do
+      arg(:community_local_id, non_null(:integer))
+      arg(:community, non_null(:community_input))
+      resolve(&MoodleNetSchema.update_community/2)
+    end
+
     @desc "Create a collection"
     field :create_collection, type: :collection do
       arg(:community_local_id, non_null(:integer))
@@ -79,11 +86,25 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.create_collection/2)
     end
 
+    @desc "Update a collection"
+    field :update_collection, type: :collection do
+      arg(:collection_local_id, non_null(:integer))
+      arg(:collection, non_null(:collection_input))
+      resolve(&MoodleNetSchema.update_collection/2)
+    end
+
     @desc "Create a resource"
     field :create_resource, type: :resource do
       arg(:collection_local_id, non_null(:integer))
       arg(:resource, non_null(:resource_input))
       resolve(&MoodleNetSchema.create_resource/2)
+    end
+
+    @desc "Update a resource"
+    field :update_resource, type: :resource do
+      arg(:resource_local_id, non_null(:integer))
+      arg(:resource, non_null(:resource_input))
+      resolve(&MoodleNetSchema.update_resource/2)
     end
 
     @desc "Create a new thread"
@@ -102,14 +123,38 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     @desc "Create a user"
     field :create_user, type: :auth_payload do
-      arg(:user, non_null(:user_input))
+      arg(:user, non_null(:registration_input))
       resolve(&MoodleNetSchema.create_user/2)
+    end
+
+    @desc "Update a profile"
+    field :update_profile, type: :me do
+      arg(:profile, non_null(:update_profile_input))
+      resolve(&MoodleNetSchema.update_profile/2)
     end
 
     @desc "Follow an actor"
     field :follow, type: :boolean do
       arg(:actor_local_id, non_null(:integer))
       resolve(&MoodleNetSchema.create_follow/2)
+    end
+
+    @desc "Unfollow an actor"
+    field :unfollow, type: :boolean do
+      arg(:actor_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.destroy_follow/2)
+    end
+
+    @desc "Like an object"
+    field :like, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.create_like/2)
+    end
+
+    @desc "Unlike an object"
+    field :unlike, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.destroy_like/2)
     end
 
     @desc "Login"
