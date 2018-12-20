@@ -79,6 +79,48 @@ defmodule MoodleNet do
     end
   end
 
+  def delete_community(_actor, community) do
+    # FIXME this should be a transaction
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:context, community)
+    |> Query.delete_all()
+
+    community_local_id = ActivityPub.Entity.local_id(community)
+
+    import Ecto.Query, only: [from: 2]
+
+    from(entity in ActivityPub.SQLEntity,
+      where: fragment("? @> array['MoodleNet:EducationalResource']", entity.type),
+      join: collection_attributed_to in "activity_pub_object_attributed_tos",
+      on: collection_attributed_to.subject_id == entity.local_id,
+      join: community_attributed_to in "activity_pub_object_attributed_tos",
+      on:
+        collection_attributed_to.target_id == community_attributed_to.subject_id and
+          community_attributed_to.target_id == ^community_local_id
+    )
+    |> MoodleNet.Repo.delete_all()
+
+    from(entity in ActivityPub.SQLEntity,
+      where: fragment("? @> array['Note']", entity.type),
+      join: collection_context in "activity_pub_object_contexts",
+      on: collection_context.subject_id == entity.local_id,
+      join: community_attributed_to in "activity_pub_object_attributed_tos",
+      on:
+        collection_context.target_id == community_attributed_to.subject_id and
+          community_attributed_to.target_id == ^community_local_id
+    )
+    |> MoodleNet.Repo.delete_all()
+
+    Query.new()
+    |> Query.with_type("MoodleNet:Collection")
+    |> Query.has(:attributed_to, community)
+    |> Query.delete_all()
+
+    ActivityPub.delete(community, [:icon])
+    :ok
+  end
+
   def create_collection(community, attrs) when has_type(community, "MoodleNet:Community") do
     attrs =
       attrs
@@ -100,6 +142,22 @@ defmodule MoodleNet do
     end
   end
 
+  def delete_collection(_actor, collection) do
+    # FIXME this should be a transaction
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:context, collection)
+    |> Query.delete_all()
+
+    Query.new()
+    |> Query.with_type("MoodleNet:EducationalResource")
+    |> Query.has(:attributed_to, collection)
+    |> Query.delete_all()
+
+    ActivityPub.delete(collection, [:icon])
+    :ok
+  end
+
   def create_resource(collection, attrs) when has_type(collection, "MoodleNet:Collection") do
     attrs =
       attrs
@@ -119,6 +177,11 @@ defmodule MoodleNet do
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url) do
       ActivityPub.update(resource, changes)
     end
+  end
+
+  def delete_resource(_actor, resource) do
+    ActivityPub.delete(resource, [:icon])
+    :ok
   end
 
   def create_thread(author, context, attrs)
@@ -146,6 +209,14 @@ defmodule MoodleNet do
 
     with {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
+    end
+  end
+
+  def delete_comment(actor, comment) do
+    if Query.has?(comment, :attributed_to, actor) do
+      ActivityPub.delete(comment)
+    else
+      {:error, "operation not allowed"}
     end
   end
 

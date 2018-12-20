@@ -60,6 +60,17 @@ defmodule MoodleNet.Accounts do
     end
   end
 
+  def delete_user(actor) do
+    # FIXME this should be a transaction
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:attributed_to, actor)
+    |> Query.delete_all()
+
+    ActivityPub.delete(actor, [:icon, :location])
+    :ok
+  end
+
   def authenticate_by_email_and_pass(email, given_pass) do
     email
     |> user_and_password_auth_query()

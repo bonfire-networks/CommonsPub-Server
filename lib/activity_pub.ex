@@ -2,6 +2,8 @@ defmodule ActivityPub do
   defdelegate new(params), to: ActivityPub.Builder
   defdelegate insert(params), to: ActivityPub.SQLEntity
   defdelegate update(entity, changes), to: ActivityPub.SQLEntity
+  defdelegate delete(entity), to: ActivityPub.SQLEntity
+  defdelegate delete(entity, assocs), to: ActivityPub.SQLEntity
   defdelegate get_by_local_id(params), to: ActivityPub.SQLEntity
   defdelegate get_by_id(params), to: ActivityPub.SQLEntity
   defdelegate reload(params), to: ActivityPub.SQL.Query

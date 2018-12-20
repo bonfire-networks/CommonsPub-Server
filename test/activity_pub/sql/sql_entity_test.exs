@@ -126,4 +126,20 @@ defmodule ActivityPub.SQLEntityTest do
     assert loaded = persisted.id |> SQLEntity.get_by_id()
     assert loaded.content == persisted.content
   end
+
+  describe "delete" do
+    test "works" do
+      map = %{
+        context: %{},
+        content: "content"
+      }
+
+      assert {:ok, entity} = ActivityPub.new(map)
+      assert {:ok, persisted} = ActivityPub.insert(entity)
+      assert [context] = persisted.context
+      assert :ok = SQLEntity.delete(persisted, [:context])
+      refute Query.reload(persisted)
+      refute Query.reload(context)
+    end
+  end
 end

@@ -5,7 +5,7 @@ defmodule ActivityPub.SQLEntity do
 
   alias ActivityPub.Entity
   alias ActivityPub.{SQLAspect, Context, UrlBuilder, Metadata}
-  alias ActivityPub.SQL.{AssociationNotLoaded, FieldNotLoaded}
+  alias ActivityPub.SQL.{AssociationNotLoaded, FieldNotLoaded, Query}
   alias MoodleNet.Repo
 
   @primary_key {:local_id, :id, autogenerate: true}
@@ -169,6 +169,22 @@ defmodule ActivityPub.SQLEntity do
       :fields ->
         Ecto.Changeset.change(ch, fields)
     end
+  end
+
+  def delete(entity, assocs \\ [])
+  def delete(entity, assocs) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
+    # FIXME this should be a transaction
+    Enum.each(assocs, &delete_assoc(entity, &1))
+    sql_entity = Entity.persistence(entity)
+    # FIXME ?
+    {:ok, _} = Repo.delete(sql_entity)
+    :ok
+  end
+
+  defp delete_assoc(entity, assoc) do
+    Query.new()
+    |> Query.belongs_to(assoc, entity)
+    |> Query.delete_all()
   end
 
   def to_entity(nil), do: nil

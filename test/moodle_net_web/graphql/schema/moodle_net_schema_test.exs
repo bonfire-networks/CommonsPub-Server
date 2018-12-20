@@ -2,7 +2,341 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   # , async: true
   use MoodleNetWeb.ConnCase
 
+  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
+
+  test "delete an account", %{conn: conn} do
+    actor = Factory.actor()
+    community = Factory.community()
+    comment = Factory.comment(actor, community)
+
+    query = """
+      mutation {
+        createSession(
+          email: "#{actor["email"]}"
+          password: "password"
+        ) {
+          token
+        }
+      }
+    """
+
+    assert token =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("createSession")
+             |> Map.fetch!("token")
+
+    conn = conn |> put_req_header("authorization", "Bearer #{token}")
+
+    query = """
+      mutation {
+        deleteUser
+      }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteUser")
+
+    query = """
+    {
+      me {
+        id
+      }
+    }
+    """
+
+    assert "You are not logged in" ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+             |> hd()
+             |> Map.fetch!("message")
+
+    query = """
+    {
+      comment(local_id: #{local_id(comment)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("comment")
+  end
+
+  @tag :user
+  test "delete a community", %{conn: conn, actor: actor} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+    resource = Factory.resource(collection)
+    com_comment = Factory.comment(actor, community)
+    col_comment = Factory.comment(actor, collection)
+
+    query = """
+    mutation {
+      deleteCommunity(local_id: #{local_id(community)})
+    }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteCommunity")
+
+    query = """
+    {
+      community(local_id: #{local_id(community)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("community")
+
+    query = """
+    {
+      collection(local_id: #{local_id(collection)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+
+    query = """
+    {
+      resource(local_id: #{local_id(resource)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resource")
+
+    query = """
+    {
+      comment(local_id: #{local_id(col_comment)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("comment")
+
+    query = """
+    {
+      comment(local_id: #{local_id(com_comment)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("comment")
+  end
+
+  @tag :user
+  test "delete a collection", %{conn: conn, actor: actor} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+    resource = Factory.resource(collection)
+    comment = Factory.comment(actor, collection)
+
+    query = """
+    mutation {
+      deleteCollection(local_id: #{local_id(collection)})
+    }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteCollection")
+
+    query = """
+    {
+      collection(local_id: #{local_id(collection)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+
+    query = """
+    {
+      resource(local_id: #{local_id(resource)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resource")
+
+    query = """
+    {
+      comment(local_id: #{local_id(comment)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("comment")
+  end
+
+  @tag :user
+  test "delete a resource", %{conn: conn} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+    resource = Factory.resource(collection)
+
+    query = """
+    mutation {
+      deleteResource(local_id: #{local_id(resource)})
+    }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteResource")
+
+    query = """
+    {
+      resource(local_id: #{local_id(resource)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resource")
+  end
+
+  @tag :user
+  test "delete comment", %{conn: conn, actor: actor} do
+    community = Factory.community()
+    comment = Factory.comment(actor, community)
+    other_actor = Factory.actor()
+    other_comment = Factory.comment(other_actor, community)
+
+    query = """
+    mutation {
+      deleteComment(local_id: #{local_id(comment)})
+    }
+    """
+
+    assert true ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("deleteComment")
+
+    query = """
+    {
+      comment(local_id: #{local_id(comment)}) {
+        id
+      }
+    }
+    """
+
+    assert nil ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("comment")
+
+    query = """
+    mutation {
+      deleteComment(local_id: #{local_id(other_comment)})
+    }
+    """
+
+    assert "operation not allowed" ==
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+             |> hd()
+             |> Map.fetch!("message")
+
+    query = """
+    {
+      comment(local_id: #{local_id(other_comment)}) {
+        id
+      }
+    }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("comment")
+  end
 
   test "delete session", %{conn: conn} do
     actor = Factory.actor()
@@ -59,7 +393,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
     mutation {
       updateResource(
-        resource_local_id: #{ActivityPub.Entity.local_id(resource)},
+        resource_local_id: #{local_id(resource)},
         resource: {
           name: "resource_name"
           summary: "resource_summary"
@@ -130,7 +464,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     query = """
     {
-      resource(local_id: #{ActivityPub.Entity.local_id(resource)}) { id
+      resource(local_id: #{local_id(resource)}) { id
         localId
         name
         summary
@@ -171,7 +505,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
     mutation {
       updateCollection(
-        collection_local_id: #{ActivityPub.Entity.local_id(collection)},
+        collection_local_id: #{local_id(collection)},
         collection: {
           name: "collection_name"
           summary: "collection_summary"
@@ -217,7 +551,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     query = """
     {
-      collection(local_id: #{ActivityPub.Entity.local_id(collection)}) {
+      collection(local_id: #{local_id(collection)}) {
         id
         localId
         name
@@ -250,7 +584,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         updateCommunity(
-          community_local_id: #{ActivityPub.Entity.local_id(community)}
+          community_local_id: #{local_id(community)}
           community: {
             name: "community_name"
             summary: "community_summary"
@@ -295,7 +629,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     query = """
     {
-      community(local_id: #{ActivityPub.Entity.local_id(community)}) {
+      community(local_id: #{local_id(community)}) {
         id
         localId
         name
@@ -399,7 +733,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         unlike(
-          localId: #{ActivityPub.Entity.local_id(community)}
+          localId: #{local_id(community)}
         )
       }
     """
@@ -418,7 +752,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         like(
-          localId: #{ActivityPub.Entity.local_id(community)}
+          localId: #{local_id(community)}
         )
       }
     """
@@ -458,12 +792,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("communities")
 
     assert community_map["id"] == community.id
-    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["localId"] == local_id(community)
     assert community_map["likesCount"] == 1
 
     assert [user_map] = community_map["likers"]
     assert user_map["id"] == actor.id
-    assert user_map["localId"] == ActivityPub.Entity.local_id(actor)
+    assert user_map["localId"] == local_id(actor)
     assert user_map["local"] == ActivityPub.Entity.local?(actor)
     assert user_map["type"] == actor.type
     assert user_map["preferredUsername"] == actor.preferred_username
@@ -475,7 +809,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         unlike(
-          localId: #{ActivityPub.Entity.local_id(community)}
+          localId: #{local_id(community)}
         )
       }
     """
@@ -507,7 +841,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("communities")
 
     assert community_map["id"] == community.id
-    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["localId"] == local_id(community)
     assert community_map["likesCount"] == 0
 
     assert [] = community_map["likers"]
@@ -515,7 +849,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         unlike(
-          localId: #{ActivityPub.Entity.local_id(community)}
+          localId: #{local_id(community)}
         )
       }
     """
@@ -534,7 +868,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         follow(
-          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+          actorLocalId: #{local_id(community)}
         )
       }
     """
@@ -574,12 +908,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("communities")
 
     assert community_map["id"] == community.id
-    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["localId"] == local_id(community)
     assert community_map["followersCount"] == 1
 
     assert [user_map] = community_map["followers"]
     assert user_map["id"] == actor.id
-    assert user_map["localId"] == ActivityPub.Entity.local_id(actor)
+    assert user_map["localId"] == local_id(actor)
     assert user_map["local"] == ActivityPub.Entity.local?(actor)
     assert user_map["type"] == actor.type
     assert user_map["preferredUsername"] == actor.preferred_username
@@ -591,7 +925,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         unfollow(
-          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+          actorLocalId: #{local_id(community)}
         )
       }
     """
@@ -623,7 +957,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("communities")
 
     assert community_map["id"] == community.id
-    assert community_map["localId"] == ActivityPub.Entity.local_id(community)
+    assert community_map["localId"] == local_id(community)
     assert community_map["followersCount"] == 0
 
     assert [] = community_map["followers"]
@@ -633,7 +967,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         unfollow(
-          actorLocalId: #{ActivityPub.Entity.local_id(community)}
+          actorLocalId: #{local_id(community)}
         )
       }
     """
@@ -647,7 +981,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
       mutation {
         follow(
-          actorLocalId: #{ActivityPub.Entity.local_id(collection)}
+          actorLocalId: #{local_id(collection)}
         )
       }
     """
@@ -660,7 +994,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     query = """
     {
-      collections(communityLocalId: #{ActivityPub.Entity.local_id(community)}) {
+      collections(communityLocalId: #{local_id(community)}) {
         id
         localId
         followers {
@@ -686,7 +1020,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("collections")
 
     assert collection_map["id"] == collection.id
-    assert collection_map["localId"] == ActivityPub.Entity.local_id(collection)
+    assert collection_map["localId"] == local_id(collection)
     assert collection_map["followers"] == [user_map]
   end
 

@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     end
 
     @desc "Get a comment"
-    field :comment, non_null(:comment) do
+    field :comment, :comment do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("Note"))
     end
@@ -79,6 +79,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.update_community/2)
     end
 
+    @desc "Delete a community"
+    field :delete_community, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.delete_community/2)
+    end
+
     @desc "Create a collection"
     field :create_collection, type: :collection do
       arg(:community_local_id, non_null(:integer))
@@ -91,6 +97,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       arg(:collection_local_id, non_null(:integer))
       arg(:collection, non_null(:collection_input))
       resolve(&MoodleNetSchema.update_collection/2)
+    end
+
+    @desc "Delete a collection"
+    field :delete_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.delete_collection/2)
     end
 
     @desc "Create a resource"
@@ -107,6 +119,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.update_resource/2)
     end
 
+    @desc "Delete a resource"
+    field :delete_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.delete_resource/2)
+    end
+
     @desc "Create a new thread"
     field :create_thread, type: :comment do
       arg(:context_local_id, non_null(:integer))
@@ -121,6 +139,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.create_reply/2)
     end
 
+    @desc "Delete a comment"
+    field :delete_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.delete_comment/2)
+    end
+
     @desc "Create a user"
     field :create_user, type: :auth_payload do
       arg(:user, non_null(:registration_input))
@@ -131,6 +155,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     field :update_profile, type: :me do
       arg(:profile, non_null(:update_profile_input))
       resolve(&MoodleNetSchema.update_profile/2)
+    end
+
+    @desc "Delete a user"
+    field :delete_user, type: :boolean do
+      resolve(&MoodleNetSchema.delete_user/2)
     end
 
     @desc "Follow an actor"

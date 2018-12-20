@@ -352,6 +352,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def delete_user(_, info) do
+    with {:ok, current_actor} <- current_actor(info) do
+      MoodleNet.Accounts.delete_user(current_actor)
+      {:ok, true}
+    end
+  end
+
   def create_session(%{email: email, password: password}, info) do
     with {:ok, user} <- MoodleNet.Accounts.authenticate_by_email_and_pass(email, password),
          {:ok, token} <- MoodleNet.OAuth.create_token(user.id) do
@@ -388,6 +395,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
+  end
+
+  def delete_community(%{local_id: id}, info) do
+    with {:ok, author} <- current_actor(info),
+         {:ok, community} <- fetch_community(id),
+         :ok <- MoodleNet.delete_community(author, community),
+         do: {:ok, true}
   end
 
   def create_follow(%{actor_local_id: id}, info) do
@@ -431,6 +445,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def delete_collection(%{local_id: id}, info) do
+    with {:ok, author} <- current_actor(info),
+         {:ok, collection} <- fetch_collection(id),
+         :ok <- MoodleNet.delete_collection(author, collection),
+         do: {:ok, true}
+  end
+
   def create_resource(%{resource: attrs, collection_local_id: col_id}, info) do
     if collection = get_by_id_and_type(col_id, "MoodleNet:Collection") do
       attrs = set_icon(attrs)
@@ -452,10 +473,17 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def delete_resource(%{local_id: id}, info) do
+    with {:ok, author} <- current_actor(info),
+         {:ok, resource} <- fetch_resource(id),
+         :ok <- MoodleNet.delete_resource(author, resource),
+         do: {:ok, true}
+  end
+
   def create_reply(%{in_reply_to_local_id: in_reply_to_id} = args, info)
       when is_integer(in_reply_to_id) do
     with {:ok, author} <- current_actor(info),
-         {:ok, in_reply_to} <- fetch_create_comment_in_reply_to(in_reply_to_id),
+         {:ok, in_reply_to} <- fetch_comment(in_reply_to_id),
          {:ok, comment} <- MoodleNet.create_reply(author, in_reply_to, args.comment) do
       fields = requested_fields(info)
       {:ok, prepare(comment, fields)}
@@ -469,6 +497,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       fields = requested_fields(info)
       {:ok, prepare(comment, fields)}
     end
+  end
+
+  def delete_comment(%{local_id: id}, info) do
+    with {:ok, author} <- current_actor(info),
+         {:ok, comment} <- fetch_comment(id),
+         :ok <- MoodleNet.delete_comment(author, comment),
+         do: {:ok, true}
   end
 
   defp fetch_create_comment_context(context_id) do
@@ -529,10 +564,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  defp fetch_create_comment_in_reply_to(local_id) do
+  defp fetch_comment(local_id) do
     get_by_id_and_type(local_id, "Note")
     |> case do
-      nil -> {:error, "in_reply_to comment not found"}
+      nil -> {:error, "comment not found"}
       comment -> {:ok, comment}
     end
   end
