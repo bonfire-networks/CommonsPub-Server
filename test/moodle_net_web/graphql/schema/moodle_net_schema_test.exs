@@ -5,6 +5,103 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
+  @tag :user
+  test "copy a resource", %{conn: conn} do
+    community = Factory.community()
+    collection = Factory.collection(community)
+    resource = Factory.resource(collection)
+
+    query = """
+    mutation {
+      copyResource(
+        resource_local_id: #{local_id(resource)}
+        collection_local_id: #{local_id(collection)}
+      ) {
+        id
+        localId
+        name
+        summary
+        content
+        url
+        primaryLanguage
+        icon
+        published
+        updated
+        sameAs
+        inLanguage
+        publicAccess
+        isAccesibleForFree
+        license
+        learningResourceType
+        educationalUse
+        timeRequired
+        typicalAgeRange
+      }
+    }
+    """
+
+    assert copy_resource =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("copyResource")
+
+    query = """
+    {
+      resource(local_id: #{local_id(resource)}) {
+        id
+        localId
+        name
+        summary
+        content
+        url
+        primaryLanguage
+        icon
+        published
+        updated
+        sameAs
+        inLanguage
+        publicAccess
+        isAccesibleForFree
+        license
+        learningResourceType
+        educationalUse
+        timeRequired
+        typicalAgeRange
+      }
+    }
+    """
+
+
+    assert ret_resource =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resource")
+
+    assert ret_resource["id"] != copy_resource["id"]
+    assert ret_resource["localId"] != copy_resource["localId"]
+    assert ret_resource["name"] == copy_resource["name"]
+    assert ret_resource["summary"] == copy_resource["summary"]
+    assert ret_resource["content"] == copy_resource["content"]
+    assert ret_resource["url"] == copy_resource["url"]
+    assert ret_resource["primaryLanguage"] == copy_resource["primaryLanguage"]
+    assert ret_resource["icon"] == copy_resource["icon"]
+    assert ret_resource["published"] == copy_resource["published"]
+    assert ret_resource["updated"] == copy_resource["updated"]
+    assert ret_resource["sameAs"] == copy_resource["sameAs"]
+    assert ret_resource["inLanguage"] == copy_resource["inLanguage"]
+    assert ret_resource["publicAccess"] == copy_resource["publicAccess"]
+    assert ret_resource["isAccesibleForFree"] == copy_resource["isAccesibleForFree"]
+    assert ret_resource["license"] == copy_resource["license"]
+    assert ret_resource["learningResourceType"] == copy_resource["learningResourceType"]
+    assert ret_resource["educationalUse"] == copy_resource["educationalUse"]
+    assert ret_resource["timeRequired"] == copy_resource["timeRequired"]
+    assert ret_resource["typicalAgeRange"] == copy_resource["typicalAgeRange"]
+  end
+
   test "delete an account", %{conn: conn} do
     actor = Factory.actor()
     community = Factory.community()

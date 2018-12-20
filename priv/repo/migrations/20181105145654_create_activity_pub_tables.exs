@@ -77,6 +77,7 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add(:educational_use, {:array, :string})
       add(:time_required, :integer)
       add(:typical_age_range, :string)
+      add(:primary_language, :string)
     end
     create(unique_index(:activity_pub_resource_aspects, :local_id))
 

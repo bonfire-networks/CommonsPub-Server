@@ -158,7 +158,8 @@ defmodule MoodleNet do
     :ok
   end
 
-  def create_resource(collection, attrs) when has_type(collection, "MoodleNet:Collection") do
+  def create_resource(_actor, collection, attrs)
+      when has_type(collection, "MoodleNet:Collection") do
     attrs =
       attrs
       |> Map.put(:type, "MoodleNet:EducationalResource")
@@ -182,6 +183,36 @@ defmodule MoodleNet do
   def delete_resource(_actor, resource) do
     ActivityPub.delete(resource, [:icon])
     :ok
+  end
+
+  def copy_resource(actor, resource, collection) do
+    resource = resource
+               |> Query.preload_aspect(:resource)
+               |> Query.preload_assoc([:icon])
+
+    attrs =
+      Map.take(resource, [
+        :name,
+        :summary,
+        :content,
+        :url,
+        :primary_language,
+        :icon,
+        :published,
+        :updated,
+        :same_as,
+        :in_language,
+        :public_access,
+        :is_accesible_for_free,
+        :license,
+        :learning_resource_type,
+        :educational_use,
+        :time_required,
+        :typical_age_range
+      ])
+    url = get_in(resource, [:icon, Access.at(0), :url])
+    attrs = Map.put(attrs, :icon, %{type: "Image", url: url})
+    create_resource(actor, collection, attrs)
   end
 
   def create_thread(author, context, attrs)

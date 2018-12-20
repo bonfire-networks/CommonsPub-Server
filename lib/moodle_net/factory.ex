@@ -144,7 +144,7 @@ defmodule MoodleNet.Factory do
 
   def resource(context, attrs \\ %{}) do
     attrs = attributes(:resource, attrs)
-    {:ok, c} = MoodleNet.create_resource(context, attrs)
+    {:ok, c} = MoodleNet.create_resource(nil, context, attrs)
     c
   end
 

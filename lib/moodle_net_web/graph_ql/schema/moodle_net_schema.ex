@@ -453,15 +453,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   def create_resource(%{resource: attrs, collection_local_id: col_id}, info) do
-    if collection = get_by_id_and_type(col_id, "MoodleNet:Collection") do
-      attrs = set_icon(attrs)
-
-      with {:ok, resource} = MoodleNet.create_resource(collection, attrs) do
-        fields = requested_fields(info)
-        {:ok, prepare(resource, fields)}
-      end
-    else
-      {:error, "collection not found"}
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch_collection(col_id),
+         attrs = set_icon(attrs),
+         {:ok, resource} = MoodleNet.create_resource(actor, collection, attrs) do
+      fields = requested_fields(info)
+      {:ok, prepare(resource, fields)}
     end
   end
 
@@ -478,6 +475,18 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
          {:ok, resource} <- fetch_resource(id),
          :ok <- MoodleNet.delete_resource(author, resource),
          do: {:ok, true}
+  end
+
+  def copy_resource(attrs, info) do
+    %{resource_local_id: resource_local_id, collection_local_id: collection_local_id} = attrs
+
+    with {:ok, author} <- current_actor(info),
+         {:ok, resource} <- fetch_resource(resource_local_id),
+         {:ok, collection} <- fetch_collection(collection_local_id),
+         {:ok, resource_copy} <- MoodleNet.copy_resource(author, resource, collection) do
+      fields = requested_fields(info)
+      {:ok, prepare(resource_copy, fields)}
+    end
   end
 
   def create_reply(%{in_reply_to_local_id: in_reply_to_id} = args, info)
@@ -704,7 +713,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Map.put(:resources_count, 3)
     |> Map.put(:replies_count, 1)
     |> Map.put(:email, entity["email"])
-    |> Map.put(:primary_language, entity["primary_language"])
+    |> Map.put(:primary_language, entity[:primary_language] || entity["primary_language"])
     |> Map.put(:published, Entity.persistence(entity).inserted_at |> NaiveDateTime.to_iso8601())
     |> Map.put(:updated, Entity.persistence(entity).updated_at |> NaiveDateTime.to_iso8601())
   end

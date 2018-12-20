@@ -125,6 +125,13 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.delete_resource/2)
     end
 
+    @desc "Copy a resource"
+    field :copy_resource, type: non_null(:resource) do
+      arg(:resource_local_id, non_null(:integer))
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.copy_resource/2)
+    end
+
     @desc "Create a new thread"
     field :create_thread, type: :comment do
       arg(:context_local_id, non_null(:integer))
