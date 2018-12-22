@@ -1,9 +1,5 @@
 {
    "localeDir": "src/locales/",
    "srcPathDirs": ["src/"],
-<<<<<<< HEAD
-   "format": "minimal"
-=======
    "format": "po"
->>>>>>> 31-graphql-integration
 }
