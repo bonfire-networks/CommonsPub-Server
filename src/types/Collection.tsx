@@ -1,3 +1,5 @@
+import Resource from './Resource';
+
 export default interface Collection {
   // no. of people following that are not members
   followersCount: number;
@@ -11,4 +13,5 @@ export default interface Collection {
   preferredUsername: string;
   name: string;
   summary: string;
+  resources: Resource[];
 }
