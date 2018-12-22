@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SFC } from 'react';
-import { Row, Col } from '@zendeskgarden/react-grid';
 import Link from '../../components/elements/Link/Link';
+import styled from '../../themes/styled';
 
 interface Props {
   community: {
@@ -12,17 +12,36 @@ interface Props {
 }
 
 const Breadcrumb: SFC<Props> = ({ community, collectionName }) => (
-  <>
-    <Row>
-      <Col size={6}>
-        <Link to="/communities">Communities</Link>
-        {' > '}
-        <Link to={`/communities/${community.id}`}>{community.name}</Link>
-        {' > '}
-        <span>{collectionName}</span>
-      </Col>
-    </Row>
-  </>
+  <Main>
+    <Link to="/communities">Communities</Link>
+    {' > '}
+    <Link to={`/communities/${community.id}`}>{community.name}</Link>
+    {' > '}
+    <span>{collectionName}</span>
+  </Main>
 );
+
+const Main = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  height: 30px;
+  line-height: 30px;
+  & a {
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    margin-right: 6px;
+  }
+  & span {
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    text-transform: uppercase;
+    margin-left: 6px;
+  }
+`;
 
 export default Breadcrumb;
