@@ -6,7 +6,6 @@ import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import styled from 'styled-components';
 
 import Main from '../../components/chrome/Main/Main';
-// import P from '../../components/typography/P/P';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
@@ -75,9 +74,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 />
               ))}
             </CollectionList>
-            <Button onClick={this.props.handleNewCollection}>
-              Create a new collection
-            </Button>
+            <WrapperActions>
+              <Button onClick={this.props.handleNewCollection}>
+                Create a new collection
+              </Button>
+            </WrapperActions>
           </Wrapper>
         );
       } else {
@@ -125,7 +126,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             <Row>
               <Hero>
                 <Background
-                  style={{ backgroundImage: `url(${community.image})` }}
+                  style={{ backgroundImage: `url(${community.icon})` }}
                 >
                   <Title>{community.name}</Title>
                 </Background>
@@ -171,6 +172,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     );
   }
 }
+
+const WrapperActions = styled.div`
+  margin: 8px;
+`;
 
 const Wrapper = styled.div`
   flex: 1;

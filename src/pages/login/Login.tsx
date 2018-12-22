@@ -82,6 +82,7 @@ const LoginHeading = styled(H6)`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
+  console.log(data);
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
