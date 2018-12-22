@@ -1,0 +1,13 @@
+query getUserQuery {
+    user @client {
+        __typename
+        isAuthenticated
+        data {
+            id
+            name
+            email
+            preferredUsername
+            location
+        }
+    }
+}

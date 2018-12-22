@@ -4,6 +4,8 @@ import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
+
+import { i18nMark } from '@lingui/react';
 import { Trans } from '@lingui/macro';
 
 import styled, { ThemeInterface } from '../../themes/styled';
@@ -17,10 +19,26 @@ import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
 import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
-import { DUMMY_USER } from '../../apollo/client';
 
-const { GetUserQuery } = require('../../graphql/GET_USER.client.graphql');
-const { SetUserQuery } = require('../../graphql/SET_USER.client.graphql');
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
+const { setUserMutation } = require('../../graphql/setUser.client.graphql');
+// TODO make the login mutation also retrieve the user so a separate request is not necessary
+const { loginMutation } = require('../../graphql/login.graphql');
+
+const tt = {
+  with: {
+    fb: 'Sign in with Facebook',
+    g: 'Sign in with Google',
+    tw: 'Sign in with Twitter'
+  },
+  validation: {
+    email: i18nMark('The email field cannot be empty'),
+    password: i18nMark('The password field cannot be empty'),
+    credentials: i18nMark(
+      'Could not log in. Please check your credentials or use the link below to reset your password.'
+    )
+  }
+};
 
 const CenteredButtonGroup = styled.div`
   display: flex;
@@ -57,7 +75,14 @@ const LoginHeading = styled(H6)`
   text-shadow: 2px 2px 0 ${props => props.theme.styles.colour.base5};
 `;
 
+/**
+ * @param Component
+ * @param data {Object} the user object from local cache
+ * @param rest
+ * @constructor
+ */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
+  console.log(data);
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
@@ -71,7 +96,8 @@ function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
 }
 
 interface LoginProps extends RouteComponentProps {
-  updateUser?: Function;
+  setLocalUser: Function;
+  login: Function;
   data: object;
   theme: ThemeInterface;
 }
@@ -86,11 +112,11 @@ type CredentialsObject = {
   email: string;
   password: string;
 };
-
-const DEMO_CREDENTIALS = {
-  email: 'moodle@moodle.net',
-  password: 'moodle'
-};
+//
+// const DEMO_CREDENTIALS = {
+//   email: 'moodle@moodle.net',
+//   password: 'moodle'
+// };
 
 class Login extends React.Component<LoginProps, LoginState> {
   state = {
@@ -106,14 +132,14 @@ class Login extends React.Component<LoginProps, LoginState> {
       validation.push({
         field: ValidationField.email,
         type: ValidationType.error,
-        message: 'The email field cannot be empty'
+        message: tt.validation.email
       } as ValidationObject);
     }
     if (!credentials.password.length) {
       validation.push({
         field: ValidationField.password,
         type: ValidationType.error,
-        message: 'The password field cannot be empty'
+        message: tt.validation.password
       } as ValidationObject);
     }
 
@@ -138,39 +164,45 @@ class Login extends React.Component<LoginProps, LoginState> {
       return;
     }
 
-    this.setState({
-      authenticating: true
+    this.setState({ authenticating: true });
+
+    let result;
+
+    try {
+      result = await this.props.login({
+        variables: credentials
+      });
+      console.log(result);
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        authenticating: false,
+        validation: [
+          {
+            field: null,
+            type: ValidationType.warning,
+            message: tt.validation.credentials
+          } as ValidationObject
+        ]
+      });
+      return;
+    }
+
+    this.setState({ authenticating: false });
+
+    const userData = result.data.createSession;
+
+    // TODO pull key out into constant
+    localStorage.setItem('user_access_token', userData.token);
+
+    delete userData.token;
+    console.log(userData);
+    await this.props.setLocalUser({
+      variables: {
+        isAuthenticated: true,
+        data: userData
+      }
     });
-
-    // TODO implement real auth when we know what the backend looks like
-    setTimeout(async () => {
-      if (
-        credentials.email !== DEMO_CREDENTIALS.email ||
-        credentials.password !== DEMO_CREDENTIALS.password
-      ) {
-        this.setState({
-          authenticating: false,
-          validation: [
-            {
-              field: null,
-              type: ValidationType.warning,
-              message:
-                'Could not log in. Please check your credentials or use the link below to reset your password.'
-            } as ValidationObject
-          ]
-        });
-        return;
-      }
-
-      if (this.props.updateUser) {
-        await this.props.updateUser({
-          variables: {
-            isAuthenticated: true,
-            data: DUMMY_USER
-          }
-        });
-      }
-    }, 1000);
   }
 
   /** Clear the validation messages for a field and also generic validations when its value changes. */
@@ -218,23 +250,18 @@ class Login extends React.Component<LoginProps, LoginState> {
           <Row>
             <Col md={6}>
               <LoginHeading>
-                <Trans id="login.form.prompt">
-                  Log in using your social media account
-                </Trans>
+                <Trans>Sign in using your social media account</Trans>
               </LoginHeading>
               <CenteredButtonGroup>
-                <Button
-                  style={{ width: '33.33%' }}
-                  title="Log in with Facebook"
-                >
+                <Button style={{ width: '33.33%' }} title={tt.with.fb}>
                   <i className="facebook" />
                 </Button>
                 <Spacer />
-                <Button style={{ width: '33.33%' }} title="Log in with Google">
+                <Button style={{ width: '33.33%' }} title={tt.with.g}>
                   <i className="google" />
                 </Button>
                 <Spacer />
-                <Button style={{ width: '33.33%' }} title="Log in with Twitter">
+                <Button style={{ width: '33.33%' }} title={tt.with.tw}>
                   <i className="twitter" />
                 </Button>
               </CenteredButtonGroup>
@@ -266,39 +293,41 @@ class Login extends React.Component<LoginProps, LoginState> {
             </Col>
             <FirstTimeCol offsetSm={1} md={5}>
               <Row>
-                <LoginHeading>First time?</LoginHeading>
+                <LoginHeading>
+                  <Trans>First time?</Trans>
+                </LoginHeading>
+              </Row>
+              <Row>
                 {/*TODO why isn't the margin collapsing between the H6 & P?*/}
                 <P style={{ marginTop: 0 }}>
-                  You don't need an account to use{' '}
-                  <span
-                    style={{
-                      color: this.props.theme.styles.colour.primary,
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    MoodleNet
-                  </span>
-                  . You can browse as a guest using the button below.
+                  <Trans
+                    id="You don't need an account to browse {site_name}."
+                    values={{ site_name: 'MoodleNet' }}
+                  />
                 </P>
-                <P>
-                  To participate in discussions you need to sign up. Create an
-                  account on the left or use a social media account to log in.
-                </P>
+
+                <Button secondary>
+                  <Trans>Browse as a guest</Trans>
+                </Button>
               </Row>
-              <Row
-                style={{
-                  marginTop: '20px'
-                  // display: 'flex',
-                  // alignItems: 'flex-end',
-                  // flexGrow: 1,
-                  // paddingBottom: '5%',
-                }}
-              >
+              <Row>
+                <P
+                  style={{
+                    marginTop: '40px'
+                  }}
+                >
+                  <Trans>
+                    You need to sign up to participate in discussions. You can
+                    use a social media account to sign in, or create an account
+                    manually.
+                  </Trans>
+                </P>
+
                 <Link to="/sign-up">
-                  <Button>Create account</Button>
+                  <Button>
+                    <Trans>Create an account</Trans>
+                  </Button>
                 </Link>
-                <Spacer />
-                <Button secondary>Browse as guest</Button>
               </Row>
             </FirstTimeCol>
           </Row>
@@ -316,16 +345,22 @@ export interface Args {
 }
 
 // get the user auth object from local cache
-const withUser = graphql<{}, Args>(GetUserQuery);
+const withUser = graphql<{}, Args>(getUserQuery);
 
 // get user mutation so we can set the user in the local cache
-const withUserAuthentication = graphql<{}, Args>(SetUserQuery, {
-  name: 'updateUser'
+const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
+  name: 'setLocalUser'
+  // TODO enforce proper types for OperationOption
+} as OperationOption<{}, {}>);
+
+const withLogin = graphql<{}, Args>(loginMutation, {
+  name: 'login'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
 export default compose(
   withTheme,
   withUser,
-  withUserAuthentication
+  withSetLocalUser,
+  withLogin
 )(RedirectIfAuthenticated);

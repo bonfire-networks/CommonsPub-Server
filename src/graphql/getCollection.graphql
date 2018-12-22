@@ -1,0 +1,31 @@
+query getCollection($id: Int!) {
+  collection(localId: $id) {
+    id
+    localId
+    icon
+    name
+    content
+    summary
+    comments {
+      id
+      author {
+        id
+        name
+      }
+      published
+      content
+    }
+    communities {
+      localId
+      name
+    }
+    resources {
+      id
+      localId
+      name
+      summary
+      icon
+      likesCount
+    }
+  }
+}

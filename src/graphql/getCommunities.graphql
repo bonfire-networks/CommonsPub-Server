@@ -1,0 +1,12 @@
+query getCommunitiesQuery {
+    communities {
+        id
+        localId
+        preferredUsername
+        name
+        summary
+        icon
+        followersCount
+        followingCount
+    }
+}

@@ -60,6 +60,12 @@ export enum MenuItems {
   user = 'user'
 }
 
+/**
+ * The MenuNav component contains the buttons for navigating the user
+ * menu (component: Menu) and appears top-left of the application at
+ * all times. Clicking on a button in the MenuNav invokes the Menu
+ * component from the right.
+ */
 export default withTheme(
   ({ fixed, toggleMenu, user, theme, activeMenu }: any) => {
     return (
@@ -79,12 +85,12 @@ export default withTheme(
             trigger={
               <NotifMenuNavItemTrigger>
                 <FontAwesomeIcon icon={faCircle} />
-                <NotifCount>{user.data.notifications.length}</NotifCount>
+                <NotifCount>{/*{user.data.notifications.length}*/}0</NotifCount>
               </NotifMenuNavItemTrigger>
             }
           >
             <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
-              {user.data.notifications.length} unread notifications
+              {/*{user.data.notifications.length} unread notifications*/}0
             </div>
           </Tooltip>
         </NotifMenuNavItem>

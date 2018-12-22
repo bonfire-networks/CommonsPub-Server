@@ -1,0 +1,30 @@
+query getCommunityQuery($context: Int!) {
+    community(local_id: $context) {
+        id
+        localId
+        preferredUsername
+        name
+        summary
+        icon
+        followersCount
+        followingCount
+        comments {
+          id
+          author {
+            id
+            name
+          }
+          content
+        }
+        collections {
+            id
+            localId
+            preferredUsername
+            name
+            summary
+            icon
+            followersCount
+            followingCount
+        }
+    }
+}

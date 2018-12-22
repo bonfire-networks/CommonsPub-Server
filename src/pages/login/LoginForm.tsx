@@ -2,12 +2,22 @@ import * as React from 'react';
 import { Col, Row } from '@zendeskgarden/react-grid';
 import { Label, Message, TextField } from '@zendeskgarden/react-textfields';
 
+import { i18nMark } from '@lingui/react';
+import { Trans } from '@lingui/macro';
+
 import styled from '../../themes/styled';
 import TextInput from '../../components/inputs/Text/Text';
-import Button from '../../components/elements/Button/Button';
-import Loader from '../../components/elements/Loader/Loader';
 import Link from '../../components/elements/Link/Link';
+import { LoaderButton } from '../../components/elements/Button/Button';
 import { ValidationField, ValidationObject, ValidationType } from './types';
+
+const tt = {
+  login: i18nMark('Sign in'),
+  placeholders: {
+    email: i18nMark('Enter your email'),
+    password: i18nMark('Enter your password')
+  }
+};
 
 type SubmitColProps = {
   alignRight?: boolean;
@@ -95,9 +105,11 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
         <Row>
           <Col>
             <TextField>
-              <Label>Email address:</Label>
+              <Label>
+                <Trans>Email address</Trans>:
+              </Label>
               <TextInput
-                placeholder="Enter your email address"
+                placeholder={tt.placeholders.email}
                 value={this.state.email}
                 validation={this.getValidation(ValidationField.email)}
                 onChange={(evt: any) => {
@@ -113,10 +125,12 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
             </TextField>
             <Spacer />
             <TextField>
-              <Label>Password:</Label>
+              <Label>
+                <Trans>Password</Trans>:
+              </Label>
               <TextInput
                 type="password"
-                placeholder="Enter your password"
+                placeholder={tt.placeholders.password}
                 value={this.state.password}
                 validation={this.getValidation(ValidationField.password)}
                 onChange={(evt: any) => {
@@ -148,14 +162,12 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
         ) : null}
         <Row>
           <SubmitCol>
-            <Link to="/reset-password" title="Forgotten password">
-              Forgotten password?
+            <Link to="/reset-password">
+              <Trans>Forgotten your password?</Trans>
             </Link>
           </SubmitCol>
           <SubmitCol alignRight>
-            <Button disabled={authenticating} type="submit">
-              {authenticating ? <Loader /> : 'Sign in'}
-            </Button>
+            <LoaderButton loading={authenticating} text={tt.login} />
           </SubmitCol>
         </Row>
       </LoginForm>

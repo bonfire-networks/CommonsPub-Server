@@ -23,6 +23,10 @@ const SubNavItemHeader = styled(SubNavItem)<any>`
   font-size: 1.25em !important;
 `;
 
+const SidebarWrapper = styled.div`
+  width: 240px;
+  display: flex;
+`;
 enum NavItems {
   Communities,
   Collections
@@ -101,6 +105,11 @@ const subNavItems = {
   )
 };
 
+/**
+ * Left-side navigation menu that is always present, allows user to view
+ * different pages of the application such as their collections and
+ * communities.
+ */
 class Nav extends React.Component<RouterProps, {}> {
   state: any = {
     open: false,
@@ -156,7 +165,7 @@ class Nav extends React.Component<RouterProps, {}> {
 
   render() {
     return (
-      <>
+      <SidebarWrapper>
         <ZenNav expanded={this.state.open}>
           <NavItem
             title="Communities"
@@ -185,7 +194,7 @@ class Nav extends React.Component<RouterProps, {}> {
             current: this.state.activeSubNav
           })}
         </SubNav>
-      </>
+      </SidebarWrapper>
     );
   }
 }

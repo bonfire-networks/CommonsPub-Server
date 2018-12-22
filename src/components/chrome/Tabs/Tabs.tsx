@@ -22,6 +22,13 @@ const TabsButton = styled.div`
   }
 `;
 
+/**
+ * Tabs component.
+ * @param children {JSX.Element} children of tabs
+ * @param button {JSX.Element} button to add on right side of tabs
+ * @param props {Object} tabs component props
+ * @constructor
+ */
 export function Tabs({ children, button, ...props }: any) {
   const tabs = <ZenTabs {...props}>{children}</ZenTabs>;
   if (button) {
@@ -35,6 +42,12 @@ export function Tabs({ children, button, ...props }: any) {
   return tabs;
 }
 
+/**
+ * TabsPanel component.
+ * @param children {JSX.Element} children of tabs panel
+ * @param props {Object} tabs panel props
+ * @constructor
+ */
 export function TabPanel({ children, ...props }) {
   return <ZenTabPanel {...props}>{children}</ZenTabPanel>;
 }

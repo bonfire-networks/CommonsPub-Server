@@ -1,0 +1,24 @@
+query getCollectionsQuery($context: Int!) {
+    collections(context: $context) {
+        id
+        localId
+        preferredUsername
+        name
+        summary
+        icon
+        followersCount
+        followingCount
+
+        resources {
+            id
+            localId
+            preferredUsername
+            name
+            summary
+            icon
+            followersCount
+            followingCount
+            jsonData
+        }
+    }
+}

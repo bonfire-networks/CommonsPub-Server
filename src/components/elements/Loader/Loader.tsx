@@ -6,7 +6,12 @@ const Bounce = styled.div<any>`
   background-color: ${props => props.theme.styles.colour.primary};
 `;
 
-const Loader: React.SFC<React.AllHTMLAttributes<any>> = ({ ...props }) => {
+/**
+ * Loader spinner component.
+ * @param props {Object} props of the loader
+ * @constructor
+ */
+function Loader({ ...props }) {
   return (
     <div className="spinner" {...props}>
       <Bounce className="bounce1" />
@@ -14,6 +19,6 @@ const Loader: React.SFC<React.AllHTMLAttributes<any>> = ({ ...props }) => {
       <Bounce className="bounce3" />
     </div>
   );
-};
+}
 
 export default Loader;

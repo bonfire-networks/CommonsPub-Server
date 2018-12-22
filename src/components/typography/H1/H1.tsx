@@ -7,6 +7,13 @@ export interface HeadingProps {
   style?: object;
 }
 
+/**
+ * H1 component.
+ * @param children {JSX.Element} children of the header
+ * @param [tag] {String} the element tag name
+ * @param props {Object} props of the tag
+ * @constructor
+ */
 const H1 = ({ children, tag = 'h1', ...props }: HeadingProps) => {
   return (
     <XXXL tag={tag} {...props}>

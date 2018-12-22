@@ -5,7 +5,7 @@ import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 import styled from '../../../themes/styled';
 import Avatar from '../Avatar/Avatar';
-import User from '../../../types/User';
+import Author from '../../../types/Author';
 import { Link } from 'react-router-dom';
 
 const CommentContainer = styled.div<any>`
@@ -50,7 +50,7 @@ type Comment = {
 
 type CommentProps = {
   child?: boolean;
-  author: User;
+  author: Author;
   comment: Comment;
   onHeartClicked?: Function;
   onCommentClicked?: Function;
@@ -59,11 +59,11 @@ type CommentProps = {
 /**
  * TODO turn comment timestamp into readable, e.g. X seconds ago
  * TODO handle comment author is active user so name comment author becomes "You"
- * @param [child] {Boolean}
- * @param author {User}
- * @param comment {Object}
- * @param [onCommentClicked] {Object}
- * @param [onHeartClicked] {Object}
+ * @param [child] {Boolean} is the comment a child of another comment
+ * @param author {User} author of the comment
+ * @param comment {Object} comment data
+ * @param [onCommentClicked] {Object} comment clicked callback
+ * @param [onHeartClicked] {Object} comment "liked" callback
  */
 export default function({
   author,

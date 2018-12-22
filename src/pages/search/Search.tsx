@@ -5,16 +5,11 @@ import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import {
-  CollectionCard,
-  CommunityCard,
-  ResourceCard
-} from '../../components/elements/Card/Card';
-import {
-  DUMMY_COLLECTIONS,
-  DUMMY_COMMUNITIES,
-  DUMMY_RESOURCES
-} from '../../__DEV__/dummy-cards';
+// import {
+//   CollectionCard,
+//   CommunityCard,
+//   ResourceCard
+// } from '../../components/elements/Card/Card';
 import Logo from '../../components/brand/Logo/Logo';
 import P from '../../components/typography/P/P';
 
@@ -29,7 +24,7 @@ const yourLikes = (
     <Col size={10}>
       <h4>Your Likes</h4>
       <CardContainer>
-        <ResourceCard {...DUMMY_RESOURCES[0]} />
+        {/*<ResourceCard {...DUMMY_RESOURCES[0]} />*/}
       </CardContainer>
     </Col>
   </Row>
@@ -40,9 +35,9 @@ const communities = (
     <Col size={10}>
       <h4>Communities</h4>
       <CardContainer>
-        {DUMMY_COMMUNITIES.slice(0, 2).map(community => {
-          return <CommunityCard key={community.id} {...community} />;
-        })}
+        {/*{DUMMY_COMMUNITIES.slice(0, 2).map(community => {*/}
+        {/*return <CommunityCard key={community.id} {...community} />;*/}
+        {/*})}*/}
       </CardContainer>
     </Col>
   </Row>
@@ -53,9 +48,9 @@ const collections = (
     <Col size={10}>
       <h4>Collections</h4>
       <CardContainer>
-        {DUMMY_COLLECTIONS.slice(0, 6).map(collection => {
-          return <CollectionCard key={collection.id} {...collection} />;
-        })}
+        {/*{DUMMY_COLLECTIONS.slice(0, 6).map(collection => {*/}
+        {/*return <CollectionCard key={collection.id} {...collection} />;*/}
+        {/*})}*/}
       </CardContainer>
     </Col>
   </Row>
@@ -66,9 +61,9 @@ const resources = (
     <Col size={10}>
       <h4>Resources</h4>
       <CardContainer>
-        {DUMMY_RESOURCES.slice(0, 1).map(resource => {
-          return <ResourceCard key={resource.id} {...resource} />;
-        })}
+        {/*{DUMMY_RESOURCES.slice(0, 1).map(resource => {*/}
+        {/*return <ResourceCard key={resource.id} {...resource} />;*/}
+        {/*})}*/}
       </CardContainer>
     </Col>
   </Row>

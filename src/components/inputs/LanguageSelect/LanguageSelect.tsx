@@ -46,9 +46,10 @@ const options = [
 ];
 
 /**
- * TODO this is a dummy implementation of localisation toggling
+ * LanguageSelect component.
+ * Allows the user to select the active locale being used in the application.
  */
-export default class extends React.Component<
+export default class LanguageSelect extends React.Component<
   LanguageSelectProps,
   LanguageSelectState
 > {

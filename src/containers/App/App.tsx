@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { ApolloProvider } from 'react-apollo';
 import { Catalogs } from '@lingui/core';
 
 import styled from '../../themes/styled';
 import Router from './Router';
-import apolloClient from '../../apollo/client';
 import { moodlenet } from '../../themes';
 import { ThemeProvider } from '@zendeskgarden/react-theming';
 import { Chrome } from '@zendeskgarden/react-chrome';
@@ -37,7 +35,7 @@ export const AppStyles = styled.div`
 
 export const LocaleContext = React.createContext({
   catalogs: {},
-  locale: 'en',
+  locale: 'en_GB',
   setLocale: locale => {}
 });
 
@@ -47,14 +45,28 @@ type AppState = {
   setLocale: (locale) => void;
 };
 
+/**
+ * App container.
+ *
+ * Sets up app-wide state which contains which locale is in use, for example.
+ *
+ * It also wraps the whole application tree in various providers:
+ *
+ *  - ThemeProvider: used to theme all Zendesk Garden components
+ *
+ *  - LocaleContext.Provider: used to give children access to the
+ *    application locale API in order to set the active locale
+ *
+ *  - I18nProvider: used to enable localisation throughout the app
+ */
 export default class App extends React.Component<{}, AppState> {
   state = {
     catalogs: {
-      en: require(process.env.NODE_ENV === 'development'
-        ? '../../locales/en/messages.json'
-        : '../../locales/en/messages.js')
+      en_GB: require(process.env.NODE_ENV === 'development'
+        ? '../../locales/en_GB/messages.po'
+        : '../../locales/en_GB/messages.js')
     },
-    locale: 'en',
+    locale: 'en_GB',
     setLocale: this.setLocale.bind(this)
   };
 
@@ -66,7 +78,7 @@ export default class App extends React.Component<{}, AppState> {
 
       if (process.env.NODE_ENV === 'development') {
         catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
-        `@lingui/loader!../../locales/${locale}/messages.json`);
+        `@lingui/loader!../../locales/${locale}/messages.po`);
       } else {
         catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
         `../../locales/${locale}/messages.js`);
@@ -92,22 +104,20 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     return (
-      <ApolloProvider client={apolloClient}>
-        <ThemeProvider theme={moodlenet}>
-          <LocaleContext.Provider value={this.state}>
-            <I18nProvider
-              language={this.state.locale}
-              catalogs={this.state.catalogs}
-            >
-              <AppStyles>
-                <Chrome>
-                  <Router />
-                </Chrome>
-              </AppStyles>
-            </I18nProvider>
-          </LocaleContext.Provider>
-        </ThemeProvider>
-      </ApolloProvider>
+      <ThemeProvider theme={moodlenet}>
+        <LocaleContext.Provider value={this.state}>
+          <I18nProvider
+            language={this.state.locale}
+            catalogs={this.state.catalogs}
+          >
+            <AppStyles>
+              <Chrome>
+                <Router />
+              </Chrome>
+            </AppStyles>
+          </I18nProvider>
+        </LocaleContext.Provider>
+      </ThemeProvider>
     );
   }
 }

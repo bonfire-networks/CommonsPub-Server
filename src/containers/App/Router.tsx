@@ -9,7 +9,7 @@ import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFea
 import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
 import CommunitiesCommunity from '../../pages/communities.community/CommunitiesCommunity';
 import CollectionsCollection from '../../pages/collections.collection/CollectionsCollection';
-import ResourcesResource from '../../pages/resources.resource/ResourcesResource';
+// import ResourcesResource from '../../pages/resources.resource/ResourcesResource';
 import Login from '../../pages/login/Login';
 import NotFound from '../../pages/not-found/NotFound';
 import ProtectedRoute from './ProtectedRoute';
@@ -40,6 +40,13 @@ const SignUp = Loadable({
   delay: 1000
 });
 
+/**
+ * The application routes definition.
+ *
+ * Note that all routes requiring the user to be authenticated are within
+ * the ProtectedRoute component, which then delegates further routing to a
+ * Switch route component.
+ */
 export default () => (
   <Router>
     <AppInner>
@@ -93,14 +100,15 @@ export default () => (
                 />
                 <Route
                   exact
-                  path="/collections/:collection"
+                  path="/communities/:community/collections/:collection"
                   component={CollectionsCollection}
                 />
-                <Route
-                  exact
-                  path="/resources/:resource"
-                  component={ResourcesResource}
-                />
+                {/*<Route*/}
+                {/*exact*/}
+                {/*path="/communities/:community/collections/:collection/resources/:resource"*/}
+                {/*component={ResourcesResource}*/}
+                {/*/>*/}
+                <Route component={NotFound} />
               </Switch>
               <Menu />
             </>

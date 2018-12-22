@@ -1,5 +1,9 @@
 import { MoodleThemeInterface } from './styled';
 
+/**
+ * Create a Zendesk Garden theme object from the given `theme` variables.
+ * @param theme {MoodleThemeInterface} the theme variables
+ */
 export default function createTheme(theme: MoodleThemeInterface) {
   //TODO remove !important within textfieldStyles by increasing specificity of these styles somehow
   //language=SCSS
@@ -27,7 +31,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
   //language=SCSS
   const chromeStyles = `
         && {
-            background-color: ${theme.colour.base6};
+            background-color: #FBFBFD;
         }
     `;
 

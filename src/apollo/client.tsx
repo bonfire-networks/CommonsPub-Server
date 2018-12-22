@@ -1,72 +1,127 @@
-import ApolloClient from 'apollo-boost';
+import { ApolloLink } from 'apollo-link';
+import { ApolloClient, ApolloQueryResult } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { setContext } from 'apollo-link-context';
+import { withClientState } from 'apollo-link-state';
+import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
+import { Socket as PhoenixSocket } from 'phoenix';
+import { createHttpLink } from 'apollo-link-http';
+import { hasSubscription } from '@jumpn/utils-graphql';
+import apolloLogger from 'apollo-link-logger';
+import * as AbsintheSocket from '@absinthe/socket';
 
 import resolvers from './resolvers';
-import User from '../types/User';
 import typeDefs from './typeDefs';
-import { NotificationType } from '../components/elements/Notification/Notification';
+import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
-export const DUMMY_USER = {
-  __typename: 'User',
-  id: 0,
-  name: 'Moodler Joe',
-  email: 'moodlerjoe@example.com',
-  bio: 'I <3 Moodle',
-  emojiId: '',
-  role: '',
-  location: '',
-  language: 'en-gb',
-  interests: [],
-  languages: [],
-  notifications: [
-    {
-      __typename: 'Notification',
-      id: 0,
-      when: 'Just now',
-      content: `
-      <p>
-        We think you might find the collection
-        <strong>Lenin at Finland Station</strong> interesting
-      </p>
-    `,
-      type: NotificationType.moodlebot
-    },
-    {
-      __typename: 'Notification',
-      id: 1,
-      when: '20 minutes ago',
-      content: `
-      <p>
-        <strong>Ibrahima</strong> commented on the collection
-        <strong>Hyperinflation in Weimar Germany</strong>
-      </p>
-    `,
-      type: NotificationType.collection
-    },
-    {
-      __typename: 'Notification',
-      id: 2,
-      when: '1 hour ago',
-      content: `
-      <p>
-        <strong>Liezel</strong> commented on your post in
-        <strong>Progressive European Historians</strong>
-      </p>
-    `,
-      type: NotificationType.community
-    }
-  ]
-} as User;
+const { meQuery } = require('../graphql/me.graphql');
+const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
-export default new ApolloClient({
-  clientState: {
-    typeDefs,
-    defaults: {
-      user: {
-        __typename: 'User',
-        isAuthenticated: false,
-        data: null
-      }
-    },
-    resolvers
+const cache = new InMemoryCache();
+const token = localStorage.getItem('user_access_token');
+const user = localStorage.getItem('user_data');
+
+const defaults = {
+  user: {
+    __typename: 'User',
+    isAuthenticated: !!token,
+    data: user ? JSON.parse(user) : null
   }
+};
+
+const stateLink = withClientState({
+  cache,
+  resolvers,
+  defaults,
+  typeDefs
 });
+
+/**
+ * This context link is used to assign the necessary Authorization header
+ * to all HTTP requests to the GraphQL backend. In the case that the user
+ * is authenticated it sets their access token as the value, otherwise null.
+ */
+const authLink = setContext((_, { headers }) => {
+  // get the authentication token from localstorage if it exists
+  const token = localStorage.getItem('user_access_token');
+  // return the headers to the context so httpLink can read them
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : null
+    }
+  };
+});
+
+// used for graphql query and mutations
+const httpLink = ApolloLink.from(
+  [
+    process.env.NODE_ENV === 'development' ? apolloLogger : null,
+    stateLink,
+    authLink,
+    createHttpLink({ uri: GRAPHQL_ENDPOINT })
+  ].filter(Boolean)
+);
+
+// used for graphql subscriptions
+const absintheSocket = createAbsintheSocketLink(
+  AbsintheSocket.create(new PhoenixSocket(PHOENIX_SOCKET_ENDPOINT))
+);
+
+// if the operation is a subscription then use
+// the absintheSocket otherwise use the httpLink
+const link = ApolloLink.split(
+  operation => hasSubscription(operation.query),
+  absintheSocket,
+  httpLink
+);
+
+const client = new ApolloClient({
+  cache,
+  link
+});
+
+interface MeQueryResult extends ApolloQueryResult<object> {
+  // TODO don't use any type
+  me: any;
+}
+
+/**
+ * Initialise the Apollo client by fetching the logged in user
+ * if the user has an existing token in local storage.
+ * @returns {ApolloClient} the apollo client
+ */
+export default async function initialise() {
+  let localUser;
+
+  try {
+    const result = await client.query<MeQueryResult>({
+      query: meQuery
+    });
+
+    localUser = {
+      isAuthenticated: true,
+      data: result.data.me
+    };
+  } catch (err) {
+    console.error(err);
+
+    if (err.message.includes('You are not logged in')) {
+      localStorage.removeItem('user_access_token');
+    } else {
+      //TODO handle unknown error / warn user?
+    }
+
+    localUser = {
+      isAuthenticated: false,
+      data: null
+    };
+  }
+
+  await client.mutate({
+    variables: localUser,
+    mutation: setUserMutation
+  });
+
+  return client;
+}
