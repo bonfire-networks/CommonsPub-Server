@@ -17,7 +17,7 @@ import { Args } from '../login/Login';
 import { Interests, Languages, SignUpProfileSection } from './Profile';
 import { getDataURL, scrollTo, generateEmojiId } from './util';
 
-const { userCreateMutation } = require('../../graphql/userCreate.graphql');
+const { createUserMutation } = require('../../graphql/createUser.graphql');
 const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 
 const SignUpBody = styled(Body)`
@@ -42,7 +42,7 @@ const stepScrollTo = {
 
 interface RegisterResult {
   data: {
-    userCreate: any;
+    createUser: any;
     errors?: [];
   };
 }
@@ -224,17 +224,17 @@ class SignUp extends React.Component<SignUpProps, SignUpState> {
 
     alert('registration successful');
 
-    const userData = result.data.userCreate;
+    const userData = result.data.createUser;
 
     // TODO pull key out into constant
     localStorage.setItem('user_access_token', userData.token);
 
-    delete userData.token;
+    // delete userData.token;
 
     await this.props.setLocalUser({
       variables: {
         isAuthenticated: true,
-        data: userData
+        data: userData.me
       }
     });
 
@@ -384,7 +384,7 @@ const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
-const withRegister = graphql<{}, Args>(userCreateMutation, {
+const withRegister = graphql<{}, Args>(createUserMutation, {
   name: 'register'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);

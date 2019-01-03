@@ -195,12 +195,13 @@ class Login extends React.Component<LoginProps, LoginState> {
     // TODO pull key out into constant
     localStorage.setItem('user_access_token', userData.token);
 
-    delete userData.token;
-    console.log(userData);
+    // delete userData.token;
+    // console.log(userData);
+
     await this.props.setLocalUser({
       variables: {
         isAuthenticated: true,
-        data: userData
+        data: userData.me
       }
     });
   }

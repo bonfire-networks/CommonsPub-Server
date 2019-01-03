@@ -1,0 +1,22 @@
+input UserInput {
+    email: String!
+    password: String!
+    preferredUsername: String!
+    name: String!
+    summary: String!
+    location: String!
+}
+
+mutation createUserMutation($user: UserInput!) {
+    createUser(user: $user) {
+        token
+        me {
+            name
+            summary # bio
+            preferredUsername # emoji ID
+            location
+            email
+            id
+        }
+    }
+}
