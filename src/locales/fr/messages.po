@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/pages/login/Login.tsx:256
+#: src/pages/login/Login.tsx:258
 msgid "Browse as a guest"
 msgstr ""
 
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Could not log in. Please check your credentials or use the link below to reset your password."
 msgstr ""
 
-#: src/pages/login/Login.tsx:272
+#: src/pages/login/Login.tsx:274
 msgid "Create an account"
 msgstr ""
 
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Enter your password"
 msgstr ""
 
-#: src/pages/login/Login.tsx:246
+#: src/pages/login/Login.tsx:248
 msgid "First time?"
 msgstr ""
 
@@ -53,7 +53,7 @@ msgstr ""
 msgid "Sign in"
 msgstr ""
 
-#: src/pages/login/Login.tsx:211
+#: src/pages/login/Login.tsx:213
 msgid "Sign in using your social media account"
 msgstr ""
 
@@ -65,10 +65,10 @@ msgstr ""
 msgid "The password field cannot be empty"
 msgstr ""
 
-#: src/pages/login/Login.tsx:252
+#: src/pages/login/Login.tsx:254
 msgid "You don't need an account to browse {site_name}."
 msgstr ""
 
-#: src/pages/login/Login.tsx:263
+#: src/pages/login/Login.tsx:265
 msgid "You need to sign up to participate in discussions. You can use a social media account to sign in, or create an account manually."
 msgstr ""
