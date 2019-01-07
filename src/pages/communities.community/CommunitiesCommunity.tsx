@@ -3,8 +3,7 @@ import { compose, withState, withHandlers } from 'recompose';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { RouteComponentProps } from 'react-router';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
-import styled from 'styled-components';
-
+import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';

@@ -3,10 +3,16 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 import { Link } from 'react-router-dom';
 
-const moodleNetLogo = require('../../../static/img/moodlenet-logo.png');
-
 const LogoH1 = styled.h1`
   margin: 0;
+  font-size: 14px;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+  & a {
+    color: #fff;
+    text-decoration: none;
+  }
 `;
 
 type LogoProps = {
@@ -18,15 +24,11 @@ type LogoProps = {
  * @param link {Boolean} wrap Logo component in a Link to the homepage
  */
 export default ({ link = true }: LogoProps) => {
-  let image = <img src={moodleNetLogo} alt="MoodleNet" />;
-
-  if (link) {
-    image = (
+  return (
+    <LogoH1>
       <Link to="/" title="MoodleNet">
-        {image}
+        MoodleNet
       </Link>
-    );
-  }
-
-  return <LogoH1>{image}</LogoH1>;
+    </LogoH1>
+  );
 };
