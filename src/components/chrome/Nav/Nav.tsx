@@ -144,6 +144,8 @@ const NavList = styled.div`
   & a {
     text-decoration: none;
     color: #ffffffb5;
+    margin-bottom: 8px;
+    display: block;
     &: before {
       position: absolute;
       content: '';
@@ -161,7 +163,6 @@ const Item = styled.div`
   font-size: 13px;
   font-weight: 600;
   color: #ffffffd4;
-  margin-bottom: 8px;
   letter-spacing: 1px;
 `;
 const Title = styled.div`

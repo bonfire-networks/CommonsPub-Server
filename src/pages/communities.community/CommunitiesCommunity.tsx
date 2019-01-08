@@ -11,8 +11,9 @@ import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 import Breadcrumb from './breadcrumb';
 // import { CollectionCard } from '../../components/elements/Card/Card';
 import CollectionCard from '../../components/elements/Collection/Collection';
-import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
+import H2 from '../../components/typography/H2/H2';
+import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
 import Comment from '../../components/elements/Comment/Comment';
 import CommunityModal from '../../components/elements/CommunityModal';
@@ -20,7 +21,7 @@ import CommunityModal from '../../components/elements/CommunityModal';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
-  Overview = 'Overview',
+  Members = 'Members',
   Collections = 'Collections',
   Discussion = 'Discussion'
 }
@@ -126,38 +127,58 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <Hero>
                 <Background
                   style={{ backgroundImage: `url(${community.icon})` }}
-                >
-                  <Title>{community.name}</Title>
-                </Background>
-                <Tabs
-                  selectedKey={this.state.tab}
-                  onChange={tab => this.setState({ tab })}
-                >
-                  <TabPanel label={TabsEnum.Overview} key={TabsEnum.Overview}>
-                    <div style={{ display: 'flex' }}>
-                      <WrapperBox>
-                        <H6>Summary</H6>
-                        <P>{community.summary}</P>
-                      </WrapperBox>
-                    </div>
-                  </TabPanel>
-                  <TabPanel
-                    label={TabsEnum.Collections}
-                    key={TabsEnum.Collections}
-                  >
-                    <div style={{ display: 'flex' }}>{collections}</div>
-                  </TabPanel>
-                  <TabPanel
-                    label={TabsEnum.Discussion}
-                    key={TabsEnum.Discussion}
-                  >
-                    {comments}
-                  </TabPanel>
-                </Tabs>
+                />
+                <HeroInfo>
+                  <H2>{community.name}</H2>
+                  <P>{community.summary}</P>
+                </HeroInfo>
               </Hero>
             </Row>
             <Row>
-              <Col size={12} />
+              <Col size={12}>
+                <WrapperTab>
+                  <OverlayTab>
+                    <Tabs
+                      selectedKey={this.state.tab}
+                      onChange={tab => this.setState({ tab })}
+                    >
+                      <TabPanel
+                        label={`${TabsEnum.Members} (${
+                          community.followersCount
+                        })`}
+                        key={TabsEnum.Members}
+                      >
+                        <Members>
+                          {community.followers.map((user, i) => (
+                            <Follower key={i}>
+                              <Img
+                                style={{ backgroundImage: `url(${user.icon})` }}
+                              />
+                              <FollowerName>{user.name}</FollowerName>
+                            </Follower>
+                          ))}
+                        </Members>
+                      </TabPanel>
+                      <TabPanel
+                        label={`${TabsEnum.Collections} (${
+                          community.collections.length
+                        })`}
+                        key={TabsEnum.Collections}
+                      >
+                        <div style={{ display: 'flex' }}>{collections}</div>
+                      </TabPanel>
+                      <TabPanel
+                        label={`${TabsEnum.Discussion} (${
+                          community.comments.length
+                        })`}
+                        key={TabsEnum.Discussion}
+                      >
+                        {comments}
+                      </TabPanel>
+                    </Tabs>
+                  </OverlayTab>
+                </WrapperTab>
+              </Col>
             </Row>
           </Grid>
           <CommunityModal
@@ -172,6 +193,35 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
+const Members = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 8px;
+  grid-row-gap: 8px;
+`;
+const Follower = styled.div``;
+const Img = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  margin: 0 auto;
+  display: block;
+`;
+const FollowerName = styled(H4)`
+  margin-top: 8px;
+  text-align: center;
+`;
+
+const WrapperTab = styled.div`
+  padding: 5px;
+  border-radius: 0.25em;
+  background-color: rgb(232, 232, 232);
+  margin: 0 -10px;
+`;
+const OverlayTab = styled.div`
+  background: #fff;
+`;
+
 const WrapperActions = styled.div`
   margin: 8px;
 `;
@@ -184,16 +234,6 @@ const CollectionList = styled.div`
   flex: 1;
 `;
 
-const WrapperBox = styled.div`
-  padding: 0 8px;
-  & h6 {
-    margin: 0 !important;
-  }
-  & p {
-    margin-top: 8px !important;
-  }
-`;
-
 const OverviewCollection = styled.div`
   padding: 0 8px;
   margin-bottom: 8px;
@@ -203,47 +243,30 @@ const OverviewCollection = styled.div`
 `;
 
 const Hero = styled.div`
-  box-shadow: 0 1px 2px 0 rgba(255, 255, 255, 0.1);
-  background: #fff;
-  border: 1px solid #f3f3f3;
-  border-radius: 4px;
-  width: 100%;
-  position: relative;
   margin-top: 16px;
+  margin-bottom: 16px;
+  width: 100%;
 `;
 
 const Background = styled.div`
   height: 200px;
+  width: 200px;
+  border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;
   background-color: #f8f8f8;
   position: relative;
-  &:after {
-    position: absolute;
-    content: '';
-    background: rgb(0, 0, 0);
-    background: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 1) 100%
-    );
-    display: block;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
+  margin: 0 auto;
 `;
 
-const Title = styled.div`
-  position: absolute;
-  bottom: 20px;
-  left: 30px;
-  color: #fff;
-  z-index: 9;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 1px;
+const HeroInfo = styled.div`
+  text-align: center;
+  & h2 {
+    margin: 0;
+  }
+  & p {
+    color: rgba(0, 0, 0, 0.5);
+  }
 `;
 
 const withGetCollections = graphql<

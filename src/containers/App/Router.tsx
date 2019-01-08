@@ -63,11 +63,11 @@ export default () => (
         <Route exact path="/sign-up/:step" component={SignUp} />
         <ProtectedRoute
           path="/"
-          component={() => (
+          component={props => (
             <>
               <Nav />
               <Main>
-                <Header />
+                <Header history={props.history} />
                 <Switch>
                   <Route exact path="/" component={CommunitiesFeatured} />
                   <Route exact path="/search" component={Search} />
