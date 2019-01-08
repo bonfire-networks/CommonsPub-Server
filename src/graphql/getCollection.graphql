@@ -5,7 +5,14 @@ query getCollection($id: Int!) {
     icon
     name
     content
+    followersCount
     summary
+    followers {
+      icon
+      name
+      summary
+      localId
+    }
     comments {
       id
       author {

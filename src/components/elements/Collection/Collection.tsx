@@ -24,7 +24,10 @@ const Collection: React.SFC<CollectionProps> = ({
           <Title>{collection.name}</Title>
           <Desc>{collection.summary}</Desc>
           <Actions>
-            <ActionItem>{collection.followersCount} Followers</ActionItem>
+            <ActionItem>
+              <span />
+              {collection.followersCount} Followers
+            </ActionItem>
             <ActionItem>{collection.resourcesCount || 0} Resources</ActionItem>
           </Actions>
         </Infos>
