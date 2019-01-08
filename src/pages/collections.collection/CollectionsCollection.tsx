@@ -114,6 +114,7 @@ class CollectionComponent extends React.Component<Props> {
                     <Tabs
                       selectedKey={this.state.tab}
                       onChange={tab => this.setState({ tab })}
+                      button={<Button secondary>Edit</Button>}
                     >
                       <TabPanel
                         label={`${TabsEnum.Members} (${

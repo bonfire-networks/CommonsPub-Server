@@ -14,11 +14,17 @@ const TabsButton = styled.div`
   position: absolute;
   top: 0;
   right: 0;
-
   button {
-    height: 40px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    height: 30px;
+    line-height: 27px;
+    margin-top: 4px;
+    margin-right: 8px;
+    border: 2px solid #6b7a7d66 !important;
+    color: #6b7a7d !important;
+    border-radius: 100px;
+    &:hover {
+      background: #f3f3f3 !important;
+    }
   }
 `;
 

@@ -141,6 +141,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     <Tabs
                       selectedKey={this.state.tab}
                       onChange={tab => this.setState({ tab })}
+                      button={<Button secondary>Edit</Button>}
                     >
                       <TabPanel
                         label={`${TabsEnum.Members} (${
