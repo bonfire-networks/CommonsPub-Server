@@ -1,80 +1,63 @@
 import * as React from 'react';
 // import OnClickOutside from 'react-click-outside';
-import compose from 'recompose/compose';
+import { compose, withState, withHandlers } from 'recompose';
 import { graphql } from 'react-apollo';
 import { withTheme } from '@zendeskgarden/react-theming';
 
 import NotificationsMenuBody from './Notifications.MenuBody';
-import SearchMenuBody from './Search.MenuBody';
-import UserMenuBody from './User.MenuBody';
 import User from '../../../types/User';
 import styled, { StyledThemeInterface } from '../../../themes/styled';
-import MenuNav, { MenuItems } from './MenuNav';
-// import { faTimes } from '@fortawesome/free-solid-svg-icons';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
 
-//TODO replace with some utility like lodash or polyfill `Object.values`
-function values(obj) {
-  return Object.keys(obj).map(k => obj[k]);
-}
-
-interface MenuContainerProps {
-  show?: boolean;
-  open?: boolean;
-}
-
-interface MenuBodyProps {
-  width: number;
-  open: boolean;
-}
-
 const MenuContainer = styled.div`
-  width: 300px;
-  // left: ${(props: MenuContainerProps) => (props.open ? 0 : 300)}px;
-  // overflow: hidden;
+  width: 280px;
   display: flex;
 `;
 
-const MenuBody = styled.div<MenuBodyProps>`
-  width: ${props => props.width}px;
-  padding: 60px 10px 0 10px;
+const MenuBody = styled.div`
+  width: 280px;
+  padding: 10px;
   height: 100%;
   overflow: auto;
   z-index: 10;
   position: fixed;
-  // box-shadow: 0 0 10px lightgrey;
   background-color: #fff;
   border-left: 1px solid ${props => props.theme.styles.colour.base4};
-  // right: ${props => (props.open ? 0 : -Math.max(...values(menuWidths)))}px;
   transition: all 0.2s ease-in-out;
 `;
 
 const MenuBodyInner = styled.div<any>`
-  // width: ${props => props.width}px;
   padding-top: 10px;
-  border-top: 1px solid ${props => props.theme.styles.colour.base4};
 `;
 
-// const MenuClose = styled.div`
-//   cursor: pointer;
-//   position: absolute;
-//   top: 12px;
-//   left: 14px;
-//   font-size: 29px;
-//   color: grey;
+const Nav = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 8px;
+  margin-bottom: 16px;
+`;
 
-//   &:active {
-//     color: black;
-//   }
-// `;
-
-const menuWidths = {
-  [MenuItems.notifications]: 280, // size of a Notification + 20px for padding
-  [MenuItems.search]: 350,
-  [MenuItems.user]: 260
-};
+const Item = styled.div<{ isActive?: boolean }>`
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+  position: relative;
+  cursor: pointer;
+  color: ${props => props.theme.styles.colour.base1};
+  &:before {
+    position: absolute;
+    content: '';
+    width: 24px;
+    height: 3px;
+    left: 50%;
+    margin-left: -12px;
+    bottom: -4px;
+    display: ${props => (props.isActive ? 'block' : 'none')};
+    background-color: ${props => props.theme.styles.colour.primary};
+  }
+`;
 
 interface MenuProps extends StyledThemeInterface {
   data: {
@@ -84,12 +67,8 @@ interface MenuProps extends StyledThemeInterface {
       isAuthenticated: boolean;
     };
   };
-  show?: boolean;
-}
-
-interface MenuState {
-  openMenuName: string | null;
-  open: boolean;
+  active: string;
+  onActive(string): string;
 }
 
 /**
@@ -99,98 +78,51 @@ interface MenuState {
  * on a MenuNav button.
  * @class
  */
-class Menu extends React.Component<MenuProps, MenuState> {
-  state = {
-    openMenuName: null,
-    open: true
-  };
-
-  constructor(props: MenuProps) {
-    super(props);
-    this.toggleMenu = this.toggleMenu.bind(this);
-    this.closeMenu = this.closeMenu.bind(this);
-  }
-
-  closeMenu() {
-    // don't unset openMenuName otherwise the menu body content
-    // will disappear as the menu closes
-    this.setState({
-      open: false
-    });
-  }
-
-  toggleMenu(menuName) {
-    if (this.state.openMenuName === menuName) {
-      this.closeMenu();
-    }
-
-    this.setState({
-      openMenuName: menuName,
-      open: true
-    });
-  }
-
-  getMenuBodyComponent() {
-    const activeMenu = this.state.openMenuName;
-    if (!activeMenu) {
-      return null;
-    }
-    const Component = {
-      [MenuItems.notifications]: NotificationsMenuBody,
-      [MenuItems.search]: SearchMenuBody,
-      [MenuItems.user]: UserMenuBody
-      //TODO lift prop type
-    }[activeMenu] as React.ComponentType<{ closeMenu: Function; user: User }>;
-    return (
-      <Component
-        closeMenu={this.closeMenu}
-        user={this.props.data.user.data as User}
-      />
-    );
-  }
-
+class Menu extends React.Component<MenuProps> {
   render() {
     // we use this to set the menu container width AND the inner menu
     // body width. we set the inner menu body width to prevent its content
     // being fluid on resize of the container when the user navigates
     // between menus that are different sizes, e.g. move from search to notifs
     // const menuWidth = menuWidths[String(this.state.openMenuName)] || 300;
-    const menuWidth = 300;
 
     return (
-      // <OnClickOutside style={{ width: 0 }} onClickOutside={this.closeMenu}>
-      // <OnClickOutside style={{ width: 0 }}>
-      <MenuContainer show={this.props.show} open={this.state.open}>
-        <MenuNav
-          fixed={true}
-          user={this.props.data.user}
-          toggleMenu={this.toggleMenu}
-        />
-        <MenuBody width={menuWidth} open={this.state.open}>
-          {/* <MenuClose
-              title={`Close the ${this.state.openMenuName} menu`}
-              onClick={this.closeMenu}
+      <MenuContainer>
+        <MenuBody>
+          <Nav>
+            <Item
+              onClick={() => this.props.onActive('bot')}
+              isActive={this.props.active === 'bot'}
             >
-              <FontAwesomeIcon icon={faTimes} />
-            </MenuClose> */}
-          <MenuNav
-            fixed={false}
-            user={this.props.data.user}
-            activeMenu={this.state.open ? this.state.openMenuName : null}
-            toggleMenu={this.toggleMenu}
-          />
-          {/* <MenuBodyInner width={menuWidth - 20}> */}
-          <MenuBodyInner width={menuWidth}>
-            {this.getMenuBodyComponent()}
+              MoodleBot
+            </Item>
+            <Item
+              onClick={() => this.props.onActive('community')}
+              isActive={this.props.active === 'community'}
+            >
+              Community
+            </Item>
+            <Item
+              onClick={() => this.props.onActive('collection')}
+              isActive={this.props.active === 'collection'}
+            >
+              Collection
+            </Item>
+          </Nav>
+          <MenuBodyInner>
+            <NotificationsMenuBody user={this.props.data.user.data as User} />
           </MenuBodyInner>
         </MenuBody>
       </MenuContainer>
-      // </OnClickOutside>
     );
   }
 }
 
 export default compose(
   withTheme,
-  graphql(getUserQuery)
+  graphql(getUserQuery),
+  withState('active', 'isActive', 'bot'),
+  withHandlers({
+    onActive: props => type => props.isActive(type)
+  })
 )(Menu);
