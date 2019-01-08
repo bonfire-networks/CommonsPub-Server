@@ -16,6 +16,7 @@ import Breadcrumb from './breadcrumb';
 import Button from '../../components/elements/Button/Button';
 import Comment from '../../components/elements/Comment/Comment';
 import CollectionModal from '../../components/elements/CollectionModal';
+import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 
@@ -37,6 +38,8 @@ interface Props
   data: Data;
   addNewResource(): boolean;
   isOpen: boolean;
+  editCollection(): boolean;
+  isEditCollectionOpen: boolean;
 }
 
 class CollectionComponent extends React.Component<Props> {
@@ -114,7 +117,11 @@ class CollectionComponent extends React.Component<Props> {
                     <Tabs
                       selectedKey={this.state.tab}
                       onChange={tab => this.setState({ tab })}
-                      button={<Button secondary>Edit</Button>}
+                      button={
+                        <Button onClick={this.props.editCollection} secondary>
+                          Edit
+                        </Button>
+                      }
                     >
                       <TabPanel
                         label={`${TabsEnum.Members} (${
@@ -187,6 +194,13 @@ class CollectionComponent extends React.Component<Props> {
             modalIsOpen={this.props.isOpen}
             collectionId={collection.localId}
             collectionExternalId={collection.id}
+          />
+          <EditCollectionModal
+            toggleModal={this.props.editCollection}
+            modalIsOpen={this.props.isEditCollectionOpen}
+            collectionId={collection.localId}
+            collectionExternalId={collection.id}
+            collection={collection}
           />
         </Main>
       </>
@@ -295,7 +309,10 @@ const withGetCollection = graphql<
 export default compose(
   withGetCollection,
   withState('isOpen', 'onOpen', false),
+  withState('isEditCollectionOpen', 'onEditCollectionOpen', false),
   withHandlers({
-    addNewResource: props => () => props.onOpen(!props.isOpen)
+    addNewResource: props => () => props.onOpen(!props.isOpen),
+    editCollection: props => () =>
+      props.onEditCollectionOpen(!props.isEditCollectionOpen)
   })
 )(CollectionComponent);

@@ -17,6 +17,7 @@ import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
 import Comment from '../../components/elements/Comment/Comment';
 import CommunityModal from '../../components/elements/CommunityModal';
+import EditCommunityModal from '../../components/elements/EditCommunityModal';
 
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
@@ -41,6 +42,8 @@ interface Props
   data: Data;
   handleNewCollection: any;
   isOpen: boolean;
+  editCommunity(): boolean;
+  isEditCommunityOpen: boolean;
 }
 
 class CommunitiesFeatured extends React.Component<Props, State> {
@@ -141,7 +144,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     <Tabs
                       selectedKey={this.state.tab}
                       onChange={tab => this.setState({ tab })}
-                      button={<Button secondary>Edit</Button>}
+                      button={
+                        <Button onClick={this.props.editCommunity} secondary>
+                          Edit
+                        </Button>
+                      }
                     >
                       <TabPanel
                         label={`${TabsEnum.Members} (${
@@ -187,6 +194,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             modalIsOpen={this.props.isOpen}
             communityId={community.localId}
             communityExternalId={community.id}
+          />
+          <EditCommunityModal
+            toggleModal={this.props.editCommunity}
+            modalIsOpen={this.props.isEditCommunityOpen}
+            communityId={community.localId}
+            communityExternalId={community.id}
+            community={community}
           />
         </Main>
       </>
@@ -288,7 +302,10 @@ const withGetCollections = graphql<
 export default compose(
   withGetCollections,
   withState('isOpen', 'onOpen', false),
+  withState('isEditCommunityOpen', 'onEditCommunityOpen', false),
   withHandlers({
-    handleNewCollection: props => () => props.onOpen(!props.isOpen)
+    handleNewCollection: props => () => props.onOpen(!props.isOpen),
+    editCommunity: props => () =>
+      props.onEditCommunityOpen(!props.isEditCommunityOpen)
   })
 )(CommunitiesFeatured);

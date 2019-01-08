@@ -1,0 +1,27 @@
+input CommunityInput {
+    name: String!
+    summary: String!
+    content: String!
+    preferredUsername: String!
+    primaryLanguage: String
+    icon: String!
+}
+
+mutation updateCommunityMutation($community: CommunityInput!, $communityId: String!) {
+updateCommunity(
+communityLocalId: $communityId,
+community: $community
+) {
+id
+localId
+name
+summary
+content
+preferredUsername
+primaryLanguage
+icon
+followingCount
+published
+updated
+}
+}
