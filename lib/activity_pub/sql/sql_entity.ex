@@ -30,13 +30,6 @@ defmodule ActivityPub.SQLEntity do
     |> to_entity()
   end
 
-  def get_by_id(id) when is_binary(id) do
-    case UrlBuilder.get_local_id(id) do
-      {:ok, local_id} -> get_by_local_id(local_id)
-      :error -> Repo.get_by(__MODULE__, id: id) |> to_entity()
-    end
-  end
-
   def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
     entity |> Entity.local_id() |> get_by_local_id()
   end

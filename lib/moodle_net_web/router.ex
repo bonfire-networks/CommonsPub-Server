@@ -1,6 +1,10 @@
 defmodule MoodleNetWeb.Router do
   use MoodleNetWeb, :router
 
+  if Mix.env == :dev do
+    forward "/sent_emails", Bamboo.SentEmailViewerPlug
+  end
+
   # pipeline :browser do
   #   plug :accepts, ["html"]
   #   plug :fetch_session
@@ -17,19 +21,20 @@ defmodule MoodleNetWeb.Router do
 
     plug(:fetch_session)
     plug(:fetch_flash)
+    plug(MoodleNetWeb.Plugs.SetLocale)
     # plug(:protect_from_forgery)
     # plug(:put_secure_browser_headers)
-    plug(MoodleNet.Plugs.Auth)
+    plug(MoodleNetWeb.Plugs.Auth)
   end
 
   pipe_through(:api_browser)
 
   pipeline :ensure_authenticated do
-    plug(MoodleNet.Plugs.EnsureAuthenticatedPlug)
+    plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
 
   pipeline :graphql do
-    plug(MoodleNet.Plugs.Auth)
+    plug(MoodleNetWeb.Plugs.Auth)
     plug MoodleNetWeb.GraphQL.Context
     plug :accepts, ["json"]
   end

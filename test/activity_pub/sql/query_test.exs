@@ -1,6 +1,7 @@
 defmodule ActivityPub.SQL.QueryTest do
   use MoodleNet.DataCase, async: true
   alias ActivityPub.SQL.Query
+  alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   def insert(map) do
     {:ok, e} = ActivityPub.new(map)
@@ -27,6 +28,29 @@ defmodule ActivityPub.SQL.QueryTest do
     end
   end
 
+  test "get_by_local_id/1" do
+    persisted = insert(%{type: "Person", content: "content", preferred_username: "alexcastano"})
+    local_id = ActivityPub.Entity.local_id(persisted)
+    assert loaded = Query.get_by_local_id(local_id)
+    assert loaded.content == persisted.content
+    assert %FieldNotLoaded{} = loaded.preferred_username
+
+    assert loaded = Query.get_by_local_id(local_id, aspect: :actor)
+    assert loaded.content == persisted.content
+    assert "alexcastano" == loaded.preferred_username
+  end
+
+  test "get_by_id/1" do
+    persisted = insert(%{type: "Person", content: "content", preferred_username: "alexcastano"})
+    assert loaded = Query.get_by_id(persisted.id)
+    assert loaded.content == persisted.content
+    assert %FieldNotLoaded{} = loaded.preferred_username
+
+    assert loaded = Query.get_by_id(persisted.id, aspect: :actor)
+    assert loaded.content == persisted.content
+    assert "alexcastano" == loaded.preferred_username
+  end
+
   test "reload/1" do
     map = %{type: "Person", preferred_username: "alex"}
     assert person = insert(map)
@@ -43,8 +67,6 @@ defmodule ActivityPub.SQL.QueryTest do
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Person") |> Query.one()
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Actor") |> Query.one()
   end
-
-  alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   describe "preload_aspect/2" do
     test "works" do

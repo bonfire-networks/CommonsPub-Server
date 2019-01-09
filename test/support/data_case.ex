@@ -25,6 +25,8 @@ defmodule MoodleNet.DataCase do
       # import Ecto.Changeset
       # import Ecto.Query
       import MoodleNet.DataCase
+
+      use Bamboo.Test
     end
   end
 

@@ -1,5 +1,5 @@
 defmodule ActivityPub.SQL.Query do
-  alias ActivityPub.{SQLEntity, Entity}
+  alias ActivityPub.{SQLEntity, Entity, UrlBuilder}
   import SQLEntity, only: [to_entity: 1]
   import Ecto.Query, only: [from: 2]
   require ActivityPub.Guards, as: APG
@@ -43,9 +43,25 @@ defmodule ActivityPub.SQL.Query do
     |> one()
   end
 
-  def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
-    Entity.aspects(entity)
+  def get_by_local_id(id, opts \\ []) when is_integer(id) do
+    new()
+    |> where(local_id: id)
+    |> preload_aspect(Keyword.get(opts, :aspect, []))
+    |> one()
+  end
 
+  def get_by_id(id, opts \\ []) when is_binary(id) do
+    case UrlBuilder.get_local_id(id) do
+      {:ok, local_id} -> get_by_local_id(local_id, opts)
+      :error ->
+        new()
+        |> where(id: id)
+        |> preload_aspect(Keyword.get(opts, :aspect, []))
+        |> one()
+    end
+  end
+
+  def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
     new()
     |> where(local_id: Entity.local_id(entity))
     |> preload_aspect(Entity.aspects(entity))

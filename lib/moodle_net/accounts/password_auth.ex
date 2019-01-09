@@ -11,23 +11,12 @@ defmodule MoodleNet.Accounts.PasswordAuth do
 
   import Ecto.Changeset
 
-  def create_changeset(user_id, attrs) do
+  def create_changeset(user_id, password) do
+    attrs = %{password: password}
     %__MODULE__{}
     |> cast(attrs, [:password])
     |> change(user_id: user_id)
     |> foreign_key_constraint(:user_id)
-    |> common_changeset()
-  end
-
-  def update_password_changeset(%__MODULE__{} = password_hash, password) do
-    attrs = %{password: password}
-    password_hash
-    |> cast(attrs, [:password])
-    |> common_changeset()
-  end
-
-  defp common_changeset(changeset) do
-    changeset
     |> validate_required([:password, :user_id])
     |> validate_length(:password, min: 6)
     |> hash()

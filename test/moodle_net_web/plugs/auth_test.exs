@@ -1,10 +1,10 @@
-defmodule MoodleNet.Plugs.AuthTest do
+defmodule MoodleNetWeb.Plugs.AuthTest do
   use MoodleNetWeb.PlugCase, async: true
 
   alias MoodleNet.Accounts.User
   alias MoodleNet.Factory
 
-  alias MoodleNet.Plugs.Auth
+  alias MoodleNetWeb.Plugs.Auth
 
   test "works with a current user", %{conn: conn} do
     conn = assign(conn, :current_user, %{})

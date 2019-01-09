@@ -204,5 +204,24 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     field :delete_session, type: :boolean do
       resolve(&MoodleNetSchema.delete_session/2)
     end
+
+    @desc "Reset password request"
+    field :reset_password_request, type: :boolean do
+      arg(:email, non_null(:string))
+      resolve(&MoodleNetSchema.reset_password_request/2)
+    end
+
+    @desc "Reset password"
+    field :reset_password, type: :boolean do
+      arg(:token, non_null(:string))
+      arg(:password, non_null(:string))
+      resolve(&MoodleNetSchema.reset_password/2)
+    end
+
+    @desc "Confirm email"
+    field :confirm_email, type: :boolean do
+      arg(:token, non_null(:string))
+      resolve(&MoodleNetSchema.confirm_email/2)
+    end
   end
 end

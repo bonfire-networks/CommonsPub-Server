@@ -47,6 +47,10 @@ config :mime, :types, %{
 
 config :moodle_net, :httpoison, MoodleNet.HTTP
 
+config :moodle_net, MoodleNet.Mailer,
+  adapter: Bamboo.LocalAdapter,
+  open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
+
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
     "MoodleNet #{Mix.Project.config()[:version]} #{String.trim(version)}"

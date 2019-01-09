@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.Accounts.UserController do
   use MoodleNetWeb, :controller
 
   alias MoodleNet.{Accounts, OAuth}
-  alias MoodleNet.Plugs.Auth
+  alias MoodleNetWeb.Plugs.Auth
 
   plug(:accepts, ["html"] when action in [:new])
 
