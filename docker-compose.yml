@@ -3,10 +3,10 @@ version: '3.5'
 services:
   web:
     # Pull the image from dockerhub
-    # image: "moodlenet/moodlenet:latest"
+    image: "moodlenet/moodlenet:latest"
 
     # Build the image first with: make build
-    image: "moodlenet:latest"
+    #image: "moodlenet:latest"
     ports:
       - "4000:4000"
     env_file:
