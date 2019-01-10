@@ -11,4 +11,5 @@ export default interface Resource {
   preferredUsername: string;
   summary: string;
   source: string;
+  url: string;
 }

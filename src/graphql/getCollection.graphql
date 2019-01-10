@@ -31,6 +31,7 @@ query getCollection($id: Int!) {
       localId
       name
       summary
+      url
       icon
       likesCount
     }
