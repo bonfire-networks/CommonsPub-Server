@@ -18,6 +18,33 @@ The first projects using it are:
 ## Installation
 
 ### With Docker (recommended)
+Make sure you have [docker](https://www.docker.com/) and [make](https://www.gnu.org/software/make/) installed:
+```sh
+$ docker version
+Docker version 18.09.0-ce, build 4d60db472b
+$ make --version
+GNU Make 4.2.1
+...
+```
+
+Clone this repo and change into the directory:
+```sh
+$ git clone https://gitlab.com/CommonsPub/Server.git
+$ cd Server
+```
+
+Build the docker image:
+```
+$ make build
+```
+
+Start the docker containers with docker-compose:
+```sh
+$ docker-compose up
+```
+App should be running at [http://localhost:4000/](http://localhost:4000/).
+
+#### Configuration
 
 The docker image can be found in: https://hub.docker.com/r/moodlenet/moodlenet/
 
