@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from '../../themes/styled';
 // import Text from '../inputs/Text/Text';
+import Logo from '../brand/Logo/Logo';
+
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
 interface Props {
@@ -12,9 +14,9 @@ interface Props {
 
 const Header: React.SFC<Props> = props => (
   <Wrapper>
-    {/* <Left>
-      <Text placeholder="Search" />
-    </Left> */}
+    <Left>
+      <Logo />
+    </Left>
     <Right>
       <Avatar>
         <img
@@ -44,7 +46,6 @@ const Header: React.SFC<Props> = props => (
 const Wrapper = styled.div`
   height: 50px;
   background: #fff;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   ${clearFix()};
   position: relative;
 `;
@@ -88,24 +89,24 @@ const Item = styled.div`
     color: rgba(0, 0, 0, 0.9);
   }
 `;
-// const Left = styled.div`
-//   float: left;
-//   width: 120px;
-//   height: 30px;
-//   margin-top: 8px;
-//   float: left;
-//   width: 240px;
-//   max-height: 30px;
-//   margin-left: 8px;
-//   & input {
-//     border: 0px solid !important;
-//     border-radius: 100px;
-//     height: 34px;
-//     max-height: 34px;
-//     min-height: 34px;
-//     background: #f6f6f6;
-//   }
-// `;
+const Left = styled.div`
+  float: left;
+  width: 120px;
+  height: 30px;
+  margin-top: 8px;
+  float: left;
+  width: 240px;
+  max-height: 30px;
+  margin-left: 8px;
+  & input {
+    border: 0px solid !important;
+    border-radius: 100px;
+    height: 34px;
+    max-height: 34px;
+    min-height: 34px;
+    background: #f6f6f6;
+  }
+`;
 const Right = styled.div`
   float: right;
   margin-top: 9px;

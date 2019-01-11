@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 const LogoH1 = styled.h1`
   margin: 0;
   font-size: 14px;
-  color: #fff;
+  line-height: 32px;
+  color: ${props => props.theme.styles.colour.primary};
   letter-spacing: 1px;
   margin-bottom: 24px;
   & a {
-    color: #fff;
+    color: ${props => props.theme.styles.colour.primary};
     text-decoration: none;
   }
 `;

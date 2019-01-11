@@ -2,28 +2,31 @@ import * as React from 'react';
 import { withRouter } from 'react-router';
 import { RouterProps } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import Logo from '../../brand/Logo/Logo';
 import styled from '../../../themes/styled';
-
+import { compose, withState, withHandlers } from 'recompose';
+import NewCommunityModal from '../../elements/CreateCommunityModal';
 const SidebarWrapper = styled.div`
   width: 240px;
   display: flex;
   flex-direction: column;
   padding: 16px;
   position: relative;
-  background: ${props => props.theme.styles.colour.primary};
+  // background: ${props => props.theme.styles.colour.primary};
 `;
 
+interface NavProps extends RouterProps {
+  handleNewCommunity(): boolean;
+  isOpen: boolean;
+}
 /**
  * Left-side navigation menu that is always present, allows user to view
  * different pages of the application such as their collections and
  * communities.
  */
-class Nav extends React.Component<RouterProps, {}> {
+class Nav extends React.Component<NavProps, {}> {
   render() {
     return (
       <SidebarWrapper>
-        <Logo />
         <NavList>
           <NavLink
             isActive={(match, location) => {
@@ -31,7 +34,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/'}
           >
@@ -49,7 +52,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/communities/featured'}
           >
@@ -64,7 +67,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/communities'}
           >
@@ -82,7 +85,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/collections/featured'}
           >
@@ -97,7 +100,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/collections/following'}
           >
@@ -112,7 +115,7 @@ class Nav extends React.Component<RouterProps, {}> {
             }}
             activeStyle={{
               position: 'relative',
-              color: '#fff !important'
+              color: '#f98012'
             }}
             to={'/collections'}
           >
@@ -120,7 +123,11 @@ class Nav extends React.Component<RouterProps, {}> {
           </NavLink>
         </NavList>
 
-        <Bottom>New Community</Bottom>
+        <Bottom onClick={this.props.handleNewCommunity}>New Community</Bottom>
+        <NewCommunityModal
+          toggleModal={this.props.handleNewCommunity}
+          modalIsOpen={this.props.isOpen}
+        />
       </SidebarWrapper>
     );
   }
@@ -128,24 +135,28 @@ class Nav extends React.Component<RouterProps, {}> {
 
 const Bottom = styled.div`
   position: absolute;
-  bottom: 0;
+  bottom: 10px;
   height: 60px;
-  border-top: 1px solid rgba(250, 250, 250, 0.2);
-  left: 0;
-  right: 0;
-  line-height: 60px;
-  color: #fff;
-  font-size: 13px;
+  background: ${props => props.theme.styles.colour.primary};
+  border-radius: 4px;
   text-align: center;
+  left: 10px;
+  right: 10px;
+  line-height: 60px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
 `;
 
 const NavList = styled.div`
   margin-bottom: 24px;
   & a {
     text-decoration: none;
-    color: #ffffffb5;
+    color: ${props => props.theme.styles.colour.base2};
     margin-bottom: 8px;
     display: block;
+
     &: before {
       position: absolute;
       content: '';
@@ -154,7 +165,7 @@ const NavList = styled.div`
       bottom: 0;
       width: 4px;
       display: block;
-      background: #00ffca;
+      background: ${props => props.theme.styles.colour.primary};
       height: 20px;
     }
   }
@@ -162,7 +173,7 @@ const NavList = styled.div`
 const Item = styled.div`
   font-size: 13px;
   font-weight: 600;
-  color: #ffffffd4;
+  color: inherit;
   letter-spacing: 1px;
 `;
 const Title = styled.div`
@@ -171,7 +182,14 @@ const Title = styled.div`
   font-weight: 500;
   margin-bottom: 12px;
   letter-spacing: 0.5px;
-  color: #ffffffa1;
+  color: ${props => props.theme.styles.colour.base3};
 `;
 
-export default withRouter(Nav as any);
+const NavWithRouter = withRouter(Nav as any);
+
+export default compose(
+  withState('isOpen', 'onOpen', false),
+  withHandlers({
+    handleNewCommunity: props => () => props.onOpen(!props.isOpen)
+  })
+)(NavWithRouter);

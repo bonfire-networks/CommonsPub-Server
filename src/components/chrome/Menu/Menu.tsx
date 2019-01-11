@@ -4,8 +4,8 @@ import { compose, withState, withHandlers } from 'recompose';
 import { graphql } from 'react-apollo';
 import { withTheme } from '@zendeskgarden/react-theming';
 
-import NotificationsMenuBody from './Notifications.MenuBody';
-import User from '../../../types/User';
+// import NotificationsMenuBody from './Notifications.MenuBody';
+// import User from '../../../types/User';
 import styled, { StyledThemeInterface } from '../../../themes/styled';
 
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
@@ -110,7 +110,7 @@ class Menu extends React.Component<MenuProps> {
             </Item>
           </Nav>
           <MenuBodyInner>
-            <NotificationsMenuBody user={this.props.data.user.data as User} />
+            {/* <NotificationsMenuBody user={this.props.data.user.data as User} /> */}
           </MenuBodyInner>
         </MenuBody>
       </MenuContainer>
