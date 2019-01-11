@@ -1,0 +1,25 @@
+input CommunityInput {
+    name: String!
+    summary: String!
+    content: String!
+    preferredUsername: String!
+    primaryLanguage: String
+    icon: String
+}
+
+mutation createCommunityMutation($community: CommunityInput!) {
+        createCommunity(community: $community) {
+          id
+          localId
+          name
+          summary
+          content
+          preferredUsername
+          primaryLanguage
+          icon
+          followingCount
+          followersCount
+          published
+          updated
+        }
+      }

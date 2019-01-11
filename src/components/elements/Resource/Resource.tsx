@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
+import Button from '../Button/Button';
 
 interface Props {
   icon: string;
@@ -14,7 +15,12 @@ const ResourceCard: React.SFC<Props> = props => (
   <Wrapper>
     <Img style={{ backgroundImage: `url(${props.icon})` }} />
     <Info>
-      <Title>{props.title}</Title>
+      <TitleWrapper>
+        <Title>{props.title}</Title>
+        <Actions>
+          <Button hovered>Edit</Button>
+        </Actions>
+      </TitleWrapper>
       <Url>
         <a target="blank" href={props.url}>
           {props.url}
@@ -22,16 +28,19 @@ const ResourceCard: React.SFC<Props> = props => (
       </Url>
       <Summary>{props.summary}</Summary>
     </Info>
-    <Actions />
   </Wrapper>
 );
 
+const TitleWrapper = styled.div`
+  display: flex;
+`;
 const Info = styled.div`
   flex: 1;
   margin-left: 16px;
 `;
 const Url = styled.div`
   margin-bottom: 8px;
+  margin-top: -4px;
   & a {
     font-size: 14px;
     color: #9e9e9e;
@@ -66,6 +75,7 @@ const Title = styled(H5)`
   font-size: 16px !important;
   line-height: 16px !important;
   margin-top: 8px;
+  flex: 1;
 `;
 const Summary = styled(P)`
   margin: 0 !important;
@@ -73,6 +83,16 @@ const Summary = styled(P)`
   color: #757575;
   font-size: 14px;
 `;
-const Actions = styled.div``;
+const Actions = styled.div`
+  width: 100px;
+  text-align: right;
+  & button {
+    height: 25x;
+    max-width: 80px;
+    min-width: 80px;
+    border-width: 1px !important;
+    line-height: 25px;
+  }
+`;
 
 export default ResourceCard;

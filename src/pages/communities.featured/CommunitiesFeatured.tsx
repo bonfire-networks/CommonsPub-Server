@@ -64,7 +64,7 @@ const Wrapper = styled.div`
 `;
 const List = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
 `;
