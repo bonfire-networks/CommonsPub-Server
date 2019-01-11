@@ -1,27 +1,33 @@
 import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
-import P from '../../typography/P/P';
+// import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 
 interface Props {
   title: string;
   icon?: string;
   id: string;
+  collectionsLength: number;
 }
 
-const Community: React.SFC<Props> = ({ title, id, icon }) => (
+const Community: React.SFC<Props> = ({
+  title,
+  id,
+  icon,
+  collectionsLength
+}) => (
   <Wrapper>
-    <WrapperImage>
-      <Img style={{ backgroundImage: `url(${icon})` }} />
-    </WrapperImage>
     <Link to={`communities/${id}`}>
+      <WrapperImage>
+        <Img style={{ backgroundImage: `url(${icon})` }} />
+      </WrapperImage>
       <H5>{title}</H5>
     </Link>
-    <Infos>
+    {/* <Infos>
       <P>12 Members</P>
-      <P>5 Collection</P>
-    </Infos>
+      <P>{collectionsLength} Collection</P>
+    </Infos> */}
   </Wrapper>
 );
 
@@ -35,7 +41,6 @@ const Wrapper = styled.div`
   }
   & a {
     color: inherit;
-    text-decoration: none;
   }
 `;
 const WrapperImage = styled.div``;
@@ -47,14 +52,30 @@ const Img = styled.div`
   background-repeat: no-repeat;
   margin-bottom: 8px;
   background-color: #f0eded;
-`;
-const Infos = styled.div`
-  & p  {
-    margin: 0;
-    font-weight: 300;
-    font-style: italic;
-    display: inline-block;
-    margin-right: 8px;
-    font-size: 13px;
+  position: relative;
+  &:before {
+    position: absolute;
+    content: '';
+    left: 0;
+    bottom: 0;
+    right: 0;
+    top: 0;
+    display: block;
+    background: transparent;
+  }
+  &:hover {
+    &:before {
+      background: rgba(0, 0, 0, 0.2);
+    }
   }
 `;
+// const Infos = styled.div`
+//   & p  {
+//     margin: 0;
+//     font-weight: 300;
+//     font-style: italic;
+//     display: inline-block;
+//     margin-right: 8px;
+//     font-size: 13px;
+//   }
+// `;

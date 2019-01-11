@@ -28,12 +28,14 @@ class CommunitiesYours extends React.Component<Props> {
       body = <Loader />;
     } else {
       body = this.props.data.communities.map((community, i) => {
+        console.log(community);
         return (
           <CommunityCard
             key={i}
             title={community.name}
             icon={community.icon || ''}
             id={community.localId}
+            collectionsLength={community.collectionsCount}
           />
         );
       });
@@ -42,7 +44,7 @@ class CommunitiesYours extends React.Component<Props> {
     return (
       <Main>
         <Wrapper>
-          <H4>Featured communties</H4>
+          <H4>All communities</H4>
           <List>{body}</List>
         </Wrapper>
       </Main>

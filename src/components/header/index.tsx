@@ -2,7 +2,8 @@ import React from 'react';
 import styled from '../../themes/styled';
 // import Text from '../inputs/Text/Text';
 import Logo from '../brand/Logo/Logo';
-
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
+import { graphql } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
 interface Props {
@@ -10,42 +11,44 @@ interface Props {
   isOpen: boolean;
   logout(): any;
   history: any;
+  data: any;
 }
 
-const Header: React.SFC<Props> = props => (
-  <Wrapper>
-    <Left>
-      <Logo />
-    </Left>
-    <Right>
-      <Avatar>
-        <img
-          onClick={props.handleOpen}
-          src="https://picsum.photos/100/100?random"
-          alt="Example avatar"
-        />
-      </Avatar>
-    </Right>
-    {props.isOpen ? (
-      <WrapperMenu>
-        <Menu>
-          <List lined>
-            <Item>Ivan Minutillo</Item>
-            <Item>Edit profile</Item>
-            <Item>Settings</Item>
-          </List>
-          <List>
-            <Item onClick={props.logout}>Sign out</Item>
-          </List>
-        </Menu>
-      </WrapperMenu>
-    ) : null}
-  </Wrapper>
-);
+const Header: React.SFC<Props> = props => {
+  return (
+    <Wrapper>
+      <Left>
+        <Logo />
+      </Left>
+      <Right>
+        <Avatar>
+          <img
+            onClick={props.handleOpen}
+            src="https://picsum.photos/100/100?random"
+            alt="Example avatar"
+          />
+        </Avatar>
+      </Right>
+      {props.isOpen ? (
+        <WrapperMenu>
+          <Menu>
+            <List lined>
+              <Item>{props.data.user.data.name}</Item>
+              {/* <Item>Edit profile</Item>
+            <Item>Settings</Item> */}
+            </List>
+            <List>
+              <Item onClick={props.logout}>Sign out</Item>
+            </List>
+          </Menu>
+        </WrapperMenu>
+      ) : null}
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled.div`
   height: 50px;
-  background: #fff;
   ${clearFix()};
   position: relative;
 `;
@@ -117,6 +120,7 @@ const Right = styled.div`
 `;
 
 export default compose(
+  graphql(getUserQuery),
   withState('isOpen', 'onOpen', false),
   withHandlers({
     handleOpen: props => () => props.onOpen(!props.isOpen),

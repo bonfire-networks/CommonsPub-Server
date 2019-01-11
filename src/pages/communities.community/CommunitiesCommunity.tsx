@@ -77,6 +77,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 />
               ))}
             </CollectionList>
+
             <WrapperActions>
               <Button onClick={this.props.handleNewCollection}>
                 Create a new collection
@@ -269,7 +270,7 @@ const Background = styled.div`
   border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: #f8f8f8;
+  background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
 `;

@@ -160,11 +160,13 @@ class CollectionComponent extends React.Component<Props> {
                                   />
                                 ))}
                               </CollectionList>
-                              <WrapperActions>
-                                <Button onClick={this.props.addNewResource}>
-                                  Add a new resource
-                                </Button>
-                              </WrapperActions>
+                              {resources.length > 10 ? null : (
+                                <WrapperActions>
+                                  <Button onClick={this.props.addNewResource}>
+                                    Add a new resource
+                                  </Button>
+                                </WrapperActions>
+                              )}
                             </Wrapper>
                           ) : (
                             <OverviewCollection>

@@ -43,7 +43,7 @@ class Nav extends React.Component<NavProps, {}> {
         </NavList>
         <NavList>
           <Title>Communities</Title>
-          <NavLink
+          {/* <NavLink
             isActive={(match, location) => {
               return (
                 location.pathname === `/communities/featured/` ||
@@ -57,7 +57,7 @@ class Nav extends React.Component<NavProps, {}> {
             to={'/communities/featured'}
           >
             <Item>Featured</Item>
-          </NavLink>
+          </NavLink> */}
           <NavLink
             isActive={(match, location) => {
               return (
@@ -71,12 +71,12 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/communities'}
           >
-            <Item>Yours</Item>
+            <Item>All Communities</Item>
           </NavLink>
         </NavList>
         <NavList>
           <Title>Collections</Title>
-          <NavLink
+          {/* <NavLink
             isActive={(match, location) => {
               return (
                 location.pathname === `/collections/featured` ||
@@ -90,8 +90,8 @@ class Nav extends React.Component<NavProps, {}> {
             to={'/collections/featured'}
           >
             <Item>Featured</Item>
-          </NavLink>
-          <NavLink
+          </NavLink> */}
+          {/* <NavLink
             isActive={(match, location) => {
               return (
                 location.pathname === `/collections/following/` ||
@@ -105,7 +105,7 @@ class Nav extends React.Component<NavProps, {}> {
             to={'/collections/following'}
           >
             <Item>Following</Item>
-          </NavLink>
+          </NavLink> */}
           <NavLink
             isActive={(match, location) => {
               return (
@@ -119,7 +119,7 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/collections'}
           >
-            <Item>Yours</Item>
+            <Item>All Collections</Item>
           </NavLink>
         </NavList>
 

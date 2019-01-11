@@ -3,7 +3,7 @@ import Loadable from 'react-loadable';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import styled from '../../themes/styled';
-import Menu from '../../components/chrome/Menu/Menu';
+// import Menu from '../../components/chrome/Menu/Menu';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
 import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
@@ -123,7 +123,7 @@ export default () => (
                   <Route component={NotFound} />
                 </Switch>
               </Main>
-              <Menu />
+              {/* <Menu /> */}
             </>
           )}
         />

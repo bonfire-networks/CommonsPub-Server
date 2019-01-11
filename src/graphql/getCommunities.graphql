@@ -8,5 +8,6 @@ query getCommunitiesQuery {
         icon
         followersCount
         followingCount
+        collectionsCount
     }
 }
