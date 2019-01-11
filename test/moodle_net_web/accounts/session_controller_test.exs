@@ -69,7 +69,7 @@ defmodule MoodleNetWeb.Accounts.SessionControllerIntegrationTest do
     |> assert_response(
       status: 200,
       html: "Welcome back",
-      html: user.email,
+      html: user.email
     )
   end
 end

@@ -1,5 +1,7 @@
-defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
-  use MoodleNetWeb.ConnCase
+defmodule MoodleNetWeb.OAuth.AppControllerTest do
+  use MoodleNetWeb.ConnCase, async: true
+
+  @moduletag :skip
 
   describe "create" do
     test "creates app", %{conn: conn} do

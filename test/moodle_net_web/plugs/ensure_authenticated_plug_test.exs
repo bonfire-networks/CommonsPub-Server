@@ -1,7 +1,7 @@
-defmodule MoodleNet.Plugs.EnsureAuthenticatedPlugTest do
+defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlugTest do
   use MoodleNetWeb.PlugCase, async: true
 
-  alias MoodleNet.Plugs.EnsureAuthenticatedPlug
+  alias MoodleNetWeb.Plugs.EnsureAuthenticatedPlug
   alias MoodleNet.Accounts.User
 
   describe "in json format" do

@@ -380,6 +380,20 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def reset_password_request(%{email: email}, _info) do
+    # Note: This can be done async, but then, the async tests will fail
+    MoodleNet.Accounts.reset_password_request(email)
+    {:ok, true}
+  end
+
+  def reset_password(%{token: token, password: password}, _info) do
+    with {:ok, _} <- MoodleNet.Accounts.reset_password(token, password), do: {:ok, true}
+  end
+
+  def confirm_email(%{token: token}, _info) do
+    with {:ok, _} <- MoodleNet.Accounts.confirm_email(token), do: {:ok, true}
+  end
+
   def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
 
@@ -802,10 +816,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       [child] ->
         child
 
-      # FIXME this is a huge bug
-      [child | _] ->
-        child
-        # _ -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
+      children -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
     end
   end
 
@@ -852,7 +863,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp load_actor(user) do
     Query.new()
     |> Query.preload_aspect(:actor)
-    |> Query.where(local_id: user.primary_actor_id)
+    |> Query.where(local_id: user.actor_id)
     |> Query.one()
   end
 end

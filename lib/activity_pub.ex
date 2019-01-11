@@ -4,8 +4,10 @@ defmodule ActivityPub do
   defdelegate update(entity, changes), to: ActivityPub.SQLEntity
   defdelegate delete(entity), to: ActivityPub.SQLEntity
   defdelegate delete(entity, assocs), to: ActivityPub.SQLEntity
-  defdelegate get_by_local_id(params), to: ActivityPub.SQLEntity
-  defdelegate get_by_id(params), to: ActivityPub.SQLEntity
+  defdelegate get_by_local_id(params), to: ActivityPub.SQL.Query
+  defdelegate get_by_local_id(params, opts), to: ActivityPub.SQL.Query
+  defdelegate get_by_id(params), to: ActivityPub.SQL.Query
+  defdelegate get_by_id(params, opts), to: ActivityPub.SQL.Query
   defdelegate reload(params), to: ActivityPub.SQL.Query
   defdelegate apply(params), to: ActivityPub.ApplyAction
 

@@ -2,8 +2,106 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   # , async: true
   use MoodleNetWeb.ConnCase
 
+  alias MoodleNet.Repo
+
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
+
+  test "confirm email", %{conn: conn} do
+    query = """
+    mutation {
+      confirmEmail(token: "not_real_token")
+    }
+    """
+
+    assert "not_found" =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+             |> hd()
+             |> Map.fetch!("message")
+
+    %{email_confirmation_token: %{token: token}} = Factory.full_user()
+
+    query = """
+    mutation {
+      confirmEmail(token: "#{token}")
+    }
+    """
+
+    assert true =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("confirmEmail")
+  end
+
+  test "reset password flow", %{conn: conn} do
+    query = """
+    mutation {
+      resetPasswordRequest(email: "not_real@email.es")
+    }
+    """
+
+    assert true =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resetPasswordRequest")
+
+    user = Factory.user()
+
+    query = """
+    mutation {
+      resetPasswordRequest(email: "#{user.email}")
+    }
+    """
+
+    assert true =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resetPasswordRequest")
+
+    assert %{token: token} = Repo.get_by!(MoodleNet.Accounts.ResetPasswordToken, user_id: user.id)
+
+    query = """
+    mutation {
+      resetPassword(
+        token: "#{token}"
+        password: "new_password"
+      )
+    }
+    """
+
+    assert true =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("resetPassword")
+
+    query = """
+    mutation {
+      resetPassword(
+        token: "invalid_token"
+        password: "new_password"
+      )
+    }
+    """
+
+    assert "not_found" =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+             |> hd()
+             |> Map.fetch!("message")
+  end
 
   @tag :user
   test "copy a resource", %{conn: conn} do
@@ -14,8 +112,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
     mutation {
       copyResource(
-        resource_local_id: #{local_id(resource)}
-        collection_local_id: #{local_id(collection)}
+        resourceLocalId: #{local_id(resource)}
+        collectionLocalId: #{local_id(collection)}
       ) {
         id
         localId
@@ -73,7 +171,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     }
     """
 
-
     assert ret_resource =
              conn
              |> post("/api/graphql", %{query: query})
@@ -89,8 +186,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert ret_resource["url"] == copy_resource["url"]
     assert ret_resource["primaryLanguage"] == copy_resource["primaryLanguage"]
     assert ret_resource["icon"] == copy_resource["icon"]
-    assert ret_resource["published"] == copy_resource["published"]
-    assert ret_resource["updated"] == copy_resource["updated"]
     assert ret_resource["sameAs"] == copy_resource["sameAs"]
     assert ret_resource["inLanguage"] == copy_resource["inLanguage"]
     assert ret_resource["publicAccess"] == copy_resource["publicAccess"]

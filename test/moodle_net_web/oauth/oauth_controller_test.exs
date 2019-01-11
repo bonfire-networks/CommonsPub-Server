@@ -4,6 +4,8 @@ defmodule MoodleNetWeb.OAuth.OAuthControllerTest do
   alias MoodleNet.Repo
   alias MoodleNet.OAuth.{Authorization, Token}
 
+  @moduletag :skip
+
   test "returns error with invalid credentials", %{conn: conn} do
     user = Factory.user()
     app = Factory.oauth_app()

@@ -34,7 +34,8 @@ defmodule MoodleNetWeb.ErrorView do
   end
 
   def render("500.html", _) do
-    render(MoodleNetWeb.ErrorView, "internal_server_error.html")
+    "Something was wrong"
+    # render(MoodleNetWeb.ErrorView, "internal_server_error.html")
   end
 
   def render("404.html", assigns) do

@@ -7,7 +7,8 @@ defmodule MoodleNet.Accounts do
   alias MoodleNet.Repo
   alias Ecto.Multi
 
-  alias MoodleNet.Accounts.{User, PasswordAuth}
+  alias MoodleNet.Accounts.{User, PasswordAuth, ResetPasswordToken, EmailConfirmationToken}
+  alias MoodleNet.{Mailer, Email}
 
   alias ActivityPub.SQL.Query
 
@@ -24,7 +25,7 @@ defmodule MoodleNet.Accounts do
 
   """
   def register_user(attrs \\ %{}) do
-    # FIXME this should be a only transaction
+    # FIXME this should be a only one transaction
     actor_attrs =
       attrs
       |> Map.put("type", "Person")
@@ -32,19 +33,32 @@ defmodule MoodleNet.Accounts do
       |> Map.delete("password")
 
     with {:ok, actor} <- ActivityPub.new(actor_attrs),
-         {:ok, actor} <- ActivityPub.insert(actor) do
-      actor_local_id = ActivityPub.Entity.local_id(actor)
-      ch = User.changeset(actor_local_id, attrs)
+         {:ok, actor} <- ActivityPub.insert(actor),
+         {:ok, ret = %{user: user, email_confirmation_token: token}} <-
+           register_user_operation(actor, attrs) do
+      Email.welcome(user, token.token)
+      |> Mailer.deliver_later()
 
-      Multi.new()
-      |> Multi.run(:actor, fn _, _ -> {:ok, actor} end)
-      |> Multi.insert(:user, ch)
-      |> Multi.run(
-        :password_auth,
-        &(PasswordAuth.create_changeset(&2.user.id, attrs) |> &1.insert())
-      )
-      |> Repo.transaction()
+      {:ok, ret}
     end
+  end
+
+  defp register_user_operation(actor, attrs) do
+    password = attrs[:password] || attrs["password"]
+    ch = User.changeset(actor, attrs)
+
+    Multi.new()
+    |> Multi.run(:actor, fn _, _ -> {:ok, actor} end)
+    |> Multi.insert(:user, ch)
+    |> Multi.run(
+      :password_auth,
+      &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
+    )
+    |> Multi.run(
+      :email_confirmation_token,
+      &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
+    )
+    |> Repo.transaction()
   end
 
   def update_user(actor, changes) do
@@ -96,5 +110,87 @@ defmodule MoodleNet.Accounts do
       on: p.user_id == u.id,
       select: {u, p}
     )
+  end
+
+  def reset_password_request(email) do
+    with user when not is_nil(user) <- Repo.get_by(User, email: email) do
+      {:ok, reset_password_token} = renew_reset_password_token(user)
+
+      Email.reset_password_request(user, reset_password_token.token)
+      |> Mailer.deliver_later()
+
+      {:ok, reset_password_token}
+    else
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp renew_reset_password_token(user) do
+    changeset = MoodleNet.Accounts.ResetPasswordToken.build_changeset(user)
+    opts = [returning: true, on_conflict: :replace_all, conflict_target: :user_id]
+    Repo.insert(changeset, opts)
+  end
+
+  def reset_password(token, new_password) do
+    with {:ok, reset_password_token} <- get_reset_password_token(token) do
+      password_ch = PasswordAuth.create_changeset(reset_password_token.user_id, new_password)
+
+      opts = [
+        returning: true,
+        on_conflict: {:replace, [:password_hash, :updated_at]},
+        conflict_target: :user_id
+      ]
+
+      Multi.new()
+      |> Multi.delete(:reset_password_token, reset_password_token)
+      |> Multi.insert(:password_hash, password_ch, opts)
+      |> Multi.run(:email, fn repo, _ ->
+        User
+        |> repo.get(reset_password_token.user_id)
+        |> Email.password_reset()
+        |> Mailer.deliver_later()
+
+        {:ok, nil}
+      end)
+      |> Repo.transaction()
+    end
+  end
+
+  defp get_reset_password_token(full_token) do
+    with {:ok, {user_id, _}} <- MoodleNet.Token.split_id_and_token(full_token),
+         ret = %{token: rp_token} <- Repo.get_by(ResetPasswordToken, user_id: user_id),
+         false <- expired_token?(ret),
+         ^full_token <- rp_token do
+      {:ok, ret}
+    else
+      _ -> {:error, :not_found}
+    end
+  end
+
+  @two_days 60 * 60 * 24 * 2
+  defp expired_token?(%{inserted_at: date}) do
+    NaiveDateTime.diff(NaiveDateTime.utc_now(), date) > @two_days
+  end
+
+  def confirm_email(token) do
+    with {:ok, email_confirmation_token} <- get_email_confirmation_token(token) do
+      user = Repo.get(User, email_confirmation_token.user_id)
+      user_ch = User.confirm_email_changeset(user)
+
+      Multi.new()
+      |> Multi.delete(:email_confirmation_token, email_confirmation_token)
+      |> Multi.update(:user, user_ch)
+      |> Repo.transaction()
+    end
+  end
+
+  defp get_email_confirmation_token(full_token) do
+    with {:ok, {user_id, _}} <- MoodleNet.Token.split_id_and_token(full_token),
+         ret = %{token: ec_token} <- Repo.get_by(EmailConfirmationToken, user_id: user_id),
+         ^full_token <- ec_token do
+      {:ok, ret}
+    else
+      _ -> {:error, :not_found}
+    end
   end
 end

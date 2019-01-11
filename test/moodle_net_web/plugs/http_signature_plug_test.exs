@@ -6,6 +6,8 @@ defmodule MoodleNetWeb.Plugs.HTTPSignaturePlugTest do
   import Plug.Conn
   import Mock
 
+  @moduletag :skip
+
   test "it call HTTPSignatures to check validity if the actor sighed it" do
     params = %{"actor" => "http://mastodon.example.org/users/admin"}
     conn = build_conn(:get, "/doesntmattter", params)

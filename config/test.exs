@@ -28,3 +28,6 @@ config :moodle_net, :httpoison, HTTPoison
 
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint
+
+config :moodle_net, MoodleNet.Mailer,
+  adapter: Bamboo.TestAdapter
