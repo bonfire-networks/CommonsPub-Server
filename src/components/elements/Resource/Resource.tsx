@@ -3,7 +3,6 @@ import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import Button from '../Button/Button';
-
 interface Props {
   icon: string;
   title: string;

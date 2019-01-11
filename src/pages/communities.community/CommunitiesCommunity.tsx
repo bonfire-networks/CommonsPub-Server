@@ -13,18 +13,18 @@ import Breadcrumb from './breadcrumb';
 import CollectionCard from '../../components/elements/Collection/Collection';
 import P from '../../components/typography/P/P';
 import H2 from '../../components/typography/H2/H2';
-import H4 from '../../components/typography/H4/H4';
+// import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
-import Comment from '../../components/elements/Comment/Comment';
+// import Comment from '../../components/elements/Comment/Comment';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
-  Members = 'Members',
-  Collections = 'Collections',
-  Discussion = 'Discussion'
+  // Members = 'Members',
+  Collections = 'Collections'
+  // Discussion = 'Discussion'
 }
 
 interface Data extends GraphqlQueryControls {
@@ -54,14 +54,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
-    let comments;
+    // let comments;
     if (this.props.data.error) {
-      console.error(this.props.data.error);
       collections = <span>Error loading collections</span>;
-      comments = <span>Error loading comments</span>;
+      // comments = <span>Error loading comments</span>;
     } else if (this.props.data.loading) {
       collections = <Loader />;
-      comments = <Loader />;
+      // comments = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
 
@@ -95,33 +94,32 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           </OverviewCollection>
         );
       }
-      if (this.props.data.community.comments.length) {
-        comments = this.props.data.community.comments.map(comment => {
-          let author = {
-            id: comment.author.id,
-            name: comment.author.name,
-            avatarImage: 'https://picsum.photos/200/300'
-          };
-          let message = {
-            body: comment.content,
-            timestamp: comment.published
-          };
-          return <Comment key={comment.id} author={author} comment={message} />;
-        });
-      } else {
-        comments = (
-          <OverviewCollection>
-            <P>This community has no discussions yet.</P>
-            <Button>Start a new thread</Button>
-          </OverviewCollection>
-        );
-      }
+      // if (this.props.data.community.comments.length) {
+      //   comments = this.props.data.community.comments.map(comment => {
+      //     let author = {
+      //       id: comment.author.id,
+      //       name: comment.author.name,
+      //       avatarImage: 'https://picsum.photos/200/300'
+      //     };
+      //     let message = {
+      //       body: comment.content,
+      //       timestamp: comment.published
+      //     };
+      //     return <Comment key={comment.id} author={author} comment={message} />;
+      //   });
+      // } else {
+      //   comments = (
+      //     <OverviewCollection>
+      //       <P>This community has no discussions yet.</P>
+      //       <Button>Start a new thread</Button>
+      //     </OverviewCollection>
+      //   );
+      // }
     }
 
     if (!community) {
       return <Loader />;
     }
-    console.log(community);
     return (
       <>
         <Main>
@@ -151,7 +149,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         </Button>
                       }
                     >
-                      <TabPanel
+                      {/* <TabPanel
                         label={`${TabsEnum.Members} (${
                           community.followersCount
                         })`}
@@ -167,7 +165,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             </Follower>
                           ))}
                         </Members>
-                      </TabPanel>
+                      </TabPanel> */}
                       <TabPanel
                         label={`${TabsEnum.Collections} (${
                           community.collections.length
@@ -176,14 +174,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       >
                         <div style={{ display: 'flex' }}>{collections}</div>
                       </TabPanel>
-                      <TabPanel
+                      {/* <TabPanel
                         label={`${TabsEnum.Discussion} (${
                           community.comments.length
                         })`}
                         key={TabsEnum.Discussion}
                       >
                         {comments}
-                      </TabPanel>
+                      </TabPanel> */}
                     </Tabs>
                   </OverlayTab>
                 </WrapperTab>
@@ -209,30 +207,31 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
-const Members = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-column-gap: 8px;
-  grid-row-gap: 8px;
-`;
-const Follower = styled.div``;
-const Img = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 100px;
-  margin: 0 auto;
-  display: block;
-`;
-const FollowerName = styled(H4)`
-  margin-top: 8px;
-  text-align: center;
-`;
+// const Members = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 1fr 1fr 1fr;
+//   grid-column-gap: 8px;
+//   grid-row-gap: 8px;
+// `;
+// const Follower = styled.div``;
+// const Img = styled.div`
+//   width: 40px;
+//   height: 40px;
+//   border-radius: 100px;
+//   margin: 0 auto;
+//   display: block;
+// `;
+// const FollowerName = styled(H4)`
+//   margin-top: 8px;
+//   text-align: center;
+// `;
 
 const WrapperTab = styled.div`
   padding: 5px;
   border-radius: 0.25em;
   background-color: rgb(232, 232, 232);
   margin: 0 -10px;
+  margin-bottom: 16px;
 `;
 const OverlayTab = styled.div`
   background: #fff;

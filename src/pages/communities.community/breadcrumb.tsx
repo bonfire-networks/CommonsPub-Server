@@ -25,6 +25,7 @@ const Main = styled.div`
   text-transform: uppercase;
   height: 30px;
   line-height: 30px;
+  margin-left: -10px;
   & a {
     font-size: 12px;
     font-weight: 700;

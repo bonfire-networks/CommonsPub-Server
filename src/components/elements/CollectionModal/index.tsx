@@ -79,12 +79,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="name"
                 render={({ field }) => (
-                  <Text
-                    placeholder="The name of the resoruce..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Text
+                      placeholder="The name of the resoruce..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{80 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
               {errors.name && touched.name && <Alert>{errors.name}</Alert>}
@@ -96,12 +99,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="summary"
                 render={({ field }) => (
-                  <Textarea
-                    placeholder="What the resource is about..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Textarea
+                      placeholder="What the resource is about..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{240 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
             </ContainerForm>
@@ -152,8 +158,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     url: Yup.string()
       .url()
       .required(),
-    name: Yup.string().required(),
-    summary: Yup.string(),
+    name: Yup.string()
+      .max(80)
+      .required(),
+    summary: Yup.string().max(240),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {
@@ -191,6 +199,18 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
 
 export default compose(withCreateResource)(ModalWithFormik);
 
+const CounterChars = styled.div`
+  float: right;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #d0d9db;
+  padding: 2px 10px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: #32302e;
+  letter-spacing: 1px;
+`;
+
 const Container = styled.div`
   font-family: ${props => props.theme.styles.fontFamily};
 `;
@@ -207,11 +227,11 @@ const Actions = styled.div`
 const Row = styled.div<{ big?: boolean }>`
   ${clearFix()};
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '160px' : '80px')};
+  height: ${props => (props.big ? '180px' : 'auto')};
   display: flex;
   padding: 20px;
   & textarea {
-    height: 100%;
+    height: 120px;
   }
   & label {
     width: 200px;
@@ -221,6 +241,7 @@ const Row = styled.div<{ big?: boolean }>`
 
 const ContainerForm = styled.div`
   flex: 1;
+  ${clearFix()};
 `;
 
 const Header = styled.div`

@@ -28,7 +28,6 @@ class CommunitiesYours extends React.Component<Props> {
       body = <Loader />;
     } else {
       body = this.props.data.communities.map((community, i) => {
-        console.log(community);
         return (
           <CommunityCard
             key={i}
@@ -40,7 +39,6 @@ class CommunitiesYours extends React.Component<Props> {
         );
       });
     }
-    console.log(body);
     return (
       <Main>
         <Wrapper>
@@ -56,6 +54,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-bottom: 24px;
   & h4 {
     font-size: 18px !important;
     margin: 0;

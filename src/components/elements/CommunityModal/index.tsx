@@ -59,12 +59,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="name"
                 render={({ field }) => (
-                  <Text
-                    placeholder="The name of the collection..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Text
+                      placeholder="The name of the collection..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{80 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
               {errors.name && touched.name && <Alert>{errors.name}</Alert>}
@@ -76,12 +79,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="summary"
                 render={({ field }) => (
-                  <Textarea
-                    placeholder="What the collection is about..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Textarea
+                      placeholder="What the collection is about..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{240 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
             </ContainerForm>
@@ -128,8 +134,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     image: ''
   }),
   validationSchema: Yup.object().shape({
-    name: Yup.string().required(),
-    summary: Yup.string(),
+    name: Yup.string()
+      .max(80)
+      .required(),
+    summary: Yup.string().max(240),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {
@@ -201,14 +209,26 @@ const Actions = styled.div`
   }
 `;
 
+const CounterChars = styled.div`
+  float: right;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #d0d9db;
+  padding: 2px 10px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: #32302e;
+  letter-spacing: 1px;
+`;
+
 const Row = styled.div<{ big?: boolean }>`
   ${clearFix()};
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '160px' : '80px')};
+  height: ${props => (props.big ? '180px' : '100px')};
   display: flex;
   padding: 20px;
   & textarea {
-    height: 100%;
+    height: 120px;
   }
   & label {
     width: 200px;
@@ -218,6 +238,7 @@ const Row = styled.div<{ big?: boolean }>`
 
 const ContainerForm = styled.div`
   flex: 1;
+  ${clearFix()};
 `;
 
 const Header = styled.div`

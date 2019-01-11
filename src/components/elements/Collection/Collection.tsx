@@ -23,30 +23,26 @@ const Collection: React.SFC<CollectionProps> = ({
         <Infos>
           <Title>{collection.name}</Title>
           <Desc>{collection.summary}</Desc>
-          <Actions>
-            <ActionItem>
-              <span />
-              {collection.followersCount} Followers
-            </ActionItem>
+          {/* <Actions>
             <ActionItem>{collection.resourcesCount || 0} Resources</ActionItem>
-          </Actions>
+          </Actions> */}
         </Infos>
       </Link>
     </Wrapper>
   );
 };
 
-const Actions = styled.div`
-  margin-top: 20px;
-`;
-const ActionItem = styled.div`
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #8b98a2;
-  text-transform: uppercase;
-  margin-right: 20px;
-`;
+// const Actions = styled.div`
+//   margin-top: 20px;
+// `;
+// const ActionItem = styled.div`
+//   display: inline-block;
+//   font-size: 12px;
+//   font-weight: 600;
+//   color: #8b98a2;
+//   text-transform: uppercase;
+//   margin-right: 20px;
+// `;
 
 const Wrapper = styled.div`
   display: flex;
