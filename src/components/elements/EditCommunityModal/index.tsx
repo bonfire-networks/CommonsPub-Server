@@ -134,7 +134,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     summary: Yup.string(),
     image: Yup.string().url()
   }),
-  handleSubmit: (values, { props }) => {
+  handleSubmit: (values, { props, setSubmitting }) => {
     const variables = {
       communityId: Number(props.communityId),
       community: {
@@ -145,43 +145,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         icon: values.image
       }
     };
-    console.log(variables);
     return props
       .updateCommunity({
-        variables: variables,
-        update: (store, { data }) => {
-          //   const fragment = gql`
-          //     fragment Resources on Collection {
-          //       id
-          //       resources {
-          //         id
-          //       }
-          //     }
-          //   `;
-          //   const updatedCollection = store.readFragment({
-          //     id: `Collection:${props.collectionExternalId}`,
-          //     fragment: fragment,
-          //     fragmentName: 'Resources'
-          //   });
-          //   console.log(`Collection:${props.collectionExternalId}`);
-          //   const newResource = {
-          //     __typename: 'Resource',
-          //     id: data.createResource.id,
-          //     localId: data.createResource.localId,
-          //     name: data.createResource.name,
-          //     summary: data.createResource.summary,
-          //     icon: data.createResource.icon
-          //   };
-          //   console.log(updatedCollection);
-          //   updatedCollection.resources.unshift(newResource);
-          //   store.writeFragment({
-          //     id: `Community:${props.collectionExternalId}`,
-          //     fragment: fragment,
-          //     fragmentName: 'Resources',
-          //     data: updatedCollection
-          //   });
-        }
+        variables: variables
       })
+      .then(res => setSubmitting(false))
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);
@@ -207,6 +175,9 @@ const Row = styled.div<{ big?: boolean }>`
   height: ${props => (props.big ? '160px' : '80px')};
   display: flex;
   padding: 20px;
+  & textarea {
+    height: 100%;
+  }
   & label {
     width: 200px;
     line-height: 40px;

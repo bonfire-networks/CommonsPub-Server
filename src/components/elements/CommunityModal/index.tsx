@@ -132,7 +132,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     summary: Yup.string(),
     image: Yup.string().url()
   }),
-  handleSubmit: (values, { props }) => {
+  handleSubmit: (values, { props, setSubmitting }) => {
     const variables = {
       communityId: Number(props.communityId),
       collection: {
@@ -181,6 +181,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
           });
         }
       })
+      .then(res => setSubmitting(false))
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);
@@ -206,6 +207,9 @@ const Row = styled.div<{ big?: boolean }>`
   height: ${props => (props.big ? '160px' : '80px')};
   display: flex;
   padding: 20px;
+  & textarea {
+    height: 100%;
+  }
   & label {
     width: 200px;
     line-height: 40px;

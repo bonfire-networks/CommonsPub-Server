@@ -284,7 +284,7 @@ const Background = styled.div`
   border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: #f8f8f8;
+  background-color: #e6e6e6;
   position: relative;
 `;
 

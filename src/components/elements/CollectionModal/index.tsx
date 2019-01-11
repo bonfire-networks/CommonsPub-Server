@@ -10,7 +10,9 @@ import { compose } from 'react-apollo';
 import { withFormik, FormikProps, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Alert from '../../elements/Alert';
-import gql from 'graphql-tag';
+const {
+  getCollectionQuery
+} = require('../../../graphql/getCollection.graphql');
 import { graphql, OperationOption } from 'react-apollo';
 const {
   createResourceMutation
@@ -61,7 +63,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                 name="url"
                 render={({ field }) => (
                   <Text
-                    placeholder="The url of the collection..."
+                    placeholder="The url of the resource..."
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -78,7 +80,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                 name="name"
                 render={({ field }) => (
                   <Text
-                    placeholder="The name of the collection..."
+                    placeholder="The name of the resoruce..."
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -95,7 +97,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                 name="summary"
                 render={({ field }) => (
                   <Textarea
-                    placeholder="What the collection is about..."
+                    placeholder="What the resource is about..."
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -154,7 +156,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     summary: Yup.string(),
     image: Yup.string().url()
   }),
-  handleSubmit: (values, { props }) => {
+  handleSubmit: (values, { props, setSubmitting }) => {
     const variables = {
       resourceId: Number(props.collectionId),
       resource: {
@@ -164,43 +166,25 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         url: values.url
       }
     };
-    console.log(variables);
     return props
       .createResource({
         variables: variables,
-        update: (store, { data }) => {
-          const fragment = gql`
-            fragment Resources on Collection {
-              id
-              resources {
-                id
-              }
-            }
-          `;
-          const updatedCollection = store.readFragment({
-            id: `Collection:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Resources'
+        update: (proxy, { data: { createResource } }) => {
+          const data = proxy.readQuery({
+            query: getCollectionQuery,
+            variables: { localId: Number(props.collectionId) }
           });
-          console.log(`Collection:${props.collectionExternalId}`);
-          const newResource = {
-            __typename: 'Resource',
-            id: data.createResource.id,
-            localId: data.createResource.localId,
-            name: data.createResource.name,
-            summary: data.createResource.summary,
-            icon: data.createResource.icon
-          };
-          console.log(updatedCollection);
-          updatedCollection.resources.unshift(newResource);
-          store.writeFragment({
-            id: `Community:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Resources',
-            data: updatedCollection
+          console.log(data);
+
+          data.resources.unshift(createResource);
+          proxy.writeQuery({
+            query: getCollectionQuery,
+            variables: { localId: Number(props.collectionId) },
+            data
           });
         }
       })
+      .then(res => setSubmitting(false))
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);
@@ -226,6 +210,9 @@ const Row = styled.div<{ big?: boolean }>`
   height: ${props => (props.big ? '160px' : '80px')};
   display: flex;
   padding: 20px;
+  & textarea {
+    height: 100%;
+  }
   & label {
     width: 200px;
     line-height: 40px;
