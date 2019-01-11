@@ -11,7 +11,7 @@ const SidebarWrapper = styled.div`
   flex-direction: column;
   padding: 16px;
   position: relative;
-  // background: ${props => props.theme.styles.colour.primary};
+  background: whitesmoke;
 `;
 
 interface NavProps extends RouterProps {
