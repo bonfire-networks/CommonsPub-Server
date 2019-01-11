@@ -61,12 +61,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="name"
                 render={({ field }) => (
-                  <Text
-                    placeholder="The name of the collection..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Text
+                      placeholder="The name of the collection..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{80 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
               {errors.name && touched.name && <Alert>{errors.name}</Alert>}
@@ -78,12 +81,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               <Field
                 name="summary"
                 render={({ field }) => (
-                  <Textarea
-                    placeholder="What the collection is about..."
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
+                  <>
+                    <Textarea
+                      placeholder="What the collection is about..."
+                      name={field.name}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                    <CounterChars>{240 - field.value.length}</CounterChars>
+                  </>
                 )}
               />
             </ContainerForm>
@@ -130,8 +136,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     image: props.collection.icon || ''
   }),
   validationSchema: Yup.object().shape({
-    name: Yup.string().required(),
-    summary: Yup.string(),
+    name: Yup.string()
+      .max(80)
+      .required(),
+    summary: Yup.string().max(240),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props }) => {
@@ -145,48 +153,27 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         icon: values.image
       }
     };
-    console.log(variables);
     return props
       .updateCollection({
-        variables: variables,
-        update: (store, { data }) => {
-          //   const fragment = gql`
-          //     fragment Resources on Collection {
-          //       id
-          //       resources {
-          //         id
-          //       }
-          //     }
-          //   `;
-          //   const updatedCollection = store.readFragment({
-          //     id: `Collection:${props.collectionExternalId}`,
-          //     fragment: fragment,
-          //     fragmentName: 'Resources'
-          //   });
-          //   console.log(`Collection:${props.collectionExternalId}`);
-          //   const newResource = {
-          //     __typename: 'Resource',
-          //     id: data.createResource.id,
-          //     localId: data.createResource.localId,
-          //     name: data.createResource.name,
-          //     summary: data.createResource.summary,
-          //     icon: data.createResource.icon
-          //   };
-          //   console.log(updatedCollection);
-          //   updatedCollection.resources.unshift(newResource);
-          //   store.writeFragment({
-          //     id: `Community:${props.collectionExternalId}`,
-          //     fragment: fragment,
-          //     fragmentName: 'Resources',
-          //     data: updatedCollection
-          //   });
-        }
+        variables: variables
       })
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);
 
 export default compose(withUpdateCollection)(ModalWithFormik);
+
+const CounterChars = styled.div`
+  float: right;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: #d0d9db;
+  padding: 2px 10px;
+  font-weight: 600;
+  margin-top: 4px;
+  color: #32302e;
+  letter-spacing: 1px;
+`;
 
 const Container = styled.div`
   font-family: ${props => props.theme.styles.fontFamily};
@@ -204,12 +191,15 @@ const Actions = styled.div`
 const Row = styled.div<{ big?: boolean }>`
   ${clearFix()};
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '160px' : '80px')};
+  height: ${props => (props.big ? '180px' : 'auto')};
   display: flex;
   padding: 20px;
   & label {
     width: 200px;
     line-height: 40px;
+  }
+  & textarea {
+    height: 120px;
   }
 `;
 
