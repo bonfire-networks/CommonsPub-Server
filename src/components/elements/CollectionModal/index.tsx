@@ -10,9 +10,7 @@ import { compose } from 'react-apollo';
 import { withFormik, FormikProps, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Alert from '../../elements/Alert';
-const {
-  getCollectionQuery
-} = require('../../../graphql/getCollection.graphql');
+import gql from 'graphql-tag';
 import { graphql, OperationOption } from 'react-apollo';
 const {
   createResourceMutation
@@ -178,18 +176,46 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
       .createResource({
         variables: variables,
         update: (proxy, { data: { createResource } }) => {
-          const data = proxy.readQuery({
-            query: getCollectionQuery,
-            variables: { localId: Number(props.collectionId) }
-          });
-          console.log(data);
+          const fragment = gql`
+            fragment Res on Collection {
+              id
+              localId
+              icon
+              name
+              content
+              followersCount
+              summary
+              resources {
+                id
+                localId
+                name
+                summary
+                url
+                icon
+              }
+            }
+          `;
 
-          data.resources.unshift(createResource);
-          proxy.writeQuery({
-            query: getCollectionQuery,
-            variables: { localId: Number(props.collectionId) },
-            data
+          const collection = proxy.readFragment({
+            id: `Collection:${props.collectionExternalId}`,
+            fragment: fragment,
+            fragmentName: 'Res'
           });
+          console.log(createResource);
+          collection.resources.unshift(createResource);
+          console.log(collection);
+          proxy.writeFragment({
+            id: `Collection:${props.collectionExternalId}`,
+            fragment: fragment,
+            fragmentName: 'Res',
+            data: collection
+          });
+          const collection2 = proxy.readFragment({
+            id: `Collection:${props.collectionExternalId}`,
+            fragment: fragment,
+            fragmentName: 'Res'
+          });
+          console.log(collection2);
         }
       })
       .then(res => setSubmitting(false))

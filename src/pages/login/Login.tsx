@@ -2,7 +2,7 @@ import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
-import { Col, Grid, Row } from '@zendeskgarden/react-grid';
+import { Col, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
 import { i18nMark } from '@lingui/react';
@@ -40,39 +40,12 @@ const tt = {
   }
 };
 
-const CenteredButtonGroup = styled.div`
-  display: flex;
-  justify-content: center;
-`;
-
-const FirstTimeCol = styled(Col)`
-  display: flex;
-  flex-direction: column;
-
-  &:before {
-    content: '';
-    height: 95%;
-    width: 1px;
-    position: absolute;
-    left: -11%;
-    top: 2.5%;
-    display: block;
-    background-color: lightgrey;
-  }
-`;
-
 const BodyCenterContent = styled(Body)`
   display: flex;
   align-items: center;
-`;
-
-const Spacer = styled.div`
-  width: 10px;
-  height: 10px;
-`;
-
-const LoginHeading = styled(H6)`
-  text-shadow: 2px 2px 0 ${props => props.theme.styles.colour.base5};
+  width: 420px;
+  margin: 0 auto;
+  flex-direction: column;
 `;
 
 /**
@@ -224,115 +197,50 @@ class Login extends React.Component<LoginProps, LoginState> {
 
     return (
       <BodyCenterContent>
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '8px',
-            boxShadow: '0 0 1px lightgrey',
-            backgroundColor: this.props.theme.styles.colour.primary
-          }}
-        />
-        <Grid fluid={false}>
-          <Row>
-            <Col>
-              <Logo />
-            </Col>
-            <Col
-              justifyContent="end"
-              alignSelf="center"
-              style={{ display: 'flex' }}
+        <Row>
+          <Col>
+            <Logo />
+          </Col>
+          <Col
+            justifyContent="end"
+            alignSelf="center"
+            style={{ display: 'flex' }}
+          >
+            <LanguageSelect />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <H6>Sign in</H6>
+            <LoginForm
+              validation={this.state.validation}
+              onSubmit={this.onLoginFormSubmit}
+              onInputChange={this.onLoginFormInputChange}
+              authenticating={this.state.authenticating}
+            />
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+            <P
+              style={{
+                marginTop: '40px'
+              }}
             >
-              <LanguageSelect />
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <LoginHeading>
-                <Trans>Sign in using your social media account</Trans>
-              </LoginHeading>
-              <CenteredButtonGroup>
-                <Button style={{ width: '33.33%' }} title={tt.with.fb}>
-                  <i className="facebook" />
-                </Button>
-                <Spacer />
-                <Button style={{ width: '33.33%' }} title={tt.with.g}>
-                  <i className="google" />
-                </Button>
-                <Spacer />
-                <Button style={{ width: '33.33%' }} title={tt.with.tw}>
-                  <i className="twitter" />
-                </Button>
-              </CenteredButtonGroup>
-              <P
-                style={{
-                  textAlign: 'center',
-                  color: 'lightgrey',
-                  pointerEvents: 'none'
-                }}
-              >
-                <span style={{ fontFamily: 'sans-serif' }}>———</span>
-                <span
-                  style={{
-                    color: 'grey',
-                    display: 'inline-block',
-                    margin: '0 3px'
-                  }}
-                >
-                  OR
-                </span>
-                <span style={{ fontFamily: 'sans-serif' }}>———</span>
-              </P>
-              <LoginForm
-                validation={this.state.validation}
-                onSubmit={this.onLoginFormSubmit}
-                onInputChange={this.onLoginFormInputChange}
-                authenticating={this.state.authenticating}
-              />
-            </Col>
-            <FirstTimeCol offsetSm={1} md={5}>
-              <Row>
-                <LoginHeading>
-                  <Trans>First time?</Trans>
-                </LoginHeading>
-              </Row>
-              <Row>
-                {/*TODO why isn't the margin collapsing between the H6 & P?*/}
-                <P style={{ marginTop: 0 }}>
-                  <Trans
-                    id="You don't need an account to browse {site_name}."
-                    values={{ site_name: 'MoodleNet' }}
-                  />
-                </P>
+              <Trans>
+                You need to sign up to participate in discussions. You can use a
+                social media account to sign in, or create an account manually.
+              </Trans>
+            </P>
 
-                <Button secondary>
-                  <Trans>Browse as a guest</Trans>
-                </Button>
-              </Row>
-              <Row>
-                <P
-                  style={{
-                    marginTop: '40px'
-                  }}
-                >
-                  <Trans>
-                    You need to sign up to participate in discussions. You can
-                    use a social media account to sign in, or create an account
-                    manually.
-                  </Trans>
-                </P>
-
-                <Link to="/sign-up">
-                  <Button>
-                    <Trans>Create an account</Trans>
-                  </Button>
-                </Link>
-              </Row>
-            </FirstTimeCol>
-          </Row>
-        </Grid>
+            <Link to="/sign-up">
+              <Button>
+                <Trans>Create an account</Trans>
+              </Button>
+            </Link>
+          </Col>
+        </Row>
       </BodyCenterContent>
     );
   }

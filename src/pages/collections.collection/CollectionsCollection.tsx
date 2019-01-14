@@ -59,6 +59,7 @@ class CollectionComponent extends React.Component<Props> {
       collection = this.props.data.collection;
       resources = this.props.data.collection.resources;
     }
+    console.log(collection);
     // if (collection.comments.length) {
     //   discussions = collection.comments.map(comment => {
     //     let author = {
@@ -157,7 +158,7 @@ class CollectionComponent extends React.Component<Props> {
                                   />
                                 ))}
                               </CollectionList>
-                              {resources.length > 10 ? null : (
+                              {resources.length > 9 ? null : (
                                 <WrapperActions>
                                   <Button onClick={this.props.addNewResource}>
                                     Add a new resource
