@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { compose, withState, withHandlers } from 'recompose';
+
+import { Trans } from '@lingui/macro';
+
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { RouteComponentProps } from 'react-router';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
@@ -56,8 +59,12 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     let community;
     // let comments;
     if (this.props.data.error) {
-      collections = <span>Error loading collections</span>;
-      // comments = <span>Error loading comments</span>;
+      collections = (
+        <span>
+          <Trans>Error loading collections</Trans>
+        </span>
+      );
+      // comments = <span><Trans>Error loading comments</Trans></span>;
     } else if (this.props.data.loading) {
       collections = <Loader />;
       // comments = <Loader />;
@@ -79,7 +86,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 
             <WrapperActions>
               <Button onClick={this.props.handleNewCollection}>
-                Create a new collection
+                <Trans>Create a new collection</Trans>
               </Button>
             </WrapperActions>
           </Wrapper>
@@ -89,7 +96,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           <OverviewCollection>
             <P>This community has no collections.</P>
             <Button onClick={this.props.handleNewCollection}>
-              Create the first collection
+              <Trans>Create the first collection</Trans>
             </Button>
           </OverviewCollection>
         );
@@ -145,7 +152,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       onChange={tab => this.setState({ tab })}
                       button={
                         <Button onClick={this.props.editCommunity} secondary>
-                          Edit
+                          <Trans>Edit</Trans>
                         </Button>
                       }
                     >

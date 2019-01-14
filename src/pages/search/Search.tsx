@@ -1,4 +1,7 @@
 import * as React from 'react';
+
+import { Trans } from '@lingui/macro';
+
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { Redirect } from 'react-router';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
@@ -33,7 +36,9 @@ const yourLikes = (
 const communities = (
   <Row>
     <Col size={10}>
-      <h4>Communities</h4>
+      <h4>
+        <Trans>Communities</Trans>
+      </h4>
       <CardContainer>
         {/*{DUMMY_COMMUNITIES.slice(0, 2).map(community => {*/}
         {/*return <CommunityCard key={community.id} {...community} />;*/}
@@ -46,7 +51,9 @@ const communities = (
 const collections = (
   <Row>
     <Col size={10}>
-      <h4>Collections</h4>
+      <h4>
+        <Trans>Collections</Trans>
+      </h4>
       <CardContainer>
         {/*{DUMMY_COLLECTIONS.slice(0, 6).map(collection => {*/}
         {/*return <CollectionCard key={collection.id} {...collection} />;*/}
@@ -59,7 +66,9 @@ const collections = (
 const resources = (
   <Row>
     <Col size={10}>
-      <h4>Resources</h4>
+      <h4>
+        <Trans>Resources</Trans>
+      </h4>
       <CardContainer>
         {/*{DUMMY_RESOURCES.slice(0, 1).map(resource => {*/}
         {/*return <ResourceCard key={resource.id} {...resource} />;*/}
@@ -72,7 +81,9 @@ const resources = (
 const discussions = (
   <Row>
     <Col size={10}>
-      <h4>Discussions</h4>
+      <h4>
+        <Trans>Discussions</Trans>
+      </h4>
     </Col>
   </Row>
 );
@@ -115,7 +126,9 @@ export default class extends React.Component {
           <Row>
             <Col size={10}>
               <Logo />
-              <P>Search results for {query}</P>
+              <P>
+                <Trans>Search results for {query}</Trans>
+              </P>
             </Col>
           </Row>
           <Tabs

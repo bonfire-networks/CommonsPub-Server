@@ -27,7 +27,9 @@ export const SignUpProfileSection = styled.div<any>`
 
 export const Interests = ({ active, interests, onTagClick }) => (
   <Step2Section active={active}>
-    <H4>Interests</H4>
+    <H4>
+      <Trans>Interests</Trans>
+    </H4>
     <TagContainer>
       {interests.length ? (
         interests.map(interest => (
@@ -52,7 +54,9 @@ export const Interests = ({ active, interests, onTagClick }) => (
 
 export const Languages = ({ active, languages }) => (
   <Step2Section active={active}>
-    <H4>Languages</H4>
+    <H4>
+      <Trans>Languages</Trans>
+    </H4>
     <TagContainer>
       {languages.length ? (
         languages.map(lang => (

@@ -164,7 +164,7 @@ export default function(props: UserProfileProps) {
                 textShadow: '1px 1px 0 lightgrey'
               }}
             >
-              <Trans>Click to select a profile background</Trans>
+              <Trans>Click to select a profile background image</Trans>
             </P>
           </div>
         ) : null}

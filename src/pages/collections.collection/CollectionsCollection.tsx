@@ -1,4 +1,7 @@
 import * as React from 'react';
+
+import { Trans } from '@lingui/macro';
+
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 // import H4 from '../../components/typography/H4/H4';
 import P from '../../components/typography/P/P';
@@ -83,7 +86,11 @@ class CollectionComponent extends React.Component<Props> {
     // }
     if (!collection) {
       // TODO better handling of no collection
-      return <span>Could not load collection.</span>;
+      return (
+        <span>
+          <Trans>Could not load the collection.</Trans>
+        </span>
+      );
     }
 
     return (
@@ -162,7 +169,7 @@ class CollectionComponent extends React.Component<Props> {
                               {resources.length > 9 ? null : (
                                 <WrapperActions>
                                   <Button onClick={this.props.addNewResource}>
-                                    Add a new resource
+                                    <Trans>Add a new resource</Trans>
                                   </Button>
                                 </WrapperActions>
                               )}
@@ -171,7 +178,7 @@ class CollectionComponent extends React.Component<Props> {
                             <OverviewCollection>
                               <P>This community has no resources.</P>
                               <Button onClick={this.props.addNewResource}>
-                                Add the first resource
+                                <Trans>Add the first resource</Trans>
                               </Button>
                             </OverviewCollection>
                           )}

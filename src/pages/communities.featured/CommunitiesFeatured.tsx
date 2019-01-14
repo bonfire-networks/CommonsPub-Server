@@ -26,7 +26,11 @@ class CommunitiesYours extends React.Component<Props> {
     let body;
 
     if (this.props.data.error) {
-      body = <span>Error loading communities</span>;
+      body = (
+        <span>
+          <Trans>Error loading communities</Trans>
+        </span>
+      );
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
@@ -46,7 +50,7 @@ class CommunitiesYours extends React.Component<Props> {
       <Main>
         <Wrapper>
           <H4>
-            <Trans>All Communities></Trans>
+            <Trans>All Communities</Trans>
           </H4>
           <List>{body}</List>
         </Wrapper>

@@ -38,7 +38,7 @@ function InterestsSearchResults({ status, count, result, children }) {
   if (status === SearchStatus.in_progress) {
     return (
       <InterestsSearchResultsContainer>
-        Searching...
+        <Trans>Searching...</Trans>
       </InterestsSearchResultsContainer>
     );
   }
@@ -161,7 +161,7 @@ export default class extends React.Component<Step2Props, Step2State> {
               <Trans>Popular on MoodleNet</Trans>
             </P>
             <P>
-              <Trans>These are some trending tags</Trans>.
+              <Trans>Here are some trending tags you could add</Trans>.
             </P>
             <TagContainer>
               {words.map(word => (
