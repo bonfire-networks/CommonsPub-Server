@@ -6,7 +6,7 @@ import { Col, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
 import { i18nMark } from '@lingui/react';
-// import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro';
 
 import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
@@ -228,7 +228,9 @@ class Login extends React.Component<LoginProps, LoginState> {
           </Head>
           <Row>
             <Col>
-              <H6>Sign in</H6>
+              <H6>
+                <Trans>Sign in</Trans>
+              </H6>
               <LoginForm
                 validation={this.state.validation}
                 onSubmit={this.onLoginFormSubmit}

@@ -54,7 +54,7 @@ class CommunitiesYours extends React.Component<Props> {
           <Row>
             <Col sm={6}>
               <Logo />
-              <PageTitle>All Communities</PageTitle>
+              <PageTitle>Your Communities</PageTitle>
             </Col>
           </Row>
           <Row>

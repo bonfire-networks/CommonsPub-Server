@@ -1,6 +1,9 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
+
+import { Trans } from '@lingui/macro';
+
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
@@ -42,7 +45,9 @@ class CommunitiesYours extends React.Component<Props> {
     return (
       <Main>
         <Wrapper>
-          <H4>All communities</H4>
+          <H4>
+            <Trans>All Communities></Trans>
+          </H4>
           <List>{body}</List>
         </Wrapper>
       </Main>

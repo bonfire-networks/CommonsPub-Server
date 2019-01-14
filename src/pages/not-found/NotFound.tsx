@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import styled from '../../themes/styled';
 import H3 from '../../components/typography/H3/H3';
 
@@ -15,7 +17,9 @@ const NotFound = styled.div`
 export default () => {
   return (
     <NotFound>
-      <H3>Page not found</H3>
+      <H3>
+        <Trans>Page not found</Trans>
+      </H3>
     </NotFound>
   );
 };

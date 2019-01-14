@@ -1,5 +1,7 @@
 import * as React from 'react';
 
+import { Trans } from '@lingui/macro';
+
 import styled from '../../themes/styled';
 import H4 from '../../components/typography/H4/H4';
 import Tag, { TagContainer } from '../../components/elements/Tag/Tag';
@@ -11,9 +13,11 @@ const Step2Section = styled.div<any>`
   transition: opacity 1.75s linear;
 `;
 
-const TagsNoneSelected = ({ what }) => {
+const TagsNoneSelected = ({ something }) => {
   return (
-    <div style={{ paddingTop: '8px', color: 'grey' }}>No {what} selected</div>
+    <div style={{ paddingTop: '8px', color: 'grey' }}>
+      <Trans>No {something} selected</Trans>
+    </div>
   );
 };
 
@@ -37,10 +41,12 @@ export const Interests = ({ active, interests, onTagClick }) => (
           </Tag>
         ))
       ) : (
-        <TagsNoneSelected what="interests" />
+        <TagsNoneSelected something="interests" />
       )}
     </TagContainer>
-    <Button onClick={() => alert('add interest clicked')}>Add interest</Button>
+    <Button onClick={() => alert('add interest clicked')}>
+      <Trans>Add interest</Trans>
+    </Button>
   </Step2Section>
 );
 
@@ -60,9 +66,11 @@ export const Languages = ({ active, languages }) => (
           </Tag>
         ))
       ) : (
-        <TagsNoneSelected what="languages" />
+        <TagsNoneSelected something="languages" />
       )}
     </TagContainer>
-    <Button onClick={() => alert('add lang clicked')}>Add language</Button>
+    <Button onClick={() => alert('add lang clicked')}>
+      <Trans>Add language</Trans>
+    </Button>
   </Step2Section>
 );
