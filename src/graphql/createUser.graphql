@@ -1,4 +1,4 @@
-input UserInput {
+input RegistrationInput {
     email: String!
     password: String!
     preferredUsername: String!
@@ -7,7 +7,7 @@ input UserInput {
     location: String!
 }
 
-mutation createUserMutation($user: UserInput!) {
+mutation createUserMutation($user: RegistrationInput!) {
     createUser(user: $user) {
         token
         me {
