@@ -7,7 +7,7 @@ import { Trans } from '@lingui/macro';
 
 import styled from '../../themes/styled';
 import TextInput from '../../components/inputs/Text/Text';
-import Link from '../../components/elements/Link/Link';
+// import Link from '../../components/elements/Link/Link';
 import { LoaderButton } from '../../components/elements/Button/Button';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
@@ -161,11 +161,11 @@ export default class extends React.Component<LoginFormProps, LoginFormState> {
           </Row>
         ) : null}
         <Row>
-          <SubmitCol>
+          {/* <SubmitCol>
             <Link to="/reset-password">
               <Trans>Forgotten your password?</Trans>
             </Link>
-          </SubmitCol>
+          </SubmitCol> */}
           <SubmitCol alignRight>
             <LoaderButton loading={authenticating} text={tt.login} />
           </SubmitCol>
