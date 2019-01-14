@@ -3,6 +3,8 @@ TARGET="../moodlenet-web-build" # indicate path where this repository is checked
 
 echo "Deploy path: ' + ${TARGET}"
 
+git pull
+
 npm install 
 
 npm run-script build
