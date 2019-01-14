@@ -1,13 +1,13 @@
 #!/bin/sh
-TARGET="../moodlenet-web-build" # Where this repository is checked out: https://gitlab.com/moodlenet/clients/web-build
+TARGET="../moodlenet-web-build" # indicate path where this repository is checked out: https://gitlab.com/moodlenet/clients/web-build
 
 echo "Deploy path: ' + ${TARGET}"
 
-yarn 
+npm install 
 
-yarn build
+npm run-script build
 
-yarn styleguide:build
+npm styleguide:build
 
 cp -r build/* $TARGET
 
