@@ -6,16 +6,16 @@ import { Col, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 
 import { i18nMark } from '@lingui/react';
-import { Trans } from '@lingui/macro';
+// import { Trans } from '@lingui/macro';
 
 import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
-import Link from '../../components/elements/Link/Link';
+// import Link from '../../components/elements/Link/Link';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import Body from '../../components/chrome/Body/Body';
-import Button from '../../components/elements/Button/Button';
+// import Button from '../../components/elements/Button/Button';
 import H6 from '../../components/typography/H6/H6';
-import P from '../../components/typography/P/P';
+// import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
 import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
@@ -40,6 +40,25 @@ const tt = {
   }
 };
 
+const Head = styled.div`
+  width: 100%;
+  background: whitesmoke;
+  height: 60px;
+  & h1 {
+    margin: 0;
+    line-height: 60px;
+  }
+`;
+
+const Left = styled.div`
+  float: left;
+`;
+
+const Right = styled.div`
+  float: right;
+  margin-top: 9px;
+`;
+
 const BodyCenterContent = styled(Body)`
   display: flex;
   align-items: center;
@@ -55,7 +74,6 @@ const BodyCenterContent = styled(Body)`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
-  console.log(data);
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
@@ -196,32 +214,31 @@ class Login extends React.Component<LoginProps, LoginState> {
     }
 
     return (
-      <BodyCenterContent>
-        <Row>
-          <Col>
-            <Logo />
-          </Col>
-          <Col
-            justifyContent="end"
-            alignSelf="center"
-            style={{ display: 'flex' }}
-          >
-            <LanguageSelect />
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <H6>Sign in</H6>
-            <LoginForm
-              validation={this.state.validation}
-              onSubmit={this.onLoginFormSubmit}
-              onInputChange={this.onLoginFormInputChange}
-              authenticating={this.state.authenticating}
-            />
-          </Col>
-        </Row>
+      <>
+        <BodyCenterContent>
+          <Head>
+            <Col size={12}>
+              <Left>
+                <Logo />
+              </Left>
+              <Right>
+                <LanguageSelect />
+              </Right>
+            </Col>
+          </Head>
+          <Row>
+            <Col>
+              <H6>Sign in</H6>
+              <LoginForm
+                validation={this.state.validation}
+                onSubmit={this.onLoginFormSubmit}
+                onInputChange={this.onLoginFormInputChange}
+                authenticating={this.state.authenticating}
+              />
+            </Col>
+          </Row>
 
-        <Row>
+          {/* <Row>
           <Col>
             <P
               style={{
@@ -240,8 +257,9 @@ class Login extends React.Component<LoginProps, LoginState> {
               </Button>
             </Link>
           </Col>
-        </Row>
-      </BodyCenterContent>
+        </Row> */}
+        </BodyCenterContent>
+      </>
     );
   }
 }
