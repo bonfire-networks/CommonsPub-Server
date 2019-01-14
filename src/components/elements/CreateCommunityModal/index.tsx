@@ -158,7 +158,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
           proxy.writeQuery({ query: getCommunitiesQuery, data });
         }
       })
-      .then(res => setSubmitting(false))
+      .then(res => {
+        setSubmitting(false);
+        props.toggleModal();
+      })
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);

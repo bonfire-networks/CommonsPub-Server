@@ -189,7 +189,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
           });
         }
       })
-      .then(res => setSubmitting(false))
+      .then(res => {
+        props.toggleModal();
+        setSubmitting(false);
+      })
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);

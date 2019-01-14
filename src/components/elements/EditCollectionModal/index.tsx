@@ -142,7 +142,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     summary: Yup.string().max(240),
     image: Yup.string().url()
   }),
-  handleSubmit: (values, { props }) => {
+  handleSubmit: (values, { props, setSubmitting }) => {
     const variables = {
       collectionId: Number(props.collectionId),
       collection: {
@@ -156,6 +156,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     return props
       .updateCollection({
         variables: variables
+      })
+      .then(res => {
+        setSubmitting(false);
+        props.toggleModal();
       })
       .catch(err => console.log(err));
   }
