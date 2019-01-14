@@ -53,6 +53,7 @@ const Wrapper = styled.div`
     display: flex;
     color: inherit;
     text-decoration: none;
+    width: 100%;
   }
   &:hover {
     background: #f5f5f5;

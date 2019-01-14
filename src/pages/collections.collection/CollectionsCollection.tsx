@@ -155,6 +155,7 @@ class CollectionComponent extends React.Component<Props> {
                                     title={resource.name}
                                     summary={resource.summary}
                                     url={resource.url}
+                                    localId={resource.localId}
                                   />
                                 ))}
                               </CollectionList>

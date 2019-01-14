@@ -3,11 +3,16 @@ import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import Button from '../Button/Button';
+import { compose, withState, withHandlers } from 'recompose';
+import EditResourceModal from '../EditResourceModal';
 interface Props {
   icon: string;
   title: string;
   summary: string;
   url: string;
+  localId: string;
+  editResource(): boolean;
+  isEditResourceOpen: boolean;
 }
 
 const ResourceCard: React.SFC<Props> = props => (
@@ -17,7 +22,9 @@ const ResourceCard: React.SFC<Props> = props => (
       <TitleWrapper>
         <Title>{props.title}</Title>
         <Actions>
-          <Button hovered>Edit</Button>
+          <Button hovered onClick={props.editResource}>
+            Edit
+          </Button>
         </Actions>
       </TitleWrapper>
       <Url>
@@ -27,6 +34,15 @@ const ResourceCard: React.SFC<Props> = props => (
       </Url>
       <Summary>{props.summary}</Summary>
     </Info>
+    <EditResourceModal
+      toggleModal={props.editResource}
+      modalIsOpen={props.isEditResourceOpen}
+      id={props.localId}
+      url={props.url}
+      image={props.icon}
+      name={props.title}
+      summary={props.summary}
+    />
   </Wrapper>
 );
 
@@ -94,4 +110,13 @@ const Actions = styled.div`
   }
 `;
 
-export default ResourceCard;
+export default compose(
+  withState('isEditResourceOpen', 'onEditResourceOpen', false),
+  withHandlers({
+    addNewResource: props => () => props.onOpen(!props.isOpen),
+    editCollection: props => () =>
+      props.onEditCollectionOpen(!props.isEditCollectionOpen),
+    editResource: props => () =>
+      props.onEditResourceOpen(!props.isEditResourceOpen)
+  })
+)(ResourceCard);
