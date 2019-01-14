@@ -19,7 +19,5 @@ mutation createCommunityMutation($community: CommunityInput!) {
           icon
           followingCount
           followersCount
-          published
-          updated
         }
       }

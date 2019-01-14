@@ -1,4 +1,5 @@
 import Resource from './Resource';
+import Community from './Community';
 
 export default interface Collection {
   // no. of people following that are not members
@@ -14,4 +15,5 @@ export default interface Collection {
   name: string;
   summary: string;
   resources: Resource[];
+  communities: Community[];
 }

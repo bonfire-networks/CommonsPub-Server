@@ -6,6 +6,7 @@ import styled from '../../themes/styled';
 // import Menu from '../../components/chrome/Menu/Menu';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
+import CollectionsFeatured from '../../pages/collections.featured/CollectionsFeatured';
 import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
 import CommunitiesCommunity from '../../pages/communities.community/CommunitiesCommunity';
 import CollectionsCollection from '../../pages/collections.collection/CollectionsCollection';
@@ -93,7 +94,7 @@ export default () => (
                   <Route
                     exact
                     path="/collections"
-                    component={() => <div>collections</div>}
+                    component={CollectionsFeatured}
                   />
                   <Route
                     exact
