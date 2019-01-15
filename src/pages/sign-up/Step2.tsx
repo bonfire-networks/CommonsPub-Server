@@ -2,6 +2,13 @@ import * as React from 'react';
 import { Col, Row } from '@zendeskgarden/react-grid';
 
 import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    search: i18nMark('Search for tags')
+  }
+};
 
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
@@ -136,7 +143,7 @@ export default class extends React.Component<Step2Props, Step2State> {
             </P>
             <form onSubmit={this.onInterestsSearchSubmit}>
               <TextInput
-                placeholder="Search for tags"
+                placeholder={tt.placeholders.search}
                 button={
                   <Button type="submit">
                     <Trans>Search</Trans>
