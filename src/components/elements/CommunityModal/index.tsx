@@ -1,6 +1,20 @@
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    name: i18nMark('Choose a name for the collection'),
+    summary: i18nMark(
+      'Please describe what the collection is for, and what it is likely to contain...'
+    ),
+    image: i18nMark('Enter the URL of an image to represent the collection')
+  }
+};
+
 import { clearFix } from 'polished';
 import H5 from '../../typography/H5/H5';
 import Text from '../../inputs/Text/Text';
@@ -50,18 +64,22 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
         <Header>
-          <H5>Create a new collection</H5>
+          <H5>
+            <Trans>Create a new collection</Trans>
+          </H5>
         </Header>
         <Form>
           <Row>
-            <label>Name</label>
+            <label>
+              <Trans>Name</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="name"
                 render={({ field }) => (
                   <>
                     <Text
-                      placeholder="The name of the collection..."
+                      placeholder={tt.placeholders.name}
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -74,14 +92,16 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row big>
-            <label>Summary</label>
+            <label>
+              <Trans>Description</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="summary"
                 render={({ field }) => (
                   <>
                     <Textarea
-                      placeholder="What the collection is about..."
+                      placeholder={tt.placeholders.summary}
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -99,7 +119,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                 name="image"
                 render={({ field }) => (
                   <Text
-                    placeholder="Type a url of a background image..."
+                    placeholder={tt.placeholders.image}
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -115,10 +135,10 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               type="submit"
               style={{ marginLeft: '10px' }}
             >
-              Create
+              <Trans>Create</Trans>
             </Button>
             <Button onClick={toggleModal} secondary>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </Actions>
         </Form>

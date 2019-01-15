@@ -1,6 +1,9 @@
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+
 import { clearFix } from 'polished';
 import H5 from '../../typography/H5/H5';
 import Text from '../../inputs/Text/Text';
@@ -52,18 +55,22 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
         <Header>
-          <H5>Edit the community</H5>
+          <H5>
+            <Trans>Edit the community details</Trans>
+          </H5>
         </Header>
         <Form>
           <Row>
-            <label>Name</label>
+            <label>
+              <Trans>Name</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="name"
                 render={({ field }) => (
                   <>
                     <Text
-                      placeholder="The name of the community..."
+                      // placeholder="The name of the community..."
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -76,14 +83,16 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row big>
-            <label>Summary</label>
+            <label>
+              <Trans>Description</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="summary"
                 render={({ field }) => (
                   <>
                     <Textarea
-                      placeholder="What the community is about..."
+                      // placeholder="What the community is about..."
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -95,13 +104,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row>
-            <label>Image</label>
+            <label>
+              <Trans>Image</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="image"
                 render={({ field }) => (
                   <Text
-                    placeholder="Type a url of a background image..."
+                    // placeholder="Type a url of a background image..."
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -117,10 +128,10 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               type="submit"
               style={{ marginLeft: '10px' }}
             >
-              Create
+              <Trans>Save</Trans>
             </Button>
             <Button onClick={toggleModal} secondary>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </Actions>
         </Form>

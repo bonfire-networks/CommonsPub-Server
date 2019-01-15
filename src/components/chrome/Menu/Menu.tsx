@@ -2,6 +2,9 @@ import * as React from 'react';
 // import OnClickOutside from 'react-click-outside';
 import { compose, withState, withHandlers } from 'recompose';
 import { graphql } from 'react-apollo';
+
+import { Trans } from '@lingui/macro';
+
 import { withTheme } from '@zendeskgarden/react-theming';
 
 // import NotificationsMenuBody from './Notifications.MenuBody';
@@ -100,13 +103,13 @@ class Menu extends React.Component<MenuProps> {
               onClick={() => this.props.onActive('community')}
               isActive={this.props.active === 'community'}
             >
-              Community
+              <Trans>Community</Trans>
             </Item>
             <Item
               onClick={() => this.props.onActive('collection')}
               isActive={this.props.active === 'collection'}
             >
-              Collection
+              <Trans>Collection</Trans>
             </Item>
           </Nav>
           <MenuBodyInner>

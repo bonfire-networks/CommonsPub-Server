@@ -5,6 +5,9 @@ import { NavLink } from 'react-router-dom';
 import styled from '../../../themes/styled';
 import { compose, withState, withHandlers } from 'recompose';
 import NewCommunityModal from '../../elements/CreateCommunityModal';
+
+import { Trans } from '@lingui/macro';
+
 const SidebarWrapper = styled.div`
   width: 240px;
   display: flex;
@@ -71,11 +74,15 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/communities'}
           >
-            <Item>All Communities</Item>
+            <Item>
+              <Trans>All Communities</Trans>
+            </Item>
           </NavLink>
         </NavList>
         <NavList>
-          <Title>Collections</Title>
+          <Title>
+            <Trans>Collections</Trans>
+          </Title>
           {/* <NavLink
             isActive={(match, location) => {
               return (
@@ -119,11 +126,15 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/collections'}
           >
-            <Item>All Collections</Item>
+            <Item>
+              <Trans>All Collections</Trans>
+            </Item>
           </NavLink>
         </NavList>
 
-        <Bottom onClick={this.props.handleNewCommunity}>New Community</Bottom>
+        <Bottom onClick={this.props.handleNewCommunity}>
+          <Trans>Create a community</Trans>
+        </Bottom>
         <NewCommunityModal
           toggleModal={this.props.handleNewCommunity}
           modalIsOpen={this.props.isOpen}

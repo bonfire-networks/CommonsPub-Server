@@ -1,5 +1,8 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import Button from '../Button/Button';
@@ -23,7 +26,7 @@ const ResourceCard: React.SFC<Props> = props => (
         <Title>{props.title}</Title>
         <Actions>
           <Button hovered onClick={props.editResource}>
-            Edit
+            <Trans>Edit</Trans>
           </Button>
         </Actions>
       </TitleWrapper>

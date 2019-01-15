@@ -3,6 +3,17 @@ import { TextField, Label } from '@zendeskgarden/react-textfields';
 import { Col, Row } from '@zendeskgarden/react-grid';
 
 import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    email: i18nMark('e.g. mary@moodlers.org'),
+    password: i18nMark('Choose a password'),
+    name: i18nMark('e.g. Moodler Mary'),
+    bio: i18nMark('Introduce yourself to the community...'),
+    location: i18nMark('e.g. United Kingdom')
+  }
+};
 
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
@@ -40,7 +51,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               value={user.email}
               onChange={linkUserState('email')}
-              placeholder="e.g. joe@moodle.net"
+              placeholder={tt.placeholders.email}
               maxLength={100}
             />
           </TextField>
@@ -52,7 +63,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               value={user.password}
               onChange={linkUserState('password')}
-              placeholder="Enter a password"
+              placeholder={tt.placeholders.password}
               type="password"
             />
           </TextField>
@@ -88,7 +99,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               value={user.name}
               onChange={linkUserState('name')}
-              placeholder="e.g. Moodler Joe"
+              placeholder={tt.placeholders.name}
               maxLength={20}
             />
           </TextField>
@@ -100,7 +111,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextArea
               value={user.bio}
               onChange={linkUserState('bio')}
-              placeholder="Tell us a bit about yourself"
+              placeholder={tt.placeholders.bio}
               maxLength={250}
             />
           </TextField>
@@ -119,7 +130,7 @@ export default ({ user, randomizeEmojiId, linkUserState }) => {
             <TextInput
               value={user.location}
               onChange={linkUserState('location')}
-              placeholder="e.g. United Kingdom"
+              placeholder={tt.placeholders.location}
               maxLength={50}
             />
           </TextField>

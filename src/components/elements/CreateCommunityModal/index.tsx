@@ -1,6 +1,20 @@
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    name: i18nMark('Choose a name for the community'),
+    summary: i18nMark(
+      'Please describe who might be interested in this community, and what kind of collection it is likely to contain...'
+    ),
+    image: i18nMark('Enter the URL of an image to represent the community')
+  }
+};
+
 import { clearFix } from 'polished';
 import H5 from '../../typography/H5/H5';
 import Text from '../../inputs/Text/Text';
@@ -49,7 +63,9 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
         <Header>
-          <H5>Create a new community</H5>
+          <H5>
+            <Trans>Create a new community</Trans>
+          </H5>
         </Header>
         <Form>
           <Row>
@@ -60,7 +76,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                 render={({ field }) => (
                   <>
                     <Text
-                      placeholder="The name of the community..."
+                      placeholder={tt.placeholders.name}
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -73,14 +89,16 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row big>
-            <label>Summary</label>
+            <label>
+              <Trans>Description</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="summary"
                 render={({ field }) => (
                   <>
                     <Textarea
-                      placeholder="What the community is about..."
+                      placeholder={tt.placeholders.summary}
                       name={field.name}
                       value={field.value}
                       onChange={field.onChange}
@@ -92,13 +110,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row>
-            <label>Image</label>
+            <label>
+              <Trans>Image</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="image"
                 render={({ field }) => (
                   <Text
-                    placeholder="Type a url of a background image..."
+                    placeholder={tt.placeholders.image}
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -114,10 +134,10 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               type="submit"
               style={{ marginLeft: '10px' }}
             >
-              Create
+              <Trans>Create</Trans>
             </Button>
             <Button onClick={toggleModal} secondary>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </Actions>
         </Form>

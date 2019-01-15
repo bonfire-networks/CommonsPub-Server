@@ -1,5 +1,8 @@
 import React from 'react';
 import styled from '../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+
 // import Text from '../inputs/Text/Text';
 import Logo from '../brand/Logo/Logo';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
@@ -25,7 +28,7 @@ const Header: React.SFC<Props> = props => {
           <img
             onClick={props.handleOpen}
             src="https://picsum.photos/100/100?random"
-            alt="Example avatar"
+            alt="Avatar"
           />
         </Avatar>
       </Right>
@@ -34,11 +37,13 @@ const Header: React.SFC<Props> = props => {
           <Menu>
             <List lined>
               <Item>{props.data.user.data.name}</Item>
-              {/* <Item>Edit profile</Item>
-            <Item>Settings</Item> */}
+              {/* <Item><Trans>Edit profile</Trans></Item>
+            <Item><Trans>Settings</Trans></Item> */}
             </List>
             <List>
-              <Item onClick={props.logout}>Sign out</Item>
+              <Item onClick={props.logout}>
+                <Trans>Sign out</Trans>
+              </Item>
             </List>
           </Menu>
         </WrapperMenu>

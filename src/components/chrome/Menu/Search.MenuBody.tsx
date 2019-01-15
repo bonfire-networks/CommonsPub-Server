@@ -1,6 +1,16 @@
 import * as React from 'react';
 
 import styled, { withTheme } from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    email: i18nMark('e.g. russian revolution 1917')
+  }
+};
+
 import Text from '../../inputs/Text/Text';
 import H6 from '../../typography/H6/H6';
 import Button from '../../elements/Button/Button';
@@ -47,7 +57,7 @@ export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
   return (
     <div>
       <SearchHeading>
-        Search{' '}
+        <Trans>Search</Trans>{' '}
         <span style={{ color: theme.styles.colour.primary }}>MoodleNet</span>
       </SearchHeading>
       <form
@@ -64,11 +74,17 @@ export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
         <Text
           name="q"
           id="searchInput"
-          placeholder="e.g. history lessons"
-          button={<Button type="submit">Search</Button>}
+          placeholder="{tt.placeholders.search}"
+          button={
+            <Button type="submit">
+              <Trans>Search</Trans>
+            </Button>
+          }
         />
       </form>
-      <SearchHeading>Popular tags</SearchHeading>
+      <SearchHeading>
+        <Trans>Popular tags</Trans>
+      </SearchHeading>
       <div>
         {words.split('\n').map(word => (
           <StyledTag key={word} onClick={() => alert(word)}>
@@ -76,7 +92,9 @@ export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
           </StyledTag>
         ))}
       </div>
-      <SearchHeading>Popular search phrases</SearchHeading>
+      <SearchHeading>
+        <Trans>Popular search phrases</Trans>
+      </SearchHeading>
       <div>
         {links.map(link => (
           <>

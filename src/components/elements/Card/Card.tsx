@@ -1,4 +1,7 @@
 import * as React from 'react';
+
+import { Trans } from '@lingui/macro';
+
 import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -243,15 +246,16 @@ function ContentCounts({
     entity = entity as Collection;
     return (
       <ContentCountsContainer>
-        {entity.followingCount} Members &bull; {entity.resourcesCount} Resources
+        {entity.followingCount} <Trans>Members</Trans> &bull;{' '}
+        {entity.resourcesCount} <Trans>Resources</Trans>
       </ContentCountsContainer>
     );
   } else if (type === CardType.community) {
     entity = entity as Community;
     return (
       <ContentCountsContainer>
-        {entity.followingCount} Members &bull; {entity.collectionsCount}{' '}
-        Collections
+        {entity.followingCount} <Trans>Members</Trans> &bull;{' '}
+        {entity.collectionsCount} Collections
       </ContentCountsContainer>
     );
   } else if (type === CardType.resource) {
