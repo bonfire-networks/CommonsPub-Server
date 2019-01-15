@@ -7,7 +7,7 @@ import { i18nMark } from '@lingui/react';
 
 const tt = {
   placeholders: {
-    email: i18nMark('e.g. russian revolution 1917')
+    search: i18nMark('e.g. russian revolution 1917')
   }
 };
 
@@ -74,7 +74,7 @@ export default withRouter(withTheme(({ closeMenu, history, theme }: any) => {
         <Text
           name="q"
           id="searchInput"
-          placeholder="{tt.placeholders.search}"
+          placeholder={tt.placeholders.search}
           button={
             <Button type="submit">
               <Trans>Search</Trans>

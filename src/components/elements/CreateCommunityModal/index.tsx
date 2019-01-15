@@ -9,7 +9,7 @@ const tt = {
   placeholders: {
     name: i18nMark('Choose a name for the community'),
     summary: i18nMark(
-      'Please describe who might be interested in this community, and what kind of collection it is likely to contain...'
+      'Please describe who might be interested in this community and what kind of collections it is likely to contain...'
     ),
     image: i18nMark('Enter the URL of an image to represent the community')
   }

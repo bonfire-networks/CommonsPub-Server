@@ -9,13 +9,14 @@ npm install
 
 npm run-script build
 
-npm styleguide:build
+npm run styleguide:build
 
 cp -r build/* $TARGET
 
 cp -r styleguide $TARGET
 
 cd $TARGET
+git pull
 git add .
 
 msg="front-end build - `date`"

@@ -309,12 +309,20 @@ msgid "Password"
 msgstr ""
 
 #: src/components/elements/CommunityModal/index.tsx:9
-msgid "Please describe what the collection is for, and what it is likely to contain..."
+msgid "Please describe what the collection is for and what kind of resources it is likely to contain..."
+msgstr ""
+
+#: src/components/elements/CommunityModal/index.tsx:9
+#~ msgid "Please describe what the collection is for, and what it is likely to contain..."
+#~ msgstr ""
+
+#: src/components/elements/CreateCommunityModal/index.tsx:9
+msgid "Please describe who might be interested in this community and what kind of collections it is likely to contain..."
 msgstr ""
 
 #: src/components/elements/CreateCommunityModal/index.tsx:9
-msgid "Please describe who might be interested in this community, and what kind of collection it is likely to contain..."
-msgstr ""
+#~ msgid "Please describe who might be interested in this community, and what kind of collection it is likely to contain..."
+#~ msgstr ""
 
 #: src/components/elements/CollectionModal/index.tsx:10
 msgid "Please type or copy/paste a summary about the resource..."

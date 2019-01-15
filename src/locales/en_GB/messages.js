@@ -94,8 +94,12 @@
     },
     'Page not found': 'Page not found',
     Password: 'Password',
+    'Please describe what the collection is for and what kind of resources it is likely to contain...':
+      'Please describe what the collection is for and what kind of resources it is likely to contain...',
     'Please describe what the collection is for, and what it is likely to contain...':
       'Please describe what the collection is for, and what it is likely to contain...',
+    'Please describe who might be interested in this community and what kind of collections it is likely to contain...':
+      'Please describe who might be interested in this community and what kind of collections it is likely to contain...',
     'Please describe who might be interested in this community, and what kind of collection it is likely to contain...':
       'Please describe who might be interested in this community, and what kind of collection it is likely to contain...',
     'Please type or copy/paste a summary about the resource...':

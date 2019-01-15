@@ -9,7 +9,7 @@ const tt = {
   placeholders: {
     name: i18nMark('Choose a name for the collection'),
     summary: i18nMark(
-      'Please describe what the collection is for, and what it is likely to contain...'
+      'Please describe what the collection is for and what kind of resources it is likely to contain...'
     ),
     image: i18nMark('Enter the URL of an image to represent the collection')
   }
