@@ -1,5 +1,5 @@
 import * as React from 'react';
-import compose from 'recompose/compose';
+import { compose, withHandlers, withState } from 'recompose';
 import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from '@zendeskgarden/react-grid';
@@ -24,7 +24,7 @@ const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 // TODO make the login mutation also retrieve the user so a separate request is not necessary
 const { loginMutation } = require('../../graphql/login.graphql');
-
+import SignupModal from '../../components/elements/SignupModal';
 const tt = {
   with: {
     fb: 'Sign in with Facebook',
@@ -47,6 +47,14 @@ const Head = styled.div`
   & h1 {
     margin: 0;
     line-height: 60px;
+  }
+`;
+
+const Signup = styled.div`
+  margin-top: 16px;
+
+  & u {
+    cursor: pointer;
   }
 `;
 
@@ -91,6 +99,8 @@ interface LoginProps extends RouteComponentProps {
   login: Function;
   data: object;
   theme: ThemeInterface;
+  handleSignup(): boolean;
+  isOpen: boolean;
 }
 
 interface LoginState {
@@ -235,6 +245,9 @@ class Login extends React.Component<LoginProps, LoginState> {
                 onInputChange={this.onLoginFormInputChange}
                 authenticating={this.state.authenticating}
               />
+              <Signup>
+                or <u onClick={this.props.handleSignup}>create a new account</u>
+              </Signup>
             </Col>
           </Row>
 
@@ -258,6 +271,10 @@ class Login extends React.Component<LoginProps, LoginState> {
             </Link>
           </Col>
         </Row> */}
+          <SignupModal
+            toggleModal={this.props.handleSignup}
+            modalIsOpen={this.props.isOpen}
+          />
         </BodyCenterContent>
       </>
     );
@@ -289,5 +306,9 @@ export default compose(
   withTheme,
   withUser,
   withSetLocalUser,
-  withLogin
+  withLogin,
+  withState('isOpen', 'onOpen', false),
+  withHandlers({
+    handleSignup: props => () => props.onOpen(!props.isOpen)
+  })
 )(RedirectIfAuthenticated);
