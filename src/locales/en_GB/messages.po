@@ -52,10 +52,6 @@ msgstr ""
 msgid "Bio"
 msgstr ""
 
-#: src/pages/login/Login.tsx:258
-#~ msgid "Browse as a guest"
-#~ msgstr ""
-
 #: src/components/elements/CollectionModal/index.tsx:86
 #: src/components/elements/CommunityModal/index.tsx:74
 #: src/components/elements/CreateCommunityModal/index.tsx:74
@@ -76,10 +72,6 @@ msgstr ""
 #: src/pages/sign-up/Step1.tsx:9
 msgid "Choose a password"
 msgstr ""
-
-#: src/pages/user/UserProfile.tsx:132
-#~ msgid "Click to select a profile background"
-#~ msgstr ""
 
 #: src/pages/user/UserProfile.tsx:132
 msgid "Click to select a profile background image"
@@ -116,7 +108,7 @@ msgstr ""
 msgid "Could not log in. Please check your credentials or use the link below to reset your password."
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:36
+#: src/pages/sign-up/Step2.tsx:42
 msgid "Could not search at this time, please try again later."
 msgstr ""
 
@@ -138,10 +130,6 @@ msgstr ""
 #: src/components/elements/CreateCommunityModal/index.tsx:35
 msgid "Create a new community"
 msgstr ""
-
-#: src/pages/login/Login.tsx:274
-#~ msgid "Create an account"
-#~ msgstr ""
 
 #: src/pages/communities.community/CommunitiesCommunity.tsx:67
 msgid "Create the first collection"
@@ -232,15 +220,7 @@ msgstr ""
 msgid "Featured Collections"
 msgstr ""
 
-#: src/pages/login/Login.tsx:248
-#~ msgid "First time?"
-#~ msgstr ""
-
-#: src/pages/login/LoginForm.tsx:112
-#~ msgid "Forgotten your password?"
-#~ msgstr ""
-
-#: src/pages/sign-up/Step2.tsx:117
+#: src/pages/sign-up/Step2.tsx:123
 msgid "Here are some trending tags you could add"
 msgstr ""
 
@@ -312,23 +292,15 @@ msgstr ""
 msgid "Please describe what the collection is for and what kind of resources it is likely to contain..."
 msgstr ""
 
-#: src/components/elements/CommunityModal/index.tsx:9
-#~ msgid "Please describe what the collection is for, and what it is likely to contain..."
-#~ msgstr ""
-
 #: src/components/elements/CreateCommunityModal/index.tsx:9
 msgid "Please describe who might be interested in this community and what kind of collections it is likely to contain..."
 msgstr ""
-
-#: src/components/elements/CreateCommunityModal/index.tsx:9
-#~ msgid "Please describe who might be interested in this community, and what kind of collection it is likely to contain..."
-#~ msgstr ""
 
 #: src/components/elements/CollectionModal/index.tsx:10
 msgid "Please type or copy/paste a summary about the resource..."
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:114
+#: src/pages/sign-up/Step2.tsx:120
 msgid "Popular on MoodleNet"
 msgstr ""
 
@@ -357,19 +329,23 @@ msgstr ""
 
 #: src/components/chrome/Menu/Search.MenuBody.tsx:50
 #: src/components/chrome/Menu/Search.MenuBody.tsx:60
-#: src/pages/sign-up/Step2.tsx:103
+#: src/pages/sign-up/Step2.tsx:109
 msgid "Search"
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:24
+#: src/pages/sign-up/Step2.tsx:30
 msgid "Search Results"
+msgstr ""
+
+#: src/pages/sign-up/Step2.tsx:7
+msgid "Search for tags"
 msgstr ""
 
 #: src/pages/search/Search.tsx:108
 msgid "Search results for {query}"
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:31
+#: src/pages/sign-up/Step2.tsx:37
 msgid "Searching..."
 msgstr ""
 
@@ -385,10 +361,6 @@ msgstr ""
 #: src/pages/login/LoginForm.tsx:12
 msgid "Sign in"
 msgstr ""
-
-#: src/pages/login/Login.tsx:213
-#~ msgid "Sign in using your social media account"
-#~ msgstr ""
 
 #: src/components/chrome/Menu/User.MenuBody.tsx:39
 #: src/components/header/index.tsx:28
@@ -407,10 +379,6 @@ msgstr ""
 msgid "The password field cannot be empty"
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:107
-#~ msgid "These are some trending tags"
-#~ msgstr ""
-
 #: src/pages/sign-up/Step1.tsx:38
 msgid "This data will never be shared."
 msgstr ""
@@ -419,23 +387,15 @@ msgstr ""
 msgid "This information will appear on your public profile."
 msgstr ""
 
-#: src/pages/login/Login.tsx:254
-#~ msgid "You don't need an account to browse {site_name}."
-#~ msgstr ""
-
-#: src/pages/login/Login.tsx:265
-#~ msgid "You need to sign up to participate in discussions. You can use a social media account to sign in, or create an account manually."
-#~ msgstr ""
-
 #: src/pages/communities.yours/CommunitiesYours.tsx:41
 msgid "Your Communities"
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:93
+#: src/pages/sign-up/Step2.tsx:99
 msgid "Your Interests"
 msgstr ""
 
-#: src/pages/sign-up/Step2.tsx:96
+#: src/pages/sign-up/Step2.tsx:102
 msgid "Your interests will be displayed on your profile, and will also help MoodleNet recommend content that is relevant to you."
 msgstr ""
 
