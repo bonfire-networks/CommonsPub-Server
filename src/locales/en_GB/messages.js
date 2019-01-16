@@ -27,13 +27,10 @@
     'All Collections': 'All Collections',
     'All Communities': 'All Communities',
     Bio: 'Bio',
-    'Browse as a guest': 'Browse as a guest',
     Cancel: 'Cancel',
     'Choose a name for the collection': 'Choose a name for the collection',
     'Choose a name for the community': 'Choose a name for the community',
     'Choose a password': 'Choose a password',
-    'Click to select a profile background':
-      'Click to select a profile background',
     'Click to select a profile background image':
       'Click to select a profile background image',
     'Click to select a profile picture': 'Click to select a profile picture',
@@ -50,7 +47,6 @@
     'Create a community': 'Create a community',
     'Create a new collection': 'Create a new collection',
     'Create a new community': 'Create a new community',
-    'Create an account': 'Create an account',
     'Create the first collection': 'Create the first collection',
     Description: 'Description',
     Discussions: 'Discussions',
@@ -74,8 +70,6 @@
     'Error loading communities': 'Error loading communities',
     'Favourite Collections': 'Favourite Collections',
     'Featured Collections': 'Featured Collections',
-    'First time?': 'First time?',
-    'Forgotten your password?': 'Forgotten your password?',
     'Here are some trending tags you could add':
       'Here are some trending tags you could add',
     Image: 'Image',
@@ -96,12 +90,8 @@
     Password: 'Password',
     'Please describe what the collection is for and what kind of resources it is likely to contain...':
       'Please describe what the collection is for and what kind of resources it is likely to contain...',
-    'Please describe what the collection is for, and what it is likely to contain...':
-      'Please describe what the collection is for, and what it is likely to contain...',
     'Please describe who might be interested in this community and what kind of collections it is likely to contain...':
       'Please describe who might be interested in this community and what kind of collections it is likely to contain...',
-    'Please describe who might be interested in this community, and what kind of collection it is likely to contain...':
-      'Please describe who might be interested in this community, and what kind of collection it is likely to contain...',
     'Please type or copy/paste a summary about the resource...':
       'Please type or copy/paste a summary about the resource...',
     'Popular on MoodleNet': 'Popular on MoodleNet',
@@ -112,6 +102,7 @@
     Save: 'Save',
     Search: 'Search',
     'Search Results': 'Search Results',
+    'Search for tags': 'Search for tags',
     'Search results for {query}': function(a) {
       return ['Search results for ', a('query')];
     },
@@ -119,22 +110,14 @@
     Settings: 'Settings',
     Shuffle: 'Shuffle',
     'Sign in': 'Sign in',
-    'Sign in using your social media account':
-      'Sign in using your social media account',
     'Sign out': 'Sign out',
     'Sorry, we encountered a problem loading the app in your language.':
       'Sorry, we encountered a problem loading the app in your language.',
     'The email field cannot be empty': 'The email field cannot be empty',
     'The password field cannot be empty': 'The password field cannot be empty',
-    'These are some trending tags': 'These are some trending tags',
     'This data will never be shared.': 'This data will never be shared.',
     'This information will appear on your public profile.':
       'This information will appear on your public profile.',
-    "You don't need an account to browse {site_name}.": function(a) {
-      return ["You don't need an account to browse ", a('site_name'), '.'];
-    },
-    'You need to sign up to participate in discussions. You can use a social media account to sign in, or create an account manually.':
-      'You need to sign up to participate in discussions. You can use a social media account to sign in, or create an account manually.',
     'Your Communities': 'Your Communities',
     'Your Interests': 'Your Interests',
     'Your interests will be displayed on your profile, and will also help MoodleNet recommend content that is relevant to you.':

@@ -9,7 +9,7 @@
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build",
     "add-locale": "lingui add-locale",
-    "extract": "lingui extract",
+    "extract": "lingui extract --clean",
     "compile": "lingui compile",
     "docs": "typedoc --out docs src"
   },
