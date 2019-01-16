@@ -11,6 +11,18 @@ import * as Yup from 'yup';
 import Alert from '../../elements/Alert';
 import { graphql, OperationOption } from 'react-apollo';
 const { createUserMutation } = require('../../../graphql/createUser.graphql');
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  login: i18nMark('Sign in'),
+  placeholders: {
+    email: i18nMark('Enter your email'),
+    name: i18nMark('Enter your name'),
+    password: i18nMark('Enter your password'),
+    passwordConfirm: i18nMark('Confirm your password')
+  }
+};
 
 interface Props {
   toggleModal?: any;
@@ -43,17 +55,21 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
         <Header>
-          <H5>Create a new account</H5>
+          <H5>
+            <Trans>Create a new account</Trans>
+          </H5>
         </Header>
         <Form>
           <Row>
-            <label>Email</label>
+            <label>
+              <Trans>Email</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="email"
                 render={({ field }) => (
                   <Text
-                    placeholder="A valid email..."
+                    placeholder={tt.placeholders.email}
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -64,13 +80,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row>
-            <label>Username</label>
+            <label>
+              <Trans>Username</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="name"
                 render={({ field }) => (
                   <Text
-                    placeholder="A choosed username..."
+                    placeholder={tt.placeholders.name}
                     name={field.name}
                     value={field.value}
                     onChange={field.onChange}
@@ -80,12 +98,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row>
-            <label>Password</label>
+            <label>
+              <Trans>Password</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="password"
                 render={({ field }) => (
                   <Text
+                    placeholder={tt.placeholders.password}
                     type="password"
                     name={field.name}
                     value={field.value}
@@ -98,12 +119,15 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             </ContainerForm>
           </Row>
           <Row>
-            <label>Confirm password</label>
+            <label>
+              <Trans>Confirm password</Trans>
+            </label>
             <ContainerForm>
               <Field
                 name="passwordConfirm"
                 render={({ field }) => (
                   <Text
+                    placeholder={tt.placeholders.passwordConfirm}
                     type="password"
                     name={field.name}
                     value={field.value}
@@ -123,10 +147,10 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               type="submit"
               style={{ marginLeft: '10px' }}
             >
-              Create
+              <Trans>Create</Trans>
             </Button>
             <Button onClick={toggleModal} secondary>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </Actions>
         </Form>
@@ -147,7 +171,9 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     email: Yup.string()
       .email()
       .required(),
-    password: Yup.string().required('Password is required'),
+    password: Yup.string()
+      .min(6)
+      .required('Password is required'),
     passwordConfirm: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Passwords must match')
       .required('Password confirm is required')
@@ -161,16 +187,14 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         preferredUsername: values.name.split(' ').join('_')
       }
     };
-    console.log(variables);
     return props
       .createUser({
         variables: variables
       })
       .then(res => {
-        console.log(res);
-        localStorage.setItem('user_access_token', res.createUser.token);
-        props.toggleModal();
+        localStorage.setItem('user_access_token', res.data.createUser.token);
         setSubmitting(false);
+        window.location.reload();
       })
       .catch(err => console.log(err));
   }
