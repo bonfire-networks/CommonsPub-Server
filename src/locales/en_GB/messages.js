@@ -31,6 +31,7 @@
     'Choose a name for the collection': 'Choose a name for the collection',
     'Choose a name for the community': 'Choose a name for the community',
     'Choose a password': 'Choose a password',
+    'Choose your password': 'Choose your password',
     'Click to select a profile background image':
       'Click to select a profile background image',
     'Click to select a profile picture': 'Click to select a profile picture',
@@ -38,6 +39,8 @@
     Collections: 'Collections',
     Communities: 'Communities',
     Community: 'Community',
+    'Confirm password': 'Confirm password',
+    'Confirm your password': 'Confirm your password',
     'Could not load the collection.': 'Could not load the collection.',
     'Could not log in. Please check your credentials or use the link below to reset your password.':
       'Could not log in. Please check your credentials or use the link below to reset your password.',
@@ -45,16 +48,19 @@
       'Could not search at this time, please try again later.',
     Create: 'Create',
     'Create a community': 'Create a community',
+    'Create a new account': 'Create a new account',
     'Create a new collection': 'Create a new collection',
     'Create a new community': 'Create a new community',
     'Create the first collection': 'Create the first collection',
     Description: 'Description',
     Discussions: 'Discussions',
+    'Display Name': 'Display Name',
     Edit: 'Edit',
     'Edit profile': 'Edit profile',
     'Edit the collection details': 'Edit the collection details',
     'Edit the community details': 'Edit the community details',
     'Edit the resource details': 'Edit the resource details',
+    Email: 'Email',
     'Email address': 'Email address',
     'Emoji ID': 'Emoji ID',
     'Enter the URL of an image to represent the collection':
@@ -109,6 +115,7 @@
     'Searching...': 'Searching...',
     Settings: 'Settings',
     Shuffle: 'Shuffle',
+    'Sign Up': 'Sign Up',
     'Sign in': 'Sign in',
     'Sign out': 'Sign out',
     'Sorry, we encountered a problem loading the app in your language.':
@@ -125,6 +132,8 @@
     'e.g. Moodler Mary': 'e.g. Moodler Mary',
     'e.g. United Kingdom': 'e.g. United Kingdom',
     'e.g. mary@moodlers.org': 'e.g. mary@moodlers.org',
-    'e.g. russian revolution 1917': 'e.g. russian revolution 1917'
+    'e.g. russian revolution 1917': 'e.g. russian revolution 1917',
+    'eg. Moodler Mary': 'eg. Moodler Mary',
+    'eg. mary@moodlers.org': 'eg. mary@moodlers.org'
   }
 };

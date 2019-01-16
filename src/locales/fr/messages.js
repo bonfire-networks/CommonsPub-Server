@@ -20,6 +20,7 @@
     'Choose a name for the community':
       'Choisissez un nom pour la communaut\xE9',
     'Choose a password': 'Choisissez un mot de passe',
+    'Choose your password': 'Choose your password',
     'Click to select a profile background image':
       'Cliquez pour s\xE9lectionner une image de fond pour votre profil',
     'Click to select a profile picture':
@@ -28,6 +29,8 @@
     Collections: 'Collections',
     Communities: 'Communaut\xE9s',
     Community: 'Communaut\xE9',
+    'Confirm password': 'Confirm password',
+    'Confirm your password': 'Confirm your password',
     'Could not load the collection.': "Impossible d'afficher la collection.",
     'Could not log in. Please check your credentials or use the link below to reset your password.':
       'Impossible de se connecter. Veuillez v\xE9rifier vos informations ou utilisez le lien ci-dessous pour r\xE9initialiser votre mot de passe.',
@@ -35,16 +38,19 @@
       "Impossible d'effectuer une recherche pour le moment, veuillez r\xE9essayer ult\xE9rieurement.",
     Create: 'Cr\xE9er',
     'Create a community': 'Cr\xE9er une communaut\xE9',
+    'Create a new account': 'Create a new account',
     'Create a new collection': 'Cr\xE9er une nouvelle collection',
     'Create a new community': 'Cr\xE9er une nouvelle communaut\xE9',
     'Create the first collection': 'Cr\xE9er la premi\xE8re collection',
     Description: 'Description',
     Discussions: 'Discussions',
+    'Display Name': 'Display Name',
     Edit: 'Modifier',
     'Edit profile': 'Modifier mon profil',
     'Edit the collection details': 'Modifier les d\xE9tails de la collection',
     'Edit the community details': 'Modifier les d\xE9tails de la communaut\xE9',
     'Edit the resource details': 'Modifier les d\xE9tails de la ressource',
+    Email: 'Email',
     'Email address': 'Adresse \xE9lectronique',
     'Emoji ID': 'Emoji ID',
     'Enter the URL of an image to represent the collection':
@@ -99,6 +105,7 @@
     'Searching...': 'Recherche en cours...',
     Settings: 'Options',
     Shuffle: 'Autre',
+    'Sign Up': 'Sign Up',
     'Sign in': 'Se connecter',
     'Sign out': 'D\xE9connexion',
     'Sorry, we encountered a problem loading the app in your language.':
@@ -117,6 +124,8 @@
     'e.g. Moodler Mary': 'ex. : Marie Moodler',
     'e.g. United Kingdom': 'ex. : France',
     'e.g. mary@moodlers.org': 'ex. : marie@moodlers.org',
-    'e.g. russian revolution 1917': 'ex. : r\xE9volution russe 1917'
+    'e.g. russian revolution 1917': 'ex. : r\xE9volution russe 1917',
+    'eg. Moodler Mary': 'eg. Moodler Mary',
+    'eg. mary@moodlers.org': 'eg. mary@moodlers.org'
   }
 };

@@ -17,9 +17,9 @@ import { i18nMark } from '@lingui/react';
 const tt = {
   login: i18nMark('Sign in'),
   placeholders: {
-    email: i18nMark('Enter your email'),
-    name: i18nMark('Enter your name'),
-    password: i18nMark('Enter your password'),
+    email: i18nMark('eg. mary@moodlers.org'),
+    name: i18nMark('eg. Moodler Mary'),
+    password: i18nMark('Choose your password'),
     passwordConfirm: i18nMark('Confirm your password')
   }
 };
@@ -81,7 +81,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
           </Row>
           <Row>
             <label>
-              <Trans>Username</Trans>
+              <Trans>Display Name</Trans>
             </label>
             <ContainerForm>
               <Field
@@ -147,7 +147,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               type="submit"
               style={{ marginLeft: '10px' }}
             >
-              <Trans>Create</Trans>
+              <Trans>Sign Up</Trans>
             </Button>
             <Button onClick={toggleModal} secondary>
               <Trans>Cancel</Trans>
