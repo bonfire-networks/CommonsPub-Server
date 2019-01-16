@@ -15,3 +15,127 @@ msgstr ""
 #: lib/moodle_net_web/page/templates/index.html.eex:2
 msgid "pages.index.welcome"
 msgstr "Bienvenido a %{name}"
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:9
+msgid "Alternatively, copy and paste this link into your browser:"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:14
+msgid "Click here"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net/email.ex:16
+msgid "Did you forget your MoodleNet password?"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:1
+#: lib/moodle_net_web/email/templates/welcome.text.eex:1
+msgid "Hi %{name}"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:3
+#: lib/moodle_net_web/email/templates/welcome.text.eex:3
+msgid "To complete your sign up, please verify your email:"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:6
+msgid "Verify email"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:12
+#: lib/moodle_net_web/email/templates/welcome.text.eex:9
+msgid "We'd love your feedback on the sign-up process."
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net/email.ex:8
+msgid "Welcome to MoodleNet"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net/email.ex:23
+msgid "Your MoodleNet password has been reset"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:15
+msgid "to tell us anything we can do to improve it!"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:106
+msgid "Object"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:115
+msgid "Collection"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:121
+msgid "Comment"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:112
+msgid "Community"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:124
+msgid "Context"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:118
+msgid "Resource"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:109
+msgid "User"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:127
+msgid "Activity"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:100
+msgid "An unknown error happened"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:77
+msgid "Invalid credentials"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:130
+msgid "Token"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:92
+msgid "You are not authorized to perform this action"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:84
+msgid "You have to log in to proceed"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:57
+#: lib/moodle_net_web/graph_ql/errors.ex:64
+msgid "not found"
+msgstr ""

@@ -247,7 +247,7 @@ defmodule MoodleNet do
     if Query.has?(comment, :attributed_to, actor) do
       ActivityPub.delete(comment)
     else
-      {:error, "operation not allowed"}
+      {:error, :forbidden}
     end
   end
 
@@ -292,7 +292,7 @@ defmodule MoodleNet do
   defp find_current_relation(subject, relation, object) do
     if Query.has?(subject, relation, object),
       do: :ok,
-      else: {:error, "Not found previous activity"}
+      else: {:error, {:not_found, nil, "Activity"}}
   end
 
   defp find_activity(type, actor, object) do
@@ -303,7 +303,7 @@ defmodule MoodleNet do
     |> Query.last()
     |> case do
       nil ->
-        {:error, "Not found previous activity"}
+        {:error, {:not_found, nil, "Activity"}}
 
       activity ->
         activity = Query.preload_assoc(activity, actor: {[:actor], []}, object: {[:actor], []})

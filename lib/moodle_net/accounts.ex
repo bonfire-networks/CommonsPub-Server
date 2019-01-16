@@ -121,7 +121,7 @@ defmodule MoodleNet.Accounts do
 
       {:ok, reset_password_token}
     else
-      nil -> {:error, :not_found}
+      nil -> {:error, {:not_found, email, "User"}}
     end
   end
 
@@ -163,7 +163,7 @@ defmodule MoodleNet.Accounts do
          ^full_token <- rp_token do
       {:ok, ret}
     else
-      _ -> {:error, :not_found}
+      _ -> {:error, {:not_found, full_token, "Token"}}
     end
   end
 
@@ -190,7 +190,7 @@ defmodule MoodleNet.Accounts do
          ^full_token <- ec_token do
       {:ok, ret}
     else
-      _ -> {:error, :not_found}
+      _ -> {:error, {:not_found, full_token, "Token"}}
     end
   end
 end

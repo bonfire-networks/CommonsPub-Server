@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Plugs.SetLocale do
   end
 
   defp set_locale(nil), do: nil
-  defp set_locale(locale), do: Gettext.put_locale(MoodleNetWeb.Gettext, locale)
+  defp set_locale(locale), do: Gettext.put_locale(locale)
 
   defp locale_from_params(conn) do
     conn.params["locale"] |> validate_locale()
