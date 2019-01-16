@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { SFC } from 'react';
+
+import { Trans } from '@lingui/macro';
+
 import Link from '../../components/elements/Link/Link';
 import styled from '../../themes/styled';
 
@@ -13,7 +16,9 @@ interface Props {
 
 const Breadcrumb: SFC<Props> = ({ community, collectionName }) => (
   <Main>
-    <Link to="/communities">Communities</Link>
+    <Link to="/communities">
+      <Trans>Communities</Trans>
+    </Link>
     {' > '}
     <Link to={`/communities/${community.id}`}>{community.name}</Link>
     {' > '}

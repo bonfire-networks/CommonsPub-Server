@@ -2,6 +2,8 @@ import * as React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage, faUser } from '@fortawesome/free-solid-svg-icons';
 
+import { Trans } from '@lingui/macro';
+
 import P from '../../components/typography/P/P';
 import H6 from '../../components/typography/H6/H6';
 import styled, { StyledThemeInterface } from '../../themes/styled';
@@ -142,10 +144,7 @@ type UserProfileProps = {
 export default function(props: UserProfileProps) {
   return (
     <UserProfile innerRef={props.innerRef}>
-      <UserProfileImage
-        title="Click to select a profile background"
-        backgroundImage={props.user.profileImage}
-      >
+      <UserProfileImage backgroundImage={props.user.profileImage}>
         <FileInput onChange={props.setUserImage('profileImage')} type="file" />
         {!props.user.profileImage ? (
           <div
@@ -165,23 +164,18 @@ export default function(props: UserProfileProps) {
                 textShadow: '1px 1px 0 lightgrey'
               }}
             >
-              Click to select
-              <br />a profile background
+              <Trans>Click to select a profile background image</Trans>
             </P>
           </div>
         ) : null}
       </UserProfileImage>
-      <UserAvatar
-        title="Click to select your profile image"
-        backgroundImage={props.user.avatarImage}
-      >
+      <UserAvatar backgroundImage={props.user.avatarImage}>
         <FileInput onChange={props.setUserImage('avatarImage')} type="file" />
         {!props.user.avatarImage ? (
           <>
             <FontAwesomeIcon icon={faUser} />
             <AvatarPlaceholder>
-              Click to select
-              <br />a profile picture
+              <Trans>Click to select a profile picture</Trans>
             </AvatarPlaceholder>
           </>
         ) : null}

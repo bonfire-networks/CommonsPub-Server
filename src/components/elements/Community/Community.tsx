@@ -25,8 +25,8 @@ const Community: React.SFC<Props> = ({
       <H5>{title}</H5>
     </Link>
     {/* <Infos>
-      <P>12 Members</P>
-      <P>{collectionsLength} Collection</P>
+      <P>12 <Trans>Members</Trans></P>
+      <P>{collectionsLength} <Trans>Collection</Trans></P>
     </Infos> */}
   </Wrapper>
 );

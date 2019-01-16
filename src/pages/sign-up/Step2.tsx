@@ -1,6 +1,15 @@
 import * as React from 'react';
 import { Col, Row } from '@zendeskgarden/react-grid';
 
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    search: i18nMark('Search for tags')
+  }
+};
+
 import H6 from '../../components/typography/H6/H6';
 import P from '../../components/typography/P/P';
 import TextInput from '../../components/inputs/Text/Text';
@@ -26,7 +35,9 @@ function InterestsSearchResults({ status, count, result, children }) {
   if (status === SearchStatus.complete) {
     return (
       <InterestsSearchResultsContainer>
-        <P style={{ fontWeight: 'bold' }}>{count} Search Results</P>
+        <P style={{ fontWeight: 'bold' }}>
+          {count} <Trans>Search Results</Trans>
+        </P>
         {children}
       </InterestsSearchResultsContainer>
     );
@@ -34,15 +45,15 @@ function InterestsSearchResults({ status, count, result, children }) {
   if (status === SearchStatus.in_progress) {
     return (
       <InterestsSearchResultsContainer>
-        Searching...
+        <Trans>Searching...</Trans>
       </InterestsSearchResultsContainer>
     );
   }
   if (status === SearchStatus.error) {
     return (
       <InterestsSearchResultsContainer>
-        Could not search at this time, please try again later. ({result.message}
-        )
+        <Trans>Could not search at this time, please try again later.</Trans> (
+        {result.message})
       </InterestsSearchResultsContainer>
     );
   }
@@ -122,16 +133,22 @@ export default class extends React.Component<Step2Props, Step2State> {
           <OverflowCol>
             <H6 style={{ borderBottom: '1px solid lightgrey' }}>
               <span style={{ color: 'darkgrey', fontSize: '.7em' }}>2.</span>{' '}
-              Your Interests
+              <Trans>Your Interests</Trans>
             </H6>
             <P>
-              Tell us what you're interested in so we can make your MoodleNet
-              experience tailored to you.
+              <Trans>
+                Your interests will be displayed on your profile, and will also
+                help MoodleNet recommend content that is relevant to you.
+              </Trans>
             </P>
             <form onSubmit={this.onInterestsSearchSubmit}>
               <TextInput
-                placeholder="Search for tags"
-                button={<Button type="submit">Search</Button>}
+                placeholder={tt.placeholders.search}
+                button={
+                  <Button type="submit">
+                    <Trans>Search</Trans>
+                  </Button>
+                }
               />
             </form>
             <InterestsSearchResults {...this.state.interestsSearch}>
@@ -147,8 +164,12 @@ export default class extends React.Component<Step2Props, Step2State> {
                 ))}
               </TagContainer>
             </InterestsSearchResults>
-            <P style={{ fontWeight: 'bold' }}>Popular on MoodleNet</P>
-            <P>These tags are popular on MoodleNet.</P>
+            <P style={{ fontWeight: 'bold' }}>
+              <Trans>Popular on MoodleNet</Trans>
+            </P>
+            <P>
+              <Trans>Here are some trending tags you could add</Trans>.
+            </P>
             <TagContainer>
               {words.map(word => (
                 <Tag

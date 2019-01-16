@@ -1,5 +1,8 @@
 import * as React from 'react';
 import { SFC } from 'react';
+
+import { Trans } from '@lingui/macro';
+
 import { Row } from '@zendeskgarden/react-grid';
 import Link from '../../components/elements/Link/Link';
 import styled from '../../themes/styled';
@@ -11,7 +14,9 @@ interface Props {
 const Breadcrumb: SFC<Props> = ({ name }) => (
   <Main>
     <Row>
-      <Link to="/communities">Communities</Link>
+      <Link to="/communities">
+        <Trans>Communities</Trans>
+      </Link>
       {' > '}
       <span>{name}</span>
     </Row>

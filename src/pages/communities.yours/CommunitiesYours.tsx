@@ -1,8 +1,10 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
-import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
+import { Trans } from '@lingui/macro';
+
+import { Col, Grid, Row } from '@zendeskgarden/react-grid';
 import H1 from '../../components/typography/H1/H1';
 import P from '../../components/typography/P/P';
 import styled from 'styled-components';
@@ -33,7 +35,11 @@ class CommunitiesYours extends React.Component<Props> {
     let body;
 
     if (this.props.data.error) {
-      body = <span>Error loading communities</span>;
+      body = (
+        <span>
+          <Trans>Error loading communities</Trans>
+        </span>
+      );
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
@@ -54,7 +60,9 @@ class CommunitiesYours extends React.Component<Props> {
           <Row>
             <Col sm={6}>
               <Logo />
-              <PageTitle>All Communities</PageTitle>
+              <PageTitle>
+                <Trans>Your Communities</Trans>
+              </PageTitle>
             </Col>
           </Row>
           <Row>

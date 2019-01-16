@@ -8,6 +8,8 @@ import { ThemeProvider } from '@zendeskgarden/react-theming';
 import { Chrome } from '@zendeskgarden/react-chrome';
 import { I18nProvider } from '@lingui/react';
 
+import { Trans } from '@lingui/macro';
+
 import '@zendeskgarden/react-chrome/dist/styles.css';
 import '@zendeskgarden/react-grid/dist/styles.css';
 import '@zendeskgarden/react-buttons/dist/styles.css';
@@ -99,7 +101,11 @@ export default class App extends React.Component<{}, AppState> {
   render() {
     if (!this.state.catalogs[this.state.locale]) {
       return (
-        <p>Sorry, we encountered a problem loading the chosen language.</p>
+        <p>
+          <Trans>
+            Sorry, we encountered a problem loading the app in your language.
+          </Trans>
+        </p>
       );
     }
 

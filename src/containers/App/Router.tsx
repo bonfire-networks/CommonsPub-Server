@@ -3,6 +3,9 @@ import Loadable from 'react-loadable';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import styled from '../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+
 // import Menu from '../../components/chrome/Menu/Menu';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
@@ -99,17 +102,29 @@ export default () => (
                   <Route
                     exact
                     path="/collections/featured"
-                    component={() => <div>collections featured</div>}
+                    component={() => (
+                      <div>
+                        <Trans>Featured Collections</Trans>
+                      </div>
+                    )}
                   />
                   <Route
                     exact
                     path="/collections/yours"
-                    component={() => <div>collections yours</div>}
+                    component={() => (
+                      <div>
+                        <Trans>My Collections</Trans>
+                      </div>
+                    )}
                   />
                   <Route
                     exact
                     path="/collections/following"
-                    component={() => <div>collections following</div>}
+                    component={() => (
+                      <div>
+                        <Trans>Favourite Collections</Trans>
+                      </div>
+                    )}
                   />
                   <Route
                     exact

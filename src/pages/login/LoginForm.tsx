@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Col, Row } from '@zendeskgarden/react-grid';
 import { Label, Message, TextField } from '@zendeskgarden/react-textfields';
 
-import { i18nMark } from '@lingui/react';
-import { Trans } from '@lingui/macro';
-
 import styled from '../../themes/styled';
 import TextInput from '../../components/inputs/Text/Text';
 // import Link from '../../components/elements/Link/Link';
 import { LoaderButton } from '../../components/elements/Button/Button';
 import { ValidationField, ValidationObject, ValidationType } from './types';
+
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
 
 const tt = {
   login: i18nMark('Sign in'),

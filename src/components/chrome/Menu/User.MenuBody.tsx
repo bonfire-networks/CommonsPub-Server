@@ -1,6 +1,9 @@
 import * as React from 'react';
 
 import styled from '../../../themes/styled';
+
+import { Trans } from '@lingui/macro';
+
 import Link from '../../elements/Link/Link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -32,16 +35,19 @@ const UserMenu = styled.div`
 export default ({ user }) => {
   return (
     <UserMenu>
-      <UserLink title="Go to Edit profile" to={`/user`}>
-        <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;Edit profile
+      <UserLink to={`/user`}>
+        <FontAwesomeIcon icon={faPencilAlt} /> &nbsp;
+        <Trans>Edit profile</Trans>
       </UserLink>
       <br />
-      <UserLink title="Go to Settings" to={`/settings`}>
-        <FontAwesomeIcon icon={faCogs} /> &nbsp;Settings
+      <UserLink to={`/settings`}>
+        <FontAwesomeIcon icon={faCogs} /> &nbsp;
+        <Trans>Settings</Trans>
       </UserLink>
       <br />
-      <UserLink title="Sign out of MoodleNet" to={`/sign-out`}>
-        <FontAwesomeIcon icon={faSignOutAlt} /> &nbsp;Sign out
+      <UserLink to={`/sign-out`}>
+        <FontAwesomeIcon icon={faSignOutAlt} /> &nbsp;
+        <Trans>Sign out</Trans>
       </UserLink>
     </UserMenu>
   );
