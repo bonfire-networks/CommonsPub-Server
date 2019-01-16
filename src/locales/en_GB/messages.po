@@ -170,6 +170,7 @@ msgid "Display Name"
 msgstr ""
 
 #: src/components/elements/Resource/Resource.tsx:16
+#: src/pages/collections.collection/CollectionsCollection.tsx:97
 #: src/pages/communities.community/CommunitiesCommunity.tsx:114
 msgid "Edit"
 msgstr ""
@@ -408,6 +409,10 @@ msgstr ""
 
 #: src/pages/login/Login.tsx:49
 msgid "The password field cannot be empty"
+msgstr ""
+
+#: src/pages/collections.collection/CollectionsCollection.tsx:112
+msgid "This collection has no resources."
 msgstr ""
 
 #: src/pages/sign-up/Step1.tsx:38

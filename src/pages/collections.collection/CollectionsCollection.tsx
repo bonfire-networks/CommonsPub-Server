@@ -124,7 +124,7 @@ class CollectionComponent extends React.Component<Props> {
                       onChange={tab => this.setState({ tab })}
                       button={
                         <Button onClick={this.props.editCollection} secondary>
-                          Edit
+                          <Trans>Edit</Trans>
                         </Button>
                       }
                     >
@@ -176,7 +176,9 @@ class CollectionComponent extends React.Component<Props> {
                             </Wrapper>
                           ) : (
                             <OverviewCollection>
-                              <P>This community has no resources.</P>
+                              <P>
+                                <Trans>This collection has no resources.</Trans>
+                              </P>
                               <Button onClick={this.props.addNewResource}>
                                 <Trans>Add the first resource</Trans>
                               </Button>

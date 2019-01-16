@@ -122,6 +122,7 @@
       'Sorry, we encountered a problem loading the app in your language.',
     'The email field cannot be empty': 'The email field cannot be empty',
     'The password field cannot be empty': 'The password field cannot be empty',
+    'This collection has no resources.': 'This collection has no resources.',
     'This data will never be shared.': 'This data will never be shared.',
     'This information will appear on your public profile.':
       'This information will appear on your public profile.',
