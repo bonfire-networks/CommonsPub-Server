@@ -22,12 +22,28 @@ defmodule MoodleNet.Accounts.User do
     |> Ecto.Changeset.validate_required([:actor_id, :email])
     |> Ecto.Changeset.unique_constraint(:email)
     |> lower_case_email()
+    |> whitelist_email()
   end
 
   defp lower_case_email(%Ecto.Changeset{valid?: false} = ch), do: ch
+
   defp lower_case_email(%Ecto.Changeset{} = ch) do
     {_, email} = Ecto.Changeset.fetch_field(ch, :email)
     Ecto.Changeset.change(ch, email: String.downcase(email))
+  end
+
+  defp whitelist_email(%Ecto.Changeset{valid?: false} = ch), do: ch
+
+  defp whitelist_email(%Ecto.Changeset{} = ch) do
+    {_, email} = Ecto.Changeset.fetch_field(ch, :email)
+
+    if MoodleNet.Accounts.is_email_in_whitelist?(email) do
+      ch
+    else
+      Ecto.Changeset.add_error(ch, :email, "You cannot register with this email address",
+        validation: "inclusion"
+      )
+    end
   end
 
   def confirm_email_changeset(%__MODULE__{} = user) do

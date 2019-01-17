@@ -1,6 +1,5 @@
 defmodule ActivityPub.SQLEntity do
   use Ecto.Schema
-  alias Ecto.Multi
   require ActivityPub.Guards, as: APG
 
   alias ActivityPub.Entity
@@ -34,16 +33,11 @@ defmodule ActivityPub.SQLEntity do
     entity |> Entity.local_id() |> get_by_local_id()
   end
 
-  def insert(entity) when APG.is_entity(entity) and APG.has_status(entity, :new) do
-    with {:ok, %{entity: sql_entity}} <- insert_new(entity) do
+  def insert(entity, repo \\ Repo) when APG.is_entity(entity) and APG.has_status(entity, :new) do
+    changeset = insert_changeset(entity)
+    with {:ok, sql_entity} <- repo.insert(changeset) do
       {:ok, to_entity(sql_entity)}
     end
-  end
-
-  defp insert_new(entity) do
-    Multi.new()
-    |> Multi.insert(:entity, insert_changeset(entity))
-    |> Repo.transaction()
   end
 
   defp insert_changeset(entity) when APG.has_status(entity, :new) do

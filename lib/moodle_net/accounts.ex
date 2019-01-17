@@ -7,7 +7,14 @@ defmodule MoodleNet.Accounts do
   alias MoodleNet.Repo
   alias Ecto.Multi
 
-  alias MoodleNet.Accounts.{User, PasswordAuth, ResetPasswordToken, EmailConfirmationToken}
+  alias MoodleNet.Accounts.{
+    User,
+    PasswordAuth,
+    ResetPasswordToken,
+    EmailConfirmationToken,
+    WhitelistEmail
+  }
+
   alias MoodleNet.{Mailer, Email}
 
   alias ActivityPub.SQL.Query
@@ -32,24 +39,17 @@ defmodule MoodleNet.Accounts do
       |> Map.delete(:password)
       |> Map.delete("password")
 
-    with {:ok, actor} <- ActivityPub.new(actor_attrs),
-         {:ok, actor} <- ActivityPub.insert(actor),
-         {:ok, ret = %{user: user, email_confirmation_token: token}} <-
-           register_user_operation(actor, attrs) do
-      Email.welcome(user, token.token)
-      |> Mailer.deliver_later()
-
-      {:ok, ret}
-    end
-  end
-
-  defp register_user_operation(actor, attrs) do
     password = attrs[:password] || attrs["password"]
-    ch = User.changeset(actor, attrs)
 
     Multi.new()
-    |> Multi.run(:actor, fn _, _ -> {:ok, actor} end)
-    |> Multi.insert(:user, ch)
+    |> Multi.run(:new_actor, fn _,_ -> ActivityPub.new(actor_attrs) end)
+    |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
+      ActivityPub.insert(new_actor, repo)
+    end)
+    |> Multi.run(:user, fn repo, %{actor: actor} ->
+      User.changeset(actor, attrs)
+      |> repo.insert()
+    end)
     |> Multi.run(
       :password_auth,
       &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
@@ -58,6 +58,11 @@ defmodule MoodleNet.Accounts do
       :email_confirmation_token,
       &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
     )
+    |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
+      email = Email.welcome(user, token.token)
+      |> Mailer.deliver_later()
+      {:ok, email}
+    end)
     |> Repo.transaction()
   end
 
@@ -192,5 +197,19 @@ defmodule MoodleNet.Accounts do
     else
       _ -> {:error, {:not_found, full_token, "Token"}}
     end
+  end
+
+  def add_email_to_whitelist(email) do
+    %WhitelistEmail{email: email}
+    |> Repo.insert()
+  end
+
+  def remove_email_from_whitelist(email) do
+    %WhitelistEmail{email: email}
+    |> Repo.delete(stale_error_field: :email)
+  end
+
+  def is_email_in_whitelist?(email) do
+    Repo.get(WhitelistEmail, email) != nil
   end
 end
