@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   alias ActivityPub.Entity
 
   require ActivityPub.Guards, as: APG
+  alias MoodleNetWeb.GraphQL.Errors
 
   object :auth_payload do
     field(:token, :string)
@@ -306,13 +307,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     {:ok, comments}
   end
 
-  def get_by_id_and_type(local_id, type) do
-    Query.new()
-    |> Query.where(local_id: local_id)
-    |> Query.with_type(type)
-    |> Query.one()
-  end
-
   def resolve_by_id_and_type(type) do
     fn %{local_id: local_id}, info ->
       fields = requested_fields(info)
@@ -333,14 +327,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       actor = prepare(actor, fields)
       auth_payload = %{token: token.hash, me: actor}
       {:ok, auth_payload}
-    else
-      {:error, _, %Ecto.Changeset{} = ch, _} ->
-        error =
-          %{fields: MoodleNetWeb.ChangesetView.translate_errors(ch)}
-          |> Map.put(:message, "Validation errors")
-
-        {:error, error}
     end
+    |> Errors.handle_error()
   end
 
   def update_profile(%{profile: attrs}, info) do
@@ -350,6 +338,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       current_actor = prepare(current_actor, fields)
       {:ok, current_actor}
     end
+    |> Errors.handle_error()
   end
 
   def delete_user(_, info) do
@@ -369,7 +358,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       {:ok, auth_payload}
     else
       _ ->
-        {:error, "Invalid credentials"}
+        Errors.invalid_credential_error()
     end
   end
 
@@ -387,11 +376,17 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   def reset_password(%{token: token, password: password}, _info) do
-    with {:ok, _} <- MoodleNet.Accounts.reset_password(token, password), do: {:ok, true}
+    with {:ok, _} <- MoodleNet.Accounts.reset_password(token, password) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
   end
 
   def confirm_email(%{token: token}, _info) do
-    with {:ok, _} <- MoodleNet.Accounts.confirm_email(token), do: {:ok, true}
+    with {:ok, _} <- MoodleNet.Accounts.confirm_email(token) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
   end
 
   def create_community(%{community: attrs}, info) do
@@ -401,116 +396,136 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def update_community(%{community: changes, community_local_id: id}, info) do
-    with {:ok, community} <- fetch_community(id),
+    with {:ok, community} <- fetch(id, "MoodleNet:Community"),
          {:ok, community} <- MoodleNet.update_community(community, changes) do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def delete_community(%{local_id: id}, info) do
     with {:ok, author} <- current_actor(info),
-         {:ok, community} <- fetch_community(id),
-         :ok <- MoodleNet.delete_community(author, community),
-         do: {:ok, true}
+         {:ok, community} <- fetch(id, "MoodleNet:Community"),
+         :ok <- MoodleNet.delete_community(author, community) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
   end
 
   def create_follow(%{actor_local_id: id}, info) do
     with {:ok, follower} <- current_actor(info),
-         {:ok, following} <- fetch_actor(id),
-         do: MoodleNet.follow(follower, following)
+         {:ok, following} <- fetch(id, "Actor") do
+      MoodleNet.follow(follower, following)
+    end
+    |> Errors.handle_error()
   end
 
   def destroy_follow(%{actor_local_id: id}, info) do
     with {:ok, follower} <- current_actor(info) do
       MoodleNet.undo_follow(follower, id)
     end
+    |> Errors.handle_error()
   end
 
   def create_like(%{local_id: id}, info) do
     with {:ok, liker} <- current_actor(info),
-         {:ok, liked} <- fetch(id),
-         do: MoodleNet.like(liker, liked)
+         {:ok, liked} <- fetch(id) do
+      MoodleNet.like(liker, liked)
+    end
+    |> Errors.handle_error()
   end
 
   def destroy_like(%{local_id: id}, info) do
     with {:ok, liker} <- current_actor(info) do
       MoodleNet.undo_like(liker, id)
     end
+    |> Errors.handle_error()
   end
 
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
-    with {:ok, community} <- fetch_community(comm_id),
+    with {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
          attrs = set_icon(attrs),
          {:ok, collection} = MoodleNet.create_collection(community, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(collection, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def update_collection(%{collection: changes, collection_local_id: id}, info) do
-    with {:ok, collection} <- fetch_collection(id),
+    with {:ok, collection} <- fetch(id, "MoodleNet:Collection"),
          {:ok, collection} <- MoodleNet.update_collection(collection, changes) do
       fields = requested_fields(info)
       {:ok, prepare(collection, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def delete_collection(%{local_id: id}, info) do
     with {:ok, author} <- current_actor(info),
-         {:ok, collection} <- fetch_collection(id),
-         :ok <- MoodleNet.delete_collection(author, collection),
-         do: {:ok, true}
+         {:ok, collection} <- fetch(id, "MoodleNet:Collection"),
+         :ok <- MoodleNet.delete_collection(author, collection) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
   end
 
   def create_resource(%{resource: attrs, collection_local_id: col_id}, info) do
     with {:ok, actor} <- current_actor(info),
-         {:ok, collection} <- fetch_collection(col_id),
+         {:ok, collection} <- fetch(col_id, "MoodleNet:Collection"),
          attrs = set_icon(attrs),
          {:ok, resource} = MoodleNet.create_resource(actor, collection, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(resource, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def update_resource(%{resource: changes, resource_local_id: id}, info) do
-    with {:ok, resource} <- fetch_resource(id),
+    with {:ok, resource} <- fetch(id, "MoodleNet:EducationalResource"),
          {:ok, resource} <- MoodleNet.update_resource(resource, changes) do
       fields = requested_fields(info)
       {:ok, prepare(resource, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def delete_resource(%{local_id: id}, info) do
     with {:ok, author} <- current_actor(info),
-         {:ok, resource} <- fetch_resource(id),
-         :ok <- MoodleNet.delete_resource(author, resource),
-         do: {:ok, true}
+         {:ok, resource} <- fetch(id, "MoodleNet:EducationalResource"),
+         :ok <- MoodleNet.delete_resource(author, resource) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
   end
 
   def copy_resource(attrs, info) do
-    %{resource_local_id: resource_local_id, collection_local_id: collection_local_id} = attrs
+    %{resource_local_id: res_id, collection_local_id: col_id} = attrs
 
     with {:ok, author} <- current_actor(info),
-         {:ok, resource} <- fetch_resource(resource_local_id),
-         {:ok, collection} <- fetch_collection(collection_local_id),
+         {:ok, resource} <- fetch(res_id, "MoodleNet:EducationalResource"),
+         {:ok, collection} <- fetch(col_id, "MoodleNet:Collection"),
          {:ok, resource_copy} <- MoodleNet.copy_resource(author, resource, collection) do
       fields = requested_fields(info)
       {:ok, prepare(resource_copy, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def create_reply(%{in_reply_to_local_id: in_reply_to_id} = args, info)
       when is_integer(in_reply_to_id) do
     with {:ok, author} <- current_actor(info),
-         {:ok, in_reply_to} <- fetch_comment(in_reply_to_id),
+         {:ok, in_reply_to} <- fetch(in_reply_to_id, "Note"),
          {:ok, comment} <- MoodleNet.create_reply(author, in_reply_to, args.comment) do
       fields = requested_fields(info)
       {:ok, prepare(comment, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def create_thread(%{context_local_id: context_id} = args, info) do
@@ -520,13 +535,40 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       fields = requested_fields(info)
       {:ok, prepare(comment, fields)}
     end
+    |> Errors.handle_error()
   end
 
   def delete_comment(%{local_id: id}, info) do
     with {:ok, author} <- current_actor(info),
-         {:ok, comment} <- fetch_comment(id),
-         :ok <- MoodleNet.delete_comment(author, comment),
-         do: {:ok, true}
+         {:ok, comment} <- fetch(id, "Note"),
+         :ok <- MoodleNet.delete_comment(author, comment) do
+      {:ok, true}
+    end
+    |> Errors.handle_error()
+  end
+
+  defp get_by_id_and_type(local_id, type) do
+    Query.new()
+    |> Query.where(local_id: local_id)
+    |> Query.with_type(type)
+    |> Query.one()
+  end
+
+  defp fetch(local_id, type \\ nil)
+
+  defp fetch(local_id, nil) do
+    ActivityPub.SQLEntity.get_by_local_id(local_id)
+    |> case do
+      nil -> Errors.not_found_error(local_id, nil)
+      obj -> {:ok, obj}
+    end
+  end
+
+  defp fetch(local_id, type) do
+    case get_by_id_and_type(local_id, type) do
+      nil -> Errors.not_found_error(local_id, type)
+      entity -> {:ok, entity}
+    end
   end
 
   defp fetch_create_comment_context(context_id) do
@@ -535,7 +577,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Query.one()
     |> case do
       nil ->
-        {:error, "context not found"}
+        Errors.not_found_error(context_id, "Context")
 
       context
       when APG.has_type(context, "MoodleNet:Community") or
@@ -543,55 +585,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
         {:ok, context}
 
       _ ->
-        {:error, "context not found"}
-    end
-  end
-
-  defp fetch(local_id) do
-    ActivityPub.SQLEntity.get_by_local_id(local_id)
-    |> case do
-      nil -> {:error, "object not found"}
-      obj -> {:ok, obj}
-    end
-  end
-
-  defp fetch_actor(local_id) do
-    get_by_id_and_type(local_id, "Actor")
-    |> case do
-      nil -> {:error, "actor not found"}
-      actor -> {:ok, actor}
-    end
-  end
-
-  defp fetch_community(local_id) do
-    get_by_id_and_type(local_id, "MoodleNet:Community")
-    |> case do
-      nil -> {:error, "community not found"}
-      actor -> {:ok, actor}
-    end
-  end
-
-  defp fetch_collection(local_id) do
-    get_by_id_and_type(local_id, "MoodleNet:Collection")
-    |> case do
-      nil -> {:error, "collection not found"}
-      actor -> {:ok, actor}
-    end
-  end
-
-  defp fetch_resource(local_id) do
-    get_by_id_and_type(local_id, "MoodleNet:EducationalResource")
-    |> case do
-      nil -> {:error, "resource not found"}
-      actor -> {:ok, actor}
-    end
-  end
-
-  defp fetch_comment(local_id) do
-    get_by_id_and_type(local_id, "Note")
-    |> case do
-      nil -> {:error, "comment not found"}
-      comment -> {:ok, comment}
+        Errors.not_found_error(context_id, "Context")
     end
   end
 
@@ -607,7 +601,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp set_location(attrs), do: attrs
 
-  defp current_user(%{context: %{current_user: nil}}), do: {:error, "You are not logged in"}
+  defp current_user(%{context: %{current_user: nil}}), do: Errors.unauthorized_error()
   defp current_user(%{context: %{current_user: user}}), do: {:ok, user}
 
   defp current_actor(info) do
@@ -816,10 +810,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       [child] ->
         child
 
-      children -> raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
+      children ->
+        raise ArgumentError, "single assoc with more than an object: #{inspect(children)}"
     end
   end
 
+  # It is called from Absinthe
   def preload_assoc({assoc, fields}, parent_list) do
     parent_list = Query.preload_assoc(parent_list, assoc)
     child_list = Enum.flat_map(parent_list, &Map.get(&1, assoc))
@@ -839,6 +835,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end)
   end
 
+  # It is called from Absinthe
   def preload_collection({assoc, fields}, parent_list) do
     parent_list = Query.preload_assoc(parent_list, {assoc, :items})
     [p] = parent_list

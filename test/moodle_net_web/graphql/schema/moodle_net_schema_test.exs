@@ -7,6 +7,50 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
+  test "createUser errors", %{conn: conn} do
+    query = """
+      mutation {
+        createUser(
+          user: {
+            preferredUsername: "alexcastano"
+            name: "Alejandro Castaño"
+            summary: "Summary"
+            location: "MoodleNet"
+            icon: "https://imag.es/alexcastano"
+            email: "alexcastano@newworld.com"
+            password: "short"
+            primaryLanguage: "Elixir"
+          }
+        ) {
+          token
+          me {
+            id
+          }
+        }
+      }
+    """
+
+    assert [error] =
+             conn
+             |> Plug.Conn.put_req_header("accept-language", "es")
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    assert %{
+             "extra" => %{
+               "count" => 6,
+               "kind" => "min",
+               "validation" => "length",
+               "field" => "password"
+             },
+             "code" => "validation",
+             "locations" => [%{"column" => 0, "line" => 2}],
+             "message" => "should be at least 6 character(s)",
+             "path" => ["createUser"]
+           } = error
+  end
+
   test "confirm email", %{conn: conn} do
     query = """
     mutation {
@@ -14,13 +58,17 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     }
     """
 
-    assert "not_found" =
+    assert [
+             %{
+               "code" => "not_found",
+               "extra" => %{"type" => "Token", "value" => "not_real_token"},
+               "message" => "Token not found"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
 
     %{email_confirmation_token: %{token: token}} = Factory.full_user()
 
@@ -88,19 +136,23 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     query = """
     mutation {
       resetPassword(
-        token: "invalid_token"
+        token: "not_real_token"
         password: "new_password"
       )
     }
     """
 
-    assert "not_found" =
+    assert [
+             %{
+               "code" => "not_found",
+               "extra" => %{"type" => "Token", "value" => "not_real_token"},
+               "message" => "Token not found"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
   end
 
   @tag :user
@@ -244,13 +296,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     }
     """
 
-    assert "You are not logged in" ==
+    assert [
+             %{
+               "code" => "unauthorized",
+               "message" => "You have to log in to proceed"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
 
     query = """
     {
@@ -507,13 +562,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     }
     """
 
-    assert "operation not allowed" ==
+    assert [
+             %{
+               "code" => "forbidden",
+               "message" => "You are not authorized to perform this action"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
 
     query = """
     {
@@ -567,13 +625,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("data")
              |> Map.fetch!("deleteSession")
 
-    assert "You are not logged in" ==
+    assert [
+             %{
+               "code" => "unauthorized",
+               "message" => "You have to log in to proceed"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
   end
 
   @tag :user
@@ -930,7 +991,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       }
     """
 
-    assert [%{"message" => "Not found previous activity"}] =
+    assert [
+             %{
+               "code" => "not_found",
+               "message" => "Activity not found"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
@@ -1046,7 +1112,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       }
     """
 
-    assert [%{"message" => "Not found previous activity"}] =
+    assert [
+             %{
+               "code" => "not_found",
+               "message" => "Activity not found"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
@@ -1164,7 +1235,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       }
     """
 
-    assert [%{"message" => "Not found previous activity"}] =
+    assert [
+             %{
+               "code" => "not_found",
+               "message" => "Activity not found"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
@@ -1328,13 +1404,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       }
     """
 
-    assert "You are not logged in" ==
+    assert [
+             %{
+               "code" => "unauthorized",
+               "message" => "You have to log in to proceed"
+             }
+           ] =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
-             |> hd()
-             |> Map.fetch!("message")
 
     conn = conn |> put_req_header("authorization", "Bearer #{auth_payload["token"]}")
 

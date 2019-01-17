@@ -83,7 +83,7 @@ defmodule MoodleNet.AccountsTest do
     end
 
     test "returns error if email not found" do
-      assert {:error, :not_found} = Accounts.reset_password_request("not_found")
+      assert {:error, {:not_found, "not_found", "User"}} = Accounts.reset_password_request("not_found")
     end
   end
 
@@ -117,18 +117,18 @@ defmodule MoodleNet.AccountsTest do
         |> NaiveDateTime.add(-@three_days)
       token = Repo.insert!(%ResetPasswordToken{token: token, user_id: user.id, inserted_at: date})
 
-      assert {:error, :not_found} = Accounts.reset_password(token.token, "new_password")
+      assert {:error, {:not_found, _, "Token"}} = Accounts.reset_password(token.token, "new_password")
     end
 
     test "returns error if token not found" do
-      assert {:error, :not_found} = Accounts.reset_password("1234", "new_password")
+      assert {:error, {:not_found, _, "Token"}} = Accounts.reset_password("1234", "new_password")
 
       user = Factory.user()
       token = MoodleNet.Token.random_key_with_id(user.id)
-      assert {:error, :not_found} = Accounts.reset_password(token, "new_password")
+      assert {:error, {:not_found, _, "Token"}} = Accounts.reset_password(token, "new_password")
 
       assert {:ok, %{token: token}} = Accounts.reset_password_request(user.email)
-      assert {:error, :not_found} = Accounts.reset_password(token <> "1", "new_password")
+      assert {:error, {:not_found, _, "Token"}} = Accounts.reset_password(token <> "1", "new_password")
     end
   end
 
@@ -142,11 +142,11 @@ defmodule MoodleNet.AccountsTest do
     end
 
     test "returns error if token not found" do
-      assert {:error, :not_found} = Accounts.confirm_email("1234")
+      assert {:error, {:not_found, "1234", "Token"}} = Accounts.confirm_email("1234")
 
       %{user: user, email_confirmation_token: %{token: token}} = Factory.full_user()
-      assert {:error, :not_found} = Accounts.confirm_email(MoodleNet.Token.random_key_with_id(user.id))
-      assert {:error, :not_found} = Accounts.confirm_email(token <> "1")
+      assert {:error, {:not_found, _, "Token"}} = Accounts.confirm_email(MoodleNet.Token.random_key_with_id(user.id))
+      assert {:error, {:not_found, _, "Token"}} = Accounts.confirm_email(token <> "1")
     end
   end
 end
