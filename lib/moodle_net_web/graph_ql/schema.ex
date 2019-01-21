@@ -170,28 +170,52 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.delete_user/2)
     end
 
-    @desc "Follow an actor"
-    field :follow, type: :boolean do
-      arg(:actor_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.create_follow/2)
+    @desc "Join a community"
+    field :join_community, type: :boolean do
+      arg(:community_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.join_community/2)
     end
 
-    @desc "Unfollow an actor"
-    field :unfollow, type: :boolean do
-      arg(:actor_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.destroy_follow/2)
+    @desc "Undo join a community"
+    field :undo_join_community, type: :boolean do
+      arg(:community_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.undo_join_community/2)
     end
 
-    @desc "Like an object"
-    field :like, type: :boolean do
+    @desc "Follow a collection"
+    field :follow_collection, type: :boolean do
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.follow_collection/2)
+    end
+
+    @desc "Undo follow a collection"
+    field :undo_follow_collection, type: :boolean do
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.undo_follow_collection/2)
+    end
+
+    @desc "Like a comment"
+    field :like_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.create_like/2)
+      resolve(&MoodleNetSchema.like_comment/2)
     end
 
-    @desc "Unlike an object"
-    field :unlike, type: :boolean do
+    @desc "Like a resource"
+    field :like_resource, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.destroy_like/2)
+      resolve(&MoodleNetSchema.like_resource/2)
+    end
+
+    @desc "Undo a previous like to a comment"
+    field :undo_like_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.undo_like_comment/2)
+    end
+
+    @desc "Undo a previous like to a resource"
+    field :undo_like_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.undo_like_resource/2)
     end
 
     @desc "Login"

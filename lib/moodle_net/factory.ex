@@ -44,7 +44,7 @@ defmodule MoodleNet.Factory do
       "icon" => attributes(:image),
       "preferred_username" => Faker.Internet.user_name(),
       "summary" => Faker.Lorem.sentence(),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
     }
   end
 
@@ -55,7 +55,7 @@ defmodule MoodleNet.Factory do
       "url" => Faker.Internet.url(),
       "summary" => Faker.Lorem.sentence(),
       "icon" => attributes(:image),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
       "same_as" => "https://hq.moodle.net/r/98765",
       "in_language" => ["en-GB"],
       "public_access" => true,
@@ -131,21 +131,21 @@ defmodule MoodleNet.Factory do
     app
   end
 
-  def community(attrs \\ %{}) do
+  def community(actor, attrs \\ %{}) do
     attrs = attributes(:community, attrs)
-    {:ok, c} = MoodleNet.create_community(attrs)
+    {:ok, c} = MoodleNet.create_community(actor, attrs)
     c
   end
 
-  def collection(community, attrs \\ %{}) do
+  def collection(actor, community, attrs \\ %{}) do
     attrs = attributes(:collection, attrs)
-    {:ok, c} = MoodleNet.create_collection(community, attrs)
+    {:ok, c} = MoodleNet.create_collection(actor, community, attrs)
     c
   end
 
-  def resource(context, attrs \\ %{}) do
+  def resource(actor, context, attrs \\ %{}) do
     attrs = attributes(:resource, attrs)
-    {:ok, c} = MoodleNet.create_resource(nil, context, attrs)
+    {:ok, c} = MoodleNet.create_resource(actor, context, attrs)
     c
   end
 

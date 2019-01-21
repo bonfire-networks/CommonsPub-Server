@@ -199,10 +199,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   end
 
   @tag :user
-  test "copy a resource", %{conn: conn} do
-    community = Factory.community()
-    collection = Factory.collection(community)
-    resource = Factory.resource(collection)
+  test "copy a resource", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
 
     query = """
     mutation {
@@ -294,7 +294,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   test "delete an account", %{conn: conn} do
     actor = Factory.actor()
-    community = Factory.community()
+    community = Factory.community(actor)
     comment = Factory.comment(actor, community)
 
     query = """
@@ -368,9 +368,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   @tag :user
   test "delete a community", %{conn: conn, actor: actor} do
-    community = Factory.community()
-    collection = Factory.collection(community)
-    resource = Factory.resource(collection)
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
     com_comment = Factory.comment(actor, community)
     col_comment = Factory.comment(actor, collection)
 
@@ -465,9 +465,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   @tag :user
   test "delete a collection", %{conn: conn, actor: actor} do
-    community = Factory.community()
-    collection = Factory.collection(community)
-    resource = Factory.resource(collection)
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
     comment = Factory.comment(actor, collection)
 
     query = """
@@ -530,10 +530,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   end
 
   @tag :user
-  test "delete a resource", %{conn: conn} do
-    community = Factory.community()
-    collection = Factory.collection(community)
-    resource = Factory.resource(collection)
+  test "delete a resource", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
 
     query = """
     mutation {
@@ -566,9 +566,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   @tag :user
   test "delete comment", %{conn: conn, actor: actor} do
-    community = Factory.community()
+    community = Factory.community(actor)
     comment = Factory.comment(actor, community)
     other_actor = Factory.actor()
+    MoodleNet.join_community(other_actor, community)
     other_comment = Factory.comment(other_actor, community)
 
     query = """
@@ -681,10 +682,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   end
 
   @tag :user
-  test "update resource", %{conn: conn} do
-    community = Factory.community()
-    collection = Factory.collection(community)
-    resource = Factory.resource(collection)
+  test "update resource", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
 
     query = """
     mutation {
@@ -794,9 +795,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   end
 
   @tag :user
-  test "update collection", %{conn: conn} do
-    community = Factory.community()
-    collection = Factory.collection(community)
+  test "update collection", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
 
     query = """
     mutation {
@@ -874,8 +875,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   end
 
   @tag :user
-  test "update community", %{conn: conn} do
-    community = Factory.community()
+  test "update community", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
 
     query = """
       mutation {
@@ -993,319 +994,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert me["primaryLanguage"] == "Elixir"
     assert me["location"] == "MoodleNet"
     assert me["icon"] == "https://imag.es/alexcastano"
-  end
-
-  @tag :user
-  test "unlike", %{conn: conn} do
-    community = Factory.community()
-
-    query = """
-      mutation {
-        unlike(
-          localId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert [
-             %{
-               "code" => "not_found",
-               "message" => "Activity not found"
-             }
-           ] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("errors")
-  end
-
-  @tag :user
-  test "likes", %{conn: conn, actor: actor} do
-    community = Factory.community()
-
-    query = """
-      mutation {
-        like(
-          localId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert conn
-           |> post("/api/graphql", %{query: query})
-           |> json_response(200)
-           |> Map.fetch!("data")
-           |> Map.fetch!("like")
-
-    query = """
-    {
-      communities {
-        id
-        localId
-        likesCount
-        likers {
-          id
-          localId
-          local
-          type
-          preferredUsername
-          name
-          summary
-          location
-          icon
-        }
-      }
-    }
-    """
-
-    assert [community_map] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("communities")
-
-    assert community_map["id"] == community.id
-    assert community_map["localId"] == local_id(community)
-    assert community_map["likesCount"] == 1
-
-    assert [user_map] = community_map["likers"]
-    assert user_map["id"] == actor.id
-    assert user_map["localId"] == local_id(actor)
-    assert user_map["local"] == ActivityPub.Entity.local?(actor)
-    assert user_map["type"] == actor.type
-    assert user_map["preferredUsername"] == actor.preferred_username
-    assert user_map["name"] == actor.name["und"]
-    assert user_map["summary"] == actor.summary["und"]
-    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
-
-    query = """
-      mutation {
-        unlike(
-          localId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert conn
-           |> post("/api/graphql", %{query: query})
-           |> json_response(200)
-           |> Map.fetch!("data")
-           |> Map.fetch!("unlike")
-
-    query = """
-    {
-      communities {
-        id
-        localId
-        likesCount
-        likers {
-          id
-        }
-      }
-    }
-    """
-
-    assert [community_map] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("communities")
-
-    assert community_map["id"] == community.id
-    assert community_map["localId"] == local_id(community)
-    assert community_map["likesCount"] == 0
-
-    assert [] = community_map["likers"]
-
-    query = """
-      mutation {
-        unlike(
-          localId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert [
-             %{
-               "code" => "not_found",
-               "message" => "Activity not found"
-             }
-           ] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("errors")
-  end
-
-  @tag :user
-  test "follows", %{conn: conn, actor: actor} do
-    community = Factory.community()
-
-    query = """
-      mutation {
-        follow(
-          actorLocalId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert conn
-           |> post("/api/graphql", %{query: query})
-           |> json_response(200)
-           |> Map.fetch!("data")
-           |> Map.fetch!("follow")
-
-    query = """
-    {
-      communities {
-        id
-        localId
-        followersCount
-        followers {
-          id
-          localId
-          local
-          type
-          preferredUsername
-          name
-          summary
-          location
-          icon
-        }
-      }
-    }
-    """
-
-    assert [community_map] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("communities")
-
-    assert community_map["id"] == community.id
-    assert community_map["localId"] == local_id(community)
-    assert community_map["followersCount"] == 1
-
-    assert [user_map] = community_map["followers"]
-    assert user_map["id"] == actor.id
-    assert user_map["localId"] == local_id(actor)
-    assert user_map["local"] == ActivityPub.Entity.local?(actor)
-    assert user_map["type"] == actor.type
-    assert user_map["preferredUsername"] == actor.preferred_username
-    assert user_map["name"] == actor.name["und"]
-    assert user_map["summary"] == actor.summary["und"]
-    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
-
-    query = """
-      mutation {
-        unfollow(
-          actorLocalId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert conn
-           |> post("/api/graphql", %{query: query})
-           |> json_response(200)
-           |> Map.fetch!("data")
-           |> Map.fetch!("unfollow")
-
-    query = """
-    {
-      communities {
-        id
-        localId
-        followersCount
-        followers {
-          id
-        }
-      }
-    }
-    """
-
-    assert [community_map] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("communities")
-
-    assert community_map["id"] == community.id
-    assert community_map["localId"] == local_id(community)
-    assert community_map["followersCount"] == 0
-
-    assert [] = community_map["followers"]
-
-    collection = Factory.collection(community)
-
-    query = """
-      mutation {
-        unfollow(
-          actorLocalId: #{local_id(community)}
-        )
-      }
-    """
-
-    assert [
-             %{
-               "code" => "not_found",
-               "message" => "Activity not found"
-             }
-           ] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("errors")
-
-    query = """
-      mutation {
-        follow(
-          actorLocalId: #{local_id(collection)}
-        )
-      }
-    """
-
-    assert conn
-           |> post("/api/graphql", %{query: query})
-           |> json_response(200)
-           |> Map.fetch!("data")
-           |> Map.fetch!("follow")
-
-    query = """
-    {
-      collections(communityLocalId: #{local_id(community)}) {
-        id
-        localId
-        followers {
-          id
-          localId
-          local
-          type
-          preferredUsername
-          name
-          summary
-          location
-          icon
-        }
-      }
-    }
-    """
-
-    assert [collection_map] =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("collections")
-
-    assert collection_map["id"] == collection.id
-    assert collection_map["localId"] == local_id(collection)
-    assert collection_map["followers"] == [user_map]
   end
 
   test "works", %{conn: conn} do
