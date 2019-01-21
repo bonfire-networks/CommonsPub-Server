@@ -2,6 +2,8 @@ defmodule MoodleNet do
   import ActivityPub.Guards
   alias ActivityPub.SQL.Query
 
+  alias MoodleNet.Policy
+
   def list_communities(opts \\ %{}) do
     Query.new()
     |> Query.with_type("MoodleNet:Community")
@@ -61,11 +63,13 @@ defmodule MoodleNet do
     |> Query.all()
   end
 
-  def create_community(attrs) do
+  def create_community(actor, attrs) do
     attrs = Map.put(attrs, "type", "MoodleNet:Community")
 
-    with {:ok, entity} <- ActivityPub.new(attrs) do
-      ActivityPub.insert(entity)
+    with {:ok, entity} <- ActivityPub.new(attrs),
+         {:ok, entity} <- ActivityPub.insert(entity),
+         {:ok, true} <- MoodleNet.join_community(actor, entity) do
+      {:ok, entity}
     end
   end
 
@@ -121,14 +125,18 @@ defmodule MoodleNet do
     :ok
   end
 
-  def create_collection(community, attrs) when has_type(community, "MoodleNet:Community") do
+  def create_collection(actor, community, attrs)
+      when has_type(community, "MoodleNet:Community") do
     attrs =
       attrs
       |> Map.put(:type, "MoodleNet:Collection")
       |> Map.put(:attributed_to, [community])
 
-    with {:ok, entity} <- ActivityPub.new(attrs) do
-      ActivityPub.insert(entity)
+    with :ok <- Policy.create_collection?(actor, community, attrs),
+         {:ok, entity} <- ActivityPub.new(attrs),
+         {:ok, entity} <- ActivityPub.insert(entity),
+         {:ok, true} <- follow_collection(actor, entity) do
+      {:ok, entity}
     end
   end
 
@@ -158,14 +166,17 @@ defmodule MoodleNet do
     :ok
   end
 
-  def create_resource(_actor, collection, attrs)
+  def create_resource(actor, collection, attrs)
       when has_type(collection, "MoodleNet:Collection") do
     attrs =
       attrs
       |> Map.put(:type, "MoodleNet:EducationalResource")
       |> Map.put(:attributed_to, [collection])
 
-    with {:ok, entity} <- ActivityPub.new(attrs) do
+    collection = Query.preload_assoc(collection, :attributed_to)
+
+    with :ok <- Policy.create_resource?(actor, collection, attrs),
+         {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
     end
   end
@@ -186,9 +197,10 @@ defmodule MoodleNet do
   end
 
   def copy_resource(actor, resource, collection) do
-    resource = resource
-               |> Query.preload_aspect(:resource)
-               |> Query.preload_assoc([:icon])
+    resource =
+      resource
+      |> Query.preload_aspect(:resource)
+      |> Query.preload_assoc([:icon])
 
     attrs =
       Map.take(resource, [
@@ -210,6 +222,7 @@ defmodule MoodleNet do
         :time_required,
         :typical_age_range
       ])
+
     url = get_in(resource, [:icon, Access.at(0), :url])
     attrs = Map.put(attrs, :icon, %{type: "Image", url: url})
     create_resource(actor, collection, attrs)
@@ -218,6 +231,8 @@ defmodule MoodleNet do
   def create_thread(author, context, attrs)
       when has_type(author, "Person") and has_type(context, "MoodleNet:Community")
       when has_type(author, "Person") and has_type(context, "MoodleNet:Collection") do
+    context = preload_community(context)
+
     attrs
     |> Map.put(:context, [context])
     |> Map.put(:attributed_to, [author])
@@ -226,7 +241,11 @@ defmodule MoodleNet do
 
   def create_reply(author, in_reply_to, attrs)
       when has_type(author, "Person") and has_type(in_reply_to, "Note") do
-    context = Query.new() |> Query.belongs_to(:context, in_reply_to) |> Query.one()
+    context =
+      Query.new()
+      |> Query.belongs_to(:context, in_reply_to)
+      |> Query.one()
+      |> preload_community()
 
     attrs
     |> Map.put(:context, [context])
@@ -237,8 +256,11 @@ defmodule MoodleNet do
 
   defp create_comment(attrs) do
     attrs = attrs |> Map.put("type", "Note")
+    [context] = attrs[:context]
+    [actor] = attrs[:attributed_to]
 
-    with {:ok, entity} <- ActivityPub.new(attrs) do
+    with :ok <- Policy.create_comment?(actor, context, attrs),
+         {:ok, entity} <- ActivityPub.new(attrs) do
       ActivityPub.insert(entity)
     end
   end
@@ -251,10 +273,45 @@ defmodule MoodleNet do
     end
   end
 
-  def follow(follower, following) do
-    params = %{type: "Follow", actor: follower, object: following}
+  def join_community(actor, community)
+      when has_type(actor, "Person") and has_type(community, "MoodleNet:Community") do
+    params = %{type: "Follow", actor: actor, object: community}
 
     with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def follow_collection(actor, collection)
+      when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
+    params = %{type: "Follow", actor: actor, object: collection}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def like_comment(actor, comment)
+      when has_type(actor, "Person") and has_type(comment, "Note") do
+    comment = preload_community(comment)
+    attrs = %{type: "Like", actor: actor, object: comment}
+
+    with :ok <- Policy.like_comment?(actor, comment, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def like_resource(actor, resource)
+      when has_type(actor, "Person") and has_type(resource, "MoodleNet:EducationalResource") do
+    resource = preload_community(resource)
+    attrs = %{type: "Like", actor: actor, object: resource}
+
+    with :ok <- Policy.like_resource?(actor, resource, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
          {:ok, _activity} <- ActivityPub.apply(activity) do
       {:ok, true}
     end
@@ -290,9 +347,13 @@ defmodule MoodleNet do
   end
 
   defp find_current_relation(subject, relation, object) do
-    if Query.has?(subject, relation, object),
-      do: :ok,
-      else: {:error, {:not_found, nil, "Activity"}}
+    if Query.has?(subject, relation, object) do
+      :ok
+    else
+      subject_id = ActivityPub.Entity.local_id(subject)
+      object_id = ActivityPub.Entity.local_id(object)
+      {:error, {:not_found, [subject_id, object_id], "Activity"}}
+    end
   end
 
   defp find_activity(type, actor, object) do
@@ -303,11 +364,30 @@ defmodule MoodleNet do
     |> Query.last()
     |> case do
       nil ->
-        {:error, {:not_found, nil, "Activity"}}
+        actor_id = ActivityPub.Entity.local_id(actor)
+        object_id = ActivityPub.Entity.local_id(object)
+        {:error, {:not_found, [actor_id, object_id], "Activity"}}
 
       activity ->
         activity = Query.preload_assoc(activity, actor: {[:actor], []}, object: {[:actor], []})
         {:ok, activity}
     end
+  end
+
+  defp preload_community(community) when has_type(community, "MoodleNet:Community"),
+    do: community
+
+  defp preload_community(collection) when has_type(collection, "MoodleNet:Collection"),
+    do: Query.preload_assoc(collection, :attributed_to)
+
+  defp preload_community(resource) when has_type(resource, "MoodleNet:EducationalResource") do
+    Query.preload_assoc(resource, attributed_to: :attributed_to)
+  end
+
+  defp preload_community(comment) when has_type(comment, "Note") do
+    comment = Query.preload_assoc(comment, :context)
+    [context] = comment.context
+    context = preload_community(context)
+    %{comment | context: [context]}
   end
 end

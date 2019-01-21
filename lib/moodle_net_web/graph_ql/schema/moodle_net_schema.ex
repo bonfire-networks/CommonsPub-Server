@@ -392,7 +392,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
 
-    with {:ok, community} = MoodleNet.create_community(attrs) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- MoodleNet.create_community(actor, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
@@ -417,25 +418,34 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Errors.handle_error()
   end
 
-  def create_follow(%{actor_local_id: id}, info) do
-    with {:ok, follower} <- current_actor(info),
-         {:ok, following} <- fetch(id, "Actor") do
-      MoodleNet.follow(follower, following)
+  def join_community(%{community_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(id, "MoodleNet:Community") do
+      MoodleNet.join_community(actor, community)
     end
     |> Errors.handle_error()
   end
 
-  def destroy_follow(%{actor_local_id: id}, info) do
-    with {:ok, follower} <- current_actor(info) do
-      MoodleNet.undo_follow(follower, id)
+  def undo_join_community(%{community_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(id, "MoodleNet:Community") do
+      MoodleNet.undo_follow(actor, community)
     end
     |> Errors.handle_error()
   end
 
-  def create_like(%{local_id: id}, info) do
-    with {:ok, liker} <- current_actor(info),
-         {:ok, liked} <- fetch(id) do
-      MoodleNet.like(liker, liked)
+  def follow_collection(%{collection_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
+      MoodleNet.follow_collection(actor, collection)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_follow_collection(%{collection_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
+      MoodleNet.undo_follow(actor, collection)
     end
     |> Errors.handle_error()
   end
@@ -447,10 +457,43 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Errors.handle_error()
   end
 
+  def like_comment(%{local_id: comment_id}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, comment} <- fetch(comment_id, "Note") do
+      MoodleNet.like_comment(liker, comment)
+    end
+    |> Errors.handle_error()
+  end
+
+  def like_resource(%{local_id: resource_id}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
+      MoodleNet.like_resource(liker, resource)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_like_comment(%{local_id: comment_id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, comment} <- fetch(comment_id, "Note") do
+      MoodleNet.undo_like(actor, comment)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_like_resource(%{local_id: resource_id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
+      MoodleNet.undo_like(actor, resource)
+    end
+    |> Errors.handle_error()
+  end
+
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
-    with {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
          attrs = set_icon(attrs),
-         {:ok, collection} = MoodleNet.create_collection(community, attrs) do
+         {:ok, collection} <- MoodleNet.create_collection(actor, community, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(collection, fields)}
     end
@@ -552,16 +595,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Query.where(local_id: local_id)
     |> Query.with_type(type)
     |> Query.one()
-  end
-
-  defp fetch(local_id, type \\ nil)
-
-  defp fetch(local_id, nil) do
-    ActivityPub.SQLEntity.get_by_local_id(local_id)
-    |> case do
-      nil -> Errors.not_found_error(local_id, nil)
-      obj -> {:ok, obj}
-    end
   end
 
   defp fetch(local_id, type) do
