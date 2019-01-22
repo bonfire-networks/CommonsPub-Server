@@ -25,17 +25,17 @@ defmodule ActivityPub.SQLAspect do
 
         :embedded ->
           if Keyword.has_key?(options, :table_name),
-            do: raise(ArgumentError, "embedded SQLAspect does not need option :table_name")
+            do: raise(ArgumentError, "Embedded SQLAspect does not need option :table_name")
 
           @table_name nil
           @field_name Keyword.get(options, :field_name, aspect.name())
 
         :fields ->
           if Keyword.has_key?(options, :table_name),
-            do: raise(ArgumentError, "fields SQLAspect does not need option :table_name")
+            do: raise(ArgumentError, "Fields SQLAspect do not need option :table_name")
 
           if Keyword.has_key?(options, :field_name),
-            do: raise(ArgumentError, "fields SQLAspect does not need option :field_name")
+            do: raise(ArgumentError, "Fields SQLAspect do not need option :field_name")
 
           @table_name nil
           @field_name nil

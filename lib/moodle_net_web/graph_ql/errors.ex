@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.Errors do
   def unauthorized_error() do
     {:error,
      %{
-       message: gettext("You have to log in to proceed"),
+       message: gettext("You need to log in first"),
        code: :unauthorized
      }}
   end
@@ -97,7 +97,7 @@ defmodule MoodleNetWeb.GraphQL.Errors do
   def unknown_error(code) do
     {:error,
      %{
-       message: gettext("An unknown error happened"),
+       message: gettext("There was an unknown error"),
        code: code
      }}
   end

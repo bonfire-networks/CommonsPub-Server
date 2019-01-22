@@ -80,14 +80,14 @@ defmodule ActivityPub.Aspect do
   # TODO
   defp check_field_type!(name, :datetime, _opts) do
     raise ArgumentError,
-          "invalid type :datetime for field #{inspect(name)}. " <>
-            "You probably meant to choose one between :naive_datetime " <>
+          "Invalid type :datetime for field #{inspect(name)}. " <>
+            "You probably meant to choose one of :naive_datetime " <>
             "(no time zone information) or :utc_datetime (time zone is set to UTC)"
   end
 
   defp check_field_type!(name, {:embed, _}, _opts) do
     raise ArgumentError,
-          "cannot declare field #{inspect(name)} as embed. Use embeds_one/many instead"
+          "Cannot declare field #{inspect(name)} as embed. Use embeds_one/many instead"
   end
 
   defp check_field_type!(name, type, _opts) do
@@ -100,10 +100,10 @@ defmodule ActivityPub.Aspect do
 
       is_atom(type) and function_exported?(type, :__schema__, 1) ->
         raise ArgumentError,
-              "schema #{inspect(type)} is not a valid type for field #{inspect(name)}."
+              "Schema #{inspect(type)} is not a valid type for field #{inspect(name)}."
 
       true ->
-        raise ArgumentError, "invalid or unknown type #{inspect(type)} for field #{inspect(name)}"
+        raise ArgumentError, "Invalid or unknown type #{inspect(type)} for field #{inspect(name)}"
     end
   end
 
@@ -123,7 +123,7 @@ defmodule ActivityPub.Aspect do
     fields = Module.get_attribute(mod, :aspect_struct_fields)
 
     if List.keyfind(fields, name, 0) do
-      raise ArgumentError, "field/association #{inspect(name)} is already set on aspect"
+      raise ArgumentError, "Field/association #{inspect(name)} is already set on aspect"
     end
 
     Module.put_attribute(mod, :aspect_struct_fields, {name, default})

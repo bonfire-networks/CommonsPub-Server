@@ -348,7 +348,7 @@ defmodule ActivityPub.SQL.Query do
     do:
       raise(
         ArgumentError,
-        "invalid status: #{Entity.status(e)}. Only entities with status :loaded can be preloaded"
+        "Invalid status: #{Entity.status(e)}. Only entities with status :loaded can be preloaded"
       )
 
   # defp print_query(query) do

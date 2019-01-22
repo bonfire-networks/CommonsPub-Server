@@ -11,6 +11,6 @@
 <p>
   <%= gettext("We'd love your feedback on the sign-up process.") <> " " %>
   <a href="https://changemap.co/moodle/moodlenet/task/2727-improve-the-sign-up-process/">
-    <%= gettext("Click here") %>
+    <%= gettext("Please comment here") %>
   </a><%= " " <> gettext("to tell us anything we can do to improve it!") %>
 </p>
