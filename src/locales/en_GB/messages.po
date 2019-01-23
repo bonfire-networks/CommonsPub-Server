@@ -34,7 +34,7 @@ msgstr ""
 msgid "Add language"
 msgstr ""
 
-#: src/pages/collections.collection/CollectionsCollection.tsx:114
+#: src/pages/collections.collection/CollectionsCollection.tsx:116
 msgid "Add the first resource"
 msgstr ""
 
@@ -411,7 +411,7 @@ msgstr ""
 msgid "The password field cannot be empty"
 msgstr ""
 
-#: src/pages/collections.collection/CollectionsCollection.tsx:112
+#: src/pages/collections.collection/CollectionsCollection.tsx:113
 msgid "This collection has no resources."
 msgstr ""
 
