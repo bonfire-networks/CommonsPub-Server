@@ -9,93 +9,92 @@
 #  effect: edit them in PO (`.po`) files instead.
 #  From Ecto.Changeset.cast/4
 # Translators:
-# Mayel de Borniol <mayel@moodle.com>, 2019
-# Germán Valero <gvalero@unam.mx>, 2019
+# Iñigo Zendegi Urzelai, 2019
 # 
 msgid ""
 msgstr ""
-"Last-Translator: Germán Valero <gvalero@unam.mx>, 2019\n"
-"Language-Team: Spanish (https://www.transifex.com/moodlenet/teams/94082/es/)\n"
-"Language: es\n"
+"Last-Translator: Iñigo Zendegi Urzelai, 2019\n"
+"Language-Team: Basque (https://www.transifex.com/moodlenet/teams/94082/eu/)\n"
+"Language: eu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
-msgstr "no puede estar vacío"
+msgstr "ezin da hutsik egon"
 
 # From Ecto.Changeset.unique_constraint/3
 msgid "has already been taken"
-msgstr "ya se ha tomado"
+msgstr "dagoeneko hartua izan da"
 
 # From Ecto.Changeset.put_change/3
 msgid "is invalid"
-msgstr "no es válido"
+msgstr "baliogabea da"
 
 # From Ecto.Changeset.validate_format/3
 msgid "has invalid format"
-msgstr "tiene un formato inválido"
+msgstr "formatu baliogabea dauka"
 
 # From Ecto.Changeset.validate_subset/3
 msgid "has an invalid entry"
-msgstr "tiene una entrada inválida"
+msgstr "sarrera baliogabea dauka"
 
 # From Ecto.Changeset.validate_exclusion/3
 msgid "is reserved"
-msgstr "Está reservado"
+msgstr "erreserbatuta dago"
 
 # From Ecto.Changeset.validate_confirmation/3
 msgid "does not match confirmation"
-msgstr "la confirmación no coincide"
+msgstr "ez dator bat baieztapenarekin"
 
 # From Ecto.Changeset.no_assoc_constraint/3
 msgid "is still associated with this entry"
-msgstr "todavía está asociado con esta entrada"
+msgstr "oraindik sarrera honekin lotuta dago"
 
 msgid "are still associated with this entry"
-msgstr "todavía están asociados con esta entrada"
+msgstr "oraindik sarrera honekin lotuta daude"
 
 # From Ecto.Changeset.validate_length/3
 msgid "should be %{count} character(s)"
 msgid_plural "should be %{count} character(s)"
-msgstr[0] "debe ser% {count} caracteres (s)"
-msgstr[1] "debería ser %{count} caracter(es)"
+msgstr[0] "%{count} karaktere izan beharko litzateke"
+msgstr[1] "%{count} karaktere izan beharko lirateke"
 
 msgid "should have %{count} item(s)"
 msgid_plural "should have %{count} item(s)"
-msgstr[0] "debería tener% {count} artículo (s)"
-msgstr[1] "debería tener %{count} elemento(s)"
+msgstr[0] "%{count} elementu izan beharko lituzke"
+msgstr[1] " %{count} elementu eduki beharko lituzke"
 
 msgid "should be at least %{count} character(s)"
 msgid_plural "should be at least %{count} character(s)"
-msgstr[0] "debe tener al menos% {count} caracteres (s)"
-msgstr[1] "debe tener al menos %{count} elemento(s)"
+msgstr[0] "gutxienez %{count} karaktere izan beharko lirateke"
+msgstr[1] "gutxienez %{count} karaktere izan beharko lituzke"
 
 msgid "should have at least %{count} item(s)"
 msgid_plural "should have at least %{count} item(s)"
-msgstr[0] "debe tener al menos% {count} artículo (s)"
-msgstr[1] "debería tener al menos %{count} elemento(s)"
+msgstr[0] "gutxienez %{count} elementu eduki beharko lituzke"
+msgstr[1] "gutxienez %{count} elementu eduki beharko lituzke"
 
 msgid "should be at most %{count} character(s)"
 msgid_plural "should be at most %{count} character(s)"
-msgstr[0] "debe tener como máximo% {count} caracteres (s)"
-msgstr[1] "debería tener como máximo %{count} caracter(es)"
+msgstr[0] "gehienez %{count} karaktere izan beharko lirateke"
+msgstr[1] "gehienez %{count} karaktere izan beharko lirateke"
 
 msgid "should have at most %{count} item(s)"
 msgid_plural "should have at most %{count} item(s)"
-msgstr[0] "debería tener como máximo% {count} artículo (s)"
-msgstr[1] "debería tener como máximo %{count} elemento(s)"
+msgstr[0] "gehienez %{count} elementu eduki beharko lituzke"
+msgstr[1] "gehienez %{count} elementu eduki beharko lituzke"
 
 # From Ecto.Changeset.validate_number/3
 msgid "must be less than %{number}"
-msgstr "debe ser menor que %{number}"
+msgstr "%{number} baino txikiagoa izan beharko litzateke"
 
 msgid "must be greater than %{number}"
-msgstr "debe ser mayor que %{number}"
+msgstr "%{number} baino handiagoa izan beharko litzateke"
 
 msgid "must be less than or equal to %{number}"
-msgstr "debe ser menor o igual a %{number}"
+msgstr "%{number} baino txikiagoa edo berdina izan beharko litzateke"
 
 msgid "must be greater than or equal to %{number}"
-msgstr "debe ser mayor o igual que %{number}"
+msgstr "%{number} baino handiagoa edo berdina izan beharko litzateke"
 
 msgid "must be equal to %{number}"
-msgstr "debe ser igual a %{number}"
+msgstr "%{number} izan beharko litzateke"

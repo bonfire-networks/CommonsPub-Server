@@ -64,57 +64,57 @@ msgid "to tell us anything we can do to improve it!"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:106
+#: lib/moodle_net_web/graph_ql/errors.ex:115
 msgid "Object"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:115
+#: lib/moodle_net_web/graph_ql/errors.ex:124
 msgid "Collection"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:121
+#: lib/moodle_net_web/graph_ql/errors.ex:130
 msgid "Comment"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:112
+#: lib/moodle_net_web/graph_ql/errors.ex:121
 msgid "Community"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:124
+#: lib/moodle_net_web/graph_ql/errors.ex:133
 msgid "Context"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:118
+#: lib/moodle_net_web/graph_ql/errors.ex:127
 msgid "Resource"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:109
+#: lib/moodle_net_web/graph_ql/errors.ex:118
 msgid "User"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:127
+#: lib/moodle_net_web/graph_ql/errors.ex:136
 msgid "Activity"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:77
+#: lib/moodle_net_web/graph_ql/errors.ex:86
 msgid "Invalid credentials"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:130
+#: lib/moodle_net_web/graph_ql/errors.ex:139
 msgid "Token"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:92
+#: lib/moodle_net_web/graph_ql/errors.ex:101
 msgid "You are not authorized to perform this action"
 msgstr ""
 
@@ -130,7 +130,7 @@ msgid "Please comment here"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:100
+#: lib/moodle_net_web/graph_ql/errors.ex:109
 msgid "There was an unknown error"
 msgstr ""
 
@@ -140,6 +140,11 @@ msgid "You can do so at:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:84
+#: lib/moodle_net_web/graph_ql/errors.ex:93
 msgid "You need to log in first"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:77
+msgid "An error happened connecting with an external server"
 msgstr ""
