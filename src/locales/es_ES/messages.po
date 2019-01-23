@@ -1,6 +1,6 @@
 # Translators:
+# Iñigo Zendegi Urzelai <izendegi@mondragon.edu>, 2019
 # Mayel de Borniol <mayel@moodle.com>, 2019
-# Germán Valero <gvalero@unam.mx>, 2019
 # 
 msgid ""
 msgstr ""
@@ -8,11 +8,11 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-11-29 18:21+0200\n"
 "PO-Revision-Date: 2019-01-16 10:17+0000\n"
-"Last-Translator: Germán Valero <gvalero@unam.mx>, 2019\n"
-"Language-Team: Spanish (https://www.transifex.com/moodlenet/teams/94082/es/)\n"
+"Last-Translator: Mayel de Borniol <mayel@moodle.com>, 2019\n"
+"Language-Team: Spanish (Spain) (https://www.transifex.com/moodlenet/teams/94082/es_ES/)\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: es\n"
+"Language: es_ES\n"
 "Mime-Version: 1.0\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: @lingui/cli\n"
@@ -84,11 +84,11 @@ msgstr "Elige tu contraseña"
 
 #: src/pages/user/UserProfile.tsx:132
 msgid "Click to select a profile background image"
-msgstr "Haga clic para seleccionar una imagen de fondo de perfil"
+msgstr "Haz clic para seleccionar una imagen de fondo de perfil"
 
 #: src/pages/user/UserProfile.tsx:141
 msgid "Click to select a profile picture"
-msgstr "Haga clic para seleccionar una imagen de perfil"
+msgstr "Haz clic para seleccionar una imagen de perfil"
 
 #: src/components/chrome/Menu/Menu.tsx:79
 msgid "Collection"
@@ -114,19 +114,19 @@ msgstr "Confirmar contraseña"
 
 #: src/components/elements/SignupModal/index.tsx:22
 msgid "Confirm your password"
-msgstr "Confirme su contraseña"
+msgstr "Confirma tu contraseña"
 
 #: src/pages/collections.collection/CollectionsCollection.tsx:73
 msgid "Could not load the collection."
-msgstr "No se pudo cargar la colección."
+msgstr "No se ha podido cargar la colección."
 
 #: src/pages/login/Login.tsx:50
 msgid ""
 "Could not log in. Please check your credentials or use the link below to "
 "reset your password."
 msgstr ""
-"No se pudo iniciar sesión. Verifique sus credenciales o use el enlace a "
-"continuación para restablecer su contraseña."
+"No se ha podido iniciar sesión. Verifica tus credenciales o usa el enlace a "
+"continuación para restablecer tu contraseña."
 
 #: src/pages/sign-up/Step2.tsx:42
 msgid "Could not search at this time, please try again later."
@@ -176,6 +176,10 @@ msgstr "Discusiones"
 msgid "Display Name"
 msgstr "Nombre a mostrar"
 
+#: src/pages/login/Login.tsx:210
+msgid "Don't yet have an account?"
+msgstr "¿Aún no tienes una cuenta?"
+
 #: src/components/elements/Resource/Resource.tsx:16
 #: src/pages/collections.collection/CollectionsCollection.tsx:97
 #: src/pages/communities.community/CommunitiesCommunity.tsx:114
@@ -196,11 +200,11 @@ msgstr "Editar los detalles de la comunidad."
 
 #: src/components/elements/EditResourceModal/index.tsx:26
 msgid "Edit the resource details"
-msgstr "Editar los detalles del recurso."
+msgstr "Editar los detalles del recurso"
 
 #: src/components/elements/SignupModal/index.tsx:41
 msgid "Email"
-msgstr "Email"
+msgstr "Correo electrónico"
 
 #: src/pages/login/LoginForm.tsx:73 src/pages/sign-up/Step1.tsx:42
 msgid "Email address"
@@ -212,19 +216,19 @@ msgstr "ID de Emoji"
 
 #: src/components/elements/CommunityModal/index.tsx:10
 msgid "Enter the URL of an image to represent the collection"
-msgstr "Introduzca la URL de una imagen para representar la colección"
+msgstr "Introduce la URL de una imagen para representar la colección"
 
 #: src/components/elements/CreateCommunityModal/index.tsx:10
 msgid "Enter the URL of an image to represent the community"
-msgstr "Introduzca la URL de una imagen para representar a la comunidad"
+msgstr "Introduce la URL de una imagen para representar a la comunidad"
 
 #: src/components/elements/CollectionModal/index.tsx:11
 msgid "Enter the URL of an image to represent the resource"
-msgstr "Introduzca la URL de una imagen para representar el recurso"
+msgstr "Introduce la URL de una imagen para representar el recurso"
 
 #: src/components/elements/CollectionModal/index.tsx:8
 msgid "Enter the URL of the resource"
-msgstr "Introduzca la URL del recurso"
+msgstr "Introduce la URL del recurso"
 
 #: src/pages/login/LoginForm.tsx:14
 msgid "Enter your email"
@@ -232,7 +236,7 @@ msgstr "Introduce tu correo electrónico"
 
 #: src/pages/login/LoginForm.tsx:15
 msgid "Enter your password"
-msgstr "Ingresa tu contraseña"
+msgstr "Introduce tu contraseña"
 
 #: src/pages/collections.featured/CollectionsFeatured.tsx:16
 #: src/pages/communities.community/CommunitiesCommunity.tsx:40
@@ -254,7 +258,7 @@ msgstr "Colecciones destacadas"
 
 #: src/pages/sign-up/Step2.tsx:123
 msgid "Here are some trending tags you could add"
-msgstr "Aquí hay algunas etiquetas de tendencias que podría agregar"
+msgstr "Aquí hay algunas etiquetas de tendencias que podrías agregar"
 
 #: src/components/elements/CollectionModal/index.tsx:74
 #: src/components/elements/CreateCommunityModal/index.tsx:62
@@ -325,7 +329,7 @@ msgid ""
 "Please describe what the collection is for and what kind of resources it is "
 "likely to contain..."
 msgstr ""
-"Describa para qué es la colección y qué tipo de recursos es probable que "
+"Describe para qué es la colección y qué tipo de recursos es probable que "
 "contenga ..."
 
 #: src/components/elements/CreateCommunityModal/index.tsx:9
@@ -333,12 +337,12 @@ msgid ""
 "Please describe who might be interested in this community and what kind of "
 "collections it is likely to contain..."
 msgstr ""
-"Describa quién podría estar interesado en esta comunidad y qué tipo de "
+"Describe quién podría estar interesado en esta comunidad y qué tipo de "
 "colecciones es probable que contenga ..."
 
 #: src/components/elements/CollectionModal/index.tsx:10
 msgid "Please type or copy/paste a summary about the resource..."
-msgstr "Por favor escriba o copie / pegue un resumen sobre el recurso ..."
+msgstr "Por favor escribe o copia / pega un resumen sobre el recurso ..."
 
 #: src/pages/sign-up/Step2.tsx:120
 msgid "Popular on MoodleNet"
@@ -410,10 +414,14 @@ msgstr "Registrarse"
 msgid "Sign out"
 msgstr "Desconectar"
 
+#: src/pages/login/Login.tsx:210
+msgid "Sign up"
+msgstr "Regístrate"
+
 #: src/containers/App/App.tsx:93
 msgid "Sorry, we encountered a problem loading the app in your language."
 msgstr ""
-"Lo sentimos, encontramos un problema al cargar la aplicación en su idioma."
+"Lo sentimos, ha habido un problema al cargar la aplicación en su idioma."
 
 #: src/pages/login/Login.tsx:48
 msgid "The email field cannot be empty"
@@ -433,7 +441,7 @@ msgstr "Estos datos nunca serán compartidos."
 
 #: src/pages/sign-up/Step1.tsx:59
 msgid "This information will appear on your public profile."
-msgstr "Esta información aparecerá en su perfil público."
+msgstr "Esta información aparecerá en tu perfil público."
 
 #: src/pages/communities.yours/CommunitiesYours.tsx:41
 msgid "Your Communities"
@@ -448,8 +456,8 @@ msgid ""
 "Your interests will be displayed on your profile, and will also help "
 "MoodleNet recommend content that is relevant to you."
 msgstr ""
-"Sus intereses se mostrarán en su perfil y también ayudarán a MoodleNet a "
-"recomendar contenido que sea relevante para usted."
+"Tus intereses se mostrarán en tu perfil y también ayudarán a MoodleNet a "
+"recomendar contenido que sea relevante para ti."
 
 #: src/pages/sign-up/Step1.tsx:10
 msgid "e.g. Moodler Mary"
