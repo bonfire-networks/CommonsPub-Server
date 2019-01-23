@@ -9,14 +9,14 @@
 #  effect: edit them in PO (`.po`) files instead.
 #  From Ecto.Changeset.cast/4
 # Translators:
+# Iñigo Zendegi Urzelai <izendegi@mondragon.edu>, 2019
 # Mayel de Borniol <mayel@moodle.com>, 2019
-# Germán Valero <gvalero@unam.mx>, 2019
 # 
 msgid ""
 msgstr ""
-"Last-Translator: Germán Valero <gvalero@unam.mx>, 2019\n"
-"Language-Team: Spanish (https://www.transifex.com/moodlenet/teams/94082/es/)\n"
-"Language: es\n"
+"Last-Translator: Mayel de Borniol <mayel@moodle.com>, 2019\n"
+"Language-Team: Spanish (Spain) (https://www.transifex.com/moodlenet/teams/94082/es_ES/)\n"
+"Language: es_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
@@ -24,7 +24,7 @@ msgstr "no puede estar vacío"
 
 # From Ecto.Changeset.unique_constraint/3
 msgid "has already been taken"
-msgstr "ya se ha tomado"
+msgstr "ya ha sido tomado"
 
 # From Ecto.Changeset.put_change/3
 msgid "is invalid"
@@ -40,7 +40,7 @@ msgstr "tiene una entrada inválida"
 
 # From Ecto.Changeset.validate_exclusion/3
 msgid "is reserved"
-msgstr "Está reservado"
+msgstr "está reservado"
 
 # From Ecto.Changeset.validate_confirmation/3
 msgid "does not match confirmation"
@@ -57,7 +57,7 @@ msgstr "todavía están asociados con esta entrada"
 msgid "should be %{count} character(s)"
 msgid_plural "should be %{count} character(s)"
 msgstr[0] "debe ser% {count} caracteres (s)"
-msgstr[1] "debería ser %{count} caracter(es)"
+msgstr[1] "debería tener %{count} caracter(es)"
 
 msgid "should have %{count} item(s)"
 msgid_plural "should have %{count} item(s)"
@@ -67,7 +67,7 @@ msgstr[1] "debería tener %{count} elemento(s)"
 msgid "should be at least %{count} character(s)"
 msgid_plural "should be at least %{count} character(s)"
 msgstr[0] "debe tener al menos% {count} caracteres (s)"
-msgstr[1] "debe tener al menos %{count} elemento(s)"
+msgstr[1] "debería tener al menos %{count} elemento(s)"
 
 msgid "should have at least %{count} item(s)"
 msgid_plural "should have at least %{count} item(s)"

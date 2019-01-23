@@ -8,14 +8,14 @@
 #  date. Leave `msgstr`s empty as changing them here as no
 #  effect: edit them in PO (`.po`) files instead.
 # Translators:
+# Iñigo Zendegi Urzelai <izendegi@mondragon.edu>, 2019
 # Mayel de Borniol <mayel@moodle.com>, 2019
-# Germán Valero <gvalero@unam.mx>, 2019
 # 
 msgid ""
 msgstr ""
-"Last-Translator: Germán Valero <gvalero@unam.mx>, 2019\n"
-"Language-Team: Spanish (https://www.transifex.com/moodlenet/teams/94082/es/)\n"
-"Language: es\n"
+"Last-Translator: Mayel de Borniol <mayel@moodle.com>, 2019\n"
+"Language-Team: Spanish (Spain) (https://www.transifex.com/moodlenet/teams/94082/es_ES/)\n"
+"Language: es_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: lib/moodle_net_web/page/templates/index.html.eex:2
@@ -26,7 +26,7 @@ msgstr "pages.index.welcome"
 #: lib/moodle_net_web/email/templates/welcome.html.eex:9
 #, elixir-format
 msgid "Alternatively, copy and paste this link into your browser:"
-msgstr "Alternativamente, copie y pegue este enlace en su navegador:"
+msgstr "Alternativamente, copia y pega este enlace en tu navegador:"
 
 #: lib/moodle_net/email.ex:16
 #, elixir-format
@@ -43,8 +43,7 @@ msgstr "Hola %{name}"
 #: lib/moodle_net_web/email/templates/welcome.text.eex:3
 #, elixir-format
 msgid "To complete your sign up, please verify your email:"
-msgstr ""
-"Para completar su registro, por favor verifique su correo electrónico:"
+msgstr "Para completar tu registro, por favor verifica tu correo electrónico:"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:6
 #, elixir-format
@@ -55,7 +54,7 @@ msgstr "Verificar correo electrónico"
 #: lib/moodle_net_web/email/templates/welcome.text.eex:9
 #, elixir-format
 msgid "We'd love your feedback on the sign-up process."
-msgstr "Nos encantaría su opinión sobre el proceso de registro."
+msgstr "Nos encantaría tu opinión sobre el proceso de registro."
 
 #: lib/moodle_net/email.ex:8
 #, elixir-format
@@ -70,7 +69,7 @@ msgstr "Tu contraseña de MoodleNet ha sido restablecida"
 #: lib/moodle_net_web/email/templates/welcome.html.eex:15
 #, elixir-format
 msgid "to tell us anything we can do to improve it!"
-msgstr "¡Para decirnos cualquier cosa que podamos hacer para mejorarlo!"
+msgstr "¡para decirnos cualquier cosa que podamos hacer para mejorarlo!"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:106
 #, elixir-format
@@ -131,17 +130,17 @@ msgstr "No estás autorizado para realizar esta acción."
 #: lib/moodle_net_web/graph_ql/errors.ex:64
 #, elixir-format
 msgid "not found"
-msgstr "extraviado"
+msgstr "no encontrado"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:14
 #, elixir-format
 msgid "Please comment here"
-msgstr "Por favor comente aqui"
+msgstr "Por favor comenta aquí"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:100
 #, elixir-format
 msgid "There was an unknown error"
-msgstr "Hubo un error desconocido."
+msgstr "Ha habido un error desconocido"
 
 #: lib/moodle_net_web/email/templates/welcome.text.eex:10
 #, elixir-format
@@ -151,4 +150,4 @@ msgstr "Puedes hacerlo en"
 #: lib/moodle_net_web/graph_ql/errors.ex:84
 #, elixir-format
 msgid "You need to log in first"
-msgstr "Necesitas iniciar sesión primero"
+msgstr "Debes iniciar sesión primero"
