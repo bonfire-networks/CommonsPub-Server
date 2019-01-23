@@ -248,7 +248,10 @@ class Login extends React.Component<LoginProps, LoginState> {
                 authenticating={this.state.authenticating}
               />
               <Signup>
-                or <u onClick={this.props.handleSignup}>create a new account</u>
+                <Trans>Don't yet have an account?</Trans>{' '}
+                <u onClick={this.props.handleSignup}>
+                  <Trans>Sign up</Trans>
+                </u>
               </Signup>
             </Col>
           </Row>

@@ -20,17 +20,17 @@
     'Choose a name for the community':
       'Choisissez un nom pour la communaut\xE9',
     'Choose a password': 'Choisissez un mot de passe',
-    'Choose your password': 'Choose your password',
+    'Choose your password': 'Choisissez votre mot de passe',
     'Click to select a profile background image':
-      'Cliquez pour s\xE9lectionner une image de fond pour votre profil',
+      'Cliquez ici pour s\xE9lectionner une image de fond',
     'Click to select a profile picture':
-      'Cliquez pour s\xE9lectionner une photo de profil',
+      'Cliquez ic pour s\xE9lectionner une photo de profil',
     Collection: 'Collection',
     Collections: 'Collections',
     Communities: 'Communaut\xE9s',
     Community: 'Communaut\xE9',
-    'Confirm password': 'Confirm password',
-    'Confirm your password': 'Confirm your password',
+    'Confirm password': 'Confirmer le mot de passe',
+    'Confirm your password': 'Confirmer votre mot de passe',
     'Could not load the collection.': "Impossible d'afficher la collection.",
     'Could not log in. Please check your credentials or use the link below to reset your password.':
       'Impossible de se connecter. Veuillez v\xE9rifier vos informations ou utilisez le lien ci-dessous pour r\xE9initialiser votre mot de passe.',
@@ -38,13 +38,13 @@
       "Impossible d'effectuer une recherche pour le moment, veuillez r\xE9essayer ult\xE9rieurement.",
     Create: 'Cr\xE9er',
     'Create a community': 'Cr\xE9er une communaut\xE9',
-    'Create a new account': 'Create a new account',
+    'Create a new account': 'Cr\xE9er un compte',
     'Create a new collection': 'Cr\xE9er une nouvelle collection',
     'Create a new community': 'Cr\xE9er une nouvelle communaut\xE9',
     'Create the first collection': 'Cr\xE9er la premi\xE8re collection',
     Description: 'Description',
     Discussions: 'Discussions',
-    'Display Name': 'Display Name',
+    'Display Name': 'Votre nom\xA0(qui sera affich\xE9)',
     Edit: 'Modifier',
     'Edit profile': 'Modifier mon profil',
     'Edit the collection details': 'Modifier les d\xE9tails de la collection',
@@ -67,7 +67,7 @@
     'Favourite Collections': 'Collections pr\xE9f\xE9r\xE9es',
     'Featured Collections': 'Collections interessantes',
     'Here are some trending tags you could add':
-      'Voici quelques balises tendance que vous pourriez ajouter',
+      'Voici quelques tags en vogue que vous pourriez ajouter',
     Image: 'Image',
     Interests: 'Int\xE9r\xEAts',
     'Introduce yourself to the community...':
@@ -77,7 +77,7 @@
     Link: 'Lien',
     Location: 'Ville / Pays',
     Members: 'Membres',
-    'My Collections': 'Mes collections',
+    'My Collections': 'Mes Collections',
     Name: 'Nom',
     'No {something} selected': function(a) {
       return ['Aucun(e) ', a('something'), ' s\xE9lectionn\xE9(e)'];
@@ -85,7 +85,7 @@
     'Page not found': 'Page non trouv\xE9e',
     Password: 'Mot de passe',
     'Please describe what the collection is for and what kind of resources it is likely to contain...':
-      'Veuillez d\xE9crire \xE0 quoi peut servir la collection et quel type(s) de ressources elle est susceptible de contenir...',
+      'Veuillez d\xE9crire \xE0 quoi pourrait servir la collection et quel type(s) de ressources elle est susceptible de contenir...',
     'Please describe who might be interested in this community and what kind of collections it is likely to contain...':
       'Veuillez d\xE9crire qui pourrait \xEAtre int\xE9ress\xE9 par cette communaut\xE9 et quel type(s) de collections elle est susceptible de contenir...',
     'Please type or copy/paste a summary about the resource...':
@@ -105,7 +105,7 @@
     'Searching...': 'Recherche en cours...',
     Settings: 'Options',
     Shuffle: 'Autre',
-    'Sign Up': 'Sign Up',
+    'Sign Up': "S'inscrire",
     'Sign in': 'Se connecter',
     'Sign out': 'D\xE9connexion',
     'Sorry, we encountered a problem loading the app in your language.':
@@ -113,11 +113,13 @@
     'The email field cannot be empty': "L'email ne peut pas \xEAtre vide",
     'The password field cannot be empty':
       'Le mot de passe ne peut pas \xEAtre vide',
+    'This collection has no resources.':
+      "Cette collection n'a pas de ressources.",
     'This data will never be shared.':
       'Ces donn\xE9es ne seront jamais partag\xE9es.',
     'This information will appear on your public profile.':
       'Ces informations appara\xEEtront sur votre profil public.',
-    'Your Communities': 'Vos communaut\xE9s',
+    'Your Communities': 'Vos Communaut\xE9s',
     'Your Interests': 'Vos int\xE9r\xEAts',
     'Your interests will be displayed on your profile, and will also help MoodleNet recommend content that is relevant to you.':
       'Vos centres d\u2019int\xE9r\xEAt seront affich\xE9s sur votre profil et aideront \xE9galement MoodleNet \xE0 vous recommander du contenu pertinent.',
@@ -125,7 +127,7 @@
     'e.g. United Kingdom': 'ex. : France',
     'e.g. mary@moodlers.org': 'ex. : marie@moodlers.org',
     'e.g. russian revolution 1917': 'ex. : r\xE9volution russe 1917',
-    'eg. Moodler Mary': 'eg. Moodler Mary',
-    'eg. mary@moodlers.org': 'eg. mary@moodlers.org'
+    'eg. Moodler Mary': 'par exemple. Marie Moodler',
+    'eg. mary@moodlers.org': 'par exemple. marie@moodlers.org'
   }
 };
