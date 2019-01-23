@@ -42,3 +42,18 @@
 .flag-icon-fr.flag-icon-squared {
   background-image: url(../../node_modules/flag-icon-css/flags/1x1/fr.svg);
 }
+.flag-icon-es {
+  background-image: url(../../node_modules/flag-icon-css/flags/4x3/es.svg);
+}
+.flag-icon-es.flag-icon-squared {
+  background-image: url(../../node_modules/flag-icon-css/flags/1x1/es.svg);
+}
+.flag-icon-mx {
+  background-image: url(../../node_modules/flag-icon-css/flags/4x3/mx.svg);
+}
+.flag-icon-mx.flag-icon-squared {
+  background-image: url(../../node_modules/flag-icon-css/flags/1x1/mx.svg);
+}
+.flag-icon-eu {
+  background-image: url(../static/img/flag-icons/eu.svg);
+}

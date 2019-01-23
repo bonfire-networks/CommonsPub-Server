@@ -14,7 +14,7 @@ const { createUserMutation } = require('../../../graphql/createUser.graphql');
 import { Trans } from '@lingui/macro';
 import { i18nMark } from '@lingui/react';
 
-const tt = {
+let tt = {
   login: i18nMark('Sign in'),
   placeholders: {
     email: i18nMark('eg. mary@moodlers.org'),

@@ -25,25 +25,40 @@ const SelectField = styled(ZenSelectField)`
 `;
 
 export const languageNames = {
-  en_GB: 'English, United Kingdom',
-  en_US: 'English, United States',
-  fr: 'French'
+  en_GB: 'English, British',
+  en_US: 'English, USA',
+  es_MX: 'Español, Mexico',
+  es_ES: 'Español, Méjico',
+  fr_FR: 'Français, France',
+  eu: 'Euskara'
 };
 
-const options = [
-  <Item key="en_GB">
-    <Flag flag="gb" />
-    &nbsp; {languageNames['en_GB']}
-  </Item>,
-  <Item key="en_US">
-    <Flag flag="us" />
-    &nbsp; {languageNames['en_US']}
-  </Item>,
-  <Item key="fr">
-    <Flag flag="fr" />
-    &nbsp; {languageNames['fr']}
-  </Item>
-];
+let options: Item[] = [];
+
+Object.keys(languageNames).forEach(key => {
+  console.log(languageNames[key]);
+  options.push(
+    <Item key={key}>
+      <Flag flag={key.substr(-2).toLowerCase()} />
+      &nbsp; {languageNames[key]}
+    </Item>
+  );
+});
+
+// const options = [
+//   <Item key="en_GB">
+//     <Flag flag="gb" />
+//     &nbsp; {languageNames['en_GB']}
+//   </Item>,
+//   <Item key="en_US">
+//     <Flag flag="us" />
+//     &nbsp; {languageNames['en_US']}
+//   </Item>,
+//   <Item key="fr">
+//     <Flag flag="fr" />
+//     &nbsp; {languageNames['fr']}
+//   </Item>
+// ];
 
 /**
  * LanguageSelect component.
@@ -62,11 +77,7 @@ export default class LanguageSelect extends React.Component<
   }
 
   render() {
-    let flagClass = this.state.selectedKey;
-
-    if (this.state.selectedKey.includes('_')) {
-      flagClass = this.state.selectedKey.split('_')[1].toLowerCase();
-    }
+    let flagClass = this.state.selectedKey.substr(-2).toLowerCase();
 
     return (
       <LocaleContext.Consumer>
@@ -82,9 +93,7 @@ export default class LanguageSelect extends React.Component<
             >
               <Flag flag={flagClass} />
               &nbsp;&nbsp;
-              {this.props.fullWidth
-                ? languageNames[this.state.selectedKey]
-                : this.state.selectedKey}
+              {languageNames[this.state.selectedKey]}
             </Select>
           </SelectField>
         )}
