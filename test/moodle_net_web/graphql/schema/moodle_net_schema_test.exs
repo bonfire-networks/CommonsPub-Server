@@ -993,33 +993,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert me["primaryLanguage"] == "Elixir"
     assert me["location"] == "MoodleNet"
     assert me["icon"] == "https://imag.es/alexcastano"
-
-    query = """
-    {
-      me {
-        id
-        localId
-        local
-        type
-        preferredUsername
-        name
-        summary
-        location
-        icon
-        email
-        primaryLanguage
-      }
-    }
-    """
-
-    assert me_2 =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("me")
-
-    assert me == me_2
   end
 
   @tag :user

@@ -71,6 +71,15 @@ defmodule MoodleNetWeb.GraphQL.Errors do
      }}
   end
 
+  def bad_gateway_error() do
+    {:error,
+      %{
+        message: gettext("An error happened connecting with an external server"),
+        code: :bad_gateway
+      }
+    }
+  end
+
   def invalid_credential_error() do
         {:error, %{
           code: :unathorized,

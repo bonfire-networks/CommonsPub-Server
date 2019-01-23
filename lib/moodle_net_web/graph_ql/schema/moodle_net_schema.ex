@@ -607,7 +607,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp current_actor(info) do
     case current_user(info) do
       {:ok, user} ->
-        {:ok, load_actor(user)}
+        {:ok, user.actor}
 
       ret ->
         ret

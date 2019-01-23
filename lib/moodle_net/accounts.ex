@@ -42,7 +42,7 @@ defmodule MoodleNet.Accounts do
     password = attrs[:password] || attrs["password"]
 
     Multi.new()
-    |> Multi.run(:new_actor, fn _,_ -> ActivityPub.new(actor_attrs) end)
+    |> Multi.run(:new_actor, fn _, _ -> ActivityPub.new(actor_attrs) end)
     |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
       ActivityPub.insert(new_actor, repo)
     end)
@@ -59,8 +59,10 @@ defmodule MoodleNet.Accounts do
       &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
     )
     |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
-      email = Email.welcome(user, token.token)
-      |> Mailer.deliver_later()
+      email =
+        Email.welcome(user, token.token)
+        |> Mailer.deliver_later()
+
       {:ok, email}
     end)
     |> Repo.transaction()
@@ -74,8 +76,14 @@ defmodule MoodleNet.Accounts do
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
-         {:ok, _location} <- ActivityPub.update(location, content: location_content) do
-      ActivityPub.update(actor, changes)
+         {:ok, _location} <- ActivityPub.update(location, content: location_content),
+         {:ok, actor} <- ActivityPub.update(actor, changes) do
+      # FIXME
+      actor =
+        ActivityPub.reload(actor)
+        |> Query.preload_assoc([:icon, :location])
+
+      {:ok, actor}
     end
   end
 
