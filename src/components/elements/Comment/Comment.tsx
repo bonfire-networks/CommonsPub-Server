@@ -1,118 +1,171 @@
 import * as React from 'react';
-import ta from 'time-ago';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment, faHeart } from '@fortawesome/free-solid-svg-icons';
-
 import styled from '../../../themes/styled';
-import Avatar from '../Avatar/Avatar';
-import Author from '../../../types/Author';
-import { Link } from 'react-router-dom';
+import { Reply } from '../../elements/Icons';
+import { clearFix } from 'polished';
+import moment from 'moment';
+import { NavLink } from 'react-router-dom';
 
-const CommentContainer = styled.div<any>`
-  border-bottom: 1px solid ${props => props.theme.styles.colour.base4};
-  margin-left: ${props => (props.child ? '50px' : '')};
+interface EventProps {
+  author: {
+    id: string;
+    name: string;
+    image: string;
+  };
+  comment: {
+    id: string;
+    body: string;
+    date: number;
+  };
+  thread?: boolean;
+}
 
-  &:not(:first-child) {
-    margin-top: 25px;
+const Event: React.SFC<EventProps> = ({ author, thread, comment }) => {
+  return (
+    <FeedItem thread={thread}>
+      <Member>
+        <MemberItem>
+          <Img alt="user" src={author.image} />
+        </MemberItem>
+        <MemberInfo>
+          <h3>{author.name}</h3>
+          <Date>{moment(comment.date).fromNow()}</Date>
+        </MemberInfo>
+      </Member>
+      <Desc>
+        <Primary>{comment.body}</Primary>
+        <Sub>
+          <Actions>
+            {thread ? null : (
+              <NavLink to={`/thread/${comment.id}`}>
+                <Button>
+                  <Reply
+                    width={16}
+                    height={16}
+                    strokeWidth={2}
+                    color={'#f0f0f0'}
+                  />
+                  Reply
+                </Button>
+              </NavLink>
+            )}
+          </Actions>
+        </Sub>
+      </Desc>
+    </FeedItem>
+  );
+};
+
+export default Event;
+
+const Button = styled.div`
+  background: #000000a6;
+  padding: 0px 10px;
+  border-radius: 3px;
+  color: #f0f0f0;
+  height: 30px;
+  line-height: 30px;
+  cursor: pointer;
+  & svg {
+    margin-right: 4px;
   }
 `;
 
-const CommentTop = styled.div`
-  display: flex;
-  flex-direction: row;
+const FeedItem = styled.div<{ thread?: boolean }>`
+  min-height: 30px;
+  position: relative;
+  margin: 0;
+  padding: 8px;
+  word-wrap: break-word;
+  font-size: 14px;
+  ${clearFix()};
+  transition: background 0.5s ease;
+  background: #eff0f0;
+  border: 1px solid #e4e6e6;
+  border-radius: ${props =>
+    props.thread ? '3px 3px 0px 0px' : '0px 0px 3px 3px'};
 `;
 
-const CommentBottom = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px;
+const Primary = styled.div`
+  font-size: 16px;
+  line-height: 24px;
+  position: relative;
 `;
 
-const AvatarContainer = styled.div`
-  flex-grow: 1;
+const Member = styled.div`
+  vertical-align: top;
+  margin-right: 14px;
+  ${clearFix()};
 `;
 
-const CommentBody = styled.div`
-  padding: 0 10px 10px 10px;
-  margin-right: 20px;
+const MemberInfo = styled.div`
+  display: inline-block;
+  & h3 {
+    font-size: 13px;
+    margin: 0;
+    color: ${props => props.theme.styles.colour.base3};
+    text-decoration: underline;
+  }
 `;
 
-const Metadata = styled.div`
-  font-weight: bold;
-  padding-bottom: 5px;
-  padding-top: 5px;
+const Sub = styled.div`
+  ${clearFix()};
 `;
 
-type Comment = {
-  body: string;
-  timestamp: number;
-};
+const MemberItem = styled.span`
+  background-color: #d6dadc;
+  border-radius: 3px;
+  color: #4d4d4d;
+  display: inline-block;
+  height: 42px;
+  overflow: hidden;
+  position: relative;
+  width: 42px;
+  user-select: none;
+  z-index: 0;
+  vertical-align: inherit;
+  margin-right: 8px;
+`;
 
-type CommentProps = {
-  child?: boolean;
-  author: Author;
-  comment: Comment;
-  onHeartClicked?: Function;
-  onCommentClicked?: Function;
-};
+const Desc = styled.div`
+  position: relative;
+  min-height: 30px;
+  margin-top: 16px;
+`;
 
-/**
- * TODO turn comment timestamp into readable, e.g. X seconds ago
- * TODO handle comment author is active user so name comment author becomes "You"
- * @param [child] {Boolean} is the comment a child of another comment
- * @param author {User} author of the comment
- * @param comment {Object} comment data
- * @param [onCommentClicked] {Object} comment clicked callback
- * @param [onHeartClicked] {Object} comment "liked" callback
- */
-export default function({
-  author,
-  comment,
-  child = false,
-  onCommentClicked = () => {},
-  onHeartClicked = () => {}
-}: CommentProps) {
-  const origOnCommentClicked = onCommentClicked;
-  const origOnHeartClicked = onHeartClicked;
+const Img = styled.img`
+  width: 42px;
+  height: 42px;
+  display: block;
+  -webkit-appearance: none;
+  line-height: 42px;
+  text-indent: 4px;
+  font-size: 13px;
+  overflow: hidden;
+  max-width: 42px;
+  max-height: 42px;
+  text-overflow: ellipsis;
+  vertical-align: text-top;
+  margin-right: 8px;
+`;
 
-  onCommentClicked = evt => {
-    evt.preventDefault();
-    origOnCommentClicked(evt);
-  };
+const Date = styled.div`
+  font-size: 12px;
+  line-height: 32px;
+  height: 20px;
+  margin: 0;
+  color: ${props => props.theme.styles.colour.base2};
+  margin-top: -4px;
+  font-weight: 600;
+`;
 
-  onHeartClicked = evt => {
-    evt.preventDefault();
-    origOnHeartClicked(evt);
-  };
+const Actions = styled.div`
+  ${clearFix()};
+  float: left;
+  vertical-align: middle;
+  margin-left: 0px;
+  margin-top: 16px;
 
-  return (
-    <CommentContainer child={child}>
-      <CommentTop>
-        <AvatarContainer>
-          <Link to={'' /* TODO link to user profile */}>
-            <Avatar size="large">
-              <img alt={author.name} src={author.avatarImage} />
-            </Avatar>
-          </Link>
-        </AvatarContainer>
-        <CommentBody>
-          <Metadata>
-            {author.name}
-            {' • '}
-            {ta.ago(comment.timestamp)}
-          </Metadata>
-          <div>{comment.body}</div>
-        </CommentBody>
-      </CommentTop>
-      <CommentBottom>
-        <a href="#" onClick={onHeartClicked as any}>
-          <FontAwesomeIcon icon={faHeart} />
-        </a>
-        <div style={{ width: '10px' }} />
-        <a href="#" onClick={onCommentClicked as any}>
-          <FontAwesomeIcon icon={faComment} />
-        </a>
-      </CommentBottom>
-    </CommentContainer>
-  );
-}
+  & a {
+    text-decoration: none;
+  }
+`;

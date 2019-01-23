@@ -16,12 +16,10 @@ query getCommunityQuery($context: Int!) {
             summary
         }
         comments {
+          localId
           id
-          author {
-            id
-            name
-          }
           content
+          published
         }
         collections {
             id

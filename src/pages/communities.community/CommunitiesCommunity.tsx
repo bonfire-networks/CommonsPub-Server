@@ -2,7 +2,6 @@ import * as React from 'react';
 import { compose, withState, withHandlers } from 'recompose';
 
 import { Trans } from '@lingui/macro';
-
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
 import { RouteComponentProps } from 'react-router';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
@@ -18,7 +17,8 @@ import P from '../../components/typography/P/P';
 import H2 from '../../components/typography/H2/H2';
 // import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
-// import Comment from '../../components/elements/Comment/Comment';
+import Comment from '../../components/elements/Comment/Comment';
+import Talk from '../../components/elements/Talk/Thread';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 
@@ -26,8 +26,8 @@ const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
   // Members = 'Members',
-  Collections = 'Collections'
-  // Discussion = 'Discussion'
+  Collections = 'Collections',
+  Discussion = 'Discussion'
 }
 
 interface Data extends GraphqlQueryControls {
@@ -57,17 +57,21 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
-    // let comments;
+    let comments;
     if (this.props.data.error) {
       collections = (
         <span>
           <Trans>Error loading collections</Trans>
         </span>
       );
-      // comments = <span><Trans>Error loading comments</Trans></span>;
+      comments = (
+        <span>
+          <Trans>Error loading comments</Trans>
+        </span>
+      );
     } else if (this.props.data.loading) {
       collections = <Loader />;
-      // comments = <Loader />;
+      comments = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
 
@@ -101,27 +105,32 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           </OverviewCollection>
         );
       }
-      // if (this.props.data.community.comments.length) {
-      //   comments = this.props.data.community.comments.map(comment => {
-      //     let author = {
-      //       id: comment.author.id,
-      //       name: comment.author.name,
-      //       avatarImage: 'https://picsum.photos/200/300'
-      //     };
-      //     let message = {
-      //       body: comment.content,
-      //       timestamp: comment.published
-      //     };
-      //     return <Comment key={comment.id} author={author} comment={message} />;
-      //   });
-      // } else {
-      //   comments = (
-      //     <OverviewCollection>
-      //       <P>This community has no discussions yet.</P>
-      //       <Button>Start a new thread</Button>
-      //     </OverviewCollection>
-      //   );
-      // }
+      if (this.props.data.community.comments.length) {
+        comments = this.props.data.community.comments.map(comment => {
+          let author = {
+            id: '1',
+            name: 'Chet Faker',
+            image: 'https://picsum.photos/200/300'
+          };
+          // let author = {
+          //   id: comment.author.id,
+          //   name: comment.author.name,
+          //   image: 'https://picsum.photos/200/300'
+          // };
+          let message = {
+            body: comment.content,
+            date: comment.published,
+            id: comment.localId
+          };
+          return (
+            <div style={{ marginBottom: '8px' }}>
+              <Comment key={comment.id} author={author} comment={message} />
+            </div>
+          );
+        });
+      } else {
+        comments = <OverviewCollection />;
+      }
     }
 
     if (!community) {
@@ -176,19 +185,23 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       <TabPanel
                         label={`${TabsEnum.Collections} (${
                           community.collections.length
-                        })`}
+                        } / 10)`}
                         key={TabsEnum.Collections}
                       >
                         <div style={{ display: 'flex' }}>{collections}</div>
                       </TabPanel>
-                      {/* <TabPanel
+                      <TabPanel
                         label={`${TabsEnum.Discussion} (${
                           community.comments.length
                         })`}
                         key={TabsEnum.Discussion}
                       >
-                        {comments}
-                      </TabPanel> */}
+                        <Talk
+                          id={community.localId}
+                          externalId={community.id}
+                        />
+                        <WrapperComments>{comments}</WrapperComments>
+                      </TabPanel>
                     </Tabs>
                   </OverlayTab>
                 </WrapperTab>
@@ -232,6 +245,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 //   margin-top: 8px;
 //   text-align: center;
 // `;
+
+const WrapperComments = styled.div`
+  margin: 8px;
+`;
 
 const WrapperTab = styled.div`
   padding: 5px;

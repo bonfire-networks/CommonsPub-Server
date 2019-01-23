@@ -1,0 +1,13 @@
+input CommentInput {
+  content: String!
+}
+
+mutation createThreadMutation($id: String!, $comment: CommentInput!) {
+  createThread(contextLocalId: $id, comment: $comment) {
+    id
+    # author {
+    #   name
+    # }
+    content
+  }
+}

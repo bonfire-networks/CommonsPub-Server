@@ -1,0 +1,18 @@
+query getThread($id: Int!) {
+  comment(localId: $id) {
+    replies {
+      id
+      localId
+      content
+      published
+      # author {
+      #   id
+      #   icon
+      #   name
+      # }
+    }
+    id
+    content
+    published
+  }
+}

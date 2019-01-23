@@ -19,7 +19,7 @@ import NotFound from '../../pages/not-found/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 import Loader from '../../components/elements/Loader/Loader';
 import Search from '../../pages/search/Search';
-
+import Thread from '../../pages/thread';
 const AppInner = styled.div`
   display: flex;
   flex-direction: row;
@@ -94,6 +94,7 @@ export default () => (
                     path="/communities/:community"
                     component={CommunitiesCommunity}
                   />
+                  <Route exact path="/thread/:id" component={Thread} />
                   <Route
                     exact
                     path="/collections"
