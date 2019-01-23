@@ -27,8 +27,8 @@ const SelectField = styled(ZenSelectField)`
 export const languageNames = {
   en_GB: 'English, British',
   en_US: 'English, USA',
-  es_MX: 'Español, Mexico',
-  es_ES: 'Español, Méjico',
+  es_MX: 'Español, Méjico',
+  es_ES: 'Español, España',
   fr_FR: 'Français, France',
   eu: 'Euskara'
 };
