@@ -4,7 +4,7 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.0.6",
+      version: "0.0.7",
       elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -63,6 +63,7 @@ defmodule MoodleNet.Mixfile do
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
       {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
+      {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
       {:mock, "~> 0.3.1", only: :test},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},

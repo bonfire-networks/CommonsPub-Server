@@ -87,7 +87,7 @@ defmodule ActivityPub.SQLEntityTest do
       }
 
       assert {:ok, entity} = ActivityPub.new(map)
-      assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.insert(entity)
+      assert {:error, %Ecto.Changeset{} = ch} = SQLEntity.insert(entity)
       assert [%{status: _}] = errors_on(ch)[:attributed_to]
     end
   end

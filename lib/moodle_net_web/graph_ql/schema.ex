@@ -1,9 +1,10 @@
 defmodule MoodleNetWeb.GraphQL.Schema do
   use Absinthe.Schema
 
-  alias MoodleNetWeb.GraphQL.MoodleNetSchema
+  alias MoodleNetWeb.GraphQL.{MoodleNetSchema, MiscSchema}
   import_types(MoodleNetWeb.GraphQL.Schema.JSON)
   import_types(MoodleNetWeb.GraphQL.MoodleNetSchema)
+  import_types(MoodleNetWeb.GraphQL.MiscSchema)
 
   query do
     @desc "Get list of communities"
@@ -222,6 +223,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     field :confirm_email, type: :boolean do
       arg(:token, non_null(:string))
       resolve(&MoodleNetSchema.confirm_email/2)
+    end
+
+    @desc "Fetch metadata from webpage"
+    field :fetch_web_metadata, type: :web_metadata do
+      arg(:url, non_null(:string))
+      resolve(&MiscSchema.fetch_web_metadata/2)
     end
   end
 end

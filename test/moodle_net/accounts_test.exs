@@ -13,6 +13,7 @@ defmodule MoodleNet.AccountsTest do
         |> Map.put("icon", icon_attrs)
         |> Map.put("extra_field", "extra")
 
+      Accounts.add_email_to_whitelist(attrs["email"])
       assert {:ok, ret} = Accounts.register_user(attrs)
       assert attrs["email"] == ret.user.email
       assert ret.actor
@@ -26,10 +27,12 @@ defmodule MoodleNet.AccountsTest do
 
     test "fails with invalid password values" do
       attrs = Factory.attributes(:user) |> Map.delete("password")
+      Accounts.add_email_to_whitelist(attrs["email"])
       assert {:error, _, ch, _} = Accounts.register_user(attrs)
       assert "can't be blank" in errors_on(ch).password
 
       attrs = Factory.attributes(:user) |> Map.put("password", "short")
+      Accounts.add_email_to_whitelist(attrs["email"])
       assert {:error, _, ch, _} = Accounts.register_user(attrs)
       assert "should be at least 6 character(s)" in errors_on(ch).password
     end
@@ -40,6 +43,7 @@ defmodule MoodleNet.AccountsTest do
       assert "can't be blank" in errors_on(ch).email
 
       attrs = Factory.attributes(:user) |> Map.put("email", "not_an_email")
+      Accounts.add_email_to_whitelist(attrs["email"])
       assert {:error, _, ch, _} = Accounts.register_user(attrs)
       assert "has invalid format" in errors_on(ch).email
     end
@@ -48,6 +52,7 @@ defmodule MoodleNet.AccountsTest do
       attrs = Factory.attributes(:user)
       email = attrs["email"]
       attrs = Map.put(attrs, "email", String.upcase(attrs["email"]))
+      Accounts.add_email_to_whitelist(attrs["email"])
       assert {:ok, ret} = Accounts.register_user(attrs)
       assert ret.user.email == email
     end
@@ -147,6 +152,18 @@ defmodule MoodleNet.AccountsTest do
       %{user: user, email_confirmation_token: %{token: token}} = Factory.full_user()
       assert {:error, {:not_found, _, "Token"}} = Accounts.confirm_email(MoodleNet.Token.random_key_with_id(user.id))
       assert {:error, {:not_found, _, "Token"}} = Accounts.confirm_email(token <> "1")
+    end
+  end
+
+  describe "whitelist" do
+    test "works" do
+      email = Faker.Internet.safe_email()
+      refute Accounts.is_email_in_whitelist?(email)
+      assert {:ok, _} = Accounts.add_email_to_whitelist(email)
+      assert Accounts.is_email_in_whitelist?(email)
+      assert {:ok, _} = Accounts.remove_email_from_whitelist(email)
+      refute Accounts.is_email_in_whitelist?(email)
+      assert {:error, _} = Accounts.remove_email_from_whitelist(email)
     end
   end
 end

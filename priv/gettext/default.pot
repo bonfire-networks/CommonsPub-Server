@@ -21,11 +21,6 @@ msgid "Alternatively, copy and paste this link into your browser:"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/email/templates/welcome.html.eex:14
-msgid "Click here"
-msgstr ""
-
-#, elixir-format
 #: lib/moodle_net/email.ex:16
 msgid "Did you forget your MoodleNet password?"
 msgstr ""
@@ -109,11 +104,6 @@ msgid "Activity"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:100
-msgid "An unknown error happened"
-msgstr ""
-
-#, elixir-format
 #: lib/moodle_net_web/graph_ql/errors.ex:77
 msgid "Invalid credentials"
 msgstr ""
@@ -129,12 +119,27 @@ msgid "You are not authorized to perform this action"
 msgstr ""
 
 #, elixir-format
-#: lib/moodle_net_web/graph_ql/errors.ex:84
-msgid "You have to log in to proceed"
-msgstr ""
-
-#, elixir-format
 #: lib/moodle_net_web/graph_ql/errors.ex:57
 #: lib/moodle_net_web/graph_ql/errors.ex:64
 msgid "not found"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.html.eex:14
+msgid "Please comment here"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:100
+msgid "There was an unknown error"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/email/templates/welcome.text.eex:10
+msgid "You can do so at:"
+msgstr ""
+
+#, elixir-format
+#: lib/moodle_net_web/graph_ql/errors.ex:84
+msgid "You need to log in first"
 msgstr ""

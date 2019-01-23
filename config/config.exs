@@ -113,6 +113,9 @@ config :moodle_net, :media_proxy,
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
 
+config :furlex, Furlex.Oembed,
+  oembed_host: "https://oembed.com"
+
 config :moodle_net, :suggestions,
   enabled: false,
   third_party_engine:

@@ -14,6 +14,7 @@ defmodule MoodleNetWeb.Accounts.UserControllerTest do
     @tag format: :json
     test "works", %{conn: conn} do
       params = Factory.attributes(:user)
+      MoodleNet.Accounts.add_email_to_whitelist(params["email"])
 
       assert ret =
                conn
@@ -36,6 +37,7 @@ defmodule MoodleNetWeb.Accounts.UserControllerTest do
     test "returns errors", %{conn: conn} do
       params = Factory.attributes(:user, password: "short")
 
+      MoodleNet.Accounts.add_email_to_whitelist(params["email"])
       assert ret =
                conn
                |> post("/api/v1/users", %{"user" => params})
@@ -61,6 +63,7 @@ defmodule MoodleNetWeb.Accoutns.UserControllerIntegrationTest do
         preferred_username: "alex"
       }
 
+    MoodleNet.Accounts.add_email_to_whitelist(params[:email])
     conn
     |> get("api/v1/users/new")
     |> follow_form(%{user: params})

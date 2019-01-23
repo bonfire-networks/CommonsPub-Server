@@ -110,6 +110,7 @@ defmodule MoodleNet.Factory do
 
   def full_user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
+    Accounts.add_email_to_whitelist(attrs[:email] || attrs["email"])
     {:ok, ret} = Accounts.register_user(attrs)
     ret
   end

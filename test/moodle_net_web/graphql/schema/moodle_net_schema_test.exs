@@ -7,7 +7,50 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
+  test "email should be whitelist", %{conn: conn} do
+    query = """
+      mutation {
+        createUser(
+          user: {
+            preferredUsername: "alexcastano"
+            name: "Alejandro Castaño"
+            summary: "Summary"
+            location: "MoodleNet"
+            icon: "https://imag.es/alexcastano"
+            email: "alexcastano@newworld.com"
+            password: "password"
+            primaryLanguage: "Elixir"
+          }
+        ) {
+          token
+          me {
+            id
+          }
+        }
+      }
+    """
+
+    assert [error] =
+             conn
+             |> Plug.Conn.put_req_header("accept-language", "es")
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    assert %{
+             "extra" => %{
+               "validation" => "inclusion",
+               "field" => "email"
+             },
+             "code" => "validation",
+             "locations" => [%{"column" => 0, "line" => 2}],
+             "message" => "You cannot register with this email address",
+             "path" => ["createUser"]
+           } = error
+  end
+
   test "createUser errors", %{conn: conn} do
+    MoodleNet.Accounts.add_email_to_whitelist("alexcastano@newworld.com")
     query = """
       mutation {
         createUser(
@@ -950,33 +993,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert me["primaryLanguage"] == "Elixir"
     assert me["location"] == "MoodleNet"
     assert me["icon"] == "https://imag.es/alexcastano"
-
-    query = """
-    {
-      me {
-        id
-        localId
-        local
-        type
-        preferredUsername
-        name
-        summary
-        location
-        icon
-        email
-        primaryLanguage
-      }
-    }
-    """
-
-    assert me_2 =
-             conn
-             |> post("/api/graphql", %{query: query})
-             |> json_response(200)
-             |> Map.fetch!("data")
-             |> Map.fetch!("me")
-
-    assert me == me_2
   end
 
   @tag :user
@@ -1328,6 +1344,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
       }
     """
 
+    MoodleNet.Accounts.add_email_to_whitelist("alexcastano@newworld.com")
     assert auth_payload =
              conn
              |> post("/api/graphql", %{query: query})

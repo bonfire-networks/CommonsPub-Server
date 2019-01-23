@@ -6,6 +6,5 @@
 
 ------------------
 
-<%= gettext("We'd love your feedback on the sign-up process.")%>
-
-https://changemap.co/moodle/moodlenet/task/2727-improve-the-sign-up-process/
+<%= gettext("We'd love your feedback on the sign-up process.")%> 
+<%= gettext("You can do so at:")%> https://changemap.co/moodle/moodlenet/task/2727-improve-the-sign-up-process/

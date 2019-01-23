@@ -4,7 +4,7 @@ defmodule ActivityPub.ApplyAction do
   alias ActivityPub.SQLEntity
 
   def apply(entity) when not has_type(entity, "Activity"),
-    do: raise(ArgumentError, "Only an Activity can be applied, received: #{inspect(entity.type)}")
+    do: raise(ArgumentError, "Action can only be applied on an Activity, but received: #{inspect(entity.type)}")
 
   def apply(activity) when has_type(activity, "Activity") do
     with {:ok, activity} <- persist(activity),

@@ -13,7 +13,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:11-alpine
+    image: postgres:9.6.6-alpine
     # volumes:
     #   - "./volumes/postgres:/var/lib/postgresql/data"
     # ports:

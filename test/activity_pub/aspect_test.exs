@@ -26,7 +26,7 @@ defmodule ActivityPub.AspectTest do
 
   # Errors
   test "field name clash" do
-    assert_raise ArgumentError, "field/association :name is already set on aspect", fn ->
+    assert_raise ArgumentError, "Field/association :name is already set on this aspect", fn ->
       defmodule AspectFieldNameClash do
         use ActivityPub.Aspect, persistence: :any
 
@@ -39,7 +39,7 @@ defmodule ActivityPub.AspectTest do
   end
 
   test "invalid field type" do
-    assert_raise ArgumentError, "invalid or unknown type {:apa} for field :name", fn ->
+    assert_raise ArgumentError, "Invalid or unknown type {:apa} for field :name", fn ->
       defmodule AspectInvalidFieldType do
         use ActivityPub.Aspect, persistence: :any
 
@@ -49,7 +49,7 @@ defmodule ActivityPub.AspectTest do
       end
     end
 
-    assert_raise ArgumentError, "invalid or unknown type OMG for field :name", fn ->
+    assert_raise ArgumentError, "Invalid or unknown type OMG for field :name", fn ->
       defmodule AspectInvalidFieldType do
         use ActivityPub.Aspect, persistence: :any
 

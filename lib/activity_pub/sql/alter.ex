@@ -108,11 +108,11 @@ defmodule ActivityPub.SQL.Alter do
   end
 
   def add(_, relation, _) do
-    raise ArgumentError, "not valid relation #{inspect(relation)}"
+    raise ArgumentError, "Not a valid relation #{inspect(relation)}"
   end
 
   def remove(_, relation, _) do
-    raise ArgumentError, "not valid relation #{inspect(relation)}"
+    raise ArgumentError, "Not a valid relation #{inspect(relation)}"
   end
 
   defp insert_all(table_name, subject_key, target_key, subject_ids, target_ids) do
