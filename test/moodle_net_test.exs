@@ -1,6 +1,20 @@
 defmodule MoodleNetTest do
   use MoodleNet.DataCase, async: true
 
+  describe "list_threads" do
+    test "works" do
+      owner = Factory.actor()
+      comm = Factory.community(owner)
+      thread = Factory.comment(owner, comm)
+      _reply = Factory.reply(owner, thread)
+
+      assert threads = MoodleNet.list_threads(comm)
+      assert length(threads) == 1
+      assert [ret] = threads
+      assert thread.id == ret.id
+    end
+  end
+
   describe "create_collection" do
     test "works" do
       owner = Factory.actor()

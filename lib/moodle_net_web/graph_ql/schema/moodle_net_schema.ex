@@ -287,6 +287,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     {:ok, resources}
   end
 
+  def list_threads(%{context_local_id: context_local_id}, info) do
+    fields = requested_fields(info)
+
+    comments =
+      MoodleNet.list_threads(context_local_id)
+      |> prepare(fields)
+
+    {:ok, comments}
+  end
+
   def list_comments(%{context_local_id: context_local_id}, info) do
     fields = requested_fields(info)
 

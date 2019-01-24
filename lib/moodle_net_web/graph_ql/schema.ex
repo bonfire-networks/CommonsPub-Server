@@ -42,6 +42,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:EducationalResource"))
     end
 
+    @desc "Get list of threads"
+    field :threads, non_null(list_of(non_null(:comment))) do
+      arg(:context_local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.list_threads/2)
+    end
+
     @desc "Get list of comments"
     field :comments, non_null(list_of(non_null(:comment))) do
       arg(:context_local_id, non_null(:integer))
