@@ -32,8 +32,6 @@ defmodule MoodleNet.ReleaseTasks do
 
   def migrate_db(_) do
     start_apps()
-    Enum.each(@repos, &create_repo/1)
-
     start_repos()
     Enum.each(@repos, &migrate_repo/1)
 
@@ -65,7 +63,6 @@ defmodule MoodleNet.ReleaseTasks do
 
   def seed_db(_) do
     start_apps()
-    Enum.each(@repos, &create_repo/1)
 
     start_repos()
 
