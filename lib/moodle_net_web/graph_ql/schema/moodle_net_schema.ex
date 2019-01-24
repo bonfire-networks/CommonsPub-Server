@@ -851,7 +851,11 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   # It is called from Absinthe
   def preload_assoc({assoc, fields}, parent_list) do
     parent_list = Query.preload_assoc(parent_list, assoc)
-    child_list = Enum.flat_map(parent_list, &Map.get(&1, assoc))
+
+    child_list =
+      parent_list
+      |> Enum.flat_map(&Map.get(&1, assoc))
+      |> Enum.uniq_by(&Entity.local_id(&1))
 
     child_map =
       prepare(child_list, fields)
