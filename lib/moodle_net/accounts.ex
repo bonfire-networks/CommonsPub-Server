@@ -218,6 +218,7 @@ defmodule MoodleNet.Accounts do
   end
 
   def is_email_in_whitelist?(email) do
-    Repo.get(WhitelistEmail, email) != nil
+    String.ends_with?(email, "@moodle.com") ||
+      Repo.get(WhitelistEmail, email) != nil
   end
 end

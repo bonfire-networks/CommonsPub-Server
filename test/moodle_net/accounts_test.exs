@@ -25,6 +25,14 @@ defmodule MoodleNet.AccountsTest do
       assert_delivered_email(MoodleNet.Email.welcome(ret.user, ret.email_confirmation_token.token))
     end
 
+    test "works with moodle.com emails" do
+      icon_attrs = Factory.attributes(:image)
+
+      attrs = Factory.attributes(:user, email: "any_email_or_whatever@moodle.com")
+
+      assert {:ok, _} = Accounts.register_user(attrs)
+    end
+
     test "fails with invalid password values" do
       attrs = Factory.attributes(:user) |> Map.delete("password")
       Accounts.add_email_to_whitelist(attrs["email"])
