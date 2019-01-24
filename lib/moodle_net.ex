@@ -47,6 +47,24 @@ defmodule MoodleNet do
     list_resources(ActivityPub.Entity.local_id(entity), opts)
   end
 
+  def list_threads(context_id, opts \\ %{}) do
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:context, context_id)
+    |> has_no_replies()
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  defp has_no_replies(query) do
+    import Ecto.Query, only: [from: 2]
+    from([entity: entity] in query,
+         left_join: rel in fragment("activity_pub_object_in_reply_tos"),
+         on: entity.local_id == rel.subject_id,
+         where: is_nil(rel.target_id)
+    )
+  end
+
   def list_comments(context_id, opts \\ %{}) do
     Query.new()
     |> Query.with_type("Note")

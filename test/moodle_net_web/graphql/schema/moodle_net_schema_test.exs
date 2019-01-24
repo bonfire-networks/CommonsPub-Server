@@ -8,6 +8,47 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   @moduletag format: :json
 
   @tag :user
+  test "list threads", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    thread = Factory.comment(actor, community)
+    reply = Factory.reply(actor, thread)
+    Factory.reply(actor, reply)
+
+    query = """
+    {
+      threads(context_local_id: #{local_id(community)}) {
+        id
+        author {
+          id
+        }
+        replies {
+          id
+          author {
+            id
+          }
+        }
+      }
+    }
+    """
+
+    assert [thread_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("threads")
+
+    assert %{
+      "id" => thread.id,
+      "author" => %{"id" => actor.id},
+      "replies" => [%{
+        "id" => reply.id,
+        "author" => %{"id" => actor.id},
+      }]
+    } == thread_map
+  end
+
+  @tag :user
   test "bug when same comment author is repeated", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     other_user = Factory.actor()
