@@ -7,6 +7,37 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
+  @tag :user
+  test "bug when same comment author is repeated", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    other_user = Factory.actor()
+    MoodleNet.join_community(other_user, community)
+    %{id: comment_1_id} = Factory.comment(actor, community)
+    %{id: comment_2_id} = Factory.comment(actor, community)
+
+    query = """
+    {
+      communities {
+        comments {
+          id
+          author {
+            id
+          }
+        }
+      }
+    }
+    """
+
+    assert [community_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert %{"comments" => [%{"id" => ^comment_1_id}, %{"id" => ^comment_2_id}]} = community_map
+  end
+
   test "email should be whitelist", %{conn: conn} do
     query = """
       mutation {
@@ -51,6 +82,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
   test "createUser errors", %{conn: conn} do
     MoodleNet.Accounts.add_email_to_whitelist("alexcastano@newworld.com")
+
     query = """
       mutation {
         createUser(
@@ -342,7 +374,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert [
              %{
                "code" => "unauthorized",
-               "message" => "You have to log in to proceed"
+               "message" => "You need to log in first"
              }
            ] =
              conn
@@ -672,7 +704,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert [
              %{
                "code" => "unauthorized",
-               "message" => "You have to log in to proceed"
+               "message" => "You need to log in first"
              }
            ] =
              conn
@@ -1033,6 +1065,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     """
 
     MoodleNet.Accounts.add_email_to_whitelist("alexcastano@newworld.com")
+
     assert auth_payload =
              conn
              |> post("/api/graphql", %{query: query})
@@ -1112,7 +1145,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
     assert [
              %{
                "code" => "unauthorized",
-               "message" => "You have to log in to proceed"
+               "message" => "You need to log in first"
              }
            ] =
              conn
