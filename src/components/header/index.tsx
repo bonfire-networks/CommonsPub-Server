@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '../../themes/styled';
 
 import { Trans } from '@lingui/macro';
-
+import OutsideClickHandler from 'react-outside-click-handler';
 // import Text from '../inputs/Text/Text';
 import Logo from '../brand/Logo/Logo';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
@@ -11,6 +11,7 @@ import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
 interface Props {
   handleOpen(): boolean;
+  closeMenu(): boolean;
   isOpen: boolean;
   logout(): any;
   history: any;
@@ -33,20 +34,25 @@ const Header: React.SFC<Props> = props => {
         </Avatar>
       </Right>
       {props.isOpen ? (
-        <WrapperMenu>
-          <Menu>
-            <List lined>
-              <Item>{props.data.user.data.name}</Item>
-              {/* <Item><Trans>Edit profile</Trans></Item>
+        <>
+          <OutsideClickHandler onOutsideClick={props.closeMenu}>
+            <WrapperMenu>
+              <Menu>
+                <List lined>
+                  <Item>{props.data.user.data.name}</Item>
+                  {/* <Item><Trans>Edit profile</Trans></Item>
             <Item><Trans>Settings</Trans></Item> */}
-            </List>
-            <List>
-              <Item onClick={props.logout}>
-                <Trans>Sign out</Trans>
-              </Item>
-            </List>
-          </Menu>
-        </WrapperMenu>
+                </List>
+                <List>
+                  <Item onClick={props.logout}>
+                    <Trans>Sign out</Trans>
+                  </Item>
+                </List>
+              </Menu>
+            </WrapperMenu>
+          </OutsideClickHandler>
+          <Layer />
+        </>
       ) : null}
     </Wrapper>
   );
@@ -72,9 +78,19 @@ const WrapperMenu = styled.div`
   border-radius: 0.25em;
   background-color: rgb(232, 232, 232);
   position: absolute;
-  top: 60px;
+  top: 50px;
   right: 10px;
   z-index: 9999;
+`;
+
+const Layer = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0px;
+  height: 50px;
+  z-index: 1;
+  display: block;
 `;
 
 const Menu = styled.div`
@@ -128,9 +144,9 @@ export default compose(
   graphql(getUserQuery),
   withState('isOpen', 'onOpen', false),
   withHandlers({
-    handleOpen: props => () => props.onOpen(!props.isOpen),
+    handleOpen: props => () => props.onOpen(true),
+    closeMenu: props => () => props.onOpen(false),
     logout: props => () => {
-      console.log(props.history);
       localStorage.removeItem('user_access_token');
       return window.location.reload();
     }

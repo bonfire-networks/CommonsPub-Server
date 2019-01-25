@@ -35,6 +35,7 @@ interface Props {
   summary: string;
   image: string;
   url: string;
+  isFetched(boolean): boolean;
 }
 
 interface FormValues {
@@ -53,6 +54,7 @@ interface MyFormProps {
   summary: string;
   image: string;
   url: string;
+  isFetched(boolean): boolean;
 }
 const tt = {
   placeholders: {
@@ -228,7 +230,6 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
               }
             }
           `;
-
           const collection = proxy.readFragment({
             id: `Collection:${props.collectionExternalId}`,
             fragment: fragment,
@@ -241,16 +242,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             fragmentName: 'Res',
             data: collection
           });
-          const collection2 = proxy.readFragment({
-            id: `Collection:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Res'
-          });
-          console.log(collection2);
         }
       })
       .then(res => {
         setSubmitting(false);
+        props.isFetched(false);
         props.toggleModal();
       })
       .catch(err => console.log(err));
