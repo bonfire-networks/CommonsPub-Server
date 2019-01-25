@@ -106,7 +106,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
         );
       }
       if (this.props.data.community.comments.length) {
-        comments = this.props.data.community.comments.map(comment => {
+        comments = this.props.data.community.comments.map((comment, i) => {
           let author = {
             id: '1',
             name: 'Chet Faker',
@@ -123,7 +123,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             id: comment.localId
           };
           return (
-            <div style={{ marginBottom: '8px' }}>
+            <div key={i} style={{ marginBottom: '8px' }}>
               <Comment key={comment.id} author={author} comment={message} />
             </div>
           );

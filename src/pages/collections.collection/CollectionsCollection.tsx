@@ -148,7 +148,7 @@ class CollectionComponent extends React.Component<Props> {
                       <TabPanel
                         label={`${TabsEnum.Resources} (${
                           collection.resources.length
-                        })`}
+                        }/10)`}
                         key={TabsEnum.Resources}
                       >
                         <div style={{ display: 'flex', flexWrap: 'wrap' }}>

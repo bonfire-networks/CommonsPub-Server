@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 
 import { Trans } from '@lingui/macro';
-
+import { ellipsis } from 'polished';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import Button from '../Button/Button';
@@ -16,6 +16,7 @@ interface Props {
   localId: string;
   editResource(): boolean;
   isEditResourceOpen: boolean;
+  preview?: boolean;
 }
 
 const ResourceCard: React.SFC<Props> = props => (
@@ -24,11 +25,13 @@ const ResourceCard: React.SFC<Props> = props => (
     <Info>
       <TitleWrapper>
         <Title>{props.title}</Title>
-        <Actions>
-          <Button hovered onClick={props.editResource}>
-            <Trans>Edit</Trans>
-          </Button>
-        </Actions>
+        {props.preview ? null : (
+          <Actions>
+            <Button hovered onClick={props.editResource}>
+              <Trans>Edit</Trans>
+            </Button>
+          </Actions>
+        )}
       </TitleWrapper>
       <Url>
         <a target="blank" href={props.url}>
@@ -58,12 +61,12 @@ const Info = styled.div`
 `;
 const Url = styled.div`
   margin-bottom: 8px;
-  margin-top: -4px;
   & a {
     font-size: 14px;
     color: #9e9e9e;
     font-weight: 500;
     text-decoration: none;
+    ${ellipsis('420px')} margin-top: 4px;
     &:hover {
       text-decoration: underline;
     }

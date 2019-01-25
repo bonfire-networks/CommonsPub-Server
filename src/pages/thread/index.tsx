@@ -10,6 +10,7 @@ import { RouteComponentProps } from 'react-router';
 import Loader from '../../components/elements/Loader/Loader';
 import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
+import { NavLink } from 'react-router-dom';
 
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
@@ -61,6 +62,11 @@ const Component = ({ data, match }) => {
     <Main>
       <Grid>
         <Wrapper>
+          {data.comment.inReplyTo ? (
+            <NavLink to={`/thread/${data.comment.inReplyTo.id}`}>
+              <InReplyTo>View full thread</InReplyTo>
+            </NavLink>
+          ) : null}
           <Comment thread author={author} comment={message} />
           {data.comment.replies.map((comment, i) => {
             let author = {
@@ -86,6 +92,16 @@ const Component = ({ data, match }) => {
     </Main>
   );
 };
+
+const InReplyTo = styled.div`
+  display: block;
+  padding: 10px;
+  text-align: center;
+  background: #daecd6;
+  border-top: 1px solid #bbc9d2;
+  border-bottom: 1px solid #bbc9d2;
+  color: #759053;
+`;
 
 const Wrapper = styled.div`
   width: 720px;

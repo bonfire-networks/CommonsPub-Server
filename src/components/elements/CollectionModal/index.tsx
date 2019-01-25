@@ -1,10 +1,11 @@
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
-
 import { Trans } from '@lingui/macro';
+import { Search } from '../Icons';
+import Loader from '../Loader/Loader';
 import { i18nMark } from '@lingui/react';
-
+import Fetched from './fetched';
 const tt = {
   placeholders: {
     url: i18nMark('Enter the URL of the resource'),
@@ -12,6 +13,7 @@ const tt = {
     summary: i18nMark(
       'Please type or copy/paste a summary about the resource...'
     ),
+    submit: i18nMark('Fetch the resource'),
     image: i18nMark('Enter the URL of an image to represent the resource')
   }
 };
@@ -19,17 +21,13 @@ const tt = {
 import { clearFix } from 'polished';
 import H5 from '../../typography/H5/H5';
 import Text from '../../inputs/Text/Text';
-import Textarea from '../../inputs/TextArea/Textarea';
-import Button from '../Button/Button';
-import { compose } from 'react-apollo';
+// import { LoaderButton } from '../Button/Button';
+import { compose, withState } from 'recompose';
 import { withFormik, FormikProps, Form, Field } from 'formik';
 import * as Yup from 'yup';
-import Alert from '../../elements/Alert';
-import gql from 'graphql-tag';
 import { graphql, OperationOption } from 'react-apollo';
-const {
-  createResourceMutation
-} = require('../../../graphql/createResource.graphql');
+
+const FETCH_RESOURCE = require('../../../graphql/fetchResource.graphql');
 
 interface Props {
   toggleModal?: any;
@@ -39,29 +37,47 @@ interface Props {
   errors: any;
   touched: any;
   isSubmitting: boolean;
+  fetchResource: any;
+  isFetched(boolean): boolean;
+  fetched: boolean;
+  name: string;
+  summary: string;
+  image: string;
+  url: string;
+  onName(string): string;
+  onSummary(string): string;
+  onImage(string): string;
+  onUrl(string): string;
 }
 
 interface FormValues {
+  fetchUrl: string;
+}
+
+interface MyFormProps {
+  collectionId: string;
+  collectionExternalId: string;
+  toggleModal: any;
+  fetchResource: any;
+  isFetched(boolean): boolean;
+  fetched: boolean;
+  onName(string): string;
+  onSummary(string): string;
+  onImage(string): string;
+  onUrl(string): string;
   name: string;
   summary: string;
   image: string;
   url: string;
 }
 
-interface MyFormProps {
-  collectionId: string;
-  collectionExternalId: string;
-  createResource: any;
-  toggleModal: any;
-}
-
-const withCreateResource = graphql<{}>(createResourceMutation, {
-  name: 'createResource'
+const withFetchResource = graphql<{}>(FETCH_RESOURCE, {
+  name: 'fetchResource'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
 const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
-  const { toggleModal, modalIsOpen, errors, touched, isSubmitting } = props;
+  const { toggleModal, modalIsOpen } = props;
   return (
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
@@ -70,101 +86,42 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             <Trans>Add a new resource</Trans>
           </H5>
         </Header>
-        <Form>
-          <Row>
-            <label>
-              <Trans>Link</Trans>
-            </label>
-            <ContainerForm>
+        <Row>
+          <ContainerForm>
+            <Form>
               <Field
-                name="url"
+                name="fetchUrl"
                 render={({ field }) => (
                   <Text
                     placeholder={tt.placeholders.url}
+                    onChange={field.onChange}
                     name={field.name}
                     value={field.value}
-                    onChange={field.onChange}
                   />
                 )}
               />
-              {errors.url && touched.url && <Alert>{errors.url}</Alert>}
-            </ContainerForm>
-          </Row>
-          <Row>
-            <label>
-              <Trans>Name</Trans>
-            </label>
-            <ContainerForm>
-              <Field
-                name="name"
-                render={({ field }) => (
-                  <>
-                    <Text
-                      placeholder={tt.placeholders.name}
-                      name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <CounterChars>{80 - field.value.length}</CounterChars>
-                  </>
-                )}
-              />
-              {errors.name && touched.name && <Alert>{errors.name}</Alert>}
-            </ContainerForm>
-          </Row>
-          <Row big>
-            <label>
-              <Trans>Description</Trans>
-            </label>
-            <ContainerForm>
-              <Field
-                name="summary"
-                render={({ field }) => (
-                  <>
-                    <Textarea
-                      placeholder={tt.placeholders.summary}
-                      name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <CounterChars>{240 - field.value.length}</CounterChars>
-                  </>
-                )}
-              />
-            </ContainerForm>
-          </Row>
-          <Row>
-            <label>
-              <Trans>Image</Trans>
-            </label>
-            <ContainerForm>
-              <Field
-                name="image"
-                render={({ field }) => (
-                  <Text
-                    placeholder={tt.placeholders.image}
-                    name={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-              {errors.image && touched.image && <Alert>{errors.image}</Alert>}
-            </ContainerForm>
-          </Row>
-          <Actions>
-            <Button
-              disabled={isSubmitting}
-              type="submit"
-              style={{ marginLeft: '10px' }}
-            >
-              <Trans>Create</Trans>
-            </Button>
-            <Button onClick={toggleModal} secondary>
-              <Trans>Cancel</Trans>
-            </Button>
-          </Actions>
-        </Form>
+              <Span disabled={props.isSubmitting} type="submit">
+                <Search width={18} height={18} strokeWidth={2} color={'#333'} />
+              </Span>
+              {/* <LoaderButton loading={props.isSubmitting}  text={tt.placeholders.submit}  /> */}
+            </Form>
+          </ContainerForm>
+        </Row>
+        {props.isSubmitting ? (
+          <WrapperLoader>
+            <Loader />
+          </WrapperLoader>
+        ) : null}
+        {props.fetched ? (
+          <Fetched
+            url={props.url}
+            name={props.name}
+            image={props.image}
+            summary={props.summary}
+            collectionId={props.collectionId}
+            toggleModal={props.toggleModal}
+          />
+        ) : null}
       </Container>
     </Modal>
   );
@@ -172,109 +129,71 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
 
 const ModalWithFormik = withFormik<MyFormProps, FormValues>({
   mapPropsToValues: props => ({
-    url: '',
-    name: '',
-    summary: '',
-    image: ''
+    fetchUrl: ''
   }),
   validationSchema: Yup.object().shape({
-    url: Yup.string()
-      .url()
-      .required(),
-    name: Yup.string()
-      .max(80)
-      .required(),
-    summary: Yup.string().max(240),
-    image: Yup.string().url()
+    fetchUrl: Yup.string().url
   }),
   handleSubmit: (values, { props, setSubmitting }) => {
-    const variables = {
-      resourceId: Number(props.collectionId),
-      resource: {
-        name: values.name,
-        summary: values.summary,
-        icon: values.image,
-        url: values.url
-      }
-    };
+    props.isFetched(false);
+    props.onName('');
+    props.onSummary('');
+    props.onImage('');
+    props.onUrl(values.fetchUrl);
     return props
-      .createResource({
-        variables: variables,
-        update: (proxy, { data: { createResource } }) => {
-          const fragment = gql`
-            fragment Res on Collection {
-              id
-              localId
-              icon
-              name
-              content
-              followersCount
-              summary
-              resources {
-                id
-                localId
-                name
-                summary
-                url
-                icon
-              }
-            }
-          `;
-
-          const collection = proxy.readFragment({
-            id: `Collection:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Res'
-          });
-          console.log(createResource);
-          collection.resources.unshift(createResource);
-          console.log(collection);
-          proxy.writeFragment({
-            id: `Collection:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Res',
-            data: collection
-          });
-          const collection2 = proxy.readFragment({
-            id: `Collection:${props.collectionExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Res'
-          });
-          console.log(collection2);
+      .fetchResource({
+        variables: {
+          url: values.fetchUrl
         }
       })
       .then(res => {
+        props.onName(res.data.fetchWebMetadata.title);
+        props.onSummary(res.data.fetchWebMetadata.summary);
+        props.onImage(res.data.fetchWebMetadata.image);
+        props.onUrl(values.fetchUrl);
+        props.isFetched(true);
         setSubmitting(false);
-        props.toggleModal();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        props.onUrl(values.fetchUrl);
+        props.isFetched(true);
+        setSubmitting(false);
+      });
   }
 })(CreateCommunityModal);
 
-export default compose(withCreateResource)(ModalWithFormik);
+export default compose(
+  withFetchResource,
+  withState('fetched', 'isFetched', false),
+  withState('name', 'onName', ''),
+  withState('summary', 'onSummary', ''),
+  withState('image', 'onImage', ''),
+  withState('url', 'onUrl', '')
+)(ModalWithFormik);
 
-const CounterChars = styled.div`
-  float: right;
-  font-size: 11px;
-  text-transform: uppercase;
-  background: #d0d9db;
-  padding: 2px 10px;
-  font-weight: 600;
-  margin-top: 4px;
-  color: #32302e;
-  letter-spacing: 1px;
+const WrapperLoader = styled.div`
+  padding: 10px;
+`;
+
+const Span = styled.button`
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  width: 40px;
+  background: #fffffff0;
+  height: 37px;
+  cursor: pointer;
+  &:hover {
+    background: ${props => props.theme.styles.colour.primary};
+  }
 `;
 
 const Container = styled.div`
   font-family: ${props => props.theme.styles.fontFamily};
-`;
-const Actions = styled.div`
-  ${clearFix()};
-  height: 60px;
-  padding-top: 10px;
-  padding-right: 10px;
-  & button {
-    float: right;
+  & form {
   }
 `;
 
@@ -296,6 +215,10 @@ const Row = styled.div<{ big?: boolean }>`
 const ContainerForm = styled.div`
   flex: 1;
   ${clearFix()};
+  position: relative;
+  & form {
+    width: 100%;
+  }
 `;
 
 const Header = styled.div`

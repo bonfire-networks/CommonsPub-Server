@@ -20,6 +20,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Loader from '../../components/elements/Loader/Loader';
 import Search from '../../pages/search/Search';
 import Thread from '../../pages/thread';
+import Home from '../../pages/home';
 const AppInner = styled.div`
   display: flex;
   flex-direction: row;
@@ -73,7 +74,7 @@ export default () => (
               <Main>
                 <Header history={props.history} />
                 <Switch>
-                  <Route exact path="/" component={CommunitiesFeatured} />
+                  <Route exact path="/" component={Home} />
                   <Route exact path="/search" component={Search} />
                   <Route
                     exact

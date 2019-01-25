@@ -5,6 +5,9 @@ query getThread($id: Int!) {
       localId
       content
       published
+      inReplyTo {
+        localId
+      }
       # author {
       #   id
       #   icon

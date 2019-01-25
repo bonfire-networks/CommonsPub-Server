@@ -30,6 +30,9 @@ class Nav extends React.Component<NavProps, {}> {
   render() {
     return (
       <SidebarWrapper>
+        <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
+          <Trans>🔬 Share Feedbacks</Trans>
+        </Feedback>
         <NavList>
           <NavLink
             isActive={(match, location) => {
@@ -61,6 +64,7 @@ class Nav extends React.Component<NavProps, {}> {
           >
             <Item>Featured</Item>
           </NavLink> */}
+
           <NavLink
             isActive={(match, location) => {
               return (
@@ -76,6 +80,40 @@ class Nav extends React.Component<NavProps, {}> {
           >
             <Item>
               <Trans>All Communities</Trans>
+            </Item>
+          </NavLink>
+          <NavLink
+            isActive={(match, location) => {
+              return (
+                location.pathname === `/communities/11` ||
+                location.pathname === `/communities/11`
+              );
+            }}
+            activeStyle={{
+              position: 'relative',
+              color: '#f98012'
+            }}
+            to={'/communities/11'}
+          >
+            <Item>
+              <Trans>The Lounge</Trans>
+            </Item>
+          </NavLink>
+          <NavLink
+            isActive={(match, location) => {
+              return (
+                location.pathname === `/communities/12` ||
+                location.pathname === `/communities/12`
+              );
+            }}
+            activeStyle={{
+              position: 'relative',
+              color: '#f98012'
+            }}
+            to={'/communities/12'}
+          >
+            <Item>
+              <Trans>El Salón</Trans>
             </Item>
           </NavLink>
         </NavList>
@@ -143,6 +181,30 @@ class Nav extends React.Component<NavProps, {}> {
     );
   }
 }
+
+const Feedback = styled.a`
+  display: block;
+  text-align: center;
+  animation: 0.5s slide-in;
+  position: relative;
+  height: 30px;
+  background: rgb(255, 239, 217);
+  border-bottom: 1px solid rgb(228, 220, 195);
+  color: #10100cc2 !important;
+  line-height: 30px;
+  padding: 0;
+  font-size: 13px;
+  text-decoration: none;
+  margin-top: -18px;
+  margin: -18px -16px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  cursor: pointer;
+  &:hover {
+    background: rgb(245, 229, 207);
+  }
+`;
 
 const Bottom = styled.div`
   position: absolute;
