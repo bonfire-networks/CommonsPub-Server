@@ -7,7 +7,7 @@ import {
 
 import styled, { StyledThemeInterface } from '../../../themes/styled';
 import Flag from '../../elements/Flag/Flag';
-import { LocaleContext } from '../../../containers/App/App';
+import { LocaleContext, locale_default } from '../../../containers/App/App';
 
 type LanguageSelectState = {
   selectedKey?: string;
@@ -36,7 +36,7 @@ export const languageNames = {
 let options: Item[] = [];
 
 Object.keys(languageNames).forEach(key => {
-  console.log(languageNames[key]);
+  // console.log(languageNames[key]);
   options.push(
     <Item key={key}>
       <Flag flag={key.substr(-2).toLowerCase()} />
@@ -69,7 +69,7 @@ export default class LanguageSelect extends React.Component<
   LanguageSelectState
 > {
   state = {
-    selectedKey: 'en_GB'
+    selectedKey: locale_default
   };
 
   constructor(props) {
