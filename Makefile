@@ -29,9 +29,19 @@ build_with_cache: ## Build the Docker image
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
-tag_latest:
+tag:
 	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
-	docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+
+push:
+	@echo docker push moodlenet/moodlenet:latest
+	@docker push moodlenet/moodlenet:latest
+	@echo docker push moodlenet/moodlenet:$(APP_VSN)
+	@docker push moodlenet/moodlenet:$(APP_VSN)
+	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
 run: ## Run the app in Docker
 	docker run\

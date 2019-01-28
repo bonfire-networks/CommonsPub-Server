@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
       assert [
                %{
                  "code" => "unauthorized",
-                 "message" => "You have to log in to proceed"
+                 "message" => "You need to log in first"
                }
              ] =
                conn

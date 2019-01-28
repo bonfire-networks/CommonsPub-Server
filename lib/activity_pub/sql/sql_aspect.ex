@@ -1,9 +1,22 @@
 defmodule ActivityPub.SQLAspect do
-  alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect, SQLResourceAspect}
+  alias ActivityPub.{
+    SQLObjectAspect,
+    SQLActorAspect,
+    SQLActivityAspect,
+    SQLCollectionAspect,
+    SQLResourceAspect
+  }
 
   alias ActivityPub.SQL.Associations.{ManyToMany, BelongsTo, Collection}
 
-  def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect, SQLResourceAspect]
+  def all(),
+    do: [
+      SQLObjectAspect,
+      SQLActorAspect,
+      SQLActivityAspect,
+      SQLCollectionAspect,
+      SQLResourceAspect
+    ]
 
   # FIXME make this similar to aspect where the user can redifine
   # assocs and fields to be persisted in another way than the default!
@@ -106,7 +119,12 @@ defmodule ActivityPub.SQLAspect do
 
         type = if field_def.functional, do: field_def.type, else: {:array, field_def.type}
 
-        field(name, type)
+        opts =
+          field_def
+          |> Map.take([:virtual, :default])
+          |> Keyword.new()
+
+        field(name, type, opts)
       end
     end
   end

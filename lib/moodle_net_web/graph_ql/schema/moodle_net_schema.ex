@@ -108,6 +108,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:published, :string)
     field(:updated, :string)
+
+    field(:followed, non_null(:boolean), do: resolve(with_bool_join(:follow)))
   end
 
   input_object :community_input do
@@ -158,6 +160,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:published, :string)
     field(:updated, :string)
+
+    field(:followed, non_null(:boolean), do: resolve(with_bool_join(:follow)))
   end
 
   input_object :collection_input do
@@ -287,6 +291,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     {:ok, resources}
   end
 
+  def list_threads(%{context_local_id: context_local_id}, info) do
+    fields = requested_fields(info)
+
+    comments =
+      MoodleNet.list_threads(context_local_id)
+      |> prepare(fields)
+
+    {:ok, comments}
+  end
+
   def list_comments(%{context_local_id: context_local_id}, info) do
     fields = requested_fields(info)
 
@@ -392,7 +406,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
 
-    with {:ok, community} = MoodleNet.create_community(attrs) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- MoodleNet.create_community(actor, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(community, fields)}
     end
@@ -417,25 +432,34 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Errors.handle_error()
   end
 
-  def create_follow(%{actor_local_id: id}, info) do
-    with {:ok, follower} <- current_actor(info),
-         {:ok, following} <- fetch(id, "Actor") do
-      MoodleNet.follow(follower, following)
+  def join_community(%{community_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(id, "MoodleNet:Community") do
+      MoodleNet.join_community(actor, community)
     end
     |> Errors.handle_error()
   end
 
-  def destroy_follow(%{actor_local_id: id}, info) do
-    with {:ok, follower} <- current_actor(info) do
-      MoodleNet.undo_follow(follower, id)
+  def undo_join_community(%{community_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(id, "MoodleNet:Community") do
+      MoodleNet.undo_follow(actor, community)
     end
     |> Errors.handle_error()
   end
 
-  def create_like(%{local_id: id}, info) do
-    with {:ok, liker} <- current_actor(info),
-         {:ok, liked} <- fetch(id) do
-      MoodleNet.like(liker, liked)
+  def follow_collection(%{collection_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
+      MoodleNet.follow_collection(actor, collection)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_follow_collection(%{collection_local_id: id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
+      MoodleNet.undo_follow(actor, collection)
     end
     |> Errors.handle_error()
   end
@@ -447,10 +471,43 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Errors.handle_error()
   end
 
+  def like_comment(%{local_id: comment_id}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, comment} <- fetch(comment_id, "Note") do
+      MoodleNet.like_comment(liker, comment)
+    end
+    |> Errors.handle_error()
+  end
+
+  def like_resource(%{local_id: resource_id}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
+      MoodleNet.like_resource(liker, resource)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_like_comment(%{local_id: comment_id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, comment} <- fetch(comment_id, "Note") do
+      MoodleNet.undo_like(actor, comment)
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_like_resource(%{local_id: resource_id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
+      MoodleNet.undo_like(actor, resource)
+    end
+    |> Errors.handle_error()
+  end
+
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
-    with {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
+    with {:ok, actor} <- current_actor(info),
+         {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
          attrs = set_icon(attrs),
-         {:ok, collection} = MoodleNet.create_collection(community, attrs) do
+         {:ok, collection} <- MoodleNet.create_collection(actor, community, attrs) do
       fields = requested_fields(info)
       {:ok, prepare(collection, fields)}
     end
@@ -552,16 +609,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Query.where(local_id: local_id)
     |> Query.with_type(type)
     |> Query.one()
-  end
-
-  defp fetch(local_id, type \\ nil)
-
-  defp fetch(local_id, nil) do
-    ActivityPub.SQLEntity.get_by_local_id(local_id)
-    |> case do
-      nil -> Errors.not_found_error(local_id, nil)
-      obj -> {:ok, obj}
-    end
   end
 
   defp fetch(local_id, type) do
@@ -800,6 +847,22 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  defp with_bool_join(:follow) do
+    fn parent, _, info ->
+      {:ok, current_actor} = current_actor(info)
+      collection_id = ActivityPub.SQL.Common.local_id(current_actor.following)
+      args = {__MODULE__, :preload_bool_join, {:follow, collection_id}}
+
+      batch(
+        args,
+        parent,
+        fn children_map ->
+          Map.fetch(children_map, Entity.local_id(parent))
+        end
+      )
+    end
+  end
+
   defp ensure_single(children, false), do: children
 
   defp ensure_single(children, true) do
@@ -818,7 +881,11 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   # It is called from Absinthe
   def preload_assoc({assoc, fields}, parent_list) do
     parent_list = Query.preload_assoc(parent_list, assoc)
-    child_list = Enum.flat_map(parent_list, &Map.get(&1, assoc))
+
+    child_list =
+      parent_list
+      |> Enum.flat_map(&Map.get(&1, assoc))
+      |> Enum.uniq_by(&Entity.local_id(&1))
 
     child_map =
       prepare(child_list, fields)
@@ -854,6 +921,24 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
         |> Enum.flat_map(&child_map[&1])
 
       {Entity.local_id(parent), children}
+    end)
+  end
+
+  def preload_bool_join({:follow, collection_id}, parent_list) do
+    import Ecto.Query, only: [from: 2]
+    parent_ids = Enum.map(parent_list, &Entity.local_id/1)
+
+    ret =
+      from(f in "activity_pub_collection_items",
+        where: f.subject_id == ^collection_id,
+        where: f.target_id in ^parent_ids,
+        select: {f.target_id, true}
+      )
+      |> MoodleNet.Repo.all()
+      |> Map.new()
+
+    Enum.reduce(parent_ids, ret, fn id, ret ->
+      Map.put_new(ret, id, false)
     end)
   end
 
