@@ -63,6 +63,7 @@ export default () => (
   <Router>
     <AppInner>
       <Switch>
+        <Route exact path="/readme" component={Home} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/sign-up" component={SignUp} />
         <Route exact path="/sign-up/:step" component={SignUp} />

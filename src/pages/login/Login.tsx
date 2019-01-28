@@ -25,11 +25,12 @@ const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 // TODO make the login mutation also retrieve the user so a separate request is not necessary
 const { loginMutation } = require('../../graphql/login.graphql');
 import SignupModal from '../../components/elements/SignupModal';
+
 const tt = {
   with: {
-    fb: 'Sign in with Facebook',
-    g: 'Sign in with Google',
-    tw: 'Sign in with Twitter'
+    fb: i18nMark('Sign in with Facebook'),
+    g: i18nMark('Sign in with Google'),
+    tw: i18nMark('Sign in with Twitter')
   },
   validation: {
     email: i18nMark('The email field cannot be empty'),

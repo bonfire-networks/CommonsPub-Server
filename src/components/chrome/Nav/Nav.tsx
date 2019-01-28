@@ -31,7 +31,7 @@ class Nav extends React.Component<NavProps, {}> {
     return (
       <SidebarWrapper>
         <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
-          <Trans>🔬 Share Feedbacks</Trans>
+          🔬 <Trans>Share Feedback</Trans>
         </Feedback>
         <NavList>
           <NavLink

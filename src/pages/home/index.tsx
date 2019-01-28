@@ -3,6 +3,9 @@ import { compose } from 'recompose';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import styled from '../../themes/styled';
 import { graphql } from 'react-apollo';
+import UL from '../../components/typography/UL/UL';
+
+import { Trans } from '@lingui/macro';
 
 interface Props {
   data: any;
@@ -11,9 +14,20 @@ interface Props {
 const Home: React.SFC<Props> = props => (
   <Container>
     <Wrapper>
-      <Title>👋 Welcome {props.data.user.data.name}!</Title>
+      <Title>
+        👋 <Trans>Welcome</Trans>{' '}
+        {props.data.user.data ? props.data.user.data.name : ''}!
+      </Title>
       <p>
-        Thanks for being part of this testing process for MoodleNet. <br />
+        <Trans>
+          Thanks for being part of this testing process for MoodleNet.
+        </Trans>
+        <br />
+        <Trans>
+          Please pay attention to the video and text on this page, as they
+          contain some important information.
+        </Trans>
+        <br />
         <Video>
           <iframe
             style={{
@@ -27,48 +41,103 @@ const Home: React.SFC<Props> = props => (
             height="337"
             scrolling="no"
             data-frameborder="0"
-            src="https://www.wevideo.com/view/1290471043"
+            src="https://www.youtube.com/embed/6fyrcm4N2CI"
+            data-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
           />
         </Video>
-        We’re trying to discover the answer to this question:
+        <br />
+        <Trans>We’re trying to discover the answer to this question:</Trans>
       </p>
       <blockquote>
-        Do educators want to join communities to curate collections of
-        resources?
+        <Trans>
+          Do educators want to join communities to curate collections of
+          resources?
+        </Trans>
       </blockquote>
+
       <p>
-        During this testing period, we’ll observe what you choose to curate and
-        comment in MoodleNet, and listening to what you tell us about your
-        experiences.
-        <br />
-        Although you’re <b>one of only 100 people</b> who have an account to be
-        involved in the initial testing of MoodleNet,{' '}
-        <i>this isn’t a closed environment.</i>
-        The resources you curate and the discussions you engage in are likely to
-        live on and will be publicly viewable. <br />
-        We’re using{' '}
-        <a target="blank" href="https://changemap.co/moodle/moodlenet">
-          Changemap
-        </a>{' '}
-        to collect your feedback during this test, so please do use that to
-        suggest everything from small tweaks to major changes!
-        <br />
-        We’re really looking forward to seeing how you use MoodleNet to share
-        and curate resources, and collaborate with other educators!
+        <Trans>Here are some important things to note:</Trans>
+      </p>
+
+      <UL>
+        <ol>
+          <Trans>
+            Your involvement in the testing process is subject to the Code of
+            Conduct.
+          </Trans>
+        </ol>
+        <ol>
+          <Trans>
+            During this testing period we will observe what you do with
+            MoodleNet, and listen to what you tell us about your experiences.
+          </Trans>
+        </ol>
+        <ol>
+          <Trans>
+            You cannot completely delete anything in MoodleNet at the moment, as
+            we have not rolled out the moderation tools. Instead, just change
+            all of the fields within the resource to something else!
+          </Trans>{' '}
+        </ol>
+        <ol>
+          <Trans>
+            This test is semi-closed, but your contributions will live on beyond
+            the testing period. So curate and comment as if everything you share
+            is public.
+          </Trans>
+        </ol>
+        <ol>
+          <Trans>
+            We’re using Changemap to collect your feedback during this testing
+            period, so please do use that to suggest everything from small
+            tweaks to major changes! You can access this using the ‘Share
+            feedback’ link in the sidebar:
+          </Trans>
+          <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
+            🔬 <Trans>Share Feedback</Trans>
+          </Feedback>
+        </ol>
+      </UL>
+      <p>
+        <Trans>
+          We’re really looking forward to seeing how you use MoodleNet to share
+          and curate resources, and collaborate with other educators! Get
+          started by clicking on ‘The Lounge’ in the sidebar and introducing
+          yourself, or by adding your first resource!
+        </Trans>
       </p>
       <Sign>
         <b>Doug, Mayel, Alex and Ivan</b> <br />
-        <i>MoodleNet Team</i> <br />
+        <i>
+          <Trans>MoodleNet Team</Trans>
+        </i>
       </Sign>
-      <p>
-        <u>
-          PS. Don’t worry, we’re not tracking you! By ‘observe you’ we just mean
-          checking out what you curate and comment on that others can see.
-        </u>
-      </p>
     </Wrapper>
   </Container>
 );
+
+const Feedback = styled.a`
+  display: block;
+  text-align: center;
+  animation: 0.5s slide-in;
+  position: relative;
+  height: 30px;
+  background: rgb(255, 239, 217);
+  border-bottom: 1px solid rgb(228, 220, 195);
+  color: #10100cc2 !important;
+  line-height: 30px;
+  padding: 0;
+  font-size: 13px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+  cursor: pointer;
+  &:hover {
+    background: rgb(245, 229, 207);
+  }
+  max-width: 200px;
+`;
 
 const Container = styled.div`
   overflow: overlay;
@@ -86,7 +155,7 @@ const Sign = styled.div`
     font-weight: 700;
     color: #c1c1c1;
     font-style: normal;
-    font-size: 14px;
+    // font-size: 14px;
     letter-spacing: 1px;
   }
 `;
