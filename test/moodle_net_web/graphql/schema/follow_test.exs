@@ -13,6 +13,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       communities {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -38,6 +39,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert community_map["id"] == community.id
     assert community_map["localId"] == local_id(community)
+    assert community_map["followed"] == true
     assert community_map["followersCount"] == 1
 
     assert [user_map] = community_map["followers"]
@@ -81,6 +83,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       communities {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -98,6 +101,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert community_map["id"] == community.id
     assert community_map["localId"] == local_id(community)
+    assert community_map["followed"] == false
     assert community_map["followersCount"] == 0
 
     assert [] = community_map["followers"]
@@ -121,6 +125,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       communities {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -138,6 +143,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert community_map["id"] == community.id
     assert community_map["localId"] == local_id(community)
+    assert community_map["followed"] == true
     assert community_map["followersCount"] == 1
 
     actor_id = actor.id
@@ -155,6 +161,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       collection(localId: #{collection_id}) {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -180,6 +187,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert collection_map["id"] == collection.id
     assert collection_map["localId"] == local_id(collection)
+    assert collection_map["followed"] == true
     assert collection_map["followersCount"] == 1
 
     assert [user_map] = collection_map["followers"]
@@ -223,6 +231,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       collection(localId: #{collection_id}) {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -240,6 +249,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert collection_map["id"] == collection.id
     assert collection_map["localId"] == local_id(collection)
+    assert collection_map["followed"] == false
     assert collection_map["followersCount"] == 0
 
     assert [] = collection_map["followers"]
@@ -263,6 +273,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
       collection(localId: #{collection_id}) {
         id
         localId
+        followed
         followersCount
         followers {
           id
@@ -280,6 +291,7 @@ defmodule MoodleNetWeb.GraphQL.FollowTest do
 
     assert collection_map["id"] == collection.id
     assert collection_map["localId"] == local_id(collection)
+    assert collection_map["followed"] == true
     assert collection_map["followersCount"] == 1
 
     actor_id = actor.id

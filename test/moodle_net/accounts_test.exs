@@ -26,8 +26,6 @@ defmodule MoodleNet.AccountsTest do
     end
 
     test "works with moodle.com emails" do
-      icon_attrs = Factory.attributes(:image)
-
       attrs = Factory.attributes(:user, email: "any_email_or_whatever@moodle.com")
 
       assert {:ok, _} = Accounts.register_user(attrs)
