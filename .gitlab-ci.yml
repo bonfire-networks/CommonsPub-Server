@@ -8,10 +8,16 @@ cache:
 
 # Name the stages involved in the pipeline
 stages:
+- build
 - deploy
+  
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  AWS_DEFAULT_REGION: eu-west-1 # The region of our S3 bucket
+
 
 pages:
-  stage: deploy
+  stage: build
   script:
     - npm install # Install all dependencies
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
@@ -23,3 +29,27 @@ pages:
     - public # The built files for Gitlab Pages to serve
   only:
     - master # Only run on master branch
+    
+deploys3-staging:
+  only:
+    - develop
+  image: "python:latest"  # We use python because there is a well-working AWS Sdk
+  stage: deploy
+  before_script:
+    - pip install awscli # Install the SDK
+  script:
+    - find public/
+    - pwd
+    - aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
+
+deploys3-prod:
+  only:
+    - master
+  image: "python:latest"  # We use python because there is a well-working AWS Sdk
+  stage: deploy
+  before_script:
+    - pip install awscli # Install the SDK
+  script:
+    - find public/
+    - pwd
+    - aws s3 sync public/ s3://${PRODUCTION_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
