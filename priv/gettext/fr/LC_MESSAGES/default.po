@@ -8,15 +8,14 @@
 #  date. Leave `msgstr`s empty as changing them here as no
 #  effect: edit them in PO (`.po`) files instead.
 # Translators:
-# Iñigo Zendegi Urzelai <izendegi@mondragon.edu>, 2019
 # Mayel de Borniol <mayel@moodle.com>, 2019
 # 
 msgid ""
 msgstr ""
 "Last-Translator: Mayel de Borniol <mayel@moodle.com>, 2019\n"
-"Language-Team: Spanish (Spain) (https://www.transifex.com/moodlenet/teams/94082/es_ES/)\n"
-"Language: es_ES\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language-Team: French (https://www.transifex.com/moodlenet/teams/94082/fr/)\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: lib/moodle_net_web/page/templates/index.html.eex:2
 #, elixir-format
@@ -26,128 +25,129 @@ msgstr "pages.index.welcome"
 #: lib/moodle_net_web/email/templates/welcome.html.eex:9
 #, elixir-format
 msgid "Alternatively, copy and paste this link into your browser:"
-msgstr "Alternativamente, copia y pega este enlace en tu navegador:"
+msgstr "Vous pouvez également copier et coller ce lien dans votre navigateur:"
 
 #: lib/moodle_net/email.ex:16
 #, elixir-format
 msgid "Did you forget your MoodleNet password?"
-msgstr "¿Olvidaste tu contraseña de MoodleNet?"
+msgstr "Avez-vous oublié votre mot de passe MoodleNet?"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:1
 #: lib/moodle_net_web/email/templates/welcome.text.eex:1
 #, elixir-format
 msgid "Hi %{name}"
-msgstr "Hola %{name}"
+msgstr "Bonjour %{name}"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:3
 #: lib/moodle_net_web/email/templates/welcome.text.eex:3
 #, elixir-format
 msgid "To complete your sign up, please verify your email:"
-msgstr "Para completar tu registro, por favor verifica tu correo electrónico:"
+msgstr "Pour compléter votre inscription, veuillez vérifier votre email:"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:6
 #, elixir-format
 msgid "Verify email"
-msgstr "Verificar correo electrónico"
+msgstr "Vérifier mon email"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:12
 #: lib/moodle_net_web/email/templates/welcome.text.eex:9
 #, elixir-format
 msgid "We'd love your feedback on the sign-up process."
-msgstr "Nos encantaría tu opinión sobre el proceso de registro."
+msgstr ""
+"Nous aimerions recevoir vos commentaires sur le processus d’inscription."
 
 #: lib/moodle_net/email.ex:8
 #, elixir-format
 msgid "Welcome to MoodleNet"
-msgstr "Bienvenido a MoodleNet"
+msgstr "Bienvenue sur MoodleNet"
 
 #: lib/moodle_net/email.ex:23
 #, elixir-format
 msgid "Your MoodleNet password has been reset"
-msgstr "Tu contraseña de MoodleNet ha sido restablecida"
+msgstr "Votre mot de passe MoodleNet a été réinitialisé"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:15
 #, elixir-format
 msgid "to tell us anything we can do to improve it!"
-msgstr "¡para decirnos cualquier cosa que podamos hacer para mejorarlo!"
+msgstr "pour nous dire ce que nous pouvons faire pour l'améliorer!"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:106
 #, elixir-format
 msgid "Object"
-msgstr "Objeto"
+msgstr "Objet"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:115
 #, elixir-format
 msgid "Collection"
-msgstr "Colección"
+msgstr "Collection"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:121
 #, elixir-format
 msgid "Comment"
-msgstr "Comentario"
+msgstr "Commentaire"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:112
 #, elixir-format
 msgid "Community"
-msgstr "Comunidad"
+msgstr "Communauté"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:124
 #, elixir-format
 msgid "Context"
-msgstr "Contexto"
+msgstr "Contexte"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:118
 #, elixir-format
 msgid "Resource"
-msgstr "Recurso"
+msgstr "Ressource"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:109
 #, elixir-format
 msgid "User"
-msgstr "Usuario"
+msgstr "Utilisateur"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:127
 #, elixir-format
 msgid "Activity"
-msgstr "Actividad"
+msgstr "Activité"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:77
 #, elixir-format
 msgid "Invalid credentials"
-msgstr "Credenciales no válidas"
+msgstr "Vos informations d'identification ne sont pas valides"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:130
 #, elixir-format
 msgid "Token"
-msgstr "Ficha (token)"
+msgstr "Jeton"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:92
 #, elixir-format
 msgid "You are not authorized to perform this action"
-msgstr "No estás autorizado para realizar esta acción."
+msgstr "Vous n'êtes pas autorisé à effectuer cette action"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:57
 #: lib/moodle_net_web/graph_ql/errors.ex:64
 #, elixir-format
 msgid "not found"
-msgstr "no encontrado"
+msgstr "non trouvé(e)"
 
 #: lib/moodle_net_web/email/templates/welcome.html.eex:14
 #, elixir-format
 msgid "Please comment here"
-msgstr "Por favor comenta aquí"
+msgstr "Laissez un commentaire par ici"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:100
 #, elixir-format
 msgid "There was an unknown error"
-msgstr "Ha habido un error desconocido"
+msgstr "Il y a eu une erreur inconnue"
 
 #: lib/moodle_net_web/email/templates/welcome.text.eex:10
 #, elixir-format
 msgid "You can do so at:"
-msgstr "Puedes hacerlo en"
+msgstr "Vous pouvez le faire à:"
 
 #: lib/moodle_net_web/graph_ql/errors.ex:84
 #, elixir-format
 msgid "You need to log in first"
-msgstr "Debes iniciar sesión primero"
+msgstr "Vous devez d'abord vous identifier"
