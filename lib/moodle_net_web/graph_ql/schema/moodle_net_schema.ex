@@ -108,6 +108,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:published, :string)
     field(:updated, :string)
+
+    field(:followed, non_null(:boolean), do: resolve(with_bool_join(:follow)))
   end
 
   input_object :community_input do
@@ -158,6 +160,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
     field(:published, :string)
     field(:updated, :string)
+
+    field(:followed, non_null(:boolean), do: resolve(with_bool_join(:follow)))
   end
 
   input_object :collection_input do
@@ -843,6 +847,22 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  defp with_bool_join(:follow) do
+    fn parent, _, info ->
+      {:ok, current_actor} = current_actor(info)
+      collection_id = ActivityPub.SQL.Common.local_id(current_actor.following)
+      args = {__MODULE__, :preload_bool_join, {:follow, collection_id}}
+
+      batch(
+        args,
+        parent,
+        fn children_map ->
+          Map.fetch(children_map, Entity.local_id(parent))
+        end
+      )
+    end
+  end
+
   defp ensure_single(children, false), do: children
 
   defp ensure_single(children, true) do
@@ -901,6 +921,24 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
         |> Enum.flat_map(&child_map[&1])
 
       {Entity.local_id(parent), children}
+    end)
+  end
+
+  def preload_bool_join({:follow, collection_id}, parent_list) do
+    import Ecto.Query, only: [from: 2]
+    parent_ids = Enum.map(parent_list, &Entity.local_id/1)
+
+    ret =
+      from(f in "activity_pub_collection_items",
+        where: f.subject_id == ^collection_id,
+        where: f.target_id in ^parent_ids,
+        select: {f.target_id, true}
+      )
+      |> MoodleNet.Repo.all()
+      |> Map.new()
+
+    Enum.reduce(parent_ids, ret, fn id, ret ->
+      Map.put_new(ret, id, false)
     end)
   end
 

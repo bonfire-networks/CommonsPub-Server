@@ -52,7 +52,9 @@ defmodule ActivityPub.SQL.Query do
 
   def get_by_id(id, opts \\ []) when is_binary(id) do
     case UrlBuilder.get_local_id(id) do
-      {:ok, local_id} -> get_by_local_id(local_id, opts)
+      {:ok, local_id} ->
+        get_by_local_id(local_id, opts)
+
       :error ->
         new()
         |> where(id: id)
