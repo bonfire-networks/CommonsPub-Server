@@ -26,7 +26,7 @@ defmodule ActivityPub.AspectTest do
 
   # Errors
   test "field name clash" do
-    assert_raise ArgumentError, "Field/association :name is already set on this aspect", fn ->
+    assert_raise ArgumentError, "Field/association :name is already set on aspect", fn ->
       defmodule AspectFieldNameClash do
         use ActivityPub.Aspect, persistence: :any
 
@@ -59,7 +59,7 @@ defmodule ActivityPub.AspectTest do
       end
     end
 
-    regex = ~r/schema ActivityPub.AspectTest.FooSchema is not a valid type for field :name/
+    regex = ~r/Schema ActivityPub.AspectTest.FooSchema is not a valid type for field :name/
 
     assert_raise ArgumentError, regex, fn ->
       defmodule FooSchema do
