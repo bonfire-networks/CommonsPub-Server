@@ -17,9 +17,15 @@ interface EventProps {
     date: number;
   };
   thread?: boolean;
+  totalReplies?: string;
 }
 
-const Event: React.SFC<EventProps> = ({ author, thread, comment }) => {
+const Event: React.SFC<EventProps> = ({
+  author,
+  thread,
+  comment,
+  totalReplies
+}) => {
   return (
     <FeedItem thread={thread}>
       <Member>
@@ -42,9 +48,9 @@ const Event: React.SFC<EventProps> = ({ author, thread, comment }) => {
                     width={16}
                     height={16}
                     strokeWidth={2}
-                    color={'#f0f0f0'}
+                    color={'#1e1f2480'}
                   />
-                  Reply
+                  Reply ({totalReplies})
                 </Button>
               </NavLink>
             )}
@@ -58,15 +64,21 @@ const Event: React.SFC<EventProps> = ({ author, thread, comment }) => {
 export default Event;
 
 const Button = styled.div`
-  background: #000000a6;
   padding: 0px 10px;
-  border-radius: 3px;
-  color: #f0f0f0;
-  height: 30px;
-  line-height: 30px;
+  color: #1e1f2480;
+  height: 40px;
+  font-weight: 600;
+  line-height: 40px;
   cursor: pointer;
+  &:hover {
+    color: ${props => props.theme.styles.colour.primaryAlt};
+    & svg {
+      color: ${props => props.theme.styles.colour.primaryAlt};
+    }
+  }
   & svg {
-    margin-right: 4px;
+    margin-right: 8px;
+    vertical-align: sub;
   }
 `;
 
@@ -74,21 +86,29 @@ const FeedItem = styled.div<{ thread?: boolean }>`
   min-height: 30px;
   position: relative;
   margin: 0;
-  padding: 8px;
+  padding: 32px;
+  padding-bottom: 0px;
   word-wrap: break-word;
   font-size: 14px;
   ${clearFix()};
   transition: background 0.5s ease;
-  background: #eff0f0;
-  border: 1px solid #e4e6e6;
-  border-radius: ${props =>
-    props.thread ? '3px 3px 0px 0px' : '0px 0px 3px 3px'};
+  background: #fff;
+  border: ${props =>
+    props.thread ? '1px solid #0027ff' : '1px solid #e4e6e6'};
+  margin-top: ${props => (props.thread ? '0' : '-1px')};
+  z-index: 10;
+  position: ${props => (props.thread ? 'relative' : 'static')};
 `;
 
 const Primary = styled.div`
-  font-size: 16px;
+  font-size: 15px;
   line-height: 24px;
   position: relative;
+  letter-spacing: 0.5px;
+  color: aqua;
+  text-rendering: optimizeLegibility;
+  -moz-font-feature-settings: 'liga' on;
+  color: rgba(0, 0, 0, 0.84);
 `;
 
 const Member = styled.div`
@@ -109,6 +129,9 @@ const MemberInfo = styled.div`
 
 const Sub = styled.div`
   ${clearFix()};
+  border-top: 1px solid #e4e6e6;
+  margin: 16px -32px 0;
+  padding: 0 32px;
 `;
 
 const MemberItem = styled.span`
@@ -162,9 +185,6 @@ const Actions = styled.div`
   ${clearFix()};
   float: left;
   vertical-align: middle;
-  margin-left: 0px;
-  margin-top: 16px;
-
   & a {
     text-decoration: none;
   }

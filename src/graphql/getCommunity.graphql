@@ -15,12 +15,7 @@ query getCommunityQuery($context: Int!) {
             icon
             summary
         }
-        comments {
-          localId
-          id
-          content
-          published
-        }
+        
         collections {
             id
             localId

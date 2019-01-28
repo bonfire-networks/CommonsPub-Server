@@ -1,0 +1,3 @@
+mutation joinCommunityMutation ($communityId: String!) {
+  joinCommunity(communityLocalId: $communityId)
+}

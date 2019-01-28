@@ -1,7 +1,7 @@
 import { graphql, OperationOption } from 'react-apollo';
 import { compose, withState } from 'recompose';
 import Component from './Talk';
-import gql from 'graphql-tag';
+const { getCommentsQuery } = require('../../../graphql/getThreads.graphql');
 import { withFormik } from 'formik';
 const {
   createThreadMutation
@@ -20,6 +20,7 @@ interface MyFormProps {
   onToggle(): boolean;
   toggle: boolean;
   setSubmitting(boolean): boolean;
+  setFieldValue: any;
 }
 
 const withCreateThread = graphql<{}>(createThreadMutation, {
@@ -34,7 +35,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
   validationSchema: Yup.object().shape({
     content: Yup.string().required()
   }),
-  handleSubmit: (values, { props, setSubmitting }) => {
+  handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
     console.log(values);
     const variables = {
       comment: {
@@ -46,31 +47,26 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       .createThread({
         variables: variables,
         update: (proxy, { data: { createThread } }) => {
-          const fragment = gql`
-            fragment Comm on Community {
-              id
-              comments {
-                id
-              }
+          const data = proxy.readQuery({
+            query: getCommentsQuery,
+            variables: {
+              id: props.id
             }
-          `;
-          const community = proxy.readFragment({
-            id: `Community:${props.externalId}`,
-            fragment: fragment,
-            fragmentName: 'Comm'
           });
-          console.log(community);
-          community.comments.unshift(createThread);
-          proxy.writeFragment({
-            id: `Community:${props.externalId}`,
-            fragment: fragment,
-            fragmentName: 'Comm',
-            data: community
+          console.log(data.threads);
+          data.threads.unshift(createThread);
+          proxy.writeQuery({
+            query: getCommentsQuery,
+            variables: {
+              id: props.id
+            },
+            data: data.threads
           });
         }
       })
       .then(res => {
         setSubmitting(false);
+        setFieldValue('content', '');
       })
       .catch(err => console.log(err));
   }

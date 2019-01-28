@@ -16,7 +16,7 @@ interface MyFormProps {
   createThread: any;
   externalId: string;
   id: string;
-  onToggle(): boolean;
+  onToggle(boolean): boolean;
   toggle: boolean;
   setSubmitting(boolean): boolean;
 }
@@ -33,7 +33,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
   validationSchema: Yup.object().shape({
     content: Yup.string().required()
   }),
-  handleSubmit: (values, { props, setSubmitting }) => {
+  handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
     console.log(values);
     const variables = {
       comment: {
@@ -74,6 +74,8 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       })
       .then(res => {
         setSubmitting(false);
+        setFieldValue('content', ' ');
+        props.onToggle(false);
       })
       .catch(err => console.log(err));
   }

@@ -5,9 +5,11 @@ input CommentInput {
 mutation createThreadMutation($id: String!, $comment: CommentInput!) {
   createThread(contextLocalId: $id, comment: $comment) {
     id
-    # author {
-    #   name
-    # }
+     author {
+       name
+       icon
+     }
+    localId
     content
   }
 }

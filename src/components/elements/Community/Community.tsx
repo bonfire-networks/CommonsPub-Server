@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
-// import P from '../../typography/P/P';
+import Join from './Join';
 import { Link } from 'react-router-dom';
 
 interface Props {
@@ -18,10 +18,13 @@ const Community: React.SFC<Props> = ({
   collectionsLength
 }) => (
   <Wrapper>
+    <WrapperImage>
+      <Img style={{ backgroundImage: `url(${icon})` }} />
+      <Overlay>
+        <Join id={id} />
+      </Overlay>
+    </WrapperImage>
     <Link to={`communities/${id}`}>
-      <WrapperImage>
-        <Img style={{ backgroundImage: `url(${icon})` }} />
-      </WrapperImage>
       <H5>{title}</H5>
     </Link>
     {/* <Infos>
@@ -33,6 +36,18 @@ const Community: React.SFC<Props> = ({
 
 export default Community;
 
+const Overlay = styled.span`
+  position: absolute;
+  background: rgba(0, 0, 0, 0.5);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  grid-template-columns: 1fr;
+  grid-column-gap: 8px;
+  display: none;
+`;
+
 const Wrapper = styled.div`
   & h5 {
     margin: 0;
@@ -43,7 +58,14 @@ const Wrapper = styled.div`
     color: inherit;
   }
 `;
-const WrapperImage = styled.div``;
+const WrapperImage = styled.div`
+  position: relative;
+  &:hover {
+    & span {
+      display: grid;
+    }
+  }
+`;
 const Img = styled.div`
   height: 200px;
   background-size: cover;

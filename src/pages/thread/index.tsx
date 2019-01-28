@@ -43,16 +43,13 @@ const Component = ({ data, match }) => {
   } else if (data.loading) {
     return <Loader />;
   }
-  // let author = {
-  //     id: data.comment.author.id,
-  //     name: data.comment.author.name,
-  //     image: 'https://picsum.photos/200/300'
-  // };
+  console.log(data);
   let author = {
-    id: 'comment.author.id',
-    name: 'Chet Faker',
+    id: data.comment.author.id,
+    name: data.comment.author.name,
     image: 'https://picsum.photos/200/300'
   };
+
   let message = {
     body: data.comment.content,
     date: data.comment.published,
@@ -63,28 +60,30 @@ const Component = ({ data, match }) => {
       <Grid>
         <Wrapper>
           {data.comment.inReplyTo ? (
-            <NavLink to={`/thread/${data.comment.inReplyTo.id}`}>
+            <NavLink to={`/thread/${data.comment.inReplyTo.localId}`}>
               <InReplyTo>View full thread</InReplyTo>
             </NavLink>
           ) : null}
           <Comment thread author={author} comment={message} />
           {data.comment.replies.map((comment, i) => {
             let author = {
-              id: 'comment.author.id',
-              name: 'Chet Faker',
+              id: comment.author.id,
+              name: comment.author.name,
               image: 'https://picsum.photos/200/300'
             };
-            // let author = {
-            //     id: comment.author.id,
-            //     name: comment.author.name,
-            //     image: 'https://picsum.photos/200/300'
-            // };
             let message = {
               body: comment.content,
               date: comment.published,
               id: comment.localId
             };
-            return <Comment key={i} author={author} comment={message} />;
+            return (
+              <Comment
+                key={i}
+                author={author}
+                totalReplies={comment.replies.length}
+                comment={message}
+              />
+            );
           })}
         </Wrapper>
         <Talk id={match.params.id} externalId={data.comment.id} />
@@ -98,15 +97,20 @@ const InReplyTo = styled.div`
   padding: 10px;
   text-align: center;
   background: #daecd6;
-  border-top: 1px solid #bbc9d2;
-  border-bottom: 1px solid #bbc9d2;
+  border: 1px solid #bbc9d2;
   color: #759053;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
 `;
 
 const Wrapper = styled.div`
   width: 720px;
   margin: 0 auto;
   margin-bottom: 8px;
+  & a {
+    text-decoration: none;
+  }
 `;
 
 export default compose(withGetThread)(Component);

@@ -17,8 +17,7 @@ import P from '../../components/typography/P/P';
 import H2 from '../../components/typography/H2/H2';
 // import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
-import Comment from '../../components/elements/Comment/Comment';
-import Talk from '../../components/elements/Talk/Thread';
+import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 
@@ -57,21 +56,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
-    let comments;
     if (this.props.data.error) {
       collections = (
         <span>
           <Trans>Error loading collections</Trans>
         </span>
       );
-      comments = (
-        <span>
-          <Trans>Error loading comments</Trans>
-        </span>
-      );
     } else if (this.props.data.loading) {
       collections = <Loader />;
-      comments = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
 
@@ -104,32 +96,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             </Button>
           </OverviewCollection>
         );
-      }
-      if (this.props.data.community.comments.length) {
-        comments = this.props.data.community.comments.map((comment, i) => {
-          let author = {
-            id: '1',
-            name: 'Chet Faker',
-            image: 'https://picsum.photos/200/300'
-          };
-          // let author = {
-          //   id: comment.author.id,
-          //   name: comment.author.name,
-          //   image: 'https://picsum.photos/200/300'
-          // };
-          let message = {
-            body: comment.content,
-            date: comment.published,
-            id: comment.localId
-          };
-          return (
-            <div key={i} style={{ marginBottom: '8px' }}>
-              <Comment key={comment.id} author={author} comment={message} />
-            </div>
-          );
-        });
-      } else {
-        comments = <OverviewCollection />;
       }
     }
 
@@ -191,16 +157,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         <div style={{ display: 'flex' }}>{collections}</div>
                       </TabPanel>
                       <TabPanel
-                        label={`${TabsEnum.Discussion} (${
-                          community.comments.length
-                        })`}
+                        label={`${TabsEnum.Discussion}`}
                         key={TabsEnum.Discussion}
                       >
-                        <Talk
-                          id={community.localId}
-                          externalId={community.id}
+                        <Discussion
+                          localId={community.localId}
+                          id={community.id}
                         />
-                        <WrapperComments>{comments}</WrapperComments>
                       </TabPanel>
                     </Tabs>
                   </OverlayTab>
@@ -245,10 +208,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 //   margin-top: 8px;
 //   text-align: center;
 // `;
-
-const WrapperComments = styled.div`
-  margin: 8px;
-`;
 
 const WrapperTab = styled.div`
   padding: 5px;
