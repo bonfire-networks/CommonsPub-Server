@@ -1,0 +1,18 @@
+query getCommentsQuery($id: Int!) {
+    threads(contextLocalId: $id)  {
+        localId
+        content
+        id
+        published
+        author {
+            name
+            icon
+        }
+        replies {
+          localId
+            content
+            id
+            published
+        }
+    }
+}

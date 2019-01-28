@@ -9,6 +9,9 @@ mutation createReplyMutation($id: String!, $comment: CommentInput!) {
     content
     published
     author {
+      icon
+      localId
+      id
       name
     }
     content

@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
-// import P from '../../typography/P/P';
+import Join from './Join';
 import { Link } from 'react-router-dom';
-import { Preferites } from '../Icons';
 
 interface Props {
   title: string;
@@ -19,20 +18,13 @@ const Community: React.SFC<Props> = ({
   collectionsLength
 }) => (
   <Wrapper>
+    <WrapperImage>
+      <Img style={{ backgroundImage: `url(${icon})` }} />
+      <Overlay>
+        <Join id={id} />
+      </Overlay>
+    </WrapperImage>
     <Link to={`communities/${id}`}>
-      <WrapperImage>
-        <Img style={{ backgroundImage: `url(${icon})` }} />
-        <Overlay>
-          <Span>
-            <Preferites
-              width={32}
-              height={32}
-              strokeWidth={1}
-              color={'#f0f0f0'}
-            />
-          </Span>
-        </Overlay>
-      </WrapperImage>
       <H5>{title}</H5>
     </Link>
     {/* <Infos>
@@ -54,23 +46,6 @@ const Overlay = styled.span`
   grid-template-columns: 1fr;
   grid-column-gap: 8px;
   display: none;
-`;
-const Span = styled.div`
-  text-align: center;
-  border-radius: 100px;
-  width: 50px;
-  height: 50px;
-  text-align: center;
-  cursor: pointer;
-  margin: 0 auto;
-  margin-top: 80px;
-  & svg {
-    margin-top: 8px;
-    text-align: center;
-  }
-  &:hover  {
-    background: rgba(0, 0, 0, 0.7);
-  }
 `;
 
 const Wrapper = styled.div`
