@@ -62,8 +62,11 @@ const Home: React.SFC<Props> = props => (
       <UL>
         <ol>
           <Trans>
-            Your involvement in the testing process is subject to the Code of
-            Conduct.
+            Your involvement in the testing process is subject to the{' '}
+            <a href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct">
+              Code of Conduct
+            </a>
+            .
           </Trans>
         </ol>
         <ol>
@@ -77,7 +80,7 @@ const Home: React.SFC<Props> = props => (
             You cannot completely delete anything in MoodleNet at the moment, as
             we have not rolled out the moderation tools. Instead, just change
             all of the fields within the resource to something else!
-          </Trans>{' '}
+          </Trans>
         </ol>
         <ol>
           <Trans>
@@ -88,10 +91,11 @@ const Home: React.SFC<Props> = props => (
         </ol>
         <ol>
           <Trans>
-            We’re using Changemap to collect your feedback during this testing
-            period, so please do use that to suggest everything from small
-            tweaks to major changes! You can access this using the ‘Share
-            feedback’ link in the sidebar:
+            We’re using{' '}
+            <a href="https://changemap.co/moodle/moodlenet">Changemap</a> to
+            collect your feedback during this testing period, so please do use
+            that to suggest everything from small tweaks to major changes! You
+            can access this using the ‘Share feedback’ link in the sidebar:
           </Trans>
           <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
             🔬 <Trans>Share Feedback</Trans>
