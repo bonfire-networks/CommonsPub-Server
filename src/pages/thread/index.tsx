@@ -12,6 +12,8 @@ import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
 import { NavLink } from 'react-router-dom';
 
+import { Trans } from '@lingui/macro';
+
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
 }
@@ -61,7 +63,9 @@ const Component = ({ data, match }) => {
         <Wrapper>
           {data.comment.inReplyTo ? (
             <NavLink to={`/thread/${data.comment.inReplyTo.localId}`}>
-              <InReplyTo>View full thread</InReplyTo>
+              <InReplyTo>
+                <Trans>View full thread</Trans>
+              </InReplyTo>
             </NavLink>
           ) : null}
           <Comment thread author={author} comment={message} />

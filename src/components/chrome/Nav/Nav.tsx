@@ -44,11 +44,15 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/'}
           >
-            <Item>Home</Item>
+            <Item>
+              <Trans>Home</Trans>
+            </Item>
           </NavLink>
         </NavList>
         <NavList>
-          <Title>Communities</Title>
+          <Title>
+            <Trans>Communities</Trans>
+          </Title>
           {/* <NavLink
             isActive={(match, location) => {
               return (
