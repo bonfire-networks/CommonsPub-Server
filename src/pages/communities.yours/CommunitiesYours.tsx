@@ -26,7 +26,7 @@ interface Props {
 class CommunitiesYours extends React.Component<Props> {
   render() {
     let body;
-
+    console.log(this.props.data);
     if (this.props.data.error) {
       body = (
         <span>
