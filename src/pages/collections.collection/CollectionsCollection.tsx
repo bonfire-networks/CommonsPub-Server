@@ -62,28 +62,6 @@ class CollectionComponent extends React.Component<Props> {
       collection = this.props.data.collection;
       resources = this.props.data.collection.resources;
     }
-    console.log(collection);
-    // if (collection.comments.length) {
-    //   discussions = collection.comments.map(comment => {
-    //     let author = {
-    //       id: comment.author.id,
-    //       name: comment.author.name,
-    //       avatarImage: 'https://picsum.photos/200/300'
-    //     };
-    //     let message = {
-    //       body: comment.content,
-    //       timestamp: comment.published
-    //     };
-    //     return <Comment key={comment.id} author={author} comment={message} />;
-    //   });
-    // } else {
-    //   discussions = (
-    //     <OverviewCollection>
-    //       <P>This community has no discussions yet.</P>
-    //       <Button>Start a new thread</Button>
-    //     </OverviewCollection>
-    //   );
-    // }
     if (!collection) {
       // TODO better handling of no collection
       return (
@@ -97,14 +75,14 @@ class CollectionComponent extends React.Component<Props> {
       <>
         <Main>
           <Grid>
-            <Breadcrumb
-              community={{
-                id: collection.communities[0].localId,
-                name: collection.communities[0].name
-              }}
-              collectionName={collection.name}
-            />
-            <Row>
+            <WrapperCont>
+              <Breadcrumb
+                community={{
+                  id: collection.communities[0].localId,
+                  name: collection.communities[0].name
+                }}
+                collectionName={collection.name}
+              />
               <Hero>
                 <Background
                   style={{ backgroundImage: `url(${collection.icon})` }}
@@ -114,91 +92,93 @@ class CollectionComponent extends React.Component<Props> {
                   <P>{collection.summary}</P>
                 </HeroInfo>
               </Hero>
-            </Row>
-            <Row>
-              <Col size={12}>
-                <WrapperTab>
-                  <OverlayTab>
-                    <Tabs
-                      selectedKey={this.state.tab}
-                      onChange={tab => this.setState({ tab })}
-                      button={
-                        <Button onClick={this.props.editCollection} secondary>
-                          <Trans>Edit</Trans>
-                        </Button>
-                      }
-                    >
-                      {/* <TabPanel
+              <Row>
+                <Col size={12}>
+                  <WrapperTab>
+                    <OverlayTab>
+                      <Tabs
+                        selectedKey={this.state.tab}
+                        onChange={tab => this.setState({ tab })}
+                        button={
+                          <Button onClick={this.props.editCollection} secondary>
+                            <Trans>Edit</Trans>
+                          </Button>
+                        }
+                      >
+                        {/* <TabPanel
                         label={`${TabsEnum.Members} (${
                           collection.followersCount
                         })`}
                         key={TabsEnum.Members}
-                      >
+                        >
                         <Members>
-                          {collection.followers.map((user, i) => (
-                            <Follower key={i}>
-                              <Img
-                                style={{ backgroundImage: `url(${user.icon})` }}
-                              />
-                              <FollowerName>{user.name}</FollowerName>
-                            </Follower>
+                        {collection.followers.map((user, i) => (
+                          <Follower key={i}>
+                          <Img
+                          style={{ backgroundImage: `url(${user.icon})` }}
+                          />
+                          <FollowerName>{user.name}</FollowerName>
+                          </Follower>
                           ))}
-                        </Members>
-                      </TabPanel> */}
-                      <TabPanel
-                        label={`${TabsEnum.Resources} (${
-                          collection.resources.length
-                        }/10)`}
-                        key={TabsEnum.Resources}
-                      >
-                        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                          {resources.length ? (
-                            <Wrapper>
-                              <CollectionList>
-                                {resources.map((resource, i) => (
-                                  <ResourceCard
-                                    key={i}
-                                    icon={resource.icon}
-                                    title={resource.name}
-                                    summary={resource.summary}
-                                    url={resource.url}
-                                    localId={resource.localId}
-                                  />
-                                ))}
-                              </CollectionList>
-                              {resources.length > 9 ? null : (
-                                <WrapperActions>
-                                  <Button onClick={this.props.addNewResource}>
-                                    <Trans>Add a new resource</Trans>
-                                  </Button>
-                                </WrapperActions>
-                              )}
-                            </Wrapper>
-                          ) : (
-                            <OverviewCollection>
-                              <P>
-                                <Trans>This collection has no resources.</Trans>
-                              </P>
-                              <Button onClick={this.props.addNewResource}>
-                                <Trans>Add the first resource</Trans>
-                              </Button>
-                            </OverviewCollection>
-                          )}
-                        </div>
-                      </TabPanel>
-                      {/* <TabPanel
+                          </Members>
+                        </TabPanel> */}
+                        <TabPanel
+                          label={`${TabsEnum.Resources} (${
+                            collection.resources.length
+                          }/10)`}
+                          key={TabsEnum.Resources}
+                        >
+                          <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            {resources.length ? (
+                              <Wrapper>
+                                <CollectionList>
+                                  {resources.map((resource, i) => (
+                                    <ResourceCard
+                                      key={i}
+                                      icon={resource.icon}
+                                      title={resource.name}
+                                      summary={resource.summary}
+                                      url={resource.url}
+                                      localId={resource.localId}
+                                    />
+                                  ))}
+                                </CollectionList>
+                                {resources.length > 9 ? null : (
+                                  <WrapperActions>
+                                    <Button onClick={this.props.addNewResource}>
+                                      <Trans>Add a new resource</Trans>
+                                    </Button>
+                                  </WrapperActions>
+                                )}
+                              </Wrapper>
+                            ) : (
+                              <OverviewCollection>
+                                <P>
+                                  <Trans>
+                                    This collection has no resources.
+                                  </Trans>
+                                </P>
+                                <Button onClick={this.props.addNewResource}>
+                                  <Trans>Add the first resource</Trans>
+                                </Button>
+                              </OverviewCollection>
+                            )}
+                          </div>
+                        </TabPanel>
+                        {/* <TabPanel
                         label={`${TabsEnum.Discussion} (${
                           collection.comments.length
                         })`}
                         key={TabsEnum.Discussion}
-                      >
+                        >
                         {discussions}
                       </TabPanel> */}
-                    </Tabs>
-                  </OverlayTab>
-                </WrapperTab>
-              </Col>
-            </Row>
+                      </Tabs>
+                    </OverlayTab>
+                  </WrapperTab>
+                </Col>
+              </Row>
+            </WrapperCont>
           </Grid>
           <CollectionModal
             toggleModal={this.props.addNewResource}
@@ -218,7 +198,12 @@ class CollectionComponent extends React.Component<Props> {
     );
   }
 }
-
+const WrapperCont = styled.div`
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  background: white;
+`;
 // const Members = styled.div`
 //   display: grid;
 //   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -238,13 +223,7 @@ class CollectionComponent extends React.Component<Props> {
 //   text-align: center;
 // `;
 
-const WrapperTab = styled.div`
-  padding: 5px;
-  border-radius: 0.25em;
-  background-color: rgb(232, 232, 232);
-  margin: 0 -10px;
-  margin-bottom: 16px;
-`;
+const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
   background: #fff;
 `;
@@ -253,6 +232,8 @@ const HeroInfo = styled.div`
   margin-left: 16px;
   & h2 {
     margin: 0;
+    line-height: 32px !important;
+    font-size: 24px !important;
   }
   & p {
     color: rgba(0, 0, 0, 0.5);
@@ -285,13 +266,12 @@ const Hero = styled.div`
   display: flex;
   width: 100%;
   position: relative;
-  margin-top: 16px;
-  margin-bottom: 16px;
+  padding: 16px;
 `;
 
 const Background = styled.div`
-  height: 200px;
-  width: 200px;
+  height: 120px;
+  width: 120px;
   border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;

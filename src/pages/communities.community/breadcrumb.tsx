@@ -3,7 +3,6 @@ import { SFC } from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import { Row } from '@zendeskgarden/react-grid';
 import Link from '../../components/elements/Link/Link';
 import styled from '../../themes/styled';
 
@@ -13,13 +12,11 @@ interface Props {
 
 const Breadcrumb: SFC<Props> = ({ name }) => (
   <Main>
-    <Row>
-      <Link to="/communities">
-        <Trans>Communities</Trans>
-      </Link>
-      {' > '}
-      <span>{name}</span>
-    </Row>
+    <Link to="/communities">
+      <Trans>Communities</Trans>
+    </Link>
+    {' > '}
+    <span>{name}</span>
   </Main>
 );
 
@@ -30,7 +27,8 @@ const Main = styled.div`
   text-transform: uppercase;
   height: 30px;
   line-height: 30px;
-
+  background: #f6f9f8;
+  padding: 0 8px;
   & a {
     font-size: 12px;
     font-weight: 700;
