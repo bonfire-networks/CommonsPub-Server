@@ -20,7 +20,7 @@ import Button from '../../components/elements/Button/Button';
 import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
-import { Star } from '../../components/elements/Icons';
+import Join from '../../components/elements/Community/Join';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -66,7 +66,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       collections = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
-
       if (this.props.data.community.collections.length) {
         collections = (
           <Wrapper>
@@ -79,12 +78,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 />
               ))}
             </CollectionList>
-
-            <WrapperActions>
-              <Button onClick={this.props.handleNewCollection}>
-                <Trans>Create a new collection</Trans>
-              </Button>
-            </WrapperActions>
+            {community.followed ? (
+              <WrapperActions>
+                <Button onClick={this.props.handleNewCollection}>
+                  <Trans>Create a new collection</Trans>
+                </Button>
+              </WrapperActions>
+            ) : (
+              <Trans>Join the community to create a collection</Trans>
+            )}
           </Wrapper>
         );
       } else {
@@ -93,9 +95,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             <P>
               <Trans>This community has no collections.</Trans>
             </P>
-            <Button onClick={this.props.handleNewCollection}>
-              <Trans>Create the first collection</Trans>
-            </Button>
+            {community.followed ? (
+              <Button onClick={this.props.handleNewCollection}>
+                <Trans>Create the first collection</Trans>
+              </Button>
+            ) : (
+              <Trans>Join the community to create a collection</Trans>
+            )}
           </OverviewCollection>
         );
       }
@@ -118,17 +124,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                   <HeroInfo>
                     <H2>{community.name}</H2>
                     <P>{community.summary}</P>
-                    <Button>
-                      <span>
-                        <Star
-                          width={18}
-                          height={18}
-                          color="#fff"
-                          strokeWidth={1}
-                        />
-                      </span>{' '}
-                      Following
-                    </Button>
+                    <Join
+                      id={community.localId}
+                      followed={community.followed}
+                    />
                   </HeroInfo>
                 </Hero>
               </Row>
@@ -140,9 +139,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
                         button={
-                          <Button onClick={this.props.editCommunity} secondary>
-                            <Trans>Edit</Trans>
-                          </Button>
+                          community.localId === 7 ||
+                          community.localId === 15 ? null : (
+                            <Button
+                              onClick={this.props.editCommunity}
+                              secondary
+                            >
+                              <Trans>Edit</Trans>
+                            </Button>
+                          )
                         }
                       >
                         {/* <TabPanel
@@ -163,9 +168,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         </Members>
                       </TabPanel> */}
                         <TabPanel
-                          label={`${TabsEnum.Collections} (${
-                            community.collections.length
-                          } / 10)`}
+                          label={`${TabsEnum.Collections}`}
                           key={TabsEnum.Collections}
                         >
                           <div style={{ display: 'flex', marginTop: '-20px' }}>
@@ -176,10 +179,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           label={`${TabsEnum.Discussion}`}
                           key={TabsEnum.Discussion}
                         >
-                          <Discussion
-                            localId={community.localId}
-                            id={community.id}
-                          />
+                          {community.followed ? (
+                            <Discussion
+                              localId={community.localId}
+                              id={community.id}
+                            />
+                          ) : (
+                            <Trans>Join the community to discuss</Trans>
+                          )}
                         </TabPanel>
                       </Tabs>
                     </OverlayTab>

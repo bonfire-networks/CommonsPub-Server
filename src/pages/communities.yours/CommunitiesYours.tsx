@@ -4,26 +4,19 @@ import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import { Trans } from '@lingui/macro';
 
-import { Col, Grid, Row } from '@zendeskgarden/react-grid';
-import H1 from '../../components/typography/H1/H1';
-import P from '../../components/typography/P/P';
-import styled from 'styled-components';
-import Logo from '../../components/brand/Logo/Logo';
+import H4 from '../../components/typography/H4/H4';
+import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
-import { CommunityCard } from '../../components/elements/Card/Card';
+import CommunityCard from '../../components/elements/Community/Community';
 
-const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
-
-const PageTitle = styled(H1)`
-  font-size: 30px !important;
-  margin-block-start: 0;
-  margin-block-end: 0;
-`;
+const {
+  getJoinedCommunitiesQuery
+} = require('../../graphql/getJoinedCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
-  communities: Community[];
+  followingCommunities: Community[];
 }
 
 interface Props {
@@ -43,51 +36,65 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      body = this.props.data.communities.map(community => {
+      body = this.props.data.followingCommunities.map((community, i) => {
         return (
           <CommunityCard
-            key={community.id}
-            onButtonClick={() => alert('card btn clicked')}
-            entity={community}
+            key={i}
+            summary={community.summary}
+            title={community.name}
+            icon={community.icon || ''}
+            followed={community.followed}
+            id={community.localId}
+            followersCount={community.followersCount}
           />
         );
       });
     }
-
     return (
       <Main>
-        <Grid>
-          <Row>
-            <Col sm={6}>
-              <Logo />
-              <PageTitle>
-                <Trans>Your Communities</Trans>
-              </PageTitle>
-            </Col>
-          </Row>
-          <Row>
-            <Col size={6}>
-              <P>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Vestibulum ornare pretium tellus ut laoreet. Donec nec pulvinar
-                diam. Fusce sed est sed sem condimentum porttitor eget non
-                turpis. Sed dictum pulvinar dui, iaculis ultrices orci
-                scelerisque non. Integer a dignissim arcu. Nunc eu mi orci.
-                Fusce ante sapien, elementum in gravida ut, porta ut erat.
-                Suspendisse potenti.
-              </P>
-            </Col>
-          </Row>
-          <Row>
-            <Col size={10} style={{ display: 'flex', flexWrap: 'wrap' }}>
-              {body}
-            </Col>
-          </Row>
-        </Grid>
+        <WrapperCont>
+          <Wrapper>
+            <H4>
+              <Trans>Joined Communities</Trans>
+            </H4>
+            <List>{body}</List>
+          </Wrapper>
+        </WrapperCont>
       </Main>
     );
   }
 }
+
+const WrapperCont = styled.div`
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  background: white;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom: 24px;
+  & h4 {
+    padding-left: 8px;
+    font-size: 16px !important;
+    margin: 0;
+    border-bottom: 1px solid #dadada;
+    margin-bottom: 20px !important;
+    line-height: 32px !important;
+  }
+`;
+const List = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+  padding: 16px;
+  padding-top: 0;
+  background: white;
+`;
 
 const withGetCommunities = graphql<
   {},
@@ -96,6 +103,6 @@ const withGetCommunities = graphql<
       communities: Community[];
     };
   }
->(getCommunitiesQuery) as OperationOption<{}, {}>;
+>(getJoinedCommunitiesQuery) as OperationOption<{}, {}>;
 
 export default compose(withGetCommunities)(CommunitiesYours);

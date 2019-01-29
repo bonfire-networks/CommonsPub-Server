@@ -88,7 +88,7 @@ export default () => (
                     component={CommunitiesFeatured}
                   />
                   <Route
-                    path="/communities/yours"
+                    path="/communities/joined"
                     component={CommunitiesYours}
                   />
                   <Route

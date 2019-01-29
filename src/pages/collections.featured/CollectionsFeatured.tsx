@@ -47,16 +47,25 @@ class CommunitiesYours extends React.Component<Props> {
     console.log(body);
     return (
       <Main>
-        <Wrapper>
-          <H4>
-            <Trans>All Collections</Trans>
-          </H4>
-          <List>{body}</List>
-        </Wrapper>
+        <WrapperCont>
+          <Wrapper>
+            <H4>
+              <Trans>All Collections</Trans>
+            </H4>
+            <List>{body}</List>
+          </Wrapper>
+        </WrapperCont>
       </Main>
     );
   }
 }
+
+const WrapperCont = styled.div`
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  background: white;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -64,11 +73,12 @@ const Wrapper = styled.div`
   flex: 1;
   margin-bottom: 24px;
   & h4 {
-    font-size: 18px !important;
+    font-size: 16px !important;
     margin: 0;
+    padding-left: 8px;
     border-bottom: 1px solid #dadada;
-    margin-bottom: 20px !important;
     line-height: 32px !important;
+    margin-block-end: 0;
   }
 `;
 const List = styled.div`

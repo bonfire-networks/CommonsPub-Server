@@ -61,6 +61,11 @@ const Component = ({ data, match }) => {
     <Main>
       <Grid>
         <Wrapper>
+          <Context>
+            <NavLink to={`/communities/${data.comment.context.localId}`}>
+              #{data.comment.context.name}
+            </NavLink>
+          </Context>
           {data.comment.inReplyTo ? (
             <NavLink to={`/thread/${data.comment.inReplyTo.localId}`}>
               <InReplyTo>
@@ -95,6 +100,19 @@ const Component = ({ data, match }) => {
     </Main>
   );
 };
+
+const Context = styled.div`
+  font-size: 24px;
+  color: ${props => props.theme.styles.colour.base1};
+  font-weight: 700;
+  margin-bottom: 16px;
+  & a {
+    color: inherit;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
 
 const InReplyTo = styled.div`
   display: block;

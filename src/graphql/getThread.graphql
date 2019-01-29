@@ -1,5 +1,19 @@
 query getThread($id: Int!) {
   comment(localId: $id) {
+     context {
+        __typename
+        ... on Community {
+          id
+          name
+          localId
+        }
+        ... on Collection {
+          id
+          name
+          localId
+        }
+      }
+
      inReplyTo {
         localId
       }

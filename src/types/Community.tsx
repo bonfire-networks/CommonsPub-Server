@@ -15,4 +15,5 @@ export default interface Community {
   summary: string;
   collections: Collection[];
   comments: Comment[];
+  followed: boolean;
 }

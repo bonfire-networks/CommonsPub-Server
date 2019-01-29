@@ -83,7 +83,24 @@ class Nav extends React.Component<NavProps, {}> {
             to={'/communities'}
           >
             <Item>
-              <Trans>All Communities</Trans>
+              <Trans>All</Trans>
+            </Item>
+          </NavLink>
+          <NavLink
+            isActive={(match, location) => {
+              return (
+                location.pathname === `/communities/joined` ||
+                location.pathname === `/communities/joined/`
+              );
+            }}
+            activeStyle={{
+              position: 'relative',
+              color: '#f98012'
+            }}
+            to={'/communities/joined'}
+          >
+            <Item>
+              <Trans>Joined</Trans>
             </Item>
           </NavLink>
           <NavLink
@@ -165,7 +182,7 @@ class Nav extends React.Component<NavProps, {}> {
             to={'/collections'}
           >
             <Item>
-              <Trans>All Collections</Trans>
+              <Trans>All</Trans>
             </Item>
           </NavLink>
         </NavList>

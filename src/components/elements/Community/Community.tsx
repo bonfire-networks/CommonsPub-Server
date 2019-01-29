@@ -1,36 +1,49 @@
 import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
+import P from '../../typography/P/P';
+import { Users } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
+import { Trans } from '@lingui/macro';
 
 interface Props {
   title: string;
   icon?: string;
+  summary: string;
   id: string;
-  collectionsLength: number;
+  followersCount: number;
+  followed: boolean;
 }
 
 const Community: React.SFC<Props> = ({
   title,
   id,
   icon,
-  collectionsLength
+  summary,
+  followed,
+  followersCount
 }) => (
   <Wrapper>
-    <WrapperImage>
-      <Img style={{ backgroundImage: `url(${icon})` }} />
-      <Overlay>
-        <Join id={id} />
-      </Overlay>
-    </WrapperImage>
-    <Link to={`communities/${id}`}>
+    <Link to={`/communities/${id}`}>
+      <WrapperImage>
+        <Img style={{ backgroundImage: `url(${icon})` }} />
+        <Overlay />
+      </WrapperImage>
       <H5>{title}</H5>
     </Link>
-    {/* <Infos>
-      <P>12 <Trans>Members</Trans></P>
-      <P>{collectionsLength} <Trans>Collection</Trans></P>
-    </Infos> */}
+    <Members>
+      {followersCount}
+      <Trans>
+        <span>
+          <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
+        </span>
+      </Trans>
+    </Members>
+    <Summary>{summary}</Summary>
+    <Infos>
+      <Join followed={followed} id={id} />
+    </Infos>
   </Wrapper>
 );
 
@@ -48,11 +61,34 @@ const Overlay = styled.span`
   display: none;
 `;
 
+const Members = styled(P)`
+  color: #1e1f2480;
+  margin: 8px 0;
+  & span {
+    margin-left: 4px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+`;
+
+const Summary = styled(P)`
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.8);
+  margin-bottom: 40px;
+  word-break: break-all;
+`;
 const Wrapper = styled.div`
+  border: 1px solid #e4e6e6;
+  padding: 8px;
+  border-radius: 3px;
+  position: relative;
+  max-height: 560px;
   & h5 {
     margin: 0;
     font-size: 16px !important;
     line-height: 24px !important;
+    word-break: break-all;
   }
   & a {
     color: inherit;
@@ -95,13 +131,20 @@ const Img = styled.div`
     }
   }
 `;
-// const Infos = styled.div`
-//   & p  {
-//     margin: 0;
-//     font-weight: 300;
-//     font-style: italic;
-//     display: inline-block;
-//     margin-right: 8px;
-//     font-size: 13px;
-//   }
-// `;
+const Infos = styled.div`
+  border-top: 1px solid #e4e6e6;
+  margin-top: 16px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: white;
+  right: 0;
+  & p  {
+    margin: 0;
+    font-weight: 300;
+    font-style: italic;
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 13px;
+  }
+`;

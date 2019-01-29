@@ -1,0 +1,3 @@
+mutation undoJoinCommunityMutation ($communityId: String!) {
+  undoJoinCommunity(communityLocalId: $communityId)
+}

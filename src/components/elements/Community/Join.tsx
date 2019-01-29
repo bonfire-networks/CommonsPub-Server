@@ -6,10 +6,16 @@ import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCommunityMutation
 } = require('../../../graphql/joinCommunity.graphql');
+const {
+  undoJoinCommunityMutation
+} = require('../../../graphql/undoJoinCommunity.graphql');
+import { Trans } from '@lingui/macro';
 
 interface Props {
   joinCommunity: any;
+  leaveCommunity: any;
   id: string;
+  followed: boolean;
 }
 
 const withJoinCommunity = graphql<{}>(joinCommunityMutation, {
@@ -17,39 +23,81 @@ const withJoinCommunity = graphql<{}>(joinCommunityMutation, {
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
-const Join: React.SFC<Props> = ({ joinCommunity, id }) => (
-  <Span
-    onClick={() =>
-      joinCommunity({
-        variables: { communityId: id },
-        update: (store, { data }) => {}
-      })
-        .then(res => {
-          console.log(res);
-        })
-        .catch(err => console.log(err))
-    }
-  >
-    <Preferites width={32} height={32} strokeWidth={1} color={'#f0f0f0'} />
-  </Span>
-);
+const withLeaveCommunity = graphql<{}>(undoJoinCommunityMutation, {
+  name: 'leaveCommunity'
+  // TODO enforce proper types for OperationOption
+} as OperationOption<{}, {}>);
+
+const Join: React.SFC<Props> = ({
+  joinCommunity,
+  id,
+  leaveCommunity,
+  followed
+}) => {
+  if (followed) {
+    return (
+      <Span
+        onClick={() =>
+          leaveCommunity({
+            variables: { communityId: id },
+            update: (store, { data }) => {}
+          })
+            .then(res => {
+              console.log(res);
+            })
+            .catch(err => console.log(err))
+        }
+      >
+        <Trans>Leave</Trans>
+      </Span>
+    );
+  } else {
+    return (
+      <Span
+        onClick={() =>
+          joinCommunity({
+            variables: { communityId: id },
+            update: (store, { data }) => {}
+          })
+            .then(res => {
+              console.log(res);
+            })
+            .catch(err => console.log(err))
+        }
+      >
+        <Preferites
+          width={16}
+          height={16}
+          strokeWidth={2}
+          color={'#1e1f2480'}
+        />
+        <Trans>Join</Trans>
+      </Span>
+    );
+  }
+};
 
 const Span = styled.div`
-  text-align: center;
-  border-radius: 100px;
-  width: 50px;
-  height: 50px;
-  text-align: center;
+  padding: 0px 10px;
+  color: #1e1f2480;
+  height: 40px;
+  font-weight: 600;
+  line-height: 40px;
   cursor: pointer;
-  margin: 0 auto;
-  margin-top: 80px;
-  & svg {
-    margin-top: 8px;
-    text-align: center;
+  text-align: center;
+  &:hover {
+    color: ${props => props.theme.styles.colour.primaryAlt};
+    & svg {
+      color: ${props => props.theme.styles.colour.primaryAlt};
+    }
   }
-  &:hover  {
-    background: rgba(0, 0, 0, 0.7);
+  & svg {
+    margin-right: 8px;
+    vertical-align: sub;
   }
 `;
 
-export default compose(withJoinCommunity)(Join);
+export default compose(
+  withJoinCommunity,
+  withLeaveCommunity
+)(Join);
