@@ -45,6 +45,7 @@ class CommunitiesYours extends React.Component<Props> {
             icon={community.icon || ''}
             followed={community.followed}
             id={community.localId}
+            externalId={community.id}
             followersCount={community.followersCount}
           />
         );

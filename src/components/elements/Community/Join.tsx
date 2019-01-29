@@ -6,17 +6,18 @@ import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCommunityMutation
 } = require('../../../graphql/joinCommunity.graphql');
-const { getCommunity } = require('../../../graphql/getCommunity.graphql');
 const {
   undoJoinCommunityMutation
 } = require('../../../graphql/undoJoinCommunity.graphql');
 import { Trans } from '@lingui/macro';
+import gql from 'graphql-tag';
 
 interface Props {
   joinCommunity: any;
   leaveCommunity: any;
   id: string;
   followed: boolean;
+  externalId: string;
 }
 
 const withJoinCommunity = graphql<{}>(joinCommunityMutation, {
@@ -33,6 +34,7 @@ const Join: React.SFC<Props> = ({
   joinCommunity,
   id,
   leaveCommunity,
+  externalId,
   followed
 }) => {
   if (followed) {
@@ -41,21 +43,25 @@ const Join: React.SFC<Props> = ({
         onClick={() =>
           leaveCommunity({
             variables: { communityId: id },
-            update: (proxy, { data: { leaveCommunity } }) => {
-              console.log(leaveCommunity);
-              const data = proxy.readQuery({
-                query: getCommunity,
-                variables: {
-                  context: parseInt(id)
+            update: (proxy, { data: { undoJoinCommunity } }) => {
+              const fragment = gql`
+                fragment Res on Community {
+                  followed
                 }
+              `;
+              console.log(proxy);
+              let collection = proxy.readFragment({
+                id: `Community:${externalId}`,
+                fragment: fragment,
+                fragmentName: 'Res'
               });
-              data.community.followed = leaveCommunity;
-              proxy.writeQuery({
-                query: getCommunity,
-                variables: {
-                  context: parseInt(id)
-                },
-                data
+              console.log(collection);
+              collection.followed = !collection.followed;
+              proxy.writeFragment({
+                id: `Community:${externalId}`,
+                fragment: fragment,
+                fragmentName: 'Res',
+                data: collection
               });
             }
           })
@@ -74,21 +80,23 @@ const Join: React.SFC<Props> = ({
         onClick={() =>
           joinCommunity({
             variables: { communityId: id },
-            update: (proxy, { data: { leaveCommunity } }) => {
-              console.log(leaveCommunity);
-              const data = proxy.readQuery({
-                query: getCommunity,
-                variables: {
-                  context: id
+            update: (proxy, { data: { joinCommunity } }) => {
+              const fragment = gql`
+                fragment Res on Community {
+                  followed
                 }
+              `;
+              let collection = proxy.readFragment({
+                id: `Community:${externalId}`,
+                fragment: fragment,
+                fragmentName: 'Res'
               });
-              data.community.followed = leaveCommunity;
-              proxy.writeQuery({
-                query: getCommunity,
-                variables: {
-                  context: id
-                },
-                data
+              collection.followed = !collection.followed;
+              proxy.writeFragment({
+                id: `Community:${externalId}`,
+                fragment: fragment,
+                fragmentName: 'Res',
+                data: collection
               });
             }
           })

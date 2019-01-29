@@ -127,6 +127,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     <Join
                       id={community.localId}
                       followed={community.followed}
+                      externalId={community.id}
                     />
                   </HeroInfo>
                 </Hero>

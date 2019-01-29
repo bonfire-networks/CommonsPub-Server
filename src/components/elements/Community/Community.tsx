@@ -14,6 +14,7 @@ interface Props {
   id: string;
   followersCount: number;
   followed: boolean;
+  externalId: string;
 }
 
 const Community: React.SFC<Props> = ({
@@ -22,7 +23,8 @@ const Community: React.SFC<Props> = ({
   icon,
   summary,
   followed,
-  followersCount
+  followersCount,
+  externalId
 }) => (
   <Wrapper>
     <Link to={`/communities/${id}`}>
@@ -42,7 +44,7 @@ const Community: React.SFC<Props> = ({
     </Members>
     <Summary>{summary}</Summary>
     <Infos>
-      <Join followed={followed} id={id} />
+      <Join externalId={externalId} followed={followed} id={id} />
     </Infos>
   </Wrapper>
 );
