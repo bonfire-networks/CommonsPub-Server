@@ -40,7 +40,7 @@ const Home: React.SFC<Props> = props => (
           height="337"
           scrolling="no"
           data-frameborder="0"
-          src="https://www.youtube.com/embed/6fyrcm4N2CI"
+          src="https://www.youtube-nocookie.com/embed/6fyrcm4N2CI?cc_load_policy=1"
           data-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
         />
       </Video>
