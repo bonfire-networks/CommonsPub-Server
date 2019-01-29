@@ -21,9 +21,9 @@ pages-staging:
     - npm install # Install all dependencies
     - npm run compile # compile .js files for localisation
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
-    - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
     - mv build public # Move build files to public dir for Gitlab Pages
+    - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
@@ -36,9 +36,9 @@ pages:
     - npm install # Install all dependencies
     - npm run compile # compile .js files for localisation
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.next.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
-    - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
     - mv build public # Move build files to public dir for Gitlab Pages
+    - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
