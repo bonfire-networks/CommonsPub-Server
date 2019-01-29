@@ -6,6 +6,7 @@ import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCommunityMutation
 } = require('../../../graphql/joinCommunity.graphql');
+const { getCommunity } = require('../../../graphql/getCommunity.graphql');
 const {
   undoJoinCommunityMutation
 } = require('../../../graphql/undoJoinCommunity.graphql');
@@ -40,7 +41,23 @@ const Join: React.SFC<Props> = ({
         onClick={() =>
           leaveCommunity({
             variables: { communityId: id },
-            update: (store, { data }) => {}
+            update: (proxy, { data: { leaveCommunity } }) => {
+              console.log(leaveCommunity);
+              const data = proxy.readQuery({
+                query: getCommunity,
+                variables: {
+                  context: parseInt(id)
+                }
+              });
+              data.community.followed = leaveCommunity;
+              proxy.writeQuery({
+                query: getCommunity,
+                variables: {
+                  context: parseInt(id)
+                },
+                data
+              });
+            }
           })
             .then(res => {
               console.log(res);
@@ -57,7 +74,23 @@ const Join: React.SFC<Props> = ({
         onClick={() =>
           joinCommunity({
             variables: { communityId: id },
-            update: (store, { data }) => {}
+            update: (proxy, { data: { leaveCommunity } }) => {
+              console.log(leaveCommunity);
+              const data = proxy.readQuery({
+                query: getCommunity,
+                variables: {
+                  context: id
+                }
+              });
+              data.community.followed = leaveCommunity;
+              proxy.writeQuery({
+                query: getCommunity,
+                variables: {
+                  context: id
+                },
+                data
+              });
+            }
           })
             .then(res => {
               console.log(res);
