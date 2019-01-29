@@ -20,6 +20,7 @@ async function run() {
           width: 100%;
           height: 100%;
           background-color: #FBFBFD;
+          background-color: #e9ebee;
       }
       
       * {

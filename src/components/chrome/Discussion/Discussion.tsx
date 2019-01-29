@@ -27,6 +27,7 @@ interface Props
 class CommunitiesFeatured extends React.Component<Props> {
   render() {
     let comments;
+    console.log(this.props.data.error);
     if (this.props.data.loading) {
       comments = <Loader />;
     }

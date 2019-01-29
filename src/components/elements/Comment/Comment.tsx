@@ -4,6 +4,9 @@ import { Reply } from '../../elements/Icons';
 import { clearFix } from 'polished';
 import moment from 'moment';
 import { NavLink } from 'react-router-dom';
+import Markdown from 'markdown-to-jsx';
+
+import { Trans } from '@lingui/macro';
 
 interface EventProps {
   author: {
@@ -18,12 +21,14 @@ interface EventProps {
   };
   thread?: boolean;
   totalReplies?: string;
+  noAction?: boolean;
 }
 
 const Event: React.SFC<EventProps> = ({
   author,
   thread,
   comment,
+  noAction,
   totalReplies
 }) => {
   return (
@@ -38,24 +43,28 @@ const Event: React.SFC<EventProps> = ({
         </MemberInfo>
       </Member>
       <Desc>
-        <Primary>{comment.body}</Primary>
-        <Sub>
-          <Actions>
-            {thread ? null : (
-              <NavLink to={`/thread/${comment.id}`}>
-                <Button>
-                  <Reply
-                    width={16}
-                    height={16}
-                    strokeWidth={2}
-                    color={'#1e1f2480'}
-                  />
-                  Reply ({totalReplies})
-                </Button>
-              </NavLink>
-            )}
-          </Actions>
-        </Sub>
+        <Primary>
+          <Markdown children={comment.body} />
+        </Primary>
+        {noAction ? null : (
+          <Sub>
+            <Actions>
+              {thread ? null : (
+                <NavLink to={`/thread/${comment.id}`}>
+                  <Button>
+                    <Reply
+                      width={16}
+                      height={16}
+                      strokeWidth={2}
+                      color={'#1e1f2480'}
+                    />
+                    <Trans>Reply</Trans> ({totalReplies})
+                  </Button>
+                </NavLink>
+              )}
+            </Actions>
+          </Sub>
+        )}
       </Desc>
     </FeedItem>
   );

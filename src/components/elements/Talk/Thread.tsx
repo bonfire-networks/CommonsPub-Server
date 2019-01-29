@@ -17,10 +17,12 @@ interface MyFormProps {
   createThread: any;
   id: string;
   externalId: string;
-  onToggle(): boolean;
+  onToggle(boolean): boolean;
   toggle: boolean;
   setSubmitting(boolean): boolean;
   setFieldValue: any;
+  isOpen: boolean;
+  onOpen(boolean): boolean;
 }
 
 const withCreateThread = graphql<{}>(createThreadMutation, {
@@ -36,7 +38,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
     content: Yup.string().required()
   }),
   handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
-    console.log(values);
     const variables = {
       comment: {
         content: values.content
@@ -53,7 +54,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
               id: props.id
             }
           });
-          console.log(data.threads);
           data.threads.unshift(createThread);
           proxy.writeQuery({
             query: getCommentsQuery,
@@ -66,7 +66,9 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       })
       .then(res => {
         setSubmitting(false);
-        setFieldValue('content', '');
+        setFieldValue('content', ' ');
+        props.onOpen(false);
+        props.onToggle(false);
       })
       .catch(err => console.log(err));
   }
@@ -74,5 +76,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
 
 export default compose(
   withCreateThread,
-  withState('toggle', 'onToggle', false)
+  withState('toggle', 'onToggle', false),
+  withState('isOpen', 'onOpen', false)
 )(TalkWithFormik);

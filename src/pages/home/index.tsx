@@ -3,7 +3,6 @@ import { compose } from 'recompose';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import styled from '../../themes/styled';
 import { graphql } from 'react-apollo';
-import UL from '../../components/typography/UL/UL';
 
 import { Trans } from '@lingui/macro';
 
@@ -27,25 +26,25 @@ const Home: React.SFC<Props> = props => (
           Please pay attention to the video and text on this page, as they
           contain some important information.
         </Trans>
-        <br />
-        <Video>
-          <iframe
-            style={{
-              border: 'none',
-              padding: '5px',
-              borderRadius: '0.25em',
-              backgroundColor: 'rgb(232,232,232)'
-            }}
-            data-allowfullscreen
-            width="600"
-            height="337"
-            scrolling="no"
-            data-frameborder="0"
-            src="https://www.youtube.com/embed/6fyrcm4N2CI"
-            data-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          />
-        </Video>
-        <br />
+      </p>
+      <Video>
+        <iframe
+          style={{
+            border: 'none',
+            padding: '5px',
+            borderRadius: '0.25em',
+            backgroundColor: 'rgb(232,232,232)'
+          }}
+          data-allowfullscreen
+          width="600"
+          height="337"
+          scrolling="no"
+          data-frameborder="0"
+          src="https://www.youtube-nocookie.com/embed/6fyrcm4N2CI?cc_load_policy=1"
+          data-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+        />
+      </Video>
+      <p>
         <Trans>We’re trying to discover the answer to this question:</Trans>
       </p>
       <blockquote>
@@ -59,8 +58,8 @@ const Home: React.SFC<Props> = props => (
         <Trans>Here are some important things to note:</Trans>
       </p>
 
-      <UL>
-        <ol>
+      <ol>
+        <li>
           <Trans>
             Your involvement in the testing process is subject to the{' '}
             <a href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct">
@@ -68,28 +67,28 @@ const Home: React.SFC<Props> = props => (
             </a>
             .
           </Trans>
-        </ol>
-        <ol>
+        </li>
+        <li>
           <Trans>
             During this testing period we will observe what you do with
             MoodleNet, and listen to what you tell us about your experiences.
           </Trans>
-        </ol>
-        <ol>
+        </li>
+        <li>
           <Trans>
             You cannot completely delete anything in MoodleNet at the moment, as
             we have not rolled out the moderation tools. Instead, just change
             all of the fields within the resource to something else!
           </Trans>
-        </ol>
-        <ol>
+        </li>
+        <li>
           <Trans>
             This test is semi-closed, but your contributions will live on beyond
             the testing period. So curate and comment as if everything you share
             is public.
           </Trans>
-        </ol>
-        <ol>
+        </li>
+        <li>
           <Trans>
             We’re using{' '}
             <a href="https://changemap.co/moodle/moodlenet">Changemap</a> to
@@ -100,8 +99,8 @@ const Home: React.SFC<Props> = props => (
           <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
             🔬 <Trans>Share Feedback</Trans>
           </Feedback>
-        </ol>
-      </UL>
+        </li>
+      </ol>
       <p>
         <Trans>
           We’re really looking forward to seeing how you use MoodleNet to share
@@ -144,7 +143,7 @@ const Feedback = styled.a`
 `;
 
 const Container = styled.div`
-  overflow: overlay;
+  overflow: scroll;
 `;
 const Sign = styled.div`
   & b {
@@ -188,7 +187,8 @@ const Wrapper = styled.div`
       display: block;
     }
   }
-  & p {
+  & p,
+  & li {
     font-size: 16px;
     letter-spacing: 0;
     color: #3c3c3c;

@@ -56,7 +56,7 @@ const Wrapper = styled.div`
     width: 100%;
   }
   &:hover {
-    background: #f5f5f5;
+    background: rgba(241, 246, 249, 0.65);
   }
 `;
 const Img = styled.div`

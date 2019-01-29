@@ -20,7 +20,7 @@ import Button from '../../components/elements/Button/Button';
 import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
-
+import { Star } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -108,32 +108,44 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       <>
         <Main>
           <Grid>
-            <Breadcrumb name={community.name} />
-            <Row>
-              <Hero>
-                <Background
-                  style={{ backgroundImage: `url(${community.icon})` }}
-                />
-                <HeroInfo>
-                  <H2>{community.name}</H2>
-                  <P>{community.summary}</P>
-                </HeroInfo>
-              </Hero>
-            </Row>
-            <Row>
-              <Col size={12}>
-                <WrapperTab>
-                  <OverlayTab>
-                    <Tabs
-                      selectedKey={this.state.tab}
-                      onChange={tab => this.setState({ tab })}
-                      button={
-                        <Button onClick={this.props.editCommunity} secondary>
-                          <Trans>Edit</Trans>
-                        </Button>
-                      }
-                    >
-                      {/* <TabPanel
+            <WrapperCont>
+              <Breadcrumb name={community.name} />
+              <Row>
+                <Hero>
+                  <Background
+                    style={{ backgroundImage: `url(${community.icon})` }}
+                  />
+                  <HeroInfo>
+                    <H2>{community.name}</H2>
+                    <P>{community.summary}</P>
+                    <Button>
+                      <span>
+                        <Star
+                          width={18}
+                          height={18}
+                          color="#fff"
+                          strokeWidth={1}
+                        />
+                      </span>{' '}
+                      Following
+                    </Button>
+                  </HeroInfo>
+                </Hero>
+              </Row>
+              <Row>
+                <Col size={12}>
+                  <WrapperTab>
+                    <OverlayTab>
+                      <Tabs
+                        selectedKey={this.state.tab}
+                        onChange={tab => this.setState({ tab })}
+                        button={
+                          <Button onClick={this.props.editCommunity} secondary>
+                            <Trans>Edit</Trans>
+                          </Button>
+                        }
+                      >
+                        {/* <TabPanel
                         label={`${TabsEnum.Members} (${
                           community.followersCount
                         })`}
@@ -150,28 +162,31 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           ))}
                         </Members>
                       </TabPanel> */}
-                      <TabPanel
-                        label={`${TabsEnum.Collections} (${
-                          community.collections.length
-                        } / 10)`}
-                        key={TabsEnum.Collections}
-                      >
-                        <div style={{ display: 'flex' }}>{collections}</div>
-                      </TabPanel>
-                      <TabPanel
-                        label={`${TabsEnum.Discussion}`}
-                        key={TabsEnum.Discussion}
-                      >
-                        <Discussion
-                          localId={community.localId}
-                          id={community.id}
-                        />
-                      </TabPanel>
-                    </Tabs>
-                  </OverlayTab>
-                </WrapperTab>
-              </Col>
-            </Row>
+                        <TabPanel
+                          label={`${TabsEnum.Collections} (${
+                            community.collections.length
+                          } / 10)`}
+                          key={TabsEnum.Collections}
+                        >
+                          <div style={{ display: 'flex', marginTop: '-20px' }}>
+                            {collections}
+                          </div>
+                        </TabPanel>
+                        <TabPanel
+                          label={`${TabsEnum.Discussion}`}
+                          key={TabsEnum.Discussion}
+                        >
+                          <Discussion
+                            localId={community.localId}
+                            id={community.id}
+                          />
+                        </TabPanel>
+                      </Tabs>
+                    </OverlayTab>
+                  </WrapperTab>
+                </Col>
+              </Row>
+            </WrapperCont>
           </Grid>
           <CommunityModal
             toggleModal={this.props.handleNewCollection}
@@ -211,15 +226,16 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 //   text-align: center;
 // `;
 
-const WrapperTab = styled.div`
-  padding: 5px;
-  border-radius: 0.25em;
-  background-color: rgb(232, 232, 232);
-  margin: 0 -10px;
-  margin-bottom: 16px;
-`;
+const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
   background: #fff;
+`;
+
+const WrapperCont = styled.div`
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  background: white;
 `;
 
 const WrapperActions = styled.div`
@@ -249,8 +265,9 @@ const Hero = styled.div`
 `;
 
 const Background = styled.div`
-  height: 200px;
-  width: 200px;
+  margin-top: 24px;
+  height: 120px;
+  width: 120px;
   border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;
@@ -263,9 +280,21 @@ const HeroInfo = styled.div`
   text-align: center;
   & h2 {
     margin: 0;
+    font-size: 24px !important;
+    line-height: 32px !important;
   }
   & p {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.7);
+    padding: 0 24px;
+    font-size: 15px;
+  }
+  & button {
+    span {
+      vertical-align: sub;
+      display: inline-block;
+      height: 30px;
+      margin-right: 4px;
+    }
   }
 `;
 
