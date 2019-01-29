@@ -15,6 +15,7 @@ mutation createCommunityMutation($community: CommunityInput!) {
           summary
           content
           preferredUsername
+          followed
           primaryLanguage
           icon
           followingCount
