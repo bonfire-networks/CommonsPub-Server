@@ -1,6 +1,6 @@
 defmodule ActivityPub.SQL.QueryTest do
   use MoodleNet.DataCase, async: true
-  alias ActivityPub.SQL.Query
+  alias ActivityPub.SQL.{Alter, Query}
   alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   def insert(map) do
@@ -144,19 +144,39 @@ defmodule ActivityPub.SQL.QueryTest do
     end
   end
 
-  test "has/3 and belongs_to/3 work" do
-    child =
-      %{id: child_id, attributed_to: [parent = %{id: parent_id}]} = insert(%{attributed_to: %{}})
+  describe "has/3 and belongs_to/3" do
+    test "work with many_to_many relation" do
+      child =
+        %{id: child_id, attributed_to: [parent = %{id: parent_id}]} =
+        insert(%{attributed_to: %{}})
 
-    assert %{id: ^child_id} =
-             Query.new()
-             |> Query.has(:attributed_to, parent)
-             |> Query.one()
+      assert %{id: ^child_id} =
+               Query.new()
+               |> Query.has(:attributed_to, parent)
+               |> Query.one()
 
-    assert %{id: ^parent_id} =
-             Query.new()
-             |> Query.belongs_to(:attributed_to, child)
-             |> Query.one()
+      assert %{id: ^parent_id} =
+               Query.new()
+               |> Query.belongs_to(:attributed_to, child)
+               |> Query.one()
+    end
+
+    test "work with collection relation" do
+      %{id: follower_id} = follower = Factory.actor()
+      %{id: following_id} = following = Factory.actor()
+
+      assert {:ok, 1} = Alter.add(follower, :following, following)
+
+      assert %{id: ^following_id} =
+               Query.new()
+               |> Query.belongs_to(:following, follower)
+               |> Query.one()
+
+      assert %{id: ^follower_id} =
+               Query.new()
+               |> Query.has(:following, following)
+               |> Query.one()
+    end
   end
 
   describe "has?/3" do

@@ -18,6 +18,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Community"))
     end
 
+    @desc "Get list of following communities"
+    field :following_communities, non_null(list_of(non_null(:community))) do
+      resolve(&MoodleNetSchema.list_following_communities/2)
+    end
+
     @desc "Get list of collections"
     field :collections, non_null(list_of(non_null(:collection))) do
       arg(:community_local_id, non_null(:integer))
@@ -28,6 +33,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     field :collection, :collection do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Collection"))
+    end
+
+    @desc "Get list of following collections"
+    field :following_collections, non_null(list_of(non_null(:collection))) do
+      resolve(&MoodleNetSchema.list_following_collections/2)
     end
 
     @desc "Get list of resources"

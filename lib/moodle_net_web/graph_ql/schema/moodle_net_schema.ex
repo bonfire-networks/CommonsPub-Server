@@ -248,6 +248,19 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:author, :user, do: resolve(with_assoc(:attributed_to, single: true)))
     field(:in_reply_to, :comment, do: resolve(with_assoc(:in_reply_to, single: true)))
     field(:replies, list_of(:comment), do: resolve(with_assoc(:replies)))
+
+    field(:context, :comment_context, do: resolve(with_assoc(:context, single: true)))
+  end
+
+  union :comment_context do
+    description("Where the comment resides")
+
+    types([:collection, :community])
+
+    resolve_type(fn
+      e, _  when APG.has_type(e, "MoodleNet:Community") -> :community
+      e, _  when APG.has_type(e, "MoodleNet:Collection") -> :collection
+    end)
   end
 
   input_object :comment_input do
@@ -271,6 +284,18 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     {:ok, comms}
   end
 
+  def list_following_communities(_field_arguments, info) do
+    fields = requested_fields(info)
+
+    with {:ok, current_actor} <- current_actor(info) do
+      comms =
+        MoodleNet.list_following_communities(current_actor)
+        |> prepare(fields)
+
+      {:ok, comms}
+    end
+  end
+
   def list_collections(%{community_local_id: community_local_id}, info) do
     fields = requested_fields(info)
 
@@ -279,6 +304,18 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       |> prepare(fields)
 
     {:ok, cols}
+  end
+
+  def list_following_collections(_field_arguments, info) do
+    fields = requested_fields(info)
+
+    with {:ok, current_actor} <- current_actor(info) do
+      colls =
+        MoodleNet.list_following_collections(current_actor)
+        |> prepare(fields)
+
+      {:ok, colls}
+    end
   end
 
   def list_resources(%{collection_local_id: collection_local_id}, info) do
