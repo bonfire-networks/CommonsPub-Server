@@ -9,6 +9,8 @@ const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
+import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
+
 interface Props {
   handleOpen(): boolean;
   closeMenu(): boolean;
@@ -25,13 +27,18 @@ const Header: React.SFC<Props> = props => {
         <Logo />
       </Left>
       <Right>
-        <Avatar>
-          <img
-            onClick={props.handleOpen}
-            src="https://picsum.photos/100/100?random"
-            alt="Avatar"
-          />
-        </Avatar>
+        <Left>
+          <LanguageSelect />
+        </Left>
+        <Right>
+          <Avatar>
+            <img
+              onClick={props.handleOpen}
+              src="https://picsum.photos/100/100?random"
+              alt="Avatar"
+            />
+          </Avatar>
+        </Right>
       </Right>
       {props.isOpen ? (
         <>
@@ -69,6 +76,7 @@ const Avatar = styled.div`
   height: 32px;
   border-radius: 100px;
   overflow: hidden;
+  margin-left: 10px;
 `;
 
 const WrapperMenu = styled.div`
@@ -139,6 +147,10 @@ const Right = styled.div`
     cursor: pointer;
   }
 `;
+
+// const LanguageSelect = styled.div`
+//   display: inline-block;
+// `;
 
 export default compose(
   graphql(getUserQuery),
