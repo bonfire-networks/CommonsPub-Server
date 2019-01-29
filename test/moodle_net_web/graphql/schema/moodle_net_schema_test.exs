@@ -179,9 +179,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
             id
           }
         }
-        context {
-          id
-        }
       }
     }
     """
