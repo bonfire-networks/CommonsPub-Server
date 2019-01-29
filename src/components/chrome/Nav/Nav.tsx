@@ -99,9 +99,7 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/communities/7'}
           >
-            <Item>
-              <Trans>The Lounge</Trans>
-            </Item>
+            <Item>The Lounge</Item>
           </NavLink>
           <NavLink
             isActive={(match, location) => {
@@ -116,9 +114,7 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/communities/15'}
           >
-            <Item>
-              <Trans>El Salón</Trans>
-            </Item>
+            <Item>El Salón</Item>
           </NavLink>
         </NavList>
         <NavList>
