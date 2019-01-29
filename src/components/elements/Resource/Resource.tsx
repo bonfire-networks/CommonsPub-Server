@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 
 import { Trans } from '@lingui/macro';
+
 import { ellipsis } from 'polished';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';

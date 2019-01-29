@@ -6,6 +6,8 @@ import moment from 'moment';
 import { NavLink } from 'react-router-dom';
 import Markdown from 'markdown-to-jsx';
 
+import { Trans } from '@lingui/macro';
+
 interface EventProps {
   author: {
     id: string;
@@ -56,7 +58,7 @@ const Event: React.SFC<EventProps> = ({
                       strokeWidth={2}
                       color={'#1e1f2480'}
                     />
-                    Reply ({totalReplies})
+                    <Trans>Reply</Trans> ({totalReplies})
                   </Button>
                 </NavLink>
               )}

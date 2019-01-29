@@ -11,6 +11,15 @@ import Preview from './Preview';
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
 
+import { Trans } from '@lingui/macro';
+import { i18nMark } from '@lingui/react';
+
+const tt = {
+  placeholders: {
+    message: i18nMark('Write a public message')
+  }
+};
+
 interface Props {
   onToggle(boolean): boolean;
   toggle: boolean;
@@ -36,7 +45,7 @@ const Component = (props: Props & FormikProps<FormValues>) => (
               <PreviewTalk
                 expanded={props.toggle}
                 onClick={() => props.onToggle(true)}
-                placeholder={'Write a public message'}
+                placeholder={tt.placeholders.message}
                 onChange={field.onChange}
                 name={field.name}
                 value={field.value}
@@ -52,7 +61,7 @@ const Component = (props: Props & FormikProps<FormValues>) => (
           disabled={!props.values.content}
           onClick={() => props.onOpen(true)}
         >
-          Preview & Publish
+          <Trans>Preview</Trans>
         </Button>
       </Actions>
       <Preview

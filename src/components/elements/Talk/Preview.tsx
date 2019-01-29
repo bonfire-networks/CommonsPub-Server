@@ -45,10 +45,10 @@ const PreviewModal = (props: Props) => {
           <Preview />
           <Actions>
             <Button disabled={props.isSubmitting} type="submit">
-              Publish
+              <Trans>Post</Trans>
             </Button>
             <Button hovered onClick={() => props.toggleModal(false)}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
           </Actions>
         </Form>
