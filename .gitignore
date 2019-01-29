@@ -25,9 +25,7 @@ yarn-error.log*
 
 # i18n
 /src/locales/_build
-<<<<<<< HEAD
-=======
+/src/locales/*/messages.js
 
 ## env
 .env*
->>>>>>> 31-graphql-integration

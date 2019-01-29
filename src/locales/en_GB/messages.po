@@ -39,12 +39,12 @@ msgstr ""
 msgid "Add the first resource"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:89
+#: src/components/chrome/Nav/Nav.tsx:93
 #: src/pages/collections.featured/CollectionsFeatured.tsx:31
 msgid "All Collections"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:49
+#: src/components/chrome/Nav/Nav.tsx:53
 #: src/pages/communities.featured/CommunitiesFeatured.tsx:30
 msgid "All Communities"
 msgstr ""
@@ -91,12 +91,12 @@ msgstr ""
 msgid "Collection"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:77
+#: src/components/chrome/Nav/Nav.tsx:81
 #: src/pages/search/Search.tsx:43
 msgid "Collections"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:38
+#: src/components/chrome/Nav/Nav.tsx:41
 #: src/pages/collections.collection/breadcrumb.tsx:7
 #: src/pages/communities.community/breadcrumb.tsx:9
 #: src/pages/search/Search.tsx:31
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:95
+#: src/components/chrome/Nav/Nav.tsx:99
 msgid "Create a community"
 msgstr ""
 
@@ -150,7 +150,7 @@ msgstr ""
 msgid "Create a new community"
 msgstr ""
 
-#: src/pages/communities.community/CommunitiesCommunity.tsx:64
+#: src/pages/communities.community/CommunitiesCommunity.tsx:66
 msgid "Create the first collection"
 msgstr ""
 
@@ -185,7 +185,7 @@ msgstr ""
 
 #: src/components/elements/Resource/Resource.tsx:17
 #: src/pages/collections.collection/CollectionsCollection.tsx:97
-#: src/pages/communities.community/CommunitiesCommunity.tsx:90
+#: src/pages/communities.community/CommunitiesCommunity.tsx:92
 msgid "Edit"
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 msgid "Edit the resource details"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:71
+#: src/components/chrome/Nav/Nav.tsx:75
 msgid "El Salón"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 msgid "Here are some trending tags you could add"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:34
+#: src/components/chrome/Nav/Nav.tsx:35
 msgid "Home"
 msgstr ""
 
@@ -472,7 +472,7 @@ msgstr ""
 msgid "Thanks for being part of this testing process for MoodleNet."
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:60
+#: src/components/chrome/Nav/Nav.tsx:64
 msgid "The Lounge"
 msgstr ""
 
@@ -488,7 +488,7 @@ msgstr ""
 msgid "This collection has no resources."
 msgstr ""
 
-#: src/pages/communities.community/CommunitiesCommunity.tsx:62
+#: src/pages/communities.community/CommunitiesCommunity.tsx:63
 msgid "This community has no collections."
 msgstr ""
 
@@ -504,7 +504,7 @@ msgstr ""
 msgid "This test is semi-closed, but your contributions will live on beyond the testing period. So curate and comment as if everything you share is public."
 msgstr ""
 
-#: src/pages/thread/index.tsx:42
+#: src/pages/thread/index.tsx:43
 msgid "View full thread"
 msgstr ""
 
