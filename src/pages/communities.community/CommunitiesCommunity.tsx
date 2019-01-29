@@ -90,7 +90,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       } else {
         collections = (
           <OverviewCollection>
-            <P>This community has no collections.</P>
+            <P>
+              <Trans>This community has no collections.</Trans>
+            </P>
             <Button onClick={this.props.handleNewCollection}>
               <Trans>Create the first collection</Trans>
             </Button>

@@ -1,27 +1,31 @@
+# Translators:
+# Mayel de Borniol <mayel@moodle.com>, 2019
+# 
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2018-11-29 18:21+0200\n"
-"Mime-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: @lingui/cli\n"
-"Language: en_US\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Plural-Forms: \n"
+"POT-Creation-Date: 2018-11-29 18:21+0200\n"
+"PO-Revision-Date: 2019-01-16 10:17+0000\n"
+"Last-Translator: Mayel de Borniol <mayel@moodle.com>, 2019\n"
+"Language-Team: English (United States) (https://www.transifex.com/moodlenet/teams/94082/en_US/)\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_US\n"
+"Mime-Version: 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: @lingui/cli\n"
 
-#: src/components/elements/CollectionModal/index.tsx:9
+#: src/components/elements/CollectionModal/fetched.tsx:25
+#: src/components/elements/CollectionModal/index.tsx:12
 msgid "A name or title for the resource"
-msgstr ""
+msgstr "A name or title for the resource"
 
 #: src/pages/sign-up/Step1.tsx:35
 msgid "Account"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:36
+#: src/components/elements/CollectionModal/index.tsx:37
 #: src/pages/collections.collection/CollectionsCollection.tsx:108
 msgid "Add a new resource"
 msgstr ""
@@ -38,12 +42,12 @@ msgstr ""
 msgid "Add the first resource"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:63
+#: src/components/chrome/Nav/Nav.tsx:89
 #: src/pages/collections.featured/CollectionsFeatured.tsx:31
 msgid "All Collections"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:45
+#: src/components/chrome/Nav/Nav.tsx:49
 #: src/pages/communities.featured/CommunitiesFeatured.tsx:30
 msgid "All Communities"
 msgstr ""
@@ -52,7 +56,7 @@ msgstr ""
 msgid "Bio"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:86
+#: src/components/elements/CollectionModal/fetched.tsx:83
 #: src/components/elements/CommunityModal/index.tsx:74
 #: src/components/elements/CreateCommunityModal/index.tsx:74
 #: src/components/elements/EditCollectionModal/index.tsx:74
@@ -90,11 +94,11 @@ msgstr ""
 msgid "Collection"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:51
-#: src/pages/search/Search.tsx:43
+#: src/components/chrome/Nav/Nav.tsx:77 src/pages/search/Search.tsx:43
 msgid "Collections"
 msgstr ""
 
+#: src/components/chrome/Nav/Nav.tsx:38
 #: src/pages/collections.collection/breadcrumb.tsx:7
 #: src/pages/communities.community/breadcrumb.tsx:9
 #: src/pages/search/Search.tsx:31
@@ -118,20 +122,22 @@ msgid "Could not load the collection."
 msgstr ""
 
 #: src/pages/login/Login.tsx:50
-msgid "Could not log in. Please check your credentials or use the link below to reset your password."
+msgid ""
+"Could not log in. Please check your credentials or use the link below to "
+"reset your password."
 msgstr ""
 
 #: src/pages/sign-up/Step2.tsx:42
 msgid "Could not search at this time, please try again later."
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:83
+#: src/components/elements/CollectionModal/fetched.tsx:27
 #: src/components/elements/CommunityModal/index.tsx:71
 #: src/components/elements/CreateCommunityModal/index.tsx:71
 msgid "Create"
 msgstr ""
 
-#: src/components/chrome/Nav/Nav.tsx:69
+#: src/components/chrome/Nav/Nav.tsx:95
 msgid "Create a community"
 msgstr ""
 
@@ -140,7 +146,7 @@ msgid "Create a new account"
 msgstr ""
 
 #: src/components/elements/CommunityModal/index.tsx:35
-#: src/pages/communities.community/CommunitiesCommunity.tsx:58
+#: src/pages/communities.community/CommunitiesCommunity.tsx:55
 msgid "Create a new collection"
 msgstr ""
 
@@ -148,11 +154,11 @@ msgstr ""
 msgid "Create a new community"
 msgstr ""
 
-#: src/pages/communities.community/CommunitiesCommunity.tsx:67
+#: src/pages/communities.community/CommunitiesCommunity.tsx:64
 msgid "Create the first collection"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:63
+#: src/components/elements/CollectionModal/fetched.tsx:61
 #: src/components/elements/CommunityModal/index.tsx:53
 #: src/components/elements/CreateCommunityModal/index.tsx:51
 #: src/components/elements/EditCollectionModal/index.tsx:47
@@ -169,9 +175,24 @@ msgstr ""
 msgid "Display Name"
 msgstr ""
 
-#: src/components/elements/Resource/Resource.tsx:16
+#: src/pages/home/index.tsx:36
+msgid ""
+"Do educators want to join communities to curate collections of resources?"
+msgstr ""
+
+#: src/pages/login/Login.tsx:210
+msgid "Don't yet have an account?"
+msgstr ""
+
+#: src/pages/home/index.tsx:57
+msgid ""
+"During this testing period we will observe what you do with MoodleNet, and "
+"listen to what you tell us about your experiences."
+msgstr ""
+
+#: src/components/elements/Resource/Resource.tsx:17
 #: src/pages/collections.collection/CollectionsCollection.tsx:97
-#: src/pages/communities.community/CommunitiesCommunity.tsx:114
+#: src/pages/communities.community/CommunitiesCommunity.tsx:90
 msgid "Edit"
 msgstr ""
 
@@ -191,12 +212,15 @@ msgstr ""
 msgid "Edit the resource details"
 msgstr ""
 
+#: src/components/chrome/Nav/Nav.tsx:71
+msgid "El Salón"
+msgstr ""
+
 #: src/components/elements/SignupModal/index.tsx:41
 msgid "Email"
 msgstr ""
 
-#: src/pages/login/LoginForm.tsx:73
-#: src/pages/sign-up/Step1.tsx:42
+#: src/pages/login/LoginForm.tsx:73 src/pages/sign-up/Step1.tsx:42
 msgid "Email address"
 msgstr ""
 
@@ -212,11 +236,13 @@ msgstr ""
 msgid "Enter the URL of an image to represent the community"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:11
+#: src/components/elements/CollectionModal/fetched.tsx:28
+#: src/components/elements/CollectionModal/index.tsx:15
 msgid "Enter the URL of an image to represent the resource"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:8
+#: src/components/elements/CollectionModal/fetched.tsx:24
+#: src/components/elements/CollectionModal/index.tsx:11
 msgid "Enter the URL of the resource"
 msgstr ""
 
@@ -229,8 +255,12 @@ msgid "Enter your password"
 msgstr ""
 
 #: src/pages/collections.featured/CollectionsFeatured.tsx:16
-#: src/pages/communities.community/CommunitiesCommunity.tsx:40
+#: src/pages/communities.community/CommunitiesCommunity.tsx:39
 msgid "Error loading collections"
+msgstr ""
+
+#: src/components/chrome/Discussion/Discussion.tsx:18
+msgid "Error loading comments"
 msgstr ""
 
 #: src/pages/communities.featured/CommunitiesFeatured.tsx:16
@@ -238,19 +268,31 @@ msgstr ""
 msgid "Error loading communities"
 msgstr ""
 
-#: src/containers/App/Router.tsx:75
+#: src/containers/App/Router.tsx:79
 msgid "Favourite Collections"
 msgstr ""
 
-#: src/containers/App/Router.tsx:69
+#: src/containers/App/Router.tsx:73
 msgid "Featured Collections"
+msgstr ""
+
+#: src/components/elements/CollectionModal/index.tsx:14
+msgid "Fetch the resource"
+msgstr ""
+
+#: src/pages/home/index.tsx:43
+msgid "Here are some important things to note:"
 msgstr ""
 
 #: src/pages/sign-up/Step2.tsx:123
 msgid "Here are some trending tags you could add"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:74
+#: src/components/chrome/Nav/Nav.tsx:34
+msgid "Home"
+msgstr ""
+
+#: src/components/elements/CollectionModal/fetched.tsx:72
 #: src/components/elements/CreateCommunityModal/index.tsx:62
 #: src/components/elements/EditCollectionModal/index.tsx:60
 #: src/components/elements/EditCommunityModal/index.tsx:60
@@ -274,7 +316,7 @@ msgstr ""
 msgid "Languages"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:42
+#: src/components/elements/CollectionModal/fetched.tsx:38
 #: src/components/elements/EditResourceModal/index.tsx:32
 msgid "Link"
 msgstr ""
@@ -288,11 +330,15 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-#: src/containers/App/Router.tsx:72
+#: src/pages/home/index.tsx:100
+msgid "MoodleNet Team"
+msgstr ""
+
+#: src/containers/App/Router.tsx:76
 msgid "My Collections"
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:51
+#: src/components/elements/CollectionModal/fetched.tsx:48
 #: src/components/elements/CommunityModal/index.tsx:41
 #: src/components/elements/EditCollectionModal/index.tsx:33
 #: src/components/elements/EditCommunityModal/index.tsx:33
@@ -310,20 +356,30 @@ msgid "Page not found"
 msgstr ""
 
 #: src/components/elements/SignupModal/index.tsx:58
-#: src/pages/login/LoginForm.tsx:88
-#: src/pages/sign-up/Step1.tsx:49
+#: src/pages/login/LoginForm.tsx:88 src/pages/sign-up/Step1.tsx:49
 msgid "Password"
 msgstr ""
 
 #: src/components/elements/CommunityModal/index.tsx:9
-msgid "Please describe what the collection is for and what kind of resources it is likely to contain..."
+msgid ""
+"Please describe what the collection is for and what kind of resources it is "
+"likely to contain..."
 msgstr ""
 
 #: src/components/elements/CreateCommunityModal/index.tsx:9
-msgid "Please describe who might be interested in this community and what kind of collections it is likely to contain..."
+msgid ""
+"Please describe who might be interested in this community and what kind of "
+"collections it is likely to contain..."
 msgstr ""
 
-#: src/components/elements/CollectionModal/index.tsx:10
+#: src/pages/home/index.tsx:19
+msgid ""
+"Please pay attention to the video and text on this page, as they contain "
+"some important information."
+msgstr ""
+
+#: src/components/elements/CollectionModal/fetched.tsx:26
+#: src/components/elements/CollectionModal/index.tsx:13
 msgid "Please type or copy/paste a summary about the resource..."
 msgstr ""
 
@@ -343,8 +399,7 @@ msgstr ""
 msgid "Profile"
 msgstr ""
 
-#: src/components/elements/Card/Card.tsx:180
-#: src/pages/search/Search.tsx:55
+#: src/components/elements/Card/Card.tsx:180 src/pages/search/Search.tsx:55
 msgid "Resources"
 msgstr ""
 
@@ -380,6 +435,10 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+#: src/pages/home/index.tsx:85
+msgid "Share Feedback"
+msgstr ""
+
 #: src/pages/sign-up/Step1.tsx:66
 msgid "Shuffle"
 msgstr ""
@@ -389,18 +448,41 @@ msgid "Sign Up"
 msgstr ""
 
 #: src/components/elements/SignupModal/index.tsx:17
-#: src/pages/login/Login.tsx:206
-#: src/pages/login/LoginForm.tsx:12
+#: src/pages/login/Login.tsx:206 src/pages/login/LoginForm.tsx:12
 msgid "Sign in"
 msgstr ""
 
+#: src/pages/login/Login.tsx:43
+msgid "Sign in with Facebook"
+msgstr ""
+
+#: src/pages/login/Login.tsx:44
+msgid "Sign in with Google"
+msgstr ""
+
+#: src/pages/login/Login.tsx:45
+msgid "Sign in with Twitter"
+msgstr ""
+
 #: src/components/chrome/Menu/User.MenuBody.tsx:39
-#: src/components/header/index.tsx:28
+#: src/components/header/index.tsx:31
 msgid "Sign out"
 msgstr ""
 
-#: src/containers/App/App.tsx:93
+#: src/pages/login/Login.tsx:212
+msgid "Sign up"
+msgstr ""
+
+#: src/containers/App/App.tsx:94
 msgid "Sorry, we encountered a problem loading the app in your language."
+msgstr ""
+
+#: src/pages/home/index.tsx:15
+msgid "Thanks for being part of this testing process for MoodleNet."
+msgstr ""
+
+#: src/components/chrome/Nav/Nav.tsx:60
+msgid "The Lounge"
 msgstr ""
 
 #: src/pages/login/Login.tsx:48
@@ -415,12 +497,57 @@ msgstr ""
 msgid "This collection has no resources."
 msgstr ""
 
+#: src/pages/communities.community/CommunitiesCommunity.tsx:62
+msgid "This community has no collections."
+msgstr ""
+
 #: src/pages/sign-up/Step1.tsx:38
 msgid "This data will never be shared."
 msgstr ""
 
 #: src/pages/sign-up/Step1.tsx:59
 msgid "This information will appear on your public profile."
+msgstr ""
+
+#: src/pages/home/index.tsx:70
+msgid ""
+"This test is semi-closed, but your contributions will live on beyond the "
+"testing period. So curate and comment as if everything you share is public."
+msgstr ""
+
+#: src/pages/thread/index.tsx:42
+msgid "View full thread"
+msgstr ""
+
+#: src/pages/home/index.tsx:11
+msgid "Welcome"
+msgstr ""
+
+#: src/pages/home/index.tsx:90
+msgid ""
+"We’re really looking forward to seeing how you use MoodleNet to share and "
+"curate resources, and collaborate with other educators! Get started by "
+"clicking on ‘The Lounge’ in the sidebar and introducing yourself, or by "
+"adding your first resource!"
+msgstr ""
+
+#: src/pages/home/index.tsx:33
+msgid "We’re trying to discover the answer to this question:"
+msgstr ""
+
+#: src/pages/home/index.tsx:77
+msgid ""
+"We’re using <0>Changemap</0> to collect your feedback during this testing "
+"period, so please do use that to suggest everything from small tweaks to "
+"major changes! You can access this using the ‘Share feedback’ link in the "
+"sidebar:"
+msgstr ""
+
+#: src/pages/home/index.tsx:63
+msgid ""
+"You cannot completely delete anything in MoodleNet at the moment, as we have"
+" not rolled out the moderation tools. Instead, just change all of the fields"
+" within the resource to something else!"
 msgstr ""
 
 #: src/pages/communities.yours/CommunitiesYours.tsx:41
@@ -432,7 +559,15 @@ msgid "Your Interests"
 msgstr ""
 
 #: src/pages/sign-up/Step2.tsx:102
-msgid "Your interests will be displayed on your profile, and will also help MoodleNet recommend content that is relevant to you."
+msgid ""
+"Your interests will be displayed on your profile, and will also help "
+"MoodleNet recommend content that is relevant to you."
+msgstr ""
+
+#: src/pages/home/index.tsx:48
+msgid ""
+"Your involvement in the testing process is subject to the <0>Code of "
+"Conduct</0>."
 msgstr ""
 
 #: src/pages/sign-up/Step1.tsx:10
@@ -457,4 +592,8 @@ msgstr ""
 
 #: src/components/elements/SignupModal/index.tsx:19
 msgid "eg. mary@moodlers.org"
+msgstr ""
+
+#: src/components/chrome/Nav/Nav.tsx:25
+msgid "🔬 Share Feedback"
 msgstr ""

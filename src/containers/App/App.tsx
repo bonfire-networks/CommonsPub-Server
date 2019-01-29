@@ -6,8 +6,8 @@ import Router from './Router';
 import { moodlenet } from '../../themes';
 import { ThemeProvider } from '@zendeskgarden/react-theming';
 import { Chrome } from '@zendeskgarden/react-chrome';
-import { I18nProvider } from '@lingui/react';
 
+import { I18nProvider } from '@lingui/react';
 import { Trans } from '@lingui/macro';
 
 import '@zendeskgarden/react-chrome/dist/styles.css';
@@ -35,9 +35,11 @@ export const AppStyles = styled.div`
   }
 `;
 
+export const locale_default = 'en_GB';
+
 export const LocaleContext = React.createContext({
   catalogs: {},
-  locale: 'en_GB',
+  locale: locale_default,
   setLocale: locale => {}
 });
 
@@ -68,7 +70,7 @@ export default class App extends React.Component<{}, AppState> {
         ? '../../locales/en_GB/messages.po'
         : '../../locales/en_GB/messages.js')
     },
-    locale: 'en_GB',
+    locale: locale_default,
     setLocale: this.setLocale.bind(this)
   };
 

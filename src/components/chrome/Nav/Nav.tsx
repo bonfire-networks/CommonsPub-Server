@@ -44,11 +44,15 @@ class Nav extends React.Component<NavProps, {}> {
             }}
             to={'/'}
           >
-            <Item>Home</Item>
+            <Item>
+              <Trans>Home</Trans>
+            </Item>
           </NavLink>
         </NavList>
         <NavList>
-          <Title>Communities</Title>
+          <Title>
+            <Trans>Communities</Trans>
+          </Title>
           {/* <NavLink
             isActive={(match, location) => {
               return (
@@ -85,36 +89,32 @@ class Nav extends React.Component<NavProps, {}> {
           <NavLink
             isActive={(match, location) => {
               return (
-                location.pathname === `/communities/11` ||
-                location.pathname === `/communities/11`
+                location.pathname === `/communities/7` ||
+                location.pathname === `/communities/7`
               );
             }}
             activeStyle={{
               position: 'relative',
               color: '#f98012'
             }}
-            to={'/communities/11'}
+            to={'/communities/7'}
           >
-            <Item>
-              <Trans>The Lounge</Trans>
-            </Item>
+            <Item>The Lounge</Item>
           </NavLink>
           <NavLink
             isActive={(match, location) => {
               return (
-                location.pathname === `/communities/12` ||
-                location.pathname === `/communities/12`
+                location.pathname === `/communities/15` ||
+                location.pathname === `/communities/15`
               );
             }}
             activeStyle={{
               position: 'relative',
               color: '#f98012'
             }}
-            to={'/communities/12'}
+            to={'/communities/15'}
           >
-            <Item>
-              <Trans>El Salón</Trans>
-            </Item>
+            <Item>El Salón</Item>
           </NavLink>
         </NavList>
         <NavList>
