@@ -144,7 +144,7 @@ const Feedback = styled.a`
 `;
 
 const Container = styled.div`
-  overflow: overlay;
+  overflow: scroll;
 `;
 const Sign = styled.div`
   & b {

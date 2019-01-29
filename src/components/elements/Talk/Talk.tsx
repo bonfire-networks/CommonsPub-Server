@@ -4,14 +4,21 @@ import { clearFix } from 'polished';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Textarea from '../../inputs/TextArea/Textarea';
 import Button from '../Button/Button';
-import { FormikProps, Form, Field } from 'formik';
+import { FormikProps, Field } from 'formik';
 import Alert from '../../elements/Alert';
+import { compose } from 'recompose';
+import Preview from './Preview';
+const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
+import { graphql } from 'react-apollo';
 
 interface Props {
   onToggle(boolean): boolean;
   toggle: boolean;
+  data: any;
   id: string;
   createThread: any;
+  isOpen: boolean;
+  onOpen(boolean): boolean;
 }
 
 interface FormValues {
@@ -21,39 +28,45 @@ interface FormValues {
 const Component = (props: Props & FormikProps<FormValues>) => (
   <ContainerTalk expanded={props.toggle}>
     <OutsideClickHandler onOutsideClick={() => props.onToggle(false)}>
-      <Form>
-        <Expanded expanded={props.toggle}>
-          <Field
-            name="content"
-            render={({ field }) => (
-              <>
-                <PreviewTalk
-                  expanded={props.toggle}
-                  onClick={() => props.onToggle(true)}
-                  placeholder={'Write a public message'}
-                  onChange={field.onChange}
-                  name={field.name}
-                  value={field.value}
-                />
-                {props.errors.content &&
-                  props.touched.content && (
-                    <Alert>{props.errors.content}</Alert>
-                  )}
-              </>
-            )}
-          />
-        </Expanded>
-        <Actions expanded={props.toggle}>
-          <Button disabled={props.isSubmitting} type="submit">
-            Publish
-          </Button>
-        </Actions>
-      </Form>
+      <Expanded expanded={props.toggle}>
+        <Field
+          name="content"
+          render={({ field }) => (
+            <>
+              <PreviewTalk
+                expanded={props.toggle}
+                onClick={() => props.onToggle(true)}
+                placeholder={'Write a public message'}
+                onChange={field.onChange}
+                name={field.name}
+                value={field.value}
+              />
+              {props.errors.content &&
+                props.touched.content && <Alert>{props.errors.content}</Alert>}
+            </>
+          )}
+        />
+      </Expanded>
+      <Actions expanded={props.toggle}>
+        <Button
+          disabled={!props.values.content}
+          onClick={() => props.onOpen(true)}
+        >
+          Preview & Publish
+        </Button>
+      </Actions>
+      <Preview
+        isSubmitting={props.isSubmitting}
+        toggleModal={props.onOpen}
+        modalIsOpen={props.isOpen}
+        values={props.values}
+        user={props.data.user}
+      />
     </OutsideClickHandler>
   </ContainerTalk>
 );
 
-export default Component;
+export default compose(graphql(getUserQuery))(Component);
 
 const Expanded = styled.div<{ expanded?: boolean }>`
   height: ${props => (props.expanded ? '150px' : '50px !important')};

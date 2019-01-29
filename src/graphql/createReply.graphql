@@ -6,7 +6,9 @@ mutation createReplyMutation($id: String!, $comment: CommentInput!) {
   createReply(inReplyToLocalId: $id, comment: $comment) {
     id
     localId
-    content
+    replies {
+      id
+    }
     published
     author {
       icon

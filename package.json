@@ -109,6 +109,7 @@
     "husky": "0.14.3",
     "interpolate-html-plugin": "3.0.0",
     "lint-staged": "7.3.0",
+    "markdown-to-jsx": "6.9.0",
     "mini-css-extract-plugin": "0.4.3",
     "moment": "2.24.0",
     "object-assign": "4.1.1",
@@ -140,7 +141,7 @@
     "typescript": "3.1.6",
     "url-loader": "1.1.1",
     "webpack": "4.20.2",
-    "webpack-dev-server": "3.1.9",
+    "webpack-dev-server": "3.1.14",
     "webpack-manifest-plugin": "2.0.4",
     "whatwg-fetch": "2.0.3",
     "yup": "0.26.6"

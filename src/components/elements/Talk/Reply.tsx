@@ -17,6 +17,8 @@ interface MyFormProps {
   externalId: string;
   id: string;
   onToggle(boolean): boolean;
+  onOpen(boolean): boolean;
+  isOpen: boolean;
   toggle: boolean;
   setSubmitting(boolean): boolean;
 }
@@ -75,6 +77,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       .then(res => {
         setSubmitting(false);
         setFieldValue('content', ' ');
+        props.onOpen(false);
         props.onToggle(false);
       })
       .catch(err => console.log(err));
@@ -83,5 +86,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
 
 export default compose(
   withCreateThread,
-  withState('toggle', 'onToggle', false)
+  withState('toggle', 'onToggle', false),
+  withState('isOpen', 'onOpen', false)
 )(TalkWithFormik);
