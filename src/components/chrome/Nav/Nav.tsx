@@ -30,9 +30,6 @@ class Nav extends React.Component<NavProps, {}> {
   render() {
     return (
       <SidebarWrapper>
-        <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
-          <Trans>🔬 Share Feedback</Trans>
-        </Feedback>
         <NavList>
           <NavLink
             isActive={(match, location) => {
@@ -169,6 +166,9 @@ class Nav extends React.Component<NavProps, {}> {
             </Item>
           </NavLink>
         </NavList>
+        <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
+          <Trans>🔬 Share Feedback</Trans>
+        </Feedback>
 
         <Bottom onClick={this.props.handleNewCommunity}>
           <Trans>Create a community</Trans>
@@ -187,18 +187,16 @@ const Feedback = styled.a`
   text-align: center;
   animation: 0.5s slide-in;
   position: relative;
-  height: 30px;
+  height: 40px;
   background: rgb(255, 239, 217);
   border-bottom: 1px solid rgb(228, 220, 195);
   color: #10100cc2 !important;
   line-height: 30px;
-  padding: 0;
+  padding: 5px 0;
   font-size: 13px;
   text-decoration: none;
-  margin-top: -18px;
-  margin: -18px -16px;
-  font-size: 13px;
   font-weight: 700;
+  margin-top: 18px;
   margin-bottom: 16px;
   cursor: pointer;
   &:hover {
