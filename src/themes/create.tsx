@@ -32,6 +32,7 @@ export default function createTheme(theme: MoodleThemeInterface) {
   const chromeStyles = `
         && {
             background-color: #FBFBFD;
+            background-color: #e9ebee;
         }
     `;
 

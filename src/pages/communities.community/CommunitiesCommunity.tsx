@@ -20,7 +20,7 @@ import Button from '../../components/elements/Button/Button';
 import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
-
+import { Star } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -118,6 +118,17 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                   <HeroInfo>
                     <H2>{community.name}</H2>
                     <P>{community.summary}</P>
+                    <Button>
+                      <span>
+                        <Star
+                          width={18}
+                          height={18}
+                          color="#fff"
+                          strokeWidth={1}
+                        />
+                      </span>{' '}
+                      Following
+                    </Button>
                   </HeroInfo>
                 </Hero>
               </Row>
@@ -273,7 +284,17 @@ const HeroInfo = styled.div`
     line-height: 32px !important;
   }
   & p {
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.7);
+    padding: 0 24px;
+    font-size: 15px;
+  }
+  & button {
+    span {
+      vertical-align: sub;
+      display: inline-block;
+      height: 30px;
+      margin-right: 4px;
+    }
   }
 `;
 
