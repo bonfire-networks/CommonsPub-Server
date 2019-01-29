@@ -271,6 +271,18 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     {:ok, comms}
   end
 
+  def list_following_communities(_field_arguments, info) do
+    fields = requested_fields(info)
+
+    with {:ok, current_actor} <- current_actor(info) do
+      comms =
+        MoodleNet.list_following_communities(current_actor)
+        |> prepare(fields)
+
+      {:ok, comms}
+    end
+  end
+
   def list_collections(%{community_local_id: community_local_id}, info) do
     fields = requested_fields(info)
 
@@ -279,6 +291,18 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       |> prepare(fields)
 
     {:ok, cols}
+  end
+
+  def list_following_collections(_field_arguments, info) do
+    fields = requested_fields(info)
+
+    with {:ok, current_actor} <- current_actor(info) do
+      colls =
+        MoodleNet.list_following_collections(current_actor)
+        |> prepare(fields)
+
+      {:ok, colls}
+    end
   end
 
   def list_resources(%{collection_local_id: collection_local_id}, info) do

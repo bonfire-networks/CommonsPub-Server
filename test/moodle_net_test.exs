@@ -1,6 +1,31 @@
 defmodule MoodleNetTest do
   use MoodleNet.DataCase, async: true
 
+  describe "list following communities" do
+    test "works" do
+      owner = Factory.actor()
+      %{id: comm_id} = comm = Factory.community(owner)
+
+      assert [%{id: ^comm_id}] = MoodleNet.list_following_communities(owner)
+
+      assert {:ok, true} = MoodleNet.undo_follow(owner, comm)
+      assert [] = MoodleNet.list_following_communities(owner)
+    end
+  end
+
+  describe "list following collections" do
+    test "works" do
+      owner = Factory.actor()
+      comm = Factory.community(owner)
+      %{id: coll_id} = coll = Factory.collection(owner, comm)
+
+      assert [%{id: ^coll_id}] = MoodleNet.list_following_collections(owner)
+
+      assert {:ok, true} = MoodleNet.undo_follow(owner, coll)
+      assert [] = MoodleNet.list_following_collections(owner)
+    end
+  end
+
   describe "list_threads" do
     test "works" do
       owner = Factory.actor()
@@ -86,7 +111,6 @@ defmodule MoodleNetTest do
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
 
-
       assert {:ok, comment} = MoodleNet.create_thread(actor, coll, attrs)
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
@@ -112,7 +136,6 @@ defmodule MoodleNetTest do
       assert {:ok, comment} = MoodleNet.create_reply(actor, c1, attrs)
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
-
 
       assert {:ok, comment} = MoodleNet.create_reply(actor, c2, attrs)
       assert comment["primary_language"] == attrs["primary_language"]

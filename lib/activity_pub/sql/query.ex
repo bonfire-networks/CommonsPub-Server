@@ -26,6 +26,7 @@ defmodule ActivityPub.SQL.Query do
 
   def one(%Ecto.Query{} = query) do
     query
+    # |> print_query()
     |> Repo.one()
     |> to_entity()
   end
@@ -169,24 +170,12 @@ defmodule ActivityPub.SQL.Query do
     end)
   end
 
-  def belongs_to(%Ecto.Query{} = query, assoc_name, local_id) when is_integer(local_id),
-    do: belongs_to(query, assoc_name, [local_id])
-
-  def belongs_to(%Ecto.Query{} = query, assoc_name, entity) when APG.is_entity(entity),
-    do: belongs_to(query, assoc_name, [Entity.local_id(entity)])
-
-  def belongs_to(%Ecto.Query{} = query, assoc_name, [entity | _] = list)
-      when APG.is_entity(entity),
-      do: belongs_to(query, assoc_name, to_local_ids(list))
-
-  def has(%Ecto.Query{} = query, assoc_name, local_id) when is_integer(local_id),
-    do: has(query, assoc_name, [local_id])
-
-  def has(%Ecto.Query{} = query, assoc_name, entity) when APG.is_entity(entity),
-    do: has(query, assoc_name, [Entity.local_id(entity)])
-
-  def has(%Ecto.Query{} = query, assoc_name, [entity | _] = list) when APG.is_entity(entity),
-    do: has(query, assoc_name, to_local_ids(list))
+  defp to_local_ids(entities, assoc) do
+    Enum.map(entities, fn
+      e when APG.is_entity(e) -> Common.local_id(e[assoc])
+      int when is_integer(int) -> int
+    end)
+  end
 
   def has?(subject, rel, target)
       when APG.is_entity(subject) and APG.has_status(subject, :loaded) and APG.is_entity(target) and
@@ -202,6 +191,26 @@ defmodule ActivityPub.SQL.Query do
         table_name: table_name,
         join_keys: [subject_key, target_key]
       } ->
+        def belongs_to(%Ecto.Query{} = query, unquote(name), local_id) when is_integer(local_id),
+          do: belongs_to(query, unquote(name), [local_id])
+
+        def belongs_to(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity),
+          do: belongs_to(query, unquote(name), [Entity.local_id(entity)])
+
+        def belongs_to(%Ecto.Query{} = query, unquote(name), [entity | _] = list)
+            when APG.is_entity(entity),
+            do: belongs_to(query, unquote(name), to_local_ids(list))
+
+        def has(%Ecto.Query{} = query, unquote(name), local_id) when is_integer(local_id),
+          do: has(query, unquote(name), [local_id])
+
+        def has(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity),
+          do: has(query, unquote(name), [Entity.local_id(entity)])
+
+        def has(%Ecto.Query{} = query, unquote(name), [entity | _] = list)
+            when APG.is_entity(entity),
+            do: has(query, unquote(name), to_local_ids(list))
+
         def has(%Ecto.Query{} = query, unquote(name), ext_ids) when is_list(ext_ids) do
           from([entity: entity] in query,
             join: rel in fragment(unquote(table_name)),
@@ -239,10 +248,58 @@ defmodule ActivityPub.SQL.Query do
 
       %Collection{
         name: name,
+        sql_aspect: sql_aspect,
         aspect: aspect,
         table_name: table_name,
         join_keys: [subject_key, target_key]
       } ->
+        def belongs_to(%Ecto.Query{} = query, unquote(name), local_id) when is_integer(local_id),
+          do: belongs_to(query, unquote(name), [local_id])
+
+        def belongs_to(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity),
+          do: belongs_to(query, unquote(name), [Common.local_id(entity[unquote(name)])])
+
+        def belongs_to(%Ecto.Query{} = query, unquote(name), [entity | _] = list)
+            when APG.is_entity(entity),
+            do: belongs_to(query, unquote(name), to_local_ids(list))
+
+        def belongs_to(%Ecto.Query{} = query, unquote(name), ext_ids)
+            when is_list(ext_ids) do
+          field_name = "#{unquote(name)}_id"
+
+          from([entity: entity] in query,
+            join: rel in fragment(unquote(table_name)),
+            as: unquote(name),
+            on:
+              entity.local_id == field(rel, unquote(target_key)) and
+                field(rel, unquote(subject_key)) in ^ext_ids
+          )
+        end
+
+        def has(%Ecto.Query{} = query, unquote(name), local_id) when is_integer(local_id),
+          do: has(query, unquote(name), [local_id])
+
+        def has(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity),
+          do: has(query, unquote(name), [Entity.local_id(entity)])
+
+        def has(%Ecto.Query{} = query, unquote(name), [entity | _] = list)
+            when APG.is_entity(entity),
+            do: has(query, unquote(name), to_local_ids(list))
+
+        def has(%Ecto.Query{} = query, unquote(name), ext_ids) when is_list(ext_ids) do
+          %{owner_key: owner_key} = unquote(sql_aspect).__schema__(:association, unquote(name))
+          # FIXME THIS works perfectly for all aspects except Object!
+          query = preload_aspect(query, unquote(aspect))
+
+          from([{unquote(sql_aspect.field_name), entity}] in query,
+            join: rel in fragment(unquote(table_name)),
+            as: unquote(name),
+            on:
+              field(entity, ^owner_key) == field(rel, unquote(subject_key)) and
+                field(rel, unquote(target_key)) in ^ext_ids
+          )
+        end
+
         defp do_has?(subject, unquote(name), target)
              when APG.has_aspect(subject, unquote(aspect)) do
           subject_id = Common.local_id(subject[unquote(name)])
@@ -256,11 +313,8 @@ defmodule ActivityPub.SQL.Query do
           |> Repo.exists?()
         end
 
-      # TODO has and belongs_to
-
-      # TODO all belongs_to assoc
-
       %BelongsTo{} ->
+        # TODO has and belongs_to
         []
     end)
   end
@@ -353,9 +407,9 @@ defmodule ActivityPub.SQL.Query do
         "Invalid status: #{Entity.status(e)}. Only entities with status :loaded can be preloaded"
       )
 
-  # defp print_query(query) do
-  #   {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
-  #   IO.puts("#{query_str} <=> #{inspect(args)}")
-  #   query
-  # end
+  defp print_query(query) do
+    {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
+    IO.puts("#{query_str} <=> #{inspect(args)}")
+    query
+  end
 end

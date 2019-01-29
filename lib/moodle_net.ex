@@ -11,6 +11,14 @@ defmodule MoodleNet do
     |> Query.all()
   end
 
+  def list_following_communities(actor, opts \\ %{}) do
+    Query.new()
+    |> Query.with_type("MoodleNet:Community")
+    |> Query.belongs_to(:following, actor)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
   def list_communities_with_collection(collection, opts \\ %{}) do
     Query.new()
     |> Query.with_type("MoodleNet:Community")
@@ -31,6 +39,14 @@ defmodule MoodleNet do
 
   def list_collections(entity, opts) do
     list_collections(entity[:local_id], opts)
+  end
+
+  def list_following_collections(actor, opts \\ %{}) do
+    Query.new()
+    |> Query.with_type("MoodleNet:Collection")
+    |> Query.belongs_to(:following, actor)
+    |> Query.paginate(opts)
+    |> Query.all()
   end
 
   def list_resources(entity_id, opts \\ %{})

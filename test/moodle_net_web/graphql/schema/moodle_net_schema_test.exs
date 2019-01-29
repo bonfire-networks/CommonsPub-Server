@@ -8,6 +8,65 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   @moduletag format: :json
 
   @tag :user
+  test "list following communities", %{conn: conn, actor: actor} do
+    %{id: community_id} = community = Factory.community(actor)
+
+    query = """
+    {
+      followingCommunities {
+        id
+      }
+    }
+    """
+
+    assert [%{"id" => ^community_id}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("followingCommunities")
+
+    MoodleNet.undo_follow(actor, community)
+
+    assert [] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("followingCommunities")
+  end
+
+  @tag :user
+  test "list following collections", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    %{id: collection_id} = collection = Factory.collection(actor, community)
+
+    query = """
+    {
+      followingCollections {
+        id
+      }
+    }
+    """
+
+    assert [%{"id" => ^collection_id}] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("followingCollections")
+
+    MoodleNet.undo_follow(actor, collection)
+
+    assert [] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("followingCollections")
+  end
+
+  @tag :user
   test "list threads", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     thread = Factory.comment(actor, community)
@@ -16,7 +75,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
 
     query = """
     {
-      threads(context_local_id: #{local_id(community)}) {
+      threads(contextLocalId: #{local_id(community)}) {
         id
         author {
           id
@@ -39,13 +98,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              |> Map.fetch!("threads")
 
     assert %{
-      "id" => thread.id,
-      "author" => %{"id" => actor.id},
-      "replies" => [%{
-        "id" => reply.id,
-        "author" => %{"id" => actor.id},
-      }]
-    } == thread_map
+             "id" => thread.id,
+             "author" => %{"id" => actor.id},
+             "replies" => [
+               %{
+                 "id" => reply.id,
+                 "author" => %{"id" => actor.id}
+               }
+             ]
+           } == thread_map
   end
 
   @tag :user
@@ -162,9 +223,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
              },
              "code" => "validation",
              "locations" => [%{"column" => 0, "line" => 2}],
-             "message" => "should be at least 6 character(s)",
              "path" => ["createUser"]
            } = error
+
+    assert error["message"] == "debería tener al menos 6 elemento(s)"
   end
 
   test "confirm email", %{conn: conn} do
