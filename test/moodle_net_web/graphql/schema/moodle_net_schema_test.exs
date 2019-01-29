@@ -8,6 +8,99 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
   @moduletag format: :json
 
   @tag :user
+  test "comment context", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
+    %{id: comm_comment_id} = Factory.comment(actor, community)
+    %{id: coll_comment_id} = Factory.comment(actor, collection)
+
+    query = """
+    {
+      threads(contextLocalId: #{local_id(community)}) {
+        id
+        context {
+          __typename
+          ... on Community {
+            id
+            name
+            collections {
+              id
+            }
+          }
+          ... on Collection {
+            id
+            name
+            resources {
+              id
+            }
+          }
+        }
+      }
+    }
+    """
+
+    assert [comm_comment_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("threads")
+
+    assert %{
+             "id" => ^comm_comment_id,
+             "context" => community_map
+           } = comm_comment_map
+    assert community_map["__typename"] == "Community"
+    assert community_map["id"] == community.id
+    assert community_map["name"] == community.name["und"]
+    assert [%{"id" => collection_id}] = community_map["collections"]
+    assert collection_id == collection.id
+
+    query = """
+    {
+      threads(contextLocalId: #{local_id(collection)}) {
+        id
+        context {
+          __typename
+          ... on Community {
+            id
+            name
+            collections {
+              id
+            }
+          }
+          ... on Collection {
+            id
+            name
+            resources {
+              id
+            }
+          }
+        }
+      }
+    }
+    """
+
+    assert [coll_comment_map] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("threads")
+
+    assert %{
+             "id" => ^coll_comment_id,
+             "context" => collection_map
+           } = coll_comment_map
+    assert collection_map["__typename"] == "Collection"
+    assert collection_map["id"] == collection.id
+    assert collection_map["name"] == collection.name["und"]
+    assert [%{"id" => resource_id}] = collection_map["resources"]
+    assert resource_id == resource.id
+  end
+
+  @tag :user
   test "list following communities", %{conn: conn, actor: actor} do
     %{id: community_id} = community = Factory.community(actor)
 
@@ -85,6 +178,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchemaTest do
           author {
             id
           }
+        }
+        context {
+          id
         }
       }
     }

@@ -248,6 +248,19 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     field(:author, :user, do: resolve(with_assoc(:attributed_to, single: true)))
     field(:in_reply_to, :comment, do: resolve(with_assoc(:in_reply_to, single: true)))
     field(:replies, list_of(:comment), do: resolve(with_assoc(:replies)))
+
+    field(:context, :comment_context, do: resolve(with_assoc(:context, single: true)))
+  end
+
+  union :comment_context do
+    description("Where the comment resides")
+
+    types([:collection, :community])
+
+    resolve_type(fn
+      e, _  when APG.has_type(e, "MoodleNet:Community") -> :community
+      e, _  when APG.has_type(e, "MoodleNet:Collection") -> :collection
+    end)
   end
 
   input_object :comment_input do

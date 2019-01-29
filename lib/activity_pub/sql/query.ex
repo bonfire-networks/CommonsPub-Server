@@ -170,13 +170,6 @@ defmodule ActivityPub.SQL.Query do
     end)
   end
 
-  defp to_local_ids(entities, assoc) do
-    Enum.map(entities, fn
-      e when APG.is_entity(e) -> Common.local_id(e[assoc])
-      int when is_integer(int) -> int
-    end)
-  end
-
   def has?(subject, rel, target)
       when APG.is_entity(subject) and APG.has_status(subject, :loaded) and APG.is_entity(target) and
              APG.has_status(target, :loaded)
@@ -265,8 +258,6 @@ defmodule ActivityPub.SQL.Query do
 
         def belongs_to(%Ecto.Query{} = query, unquote(name), ext_ids)
             when is_list(ext_ids) do
-          field_name = "#{unquote(name)}_id"
-
           from([entity: entity] in query,
             join: rel in fragment(unquote(table_name)),
             as: unquote(name),
@@ -407,9 +398,9 @@ defmodule ActivityPub.SQL.Query do
         "Invalid status: #{Entity.status(e)}. Only entities with status :loaded can be preloaded"
       )
 
-  defp print_query(query) do
-    {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
-    IO.puts("#{query_str} <=> #{inspect(args)}")
-    query
-  end
+  # defp print_query(query) do
+  #   {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
+  #   IO.puts("#{query_str} <=> #{inspect(args)}")
+  #   query
+  # end
 end
