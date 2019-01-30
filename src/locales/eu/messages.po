@@ -17,6 +17,10 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: @lingui/cli\n"
 
+#: src/components/elements/Community/Community.tsx:19
+msgid "<0><1/></0>"
+msgstr "<0><1/></0>"
+
 #: src/components/elements/CollectionModal/fetched.tsx:25
 #: src/components/elements/CollectionModal/index.tsx:12
 msgid "A name or title for the resource"
@@ -27,7 +31,7 @@ msgid "Account"
 msgstr "Kontua"
 
 #: src/components/elements/CollectionModal/index.tsx:37
-#: src/pages/collections.collection/CollectionsCollection.tsx:108
+#: src/pages/collections.collection/CollectionsCollection.tsx:89
 msgid "Add a new resource"
 msgstr "Gehitu baliabide berri bat"
 
@@ -39,17 +43,19 @@ msgstr "Gehitu interesa"
 msgid "Add language"
 msgstr "Gehitu hizkuntza"
 
-#: src/pages/collections.collection/CollectionsCollection.tsx:116
+#: src/pages/collections.collection/CollectionsCollection.tsx:104
 msgid "Add the first resource"
 msgstr "Gehitu lehen baliabidea"
 
-#: src/components/chrome/Nav/Nav.tsx:89
-#: src/pages/collections.featured/CollectionsFeatured.tsx:31
+#: src/components/chrome/Nav/Nav.tsx:50 src/components/chrome/Nav/Nav.tsx:97
+msgid "All"
+msgstr "Guztiak"
+
+#: src/pages/collections.featured/CollectionsFeatured.tsx:32
 msgid "All Collections"
 msgstr "Gehitu Bildumak"
 
-#: src/components/chrome/Nav/Nav.tsx:49
-#: src/pages/communities.featured/CommunitiesFeatured.tsx:30
+#: src/pages/communities.featured/CommunitiesFeatured.tsx:31
 msgid "All Communities"
 msgstr "Gehitu Komunitateak"
 
@@ -64,6 +70,7 @@ msgstr "Biografia"
 #: src/components/elements/EditCommunityModal/index.tsx:74
 #: src/components/elements/EditResourceModal/index.tsx:84
 #: src/components/elements/SignupModal/index.tsx:81
+#: src/components/elements/Talk/Preview.tsx:37
 msgid "Cancel"
 msgstr "Utzi"
 
@@ -95,13 +102,13 @@ msgstr "Egin klik profilerako irudia aukeratzeko"
 msgid "Collection"
 msgstr "Bilduma"
 
-#: src/components/chrome/Nav/Nav.tsx:77 src/pages/search/Search.tsx:43
+#: src/components/chrome/Nav/Nav.tsx:85 src/pages/search/Search.tsx:43
 msgid "Collections"
 msgstr "Bildumak"
 
 #: src/components/chrome/Nav/Nav.tsx:38
 #: src/pages/collections.collection/breadcrumb.tsx:7
-#: src/pages/communities.community/breadcrumb.tsx:9
+#: src/pages/communities.community/breadcrumb.tsx:7
 #: src/pages/search/Search.tsx:31
 msgid "Communities"
 msgstr "Komunitateak"
@@ -118,7 +125,7 @@ msgstr "Baieztatu pasahitza"
 msgid "Confirm your password"
 msgstr "Baieztatu zure pasahitza"
 
-#: src/pages/collections.collection/CollectionsCollection.tsx:73
+#: src/pages/collections.collection/CollectionsCollection.tsx:52
 msgid "Could not load the collection."
 msgstr "Ezin izan da bilduma kargatu."
 
@@ -140,7 +147,7 @@ msgstr "Ezin da une honetan bilaketa egin, mesedez saiatu zaitez beranduago."
 msgid "Create"
 msgstr "Sortu"
 
-#: src/components/chrome/Nav/Nav.tsx:95
+#: src/components/chrome/Nav/Nav.tsx:117
 msgid "Create a community"
 msgstr "Sortu komunitate bat"
 
@@ -157,7 +164,7 @@ msgstr "Sortu bilduma berri bat"
 msgid "Create a new community"
 msgstr "Sortu komunitate berri bat"
 
-#: src/pages/communities.community/CommunitiesCommunity.tsx:64
+#: src/pages/communities.community/CommunitiesCommunity.tsx:68
 msgid "Create the first collection"
 msgstr "Sortu lehen bilduma"
 
@@ -178,7 +185,7 @@ msgstr "Eztabaidak"
 msgid "Display Name"
 msgstr "Erakutsi Izena"
 
-#: src/pages/home/index.tsx:36
+#: src/pages/home/index.tsx:35
 msgid ""
 "Do educators want to join communities to curate collections of resources?"
 msgstr ""
@@ -189,7 +196,7 @@ msgstr ""
 msgid "Don't yet have an account?"
 msgstr "Oraindik ez duzu konturik?"
 
-#: src/pages/home/index.tsx:57
+#: src/pages/home/index.tsx:56
 msgid ""
 "During this testing period we will observe what you do with MoodleNet, and "
 "listen to what you tell us about your experiences."
@@ -198,8 +205,8 @@ msgstr ""
 " esperientzien inguruan kontatzen diguzunari entzungo diegu."
 
 #: src/components/elements/Resource/Resource.tsx:17
-#: src/pages/collections.collection/CollectionsCollection.tsx:97
-#: src/pages/communities.community/CommunitiesCommunity.tsx:90
+#: src/pages/collections.collection/CollectionsCollection.tsx:77
+#: src/pages/communities.community/CommunitiesCommunity.tsx:100
 msgid "Edit"
 msgstr "Editatu"
 
@@ -218,10 +225,6 @@ msgstr "Editatu komunitatearen xehetasunak"
 #: src/components/elements/EditResourceModal/index.tsx:26
 msgid "Edit the resource details"
 msgstr "Editatu baliabidearen xehetasunak"
-
-#: src/components/chrome/Nav/Nav.tsx:71
-msgid "El Salón"
-msgstr "Egongela"
 
 #: src/components/elements/SignupModal/index.tsx:41
 msgid "Email"
@@ -262,7 +265,8 @@ msgid "Enter your password"
 msgstr "Sartu zure pasahitza"
 
 #: src/pages/collections.featured/CollectionsFeatured.tsx:16
-#: src/pages/communities.community/CommunitiesCommunity.tsx:39
+#: src/pages/collections.yours/CollectionsYours.tsx:16
+#: src/pages/communities.community/CommunitiesCommunity.tsx:40
 msgid "Error loading collections"
 msgstr "Errorea bildumak kargatzean"
 
@@ -271,15 +275,11 @@ msgid "Error loading comments"
 msgstr "Errorea iruzkinak kargatzean"
 
 #: src/pages/communities.featured/CommunitiesFeatured.tsx:16
-#: src/pages/communities.yours/CommunitiesYours.tsx:24
+#: src/pages/communities.yours/CommunitiesYours.tsx:17
 msgid "Error loading communities"
 msgstr "Errorea komunitateak kargatzean"
 
-#: src/containers/App/Router.tsx:79
-msgid "Favourite Collections"
-msgstr "Bilduma Gogokoenak"
-
-#: src/containers/App/Router.tsx:73
+#: src/containers/App/Router.tsx:74
 msgid "Featured Collections"
 msgstr "Nabarmendutako Bildumak"
 
@@ -287,7 +287,23 @@ msgstr "Nabarmendutako Bildumak"
 msgid "Fetch the resource"
 msgstr "Eskuratu baliabidea"
 
-#: src/pages/home/index.tsx:43
+#: src/components/elements/Collection/Join.tsx:79
+msgid "Follow"
+msgstr "Jarraitu"
+
+#: src/pages/collections.collection/CollectionsCollection.tsx:92
+msgid "Follow the collection to add a new resource"
+msgstr "Jarraitu bilduma baliabide berri bat gehitzeko"
+
+#: src/pages/collections.yours/CollectionsYours.tsx:30
+msgid "Followed Collections"
+msgstr "Jarraitu bildumak"
+
+#: src/components/chrome/Nav/Nav.tsx:108
+msgid "Following"
+msgstr "Jarraitzen"
+
+#: src/pages/home/index.tsx:42
 msgid "Here are some important things to note:"
 msgstr "Hemen kontuan hartu beharreko ohar garrantzitsu batzuk daude:"
 
@@ -295,7 +311,7 @@ msgstr "Hemen kontuan hartu beharreko ohar garrantzitsu batzuk daude:"
 msgid "Here are some trending tags you could add"
 msgstr "Hemen dituzu gehitu ditzakezun hedatuta dauden etiketa batzuk "
 
-#: src/components/chrome/Nav/Nav.tsx:34
+#: src/components/chrome/Nav/Nav.tsx:32
 msgid "Home"
 msgstr "Hasiera"
 
@@ -315,6 +331,27 @@ msgstr "Interesak"
 msgid "Introduce yourself to the community..."
 msgstr "Aurkeztu ezazu zure burua komunitatean..."
 
+#: src/components/elements/Community/Join.tsx:79
+msgid "Join"
+msgstr "Parte hartu"
+
+#: src/pages/communities.community/CommunitiesCommunity.tsx:58
+#: src/pages/communities.community/CommunitiesCommunity.tsx:70
+msgid "Join the community to create a collection"
+msgstr "Batu komunitatean bilduma bat sortzeko"
+
+#: src/pages/communities.community/CommunitiesCommunity.tsx:110
+msgid "Join the community to discuss"
+msgstr "Elkartu komunitateari eztabaidatzeko"
+
+#: src/components/chrome/Nav/Nav.tsx:61
+msgid "Joined"
+msgstr "Alta"
+
+#: src/pages/communities.yours/CommunitiesYours.tsx:32
+msgid "Joined Communities"
+msgstr "Batasuneko kideak"
+
 #: src/pages/sign-up/Step1.tsx:87
 msgid "Language"
 msgstr "Hizkuntza"
@@ -322,6 +359,10 @@ msgstr "Hizkuntza"
 #: src/pages/sign-up/Profile.tsx:35
 msgid "Languages"
 msgstr "Hizkuntzak"
+
+#: src/components/elements/Community/Join.tsx:48
+msgid "Leave"
+msgstr "Utzi"
 
 #: src/components/elements/CollectionModal/fetched.tsx:38
 #: src/components/elements/EditResourceModal/index.tsx:32
@@ -337,13 +378,9 @@ msgstr "Kokapena"
 msgid "Members"
 msgstr "Partaideak"
 
-#: src/pages/home/index.tsx:100
+#: src/pages/home/index.tsx:99
 msgid "MoodleNet Team"
 msgstr "MoodleNet taldea"
-
-#: src/containers/App/Router.tsx:76
-msgid "My Collections"
-msgstr "Nire Bildumak"
 
 #: src/components/elements/CollectionModal/fetched.tsx:48
 #: src/components/elements/CommunityModal/index.tsx:41
@@ -383,7 +420,7 @@ msgstr ""
 "Azaldu ezazu mesedez nor egon daitekeen komunitate honetan interesatuta eta "
 "nolako bildumak eduki ditzakeen..."
 
-#: src/pages/home/index.tsx:19
+#: src/pages/home/index.tsx:18
 msgid ""
 "Please pay attention to the video and text on this page, as they contain "
 "some important information."
@@ -410,9 +447,22 @@ msgstr "Bilaketa esaldi hedatuak"
 msgid "Popular tags"
 msgstr "Etiketa hedatuak"
 
+#: src/components/elements/Talk/Preview.tsx:34
+msgid "Post"
+msgstr "Bidali"
+
+#: src/components/elements/Talk/Preview.tsx:26
+#: src/components/elements/Talk/Talk.tsx:31
+msgid "Preview"
+msgstr "Aurreikusi"
+
 #: src/pages/sign-up/Step1.tsx:56
 msgid "Profile"
 msgstr "Profila"
+
+#: src/components/elements/Comment/Comment.tsx:29
+msgid "Reply"
+msgstr "Erantzun"
 
 #: src/components/elements/Card/Card.tsx:180 src/pages/search/Search.tsx:55
 msgid "Resources"
@@ -450,7 +500,7 @@ msgstr "Bilatzen..."
 msgid "Settings"
 msgstr "Ezarpenak"
 
-#: src/pages/home/index.tsx:85
+#: src/pages/home/index.tsx:84
 msgid "Share Feedback"
 msgstr "Partekatu iritzia"
 
@@ -480,7 +530,7 @@ msgid "Sign in with Twitter"
 msgstr "Hasi saioa Twitter-en bitartez"
 
 #: src/components/chrome/Menu/User.MenuBody.tsx:39
-#: src/components/header/index.tsx:31
+#: src/components/header/index.tsx:37
 msgid "Sign out"
 msgstr "Irten"
 
@@ -492,13 +542,9 @@ msgstr "Izena eman"
 msgid "Sorry, we encountered a problem loading the app in your language."
 msgstr "Sentitzen dugu, app-a zure hizkuntzan kargatzean arazo bat egon da."
 
-#: src/pages/home/index.tsx:15
+#: src/pages/home/index.tsx:14
 msgid "Thanks for being part of this testing process for MoodleNet."
 msgstr "Eskerrik asko MoodleNet-eko proba-prozesu honen parte hartzeagatik."
-
-#: src/components/chrome/Nav/Nav.tsx:60
-msgid "The Lounge"
-msgstr "Egongela"
 
 #: src/pages/login/Login.tsx:48
 msgid "The email field cannot be empty"
@@ -508,11 +554,11 @@ msgstr "E-postaren eremua ezin da hutsik egon"
 msgid "The password field cannot be empty"
 msgstr "Pasahitzaren eremua ezin da hutsik egon"
 
-#: src/pages/collections.collection/CollectionsCollection.tsx:113
+#: src/pages/collections.collection/CollectionsCollection.tsx:99
 msgid "This collection has no resources."
 msgstr "Bilduma honek ez du baliabiderik."
 
-#: src/pages/communities.community/CommunitiesCommunity.tsx:62
+#: src/pages/communities.community/CommunitiesCommunity.tsx:65
 msgid "This community has no collections."
 msgstr "Komunitate honek ez du bildumarik."
 
@@ -524,7 +570,7 @@ msgstr "Datu hauek ez dira inoiz partekatuko."
 msgid "This information will appear on your public profile."
 msgstr "Informazio hau zure profil publikoan erakutsiko da."
 
-#: src/pages/home/index.tsx:70
+#: src/pages/home/index.tsx:69
 msgid ""
 "This test is semi-closed, but your contributions will live on beyond the "
 "testing period. So curate and comment as if everything you share is public."
@@ -533,15 +579,19 @@ msgstr ""
 "biziraungo dute. Beraz partekatu eta iruzkinak egin itzazu egiten duzu "
 "guztia publikoa balitz bezala."
 
-#: src/pages/thread/index.tsx:42
+#: src/components/elements/Collection/Join.tsx:48
+msgid "Unfollow"
+msgstr "utzi"
+
+#: src/pages/thread/index.tsx:48
 msgid "View full thread"
 msgstr "Ikusi hari osoa"
 
-#: src/pages/home/index.tsx:11
+#: src/pages/home/index.tsx:10
 msgid "Welcome"
 msgstr "Ongi etorri!"
 
-#: src/pages/home/index.tsx:90
+#: src/pages/home/index.tsx:89
 msgid ""
 "We’re really looking forward to seeing how you use MoodleNet to share and "
 "curate resources, and collaborate with other educators! Get started by "
@@ -553,11 +603,11 @@ msgstr ""
 "\"Egongela\"-n  klik egin eta zure burua aurkeztuz, edo zure lehen "
 "baliabidea gehituz!"
 
-#: src/pages/home/index.tsx:33
+#: src/pages/home/index.tsx:32
 msgid "We’re trying to discover the answer to this question:"
 msgstr "Galdera honen erantzunaren bila gabiltza:"
 
-#: src/pages/home/index.tsx:77
+#: src/pages/home/index.tsx:76
 msgid ""
 "We’re using <0>Changemap</0> to collect your feedback during this testing "
 "period, so please do use that to suggest everything from small tweaks to "
@@ -569,7 +619,11 @@ msgstr ""
 "dezakezu. Bertara sartzeko egin klik alboko barrako \"Partekatu iritzia\" "
 "estekan:"
 
-#: src/pages/home/index.tsx:63
+#: src/components/elements/Talk/Talk.tsx:17
+msgid "Write a public message"
+msgstr "Idatzi mezu publikoa"
+
+#: src/pages/home/index.tsx:62
 msgid ""
 "You cannot completely delete anything in MoodleNet at the moment, as we have"
 " not rolled out the moderation tools. Instead, just change all of the fields"
@@ -578,10 +632,6 @@ msgstr ""
 "MoodleNet-en une honetan ezin duzu ezer erabat ezabatu, oraindik ez dugulako"
 " garatu moderazio tresnarik. Horren ordez, aldatu itzazu baliabidearen "
 "eremuak eta beste zerbait jarri ezazu!"
-
-#: src/pages/communities.yours/CommunitiesYours.tsx:41
-msgid "Your Communities"
-msgstr "Zure Komunitateak"
 
 #: src/pages/sign-up/Step2.tsx:99
 msgid "Your Interests"
@@ -595,7 +645,7 @@ msgstr ""
 "Zure interesak zure profilean erakutsiko dira, eta zuretzako interesgarriak "
 "ziren MoodleNet-eko edukiak gomendatzeko lagungarriak izango dira."
 
-#: src/pages/home/index.tsx:48
+#: src/pages/home/index.tsx:47
 msgid ""
 "Your involvement in the testing process is subject to the <0>Code of "
 "Conduct</0>."
@@ -625,6 +675,6 @@ msgstr "Miren Moodlezalea adibidez"
 msgid "eg. mary@moodlers.org"
 msgstr "miren@moodlezaleak.eus adibidez"
 
-#: src/components/chrome/Nav/Nav.tsx:25
+#: src/components/chrome/Nav/Nav.tsx:113
 msgid "🔬 Share Feedback"
 msgstr "🔬 Partekatu iritzia"
