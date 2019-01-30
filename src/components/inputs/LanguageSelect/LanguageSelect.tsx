@@ -77,23 +77,21 @@ export default class LanguageSelect extends React.Component<
   }
 
   render() {
-    let flagClass = this.state.selectedKey.substr(-2).toLowerCase();
-
     return (
       <LocaleContext.Consumer>
-        {({ setLocale }) => (
+        {({ setLocale, locale }) => (
           <SelectField {...this.props}>
             <Select
-              selectedKey={this.state.selectedKey}
+              selectedKey={locale}
               onChange={selectedKey => {
                 setLocale(selectedKey);
                 this.setState({ selectedKey });
               }}
               options={options}
             >
-              <Flag flag={flagClass} />
+              <Flag flag={locale.substr(-2).toLowerCase()} />
               &nbsp;&nbsp;
-              {languageNames[this.state.selectedKey]}
+              {languageNames[locale]}
             </Select>
           </SelectField>
         )}
