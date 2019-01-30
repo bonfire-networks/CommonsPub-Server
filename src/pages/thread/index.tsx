@@ -51,7 +51,7 @@ const Component = ({ data, match }) => {
     name: data.comment.author.name,
     image: `https://www.gravatar.com/avatar/${
       data.comment.author.id
-    }?f=y&d=retro`
+    }?f=y&d=identicon`
   };
 
   let message = {

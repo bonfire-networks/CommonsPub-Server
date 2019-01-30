@@ -36,7 +36,7 @@ const Header: React.SFC<Props> = props => {
               onClick={props.handleOpen}
               src={`https://www.gravatar.com/avatar/${
                 props.data.user.data
-              }?f=y&d=retro`}
+              }?f=y&d=identicon`}
               alt="Avatar"
             />
           </Avatar>
