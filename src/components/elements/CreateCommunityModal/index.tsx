@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
-
+import { withRouter } from 'react-router';
 import { Trans } from '@lingui/macro';
 import { i18nMark } from '@lingui/react';
 
@@ -38,6 +38,7 @@ interface Props {
   touched: any;
   isSubmitting: boolean;
   setSubmitting(boolean): boolean;
+  history: any;
 }
 
 interface FormValues {
@@ -50,6 +51,7 @@ interface MyFormProps {
   createCommunity: any;
   toggleModal: any;
   setSubmitting(boolean): boolean;
+  history: any;
 }
 
 const withCreateCommunity = graphql<{}>(createCommunityMutation, {
@@ -181,12 +183,16 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
       .then(res => {
         setSubmitting(false);
         props.toggleModal();
+        props.history.push(`/communities/${res.data.createCommunity.localId}`);
       })
       .catch(err => console.log(err));
   }
 })(CreateCommunityModal);
 
-export default compose(withCreateCommunity)(ModalWithFormik);
+export default compose(
+  withCreateCommunity,
+  withRouter
+)(ModalWithFormik);
 
 const Container = styled.div`
   font-family: ${props => props.theme.styles.fontFamily};

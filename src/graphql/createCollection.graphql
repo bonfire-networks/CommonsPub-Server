@@ -18,6 +18,10 @@ input CollectionInput {
         summary
         preferredUsername
         icon
+        followed
+        resources {
+          id
+        }
         followersCount
         followingCount
       }

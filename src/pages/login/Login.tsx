@@ -177,6 +177,7 @@ class Login extends React.Component<LoginProps, LoginState> {
       console.log(result);
     } catch (err) {
       console.log(err);
+      alert(err);
       this.setState({
         authenticating: false,
         validation: [

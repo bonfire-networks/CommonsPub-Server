@@ -235,7 +235,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Res'
           });
-          collection.resources.unshift(createResource);
+          collection.resources.push(createResource);
           proxy.writeFragment({
             id: `Collection:${props.collectionExternalId}`,
             fragment: fragment,

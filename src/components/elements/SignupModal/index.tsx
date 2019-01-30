@@ -196,7 +196,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         setSubmitting(false);
         window.location.reload();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        setSubmitting(false);
+        alert(err);
+        console.log(err);
+      });
   }
 })(CreateCommunityModal);
 
