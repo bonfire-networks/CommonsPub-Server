@@ -22,7 +22,7 @@ import CollectionModal from '../../components/elements/CollectionModal';
 import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
-
+import Join from '../../components/elements/Collection/Join';
 enum TabsEnum {
   // Members = 'Members',
   Resources = 'Resources'
@@ -90,8 +90,14 @@ class CollectionComponent extends React.Component<Props> {
                 <HeroInfo>
                   <H2>{collection.name}</H2>
                   <P>{collection.summary}</P>
+                  <Join
+                    followed={collection.followed}
+                    id={collection.localId}
+                    externalId={collection.id}
+                  />
                 </HeroInfo>
               </Hero>
+              <Actions />
               <Row>
                 <Col size={12}>
                   <WrapperTab>
@@ -100,9 +106,14 @@ class CollectionComponent extends React.Component<Props> {
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
                         button={
-                          <Button onClick={this.props.editCollection} secondary>
-                            <Trans>Edit</Trans>
-                          </Button>
+                          collection.followed ? (
+                            <Button
+                              onClick={this.props.editCollection}
+                              secondary
+                            >
+                              <Trans>Edit</Trans>
+                            </Button>
+                          ) : null
                         }
                       >
                         {/* <TabPanel
@@ -143,12 +154,20 @@ class CollectionComponent extends React.Component<Props> {
                                     />
                                   ))}
                                 </CollectionList>
-                                {resources.length > 9 ? null : (
+                                {resources.length >
+                                9 ? null : collection.followed ? (
                                   <WrapperActions>
                                     <Button onClick={this.props.addNewResource}>
                                       <Trans>Add a new resource</Trans>
                                     </Button>
                                   </WrapperActions>
+                                ) : (
+                                  <Footer>
+                                    <Trans>
+                                      Follow the collection to add a new
+                                      resource
+                                    </Trans>
+                                  </Footer>
                                 )}
                               </Wrapper>
                             ) : (
@@ -198,6 +217,19 @@ class CollectionComponent extends React.Component<Props> {
     );
   }
 }
+
+const Actions = styled.div``;
+const Footer = styled.div`
+  height: 30px;
+  line-height: 30px;
+  font-weight: 600;
+  text-align: center;
+  background: #ffefd9;
+  font-size: 13px;
+  border-bottom: 1px solid #e4dcc3;
+  color: #544f46;
+`;
+
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
@@ -236,7 +268,14 @@ const HeroInfo = styled.div`
     font-size: 24px !important;
   }
   & p {
-    color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 15px;
+    margin-top: 8px;
+  }
+  & div {
+    text-align: left;
+    padding: 0;
   }
 `;
 

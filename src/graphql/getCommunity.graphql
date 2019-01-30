@@ -6,6 +6,7 @@ query getCommunityQuery($context: Int!) {
         name
         summary
         icon
+        followed
         followersCount
         followingCount
         followers {
@@ -23,6 +24,10 @@ query getCommunityQuery($context: Int!) {
             name
             summary
             icon
+            followed
+            resources {
+                id
+            }
             followersCount
             followingCount
         }

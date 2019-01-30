@@ -1,0 +1,3 @@
+mutation undoJoinCollectionMutation ($collectionId: String!) {
+  undoFollowCollection(collectionLocalId: $collectionId)
+}

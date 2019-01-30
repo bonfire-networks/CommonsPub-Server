@@ -5,6 +5,7 @@ query getCollection($id: Int!) {
     icon
     name
     content
+    followed
     followersCount
     summary
     communities {

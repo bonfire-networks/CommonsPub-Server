@@ -4,36 +4,36 @@ import { Preferites } from '../Icons';
 import { compose } from 'recompose';
 import { graphql, OperationOption } from 'react-apollo';
 const {
-  joinCommunityMutation
-} = require('../../../graphql/joinCommunity.graphql');
+  joinCollectionMutation
+} = require('../../../graphql/joinCollection.graphql');
 const {
-  undoJoinCommunityMutation
-} = require('../../../graphql/undoJoinCommunity.graphql');
+  undoJoinCollectionMutation
+} = require('../../../graphql/undoJoinCollection.graphql');
 import { Trans } from '@lingui/macro';
 import gql from 'graphql-tag';
 
 interface Props {
-  joinCommunity: any;
-  leaveCommunity: any;
+  joinCollection: any;
+  leaveCollection: any;
   id: string;
   followed: boolean;
   externalId: string;
 }
 
-const withJoinCommunity = graphql<{}>(joinCommunityMutation, {
-  name: 'joinCommunity'
+const withJoinCollection = graphql<{}>(joinCollectionMutation, {
+  name: 'joinCollection'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
-const withLeaveCommunity = graphql<{}>(undoJoinCommunityMutation, {
-  name: 'leaveCommunity'
+const withLeaveCollection = graphql<{}>(undoJoinCollectionMutation, {
+  name: 'leaveCollection'
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
 const Join: React.SFC<Props> = ({
-  joinCommunity,
+  joinCollection,
   id,
-  leaveCommunity,
+  leaveCollection,
   externalId,
   followed
 }) => {
@@ -41,24 +41,24 @@ const Join: React.SFC<Props> = ({
     return (
       <Span
         onClick={() =>
-          leaveCommunity({
-            variables: { communityId: id },
-            update: (proxy, { data: { undoJoinCommunity } }) => {
+          leaveCollection({
+            variables: { collectionId: id },
+            update: (proxy, { data: { undoJoinCollection } }) => {
               const fragment = gql`
-                fragment Res on Community {
+                fragment Res on Collection {
                   followed
                 }
               `;
               console.log(proxy);
               let collection = proxy.readFragment({
-                id: `Community:${externalId}`,
+                id: `Collection:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res'
               });
               console.log(collection);
               collection.followed = !collection.followed;
               proxy.writeFragment({
-                id: `Community:${externalId}`,
+                id: `Collection:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res',
                 data: collection
@@ -71,29 +71,29 @@ const Join: React.SFC<Props> = ({
             .catch(err => console.log(err))
         }
       >
-        <Trans>Leave</Trans>
+        <Trans>Unfollow</Trans>
       </Span>
     );
   } else {
     return (
       <Span
         onClick={() =>
-          joinCommunity({
-            variables: { communityId: id },
-            update: (proxy, { data: { joinCommunity } }) => {
+          joinCollection({
+            variables: { collectionId: id },
+            update: (proxy, { data: { joinCollection } }) => {
               const fragment = gql`
-                fragment Res on Community {
+                fragment Res on Collection {
                   followed
                 }
               `;
               let collection = proxy.readFragment({
-                id: `Community:${externalId}`,
+                id: `Collection:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
               proxy.writeFragment({
-                id: `Community:${externalId}`,
+                id: `Collection:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res',
                 data: collection
@@ -112,7 +112,7 @@ const Join: React.SFC<Props> = ({
           strokeWidth={2}
           color={'#1e1f2480'}
         />
-        <Trans>Join</Trans>
+        <Trans>Follow</Trans>
       </Span>
     );
   }
@@ -139,6 +139,6 @@ const Span = styled.div`
 `;
 
 export default compose(
-  withJoinCommunity,
-  withLeaveCommunity
+  withJoinCollection,
+  withLeaveCollection
 )(Join);

@@ -1,13 +1,16 @@
-query getCommunitiesQuery {
-    communities {
+query getFollowedCollections {
+    followingCollections {
         id
         localId
         preferredUsername
         name
         summary
         icon
+        followed
+        resources {
+            id
+        }
         followersCount
         followingCount
-        followed
     }
 }

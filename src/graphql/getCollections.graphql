@@ -8,6 +8,10 @@ query getCollectionsQuery {
         name
         summary
         icon
+        followed
+        resources {
+          id
+        }
         followersCount
         followingCount
       }

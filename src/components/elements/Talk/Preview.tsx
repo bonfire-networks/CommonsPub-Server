@@ -29,8 +29,8 @@ const PreviewModal = (props: Props) => {
   };
   let message = {
     body: props.values.content,
-    date: 1,
-    id: '0'
+    date: Number(new Date().toISOString()),
+    id: new Date().toISOString()
   };
   return (
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>

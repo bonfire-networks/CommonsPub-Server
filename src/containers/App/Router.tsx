@@ -10,6 +10,7 @@ import { Trans } from '@lingui/macro';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
 import CollectionsFeatured from '../../pages/collections.featured/CollectionsFeatured';
+import CollectionsYours from '../../pages/collections.yours/CollectionsYours';
 import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
 import CommunitiesCommunity from '../../pages/communities.community/CommunitiesCommunity';
 import CollectionsCollection from '../../pages/collections.collection/CollectionsCollection';
@@ -88,7 +89,7 @@ export default () => (
                     component={CommunitiesFeatured}
                   />
                   <Route
-                    path="/communities/yours"
+                    path="/communities/joined"
                     component={CommunitiesYours}
                   />
                   <Route
@@ -113,22 +114,10 @@ export default () => (
                   />
                   <Route
                     exact
-                    path="/collections/yours"
-                    component={() => (
-                      <div>
-                        <Trans>My Collections</Trans>
-                      </div>
-                    )}
-                  />
-                  <Route
-                    exact
                     path="/collections/following"
-                    component={() => (
-                      <div>
-                        <Trans>Favourite Collections</Trans>
-                      </div>
-                    )}
+                    component={CollectionsYours}
                   />
+
                   <Route
                     exact
                     path="/communities/:community/collections/:collection"

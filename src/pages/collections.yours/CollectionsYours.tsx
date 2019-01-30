@@ -7,14 +7,16 @@ import { Trans } from '@lingui/macro';
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import Community from '../../types/Community';
+import Collection from '../../types/Collection';
 import Loader from '../../components/elements/Loader/Loader';
 import CollectionCard from '../../components/elements/Collection/Collection';
 
-const { getCollectionsQuery } = require('../../graphql/getCollections.graphql');
+const {
+  getFollowedCollections
+} = require('../../graphql/getFollowedCollections.graphql');
 
 interface Data extends GraphqlQueryControls {
-  communities: Community[];
+  followingCollections: Collection[];
 }
 
 interface Props {
@@ -34,15 +36,9 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      body = this.props.data.communities.map(comm => {
-        return comm.collections.map((coll, i) => (
-          <CollectionCard
-            key={i}
-            collection={coll}
-            communityId={comm.localId}
-          />
-        ));
-      });
+      body = this.props.data.followingCollections.map((comm, i) => (
+        <CollectionCard key={i} collection={comm} communityId={comm.localId} />
+      ));
     }
     console.log(body);
     return (
@@ -50,7 +46,7 @@ class CommunitiesYours extends React.Component<Props> {
         <WrapperCont>
           <Wrapper>
             <H4>
-              <Trans>All Collections</Trans>
+              <Trans>Followed Collections</Trans>
             </H4>
             <List>{body}</List>
           </Wrapper>
@@ -92,9 +88,9 @@ const withGetCommunities = graphql<
   {},
   {
     data: {
-      communities: Community[];
+      followingCollections: Collection[];
     };
   }
->(getCollectionsQuery) as OperationOption<{}, {}>;
+>(getFollowedCollections) as OperationOption<{}, {}>;
 
 export default compose(withGetCommunities)(CommunitiesYours);

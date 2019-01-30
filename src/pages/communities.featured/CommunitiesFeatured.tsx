@@ -38,26 +38,39 @@ class CommunitiesYours extends React.Component<Props> {
         return (
           <CommunityCard
             key={i}
+            summary={community.summary}
             title={community.name}
             icon={community.icon || ''}
             id={community.localId}
-            collectionsLength={community.collectionsCount}
+            followed={community.followed}
+            followersCount={community.followersCount}
+            externalId={community.id}
           />
         );
       });
     }
     return (
       <Main>
-        <Wrapper>
-          <H4>
-            <Trans>All Communities</Trans>
-          </H4>
-          <List>{body}</List>
-        </Wrapper>
+        <WrapperCont>
+          <Wrapper>
+            <H4>
+              <Trans>All Communities</Trans>
+            </H4>
+            <List>{body}</List>
+          </Wrapper>
+        </WrapperCont>
       </Main>
     );
   }
 }
+
+const WrapperCont = styled.div`
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+  background: white;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,7 +78,8 @@ const Wrapper = styled.div`
   flex: 1;
   margin-bottom: 24px;
   & h4 {
-    font-size: 18px !important;
+    padding-left: 8px;
+    font-size: 16px !important;
     margin: 0;
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
@@ -77,6 +91,9 @@ const List = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
+  padding: 16px;
+  background: white;
+  padding-top: 0;
 `;
 
 const withGetCommunities = graphql<
