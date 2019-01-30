@@ -1,0 +1,3 @@
+mutation joinCollectionMutation ($collectionId: String!) {
+  followCollection(collectionLocalId: $collectionId)
+}

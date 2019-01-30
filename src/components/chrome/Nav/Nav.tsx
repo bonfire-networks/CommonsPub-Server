@@ -182,6 +182,23 @@ class Nav extends React.Component<NavProps, {}> {
               <Trans>All</Trans>
             </Item>
           </NavLink>
+          <NavLink
+            isActive={(match, location) => {
+              return (
+                location.pathname === `/collections/following` ||
+                location.pathname === `/collections/following/`
+              );
+            }}
+            activeStyle={{
+              position: 'relative',
+              color: '#f98012'
+            }}
+            to={'/collections/following'}
+          >
+            <Item>
+              <Trans>Following</Trans>
+            </Item>
+          </NavLink>
         </NavList>
         <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
           <Trans>🔬 Share Feedback</Trans>

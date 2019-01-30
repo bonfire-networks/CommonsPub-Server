@@ -85,7 +85,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 </Button>
               </WrapperActions>
             ) : (
-              <Trans>Join the community to create a collection</Trans>
+              <Footer>
+                <Trans>Join the community to create a collection</Trans>
+              </Footer>
             )}
           </Wrapper>
         );
@@ -100,7 +102,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 <Trans>Create the first collection</Trans>
               </Button>
             ) : (
-              <Trans>Join the community to create a collection</Trans>
+              <Footer>
+                <Trans>Join the community to create a collection</Trans>
+              </Footer>
             )}
           </OverviewCollection>
         );
@@ -141,7 +145,8 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         onChange={tab => this.setState({ tab })}
                         button={
                           community.localId === 7 ||
-                          community.localId === 15 ? null : (
+                          community.localId === 15 ||
+                          community.followed == false ? null : (
                             <Button
                               onClick={this.props.editCommunity}
                               secondary
@@ -186,7 +191,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               id={community.id}
                             />
                           ) : (
-                            <Trans>Join the community to discuss</Trans>
+                            <Footer>
+                              <Trans>Join the community to discuss</Trans>
+                            </Footer>
                           )}
                         </TabPanel>
                       </Tabs>
@@ -237,6 +244,17 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
   background: #fff;
+`;
+
+const Footer = styled.div`
+  height: 30px;
+  line-height: 30px;
+  font-weight: 600;
+  text-align: center;
+  background: #ffefd9;
+  font-size: 13px;
+  border-bottom: 1px solid #e4dcc3;
+  color: #544f46;
 `;
 
 const WrapperCont = styled.div`

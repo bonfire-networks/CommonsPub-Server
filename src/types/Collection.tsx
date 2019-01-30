@@ -6,6 +6,7 @@ export default interface Collection {
   followersCount: number;
   // no. of people that are members
   followingCount: number;
+  followed: boolean;
   resourcesCount: number;
   icon: string | null;
   id: string;
