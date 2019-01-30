@@ -18,6 +18,7 @@ input CollectionInput {
         summary
         preferredUsername
         icon
+        followed
         followersCount
         followingCount
       }

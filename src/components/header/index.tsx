@@ -34,7 +34,9 @@ const Header: React.SFC<Props> = props => {
           <Avatar>
             <img
               onClick={props.handleOpen}
-              src="https://picsum.photos/100/100?random"
+              src={`https://www.gravatar.com/avatar/${
+                props.data.user.data
+              }?f=y&d=retro`}
               alt="Avatar"
             />
           </Avatar>
