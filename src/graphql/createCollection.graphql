@@ -19,6 +19,9 @@ input CollectionInput {
         preferredUsername
         icon
         followed
+        resources {
+          id
+        }
         followersCount
         followingCount
       }
