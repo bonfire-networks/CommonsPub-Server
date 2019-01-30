@@ -110,7 +110,7 @@ const Home: React.SFC<Props> = props => (
         </Trans>
       </p>
       <Sign>
-        <b>Doug, Mayel, Alex and Ivan</b> <br />
+        <b>Doug, Mayel, Alex & Ivan</b> <br />
         <i>
           <Trans>MoodleNet Team</Trans>
         </i>
