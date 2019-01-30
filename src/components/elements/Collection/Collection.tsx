@@ -4,6 +4,7 @@ import Collection from '../../../types/Collection';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
+import Join from './Join';
 
 interface CollectionProps {
   collection: Collection;
@@ -23,26 +24,39 @@ const Collection: React.SFC<CollectionProps> = ({
         <Infos>
           <Title>{collection.name}</Title>
           <Desc>{collection.summary}</Desc>
-          {/* <Actions>
-            <ActionItem>{collection.resourcesCount || 0} Resources</ActionItem>
-          </Actions> */}
+          <Actions>
+            <ActionItem>
+              {collection.resources.length || 0} Resources
+            </ActionItem>
+          </Actions>
         </Infos>
       </Link>
+      <Right>
+        <Join
+          followed={collection.followed}
+          id={collection.localId}
+          externalId={collection.id}
+        />
+      </Right>
     </Wrapper>
   );
 };
 
-// const Actions = styled.div`
-//   margin-top: 20px;
-// `;
-// const ActionItem = styled.div`
-//   display: inline-block;
-//   font-size: 12px;
-//   font-weight: 600;
-//   color: #8b98a2;
-//   text-transform: uppercase;
-//   margin-right: 20px;
-// `;
+const Right = styled.div`
+  width: 120px;
+`;
+
+const Actions = styled.div`
+  margin-top: 20px;
+`;
+const ActionItem = styled.div`
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b98a2;
+  text-transform: uppercase;
+  margin-right: 20px;
+`;
 
 const Wrapper = styled.div`
   display: flex;

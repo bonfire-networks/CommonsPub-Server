@@ -121,8 +121,6 @@ export default compose(
   withState('isEditResourceOpen', 'onEditResourceOpen', false),
   withHandlers({
     addNewResource: props => () => props.onOpen(!props.isOpen),
-    editCollection: props => () =>
-      props.onEditCollectionOpen(!props.isEditCollectionOpen),
     editResource: props => () =>
       props.onEditResourceOpen(!props.isEditResourceOpen)
   })
