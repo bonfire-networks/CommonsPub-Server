@@ -8,7 +8,6 @@ query getUserQuery {
             email
             preferredUsername
             location
-            localId
         }
     }
 }

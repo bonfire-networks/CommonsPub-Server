@@ -7,7 +7,6 @@ query getCommentsQuery($id: Int!) {
         author {
             name
             id
-            localId
             icon
         }
         replies {

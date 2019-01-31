@@ -5,6 +5,5 @@ query meQuery {
         email
         preferredUsername
         location
-        localId
     }
 }
