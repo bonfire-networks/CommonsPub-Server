@@ -240,13 +240,13 @@ class Login extends React.Component<LoginProps, LoginState> {
 
     return (
       <>
-        <Banner>
-          <Trans>
-            We're having some teething problems right now, but will be back
-            soon! Keep checking back.
-          </Trans>
-        </Banner>
         <BodyCenterContent>
+          <Banner>
+            <Trans>
+              We're having some teething problems right now, but will be back
+              soon! Keep checking back.
+            </Trans>
+          </Banner>
           <Head>
             <Col size={12}>
               <Left>
