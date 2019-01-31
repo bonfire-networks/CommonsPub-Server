@@ -17,6 +17,7 @@ mutation createUserMutation($user: RegistrationInput!) {
             location
             email
             id
+            localId
         }
     }
 }

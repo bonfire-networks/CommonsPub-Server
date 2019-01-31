@@ -35,7 +35,7 @@ const Header: React.SFC<Props> = props => {
             <img
               onClick={props.handleOpen}
               src={`https://www.gravatar.com/avatar/${
-                props.data.user.data
+                props.data.user.data.localId
               }?f=y&d=identicon`}
               alt="Avatar"
             />
@@ -79,6 +79,10 @@ const Avatar = styled.div`
   border-radius: 100px;
   overflow: hidden;
   margin-left: 10px;
+  & img {
+    width: 100%
+    height: auto;
+  }
 `;
 
 const WrapperMenu = styled.div`

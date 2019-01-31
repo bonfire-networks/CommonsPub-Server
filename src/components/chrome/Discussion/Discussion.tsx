@@ -45,7 +45,7 @@ class CommunitiesFeatured extends React.Component<Props> {
             id: comment.author.id,
             name: comment.author.name,
             image: `https://www.gravatar.com/avatar/${
-              comment.author.id
+              comment.author.localId
             }?f=y&d=identicon`
           };
           let message = {
