@@ -1,6 +1,6 @@
 defmodule MoodleNet.MetadataScraper do
   def fetch(url) when is_binary(url) do
-    with {:ok, data} <- Furlex.unfurl(url) do
+    with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
       {:ok, format_data(data)}
     end
   end
