@@ -18,10 +18,12 @@ The first projects using it are:
 ## Installation
 
 ### With Docker (recommended)
-Make sure you have [docker](https://www.docker.com/) and [make](https://www.gnu.org/software/make/) installed:
+Make sure you have [docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs, and [make](https://www.gnu.org/software/make/) installed:
 ```sh
 $ docker version
-Docker version 18.09.0-ce, build 4d60db472b
+Docker version 18.09.1-ce
+$ docker-compose -v                                                                                                                                              ±[●][develop]
+docker-compose version 1.23.2
 $ make --version
 GNU Make 4.2.1
 ...
