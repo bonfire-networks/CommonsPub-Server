@@ -12,7 +12,7 @@ interface EventProps {
   author: {
     id: string;
     name: string;
-    image: string;
+    icon: string;
   };
   comment: {
     id: string;
@@ -35,7 +35,7 @@ const Event: React.SFC<EventProps> = ({
     <FeedItem thread={thread}>
       <Member>
         <MemberItem>
-          <Img alt="user" src={author.image} />
+          <Img alt="user" src={author.icon} />
         </MemberItem>
         <MemberInfo>
           <h3>{author.name}</h3>

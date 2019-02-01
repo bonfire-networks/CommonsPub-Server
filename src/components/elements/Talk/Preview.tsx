@@ -25,11 +25,11 @@ const PreviewModal = (props: Props) => {
   let author = {
     id: props.user.data.id,
     name: props.user.data.name,
-    image: 'https://picsum.photos/200/300'
+    icon: props.user.data.icon
   };
   let message = {
     body: props.values.content,
-    date: Number(new Date().toISOString()),
+    date: new Date().getTime(),
     id: new Date().toISOString()
   };
   return (

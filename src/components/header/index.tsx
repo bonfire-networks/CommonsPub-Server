@@ -34,9 +34,7 @@ const Header: React.SFC<Props> = props => {
           <Avatar>
             <img
               onClick={props.handleOpen}
-              src={`https://www.gravatar.com/avatar/${
-                props.data.user.data
-              }?f=y&d=identicon`}
+              src={props.data.user.data.icon}
               alt="Avatar"
             />
           </Avatar>
@@ -147,6 +145,8 @@ const Right = styled.div`
   margin-right: 8px;
   & img {
     cursor: pointer;
+    max-width: 32px;
+    max-height: 32px;
   }
 `;
 
