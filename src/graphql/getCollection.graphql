@@ -11,6 +11,7 @@ query getCollection($id: Int!) {
     communities {
       localId
       name
+      followed
     }
     resources {
       id

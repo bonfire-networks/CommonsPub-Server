@@ -73,6 +73,9 @@ class CollectionComponent extends React.Component<Props> {
       );
     }
 
+    console.log(collection.communities[0]);
+    let community_name = collection.communities[0].name;
+
     return (
       <>
         <Main>
@@ -108,7 +111,7 @@ class CollectionComponent extends React.Component<Props> {
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
                         button={
-                          collection.followed ? (
+                          collection.communities[0].followed ? (
                             <Button
                               onClick={this.props.editCollection}
                               secondary
@@ -142,8 +145,8 @@ class CollectionComponent extends React.Component<Props> {
                           key={TabsEnum.Resources}
                         >
                           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            {resources.length ? (
-                              <Wrapper>
+                            <Wrapper>
+                              {resources.length ? (
                                 <CollectionList>
                                   {resources.map((resource, i) => (
                                     <ResourceCard
@@ -156,34 +159,35 @@ class CollectionComponent extends React.Component<Props> {
                                     />
                                   ))}
                                 </CollectionList>
-                                {resources.length >
-                                9 ? null : collection.followed ? (
-                                  <WrapperActions>
-                                    <Button onClick={this.props.addNewResource}>
-                                      <Trans>Add a new resource</Trans>
-                                    </Button>
-                                  </WrapperActions>
-                                ) : (
-                                  <Footer>
+                              ) : (
+                                <OverviewCollection>
+                                  <P>
                                     <Trans>
-                                      Join this collection's community if you
-                                      want to add a resource
+                                      This collection has no resources.
                                     </Trans>
-                                  </Footer>
-                                )}
-                              </Wrapper>
-                            ) : (
-                              <OverviewCollection>
-                                <P>
-                                  <Trans>
-                                    This collection has no resources.
-                                  </Trans>
-                                </P>
-                                <Button onClick={this.props.addNewResource}>
+                                  </P>
+                                  {/* <Button onClick={this.props.addNewResource}>
                                   <Trans>Add the first resource</Trans>
-                                </Button>
-                              </OverviewCollection>
-                            )}
+                                </Button> */}
+                                </OverviewCollection>
+                              )}
+
+                              {resources.length > 9 ? null : collection
+                                .communities[0].followed ? (
+                                <WrapperActions>
+                                  <Button onClick={this.props.addNewResource}>
+                                    <Trans>Add a new resource</Trans>
+                                  </Button>
+                                </WrapperActions>
+                              ) : (
+                                <Footer>
+                                  <Trans>
+                                    Join the <strong>{community_name}</strong>{' '}
+                                    community to add a resource
+                                  </Trans>
+                                </Footer>
+                              )}
+                            </Wrapper>
                           </div>
                         </TabPanel>
                         {/* <TabPanel
@@ -296,10 +300,10 @@ const CollectionList = styled.div`
 `;
 
 const OverviewCollection = styled.div`
-  padding: 0 8px;
-  margin-bottom: 8px;
+  padding: 8px;
   & p {
-    margin-top: 0 !important;
+    margin-top: 14px !important;
+    font-size: 14px;
   }
 `;
 
