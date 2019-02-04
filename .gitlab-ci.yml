@@ -56,6 +56,7 @@ deploys3-staging:
     - find public/
     - pwd
     - aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
+    - aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --paths '/*'
 
 deploys3-prod:
   only:
@@ -68,3 +69,4 @@ deploys3-prod:
     - find public/
     - pwd
     - aws s3 sync public/ s3://${PRODUCTION_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
+    - aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --paths '/*'

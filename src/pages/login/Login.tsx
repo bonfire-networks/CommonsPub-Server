@@ -76,6 +76,19 @@ const BodyCenterContent = styled(Body)`
   flex-direction: column;
 `;
 
+// const Banner = styled.div`
+//   flex: 1;
+//   background: #ffc9c9;
+//   width: 100%;
+//   text-align: center;
+//   font-size: 15px;
+//   color: #5e1919;
+//   height: 60px;
+//   line-height: 60px;
+//   font-weight: 700;
+//   max-height: 60px;
+// `;
+
 /**
  * @param Component
  * @param data {Object} the user object from local cache
@@ -228,6 +241,12 @@ class Login extends React.Component<LoginProps, LoginState> {
     return (
       <>
         <BodyCenterContent>
+          {/* <Banner>
+            <Trans>
+              We're having some teething problems right now, but will be back
+              soon! Keep checking back.
+            </Trans>
+          </Banner> */}
           <Head>
             <Col size={12}>
               <Left>

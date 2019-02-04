@@ -49,9 +49,7 @@ const Component = ({ data, match }) => {
   let author = {
     id: data.comment.author.id,
     name: data.comment.author.name,
-    image: `https://www.gravatar.com/avatar/${
-      data.comment.author.id
-    }?f=y&d=identicon`
+    icon: data.comment.author.icon
   };
 
   let message = {
@@ -80,7 +78,7 @@ const Component = ({ data, match }) => {
             let author = {
               id: comment.author.id,
               name: comment.author.name,
-              image: 'https://picsum.photos/200/300'
+              icon: comment.author.icon
             };
             let message = {
               body: comment.content,
