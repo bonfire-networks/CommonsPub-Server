@@ -61,6 +61,7 @@ const WrapperCont = styled.div`
   margin: 0 auto;
   width: 100%;
   background: white;
+  display: inline-table;
 `;
 
 const Wrapper = styled.div`
