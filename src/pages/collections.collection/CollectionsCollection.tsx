@@ -1,3 +1,5 @@
+// View a Collection (with list of resources)
+
 import * as React from 'react';
 
 import { Trans } from '@lingui/macro';

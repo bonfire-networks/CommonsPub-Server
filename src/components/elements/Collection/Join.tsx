@@ -123,6 +123,7 @@ const Span = styled.div`
   color: #1e1f2480;
   height: 40px;
   font-weight: 600;
+  font-size: 15px;
   line-height: 40px;
   cursor: pointer;
   text-align: center;

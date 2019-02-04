@@ -1,3 +1,5 @@
+// View a Community (with list of collections)
+
 import * as React from 'react';
 import { compose, withState, withHandlers } from 'recompose';
 

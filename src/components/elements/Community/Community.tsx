@@ -88,7 +88,7 @@ const Wrapper = styled.div`
   max-height: 560px;
   & h5 {
     margin: 0;
-    font-size: 16px !important;
+    font-size: 18px !important;
     line-height: 24px !important;
     word-break: break-all;
   }

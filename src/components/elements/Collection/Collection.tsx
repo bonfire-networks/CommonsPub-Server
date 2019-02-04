@@ -47,7 +47,7 @@ const Right = styled.div`
 `;
 
 const Actions = styled.div`
-  margin-top: 20px;
+  margin-top: 10px;
 `;
 const ActionItem = styled.div`
   display: inline-block;
@@ -61,7 +61,7 @@ const ActionItem = styled.div`
 const Wrapper = styled.div`
   display: flex;
   border-bottom: 1px solid #ebe8e8;
-  padding: 10px;
+  padding: 15px 10px;
   cursor: pointer;
   & a {
     display: flex;
@@ -86,7 +86,7 @@ const Infos = styled.div`
   flex: 1;
 `;
 const Title = styled(H5)`
-  font-size: 14px !important;
+  font-size: 18px !important;
   margin: 0 !important;
   line-height: 20px !important;
   letter-spacing: 0.8px;
