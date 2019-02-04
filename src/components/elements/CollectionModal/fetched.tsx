@@ -1,3 +1,5 @@
+// Add a resource to collection - step 2
+
 import * as React from 'react';
 import Textarea from '../../inputs/TextArea/Textarea';
 import { withFormik, FormikProps, Form, Field } from 'formik';
@@ -63,7 +65,7 @@ const tt = {
     summary: i18nMark(
       'Please type or copy/paste a summary about the resource...'
     ),
-    submit: i18nMark('Create'),
+    submit: i18nMark('Add'),
     image: i18nMark('Enter the URL of an image to represent the resource')
   }
 };

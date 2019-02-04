@@ -1,3 +1,5 @@
+// Add a resource to collection - step 1
+
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';

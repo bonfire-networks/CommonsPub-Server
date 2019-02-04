@@ -166,8 +166,8 @@ class CollectionComponent extends React.Component<Props> {
                                 ) : (
                                   <Footer>
                                     <Trans>
-                                      Follow the collection to add a new
-                                      resource
+                                      Join this collection's community if you
+                                      want to add a resource
                                     </Trans>
                                   </Footer>
                                 )}
