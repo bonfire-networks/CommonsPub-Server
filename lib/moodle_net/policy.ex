@@ -36,6 +36,12 @@ defmodule MoodleNet.Policy do
     actor_follows!(actor, community)
   end
 
+  def like_collection?(actor, collection, _attrs)
+      when has_type(collection, "MoodleNet:Collection") and has_type(actor, "Person") do
+    community = get_community(collection)
+    actor_follows!(actor, community)
+  end
+
   defp actor_follows!(actor, object) do
     if Query.has?(actor, :following, object), do: :ok, else: {:error, :forbidden}
   end

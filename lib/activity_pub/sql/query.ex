@@ -18,6 +18,11 @@ defmodule ActivityPub.SQL.Query do
     |> to_entity()
   end
 
+  def count(%Ecto.Query{} = query, opts \\ []) do
+    query
+    |> Repo.aggregate(:count, :local_id, opts)
+  end
+
   # FIXME this should not be here?
   def delete_all(%Ecto.Query{} = query) do
     query
@@ -44,11 +49,20 @@ defmodule ActivityPub.SQL.Query do
     |> one()
   end
 
-  def get_by_local_id(id, opts \\ []) when is_integer(id) do
+  def get_by_local_id(id, opts \\ [])
+  def get_by_local_id(id, opts) when is_integer(id) do
     new()
     |> where(local_id: id)
     |> preload_aspect(Keyword.get(opts, :aspect, []))
     |> one()
+  end
+
+  def get_by_local_id(ids, opts) when is_list(ids) do
+    from(e in new(),
+      where: e.local_id in ^ids
+    )
+    |> preload_aspect(Keyword.get(opts, :aspect, []))
+    |> all()
   end
 
   def get_by_id(id, opts \\ []) when is_binary(id) do
@@ -72,7 +86,11 @@ defmodule ActivityPub.SQL.Query do
   end
 
   def paginate(%Ecto.Query{} = query, opts \\ %{}) do
-    Paginate.call(query, opts)
+    Paginate.by_local_id(query, opts)
+  end
+
+  def paginate_collection(%Ecto.Query{} = query, opts \\ %{}) do
+    Paginate.by_collection_insert(query, opts)
   end
 
   def with_type(%Ecto.Query{} = query, type) when is_binary(type) do

@@ -44,5 +44,7 @@ defmodule ActivityPub.ObjectAspect do
 
     field(:followed, :boolean, virtual: true)
     field(:liked, :boolean, virtual: true)
+
+    field(:cursor, :integer, virtual: true)
   end
 end

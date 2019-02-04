@@ -3,6 +3,63 @@ defmodule MoodleNet do
   alias ActivityPub.SQL.Query
 
   alias MoodleNet.Policy
+  require ActivityPub.Guards, as: APG
+
+  # User connections
+
+  defp joined_communities_query(actor) do
+    Query.new()
+    |> Query.with_type("MoodleNet:Community")
+    |> Query.belongs_to(:following, actor)
+  end
+
+  def joined_communities_list(actor, opts \\ %{}) do
+    joined_communities_query(actor)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def joined_communities_count(actor) do
+    joined_communities_query(actor)
+    |> Query.count()
+  end
+
+  defp following_collection_query(actor) do
+    Query.new()
+    |> Query.with_type("MoodleNet:Collection")
+    |> Query.belongs_to(:following, actor)
+  end
+
+  def following_collection_list(actor, opts \\ %{}) do
+    following_collection_query(actor)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def following_collection_count(actor) do
+    following_collection_query(actor)
+    |> Query.count()
+  end
+
+  defp community_thread_query(community) do
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:context, community)
+    |> has_no_replies()
+  end
+
+  def community_thread_list(community, opts \\ %{}) do
+    community_thread_query(community)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def community_thread_count(community) do
+    community_thread_query(community)
+    |> Query.count()
+  end
+
+  # Community connections
 
   def list_communities(opts \\ %{}) do
     Query.new()
@@ -11,44 +68,148 @@ defmodule MoodleNet do
     |> Query.all()
   end
 
-  def list_following_communities(actor, opts \\ %{}) do
-    Query.new()
-    |> Query.with_type("MoodleNet:Community")
-    |> Query.belongs_to(:following, actor)
-    |> Query.paginate(opts)
-    |> Query.all()
-  end
-
-  def list_communities_with_collection(collection, opts \\ %{}) do
-    Query.new()
-    |> Query.with_type("MoodleNet:Community")
-    |> Query.has(:attributed_to, collection[:local_id])
-    |> Query.paginate(opts)
-    |> Query.all()
-  end
-
-  def list_collections(entity, opts \\ %{})
-
-  def list_collections(entity_id, opts) when is_integer(entity_id) do
+  defp community_collection_query(community) do
     Query.new()
     |> Query.with_type("MoodleNet:Collection")
-    |> Query.has(:attributed_to, entity_id)
+    |> Query.has(:attributed_to, community)
+  end
+
+  def community_collection_list(community, opts \\ %{}) do
+    community_collection_query(community)
     |> Query.paginate(opts)
     |> Query.all()
   end
 
-  def list_collections(entity, opts) do
-    list_collections(entity[:local_id], opts)
+  def community_collection_count(community) do
+    community_collection_query(community)
+    |> Query.count()
   end
 
-  def list_following_collections(actor, opts \\ %{}) do
+  # Collection connections
+
+  defp collection_follower_query(collection) do
     Query.new()
-    |> Query.with_type("MoodleNet:Collection")
-    |> Query.belongs_to(:following, actor)
+    |> Query.with_type("Person")
+    |> Query.belongs_to(:followers, collection)
+  end
+
+  def collection_follower_list(collection, opts \\ %{}) do
+    collection_follower_query(collection)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def collection_follower_count(collection) do
+    collection_follower_query(collection)
+    |> Query.count()
+  end
+
+  defp collection_resource_query(collection) do
+    Query.new()
+    |> Query.with_type("MoodleNet:EducationalResource")
+    |> Query.has(:attributed_to, collection)
+  end
+
+  def collection_resource_list(collection, opts \\ %{}) do
+    collection_resource_query(collection)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def collection_resource_count(collection) do
+    collection_resource_query(collection)
+    |> Query.count()
+  end
+
+  defp collection_thread_query(collection) do
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:context, collection)
+    |> has_no_replies()
+  end
+
+  def collection_thread_list(collection, opts \\ %{}) do
+    collection_thread_query(collection)
     |> Query.paginate(opts)
     |> Query.all()
   end
 
+  def collection_thread_count(collection) do
+    collection_thread_query(collection)
+    |> Query.count()
+  end
+
+  defp collection_liker_query(collection) do
+    Query.new()
+    |> Query.with_type("Person")
+    |> Query.belongs_to(:likers, collection)
+  end
+
+  def collection_liker_list(collection, opts \\ %{}) do
+    collection_liker_query(collection)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def collection_liker_count(collection) do
+    collection_liker_query(collection)
+    |> Query.count()
+  end
+
+  # Resource connections
+
+  defp resource_liker_query(resource) do
+    Query.new()
+    |> Query.with_type("Person")
+    |> Query.belongs_to(:likers, resource)
+  end
+
+  def resource_liker_list(resource, opts \\ %{}) do
+    resource_liker_query(resource)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def resource_liker_count(resource) do
+    resource_liker_query(resource)
+    |> Query.count()
+  end
+
+  # Comment connections
+
+  defp comment_liker_query(comment) do
+    Query.new()
+    |> Query.with_type("Person")
+    |> Query.belongs_to(:likers, comment)
+  end
+
+  def comment_liker_list(comment, opts \\ %{}) do
+    comment_liker_query(comment)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def comment_liker_count(comment) do
+    comment_liker_query(comment)
+    |> Query.count()
+  end
+
+  defp comment_reply_query(comment) do
+    Query.new()
+    |> Query.with_type("Note")
+    |> Query.has(:in_reply_to, comment)
+  end
+
+  def comment_reply_list(comment, opts \\ %{}) do
+    comment_reply_query(comment)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def comment_reply_count(comment) do
+    comment_reply_query(comment)
+    |> Query.count()
+  end
   def list_resources(entity_id, opts \\ %{})
 
   def list_resources(entity_id, opts) when is_integer(entity_id) do
@@ -59,42 +220,54 @@ defmodule MoodleNet do
     |> Query.all()
   end
 
-  def list_resources(entity, opts) do
-    list_resources(ActivityPub.Entity.local_id(entity), opts)
-  end
-
-  def list_threads(context_id, opts \\ %{}) do
-    Query.new()
-    |> Query.with_type("Note")
-    |> Query.has(:context, context_id)
-    |> has_no_replies()
-    |> Query.paginate(opts)
-    |> Query.all()
+  def page_info(results, opts) do
+    ActivityPub.SQL.Paginate.meta(results, opts)
   end
 
   defp has_no_replies(query) do
     import Ecto.Query, only: [from: 2]
+
     from([entity: entity] in query,
-         left_join: rel in fragment("activity_pub_object_in_reply_tos"),
-         on: entity.local_id == rel.subject_id,
-         where: is_nil(rel.target_id)
+      left_join: rel in fragment("activity_pub_object_in_reply_tos"),
+      on: entity.local_id == rel.subject_id,
+      where: is_nil(rel.target_id)
     )
   end
 
-  def list_comments(context_id, opts \\ %{}) do
+  defp user_comment_query(actor) do
     Query.new()
     |> Query.with_type("Note")
-    |> Query.has(:context, context_id)
+    |> Query.has(:attributed_to, actor)
+  end
+
+  def user_comment_list(actor, opts \\ %{}) do
+    user_comment_query(actor)
     |> Query.paginate(opts)
     |> Query.all()
   end
 
-  def list_replies(in_reply_to_id, opts \\ %{}) do
+  def user_comment_count(actor) do
+    user_comment_query(actor)
+    |> Query.count()
+  end
+
+  defp community_member_query(community) do
     Query.new()
-    |> Query.with_type("Note")
-    |> Query.has(:in_reply_to, in_reply_to_id)
-    |> Query.paginate(opts)
+    |> Query.with_type("Person")
+    |> Query.has(:following, community)
+  end
+
+  def community_member_list(community, opts \\ %{})
+      when APG.has_type(community, "MoodleNet:Community") do
+    community_member_query(community)
+    |> Query.paginate_collection(opts)
     |> Query.all()
+  end
+
+  def community_member_count(community)
+      when APG.has_type(community, "MoodleNet:Community") do
+    community_member_query(community)
+    |> Query.count()
   end
 
   def create_community(actor, attrs) do
@@ -333,6 +506,18 @@ defmodule MoodleNet do
     attrs = %{type: "Like", actor: actor, object: comment}
 
     with :ok <- Policy.like_comment?(actor, comment, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def like_collection(actor, collection)
+      when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
+    collection = preload_community(collection)
+    attrs = %{type: "Like", actor: actor, object: collection}
+
+    with :ok <- Policy.like_collection?(actor, collection, attrs),
          {:ok, activity} = ActivityPub.new(attrs),
          {:ok, _activity} <- ActivityPub.apply(activity) do
       {:ok, true}

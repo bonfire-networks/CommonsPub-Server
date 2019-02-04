@@ -8,7 +8,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   query do
     @desc "Get list of communities"
-    field :communities, non_null(list_of(non_null(:community))) do
+    field :communities, non_null(:community_page) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
       resolve(&MoodleNetSchema.list_communities/2)
     end
 
@@ -18,56 +21,16 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Community"))
     end
 
-    @desc "Get list of following communities"
-    field :following_communities, non_null(list_of(non_null(:community))) do
-      resolve(&MoodleNetSchema.list_following_communities/2)
-    end
-
-    @desc "Get list of collections"
-    field :collections, non_null(list_of(non_null(:collection))) do
-      arg(:community_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_collections/2)
-    end
-
     @desc "Get a collection"
     field :collection, :collection do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Collection"))
     end
 
-    @desc "Get list of following collections"
-    field :following_collections, non_null(list_of(non_null(:collection))) do
-      resolve(&MoodleNetSchema.list_following_collections/2)
-    end
-
-    @desc "Get list of resources"
-    field :resources, non_null(list_of(non_null(:resource))) do
-      arg(:collection_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_resources/2)
-    end
-
     @desc "Get a resource"
     field :resource, :resource do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:EducationalResource"))
-    end
-
-    @desc "Get list of threads"
-    field :threads, non_null(list_of(non_null(:comment))) do
-      arg(:context_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_threads/2)
-    end
-
-    @desc "Get list of comments"
-    field :comments, non_null(list_of(non_null(:comment))) do
-      arg(:context_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_comments/2)
-    end
-
-    @desc "Get list of replies"
-    field :replies, non_null(list_of(non_null(:comment))) do
-      arg(:in_reply_to_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_replies/2)
     end
 
     @desc "Get a comment"
@@ -79,6 +42,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     @desc "Get my user"
     field :me, type: :me do
       resolve(&MoodleNetSchema.me/2)
+    end
+
+    @desc "Get an user"
+    field :user, type: :user do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.user/2)
     end
   end
 
@@ -222,6 +191,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&MoodleNetSchema.like_resource/2)
     end
 
+    @desc "Like a collection"
+    field :like_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.like_collection/2)
+    end
+
     @desc "Undo a previous like to a comment"
     field :undo_like_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
@@ -232,6 +207,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     field :undo_like_resource, type: :boolean do
       arg(:local_id, non_null(:integer))
       resolve(&MoodleNetSchema.undo_like_resource/2)
+    end
+
+    @desc "Undo a previous like to a collection"
+    field :undo_like_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&MoodleNetSchema.undo_like_collection/2)
     end
 
     @desc "Login"
