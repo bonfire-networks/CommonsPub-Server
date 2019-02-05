@@ -5,6 +5,7 @@ import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
+import { Resource, Users } from '../Icons';
 
 interface CollectionProps {
   collection: Collection;
@@ -26,7 +27,17 @@ const Collection: React.SFC<CollectionProps> = ({
           <Desc>{collection.summary}</Desc>
           <Actions>
             <ActionItem>
-              {collection.resources.length || 0} Resources
+              {collection.resources.length || 0}{' '}
+              <Resource
+                width={18}
+                height={18}
+                strokeWidth={2}
+                color={'#8b98a2'}
+              />
+            </ActionItem>
+            <ActionItem>
+              {collection.followersCount || 0}{' '}
+              <Users width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
             </ActionItem>
           </Actions>
         </Infos>
@@ -43,7 +54,7 @@ const Collection: React.SFC<CollectionProps> = ({
 };
 
 const Right = styled.div`
-  width: 120px;
+  width: 160px;
 `;
 
 const Actions = styled.div`
@@ -51,11 +62,14 @@ const Actions = styled.div`
 `;
 const ActionItem = styled.div`
   display: inline-block;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #8b98a2;
   text-transform: uppercase;
   margin-right: 20px;
+  & svg {
+    vertical-align: sub;
+  }
 `;
 
 const Wrapper = styled.div`

@@ -23,7 +23,7 @@ import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import Join from './Join';
-import { Settings, Edit, Users } from '../../components/elements/Icons';
+import { Settings, Users } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -81,7 +81,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 />
               ))}
             </CollectionList>
-            {community.followed ? null : (
+            {community.followed ? (
+              <div style={{ padding: '8px' }}>
+                <Button onClick={this.props.handleNewCollection}>
+                  <Trans>Create a collection</Trans>
+                </Button>
+              </div>
+            ) : (
               <Footer>
                 <Trans>Join the community to create a collection</Trans>
               </Footer>
@@ -130,7 +136,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     followed={community.followed}
                     externalId={community.id}
                   />
-                  {community.followed == false ? null : (
+                  {/* {community.followed == false ? null : (
                     <EditButton onClick={this.props.handleNewCollection}>
                       <Edit
                         width={18}
@@ -139,7 +145,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         color={'#f98012'}
                       />
                     </EditButton>
-                  )}
+                  )} */}
                   {community.localId === 7 ||
                   community.localId === 15 ||
                   community.followed == false ? null : (
