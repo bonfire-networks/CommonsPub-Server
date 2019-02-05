@@ -280,9 +280,11 @@ const MembersTot = styled.div`
   font-size: 12px;
   float: right;
   & span {
-    margin-right: 8px;
-    vertical-align: super;
+    margin-right: 16px;
+
     display: inline-block;
+
+    vertical-align: super;
   }
 `;
 
