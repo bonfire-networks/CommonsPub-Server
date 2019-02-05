@@ -5,7 +5,7 @@ import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
-import { Resource, Users } from '../Icons';
+import { Resource, Eye } from '../Icons';
 
 interface CollectionProps {
   collection: Collection;
@@ -37,7 +37,7 @@ const Collection: React.SFC<CollectionProps> = ({
             </ActionItem>
             <ActionItem>
               {collection.followersCount || 0}{' '}
-              <Users width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
+              <Eye width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
             </ActionItem>
           </Actions>
         </Infos>
