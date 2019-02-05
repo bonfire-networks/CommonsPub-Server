@@ -115,7 +115,7 @@ const PreviewTalk = styled(Textarea)<{ expanded?: boolean }>`
   line-height: 20px;
   padding: 0 10px;
   font-size: 14px;
-  color: #c1bdbd;
+  color: #333;
   font-weight: 600;
   &:hover {
     border: none !important;
