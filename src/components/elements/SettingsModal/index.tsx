@@ -16,6 +16,8 @@ import Alert from '../../elements/Alert';
 // import gql from 'graphql-tag';
 import { graphql, OperationOption } from 'react-apollo';
 import User from '../../../types/User';
+// import LanguageSelect from '../../inputs/LanguageSelect/LanguageSelect';
+
 const {
   updateProfileMutation
 } = require('../../../graphql/updateProfile.graphql');
@@ -52,7 +54,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
       <Container>
         <Header>
           <H5>
-            <Trans>Edit the profile</Trans>
+            <Trans>Update my profile &amp; settings</Trans>
           </H5>
         </Header>
         <Form>
@@ -117,6 +119,12 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               {errors.image && touched.image && <Alert>{errors.image}</Alert>}
             </ContainerForm>
           </Row>
+          {/* <Row>
+            <label>
+              <Trans>Primary Language</Trans>
+            </label>
+          <LanguageSelect />
+          </Row> */}
           <Actions>
             <Button
               disabled={isSubmitting}
