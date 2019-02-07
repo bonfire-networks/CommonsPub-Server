@@ -25,10 +25,13 @@ import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
+import Discussion from '../../components/chrome/Discussion/Discussion';
+import { Settings } from '../../components/elements/Icons';
+
 enum TabsEnum {
   // Members = 'Members',
-  Resources = 'Resources'
-  // Discussion = 'Discussion'
+  Resources = 'Resources',
+  Discussion = 'Discussion'
 }
 
 interface Data extends GraphqlQueryControls {
@@ -95,11 +98,26 @@ class CollectionComponent extends React.Component<Props> {
                 <HeroInfo>
                   <H2>{collection.name}</H2>
                   <P>{collection.summary}</P>
-                  <Join
-                    followed={collection.followed}
-                    id={collection.localId}
-                    externalId={collection.id}
-                  />
+                  <ActionsHero>
+                    <HeroJoin>
+                      <Join
+                        followed={collection.followed}
+                        id={collection.localId}
+                        externalId={collection.id}
+                      />
+                    </HeroJoin>
+                    {collection.communities[0].followed ? (
+                      <EditButton onClick={this.props.editCollection}>
+                        <Settings
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#f98012'}
+                        />
+                        <Trans>Edit collection</Trans>
+                      </EditButton>
+                    ) : null}
+                  </ActionsHero>
                 </HeroInfo>
               </Hero>
               <Actions />
@@ -110,16 +128,6 @@ class CollectionComponent extends React.Component<Props> {
                       <Tabs
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
-                        button={
-                          collection.communities[0].followed ? (
-                            <Button
-                              onClick={this.props.editCollection}
-                              secondary
-                            >
-                              <Trans>Edit</Trans>
-                            </Button>
-                          ) : null
-                        }
                       >
                         {/* <TabPanel
                         label={`${TabsEnum.Members} (${
@@ -190,14 +198,21 @@ class CollectionComponent extends React.Component<Props> {
                             </Wrapper>
                           </div>
                         </TabPanel>
-                        {/* <TabPanel
-                        label={`${TabsEnum.Discussion} (${
-                          collection.comments.length
-                        })`}
-                        key={TabsEnum.Discussion}
+                        <TabPanel
+                          label={`${TabsEnum.Discussion}`}
+                          key={TabsEnum.Discussion}
                         >
-                        {discussions}
-                      </TabPanel> */}
+                          {collection.communities[0].followed ? (
+                            <Discussion
+                              localId={collection.localId}
+                              id={collection.id}
+                            />
+                          ) : (
+                            <Footer>
+                              <Trans>Join the community to discuss</Trans>
+                            </Footer>
+                          )}
+                        </TabPanel>
                       </Tabs>
                     </OverlayTab>
                   </WrapperTab>
@@ -223,6 +238,18 @@ class CollectionComponent extends React.Component<Props> {
     );
   }
 }
+
+const ActionsHero = styled.div`
+  margin-top: 4px;
+  & div {
+    &:hover {
+      background: transparent;
+    }
+  }
+`;
+const HeroJoin = styled.div`
+  float: left;
+`;
 
 const Actions = styled.div``;
 const Footer = styled.div`
@@ -261,6 +288,22 @@ const WrapperCont = styled.div`
 //   text-align: center;
 // `;
 
+const EditButton = styled.span`
+  color: #ff9d00;
+  height: 40px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 38px;
+  margin-left: 24px;
+  cursor: pointer;
+  display: inline-block;
+  & svg {
+    margin-top: 8px;
+    text-align: center;
+    vertical-align: text-bottom;
+    margin-right: 8px;
+  }
+`;
 const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
   background: #fff;

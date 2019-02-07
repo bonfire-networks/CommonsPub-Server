@@ -142,6 +142,32 @@ export const Diary: React.SFC<IconProps> = ({
   </svg>
 );
 
+// SIDEBAR
+export const Collection: React.SFC<IconProps> = ({
+  width = 24,
+  height = 24,
+  strokeWidth = 2,
+  color = '#333'
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    color={color}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="feather feather-activity"
+  >
+    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+    <polyline points="2 17 12 22 22 17" />
+    <polyline points="2 12 12 17 22 12" />
+  </svg>
+);
+
 // CALENDAR
 export const Calendar: React.SFC<IconProps> = ({
   width = 24,
@@ -1356,6 +1382,34 @@ export const Resource: React.SFC<IconProps> = ({
 );
 
 // COPY
+export const Community: React.SFC<IconProps> = ({
+  width = 24,
+  height = 24,
+  strokeWidth = 2,
+  color = '#333'
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    color={color}
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="feather feather-users"
+  >
+    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+    <line x1="6" y1="1" x2="6" y2="4" />
+    <line x1="10" y1="1" x2="10" y2="4" />
+    <line x1="14" y1="1" x2="14" y2="4" />
+  </svg>
+);
+
+// COPY
 export const Unfollow: React.SFC<IconProps> = ({
   width = 24,
   height = 24,
@@ -1459,9 +1513,11 @@ export default {
   Link,
   Copy,
   NewFile,
+  Community,
   Folder,
   Lock,
   Star,
+  Collection,
   Trash,
   Edit2,
   Loading,

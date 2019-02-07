@@ -1,10 +1,9 @@
 export default interface User {
   name: string;
   email: string;
-  bio: string;
+  summary: string;
   preferredUsername: string;
-  avatarImage?: string;
-  profileImage?: string;
+  icon?: string;
   location: string;
   language: string;
   interests: string[];

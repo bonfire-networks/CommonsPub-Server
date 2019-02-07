@@ -7,16 +7,14 @@ import { Trans } from '@lingui/macro';
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import Collection from '../../types/Collection';
+import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
-import CollectionCard from '../../components/elements/Collection/Collection';
+import CommunityCard from '../../components/elements/Community/Community';
 
-const {
-  getFollowedCollections
-} = require('../../graphql/getFollowedCollections.graphql');
+const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
-  followingCollections: Collection[];
+  communities: Community[];
 }
 
 interface Props {
@@ -30,23 +28,34 @@ class CommunitiesYours extends React.Component<Props> {
     if (this.props.data.error) {
       body = (
         <span>
-          <Trans>Error loading collections</Trans>
+          <Trans>Error loading communities</Trans>
         </span>
       );
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      body = this.props.data.followingCollections.map((comm, i) => (
-        <CollectionCard key={i} collection={comm} communityId={comm.localId} />
-      ));
+      body = this.props.data.communities.map((community, i) => {
+        return (
+          <CommunityCard
+            key={i}
+            summary={community.summary}
+            title={community.name}
+            icon={community.icon || ''}
+            id={community.localId}
+            followed={community.followed}
+            followersCount={community.followersCount}
+            collectionsCount={community.collectionsCount}
+            externalId={community.id}
+          />
+        );
+      });
     }
-    console.log(body);
     return (
       <Main>
         <WrapperCont>
           <Wrapper>
             <H4>
-              <Trans>Followed Collections</Trans>
+              <Trans>All Communities</Trans>
             </H4>
             <List>{body}</List>
           </Wrapper>
@@ -55,6 +64,7 @@ class CommunitiesYours extends React.Component<Props> {
     );
   }
 }
+
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
@@ -87,19 +97,21 @@ const Wrapper = styled.div`
 `;
 const List = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
+  padding: 16px;
   background: white;
+  padding-top: 0;
 `;
 
 const withGetCommunities = graphql<
   {},
   {
     data: {
-      followingCollections: Collection[];
+      communities: Community[];
     };
   }
->(getFollowedCollections) as OperationOption<{}, {}>;
+>(getCommunitiesQuery) as OperationOption<{}, {}>;
 
 export default compose(withGetCommunities)(CommunitiesYours);

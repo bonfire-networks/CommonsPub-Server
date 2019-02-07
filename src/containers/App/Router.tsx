@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Loadable from 'react-loadable';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import styled from '../../themes/styled';
@@ -9,6 +8,7 @@ import { Trans } from '@lingui/macro';
 // import Menu from '../../components/chrome/Menu/Menu';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
+import CommunitiesAll from '../../pages/communities.all/CommunitiesAll';
 import CollectionsFeatured from '../../pages/collections.featured/CollectionsFeatured';
 import CollectionsYours from '../../pages/collections.yours/CollectionsYours';
 import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
@@ -18,10 +18,10 @@ import Header from '../../components/header';
 import Login from '../../pages/login/Login';
 import NotFound from '../../pages/not-found/NotFound';
 import ProtectedRoute from './ProtectedRoute';
-import Loader from '../../components/elements/Loader/Loader';
 import Search from '../../pages/search/Search';
 import Thread from '../../pages/thread';
 import Home from '../../pages/home';
+import User from '../../pages/User';
 const AppInner = styled.div`
   display: flex;
   flex-direction: row;
@@ -36,23 +36,6 @@ const Main = styled.div`
   flex: 1;
 `;
 
-const CenteredLoader = () => (
-  <Loader
-    style={{
-      transform: 'translate(-50%, -50%)',
-      top: '50%',
-      left: '50%',
-      position: 'fixed'
-    }}
-  />
-);
-
-const SignUp = Loadable({
-  loader: () => import('../../pages/sign-up/SignUp'),
-  loading: () => <CenteredLoader />,
-  delay: 1000
-});
-
 /**
  * The application routes definition.
  *
@@ -66,8 +49,6 @@ export default () => (
       <Switch>
         <Route exact path="/readme" component={Home} />
         <Route exact path="/login" component={Login} />
-        <Route exact path="/sign-up" component={SignUp} />
-        <Route exact path="/sign-up/:step" component={SignUp} />
         <ProtectedRoute
           path="/"
           component={props => (
@@ -78,11 +59,7 @@ export default () => (
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route exact path="/search" component={Search} />
-                  <Route
-                    exact
-                    path="/communities"
-                    component={CommunitiesFeatured}
-                  />
+                  <Route exact path="/communities" component={CommunitiesAll} />
                   <Route
                     exact
                     path="/communities/featured"
@@ -123,6 +100,7 @@ export default () => (
                     path="/communities/:community/collections/:collection"
                     component={CollectionsCollection}
                   />
+                  <Route exact path="/u/:id" component={User} />
                   {/*<Route*/}
                   {/*exact*/}
                   {/*path="/communities/:community/collections/:collection/resources/:resource"*/}

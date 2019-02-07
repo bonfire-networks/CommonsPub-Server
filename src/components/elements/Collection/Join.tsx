@@ -130,7 +130,7 @@ const Span = styled.div<{ unfollow?: boolean }>`
   }
   & svg {
     margin-right: 8px;
-    vertical-align: sub;
+    vertical-align: text-bottom;
   }
 `;
 

@@ -38,6 +38,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
     content: Yup.string().required()
   }),
   handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
+    console.log(props);
     const variables = {
       comment: {
         content: values.content

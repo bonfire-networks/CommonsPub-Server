@@ -11,7 +11,7 @@ import Loader from '../../components/elements/Loader/Loader';
 import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
 import { NavLink } from 'react-router-dom';
-
+import { clearFix } from 'polished';
 import { Trans } from '@lingui/macro';
 
 interface Data extends GraphqlQueryControls {
@@ -61,11 +61,14 @@ const Component = ({ data, match }) => {
     <Main>
       <Grid>
         <Wrapper>
-          <Context>
-            <NavLink to={`/communities/${data.comment.context.localId}`}>
-              #{data.comment.context.name}
-            </NavLink>
-          </Context>
+          <WrapperLink to={`/communities/${data.comment.context.localId}`}>
+            <Context>
+              <Img
+                style={{ backgroundImage: `url(${data.comment.context.icon})` }}
+              />
+              <Title>{data.comment.context.name}</Title>
+            </Context>
+          </WrapperLink>
           {data.comment.inReplyTo ? (
             <NavLink to={`/thread/${data.comment.inReplyTo.localId}`}>
               <InReplyTo>
@@ -101,19 +104,40 @@ const Component = ({ data, match }) => {
   );
 };
 
+const WrapperLink = styled(NavLink)`
+  background: white;
+  display: block;
+  &:hover {
+    text-decoration: underline;
+    background: #ececec40;
+  }
+`;
+
 const Context = styled.div`
   font-size: 24px;
   color: ${props => props.theme.styles.colour.base1};
   font-weight: 700;
-  margin-bottom: 16px;
-  & a {
-    color: inherit;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+  padding: 16px;
+  ${clearFix()};
 `;
 
+const Img = styled.div`
+  float: left;
+  width: 60px;
+  height: 60px;
+  border-radius: 3px;
+  background-size: cover;
+  background-color: #ececec;
+`;
+
+const Title = styled.div`
+  float: left;
+  height: 60px;
+  line-height: 60px;
+  margin-left: 8px;
+  font-size: 20px;
+  font-weight: 700;
+`;
 const InReplyTo = styled.div`
   display: block;
   padding: 10px;
@@ -130,6 +154,9 @@ const Wrapper = styled.div`
   width: 720px;
   margin: 0 auto;
   margin-bottom: 8px;
+  border: 1px solid #dddfe2;
+  border-radius: 3px;
+  background: white;
   & a {
     text-decoration: none;
   }

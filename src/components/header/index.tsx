@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../themes/styled';
-
+import { Community } from '../elements/Icons';
 import { Trans } from '@lingui/macro';
 import OutsideClickHandler from 'react-outside-click-handler';
 // import Text from '../inputs/Text/Text';
@@ -9,7 +9,9 @@ const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
-import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
+// import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
+import NewCommunityModal from '../../components/elements/CreateCommunityModal';
+import SettingsModal from '../../components/elements/SettingsModal';
 
 interface Props {
   handleOpen(): boolean;
@@ -18,6 +20,10 @@ interface Props {
   logout(): any;
   history: any;
   data: any;
+  handleNewCommunity(): boolean;
+  isOpenCommunity: boolean;
+  handleSettings(): boolean;
+  isOpenSettings: boolean;
 }
 
 const Header: React.SFC<Props> = props => {
@@ -27,18 +33,28 @@ const Header: React.SFC<Props> = props => {
         <Logo />
       </Left>
       <Right>
-        <Left>
+        {/* <Left>
           <LanguageSelect />
-        </Left>
-        <Right>
-          <Avatar>
-            <img
-              onClick={props.handleOpen}
-              src={props.data.user.data.icon}
-              alt="Avatar"
-            />
-          </Avatar>
-        </Right>
+        </Left> */}
+        <Bottom onClick={props.handleNewCommunity}>
+          <span>
+            <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
+          </span>
+          <Trans>Create a community</Trans>
+        </Bottom>
+
+        <Avatar>
+          <img
+            onClick={props.handleOpen}
+            src={
+              props.data.user.data.icon ||
+              `https://www.gravatar.com/avatar/${
+                props.data.user.data.localId
+              }?f=y&d=identicon`
+            }
+            alt="Avatar"
+          />
+        </Avatar>
       </Right>
       {props.isOpen ? (
         <>
@@ -47,8 +63,10 @@ const Header: React.SFC<Props> = props => {
               <Menu>
                 <List lined>
                   <Item>{props.data.user.data.name}</Item>
-                  {/* <Item><Trans>Edit profile</Trans></Item>
-            <Item><Trans>Settings</Trans></Item> */}
+                  {/* <Item><Trans>Edit profile</Trans></Item>*/}
+                  <Item onClick={props.handleSettings}>
+                    <Trans>Settings</Trans>
+                  </Item>
                 </List>
                 <List>
                   <Item onClick={props.logout}>
@@ -61,12 +79,42 @@ const Header: React.SFC<Props> = props => {
           <Layer />
         </>
       ) : null}
+      <NewCommunityModal
+        toggleModal={props.handleNewCommunity}
+        modalIsOpen={props.isOpenCommunity}
+      />
+      <SettingsModal
+        toggleModal={props.handleSettings}
+        modalIsOpen={props.isOpenSettings}
+        profile={props.data.user.data}
+      />
     </Wrapper>
   );
 };
 
+const Bottom = styled.div`
+  height: 30px;
+  background: ${props => props.theme.styles.colour.primaryAlt};
+  border-radius: 4px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  float: left;
+  padding: 0 16px;
+  & span {
+    vertical-align: sub;
+    display: inline-block;
+    margin-right: 8px;
+  }
+`;
+
 const Wrapper = styled.div`
   height: 50px;
+  min-height: 50px;
+  background: #fff;
   ${clearFix()};
   position: relative;
 `;
@@ -76,7 +124,8 @@ const Avatar = styled.div`
   height: 32px;
   border-radius: 100px;
   overflow: hidden;
-  margin-left: 10px;
+  margin-left: 16px;
+  float: left;
 `;
 
 const WrapperMenu = styled.div`
@@ -143,6 +192,7 @@ const Right = styled.div`
   float: right;
   margin-top: 9px;
   margin-right: 8px;
+  ${clearFix()};
   & img {
     cursor: pointer;
     max-width: 32px;
@@ -157,8 +207,13 @@ const Right = styled.div`
 export default compose(
   graphql(getUserQuery),
   withState('isOpen', 'onOpen', false),
+  withState('isOpenSettings', 'onOpenSettings', false),
+  withState('isOpenCommunity', 'onOpenCommunity', false),
   withHandlers({
     handleOpen: props => () => props.onOpen(true),
+    handleSettings: props => () => props.onOpenSettings(!props.isOpenSettings),
+    handleNewCommunity: props => () =>
+      props.onOpenCommunity(!props.isOpenCommunity),
     closeMenu: props => () => props.onOpen(false),
     logout: props => () => {
       localStorage.removeItem('user_access_token');

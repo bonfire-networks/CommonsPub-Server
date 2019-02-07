@@ -5,11 +5,13 @@ query getThread($id: Int!) {
         ... on Community {
           id
           name
+          icon
           localId
         }
         ... on Collection {
           id
           name
+          icon
           localId
         }
       }

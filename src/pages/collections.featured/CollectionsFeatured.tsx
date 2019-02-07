@@ -59,13 +59,14 @@ class CommunitiesYours extends React.Component<Props> {
     );
   }
 }
-
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
+  height: 100%;
   background: white;
-  display: inline-table;
+  margin-top: 24px;
+  border-radius: 4px;
 `;
 
 const Wrapper = styled.div`
@@ -73,13 +74,19 @@ const Wrapper = styled.div`
   flex-direction: column;
   flex: 1;
   margin-bottom: 24px;
+
   & h4 {
-    font-size: 16px !important;
-    margin: 0;
     padding-left: 8px;
+    margin: 0;
     border-bottom: 1px solid #dadada;
+    margin-bottom: 20px !important;
     line-height: 32px !important;
-    margin-block-end: 0;
+    background-color: #f5f6f7;
+    border-bottom: 1px solid #dddfe2;
+    border-radius: 2px 2px 0 0;
+    font-weight: bold;
+    font-size: 14px !important;
+    color: #4b4f56;
   }
 `;
 const List = styled.div`
@@ -87,6 +94,7 @@ const List = styled.div`
   grid-template-columns: 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
+  background: white;
 `;
 
 const withGetCommunities = graphql<

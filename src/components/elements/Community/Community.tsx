@@ -2,10 +2,10 @@ import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
-import { Users } from '../Icons';
+import { Users, Collection } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
-import { Trans } from '@lingui/macro';
+import { clearFix } from 'polished';
 
 interface Props {
   title: string;
@@ -13,6 +13,7 @@ interface Props {
   summary: string;
   id: string;
   followersCount: number;
+  collectionsCount: number;
   followed: boolean;
   externalId: string;
 }
@@ -24,6 +25,7 @@ const Community: React.SFC<Props> = ({
   summary,
   followed,
   followersCount,
+  collectionsCount,
   externalId
 }) => (
   <Wrapper>
@@ -34,14 +36,26 @@ const Community: React.SFC<Props> = ({
       </WrapperImage>
       <H5>{title}</H5>
     </Link>
-    <Members>
-      {followersCount}
-      <Trans>
+    <Actions>
+      <Members>
+        {followersCount}
         <span>
           <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
-      </Trans>
-    </Members>
+      </Members>
+      <Members>
+        {collectionsCount || 0}
+        <span>
+          <Collection
+            width={16}
+            height={16}
+            strokeWidth={2}
+            color={'#1e1f2480'}
+          />
+        </span>
+      </Members>
+    </Actions>
+
     <Summary>{summary}</Summary>
     <Infos>
       <Join externalId={externalId} followed={followed} id={id} />
@@ -50,6 +64,10 @@ const Community: React.SFC<Props> = ({
 );
 
 export default Community;
+
+const Actions = styled.div`
+  ${clearFix()};
+`;
 
 const Overlay = styled.span`
   position: absolute;
@@ -66,6 +84,8 @@ const Overlay = styled.span`
 const Members = styled(P)`
   color: #1e1f2480;
   margin: 8px 0;
+  float: left;
+  margin-right: 16px;
   & span {
     margin-left: 4px;
     display: inline-block;

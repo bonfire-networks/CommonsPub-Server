@@ -41,6 +41,7 @@ class CommunitiesYours extends React.Component<Props> {
             summary={community.summary}
             title={community.name}
             icon={community.icon || ''}
+            collectionsCount={community.collectionsCount}
             id={community.localId}
             followed={community.followed}
             followersCount={community.followersCount}
@@ -54,7 +55,7 @@ class CommunitiesYours extends React.Component<Props> {
         <WrapperCont>
           <Wrapper>
             <H4>
-              <Trans>All Communities</Trans>
+              <Trans>Featured Communities</Trans>
             </H4>
             <List>{body}</List>
           </Wrapper>
@@ -63,13 +64,14 @@ class CommunitiesYours extends React.Component<Props> {
     );
   }
 }
-
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
   height: 100%;
   background: white;
+  margin-top: 24px;
+  border-radius: 4px;
 `;
 
 const Wrapper = styled.div`
@@ -77,13 +79,19 @@ const Wrapper = styled.div`
   flex-direction: column;
   flex: 1;
   margin-bottom: 24px;
+
   & h4 {
     padding-left: 8px;
-    font-size: 16px !important;
     margin: 0;
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
+    background-color: #f5f6f7;
+    border-bottom: 1px solid #dddfe2;
+    border-radius: 2px 2px 0 0;
+    font-weight: bold;
+    font-size: 14px !important;
+    color: #4b4f56;
   }
 `;
 const List = styled.div`
