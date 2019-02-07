@@ -77,7 +77,7 @@ export default class App extends React.Component<{}, AppState> {
   async setLocale(locale) {
     let catalogs = {};
 
-    if (!this.state.catalogs[locale]) {
+    if (!this.state.catalogs[locale] || locale == locale_default) {
       let catalog;
 
       if (process.env.NODE_ENV === 'development') {
@@ -101,6 +101,8 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   render() {
+    // console.log(this.state)
+
     if (!this.state.catalogs[this.state.locale]) {
       return (
         <p>
