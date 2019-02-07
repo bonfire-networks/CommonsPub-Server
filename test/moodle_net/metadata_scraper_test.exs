@@ -17,4 +17,18 @@ defmodule MoodleNet.MetadataScraperTest do
     assert data.summary
     assert data.title == "¿Por qué la música de Harry Potter suena tan MÁGICA?"
   end
+
+  @tag :external
+  test "get title" do
+    url = "https://en.wikibooks.org/wiki/Spanish"
+    assert {:ok, data} = Subject.fetch(url)
+    assert data.title == "Spanish - Wikibooks, open books for an open world"
+  end
+
+  @tag :external
+  test "fix relative image urls" do
+    url = "https://graphql.org/learn/schema/#interfaces"
+    assert {:ok, data} = Subject.fetch(url)
+    assert data.image == "https://graphql.org/img/og_image.png"
+  end
 end
