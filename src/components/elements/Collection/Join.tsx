@@ -71,7 +71,7 @@ const Join: React.SFC<Props> = ({
         }
       >
         <Unfollow width={18} height={18} strokeWidth={2} color={'#1e1f2480'} />
-        <Trans>Unfollowing</Trans>
+        <Trans>Unfollow</Trans>
       </Span>
     );
   } else {
@@ -107,7 +107,7 @@ const Join: React.SFC<Props> = ({
         }
       >
         <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
-        <Trans>Following</Trans>
+        <Trans>Follow</Trans>
       </Span>
     );
   }
