@@ -204,7 +204,18 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         >
                           <OverviewTab>
                             <Tagline>Description</Tagline>
-                            <P>{community.summary}</P>
+                            <P>
+                              {community.summary
+                                .split('\n')
+                                .map(function(item, key) {
+                                  return (
+                                    <span key={key}>
+                                      {item}
+                                      <br />
+                                    </span>
+                                  );
+                                })}
+                            </P>
                             <Tagline>Members</Tagline>
                             <Members>
                               {community.followers.map((user, i) => (

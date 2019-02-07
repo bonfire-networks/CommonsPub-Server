@@ -83,7 +83,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <CounterChars>{80 - field.value.length}</CounterChars>
+                    <CounterChars>{60 - field.value.length}</CounterChars>
                   </>
                 )}
               />
@@ -105,7 +105,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <CounterChars>{240 - field.value.length}</CounterChars>
+                    <CounterChars>{500 - field.value.length}</CounterChars>
                   </>
                 )}
               />
@@ -156,9 +156,9 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
   }),
   validationSchema: Yup.object().shape({
     name: Yup.string()
-      .max(80)
+      .max(60)
       .required(),
-    summary: Yup.string().max(240),
+    summary: Yup.string().max(500),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {

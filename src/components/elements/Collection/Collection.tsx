@@ -23,8 +23,19 @@ const Collection: React.SFC<CollectionProps> = ({
       >
         <Img style={{ backgroundImage: `url(${collection.icon})` }} />
         <Infos>
-          <Title>{collection.name}</Title>
-          <Desc>{collection.summary}</Desc>
+          <Title>
+            {collection.name.length > 80
+              ? collection.name.replace(/^(.{76}[^\s]*).*/, '$1...')
+              : collection.name}
+          </Title>
+          <Desc>
+            {collection.summary.length > 320
+              ? collection.summary.replace(
+                  /^([\s\S]{316}[^\s]*)[\s\S]*/,
+                  '$1...'
+                )
+              : collection.summary}
+          </Desc>
           <Actions>
             <ActionItem>
               {collection.resources.length || 0}{' '}
@@ -88,8 +99,8 @@ const Wrapper = styled.div`
   }
 `;
 const Img = styled.div`
-  width: 55px;
-  height: 55px;
+  width: 120px;
+  height: 120px;
   border-radius: 2px;
   background-size: cover;
   background-repeat: no-repeat;
@@ -101,7 +112,7 @@ const Infos = styled.div`
 `;
 const Title = styled(H5)`
   font-size: 18px !important;
-  margin: 0 !important;
+  margin: 0 0 8px 0 !important;
   line-height: 20px !important;
   letter-spacing: 0.8px;
 `;

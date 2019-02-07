@@ -97,7 +97,16 @@ class CollectionComponent extends React.Component<Props> {
                 />
                 <HeroInfo>
                   <H2>{collection.name}</H2>
-                  <P>{collection.summary}</P>
+                  <P>
+                    {collection.summary.split('\n').map(function(item, key) {
+                      return (
+                        <span key={key}>
+                          {item}
+                          <br />
+                        </span>
+                      );
+                    })}
+                  </P>
                   <ActionsHero>
                     <HeroJoin>
                       <Join
