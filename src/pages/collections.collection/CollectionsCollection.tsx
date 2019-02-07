@@ -209,7 +209,10 @@ class CollectionComponent extends React.Component<Props> {
                             />
                           ) : (
                             <Footer>
-                              <Trans>Join the community to discuss</Trans>
+                              <Trans>
+                                Join the <strong>{community_name}</strong>{' '}
+                                community to participate in discussions
+                              </Trans>
                             </Footer>
                           )}
                         </TabPanel>
