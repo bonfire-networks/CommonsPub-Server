@@ -99,7 +99,6 @@ function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
-        console.log(props);
         if (data.user.isAuthenticated) {
           return <Redirect to="/" />;
         }
@@ -188,9 +187,7 @@ class Login extends React.Component<LoginProps, LoginState> {
       result = await this.props.login({
         variables: credentials
       });
-      console.log(result);
     } catch (err) {
-      console.log(err);
       alert(err);
       this.setState({
         authenticating: false,
@@ -218,7 +215,10 @@ class Login extends React.Component<LoginProps, LoginState> {
     await this.props.setLocalUser({
       variables: {
         isAuthenticated: true,
-        data: userData.me
+        data: {
+          ...userData.me.user,
+          email: result.data.createSession.me.email
+        }
       }
     });
   }
