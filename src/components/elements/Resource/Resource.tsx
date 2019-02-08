@@ -9,6 +9,7 @@ import P from '../../typography/P/P';
 import Button from '../Button/Button';
 import { compose, withState, withHandlers } from 'recompose';
 import EditResourceModal from '../EditResourceModal';
+
 interface Props {
   icon: string;
   title: string;
@@ -22,10 +23,14 @@ interface Props {
 
 const ResourceCard: React.SFC<Props> = props => (
   <Wrapper>
-    <Img style={{ backgroundImage: `url(${props.icon})` }} />
+    <a target="blank" href={props.url}>
+      <Img style={{ backgroundImage: `url(${props.icon})` }} />
+    </a>
     <Info>
       <TitleWrapper>
-        <Title>{props.title}</Title>
+        <a target="blank" href={props.url}>
+          <Title>{props.title}</Title>
+        </a>
         {props.preview ? null : (
           <Actions>
             <Button hovered onClick={props.editResource}>
@@ -34,12 +39,19 @@ const ResourceCard: React.SFC<Props> = props => (
           </Actions>
         )}
       </TitleWrapper>
-      <Url>
-        <a target="blank" href={props.url}>
-          {props.url}
-        </a>
-      </Url>
-      <Summary>{props.summary}</Summary>
+      <a target="blank" href={props.url}>
+        <Url>{props.url}</Url>
+      </a>
+      <Summary>
+        {props.summary.split('\n').map(function(item, key) {
+          return (
+            <span key={key}>
+              {item}
+              <br />
+            </span>
+          );
+        })}
+      </Summary>
     </Info>
     <EditResourceModal
       toggleModal={props.editResource}
@@ -59,18 +71,19 @@ const TitleWrapper = styled.div`
 const Info = styled.div`
   flex: 1;
   margin-left: 16px;
+  & a {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 const Url = styled.div`
   margin-bottom: 8px;
-  & a {
-    font-size: 14px;
-    color: #9e9e9e;
-    font-weight: 500;
-    text-decoration: none;
-    ${ellipsis('420px')} margin-top: 4px;
-    &:hover {
-      text-decoration: underline;
-    }
+  font-size: 14px;
+  color: #9e9e9e;
+  font-weight: 500;
+  ${ellipsis('420px')} margin-top: 4px;
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -87,8 +100,8 @@ const Wrapper = styled.div`
 const Img = styled.div`
   background-size: cover;
   background-repeat: none;
-  height: 80px;
-  width: 80px;
+  height: 120px;
+  width: 120px;
   border-radius: 2px;
   background-position: center center;
 `;

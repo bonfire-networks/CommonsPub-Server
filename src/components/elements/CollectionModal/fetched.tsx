@@ -117,7 +117,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
                   value={field.value}
                   onChange={field.onChange}
                 />
-                <CounterChars>{80 - field.value.length}</CounterChars>
+                <CounterChars>{90 - field.value.length}</CounterChars>
               </>
             )}
           />
@@ -140,7 +140,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
                   value={field.value}
                   onChange={field.onChange}
                 />
-                <CounterChars>{240 - field.value.length}</CounterChars>
+                <CounterChars>{1000 - field.value.length}</CounterChars>
               </>
             )}
           />
@@ -194,9 +194,9 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
       .url()
       .required(),
     name: Yup.string()
-      .max(80)
+      .max(90)
       .required(),
-    summary: Yup.string().max(240),
+    summary: Yup.string().max(1000),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {

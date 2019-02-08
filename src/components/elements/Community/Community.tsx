@@ -34,7 +34,9 @@ const Community: React.SFC<Props> = ({
         <Img style={{ backgroundImage: `url(${icon})` }} />
         <Overlay />
       </WrapperImage>
-      <H5>{title}</H5>
+      <H5>
+        {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
+      </H5>
     </Link>
     <Actions>
       <Members>
@@ -56,7 +58,11 @@ const Community: React.SFC<Props> = ({
       </Members>
     </Actions>
 
-    <Summary>{summary}</Summary>
+    <Summary>
+      {summary.length > 160
+        ? summary.replace(/^([\s\S]{156}[^\s]*)[\s\S]*/, '$1...')
+        : summary}
+    </Summary>
     <Infos>
       <Join externalId={externalId} followed={followed} id={id} />
     </Infos>
@@ -98,7 +104,7 @@ const Summary = styled(P)`
   font-size: 14px;
   color: rgba(0, 0, 0, 0.8);
   margin-bottom: 40px;
-  word-break: break-all;
+  word-break: break-word;
 `;
 const Wrapper = styled.div`
   border: 1px solid #e4e6e6;
@@ -110,7 +116,7 @@ const Wrapper = styled.div`
     margin: 0;
     font-size: 18px !important;
     line-height: 24px !important;
-    word-break: break-all;
+    word-break: break-word;
   }
   & a {
     color: inherit;

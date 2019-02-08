@@ -11,12 +11,14 @@ mutation createUserMutation($user: RegistrationInput!) {
     createUser(user: $user) {
         token
         me {
+            email
+            user {
             name
             summary # bio
             preferredUsername # emoji ID
             location
-            email
             id
+            }
         }
     }
 }

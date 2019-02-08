@@ -1,3 +1,5 @@
+// create a new collection
+
 import * as React from 'react';
 import Modal from '../Modal';
 import styled from '../../../themes/styled';
@@ -106,7 +108,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <CounterChars>{240 - field.value.length}</CounterChars>
+                    <CounterChars>{500 - field.value.length}</CounterChars>
                   </>
                 )}
               />
@@ -157,7 +159,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     name: Yup.string()
       .max(80)
       .required(),
-    summary: Yup.string().max(240),
+    summary: Yup.string().max(500),
     image: Yup.string().url()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {
