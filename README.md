@@ -225,6 +225,11 @@ Given that grid columns adapt to the dimensions of the user agent viewport, when
 be built with the capability to reduce their size to fit within their container, and should not therefore 
 use fixed widths.
 
+### Browser testing
+
+We're using [BrowserStack](https://www.browserstack.com/open-source) for testing the front-end in various browsers.
+![BrowserStack](docs/assets/images/Browserstack-logo.svg)
+
 ## Localisation
 
 [LinguiJS](https://lingui.js.org/) is the localisation library used for i18n.
