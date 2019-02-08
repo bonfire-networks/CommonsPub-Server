@@ -187,9 +187,7 @@ class Login extends React.Component<LoginProps, LoginState> {
       result = await this.props.login({
         variables: credentials
       });
-      console.log(result);
     } catch (err) {
-      console.log(err);
       alert(err);
       this.setState({
         authenticating: false,
