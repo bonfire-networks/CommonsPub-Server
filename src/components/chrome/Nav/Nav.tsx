@@ -3,19 +3,10 @@ import { withRouter } from 'react-router';
 import { RouterProps } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import styled from '../../../themes/styled';
+import LanguageSelect from '../../inputs/LanguageSelect/LanguageSelect';
 import { compose, withState, withHandlers } from 'recompose';
 
 import { Trans } from '@lingui/macro';
-
-const SidebarWrapper = styled.div`
-  width: 240px;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  position: relative;
-  // background: whitesmoke;
-  background-color: #151b26;
-`;
 
 interface NavProps extends RouterProps {
   handleNewCommunity(): boolean;
@@ -218,6 +209,7 @@ class Nav extends React.Component<NavProps, {}> {
           </NavLink>
         </NavList>
         <Bottom>
+          <LanguageSelect />
           <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
             <Trans>🔬 Share Feedback</Trans>
           </Feedback>
@@ -234,9 +226,20 @@ class Nav extends React.Component<NavProps, {}> {
   }
 }
 
+const SidebarWrapper = styled.div`
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  position: relative;
+  // background: whitesmoke;
+  background-color: #151b26;
+`;
+
 const Feedback = styled.a`
   display: block;
-  text-align: center;
+  text-align: left;
+  padding-left: 8px;
   animation: 0.5s slide-in;
   position: relative;
   color: #fff !important;
@@ -249,16 +252,17 @@ const Feedback = styled.a`
 const Bottom = styled.div`
   position: absolute;
   bottom: 10px;
-  height: 40px;
+  max-height: 80px;
   text-align: center;
   left: 0px;
   right: 0px;
   line-height: 50px;
+  padding: 0 14px;
   cursor: pointer;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
-  border-top: 1px solid #ffffff3d;
+  // border-top: 1px solid #ffffff3d;
 `;
 
 const NavList = styled.div`

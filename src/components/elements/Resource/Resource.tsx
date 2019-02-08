@@ -27,17 +27,19 @@ const ResourceCard: React.SFC<Props> = props => (
       <Img style={{ backgroundImage: `url(${props.icon})` }} />
     </a>
     <Info>
-      <a target="blank" href={props.url}>
-        <TitleWrapper>
+      <TitleWrapper>
+        <a target="blank" href={props.url}>
           <Title>{props.title}</Title>
-          {props.preview ? null : (
-            <Actions>
-              <Button hovered onClick={props.editResource}>
-                <Trans>Edit</Trans>
-              </Button>
-            </Actions>
-          )}
-        </TitleWrapper>
+        </a>
+        {props.preview ? null : (
+          <Actions>
+            <Button hovered onClick={props.editResource}>
+              <Trans>Edit</Trans>
+            </Button>
+          </Actions>
+        )}
+      </TitleWrapper>
+      <a target="blank" href={props.url}>
         <Url>{props.url}</Url>
       </a>
       <Summary>

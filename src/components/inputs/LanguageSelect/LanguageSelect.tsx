@@ -6,7 +6,7 @@ import {
 } from '@zendeskgarden/react-select';
 
 import styled, { StyledThemeInterface } from '../../../themes/styled';
-import Flag from '../../elements/Flag/Flag';
+// import Flag from '../../elements/Flag/Flag';
 import { LocaleContext, locale_default } from '../../../containers/App/App';
 
 type LanguageSelectState = {
@@ -39,26 +39,11 @@ Object.keys(languageNames).forEach(key => {
   // console.log(languageNames[key]);
   options.push(
     <Item key={key}>
-      <Flag flag={key.substr(-2).toLowerCase()} />
+      {/* <Flag flag={key.substr(-2).toLowerCase()} /> */}
       &nbsp; {languageNames[key]}
     </Item>
   );
 });
-
-// const options = [
-//   <Item key="en_GB">
-//     <Flag flag="gb" />
-//     &nbsp; {languageNames['en_GB']}
-//   </Item>,
-//   <Item key="en_US">
-//     <Flag flag="us" />
-//     &nbsp; {languageNames['en_US']}
-//   </Item>,
-//   <Item key="fr">
-//     <Flag flag="fr" />
-//     &nbsp; {languageNames['fr']}
-//   </Item>
-// ];
 
 /**
  * LanguageSelect component.
@@ -83,13 +68,15 @@ export default class LanguageSelect extends React.Component<
           <SelectField {...this.props}>
             <Select
               selectedKey={locale}
+              zIndex={99999999999}
               onChange={selectedKey => {
                 setLocale(selectedKey);
                 this.setState({ selectedKey });
               }}
               options={options}
+              style={{ backgroundColor: '#151b26', color: '#ccc' }}
             >
-              <Flag flag={locale.substr(-2).toLowerCase()} />
+              {/* <Flag flag={locale.substr(-2).toLowerCase()} /> */}
               &nbsp;&nbsp;
               {languageNames[locale]}
             </Select>

@@ -65,7 +65,7 @@ const Header: React.SFC<Props> = props => {
                   <Item>{props.data.user.data.name}</Item>
                   {/* <Item><Trans>Edit profile</Trans></Item>*/}
                   <Item onClick={props.handleSettings}>
-                    <Trans>Settings</Trans>
+                    <Trans>Profile &amp; Settings</Trans>
                   </Item>
                 </List>
                 <List>
