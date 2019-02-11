@@ -38,6 +38,7 @@ defmodule MoodleNet.Accounts do
       |> Map.put("type", "Person")
       |> Map.delete(:password)
       |> Map.delete("password")
+      |> set_default_icon()
 
     password = attrs[:password] || attrs["password"]
 
@@ -220,5 +221,14 @@ defmodule MoodleNet.Accounts do
   def is_email_in_whitelist?(email) do
     String.ends_with?(email, "@moodle.com") ||
       Repo.get(WhitelistEmail, email) != nil
+  end
+
+  defp set_default_icon(%{icon: _} = attrs), do: attrs
+  defp set_default_icon(attrs) do
+    if email = attrs["email"] || attrs[:email] do
+      Map.put(attrs, :icon, %{type: "Image", url: MoodleNet.Gravatar.url(email)})
+    else
+      attrs
+    end
   end
 end

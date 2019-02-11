@@ -31,6 +31,15 @@ defmodule MoodleNet.AccountsTest do
       assert {:ok, _} = Accounts.register_user(attrs)
     end
 
+    test "set gravatar icon by default" do
+      attrs = Factory.attributes(:user, email: "alex@moodle.com")
+              |> Map.delete("icon")
+
+      assert {:ok, %{actor: actor}} = Accounts.register_user(attrs)
+      assert ["https://s.gravatar.com/avatar/7779b850ea05dbeca7fc39a910a77f21?d=identicon&r=g&s=80"] == get_in(actor, [:icon, Access.at(0), :url])
+    end
+
+
     test "fails with invalid password values" do
       attrs = Factory.attributes(:user) |> Map.delete("password")
       Accounts.add_email_to_whitelist(attrs["email"])
