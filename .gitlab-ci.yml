@@ -13,6 +13,7 @@ variables:
 develop: # build and deploy develop branch to staging
   script:
     - npm install # Install all JS dependencies
+    - npm run add-locale en_GB
     - npm run extract # extract latest strings from source into English PO file for localisation
     - apk add --update py-pip && pip install transifex-client # install transifex cli
     - tx push --source --no-interactive # push latest English PO file to transifex for translators
