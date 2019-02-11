@@ -12,9 +12,9 @@ variables:
 
 develop: # build and deploy develop branch to staging
   script:
-    - apk add --update py-pip && pip install transifex-client
-    - npm install # Install all dependencies
+    - npm install # Install all JS dependencies
     - npm run extract # extract latest strings from source into English PO file for localisation
+    - apk add --update py-pip && pip install transifex-client # install transifex cli
     - tx push --source --no-interactive # push latest English PO file to transifex for translators
     - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
     - npm run compile # compile localisation PO files into .js files 
@@ -33,7 +33,9 @@ develop: # build and deploy develop branch to staging
 
 master: # build and deploy master branch to production
   script:
-    - npm install # Install all dependencies
+    - npm install # Install all JS dependencies
+    - apk add --update py-pip && pip install transifex-client # install transifex cli
+    - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
     - npm run compile # compile localisation PO files into .js files 
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
@@ -47,13 +49,3 @@ master: # build and deploy master branch to production
   only:
     - master # Only run on production branch
     
-deploys3-prod:
-  only:
-    - master
-  image: "python:latest"  # We use python because there is a well-working AWS Sdk
-  stage: deploy
-  before_script:
-    - pip install awscli # Install the SDK
-  script:
-    - find public/ && aws s3 sync public/ s3://${PRODUCTION_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
-    - aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --paths '/*'
