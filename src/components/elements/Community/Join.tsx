@@ -49,7 +49,6 @@ const Join: React.SFC<Props> = ({
                   followed
                 }
               `;
-              console.log(proxy);
               let collection = proxy.readFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -57,6 +56,7 @@ const Join: React.SFC<Props> = ({
               });
               console.log(collection);
               collection.followed = !collection.followed;
+
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -86,12 +86,14 @@ const Join: React.SFC<Props> = ({
                   followed
                 }
               `;
+
               let collection = proxy.readFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
+
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
