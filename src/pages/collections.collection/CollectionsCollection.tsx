@@ -173,6 +173,9 @@ class CollectionComponent extends React.Component<Props> {
                                       summary={resource.summary}
                                       url={resource.url}
                                       localId={resource.localId}
+                                      isEditable={
+                                        collection.communities[0].followed
+                                      }
                                     />
                                   ))}
                                 </CollectionList>

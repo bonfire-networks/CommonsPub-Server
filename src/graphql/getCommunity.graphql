@@ -25,6 +25,10 @@ query getCommunityQuery($context: Int!) {
             summary
             icon
             followed
+            communities {
+                id
+                followed
+            }
             resources {
                 id
             }

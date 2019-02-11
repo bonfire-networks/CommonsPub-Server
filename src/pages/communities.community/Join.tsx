@@ -49,16 +49,43 @@ const Join: React.SFC<Props> = ({
               const fragment = gql`
                 fragment Res on Community {
                   followed
+                  id
+                  collections {
+                    id
+                  }
                 }
               `;
-              console.log(proxy);
+              const fragmentColl = gql`
+                fragment Coll on Collection {
+                  id
+                  communities {
+                    id
+                    followed
+                  }
+                }
+              `;
               let collection = proxy.readFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res'
               });
-              console.log(collection);
               collection.followed = !collection.followed;
+              collection.collections.map(c => {
+                let collection = proxy.readFragment({
+                  id: `Collection:${c.id}`,
+                  fragment: fragmentColl,
+                  fragmentName: 'Coll'
+                });
+                if (collection.communities) {
+                  collection.communities[0].followed = !collection.followed;
+                  proxy.writeFragment({
+                    id: `Collection:${c.id}`,
+                    fragment: fragmentColl,
+                    fragmentName: 'Coll',
+                    data: collection
+                  });
+                }
+              });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -87,6 +114,19 @@ const Join: React.SFC<Props> = ({
               const fragment = gql`
                 fragment Res on Community {
                   followed
+                  id
+                  collections {
+                    id
+                  }
+                }
+              `;
+              const fragmentColl = gql`
+                fragment Coll on Collection {
+                  id
+                  communities {
+                    id
+                    followed
+                  }
                 }
               `;
               let collection = proxy.readFragment({
@@ -95,6 +135,22 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
+              collection.collections.map(c => {
+                let collection = proxy.readFragment({
+                  id: `Collection:${c.id}`,
+                  fragment: fragmentColl,
+                  fragmentName: 'Coll'
+                });
+                if (collection.communities) {
+                  collection.communities[0].followed = !collection.followed;
+                  proxy.writeFragment({
+                    id: `Collection:${c.id}`,
+                    fragment: fragmentColl,
+                    fragmentName: 'Coll',
+                    data: collection
+                  });
+                }
+              });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
