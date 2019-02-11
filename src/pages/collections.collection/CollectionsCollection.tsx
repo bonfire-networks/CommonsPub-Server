@@ -25,13 +25,13 @@ import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
-import Discussion from '../../components/chrome/Discussion/Discussion';
+// import Discussion from '../../components/chrome/Discussion/Discussion';
 import { Settings } from '../../components/elements/Icons';
 
 enum TabsEnum {
   // Members = 'Members',
-  Resources = 'Resources',
-  Discussion = 'Discussion'
+  Resources = 'Resources'
+  // Discussion = 'Discussion'
 }
 
 interface Data extends GraphqlQueryControls {
@@ -206,7 +206,7 @@ class CollectionComponent extends React.Component<Props> {
                             </Wrapper>
                           </div>
                         </TabPanel>
-                        <TabPanel
+                        {/* <TabPanel
                           label={`${TabsEnum.Discussion}`}
                           key={TabsEnum.Discussion}
                         >
@@ -232,7 +232,7 @@ class CollectionComponent extends React.Component<Props> {
                               </Footer>
                             </>
                           )}
-                        </TabPanel>
+                        </TabPanel> */}
                       </Tabs>
                     </OverlayTab>
                   </WrapperTab>
