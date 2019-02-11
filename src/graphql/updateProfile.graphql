@@ -3,7 +3,7 @@ input UpdateProfileInput {
     summary: String
     preferredUsername: String
     primaryLanguage: String
-    icon: String!
+    icon: String
 }
 
 mutation updateProfileMutation($profile: UpdateProfileInput!) {
