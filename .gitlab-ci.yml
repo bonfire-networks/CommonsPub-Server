@@ -35,6 +35,7 @@ develop: # build and deploy develop branch to staging
 master: # build and deploy master branch to production
   script:
     - npm install # Install all JS dependencies
+    - npm run extract # extract latest strings from source into English PO file 
     - apk add --update py-pip && pip install transifex-client # install transifex cli
     - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
     - npm run compile # compile localisation PO files into .js files 
