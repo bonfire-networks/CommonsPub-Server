@@ -1,12 +1,10 @@
 query meQuery {
     me {
+        id
+        name
         email
-        user {
-            id
-            name
-            preferredUsername
-            location
-            icon
-        }
+        preferredUsername
+        location
+        icon
     }
 }
