@@ -10,6 +10,7 @@ query getCollection($id: Int!) {
     summary
     communities {
       localId
+      id
       name
       followed
     }

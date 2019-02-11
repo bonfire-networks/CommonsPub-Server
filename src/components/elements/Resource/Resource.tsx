@@ -19,54 +19,61 @@ interface Props {
   editResource(): boolean;
   isEditResourceOpen: boolean;
   preview?: boolean;
+  isEditable?: boolean;
 }
 
-const ResourceCard: React.SFC<Props> = props => (
-  <Wrapper>
-    <a target="blank" href={props.url}>
-      <Img style={{ backgroundImage: `url(${props.icon})` }} />
-    </a>
-    <Info>
-      <TitleWrapper>
-        <a target="blank" href={props.url}>
-          <Title>{props.title}</Title>
-        </a>
-        {props.preview ? null : (
-          <Actions>
-            <Button hovered onClick={props.editResource}>
-              <Trans>Edit</Trans>
-            </Button>
-          </Actions>
-        )}
-      </TitleWrapper>
+const ResourceCard: React.SFC<Props> = props => {
+  console.log(props);
+  return (
+    <Wrapper>
       <a target="blank" href={props.url}>
-        <Url>{props.url}</Url>
+        <Img style={{ backgroundImage: `url(${props.icon})` }} />
       </a>
-      <Summary>
-        {props.summary.split('\n').map(function(item, key) {
-          return (
-            <span key={key}>
-              {item}
-              <br />
-            </span>
-          );
-        })}
-      </Summary>
-    </Info>
-    <EditResourceModal
-      toggleModal={props.editResource}
-      modalIsOpen={props.isEditResourceOpen}
-      id={props.localId}
-      url={props.url}
-      image={props.icon}
-      name={props.title}
-      summary={props.summary}
-    />
-  </Wrapper>
-);
+      <Info>
+        <TitleWrapper>
+          <a target="blank" href={props.url}>
+            <Title>{props.title}</Title>
+          </a>
+          {!props.isEditable ? null : (
+            <Actions>
+              <Button hovered onClick={props.editResource}>
+                <Trans>Edit</Trans>
+              </Button>
+            </Actions>
+          )}
+        </TitleWrapper>
+        <a target="blank" href={props.url}>
+          <Url>{props.url}</Url>
+        </a>
+        <Summary>
+          {props.summary.split('\n').map(function(item, key) {
+            return (
+              <span key={key}>
+                {item}
+                <br />
+              </span>
+            );
+          })}
+        </Summary>
+      </Info>
+      <EditResourceModal
+        toggleModal={props.editResource}
+        modalIsOpen={props.isEditResourceOpen}
+        id={props.localId}
+        url={props.url}
+        image={props.icon}
+        name={props.title}
+        summary={props.summary}
+      />
+    </Wrapper>
+  );
+};
 
 const TitleWrapper = styled.div`
   display: flex;
+  & a {
+    flex: 1;
+  }
 `;
 const Info = styled.div`
   flex: 1;
