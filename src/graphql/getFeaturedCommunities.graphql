@@ -1,0 +1,26 @@
+query getFeaturedCommunities {
+  thelounge: community(local_id: 7) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    followersCount
+    followingCount
+    collectionsCount
+    followed
+  }
+   elsalon: community(localId: 15) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    followersCount
+    followingCount
+    collectionsCount
+    followed
+  }
+}

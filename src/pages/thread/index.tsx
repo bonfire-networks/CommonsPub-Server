@@ -13,6 +13,7 @@ import Talk from '../../components/elements/Talk/Reply';
 import { NavLink } from 'react-router-dom';
 import { clearFix } from 'polished';
 import { Trans } from '@lingui/macro';
+import { Left } from '../../components/elements/Icons';
 
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
@@ -45,7 +46,6 @@ const Component = ({ data, match }) => {
   } else if (data.loading) {
     return <Loader />;
   }
-  console.log(data);
   let author = {
     id: data.comment.author.id,
     name: data.comment.author.name,
@@ -63,6 +63,9 @@ const Component = ({ data, match }) => {
         <Wrapper>
           <WrapperLink to={`/communities/${data.comment.context.localId}`}>
             <Context>
+              <span>
+                <Left width={18} height={18} strokeWidth={2} color="#333" />
+              </span>
               <Img
                 style={{ backgroundImage: `url(${data.comment.context.icon})` }}
               />
@@ -119,12 +122,21 @@ const Context = styled.div`
   font-weight: 700;
   padding: 16px;
   ${clearFix()};
+  & span {
+    float: left;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    & svg {
+      vertical-align: middle;
+    }
+  }
 `;
 
 const Img = styled.div`
   float: left;
-  width: 60px;
-  height: 60px;
+  width: 40xpx;
+  height: 40xpx;
   border-radius: 3px;
   background-size: cover;
   background-color: #ececec;
@@ -132,8 +144,8 @@ const Img = styled.div`
 
 const Title = styled.div`
   float: left;
-  height: 60px;
-  line-height: 60px;
+  height: 40px;
+  line-height: 40px;
   margin-left: 8px;
   font-size: 20px;
   font-weight: 700;
