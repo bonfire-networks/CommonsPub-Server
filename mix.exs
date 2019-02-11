@@ -4,7 +4,7 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.0.11",
+      version: "0.0.12",
       elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
