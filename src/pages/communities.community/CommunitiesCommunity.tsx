@@ -1,3 +1,5 @@
+// View a Community (with list of collections)
+
 import * as React from 'react';
 import { compose, withState, withHandlers } from 'recompose';
 
@@ -11,20 +13,21 @@ import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 import Breadcrumb from './breadcrumb';
-// import { CollectionCard } from '../../components/elements/Card/Card';
+import { clearFix } from 'polished';
 import CollectionCard from '../../components/elements/Collection/Collection';
 import P from '../../components/typography/P/P';
 import H2 from '../../components/typography/H2/H2';
-// import H4 from '../../components/typography/H4/H4';
+import H4 from '../../components/typography/H4/H4';
 import Button from '../../components/elements/Button/Button';
 import Discussion from '../../components/chrome/Discussion/Discussion';
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
-import Join from '../../components/elements/Community/Join';
+import Join from './Join';
+import { Settings, Users } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
-  // Members = 'Members',
+  Overview = 'Overview',
   Collections = 'Collections',
   Discussion = 'Discussion'
 }
@@ -79,11 +82,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               ))}
             </CollectionList>
             {community.followed ? (
-              <WrapperActions>
+              <div style={{ padding: '8px' }}>
                 <Button onClick={this.props.handleNewCollection}>
-                  <Trans>Create a new collection</Trans>
+                  <Trans>Create a collection</Trans>
                 </Button>
-              </WrapperActions>
+              </div>
             ) : (
               <Footer>
                 <Trans>Join the community to create a collection</Trans>
@@ -120,22 +123,73 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           <Grid>
             <WrapperCont>
               <Breadcrumb name={community.name} />
-              <Row>
-                <Hero>
-                  <Background
-                    style={{ backgroundImage: `url(${community.icon})` }}
+
+              <Hero>
+                <Background
+                  style={{ backgroundImage: `url(${community.icon})` }}
+                />
+
+                <HeroInfo>
+                  <H2>{community.name}</H2>
+                  <Join
+                    id={community.localId}
+                    followed={community.followed}
+                    externalId={community.id}
                   />
-                  <HeroInfo>
-                    <H2>{community.name}</H2>
-                    <P>{community.summary}</P>
-                    <Join
-                      id={community.localId}
-                      followed={community.followed}
-                      externalId={community.id}
-                    />
-                  </HeroInfo>
-                </Hero>
-              </Row>
+                  {/* {community.followed == false ? null : (
+                    <EditButton onClick={this.props.handleNewCollection}>
+                      <Edit
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        color={'#f98012'}
+                      />
+                    </EditButton>
+                  )} */}
+                  {community.localId === 7 ||
+                  community.localId === 15 ||
+                  community.followed == false ? null : (
+                    <EditButton onClick={this.props.editCommunity}>
+                      <Settings
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        color={'#f98012'}
+                      />
+                    </EditButton>
+                  )}
+
+                  <MembersTot>
+                    <span>
+                      <Users
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        color={'#fff'}
+                      />
+                    </span>
+                    {community.followers.slice(0, 3).map((a, i) => {
+                      return (
+                        <ImgTot
+                          key={i}
+                          style={{
+                            backgroundImage: `url(${a.icon ||
+                              `https://www.gravatar.com/avatar/${
+                                a.localId
+                              }?f=y&d=identicon`})`
+                          }}
+                        />
+                      );
+                    })}{' '}
+                    <Tot>
+                      {community.followers.length - 3 > 0
+                        ? `+ ${community.followers.length - 3} More`
+                        : ''}
+                    </Tot>
+                  </MembersTot>
+                </HeroInfo>
+              </Hero>
+
               <Row>
                 <Col size={12}>
                   <WrapperTab>
@@ -143,36 +197,40 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       <Tabs
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
-                        button={
-                          community.localId === 7 ||
-                          community.localId === 15 ||
-                          community.followed == false ? null : (
-                            <Button
-                              onClick={this.props.editCommunity}
-                              secondary
-                            >
-                              <Trans>Edit</Trans>
-                            </Button>
-                          )
-                        }
                       >
-                        {/* <TabPanel
-                        label={`${TabsEnum.Members} (${
-                          community.followersCount
-                        })`}
-                        key={TabsEnum.Members}
-                      >
-                        <Members>
-                          {community.followers.map((user, i) => (
-                            <Follower key={i}>
-                              <Img
-                                style={{ backgroundImage: `url(${user.icon})` }}
-                              />
-                              <FollowerName>{user.name}</FollowerName>
-                            </Follower>
-                          ))}
-                        </Members>
-                      </TabPanel> */}
+                        <TabPanel
+                          label={`${TabsEnum.Overview}`}
+                          key={TabsEnum.Overview}
+                        >
+                          <OverviewTab>
+                            <Tagline>Description</Tagline>
+                            <P>
+                              {community.summary
+                                .split('\n')
+                                .map(function(item, key) {
+                                  return (
+                                    <span key={key}>
+                                      {item}
+                                      <br />
+                                    </span>
+                                  );
+                                })}
+                            </P>
+                            <Tagline>Members</Tagline>
+                            <Members>
+                              {community.followers.map((user, i) => (
+                                <Follower key={i}>
+                                  <Img
+                                    style={{
+                                      backgroundImage: `url(${user.icon})`
+                                    }}
+                                  />
+                                  <FollowerName>{user.name}</FollowerName>
+                                </Follower>
+                              ))}
+                            </Members>
+                          </OverviewTab>
+                        </TabPanel>
                         <TabPanel
                           label={`${TabsEnum.Collections}`}
                           key={TabsEnum.Collections}
@@ -222,24 +280,104 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
-// const Members = styled.div`
-//   display: grid;
-//   grid-template-columns: 1fr 1fr 1fr 1fr;
-//   grid-column-gap: 8px;
-//   grid-row-gap: 8px;
-// `;
-// const Follower = styled.div``;
-// const Img = styled.div`
-//   width: 40px;
-//   height: 40px;
-//   border-radius: 100px;
-//   margin: 0 auto;
-//   display: block;
-// `;
-// const FollowerName = styled(H4)`
-//   margin-top: 8px;
-//   text-align: center;
-// `;
+const Tot = styled.div`
+  display: inline-block;
+  height: 24px;
+  line-height: 24px;
+  vertical-align: top;
+  margin-left: 4px;
+  font-size: 13px;
+  color: #cacaca;
+  font-weight: 600;
+`;
+
+const MembersTot = styled.div`
+  height: 40px;
+  margin-top: 0px;
+  font-size: 12px;
+  float: right;
+  & span {
+    margin-right: 16px;
+
+    display: inline-block;
+
+    vertical-align: super;
+  }
+`;
+
+const ImgTot = styled.div`
+  width: 32px;
+  height: 32px;
+  margin-top: 4px;
+  border-radius: 50px;
+  display: inline-block;
+  margin-left: -4px;
+  background-size: cover;
+  border: 2px solid white;
+`;
+
+const EditButton = styled.span`
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 2px solid #f98012;
+  vertical-align: bottom;
+  margin-left: 8px;
+  border-radius: 40px;
+  text-align: center;
+  cursor: pointer;
+  &:hover {
+    background: #f9801240;
+  }
+  & svg {
+    margin-top: 8px;
+    text-align: center;
+  }
+`;
+
+const Tagline = styled.div`
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  border-bottom: 1px solid #784f56;
+  margin-bottom: 18px;
+  margin-top: 16px;
+  border-bottom: 1px solid #ebedf0;
+  color: #4b4f56;
+  padding: 12px;
+`;
+
+const OverviewTab = styled.div`
+  margin-top: -20px;
+  & p {
+    padding: 0 12px;
+  }
+`;
+
+const Members = styled.div`
+  ${clearFix()};
+  padding: 0 12px;
+`;
+const Follower = styled.div`
+  float: left;
+  margin-right: 8px;
+`;
+const Img = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  margin: 0 auto;
+  display: block;
+  background-size: cover;
+  background-color: #dadada;
+`;
+const FollowerName = styled(H4)`
+  margin-top: 8px !important;
+  text-align: center;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  color: #413c4d;
+`;
 
 const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
@@ -264,10 +402,6 @@ const WrapperCont = styled.div`
   background: white;
 `;
 
-const WrapperActions = styled.div`
-  margin: 8px;
-`;
-
 const Wrapper = styled.div`
   flex: 1;
 `;
@@ -285,35 +419,47 @@ const OverviewCollection = styled.div`
 `;
 
 const Hero = styled.div`
-  margin-top: 16px;
+  // margin-top: 16px;
   margin-bottom: 16px;
   width: 100%;
+  position: relative;
 `;
 
 const Background = styled.div`
   margin-top: 24px;
-  height: 120px;
-  width: 120px;
-  border-radius: 4px;
+  height: 400px;
   background-size: cover;
   background-repeat: no-repeat;
   background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
+  position: relative;
+  &:before {
+    content: '';
+    position: absolute;
+    top: 60%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: linear-gradient(to bottom, #002f4b00, #000);
+    opacity: 0.8;
+  }
 `;
 
 const HeroInfo = styled.div`
-  text-align: center;
+  position: absolute;
+  z-index: 999;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
   & h2 {
     margin: 0;
     font-size: 24px !important;
-    line-height: 32px !important;
+    line-height: 40px !important;
+    margin-bottom: 16px;
+    color: #fff;
   }
-  & p {
-    color: rgba(0, 0, 0, 0.7);
-    padding: 0 24px;
-    font-size: 15px;
-  }
+
   & button {
     span {
       vertical-align: sub;

@@ -24,6 +24,8 @@ function ProtectedRoute({ component: Component, data, ...rest }) {
     <Route
       {...rest}
       render={(props: ProtectedRouteProps) => {
+        console.log('qui');
+        console.log(data);
         if (data.user.isAuthenticated) {
           return <Component {...props} />;
         }

@@ -8,6 +8,7 @@ query getUserQuery {
             email
             preferredUsername
             location
+            icon
         }
     }
 }

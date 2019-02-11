@@ -5,6 +5,7 @@ import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
+import { Resource, Eye } from '../Icons';
 
 interface CollectionProps {
   collection: Collection;
@@ -22,11 +23,32 @@ const Collection: React.SFC<CollectionProps> = ({
       >
         <Img style={{ backgroundImage: `url(${collection.icon})` }} />
         <Infos>
-          <Title>{collection.name}</Title>
-          <Desc>{collection.summary}</Desc>
+          <Title>
+            {collection.name.length > 80
+              ? collection.name.replace(/^(.{76}[^\s]*).*/, '$1...')
+              : collection.name}
+          </Title>
+          <Desc>
+            {collection.summary.length > 320
+              ? collection.summary.replace(
+                  /^([\s\S]{316}[^\s]*)[\s\S]*/,
+                  '$1...'
+                )
+              : collection.summary}
+          </Desc>
           <Actions>
             <ActionItem>
-              {collection.resources.length || 0} Resources
+              {collection.resources.length || 0}{' '}
+              <Resource
+                width={18}
+                height={18}
+                strokeWidth={2}
+                color={'#8b98a2'}
+              />
+            </ActionItem>
+            <ActionItem>
+              {collection.followersCount || 0}{' '}
+              <Eye width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
             </ActionItem>
           </Actions>
         </Infos>
@@ -43,25 +65,28 @@ const Collection: React.SFC<CollectionProps> = ({
 };
 
 const Right = styled.div`
-  width: 120px;
+  width: 160px;
 `;
 
 const Actions = styled.div`
-  margin-top: 20px;
+  margin-top: 10px;
 `;
 const ActionItem = styled.div`
   display: inline-block;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: #8b98a2;
   text-transform: uppercase;
   margin-right: 20px;
+  & svg {
+    vertical-align: sub;
+  }
 `;
 
 const Wrapper = styled.div`
   display: flex;
   border-bottom: 1px solid #ebe8e8;
-  padding: 10px;
+  padding: 15px 10px;
   cursor: pointer;
   & a {
     display: flex;
@@ -74,8 +99,8 @@ const Wrapper = styled.div`
   }
 `;
 const Img = styled.div`
-  width: 55px;
-  height: 55px;
+  width: 120px;
+  height: 120px;
   border-radius: 2px;
   background-size: cover;
   background-repeat: no-repeat;
@@ -86,8 +111,8 @@ const Infos = styled.div`
   flex: 1;
 `;
 const Title = styled(H5)`
-  font-size: 14px !important;
-  margin: 0 !important;
+  font-size: 18px !important;
+  margin: 0 0 8px 0 !important;
   line-height: 20px !important;
   letter-spacing: 0.8px;
 `;

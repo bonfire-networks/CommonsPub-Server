@@ -112,10 +112,10 @@ const PreviewTalk = styled(Textarea)<{ expanded?: boolean }>`
   border-radius: ${props =>
     props.expanded ? '3px 3px 0 0 !important' : '3px !important'};
   border: none !important;
-  line-height: 48px;
+  line-height: 20px;
   padding: 0 10px;
   font-size: 14px;
-  color: #c1bdbd;
+  color: #333;
   font-weight: 600;
   &:hover {
     border: none !important;

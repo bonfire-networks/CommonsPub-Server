@@ -6,67 +6,47 @@ cache:
   paths:
   - node_modules
 
-# Name the stages involved in the pipeline
-stages:
-- build
-- deploy
-  
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   AWS_DEFAULT_REGION: eu-west-1 # The region of our S3 bucket
 
-pages-staging:
-  stage: build
+develop: # build and deploy develop branch to staging
   script:
-    - npm install # Install all dependencies
-    - npm run compile # compile .js files for localisation
+    - npm install # Install all JS dependencies
+    - npm run add-locale en_GB
+    - npm run extract # extract latest strings from source into English PO file for localisation
+    - apk add --update py-pip && pip install transifex-client # install transifex cli
+    - tx push --source --no-interactive # push latest English PO file to transifex for translators
+    - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
+    - npm run compile # compile localisation PO files into .js files 
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.next.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
     - mv build public # Move build files to public dir for Gitlab Pages
     - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
+    # Next install the AWS SDK and push files to S3
+    - find public/ && pip install awscli && aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
+    - aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --paths '/*' # invalidate CloudFront's cache to serve the new version
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
   only:
     - develop # Only run on staging branch
 
-pages-prod:
-  stage: build
+master: # build and deploy master branch to production
   script:
-    - npm install # Install all dependencies
-    - npm run compile # compile .js files for localisation
+    - npm install # Install all JS dependencies
+    - apk add --update py-pip && pip install transifex-client # install transifex cli
+    - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
+    - npm run compile # compile localisation PO files into .js files 
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
     - mv build public # Move build files to public dir for Gitlab Pages
     - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
+    - find public/ && pip install awscli && aws s3 sync public/ s3://${PRODUCTION_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
+    - aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --paths '/*'
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
   only:
     - master # Only run on production branch
     
-deploys3-staging:
-  only:
-    - develop
-  image: "python:latest"  # We use python because there is a well-working AWS Sdk
-  stage: deploy
-  before_script:
-    - pip install awscli # Install the SDK
-  script:
-    - find public/
-    - pwd
-    - aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
-    - aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --paths '/*'
-
-deploys3-prod:
-  only:
-    - master
-  image: "python:latest"  # We use python because there is a well-working AWS Sdk
-  stage: deploy
-  before_script:
-    - pip install awscli # Install the SDK
-  script:
-    - find public/
-    - pwd
-    - aws s3 sync public/ s3://${PRODUCTION_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
-    - aws cloudfront create-invalidation --distribution-id ${PRODUCTION_DISTRIBUTION_ID} --paths '/*'

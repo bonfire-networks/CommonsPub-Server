@@ -1,3 +1,5 @@
+// View a Collection (with list of resources)
+
 import * as React from 'react';
 
 import { Trans } from '@lingui/macro';
@@ -23,6 +25,9 @@ import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
+// import Discussion from '../../components/chrome/Discussion/Discussion';
+import { Settings } from '../../components/elements/Icons';
+
 enum TabsEnum {
   // Members = 'Members',
   Resources = 'Resources'
@@ -71,6 +76,8 @@ class CollectionComponent extends React.Component<Props> {
       );
     }
 
+    let community_name = collection.communities[0].name;
+
     return (
       <>
         <Main>
@@ -89,12 +96,36 @@ class CollectionComponent extends React.Component<Props> {
                 />
                 <HeroInfo>
                   <H2>{collection.name}</H2>
-                  <P>{collection.summary}</P>
-                  <Join
-                    followed={collection.followed}
-                    id={collection.localId}
-                    externalId={collection.id}
-                  />
+                  <P>
+                    {collection.summary.split('\n').map(function(item, key) {
+                      return (
+                        <span key={key}>
+                          {item}
+                          <br />
+                        </span>
+                      );
+                    })}
+                  </P>
+                  <ActionsHero>
+                    <HeroJoin>
+                      <Join
+                        followed={collection.followed}
+                        id={collection.localId}
+                        externalId={collection.id}
+                      />
+                    </HeroJoin>
+                    {collection.communities[0].followed ? (
+                      <EditButton onClick={this.props.editCollection}>
+                        <Settings
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#f98012'}
+                        />
+                        <Trans>Edit collection</Trans>
+                      </EditButton>
+                    ) : null}
+                  </ActionsHero>
                 </HeroInfo>
               </Hero>
               <Actions />
@@ -105,16 +136,6 @@ class CollectionComponent extends React.Component<Props> {
                       <Tabs
                         selectedKey={this.state.tab}
                         onChange={tab => this.setState({ tab })}
-                        button={
-                          collection.followed ? (
-                            <Button
-                              onClick={this.props.editCollection}
-                              secondary
-                            >
-                              <Trans>Edit</Trans>
-                            </Button>
-                          ) : null
-                        }
                       >
                         {/* <TabPanel
                         label={`${TabsEnum.Members} (${
@@ -140,8 +161,8 @@ class CollectionComponent extends React.Component<Props> {
                           key={TabsEnum.Resources}
                         >
                           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            {resources.length ? (
-                              <Wrapper>
+                            <Wrapper>
+                              {resources.length ? (
                                 <CollectionList>
                                   {resources.map((resource, i) => (
                                     <ResourceCard
@@ -151,47 +172,61 @@ class CollectionComponent extends React.Component<Props> {
                                       summary={resource.summary}
                                       url={resource.url}
                                       localId={resource.localId}
+                                      isEditable={
+                                        collection.communities[0].followed
+                                      }
                                     />
                                   ))}
                                 </CollectionList>
-                                {resources.length >
-                                9 ? null : collection.followed ? (
-                                  <WrapperActions>
-                                    <Button onClick={this.props.addNewResource}>
-                                      <Trans>Add a new resource</Trans>
-                                    </Button>
-                                  </WrapperActions>
-                                ) : (
-                                  <Footer>
+                              ) : (
+                                <OverviewCollection>
+                                  <P>
                                     <Trans>
-                                      Follow the collection to add a new
-                                      resource
+                                      This collection has no resources.
                                     </Trans>
-                                  </Footer>
-                                )}
-                              </Wrapper>
-                            ) : (
-                              <OverviewCollection>
-                                <P>
-                                  <Trans>
-                                    This collection has no resources.
-                                  </Trans>
-                                </P>
-                                <Button onClick={this.props.addNewResource}>
+                                  </P>
+                                  {/* <Button onClick={this.props.addNewResource}>
                                   <Trans>Add the first resource</Trans>
-                                </Button>
-                              </OverviewCollection>
-                            )}
+                                </Button> */}
+                                </OverviewCollection>
+                              )}
+
+                              {resources.length > 9 ? null : collection
+                                .communities[0].followed ? (
+                                <WrapperActions>
+                                  <Button onClick={this.props.addNewResource}>
+                                    <Trans>Add a new resource</Trans>
+                                  </Button>
+                                </WrapperActions>
+                              ) : (
+                                <Footer>
+                                  <Trans>
+                                    Join the <strong>{community_name}</strong>{' '}
+                                    community to add a resource
+                                  </Trans>
+                                </Footer>
+                              )}
+                            </Wrapper>
                           </div>
                         </TabPanel>
                         {/* <TabPanel
-                        label={`${TabsEnum.Discussion} (${
-                          collection.comments.length
-                        })`}
-                        key={TabsEnum.Discussion}
+                          label={`${TabsEnum.Discussion}`}
+                          key={TabsEnum.Discussion}
                         >
-                        {discussions}
-                      </TabPanel> */}
+                          {collection.communities[0].followed ? (
+                            <Discussion
+                              localId={collection.localId}
+                              id={collection.id}
+                            />
+                          ) : (
+                            <Footer>
+                              <Trans>
+                                Join the <strong>{community_name}</strong>{' '}
+                                community to participate in discussions
+                              </Trans>
+                            </Footer>
+                          )}
+                        </TabPanel> */}
                       </Tabs>
                     </OverlayTab>
                   </WrapperTab>
@@ -217,6 +252,18 @@ class CollectionComponent extends React.Component<Props> {
     );
   }
 }
+
+const ActionsHero = styled.div`
+  margin-top: 4px;
+  & div {
+    &:hover {
+      background: transparent;
+    }
+  }
+`;
+const HeroJoin = styled.div`
+  float: left;
+`;
 
 const Actions = styled.div``;
 const Footer = styled.div`
@@ -255,6 +302,22 @@ const WrapperCont = styled.div`
 //   text-align: center;
 // `;
 
+const EditButton = styled.span`
+  color: #ff9d00;
+  height: 40px;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 38px;
+  margin-left: 24px;
+  cursor: pointer;
+  display: inline-block;
+  & svg {
+    margin-top: 8px;
+    text-align: center;
+    vertical-align: text-bottom;
+    margin-right: 8px;
+  }
+`;
 const WrapperTab = styled.div``;
 const OverlayTab = styled.div`
   background: #fff;
@@ -294,10 +357,10 @@ const CollectionList = styled.div`
 `;
 
 const OverviewCollection = styled.div`
-  padding: 0 8px;
-  margin-bottom: 8px;
+  padding: 8px;
   & p {
-    margin-top: 0 !important;
+    margin-top: 14px !important;
+    font-size: 14px;
   }
 `;
 

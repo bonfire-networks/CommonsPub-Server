@@ -11,8 +11,9 @@ import Loader from '../../components/elements/Loader/Loader';
 import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
 import { NavLink } from 'react-router-dom';
-
+import { clearFix } from 'polished';
 import { Trans } from '@lingui/macro';
+import { Left } from '../../components/elements/Icons';
 
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
@@ -45,13 +46,10 @@ const Component = ({ data, match }) => {
   } else if (data.loading) {
     return <Loader />;
   }
-  console.log(data);
   let author = {
     id: data.comment.author.id,
     name: data.comment.author.name,
-    image: `https://www.gravatar.com/avatar/${
-      data.comment.author.id
-    }?f=y&d=identicon`
+    icon: data.comment.author.icon
   };
 
   let message = {
@@ -63,11 +61,17 @@ const Component = ({ data, match }) => {
     <Main>
       <Grid>
         <Wrapper>
-          <Context>
-            <NavLink to={`/communities/${data.comment.context.localId}`}>
-              #{data.comment.context.name}
-            </NavLink>
-          </Context>
+          <WrapperLink to={`/communities/${data.comment.context.localId}`}>
+            <Context>
+              <span>
+                <Left width={18} height={18} strokeWidth={2} color="#333" />
+              </span>
+              <Img
+                style={{ backgroundImage: `url(${data.comment.context.icon})` }}
+              />
+              <Title>{data.comment.context.name}</Title>
+            </Context>
+          </WrapperLink>
           {data.comment.inReplyTo ? (
             <NavLink to={`/thread/${data.comment.inReplyTo.localId}`}>
               <InReplyTo>
@@ -80,7 +84,7 @@ const Component = ({ data, match }) => {
             let author = {
               id: comment.author.id,
               name: comment.author.name,
-              image: 'https://picsum.photos/200/300'
+              icon: comment.author.icon
             };
             let message = {
               body: comment.content,
@@ -103,19 +107,49 @@ const Component = ({ data, match }) => {
   );
 };
 
+const WrapperLink = styled(NavLink)`
+  background: white;
+  display: block;
+  &:hover {
+    text-decoration: underline;
+    background: #ececec40;
+  }
+`;
+
 const Context = styled.div`
   font-size: 24px;
   color: ${props => props.theme.styles.colour.base1};
   font-weight: 700;
-  margin-bottom: 16px;
-  & a {
-    color: inherit;
-    &:hover {
-      text-decoration: underline;
+  padding: 16px;
+  ${clearFix()};
+  & span {
+    float: left;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
+    & svg {
+      vertical-align: middle;
     }
   }
 `;
 
+const Img = styled.div`
+  float: left;
+  width: 40xpx;
+  height: 40xpx;
+  border-radius: 3px;
+  background-size: cover;
+  background-color: #ececec;
+`;
+
+const Title = styled.div`
+  float: left;
+  height: 40px;
+  line-height: 40px;
+  margin-left: 8px;
+  font-size: 20px;
+  font-weight: 700;
+`;
 const InReplyTo = styled.div`
   display: block;
   padding: 10px;
@@ -132,6 +166,9 @@ const Wrapper = styled.div`
   width: 720px;
   margin: 0 auto;
   margin-bottom: 8px;
+  border: 1px solid #dddfe2;
+  border-radius: 3px;
+  background: white;
   & a {
     text-decoration: none;
   }

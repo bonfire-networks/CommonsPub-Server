@@ -1,14 +1,15 @@
 import React from 'react';
-import styled from '../../../themes/styled';
-import { Preferites } from '../Icons';
+import styled from '../../themes/styled';
+import { Preferites } from '../../components/elements/Icons';
 import { compose } from 'recompose';
+import Button from '../../components/elements/Button/Button';
 import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCommunityMutation
-} = require('../../../graphql/joinCommunity.graphql');
+} = require('../../graphql/joinCommunity.graphql');
 const {
   undoJoinCommunityMutation
-} = require('../../../graphql/undoJoinCommunity.graphql');
+} = require('../../graphql/undoJoinCommunity.graphql');
 import { Trans } from '@lingui/macro';
 import gql from 'graphql-tag';
 
@@ -40,6 +41,7 @@ const Join: React.SFC<Props> = ({
   if (followed) {
     return (
       <Span
+        hovered
         onClick={() =>
           leaveCommunity({
             variables: { communityId: id },
@@ -47,6 +49,19 @@ const Join: React.SFC<Props> = ({
               const fragment = gql`
                 fragment Res on Community {
                   followed
+                  id
+                  collections {
+                    id
+                  }
+                }
+              `;
+              const fragmentColl = gql`
+                fragment Coll on Collection {
+                  id
+                  communities {
+                    id
+                    followed
+                  }
                 }
               `;
               let collection = proxy.readFragment({
@@ -54,9 +69,23 @@ const Join: React.SFC<Props> = ({
                 fragment: fragment,
                 fragmentName: 'Res'
               });
-              console.log(collection);
               collection.followed = !collection.followed;
-
+              collection.collections.map(c => {
+                let collection = proxy.readFragment({
+                  id: `Collection:${c.id}`,
+                  fragment: fragmentColl,
+                  fragmentName: 'Coll'
+                });
+                if (collection.communities) {
+                  collection.communities[0].followed = !collection.followed;
+                  proxy.writeFragment({
+                    id: `Collection:${c.id}`,
+                    fragment: fragmentColl,
+                    fragmentName: 'Coll',
+                    data: collection
+                  });
+                }
+              });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -71,12 +100,13 @@ const Join: React.SFC<Props> = ({
             .catch(err => console.log(err))
         }
       >
-        <Trans>Leave</Trans>
+        <Trans>Leave Community</Trans>
       </Span>
     );
   } else {
     return (
       <Span
+        hovered
         onClick={() =>
           joinCommunity({
             variables: { communityId: id },
@@ -84,16 +114,43 @@ const Join: React.SFC<Props> = ({
               const fragment = gql`
                 fragment Res on Community {
                   followed
+                  id
+                  collections {
+                    id
+                  }
                 }
               `;
-
+              const fragmentColl = gql`
+                fragment Coll on Collection {
+                  id
+                  communities {
+                    id
+                    followed
+                  }
+                }
+              `;
               let collection = proxy.readFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
-
+              collection.collections.map(c => {
+                let collection = proxy.readFragment({
+                  id: `Collection:${c.id}`,
+                  fragment: fragmentColl,
+                  fragmentName: 'Coll'
+                });
+                if (collection.communities) {
+                  collection.communities[0].followed = !collection.followed;
+                  proxy.writeFragment({
+                    id: `Collection:${c.id}`,
+                    fragment: fragmentColl,
+                    fragmentName: 'Coll',
+                    data: collection
+                  });
+                }
+              });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -108,27 +165,19 @@ const Join: React.SFC<Props> = ({
             .catch(err => console.log(err))
         }
       >
-        <Preferites
-          width={16}
-          height={16}
-          strokeWidth={2}
-          color={'#1e1f2480'}
-        />
-        <Trans>Join</Trans>
+        <Preferites width={16} height={16} strokeWidth={2} color={'#f98012'} />
+        <Trans>Join Community</Trans>
       </Span>
     );
   }
 };
 
-const Span = styled.div`
-  padding: 0px 10px;
+const Span = styled(Button)`
   color: #1e1f2480;
-  height: 40px;
-  font-size: 15px;
   font-weight: 600;
-  line-height: 40px;
   cursor: pointer;
   text-align: center;
+  border-radius: 100px !important;
   &:hover {
     color: ${props => props.theme.styles.colour.primaryAlt};
     & svg {

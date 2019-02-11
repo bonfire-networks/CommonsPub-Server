@@ -31,9 +31,9 @@ const Main = styled.div`
   font-weight: 700;
   text-decoration: none;
   text-transform: uppercase;
-  height: 30px;
+  // height: 30px;
   line-height: 30px;
-  background: #f6f9f8;
+  background: #fff;
   padding: 0 8px;
   & a {
     font-size: 12px;

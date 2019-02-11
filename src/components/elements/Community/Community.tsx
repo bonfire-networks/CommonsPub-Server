@@ -5,7 +5,7 @@ import P from '../../typography/P/P';
 import { Users } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
-import { Trans } from '@lingui/macro';
+import { clearFix } from 'polished';
 
 interface Props {
   title: string;
@@ -13,6 +13,7 @@ interface Props {
   summary: string;
   id: string;
   followersCount: number;
+  collectionsCount: number;
   followed: boolean;
   externalId: string;
 }
@@ -24,6 +25,7 @@ const Community: React.SFC<Props> = ({
   summary,
   followed,
   followersCount,
+  collectionsCount,
   externalId
 }) => (
   <Wrapper>
@@ -32,17 +34,35 @@ const Community: React.SFC<Props> = ({
         <Img style={{ backgroundImage: `url(${icon})` }} />
         <Overlay />
       </WrapperImage>
-      <H5>{title}</H5>
+      <H5>
+        {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
+      </H5>
     </Link>
-    <Members>
-      {followersCount}
-      <Trans>
+    <Actions>
+      <Members>
+        {followersCount}
         <span>
           <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
-      </Trans>
-    </Members>
-    <Summary>{summary}</Summary>
+      </Members>
+      {/* <Members>
+        {collectionsCount || 0}
+        <span>
+          <Collection
+            width={16}
+            height={16}
+            strokeWidth={2}
+            color={'#1e1f2480'}
+          />
+        </span>
+      </Members> */}
+    </Actions>
+
+    <Summary>
+      {summary.length > 160
+        ? summary.replace(/^([\s\S]{156}[^\s]*)[\s\S]*/, '$1...')
+        : summary}
+    </Summary>
     <Infos>
       <Join externalId={externalId} followed={followed} id={id} />
     </Infos>
@@ -50,6 +70,10 @@ const Community: React.SFC<Props> = ({
 );
 
 export default Community;
+
+const Actions = styled.div`
+  ${clearFix()};
+`;
 
 const Overlay = styled.span`
   position: absolute;
@@ -66,6 +90,8 @@ const Overlay = styled.span`
 const Members = styled(P)`
   color: #1e1f2480;
   margin: 8px 0;
+  float: left;
+  margin-right: 16px;
   & span {
     margin-left: 4px;
     display: inline-block;
@@ -78,7 +104,7 @@ const Summary = styled(P)`
   font-size: 14px;
   color: rgba(0, 0, 0, 0.8);
   margin-bottom: 40px;
-  word-break: break-all;
+  word-break: break-word;
 `;
 const Wrapper = styled.div`
   border: 1px solid #e4e6e6;
@@ -88,9 +114,9 @@ const Wrapper = styled.div`
   max-height: 560px;
   & h5 {
     margin: 0;
-    font-size: 16px !important;
+    font-size: 18px !important;
     line-height: 24px !important;
-    word-break: break-all;
+    word-break: break-word;
   }
   & a {
     color: inherit;

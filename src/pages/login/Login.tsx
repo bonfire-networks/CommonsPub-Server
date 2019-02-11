@@ -99,6 +99,7 @@ function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
+        console.log(props);
         if (data.user.isAuthenticated) {
           return <Redirect to="/" />;
         }

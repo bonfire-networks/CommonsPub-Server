@@ -1,0 +1,21 @@
+input UpdateProfileInput {
+    name: String
+    summary: String
+    preferredUsername: String
+    primaryLanguage: String
+    icon: String
+}
+
+mutation updateProfileMutation($profile: UpdateProfileInput!) {
+updateProfile(
+profile: $profile
+) {
+    id
+    localId
+    name
+    summary
+    preferredUsername
+    primaryLanguage
+    icon
+  }
+}

@@ -75,7 +75,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <CounterChars>{80 - field.value.length}</CounterChars>
+                    <CounterChars>{60 - field.value.length}</CounterChars>
                   </>
                 )}
               />
@@ -97,7 +97,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
                       value={field.value}
                       onChange={field.onChange}
                     />
-                    <CounterChars>{240 - field.value.length}</CounterChars>
+                    <CounterChars>{500 - field.value.length}</CounterChars>
                   </>
                 )}
               />

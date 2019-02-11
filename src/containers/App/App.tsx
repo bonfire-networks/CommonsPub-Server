@@ -77,22 +77,22 @@ export default class App extends React.Component<{}, AppState> {
   async setLocale(locale) {
     let catalogs = {};
 
-    if (!this.state.catalogs[locale]) {
-      let catalog;
+    // if (!this.state.catalogs[locale] || locale == locale_default) {
+    let catalog;
 
-      if (process.env.NODE_ENV === 'development') {
-        catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
-        `@lingui/loader!../../locales/${locale}/messages.po`);
-      } else {
-        catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
-        `../../locales/${locale}/messages.js`);
-      }
-
-      catalogs = {
-        ...this.state.catalogs,
-        [locale]: catalog
-      };
+    if (process.env.NODE_ENV === 'development') {
+      catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
+      `@lingui/loader!../../locales/${locale}/messages.po`);
+    } else {
+      catalog = await import(/* webpackMode: "lazy", webpackChunkName: "i18n-[index]" */
+      `../../locales/${locale}/messages.js`);
     }
+
+    catalogs = {
+      ...this.state.catalogs,
+      [locale]: catalog
+    };
+    // }
 
     this.setState({
       locale,
@@ -101,6 +101,8 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   render() {
+    // console.log(this.state)
+
     if (!this.state.catalogs[this.state.locale]) {
       return (
         <p>
