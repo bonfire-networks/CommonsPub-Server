@@ -17,7 +17,7 @@ import Body from '../../components/chrome/Body/Body';
 import H6 from '../../components/typography/H6/H6';
 // import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
-// import User from '../../types/User';
+import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
@@ -235,7 +235,6 @@ class Login extends React.Component<LoginProps, LoginState> {
   }
 
   render() {
-    console.log(this.props);
     if (this.state.redirectTo) {
       return <Redirect to={this.state.redirectTo as any} />;
     }
@@ -312,7 +311,7 @@ class Login extends React.Component<LoginProps, LoginState> {
 export interface Args {
   data: {
     isAuthenticated: boolean;
-    user: any;
+    user: User;
   };
 }
 

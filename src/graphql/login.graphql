@@ -1,16 +1,14 @@
 mutation loginMutation($email: String!, $password: String!) {
     createSession(email: $email, password: $password) {
-      token
-      me {
-        email
-        user {
-        name
-        id
-        summary
-        preferredUsername
-        location
-        icon
-      }
+        token
+        me {
+         name
+         id
+         summary
+         preferredUsername
+         location
+         email
+         icon
+        }
     }
-  }
 }
