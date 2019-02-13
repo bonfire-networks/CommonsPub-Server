@@ -84,21 +84,11 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
     create table(:activity_pub_activity_objects) do
       add_foreign_key(:subject_id, "activity_pub_activity_aspects")
       add_foreign_key(:target_id, "activity_pub_objects")
-
-      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      # add_foreign_key(:object_id, "activity_pub_objects")
-
-      # timestamps(updated_at: false)
     end
 
     create table(:activity_pub_activity_actors) do
       add_foreign_key(:subject_id, "activity_pub_activity_aspects")
       add_foreign_key(:target_id, "activity_pub_objects")
-
-      # add_foreign_key(:activity_id, "activity_pub_activity_aspects")
-      # add_foreign_key(:object_id, "activity_pub_actor_aspects")
-
-      # timestamps(updated_at: false)
     end
 
     create table(:activity_pub_object_attributed_tos) do

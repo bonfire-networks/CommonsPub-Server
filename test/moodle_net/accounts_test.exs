@@ -73,6 +73,33 @@ defmodule MoodleNet.AccountsTest do
     end
   end
 
+  describe "update_user/2" do
+    test "works" do
+      actor = Factory.actor(location: nil)
+      attrs = %{
+        name: "name",
+        preferred_username: "username",
+        locale: "fr",
+        primary_language: "cz",
+        summary: "summary",
+        location: nil
+      }
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, attrs)
+      assert actor.name == %{"und" => attrs.name}
+      assert actor.summary == %{"und" => attrs.summary}
+      assert actor.preferred_username == attrs.preferred_username
+      assert actor["locale"] == "fr"
+      assert actor["primary_language"] == "cz"
+      assert actor.location == []
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: "location"})
+      assert [%{content: %{"und" => "location"}}] = actor.location
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: nil})
+      assert [] == actor.location
+    end
+  end
+
   describe "authenticate_by_email_and_pass" do
     test "works" do
       user = %{id: user_id} = Factory.user()

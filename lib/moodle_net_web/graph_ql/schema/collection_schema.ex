@@ -2,6 +2,70 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
+  alias MoodleNetWeb.GraphQL.CollectionResolver
+
+  object :collection_queries do
+    @desc "Get list of collections"
+    field :collections, non_null(:collection_page) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(&CollectionResolver.collection_list/2)
+    end
+
+    @desc "Get a collection"
+    field :collection, :collection do
+      arg(:local_id, non_null(:integer))
+      resolve(Resolver.resolve_by_id_and_type("MoodleNet:Collection"))
+    end
+  end
+
+  object :collection_mutations do
+    @desc "Create a collection"
+    field :create_collection, type: :collection do
+      arg(:community_local_id, non_null(:integer))
+      arg(:collection, non_null(:collection_input))
+      resolve(&CollectionResolver.create_collection/2)
+    end
+
+    @desc "Update a collection"
+    field :update_collection, type: :collection do
+      arg(:collection_local_id, non_null(:integer))
+      arg(:collection, non_null(:collection_input))
+      resolve(&CollectionResolver.update_collection/2)
+    end
+
+    @desc "Delete a collection"
+    field :delete_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.delete_collection/2)
+    end
+
+    @desc "Follow a collection"
+    field :follow_collection, type: :boolean do
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&CollectionResolver.follow_collection/2)
+    end
+
+    @desc "Undo follow a collection"
+    field :undo_follow_collection, type: :boolean do
+      arg(:collection_local_id, non_null(:integer))
+      resolve(&CollectionResolver.undo_follow_collection/2)
+    end
+
+    @desc "Like a collection"
+    field :like_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.like_collection/2)
+    end
+
+    @desc "Undo a previous like to a collection"
+    field :undo_like_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.undo_like_collection/2)
+    end
+  end
+
 
   object :collection do
     field(:id, :string)

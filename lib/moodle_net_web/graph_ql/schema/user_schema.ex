@@ -1,7 +1,72 @@
 defmodule MoodleNetWeb.GraphQL.UserSchema do
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
+  import MoodleNetWeb.GraphQL.MoodleNetSchema
+
+  alias MoodleNetWeb.GraphQL.UserResolver
+
+  object :user_queries do
+    @desc "Get my user"
+    field :me, type: :me do
+      resolve(&UserResolver.me/2)
+    end
+
+    @desc "Get an user"
+    field :user, type: :user do
+      arg(:local_id, non_null(:integer))
+      resolve(&UserResolver.user/2)
+    end
+  end
+
+  object :user_mutations do
+    @desc "Create a user"
+    field :create_user, type: :auth_payload do
+      arg(:user, non_null(:registration_input))
+      resolve(&UserResolver.create_user/2)
+    end
+
+    @desc "Update a profile"
+    field :update_profile, type: :me do
+      arg(:profile, non_null(:update_profile_input))
+      resolve(&UserResolver.update_profile/2)
+    end
+
+    @desc "Delete a user"
+    field :delete_user, type: :boolean do
+      resolve(&UserResolver.delete_user/2)
+    end
+
+    @desc "Reset password request"
+    field :reset_password_request, type: :boolean do
+      arg(:email, non_null(:string))
+      resolve(&UserResolver.reset_password_request/2)
+    end
+
+    @desc "Reset password"
+    field :reset_password, type: :boolean do
+      arg(:token, non_null(:string))
+      arg(:password, non_null(:string))
+      resolve(&UserResolver.reset_password/2)
+    end
+
+    @desc "Confirm email"
+    field :confirm_email, type: :boolean do
+      arg(:token, non_null(:string))
+      resolve(&UserResolver.confirm_email/2)
+    end
+
+    @desc "Login"
+    field :create_session, type: :auth_payload do
+      arg(:email, non_null(:string))
+      arg(:password, non_null(:string))
+      resolve(&UserResolver.create_session/2)
+    end
+
+    @desc "Logout"
+    field :delete_session, type: :boolean do
+      resolve(&UserResolver.delete_session/2)
+    end
+  end
 
   object :auth_payload do
     field(:token, :string)
@@ -29,21 +94,21 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(Resolver.with_connection(:joined_communities))
+      resolve(with_connection(:joined_communities))
     end
 
     field :following_collections, :user_following_collections_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(Resolver.with_connection(:following_collection))
+      resolve(with_connection(:following_collection))
     end
 
     field :comments, :user_created_comments_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(Resolver.with_connection(:user_comment))
+      resolve(with_connection(:user_comment))
     end
   end
 

@@ -15,6 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           }
           nodes {
             id
+            name
             collections {
               totalCount
             }

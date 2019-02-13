@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.GraphQL.UserTest do
+defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
   use MoodleNetWeb.ConnCase
 
   import ActivityPub.Entity, only: [local_id: 1]

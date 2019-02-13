@@ -4,6 +4,8 @@ defmodule ActivityPub.Builder do
   alias ActivityPub.{Entity, Context, Types, Metadata}
   alias ActivityPub.{BuildError, LanguageValueType}
 
+  alias ActivityPub.SQL.AssociationNotLoaded
+
   require ActivityPub.Guards, as: APG
 
   def new(params \\ %{})
@@ -292,6 +294,11 @@ defmodule ActivityPub.Builder do
 
   defp cast_single_assoc(_, nil, _, _), do: {:ok, nil}
 
+  defp cast_single_assoc(_assoc_info, %AssociationNotLoaded{local_id: id}, _entity, _key) do
+    meta = Metadata.not_loaded(id)
+    {:ok, %{__ap__: meta, id: nil, type: :unknown}}
+  end
+
   defp cast_single_assoc(assoc_info, params, entity, key) do
     with {:ok, assoc} <- build(:new, params, entity, key),
          :ok <- verify_assoc_type(assoc, assoc_info.type, params, key),
@@ -375,6 +382,10 @@ defmodule ActivityPub.Builder do
       {"@" <> key, value} ->
         key = key |> Recase.to_snake()
         {"@#{key}", value}
+
+      {"_" <> key, value} ->
+        key = key |> Recase.to_snake()
+        {"_#{key}", value}
 
       {key, value} ->
         key = key |> Recase.to_snake()

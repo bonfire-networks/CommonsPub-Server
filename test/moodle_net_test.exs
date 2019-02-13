@@ -1,6 +1,68 @@
 defmodule MoodleNetTest do
   use MoodleNet.DataCase, async: true
 
+  describe "community" do
+    test "create" do
+      actor = Factory.actor()
+      attrs = Factory.attributes(:community)
+
+      assert {:ok, community} = MoodleNet.create_community(actor, attrs)
+
+      assert community.name == %{"und" => attrs["name"]}
+      assert community.summary == %{"und" => attrs["summary"]}
+      assert community.content == %{"und" => attrs["content"]}
+      assert community.preferred_username == attrs["preferred_username"]
+      assert community["primary_language"] == attrs["primary_language"]
+      url = get_in(community, [:icon, Access.at(0), :url, Access.at(0)])
+      assert url == attrs["icon"]["url"]
+    end
+
+    test "join & undo" do
+      actor = Factory.actor()
+      comm = Factory.community(actor)
+
+      actor = Factory.actor()
+      assert {:error, {:not_found, _, "Activity"}} = MoodleNet.undo_follow(actor, comm)
+      assert {:ok, true} = MoodleNet.join_community(actor, comm)
+      assert {:ok, true} = MoodleNet.join_community(actor, comm)
+      assert {:ok, true} = MoodleNet.undo_follow(actor, comm)
+      assert {:error, {:not_found, _, "Activity"}} = MoodleNet.undo_follow(actor, comm)
+    end
+
+    test "thread list" do
+      actor = Factory.actor()
+      comm = Factory.community(actor)
+
+      assert [] = MoodleNet.community_thread_list(comm)
+      assert 0 = MoodleNet.community_thread_count(comm)
+
+      %{id: id} = comment = Factory.comment(actor, comm)
+      Factory.reply(actor, comment)
+      assert [%{id: ^id}] = MoodleNet.community_thread_list(comm)
+      assert 1 = MoodleNet.community_thread_count(comm)
+    end
+
+    test "member list" do
+      %{id: actor_id} = actor = Factory.actor()
+      comm = Factory.community(actor)
+
+      assert [%{id: ^actor_id}] = MoodleNet.community_member_list(comm)
+      assert 1 = MoodleNet.community_member_count(comm)
+    end
+
+    test "collection list" do
+      actor = Factory.actor()
+      comm = Factory.community(actor)
+
+      assert [] = MoodleNet.community_collection_list(comm)
+      assert 0 = MoodleNet.community_collection_count(comm)
+
+      %{id: col_id} = Factory.collection(actor, comm)
+      assert [%{id: ^col_id}] = MoodleNet.community_collection_list(comm)
+      assert 1 = MoodleNet.community_collection_count(comm)
+    end
+  end
+
   describe "user comments" do
     test "works" do
       actor = Factory.actor()
@@ -50,45 +112,6 @@ defmodule MoodleNetTest do
       assert {:ok, true} = MoodleNet.undo_follow(actor, coll)
       assert [] = MoodleNet.following_collection_list(actor)
       assert 0 = MoodleNet.following_collection_count(actor)
-    end
-  end
-
-  describe "community thread" do
-    test "works" do
-      actor = Factory.actor()
-      comm = Factory.community(actor)
-
-      assert [] = MoodleNet.community_thread_list(comm)
-      assert 0 = MoodleNet.community_thread_count(comm)
-
-      %{id: id} = comment = Factory.comment(actor, comm)
-      Factory.reply(actor, comment)
-      assert [%{id: ^id}] = MoodleNet.community_thread_list(comm)
-      assert 1 = MoodleNet.community_thread_count(comm)
-    end
-  end
-
-  describe "community members" do
-    test "works" do
-      %{id: actor_id} = actor = Factory.actor()
-      comm = Factory.community(actor)
-
-      assert [%{id: ^actor_id}] = MoodleNet.community_member_list(comm)
-      assert 1 = MoodleNet.community_member_count(comm)
-    end
-  end
-
-  describe "community collections" do
-    test "works" do
-      actor = Factory.actor()
-      comm = Factory.community(actor)
-
-      assert [] = MoodleNet.community_collection_list(comm)
-      assert 0 = MoodleNet.community_collection_count(comm)
-
-      %{id: col_id} = Factory.collection(actor, comm)
-      assert [%{id: ^col_id}] = MoodleNet.community_collection_list(comm)
-      assert 1 = MoodleNet.community_collection_count(comm)
     end
   end
 
@@ -201,8 +224,8 @@ defmodule MoodleNetTest do
     end
   end
 
-  describe "community_thread_list" do
-    test "paginates" do
+  describe "paginates" do
+    test "by creation time" do
       actor = Factory.actor()
       comm = Factory.community(actor)
       a = Factory.comment(actor, comm)
@@ -253,7 +276,7 @@ defmodule MoodleNetTest do
       assert page_info.newer == nil
     end
 
-    test "paginates collections" do
+    test "by collection insertion" do
       actor = Factory.actor()
       %{id: a_id} = a = Factory.community(actor)
       %{id: b_id} = b = Factory.community(actor)
@@ -473,20 +496,6 @@ defmodule MoodleNetTest do
     end
   end
 
-  describe "join_community & undo" do
-    test "works" do
-      actor = Factory.actor()
-      comm = Factory.community(actor)
-
-      actor = Factory.actor()
-      assert {:error, {:not_found, _, "Activity"}} = MoodleNet.undo_follow(actor, comm)
-      assert {:ok, true} = MoodleNet.join_community(actor, comm)
-      assert {:ok, true} = MoodleNet.join_community(actor, comm)
-      assert {:ok, true} = MoodleNet.undo_follow(actor, comm)
-      assert {:error, {:not_found, _, "Activity"}} = MoodleNet.undo_follow(actor, comm)
-    end
-  end
-
   describe "follow_collection & undo" do
     test "works" do
       actor = Factory.actor()
@@ -500,5 +509,50 @@ defmodule MoodleNetTest do
       assert {:ok, true} = MoodleNet.undo_follow(actor, coll)
       assert {:error, {:not_found, _, "Activity"}} = MoodleNet.undo_follow(actor, coll)
     end
+  end
+
+  test "update_community/2" do
+    actor = Factory.actor()
+    community = Factory.community(actor)
+
+    assert {:ok, new_community} = MoodleNet.update_community(actor, community, %{name: "NEW NAME"})
+    assert new_community.name == %{"und" => "NEW NAME"}
+
+    assert {:ok, new_community} = MoodleNet.update_community(actor, community, %{icon: "new_icon"})
+    assert [%{url: ["new_icon"]}] = new_community.icon
+
+    assert {:ok, new_community} = MoodleNet.update_community(actor, community, %{icon: nil})
+    assert [] = new_community.icon
+  end
+
+  test "update_collection/2" do
+    actor = Factory.actor()
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+
+    assert {:ok, new_collection} = MoodleNet.update_collection(actor, collection, %{name: "NEW NAME"})
+    assert new_collection.name == %{"und" => "NEW NAME"}
+
+    assert {:ok, new_collection} = MoodleNet.update_collection(actor, collection, %{icon: "new_icon"})
+    assert [%{url: ["new_icon"]}] = new_collection.icon
+
+    assert {:ok, new_collection} = MoodleNet.update_collection(actor, collection, %{icon: nil})
+    assert [] = new_collection.icon
+  end
+
+  test "update_resource/2" do
+    actor = Factory.actor()
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
+
+    assert {:ok, new_resource} = MoodleNet.update_resource(actor, resource, %{name: "NEW NAME"})
+    assert new_resource.name == %{"und" => "NEW NAME"}
+
+    assert {:ok, new_resource} = MoodleNet.update_resource(actor, resource, %{icon: "new_icon"})
+    assert [%{url: ["new_icon"]}] = new_resource.icon
+
+    assert {:ok, new_resource} = MoodleNet.update_resource(actor, resource, %{icon: nil})
+    assert [] = new_resource.icon
   end
 end

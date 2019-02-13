@@ -2,6 +2,56 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
+  alias MoodleNetWeb.GraphQL.CommunityResolver
+
+  object :community_queries do
+    @desc "Get list of communities"
+    field :communities, non_null(:community_page) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(&CommunityResolver.community_list/2)
+    end
+
+    @desc "Get a community"
+    field :community, :community do
+      arg(:local_id, non_null(:integer))
+      resolve(Resolver.resolve_by_id_and_type("MoodleNet:Community"))
+    end
+  end
+
+  object :community_mutations do
+    @desc "Create a community"
+    field :create_community, type: :community do
+      arg(:community, non_null(:community_input))
+      resolve(&CommunityResolver.create_community/2)
+    end
+
+    @desc "Update a community"
+    field :update_community, type: :community do
+      arg(:community_local_id, non_null(:integer))
+      arg(:community, non_null(:community_input))
+      resolve(&CommunityResolver.update_community/2)
+    end
+
+    @desc "Delete a community"
+    field :delete_community, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommunityResolver.delete_community/2)
+    end
+
+    @desc "Join a community"
+    field :join_community, type: :boolean do
+      arg(:community_local_id, non_null(:integer))
+      resolve(&CommunityResolver.join_community/2)
+    end
+
+    @desc "Undo join a community"
+    field :undo_join_community, type: :boolean do
+      arg(:community_local_id, non_null(:integer))
+      resolve(&CommunityResolver.undo_join_community/2)
+    end
+  end
 
   object :community do
     field(:id, :string)

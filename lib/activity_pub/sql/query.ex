@@ -50,12 +50,15 @@ defmodule ActivityPub.SQL.Query do
   end
 
   def get_by_local_id(id, opts \\ [])
+
   def get_by_local_id(id, opts) when is_integer(id) do
     new()
     |> where(local_id: id)
     |> preload_aspect(Keyword.get(opts, :aspect, []))
     |> one()
   end
+
+  def get_by_local_id([], _opts), do: []
 
   def get_by_local_id(ids, opts) when is_list(ids) do
     from(e in new(),
@@ -76,6 +79,30 @@ defmodule ActivityPub.SQL.Query do
         |> preload_aspect(Keyword.get(opts, :aspect, []))
         |> one()
     end
+  end
+
+  def preload(list) when is_list(list) do
+    loaded_entities =
+      list
+      |> Enum.filter(fn
+        e when APG.has_status(e, :loaded) -> false
+        e when APG.has_status(e, :not_loaded) and APG.has_local_id(e) -> true
+        %ActivityPub.SQL.AssociationNotLoaded{local_id: id} when not is_nil(id) -> true
+        e -> raise "cannot preload #{inspect(e)}"
+      end)
+      |> Enum.map(&Common.local_id/1)
+      |> get_by_local_id()
+      |> Enum.into(%{}, &{Common.local_id(&1), &1})
+
+    Enum.map(list, fn
+      e when APG.has_status(e, :loaded) -> e
+      e -> loaded_entities[Common.local_id(e)]
+    end)
+  end
+
+  def preload(entity) do
+    [loaded] = preload([entity])
+    loaded
   end
 
   def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
@@ -103,6 +130,12 @@ defmodule ActivityPub.SQL.Query do
     from(e in query,
       where: ^clauses
     )
+  end
+
+  defp normalize_aspect(:all) do
+    ActivityPub.SQLAspect.all()
+    |> Enum.filter(&(&1.persistence_method() == :table))
+    |> Enum.map(& &1.field_name())
   end
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
@@ -267,12 +300,21 @@ defmodule ActivityPub.SQL.Query do
         def belongs_to(%Ecto.Query{} = query, unquote(name), local_id) when is_integer(local_id),
           do: belongs_to(query, unquote(name), [local_id])
 
-        def belongs_to(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity),
-          do: belongs_to(query, unquote(name), [Common.local_id(entity[unquote(name)])])
+        def belongs_to(%Ecto.Query{} = query, unquote(name), entity) when APG.is_entity(entity) do
+          entity = preload_aspect(entity, unquote(sql_aspect))
+          local_id = Common.local_id(entity[unquote(name)])
+          belongs_to(query, unquote(name), [local_id])
+        end
 
         def belongs_to(%Ecto.Query{} = query, unquote(name), [entity | _] = list)
-            when APG.is_entity(entity),
-            do: belongs_to(query, unquote(name), to_local_ids(list))
+            when APG.is_entity(entity) do
+          local_ids =
+            preload_aspect(list, unquote(sql_aspect))
+            |> Enum.map(& &1[unquote(name)])
+            |> to_local_ids()
+
+          belongs_to(query, unquote(name), local_ids)
+        end
 
         def belongs_to(%Ecto.Query{} = query, unquote(name), ext_ids)
             when is_list(ext_ids) do
@@ -377,6 +419,8 @@ defmodule ActivityPub.SQL.Query do
     end
   end
 
+  def preload_assoc([], _preload), do: []
+
   def preload_assoc(entity, preload) when not is_list(preload),
     do: preload_assoc(entity, List.wrap(preload))
 
@@ -396,6 +440,8 @@ defmodule ActivityPub.SQL.Query do
 
     preloads = normalize_preload_assocs(preloads)
 
+    # FIXME check if they are already loaded so we avoid generate
+    # the entity again
     Repo.preload(sql_entities, preloads)
     |> to_entity()
   end
@@ -416,9 +462,9 @@ defmodule ActivityPub.SQL.Query do
         "Invalid status: #{Entity.status(e)}. Only entities with status :loaded can be preloaded"
       )
 
-  # defp print_query(query) do
-  #   {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
-  #   IO.puts("#{query_str} <=> #{inspect(args)}")
-  #   query
-  # end
+  def print_query(query) do
+    {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
+    IO.puts("#{query_str} <=> #{inspect(args)}")
+    query
+  end
 end

@@ -23,7 +23,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
           local
           type
           content
-          repliesCount
           published
           updated
           author {
@@ -48,7 +47,49 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     assert comment["updated"]
     assert comment["published"]
     assert comment["content"] == "comment_1"
-    assert comment["repliesCount"] == 1
+
+    assert comment["author"]["id"] == actor.id
+    assert comment["author"]["preferredUsername"] == actor.preferred_username
+
+    collection = Factory.collection(actor, community)
+    local_id = local_id(collection)
+    query = """
+    mutation {
+      createThread(
+        contextLocalId: #{local_id},
+        comment: {
+          content:"comment_2"
+        }
+      ) {
+          id
+          localId
+          local
+          type
+          content
+          published
+          updated
+          author {
+            id
+            preferredUsername
+          }
+      }
+    }
+    """
+
+    assert comment =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("createThread")
+
+    assert comment["id"]
+    assert comment["localId"]
+    assert comment["local"] == true
+    assert comment["type"] == ["Object", "Note"]
+    assert comment["updated"]
+    assert comment["published"]
+    assert comment["content"] == "comment_2"
 
     assert comment["author"]["id"] == actor.id
     assert comment["author"]["preferredUsername"] == actor.preferred_username
@@ -184,7 +225,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
           local
           type
           content
-          repliesCount
           published
           updated
           author {
@@ -209,7 +249,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     assert comment["updated"]
     assert comment["published"]
     assert comment["content"] == "comment_2"
-    assert comment["repliesCount"] == 1
 
     assert comment["author"]["id"] == actor.id
     assert comment["author"]["preferredUsername"] == actor.preferred_username
@@ -270,12 +309,12 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("comment")
 
     assert %{
-      "id" => comment.id,
-      "content" => comment.content["und"],
-      "author" => %{
-        "id" => actor.id
-      }
-    } == ret["inReplyTo"]
+             "id" => comment.id,
+             "content" => comment.content["und"],
+             "author" => %{
+               "id" => actor.id
+             }
+           } == ret["inReplyTo"]
   end
 
   @tag :user
@@ -324,6 +363,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     %{id: a_id} = Factory.reply(actor, comment)
     %{id: b_id} = Factory.reply(actor, comment)
+
     assert ret =
              conn
              |> post("/api/graphql", %{query: query})
@@ -432,10 +472,11 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     assert comment_map["id"] == comment.id
     assert comment_map["localId"] == local_id(comment)
+
     assert %{
-      "totalCount" => 1,
-      "edges" => [%{"node" => user_map}]
-    } = comment_map["likers"]
+             "totalCount" => 1,
+             "edges" => [%{"node" => user_map}]
+           } = comment_map["likers"]
 
     assert user_map["id"] == actor.id
     assert user_map["localId"] == local_id(actor)
@@ -487,10 +528,11 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     assert comment_map["id"] == comment.id
     assert comment_map["localId"] == local_id(comment)
+
     assert %{
-      "totalCount" => 0,
-      "edges" => []
-    } = comment_map["likers"]
+             "totalCount" => 0,
+             "edges" => []
+           } = comment_map["likers"]
 
     query = """
       mutation {
@@ -664,5 +706,4 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
            |> Map.fetch!("data")
            |> Map.fetch!("comment")
   end
-
 end
