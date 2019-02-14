@@ -55,6 +55,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
     field(:followed, non_null(:boolean), do: resolve(Resolver.with_bool_join(:follow)))
   end
 
+  object :collection_page do
+    field(:page_info, non_null(:page_info))
+    field(:nodes, non_null(list_of(non_null(:collection))))
+    field(:total_count, non_null(:integer))
+  end
+
   object :collection_followers_connection do
     field(:page_info, non_null(:page_info))
     field(:edges, non_null(list_of(non_null(:collection_followers_edge))))

@@ -5,6 +5,58 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   @moduletag format: :json
 
   @tag :user
+  test "community list", %{conn: conn, actor: actor} do
+    query = """
+      {
+        communities {
+          pageInfo {
+            startCursor
+            endCursor
+          }
+          nodes {
+            id
+            collections {
+              totalCount
+            }
+          }
+          totalCount
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "nodes" => [],
+             "totalCount" => 0
+           } = ret
+
+    %{id: a_id} = Factory.community(actor)
+    %{id: b_id} = Factory.community(actor)
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("communities")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "nodes" => nodes,
+             "totalCount" => 2
+           } = ret
+
+    assert [%{"id" => ^b_id}, %{"id" => ^a_id}] = nodes
+  end
+
+  @tag :user
   test "create community", %{conn: conn} do
     query = """
       mutation {
@@ -360,7 +412,6 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              "edges" => []
            } = community_map["members"]
 
-
     query = """
       mutation {
         joinCommunity(
@@ -521,5 +572,4 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     assert ret_community == ret_community_2
   end
-
 end

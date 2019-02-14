@@ -112,11 +112,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   # Community
 
-  def list_communities(args, info) do
-    comms = MoodleNet.list_communities(args)
-
-    {:ok, to_page(comms, args, info)}
-  end
+  def community_list(args, info), do: to_page(:community, args, info)
 
   def create_community(%{community: attrs}, info) do
     attrs = set_icon(attrs)
@@ -164,6 +160,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   ### Collection
+
+  def collection_list(args, info), do: to_page(:collection, args, info)
 
   def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
     with {:ok, actor} <- current_actor(info),
@@ -590,10 +588,24 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  defp calculate_connection_count(nil, method, fields) do
+    if "totalCount" in fields do
+      count_method = String.to_atom("#{method}_count")
+      apply(MoodleNet, count_method, [])
+    end
+  end
+
   defp calculate_connection_count(parent, method, fields) do
     if "totalCount" in fields do
       count_method = String.to_atom("#{method}_count")
       apply(MoodleNet, count_method, [parent])
+    end
+  end
+
+  defp calculate_connection_entities(nil, method, args, fields) do
+    if "pageInfo" in fields || "nodes" in fields do
+      list_method = String.to_atom("#{method}_list")
+      apply(MoodleNet, list_method, [args])
     end
   end
 
@@ -626,18 +638,21 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Enum.map(fn {node, entity} -> %{cursor: entity.cursor, node: node} end)
   end
 
-  defp to_page(entities, args, info) do
-    fields = requested_fields(info, [:edges, :node])
-    page_info = MoodleNet.page_info(entities, args)
-    nodes = prepare(entities, fields)
+  defp to_page(method, args, info) do
+    fields = requested_fields(info)
+    entities = calculate_connection_entities(nil, method, args, fields)
+    count = calculate_connection_count(nil, method, fields)
+    page_info = calculate_connection_page_info(entities, args, fields)
 
-    %{
-      page_info: %{
-        start_cursor: page_info.newer,
-        end_cursor: page_info.older
-      },
-      nodes: nodes
-    }
+    node_fields = requested_fields(info, [:nodes])
+    nodes = prepare(entities, node_fields)
+
+    {:ok,
+     %{
+       page_info: page_info,
+       nodes: nodes,
+       total_count: count
+     }}
   end
 
   def with_assoc(assoc, opts \\ [])

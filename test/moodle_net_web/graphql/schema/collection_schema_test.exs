@@ -5,6 +5,59 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   @moduletag format: :json
 
   @tag :user
+  test "list", %{conn: conn, actor: actor} do
+    query = """
+      {
+        collections {
+          pageInfo {
+            startCursor
+            endCursor
+          }
+          nodes {
+            id
+            resources {
+              totalCount
+            }
+          }
+          totalCount
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collections")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "nodes" => [],
+             "totalCount" => 0
+           } = ret
+
+    comm = Factory.community(actor)
+    %{id: a_id} = Factory.collection(actor, comm)
+    %{id: b_id} = Factory.collection(actor, comm)
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collections")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "nodes" => nodes,
+             "totalCount" => 2
+           } = ret
+
+    assert [%{"id" => ^b_id}, %{"id" => ^a_id}] = nodes
+  end
+
+  @tag :user
   test "create", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     query = """

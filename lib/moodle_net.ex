@@ -61,11 +61,17 @@ defmodule MoodleNet do
 
   # Community connections
 
-  def list_communities(opts \\ %{}) do
+  def community_list(opts \\ %{}) do
     Query.new()
     |> Query.with_type("MoodleNet:Community")
     |> Query.paginate(opts)
     |> Query.all()
+  end
+
+  def community_count() do
+    Query.new()
+    |> Query.with_type("MoodleNet:Community")
+    |> Query.count()
   end
 
   defp community_collection_query(community) do
@@ -86,6 +92,19 @@ defmodule MoodleNet do
   end
 
   # Collection connections
+
+  def collection_list(opts \\ %{}) do
+    Query.new()
+    |> Query.with_type("MoodleNet:Collection")
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def collection_count() do
+    Query.new()
+    |> Query.with_type("MoodleNet:Collection")
+    |> Query.count()
+  end
 
   defp collection_follower_query(collection) do
     Query.new()

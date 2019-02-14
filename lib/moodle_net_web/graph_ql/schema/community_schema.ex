@@ -49,6 +49,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
   object :community_page do
     field(:page_info, non_null(:page_info))
     field(:nodes, non_null(list_of(non_null(:community))))
+    field(:total_count, non_null(:integer))
   end
 
   object :community_collections_connection do

@@ -12,13 +12,21 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(&MoodleNetSchema.list_communities/2)
+      resolve(&MoodleNetSchema.community_list/2)
     end
 
     @desc "Get a community"
     field :community, :community do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Community"))
+    end
+
+    @desc "Get list of collections"
+    field :collections, non_null(:collection_page) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(&MoodleNetSchema.collection_list/2)
     end
 
     @desc "Get a collection"
