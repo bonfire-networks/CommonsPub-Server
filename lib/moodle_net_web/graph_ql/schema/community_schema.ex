@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
   object :community_collections_edge do
     field(:cursor, non_null(:integer))
-    field(:node, :comment)
+    field(:node, :collection)
   end
 
   object :community_threads_connection do

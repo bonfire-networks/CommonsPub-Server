@@ -68,6 +68,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
               cursor
               node {
                 id
+                resources {
+                  totalCount
+                }
               }
             }
             totalCount
