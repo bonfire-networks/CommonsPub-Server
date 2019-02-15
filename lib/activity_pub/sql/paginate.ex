@@ -33,7 +33,7 @@ defmodule ActivityPub.SQL.Paginate do
   end
 
   defp calc_limit(query_params) do
-    Enum.min([query_params[:limit] || query_params["limit"] || 20, 100])
+    Enum.min([query_params[:limit] || query_params["limit"] || 100, 100])
   end
 
   defp calc_order(%{after: nil, before: cursor} = params) when not is_nil(cursor),
