@@ -18,7 +18,7 @@ mutation createCommunityMutation($community: CommunityInput!) {
           followed
           primaryLanguage
           icon
-          followingCount
-          followersCount
+          # followingCount
+          # followersCount
         }
       }

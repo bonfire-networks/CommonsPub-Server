@@ -40,7 +40,7 @@ const Community: React.SFC<Props> = ({
     </Link>
     <Actions>
       <Members>
-        {followersCount}
+        {followersCount || 0}
         <span>
           <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
@@ -114,9 +114,10 @@ const Wrapper = styled.div`
   max-height: 560px;
   & h5 {
     margin: 0;
-    font-size: 18px !important;
+    font-size: 16px !important;
     line-height: 24px !important;
     word-break: break-word;
+    font-weight: 600;
   }
   & a {
     color: inherit;

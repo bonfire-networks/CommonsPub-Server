@@ -7,29 +7,52 @@ query getCommunityQuery($context: Int!) {
         summary
         icon
         followed
-        followersCount
-        followingCount
-        followers {
-            localId
-            name
-            preferredUsername
-            icon
-            summary
+        # followersCount
+        # followingCount
+        members {
+            edges {
+                node {
+                    localId
+                    name
+                    preferredUsername
+                    icon
+                    summary
+
+                }
+            }
+            pageInfo {
+                startCursor
+                endCursor
+            }
+            totalCount
+            
         }
         
         collections {
-            id
-            localId
-            preferredUsername
-            name
-            summary
-            icon
-            followed
-            resources {
-                id
+            edges {
+                node {
+                    id
+                    localId
+                    preferredUsername
+                    name
+                    summary
+                    icon
+                    followed
+                    resources {
+                        edges {
+                            node {
+                                id
+                            }
+                        }
+                    }
+
+                }
             }
-            followersCount
-            followingCount
+          totalCount
+           pageInfo {
+                startCursor
+                endCursor
+            }
         }
     }
 }

@@ -15,6 +15,14 @@ export default interface Collection {
   preferredUsername: string;
   name: string;
   summary: string;
-  resources: Resource[];
-  communities: Community[];
+  resources: {
+    totalCount: number;
+    edges: [
+      {
+        cursor: number;
+        node: Resource;
+      }
+    ];
+  };
+  community: Community;
 }

@@ -1,5 +1,5 @@
-query getCommunitiesQuery($limit: Int) {
-    communities(limit: $limit) {
+query getCommunitiesQuery($limit: Int, $end: Int) {
+    communities(limit: $limit, after:$end) {
         pageInfo {
             startCursor
             endCursor
@@ -11,9 +11,9 @@ query getCommunitiesQuery($limit: Int) {
             name
             summary
             icon
-            followersCount
-            followingCount
-            collectionsCount
+            # followersCount
+            # followingCount
+            # collectionsCount
             followed
         }
     }

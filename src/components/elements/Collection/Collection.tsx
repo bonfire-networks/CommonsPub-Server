@@ -38,7 +38,7 @@ const Collection: React.SFC<CollectionProps> = ({
           </Desc>
           <Actions>
             <ActionItem>
-              {collection.resources.length || 0}{' '}
+              {collection.resources.totalCount || 0}{' '}
               <Resource
                 width={18}
                 height={18}

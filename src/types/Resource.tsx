@@ -3,6 +3,7 @@ export default interface Resource {
   followersCount: number;
   // no. of people that are members
   followingCount: number;
+  totalCount: number;
   likesCount: number;
   icon: string | null;
   id: string;
