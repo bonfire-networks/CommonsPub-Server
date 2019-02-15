@@ -1,22 +1,34 @@
 import Resource from './Resource';
 import Community from './Community';
+import User from './User';
 
 export default interface Collection {
-  // no. of people following that are not members
-  followersCount: number;
-  // no. of people that are members
-  followingCount: number;
+  followers: {
+    edges: [
+      {
+        cursor: number;
+        node: User;
+      }
+    ];
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
+    totalCount: number;
+  };
   followed: boolean;
-  resourcesCount: number;
   icon: string | null;
   id: string;
-  jsonData: object;
   localId: string;
   preferredUsername: string;
   name: string;
   summary: string;
   resources: {
     totalCount: number;
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
     edges: [
       {
         cursor: number;
