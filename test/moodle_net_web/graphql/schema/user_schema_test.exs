@@ -369,6 +369,9 @@ defmodule MoodleNetWeb.GraphQL.UserTest do
               cursor
               node {
                 id
+                resources {
+                  totalCount
+                }
               }
             }
             totalCount

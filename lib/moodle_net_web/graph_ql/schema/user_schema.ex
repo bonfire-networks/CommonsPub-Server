@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
   object :user_following_collections_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:user_joined_communities_edge))))
+    field(:edges, non_null(list_of(non_null(:user_following_collections_edge))))
     field(:total_count, non_null(:integer))
   end
 
