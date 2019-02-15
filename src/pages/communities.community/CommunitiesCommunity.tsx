@@ -69,15 +69,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       collections = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
-      if (this.props.data.community.collections.length) {
+      if (this.props.data.community.collections.totalCount) {
         collections = (
           <Wrapper>
             <CollectionList>
-              {this.props.data.community.collections.map((collection, i) => (
+              {this.props.data.community.collections.edges.map((e, i) => (
                 <CollectionCard
                   communityId={this.props.data.community.localId}
                   key={i}
-                  collection={collection}
+                  collection={e.node}
                 />
               ))}
             </CollectionList>

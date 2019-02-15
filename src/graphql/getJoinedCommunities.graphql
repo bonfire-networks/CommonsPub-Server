@@ -15,9 +15,12 @@ query getJoinedCommunitiesQuery($limit: Int, $end: Int) {
                 name
                 summary
                 icon
-                # followersCount
-                # followingCount
-                # collectionsCount
+                collections {
+                totalCount
+            }
+            members {
+              totalCount
+            }
                 followed
 
               }

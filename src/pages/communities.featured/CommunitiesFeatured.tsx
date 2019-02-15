@@ -1,9 +1,7 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
-
 import { Trans } from '@lingui/macro';
-
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
@@ -41,10 +39,10 @@ class CommunitiesYours extends React.Component<Props> {
             summary={community.summary}
             title={community.name}
             icon={community.icon || ''}
-            collectionsCount={community.collectionsCount}
+            collectionsCount={community.collections.totalCount}
             id={community.localId}
             followed={community.followed}
-            followersCount={community.followersCount}
+            followersCount={community.members.totalCount}
             externalId={community.id}
           />
         );

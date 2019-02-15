@@ -16,7 +16,17 @@ const {
 } = require('../../graphql/getFollowedCollections.graphql');
 
 interface Data extends GraphqlQueryControls {
-  followingCollections: Collection[];
+  me: {
+    user: {
+      followingCollections: {
+        edges: any[];
+        pageInfo: {
+          startCursor: number;
+          endCursor: number;
+        };
+      };
+    };
+  };
 }
 
 interface Props {
@@ -36,9 +46,15 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      body = this.props.data.followingCollections.map((comm, i) => (
-        <CollectionCard key={i} collection={comm} communityId={comm.localId} />
-      ));
+      body = this.props.data.me.user.followingCollections.edges.map(
+        (comm, i) => (
+          <CollectionCard
+            key={i}
+            collection={comm}
+            communityId={comm.localId}
+          />
+        )
+      );
     }
     console.log(body);
     return (
@@ -48,13 +64,122 @@ class CommunitiesYours extends React.Component<Props> {
             <H4>
               <Trans>Followed Collections</Trans>
             </H4>
-            <List>{body}</List>
+            {this.props.data.error ? (
+              <span>
+                <Trans>Error loading collections</Trans>
+              </span>
+            ) : this.props.data.loading ? (
+              <Loader />
+            ) : (
+              <>
+                <List>
+                  {this.props.data.me.user.followingCollections.edges.map(
+                    (comm, i) => (
+                      <CollectionCard
+                        key={i}
+                        collection={comm}
+                        communityId={comm.localId}
+                      />
+                    )
+                  )}
+                </List>
+                {(this.props.data.me.user.followingCollections.pageInfo
+                  .startCursor &&
+                  this.props.data.me.user.followingCollections.pageInfo
+                    .endCursor === null) ||
+                (this.props.data.me.user.followingCollections.pageInfo
+                  .startCursor === null &&
+                  this.props.data.me.user.followingCollections.pageInfo
+                    .endCursor === null) ? null : (
+                  <LoadMore
+                    onClick={() =>
+                      this.props.data.fetchMore({
+                        variables: {
+                          end: this.props.data.me.user.followingCollections
+                            .pageInfo.endCursor
+                        },
+                        updateQuery: (previousResult, { fetchMoreResult }) => {
+                          const newNodes =
+                            fetchMoreResult.me.user.followingCollections.edges;
+                          const pageInfo =
+                            fetchMoreResult.me.user.followingCollections
+                              .pageInfo;
+                          return newNodes.length
+                            ? {
+                                // Put the new comments at the end of the list and update `pageInfo`
+                                // so we have the new `endCursor` and `hasNextPage` values
+                                me: {
+                                  __typename: previousResult.me.__typename,
+                                  user: {
+                                    id: previousResult.me.user.id,
+                                    __typename:
+                                      previousResult.me.user.__typename,
+                                    followingCollections: {
+                                      edges: [
+                                        ...previousResult.me.user
+                                          .followingCollections.edges,
+                                        ...newNodes
+                                      ],
+                                      pageInfo,
+                                      __typename:
+                                        previousResult.me.user
+                                          .followingCollections.__typename
+                                    }
+                                  }
+                                }
+                              }
+                            : {
+                                me: {
+                                  __typename: previousResult.me.__typename,
+                                  user: {
+                                    id: previousResult.me.user.id,
+                                    __typename:
+                                      previousResult.me.user.__typename,
+                                    followingCollections: {
+                                      edges: [
+                                        ...previousResult.me.user
+                                          .followingCollections.edges
+                                      ],
+                                      pageInfo,
+                                      __typename:
+                                        previousResult.me.user
+                                          .followingCollections.__typename
+                                    }
+                                  }
+                                }
+                              };
+                        }
+                      })
+                    }
+                  >
+                    <Trans>Load more</Trans>
+                  </LoadMore>
+                )}
+              </>
+            )}
           </Wrapper>
         </WrapperCont>
       </Main>
     );
   }
 }
+
+const LoadMore = styled.div`
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border-top: 1px solid #ececec;
+  color: #74706b;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  background: #f0f1f2;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover {
+    background: #e7e7e7;
+  }
+`;
+
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
