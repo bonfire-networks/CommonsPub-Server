@@ -1,3 +1,6 @@
+#import "./fragments/basicCollection.graphql"
+#import "./fragments/basicUser.graphql"
+
 query getCommunityQuery($context: Int!) {
     community(local_id: $context) {
         id
@@ -12,40 +15,19 @@ query getCommunityQuery($context: Int!) {
         members {
             edges {
                 node {
-                    localId
-                    name
-                    preferredUsername
-                    icon
-                    summary
+                    ...BasicUser
 
                 }
             }
-            pageInfo {
-                startCursor
-                endCursor
-            }
+            
             totalCount
             
         }
         
         collections {
             edges {
-                node {
-                    id
-                    localId
-                    preferredUsername
-                    name
-                    summary
-                    icon
-                    followed
-                    resources {
-                        edges {
-                            node {
-                                id
-                            }
-                        }
-                    }
-
+                node {    
+                ...BasicCollection
                 }
             }
           totalCount

@@ -6,20 +6,28 @@ query getCollection($id: Int!) {
     name
     content
     followed
-    followersCount
+    followers {
+      totalCount
+    }
     summary
-    communities {
+    community {
       localId
       name
       followed
     }
     resources {
-      id
-      localId
-      name
-      summary
-      url
-      icon
+      totalCount
+      edges {
+        node {
+          id
+          localId
+          name
+          summary
+          url
+          icon
+        }
+      }
+      
     }
   }
 }

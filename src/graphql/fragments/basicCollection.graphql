@@ -1,0 +1,19 @@
+fragment BasicCollection on Collection {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    followed
+    followers {
+        totalCount
+    }
+    resources {
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}

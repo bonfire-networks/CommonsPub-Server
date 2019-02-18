@@ -198,9 +198,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             summary: data.createCollection.summary,
             preferredUsername: data.createCollection.preferredUsername,
             icon: data.createCollection.icon,
-            followed: data.createCollection.followed,
-            followersCount: 0,
-            followingCount: 0
+            followed: data.createCollection.followed
           };
 
           community.collections.unshift(newCommunity);

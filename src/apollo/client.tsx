@@ -1,6 +1,9 @@
 import { ApolloLink } from 'apollo-link';
 import { ApolloClient, ApolloQueryResult } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import {
+  InMemoryCache,
+  IntrospectionFragmentMatcher
+} from 'apollo-cache-inmemory';
 import { setContext } from 'apollo-link-context';
 import { withClientState } from 'apollo-link-state';
 import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
@@ -9,7 +12,7 @@ import { createHttpLink } from 'apollo-link-http';
 import { hasSubscription } from '@jumpn/utils-graphql';
 import apolloLogger from 'apollo-link-logger';
 import * as AbsintheSocket from '@absinthe/socket';
-
+const introspectionQueryResultData = require('../fragmentTypes.json');
 import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
@@ -17,7 +20,11 @@ import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 const { meQuery } = require('../graphql/me.graphql');
 const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
-const cache = new InMemoryCache();
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+  introspectionQueryResultData
+});
+
+const cache = new InMemoryCache({ fragmentMatcher });
 const token = localStorage.getItem('user_access_token');
 const user = localStorage.getItem('user_data');
 

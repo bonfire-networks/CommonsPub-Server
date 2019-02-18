@@ -13,8 +13,9 @@ process.on('unhandledRejection', err => {
 
 // Ensure environment variables are read.
 require('../config/env');
-
+const fetch = require('node-fetch');
 const fs = require('fs');
+const url = process.env.REACT_APP_GRAPHQL_ENDPOINT
 const chalk = require('chalk');
 const webpack = require('webpack');
 const WebpackDevServer = require('webpack-dev-server');
@@ -57,6 +58,47 @@ if (process.env.HOST) {
   console.log(`Learn more here: ${chalk.yellow('http://bit.ly/2mwWSwH')}`);
   console.log();
 }
+console.log('eh hooo')
+console.log(url)
+console.log(process.env.REACT_APP_GRAPHQL_ENDPOINT)
+fetch(`${url}`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    variables: {},
+    query: `
+      {
+        __schema {
+          types {
+            kind
+            name
+            possibleTypes {
+              name
+            }
+          }
+        }
+      }
+    `,
+  }),
+})
+  .then(result => result.json())
+  .then(result => {
+    // here we're filtering out any type information unrelated to unions or interfaces
+    const filteredData = result.data.__schema.types.filter(
+      type => type.possibleTypes !== null,
+    );
+    result.data.__schema.types = filteredData;
+    console.log(result.data)
+    fs.writeFile('./src/fragmentTypes.json', JSON.stringify(result.data), err => {
+      if (err) {
+        console.error('Error writing fragmentTypes file', err);
+      } else {
+        console.log(result.data)
+        console.log('Fragment types successfully extracted!');
+      }
+    });
+  });
+
 
 // We attempt to use the default port but if it is busy, we offer the user to
 // run on a different port. `choosePort()` Promise resolves to the next free port.
