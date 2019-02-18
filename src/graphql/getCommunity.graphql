@@ -1,6 +1,6 @@
 #import "./fragments/basicCollection.graphql"
 #import "./fragments/basicUser.graphql"
-
+#import "./fragments/basicComment.graphql"
 query getCommunityQuery($context: Int!) {
     community(local_id: $context) {
         id
@@ -23,7 +23,16 @@ query getCommunityQuery($context: Int!) {
             totalCount
             
         }
-        
+        threads {
+             edges {
+                node {
+                    ...BasicComment
+
+                }
+            }
+            
+            totalCount
+        }
         collections {
             edges {
                 node {    

@@ -1,11 +1,12 @@
 import { graphql, OperationOption } from 'react-apollo';
 import { compose, withState } from 'recompose';
 import Component from './Talk';
-const { getCommentsQuery } = require('../../../graphql/getThreads.graphql');
+// const { getCommentsQuery } = require('../../../graphql/getThreads.graphql');
 import { withFormik } from 'formik';
 const {
   createThreadMutation
 } = require('../../../graphql/createThread.graphql');
+const { getCommunityQuery } = require('../../../graphql/getCommunity.graphql');
 
 import * as Yup from 'yup';
 
@@ -38,7 +39,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
     content: Yup.string().required()
   }),
   handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
-    console.log(props);
     const variables = {
       comment: {
         content: values.content
@@ -50,18 +50,22 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
         variables: variables,
         update: (proxy, { data: { createThread } }) => {
           const data = proxy.readQuery({
-            query: getCommentsQuery,
+            query: getCommunityQuery,
             variables: {
-              id: props.id
+              context: props.id
             }
           });
-          data.threads.unshift(createThread);
+          console.log(data);
+          data.community.threads.edges.unshift({
+            node: createThread,
+            __typename: 'CommunityThreadsEdge'
+          });
           proxy.writeQuery({
-            query: getCommentsQuery,
+            query: getCommunityQuery,
             variables: {
-              id: props.id
+              context: props.id
             },
-            data: data.threads
+            data: data.community
           });
         }
       })

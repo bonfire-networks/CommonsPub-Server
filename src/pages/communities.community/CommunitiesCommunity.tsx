@@ -116,10 +116,8 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     }
 
     if (!community) {
-      console.log(this.props.data);
       return <Loader />;
     }
-    console.log(this.props);
     return (
       <>
         <Main>
@@ -250,6 +248,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             <Discussion
                               localId={community.localId}
                               id={community.id}
+                              threads={community.threads}
                             />
                           ) : (
                             <Footer>

@@ -1,0 +1,22 @@
+fragment BasicComment on Comment {
+   localId
+    content
+    id
+    published
+    author {
+        name
+        id
+        icon
+    }
+    replies {
+        totalCount
+        edges {
+            node {
+                localId
+                content
+                id
+                published
+            }
+        }
+    }
+}

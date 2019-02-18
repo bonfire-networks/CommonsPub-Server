@@ -12,7 +12,7 @@ mutation createThreadMutation($id: String!, $comment: CommentInput!) {
     localId
     content
     replies {
-      id
+      totalCount
     }
   }
 }

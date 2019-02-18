@@ -36,7 +36,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
     content: Yup.string().required()
   }),
   handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
-    console.log(values);
     const variables = {
       comment: {
         content: values.content
@@ -58,13 +57,11 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
               }
             }
           `;
-          console.log(createReply);
           const comment = proxy.readFragment({
             id: `Comment:${props.externalId}`,
             fragment: fragment,
             fragmentName: 'Comm'
           });
-          console.log(comment);
           comment.replies.unshift(createReply);
           proxy.writeFragment({
             id: `Comment:${props.externalId}`,
