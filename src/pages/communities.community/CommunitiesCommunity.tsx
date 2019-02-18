@@ -60,6 +60,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     let collections;
     let community;
     if (this.props.data.error) {
+      console.log(this.props.data.error);
       collections = (
         <span>
           <Trans>Error loading collections</Trans>
@@ -115,8 +116,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     }
 
     if (!community) {
+      console.log(this.props.data);
       return <Loader />;
     }
+    console.log(this.props);
     return (
       <>
         <Main>
