@@ -91,12 +91,11 @@ const CreateCommunityModal = (props: Props) => {
           </code>
         </Row>
         <Actions>
-          {/* <a href= {`https://www.markdownguide.org/basic-syntax`} target="blank">
-            <span>🎊</span><Trans>
-                More markdown tips
-                </Trans>
-                <span>🎊</span>
-                </a> */}
+          <a href={`https://www.markdownguide.org/basic-syntax`} target="blank">
+            <span>🎊</span>
+            <Trans>More markdown tips</Trans>
+            <span>🎊</span>
+          </a>
         </Actions>
       </Container>
     </Modal>
