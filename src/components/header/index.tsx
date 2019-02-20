@@ -61,12 +61,12 @@ const Header: React.SFC<Props> = props => {
           <OutsideClickHandler onOutsideClick={props.closeMenu}>
             <WrapperMenu>
               <Menu>
-                {/* <List lined>
+                <List lined>
                   <Item>{props.data.user.data.name}</Item>
                   <Item onClick={props.handleSettings}>
                     <Trans>Profile &amp; Settings</Trans>
                   </Item>
-                </List> */}
+                </List>
                 <List>
                   <Item onClick={props.logout}>
                     <Trans>Sign out</Trans>
