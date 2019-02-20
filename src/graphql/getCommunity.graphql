@@ -1,3 +1,6 @@
+#import "./fragments/basicCollection.graphql"
+#import "./fragments/basicUser.graphql"
+#import "./fragments/basicComment.graphql"
 query getCommunityQuery($context: Int!) {
     community(local_id: $context) {
         id
@@ -7,33 +10,41 @@ query getCommunityQuery($context: Int!) {
         summary
         icon
         followed
-        followersCount
-        followingCount
-        followers {
-            localId
-            name
-            preferredUsername
-            icon
-            summary
+        # followersCount
+        # followingCount
+        members {
+            edges {
+                node {
+                    ...BasicUser
+
+                }
+            }
+            
+            totalCount
+            
         }
-        
+        threads {
+             edges {
+                node {
+                    ...BasicComment
+
+                }
+            }
+            
+            totalCount
+        }
         collections {
-            id
-            localId
-            preferredUsername
-            name
-            summary
-            icon
-            followed
-            communities {
-                id
-                followed
+            totalCount
+            edges {
+                node {    
+                ...BasicCollection
+                }
             }
-            resources {
-                id
+          totalCount
+           pageInfo {
+                startCursor
+                endCursor
             }
-            followersCount
-            followingCount
         }
     }
 }

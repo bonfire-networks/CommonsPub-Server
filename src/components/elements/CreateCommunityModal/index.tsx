@@ -28,9 +28,6 @@ import { graphql, OperationOption } from 'react-apollo';
 const {
   createCommunityMutation
 } = require('../../../graphql/createCommunity.graphql');
-const {
-  getCommunitiesQuery
-} = require('../../../graphql/getCommunities.graphql');
 interface Props {
   toggleModal?: any;
   modalIsOpen?: boolean;
@@ -173,12 +170,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     };
     return props
       .createCommunity({
-        variables: variables,
-        update: (proxy, { data: { createCommunity } }) => {
-          const data = proxy.readQuery({ query: getCommunitiesQuery });
-          data.communities.unshift(createCommunity);
-          proxy.writeQuery({ query: getCommunitiesQuery, data });
-        }
+        variables: variables
       })
       .then(res => {
         setSubmitting(false);

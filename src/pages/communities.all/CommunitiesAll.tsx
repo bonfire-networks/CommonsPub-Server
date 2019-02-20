@@ -1,5 +1,5 @@
 import * as React from 'react';
-import compose from 'recompose/compose';
+import { compose } from 'recompose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import { Trans } from '@lingui/macro';
@@ -14,7 +14,13 @@ import CommunityCard from '../../components/elements/Community/Community';
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
-  communities: Community[];
+  communities: {
+    nodes: Community[];
+    pageInfo: {
+      startCursor: number;
+      endCursor: number;
+    };
+  };
 }
 
 interface Props {
@@ -23,33 +29,6 @@ interface Props {
 
 class CommunitiesYours extends React.Component<Props> {
   render() {
-    let body;
-
-    if (this.props.data.error) {
-      body = (
-        <span>
-          <Trans>Error loading communities</Trans>
-        </span>
-      );
-    } else if (this.props.data.loading) {
-      body = <Loader />;
-    } else {
-      body = this.props.data.communities.map((community, i) => {
-        return (
-          <CommunityCard
-            key={i}
-            summary={community.summary}
-            title={community.name}
-            icon={community.icon || ''}
-            id={community.localId}
-            followed={community.followed}
-            followersCount={community.followersCount}
-            collectionsCount={community.collectionsCount}
-            externalId={community.id}
-          />
-        );
-      });
-    }
     return (
       <Main>
         <WrapperCont>
@@ -57,13 +36,96 @@ class CommunitiesYours extends React.Component<Props> {
             <H4>
               <Trans>All Communities</Trans>
             </H4>
-            <List>{body}</List>
+            {this.props.data.error ? (
+              <span>
+                <Trans>Error loading communities</Trans>
+              </span>
+            ) : this.props.data.loading ? (
+              <Loader />
+            ) : (
+              <>
+                <List>
+                  {this.props.data.communities.nodes.map((community, i) => {
+                    return (
+                      <CommunityCard
+                        key={i}
+                        summary={community.summary}
+                        title={community.name}
+                        icon={community.icon || ''}
+                        id={community.localId}
+                        followed={community.followed}
+                        followersCount={community.members.totalCount}
+                        collectionsCount={community.collections.totalCount}
+                        externalId={community.id}
+                      />
+                    );
+                  })}
+                </List>
+                {this.props.data.communities.pageInfo.startCursor &&
+                this.props.data.communities.pageInfo.endCursor ===
+                  null ? null : (
+                  <LoadMore
+                    onClick={() =>
+                      this.props.data.fetchMore({
+                        variables: {
+                          end: this.props.data.communities.pageInfo.endCursor
+                        },
+                        updateQuery: (previousResult, { fetchMoreResult }) => {
+                          const newNodes = fetchMoreResult.communities.nodes;
+                          const pageInfo = fetchMoreResult.communities.pageInfo;
+                          return newNodes.length
+                            ? {
+                                // Put the new comments at the end of the list and update `pageInfo`
+                                // so we have the new `endCursor` and `hasNextPage` values
+                                communities: {
+                                  __typename:
+                                    previousResult.communities.__typename,
+                                  nodes: [
+                                    ...previousResult.communities.nodes,
+                                    ...newNodes
+                                  ],
+                                  pageInfo
+                                }
+                              }
+                            : {
+                                communities: {
+                                  __typename:
+                                    previousResult.communities.__typename,
+                                  nodes: [...previousResult.communities.nodes],
+                                  pageInfo
+                                }
+                              };
+                        }
+                      })
+                    }
+                  >
+                    <Trans>Load more</Trans>
+                  </LoadMore>
+                )}
+              </>
+            )}
           </Wrapper>
         </WrapperCont>
       </Main>
     );
   }
 }
+
+const LoadMore = styled.div`
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border-top: 1px solid #ececec;
+  color: #74706b;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  background: #f0f1f2;
+  font-weight: 600;
+  cursor: pointer;
+  &:hover {
+    background: #e7e7e7;
+  }
+`;
 
 const WrapperCont = styled.div`
   max-width: 1040px;
@@ -112,6 +174,12 @@ const withGetCommunities = graphql<
       communities: Community[];
     };
   }
->(getCommunitiesQuery) as OperationOption<{}, {}>;
+>(getCommunitiesQuery, {
+  options: (props: Props) => ({
+    variables: {
+      limit: 15
+    }
+  })
+}) as OperationOption<{}, {}>;
 
 export default compose(withGetCommunities)(CommunitiesYours);

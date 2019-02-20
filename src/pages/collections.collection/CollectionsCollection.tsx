@@ -76,7 +76,7 @@ class CollectionComponent extends React.Component<Props> {
       );
     }
 
-    let community_name = collection.communities[0].name;
+    let community_name = collection.community.name;
 
     return (
       <>
@@ -85,8 +85,8 @@ class CollectionComponent extends React.Component<Props> {
             <WrapperCont>
               <Breadcrumb
                 community={{
-                  id: collection.communities[0].localId,
-                  name: collection.communities[0].name
+                  id: collection.community.localId,
+                  name: collection.community.name
                 }}
                 collectionName={collection.name}
               />
@@ -114,7 +114,7 @@ class CollectionComponent extends React.Component<Props> {
                         externalId={collection.id}
                       />
                     </HeroJoin>
-                    {collection.communities[0].followed ? (
+                    {collection.community.followed ? (
                       <EditButton onClick={this.props.editCollection}>
                         <Settings
                           width={18}
@@ -156,25 +156,22 @@ class CollectionComponent extends React.Component<Props> {
                         </TabPanel> */}
                         <TabPanel
                           label={`${TabsEnum.Resources} (${
-                            collection.resources.length
+                            collection.resources.totalCount
                           }/10)`}
                           key={TabsEnum.Resources}
                         >
                           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
                             <Wrapper>
-                              {resources.length ? (
+                              {resources.totalCount ? (
                                 <CollectionList>
-                                  {resources.map((resource, i) => (
+                                  {resources.edges.map((edge, i) => (
                                     <ResourceCard
                                       key={i}
-                                      icon={resource.icon}
-                                      title={resource.name}
-                                      summary={resource.summary}
-                                      url={resource.url}
-                                      localId={resource.localId}
-                                      isEditable={
-                                        collection.communities[0].followed
-                                      }
+                                      icon={edge.node.icon}
+                                      title={edge.node.name}
+                                      summary={edge.node.summary}
+                                      url={edge.node.url}
+                                      localId={edge.node.localId}
                                     />
                                   ))}
                                 </CollectionList>
@@ -191,8 +188,8 @@ class CollectionComponent extends React.Component<Props> {
                                 </OverviewCollection>
                               )}
 
-                              {resources.length > 9 ? null : collection
-                                .communities[0].followed ? (
+                              {resources.totalCount > 9 ? null : collection
+                                .community.followed ? (
                                 <WrapperActions>
                                   <Button onClick={this.props.addNewResource}>
                                     <Trans>Add a new resource</Trans>
@@ -213,18 +210,27 @@ class CollectionComponent extends React.Component<Props> {
                           label={`${TabsEnum.Discussion}`}
                           key={TabsEnum.Discussion}
                         >
-                          {collection.communities[0].followed ? (
+                          {collection.community.followed ? (
                             <Discussion
                               localId={collection.localId}
                               id={collection.id}
+                              threads={collection.threads}
+                              followed
                             />
                           ) : (
-                            <Footer>
-                              <Trans>
-                                Join the <strong>{community_name}</strong>{' '}
-                                community to participate in discussions
-                              </Trans>
-                            </Footer>
+                            <>
+                              <Discussion
+                                localId={collection.localId}
+                                id={collection.id}
+                                threads={collection.threads}
+                              />
+                              <Footer>
+                                <Trans>
+                                  Join the <strong>{community_name}</strong>{' '}
+                                  community to participate in discussions
+                                </Trans>
+                              </Footer>
+                            </>
                           )}
                         </TabPanel> */}
                       </Tabs>

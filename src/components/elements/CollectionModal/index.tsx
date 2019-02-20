@@ -124,6 +124,7 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
             toggleModal={props.toggleModal}
             collectionExternalId={props.collectionExternalId}
             isFetched={props.isFetched}
+            onUrl={props.onUrl}
           />
         ) : null}
       </Container>

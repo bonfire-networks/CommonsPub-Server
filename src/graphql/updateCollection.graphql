@@ -22,6 +22,8 @@ mutation updateCollectionMutation($collectionId: String!, $collection: Collectio
         icon
         published
         updated
-        resourcesCount
+        resources {
+          totalCount
+        }
       }
     }

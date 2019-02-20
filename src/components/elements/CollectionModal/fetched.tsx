@@ -36,6 +36,7 @@ interface Props {
   name: string;
   summary: string;
   image: string;
+  onUrl(string): string;
   url: string;
   isFetched(boolean): boolean;
 }
@@ -56,6 +57,7 @@ interface MyFormProps {
   summary: string;
   image: string;
   url: string;
+  onUrl(string): string;
   isFetched(boolean): boolean;
 }
 const tt = {
@@ -82,7 +84,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
       />
     </Preview>
     <Form>
-      <Row>
+      {/* <Row>
         <label>
           <Trans>Link</Trans>
         </label>
@@ -101,7 +103,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
           {props.errors.url &&
             props.touched.url && <Alert>{props.errors.url}</Alert>}
         </ContainerForm>
-      </Row>
+      </Row> */}
       <Row>
         <label>
           <Trans>Name</Trans>
@@ -220,15 +222,19 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
               icon
               name
               content
-              followersCount
               summary
               resources {
-                id
-                localId
-                name
-                summary
-                url
-                icon
+                totalCount
+                edges {
+                  node {
+                    id
+                    localId
+                    name
+                    summary
+                    url
+                    icon
+                  }
+                }
               }
             }
           `;
@@ -237,7 +243,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Res'
           });
-          collection.resources.push(createResource);
+          collection.resources.edges.push({
+            __typename: 'CollectionFollowersEdge',
+            node: createResource
+          });
+          collection.resources.totalCount++;
           proxy.writeFragment({
             id: `Collection:${props.collectionExternalId}`,
             fragment: fragment,
@@ -250,6 +260,8 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         setSubmitting(false);
         props.isFetched(false);
         props.toggleModal();
+        props.onUrl('');
+        return;
       })
       .catch(err => console.log(err));
   }

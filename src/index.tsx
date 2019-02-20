@@ -21,10 +21,12 @@ async function run() {
           height: 100%;
           background-color: #FBFBFD;
           background-color: #e9ebee;
+          font-family: 'Fira Sans', sans-serif !important;
       }
       
       * {
         box-sizing: border-box;
+        font-family: 'Fira Sans', sans-serif !important;
       }
   `;
 

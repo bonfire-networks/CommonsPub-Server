@@ -1,13 +1,31 @@
-query getJoinedCommunitiesQuery {
-    followingCommunities {
-        id
-        localId
-        preferredUsername
-        name
-        followed
-        summary
-        icon
-        followersCount
-        followingCount
+query getJoinedCommunitiesQuery($limit: Int, $end: Int) {
+    me {
+        user {
+          id
+          joinedCommunities(limit: $limit, after:$end) {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+          edges {
+              node {
+                id
+                localId
+                preferredUsername
+                name
+                summary
+                icon
+                collections {
+                totalCount
+            }
+            members {
+              totalCount
+            }
+                followed
+
+              }
+          }
+        }
+      }
     }
 }

@@ -69,15 +69,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       collections = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
-      if (this.props.data.community.collections.length) {
+      if (this.props.data.community.collections.totalCount) {
         collections = (
           <Wrapper>
             <CollectionList>
-              {this.props.data.community.collections.map((collection, i) => (
+              {this.props.data.community.collections.edges.map((e, i) => (
                 <CollectionCard
                   communityId={this.props.data.community.localId}
                   key={i}
-                  collection={collection}
+                  collection={e.node}
                 />
               ))}
             </CollectionList>
@@ -168,22 +168,22 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         color={'#fff'}
                       />
                     </span>
-                    {community.followers.slice(0, 3).map((a, i) => {
+                    {community.members.edges.slice(0, 3).map((a, i) => {
                       return (
                         <ImgTot
                           key={i}
                           style={{
-                            backgroundImage: `url(${a.icon ||
+                            backgroundImage: `url(${a.node.icon ||
                               `https://www.gravatar.com/avatar/${
-                                a.localId
+                                a.node.localId
                               }?f=y&d=identicon`})`
                           }}
                         />
                       );
                     })}{' '}
                     <Tot>
-                      {community.followers.length - 3 > 0
-                        ? `+ ${community.followers.length - 3} More`
+                      {community.members.totalCount - 3 > 0
+                        ? `+ ${community.members.totalCount - 3} More`
                         : ''}
                     </Tot>
                   </MembersTot>
@@ -218,14 +218,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             </P>
                             <Tagline>Members</Tagline>
                             <Members>
-                              {community.followers.map((user, i) => (
+                              {community.members.edges.map((edge, i) => (
                                 <Follower key={i}>
                                   <Img
                                     style={{
-                                      backgroundImage: `url(${user.icon})`
+                                      backgroundImage: `url(${edge.node.icon})`
                                     }}
                                   />
-                                  <FollowerName>{user.name}</FollowerName>
+                                  <FollowerName>{edge.node.name}</FollowerName>
                                 </Follower>
                               ))}
                             </Members>
@@ -247,11 +247,20 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             <Discussion
                               localId={community.localId}
                               id={community.id}
+                              threads={community.threads}
+                              followed
                             />
                           ) : (
-                            <Footer>
-                              <Trans>Join the community to discuss</Trans>
-                            </Footer>
+                            <>
+                              <Discussion
+                                localId={community.localId}
+                                id={community.id}
+                                threads={community.threads}
+                              />
+                              <Footer>
+                                <Trans>Join the community to discuss</Trans>
+                              </Footer>
+                            </>
                           )}
                         </TabPanel>
                       </Tabs>

@@ -3,7 +3,6 @@ import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
 
 import { Trans } from '@lingui/macro';
-
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
@@ -54,10 +53,10 @@ class CommunitiesYours extends React.Component<Props> {
             summary={this.props.data.thelounge.summary}
             title={this.props.data.thelounge.name}
             icon={this.props.data.thelounge.icon || ''}
-            collectionsCount={this.props.data.thelounge.collectionsCount}
+            collectionsCount={this.props.data.thelounge.collections.totalCount}
             id={this.props.data.thelounge.localId}
             followed={this.props.data.thelounge.followed}
-            followersCount={this.props.data.thelounge.followersCount}
+            followersCount={this.props.data.thelounge.members.totalCount}
             externalId={this.props.data.thelounge.id}
           />
         );

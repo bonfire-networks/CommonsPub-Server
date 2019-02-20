@@ -1,14 +1,23 @@
-query getCommunitiesQuery {
-    communities {
-        id
-        localId
-        preferredUsername
-        name
-        summary
-        icon
-        followersCount
-        followingCount
-        collectionsCount
-        followed
+query getCommunitiesQuery($limit: Int, $end: Int) {
+    communities(limit: $limit, after:$end) {
+        pageInfo {
+            startCursor
+            endCursor
+        }
+        nodes {
+            id
+            localId
+            preferredUsername
+            name
+            summary
+            icon
+            collections {
+                totalCount
+            }
+            members {
+              totalCount
+            }
+            followed
+        }
     }
 }
