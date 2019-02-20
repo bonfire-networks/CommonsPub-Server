@@ -77,22 +77,22 @@ const Component = ({ data, match }) => {
             </NavLink>
           ) : null}
           <Comment thread author={author} comment={message} />
-          {data.comment.replies.map((comment, i) => {
+          {data.comment.replies.edges.map((comment, i) => {
             let author = {
-              id: comment.author.id,
-              name: comment.author.name,
-              icon: comment.author.icon
+              id: comment.node.author.id,
+              name: comment.node.author.name,
+              icon: comment.node.author.icon
             };
             let message = {
-              body: comment.content,
-              date: comment.published,
-              id: comment.localId
+              body: comment.node.content,
+              date: comment.node.published,
+              id: comment.node.localId
             };
             return (
               <Comment
                 key={i}
                 author={author}
-                totalReplies={comment.replies.length}
+                totalReplies={comment.node.replies.totalCount}
                 comment={message}
               />
             );

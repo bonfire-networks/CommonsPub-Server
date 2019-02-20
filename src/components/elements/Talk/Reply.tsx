@@ -50,10 +50,14 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
             fragment Comm on Comment {
               id
               replies {
-                id
-                localId
-                content
-                published
+                edges {
+                  node {
+                    id
+                    localId
+                    content
+                    published
+                  }
+                }
               }
             }
           `;
@@ -62,7 +66,10 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Comm'
           });
-          comment.replies.unshift(createReply);
+          comment.replies.edges.push({
+            node: createReply,
+            __typename: 'CollectionRepliesEdge'
+          });
           proxy.writeFragment({
             id: `Comment:${props.externalId}`,
             fragment: fragment,
