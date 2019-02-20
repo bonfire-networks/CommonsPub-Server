@@ -67,10 +67,14 @@ class CommunitiesYours extends React.Component<Props> {
                     )
                   )}
                 </List>
-                {this.props.data.me.user.joinedCommunities.pageInfo
+                {(this.props.data.me.user.joinedCommunities.pageInfo
                   .startCursor &&
-                this.props.data.me.user.joinedCommunities.pageInfo.endCursor ===
-                  null ? null : (
+                  this.props.data.me.user.joinedCommunities.pageInfo
+                    .endCursor === null) ||
+                (this.props.data.me.user.joinedCommunities.pageInfo
+                  .startCursor &&
+                  this.props.data.me.user.joinedCommunities.pageInfo
+                    .endCursor === null) ? null : (
                   <LoadMore
                     onClick={() =>
                       this.props.data.fetchMore({

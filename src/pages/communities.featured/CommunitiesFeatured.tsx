@@ -33,7 +33,6 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      console.log(this.props.data);
       body = [];
       if (this.props.data.elsalon && this.props.data.thelounge) {
         body.push(
