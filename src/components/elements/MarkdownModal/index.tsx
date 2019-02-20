@@ -83,7 +83,9 @@ const CreateCommunityModal = (props: Props) => {
           </label>
         </Row>
         <Row>
-          <label>{/* <Trans>![alt](http://)</Trans> */}</label>
+          <label>
+            <Trans>{`![alt](http://)`}</Trans>
+          </label>
           <label>
             <Trans>Image</Trans>
           </label>
