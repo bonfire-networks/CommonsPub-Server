@@ -68,7 +68,7 @@ class CommunitiesYours extends React.Component<Props> {
                   )}
                 </List>
                 {(this.props.data.me.user.joinedCommunities.pageInfo
-                  .startCursor &&
+                  .startCursor === null &&
                   this.props.data.me.user.joinedCommunities.pageInfo
                     .endCursor === null) ||
                 (this.props.data.me.user.joinedCommunities.pageInfo

@@ -61,7 +61,7 @@ class CommunitiesYours extends React.Component<Props> {
                     );
                   })}
                 </List>
-                {(this.props.data.communities.pageInfo.startCursor &&
+                {(this.props.data.communities.pageInfo.startCursor === null &&
                   this.props.data.communities.pageInfo.endCursor === null) ||
                 (this.props.data.communities.pageInfo.startCursor &&
                   this.props.data.communities.pageInfo.endCursor ===
