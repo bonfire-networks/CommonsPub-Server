@@ -84,7 +84,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
       />
     </Preview>
     <Form>
-      {/* <Row>
+      <Row>
         <label>
           <Trans>Link</Trans>
         </label>
@@ -103,7 +103,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
           {props.errors.url &&
             props.touched.url && <Alert>{props.errors.url}</Alert>}
         </ContainerForm>
-      </Row> */}
+      </Row>
       <Row>
         <label>
           <Trans>Name</Trans>
@@ -192,9 +192,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     image: props.image || ''
   }),
   validationSchema: Yup.object().shape({
-    url: Yup.string()
-      .url()
-      .required(),
+    url: Yup.string().url(),
     name: Yup.string()
       .max(90)
       .required(),
@@ -257,11 +255,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         }
       })
       .then(res => {
+        console.log(res);
         setSubmitting(false);
         props.isFetched(false);
         props.toggleModal();
-        props.onUrl('');
-        return;
       })
       .catch(err => console.log(err));
   }
