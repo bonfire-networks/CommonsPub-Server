@@ -105,13 +105,18 @@ export default async function initialise() {
     const result = await client.query<MeQueryResult>({
       query: meQuery
     });
-
+    console.log('test');
+    console.log(result);
     localUser = {
       isAuthenticated: true,
-      data: result.data.me
+      data: {
+        ...result.data.me.user,
+        email: result.data.me.email
+      }
     };
   } catch (err) {
-    console.error(err);
+    console.log('err');
+    console.error(err.message);
 
     if (err.message.includes('You are not logged in')) {
       localStorage.removeItem('user_access_token');
