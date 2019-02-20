@@ -248,11 +248,19 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               localId={community.localId}
                               id={community.id}
                               threads={community.threads}
+                              followed
                             />
                           ) : (
-                            <Footer>
-                              <Trans>Join the community to discuss</Trans>
-                            </Footer>
+                            <>
+                              <Discussion
+                                localId={community.localId}
+                                id={community.id}
+                                threads={community.threads}
+                              />
+                              <Footer>
+                                <Trans>Join the community to discuss</Trans>
+                              </Footer>
+                            </>
                           )}
                         </TabPanel>
                       </Tabs>

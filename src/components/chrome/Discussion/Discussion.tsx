@@ -7,13 +7,15 @@ interface Props {
   threads: any;
   localId: string;
   id: string;
+  followed?: boolean;
 }
 
 const CommunitiesFeatured: React.SFC<Props> = props => {
-  console.log(props);
   return (
     <>
-      <Talk id={props.localId} externalId={props.id} />
+      {props.followed ? (
+        <Talk id={props.localId} externalId={props.id} />
+      ) : null}
       <WrapperComments>
         {props.threads ? (
           props.threads.edges.map((comment, i) => {

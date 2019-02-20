@@ -131,7 +131,7 @@ const WrapperImage = styled.div`
   position: relative;
   &:hover {
     & span {
-      display: grid;
+      display: block;
     }
   }
 `;

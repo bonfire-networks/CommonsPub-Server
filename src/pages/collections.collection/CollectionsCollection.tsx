@@ -215,14 +215,22 @@ class CollectionComponent extends React.Component<Props> {
                               localId={collection.localId}
                               id={collection.id}
                               threads={collection.threads}
+                              followed
                             />
                           ) : (
-                            <Footer>
-                              <Trans>
-                                Join the <strong>{community_name}</strong>{' '}
-                                community to participate in discussions
-                              </Trans>
-                            </Footer>
+                            <>
+                              <Discussion
+                                localId={collection.localId}
+                                id={collection.id}
+                                threads={collection.threads}
+                              />
+                              <Footer>
+                                <Trans>
+                                  Join the <strong>{community_name}</strong>{' '}
+                                  community to participate in discussions
+                                </Trans>
+                              </Footer>
+                            </>
                           )}
                         </TabPanel>
                       </Tabs>

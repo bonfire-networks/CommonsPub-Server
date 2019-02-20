@@ -36,6 +36,7 @@ interface Props {
   name: string;
   summary: string;
   image: string;
+  onUrl(string): string;
   url: string;
   isFetched(boolean): boolean;
 }
@@ -56,6 +57,7 @@ interface MyFormProps {
   summary: string;
   image: string;
   url: string;
+  onUrl(string): string;
   isFetched(boolean): boolean;
 }
 const tt = {
@@ -82,7 +84,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
       />
     </Preview>
     <Form>
-      <Row>
+      {/* <Row>
         <label>
           <Trans>Link</Trans>
         </label>
@@ -101,7 +103,7 @@ const Fetched = (props: Props & FormikProps<FormValues>) => (
           {props.errors.url &&
             props.touched.url && <Alert>{props.errors.url}</Alert>}
         </ContainerForm>
-      </Row>
+      </Row> */}
       <Row>
         <label>
           <Trans>Name</Trans>
@@ -222,6 +224,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
               content
               summary
               resources {
+                totalCount
                 edges {
                   node {
                     id
@@ -257,6 +260,8 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         setSubmitting(false);
         props.isFetched(false);
         props.toggleModal();
+        props.onUrl('');
+        return;
       })
       .catch(err => console.log(err));
   }

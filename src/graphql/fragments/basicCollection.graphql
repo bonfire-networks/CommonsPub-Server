@@ -10,10 +10,6 @@ fragment BasicCollection on Collection {
         totalCount
     }
     resources {
-        edges {
-            node {
-                id
-            }
-        }
+        totalCount
     }
 }

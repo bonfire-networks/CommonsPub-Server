@@ -6,13 +6,14 @@ import Textarea from '../../inputs/TextArea/Textarea';
 import Button from '../Button/Button';
 import { FormikProps, Field } from 'formik';
 import Alert from '../../elements/Alert';
-import { compose } from 'recompose';
+import { compose, withState } from 'recompose';
 import Preview from './Preview';
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
-
+import MarkdownModal from '../MarkdownModal';
 import { Trans } from '@lingui/macro';
 import { i18nMark } from '@lingui/react';
+import { Type } from '../Icons';
 
 const tt = {
   placeholders: {
@@ -28,6 +29,8 @@ interface Props {
   createThread: any;
   isOpen: boolean;
   onOpen(boolean): boolean;
+  onModalIsOpen: any;
+  modalIsOpen: boolean;
 }
 
 interface FormValues {
@@ -35,48 +38,87 @@ interface FormValues {
 }
 
 const Component = (props: Props & FormikProps<FormValues>) => (
-  <ContainerTalk expanded={props.toggle}>
-    <OutsideClickHandler onOutsideClick={() => props.onToggle(false)}>
-      <Expanded expanded={props.toggle}>
-        <Field
-          name="content"
-          render={({ field }) => (
-            <>
-              <PreviewTalk
-                expanded={props.toggle}
-                onClick={() => props.onToggle(true)}
-                placeholder={tt.placeholders.message}
-                onChange={field.onChange}
-                name={field.name}
-                value={field.value}
-              />
-              {props.errors.content &&
-                props.touched.content && <Alert>{props.errors.content}</Alert>}
-            </>
-          )}
+  <>
+    <ContainerTalk expanded={props.toggle}>
+      <OutsideClickHandler onOutsideClick={() => props.onToggle(false)}>
+        <Expanded expanded={props.toggle}>
+          <Field
+            name="content"
+            render={({ field }) => (
+              <>
+                <PreviewTalk
+                  expanded={props.toggle}
+                  onClick={() => props.onToggle(true)}
+                  placeholder={tt.placeholders.message}
+                  onChange={field.onChange}
+                  name={field.name}
+                  value={field.value}
+                />
+                {props.errors.content &&
+                  props.touched.content && (
+                    <Alert>{props.errors.content}</Alert>
+                  )}
+              </>
+            )}
+          />
+        </Expanded>
+        <Actions expanded={props.toggle}>
+          <Left onClick={() => props.onModalIsOpen(true)}>
+            <span>
+              <Type width={16} height={16} strokeWidth={2} color={'#777'} />
+            </span>
+          </Left>
+          <Button
+            disabled={!props.values.content}
+            onClick={() => props.onOpen(true)}
+          >
+            <Trans>Preview</Trans>
+          </Button>
+        </Actions>
+        <Preview
+          isSubmitting={props.isSubmitting}
+          toggleModal={props.onOpen}
+          modalIsOpen={props.isOpen}
+          values={props.values}
+          user={props.data.user}
         />
-      </Expanded>
-      <Actions expanded={props.toggle}>
-        <Button
-          disabled={!props.values.content}
-          onClick={() => props.onOpen(true)}
-        >
-          <Trans>Preview</Trans>
-        </Button>
-      </Actions>
-      <Preview
-        isSubmitting={props.isSubmitting}
-        toggleModal={props.onOpen}
-        modalIsOpen={props.isOpen}
-        values={props.values}
-        user={props.data.user}
-      />
-    </OutsideClickHandler>
-  </ContainerTalk>
+      </OutsideClickHandler>
+    </ContainerTalk>
+    <MarkdownModal
+      toggleModal={props.onModalIsOpen}
+      modalIsOpen={props.modalIsOpen}
+    />
+  </>
 );
 
-export default compose(graphql(getUserQuery))(Component);
+export default compose(
+  graphql(getUserQuery),
+  withState('modalIsOpen', 'onModalIsOpen', false)
+)(Component);
 
+const Left = styled.div<{ expanded?: boolean }>`
+  float: left;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 8px 0;
+  cursor: pointer;
+  & span {
+    width: 26px;
+    height: 26px;
+    background: #dde3e8;
+    display: inline-block;
+    text-align: center;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-left: 4px;
+    &:hover {
+      background: #ced6e6;
+    }
+    & svg {
+      margin-top: 4px;
+    }
+  }
+`;
 const Expanded = styled.div<{ expanded?: boolean }>`
   height: ${props => (props.expanded ? '150px' : '50px !important')};
   transition: height 0.3s ease-out;
