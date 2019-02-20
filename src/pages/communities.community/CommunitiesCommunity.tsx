@@ -420,10 +420,16 @@ const CollectionList = styled.div`
 `;
 
 const OverviewCollection = styled.div`
-  padding: 0 8px;
-  margin-bottom: 8px;
+  padding-top: 8px;
+  margin-bottom: -8px;
+  flex: 1;
+  & button {
+    margin-left: 8px
+    margin-bottom: 16px;
+  }
   & p {
     margin-top: 0 !important;
+    padding: 8px;
   }
 `;
 
