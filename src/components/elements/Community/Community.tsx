@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
-import { Users } from '../Icons';
+import { Users, Collection } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
 import { clearFix } from 'polished';
@@ -45,7 +45,7 @@ const Community: React.SFC<Props> = ({
           <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
       </Members>
-      {/* <Members>
+      <Members>
         {collectionsCount || 0}
         <span>
           <Collection
@@ -55,7 +55,7 @@ const Community: React.SFC<Props> = ({
             color={'#1e1f2480'}
           />
         </span>
-      </Members> */}
+      </Members>
     </Actions>
 
     <Summary>

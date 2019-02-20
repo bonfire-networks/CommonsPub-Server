@@ -23,7 +23,6 @@ interface Props {
 }
 
 const ResourceCard: React.SFC<Props> = props => {
-  console.log(props);
   return (
     <Wrapper>
       <a target="blank" href={props.url}>

@@ -6,9 +6,8 @@ query getFeaturedCommunities {
     name
     summary
     icon
-    followersCount
-    followingCount
-    collectionsCount
+    members {totalCount}
+    collections {totalCount}
     followed
   }
    elsalon: community(localId: 15) {
@@ -18,9 +17,8 @@ query getFeaturedCommunities {
     name
     summary
     icon
-    followersCount
-    followingCount
-    collectionsCount
+    members {totalCount}
+    collections {totalCount}
     followed
   }
 }

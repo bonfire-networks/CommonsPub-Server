@@ -54,7 +54,6 @@ const Join: React.SFC<Props> = ({
                 fragment: fragment,
                 fragmentName: 'Res'
               });
-              console.log(collection);
               collection.followed = !collection.followed;
 
               proxy.writeFragment({
