@@ -67,6 +67,9 @@ const ResourceCard: React.SFC<Props> = props => (
 
 const TitleWrapper = styled.div`
   display: flex;
+  & a {
+    flex: 1;
+  }
 `;
 const Info = styled.div`
   flex: 1;

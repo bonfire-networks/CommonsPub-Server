@@ -212,6 +212,8 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             __typename: 'CommunityCollectionsEdge'
           };
           community.community.collections.edges.unshift(newCollection);
+          community.community.collections.totalCount++;
+          console.log(community);
           store.writeQuery({
             query: getCommunityQuery,
             variables: {

@@ -220,15 +220,18 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
               icon
               name
               content
-              followersCount
               summary
               resources {
-                id
-                localId
-                name
-                summary
-                url
-                icon
+                edges {
+                  node {
+                    id
+                    localId
+                    name
+                    summary
+                    url
+                    icon
+                  }
+                }
               }
             }
           `;
@@ -237,7 +240,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Res'
           });
-          collection.resources.push(createResource);
+          collection.resources.edges.push({
+            __typename: 'CollectionFollowersEdge',
+            node: createResource
+          });
+          collection.resources.totalCount++;
           proxy.writeFragment({
             id: `Collection:${props.collectionExternalId}`,
             fragment: fragment,

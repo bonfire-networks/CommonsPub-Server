@@ -163,6 +163,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         icon: values.image
       }
     };
+    console.log(variables);
     return props
       .updateProfile({
         variables: variables

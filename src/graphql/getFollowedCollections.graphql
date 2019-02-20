@@ -18,6 +18,9 @@ query getFollowedCollections($limit: Int, $end: Int) {
                 summary
                 icon
                 followed
+                followers {
+                  totalCount
+                }
                 resources {
                   totalCount
                 }

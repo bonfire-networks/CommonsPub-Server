@@ -77,8 +77,8 @@ class CommunitiesYours extends React.Component<Props> {
                     (comm, i) => (
                       <CollectionCard
                         key={i}
-                        collection={comm}
-                        communityId={comm.localId}
+                        collection={comm.node}
+                        communityId={comm.node.localId}
                       />
                     )
                   )}

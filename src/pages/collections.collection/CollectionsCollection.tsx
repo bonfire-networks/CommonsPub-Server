@@ -214,7 +214,7 @@ class CollectionComponent extends React.Component<Props> {
                             <Discussion
                               localId={collection.localId}
                               id={collection.id}
-                              threads={[]}
+                              threads={collection.threads}
                             />
                           ) : (
                             <Footer>

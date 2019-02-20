@@ -16,6 +16,7 @@ const Collection: React.SFC<CollectionProps> = ({
   collection,
   communityId
 }) => {
+  console.log(collection);
   return (
     <Wrapper>
       <Link
