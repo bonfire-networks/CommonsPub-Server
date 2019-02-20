@@ -1,0 +1,10 @@
+[main]
+host = https://www.transifex.com
+
+[moodlenet.frontend-react]
+file_filter = src/locales/<lang>/messages.po
+minimum_perc = 0
+source_file = src/locales/en_GB/messages.po
+source_lang = en_GB
+type = PO
+

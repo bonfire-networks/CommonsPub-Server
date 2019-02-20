@@ -1,22 +1,23 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
-import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
+import { graphql, OperationOption } from 'react-apollo';
+
 import { Trans } from '@lingui/macro';
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import Community from '../../types/Community';
+// import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import CommunityCard from '../../components/elements/Community/Community';
 
-const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
+const getCommunitiesQuery = require('../../graphql/getFeaturedCommunities.graphql');
 
-interface Data extends GraphqlQueryControls {
-  communities: Community[];
-}
+// interface Data extends GraphqlQueryControls {
+//   communities: Community[];
+// }
 
 interface Props {
-  data: Data;
+  data: any;
 }
 
 class CommunitiesYours extends React.Component<Props> {
@@ -32,21 +33,34 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      body = this.props.data.communities.map((community, i) => {
-        return (
+      console.log(this.props.data);
+      body = [];
+      if (this.props.data.elsalon && this.props.data.thelounge) {
+        body.push(
           <CommunityCard
-            key={i}
-            summary={community.summary}
-            title={community.name}
-            icon={community.icon || ''}
-            collectionsCount={community.collections.totalCount}
-            id={community.localId}
-            followed={community.followed}
-            followersCount={community.members.totalCount}
-            externalId={community.id}
+            summary={this.props.data.elsalon.summary}
+            title={this.props.data.elsalon.name}
+            icon={this.props.data.elsalon.icon || ''}
+            collectionsCount={this.props.data.elsalon.collectionsCount}
+            id={this.props.data.elsalon.localId}
+            followed={this.props.data.elsalon.followed}
+            followersCount={this.props.data.elsalon.followersCount}
+            externalId={this.props.data.elsalon.id}
           />
         );
-      });
+        body.push(
+          <CommunityCard
+            summary={this.props.data.thelounge.summary}
+            title={this.props.data.thelounge.name}
+            icon={this.props.data.thelounge.icon || ''}
+            collectionsCount={this.props.data.thelounge.collections.totalCount}
+            id={this.props.data.thelounge.localId}
+            followed={this.props.data.thelounge.followed}
+            followersCount={this.props.data.thelounge.members.totalCount}
+            externalId={this.props.data.thelounge.id}
+          />
+        );
+      }
     }
     return (
       <Main>
@@ -105,9 +119,7 @@ const List = styled.div`
 const withGetCommunities = graphql<
   {},
   {
-    data: {
-      communities: Community[];
-    };
+    data: any;
   }
 >(getCommunitiesQuery) as OperationOption<{}, {}>;
 

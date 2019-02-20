@@ -26,6 +26,7 @@ yarn-error.log*
 # i18n
 /src/locales/_build
 /src/locales/*/messages.js
+/src/locales/*/messages.po
 
 ## env
 .env*
