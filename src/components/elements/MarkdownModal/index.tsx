@@ -73,7 +73,9 @@ const CreateCommunityModal = (props: Props) => {
           </blockquote>
         </Row>
         <Row>
-          <label>{/* <Trans>[title](http://)</Trans> */}</label>
+          <label>
+            <Trans>{`[title](http://)`}</Trans>
+          </label>
           <label>
             <Trans>
               <a href="#">link</a>
