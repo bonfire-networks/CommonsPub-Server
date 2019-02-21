@@ -121,7 +121,7 @@ const Component = (props: Props & FormikProps<FormValues>) => (
               )}
             />
           </Expanded>
-          <Actions expanded={props.full}>
+          <Actions expanded={props.toggle}>
             <Left onClick={() => props.onModalIsOpen(true)}>
               <span>
                 <Type width={16} height={16} strokeWidth={2} color={'#777'} />

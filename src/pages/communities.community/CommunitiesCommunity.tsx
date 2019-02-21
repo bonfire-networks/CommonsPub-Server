@@ -428,6 +428,7 @@ const WrapperCont = styled.div`
   display: flex;
   flex-direction: column;
   border-radius: 6px;
+  height: 100%;
   box-sizing: border-box;
   border: 5px solid #e2e5ea;
 `;
