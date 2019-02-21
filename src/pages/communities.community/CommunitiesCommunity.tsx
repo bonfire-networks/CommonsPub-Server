@@ -117,27 +117,26 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     if (!community) {
       return <Loader />;
     }
-    console.log(community);
     return (
       <>
         <Main>
           <Grid>
             <WrapperCont>
-              <Breadcrumb name={community.name} />
-
-              <Hero>
-                <Background
-                  style={{ backgroundImage: `url(${community.icon})` }}
-                />
-
-                <HeroInfo>
-                  <H2>{community.name}</H2>
-                  <Join
-                    id={community.localId}
-                    followed={community.followed}
-                    externalId={community.id}
+              <HeroCont>
+                <Breadcrumb name={community.name} />
+                <Hero>
+                  <Background
+                    style={{ backgroundImage: `url(${community.icon})` }}
                   />
-                  {/* {community.followed == false ? null : (
+
+                  <HeroInfo>
+                    <H2>{community.name}</H2>
+                    <Join
+                      id={community.localId}
+                      followed={community.followed}
+                      externalId={community.id}
+                    />
+                    {/* {community.followed == false ? null : (
                     <EditButton onClick={this.props.handleNewCollection}>
                       <Edit
                         width={18}
@@ -147,50 +146,50 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       />
                     </EditButton>
                   )} */}
-                  {community.localId === 7 ||
-                  community.localId === 15 ||
-                  community.followed == false ? null : (
-                    <EditButton onClick={this.props.editCommunity}>
-                      <Settings
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        color={'#f98012'}
-                      />
-                    </EditButton>
-                  )}
-
-                  <MembersTot>
-                    <span>
-                      <Users
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        color={'#fff'}
-                      />
-                    </span>
-                    {community.members.edges.slice(0, 3).map((a, i) => {
-                      return (
-                        <ImgTot
-                          key={i}
-                          style={{
-                            backgroundImage: `url(${a.node.icon ||
-                              `https://www.gravatar.com/avatar/${
-                                a.node.localId
-                              }?f=y&d=identicon`})`
-                          }}
+                    {community.localId === 7 ||
+                    community.localId === 15 ||
+                    community.followed == false ? null : (
+                      <EditButton onClick={this.props.editCommunity}>
+                        <Settings
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#f98012'}
                         />
-                      );
-                    })}{' '}
-                    <Tot>
-                      {community.members.totalCount - 3 > 0
-                        ? `+ ${community.members.totalCount - 3} More`
-                        : ''}
-                    </Tot>
-                  </MembersTot>
-                </HeroInfo>
-              </Hero>
+                      </EditButton>
+                    )}
 
+                    <MembersTot>
+                      <span>
+                        <Users
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#fff'}
+                        />
+                      </span>
+                      {community.members.edges.slice(0, 3).map((a, i) => {
+                        return (
+                          <ImgTot
+                            key={i}
+                            style={{
+                              backgroundImage: `url(${a.node.icon ||
+                                `https://www.gravatar.com/avatar/${
+                                  a.node.localId
+                                }?f=y&d=identicon`})`
+                            }}
+                          />
+                        );
+                      })}{' '}
+                      <Tot>
+                        {community.members.totalCount - 3 > 0
+                          ? `+ ${community.members.totalCount - 3} More`
+                          : ''}
+                      </Tot>
+                    </MembersTot>
+                  </HeroInfo>
+                </Hero>
+              </HeroCont>
               <Roww>
                 <Col size={12}>
                   <WrapperTab>
@@ -290,6 +289,13 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     );
   }
 }
+
+const HeroCont = styled.div`
+  margin-bottom: 16px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
 
 const Roww = styled(Row)`
   height: 100%;
@@ -398,11 +404,16 @@ const WrapperTab = styled.div`
   display: flex;
   flex: 1;
   height: 100%;
+  border-radius: 6px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid #e2e5ea;
 `;
 const OverlayTab = styled.div`
   background: #fff;
   height: 100%;
   width: 100%;
+
   & > div {
     flex: 1;
     height: 100%;
@@ -424,13 +435,10 @@ const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
-  background: white;
   display: flex;
   flex-direction: column;
-  border-radius: 6px;
   height: 100%;
   box-sizing: border-box;
-  border: 5px solid #e2e5ea;
 `;
 
 const Wrapper = styled.div`
@@ -456,8 +464,6 @@ const OverviewCollection = styled.div`
 `;
 
 const Hero = styled.div`
-  // margin-top: 16px;
-  margin-bottom: 16px;
   width: 100%;
   position: relative;
 `;
@@ -470,11 +476,15 @@ const Background = styled.div`
   background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
   &:before {
     content: '';
     position: absolute;
     top: 60%;
     right: 0;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     bottom: 0;
     left: 0;
     background-image: linear-gradient(to bottom, #002f4b00, #000);
