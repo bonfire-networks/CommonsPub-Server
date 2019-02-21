@@ -20,6 +20,7 @@ interface MyFormProps {
   onOpen(boolean): boolean;
   isOpen: boolean;
   toggle: boolean;
+  full: boolean;
   setSubmitting(boolean): boolean;
 }
 
@@ -80,7 +81,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       })
       .then(res => {
         setSubmitting(false);
-        setFieldValue('content', ' ');
+        setFieldValue('content', '');
         props.onOpen(false);
         props.onToggle(false);
       })

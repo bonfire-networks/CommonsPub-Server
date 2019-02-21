@@ -23,6 +23,7 @@ interface MyFormProps {
   setSubmitting(boolean): boolean;
   setFieldValue: any;
   isOpen: boolean;
+  selectThread(number): number;
   onOpen(boolean): boolean;
 }
 
@@ -55,7 +56,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
               context: props.id
             }
           });
-          console.log(data);
           data.community.threads.edges.unshift({
             node: createThread,
             __typename: 'CommunityThreadsEdge'

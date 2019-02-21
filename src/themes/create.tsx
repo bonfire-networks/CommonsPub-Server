@@ -31,8 +31,9 @@ export default function createTheme(theme: MoodleThemeInterface) {
   //language=SCSS
   const chromeStyles = `
         && {
-            background-color: #FBFBFD;
-            background-color: #e9ebee;
+            // background-color: #FBFBFD;
+            // background-color: #e9ebee;
+            background-color: #f5f6f7;
         }
     `;
 

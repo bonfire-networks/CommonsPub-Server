@@ -117,6 +117,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     if (!community) {
       return <Loader />;
     }
+    console.log(community);
     return (
       <>
         <Main>
@@ -190,7 +191,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                 </HeroInfo>
               </Hero>
 
-              <Row>
+              <Roww>
                 <Col size={12}>
                   <WrapperTab>
                     <OverlayTab>
@@ -242,6 +243,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         <TabPanel
                           label={`${TabsEnum.Discussion}`}
                           key={TabsEnum.Discussion}
+                          style={{ height: '100%' }}
                         >
                           {community.followed ? (
                             <Discussion
@@ -267,7 +269,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     </OverlayTab>
                   </WrapperTab>
                 </Col>
-              </Row>
+              </Roww>
             </WrapperCont>
           </Grid>
           <CommunityModal
@@ -288,6 +290,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     );
   }
 }
+
+const Roww = styled(Row)`
+  height: 100%;
+`;
 
 const Tot = styled.div`
   display: inline-block;
@@ -388,9 +394,19 @@ const FollowerName = styled(H4)`
   color: #413c4d;
 `;
 
-const WrapperTab = styled.div``;
+const WrapperTab = styled.div`
+  display: flex;
+  flex: 1;
+  height: 100%;
+`;
 const OverlayTab = styled.div`
   background: #fff;
+  height: 100%;
+  width: 100%;
+  & > div {
+    flex: 1;
+    height: 100%;
+  }
 `;
 
 const Footer = styled.div`
@@ -409,6 +425,11 @@ const WrapperCont = styled.div`
   margin: 0 auto;
   width: 100%;
   background: white;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  box-sizing: border-box;
+  border: 5px solid #e2e5ea;
 `;
 
 const Wrapper = styled.div`
@@ -448,7 +469,6 @@ const Background = styled.div`
   background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
-  position: relative;
   &:before {
     content: '';
     position: absolute;

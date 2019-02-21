@@ -10,13 +10,5 @@ fragment BasicComment on Comment {
     }
     replies {
         totalCount
-        edges {
-            node {
-                localId
-                content
-                id
-                published
-            }
-        }
     }
 }

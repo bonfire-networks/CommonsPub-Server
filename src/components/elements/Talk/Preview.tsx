@@ -18,6 +18,7 @@ interface Props {
   values: any;
   isSubmitting: boolean;
   user: any;
+  selectThread(number): number;
 }
 
 const PreviewModal = (props: Props) => {
@@ -41,7 +42,12 @@ const PreviewModal = (props: Props) => {
           </H5>
         </Header>
         <Form>
-          <Comment author={author} comment={message} noAction />
+          <Comment
+            selectThread={props.selectThread}
+            author={author}
+            comment={message}
+            noAction
+          />
           <Preview />
           <Actions>
             <Button disabled={props.isSubmitting} type="submit">

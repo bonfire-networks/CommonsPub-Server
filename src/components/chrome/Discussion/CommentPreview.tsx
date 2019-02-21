@@ -5,8 +5,6 @@ import { clearFix } from 'polished';
 import moment from 'moment';
 import Markdown from 'markdown-to-jsx';
 
-import { Trans } from '@lingui/macro';
-
 interface EventProps {
   author: {
     id: string;
@@ -22,6 +20,7 @@ interface EventProps {
   totalReplies?: string;
   noAction?: boolean;
   selectThread(number): number;
+  selectedThread: number;
 }
 
 const Event: React.SFC<EventProps> = ({
@@ -30,37 +29,39 @@ const Event: React.SFC<EventProps> = ({
   comment,
   noAction,
   totalReplies,
-  selectThread
+  selectThread,
+  selectedThread
 }) => {
   return (
-    <FeedItem>
+    <FeedItem
+      active={selectedThread === Number(comment.id) ? true : false}
+      onClick={() => selectThread(comment.id)}
+    >
       <Member>
         <MemberItem>
           <Img alt="user" src={author.icon} />
         </MemberItem>
         <MemberInfo>
           <h3>{author.name}</h3>
-          <Date>{moment(comment.date).fromNow()}</Date>
+          <Primary>
+            <Markdown children={comment.body} />
+          </Primary>
         </MemberInfo>
       </Member>
       <Desc>
-        <Primary>
-          <Markdown children={comment.body} />
-        </Primary>
         {noAction ? null : (
           <Sub>
             <Actions>
-              {thread ? null : (
-                <Button onClick={() => selectThread(comment.id)}>
-                  <Reply
-                    width={16}
-                    height={16}
-                    strokeWidth={2}
-                    color={'#1e1f2480'}
-                  />
-                  <Trans>Reply</Trans> ({totalReplies})
-                </Button>
-              )}
+              <Date>{moment(comment.date).fromNow()}</Date>
+              <Button>
+                <Reply
+                  width={16}
+                  height={16}
+                  strokeWidth={2}
+                  color={'#1e1f2480'}
+                />
+                {totalReplies}
+              </Button>
             </Actions>
           </Sub>
         )}
@@ -72,61 +73,53 @@ const Event: React.SFC<EventProps> = ({
 export default Event;
 
 const Button = styled.div`
-  padding: 0px 10px;
   color: #1e1f2480;
-  height: 40px;
-  font-weight: 600;
-  line-height: 40px;
   cursor: pointer;
-  border: 1px solid #e4e6e6;
-  border-radius: 4px;
-  &:hover {
-    color: ${props => props.theme.styles.colour.primaryAlt};
-    & svg {
-      color: ${props => props.theme.styles.colour.primaryAlt};
-    }
-  }
+  font-weight: 600;
+  margin-left: 8px;
+  float: left;
   & svg {
     margin-right: 8px;
     vertical-align: sub;
   }
 `;
 
-const FeedItem = styled.div`
+const FeedItem = styled.div<{ active?: boolean }>`
   min-height: 30px;
   position: relative;
-  margin: 0;
-  padding: 16px;
-  word-wrap: break-word;
-  font-size: 14px;
+  cursor: pointer;
   ${clearFix()};
   transition: background 0.5s ease;
   background: #fff;
-  margin-top: 0
+  margin-top: 0:
   z-index: 10;
-  position: relative;
-  border-bottom: 1px solid #eaeaea;
+  margin: 8px;
+    padding: 8px;
+    padding-bottom: 0px;
+    word-wrap: break-word;
+    font-size: 14px;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.05);
+    box-sizing: border-box;
+    border: ${props => (props.active ? '3px solid #f98012' : '0px')}
 `;
 
 const Primary = styled.div`
-  font-size: 15px;
-  line-height: 24px;
   position: relative;
-  letter-spacing: 0.5px;
-  color: aqua;
   text-rendering: optimizeLegibility;
-  -moz-font-feature-settings: 'liga' on;
-  color: rgba(0, 0, 0, 0.84);
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.74);
 `;
 
 const Member = styled.div`
   vertical-align: top;
-  margin-right: 14px;
   ${clearFix()};
 `;
 
 const MemberInfo = styled.div`
-  display: inline-block;
+  margin-left: 50px;
   & h3 {
     font-size: 13px;
     margin: 0;
@@ -137,15 +130,14 @@ const MemberInfo = styled.div`
 
 const Sub = styled.div`
   ${clearFix()};
-  margin: 0px;
-  margin-top: 8px;
+  padding-left: 50px;
 `;
 
 const MemberItem = styled.span`
   background-color: #d6dadc;
   border-radius: 3px;
   color: #4d4d4d;
-  display: inline-block;
+  float: left;
   height: 42px;
   overflow: hidden;
   position: relative;
@@ -159,7 +151,7 @@ const MemberItem = styled.span`
 const Desc = styled.div`
   position: relative;
   min-height: 30px;
-  margin-top: 16px;
+  margin-top: 8px;
 `;
 
 const Img = styled.img`
@@ -180,19 +172,16 @@ const Img = styled.img`
 
 const Date = styled.div`
   font-size: 12px;
-  line-height: 32px;
+  line-height: 25px;
+  float: left;
   height: 20px;
   margin: 0;
-  color: ${props => props.theme.styles.colour.base2};
-  margin-top: -4px;
+  color: #1e1f2480;
+  margin-top: -2px;
   font-weight: 600;
+  margin-right: 10px;
 `;
 
 const Actions = styled.div`
   ${clearFix()};
-  float: left;
-  vertical-align: middle;
-  & a {
-    text-decoration: none;
-  }
 `;
