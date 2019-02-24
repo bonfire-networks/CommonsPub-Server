@@ -100,7 +100,8 @@ export default () => (
                     path="/communities/:community/collections/:collection"
                     component={CollectionsCollection}
                   />
-                  <Route exact path="/u/:id" component={User} />
+                  <Route exact path="/profile" component={User} />
+                  <Route exact path="/u/:userId" component={User} />
                   {/*<Route*/}
                   {/*exact*/}
                   {/*path="/communities/:community/collections/:collection/resources/:resource"*/}

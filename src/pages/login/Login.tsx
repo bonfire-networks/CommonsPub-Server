@@ -96,6 +96,7 @@ const BodyCenterContent = styled(Body)`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
+  console.log(data);
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {

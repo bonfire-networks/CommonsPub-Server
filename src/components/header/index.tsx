@@ -12,6 +12,7 @@ import { compose, withHandlers, withState } from 'recompose';
 // import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import NewCommunityModal from '../../components/elements/CreateCommunityModal';
 import SettingsModal from '../../components/elements/SettingsModal';
+import Link from '../elements/Link/Link';
 
 interface Props {
   handleOpen(): boolean;
@@ -62,7 +63,9 @@ const Header: React.SFC<Props> = props => {
             <WrapperMenu>
               <Menu>
                 <List lined>
-                  <Item>{props.data.user.data.name}</Item>
+                  <Item>
+                    <Link to="/profile">{props.data.user.data.name}</Link>
+                  </Item>
                   <Item onClick={props.handleSettings}>
                     <Trans>Profile &amp; Settings</Trans>
                   </Item>

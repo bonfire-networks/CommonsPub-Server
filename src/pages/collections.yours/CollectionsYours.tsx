@@ -35,28 +35,6 @@ interface Props {
 
 class CommunitiesYours extends React.Component<Props> {
   render() {
-    let body;
-
-    if (this.props.data.error) {
-      body = (
-        <span>
-          <Trans>Error loading collections</Trans>
-        </span>
-      );
-    } else if (this.props.data.loading) {
-      body = <Loader />;
-    } else {
-      body = this.props.data.me.user.followingCollections.edges.map(
-        (comm, i) => (
-          <CollectionCard
-            key={i}
-            collection={comm}
-            communityId={comm.localId}
-          />
-        )
-      );
-    }
-    console.log(body);
     return (
       <Main>
         <WrapperCont>
