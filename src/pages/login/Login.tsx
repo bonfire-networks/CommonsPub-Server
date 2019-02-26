@@ -189,7 +189,7 @@ class Login extends React.Component<LoginProps, LoginState> {
         variables: credentials
       });
     } catch (err) {
-      alert(err);
+      // alert(err);
       this.setState({
         authenticating: false,
         validation: [
@@ -326,6 +326,7 @@ const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
   // TODO enforce proper types for OperationOption
 } as OperationOption<{}, {}>);
 
+// to login via the API
 const withLogin = graphql<{}, Args>(loginMutation, {
   name: 'login'
   // TODO enforce proper types for OperationOption
