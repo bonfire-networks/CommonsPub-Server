@@ -7,7 +7,6 @@ defmodule ActivityPub.ObjectAspect do
     assoc(:attachment)
     assoc(:attributed_to)
     assoc(:attributed_to_inv, inv: :attributed_to)
-    assoc(:audience)
     field(:content, LanguageValueType, default: %{})
     assoc(:context)
     assoc(:context_inv, inv: :context)
@@ -30,10 +29,13 @@ defmodule ActivityPub.ObjectAspect do
     # FIXME url is a relation
     # field(:url, EntityType, default: [])
     field(:url, :string, functional: false)
-    field(:to, :string, functional: false)
-    field(:bto, :string, functional: false)
-    field(:cc, :string, functional: false)
-    field(:bcc, :string, functional: false)
+
+    assoc(:to)
+    assoc(:bto)
+    assoc(:cc)
+    assoc(:bcc)
+    assoc(:audience)
+
     field(:media_type, :string)
     field(:duration, :string)
 
@@ -44,5 +46,7 @@ defmodule ActivityPub.ObjectAspect do
 
     field(:followed, :boolean, virtual: true)
     field(:liked, :boolean, virtual: true)
+
+    field(:cursor, :integer, virtual: true)
   end
 end

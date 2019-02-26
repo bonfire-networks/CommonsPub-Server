@@ -37,13 +37,12 @@ defmodule ActivityPub.Entity do
 
   def local?(%{id: id} = e) when APG.is_entity(e) and not is_nil(id),
     do: ActivityPub.UrlBuilder.local?(id)
-
+  def local?(%{id: nil} = e) when APG.has_local_id(e), do: true
   def local?(%{id: nil} = e) when APG.is_entity(e), do: status(e) == :new
 
   def status(%{__ap__: %{status: status}} = e) when APG.is_entity(e), do: status
 
-  def local_id(%{__ap__: %{persistence: nil}} = e) when APG.is_entity(e), do: nil
-  def local_id(%{__ap__: %{persistence: sql}} = e) when APG.is_entity(e), do: sql.local_id
+  def local_id(%{__ap__: meta} = e) when APG.is_entity(e), do: Metadata.local_id(meta)
 
   def persistence(%{__ap__: %{persistence: persistence}} = e) when APG.is_entity(e), do: persistence
 end

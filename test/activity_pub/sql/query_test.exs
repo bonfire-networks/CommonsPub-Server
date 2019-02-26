@@ -51,6 +51,32 @@ defmodule ActivityPub.SQL.QueryTest do
     assert "alexcastano" == loaded.preferred_username
   end
 
+  test "preload/1" do
+    map = %{type: "Person", preferred_username: "alex"}
+    assert person = insert(map)
+    assert person == Query.preload(person)
+
+    local_id = ActivityPub.local_id(person)
+
+    assoc_not_loaded = %ActivityPub.SQL.AssociationNotLoaded{
+      sql_assoc: true,
+      sql_aspect: true,
+      local_id: local_id
+    }
+
+    loaded = Query.get_by_local_id(local_id)
+    assert loaded == Query.preload(assoc_not_loaded)
+
+    meta = ActivityPub.Metadata.not_loaded(local_id)
+    entity_not_loaded = %{__ap__: meta, id: nil, type: :unknown}
+    assert loaded == Query.preload(entity_not_loaded)
+
+    object = insert(%{})
+    assert [object, person] == Query.preload([object, person])
+    assert [object, loaded] == Query.preload([object, assoc_not_loaded])
+    assert [object, loaded] == Query.preload([object, entity_not_loaded])
+  end
+
   test "reload/1" do
     map = %{type: "Person", preferred_username: "alex"}
     assert person = insert(map)

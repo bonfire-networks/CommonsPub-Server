@@ -24,15 +24,6 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
-  def get_by_local_id(id) when is_integer(id) do
-    Repo.get(__MODULE__, id)
-    |> to_entity()
-  end
-
-  def reload(entity) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
-    entity |> Entity.local_id() |> get_by_local_id()
-  end
-
   def insert(entity, repo \\ Repo) when APG.is_entity(entity) and APG.has_status(entity, :new) do
     changeset = insert_changeset(entity)
     with {:ok, sql_entity} <- repo.insert(changeset) do
@@ -243,10 +234,6 @@ defmodule ActivityPub.SQLEntity do
                   sql_aspect: sql_aspect,
                   local_id: local_id
                 })
-
-              list when is_list(list) ->
-                assoc = for sql_entity <- list, do: to_entity(sql_entity)
-                Map.put(acc, assoc_name, assoc)
 
               value ->
                 Map.put(acc, assoc_name, to_entity(value))

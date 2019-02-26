@@ -3,7 +3,6 @@ defmodule MoodleNet.Accounts do
   The Accounts context.
   """
 
-  # import Ecto.Query, warn: false
   alias MoodleNet.Repo
   alias Ecto.Multi
 
@@ -17,7 +16,7 @@ defmodule MoodleNet.Accounts do
 
   alias MoodleNet.{Mailer, Email}
 
-  alias ActivityPub.SQL.Query
+  alias ActivityPub.SQL.{Alter, Query}
 
   @doc """
   Creates a user.
@@ -77,7 +76,7 @@ defmodule MoodleNet.Accounts do
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
-         {:ok, _location} <- ActivityPub.update(location, content: location_content),
+         {:ok, _location} <- update_location(location, location_content, actor),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
       # FIXME
       actor =
@@ -86,6 +85,24 @@ defmodule MoodleNet.Accounts do
 
       {:ok, actor}
     end
+  end
+
+  defp update_location(nil, nil, _), do: {:ok, nil}
+
+  defp update_location(location, nil, _) do
+    ActivityPub.delete(location)
+    {:ok, nil}
+  end
+
+  defp update_location(nil, content, actor) do
+    with {:ok, location} <- ActivityPub.new(content: content),
+         {:ok, location} <- ActivityPub.insert(location),
+         {:ok, _} <- Alter.add(actor, :location, location),
+         do: {:ok, location}
+  end
+
+  defp update_location(location, content, _) do
+    ActivityPub.update(location, content: content)
   end
 
   def delete_user(actor) do
@@ -219,11 +236,11 @@ defmodule MoodleNet.Accounts do
   end
 
   def is_email_in_whitelist?(email) do
-    String.ends_with?(email, "@moodle.com") ||
-      Repo.get(WhitelistEmail, email) != nil
+    String.ends_with?(email, "@moodle.com") || Repo.get(WhitelistEmail, email) != nil
   end
 
   defp set_default_icon(%{icon: _} = attrs), do: attrs
+
   defp set_default_icon(attrs) do
     if email = attrs["email"] || attrs[:email] do
       Map.put(attrs, :icon, %{type: "Image", url: MoodleNet.Gravatar.url(email)})

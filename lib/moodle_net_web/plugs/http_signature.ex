@@ -1,5 +1,5 @@
 defmodule MoodleNetWeb.Plugs.HTTPSignaturePlug do
-  import Plug.Conn
+  # import Plug.Conn
   require Logger
 
   def init(options) do
@@ -11,38 +11,39 @@ defmodule MoodleNetWeb.Plugs.HTTPSignaturePlug do
   end
 
   def call(conn, _opts) do
-    user = ActivityPub.SQLEntity.get_by_local_id(conn.params["actor"])
-    Logger.debug("Checking sig for #{user}")
-    [signature | _] = get_req_header(conn, "signature")
+    # user = ActivityPub.SQLEntity.get_by_local_id(conn.params["actor"])
+    # Logger.debug("Checking sig for #{user}")
+    # [signature | _] = get_req_header(conn, "signature")
 
-    cond do
-      signature && String.contains?(signature, user) ->
-        # set (request-target) header to the appropriate value
-        # we also replace the digest header with the one we computed
-        conn =
-          conn
-          |> put_req_header(
-            "(request-target)",
-            String.downcase("#{conn.method}") <> " #{conn.request_path}"
-          )
+    # cond do
+    #   signature && String.contains?(signature, user) ->
+    #     # set (request-target) header to the appropriate value
+    #     # we also replace the digest header with the one we computed
+    #     conn =
+    #       conn
+    #       |> put_req_header(
+    #         "(request-target)",
+    #         String.downcase("#{conn.method}") <> " #{conn.request_path}"
+    #       )
 
-        conn =
-          if conn.assigns[:digest] do
-            conn
-            |> put_req_header("digest", conn.assigns[:digest])
-          else
-            conn
-          end
+    #     conn =
+    #       if conn.assigns[:digest] do
+    #         conn
+    #         |> put_req_header("digest", conn.assigns[:digest])
+    #       else
+    #         conn
+    #       end
 
-        assign(conn, :valid_signature, MoodleNetWeb.HTTPSignatures.validate_conn(conn))
+    #     assign(conn, :valid_signature, MoodleNetWeb.HTTPSignatures.validate_conn(conn))
 
-      signature ->
-        Logger.debug("Signature not from actor")
-        assign(conn, :valid_signature, false)
+    #   signature ->
+    #     Logger.debug("Signature not from actor")
+    #     assign(conn, :valid_signature, false)
 
-      true ->
-        Logger.debug("No signature header!")
-        conn
-    end
+    #   true ->
+    #     Logger.debug("No signature header!")
+    #     conn
+    # end
+    conn
   end
 end

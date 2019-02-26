@@ -9,7 +9,7 @@ defmodule MoodleNet.Factory do
       "password" => "password",
       "locale" => "es",
       "icon" => attributes(:image),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
       "summary" => Faker.Lorem.sentence(),
       "location" => %{type: "Place", content: Faker.Pokemon.location()}
     }
@@ -17,12 +17,13 @@ defmodule MoodleNet.Factory do
 
   def attributes(:oauth_app) do
     url = Faker.Internet.url()
+
     %{
       "client_name" => Faker.App.name(),
       "redirect_uri" => url,
       "scopes" => "read",
       "website" => url,
-      "client_id" => url,
+      "client_id" => url
     }
   end
 
@@ -32,7 +33,7 @@ defmodule MoodleNet.Factory do
       "preferred_username" => Faker.Internet.user_name(),
       "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
       "icon" => attributes(:image)
     }
   end
@@ -44,7 +45,7 @@ defmodule MoodleNet.Factory do
       "icon" => attributes(:image),
       "preferred_username" => Faker.Internet.user_name(),
       "summary" => Faker.Lorem.sentence(),
-      "primary_language" => "es",
+      "primary_language" => "es"
     }
   end
 
@@ -71,19 +72,21 @@ defmodule MoodleNet.Factory do
   def attributes(:comment) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "primary_language" => "fr",
+      "primary_language" => "fr"
     }
   end
 
   def attributes(:image) do
-    img_id = Faker.random_between(1, 1000)
     %{
       "type" => "Image",
-      "url" => "https://picsum.photos/405/275=#{img_id}",
+      "url" => image_url(),
       "width" => 405,
       "height" => 275
     }
   end
+
+  def image_url(),
+    do: "https://picsum.photos/405/275=#{Faker.random_between(1, 1000)}"
 
   def attributes(:icon) do
     %{
