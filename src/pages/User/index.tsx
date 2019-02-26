@@ -172,6 +172,8 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                                   previousResult.user
                                                     .preferredUsername,
                                                 id: previousResult.user.id,
+                                                localId:
+                                                  previousResult.user.localId,
                                                 __typename:
                                                   previousResult.user
                                                     .__typename,
@@ -195,6 +197,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                                 previousResult.__typename,
                                               user: {
                                                 id: previousResult.user.id,
+                                                localId:
+                                                  previousResult.user.localId,
+
                                                 name: previousResult.user.name,
                                                 location:
                                                   previousResult.user.location,

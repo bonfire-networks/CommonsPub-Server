@@ -1,6 +1,7 @@
 query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
         user(localId: $id) {
             id
+            localId
             name
             preferredUsername
             location
