@@ -15,7 +15,7 @@ import H2 from '../../components/typography/H2/H2';
 import CommunityCard from '../../components/elements/Community/Community';
 import P from '../../components/typography/P/P';
 
-const getUserQuery = require('../../graphql/getUser.graphql');
+const getUserQuery = require('../../graphql/getAgent.graphql');
 
 enum TabsEnum {
   Overview = 'Overview',
