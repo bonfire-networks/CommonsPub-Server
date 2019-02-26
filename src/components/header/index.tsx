@@ -167,7 +167,10 @@ const Item = styled.div`
   cursor: pointer;
   font-weight: 600;
   color: rgba(0, 0, 0, 0.6);
-
+  & a {
+    color: inherit !important;
+    text-decoration: none;
+  }
   &:hover {
     color: rgba(0, 0, 0, 0.9);
   }

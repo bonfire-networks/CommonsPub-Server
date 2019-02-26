@@ -22,7 +22,18 @@ query getCollection($id: Int!) {
     threads {
              edges {
                 node {
-                    ...BasicComment
+                     localId
+                    content
+                    id
+                    published
+                    author {
+                        name
+                        id
+                        icon
+                    }
+                    replies {
+                        totalCount
+                    }
 
                 }
             }
