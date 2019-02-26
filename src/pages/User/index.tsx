@@ -530,7 +530,7 @@ const withGetCollections = graphql<
 >(getUserQuery, {
   options: (props: Props) => ({
     variables: {
-      id: props.match.id,
+      id: Number(props.match.params.id),
       limitComm: 15,
       limitColl: 15
     }
