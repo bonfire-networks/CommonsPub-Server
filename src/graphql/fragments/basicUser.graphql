@@ -1,0 +1,6 @@
+fragment BasicUser on User {
+    id
+    localId
+    name
+    icon
+}

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
-import { Users } from '../Icons';
+import { Users, Collection } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
 import { clearFix } from 'polished';
@@ -40,12 +40,12 @@ const Community: React.SFC<Props> = ({
     </Link>
     <Actions>
       <Members>
-        {followersCount}
+        {followersCount || 0}
         <span>
           <Users width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
       </Members>
-      {/* <Members>
+      <Members>
         {collectionsCount || 0}
         <span>
           <Collection
@@ -55,7 +55,7 @@ const Community: React.SFC<Props> = ({
             color={'#1e1f2480'}
           />
         </span>
-      </Members> */}
+      </Members>
     </Actions>
 
     <Summary>
@@ -114,9 +114,10 @@ const Wrapper = styled.div`
   max-height: 560px;
   & h5 {
     margin: 0;
-    font-size: 18px !important;
+    font-size: 16px !important;
     line-height: 24px !important;
     word-break: break-word;
+    font-weight: 600;
   }
   & a {
     color: inherit;
@@ -130,7 +131,7 @@ const WrapperImage = styled.div`
   position: relative;
   &:hover {
     & span {
-      display: grid;
+      display: block;
     }
   }
 `;

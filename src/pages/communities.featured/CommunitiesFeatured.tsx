@@ -3,7 +3,6 @@ import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
 
 import { Trans } from '@lingui/macro';
-
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
@@ -34,7 +33,6 @@ class CommunitiesYours extends React.Component<Props> {
     } else if (this.props.data.loading) {
       body = <Loader />;
     } else {
-      console.log(this.props.data);
       body = [];
       if (this.props.data.elsalon && this.props.data.thelounge) {
         body.push(
@@ -42,10 +40,10 @@ class CommunitiesYours extends React.Component<Props> {
             summary={this.props.data.elsalon.summary}
             title={this.props.data.elsalon.name}
             icon={this.props.data.elsalon.icon || ''}
-            collectionsCount={this.props.data.elsalon.collectionsCount}
+            collectionsCount={this.props.data.elsalon.collections.totalCount}
             id={this.props.data.elsalon.localId}
             followed={this.props.data.elsalon.followed}
-            followersCount={this.props.data.elsalon.followersCount}
+            followersCount={this.props.data.elsalon.members.totalCount}
             externalId={this.props.data.elsalon.id}
           />
         );
@@ -54,10 +52,10 @@ class CommunitiesYours extends React.Component<Props> {
             summary={this.props.data.thelounge.summary}
             title={this.props.data.thelounge.name}
             icon={this.props.data.thelounge.icon || ''}
-            collectionsCount={this.props.data.thelounge.collectionsCount}
+            collectionsCount={this.props.data.thelounge.collections.totalCount}
             id={this.props.data.thelounge.localId}
             followed={this.props.data.thelounge.followed}
-            followersCount={this.props.data.thelounge.followersCount}
+            followersCount={this.props.data.thelounge.members.totalCount}
             externalId={this.props.data.thelounge.id}
           />
         );
@@ -99,12 +97,12 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
-    background-color: #f5f6f7;
+    background-color: #151b26;
     border-bottom: 1px solid #dddfe2;
     border-radius: 2px 2px 0 0;
     font-weight: bold;
     font-size: 14px !important;
-    color: #4b4f56;
+    color: #fff;
   }
 `;
 const List = styled.div`

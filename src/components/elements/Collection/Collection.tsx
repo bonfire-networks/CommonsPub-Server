@@ -38,7 +38,7 @@ const Collection: React.SFC<CollectionProps> = ({
           </Desc>
           <Actions>
             <ActionItem>
-              {collection.resources.length || 0}{' '}
+              {collection.resources.totalCount || 0}{' '}
               <Resource
                 width={18}
                 height={18}
@@ -47,7 +47,7 @@ const Collection: React.SFC<CollectionProps> = ({
               />
             </ActionItem>
             <ActionItem>
-              {collection.followersCount || 0}{' '}
+              {collection.followers.totalCount || 0}{' '}
               <Eye width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
             </ActionItem>
           </Actions>

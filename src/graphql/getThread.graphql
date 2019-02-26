@@ -5,13 +5,11 @@ query getThread($id: Int!) {
         ... on Community {
           id
           name
-          icon
           localId
         }
         ... on Collection {
           id
           name
-          icon
           localId
         }
       }
@@ -20,17 +18,27 @@ query getThread($id: Int!) {
         localId
       }
     replies {
-      id
-      localId
-      content
-      published
-       replies {id}
-       author {
-         id
-         icon
-         name
-         localId
-       }
+      totalCount
+      edges {
+        node {
+          id
+          localId
+          content
+          published
+          replies {
+            totalCount
+            edges {
+              node {id}
+            }
+          }
+          author {
+            id
+            icon
+            name
+            localId
+          }
+        }
+      }
     }
     id
     content

@@ -6,7 +6,7 @@ import { withFormik } from 'formik';
 const {
   createThreadMutation
 } = require('../../../graphql/createThread.graphql');
-const { getCommunityQuery } = require('../../../graphql/getCommunity.graphql');
+const getCollectionQuery = require('../../../graphql/getCollection.graphql');
 
 import * as Yup from 'yup';
 
@@ -51,21 +51,21 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
         variables: variables,
         update: (proxy, { data: { createThread } }) => {
           const data = proxy.readQuery({
-            query: getCommunityQuery,
+            query: getCollectionQuery,
             variables: {
-              context: props.id
+              id: Number(props.id)
             }
           });
-          data.community.threads.edges.unshift({
+          data.collection.threads.edges.unshift({
             node: createThread,
-            __typename: 'CommunityThreadsEdge'
+            __typename: 'CollectionThreadsEdge'
           });
           proxy.writeQuery({
-            query: getCommunityQuery,
+            query: getCollectionQuery,
             variables: {
-              context: props.id
+              id: props.id
             },
-            data: data.community
+            data: data.collection
           });
         }
       })

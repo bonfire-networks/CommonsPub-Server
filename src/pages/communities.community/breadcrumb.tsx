@@ -30,6 +30,8 @@ const Main = styled.div`
   line-height: 30px;
   background: #fff;
   padding: 0 8px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
   & a {
     font-size: 12px;
     font-weight: 700;

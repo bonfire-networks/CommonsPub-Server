@@ -1,0 +1,61 @@
+query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
+        user(localId: $id) {
+            id
+            localId
+            name
+            preferredUsername
+            location
+            summary
+            icon
+            joinedCommunities(limit: $limitComm, after:$endComm) {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+          edges {
+              node {
+                id
+                localId
+                preferredUsername
+                name
+                summary
+                icon
+                collections {
+                totalCount
+            }
+            members {
+              totalCount
+            }
+                followed
+
+              }
+          }}
+            followingCollections(limit: $limitColl, after:$endColl) {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              node {
+                id
+                localId
+                preferredUsername
+                name
+                summary
+                icon
+                followed
+                followers {
+                  totalCount
+                }
+                resources {
+                  totalCount
+                }
+                # followersCount
+                # followingCount
+
+              }
+          }
+        }
+        }
+}
+

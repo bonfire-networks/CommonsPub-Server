@@ -36,6 +36,7 @@ interface Props {
   name: string;
   summary: string;
   image: string;
+  onUrl(string): string;
   url: string;
   isFetched(boolean): boolean;
 }
@@ -56,6 +57,7 @@ interface MyFormProps {
   summary: string;
   image: string;
   url: string;
+  onUrl(string): string;
   isFetched(boolean): boolean;
 }
 const tt = {
@@ -190,9 +192,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
     image: props.image || ''
   }),
   validationSchema: Yup.object().shape({
-    url: Yup.string()
-      .url()
-      .required(),
+    url: Yup.string().url(),
     name: Yup.string()
       .max(90)
       .required(),
@@ -220,15 +220,19 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
               icon
               name
               content
-              followersCount
               summary
               resources {
-                id
-                localId
-                name
-                summary
-                url
-                icon
+                totalCount
+                edges {
+                  node {
+                    id
+                    localId
+                    name
+                    summary
+                    url
+                    icon
+                  }
+                }
               }
             }
           `;
@@ -237,7 +241,11 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Res'
           });
-          collection.resources.push(createResource);
+          collection.resources.edges.push({
+            __typename: 'CollectionFollowersEdge',
+            node: createResource
+          });
+          collection.resources.totalCount++;
           proxy.writeFragment({
             id: `Collection:${props.collectionExternalId}`,
             fragment: fragment,
@@ -247,6 +255,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         }
       })
       .then(res => {
+        console.log(res);
         setSubmitting(false);
         props.isFetched(false);
         props.toggleModal();

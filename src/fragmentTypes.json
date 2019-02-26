@@ -1,0 +1,21 @@
+{
+  "__schema": {
+    "types": [
+      {
+        "kind": "UNION",
+        "name": "CommentContext",
+        "possibleTypes": [{ "name": "Collection" }, { "name": "Community" }]
+      },
+      {
+        "kind": "UNION",
+        "name": "ActivityObject",
+        "possibleTypes": [
+          { "name": "Community" },
+          { "name": "Collection" },
+          { "name": "Resource" },
+          { "name": "Comment" }
+        ]
+      }
+    ]
+  }
+}

@@ -24,6 +24,7 @@ import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import Join from './Join';
 import { Settings, Users } from '../../components/elements/Icons';
+import Link from '../../components/elements/Link/Link';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -69,15 +70,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       collections = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
-      if (this.props.data.community.collections.length) {
+      if (this.props.data.community.collections.totalCount) {
         collections = (
           <Wrapper>
             <CollectionList>
-              {this.props.data.community.collections.map((collection, i) => (
+              {this.props.data.community.collections.edges.map((e, i) => (
                 <CollectionCard
                   communityId={this.props.data.community.localId}
                   key={i}
-                  collection={collection}
+                  collection={e.node}
                 />
               ))}
             </CollectionList>
@@ -122,21 +123,21 @@ class CommunitiesFeatured extends React.Component<Props, State> {
         <Main>
           <Grid>
             <WrapperCont>
-              <Breadcrumb name={community.name} />
-
-              <Hero>
-                <Background
-                  style={{ backgroundImage: `url(${community.icon})` }}
-                />
-
-                <HeroInfo>
-                  <H2>{community.name}</H2>
-                  <Join
-                    id={community.localId}
-                    followed={community.followed}
-                    externalId={community.id}
+              <HeroCont>
+                <Breadcrumb name={community.name} />
+                <Hero>
+                  <Background
+                    style={{ backgroundImage: `url(${community.icon})` }}
                   />
-                  {/* {community.followed == false ? null : (
+
+                  <HeroInfo>
+                    <H2>{community.name}</H2>
+                    <Join
+                      id={community.localId}
+                      followed={community.followed}
+                      externalId={community.id}
+                    />
+                    {/* {community.followed == false ? null : (
                     <EditButton onClick={this.props.handleNewCollection}>
                       <Edit
                         width={18}
@@ -146,51 +147,51 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       />
                     </EditButton>
                   )} */}
-                  {community.localId === 7 ||
-                  community.localId === 15 ||
-                  community.followed == false ? null : (
-                    <EditButton onClick={this.props.editCommunity}>
-                      <Settings
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        color={'#f98012'}
-                      />
-                    </EditButton>
-                  )}
-
-                  <MembersTot>
-                    <span>
-                      <Users
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        color={'#fff'}
-                      />
-                    </span>
-                    {community.followers.slice(0, 3).map((a, i) => {
-                      return (
-                        <ImgTot
-                          key={i}
-                          style={{
-                            backgroundImage: `url(${a.icon ||
-                              `https://www.gravatar.com/avatar/${
-                                a.localId
-                              }?f=y&d=identicon`})`
-                          }}
+                    {community.localId === 7 ||
+                    community.localId === 15 ||
+                    community.followed == false ? null : (
+                      <EditButton onClick={this.props.editCommunity}>
+                        <Settings
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#f98012'}
                         />
-                      );
-                    })}{' '}
-                    <Tot>
-                      {community.followers.length - 3 > 0
-                        ? `+ ${community.followers.length - 3} More`
-                        : ''}
-                    </Tot>
-                  </MembersTot>
-                </HeroInfo>
-              </Hero>
+                      </EditButton>
+                    )}
 
-              <Row>
+                    <MembersTot>
+                      <span>
+                        <Users
+                          width={18}
+                          height={18}
+                          strokeWidth={2}
+                          color={'#fff'}
+                        />
+                      </span>
+                      {community.members.edges.slice(0, 3).map((a, i) => {
+                        return (
+                          <ImgTot
+                            key={i}
+                            style={{
+                              backgroundImage: `url(${a.node.icon ||
+                                `https://www.gravatar.com/avatar/${
+                                  a.node.localId
+                                }?f=y&d=identicon`})`
+                            }}
+                          />
+                        );
+                      })}{' '}
+                      <Tot>
+                        {community.members.totalCount - 3 > 0
+                          ? `+ ${community.members.totalCount - 3} More`
+                          : ''}
+                      </Tot>
+                    </MembersTot>
+                  </HeroInfo>
+                </Hero>
+              </HeroCont>
+              <Roww>
                 <Col size={12}>
                   <WrapperTab>
                     <OverlayTab>
@@ -218,14 +219,20 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             </P>
                             <Tagline>Members</Tagline>
                             <Members>
-                              {community.followers.map((user, i) => (
+                              {community.members.edges.map((edge, i) => (
                                 <Follower key={i}>
-                                  <Img
-                                    style={{
-                                      backgroundImage: `url(${user.icon})`
-                                    }}
-                                  />
-                                  <FollowerName>{user.name}</FollowerName>
+                                  <Link to={'/user/' + edge.node.localId}>
+                                    <Img
+                                      style={{
+                                        backgroundImage: `url(${
+                                          edge.node.icon
+                                        })`
+                                      }}
+                                    />
+                                    <FollowerName>
+                                      {edge.node.name}
+                                    </FollowerName>
+                                  </Link>
                                 </Follower>
                               ))}
                             </Members>
@@ -242,23 +249,33 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         <TabPanel
                           label={`${TabsEnum.Discussion}`}
                           key={TabsEnum.Discussion}
+                          style={{ height: '100%' }}
                         >
                           {community.followed ? (
                             <Discussion
                               localId={community.localId}
                               id={community.id}
+                              threads={community.threads}
+                              followed
                             />
                           ) : (
-                            <Footer>
-                              <Trans>Join the community to discuss</Trans>
-                            </Footer>
+                            <>
+                              <Discussion
+                                localId={community.localId}
+                                id={community.id}
+                                threads={community.threads}
+                              />
+                              <Footer>
+                                <Trans>Join the community to discuss</Trans>
+                              </Footer>
+                            </>
                           )}
                         </TabPanel>
                       </Tabs>
                     </OverlayTab>
                   </WrapperTab>
                 </Col>
-              </Row>
+              </Roww>
             </WrapperCont>
           </Grid>
           <CommunityModal
@@ -279,6 +296,17 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     );
   }
 }
+
+const HeroCont = styled.div`
+  margin-bottom: 16px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const Roww = styled(Row)`
+  height: 100%;
+`;
 
 const Tot = styled.div`
   display: inline-block;
@@ -374,14 +402,29 @@ const Img = styled.div`
 const FollowerName = styled(H4)`
   margin-top: 8px !important;
   text-align: center;
-  font-size: 15px !important;
+  font-size: 12px !important;
   line-height: 20px !important;
   color: #413c4d;
 `;
 
-const WrapperTab = styled.div``;
+const WrapperTab = styled.div`
+  display: flex;
+  flex: 1;
+  height: 100%;
+  border-radius: 6px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 5px solid #e2e5ea;
+`;
 const OverlayTab = styled.div`
   background: #fff;
+  height: 100%;
+  width: 100%;
+
+  & > div {
+    flex: 1;
+    height: 100%;
+  }
 `;
 
 const Footer = styled.div`
@@ -399,7 +442,9 @@ const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
-  background: white;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 `;
 
 const Wrapper = styled.div`
@@ -411,16 +456,20 @@ const CollectionList = styled.div`
 `;
 
 const OverviewCollection = styled.div`
-  padding: 0 8px;
-  margin-bottom: 8px;
+  padding-top: 8px;
+  margin-bottom: -8px;
+  flex: 1;
+  & button {
+    margin-left: 8px
+    margin-bottom: 16px;
+  }
   & p {
     margin-top: 0 !important;
+    padding: 8px;
   }
 `;
 
 const Hero = styled.div`
-  // margin-top: 16px;
-  margin-bottom: 16px;
   width: 100%;
   position: relative;
 `;
@@ -433,12 +482,15 @@ const Background = styled.div`
   background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
-  position: relative;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
   &:before {
     content: '';
     position: absolute;
     top: 60%;
     right: 0;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     bottom: 0;
     left: 0;
     background-image: linear-gradient(to bottom, #002f4b00, #000);

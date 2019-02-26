@@ -18,12 +18,13 @@ interface Props {
   values: any;
   isSubmitting: boolean;
   user: any;
+  selectThread(number): number;
 }
 
 const PreviewModal = (props: Props) => {
   const { toggleModal, modalIsOpen } = props;
   let author = {
-    id: props.user.data.id,
+    localId: props.user.data.localId,
     name: props.user.data.name,
     icon: props.user.data.icon
   };
@@ -41,7 +42,12 @@ const PreviewModal = (props: Props) => {
           </H5>
         </Header>
         <Form>
-          <Comment author={author} comment={message} noAction />
+          <Comment
+            selectThread={props.selectThread}
+            author={author}
+            comment={message}
+            noAction
+          />
           <Preview />
           <Actions>
             <Button disabled={props.isSubmitting} type="submit">

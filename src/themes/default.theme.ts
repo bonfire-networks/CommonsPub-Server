@@ -16,7 +16,7 @@ export const theme = createTheme({
     base5: '#f7f7f7',
     base6: '#ffffff'
   },
-  fontFamily: '"Open Sans", sans-serif',
+  fontFamily: '"Fira Sans", sans-serif',
   fontWeight: {
     light: 300,
     regular: 400,

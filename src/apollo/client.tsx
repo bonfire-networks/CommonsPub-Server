@@ -1,6 +1,9 @@
 import { ApolloLink } from 'apollo-link';
 import { ApolloClient, ApolloQueryResult } from 'apollo-client';
-import { InMemoryCache } from 'apollo-cache-inmemory';
+import {
+  InMemoryCache,
+  IntrospectionFragmentMatcher
+} from 'apollo-cache-inmemory';
 import { setContext } from 'apollo-link-context';
 import { withClientState } from 'apollo-link-state';
 import { createAbsintheSocketLink } from '@absinthe/socket-apollo-link';
@@ -9,15 +12,21 @@ import { createHttpLink } from 'apollo-link-http';
 import { hasSubscription } from '@jumpn/utils-graphql';
 import apolloLogger from 'apollo-link-logger';
 import * as AbsintheSocket from '@absinthe/socket';
-
+const introspectionQueryResultData = require('../fragmentTypes.json');
 import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
+import { onError } from 'apollo-link-error';
+
 const { meQuery } = require('../graphql/me.graphql');
 const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
-const cache = new InMemoryCache();
+const fragmentMatcher = new IntrospectionFragmentMatcher({
+  introspectionQueryResultData
+});
+
+const cache = new InMemoryCache({ fragmentMatcher });
 const token = localStorage.getItem('user_access_token');
 const user = localStorage.getItem('user_data');
 
@@ -53,10 +62,43 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+function handleError(message) {
+  alert(message); //TODO: nicer display of errors
+}
+
+function handleErrorGraphQL(message, locations, path) {
+  console.log(
+    `! GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`
+  );
+
+  if (!message.includes('You need to log in first')) {
+    // don't display this error - we redirect to login screen instead
+    handleError(message);
+  }
+}
+
+const errorLink = onError(
+  ({ operation, response, graphQLErrors, networkError }) => {
+    // console.log( 'errorLink', operation, response );
+
+    if (graphQLErrors) {
+      graphQLErrors.map(({ message, locations, path }) =>
+        handleErrorGraphQL(message, locations, path)
+      );
+    }
+
+    if (networkError) {
+      console.log(`! Network error: ${networkError}`);
+      handleError(networkError);
+    }
+  }
+);
+
 // used for graphql query and mutations
 const httpLink = ApolloLink.from(
   [
     process.env.NODE_ENV === 'development' ? apolloLogger : null,
+    errorLink,
     stateLink,
     authLink,
     createHttpLink({ uri: GRAPHQL_ENDPOINT })
@@ -98,13 +140,18 @@ export default async function initialise() {
     const result = await client.query<MeQueryResult>({
       query: meQuery
     });
-
+    console.log('logged in');
+    console.log(result);
     localUser = {
       isAuthenticated: true,
-      data: result.data.me
+      data: {
+        ...result.data.me.user,
+        email: result.data.me.email
+      }
     };
   } catch (err) {
-    console.error(err);
+    console.log('err');
+    console.error(err.message);
 
     if (err.message.includes('You are not logged in')) {
       localStorage.removeItem('user_access_token');

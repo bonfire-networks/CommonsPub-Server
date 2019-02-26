@@ -1,3 +1,4 @@
+
 query getCommunityQuery($context: Int!) {
     community(local_id: $context) {
         id
@@ -7,33 +8,67 @@ query getCommunityQuery($context: Int!) {
         summary
         icon
         followed
-        followersCount
-        followingCount
-        followers {
-            localId
-            name
-            preferredUsername
-            icon
-            summary
+        # followersCount
+        # followingCount
+        members {
+            edges {
+                node {
+                     id
+                    localId
+                    name
+                    icon
+
+                }
+            }
+            
+            totalCount
+            
         }
-        
+        threads {
+             edges {
+                node {
+                    localId
+                    content
+                    id
+                    published
+                    author {
+                        name
+                        id
+                        icon
+                    }
+                    replies {
+                        totalCount
+                    }
+
+                }
+            }
+            
+            totalCount
+        }
         collections {
-            id
-            localId
-            preferredUsername
-            name
-            summary
-            icon
-            followed
-            communities {
-                id
-                followed
+            totalCount
+            edges {
+                node {    
+                    id
+                    localId
+                    preferredUsername
+                    name
+                    summary
+                    icon
+                    followed
+                    followers {
+                        totalCount
+                    }
+                    resources {
+                        totalCount
+                    }
+                }
             }
-            resources {
-                id
+          totalCount
+           pageInfo {
+                startCursor
+                endCursor
             }
-            followersCount
-            followingCount
         }
     }
 }

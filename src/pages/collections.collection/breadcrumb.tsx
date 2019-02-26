@@ -33,6 +33,7 @@ const Main = styled.div`
   text-transform: uppercase;
   // height: 30px;
   line-height: 30px;
+  border-radius: 6px;
   background: #fff;
   padding: 0 8px;
   & a {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
 import CommentPreview from './CommentPreview';
-import Talk from '../../elements/Talk/Thread';
+import Talk from '../../elements/Talk/ThreadCollection';
 import { compose, withState } from 'recompose';
 import Thread from '../../../pages/thread';
 // import Text from '../../inputs/Text/Text';

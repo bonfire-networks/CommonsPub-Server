@@ -1,12 +1,51 @@
+import Community from './Community';
+import Comment from './Comment';
+import Collection from './Collection';
+
 export default interface User {
   name: string;
-  email: string;
   summary: string;
   preferredUsername: string;
   icon?: string;
   location: string;
-  language: string;
-  interests: string[];
-  languages: string[];
-  notifications: object[];
+  primaryLanguage: string;
+  comments: {
+    edges: [
+      {
+        cursor: number;
+        node: Comment;
+      }
+    ];
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
+    totalCount: number;
+  };
+  followedCollections: {
+    edges: [
+      {
+        cursor: number;
+        node: Collection;
+      }
+    ];
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
+    totalCount: number;
+  };
+  joinedCommunities: {
+    edges: [
+      {
+        cursor: number;
+        node: Community;
+      }
+    ];
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
+    totalCount: number;
+  };
 }

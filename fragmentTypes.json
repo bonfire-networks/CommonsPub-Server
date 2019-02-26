@@ -1,0 +1,1 @@
+{"__schema":{"types":[{"kind":"UNION","name":"CommentContext","possibleTypes":[{"name":"Collection"},{"name":"Community"}]}]}}

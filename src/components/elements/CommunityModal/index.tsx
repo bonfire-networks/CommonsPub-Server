@@ -26,11 +26,11 @@ import { compose } from 'react-apollo';
 import { withFormik, FormikProps, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Alert from '../../elements/Alert';
-import gql from 'graphql-tag';
 import { graphql, OperationOption } from 'react-apollo';
 const {
   createCollectionMutation
 } = require('../../../graphql/createCollection.graphql');
+const { getCommunityQuery } = require('../../../graphql/getCommunity.graphql');
 
 interface Props {
   toggleModal?: any;
@@ -177,37 +177,48 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
       .createCollection({
         variables: variables,
         update: (store, { data }) => {
-          const fragment = gql`
-            fragment Coll on Collection {
-              id
-              collections {
-                id
-              }
+          const community = store.readQuery({
+            query: getCommunityQuery,
+            variables: {
+              context: props.communityId
             }
-          `;
-          const community = store.readFragment({
-            id: `Community:${props.communityExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Coll'
           });
-          const newCommunity = {
-            __typename: 'Collection',
-            id: data.createCollection.id,
-            localId: data.createCollection.localId,
-            name: data.createCollection.name,
-            summary: data.createCollection.summary,
-            preferredUsername: data.createCollection.preferredUsername,
-            icon: data.createCollection.icon,
-            followed: data.createCollection.followed,
-            followersCount: 0,
-            followingCount: 0
+          const newCollection = {
+            node: {
+              __typename: 'Collection',
+              id: data.createCollection.id,
+              localId: data.createCollection.localId,
+              name: data.createCollection.name,
+              summary: data.createCollection.summary,
+              preferredUsername: data.createCollection.preferredUsername,
+              icon: data.createCollection.icon,
+              followed: data.createCollection.followed,
+              followers: {
+                totalCount: 1,
+                __typename: 'CollectionFollowersConnection'
+              },
+              resources: {
+                totalCount: 0,
+                edges: {
+                  node: {
+                    id: 1010,
+                    __typename: 'Resource'
+                  },
+                  __typename: 'CollectionResourcesEdge'
+                },
+                __typename: 'CollectionResourcesConnection'
+              }
+            },
+            __typename: 'CommunityCollectionsEdge'
           };
-
-          community.collections.unshift(newCommunity);
-          store.writeFragment({
-            id: `Community:${props.communityExternalId}`,
-            fragment: fragment,
-            fragmentName: 'Coll',
+          community.community.collections.edges.unshift(newCollection);
+          community.community.collections.totalCount++;
+          console.log(community);
+          store.writeQuery({
+            query: getCommunityQuery,
+            variables: {
+              context: props.communityId
+            },
             data: community
           });
         }

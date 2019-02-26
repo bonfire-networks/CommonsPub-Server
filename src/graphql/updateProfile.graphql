@@ -10,12 +10,14 @@ mutation updateProfileMutation($profile: UpdateProfileInput!) {
 updateProfile(
 profile: $profile
 ) {
-    id
-    localId
-    name
-    summary
-    preferredUsername
-    primaryLanguage
-    icon
+    user {
+        id
+        localId
+        name
+        summary
+        preferredUsername
+        primaryLanguage
+        icon
+    }
   }
 }

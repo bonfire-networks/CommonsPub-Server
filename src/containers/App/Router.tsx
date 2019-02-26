@@ -21,7 +21,9 @@ import ProtectedRoute from './ProtectedRoute';
 import Search from '../../pages/search/Search';
 import Thread from '../../pages/thread';
 import Home from '../../pages/home';
+import Profile from '../../pages/Profile';
 import User from '../../pages/User';
+
 const AppInner = styled.div`
   display: flex;
   flex-direction: row;
@@ -100,7 +102,8 @@ export default () => (
                     path="/communities/:community/collections/:collection"
                     component={CollectionsCollection}
                   />
-                  <Route exact path="/u/:id" component={User} />
+                  <Route exact path="/profile" component={Profile} />
+                  <Route exact path="/user/:id" component={User} />
                   {/*<Route*/}
                   {/*exact*/}
                   {/*path="/communities/:community/collections/:collection/resources/:resource"*/}

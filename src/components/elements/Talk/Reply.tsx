@@ -20,6 +20,7 @@ interface MyFormProps {
   onOpen(boolean): boolean;
   isOpen: boolean;
   toggle: boolean;
+  full: boolean;
   setSubmitting(boolean): boolean;
 }
 
@@ -36,7 +37,6 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
     content: Yup.string().required()
   }),
   handleSubmit: (values, { props, setSubmitting, setFieldValue }) => {
-    console.log(values);
     const variables = {
       comment: {
         content: values.content
@@ -51,21 +51,26 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
             fragment Comm on Comment {
               id
               replies {
-                id
-                localId
-                content
-                published
+                edges {
+                  node {
+                    id
+                    localId
+                    content
+                    published
+                  }
+                }
               }
             }
           `;
-          console.log(createReply);
           const comment = proxy.readFragment({
             id: `Comment:${props.externalId}`,
             fragment: fragment,
             fragmentName: 'Comm'
           });
-          console.log(comment);
-          comment.replies.unshift(createReply);
+          comment.replies.edges.push({
+            node: createReply,
+            __typename: 'CollectionRepliesEdge'
+          });
           proxy.writeFragment({
             id: `Comment:${props.externalId}`,
             fragment: fragment,
@@ -76,7 +81,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
       })
       .then(res => {
         setSubmitting(false);
-        setFieldValue('content', ' ');
+        setFieldValue('content', '');
         props.onOpen(false);
         props.onToggle(false);
       })

@@ -49,6 +49,7 @@ const withUpdateCommunity = graphql<{}>(updateProfileMutation, {
 
 const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
   const { toggleModal, modalIsOpen, errors, touched, isSubmitting } = props;
+  console.log(props);
   return (
     <Modal isOpen={modalIsOpen} toggleModal={toggleModal}>
       <Container>
@@ -163,6 +164,7 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         icon: values.image
       }
     };
+    console.log(variables);
     return props
       .updateProfile({
         variables: variables
