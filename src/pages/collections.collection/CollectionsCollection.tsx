@@ -25,7 +25,7 @@ import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
-import Discussion from '../../components/chrome/Discussion/Discussion';
+import Discussion from '../../components/chrome/Discussion/DiscussionCollection';
 import { Settings } from '../../components/elements/Icons';
 
 enum TabsEnum {
