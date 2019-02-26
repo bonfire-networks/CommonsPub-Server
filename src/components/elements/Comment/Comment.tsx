@@ -6,10 +6,11 @@ import moment from 'moment';
 import Markdown from 'markdown-to-jsx';
 
 import { Trans } from '@lingui/macro';
+import Link from '../Link/Link';
 
 interface EventProps {
   author: {
-    id: string;
+    localId: string;
     name: string;
     icon: string;
   };
@@ -39,7 +40,9 @@ const Event: React.SFC<EventProps> = ({
           <Img alt="user" src={author.icon} />
         </MemberItem>
         <MemberInfo>
-          <h3>{author.name}</h3>
+          <h3>
+            <Link to={'/user/' + author.localId}>{author.name}</Link>
+          </h3>
           <Date>{moment(comment.date).fromNow()}</Date>
         </MemberInfo>
       </Member>

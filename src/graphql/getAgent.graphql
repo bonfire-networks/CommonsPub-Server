@@ -1,6 +1,5 @@
-query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
-    me {
-        user {
+query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
+        user(localId: $id) {
             id
             name
             preferredUsername
@@ -57,6 +56,5 @@ query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
           }
         }
         }
-    }
-    }
+}
 

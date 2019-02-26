@@ -24,6 +24,7 @@ import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import Join from './Join';
 import { Settings, Users } from '../../components/elements/Icons';
+import Link from '../../components/elements/Link/Link';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 
 enum TabsEnum {
@@ -220,12 +221,18 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             <Members>
                               {community.members.edges.map((edge, i) => (
                                 <Follower key={i}>
-                                  <Img
-                                    style={{
-                                      backgroundImage: `url(${edge.node.icon})`
-                                    }}
-                                  />
-                                  <FollowerName>{edge.node.name}</FollowerName>
+                                  <Link to={'/user/' + edge.node.localId}>
+                                    <Img
+                                      style={{
+                                        backgroundImage: `url(${
+                                          edge.node.icon
+                                        })`
+                                      }}
+                                    />
+                                    <FollowerName>
+                                      {edge.node.name}
+                                    </FollowerName>
+                                  </Link>
                                 </Follower>
                               ))}
                             </Members>
@@ -395,7 +402,7 @@ const Img = styled.div`
 const FollowerName = styled(H4)`
   margin-top: 8px !important;
   text-align: center;
-  font-size: 15px !important;
+  font-size: 12px !important;
   line-height: 20px !important;
   color: #413c4d;
 `;
@@ -437,7 +444,6 @@ const WrapperCont = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
   box-sizing: border-box;
 `;
 

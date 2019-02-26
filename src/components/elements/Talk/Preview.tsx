@@ -24,7 +24,7 @@ interface Props {
 const PreviewModal = (props: Props) => {
   const { toggleModal, modalIsOpen } = props;
   let author = {
-    id: props.user.data.id,
+    localId: props.user.data.localId,
     name: props.user.data.name,
     icon: props.user.data.icon
   };

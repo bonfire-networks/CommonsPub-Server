@@ -44,7 +44,7 @@ const Component = ({ data, id, selectThread }) => {
     return <Loader />;
   }
   let author = {
-    id: data.comment.author.id,
+    localId: data.comment.author.localId,
     name: data.comment.author.name,
     icon: data.comment.author.icon
   };
@@ -73,7 +73,7 @@ const Component = ({ data, id, selectThread }) => {
         />
         {data.comment.replies.edges.map((comment, i) => {
           let author = {
-            id: comment.node.author.id,
+            localId: comment.node.author.localId,
             name: comment.node.author.name,
             icon: comment.node.author.icon
           };

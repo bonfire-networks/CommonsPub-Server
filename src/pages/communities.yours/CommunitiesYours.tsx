@@ -35,6 +35,7 @@ interface Props {
 
 class CommunitiesYours extends React.Component<Props> {
   render() {
+    console.log(this.props.data);
     return (
       <Main>
         <WrapperCont>
@@ -57,12 +58,12 @@ class CommunitiesYours extends React.Component<Props> {
                         key={i}
                         summary={community.node.summary}
                         title={community.node.name}
-                        collectionsCount={community.node.collectionsCount}
+                        collectionsCount={community.node.collections.totalCount}
                         icon={community.node.icon || ''}
                         followed={community.node.followed}
                         id={community.node.localId}
                         externalId={community.node.id}
-                        followersCount={community.node.followersCount}
+                        followersCount={community.node.members.totalCount}
                       />
                     )
                   )}
@@ -184,12 +185,12 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
-    background-color: #f5f6f7;
+    background-color: #151b26;
     border-bottom: 1px solid #dddfe2;
     border-radius: 2px 2px 0 0;
     font-weight: bold;
     font-size: 14px !important;
-    color: #4b4f56;
+    color: #fff;
   }
 `;
 const List = styled.div`
