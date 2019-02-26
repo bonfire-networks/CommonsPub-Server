@@ -23,6 +23,7 @@ interface Props {
 }
 
 const ResourceCard: React.SFC<Props> = props => {
+  console.log(props.isEditable);
   return (
     <Wrapper>
       <a target="blank" href={props.url}>
