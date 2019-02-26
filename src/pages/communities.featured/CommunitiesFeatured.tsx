@@ -40,10 +40,10 @@ class CommunitiesYours extends React.Component<Props> {
             summary={this.props.data.elsalon.summary}
             title={this.props.data.elsalon.name}
             icon={this.props.data.elsalon.icon || ''}
-            collectionsCount={this.props.data.elsalon.collectionsCount}
+            collectionsCount={this.props.data.elsalon.collections.totalCount}
             id={this.props.data.elsalon.localId}
             followed={this.props.data.elsalon.followed}
-            followersCount={this.props.data.elsalon.followersCount}
+            followersCount={this.props.data.elsalon.members.totalCount}
             externalId={this.props.data.elsalon.id}
           />
         );
