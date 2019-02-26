@@ -17,6 +17,8 @@ import resolvers from './resolvers';
 import typeDefs from './typeDefs';
 import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
+import { onError } from 'apollo-link-error';
+
 const { meQuery } = require('../graphql/me.graphql');
 const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
@@ -60,10 +62,43 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+function handleError(message) {
+  alert(message); //TODO: nicer display of errors
+}
+
+function handleErrorGraphQL(message, locations, path) {
+  console.log(
+    `! GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`
+  );
+
+  if (!message.includes('You need to log in first')) {
+    // don't display this error - we redirect to login screen instead
+    handleError(message);
+  }
+}
+
+const errorLink = onError(
+  ({ operation, response, graphQLErrors, networkError }) => {
+    // console.log( 'errorLink', operation, response );
+
+    if (graphQLErrors) {
+      graphQLErrors.map(({ message, locations, path }) =>
+        handleErrorGraphQL(message, locations, path)
+      );
+    }
+
+    if (networkError) {
+      console.log(`! Network error: ${networkError}`);
+      handleError(networkError);
+    }
+  }
+);
+
 // used for graphql query and mutations
 const httpLink = ApolloLink.from(
   [
     process.env.NODE_ENV === 'development' ? apolloLogger : null,
+    errorLink,
     stateLink,
     authLink,
     createHttpLink({ uri: GRAPHQL_ENDPOINT })
@@ -105,7 +140,7 @@ export default async function initialise() {
     const result = await client.query<MeQueryResult>({
       query: meQuery
     });
-    console.log('test');
+    console.log('logged in');
     console.log(result);
     localUser = {
       isAuthenticated: true,
