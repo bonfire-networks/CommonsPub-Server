@@ -118,114 +118,136 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             label={`${TabsEnum.Collections}`}
                             key={TabsEnum.Collections}
                           >
-                            <div
-                              style={{ display: 'flex', marginTop: '-20px' }}
-                            >
-                              <>
-                                <ListCollections>
-                                  {this.props.data.me.user.followingCollections.edges.map(
-                                    (comm, i) => (
-                                      <CollectionCard
-                                        key={i}
-                                        collection={comm.node}
-                                        communityId={comm.node.localId}
-                                      />
-                                    )
-                                  )}
-                                </ListCollections>
-                                {(this.props.data.me.user.followingCollections
-                                  .pageInfo.startCursor &&
-                                  this.props.data.me.user.followingCollections
-                                    .pageInfo.endCursor === null) ||
-                                (this.props.data.me.user.followingCollections
-                                  .pageInfo.startCursor === null &&
-                                  this.props.data.me.user.followingCollections
-                                    .pageInfo.endCursor === null) ? null : (
-                                  <LoadMore
-                                    onClick={() =>
-                                      this.props.data.fetchMore({
-                                        variables: {
-                                          end: this.props.data.me.user
-                                            .followingCollections.pageInfo
-                                            .endCursor
-                                        },
-                                        updateQuery: (
-                                          previousResult,
-                                          { fetchMoreResult }
-                                        ) => {
-                                          const newNodes =
-                                            fetchMoreResult.me.user
-                                              .followingCollections.edges;
-                                          const pageInfo =
-                                            fetchMoreResult.me.user
-                                              .followingCollections.pageInfo;
-                                          return newNodes.length
-                                            ? {
-                                                // Put the new comments at the end of the list and update `pageInfo`
-                                                // so we have the new `endCursor` and `hasNextPage` values
-                                                me: {
+                            <>
+                              <ListCollections>
+                                {this.props.data.me.user.followingCollections.edges.map(
+                                  (comm, i) => (
+                                    <CollectionCard
+                                      key={i}
+                                      collection={comm.node}
+                                      communityId={comm.node.localId}
+                                    />
+                                  )
+                                )}
+                              </ListCollections>
+                              {(this.props.data.me.user.followingCollections
+                                .pageInfo.startCursor &&
+                                this.props.data.me.user.followingCollections
+                                  .pageInfo.endCursor === null) ||
+                              (this.props.data.me.user.followingCollections
+                                .pageInfo.startCursor === null &&
+                                this.props.data.me.user.followingCollections
+                                  .pageInfo.endCursor === null) ? null : (
+                                <LoadMore
+                                  onClick={() =>
+                                    this.props.data.fetchMore({
+                                      variables: {
+                                        endColl: this.props.data.me.user
+                                          .followingCollections.pageInfo
+                                          .endCursor
+                                      },
+                                      updateQuery: (
+                                        previousResult,
+                                        { fetchMoreResult }
+                                      ) => {
+                                        const newNodes =
+                                          fetchMoreResult.me.user
+                                            .followingCollections.edges;
+                                        const pageInfo =
+                                          fetchMoreResult.me.user
+                                            .followingCollections.pageInfo;
+                                        return newNodes.length
+                                          ? {
+                                              // Put the new comments at the end of the list and update `pageInfo`
+                                              // so we have the new `endCursor` and `hasNextPage` values
+                                              me: {
+                                                __typename:
+                                                  previousResult.me.__typename,
+                                                user: {
+                                                  name:
+                                                    previousResult.me.user.name,
+                                                  location:
+                                                    previousResult.me.user
+                                                      .location,
+                                                  summary:
+                                                    previousResult.me.user
+                                                      .summary,
+                                                  icon:
+                                                    previousResult.me.user.icon,
+                                                  joinedCommunities:
+                                                    previousResult.me.user
+                                                      .joinedCommunities,
+                                                  preferredUsername:
+                                                    previousResult.me.user
+                                                      .preferredUsername,
+                                                  id: previousResult.me.user.id,
                                                   __typename:
-                                                    previousResult.me
+                                                    previousResult.me.user
                                                       .__typename,
-                                                  user: {
-                                                    id:
-                                                      previousResult.me.user.id,
+                                                  followingCollections: {
+                                                    edges: [
+                                                      ...previousResult.me.user
+                                                        .followingCollections
+                                                        .edges,
+                                                      ...newNodes
+                                                    ],
+                                                    pageInfo,
                                                     __typename:
                                                       previousResult.me.user
-                                                        .__typename,
-                                                    followingCollections: {
-                                                      edges: [
-                                                        ...previousResult.me
-                                                          .user
-                                                          .followingCollections
-                                                          .edges,
-                                                        ...newNodes
-                                                      ],
-                                                      pageInfo,
-                                                      __typename:
-                                                        previousResult.me.user
-                                                          .followingCollections
-                                                          .__typename
-                                                    }
+                                                        .followingCollections
+                                                        .__typename
                                                   }
                                                 }
                                               }
-                                            : {
-                                                me: {
+                                            }
+                                          : {
+                                              me: {
+                                                __typename:
+                                                  previousResult.me.__typename,
+                                                user: {
+                                                  id: previousResult.me.user.id,
+                                                  name:
+                                                    previousResult.me.user.name,
+                                                  location:
+                                                    previousResult.me.user
+                                                      .location,
+                                                  summary:
+                                                    previousResult.me.user
+                                                      .summary,
+                                                  icon:
+                                                    previousResult.me.user.icon,
+                                                  joinedCommunities:
+                                                    previousResult.me.user
+                                                      .joinedCommunities,
+                                                  preferredUsername:
+                                                    previousResult.me.user
+                                                      .preferredUsername,
                                                   __typename:
-                                                    previousResult.me
+                                                    previousResult.me.user
                                                       .__typename,
-                                                  user: {
-                                                    id:
-                                                      previousResult.me.user.id,
+                                                  followingCollections: {
+                                                    edges: [
+                                                      ...previousResult.me.user
+                                                        .followingCollections
+                                                        .edges
+                                                    ],
+                                                    pageInfo,
                                                     __typename:
                                                       previousResult.me.user
-                                                        .__typename,
-                                                    followingCollections: {
-                                                      edges: [
-                                                        ...previousResult.me
-                                                          .user
-                                                          .followingCollections
-                                                          .edges
-                                                      ],
-                                                      pageInfo,
-                                                      __typename:
-                                                        previousResult.me.user
-                                                          .followingCollections
-                                                          .__typename
-                                                    }
+                                                        .followingCollections
+                                                        .__typename
                                                   }
                                                 }
-                                              };
-                                        }
-                                      })
-                                    }
-                                  >
-                                    <Trans>Load more</Trans>
-                                  </LoadMore>
-                                )}
-                              </>
-                            </div>
+                                              }
+                                            };
+                                      }
+                                    })
+                                  }
+                                >
+                                  <Trans>Load more</Trans>
+                                </LoadMore>
+                              )}
+                            </>
                           </TabPanel>
                           <TabPanel
                             label={`${TabsEnum.Communities}`}
@@ -468,7 +490,7 @@ const WrapperCont = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  margin-bottom: 24px;
   box-sizing: border-box;
 `;
 

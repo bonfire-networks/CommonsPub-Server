@@ -1,6 +1,5 @@
 query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
     me {
-        email
         user {
             id
             name
