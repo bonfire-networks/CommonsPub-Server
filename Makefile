@@ -11,25 +11,54 @@ help:
 build: ## Build the Docker image
 	@echo APP_NAME=$(APP_NAME)
 	@echo APP_VSN=$(APP_VSN)
-	docker build \
+	@echo APP_BUILD=$(APP_BUILD)
+	@echo docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
-		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
-		-t moodlenet:latest .
-	@echo moodlenet:$(APP_VSN)-$(APP_BUILD)
-	@echo moodlenet:latest
-
-build_with_cache: ## Build the Docker image
-	@echo APP_NAME=$(APP_NAME)
-	@echo APP_VSN=$(APP_VSN)
-	docker build \
+		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
+	@docker build \
+		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
-		-t moodlenet:$(APP_VSN)-$(APP_BUILD) \
-		-t moodlenet:latest .
-	@echo moodlenet:$(APP_VSN)-$(APP_BUILD)
-	@echo moodlenet:latest
+		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
+	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+
+build_with_cache: ## Build the Docker image using previous cache
+	@echo APP_NAME=$(APP_NAME)
+	@echo APP_VSN=$(APP_VSN)
+	@echo APP_BUILD=$(APP_BUILD)
+	@echo docker build \
+		--build-arg APP_NAME=$(APP_NAME) \
+		--build-arg APP_VSN=$(APP_VSN) \
+		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
+	@docker build \
+		--build-arg APP_NAME=$(APP_NAME) \
+		--build-arg APP_VSN=$(APP_VSN) \
+		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
+	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+
+push: ## Add latest tag to last build and push
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@echo docker push moodlenet/moodlenet:latest
+	@docker push moodlenet/moodlenet:latest
+
+push_stable: ## Tag stable, latest and version tags to the last build and push
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	@echo docker push moodlenet/moodlenet:latest
+	@docker push moodlenet/moodlenet:latest
+	@echo docker push moodlenet/moodlenet:stable
+	@docker push moodlenet/moodlenet:stable
+	@echo docker push moodlenet/moodlenet:$(APP_VSN)
+	@docker push moodlenet/moodlenet:$(APP_VSN)
+	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
 run: ## Run the app in Docker
 	docker run\

@@ -5,6 +5,7 @@ defmodule ActivityPub.Metadata do
     types: %{},
     status: nil,
     persistence: nil,
+    local_id: nil,
     verified: false
   ]
 
@@ -21,11 +22,23 @@ defmodule ActivityPub.Metadata do
     }
   end
 
-  def not_loaded() do
+  def not_loaded(local_id \\ nil)
+
+  def not_loaded(nil) do
     %__MODULE__{
       status: :not_loaded,
       persistence: nil,
-      verified: false
+      verified: false,
+      local_id: nil
+    }
+  end
+
+  def not_loaded(local_id) do
+    %__MODULE__{
+      status: :not_loaded,
+      persistence: nil,
+      verified: true,
+      local_id: local_id
     }
   end
 
@@ -38,6 +51,7 @@ defmodule ActivityPub.Metadata do
       aspects: aspects,
       status: :loaded,
       persistence: sql,
+      local_id: sql.local_id,
       verified: true
     }
   end
@@ -49,6 +63,8 @@ defmodule ActivityPub.Metadata do
   def types(%__MODULE__{types: type_map}) do
     Enum.map(type_map, fn {type, true} -> type end)
   end
+
+  def local_id(%__MODULE__{local_id: local_id}), do: local_id
 
   def inspect(%__MODULE__{} = meta, opts) do
     pruned = %{
@@ -77,4 +93,6 @@ defmodule ActivityPub.Metadata.Guards do
 
   defguard has_status(meta, status)
            when is_metadata(meta) and :erlang.map_get(:status, meta) == status
+
+  defguard has_local_id(meta) when not(is_nil(:erlang.map_get(:local_id, meta)))
 end

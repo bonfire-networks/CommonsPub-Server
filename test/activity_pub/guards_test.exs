@@ -15,6 +15,9 @@ defmodule ActivityPub.GuardsTest do
 
     def has_status_new(e) when has_status(e, :new), do: true
     def has_status_new(_), do: false
+
+    def local_id?(e) when has_local_id(e), do: true
+    def local_id?(_), do: false
   end
 
   test "works" do
@@ -31,7 +34,9 @@ defmodule ActivityPub.GuardsTest do
     assert Foo.has_actor_aspect(actor)
 
     assert Foo.has_status_new(actor)
+    refute Foo.local_id?(actor)
     assert {:ok, persisted} = ActivityPub.insert(actor)
     refute Foo.has_status_new(persisted)
+    assert Foo.local_id?(persisted)
   end
 end

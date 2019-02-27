@@ -47,6 +47,8 @@ defmodule MoodleNetWeb do
 
       alias MoodleNetWeb.Router.Helpers, as: Routes
       alias ActivityPubWeb.Router.Helpers, as: APRoutes
+
+      alias MoodleNet.Accounts.User
     end
   end
 

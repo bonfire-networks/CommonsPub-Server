@@ -2,7 +2,7 @@ defmodule ActivityPub.SQLEntityTest do
   use MoodleNet.DataCase, async: true
 
   alias ActivityPub.SQLEntity
-  alias ActivityPub.Entity
+  alias ActivityPub.SQL.Query
 
   describe "insert" do
     test "works with new entities" do
@@ -87,22 +87,44 @@ defmodule ActivityPub.SQLEntityTest do
       }
 
       assert {:ok, entity} = ActivityPub.new(map)
-      assert {:error, _, %Ecto.Changeset{} = ch, _} = SQLEntity.insert(entity)
+      assert {:error, %Ecto.Changeset{} = ch} = SQLEntity.insert(entity)
       assert [%{status: _}] = errors_on(ch)[:attributed_to]
     end
   end
 
-  test "get_by_local_id/1" do
-    assert {:ok, entity} = ActivityPub.new(%{content: "content"})
-    assert {:ok, persisted} = SQLEntity.insert(entity)
-    assert loaded = persisted |> Entity.local_id() |> SQLEntity.get_by_local_id()
-    assert loaded.content == persisted.content
+  describe "update" do
+    test "works" do
+      map = %{}
+      assert {:ok, entity} = ActivityPub.new(map)
+      assert {:ok, persisted} = ActivityPub.insert(entity)
+      assert {:ok, updated} = SQLEntity.update(persisted, %{name: %{"en" => "New name"}})
+      assert %{"en" => "New name"} == updated.name
+      assert %{"en" => "New name"} == Query.reload(updated).name
+    end
+
+    test "works with actor aspect" do
+      map = %{type: "Person", preferred_username: "Moodle"}
+      assert {:ok, entity} = ActivityPub.new(map)
+      assert {:ok, persisted} = ActivityPub.insert(entity)
+      assert {:ok, updated} = SQLEntity.update(persisted, preferred_username: "MoodleNet")
+      assert "MoodleNet" == updated.preferred_username
+      assert "MoodleNet" == Query.reload(updated).preferred_username
+    end
   end
 
-  test "get_by_id/1" do
-    assert {:ok, entity} = ActivityPub.new(%{content: "content"})
-    assert {:ok, persisted} = SQLEntity.insert(entity)
-    assert loaded = persisted.id |> SQLEntity.get_by_id()
-    assert loaded.content == persisted.content
+  describe "delete" do
+    test "works" do
+      map = %{
+        context: %{},
+        content: "content"
+      }
+
+      assert {:ok, entity} = ActivityPub.new(map)
+      assert {:ok, persisted} = ActivityPub.insert(entity)
+      assert [context] = persisted.context
+      assert :ok = SQLEntity.delete(persisted, [:context])
+      refute Query.reload(persisted)
+      refute Query.reload(context)
+    end
   end
 end

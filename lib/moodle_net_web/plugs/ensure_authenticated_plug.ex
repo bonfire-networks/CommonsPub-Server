@@ -1,4 +1,4 @@
-defmodule MoodleNet.Plugs.EnsureAuthenticatedPlug do
+defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
   import Plug.Conn
   import Phoenix.Controller
 

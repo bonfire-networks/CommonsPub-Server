@@ -9,7 +9,7 @@ defmodule MoodleNet.Factory do
       "password" => "password",
       "locale" => "es",
       "icon" => attributes(:image),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
       "summary" => Faker.Lorem.sentence(),
       "location" => %{type: "Place", content: Faker.Pokemon.location()}
     }
@@ -17,12 +17,13 @@ defmodule MoodleNet.Factory do
 
   def attributes(:oauth_app) do
     url = Faker.Internet.url()
+
     %{
       "client_name" => Faker.App.name(),
       "redirect_uri" => url,
       "scopes" => "read",
       "website" => url,
-      "client_id" => url,
+      "client_id" => url
     }
   end
 
@@ -32,7 +33,7 @@ defmodule MoodleNet.Factory do
       "preferred_username" => Faker.Internet.user_name(),
       "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
       "icon" => attributes(:image)
     }
   end
@@ -44,7 +45,7 @@ defmodule MoodleNet.Factory do
       "icon" => attributes(:image),
       "preferred_username" => Faker.Internet.user_name(),
       "summary" => Faker.Lorem.sentence(),
-      "primaryLanguage" => "es",
+      "primary_language" => "es"
     }
   end
 
@@ -55,26 +56,37 @@ defmodule MoodleNet.Factory do
       "url" => Faker.Internet.url(),
       "summary" => Faker.Lorem.sentence(),
       "icon" => attributes(:image),
-      "primaryLanguage" => "es",
+      "primary_language" => "es",
+      "same_as" => "https://hq.moodle.net/r/98765",
+      "in_language" => ["en-GB"],
+      "public_access" => true,
+      "is_accesible_for_free" => true,
+      "license" => "http://creativecommons.org/licenses/by-nc-sa/3.0/",
+      "learning_resource_type" => "?",
+      "educational_use" => ["group work", "assignment"],
+      "time_required" => 60,
+      "typical_age_range" => "10-12"
     }
   end
 
   def attributes(:comment) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "primary_language" => "fr",
+      "primary_language" => "fr"
     }
   end
 
   def attributes(:image) do
-    img_id = Faker.random_between(1, 1000)
     %{
       "type" => "Image",
-      "url" => "https://picsum.photos/405/275=#{img_id}",
+      "url" => image_url(),
       "width" => 405,
       "height" => 275
     }
   end
+
+  def image_url(),
+    do: "https://picsum.photos/405/275=#{Faker.random_between(1, 1000)}"
 
   def attributes(:icon) do
     %{
@@ -101,6 +113,7 @@ defmodule MoodleNet.Factory do
 
   def full_user(attrs \\ %{}) do
     attrs = attributes(:user, attrs)
+    Accounts.add_email_to_whitelist(attrs[:email] || attrs["email"])
     {:ok, ret} = Accounts.register_user(attrs)
     ret
   end
@@ -121,21 +134,21 @@ defmodule MoodleNet.Factory do
     app
   end
 
-  def community(attrs \\ %{}) do
+  def community(actor, attrs \\ %{}) do
     attrs = attributes(:community, attrs)
-    {:ok, c} = MoodleNet.create_community(attrs)
+    {:ok, c} = MoodleNet.create_community(actor, attrs)
     c
   end
 
-  def collection(community, attrs \\ %{}) do
+  def collection(actor, community, attrs \\ %{}) do
     attrs = attributes(:collection, attrs)
-    {:ok, c} = MoodleNet.create_collection(community, attrs)
+    {:ok, c} = MoodleNet.create_collection(actor, community, attrs)
     c
   end
 
-  def resource(context, attrs \\ %{}) do
+  def resource(actor, context, attrs \\ %{}) do
     attrs = attributes(:resource, attrs)
-    {:ok, c} = MoodleNet.create_resource(context, attrs)
+    {:ok, c} = MoodleNet.create_resource(actor, context, attrs)
     c
   end
 

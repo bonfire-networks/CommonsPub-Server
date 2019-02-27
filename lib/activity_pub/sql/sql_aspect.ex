@@ -1,9 +1,22 @@
 defmodule ActivityPub.SQLAspect do
-  alias ActivityPub.{SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect}
+  alias ActivityPub.{
+    SQLObjectAspect,
+    SQLActorAspect,
+    SQLActivityAspect,
+    SQLCollectionAspect,
+    SQLResourceAspect
+  }
 
   alias ActivityPub.SQL.Associations.{ManyToMany, BelongsTo, Collection}
 
-  def all(), do: [SQLObjectAspect, SQLActorAspect, SQLActivityAspect, SQLCollectionAspect]
+  def all(),
+    do: [
+      SQLObjectAspect,
+      SQLActorAspect,
+      SQLActivityAspect,
+      SQLCollectionAspect,
+      SQLResourceAspect
+    ]
 
   # FIXME make this similar to aspect where the user can redifine
   # assocs and fields to be persisted in another way than the default!
@@ -25,17 +38,17 @@ defmodule ActivityPub.SQLAspect do
 
         :embedded ->
           if Keyword.has_key?(options, :table_name),
-            do: raise(ArgumentError, "embedded SQLAspect does not need option :table_name")
+            do: raise(ArgumentError, "Embedded SQLAspect does not need option :table_name")
 
           @table_name nil
           @field_name Keyword.get(options, :field_name, aspect.name())
 
         :fields ->
           if Keyword.has_key?(options, :table_name),
-            do: raise(ArgumentError, "fields SQLAspect does not need option :table_name")
+            do: raise(ArgumentError, "Fields SQLAspect do not need option :table_name")
 
           if Keyword.has_key?(options, :field_name),
-            do: raise(ArgumentError, "fields SQLAspect does not need option :field_name")
+            do: raise(ArgumentError, "Fields SQLAspect do not need option :field_name")
 
           @table_name nil
           @field_name nil
@@ -102,9 +115,16 @@ defmodule ActivityPub.SQLAspect do
   defmacro inject_fields(aspect) do
     quote bind_quoted: [aspect: aspect] do
       for name <- aspect.__aspect__(:fields) do
-        type = aspect.__aspect__(:type, name)
+        field_def = aspect.__aspect__(:field, name)
 
-        field(name, type)
+        type = if field_def.functional, do: field_def.type, else: {:array, field_def.type}
+
+        opts =
+          field_def
+          |> Map.take([:virtual, :default])
+          |> Keyword.new()
+
+        field(name, type, opts)
       end
     end
   end

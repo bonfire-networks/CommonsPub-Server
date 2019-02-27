@@ -1,122 +1,95 @@
 defmodule MoodleNetWeb.GraphQL.Schema do
   use Absinthe.Schema
 
-  alias MoodleNetWeb.GraphQL.MoodleNetSchema
-  import_types(MoodleNetWeb.GraphQL.Schema.JSON)
-  import_types(MoodleNetWeb.GraphQL.MoodleNetSchema)
+  alias MoodleNetWeb.GraphQL.{
+    MoodleNetSchema,
+    MiscSchema,
+    CommonSchema,
+    UserSchema,
+    CommunitySchema,
+    CollectionSchema,
+    ResourceSchema,
+    CommentSchema,
+    ActivitySchema
+  }
+
+  import_types(UserSchema)
+  import_types(CommunitySchema)
+  import_types(CollectionSchema)
+  import_types(ResourceSchema)
+  import_types(CommentSchema)
+  import_types(ActivitySchema)
+
+  import_types(MiscSchema)
+  import_types(CommonSchema)
 
   query do
-    @desc "Get list of communities"
-    field :communities, non_null(list_of(non_null(:community))) do
-      resolve(&MoodleNetSchema.list_communities/2)
-    end
-
-    @desc "Get a community"
-    field :community, :community do
-      arg(:local_id, non_null(:integer))
-      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Community"))
-    end
-
-    @desc "Get list of collections"
-    field :collections, non_null(list_of(non_null(:collection))) do
-      arg(:community_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_collections/2)
-    end
-
-    @desc "Get a collection"
-    field :collection, :collection do
-      arg(:local_id, non_null(:integer))
-      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:Collection"))
-    end
-
-    @desc "Get list of resources"
-    field :resources, non_null(list_of(non_null(:resource))) do
-      arg(:collection_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_resources/2)
-    end
-
-    @desc "Get a resource"
-    field :resource, :resource do
-      arg(:local_id, non_null(:integer))
-      resolve(MoodleNetSchema.resolve_by_id_and_type("MoodleNet:EducationalResource"))
-    end
-
-    @desc "Get list of comments"
-    field :comments, non_null(list_of(non_null(:comment))) do
-      arg(:context_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_comments/2)
-    end
-
-    @desc "Get list of replies"
-    field :replies, non_null(list_of(non_null(:comment))) do
-      arg(:in_reply_to_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.list_replies/2)
-    end
+    import_fields(:user_queries)
+    import_fields(:community_queries)
+    import_fields(:collection_queries)
+    import_fields(:resource_queries)
 
     @desc "Get a comment"
-    field :comment, non_null(:comment) do
+    field :comment, :comment do
       arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("Note"))
     end
 
-    @desc "Get my user"
-    field :me, type: :me do
-      resolve(&MoodleNetSchema.me/2)
+    @desc "Get local activity list"
+    field :local_activities, type: non_null(:generic_activity_page) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(&ActivitySchema.local_activity_list/2)
     end
   end
 
   mutation do
-    @desc "Create a community"
-    field :create_community, type: :community do
-      arg(:community, non_null(:community_input))
-      resolve(&MoodleNetSchema.create_community/2)
-    end
+    import_fields(:user_mutations)
+    import_fields(:community_mutations)
+    import_fields(:collection_mutations)
+    import_fields(:resource_mutations)
 
-    @desc "Create a collection"
-    field :create_collection, type: :collection do
-      arg(:community_local_id, non_null(:integer))
-      arg(:collection, non_null(:collection_input))
-      resolve(&MoodleNetSchema.create_collection/2)
-    end
 
-    @desc "Create a resource"
-    field :create_resource, type: :resource do
-      arg(:collection_local_id, non_null(:integer))
-      arg(:resource, non_null(:resource_input))
-      resolve(&MoodleNetSchema.create_resource/2)
-    end
+
+    # Comment
 
     @desc "Create a new thread"
     field :create_thread, type: :comment do
       arg(:context_local_id, non_null(:integer))
       arg(:comment, non_null(:comment_input))
-      resolve(&MoodleNetSchema.create_thread/2)
+      resolve(&CommentSchema.create_thread/2)
     end
 
     @desc "Create a reply"
     field :create_reply, type: :comment do
       arg(:in_reply_to_local_id, non_null(:integer))
       arg(:comment, non_null(:comment_input))
-      resolve(&MoodleNetSchema.create_reply/2)
+      resolve(&CommentSchema.create_reply/2)
     end
 
-    @desc "Create a user"
-    field :create_user, type: :auth_payload do
-      arg(:user, non_null(:user_input))
-      resolve(&MoodleNetSchema.create_user/2)
+    @desc "Delete a comment"
+    field :delete_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommentSchema.delete_comment/2)
     end
 
-    @desc "Follow an actor"
-    field :follow, type: :boolean do
-      arg(:actor_local_id, non_null(:integer))
-      resolve(&MoodleNetSchema.create_follow/2)
+    @desc "Like a comment"
+    field :like_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommentSchema.like_comment/2)
     end
 
-    @desc "Login"
-    field :create_session, type: :auth_payload do
-      arg(:email, non_null(:string))
-      arg(:password, non_null(:string))
-      resolve(&MoodleNetSchema.create_session/2)
+    @desc "Undo a previous like to a comment"
+    field :undo_like_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommentSchema.undo_like_comment/2)
+    end
+
+    @desc "Fetch metadata from webpage"
+    field :fetch_web_metadata, type: :web_metadata do
+      arg(:url, non_null(:string))
+      resolve(&MiscSchema.fetch_web_metadata/2)
     end
   end
 end

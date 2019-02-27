@@ -1,0 +1,8 @@
+<html>
+  <body>
+    <a href="<%= MoodleNetWeb.Endpoint.static_url() %>">
+      <img scr="<%= logo_url() %>" alt="MoodleNet">
+    </a>
+    <%= render @view_module, @view_template, assigns %>
+  </body>
+</html>

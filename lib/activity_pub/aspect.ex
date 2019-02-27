@@ -1,5 +1,5 @@
 defmodule ActivityPub.Aspect do
-  alias ActivityPub.{Association}
+  alias ActivityPub.{Field, Association}
 
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
@@ -80,14 +80,14 @@ defmodule ActivityPub.Aspect do
   # TODO
   defp check_field_type!(name, :datetime, _opts) do
     raise ArgumentError,
-          "invalid type :datetime for field #{inspect(name)}. " <>
-            "You probably meant to choose one between :naive_datetime " <>
+          "Invalid type :datetime for field #{inspect(name)}. " <>
+            "You probably meant to choose one of :naive_datetime " <>
             "(no time zone information) or :utc_datetime (time zone is set to UTC)"
   end
 
   defp check_field_type!(name, {:embed, _}, _opts) do
     raise ArgumentError,
-          "cannot declare field #{inspect(name)} as embed. Use embeds_one/many instead"
+          "Cannot declare field #{inspect(name)} as embed. Use embeds_one/many instead"
   end
 
   defp check_field_type!(name, type, _opts) do
@@ -100,15 +100,22 @@ defmodule ActivityPub.Aspect do
 
       is_atom(type) and function_exported?(type, :__schema__, 1) ->
         raise ArgumentError,
-              "schema #{inspect(type)} is not a valid type for field #{inspect(name)}."
+              "Schema #{inspect(type)} is not a valid type for field #{inspect(name)}."
 
       true ->
-        raise ArgumentError, "invalid or unknown type #{inspect(type)} for field #{inspect(name)}"
+        raise ArgumentError, "Invalid or unknown type #{inspect(type)} for field #{inspect(name)}"
     end
   end
 
   defp define_field(mod, name, type, opts) do
-    Module.put_attribute(mod, :aspect_fields, {name, type})
+    opts =
+      opts
+      |> Keyword.put(:aspect, mod)
+      |> Keyword.put(:name, name)
+      |> Keyword.put(:type, type)
+
+    field = Field.build(opts)
+    Module.put_attribute(mod, :aspect_fields, {name, field})
     put_struct_field(mod, name, Keyword.get(opts, :default))
   end
 
@@ -116,7 +123,7 @@ defmodule ActivityPub.Aspect do
     fields = Module.get_attribute(mod, :aspect_struct_fields)
 
     if List.keyfind(fields, name, 0) do
-      raise ArgumentError, "field/association #{inspect(name)} is already set on aspect"
+      raise ArgumentError, "Field/association #{inspect(name)} is already set on aspect"
     end
 
     Module.put_attribute(mod, :aspect_struct_fields, {name, default})
@@ -124,8 +131,13 @@ defmodule ActivityPub.Aspect do
 
   def __aspect__(fields, assocs) do
     types_quoted =
-      for {name, type} <- fields do
-        {[:type, name], Macro.escape(type)}
+      for {name, field} <- fields do
+        {[:type, name], Macro.escape(field.type)}
+      end
+
+    field_quoted =
+      for {name, field} <- fields do
+        {[:field, name], Macro.escape(field)}
       end
 
     assoc_quoted =
@@ -133,7 +145,7 @@ defmodule ActivityPub.Aspect do
         {[:association, name], Macro.escape(assoc)}
       end
 
-    [types_quoted, assoc_quoted]
+    [types_quoted, field_quoted, assoc_quoted]
   end
 
   defmacro assoc(name, opts \\ []) do

@@ -6,14 +6,14 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <%= if @current_user do %>
+      <%= if assigns[:current_user] do %>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <%= @current_user.email %>
+            <%= assigns[:current_user].email %>
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <%# FIXME %>
-            <%# <%= link("Actor", to: APRoutes.actor_path(@conn, :show, @current_user.primary_actor_id), class: "dropdown-item") %1> %>
+            <%# <%= link("Actor", to: APRoutes.actor_path(@conn, :show, @current_user.actor_id), class: "dropdown-item") %1> %>
             <div class="dropdown-divider"></div>
             <%= link("Logout", to: Routes.session_path(@conn, :delete), method: :delete, class: "dropdown-item") %>
           </div>

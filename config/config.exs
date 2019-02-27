@@ -47,6 +47,10 @@ config :mime, :types, %{
 
 config :moodle_net, :httpoison, MoodleNet.HTTP
 
+config :moodle_net, MoodleNet.Mailer,
+  adapter: Bamboo.LocalAdapter,
+  open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
+
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
     "MoodleNet #{Mix.Project.config()[:version]} #{String.trim(version)}"
@@ -108,6 +112,9 @@ config :moodle_net, :media_proxy,
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
+
+config :furlex, Furlex.Oembed,
+  oembed_host: "https://oembed.com"
 
 config :moodle_net, :suggestions,
   enabled: false,

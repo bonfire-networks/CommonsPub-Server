@@ -1,0 +1,10 @@
+<%= gettext("Hi %{name}", name: User.name(@user)) <> "," %>
+
+<%= gettext("To complete your sign up, please verify your email:") %>
+
+<%= @url %>
+
+------------------
+
+<%= gettext("We'd love your feedback on the sign-up process.")%> 
+<%= gettext("You can do so at:")%> https://changemap.co/moodle/moodlenet/task/2727-improve-the-sign-up-process/

@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.Accounts.SessionController do
   use MoodleNetWeb, :controller
 
   alias MoodleNet.{Accounts, OAuth}
-  alias MoodleNet.Plugs.Auth
+  alias MoodleNetWeb.Plugs.Auth
 
   plug(:accepts, ["html"] when action in [:new])
 
@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.Accounts.SessionController do
           conn
           |> Auth.login(user, token.hash)
           |> put_flash(:info, "Welcome back!")
-          # |> redirect(to: APRoutes.actor_path(conn, :show, user.primary_actor_id))
+          # |> redirect(to: APRoutes.actor_path(conn, :show, user.actor_id))
           |> redirect(to: "/")
       end
     end

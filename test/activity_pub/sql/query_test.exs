@@ -1,6 +1,7 @@
 defmodule ActivityPub.SQL.QueryTest do
   use MoodleNet.DataCase, async: true
-  alias ActivityPub.SQL.Query
+  alias ActivityPub.SQL.{Alter, Query}
+  alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   def insert(map) do
     {:ok, e} = ActivityPub.new(map)
@@ -27,6 +28,55 @@ defmodule ActivityPub.SQL.QueryTest do
     end
   end
 
+  test "get_by_local_id/1" do
+    persisted = insert(%{type: "Person", content: "content", preferred_username: "alexcastano"})
+    local_id = ActivityPub.Entity.local_id(persisted)
+    assert loaded = Query.get_by_local_id(local_id)
+    assert loaded.content == persisted.content
+    assert %FieldNotLoaded{} = loaded.preferred_username
+
+    assert loaded = Query.get_by_local_id(local_id, aspect: :actor)
+    assert loaded.content == persisted.content
+    assert "alexcastano" == loaded.preferred_username
+  end
+
+  test "get_by_id/1" do
+    persisted = insert(%{type: "Person", content: "content", preferred_username: "alexcastano"})
+    assert loaded = Query.get_by_id(persisted.id)
+    assert loaded.content == persisted.content
+    assert %FieldNotLoaded{} = loaded.preferred_username
+
+    assert loaded = Query.get_by_id(persisted.id, aspect: :actor)
+    assert loaded.content == persisted.content
+    assert "alexcastano" == loaded.preferred_username
+  end
+
+  test "preload/1" do
+    map = %{type: "Person", preferred_username: "alex"}
+    assert person = insert(map)
+    assert person == Query.preload(person)
+
+    local_id = ActivityPub.local_id(person)
+
+    assoc_not_loaded = %ActivityPub.SQL.AssociationNotLoaded{
+      sql_assoc: true,
+      sql_aspect: true,
+      local_id: local_id
+    }
+
+    loaded = Query.get_by_local_id(local_id)
+    assert loaded == Query.preload(assoc_not_loaded)
+
+    meta = ActivityPub.Metadata.not_loaded(local_id)
+    entity_not_loaded = %{__ap__: meta, id: nil, type: :unknown}
+    assert loaded == Query.preload(entity_not_loaded)
+
+    object = insert(%{})
+    assert [object, person] == Query.preload([object, person])
+    assert [object, loaded] == Query.preload([object, assoc_not_loaded])
+    assert [object, loaded] == Query.preload([object, entity_not_loaded])
+  end
+
   test "reload/1" do
     map = %{type: "Person", preferred_username: "alex"}
     assert person = insert(map)
@@ -43,8 +93,6 @@ defmodule ActivityPub.SQL.QueryTest do
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Person") |> Query.one()
     assert %{id: ^person_id} = Query.new() |> Query.with_type("Actor") |> Query.one()
   end
-
-  alias ActivityPub.SQL.{FieldNotLoaded, AssociationNotLoaded}
 
   describe "preload_aspect/2" do
     test "works" do
@@ -122,19 +170,39 @@ defmodule ActivityPub.SQL.QueryTest do
     end
   end
 
-  test "has/3 and belongs_to/3 work" do
-    child =
-      %{id: child_id, attributed_to: [parent = %{id: parent_id}]} = insert(%{attributed_to: %{}})
+  describe "has/3 and belongs_to/3" do
+    test "work with many_to_many relation" do
+      child =
+        %{id: child_id, attributed_to: [parent = %{id: parent_id}]} =
+        insert(%{attributed_to: %{}})
 
-    assert %{id: ^child_id} =
-             Query.new()
-             |> Query.has(:attributed_to, parent)
-             |> Query.one()
+      assert %{id: ^child_id} =
+               Query.new()
+               |> Query.has(:attributed_to, parent)
+               |> Query.one()
 
-    assert %{id: ^parent_id} =
-             Query.new()
-             |> Query.belongs_to(:attributed_to, child)
-             |> Query.one()
+      assert %{id: ^parent_id} =
+               Query.new()
+               |> Query.belongs_to(:attributed_to, child)
+               |> Query.one()
+    end
+
+    test "work with collection relation" do
+      %{id: follower_id} = follower = Factory.actor()
+      %{id: following_id} = following = Factory.actor()
+
+      assert {:ok, 1} = Alter.add(follower, :following, following)
+
+      assert %{id: ^following_id} =
+               Query.new()
+               |> Query.belongs_to(:following, follower)
+               |> Query.one()
+
+      assert %{id: ^follower_id} =
+               Query.new()
+               |> Query.has(:following, following)
+               |> Query.one()
+    end
   end
 
   describe "has?/3" do

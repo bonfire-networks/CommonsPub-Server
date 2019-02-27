@@ -4,7 +4,7 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.0.2",
+      version: "0.0.15",
       elixir: "~> 1.7.4",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -34,7 +34,7 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_ecto, "~> 4.0"},
-      {:phoenix_live_reload, "~> 1.2-rc", only: :dev},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, "~> 0.14"},
@@ -55,6 +55,7 @@ defmodule MoodleNet.Mixfile do
       {:ex_aws_s3, "~> 2.0"},
       {:cors_plug, "~> 2.0"},
       {:distillery, "~> 2.0"},
+      {:bamboo, "~> 1.1"},
       # FIXME using prod as well for the moment
       # {:faker, "~> 0.11", only: [:dev, :test]},
       {:faker, "~> 0.11"},
@@ -62,6 +63,7 @@ defmodule MoodleNet.Mixfile do
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
       {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
+      {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:credo, "~> 0.9.3", only: [:dev, :test]},
       {:mock, "~> 0.3.1", only: :test},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},

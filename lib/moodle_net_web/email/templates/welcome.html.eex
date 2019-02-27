@@ -1,0 +1,16 @@
+<p><%= gettext("Hi %{name}", name: User.name(@user)) <> "," %></p>
+
+<p><%= gettext("To complete your sign up, please verify your email:") %></p>
+
+<br>
+<a href="<%= @url %>"><%= gettext("Verify email") %></a>
+<br>
+
+<p><%= gettext("Alternatively, copy and paste this link into your browser:") <> " #{@url}" %></p>
+
+<p>
+  <%= gettext("We'd love your feedback on the sign-up process.") <> " " %>
+  <a href="https://changemap.co/moodle/moodlenet/task/2727-improve-the-sign-up-process/">
+    <%= gettext("Please comment here") %>
+  </a><%= " " <> gettext("to tell us anything we can do to improve it!") %>
+</p>

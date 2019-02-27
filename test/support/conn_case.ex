@@ -53,7 +53,11 @@ defmodule MoodleNetWeb.ConnCase do
     ret =
       if tags[:user] do
         %{user: user, actor: actor} = MoodleNet.Factory.full_user()
-        conn = Plug.Conn.assign(conn, :current_user, user)
+        # we load the actor in the same way Plugs.Auth does to catch bugs
+        user = MoodleNet.Accounts.User.preload_actor(%{user | actor: nil})
+        conn = conn
+               |> Plug.Conn.assign(:current_user, user)
+               |> Plug.Conn.assign(:auth_token, "faked_token")
         %{conn: conn, user: user, actor: actor}
       else
         ret

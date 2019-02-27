@@ -30,6 +30,9 @@ defmodule ActivityPub.MetadataTest do
 
       def has_actor_aspect(o) when has_aspect(o, ActorAspect), do: true
       def has_actor_aspect(_), do: false
+
+      def local_id?(o) when has_local_id(o), do: true
+      def local_id?(_), do: false
     end
 
     test "is_metadata guard works" do
@@ -66,6 +69,14 @@ defmodule ActivityPub.MetadataTest do
       refute Foo.has_actor_aspect(object)
       assert Foo.has_actor_aspect(person)
       refute Foo.has_actor_aspect(link)
+    end
+
+    test "has_local_id guard work" do
+      local_id = Metadata.not_loaded(1)
+      no_local_id = Metadata.not_loaded()
+
+      assert Foo.local_id?(local_id)
+      refute Foo.local_id?(no_local_id)
     end
   end
 end

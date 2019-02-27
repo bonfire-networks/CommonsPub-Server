@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Endpoint do
     from: :moodle_net,
     gzip: false,
     only:
-      ~w(css fonts images js robots.txt index.html static finmoji emoji packs sounds images instance sw.js favicon.ico)
+      ~w(css fonts images js robots.txt index.html static finmoji emoji packs sounds images instance sw.js favicon.ico, moodlenet-log.png)
   )
 
   if code_reloading? do

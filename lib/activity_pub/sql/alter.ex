@@ -9,11 +9,17 @@ defmodule ActivityPub.SQL.Alter do
   # FIXME Use multi always
   # def add(Ecto.Multi{} = multi, prefix, subject, relation, target)
 
+  def add(_subject, _relation, []), do: {:ok, 0}
+  def add([], _relation, _target), do: {:ok, 0}
+
   def add(subject, relation, target) when not is_list(subject),
     do: add([subject], relation, target)
 
   def add(subject, relation, target) when not is_list(target),
     do: add(subject, relation, [target])
+
+  def remove([], _relation, _target), do: {:ok, 0}
+  def remove(_subject, _relation, []), do: {:ok, 0}
 
   def remove(subject, relation, target) when not is_list(subject),
     do: remove([subject], relation, target)
@@ -108,11 +114,11 @@ defmodule ActivityPub.SQL.Alter do
   end
 
   def add(_, relation, _) do
-    raise ArgumentError, "not valid relation #{inspect(relation)}"
+    raise ArgumentError, "Not a valid relation #{inspect(relation)}"
   end
 
   def remove(_, relation, _) do
-    raise ArgumentError, "not valid relation #{inspect(relation)}"
+    raise ArgumentError, "Not a valid relation #{inspect(relation)}"
   end
 
   defp insert_all(table_name, subject_key, target_key, subject_ids, target_ids) do

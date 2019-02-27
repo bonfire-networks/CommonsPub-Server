@@ -13,15 +13,25 @@
 alias MoodleNet.Factory
 
 MoodleNet.Repo.transaction(fn ->
-  communities = for _ <- 1..3, do: Factory.community()
-  collections = for _ <- 1..5, do: Factory.collection(Enum.random(communities))
-  _resources = for _ <- 1..10, do: Factory.resource(Enum.random(collections))
-
   actors = for _ <- 1..5, do: Factory.actor()
+
+  communities = for _ <- 1..3, do: Factory.community(Enum.random(actors))
+  for a <- actor, c <- communitities, do: MoodleNet.follow(a, c)
+
+  collections =
+    for _ <- 1..5,
+        do:
+          Factory.collection(
+            Enum.random(actors),
+            Enum.random(communities)
+          )
+
+  _resources = for _ <- 1..10, do: Factory.resource(Enum.random(actors), Enum.random(collections))
 
   commentables = communities ++ collections
 
   threads = for _ <- 1..10, do: Factory.comment(Enum.random(actors), Enum.random(commentables))
-  _replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(threads))
+  replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(threads))
+  _replies = for _ <- 1..10, do: Factory.reply(Enum.random(actors), Enum.random(replies))
   {:ok, nil}
 end)
