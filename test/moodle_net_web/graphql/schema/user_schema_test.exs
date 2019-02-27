@@ -562,4 +562,126 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["location"] == "MoodleNet"
     assert user["icon"] == "https://imag.es/alexcastano"
   end
+
+  @tag :user
+  test "inbox connection", %{conn: conn, actor: actor} do
+    owner = Factory.actor()
+    community = Factory.community(owner)
+    MoodleNet.join_community(actor, community)
+
+    MoodleNet.update_community(owner, community, %{name: "Name"})
+
+    collection = Factory.collection(owner, community)
+    MoodleNet.update_collection(owner, collection, %{name: "Name"})
+    MoodleNet.like_collection(owner, collection)
+
+    resource = Factory.resource(owner, collection)
+    MoodleNet.update_resource(owner, resource, %{name: "Name"})
+    MoodleNet.like_resource(owner, resource)
+
+    comment = Factory.comment(owner, collection)
+    reply = Factory.reply(owner, comment)
+    MoodleNet.like_comment(owner, comment)
+    MoodleNet.like_comment(owner, reply)
+
+    comment = Factory.comment(owner, community)
+    reply = Factory.reply(owner, comment)
+    MoodleNet.like_comment(owner, comment)
+    MoodleNet.like_comment(owner, reply)
+
+    local_id = local_id(actor)
+
+    query = """
+      {
+        user(localId: #{local_id}) {
+          inbox {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                id
+                activity_type
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("user")
+             |> Map.fetch!("inbox")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "edges" => edges,
+             "totalCount" => 11
+           } = ret
+
+    assert [
+             %{
+               "node" => %{
+                 "activity_type" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "FollowCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateCommunity"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "JoinCommunity"
+               }
+             }
+           ] = edges
+  end
 end

@@ -5,6 +5,9 @@ defmodule MoodleNet do
   alias MoodleNet.Policy
   require ActivityPub.Guards, as: APG
 
+  # FIXME many preload of aspects and assocs for `to` property.
+  # It's probably it can be optimized or paralalized in a better way
+
   # User connections
 
   defp joined_communities_query(actor) do
@@ -41,6 +44,25 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
+  # Community connections
+
+  defp inbox_query(actor) do
+    Query.new()
+    |> Query.with_type("Activity")
+    |> Query.belongs_to(:inbox, actor)
+  end
+
+  def community_inbox_list(community, opts) do
+    inbox_query(community)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def community_inbox_count(community) do
+    inbox_query(community)
+    |> Query.count()
+  end
+
   defp community_thread_query(community) do
     Query.new()
     |> Query.with_type("Note")
@@ -58,8 +80,6 @@ defmodule MoodleNet do
     community_thread_query(community)
     |> Query.count()
   end
-
-  # Community connections
 
   def community_list(opts \\ %{}) do
     Query.new()
@@ -92,6 +112,17 @@ defmodule MoodleNet do
   end
 
   # Collection connections
+  #
+  def collection_inbox_list(collection, opts) do
+    inbox_query(collection)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def collection_inbox_count(collection) do
+    inbox_query(collection)
+    |> Query.count()
+  end
 
   def collection_list(opts \\ %{}) do
     Query.new()
@@ -259,6 +290,17 @@ defmodule MoodleNet do
     )
   end
 
+  def user_inbox_list(user, opts) do
+    inbox_query(user)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def user_inbox_count(user) do
+    inbox_query(user)
+    |> Query.count()
+  end
+
   defp user_comment_query(actor) do
     Query.new()
     |> Query.with_type("Note")
@@ -317,8 +359,9 @@ defmodule MoodleNet do
   end
 
   def update_community(actor, community, changes) do
-    community = Query.preload_assoc(community, :icon)
-                |> Query.preload_aspect(:actor)
+    community =
+      Query.preload_assoc(community, :icon)
+      |> Query.preload_aspect(:actor)
 
     icon = List.first(community.icon)
     {icon_url, changes} = Map.pop(changes, :icon, :no_change)
@@ -327,7 +370,7 @@ defmodule MoodleNet do
       "type" => "Update",
       "actor" => actor,
       "object" => community,
-      "to" => [Query.preload(community.followers), Query.preload(actor.followers)],
+      "to" => [community, Query.preload(community.followers), Query.preload(actor.followers)],
       "_changes" => changes
     }
 
@@ -403,10 +446,12 @@ defmodule MoodleNet do
       |> Map.put(:type, "MoodleNet:Collection")
       |> Map.put(:attributed_to, [community])
 
+    community = Query.preload_aspect(community, :actor)
+
     activity = %{
       "type" => "Create",
       "actor" => actor,
-      "to" => Query.preload(actor.followers),
+      "to" => [community, Query.preload(community.followers), Query.preload(actor.followers)],
       "_public" => true
     }
 
@@ -421,8 +466,10 @@ defmodule MoodleNet do
   end
 
   def update_collection(actor, collection, changes) do
-    collection = Query.preload_assoc(collection, [:icon, attributed_to: {[:actor], []}])
-                 |> Query.preload_aspect(:actor)
+    collection =
+      Query.preload_assoc(collection, [:icon, attributed_to: {[:actor], [:followers]}])
+      |> Query.preload_aspect(:actor)
+
     %{attributed_to: [community]} = collection
 
     icon = List.first(collection.icon)
@@ -432,7 +479,13 @@ defmodule MoodleNet do
       "type" => "Update",
       "actor" => actor,
       "object" => collection,
-      "to" => [Query.preload(community.followers), Query.preload(collection.followers), Query.preload(actor.followers)],
+      "to" => [
+        community,
+        collection,
+        community.followers,
+        Query.preload(collection.followers),
+        Query.preload(actor.followers)
+      ],
       "_changes" => changes
     }
 
@@ -471,7 +524,13 @@ defmodule MoodleNet do
     activity = %{
       "type" => "Create",
       "actor" => actor,
-      "to" => [community.followers, collection.followers, Query.preload(actor.followers)],
+      "to" => [
+        community,
+        collection,
+        community.followers,
+        collection.followers,
+        Query.preload(actor.followers)
+      ],
       "_public" => true
     }
 
@@ -485,8 +544,14 @@ defmodule MoodleNet do
   end
 
   def update_resource(actor, resource, changes) do
-    resource = Query.preload_assoc(resource, [:icon, attributed_to: {[:actor], []}])
+    resource =
+      Query.preload_assoc(resource, [
+        :icon,
+        attributed_to: {[:actor], [attributed_to: {[:actor], []}]}
+      ])
+
     %{attributed_to: [collection]} = resource
+    %{attributed_to: [community]} = collection
 
     icon = List.first(resource.icon)
     {icon_url, changes} = Map.pop(changes, :icon, :no_change)
@@ -495,7 +560,13 @@ defmodule MoodleNet do
       "type" => "Update",
       "actor" => actor,
       "object" => resource,
-      "to" => [Query.preload(collection.followers), Query.preload(actor.followers)],
+      "to" => [
+        community,
+        collection,
+        Query.preload(community.followers),
+        Query.preload(collection.followers),
+        Query.preload(actor.followers)
+      ],
       "_changes" => changes
     }
 
@@ -581,9 +652,9 @@ defmodule MoodleNet do
     to =
       if reply_to = attrs[:in_reply_to] do
         [in_reply_to_author] = reply_to.attributed_to
-        [in_reply_to_author, context.followers, Query.preload(actor.followers)]
+        [in_reply_to_author, context, context.followers, Query.preload(actor.followers)]
       else
-        [context.followers, Query.preload(actor.followers)]
+        [context, context.followers, Query.preload(actor.followers)]
       end
 
     activity = %{
@@ -612,7 +683,14 @@ defmodule MoodleNet do
 
   def join_community(actor, community)
       when has_type(actor, "Person") and has_type(community, "MoodleNet:Community") do
-    params = %{type: "Follow", actor: actor, object: community}
+    community = Query.preload_aspect(community, :actor)
+
+    params = %{
+      type: "Follow",
+      actor: actor,
+      object: community,
+      to: [community, Query.preload(community.followers)]
+    }
 
     with {:ok, activity} = ActivityPub.new(params),
          {:ok, _activity} <- ActivityPub.apply(activity) do
@@ -622,7 +700,15 @@ defmodule MoodleNet do
 
   def follow_collection(actor, collection)
       when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
-    params = %{type: "Follow", actor: actor, object: collection}
+    collection = Query.preload_assoc(collection, [:followers, attributed_to: :followers])
+    [community] = collection.attributed_to
+
+    params = %{
+      type: "Follow",
+      actor: actor,
+      object: collection,
+      to: [collection, collection.followers, community.followers]
+    }
 
     with {:ok, activity} = ActivityPub.new(params),
          {:ok, _activity} <- ActivityPub.apply(activity) do
@@ -634,17 +720,18 @@ defmodule MoodleNet do
       when has_type(actor, "Person") and has_type(comment, "Note") do
     comment =
       comment
-      |> Query.preload_assoc([:attributed_to, context: :attributed_to])
+      |> Query.preload_assoc([:attributed_to, context: [:followers, :attributed_to]])
 
     [attributed_to] = comment.attributed_to
     actor = Query.preload_assoc(actor, :followers)
+    [context] = comment.context
 
     attrs = %{
       type: "Like",
       _public: true,
       actor: actor,
       object: comment,
-      to: [actor.followers, attributed_to]
+      to: [actor.followers, attributed_to, context, context.followers]
     }
 
     with :ok <- Policy.like_comment?(actor, comment, attrs),
@@ -657,7 +744,14 @@ defmodule MoodleNet do
   def like_collection(actor, collection)
       when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
     collection = preload_community(collection)
-    attrs = %{type: "Like", actor: actor, object: collection}
+                 |> Query.preload_aspect(:actor)
+
+    attrs = %{
+      type: "Like",
+      actor: actor,
+      object: collection,
+      to: [collection, Query.preload(collection.followers)]
+    }
 
     with :ok <- Policy.like_collection?(actor, collection, attrs),
          {:ok, activity} = ActivityPub.new(attrs),
@@ -669,7 +763,14 @@ defmodule MoodleNet do
   def like_resource(actor, resource)
       when has_type(actor, "Person") and has_type(resource, "MoodleNet:EducationalResource") do
     resource = preload_community(resource)
-    attrs = %{type: "Like", actor: actor, object: resource}
+    [collection] = resource.attributed_to
+
+    attrs = %{
+      type: "Like",
+      actor: actor,
+      object: resource,
+      to: [collection, Query.preload(collection.followers)]
+    }
 
     with :ok <- Policy.like_resource?(actor, resource, attrs),
          {:ok, activity} = ActivityPub.new(attrs),
@@ -742,10 +843,10 @@ defmodule MoodleNet do
     do: Query.preload_assoc(collection, :attributed_to)
 
   defp preload_community(resource) when has_type(resource, "MoodleNet:EducationalResource") do
-    Query.preload_assoc(resource, attributed_to: :attributed_to)
+    Query.preload_assoc(resource, attributed_to: {[:actor], [:attributed_to]})
   end
 
   defp preload_community(comment) when has_type(comment, "Note") do
-    Query.preload_assoc(comment, context: :attributed_to)
+    Query.preload_assoc(comment, context: {[:actor], [:attributed_to]})
   end
 end

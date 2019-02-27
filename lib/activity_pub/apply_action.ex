@@ -68,13 +68,14 @@ defmodule ActivityPub.ApplyAction do
 
   defp side_effect(activity), do: {:ok, activity}
 
-  # TODO
   defp insert_into_inbox(activity) do
     {people, collections} =
       [activity.to, activity.bto, activity.cc, activity.bcc, activity.audience]
       |> Enum.concat()
       |> Enum.split_with(fn
         dest when has_type(dest, "Person") -> true
+        dest when has_type(dest, "MoodleNet:Community") -> true
+        dest when has_type(dest, "MoodleNet:Collection") -> true
         dest when has_type(dest, "Collection") -> false
         dest -> raise "Invalid destination #{inspect(dest)}"
       end)

@@ -90,6 +90,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
       resolve(Resolver.with_connection(:community_member))
     end
 
+    field :inbox, non_null(:community_inbox_connection) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:community_inbox))
+    end
+
     field(:published, :string)
     field(:updated, :string)
 
@@ -133,6 +140,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
   object :community_members_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
+  end
+
+  object :community_inbox_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:community_activities_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :community_activities_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :activity)
   end
 
   input_object :community_input do
