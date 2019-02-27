@@ -31,7 +31,6 @@ defmodule MoodleNet.DataCase do
   end
 
   setup tags do
-    Cachex.clear(:user_cache)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do

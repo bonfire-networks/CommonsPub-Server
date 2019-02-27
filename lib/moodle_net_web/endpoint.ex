@@ -9,7 +9,6 @@ defmodule MoodleNetWeb.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
-  # plug(Plug.Static, at: "/media", from: MoodleNet.Uploaders.Local.upload_path(), gzip: false)
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -29,7 +28,6 @@ defmodule MoodleNetWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
-  plug(TrailingFormatPlug)
   plug(Plug.RequestId)
   plug(Plug.Logger)
 
@@ -38,7 +36,7 @@ defmodule MoodleNetWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Jason,
-    length: Application.get_env(:moodle_net, :instance) |> Keyword.get(:upload_limit),
+    length: 50_000,
     body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []}
   )
 
