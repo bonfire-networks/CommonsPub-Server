@@ -1,8 +1,8 @@
-# CommonsPub
+# MoodleNet Federated Server - based on the CommonsPub ActivityPub Server
 
 ## About the project
 
-CommonsPub is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+[CommonsPub](http://commonspub.org/) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
 
 The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
 
