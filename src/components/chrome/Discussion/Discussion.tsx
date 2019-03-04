@@ -6,9 +6,11 @@ import { compose, withState } from 'recompose';
 import Thread from '../../../pages/thread';
 // import Text from '../../inputs/Text/Text';
 // import { Globe, Star, Reply } from '../../elements/Icons';
-import { Send } from '../../elements/Icons';
+import { Send, Left } from '../../elements/Icons';
+import media from 'styled-media-query';
 
 import { Trans } from '@lingui/macro';
+import { clearFix } from 'polished';
 interface Props {
   threads: any;
   localId: string;
@@ -31,13 +33,22 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
         <Talk id={props.localId} externalId={props.id} />
       ) : null} */}
       <Grid>
-        <WrapperComments>
-          <ThreadButton onClick={() => props.onSelectedThread('thread')}>
-            <span>
-              <Send width={18} height={18} strokeWidth={2} color={'#f0f0f0'} />
-            </span>
-            <Trans>Start a new thread</Trans>
-          </ThreadButton>
+        <WrapperComments
+          selected={props.selectedThread === null ? false : true}
+        >
+          <Actions>
+            <ThreadButton onClick={() => props.onSelectedThread('thread')}>
+              <span>
+                <Send
+                  width={18}
+                  height={18}
+                  strokeWidth={2}
+                  color={'#f0f0f0'}
+                />
+              </span>
+              <Trans>Start a new thread</Trans>
+            </ThreadButton>
+          </Actions>
           {/* <Filter>
           <Cont><span><Globe width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
           <Cont><span><Star width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
@@ -60,7 +71,7 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
                 id: comment.node.localId
               };
               return (
-                <div key={i}>
+                <Previews key={i}>
                   <CommentPreview
                     totalReplies={comment.node.replies.totalCount}
                     key={comment.node.id}
@@ -69,7 +80,7 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
                     selectThread={props.onSelectedThread}
                     selectedThread={props.selectedThread}
                   />
-                </div>
+                </Previews>
               );
             })
           ) : (
@@ -77,6 +88,23 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
           )}
         </WrapperComments>
         <Wrapper>
+          <Actions>
+            {props.selectedThread !== null ? (
+              <>
+                <i onClick={() => props.onSelectedThread(null)}>
+                  <Left
+                    width={24}
+                    height={24}
+                    strokeWidth={2}
+                    color={'#68737d'}
+                  />
+                </i>
+                <ThreadTitle>
+                  <Trans>Thread without title</Trans>
+                </ThreadTitle>
+              </>
+            ) : null}
+          </Actions>
           {props.selectedThread === 'thread' ? (
             <Talk full id={props.localId} externalId={props.id} />
           ) : props.selectedThread === null ? (
@@ -95,6 +123,33 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
   );
 };
 
+const Previews = styled.div``;
+const ThreadTitle = styled.div`
+  font-size: 14px;
+  color: #f98012;
+  line-height: 50px;
+  font-weight: 600;
+`;
+// ${media.lessThan("medium")`
+//   grid-template-columns: 1fr;
+//   `}
+const Actions = styled.div`
+  ${clearFix()};
+  height: 50px;
+  display: flex;
+  border-bottom: 1px solid #edf0f2;
+  i {
+    float: left;
+    height: 50px;
+    line-height: 50px;
+    cursor: pointer;
+    margin-left: 8px;
+    & svg {
+      vertical-align: middle;
+      margin-right: 16px;
+    }
+  }
+`;
 const Empty = styled.div`
   margin: 40px;
   border-radius: 6px;
@@ -104,11 +159,13 @@ const Empty = styled.div`
   font-size: 16px;
   color: #abafb9;
   font-weight: 600;
+  ${media.lessThan('medium')`
+   display: none;
+   `};
 `;
 
 const ThreadButton = styled.div`
   height: 40px;
-  margin: 8px;
   border-radius: 4px;
   background: #5a606d;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -118,6 +175,10 @@ const ThreadButton = styled.div`
   text-align: center;
   cursor: pointer;
   color: #f0f0f0;
+  margin: 8px;
+  float: left;
+  flex: 1;
+  padding: 0 16px;
   & span {
     display: inline-block;
     margin-right: 8px;
@@ -162,9 +223,12 @@ const ThreadButton = styled.div`
 
 // `;
 
-const WrapperComments = styled.div`
+const WrapperComments = styled.div<{ selected?: boolean }>`
   background: #e9ebef;
   border-right: 1px solid #e2e5ea;
+  ${media.lessThan('medium')`
+  display: ${props => (props.selected ? 'none' : 'auto')};
+`};
 `;
 
 const Grid = styled.div`
@@ -172,6 +236,10 @@ const Grid = styled.div`
   grid-template-columns: 1fr 2fr;
   margin-top: -20px;
   height: 100%;
+
+  ${media.lessThan('medium')`
+    grid-template-columns: 1fr;
+   `};
 `;
 
 const OverviewCollection = styled.div`

@@ -10,6 +10,7 @@ import Main from '../../components/chrome/Main/Main';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import CommunityCard from '../../components/elements/Community/Community';
+import media from 'styled-media-query';
 
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
@@ -167,6 +168,9 @@ const List = styled.div`
   padding: 16px;
   background: white;
   padding-top: 0;
+  ${media.lessThan('medium')`
+  grid-template-columns: 1fr;
+  `};
 `;
 
 const withGetCommunities = graphql<

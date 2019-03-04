@@ -1,6 +1,7 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
+import media from 'styled-media-query';
 
 import { Trans } from '@lingui/macro';
 import H4 from '../../components/typography/H4/H4';
@@ -113,6 +114,9 @@ const List = styled.div`
   padding: 16px;
   background: white;
   padding-top: 0;
+  ${media.lessThan('medium')`
+  grid-template-columns: 1fr;
+  `};
 `;
 
 const withGetCommunities = graphql<

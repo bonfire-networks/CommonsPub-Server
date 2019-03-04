@@ -3,6 +3,7 @@ import compose from 'recompose/compose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 
 import { Trans } from '@lingui/macro';
+import media from 'styled-media-query';
 
 import H4 from '../../components/typography/H4/H4';
 import styled from '../../themes/styled';
@@ -201,6 +202,9 @@ const List = styled.div`
   padding: 16px;
   padding-top: 0;
   background: white;
+  ${media.lessThan('medium')`
+  grid-template-columns: 1fr;
+  `};
 `;
 
 const withGetCommunities = graphql<

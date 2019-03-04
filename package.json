@@ -135,6 +135,7 @@
     "recompose": "0.30.0",
     "style-loader": "0.23.1",
     "styled-components": "3.4.9",
+    "styled-media-query": "2.1.1",
     "sw-precache-webpack-plugin": "0.11.5",
     "terser-webpack-plugin": "1.1.0",
     "time-ago": "0.2.1",

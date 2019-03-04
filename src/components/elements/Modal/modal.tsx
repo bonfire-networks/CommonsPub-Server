@@ -2,6 +2,7 @@ import React from 'react';
 // import Icons from '../../atoms/icons.tsx'
 import styled from 'styled-components';
 import { clearFix } from 'polished';
+import media from 'styled-media-query';
 
 const Background = styled.div`
   position: fixed;
@@ -30,6 +31,15 @@ const Dialog = styled.div`
   margin-left: -350px;
   border-radius: 3px;
   outline: none;
+
+  ${media.lessThan('medium')`
+    width: auto;
+    margin: 0;
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    bottom: 8px;
+  `};
 `;
 
 const Action = styled.div`

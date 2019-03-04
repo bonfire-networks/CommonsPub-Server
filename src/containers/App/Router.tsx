@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import styled from '../../themes/styled';
 
 import { Trans } from '@lingui/macro';
-
+import { compose, withState } from 'recompose';
 // import Menu from '../../components/chrome/Menu/Menu';
 import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
@@ -23,6 +23,7 @@ import Thread from '../../pages/thread';
 import Home from '../../pages/home';
 import Profile from '../../pages/Profile';
 import User from '../../pages/User';
+import media from 'styled-media-query';
 
 const AppInner = styled.div`
   display: flex;
@@ -38,6 +39,23 @@ const Main = styled.div`
   flex: 1;
 `;
 
+const Overlay = styled.div`
+  position: absolute;
+  left: 240px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 99999;
+  cursor: pointer;
+
+  ${media.greaterThan('medium')`
+  display: none;
+  `} &:hover {
+    background: rgba(0, 0, 0, 0.35);
+  }
+`;
+
 /**
  * The application routes definition.
  *
@@ -45,7 +63,7 @@ const Main = styled.div`
  * the ProtectedRoute component, which then delegates further routing to a
  * Switch route component.
  */
-export default () => (
+export default compose(withState('sidebar', 'onSidebar', false))(p => (
   <Router>
     <AppInner>
       <Switch>
@@ -55,9 +73,16 @@ export default () => (
           path="/"
           component={props => (
             <>
-              <Nav />
+              <Nav sidebar={p.sidebar} />
               <Main>
-                <Header history={props.history} />
+                {p.sidebar ? (
+                  <Overlay onClick={() => p.onSidebar(false)} />
+                ) : null}
+                <Header
+                  onSidebar={p.onSidebar}
+                  history={props.history}
+                  sidebar={p.sidebar}
+                />
                 <Switch>
                   <Route exact path="/" component={Home} />
                   <Route exact path="/search" component={Search} />
@@ -120,4 +145,4 @@ export default () => (
       </Switch>
     </AppInner>
   </Router>
-);
+));

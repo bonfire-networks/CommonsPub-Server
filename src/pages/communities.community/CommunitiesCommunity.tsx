@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { compose, withState, withHandlers } from 'recompose';
+import media from 'styled-media-query';
 
 import { Trans } from '@lingui/macro';
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
@@ -484,7 +485,9 @@ const Background = styled.div`
   margin: 0 auto;
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
-  &:before {
+  ${media.lessThan('medium')`
+  height: 200px;
+`} &:before {
     content: '';
     position: absolute;
     top: 60%;
