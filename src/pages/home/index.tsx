@@ -36,7 +36,7 @@ const Home: React.SFC<Props> = props => (
             backgroundColor: 'rgb(232,232,232)'
           }}
           data-allowfullscreen
-          width="600"
+          width="400"
           height="337"
           scrolling="no"
           data-frameborder="0"
@@ -163,7 +163,8 @@ const Sign = styled.div`
   }
 `;
 const Video = styled.div`
-  margin: 16px 0;
+  margin: 16px auto;
+  text-align: center;
 `;
 const Wrapper = styled.div`
   width: 620px;
