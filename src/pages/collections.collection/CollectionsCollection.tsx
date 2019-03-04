@@ -27,6 +27,7 @@ import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
 import Discussion from '../../components/chrome/Discussion/DiscussionCollection';
 import { Settings } from '../../components/elements/Icons';
+import media from 'styled-media-query';
 
 enum TabsEnum {
   // Members = 'Members',
@@ -416,6 +417,11 @@ const HeroCont = styled.div`
 
 const WrapperActions = styled.div`
   margin: 8px;
+  & button {
+    ${media.lessThan('medium')`
+   width: 100%;
+    `};
+  }
 `;
 
 const Wrapper = styled.div`
@@ -440,6 +446,10 @@ const Hero = styled.div`
   width: 100%;
   position: relative;
   padding: 16px;
+  text-align: center;
+  ${media.lessThan('medium')`
+  display: block;
+`};
 `;
 
 const Background = styled.div`
@@ -450,6 +460,7 @@ const Background = styled.div`
   background-repeat: no-repeat;
   background-color: #e6e6e6;
   position: relative;
+  margin: 0 auto;
 `;
 
 const withGetCollection = graphql<

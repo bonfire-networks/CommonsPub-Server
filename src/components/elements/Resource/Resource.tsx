@@ -1,8 +1,7 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
-
 import { Trans } from '@lingui/macro';
-
+import media from 'styled-media-query';
 import { ellipsis } from 'polished';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
@@ -23,7 +22,6 @@ interface Props {
 }
 
 const ResourceCard: React.SFC<Props> = props => {
-  console.log(props.isEditable);
   return (
     <Wrapper>
       <a target="blank" href={props.url}>
@@ -42,9 +40,9 @@ const ResourceCard: React.SFC<Props> = props => {
             </Actions>
           )}
         </TitleWrapper>
-        <a target="blank" href={props.url}>
+        <UrlLink target="blank" href={props.url}>
           <Url>{props.url}</Url>
-        </a>
+        </UrlLink>
         <Summary>
           {props.summary.split('\n').map(function(item, key) {
             return (
@@ -69,6 +67,13 @@ const ResourceCard: React.SFC<Props> = props => {
   );
 };
 
+const UrlLink = styled.a`
+  ${media.lessThan('medium')`
+  text-align:center;
+  display: block;
+`};
+`;
+
 const TitleWrapper = styled.div`
   display: flex;
   & a {
@@ -78,6 +83,9 @@ const TitleWrapper = styled.div`
 const Info = styled.div`
   flex: 1;
   margin-left: 16px;
+  ${media.lessThan('medium')`
+  margin-left: 0;
+  `};
   & a {
     text-decoration: none;
     color: inherit;
@@ -88,7 +96,13 @@ const Url = styled.div`
   font-size: 14px;
   color: #9e9e9e;
   font-weight: 500;
-  ${ellipsis('420px')} margin-top: 4px;
+  ${ellipsis('420px')};
+  margin-top: 4px;
+
+  ${media.lessThan('medium')`
+  ${ellipsis('210px')};
+  text-align: center;
+  `};
   &:hover {
     text-decoration: underline;
   }
@@ -102,6 +116,10 @@ const Wrapper = styled.div`
   border-radius: 4px;
   display: flex;
   margin-bottom: 8px;
+  ${media.lessThan('medium')`
+  display: block;
+  padding: 0;
+  `};
 `;
 
 const Img = styled.div`
@@ -111,13 +129,25 @@ const Img = styled.div`
   width: 120px;
   border-radius: 2px;
   background-position: center center;
+  background: #f2f0f0;
+  ${media.lessThan('medium')`
+  margin: 0 auto;
+  margin-bottom: 8px;
+  margin-top: 8px;
+  `};
 `;
 const Title = styled(H5)`
   margin: 0 !important;
   font-size: 16px !important;
   line-height: 16px !important;
   margin-top: 8px;
+  padding: 0 8px;
   flex: 1;
+  ${media.lessThan('medium')`
+  text-align: center;
+
+ line-height: 24px !important;
+  `};
 `;
 const Summary = styled(P)`
   margin: 0 !important;
