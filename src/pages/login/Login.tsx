@@ -245,7 +245,10 @@ class Login extends React.Component<LoginProps, LoginState> {
       <>
         <BodyCenterContent>
           <Banner>
-            <Trans>Seeing some error messages? Just hit refresh!</Trans>
+            <Trans>
+              Seeing some error messages? Just hit refresh! Contact us if that
+              didn't help, of course.
+            </Trans>
           </Banner>
           <Head>
             <Col size={12}>
