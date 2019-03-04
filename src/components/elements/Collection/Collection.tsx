@@ -6,6 +6,7 @@ import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
 import { Resource, Eye } from '../Icons';
+import media from 'styled-media-query';
 
 interface CollectionProps {
   collection: Collection;
@@ -66,6 +67,13 @@ const Collection: React.SFC<CollectionProps> = ({
 
 const Right = styled.div`
   width: 160px;
+  ${media.lessThan('medium')`
+  margin-top: 24px;
+
+  background: #f7f8f9;
+  border-radius: 6px;
+  width: 100%;
+`};
 `;
 
 const Actions = styled.div`
@@ -88,7 +96,9 @@ const Wrapper = styled.div`
   border-bottom: 1px solid #ebe8e8;
   padding: 15px 10px;
   cursor: pointer;
-  & a {
+  ${media.lessThan('medium')`
+  display: block;
+`} & a {
     display: flex;
     color: inherit;
     text-decoration: none;
