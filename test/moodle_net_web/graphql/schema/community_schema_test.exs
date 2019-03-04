@@ -573,4 +573,99 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     assert ret_community == ret_community_2
   end
+
+  @tag :user
+  test "inbox connection", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    MoodleNet.update_community(actor, community, %{name: "Name"})
+
+    collection = Factory.collection(actor, community)
+    MoodleNet.update_collection(actor, collection, %{name: "Name"})
+
+    resource = Factory.resource(actor, collection)
+    MoodleNet.update_resource(actor, resource, %{name: "Name"})
+
+    comment = Factory.comment(actor, community)
+    Factory.reply(actor, comment)
+
+    local_id = local_id(community)
+
+    query = """
+      {
+        community(localId: #{local_id}) {
+          inbox {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                id
+                activity_type
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("community")
+             |> Map.fetch!("inbox")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "edges" => edges,
+             "totalCount" => 8
+           } = ret
+
+    assert [
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateCommunity"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "JoinCommunity"
+               }
+             }
+           ] = edges
+  end
 end

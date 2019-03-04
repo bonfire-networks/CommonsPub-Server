@@ -10,8 +10,6 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 config :logger, level: :warn
 # config :logger, level: :debug
 
-config :moodle_net, MoodleNet.Upload, uploads: "test/uploads"
-
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
@@ -23,8 +21,6 @@ config :moodle_net, MoodleNet.Repo,
 
 # Reduce hash rounds for testing
 config :pbkdf2_elixir, rounds: 1
-
-config :moodle_net, :httpoison, HTTPoison
 
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint

@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
   alias ActivityPub.SQL.Query
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
 
-  object :generic_activity do
+  object :activity do
     field(:id, :string)
     field(:local_id, :integer)
     field(:published, :string)
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   object :generic_activity_page do
     field(:page_info, non_null(:page_info))
-    field(:nodes, non_null(list_of(non_null(:generic_activity))))
+    field(:nodes, non_null(list_of(non_null(:activity))))
     field(:total_count, non_null(:integer))
   end
 
@@ -64,13 +64,26 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
        do: "CreateCommunity"
 
   defp resolve_activity_type(activity, object)
+       when APG.has_type(activity, "Update") and APG.has_type(object, "MoodleNet:Community"),
+       do: "UpdateCommunity"
+
+  defp resolve_activity_type(activity, object)
        when APG.has_type(activity, "Create") and APG.has_type(object, "MoodleNet:Collection"),
        do: "CreateCollection"
+
+  defp resolve_activity_type(activity, object)
+       when APG.has_type(activity, "Update") and APG.has_type(object, "MoodleNet:Collection"),
+       do: "UpdateCollection"
 
   defp resolve_activity_type(activity, object)
        when APG.has_type(activity, "Create") and
               APG.has_type(object, "MoodleNet:EducationalResource"),
        do: "CreateResource"
+
+  defp resolve_activity_type(activity, object)
+       when APG.has_type(activity, "Update") and
+              APG.has_type(object, "MoodleNet:EducationalResource"),
+       do: "UpdateResource"
 
   defp resolve_activity_type(activity, object)
        when APG.has_type(activity, "Create") and APG.has_type(object, "Note"),

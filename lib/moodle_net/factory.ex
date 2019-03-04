@@ -85,9 +85,6 @@ defmodule MoodleNet.Factory do
     }
   end
 
-  def image_url(),
-    do: "https://picsum.photos/405/275=#{Faker.random_between(1, 1000)}"
-
   def attributes(:icon) do
     %{
       "type" => "Image",
@@ -108,6 +105,9 @@ defmodule MoodleNet.Factory do
     |> attributes()
     |> Map.merge(attrs)
   end
+
+  def image_url(),
+    do: "https://picsum.photos/405/275=#{Faker.random_between(1, 1000)}"
 
   alias MoodleNet.Accounts
 

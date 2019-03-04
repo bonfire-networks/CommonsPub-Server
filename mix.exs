@@ -45,31 +45,18 @@ defmodule MoodleNet.Mixfile do
       {:plug, "~> 1.7"},
       {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
-      {:trailing_format_plug, "~> 0.0.7"},
-      {:html_sanitize_ex, "~> 1.3.0"},
-      {:calendar, "~> 0.17.4"},
-      {:cachex, "~> 3.0.2"},
-      {:httpoison, "~> 1.2.0"},
-      {:mogrify, "~> 0.6.1"},
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
       {:cors_plug, "~> 2.0"},
       {:distillery, "~> 2.0"},
       {:bamboo, "~> 1.1"},
       # FIXME using prod as well for the moment
-      # {:faker, "~> 0.11", only: [:dev, :test]},
       {:faker, "~> 0.11"},
       {:recase, "~> 0.2"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
-      {:phoenix_integration, git: "https://github.com/alexcastano/phoenix_integration", only: :test},
+      {:phoenix_integration, "~> 0.6.0"},
       {:furlex, git: "https://github.com/alexcastano/furlex"},
-      {:credo, "~> 0.9.3", only: [:dev, :test]},
-      {:mock, "~> 0.3.1", only: :test},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:crypt,
-       git: "https://github.com/msantos/crypt", ref: "1f2b58927ab57e72910191a7ebaeff984382a1d3"}
     ]
   end
 

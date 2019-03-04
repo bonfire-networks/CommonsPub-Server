@@ -862,4 +862,113 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     assert ret_collection == ret_collection_2
   end
+
+  @tag :user
+  test "inbox connection", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+    MoodleNet.update_community(actor, community, %{name: "Name"})
+
+    collection = Factory.collection(actor, community)
+    MoodleNet.update_collection(actor, collection, %{name: "Name"})
+    MoodleNet.like_collection(actor, collection)
+
+    resource = Factory.resource(actor, collection)
+    MoodleNet.update_resource(actor, resource, %{name: "Name"})
+    MoodleNet.like_resource(actor, resource)
+
+    comment = Factory.comment(actor, collection)
+    reply = Factory.reply(actor, comment)
+    MoodleNet.like_comment(actor, comment)
+    MoodleNet.like_comment(actor, reply)
+
+    local_id = local_id(collection)
+
+    query = """
+      {
+        collection(localId: #{local_id}) {
+          inbox {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                id
+                activity_type
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+             |> Map.fetch!("inbox")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "edges" => edges,
+             "totalCount" => 10
+           } = ret
+
+    assert [
+             %{
+               "node" => %{
+                 "activity_type" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "LikeResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "CreateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "LikeCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "UpdateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activity_type" => "FollowCollection"
+               }
+             }
+           ] = edges
+  end
 end

@@ -113,6 +113,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
       resolve(Resolver.with_connection(:collection_liker))
     end
 
+    field :inbox, non_null(:collection_inbox_connection) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:collection_inbox))
+    end
+
     field(:published, :string)
     field(:updated, :string)
 
@@ -167,6 +174,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   object :collection_likers_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
+  end
+
+  object :collection_inbox_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:collection_activities_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :collection_activities_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :activity)
   end
 
   input_object :collection_input do
