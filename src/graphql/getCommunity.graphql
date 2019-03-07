@@ -25,6 +25,7 @@ query getCommunityQuery($context: Int!) {
             
         }
         threads {
+
              edges {
                 node {
                     localId
@@ -60,6 +61,9 @@ query getCommunityQuery($context: Int!) {
                         totalCount
                     }
                     resources {
+                        totalCount
+                    }
+                    threads {
                         totalCount
                     }
                 }

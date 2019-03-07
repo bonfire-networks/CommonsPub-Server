@@ -5,7 +5,7 @@ import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
-import { Resource, Eye } from '../Icons';
+import { Resource, Eye, Message } from '../Icons';
 import media from 'styled-media-query';
 
 interface CollectionProps {
@@ -50,6 +50,15 @@ const Collection: React.SFC<CollectionProps> = ({
             <ActionItem>
               {collection.followers.totalCount || 0}{' '}
               <Eye width={18} height={18} strokeWidth={2} color={'#8b98a2'} />
+            </ActionItem>
+            <ActionItem>
+              {collection.threads.totalCount || 0}{' '}
+              <Message
+                width={18}
+                height={18}
+                strokeWidth={2}
+                color={'#8b98a2'}
+              />
             </ActionItem>
           </Actions>
         </Infos>
