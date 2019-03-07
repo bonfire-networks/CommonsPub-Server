@@ -12,9 +12,9 @@ const {
 import { Trans } from '@lingui/macro';
 import gql from 'graphql-tag';
 
-const {
-  getJoinedCommunitiesQuery
-} = require('../../../graphql/getJoinedCommunities.graphql');
+// const {
+//   getJoinedCommunitiesQuery
+// } = require('../../../graphql/getJoinedCommunities.graphql');
 
 interface Props {
   joinCommunity: any;
@@ -59,34 +59,34 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
-              let joinedCommunities = proxy.readQuery({
-                query: getJoinedCommunitiesQuery,
-                variables: {
-                  limit: 15
-                }
-              });
-              let index = joinedCommunities.me.user.joinedCommunities.edges.findIndex(
-                e => e.node.id === externalId
-              );
-              console.log('qui');
-              console.log(index);
-              if (index === -1) {
-                joinedCommunities.me.user.joinedCommunities.edges.unshift(
-                  collection
-                );
-              }
-              joinedCommunities.me.user.joinedCommunities.edges.splice(
-                index,
-                1
-              );
-              console.log(index);
-              proxy.writeQuery({
-                query: getJoinedCommunitiesQuery,
-                variables: {
-                  limit: 15
-                },
-                data: joinedCommunities
-              });
+              // let joinedCommunities = proxy.readQuery({
+              //   query: getJoinedCommunitiesQuery,
+              //   variables: {
+              //     limit: 15
+              //   }
+              // });
+              // let index = joinedCommunities.me.user.joinedCommunities.edges.findIndex(
+              //   e => e.node.id === externalId
+              // );
+              // console.log('qui');
+              // console.log(index);
+              // if (index === -1) {
+              //   joinedCommunities.me.user.joinedCommunities.edges.unshift(
+              //     collection
+              //   );
+              // }
+              // joinedCommunities.me.user.joinedCommunities.edges.splice(
+              //   index,
+              //   1
+              // );
+              // console.log(index);
+              // proxy.writeQuery({
+              //   query: getJoinedCommunitiesQuery,
+              //   variables: {
+              //     limit: 15
+              //   },
+              //   data: joinedCommunities
+              // });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,

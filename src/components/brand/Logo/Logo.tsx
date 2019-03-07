@@ -14,6 +14,12 @@ const LogoH1 = styled.h1`
     color: ${props => props.theme.styles.colour.primary};
     text-decoration: none;
   }
+  & small {
+    letter-spacing: 0;
+    color: #151b2680;
+    font-weight: 600;
+    font-style: italic;
+  }
 `;
 
 type LogoProps = {
@@ -28,7 +34,7 @@ export default ({ link = true }: LogoProps) => {
   return (
     <LogoH1>
       <Link to="/" title="MoodleNet">
-        MoodleNet
+        MoodleNet <small>v0.5</small>
       </Link>
     </LogoH1>
   );

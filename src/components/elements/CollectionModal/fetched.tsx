@@ -258,9 +258,12 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
       .then(res => {
         setSubmitting(false);
         props.isFetched(false);
+        props.onUrl(' ');
         props.toggleModal();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        props.onUrl(' ');
+      });
   }
 })(Fetched);
 
