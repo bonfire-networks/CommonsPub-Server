@@ -3,7 +3,7 @@ import { compose } from 'recompose';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import styled from '../../themes/styled';
 import { graphql } from 'react-apollo';
-
+import media from 'styled-media-query';
 import { Trans } from '@lingui/macro';
 
 interface Props {
@@ -143,7 +143,7 @@ const Feedback = styled.a`
 `;
 
 const Container = styled.div`
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 const Sign = styled.div`
   & b {
@@ -170,7 +170,10 @@ const Wrapper = styled.div`
   width: 620px;
   margin: 0 auto;
   margin-bottom: 40px;
-
+  ${media.lessThan('medium')`
+  width: auto;
+  padding: 8px;
+`};
   & a {
     color: #f98011;
     text-decoration: none;

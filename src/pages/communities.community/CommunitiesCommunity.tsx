@@ -159,10 +159,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     id="header"
                     style={{ backgroundImage: `url(${community.icon})` }}
                   />
-
-                  <HeroInfo>
-                    <H2>{community.name}</H2>
-                    <P>{community.summary}</P>
+                  <HeroActions>
                     <Join
                       id={community.localId}
                       followed={community.followed}
@@ -176,7 +173,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           width={18}
                           height={18}
                           strokeWidth={2}
-                          color={'#f98012'}
+                          color={'#fff'}
                         />
                       </EditButton>
                     )}
@@ -209,6 +206,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           : ``}
                       </Tot>
                     </MembersTot>
+                  </HeroActions>
+                  <HeroInfo>
+                    <H2>{community.name}</H2>
+                    <P>{community.summary}</P>
                   </HeroInfo>
                 </Hero>
               </HeroCont>
@@ -301,6 +302,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
+const HeroActions = styled.div`
+  position: absolute;
+  top: 20px;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+`;
+
 const HeroCont = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
@@ -360,7 +370,6 @@ const EditButton = styled.span`
   display: inline-block;
   width: 40px;
   height: 40px;
-  border: 2px solid #f98012;
   vertical-align: bottom;
   margin-left: 8px;
   border-radius: 40px;
@@ -457,16 +466,16 @@ const Background = styled.div`
 `} &:before {
     content: '';
     position: absolute;
-    top: 60%;
+    top: 0;
     right: 0;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     bottom: 0;
     left: 0;
-    background-image: linear-gradient(to bottom, #002f4b00, #000);
-    opacity: 0.8;
+    background-image: linear-gradient(to bottom, #002f4b66, #000);
+    opacity: 0.9;
     ${media.lessThan('medium')`
-    top: 10%;
+    top: 0%;
   `};
   }
 `;

@@ -171,7 +171,8 @@ class CollectionComponent extends React.Component<Props> {
                           <div
                             style={{
                               display: 'flex',
-                              flexWrap: 'wrap'
+                              flexWrap: 'wrap',
+                              background: '#e9ebef'
                             }}
                           >
                             <Wrapper>

@@ -38,7 +38,7 @@ const Dialog = styled.div`
     left: 8px;
     right: 8px;
     top: 8px;
-    bottom: 8px;
+    // bottom: 8px;
   `};
 `;
 

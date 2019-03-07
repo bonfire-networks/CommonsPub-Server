@@ -21,14 +21,14 @@ query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, 
                 summary
                 icon
                 collections {
-                totalCount
-            }
-            members {
-              totalCount
-            }
-            threads {
-              totalCount
-            }
+                  totalCount
+                }
+                members {
+                  totalCount
+                }
+                threads {
+                  totalCount
+                }
                 followed
 
               }
@@ -51,6 +51,9 @@ query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, 
                   totalCount
                 }
                 resources {
+                  totalCount
+                }
+                threads {
                   totalCount
                 }
                 # followersCount

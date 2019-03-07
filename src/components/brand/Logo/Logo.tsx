@@ -34,7 +34,7 @@ export default ({ link = true }: LogoProps) => {
   return (
     <LogoH1>
       <Link to="/" title="MoodleNet">
-        MoodleNet <small>v0.5</small>
+        MoodleNet <small>v0.5 alpha</small>
       </Link>
     </LogoH1>
   );

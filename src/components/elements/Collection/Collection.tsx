@@ -77,11 +77,11 @@ const Collection: React.SFC<CollectionProps> = ({
 const Right = styled.div`
   width: 160px;
   ${media.lessThan('medium')`
-  margin-top: 24px;
-
+  margin-top: 8px;
   background: #f7f8f9;
   border-radius: 6px;
-  width: 100%;
+  display: inline-block
+  margin-left: 8px;
 `};
 `;
 
@@ -103,8 +103,12 @@ const ActionItem = styled.div`
 const Wrapper = styled.div`
   display: flex;
   border-bottom: 1px solid #ebe8e8;
-  padding: 15px 10px;
   cursor: pointer;
+  padding: 8px 0;
+  cursor: pointer;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   ${media.lessThan('medium')`
   display: block;
 `} & a {
@@ -120,11 +124,12 @@ const Wrapper = styled.div`
 const Img = styled.div`
   width: 120px;
   height: 120px;
-  border-radius: 2px;
+  border-radius: 8px;
   background-size: cover;
   background-repeat: no-repeat;
   background-color: #f0f0f0;
-  margin-right: 10px;
+  margin-right: 8px;
+  margin-left: 8px;
 `;
 const Infos = styled.div`
   flex: 1;
@@ -138,6 +143,9 @@ const Title = styled(H5)`
 const Desc = styled(P)`
   margin: 0 !important;
   font-size: 14px !important;
+  color: #757575;
+  font-size: 48px;
+  line-height: 20px;
 `;
 
 export default Collection;

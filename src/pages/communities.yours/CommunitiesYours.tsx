@@ -36,7 +36,6 @@ interface Props {
 
 class CommunitiesYours extends React.Component<Props> {
   render() {
-    console.log(this.props.data);
     return (
       <Main>
         <WrapperCont>
@@ -154,13 +153,14 @@ const LoadMore = styled.div`
   height: 50px;
   line-height: 50px;
   text-align: center;
-  border-top: 1px solid #ececec;
-  color: #74706b;
+  color: #fff;
   letter-spacing: 0.5px;
   font-size: 14px;
-  background: #f0f1f2;
+  background: #8fb7ff;
   font-weight: 600;
   cursor: pointer;
+  border-radius: 8px;
+  margin-top: 8px;
   &:hover {
     background: #e7e7e7;
   }
@@ -170,9 +170,6 @@ const WrapperCont = styled.div`
   margin: 0 auto;
   width: 100%;
   height: 100%;
-  background: white;
-  margin-top: 24px;
-  border-radius: 4px;
 `;
 
 const Wrapper = styled.div`
@@ -187,12 +184,12 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
-    background-color: #151b26;
+    // background-color: #151b26;
     border-bottom: 1px solid #dddfe2;
     border-radius: 2px 2px 0 0;
     font-weight: bold;
     font-size: 14px !important;
-    color: #fff;
+    color: #151b26;
   }
 `;
 const List = styled.div`
@@ -200,9 +197,8 @@ const List = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
-  padding: 16px;
+
   padding-top: 0;
-  background: white;
   ${media.lessThan('medium')`
   grid-template-columns: 1fr;
   `};

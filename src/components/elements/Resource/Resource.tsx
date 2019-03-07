@@ -116,9 +116,11 @@ const Wrapper = styled.div`
   border-radius: 4px;
   display: flex;
   margin-bottom: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   ${media.lessThan('medium')`
   display: block;
   padding: 0;
+  padding: 16px;
   `};
 `;
 

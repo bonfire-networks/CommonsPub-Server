@@ -110,16 +110,18 @@ const Members = styled(P)`
 const Summary = styled(P)`
   margin: 0;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.8);
+  color: #757575;
   margin-bottom: 40px;
   word-break: break-word;
 `;
 const Wrapper = styled.div`
   border: 1px solid #e4e6e6;
   padding: 8px;
-  border-radius: 3px;
   position: relative;
   max-height: 560px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   & h5 {
     margin: 0;
     font-size: 16px !important;
@@ -176,6 +178,8 @@ const Infos = styled.div`
   left: 0;
   background: white;
   right: 0;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
   & p  {
     margin: 0;
     font-weight: 300;

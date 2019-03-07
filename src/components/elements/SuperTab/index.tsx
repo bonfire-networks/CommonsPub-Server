@@ -28,7 +28,7 @@ export const SuperTab = styled(Tab)`
   & h5 {
     display: inline-block;
     color: #a0a2a5;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     line-height: 40px;
     margin: 0;

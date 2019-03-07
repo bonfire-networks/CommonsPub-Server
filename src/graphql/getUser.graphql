@@ -51,6 +51,9 @@ query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
                 resources {
                   totalCount
                 }
+                 threads {
+                  totalCount
+                }
                 # followersCount
                 # followingCount
 
