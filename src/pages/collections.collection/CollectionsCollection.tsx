@@ -5,12 +5,9 @@ import * as React from 'react';
 import { Trans } from '@lingui/macro';
 
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
-// import H4 from '../../components/typography/H4/H4';
 import P from '../../components/typography/P/P';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
-// import { ResourceCard } from "../../components/elements/Card/Card";
 import ResourceCard from '../../components/elements/Resource/Resource';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import Collection from '../../types/Collection';
@@ -19,14 +16,16 @@ import { RouteComponentProps } from 'react-router';
 import Loader from '../../components/elements/Loader/Loader';
 import Breadcrumb from './breadcrumb';
 import Button from '../../components/elements/Button/Button';
-// import Comment from '../../components/elements/Comment/Comment';
 import CollectionModal from '../../components/elements/CollectionModal';
 import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
 import Join from '../../components/elements/Collection/Join';
 import Discussion from '../../components/chrome/Discussion/DiscussionCollection';
-import { Settings } from '../../components/elements/Icons';
+import { Settings, Resource, Message } from '../../components/elements/Icons';
+import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
+import { Tabs, TabPanel } from 'react-tabs';
+
 import media from 'styled-media-query';
 
 enum TabsEnum {
@@ -136,38 +135,41 @@ class CollectionComponent extends React.Component<Props> {
                 <Col size={12}>
                   <WrapperTab>
                     <OverlayTab>
-                      <Tabs
-                        selectedKey={this.state.tab}
-                        onChange={tab => this.setState({ tab })}
-                      >
-                        {/* <TabPanel
-                        label={`${TabsEnum.Members} (${
-                          collection.followersCount
-                        })`}
-                        key={TabsEnum.Members}
-                        >
-                        <Members>
-                        {collection.followers.map((user, i) => (
-                          <Follower key={i}>
-                          <Img
-                          style={{ backgroundImage: `url(${user.icon})` }}
-                          />
-                          <FollowerName>{user.name}</FollowerName>
-                          </Follower>
-                          ))}
-                          </Members>
-                        </TabPanel> */}
-                        <TabPanel
-                          label={`${TabsEnum.Resources} (${
-                            collection.resources.totalCount
-                          }/10)`}
-                          key={TabsEnum.Resources}
-                        >
+                      <Tabs>
+                        <SuperTabList>
+                          <SuperTab>
+                            <span>
+                              <Resource
+                                width={20}
+                                height={20}
+                                strokeWidth={2}
+                                color={'#a0a2a5'}
+                              />
+                            </span>
+                            <h5>
+                              {TabsEnum.Resources} (
+                              {collection.resources.totalCount}
+                              /10)
+                            </h5>
+                          </SuperTab>
+                          <SuperTab>
+                            <span>
+                              <Message
+                                width={20}
+                                height={20}
+                                strokeWidth={2}
+                                color={'#a0a2a5'}
+                              />
+                            </span>{' '}
+                            <h5>Discussions</h5>
+                          </SuperTab>
+                        </SuperTabList>
+
+                        <TabPanel>
                           <div
                             style={{
                               display: 'flex',
-                              flexWrap: 'wrap',
-                              marginTop: '-20px'
+                              flexWrap: 'wrap'
                             }}
                           >
                             <Wrapper>
@@ -215,11 +217,7 @@ class CollectionComponent extends React.Component<Props> {
                             </Wrapper>
                           </div>
                         </TabPanel>
-                        <TabPanel
-                          label={`${TabsEnum.Discussion}`}
-                          key={TabsEnum.Discussion}
-                          style={{ height: '100%' }}
-                        >
+                        <TabPanel>
                           {collection.community.followed ? (
                             <Discussion
                               localId={collection.localId}
@@ -243,33 +241,6 @@ class CollectionComponent extends React.Component<Props> {
                             </>
                           )}
                         </TabPanel>
-                        {/* <TabPanel
-                          label={`${TabsEnum.Discussion}`}
-                          key={TabsEnum.Discussion}
-                        >
-                          {collection.community.followed ? (
-                            <Discussion
-                              localId={collection.localId}
-                              id={collection.id}
-                              threads={collection.threads}
-                              followed
-                            />
-                          ) : (
-                            <>
-                              <Discussion
-                                localId={collection.localId}
-                                id={collection.id}
-                                threads={collection.threads}
-                              />
-                              <Footer>
-                                <Trans>
-                                  Join the <strong>{community_name}</strong>{' '}
-                                  community to participate in discussions
-                                </Trans>
-                              </Footer>
-                            </>
-                          )}
-                        </TabPanel> */}
                       </Tabs>
                     </OverlayTab>
                   </WrapperTab>
@@ -395,6 +366,10 @@ const HeroInfo = styled.div`
     margin: 0;
     line-height: 32px !important;
     font-size: 24px !important;
+
+    ${media.lessThan('medium')`
+      margin-top: 8px;
+    `};
   }
   & p {
     margin: 0;
@@ -446,8 +421,8 @@ const Hero = styled.div`
   width: 100%;
   position: relative;
   padding: 16px;
-  text-align: center;
   ${media.lessThan('medium')`
+  text-align: center;
   display: block;
 `};
 `;

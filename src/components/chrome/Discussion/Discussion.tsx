@@ -36,19 +36,21 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
         <WrapperComments
           selected={props.selectedThread === null ? false : true}
         >
-          <Actions>
-            <ThreadButton onClick={() => props.onSelectedThread('thread')}>
-              <span>
-                <Send
-                  width={18}
-                  height={18}
-                  strokeWidth={2}
-                  color={'#f0f0f0'}
-                />
-              </span>
-              <Trans>Start a new thread</Trans>
-            </ThreadButton>
-          </Actions>
+          {props.followed ? (
+            <Actions>
+              <ThreadButton onClick={() => props.onSelectedThread('thread')}>
+                <span>
+                  <Send
+                    width={18}
+                    height={18}
+                    strokeWidth={2}
+                    color={'#f0f0f0'}
+                  />
+                </span>
+                <Trans>Start a new thread</Trans>
+              </ThreadButton>
+            </Actions>
+          ) : null}
           {/* <Filter>
           <Cont><span><Globe width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
           <Cont><span><Star width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
@@ -234,7 +236,6 @@ const WrapperComments = styled.div<{ selected?: boolean }>`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: 1fr 2fr;
-  margin-top: -20px;
   height: 100%;
 
   ${media.lessThan('medium')`

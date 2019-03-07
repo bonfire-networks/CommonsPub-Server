@@ -1,0 +1,23 @@
+.react-tabs__tab--selected {
+  color: #f98012;
+}
+
+.react-tabs__tab--selected svg {
+  color: #f98012 !important;
+}
+
+.react-tabs__tab--selected h5 {
+  color: #f98012 !important;
+}
+
+.react-tabs__tab--selected:before {
+  position: absolute;
+  content: '';
+  left: 0;
+  right: 0;
+  height: 3px;
+  width: 100%;
+  bottom: 0;
+  background: #f98012;
+  border-radius: 10px;
+}

@@ -23,6 +23,7 @@ query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
                 collections {
                 totalCount
             }
+            threads {totalCount}
             members {
               totalCount
             }

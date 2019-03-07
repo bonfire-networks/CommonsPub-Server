@@ -58,6 +58,7 @@ class CommunitiesYours extends React.Component<Props> {
                         followersCount={community.members.totalCount}
                         collectionsCount={community.collections.totalCount}
                         externalId={community.id}
+                        threadsCount={community.threads.totalCount}
                       />
                     );
                   })}

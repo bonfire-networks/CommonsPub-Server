@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '../../../themes/styled';
 import H5 from '../../typography/H5/H5';
 import P from '../../typography/P/P';
-import { Users, Collection } from '../Icons';
+import { Users, Collection, Message } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
 import { clearFix } from 'polished';
@@ -16,6 +16,7 @@ interface Props {
   collectionsCount: number;
   followed: boolean;
   externalId: string;
+  threadsCount: number;
 }
 
 const Community: React.SFC<Props> = ({
@@ -26,6 +27,7 @@ const Community: React.SFC<Props> = ({
   followed,
   followersCount,
   collectionsCount,
+  threadsCount,
   externalId
 }) => (
   <Wrapper>
@@ -54,6 +56,12 @@ const Community: React.SFC<Props> = ({
             strokeWidth={2}
             color={'#1e1f2480'}
           />
+        </span>
+      </Members>
+      <Members>
+        {threadsCount || 0}
+        <span>
+          <Message width={16} height={16} strokeWidth={2} color={'#1e1f2480'} />
         </span>
       </Members>
     </Actions>

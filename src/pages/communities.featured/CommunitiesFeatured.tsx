@@ -46,6 +46,7 @@ class CommunitiesYours extends React.Component<Props> {
             followed={this.props.data.elsalon.followed}
             followersCount={this.props.data.elsalon.members.totalCount}
             externalId={this.props.data.elsalon.id}
+            threadsCount={this.props.data.elsalon.threads.totalCount}
           />
         );
         body.push(
@@ -58,6 +59,7 @@ class CommunitiesYours extends React.Component<Props> {
             followed={this.props.data.thelounge.followed}
             followersCount={this.props.data.thelounge.members.totalCount}
             externalId={this.props.data.thelounge.id}
+            threadsCount={this.props.data.thelounge.threads.totalCount}
           />
         );
       }

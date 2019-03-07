@@ -1,10 +1,6 @@
 import * as React from 'react';
 import Modal from '../Modal';
-import styled from '../../../themes/styled';
-
 import { Trans } from '@lingui/macro';
-
-import { clearFix } from 'polished';
 import H5 from '../../typography/H5/H5';
 import Text from '../../inputs/Text/Text';
 import Textarea from '../../inputs/TextArea/Textarea';
@@ -17,6 +13,14 @@ import { graphql, OperationOption } from 'react-apollo';
 const {
   updateResourceMutation
 } = require('../../../graphql/updateResource.graphql');
+import {
+  Row,
+  Container,
+  Actions,
+  CounterChars,
+  ContainerForm,
+  Header
+} from '../Modal/modal';
 
 interface Props {
   toggleModal?: any;
@@ -207,58 +211,3 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
 })(CreateCommunityModal);
 
 export default compose(withUpdateResource)(ModalWithFormik);
-
-const CounterChars = styled.div`
-  float: right;
-  font-size: 11px;
-  text-transform: uppercase;
-  background: #d0d9db;
-  padding: 2px 10px;
-  font-weight: 600;
-  margin-top: 4px;
-  color: #32302e;
-  letter-spacing: 1px;
-`;
-
-const Container = styled.div`
-  font-family: ${props => props.theme.styles.fontFamily};
-`;
-const Actions = styled.div`
-  ${clearFix()};
-  height: 60px;
-  padding-top: 10px;
-  padding-right: 10px;
-  & button {
-    float: right;
-  }
-`;
-
-const Row = styled.div<{ big?: boolean }>`
-  ${clearFix()};
-  border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '180px' : 'auto')};
-  display: flex;
-  padding: 20px;
-  & textarea {
-    height: 120px;
-  }
-  & label {
-    width: 200px;
-    line-height: 40px;
-  }
-`;
-
-const ContainerForm = styled.div`
-  flex: 1;
-  ${clearFix()};
-`;
-
-const Header = styled.div`
-  height: 60px;
-  border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  & h5 {
-    text-align: center !important;
-    line-height: 60px !important;
-    margin: 0 !important;
-  }
-`;

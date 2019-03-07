@@ -143,6 +143,7 @@ const Avatar = styled.div`
   overflow: hidden;
   margin-left: 16px;
   float: left;
+  background: #e6e6e6;
 `;
 
 const WrapperMenu = styled.div`

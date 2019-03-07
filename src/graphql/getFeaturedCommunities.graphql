@@ -8,6 +8,9 @@ query getFeaturedCommunities {
     icon
     members {totalCount}
     collections {totalCount}
+    threads {
+                totalCount
+            }
     followed
   }
    elsalon: community(localId: 15) {
@@ -18,6 +21,9 @@ query getFeaturedCommunities {
     summary
     icon
     members {totalCount}
+    threads {
+                totalCount
+            }
     collections {totalCount}
     followed
   }

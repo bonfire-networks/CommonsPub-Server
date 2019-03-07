@@ -8,6 +8,7 @@ import { Search } from '../Icons';
 import Loader from '../Loader/Loader';
 import { i18nMark } from '@lingui/react';
 import Fetched from './fetched';
+import { Row } from '../Modal/modal';
 const tt = {
   placeholders: {
     url: i18nMark('Enter the URL of the resource'),
@@ -202,20 +203,20 @@ const Container = styled.div`
   }
 `;
 
-const Row = styled.div<{ big?: boolean }>`
-  ${clearFix()};
-  border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '180px' : 'auto')};
-  display: flex;
-  padding: 20px;
-  & textarea {
-    height: 120px;
-  }
-  & label {
-    width: 200px;
-    line-height: 40px;
-  }
-`;
+// const Row = styled.div<{ big?: boolean }>`
+//   ${clearFix()};
+//   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
+//   height: ${props => (props.big ? '180px' : 'auto')};
+//   display: flex;
+//   padding: 20px;
+//   & textarea {
+//     height: 120px;
+//   }
+//   & label {
+//     width: 200px;
+//     line-height: 40px;
+//   }
+// `;
 
 const ContainerForm = styled.div`
   flex: 1;

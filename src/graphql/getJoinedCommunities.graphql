@@ -14,13 +14,16 @@ query getJoinedCommunitiesQuery($limit: Int, $end: Int) {
                 preferredUsername
                 name
                 summary
+                threads {
+                  totalCount
+                }
                 icon
                 collections {
-                totalCount
-            }
-            members {
-              totalCount
-            }
+                      totalCount
+                  }
+                members {
+                  totalCount
+                }
                 followed
 
               }
