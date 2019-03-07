@@ -227,7 +227,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                 color={'#a0a2a5'}
                               />
                             </span>
-                            <h5>Collections</h5>
+                            <h5>
+                              <Trans>Collections</Trans>
+                            </h5>
                           </SuperTab>
                           <SuperTab>
                             <span>
@@ -238,7 +240,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                 color={'#a0a2a5'}
                               />
                             </span>{' '}
-                            <h5>Discussions</h5>
+                            <h5>
+                              <Trans>Discussions</Trans>
+                            </h5>
                           </SuperTab>
                         </SuperTabList>
 

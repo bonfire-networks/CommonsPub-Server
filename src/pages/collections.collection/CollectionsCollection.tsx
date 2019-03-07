@@ -147,7 +147,7 @@ class CollectionComponent extends React.Component<Props> {
                               />
                             </span>
                             <h5>
-                              {TabsEnum.Resources} (
+                              <Trans>Resources</Trans> (
                               {collection.resources.totalCount}
                               /10)
                             </h5>
@@ -161,7 +161,9 @@ class CollectionComponent extends React.Component<Props> {
                                 color={'#a0a2a5'}
                               />
                             </span>{' '}
-                            <h5>Discussions</h5>
+                            <h5>
+                              <Trans>Discussions</Trans>
+                            </h5>
                           </SuperTab>
                         </SuperTabList>
 
