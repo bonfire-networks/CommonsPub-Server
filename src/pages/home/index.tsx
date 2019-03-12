@@ -3,7 +3,7 @@ import { compose } from 'recompose';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import styled from '../../themes/styled';
 import { graphql } from 'react-apollo';
-
+import media from 'styled-media-query';
 import { Trans } from '@lingui/macro';
 
 interface Props {
@@ -36,7 +36,7 @@ const Home: React.SFC<Props> = props => (
             backgroundColor: 'rgb(232,232,232)'
           }}
           data-allowfullscreen
-          width="600"
+          width="400"
           height="337"
           scrolling="no"
           data-frameborder="0"
@@ -143,7 +143,7 @@ const Feedback = styled.a`
 `;
 
 const Container = styled.div`
-  overflow: scroll;
+  overflow-y: scroll;
 `;
 const Sign = styled.div`
   & b {
@@ -163,13 +163,17 @@ const Sign = styled.div`
   }
 `;
 const Video = styled.div`
-  margin: 16px 0;
+  margin: 16px auto;
+  text-align: center;
 `;
 const Wrapper = styled.div`
   width: 620px;
   margin: 0 auto;
   margin-bottom: 40px;
-
+  ${media.lessThan('medium')`
+  width: auto;
+  padding: 8px;
+`};
   & a {
     color: #f98011;
     text-decoration: none;

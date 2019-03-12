@@ -1,6 +1,7 @@
 import * as React from 'react';
 import compose from 'recompose/compose';
 import { graphql, OperationOption } from 'react-apollo';
+import media from 'styled-media-query';
 
 import { Trans } from '@lingui/macro';
 import H4 from '../../components/typography/H4/H4';
@@ -45,6 +46,7 @@ class CommunitiesYours extends React.Component<Props> {
             followed={this.props.data.elsalon.followed}
             followersCount={this.props.data.elsalon.members.totalCount}
             externalId={this.props.data.elsalon.id}
+            threadsCount={this.props.data.elsalon.threads.totalCount}
           />
         );
         body.push(
@@ -57,6 +59,7 @@ class CommunitiesYours extends React.Component<Props> {
             followed={this.props.data.thelounge.followed}
             followersCount={this.props.data.thelounge.members.totalCount}
             externalId={this.props.data.thelounge.id}
+            threadsCount={this.props.data.thelounge.threads.totalCount}
           />
         );
       }
@@ -75,14 +78,15 @@ class CommunitiesYours extends React.Component<Props> {
     );
   }
 }
+
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
   height: 100%;
-  background: white;
-  margin-top: 24px;
-  border-radius: 4px;
+  // background: white;
+  // margin-top: 24px;
+  // border-radius: 4px;
 `;
 
 const Wrapper = styled.div`
@@ -97,12 +101,12 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
-    background-color: #151b26;
+    // background-color: #151b26;
     border-bottom: 1px solid #dddfe2;
     border-radius: 2px 2px 0 0;
     font-weight: bold;
     font-size: 14px !important;
-    color: #fff;
+    color: #151b26;
   }
 `;
 const List = styled.div`
@@ -110,9 +114,12 @@ const List = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
-  padding: 16px;
-  background: white;
+  // padding: 16px;
+  // background: white;
   padding-top: 0;
+  ${media.lessThan('medium')`
+  grid-template-columns: 1fr;
+  `};
 `;
 
 const withGetCommunities = graphql<

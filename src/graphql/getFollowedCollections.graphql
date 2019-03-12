@@ -24,6 +24,9 @@ query getFollowedCollections($limit: Int, $end: Int) {
                 resources {
                   totalCount
                 }
+                threads {
+                  totalCount
+                }
                 # followersCount
                 # followingCount
 

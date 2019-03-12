@@ -61,7 +61,7 @@ const Component = ({ data, id, selectThread }) => {
           <InReplyTo
             onClick={() => selectThread(data.comment.inReplyTo.localId)}
           >
-            <Trans>View full thread</Trans>
+            <Trans>Back to top-level thread</Trans>
           </InReplyTo>
         ) : null}
         <Comment
@@ -118,6 +118,10 @@ const InReplyTo = styled.div`
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
+  &:hover {
+    rgb(205, 222, 201);
+  }
 `;
 
 const Wrapper = styled.div`

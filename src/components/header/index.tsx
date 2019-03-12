@@ -13,6 +13,8 @@ import { compose, withHandlers, withState } from 'recompose';
 import NewCommunityModal from '../../components/elements/CreateCommunityModal';
 import SettingsModal from '../../components/elements/SettingsModal';
 import Link from '../elements/Link/Link';
+import { Menu } from '../elements/Icons';
+import media from 'styled-media-query';
 
 interface Props {
   handleOpen(): boolean;
@@ -25,23 +27,28 @@ interface Props {
   isOpenCommunity: boolean;
   handleSettings(): boolean;
   isOpenSettings: boolean;
+
+  sidebar: boolean;
+  onSidebar(boolean): boolean;
 }
 
 const Header: React.SFC<Props> = props => {
   return (
     <Wrapper>
       <Left>
+        <span onClick={() => props.onSidebar(!props.sidebar)}>
+          <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
+        </span>
         <Logo />
       </Left>
       <Right>
-        {/* <Left>
-          <LanguageSelect />
-        </Left> */}
         <Bottom onClick={props.handleNewCommunity}>
           <span>
             <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
           </span>
-          <Trans>Create a community</Trans>
+          <Title>
+            <Trans>Create a community</Trans>
+          </Title>
         </Bottom>
 
         <Avatar>
@@ -61,7 +68,7 @@ const Header: React.SFC<Props> = props => {
         <>
           <OutsideClickHandler onOutsideClick={props.closeMenu}>
             <WrapperMenu>
-              <Menu>
+              <ProfileMenu>
                 <List lined>
                   <Item>
                     <Link to="/profile">{props.data.user.data.name}</Link>
@@ -75,7 +82,7 @@ const Header: React.SFC<Props> = props => {
                     <Trans>Sign out</Trans>
                   </Item>
                 </List>
-              </Menu>
+              </ProfileMenu>
             </WrapperMenu>
           </OutsideClickHandler>
           <Layer />
@@ -94,6 +101,11 @@ const Header: React.SFC<Props> = props => {
   );
 };
 
+const Title = styled.b`
+  ${media.lessThan('medium')`
+  display: none;
+`};
+`;
 const Bottom = styled.div`
   height: 30px;
   background: ${props => props.theme.styles.colour.primaryAlt};
@@ -110,6 +122,9 @@ const Bottom = styled.div`
     vertical-align: sub;
     display: inline-block;
     margin-right: 8px;
+    ${media.lessThan('medium')`
+    margin-right: 0;
+    `};
   }
 `;
 
@@ -128,6 +143,7 @@ const Avatar = styled.div`
   overflow: hidden;
   margin-left: 16px;
   float: left;
+  background: #e6e6e6;
 `;
 
 const WrapperMenu = styled.div`
@@ -152,7 +168,7 @@ const Layer = styled.div`
   display: block;
 `;
 
-const Menu = styled.div`
+const ProfileMenu = styled.div`
   background: #fff;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 `;
@@ -184,6 +200,18 @@ const Left = styled.div`
   width: 240px;
   max-height: 30px;
   margin-left: 8px;
+  & span {
+    float: left;
+    line-height: 30px;
+    cursor: pointer;
+    display: none;
+    ${media.lessThan('medium')`
+    display: block;
+    & svg {
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    `}
   & input {
     border: 0px solid !important;
     border-radius: 100px;

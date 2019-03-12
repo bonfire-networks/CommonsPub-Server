@@ -21,6 +21,9 @@ query getCollectionsQuery($limit: Int, $end: Int) {
             resources {
                 totalCount
             }
+            threads {
+                totalCount
+            }
         }
     }
 }

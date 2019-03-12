@@ -8,7 +8,6 @@ import styled from '../../../themes/styled';
 import { Trans } from '@lingui/macro';
 import { i18nMark } from '@lingui/react';
 import Alert from '../Alert';
-import { clearFix } from 'polished';
 import Text from '../../inputs/Text/Text';
 import Button from '../Button/Button';
 import { LoaderButton } from '../Button/Button';
@@ -16,6 +15,8 @@ import ResourceCard from '../Resource/Resource';
 import { compose } from 'recompose';
 import gql from 'graphql-tag';
 import { graphql, OperationOption } from 'react-apollo';
+import { Row, Actions, CounterChars, ContainerForm } from '../Modal/modal';
+
 const {
   createResourceMutation
 } = require('../../../graphql/createResource.graphql');
@@ -255,12 +256,14 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         }
       })
       .then(res => {
-        console.log(res);
         setSubmitting(false);
         props.isFetched(false);
+        props.onUrl(' ');
         props.toggleModal();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        props.onUrl(' ');
+      });
   }
 })(Fetched);
 
@@ -271,46 +274,4 @@ const Preview = styled.div`
   background: #eff2f5;
   padding-bottom: 1px;
   border-bottom: 1px solid #eaeaea;
-`;
-
-const Row = styled.div<{ big?: boolean }>`
-  ${clearFix()};
-  border-bottom: 1px solid rgba(151, 151, 151, 0.2);
-  height: ${props => (props.big ? '180px' : 'auto')};
-  display: flex;
-  padding: 20px;
-  & textarea {
-    height: 120px;
-  }
-  & label {
-    width: 200px;
-    line-height: 40px;
-  }
-`;
-
-const ContainerForm = styled.div`
-  flex: 1;
-  ${clearFix()};
-`;
-
-const CounterChars = styled.div`
-  float: right;
-  font-size: 11px;
-  text-transform: uppercase;
-  background: #d0d9db;
-  padding: 2px 10px;
-  font-weight: 600;
-  margin-top: 4px;
-  color: #32302e;
-  letter-spacing: 1px;
-`;
-
-const Actions = styled.div`
-  ${clearFix()};
-  height: 60px;
-  padding-top: 10px;
-  padding-right: 10px;
-  & button {
-    float: right;
-  }
 `;

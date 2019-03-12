@@ -9,6 +9,7 @@ query getUserQuery {
             preferredUsername
             location
             icon
+            summary
         }
     }
 }

@@ -36,5 +36,18 @@ export default interface Collection {
       }
     ];
   };
+  threads: {
+    totalCount: number;
+    pageInfo: {
+      endCursor: number;
+      startCursor: number;
+    };
+    edges: [
+      {
+        cursor: number;
+        node: Resource;
+      }
+    ];
+  };
   community: Community;
 }

@@ -17,6 +17,9 @@ query getCommunitiesQuery($limit: Int, $end: Int) {
             members {
               totalCount
             }
+            threads {
+                totalCount
+            }
             followed
         }
     }

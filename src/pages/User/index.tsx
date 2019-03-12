@@ -14,6 +14,7 @@ import CollectionCard from '../../components/elements/Collection/Collection';
 import H2 from '../../components/typography/H2/H2';
 import CommunityCard from '../../components/elements/Community/Community';
 import P from '../../components/typography/P/P';
+import media from 'styled-media-query';
 
 const getUserQuery = require('../../graphql/getAgent.graphql');
 
@@ -254,6 +255,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                       collectionsCount={
                                         community.node.collectionsCount
                                       }
+                                      threadsCount={
+                                        community.node.threads.totalCount
+                                      }
                                       icon={community.node.icon || ''}
                                       followed={community.node.followed}
                                       id={community.node.localId}
@@ -406,6 +410,11 @@ const List = styled.div`
   padding: 16px;
   padding-top: 0;
   background: white;
+
+  ${media.lessThan('medium')`
+  grid-template-columns: 1fr;
+  grid-column-gap: 0px;
+`};
 `;
 
 const ListCollections = styled.div`
@@ -499,6 +508,9 @@ const Background = styled.div`
     left: 0;
     background-image: linear-gradient(to bottom, #002f4b00, #000);
     opacity: 0.8;
+    ${media.lessThan('medium')`
+    top: 10%;
+  `};
   }
 `;
 
