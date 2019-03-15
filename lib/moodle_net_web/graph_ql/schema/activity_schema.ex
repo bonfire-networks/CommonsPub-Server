@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
     field(:activity_type, :string)
 
     field(:user, :user, do: resolve(Resolver.with_assoc(:actor, single: true)))
-    field(:object, :activity_object, do: resolve(Resolver.with_assoc(:object, single: true)))
+    field(:object, :activity_object, do: resolve(Resolver.with_assoc(:object, single: true, preload_assoc_individually: true)))
   end
 
   union :activity_object do
