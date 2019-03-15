@@ -12,8 +12,8 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
     field(:type, non_null(list_of(non_null(:string))))
     field(:activity_type, :string)
 
-    field(:user, :user)
-    field(:object, :activity_object)
+    field(:user, :user, do: resolve(Resolver.with_assoc(:actor, single: true)))
+    field(:object, :activity_object, do: resolve(Resolver.with_assoc(:object, single: true)))
   end
 
   union :activity_object do
@@ -39,13 +39,13 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   def prepare([e | _] = list, fields) when APG.has_type(e, "Activity") do
     list
-    |> Query.preload_assoc([:actor, :object])
+    |> Query.preload_assoc([object: {[:all], [:object]}])
     |> Enum.map(&prepare(&1, fields))
   end
 
   def prepare(e, _fields) when APG.has_type(e, "Activity") do
     e
-    |> Query.preload_assoc([actor: {[:actor_aspect], []}, object: {[:all], [:object]}])
+    |> Query.preload_assoc([object: {[:all], [:object]}])
     |> prepare_activity_fields()
     |> Resolver.prepare_common_fields()
   end
@@ -53,10 +53,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
   defp prepare_activity_fields(e) do
     object = hd(e.object)
 
-    e
-    |> Map.put(:user, hd(e.actor))
-    |> Map.put(:object, object)
-    |> Map.put(:activity_type, resolve_activity_type(e, object))
+    Map.put(e, :activity_type, resolve_activity_type(e, object))
   end
 
   defp resolve_activity_type(activity, object)
