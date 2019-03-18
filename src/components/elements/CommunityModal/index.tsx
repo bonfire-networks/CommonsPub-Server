@@ -211,6 +211,10 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
                   __typename: 'CollectionResourcesEdge'
                 },
                 __typename: 'CollectionResourcesConnection'
+              },
+              threads: {
+                totalCount: 0,
+                __typename: 'CollectionThreadsConnection'
               }
             },
             __typename: 'CommunityCollectionsEdge'

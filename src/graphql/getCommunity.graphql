@@ -1,5 +1,5 @@
 
-query getCommunityQuery($context: Int!) {
+query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
     community(local_id: $context) {
         id
         localId
@@ -8,8 +8,47 @@ query getCommunityQuery($context: Int!) {
         summary
         icon
         followed
-        # followersCount
-        # followingCount
+        inbox (limit: $limit, after:$end) {
+            pageInfo {
+                startCursor
+                endCursor
+            }
+            edges {
+                node {
+                    id
+                    activityType
+                    type
+                    object {
+                        __typename
+                        ... on Community {
+                        id
+                        name
+                        localId
+                        }
+                        ... on Collection {
+                        id
+                        name
+                        localId
+                        }
+                         ... on Resource {
+                        id
+                        name
+                        localId
+                        collection {
+                            name
+                            localId
+                        }
+                        }
+                    }
+                    user {
+                        name
+                        id
+                        localId
+                        icon
+                    }
+                }
+            }
+        }
         members {
             edges {
                 node {
@@ -25,7 +64,6 @@ query getCommunityQuery($context: Int!) {
             
         }
         threads {
-
              edges {
                 node {
                     localId

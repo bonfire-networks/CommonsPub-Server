@@ -20,12 +20,19 @@ import CollectionModal from '../../components/elements/CollectionModal';
 import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
+import { clearFix } from 'polished';
 import Join from '../../components/elements/Collection/Join';
 import Discussion from '../../components/chrome/Discussion/DiscussionCollection';
-import { Settings, Resource, Message } from '../../components/elements/Icons';
+import {
+  Settings,
+  Eye,
+  Resource,
+  Message
+} from '../../components/elements/Icons';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import { Tabs, TabPanel } from 'react-tabs';
-
+import Link from '../../components/elements/Link/Link';
+import moment from 'moment';
 import media from 'styled-media-query';
 
 enum TabsEnum {
@@ -139,6 +146,19 @@ class CollectionComponent extends React.Component<Props> {
                         <SuperTabList>
                           <SuperTab>
                             <span>
+                              <Eye
+                                width={20}
+                                height={20}
+                                strokeWidth={2}
+                                color={'#a0a2a5'}
+                              />
+                            </span>
+                            <h5>
+                              <Trans>Timeline</Trans>
+                            </h5>
+                          </SuperTab>
+                          <SuperTab>
+                            <span>
                               <Resource
                                 width={20}
                                 height={20}
@@ -166,7 +186,148 @@ class CollectionComponent extends React.Component<Props> {
                             </h5>
                           </SuperTab>
                         </SuperTabList>
-
+                        <TabPanel>
+                          <div>
+                            {collection.inbox.edges.map((t, i) => (
+                              <FeedItem key={i}>
+                                <Member>
+                                  <MemberItem>
+                                    <Img alt="user" src={t.node.user.icon} />
+                                  </MemberItem>
+                                  <MemberInfo>
+                                    <h3>
+                                      <Link to={'/user/' + t.node.user.localId}>
+                                        {t.node.user.name}
+                                      </Link>
+                                      {t.node.activityType ===
+                                      'CreateCollection' ? (
+                                        <span>
+                                          created the collection{' '}
+                                          <Link
+                                            to={
+                                              `/communities/${
+                                                collection.localId
+                                              }/collections/` +
+                                              t.node.object.localId
+                                            }
+                                          >
+                                            {t.node.object.name}
+                                          </Link>{' '}
+                                        </span>
+                                      ) : t.node.activityType ===
+                                      'UpdateCommunity' ? (
+                                        <span>updated the community</span>
+                                      ) : t.node.activityType ===
+                                      'UpdateCollection' ? (
+                                        <span>
+                                          updated the collection{' '}
+                                          <Link
+                                            to={
+                                              `/communities/${
+                                                collection.localId
+                                              }/collections/` +
+                                              t.node.object.localId
+                                            }
+                                          >
+                                            {t.node.object.name}
+                                          </Link>
+                                        </span>
+                                      ) : t.node.activityType ===
+                                      'JoinCommunity' ? (
+                                        <span>joined the community</span>
+                                      ) : t.node.activityType ===
+                                      'CreateComment' ? (
+                                        <span>posted a new comment </span>
+                                      ) : t.node.activityType ===
+                                      'CreateResource' ? (
+                                        <span>
+                                          created the resource{' '}
+                                          <b>{t.node.object.name}</b>
+                                        </span>
+                                      ) : t.node.activityType ===
+                                      'FollowCollection' ? (
+                                        <span>
+                                          started to follow the collection{' '}
+                                          <b>{t.node.object.name}</b>
+                                        </span>
+                                      ) : null}
+                                    </h3>
+                                    <Date>
+                                      {moment(t.node.published).fromNow()}
+                                    </Date>
+                                  </MemberInfo>
+                                </Member>
+                              </FeedItem>
+                            ))}
+                            {(collection.inbox.pageInfo.startCursor === null &&
+                              collection.inbox.pageInfo.endCursor === null) ||
+                            (collection.inbox.pageInfo.startCursor &&
+                              collection.inbox.pageInfo.endCursor ===
+                                null) ? null : (
+                              <LoadMore
+                                onClick={() =>
+                                  this.props.data.fetchMore({
+                                    variables: {
+                                      end: collection.inbox.pageInfo.endCursor
+                                    },
+                                    updateQuery: (
+                                      previousResult,
+                                      { fetchMoreResult }
+                                    ) => {
+                                      console.log(fetchMoreResult);
+                                      const newNodes =
+                                        fetchMoreResult.collection.inbox.edges;
+                                      const pageInfo =
+                                        fetchMoreResult.collection.inbox
+                                          .pageInfo;
+                                      console.log(newNodes);
+                                      return newNodes.length
+                                        ? {
+                                            // Put the new comments at the end of the list and update `pageInfo`
+                                            // so we have the new `endCursor` and `hasNextPage` values
+                                            collection: {
+                                              ...previousResult.collection,
+                                              __typename:
+                                                previousResult.collection
+                                                  .__typename,
+                                              inbox: {
+                                                ...previousResult.collection
+                                                  .inbox,
+                                                edges: [
+                                                  ...previousResult.collection
+                                                    .inbox.edges,
+                                                  ...newNodes
+                                                ]
+                                              },
+                                              pageInfo
+                                            }
+                                          }
+                                        : {
+                                            collection: {
+                                              ...previousResult.collection,
+                                              __typename:
+                                                previousResult.collection
+                                                  .__typename,
+                                              inbox: {
+                                                ...previousResult.collection
+                                                  .inbox,
+                                                edges: [
+                                                  ...previousResult.collection
+                                                    .inbox.edges
+                                                ]
+                                              },
+                                              pageInfo
+                                            }
+                                          };
+                                    }
+                                  })
+                                }
+                              >
+                                <Trans>Load more</Trans>
+                              </LoadMore>
+                            )}
+                          </div>
+                        </TabPanel>
                         <TabPanel>
                           <div
                             style={{
@@ -269,6 +430,103 @@ class CollectionComponent extends React.Component<Props> {
     );
   }
 }
+
+const Member = styled.div`
+  vertical-align: top;
+  margin-right: 14px;
+  ${clearFix()};
+`;
+
+const MemberInfo = styled.div`
+  display: inline-block;
+  & h3 {
+    font-size: 14px;
+    margin: 0;
+    color: ${props => props.theme.styles.colour.base2};
+    font-weight: 400;
+    & span {
+      margin: 0 4px;
+    }
+    & a {
+      text-decoration: underline;
+      font-weight: 500;
+    }
+  }
+`;
+
+const MemberItem = styled.span`
+  background-color: #d6dadc;
+  border-radius: 3px;
+  color: #4d4d4d;
+  display: inline-block;
+  height: 42px;
+  overflow: hidden;
+  position: relative;
+  width: 42px;
+  user-select: none;
+  z-index: 0;
+  vertical-align: inherit;
+  margin-right: 8px;
+`;
+
+const Img = styled.img`
+  width: 42px;
+  height: 42px;
+  display: block;
+  -webkit-appearance: none;
+  line-height: 42px;
+  text-indent: 4px;
+  font-size: 13px;
+  overflow: hidden;
+  max-width: 42px;
+  max-height: 42px;
+  text-overflow: ellipsis;
+  vertical-align: text-top;
+  margin-right: 8px;
+`;
+
+const Date = styled.div`
+  font-size: 12px;
+  line-height: 32px;
+  height: 20px;
+  margin: 0;
+  color: ${props => props.theme.styles.colour.base3};
+  margin-top: 0px;
+  font-weight: 500;
+`;
+
+const FeedItem = styled.div`
+  min-height: 30px;
+  position: relative;
+  margin: 0;
+  padding: 16px;
+  word-wrap: break-word;
+  font-size: 14px;
+  ${clearFix()};
+  transition: background 0.5s ease;
+  background: #fff;
+  margin-top: 0
+  z-index: 10;
+  position: relative;
+  border-bottom: 1px solid #eaeaea;
+`;
+
+const LoadMore = styled.div`
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  color: #fff;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  background: #8fb7ff;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  margin: 16px;
+  &:hover {
+    background: #e7e7e7;
+  }
+`;
 
 const ActionsHero = styled.div`
   margin-top: 4px;
@@ -451,6 +709,7 @@ const withGetCollection = graphql<
 >(getCollection, {
   options: (props: Props) => ({
     variables: {
+      limit: 15,
       id: Number(props.match.params.collection)
     }
   })

@@ -1,6 +1,6 @@
 #import "./fragments/basicComment.graphql"
 
-query getCollection($id: Int!) {
+query getCollection($id: Int!, $limit: Int, $end: Int) {
   collection(localId: $id) {
     id
     localId
@@ -18,7 +18,47 @@ query getCollection($id: Int!) {
       name
       followed
     }
-
+    inbox (limit: $limit, after:$end) {
+            pageInfo {
+                startCursor
+                endCursor
+            }
+            edges {
+                node {
+                    id
+                    activityType
+                    type
+                    object {
+                        __typename
+                        ... on Community {
+                        id
+                        name
+                        localId
+                        }
+                        ... on Collection {
+                        id
+                        name
+                        localId
+                        }
+                         ... on Resource {
+                        id
+                        name
+                        localId
+                        collection {
+                            name
+                            localId
+                        }
+                        }
+                    }
+                    user {
+                        name
+                        id
+                        localId
+                        icon
+                    }
+                }
+            }
+        }
     threads {
              edges {
                 node {

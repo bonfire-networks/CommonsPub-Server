@@ -1,66 +1,116 @@
-query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
-    me {
-        user {
+query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int, $limit: Int, $end: Int )  {
+  me {
+    user {
+      id
+      name
+      preferredUsername
+      location
+      summary
+      icon
+      joinedCommunities(limit: $limitComm, after:$endComm) {
+        pageInfo {
+          startCursor
+          endCursor
+        }
+        edges {
+          node {
             id
-            name
+            localId
             preferredUsername
-            location
+            name
             summary
             icon
-            joinedCommunities(limit: $limitComm, after:$endComm) {
-            pageInfo {
-              startCursor
-              endCursor
+            collections {
+            totalCount
             }
-          edges {
-              node {
-                id
-                localId
-                preferredUsername
+          threads {totalCount}
+          members {
+            totalCount
+          }
+          followed
+        }
+      }
+    }
+    inbox (limit: $limit, after:$end) {
+      pageInfo {
+          startCursor
+          endCursor
+      }
+      edges {
+        node {
+          id
+          activityType
+          type
+          object {
+            __typename
+            ... on Community {
+            id
+            name
+            localId
+            }
+            ... on Comment {
+            id
+            
+            localId
+            }
+            ... on Collection {
+            id
+            name
+            localId
+            community {
+              localId
+            }
+            }
+              ... on Resource {
+            id
+            name
+            localId
+            collection {
                 name
-                summary
-                icon
-                collections {
-                totalCount
-            }
-            threads {totalCount}
-            members {
-              totalCount
-            }
-                followed
-
-              }
-          }}
-            followingCollections(limit: $limitColl, after:$endColl) {
-            pageInfo {
-              startCursor
-              endCursor
-            }
-            edges {
-              node {
-                id
                 localId
-                preferredUsername
-                name
-                summary
-                icon
-                followed
-                followers {
-                  totalCount
+                community {
+                  localId
                 }
-                resources {
-                  totalCount
-                }
-                 threads {
-                  totalCount
-                }
-                # followersCount
-                # followingCount
-
-              }
+            }
+            }
+          }
+          user {
+            name
+            id
+            localId
+            icon
+          }
+      }
+    }
+  }
+    followingCollections(limit: $limitColl, after:$endColl) {
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      edges {
+        node {
+          id
+          localId
+          preferredUsername
+          name
+          summary
+          icon
+          followed
+          followers {
+            totalCount
+          }
+          resources {
+            totalCount
+          }
+            threads {
+            totalCount
           }
         }
-        }
     }
+  }
+
     }
+  }
+}
 

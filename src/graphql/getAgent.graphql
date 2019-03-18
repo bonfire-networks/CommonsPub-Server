@@ -1,4 +1,4 @@
-query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int)  {
+query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int, $limit:Int, $end:Int)  {
         user(localId: $id) {
             id
             localId
@@ -7,6 +7,58 @@ query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, 
             location
             summary
             icon
+            inbox (limit: $limit, after:$end) {
+      pageInfo {
+          startCursor
+          endCursor
+      }
+      edges {
+        node {
+          id
+          activityType
+          type
+          object {
+            __typename
+            ... on Community {
+            id
+            name
+            localId
+            }
+            ... on Comment {
+            id
+            
+            localId
+            }
+            ... on Collection {
+            id
+            name
+            localId
+            community {
+              localId
+            }
+            }
+              ... on Resource {
+            id
+            name
+            localId
+            collection {
+                name
+                localId
+                community {
+                  localId
+                }
+            }
+            }
+          }
+          user {
+            name
+            id
+            localId
+            icon
+          }
+      }
+    }
+  }
             joinedCommunities(limit: $limitComm, after:$endComm) {
             pageInfo {
               startCursor

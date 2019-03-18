@@ -12,8 +12,8 @@ export const SuperTabList = styled(TabList)`
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 32px;
   ${media.lessThan('medium')`
-grid-template-columns: 1fr 1fr 
-`};
+    grid-template-columns: 1fr 1fr 1fr
+  `};
 `;
 export const SuperTab = styled(Tab)`
   border-radius: 0;
