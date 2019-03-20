@@ -1,19 +1,10 @@
-# MoodleNet Federated Server - based on the CommonsPub ActivityPub Server
+# MoodleNet Federated Server 
 
 ## About the project
 
-[CommonsPub](http://commonspub.org/) is a generic federated server, based on the ActivityPub and ActivityStreams web standards. 
+This back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework). The client API uses GraphQL. The main front-end is in React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react?nav_source=navbar)).
 
-The back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework) to be highly performant and can run on low powered devices like a Raspberry Pi. Each app will likely have a bespoke front-end (though they're of course encouraged to share components).
-
-It was forked from Pleroma with the intention of moving as much functionality as possible into frameworks/libraries, and generally turning it into a generic ActivityPub server that can power many different apps and use cases, all of them as interoperable as possible with each other, and any other ActivityPub-based fediverse app like Mastodon.
-
-The first projects using it are:
-
-* [MoodleNet](https://moodle.com/moodlenet) to empower communities of educators to connect, learn, and curate open content together
-
-* [Open Cooperative Ecosystem](https://opencoopecosystem.net/) to empower economic activities driven by human and ecological needs rather than profit
-
+This codebase was forked from [CommonsPub](http://commonspub.org/) (project to create a generic federated server, based on the ActivityPub and ActivityStreams web standards) which was originally forked from Pleroma. 
 
 ## Installation
 
@@ -31,8 +22,8 @@ GNU Make 4.2.1
 
 Clone this repo and change into the directory:
 ```sh
-$ git clone https://gitlab.com/CommonsPub/Server.git
-$ cd Server
+$ git clone https://gitlab.com/moodlenet/servers/federated.git
+$ cd federated
 ```
 
 Build the docker image:
@@ -121,7 +112,7 @@ There is a `Makefile` with two commands:
 
 ## Running
 
-By default, CommonsPub listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
+By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 
 # Configuring the server
