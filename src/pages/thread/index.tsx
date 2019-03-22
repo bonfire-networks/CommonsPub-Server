@@ -4,21 +4,20 @@ import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 const getThread = require('../../graphql/getThread.graphql');
 import CommentType from '../../types/Comment';
 import { compose } from 'recompose';
-import { RouteComponentProps } from 'react-router';
 import Loader from '../../components/elements/Loader/Loader';
 import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
 import { Trans } from '@lingui/macro';
-
+import Link from '../../components/elements/Link/Link';
+import { Left } from '../../components/elements/Icons';
+import { clearFix } from 'polished';
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
 }
-interface Props
-  extends RouteComponentProps<{
-      id: string;
-    }> {
+interface Props {
   data: Data;
-  id: number;
+  id: string;
+  match: any;
   selectThread(number): number;
 }
 
@@ -32,12 +31,12 @@ const withGetThread = graphql<
 >(getThread, {
   options: (props: Props) => ({
     variables: {
-      id: Number(props.id)
+      id: Number(props.match.params.id)
     }
   })
 }) as OperationOption<{}, {}>;
 
-const Component = ({ data, id, selectThread }) => {
+const Component = ({ data, id, selectThread, match }) => {
   if (data.error) {
     return 'error...';
   } else if (data.loading) {
@@ -55,7 +54,16 @@ const Component = ({ data, id, selectThread }) => {
     id: data.comment.localId
   };
   return (
-    <>
+    <Container>
+      <Wrapper>
+        <Header>
+          <Link to={`/communities/${data.comment.context.localId}`}>
+            <LeftArr>
+              <Left width={24} height={24} strokeWidth={2} color={'#68737d'} />
+            </LeftArr>
+          </Link>
+        </Header>
+      </Wrapper>
       <Wrapper>
         {data.comment.inReplyTo ? (
           <InReplyTo
@@ -89,25 +97,64 @@ const Component = ({ data, id, selectThread }) => {
               totalReplies={comment.node.replies.totalCount}
               comment={message}
               selectThread={selectThread}
+              noAction
             />
           );
         })}
       </Wrapper>
       <WrapperTalk>
-        <Talk id={id} externalId={data.comment.id} />
+        <Talk id={Number(match.params.id)} externalId={data.comment.id} full />
       </WrapperTalk>
-    </>
+    </Container>
   );
 };
 
-const WrapperTalk = styled.div`
-  position: absolute;
-  bottom: 40px;
-  border-top: 1px solid #e9e7e7;
-  left: 0;
-  right: 0;
-  z-index: 999999;
+const Container = styled.div`
+  border-radius: 6px;
+  box-sizing: border-box;
+  border: 5px solid #e2e5ea;
 `;
+
+const Header = styled.div`
+  border-bottom: 1px solid #edf0f2;
+  ${clearFix()};
+`;
+
+const LeftArr = styled.span`
+  display: inline-block;
+  margin-bottom: 0;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 20px;
+  border-radius: 4px;
+  user-select: none;
+  color: #667d99;
+  background-color: rgb(231, 237, 243);
+  border: 0;
+  width: 36px;
+  text-align: center;
+  padding: 5px;
+  z-index: 3 !important;
+  border-radius: 4px !important;
+  transition: border-radius 0.2s;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 8px;
+  padding-right: 8px;
+  position: relative;
+  background-color: #d7dfea;
+  margin: 8px;
+  margin-right: 0;
+  float: left;
+  & svg {
+    vertical-align: middle;
+  }
+`;
+
+const WrapperTalk = styled.div``;
 
 const InReplyTo = styled.div`
   display: block;
@@ -126,7 +173,6 @@ const InReplyTo = styled.div`
 
 const Wrapper = styled.div`
   background: white;
-  padding-bottom: 49px;
   & a {
     text-decoration: none;
   }

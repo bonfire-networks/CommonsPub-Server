@@ -1,9 +1,10 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
-import { Reply } from '../../elements/Icons';
+import { Message } from '../../elements/Icons';
 import { clearFix } from 'polished';
 import moment from 'moment';
-import Markdown from 'markdown-to-jsx';
+import Link from '../../elements/Link/Link';
+// import Markdown from 'markdown-to-jsx';
 
 interface EventProps {
   author: {
@@ -21,6 +22,7 @@ interface EventProps {
   noAction?: boolean;
   selectThread(number): number;
   selectedThread: number;
+  communityId: string;
 }
 
 const Event: React.SFC<EventProps> = ({
@@ -30,54 +32,66 @@ const Event: React.SFC<EventProps> = ({
   noAction,
   totalReplies,
   selectThread,
-  selectedThread
+  selectedThread,
+  communityId
 }) => {
   return (
-    <FeedItem
-      active={selectedThread === Number(comment.id) ? true : false}
-      onClick={() => selectThread(comment.id)}
-    >
-      <Member>
-        <MemberItem>
-          <Img alt="user" src={author.icon} />
-        </MemberItem>
-        <MemberInfo>
-          <h3>{author.name}</h3>
-          <Primary>
-            <Markdown children={comment.body} />
-          </Primary>
-        </MemberInfo>
-      </Member>
-      <Desc>
-        {noAction ? null : (
-          <Sub>
-            <Actions>
-              <Date>{moment(comment.date).fromNow()}</Date>
+    <LinkComment to={'/communities/' + communityId + '/thread/' + comment.id}>
+      <FeedItem
+        active={selectedThread === Number(comment.id) ? true : false}
+        // onClick={() => selectThread(comment.id)}
+      >
+        <Member>
+          <MemberItem>
+            <Img alt="user" src={author.icon} />
+          </MemberItem>
+          <MemberInfo>
+            <h3>
+              {author.name}
               <Button>
-                <Reply
+                <Message
                   width={16}
                   height={16}
                   strokeWidth={2}
-                  color={'#1e1f2480'}
+                  color={'#3c3c3c'}
                 />
                 {totalReplies}
               </Button>
-            </Actions>
-          </Sub>
-        )}
-      </Desc>
-    </FeedItem>
+            </h3>
+            <Primary>
+              {/* <Markdown children={comment.body} /> */}
+              {comment.body.length > 320
+                ? comment.body.replace(/^([\s\S]{316}[^\s]*)[\s\S]*/, '$1...')
+                : comment.body}
+            </Primary>
+          </MemberInfo>
+        </Member>
+        <Desc>
+          {noAction ? null : (
+            <Sub>
+              <Actions>
+                <Date>{moment(comment.date).fromNow()}</Date>
+              </Actions>
+            </Sub>
+          )}
+        </Desc>
+      </FeedItem>
+    </LinkComment>
   );
 };
 
 export default Event;
 
+const LinkComment = styled(Link)`
+  text-decoration: none;
+`;
+
 const Button = styled.div`
-  color: #1e1f2480;
+  color: #3c3c3c;
   cursor: pointer;
   font-weight: 600;
-  margin-left: 8px;
-  float: left;
+  margin-right: 8px;
+  float: right;
   & svg {
     margin-right: 8px;
     vertical-align: sub;
@@ -93,15 +107,17 @@ const FeedItem = styled.div<{ active?: boolean }>`
   background: #fff;
   margin-top: 0:
   z-index: 10;
+  padding: 8px;
   margin: 8px;
-    padding: 8px;
-    padding-bottom: 0px;
-    word-wrap: break-word;
-    font-size: 14px;
-    border-radius: 6px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.05);
-    box-sizing: border-box;
-    border: ${props => (props.active ? '3px solid #f98012' : '0px')}
+  padding-bottom: 0px;
+  word-wrap: break-word;
+  font-size: 14px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: background .2s;
+  &:hover {
+    background: #f3f6f9
+  }
 `;
 
 const Primary = styled.div`
@@ -119,29 +135,29 @@ const Member = styled.div`
 `;
 
 const MemberInfo = styled.div`
-  margin-left: 50px;
+  margin-left: 40px;
   & h3 {
-    font-size: 13px;
+    font-size: 14px;
     margin: 0;
-    color: ${props => props.theme.styles.colour.base3};
-    text-decoration: underline;
+    color: ${props => props.theme.styles.colour.base2};
+    text-decoration: none;
   }
 `;
 
 const Sub = styled.div`
   ${clearFix()};
-  padding-left: 50px;
+  padding-left: 40px;
 `;
 
 const MemberItem = styled.span`
   background-color: #d6dadc;
-  border-radius: 3px;
+  border-radius: 100px;
   color: #4d4d4d;
   float: left;
-  height: 42px;
+  height: 32px;
   overflow: hidden;
   position: relative;
-  width: 42px;
+  width: 32px;
   user-select: none;
   z-index: 0;
   vertical-align: inherit;
@@ -155,16 +171,16 @@ const Desc = styled.div`
 `;
 
 const Img = styled.img`
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: block;
   -webkit-appearance: none;
-  line-height: 42px;
+  line-height: 32px;
   text-indent: 4px;
   font-size: 13px;
   overflow: hidden;
-  max-width: 42px;
-  max-height: 42px;
+  max-width: 32px;
+  max-height: 32px;
   text-overflow: ellipsis;
   vertical-align: text-top;
   margin-right: 8px;
@@ -172,14 +188,12 @@ const Img = styled.img`
 
 const Date = styled.div`
   font-size: 12px;
-  line-height: 25px;
-  float: left;
+  line-height: 32px;
   height: 20px;
   margin: 0;
-  color: #1e1f2480;
-  margin-top: -2px;
-  font-weight: 600;
-  margin-right: 10px;
+  margin-top: -10px;
+  color: #667d99;
+  font-weight: 500;
 `;
 
 const Actions = styled.div`

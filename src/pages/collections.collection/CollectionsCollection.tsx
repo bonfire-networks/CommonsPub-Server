@@ -274,13 +274,11 @@ class CollectionComponent extends React.Component<Props> {
                                       previousResult,
                                       { fetchMoreResult }
                                     ) => {
-                                      console.log(fetchMoreResult);
                                       const newNodes =
                                         fetchMoreResult.collection.inbox.edges;
                                       const pageInfo =
                                         fetchMoreResult.collection.inbox
                                           .pageInfo;
-                                      console.log(newNodes);
                                       return newNodes.length
                                         ? {
                                             // Put the new comments at the end of the list and update `pageInfo`

@@ -3,10 +3,9 @@ import styled from '../../../themes/styled';
 import CommentPreview from './CommentPreview';
 import Talk from '../../elements/Talk/Thread';
 import { compose, withState } from 'recompose';
-import Thread from '../../../pages/thread';
 // import Text from '../../inputs/Text/Text';
 // import { Globe, Star, Reply } from '../../elements/Icons';
-import { Send, Left } from '../../elements/Icons';
+import { Send } from '../../elements/Icons';
 import media from 'styled-media-query';
 
 import { Trans } from '@lingui/macro';
@@ -17,216 +16,146 @@ interface Props {
   id: string;
   followed?: boolean;
   selectedThread: any;
+  match: any;
   onSelectedThread(any): number;
 }
-
-// const Search = props => (
-//   <Text
-//    placeholder="Search threads..."
-//   />
-// )
 
 const CommunitiesFeatured: React.SFC<Props> = props => {
   return (
     <div style={{ height: '100%' }}>
-      {/* {props.followed ? (
-        <Talk id={props.localId} externalId={props.id} />
-      ) : null} */}
       <Grid>
-        <WrapperComments
-          selected={props.selectedThread === null ? false : true}
-        >
-          {props.followed ? (
-            <Actions>
-              <ThreadButton onClick={() => props.onSelectedThread('thread')}>
-                <span>
-                  <Send
-                    width={18}
-                    height={18}
-                    strokeWidth={2}
-                    color={'#f0f0f0'}
-                  />
-                </span>
-                <Trans>Start a new thread</Trans>
-              </ThreadButton>
-            </Actions>
-          ) : null}
-          {/* <Filter>
-          <Cont><span><Globe width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
-          <Cont><span><Star width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /></span></Cont>
-          <Cont><span><Reply width={18} height={18} strokeWidth={2} color={"#f0f0f0"} /> </span></Cont>
-          <Cont><span></span></Cont>
-        </Filter>
-        <WrapperSearch>
-        <Search />
-        </WrapperSearch> */}
-          {props.threads ? (
-            props.threads.edges.map((comment, i) => {
-              let author = {
-                id: comment.node.author.id,
-                name: comment.node.author.name,
-                icon: comment.node.author.icon
-              };
-              let message = {
-                body: comment.node.content,
-                date: comment.node.published,
-                id: comment.node.localId
-              };
-              return (
-                <Previews key={i}>
-                  <CommentPreview
-                    totalReplies={comment.node.replies.totalCount}
-                    key={comment.node.id}
-                    author={author}
-                    comment={message}
-                    selectThread={props.onSelectedThread}
-                    selectedThread={props.selectedThread}
-                  />
-                </Previews>
-              );
-            })
-          ) : (
-            <OverviewCollection />
-          )}
-        </WrapperComments>
-        <Wrapper>
-          <Actions>
-            {props.selectedThread !== null ? (
-              <>
-                <i onClick={() => props.onSelectedThread(null)}>
-                  <Left
-                    width={24}
-                    height={24}
-                    strokeWidth={2}
-                    color={'#68737d'}
-                  />
-                </i>
-                <ThreadTitle>
-                  <Trans>Thread without title</Trans>
-                </ThreadTitle>
-              </>
+        {props.selectedThread === null ? (
+          <WrapperComments
+            selected={props.selectedThread === null ? false : true}
+          >
+            {props.followed ? (
+              <Actions>
+                <ThreadButton onClick={() => props.onSelectedThread('thread')}>
+                  <span>
+                    <Send
+                      width={18}
+                      height={18}
+                      strokeWidth={2}
+                      color={'#f0f0f0'}
+                    />
+                  </span>
+                  <Trans>Start a new thread</Trans>
+                </ThreadButton>
+              </Actions>
             ) : null}
-          </Actions>
-          {props.selectedThread === 'thread' ? (
-            <Talk full id={props.localId} externalId={props.id} />
-          ) : props.selectedThread === null ? (
-            <Empty>
-              <Trans>Select a thread to see the discussion...</Trans>
-            </Empty>
-          ) : (
-            <Thread
-              selectThread={props.onSelectedThread}
-              id={props.selectedThread}
-            />
-          )}
-        </Wrapper>
+
+            {props.threads ? (
+              props.threads.edges.map((comment, i) => {
+                let author = {
+                  id: comment.node.author.id,
+                  name: comment.node.author.name,
+                  icon: comment.node.author.icon
+                };
+                let message = {
+                  body: comment.node.content,
+                  date: comment.node.published,
+                  id: comment.node.localId
+                };
+                return (
+                  <Previews key={i}>
+                    <CommentPreview
+                      totalReplies={comment.node.replies.totalCount}
+                      key={comment.node.id}
+                      author={author}
+                      comment={message}
+                      selectThread={props.onSelectedThread}
+                      selectedThread={props.selectedThread}
+                      communityId={props.localId}
+                    />
+                  </Previews>
+                );
+              })
+            ) : (
+              <OverviewCollection />
+            )}
+          </WrapperComments>
+        ) : props.selectedThread === 'thread' ? (
+          <Talk full id={props.localId} thread externalId={props.id} />
+        ) : null}
       </Grid>
     </div>
   );
 };
 
+// const Header = styled.div`
+// border-bottom: 1px solid #edf0f2;
+// ${clearFix()}
+// `
+
+// const LeftArr = styled.span`
+// display: inline-block;
+// margin-bottom: 0;
+// text-align: center;
+// vertical-align: middle;
+// cursor: pointer;
+// white-space: nowrap;
+// line-height: 20px;
+// border-radius: 4px;
+// user-select: none;
+// color: #667d99;
+// background-color: rgb(231, 237, 243);
+// border: 0;
+// width: 36px;
+// text-align: center;
+// padding: 5px;
+// z-index: 3 !important;
+// border-radius: 4px !important;
+// transition: border-radius .2s;
+// max-width: 150px;
+// overflow: hidden;
+// text-overflow: ellipsis;
+// padding-left: 8px;
+// padding-right: 8px;
+// position: relative;
+// background-color: #d7dfea;
+// margin: 8px;
+// margin-right:0;
+// float:left;
+// & svg {
+//   vertical-align: middle;
+// }
+// `
 const Previews = styled.div``;
-const ThreadTitle = styled.div`
-  font-size: 14px;
-  color: #f98012;
-  line-height: 50px;
-  font-weight: 600;
-`;
-// ${media.lessThan("medium")`
-//   grid-template-columns: 1fr;
-//   `}
+
 const Actions = styled.div`
   ${clearFix()};
-  height: 50px;
   display: flex;
   border-bottom: 1px solid #edf0f2;
-  i {
-    float: left;
-    height: 50px;
-    line-height: 50px;
-    cursor: pointer;
-    margin-left: 8px;
+  span {
     & svg {
       vertical-align: middle;
       margin-right: 16px;
     }
   }
 `;
-const Empty = styled.div`
-  margin: 40px;
-  border-radius: 6px;
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  font-size: 16px;
-  color: #abafb9;
-  font-weight: 600;
-  ${media.lessThan('medium')`
-   display: none;
-   `};
-`;
 
 const ThreadButton = styled.div`
-  height: 40px;
   border-radius: 4px;
-  background: #5a606d;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 14px;
+  background: ${props => props.theme.styles.colour.primary};
+  font-size: 13px;
   font-weight: 600;
-  line-height: 40px;
+  line-height: 35px;
   text-align: center;
   cursor: pointer;
   color: #f0f0f0;
   margin: 8px;
   float: left;
-  flex: 1;
   padding: 0 16px;
+  display: inline-block;
   & span {
-    display: inline-block;
-    margin-right: 8px;
     & svg {
       vertical-align: middle;
     }
   }
 `;
 
-// const Filter = styled.div`
-// height: 40px;
-// margin: 8px;
-// border-radius: 4px;
-// background: #5a606d;
-// box-shadow: 0 1px 2px rgba(0,0,0,.2);
-// display: grid;
-// grid-template-columns: 1fr 1fr 1fr 1fr;
-// & div {
-//   border-right:1px solid #4a4e56;
-//   & span {
-//     margin: 0 auto;
-//     text-align: center;
-//     display: block;
-//     height: 40px;
-//     line-height: 40px;
-//     & svg {
-//       vertical-align: middle;
-//     }
-//   }
-//   &:last-of-type {
-//     border-right: 0px;
-//   }
-// }
-
-// `;
-
-// const WrapperSearch = styled.div`
-//   margin: 8px;
-// `;
-
-// const Cont = styled.div`
-
-// `;
-
 const WrapperComments = styled.div<{ selected?: boolean }>`
-  background: #e9ebef;
+  // background: #e9ebef;
   border-right: 1px solid #e2e5ea;
   ${media.lessThan('medium')`
   display: ${props => (props.selected ? 'none' : 'auto')};
@@ -235,7 +164,7 @@ const WrapperComments = styled.div<{ selected?: boolean }>`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr;
   height: 100%;
 
   ${media.lessThan('medium')`
@@ -250,13 +179,13 @@ const OverviewCollection = styled.div`
   }
 `;
 
-const Wrapper = styled.div`
-  background: white;
-  position: relative;
-  & a {
-    text-decoration: none;
-  }
-`;
+// const Wrapper = styled.div`
+//   background: white;
+//   position: relative;
+//   & a {
+//     text-decoration: none;
+//   }
+// `;
 
 export default compose(withState('selectedThread', 'onSelectedThread', null))(
   CommunitiesFeatured

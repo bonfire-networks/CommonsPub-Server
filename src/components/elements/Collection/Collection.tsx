@@ -19,9 +19,7 @@ const Collection: React.SFC<CollectionProps> = ({
 }) => {
   return (
     <Wrapper>
-      <Link
-        to={`/communities/${communityId}/collections/${collection.localId}`}
-      >
+      <Link to={`/collections/${collection.localId}`}>
         <Img style={{ backgroundImage: `url(${collection.icon})` }} />
         <Infos>
           <Title>
@@ -135,10 +133,12 @@ const Infos = styled.div`
   flex: 1;
 `;
 const Title = styled(H5)`
-  font-size: 18px !important;
+  font-size: 16px !important;
   margin: 0 0 8px 0 !important;
   line-height: 20px !important;
   letter-spacing: 0.8px;
+  font-weight: 600;
+  color: ${props => props.theme.styles.colour.base2};
 `;
 const Desc = styled(P)`
   margin: 0 !important;

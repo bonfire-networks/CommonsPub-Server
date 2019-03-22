@@ -59,7 +59,7 @@ const Event: React.SFC<EventProps> = ({
                     width={16}
                     height={16}
                     strokeWidth={2}
-                    color={'#1e1f2480'}
+                    color={'#667d99'}
                   />
                   <Trans>Reply</Trans> ({totalReplies})
                 </Button>
@@ -75,18 +75,14 @@ const Event: React.SFC<EventProps> = ({
 export default Event;
 
 const Button = styled.div`
-  padding: 0px 10px;
-  color: #1e1f2480;
-  height: 40px;
-  font-weight: 600;
-  line-height: 40px;
+  color: #667d99;
+  font-weight: 500;
+  font-size: 13px;
   cursor: pointer;
-  border: 1px solid #e4e6e6;
-  border-radius: 4px;
   &:hover {
-    color: ${props => props.theme.styles.colour.primaryAlt};
+    color: ${props => props.theme.styles.colour.primary};
     & svg {
-      color: ${props => props.theme.styles.colour.primaryAlt};
+      color: ${props => props.theme.styles.colour.primary};
     }
   }
   & svg {
@@ -131,10 +127,9 @@ const Member = styled.div`
 const MemberInfo = styled.div`
   display: inline-block;
   & h3 {
-    font-size: 13px;
+    font-size: 14px;
     margin: 0;
     color: ${props => props.theme.styles.colour.base3};
-    text-decoration: underline;
   }
 `;
 
@@ -146,13 +141,13 @@ const Sub = styled.div`
 
 const MemberItem = styled.span`
   background-color: #d6dadc;
-  border-radius: 3px;
+  border-radius: 50px;
   color: #4d4d4d;
   display: inline-block;
-  height: 42px;
+  height: 32px;
   overflow: hidden;
   position: relative;
-  width: 42px;
+  width: 32px;
   user-select: none;
   z-index: 0;
   vertical-align: inherit;
@@ -166,16 +161,16 @@ const Desc = styled.div`
 `;
 
 const Img = styled.img`
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   display: block;
   -webkit-appearance: none;
-  line-height: 42px;
+  line-height: 32px;
   text-indent: 4px;
   font-size: 13px;
   overflow: hidden;
-  max-width: 42px;
-  max-height: 42px;
+  max-width: 32px;
+  max-height: 32px;
   text-overflow: ellipsis;
   vertical-align: text-top;
   margin-right: 8px;
@@ -183,12 +178,10 @@ const Img = styled.img`
 
 const Date = styled.div`
   font-size: 12px;
-  line-height: 32px;
-  height: 20px;
   margin: 0;
-  color: ${props => props.theme.styles.colour.base2};
-  margin-top: -4px;
-  font-weight: 600;
+  color: #667d99;
+  margin-top: 2px;
+  font-weight: 500;
 `;
 
 const Actions = styled.div`

@@ -79,6 +79,7 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
                     comment={message}
                     selectThread={props.onSelectedThread}
                     selectedThread={props.selectedThread}
+                    communityId={props.localId}
                   />
                 </Previews>
               );

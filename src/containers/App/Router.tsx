@@ -97,7 +97,6 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
                     component={CommunitiesYours}
                   />
                   <Route
-                    exact
                     path="/communities/:community"
                     component={CommunitiesCommunity}
                   />
@@ -124,7 +123,7 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
 
                   <Route
                     exact
-                    path="/communities/:community/collections/:collection"
+                    path="/collections/:collection"
                     component={CollectionsCollection}
                   />
                   <Route exact path="/profile" component={Profile} />
