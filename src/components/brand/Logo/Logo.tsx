@@ -15,12 +15,6 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
     color: ${props => props.theme.styles.colour.primary};
     text-decoration: none;
   }
-  & small {
-    letter-spacing: 0;
-    color: #fff;
-    font-weight: 600;
-    font-style: italic;
-  }
 `;
 
 const Small = styled.a<{ big?: boolean }>`
@@ -29,11 +23,12 @@ const Small = styled.a<{ big?: boolean }>`
   border-radius: 4px;
   background: ${props => props.theme.styles.colour.primary};
   color: white !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.5px;
   font-size: 11px;
   text-transform: uppercase;
   cursor: pointer;
+  text-decoration: none;
 `;
 
 type LogoProps = {
@@ -54,11 +49,11 @@ export default ({ link = true, big }: LogoProps) => {
         </Link>
         {big ? null : (
           <Small
-            href="https://blog.moodle.net/2019/moodlenet-0-5-alpha-update/"
+            href="https://blog.moodle.net/2019/moodlenet-0-7-alpha-update/"
             target="blank"
             big={big}
           >
-            <small>v0.5 alpha</small>
+            <small>v 0.7 alpha</small>
           </Small>
         )}
       </LogoH1>
@@ -68,7 +63,7 @@ export default ({ link = true, big }: LogoProps) => {
           target="blank"
           big={big}
         >
-          <small>v0.5 alpha</small>
+          <small>v 0.7 alpha</small>
         </Small>
       ) : null}
     </>

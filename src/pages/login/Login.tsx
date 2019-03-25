@@ -4,6 +4,7 @@ import { graphql, OperationOption } from 'react-apollo';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
+import media from 'styled-media-query';
 
 import { i18nMark } from '@lingui/react';
 import { Trans } from '@lingui/macro';
@@ -12,7 +13,7 @@ import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
 // import Link from '../../components/elements/Link/Link';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
-import Body from '../../components/chrome/Body/Body';
+// import Body from '../../components/chrome/Body/Body';
 // import Button from '../../components/elements/Button/Button';
 import H6 from '../../components/typography/H6/H6';
 // import P from '../../components/typography/P/P';
@@ -49,12 +50,22 @@ const Signup = styled.div`
   }
 `;
 
-const BodyCenterContent = styled(Body)`
-  display: flex;
-  align-items: center;
-  width: 420px;
+// const BodyCenterContent = styled(Body)`
+//   display: flex;
+//   align-items: center;
+//   margin: 0 auto;
+//   flex-direction: column;
+//   position: relative;
+//   margin-top: 36px;
+//   ${media.lessThan('medium')`
+//   width: 420px;
+//   `};
+// `;
+
+const BodyCenterContent = styled.div`
   margin: 0 auto;
-  flex-direction: column;
+  margin-top: 36px;
+  padding: 0 16px;
 `;
 
 const WrapperLogin = styled.div`
@@ -65,20 +76,40 @@ const WrapperLogin = styled.div`
   box-shadow: 0 4px 24px 4px rgba(100, 100, 100, 0.1);
   padding-top: 1px;
 `;
-const Banner = styled.div`
-  flex: 1;
-  background: #ffc9c960;
-  width: 100%;
-  text-align: center;
-  font-size: 15px;
-  color: #5e1919;
-  height: 60px;
-  line-height: 60px;
-  font-weight: 700;
-  max-height: 60px;
-  margin-bottom: 40px;
-`;
+// const Banner = styled.div`
+//   flex: 1;
+//   background: #ffc9c960;
+//   width: 100%;
+//   text-align: center;
+//   font-size: 15px;
+//   color: #5e1919;
+//   height: 60px;
+//   line-height: 60px;
+//   font-weight: 700;
+//   max-height: 60px;
+//   position: absolute;
+//   bottom: 0;
+//   left: 0;
+//   right: 0;
+// `;
 
+const LanguageWrapper = styled.div`
+  margin-top: 24px;
+  margin-bottom: 24px;
+  & div {
+    background: white !important;
+    color: #333 !important;
+  }
+`;
+const Background = styled.div`
+  background-image: url('https://i.imgur.com/K9dci7b.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100%;
+  ${media.lessThan('medium')`
+  display: none;
+  `};
+`;
 const Tagline = styled.h5`
   font-size: 42px;
   margin-top: 24px;
@@ -86,6 +117,9 @@ const Tagline = styled.h5`
 `;
 const Roww = styled(Row)`
   width: 1040px;
+  ${media.lessThan('medium')`
+   width: 100%;
+   `};
 `;
 /**
  * @param Component
@@ -240,25 +274,18 @@ class Login extends React.Component<LoginProps, LoginState> {
     return (
       <>
         <BodyCenterContent>
-          <Banner>
-            <Trans>
-              Seeing some error messages? Just hit refresh! Contact us if that
-              didn't help, of course.
-            </Trans>
-          </Banner>
-
           <Roww>
-            <Col size={5}>
+            <Col md={5} sm={12}>
               <Logo big />
               <Tagline>
-                <Trans>Share. Curate. Discuss</Trans>
+                <Trans>Share. Curate. Discuss.</Trans>
               </Tagline>
 
               <WrapperLogin>
                 <H6>
                   <Trans>Sign in</Trans>
                 </H6>
-                <LanguageSelect />
+
                 <LoginForm
                   validation={this.state.validation}
                   onSubmit={this.onLoginFormSubmit}
@@ -272,34 +299,27 @@ class Login extends React.Component<LoginProps, LoginState> {
                   </u>
                 </Signup>
               </WrapperLogin>
+              <LanguageWrapper>
+                <LanguageSelect />
+              </LanguageWrapper>
+            </Col>
+            <Col md={7}>
+              <Background />
             </Col>
           </Roww>
 
-          {/* <Row>
-          <Col>
-            <P
-              style={{
-                marginTop: '40px'
-              }}
-            >
-              <Trans>
-                You need to sign up to participate in discussions. You can use a
-                social media account to sign in, or create an account manually.
-              </Trans>
-            </P>
-
-            <Link to="/sign-up">
-              <Button>
-                <Trans>Create an account</Trans>
-              </Button>
-            </Link>
-          </Col>
-        </Row> */}
           <SignupModal
             toggleModal={this.props.handleSignup}
             modalIsOpen={this.props.isOpen}
           />
         </BodyCenterContent>
+        {/* <Banner>
+            <Trans>
+              Seeing some error messages? Just hit refresh! Contact us if that
+              didn't help, of course.
+            </Trans>
+          </Banner>
+          </div> */}
       </>
     );
   }

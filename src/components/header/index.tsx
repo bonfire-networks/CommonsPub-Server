@@ -69,12 +69,15 @@ const Header: React.SFC<Props> = props => {
           <OutsideClickHandler onOutsideClick={props.closeMenu}>
             <WrapperMenu>
               <ProfileMenu>
+                <List lined>{props.data.user.data.name}</List>
                 <List lined>
                   <Item>
-                    <Link to="/profile">{props.data.user.data.name}</Link>
+                    <Link to="/profile">
+                      <Trans>Profile</Trans>
+                    </Link>
                   </Item>
                   <Item onClick={props.handleSettings}>
-                    <Trans>Profile &amp; Settings</Trans>
+                    <Trans>Settings</Trans>
                   </Item>
                 </List>
                 <List>

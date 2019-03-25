@@ -50,6 +50,7 @@ query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
                         localId
                         icon
                     }
+                    published
                 }
             }
         }

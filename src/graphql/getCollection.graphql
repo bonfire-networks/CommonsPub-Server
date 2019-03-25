@@ -28,6 +28,7 @@ query getCollection($id: Int!, $limit: Int, $end: Int) {
                     id
                     activityType
                     type
+                    published
                     object {
                         __typename
                         ... on Community {

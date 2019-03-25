@@ -19,7 +19,6 @@ async function run() {
           padding: 0;
           width: 100%;
           height: 100%;
-          background-color: #FBFBFD;
           background-color: #e9ebee;
           font-family: 'Fira Sans', sans-serif !important;
       }

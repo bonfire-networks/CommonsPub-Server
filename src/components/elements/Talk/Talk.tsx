@@ -4,7 +4,6 @@ import { clearFix } from 'polished';
 import Textarea from '../../inputs/TextArea/Textarea';
 import Button from '../Button/Button';
 import { FormikProps, Field } from 'formik';
-import Alert from '../../elements/Alert';
 import { compose, withState } from 'recompose';
 import Preview from './Preview';
 const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
@@ -60,8 +59,6 @@ const Component = (props: Props & FormikProps<FormValues>) => (
                 name={field.name}
                 value={field.value}
               />
-              {props.errors.content &&
-                props.touched.content && <Alert>{props.errors.content}</Alert>}
             </>
           )}
         />
