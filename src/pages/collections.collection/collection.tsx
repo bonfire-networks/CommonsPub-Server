@@ -8,21 +8,29 @@ import Link from '../../components/elements/Link/Link';
 import moment from 'moment';
 import styled from '../../themes/styled';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
+import ResourceCard from '../../components/elements/Resource/Resource';
+import P from '../../components/typography/P/P';
+import Button from '../../components/elements/Button/Button';
+import media from 'styled-media-query';
 
-import { Collection, Message, Eye } from '../../components/elements/Icons';
+import { Resource, Message, Eye } from '../../components/elements/Icons';
 
 interface Props {
-  collections: any;
-  community: any;
+  collection: any;
+  community_name: string;
+  resources: any;
   fetchMore: any;
   type: string;
   match: any;
+  addNewResource: any;
 }
 
 const CommunityPage: SFC<Props> = ({
-  collections,
-  community,
+  collection,
+  community_name,
+  resources,
   fetchMore,
+  addNewResource,
   match,
   type
 }) => (
@@ -40,7 +48,7 @@ const CommunityPage: SFC<Props> = ({
           </SuperTab>
           <SuperTab>
             <span>
-              <Collection
+              <Resource
                 width={20}
                 height={20}
                 strokeWidth={2}
@@ -48,7 +56,8 @@ const CommunityPage: SFC<Props> = ({
               />
             </span>
             <h5>
-              <Trans>Collections</Trans>
+              <Trans>Resources</Trans> ({collection.resources.totalCount}
+              /10)
             </h5>
           </SuperTab>
           <SuperTab>
@@ -67,7 +76,7 @@ const CommunityPage: SFC<Props> = ({
         </SuperTabList>
         <TabPanel>
           <div>
-            {community.inbox.edges.map((t, i) => (
+            {collection.inbox.edges.map((t, i) => (
               <FeedItem key={i}>
                 <Member>
                   <MemberItem>
@@ -76,15 +85,16 @@ const CommunityPage: SFC<Props> = ({
                   <MemberInfo>
                     <h3>
                       <Link to={'/user/' + t.node.user.localId}>
-                        <Name>{t.node.user.name}</Name>
+                        {t.node.user.name}
                       </Link>
                       {t.node.activityType === 'CreateCollection' ? (
                         <span>
                           created the collection{' '}
                           <Link
                             to={
-                              `/communities/${community.localId}/collections/` +
-                              t.node.object.localId
+                              `/communities/${
+                                collection.localId
+                              }/collections/` + t.node.object.localId
                             }
                           >
                             {t.node.object.name}
@@ -95,12 +105,7 @@ const CommunityPage: SFC<Props> = ({
                       ) : t.node.activityType === 'UpdateCollection' ? (
                         <span>
                           updated the collection{' '}
-                          <Link
-                            to={
-                              `/communities/${community.localId}/collections/` +
-                              t.node.object.localId
-                            }
-                          >
+                          <Link to={`/collections/` + t.node.object.localId}>
                             {t.node.object.name}
                           </Link>
                         </span>
@@ -111,25 +116,21 @@ const CommunityPage: SFC<Props> = ({
                           posted a new{' '}
                           <Link
                             to={
-                              `/communities/${community.localId}/thread/` +
+                              `/collections/${collection.localId}/thread/` +
                               t.node.object.localId
                             }
                           >
-                            comment {t.node.object.name}
-                          </Link>
+                            comment
+                          </Link>{' '}
                         </span>
                       ) : t.node.activityType === 'CreateResource' ? (
                         <span>
-                          created the resource <b>{t.node.object.name}</b> on
-                          collection{' '}
-                          <Link
-                            to={
-                              `/communities/${community.localId}/collections/` +
-                              t.node.object.collection.localId
-                            }
-                          >
-                            {t.node.object.collection.name}
-                          </Link>{' '}
+                          created the resource <b>{t.node.object.name}</b>
+                        </span>
+                      ) : t.node.activityType === 'FollowCollection' ? (
+                        <span>
+                          started to follow the collection{' '}
+                          <b>{t.node.object.name}</b>
                         </span>
                       ) : null}
                     </h3>
@@ -138,30 +139,31 @@ const CommunityPage: SFC<Props> = ({
                 </Member>
               </FeedItem>
             ))}
-            {(community.inbox.pageInfo.startCursor === null &&
-              community.inbox.pageInfo.endCursor === null) ||
-            (community.inbox.pageInfo.startCursor &&
-              community.inbox.pageInfo.endCursor === null) ? null : (
+            {(collection.inbox.pageInfo.startCursor === null &&
+              collection.inbox.pageInfo.endCursor === null) ||
+            (collection.inbox.pageInfo.startCursor &&
+              collection.inbox.pageInfo.endCursor === null) ? null : (
               <LoadMore
                 onClick={() =>
                   fetchMore({
                     variables: {
-                      end: community.inbox.pageInfo.endCursor
+                      end: collection.inbox.pageInfo.endCursor
                     },
                     updateQuery: (previousResult, { fetchMoreResult }) => {
-                      const newNodes = fetchMoreResult.community.inbox.edges;
-                      const pageInfo = fetchMoreResult.community.inbox.pageInfo;
+                      const newNodes = fetchMoreResult.collection.inbox.edges;
+                      const pageInfo =
+                        fetchMoreResult.collection.inbox.pageInfo;
                       return newNodes.length
                         ? {
                             // Put the new comments at the end of the list and update `pageInfo`
                             // so we have the new `endCursor` and `hasNextPage` values
-                            community: {
-                              ...previousResult.community,
-                              __typename: previousResult.community.__typename,
+                            collection: {
+                              ...previousResult.collection,
+                              __typename: previousResult.collection.__typename,
                               inbox: {
-                                ...previousResult.community.inbox,
+                                ...previousResult.collection.inbox,
                                 edges: [
-                                  ...previousResult.community.inbox.edges,
+                                  ...previousResult.collection.inbox.edges,
                                   ...newNodes
                                 ]
                               },
@@ -169,12 +171,14 @@ const CommunityPage: SFC<Props> = ({
                             }
                           }
                         : {
-                            community: {
-                              ...previousResult.community,
-                              __typename: previousResult.community.__typename,
+                            collection: {
+                              ...previousResult.collection,
+                              __typename: previousResult.collection.__typename,
                               inbox: {
-                                ...previousResult.community.inbox,
-                                edges: [...previousResult.community.inbox.edges]
+                                ...previousResult.collection.inbox,
+                                edges: [
+                                  ...previousResult.collection.inbox.edges
+                                ]
                               },
                               pageInfo
                             }
@@ -189,27 +193,74 @@ const CommunityPage: SFC<Props> = ({
           </div>
         </TabPanel>
         <TabPanel>
-          <div style={{ display: 'flex' }}>{collections}</div>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              background: '#e9ebef'
+            }}
+          >
+            <Wrapper>
+              {resources.totalCount ? (
+                <CollectionList>
+                  {resources.edges.map((edge, i) => (
+                    <ResourceCard
+                      key={i}
+                      icon={edge.node.icon}
+                      title={edge.node.name}
+                      summary={edge.node.summary}
+                      url={edge.node.url}
+                      localId={edge.node.localId}
+                    />
+                  ))}
+                </CollectionList>
+              ) : (
+                <OverviewCollection>
+                  <P>
+                    <Trans>This collection has no resources.</Trans>
+                  </P>
+                </OverviewCollection>
+              )}
+
+              {resources.totalCount > 9 ? null : collection.community
+                .followed ? (
+                <WrapperActions>
+                  <Button onClick={addNewResource}>
+                    <Trans>Add a new resource</Trans>
+                  </Button>
+                </WrapperActions>
+              ) : (
+                <Footer>
+                  <Trans>
+                    Join the <strong>{community_name}</strong> community to add
+                    a resource
+                  </Trans>
+                </Footer>
+              )}
+            </Wrapper>
+          </div>
         </TabPanel>
         <TabPanel>
-          {community.followed ? (
+          {collection.community.followed ? (
             <Discussion
-              localId={community.localId}
-              id={community.id}
-              threads={community.threads}
+              localId={collection.localId}
+              id={collection.id}
+              threads={collection.threads}
               followed
-              type={type}
-              match={match}
             />
           ) : (
             <>
               <Discussion
-                localId={community.localId}
-                id={community.id}
-                threads={community.threads}
+                localId={collection.localId}
+                id={collection.id}
+                threads={collection.threads}
+                type={type}
               />
               <Footer>
-                <Trans>Join the community to discuss</Trans>
+                <Trans>
+                  Join the <strong>{community_name}</strong> community to
+                  participate in discussions
+                </Trans>
               </Footer>
             </>
           )}
@@ -219,13 +270,23 @@ const CommunityPage: SFC<Props> = ({
   </WrapperTab>
 );
 
-const Name = styled.span`
-  font-weight: 600;
-  color: ${props => props.theme.styles.colour.base2};
-  &:hover {
-    text-decoration: underline;
+const Wrapper = styled.div`
+  flex: 1;
+`;
+
+const CollectionList = styled.div`
+  flex: 1;
+  margin: 10px;
+`;
+
+const OverviewCollection = styled.div`
+  padding: 8px;
+  & p {
+    margin-top: 14px !important;
+    font-size: 14px;
   }
 `;
+
 const Footer = styled.div`
   height: 30px;
   line-height: 30px;
@@ -255,6 +316,15 @@ const OverlayTab = styled.div`
   & > div {
     flex: 1;
     height: 100%;
+  }
+`;
+
+const WrapperActions = styled.div`
+  margin: 8px;
+  & button {
+    ${media.lessThan('medium')`
+   width: 100%;
+    `};
   }
 `;
 
@@ -344,19 +414,19 @@ const Date = styled.div`
 `;
 
 const FeedItem = styled.div`
-  min-height: 30px;
-  position: relative;
-  margin: 0;
-  padding: 16px;
-  word-wrap: break-word;
-  font-size: 14px;
-  ${clearFix()};
-  transition: background 0.5s ease;
-  background: #fff;
-  margin-top: 0
-  z-index: 10;
-  position: relative;
-  border-bottom: 1px solid #eaeaea;
+min-height: 30px;
+position: relative;
+margin: 0;
+padding: 16px;
+word-wrap: break-word;
+font-size: 14px;
+${clearFix()};
+transition: background 0.5s ease;
+background: #fff;
+margin-top: 0
+z-index: 10;
+position: relative;
+border-bottom: 1px solid #eaeaea;
 `;
 
 export default CommunityPage;

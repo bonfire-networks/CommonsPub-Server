@@ -35,6 +35,10 @@ query getCollection($id: Int!, $limit: Int, $end: Int) {
                         name
                         localId
                         }
+                         ... on Comment {
+                        id
+                        localId
+                        }
                         ... on Collection {
                         id
                         name

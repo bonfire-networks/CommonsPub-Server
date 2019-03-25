@@ -90,11 +90,11 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <WrapperCont>
                 <HeroCont>
                   <Hero>
-                    <Background
+                    {/* <Background
                       style={{
                         backgroundImage: `url(https://unsplash.it/800})`
                       }}
-                    />
+                    /> */}
                     <WrapperHero>
                       <Img
                         style={{
@@ -167,21 +167,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                     </MemberItem>
                                     <MemberInfo>
                                       <h3>
-                                        <Link
-                                          to={'/user/' + t.node.user.localId}
-                                        >
-                                          {t.node.user.name}
-                                        </Link>
+                                        <b>{t.node.user.name}</b>
                                         {t.node.activityType ===
                                         'CreateCollection' ? (
                                           <span>
                                             created the collection{' '}
                                             <Link
                                               to={
-                                                `/communities/${
-                                                  t.node.object.community
-                                                    .localId
-                                                }/collections/` +
+                                                `/collections/` +
                                                 t.node.object.localId
                                               }
                                             >
@@ -193,12 +186,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                           <span>
                                             updated the community{' '}
                                             <Link
-                                              to={
-                                                `/communities/${
-                                                  t.node.object.localId
-                                                }/collections/` +
+                                              to={`/communities/${
                                                 t.node.object.localId
-                                              }
+                                              }`}
                                             >
                                               {t.node.object.name}
                                             </Link>
@@ -209,10 +199,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                             updated the collection{' '}
                                             <Link
                                               to={
-                                                `/communities/${
-                                                  t.node.object.community
-                                                    .localId
-                                                }/collections/` +
+                                                `/collections/` +
                                                 t.node.object.localId
                                               }
                                             >
@@ -224,19 +211,38 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                           <span>
                                             joined the community{' '}
                                             <Link
-                                              to={
-                                                `/communities/${
-                                                  t.node.object.localId
-                                                }/collections/` +
+                                              to={`/communities/${
                                                 t.node.object.localId
-                                              }
+                                              }`}
                                             >
                                               {t.node.object.name}
                                             </Link>
                                           </span>
                                         ) : t.node.activityType ===
                                         'CreateComment' ? (
-                                          <span>posted a new comment </span>
+                                          <span>
+                                            posted a new{' '}
+                                            <Link
+                                              to={
+                                                t.node.object.context
+                                                  .__typename === 'Community'
+                                                  ? `/communities/${
+                                                      t.node.object.context
+                                                        .localId
+                                                    }/thread/${
+                                                      t.node.object.localId
+                                                    }`
+                                                  : `/collections/${
+                                                      t.node.object.context
+                                                        .localId
+                                                    }/thread/${
+                                                      t.node.object.localId
+                                                    }`
+                                              }
+                                            >
+                                              comment
+                                            </Link>
+                                          </span>
                                         ) : t.node.activityType ===
                                         'CreateResource' ? (
                                           <span>
@@ -245,10 +251,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                             collection{' '}
                                             <Link
                                               to={
-                                                `/communities/${
-                                                  t.node.object.collection
-                                                    .community.localId
-                                                }/collections/` +
+                                                `/collections/` +
                                                 t.node.object.collection.localId
                                               }
                                             >
@@ -667,12 +670,12 @@ const FeedItem = styled.div`
 `;
 
 const WrapperHero = styled.div`
-  margin-top: -50px;
+  // margin-top: -50px;
   padding: 24px;
-  padding-top: 24px;
   padding-top: 0;
   z-index: 9999;
   position: relative;
+  text-align: center;
 `;
 
 const Img = styled.div`
@@ -681,6 +684,11 @@ const Img = styled.div`
   border-radius: 100px;
   background: antiquewhite;
   border: 5px solid white;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 `;
 
 const LoadMore = styled.div`
@@ -723,9 +731,9 @@ const ListCollections = styled.div`
 
 const HeroCont = styled.div`
   margin-bottom: 16px;
-  border-radius: 6px;
+  // border-radius: 6px;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Roww = styled(Row)`
@@ -765,32 +773,32 @@ const WrapperCont = styled.div`
 const Hero = styled.div`
   width: 100%;
   position: relative;
-  background: white;
-  border-radius: 6px;
+  // background: white;
+  // border-radius: 6px;
 `;
 
-const Background = styled.div`
-  margin-top: 24px;
-  height: 200px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-color: #e6e6e6;
-  position: relative;
-  margin: 0 auto;
-  &:before {
-    content: '';
-    position: absolute;
-    top: 60%;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: linear-gradient(to bottom, #002f4b00, #000);
-    opacity: 0.8;
-    ${media.lessThan('medium')`
-    top: 10%;
-  `};
-  }
-`;
+// const Background = styled.div`
+//   margin-top: 24px;
+//   height: 200px;
+//   background-size: cover;
+//   background-repeat: no-repeat;
+//   background-color: #e6e6e6;
+//   position: relative;
+//   margin: 0 auto;
+//   &:before {
+//     content: '';
+//     position: absolute;
+//     top: 60%;
+//     right: 0;
+//     bottom: 0;
+//     left: 0;
+//     background-image: linear-gradient(to bottom, #002f4b00, #000);
+//     opacity: 0.8;
+//     ${media.lessThan('medium')`
+//     top: 10%;
+//   `};
+//   }
+// `;
 
 const HeroInfo = styled.div`
   & h2 {

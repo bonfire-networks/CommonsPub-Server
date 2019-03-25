@@ -122,7 +122,6 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
                   />
 
                   <Route
-                    exact
                     path="/collections/:collection"
                     component={CollectionsCollection}
                   />

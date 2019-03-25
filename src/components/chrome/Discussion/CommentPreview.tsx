@@ -20,6 +20,7 @@ interface EventProps {
   thread?: boolean;
   totalReplies?: string;
   noAction?: boolean;
+  type: string;
   selectThread(number): number;
   selectedThread: number;
   communityId: string;
@@ -33,10 +34,17 @@ const Event: React.SFC<EventProps> = ({
   totalReplies,
   selectThread,
   selectedThread,
-  communityId
+  communityId,
+  type
 }) => {
   return (
-    <LinkComment to={'/communities/' + communityId + '/thread/' + comment.id}>
+    <LinkComment
+      to={
+        type === 'community'
+          ? '/communities/' + communityId + '/thread/' + comment.id
+          : '/collections/' + communityId + '/thread/' + comment.id
+      }
+    >
       <FeedItem
         active={selectedThread === Number(comment.id) ? true : false}
         // onClick={() => selectThread(comment.id)}

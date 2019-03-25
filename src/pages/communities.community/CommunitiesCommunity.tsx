@@ -62,25 +62,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     tab: TabsEnum.Collections
   };
 
-  // componentDidMount() {
-  //   window.addEventListener("scroll", this.resizeHeaderOnScroll);
-  //   console.log('test')
-  // }
-  // resizeHeaderOnScroll() {
-  //   console.log('eppppe')
-  //   const distanceY = window.pageYOffset || document.documentElement.scrollTop,
-  //     shrinkOn = 200,
-  //     headerEl:any = document.getElementById("header");
-
-  //   if (distanceY > shrinkOn) {
-  //     console.log('eee')
-  //     headerEl.setAttribute("view", "small");
-
-  //   } else {
-  //     console.log('eeeee')
-  //     headerEl.removeAttribute("view");
-  //   }
-  // }
   render() {
     let collections;
     let community;
@@ -226,6 +207,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       collections={collections}
                       community={community}
                       fetchMore={this.props.data.fetchMore}
+                      type={'community'}
                     />
                   )}
                 />

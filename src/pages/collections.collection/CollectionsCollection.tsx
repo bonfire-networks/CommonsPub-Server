@@ -4,35 +4,26 @@ import * as React from 'react';
 
 import { Trans } from '@lingui/macro';
 
-import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import { Grid } from '@zendeskgarden/react-grid';
 import P from '../../components/typography/P/P';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-import ResourceCard from '../../components/elements/Resource/Resource';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import Collection from '../../types/Collection';
 import { compose, withState, withHandlers } from 'recompose';
 import { RouteComponentProps } from 'react-router';
 import Loader from '../../components/elements/Loader/Loader';
 import Breadcrumb from './breadcrumb';
-import Button from '../../components/elements/Button/Button';
 import CollectionModal from '../../components/elements/CollectionModal';
 import EditCollectionModal from '../../components/elements/EditCollectionModal';
 const getCollection = require('../../graphql/getCollection.graphql');
 import H2 from '../../components/typography/H2/H2';
-import { clearFix } from 'polished';
+import { Route, Switch } from 'react-router-dom';
+import Thread from '../thread';
+import CollectionPage from './collection';
 import Join from '../../components/elements/Collection/Join';
-import Discussion from '../../components/chrome/Discussion/DiscussionCollection';
-import {
-  Settings,
-  Eye,
-  Resource,
-  Message
-} from '../../components/elements/Icons';
-import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
-import { Tabs, TabPanel } from 'react-tabs';
-import Link from '../../components/elements/Link/Link';
-import moment from 'moment';
+import { Settings } from '../../components/elements/Icons';
+
 import media from 'styled-media-query';
 
 enum TabsEnum {
@@ -138,276 +129,27 @@ class CollectionComponent extends React.Component<Props> {
                 </Hero>
                 <Actions />
               </HeroCont>
-              <Roww>
-                <Col size={12}>
-                  <WrapperTab>
-                    <OverlayTab>
-                      <Tabs>
-                        <SuperTabList>
-                          <SuperTab>
-                            <span>
-                              <Eye
-                                width={20}
-                                height={20}
-                                strokeWidth={2}
-                                color={'#a0a2a5'}
-                              />
-                            </span>
-                            <h5>
-                              <Trans>Timeline</Trans>
-                            </h5>
-                          </SuperTab>
-                          <SuperTab>
-                            <span>
-                              <Resource
-                                width={20}
-                                height={20}
-                                strokeWidth={2}
-                                color={'#a0a2a5'}
-                              />
-                            </span>
-                            <h5>
-                              <Trans>Resources</Trans> (
-                              {collection.resources.totalCount}
-                              /10)
-                            </h5>
-                          </SuperTab>
-                          <SuperTab>
-                            <span>
-                              <Message
-                                width={20}
-                                height={20}
-                                strokeWidth={2}
-                                color={'#a0a2a5'}
-                              />
-                            </span>{' '}
-                            <h5>
-                              <Trans>Discussions</Trans>
-                            </h5>
-                          </SuperTab>
-                        </SuperTabList>
-                        <TabPanel>
-                          <div>
-                            {collection.inbox.edges.map((t, i) => (
-                              <FeedItem key={i}>
-                                <Member>
-                                  <MemberItem>
-                                    <Img alt="user" src={t.node.user.icon} />
-                                  </MemberItem>
-                                  <MemberInfo>
-                                    <h3>
-                                      <Link to={'/user/' + t.node.user.localId}>
-                                        {t.node.user.name}
-                                      </Link>
-                                      {t.node.activityType ===
-                                      'CreateCollection' ? (
-                                        <span>
-                                          created the collection{' '}
-                                          <Link
-                                            to={
-                                              `/communities/${
-                                                collection.localId
-                                              }/collections/` +
-                                              t.node.object.localId
-                                            }
-                                          >
-                                            {t.node.object.name}
-                                          </Link>{' '}
-                                        </span>
-                                      ) : t.node.activityType ===
-                                      'UpdateCommunity' ? (
-                                        <span>updated the community</span>
-                                      ) : t.node.activityType ===
-                                      'UpdateCollection' ? (
-                                        <span>
-                                          updated the collection{' '}
-                                          <Link
-                                            to={
-                                              `/communities/${
-                                                collection.localId
-                                              }/collections/` +
-                                              t.node.object.localId
-                                            }
-                                          >
-                                            {t.node.object.name}
-                                          </Link>
-                                        </span>
-                                      ) : t.node.activityType ===
-                                      'JoinCommunity' ? (
-                                        <span>joined the community</span>
-                                      ) : t.node.activityType ===
-                                      'CreateComment' ? (
-                                        <span>posted a new comment </span>
-                                      ) : t.node.activityType ===
-                                      'CreateResource' ? (
-                                        <span>
-                                          created the resource{' '}
-                                          <b>{t.node.object.name}</b>
-                                        </span>
-                                      ) : t.node.activityType ===
-                                      'FollowCollection' ? (
-                                        <span>
-                                          started to follow the collection{' '}
-                                          <b>{t.node.object.name}</b>
-                                        </span>
-                                      ) : null}
-                                    </h3>
-                                    <Date>
-                                      {moment(t.node.published).fromNow()}
-                                    </Date>
-                                  </MemberInfo>
-                                </Member>
-                              </FeedItem>
-                            ))}
-                            {(collection.inbox.pageInfo.startCursor === null &&
-                              collection.inbox.pageInfo.endCursor === null) ||
-                            (collection.inbox.pageInfo.startCursor &&
-                              collection.inbox.pageInfo.endCursor ===
-                                null) ? null : (
-                              <LoadMore
-                                onClick={() =>
-                                  this.props.data.fetchMore({
-                                    variables: {
-                                      end: collection.inbox.pageInfo.endCursor
-                                    },
-                                    updateQuery: (
-                                      previousResult,
-                                      { fetchMoreResult }
-                                    ) => {
-                                      const newNodes =
-                                        fetchMoreResult.collection.inbox.edges;
-                                      const pageInfo =
-                                        fetchMoreResult.collection.inbox
-                                          .pageInfo;
-                                      return newNodes.length
-                                        ? {
-                                            // Put the new comments at the end of the list and update `pageInfo`
-                                            // so we have the new `endCursor` and `hasNextPage` values
-                                            collection: {
-                                              ...previousResult.collection,
-                                              __typename:
-                                                previousResult.collection
-                                                  .__typename,
-                                              inbox: {
-                                                ...previousResult.collection
-                                                  .inbox,
-                                                edges: [
-                                                  ...previousResult.collection
-                                                    .inbox.edges,
-                                                  ...newNodes
-                                                ]
-                                              },
-                                              pageInfo
-                                            }
-                                          }
-                                        : {
-                                            collection: {
-                                              ...previousResult.collection,
-                                              __typename:
-                                                previousResult.collection
-                                                  .__typename,
-                                              inbox: {
-                                                ...previousResult.collection
-                                                  .inbox,
-                                                edges: [
-                                                  ...previousResult.collection
-                                                    .inbox.edges
-                                                ]
-                                              },
-                                              pageInfo
-                                            }
-                                          };
-                                    }
-                                  })
-                                }
-                              >
-                                <Trans>Load more</Trans>
-                              </LoadMore>
-                            )}
-                          </div>
-                        </TabPanel>
-                        <TabPanel>
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              background: '#e9ebef'
-                            }}
-                          >
-                            <Wrapper>
-                              {resources.totalCount ? (
-                                <CollectionList>
-                                  {resources.edges.map((edge, i) => (
-                                    <ResourceCard
-                                      key={i}
-                                      icon={edge.node.icon}
-                                      title={edge.node.name}
-                                      summary={edge.node.summary}
-                                      url={edge.node.url}
-                                      localId={edge.node.localId}
-                                    />
-                                  ))}
-                                </CollectionList>
-                              ) : (
-                                <OverviewCollection>
-                                  <P>
-                                    <Trans>
-                                      This collection has no resources.
-                                    </Trans>
-                                  </P>
-                                  {/* <Button onClick={this.props.addNewResource}>
-                                  <Trans>Add the first resource</Trans>
-                                </Button> */}
-                                </OverviewCollection>
-                              )}
-
-                              {resources.totalCount > 9 ? null : collection
-                                .community.followed ? (
-                                <WrapperActions>
-                                  <Button onClick={this.props.addNewResource}>
-                                    <Trans>Add a new resource</Trans>
-                                  </Button>
-                                </WrapperActions>
-                              ) : (
-                                <Footer>
-                                  <Trans>
-                                    Join the <strong>{community_name}</strong>{' '}
-                                    community to add a resource
-                                  </Trans>
-                                </Footer>
-                              )}
-                            </Wrapper>
-                          </div>
-                        </TabPanel>
-                        <TabPanel>
-                          {collection.community.followed ? (
-                            <Discussion
-                              localId={collection.localId}
-                              id={collection.id}
-                              threads={collection.threads}
-                              followed
-                            />
-                          ) : (
-                            <>
-                              <Discussion
-                                localId={collection.localId}
-                                id={collection.id}
-                                threads={collection.threads}
-                              />
-                              <Footer>
-                                <Trans>
-                                  Join the <strong>{community_name}</strong>{' '}
-                                  community to participate in discussions
-                                </Trans>
-                              </Footer>
-                            </>
-                          )}
-                        </TabPanel>
-                      </Tabs>
-                    </OverlayTab>
-                  </WrapperTab>
-                </Col>
-              </Roww>
+              <Switch>
+                <Route
+                  path={`/collections/${collection.localId}/thread/:id`}
+                  component={Thread}
+                />
+                <Route
+                  path={this.props.match.url}
+                  exact
+                  render={props => (
+                    <CollectionPage
+                      {...props}
+                      collection={collection}
+                      community_name={community_name}
+                      resources={resources}
+                      addNewResource={this.props.addNewResource}
+                      fetchMore={this.props.data.fetchMore}
+                      type={'collection'}
+                    />
+                  )}
+                />
+              </Switch>
             </WrapperCont>
           </Grid>
           <CollectionModal
@@ -429,103 +171,6 @@ class CollectionComponent extends React.Component<Props> {
   }
 }
 
-const Member = styled.div`
-  vertical-align: top;
-  margin-right: 14px;
-  ${clearFix()};
-`;
-
-const MemberInfo = styled.div`
-  display: inline-block;
-  & h3 {
-    font-size: 14px;
-    margin: 0;
-    color: ${props => props.theme.styles.colour.base2};
-    font-weight: 400;
-    & span {
-      margin: 0 4px;
-    }
-    & a {
-      text-decoration: underline;
-      font-weight: 500;
-    }
-  }
-`;
-
-const MemberItem = styled.span`
-  background-color: #d6dadc;
-  border-radius: 3px;
-  color: #4d4d4d;
-  display: inline-block;
-  height: 42px;
-  overflow: hidden;
-  position: relative;
-  width: 42px;
-  user-select: none;
-  z-index: 0;
-  vertical-align: inherit;
-  margin-right: 8px;
-`;
-
-const Img = styled.img`
-  width: 42px;
-  height: 42px;
-  display: block;
-  -webkit-appearance: none;
-  line-height: 42px;
-  text-indent: 4px;
-  font-size: 13px;
-  overflow: hidden;
-  max-width: 42px;
-  max-height: 42px;
-  text-overflow: ellipsis;
-  vertical-align: text-top;
-  margin-right: 8px;
-`;
-
-const Date = styled.div`
-  font-size: 12px;
-  line-height: 32px;
-  height: 20px;
-  margin: 0;
-  color: ${props => props.theme.styles.colour.base3};
-  margin-top: 0px;
-  font-weight: 500;
-`;
-
-const FeedItem = styled.div`
-  min-height: 30px;
-  position: relative;
-  margin: 0;
-  padding: 16px;
-  word-wrap: break-word;
-  font-size: 14px;
-  ${clearFix()};
-  transition: background 0.5s ease;
-  background: #fff;
-  margin-top: 0
-  z-index: 10;
-  position: relative;
-  border-bottom: 1px solid #eaeaea;
-`;
-
-const LoadMore = styled.div`
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  color: #fff;
-  letter-spacing: 0.5px;
-  font-size: 14px;
-  background: #8fb7ff;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  margin: 16px;
-  &:hover {
-    background: #e7e7e7;
-  }
-`;
-
 const ActionsHero = styled.div`
   margin-top: 4px;
   & div {
@@ -538,21 +183,7 @@ const HeroJoin = styled.div`
   float: left;
 `;
 
-const Roww = styled(Row)`
-  height: 100%;
-`;
-
 const Actions = styled.div``;
-const Footer = styled.div`
-  height: 30px;
-  line-height: 30px;
-  font-weight: 600;
-  text-align: center;
-  background: #ffefd9;
-  font-size: 13px;
-  border-bottom: 1px solid #e4dcc3;
-  color: #544f46;
-`;
 
 const WrapperCont = styled.div`
   max-width: 1040px;
@@ -564,24 +195,6 @@ const WrapperCont = styled.div`
 
   box-sizing: border-box;
 `;
-// const Members = styled.div`
-//   display: grid;
-//   grid-template-columns: 1fr 1fr 1fr 1fr;
-//   grid-column-gap: 8px;
-//   grid-row-gap: 8px;
-// `;
-// const Follower = styled.div``;
-// const Img = styled.div`
-//   width: 40px;
-//   height: 40px;
-//   border-radius: 100px;
-//   margin: 0 auto;
-//   display: block;
-// `;
-// const FollowerName = styled(H4)`
-//   margin-top: 8px;
-//   text-align: center;
-// `;
 
 const EditButton = styled.span`
   color: #ff9d00;
@@ -599,25 +212,7 @@ const EditButton = styled.span`
     margin-right: 8px;
   }
 `;
-const WrapperTab = styled.div`
-  display: flex;
-  flex: 1;
-  height: 100%;
-  border-radius: 6px;
-  height: 100%;
-  box-sizing: border-box;
-  border: 5px solid #e2e5ea;
-`;
-const OverlayTab = styled.div`
-  background: #fff;
-  height: 100%;
-  width: 100%;
 
-  & > div {
-    flex: 1;
-    height: 100%;
-  }
-`;
 const HeroInfo = styled.div`
   flex: 1;
   margin-left: 16px;
@@ -647,32 +242,6 @@ const HeroCont = styled.div`
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: #fff;
-`;
-
-const WrapperActions = styled.div`
-  margin: 8px;
-  & button {
-    ${media.lessThan('medium')`
-   width: 100%;
-    `};
-  }
-`;
-
-const Wrapper = styled.div`
-  flex: 1;
-`;
-
-const CollectionList = styled.div`
-  flex: 1;
-  margin: 10px;
-`;
-
-const OverviewCollection = styled.div`
-  padding: 8px;
-  & p {
-    margin-top: 14px !important;
-    font-size: 14px;
-  }
 `;
 
 const Hero = styled.div`

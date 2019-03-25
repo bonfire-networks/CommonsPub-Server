@@ -3,8 +3,6 @@ import styled from '../../../themes/styled';
 import CommentPreview from './CommentPreview';
 import Talk from '../../elements/Talk/Thread';
 import { compose, withState } from 'recompose';
-// import Text from '../../inputs/Text/Text';
-// import { Globe, Star, Reply } from '../../elements/Icons';
 import { Send } from '../../elements/Icons';
 import media from 'styled-media-query';
 
@@ -16,6 +14,7 @@ interface Props {
   id: string;
   followed?: boolean;
   selectedThread: any;
+  type: string;
   match: any;
   onSelectedThread(any): number;
 }
@@ -66,6 +65,7 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
                       selectThread={props.onSelectedThread}
                       selectedThread={props.selectedThread}
                       communityId={props.localId}
+                      type={props.type}
                     />
                   </Previews>
                 );
@@ -88,44 +88,6 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
   );
 };
 
-// const Header = styled.div`
-// border-bottom: 1px solid #edf0f2;
-// ${clearFix()}
-// `
-
-// const LeftArr = styled.span`
-// display: inline-block;
-// margin-bottom: 0;
-// text-align: center;
-// vertical-align: middle;
-// cursor: pointer;
-// white-space: nowrap;
-// line-height: 20px;
-// border-radius: 4px;
-// user-select: none;
-// color: #667d99;
-// background-color: rgb(231, 237, 243);
-// border: 0;
-// width: 36px;
-// text-align: center;
-// padding: 5px;
-// z-index: 3 !important;
-// border-radius: 4px !important;
-// transition: border-radius .2s;
-// max-width: 150px;
-// overflow: hidden;
-// text-overflow: ellipsis;
-// padding-left: 8px;
-// padding-right: 8px;
-// position: relative;
-// background-color: #d7dfea;
-// margin: 8px;
-// margin-right:0;
-// float:left;
-// & svg {
-//   vertical-align: middle;
-// }
-// `
 const Previews = styled.div``;
 
 const Actions = styled.div`
@@ -184,14 +146,6 @@ const OverviewCollection = styled.div`
     margin-top: 0 !important;
   }
 `;
-
-// const Wrapper = styled.div`
-//   background: white;
-//   position: relative;
-//   & a {
-//     text-decoration: none;
-//   }
-// `;
 
 export default compose(withState('selectedThread', 'onSelectedThread', null))(
   CommunitiesFeatured

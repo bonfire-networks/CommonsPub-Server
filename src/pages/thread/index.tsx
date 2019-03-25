@@ -3,7 +3,7 @@ import styled from '../../themes/styled';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 const getThread = require('../../graphql/getThread.graphql');
 import CommentType from '../../types/Comment';
-import { compose } from 'recompose';
+import { compose, withHandlers } from 'recompose';
 import Loader from '../../components/elements/Loader/Loader';
 import Comment from '../../components/elements/Comment/Comment';
 import Talk from '../../components/elements/Talk/Reply';
@@ -18,6 +18,8 @@ interface Props {
   data: Data;
   id: string;
   match: any;
+  history: any;
+  type: string;
   selectThread(number): number;
 }
 
@@ -36,7 +38,8 @@ const withGetThread = graphql<
   })
 }) as OperationOption<{}, {}>;
 
-const Component = ({ data, id, selectThread, match }) => {
+const Component = ({ data, id, selectThread, match, type, history }) => {
+  console.log(history);
   if (data.error) {
     return 'error...';
   } else if (data.loading) {
@@ -57,7 +60,13 @@ const Component = ({ data, id, selectThread, match }) => {
     <Container>
       <Wrapper>
         <Header>
-          <Link to={`/communities/${data.comment.context.localId}`}>
+          <Link
+            to={
+              data.comment.context.__typename === 'Community'
+                ? `/communities/${data.comment.context.localId}`
+                : `/collections/${data.comment.context.localId}`
+            }
+          >
             <LeftArr>
               <Left width={24} height={24} strokeWidth={2} color={'#68737d'} />
             </LeftArr>
@@ -178,4 +187,14 @@ const Wrapper = styled.div`
   }
 `;
 
-export default compose(withGetThread)(Component);
+export default compose(
+  withGetThread,
+  withHandlers({
+    selectThread: props => link =>
+      props.history.push(
+        props.data.comment.context.__typename === 'Community'
+          ? `/communities/${props.data.comment.context.localId}/thread/${link}`
+          : `/collections/${props.data.comment.context.localId}/${link}`
+      )
+  })
+)(Component);

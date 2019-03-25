@@ -30,6 +30,10 @@ query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
                         name
                         localId
                         }
+                        ... on Comment {
+                        id
+                        localId
+                        }
                          ... on Resource {
                         id
                         name

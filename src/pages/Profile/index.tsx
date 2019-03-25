@@ -4,7 +4,7 @@ import * as React from 'react';
 import { compose } from 'recompose';
 import Link from '../../components/elements/Link/Link';
 import { Trans } from '@lingui/macro';
-import { Grid, Row, Col } from '@zendeskgarden/react-grid';
+import { Grid } from '@zendeskgarden/react-grid';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
@@ -90,11 +90,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <WrapperCont>
                 <HeroCont>
                   <Hero>
-                    <Background
-                      style={{
-                        backgroundImage: `url(https://unsplash.it/800})`
-                      }}
-                    />
                     <WrapperHero>
                       <Img
                         style={{
@@ -110,496 +105,472 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     </WrapperHero>
                   </Hero>
                 </HeroCont>
-                <Roww>
-                  <Col size={12}>
-                    <WrapperTab>
-                      <OverlayTab>
-                        <Tabs>
-                          <SuperTabList>
-                            <SuperTab>
-                              <span>
-                                <Eye
-                                  width={20}
-                                  height={20}
-                                  strokeWidth={2}
-                                  color={'#a0a2a5'}
+
+                <WrapperTab>
+                  <OverlayTab>
+                    <Tabs>
+                      <SuperTabList>
+                        <SuperTab>
+                          <span>
+                            <Eye
+                              width={20}
+                              height={20}
+                              strokeWidth={2}
+                              color={'#a0a2a5'}
+                            />
+                          </span>
+                          <h5>
+                            <Trans>Timeline</Trans>
+                          </h5>
+                        </SuperTab>
+                        <SuperTab>
+                          <span>
+                            <Collection
+                              width={20}
+                              height={20}
+                              strokeWidth={2}
+                              color={'#a0a2a5'}
+                            />
+                          </span>
+                          <h5>
+                            <Trans>Followed Collections</Trans>
+                          </h5>
+                        </SuperTab>
+                        <SuperTab>
+                          <span>
+                            <Community
+                              width={20}
+                              height={20}
+                              strokeWidth={2}
+                              color={'#a0a2a5'}
+                            />
+                          </span>{' '}
+                          <h5>
+                            <Trans>Joined Communities</Trans>
+                          </h5>
+                        </SuperTab>
+                      </SuperTabList>
+                      <TabPanel>
+                        <div>
+                          {this.props.data.me.user.inbox.edges.map((t, i) => (
+                            <FeedItem key={i}>
+                              <Member>
+                                <MemberItem>
+                                  <MeImg alt="user" src={t.node.user.icon} />
+                                </MemberItem>
+                                <MemberInfo>
+                                  <h3>
+                                    <b>{t.node.user.name}</b>
+                                    {t.node.activityType ===
+                                    'CreateCollection' ? (
+                                      <span>
+                                        created the collection{' '}
+                                        <Link
+                                          to={
+                                            `/collections/` +
+                                            t.node.object.localId
+                                          }
+                                        >
+                                          {t.node.object.name}
+                                        </Link>{' '}
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'UpdateCommunity' ? (
+                                      <span>
+                                        updated the community{' '}
+                                        <Link
+                                          to={`/communities/${
+                                            t.node.object.localId
+                                          }`}
+                                        >
+                                          {t.node.object.name}
+                                        </Link>
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'UpdateCollection' ? (
+                                      <span>
+                                        updated the collection{' '}
+                                        <Link
+                                          to={
+                                            `/collections/` +
+                                            t.node.object.localId
+                                          }
+                                        >
+                                          {t.node.object.name}
+                                        </Link>
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'JoinCommunity' ? (
+                                      <span>
+                                        joined the community{' '}
+                                        <Link
+                                          to={`/communities/${
+                                            t.node.object.localId
+                                          }`}
+                                        >
+                                          {t.node.object.name}
+                                        </Link>
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'CreateComment' ? (
+                                      <span>
+                                        posted a new{' '}
+                                        <Link
+                                          to={
+                                            t.node.object.context.__typename ===
+                                            'Community'
+                                              ? `/communities/${
+                                                  t.node.object.context.localId
+                                                }/thread/${
+                                                  t.node.object.localId
+                                                }`
+                                              : `/collections/${
+                                                  t.node.object.context.localId
+                                                }/thread/${
+                                                  t.node.object.localId
+                                                }`
+                                          }
+                                        >
+                                          comment
+                                        </Link>{' '}
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'CreateResource' ? (
+                                      <span>
+                                        created the resource{' '}
+                                        <b>{t.node.object.name}</b> on
+                                        collection{' '}
+                                        <Link
+                                          to={
+                                            `/communities/${
+                                              t.node.object.collection.community
+                                                .localId
+                                            }/collections/` +
+                                            t.node.object.collection.localId
+                                          }
+                                        >
+                                          {t.node.object.collection.name}
+                                        </Link>{' '}
+                                      </span>
+                                    ) : t.node.activityType ===
+                                    'FollowCollection' ? (
+                                      <span>
+                                        started to follow the collection{' '}
+                                        <b>{t.node.object.name}</b>
+                                      </span>
+                                    ) : null}
+                                  </h3>
+                                  <Date>
+                                    {moment(t.node.published).fromNow()}
+                                  </Date>
+                                </MemberInfo>
+                              </Member>
+                            </FeedItem>
+                          ))}
+                          {(this.props.data.me.user.inbox.pageInfo
+                            .startCursor === null &&
+                            this.props.data.me.user.inbox.pageInfo.endCursor ===
+                              null) ||
+                          (this.props.data.me.user.inbox.pageInfo.startCursor &&
+                            this.props.data.me.user.inbox.pageInfo.endCursor ===
+                              null) ? null : (
+                            <LoadMore
+                              onClick={() =>
+                                this.props.data.fetchMore({
+                                  variables: {
+                                    end: this.props.data.me.user.inbox.pageInfo
+                                      .endCursor
+                                  },
+                                  updateQuery: (
+                                    previousResult,
+                                    { fetchMoreResult }
+                                  ) => {
+                                    console.log(fetchMoreResult);
+                                    const newNodes =
+                                      fetchMoreResult.me.user.inbox.edges;
+                                    const pageInfo =
+                                      fetchMoreResult.me.user.inbox.pageInfo;
+                                    console.log(newNodes);
+                                    return newNodes.length
+                                      ? {
+                                          // Put the new comments at the end of the list and update `pageInfo`
+                                          // so we have the new `endCursor` and `hasNextPage` values
+                                          community: {
+                                            ...previousResult.community,
+                                            __typename:
+                                              previousResult.me.user.__typename,
+                                            inbox: {
+                                              ...previousResult.me.user.inbox,
+                                              edges: [
+                                                ...previousResult.me.user.inbox
+                                                  .edges,
+                                                ...newNodes
+                                              ]
+                                            },
+                                            pageInfo
+                                          }
+                                        }
+                                      : {
+                                          community: {
+                                            ...previousResult.community,
+                                            __typename:
+                                              previousResult.community
+                                                .__typename,
+                                            inbox: {
+                                              ...previousResult.community.inbox,
+                                              edges: [
+                                                ...previousResult.community
+                                                  .inbox.edges
+                                              ]
+                                            },
+                                            pageInfo
+                                          }
+                                        };
+                                  }
+                                })
+                              }
+                            >
+                              <Trans>Load more</Trans>
+                            </LoadMore>
+                          )}
+                        </div>
+                      </TabPanel>
+                      <TabPanel>
+                        <>
+                          <ListCollections>
+                            {this.props.data.me.user.followingCollections.edges.map(
+                              (comm, i) => (
+                                <CollectionCard
+                                  key={i}
+                                  collection={comm.node}
+                                  communityId={comm.node.localId}
                                 />
-                              </span>
-                              <h5>
-                                <Trans>Timeline</Trans>
-                              </h5>
-                            </SuperTab>
-                            <SuperTab>
-                              <span>
-                                <Collection
-                                  width={20}
-                                  height={20}
-                                  strokeWidth={2}
-                                  color={'#a0a2a5'}
-                                />
-                              </span>
-                              <h5>
-                                <Trans>Followed Collections</Trans>
-                              </h5>
-                            </SuperTab>
-                            <SuperTab>
-                              <span>
-                                <Community
-                                  width={20}
-                                  height={20}
-                                  strokeWidth={2}
-                                  color={'#a0a2a5'}
-                                />
-                              </span>{' '}
-                              <h5>
-                                <Trans>Joined Communities</Trans>
-                              </h5>
-                            </SuperTab>
-                          </SuperTabList>
-                          <TabPanel>
-                            <div>
-                              {this.props.data.me.user.inbox.edges.map(
-                                (t, i) => (
-                                  <FeedItem key={i}>
-                                    <Member>
-                                      <MemberItem>
-                                        <MeImg
-                                          alt="user"
-                                          src={t.node.user.icon}
-                                        />
-                                      </MemberItem>
-                                      <MemberInfo>
-                                        <h3>
-                                          <Link
-                                            to={'/user/' + t.node.user.localId}
-                                          >
-                                            {t.node.user.name}
-                                          </Link>
-                                          {t.node.activityType ===
-                                          'CreateCollection' ? (
-                                            <span>
-                                              created the collection{' '}
-                                              <Link
-                                                to={
-                                                  `/communities/${
-                                                    t.node.object.community
-                                                      .localId
-                                                  }/collections/` +
-                                                  t.node.object.localId
-                                                }
-                                              >
-                                                {t.node.object.name}
-                                              </Link>{' '}
-                                            </span>
-                                          ) : t.node.activityType ===
-                                          'UpdateCommunity' ? (
-                                            <span>
-                                              updated the community{' '}
-                                              <Link
-                                                to={
-                                                  `/communities/${
-                                                    t.node.object.localId
-                                                  }/collections/` +
-                                                  t.node.object.localId
-                                                }
-                                              >
-                                                {t.node.object.name}
-                                              </Link>
-                                            </span>
-                                          ) : t.node.activityType ===
-                                          'UpdateCollection' ? (
-                                            <span>
-                                              updated the collection{' '}
-                                              <Link
-                                                to={
-                                                  `/communities/${
-                                                    t.node.object.community
-                                                      .localId
-                                                  }/collections/` +
-                                                  t.node.object.localId
-                                                }
-                                              >
-                                                {t.node.object.name}
-                                              </Link>
-                                            </span>
-                                          ) : t.node.activityType ===
-                                          'JoinCommunity' ? (
-                                            <span>
-                                              joined the community{' '}
-                                              <Link
-                                                to={
-                                                  `/communities/${
-                                                    t.node.object.localId
-                                                  }/collections/` +
-                                                  t.node.object.localId
-                                                }
-                                              >
-                                                {t.node.object.name}
-                                              </Link>
-                                            </span>
-                                          ) : t.node.activityType ===
-                                          'CreateComment' ? (
-                                            <span>posted a new comment </span>
-                                          ) : t.node.activityType ===
-                                          'CreateResource' ? (
-                                            <span>
-                                              created the resource{' '}
-                                              <b>{t.node.object.name}</b> on
-                                              collection{' '}
-                                              <Link
-                                                to={
-                                                  `/communities/${
-                                                    t.node.object.collection
-                                                      .community.localId
-                                                  }/collections/` +
-                                                  t.node.object.collection
-                                                    .localId
-                                                }
-                                              >
-                                                {t.node.object.collection.name}
-                                              </Link>{' '}
-                                            </span>
-                                          ) : t.node.activityType ===
-                                          'FollowCollection' ? (
-                                            <span>
-                                              started to follow the collection{' '}
-                                              <b>{t.node.object.name}</b>
-                                            </span>
-                                          ) : null}
-                                        </h3>
-                                        <Date>
-                                          {moment(t.node.published).fromNow()}
-                                        </Date>
-                                      </MemberInfo>
-                                    </Member>
-                                  </FeedItem>
-                                )
-                              )}
-                              {(this.props.data.me.user.inbox.pageInfo
-                                .startCursor === null &&
-                                this.props.data.me.user.inbox.pageInfo
-                                  .endCursor === null) ||
-                              (this.props.data.me.user.inbox.pageInfo
-                                .startCursor &&
-                                this.props.data.me.user.inbox.pageInfo
-                                  .endCursor === null) ? null : (
-                                <LoadMore
-                                  onClick={() =>
-                                    this.props.data.fetchMore({
-                                      variables: {
-                                        end: this.props.data.me.user.inbox
-                                          .pageInfo.endCursor
-                                      },
-                                      updateQuery: (
-                                        previousResult,
-                                        { fetchMoreResult }
-                                      ) => {
-                                        console.log(fetchMoreResult);
-                                        const newNodes =
-                                          fetchMoreResult.me.user.inbox.edges;
-                                        const pageInfo =
-                                          fetchMoreResult.me.user.inbox
-                                            .pageInfo;
-                                        console.log(newNodes);
-                                        return newNodes.length
-                                          ? {
-                                              // Put the new comments at the end of the list and update `pageInfo`
-                                              // so we have the new `endCursor` and `hasNextPage` values
-                                              community: {
-                                                ...previousResult.community,
+                              )
+                            )}
+                          </ListCollections>
+                          {(this.props.data.me.user.followingCollections
+                            .pageInfo.startCursor &&
+                            this.props.data.me.user.followingCollections
+                              .pageInfo.endCursor === null) ||
+                          (this.props.data.me.user.followingCollections.pageInfo
+                            .startCursor === null &&
+                            this.props.data.me.user.followingCollections
+                              .pageInfo.endCursor === null) ? null : (
+                            <LoadMore
+                              onClick={() =>
+                                this.props.data.fetchMore({
+                                  variables: {
+                                    endColl: this.props.data.me.user
+                                      .followingCollections.pageInfo.endCursor
+                                  },
+                                  updateQuery: (
+                                    previousResult,
+                                    { fetchMoreResult }
+                                  ) => {
+                                    const newNodes =
+                                      fetchMoreResult.me.user
+                                        .followingCollections.edges;
+                                    const pageInfo =
+                                      fetchMoreResult.me.user
+                                        .followingCollections.pageInfo;
+                                    return newNodes.length
+                                      ? {
+                                          // Put the new comments at the end of the list and update `pageInfo`
+                                          // so we have the new `endCursor` and `hasNextPage` values
+                                          me: {
+                                            __typename:
+                                              previousResult.me.__typename,
+                                            user: {
+                                              name: previousResult.me.user.name,
+                                              location:
+                                                previousResult.me.user.location,
+                                              summary:
+                                                previousResult.me.user.summary,
+                                              icon: previousResult.me.user.icon,
+                                              joinedCommunities:
+                                                previousResult.me.user
+                                                  .joinedCommunities,
+                                              preferredUsername:
+                                                previousResult.me.user
+                                                  .preferredUsername,
+                                              id: previousResult.me.user.id,
+                                              __typename:
+                                                previousResult.me.user
+                                                  .__typename,
+                                              followingCollections: {
+                                                edges: [
+                                                  ...previousResult.me.user
+                                                    .followingCollections.edges,
+                                                  ...newNodes
+                                                ],
+                                                pageInfo,
                                                 __typename:
                                                   previousResult.me.user
-                                                    .__typename,
-                                                inbox: {
+                                                    .followingCollections
+                                                    .__typename
+                                              }
+                                            }
+                                          }
+                                        }
+                                      : {
+                                          me: {
+                                            __typename:
+                                              previousResult.me.__typename,
+                                            user: {
+                                              id: previousResult.me.user.id,
+                                              name: previousResult.me.user.name,
+                                              location:
+                                                previousResult.me.user.location,
+                                              summary:
+                                                previousResult.me.user.summary,
+                                              icon: previousResult.me.user.icon,
+                                              joinedCommunities:
+                                                previousResult.me.user
+                                                  .joinedCommunities,
+                                              preferredUsername:
+                                                previousResult.me.user
+                                                  .preferredUsername,
+                                              __typename:
+                                                previousResult.me.user
+                                                  .__typename,
+                                              followingCollections: {
+                                                edges: [
                                                   ...previousResult.me.user
-                                                    .inbox,
-                                                  edges: [
-                                                    ...previousResult.me.user
-                                                      .inbox.edges,
-                                                    ...newNodes
-                                                  ]
-                                                },
-                                                pageInfo
+                                                    .followingCollections.edges
+                                                ],
+                                                pageInfo,
+                                                __typename:
+                                                  previousResult.me.user
+                                                    .followingCollections
+                                                    .__typename
                                               }
                                             }
-                                          : {
-                                              community: {
-                                                ...previousResult.community,
-                                                __typename:
-                                                  previousResult.community
-                                                    .__typename,
-                                                inbox: {
-                                                  ...previousResult.community
-                                                    .inbox,
-                                                  edges: [
-                                                    ...previousResult.community
-                                                      .inbox.edges
-                                                  ]
-                                                },
-                                                pageInfo
-                                              }
-                                            };
-                                      }
-                                    })
+                                          }
+                                        };
                                   }
-                                >
-                                  <Trans>Load more</Trans>
-                                </LoadMore>
-                              )}
-                            </div>
-                          </TabPanel>
-                          <TabPanel>
-                            <>
-                              <ListCollections>
-                                {this.props.data.me.user.followingCollections.edges.map(
-                                  (comm, i) => (
-                                    <CollectionCard
-                                      key={i}
-                                      collection={comm.node}
-                                      communityId={comm.node.localId}
-                                    />
-                                  )
-                                )}
-                              </ListCollections>
-                              {(this.props.data.me.user.followingCollections
-                                .pageInfo.startCursor &&
-                                this.props.data.me.user.followingCollections
-                                  .pageInfo.endCursor === null) ||
-                              (this.props.data.me.user.followingCollections
-                                .pageInfo.startCursor === null &&
-                                this.props.data.me.user.followingCollections
-                                  .pageInfo.endCursor === null) ? null : (
-                                <LoadMore
-                                  onClick={() =>
-                                    this.props.data.fetchMore({
-                                      variables: {
-                                        endColl: this.props.data.me.user
-                                          .followingCollections.pageInfo
-                                          .endCursor
-                                      },
-                                      updateQuery: (
-                                        previousResult,
-                                        { fetchMoreResult }
-                                      ) => {
-                                        const newNodes =
-                                          fetchMoreResult.me.user
-                                            .followingCollections.edges;
-                                        const pageInfo =
-                                          fetchMoreResult.me.user
-                                            .followingCollections.pageInfo;
-                                        return newNodes.length
-                                          ? {
-                                              // Put the new comments at the end of the list and update `pageInfo`
-                                              // so we have the new `endCursor` and `hasNextPage` values
-                                              me: {
+                                })
+                              }
+                            >
+                              <Trans>Load more</Trans>
+                            </LoadMore>
+                          )}
+                        </>
+                      </TabPanel>
+                      <TabPanel
+                        label={`${TabsEnum.Communities}`}
+                        key={TabsEnum.Communities}
+                        style={{ height: '100%' }}
+                      >
+                        <>
+                          <List>
+                            {this.props.data.me.user.joinedCommunities.edges.map(
+                              (community, i) => (
+                                <CommunityCard
+                                  key={i}
+                                  summary={community.node.summary}
+                                  title={community.node.name}
+                                  collectionsCount={
+                                    community.node.collectionsCount
+                                  }
+                                  icon={community.node.icon || ''}
+                                  followed={community.node.followed}
+                                  id={community.node.localId}
+                                  externalId={community.node.id}
+                                  followersCount={community.node.followersCount}
+                                  threadsCount={
+                                    community.node.threads.totalCount
+                                  }
+                                />
+                              )
+                            )}
+                          </List>
+                          {(this.props.data.me.user.joinedCommunities.pageInfo
+                            .startCursor === null &&
+                            this.props.data.me.user.joinedCommunities.pageInfo
+                              .endCursor === null) ||
+                          (this.props.data.me.user.joinedCommunities.pageInfo
+                            .startCursor &&
+                            this.props.data.me.user.joinedCommunities.pageInfo
+                              .endCursor === null) ? null : (
+                            <LoadMore
+                              onClick={() =>
+                                this.props.data.fetchMore({
+                                  variables: {
+                                    endComm: this.props.data.me.user
+                                      .joinedCommunities.pageInfo.endCursor
+                                  },
+                                  updateQuery: (
+                                    previousResult,
+                                    { fetchMoreResult }
+                                  ) => {
+                                    const newNodes =
+                                      fetchMoreResult.me.user.joinedCommunities
+                                        .edges;
+                                    const pageInfo =
+                                      fetchMoreResult.me.user.joinedCommunities
+                                        .pageInfo;
+                                    return newNodes.length
+                                      ? {
+                                          // Put the new comments at the end of the list and update `pageInfo`
+                                          // so we have the new `endCursor` and `hasNextPage` values
+                                          me: {
+                                            __typename:
+                                              previousResult.me.__typename,
+                                            user: {
+                                              id: previousResult.me.user.id,
+                                              __typename:
+                                                previousResult.me.user
+                                                  .__typename,
+                                              joinedCommunities: {
+                                                edges: [
+                                                  ...previousResult.me.user
+                                                    .joinedCommunities.edges,
+                                                  ...newNodes
+                                                ],
+                                                pageInfo,
                                                 __typename:
-                                                  previousResult.me.__typename,
-                                                user: {
-                                                  name:
-                                                    previousResult.me.user.name,
-                                                  location:
-                                                    previousResult.me.user
-                                                      .location,
-                                                  summary:
-                                                    previousResult.me.user
-                                                      .summary,
-                                                  icon:
-                                                    previousResult.me.user.icon,
-                                                  joinedCommunities:
-                                                    previousResult.me.user
-                                                      .joinedCommunities,
-                                                  preferredUsername:
-                                                    previousResult.me.user
-                                                      .preferredUsername,
-                                                  id: previousResult.me.user.id,
-                                                  __typename:
-                                                    previousResult.me.user
-                                                      .__typename,
-                                                  followingCollections: {
-                                                    edges: [
-                                                      ...previousResult.me.user
-                                                        .followingCollections
-                                                        .edges,
-                                                      ...newNodes
-                                                    ],
-                                                    pageInfo,
-                                                    __typename:
-                                                      previousResult.me.user
-                                                        .followingCollections
-                                                        .__typename
-                                                  }
-                                                }
+                                                  previousResult.me.user
+                                                    .joinedCommunities
+                                                    .__typename
                                               }
                                             }
-                                          : {
-                                              me: {
+                                          }
+                                        }
+                                      : {
+                                          me: {
+                                            __typename:
+                                              previousResult.me.__typename,
+                                            user: {
+                                              id: previousResult.me.user.id,
+                                              __typename:
+                                                previousResult.me.user
+                                                  .__typename,
+                                              joinedCommunities: {
+                                                edges: [
+                                                  ...previousResult.me.user
+                                                    .joinedCommunities.edges
+                                                ],
+                                                pageInfo,
                                                 __typename:
-                                                  previousResult.me.__typename,
-                                                user: {
-                                                  id: previousResult.me.user.id,
-                                                  name:
-                                                    previousResult.me.user.name,
-                                                  location:
-                                                    previousResult.me.user
-                                                      .location,
-                                                  summary:
-                                                    previousResult.me.user
-                                                      .summary,
-                                                  icon:
-                                                    previousResult.me.user.icon,
-                                                  joinedCommunities:
-                                                    previousResult.me.user
-                                                      .joinedCommunities,
-                                                  preferredUsername:
-                                                    previousResult.me.user
-                                                      .preferredUsername,
-                                                  __typename:
-                                                    previousResult.me.user
-                                                      .__typename,
-                                                  followingCollections: {
-                                                    edges: [
-                                                      ...previousResult.me.user
-                                                        .followingCollections
-                                                        .edges
-                                                    ],
-                                                    pageInfo,
-                                                    __typename:
-                                                      previousResult.me.user
-                                                        .followingCollections
-                                                        .__typename
-                                                  }
-                                                }
-                                              }
-                                            };
-                                      }
-                                    })
-                                  }
-                                >
-                                  <Trans>Load more</Trans>
-                                </LoadMore>
-                              )}
-                            </>
-                          </TabPanel>
-                          <TabPanel
-                            label={`${TabsEnum.Communities}`}
-                            key={TabsEnum.Communities}
-                            style={{ height: '100%' }}
-                          >
-                            <>
-                              <List>
-                                {this.props.data.me.user.joinedCommunities.edges.map(
-                                  (community, i) => (
-                                    <CommunityCard
-                                      key={i}
-                                      summary={community.node.summary}
-                                      title={community.node.name}
-                                      collectionsCount={
-                                        community.node.collectionsCount
-                                      }
-                                      icon={community.node.icon || ''}
-                                      followed={community.node.followed}
-                                      id={community.node.localId}
-                                      externalId={community.node.id}
-                                      followersCount={
-                                        community.node.followersCount
-                                      }
-                                      threadsCount={
-                                        community.node.threads.totalCount
-                                      }
-                                    />
-                                  )
-                                )}
-                              </List>
-                              {(this.props.data.me.user.joinedCommunities
-                                .pageInfo.startCursor === null &&
-                                this.props.data.me.user.joinedCommunities
-                                  .pageInfo.endCursor === null) ||
-                              (this.props.data.me.user.joinedCommunities
-                                .pageInfo.startCursor &&
-                                this.props.data.me.user.joinedCommunities
-                                  .pageInfo.endCursor === null) ? null : (
-                                <LoadMore
-                                  onClick={() =>
-                                    this.props.data.fetchMore({
-                                      variables: {
-                                        endComm: this.props.data.me.user
-                                          .joinedCommunities.pageInfo.endCursor
-                                      },
-                                      updateQuery: (
-                                        previousResult,
-                                        { fetchMoreResult }
-                                      ) => {
-                                        const newNodes =
-                                          fetchMoreResult.me.user
-                                            .joinedCommunities.edges;
-                                        const pageInfo =
-                                          fetchMoreResult.me.user
-                                            .joinedCommunities.pageInfo;
-                                        return newNodes.length
-                                          ? {
-                                              // Put the new comments at the end of the list and update `pageInfo`
-                                              // so we have the new `endCursor` and `hasNextPage` values
-                                              me: {
-                                                __typename:
-                                                  previousResult.me.__typename,
-                                                user: {
-                                                  id: previousResult.me.user.id,
-                                                  __typename:
-                                                    previousResult.me.user
-                                                      .__typename,
-                                                  joinedCommunities: {
-                                                    edges: [
-                                                      ...previousResult.me.user
-                                                        .joinedCommunities
-                                                        .edges,
-                                                      ...newNodes
-                                                    ],
-                                                    pageInfo,
-                                                    __typename:
-                                                      previousResult.me.user
-                                                        .joinedCommunities
-                                                        .__typename
-                                                  }
-                                                }
+                                                  previousResult.me.user
+                                                    .joinedCommunities
+                                                    .__typename
                                               }
                                             }
-                                          : {
-                                              me: {
-                                                __typename:
-                                                  previousResult.me.__typename,
-                                                user: {
-                                                  id: previousResult.me.user.id,
-                                                  __typename:
-                                                    previousResult.me.user
-                                                      .__typename,
-                                                  joinedCommunities: {
-                                                    edges: [
-                                                      ...previousResult.me.user
-                                                        .joinedCommunities.edges
-                                                    ],
-                                                    pageInfo,
-                                                    __typename:
-                                                      previousResult.me.user
-                                                        .joinedCommunities
-                                                        .__typename
-                                                  }
-                                                }
-                                              }
-                                            };
-                                      }
-                                    })
+                                          }
+                                        };
                                   }
-                                >
-                                  <Trans>Load more</Trans>
-                                </LoadMore>
-                              )}
-                            </>
-                          </TabPanel>
-                        </Tabs>
-                      </OverlayTab>
-                    </WrapperTab>
-                  </Col>
-                </Roww>
+                                })
+                              }
+                            >
+                              <Trans>Load more</Trans>
+                            </LoadMore>
+                          )}
+                        </>
+                      </TabPanel>
+                    </Tabs>
+                  </OverlayTab>
+                </WrapperTab>
               </WrapperCont>
             )}
           </Grid>
@@ -690,29 +661,24 @@ const FeedItem = styled.div`
 `;
 
 const WrapperHero = styled.div`
-  margin-top: -50px;
-
   padding: 24px;
-
-  padding-top: 24px;
-
   padding-top: 0;
-
   z-index: 9999;
-
   position: relative;
+  text-align: center;
 `;
 
 const Img = styled.div`
   width: 120px;
-
+  margin: 0 auto;
+  margin-bottom: 10px;
   height: 120px;
-
   border-radius: 100px;
-
   background: antiquewhite;
-
   border: 5px solid white;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
 `;
 
 const LoadMore = styled.div`
@@ -754,13 +720,7 @@ const ListCollections = styled.div`
 
 const HeroCont = styled.div`
   margin-bottom: 16px;
-  border-radius: 6px;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const Roww = styled(Row)`
-  height: 100%;
 `;
 
 const WrapperTab = styled.div`
@@ -796,31 +756,6 @@ const WrapperCont = styled.div`
 const Hero = styled.div`
   width: 100%;
   position: relative;
-  background: white;
-  border-radius: 6px;
-`;
-
-const Background = styled.div`
-  margin-top: 24px;
-  height: 200px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-color: #e6e6e6;
-  position: relative;
-  margin: 0 auto;
-  &:before {
-    content: '';
-    position: absolute;
-    top: 60%;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: linear-gradient(to bottom, #002f4b00, #000);
-    opacity: 0.8;
-    ${media.lessThan('medium')`
-    top: 10%;
-  `};
-  }
 `;
 
 const HeroInfo = styled.div`
