@@ -75,7 +75,13 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
             )}
           </WrapperComments>
         ) : props.selectedThread === 'thread' ? (
-          <Talk full id={props.localId} thread externalId={props.id} />
+          <Talk
+            full
+            id={props.localId}
+            thread
+            onSelectedThread={props.onSelectedThread}
+            externalId={props.id}
+          />
         ) : null}
       </Grid>
     </div>

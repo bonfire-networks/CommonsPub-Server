@@ -33,6 +33,7 @@ interface Props {
   selectThread(number): number;
   full: boolean;
   thread?: boolean;
+  onSelectedThread(string): string;
 }
 
 interface FormValues {
@@ -78,7 +79,10 @@ const Component = (props: Props & FormikProps<FormValues>) => (
           <Trans>Preview</Trans>
         </Button>
         {props.thread ? (
-          <Button style={{ marginRight: '8px' }}>
+          <Button
+            onClick={() => props.onSelectedThread(null)}
+            style={{ marginRight: '8px' }}
+          >
             <Trans>Cancel</Trans>
           </Button>
         ) : null}
