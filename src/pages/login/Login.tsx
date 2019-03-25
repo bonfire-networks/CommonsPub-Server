@@ -41,31 +41,12 @@ const tt = {
   }
 };
 
-const Head = styled.div`
-  width: 100%;
-  background: whitesmoke;
-  height: 60px;
-  & h1 {
-    margin: 0;
-    line-height: 60px;
-  }
-`;
-
 const Signup = styled.div`
   margin-top: 16px;
 
   & u {
     cursor: pointer;
   }
-`;
-
-const Left = styled.div`
-  float: left;
-`;
-
-const Right = styled.div`
-  float: right;
-  margin-top: 9px;
 `;
 
 const BodyCenterContent = styled(Body)`
@@ -76,9 +57,17 @@ const BodyCenterContent = styled(Body)`
   flex-direction: column;
 `;
 
+const WrapperLogin = styled.div`
+  padding: 24px;
+  padding-top: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px 4px rgba(100, 100, 100, 0.1);
+  padding-top: 1px;
+`;
 const Banner = styled.div`
   flex: 1;
-  background: #ffc9c9;
+  background: #ffc9c960;
   width: 100%;
   text-align: center;
   font-size: 15px;
@@ -87,8 +76,17 @@ const Banner = styled.div`
   line-height: 60px;
   font-weight: 700;
   max-height: 60px;
+  margin-bottom: 40px;
 `;
 
+const Tagline = styled.h5`
+  font-size: 42px;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`;
+const Roww = styled(Row)`
+  width: 1040px;
+`;
 /**
  * @param Component
  * @param data {Object} the user object from local cache
@@ -96,7 +94,6 @@ const Banner = styled.div`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
-  console.log(data);
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
@@ -236,7 +233,6 @@ class Login extends React.Component<LoginProps, LoginState> {
   }
 
   render() {
-    console.log(this.props);
     if (this.state.redirectTo) {
       return <Redirect to={this.state.redirectTo as any} />;
     }
@@ -250,35 +246,34 @@ class Login extends React.Component<LoginProps, LoginState> {
               didn't help, of course.
             </Trans>
           </Banner>
-          <Head>
-            <Col size={12}>
-              <Left>
-                <Logo />
-              </Left>
-              <Right>
+
+          <Roww>
+            <Col size={5}>
+              <Logo big />
+              <Tagline>
+                <Trans>Share. Curate. Discuss</Trans>
+              </Tagline>
+
+              <WrapperLogin>
+                <H6>
+                  <Trans>Sign in</Trans>
+                </H6>
                 <LanguageSelect />
-              </Right>
+                <LoginForm
+                  validation={this.state.validation}
+                  onSubmit={this.onLoginFormSubmit}
+                  onInputChange={this.onLoginFormInputChange}
+                  authenticating={this.state.authenticating}
+                />
+                <Signup>
+                  <Trans>Don't yet have an account?</Trans>{' '}
+                  <u onClick={this.props.handleSignup}>
+                    <Trans>Sign up</Trans>
+                  </u>
+                </Signup>
+              </WrapperLogin>
             </Col>
-          </Head>
-          <Row>
-            <Col>
-              <H6>
-                <Trans>Sign in</Trans>
-              </H6>
-              <LoginForm
-                validation={this.state.validation}
-                onSubmit={this.onLoginFormSubmit}
-                onInputChange={this.onLoginFormInputChange}
-                authenticating={this.state.authenticating}
-              />
-              <Signup>
-                <Trans>Don't yet have an account?</Trans>{' '}
-                <u onClick={this.props.handleSignup}>
-                  <Trans>Sign up</Trans>
-                </u>
-              </Signup>
-            </Col>
-          </Row>
+          </Roww>
 
           {/* <Row>
           <Col>

@@ -3,13 +3,14 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 import { Link } from 'react-router-dom';
 
-const LogoH1 = styled.h1`
+const LogoH1 = styled.h1<{ big?: boolean }>`
   margin: 0;
-  font-size: 14px;
+  font-size: ${props => (props.big ? '28px' : '14px')};
   line-height: 32px;
   color: ${props => props.theme.styles.colour.primary};
   letter-spacing: 1px;
-  margin-bottom: 24px;
+  margin-bottom: ${props => (props.big ? '8px' : '24px')};
+
   & a {
     color: ${props => props.theme.styles.colour.primary};
     text-decoration: none;
@@ -22,7 +23,7 @@ const LogoH1 = styled.h1`
   }
 `;
 
-const Small = styled.a`
+const Small = styled.a<{ big?: boolean }>`
   margin-left: 4px;
   padding: 4px 8px;
   border-radius: 4px;
@@ -37,24 +38,39 @@ const Small = styled.a`
 
 type LogoProps = {
   link?: boolean;
+  big?: boolean;
 };
 
 /**
  * MoodleNet Logo component.
  * @param link {Boolean} wrap Logo component in a Link to the homepage
  */
-export default ({ link = true }: LogoProps) => {
+export default ({ link = true, big }: LogoProps) => {
   return (
-    <LogoH1>
-      <Link to="/" title="MoodleNet">
-        MoodleNet
-      </Link>
-      <Small
-        href="https://blog.moodle.net/2019/moodlenet-0-5-alpha-update/"
-        target="blank"
-      >
-        <small>v0.5 alpha</small>
-      </Small>
-    </LogoH1>
+    <>
+      <LogoH1 big={big}>
+        <Link to="/" title="MoodleNet">
+          MoodleNet
+        </Link>
+        {big ? null : (
+          <Small
+            href="https://blog.moodle.net/2019/moodlenet-0-5-alpha-update/"
+            target="blank"
+            big={big}
+          >
+            <small>v0.5 alpha</small>
+          </Small>
+        )}
+      </LogoH1>
+      {big ? (
+        <Small
+          href="https://blog.moodle.net/2019/moodlenet-0-5-alpha-update/"
+          target="blank"
+          big={big}
+        >
+          <small>v0.5 alpha</small>
+        </Small>
+      ) : null}
+    </>
   );
 };
