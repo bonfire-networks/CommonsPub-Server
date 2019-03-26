@@ -3,154 +3,134 @@ import * as React from 'react';
 import { Trans } from '@lingui/macro';
 
 import { Grid, Row, Col } from '@zendeskgarden/react-grid';
-import { Redirect } from 'react-router';
-import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
+// import { Redirect } from 'react-router';
+// import { Tabs, TabPanel } from '../../components/chrome/Tabs/Tabs';
 
-import styled from '../../themes/styled';
+// import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
-// import {
-//   CollectionCard,
-//   CommunityCard,
-//   ResourceCard
-// } from '../../components/elements/Card/Card';
-import Logo from '../../components/brand/Logo/Logo';
-import P from '../../components/typography/P/P';
 
-const CardContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-`;
+import CommunityCard from '../../components/elements/Community/Community';
+import CollectionCard from '../../components/elements/Collection/Collection';
+import ResourceCard from '../../components/elements/Resource/Resource';
 
-const yourLikes = (
-  <Row>
-    <Col size={10}>
-      <h4>Your Likes</h4>
-      <CardContainer>
-        {/*<ResourceCard {...DUMMY_RESOURCES[0]} />*/}
-      </CardContainer>
-    </Col>
-  </Row>
+// import Logo from '../../components/brand/Logo/Logo';
+// import P from '../../components/typography/P/P';
+// import media from 'styled-media-query';
+
+import algoliasearch from 'algoliasearch/lite';
+import {
+  InstantSearch,
+  Hits,
+  SearchBox,
+  Pagination,
+  // Highlight,
+  ClearRefinements,
+  RefinementList,
+  Configure
+} from 'react-instantsearch-dom';
+
+const searchClient = algoliasearch(
+  'KVG4RFL0JJ',
+  '2b7ba2703d3f4bac126ea5765c2764eb'
 );
 
-const communities = (
-  <Row>
-    <Col size={10}>
-      <h4>
-        <Trans>Communities</Trans>
-      </h4>
-      <CardContainer>
-        {/*{DUMMY_COMMUNITIES.slice(0, 2).map(community => {*/}
-        {/*return <CommunityCard key={community.id} {...community} />;*/}
-        {/*})}*/}
-      </CardContainer>
-    </Col>
-  </Row>
-);
+console.log('search WIP!');
 
-const collections = (
-  <Row>
-    <Col size={10}>
-      <h4>
-        <Trans>Collections</Trans>
-      </h4>
-      <CardContainer>
-        {/*{DUMMY_COLLECTIONS.slice(0, 6).map(collection => {*/}
-        {/*return <CollectionCard key={collection.id} {...collection} />;*/}
-        {/*})}*/}
-      </CardContainer>
-    </Col>
-  </Row>
-);
+function Hit(props) {
+  var community = props.hit;
 
-const resources = (
-  <Row>
-    <Col size={10}>
-      <h4>
-        <Trans>Resources</Trans>
-      </h4>
-      <CardContainer>
-        {/*{DUMMY_RESOURCES.slice(0, 1).map(resource => {*/}
-        {/*return <ResourceCard key={resource.id} {...resource} />;*/}
-        {/*})}*/}
-      </CardContainer>
-    </Col>
-  </Row>
-);
-
-const discussions = (
-  <Row>
-    <Col size={10}>
-      <h4>
-        <Trans>Discussions</Trans>
-      </h4>
-    </Col>
-  </Row>
-);
-
-enum TabEnum {
-  All = 'All',
-  YourLikes = 'Your Likes',
-  Communities = 'Communities',
-  Collections = 'Collections',
-  Resources = 'Resources',
-  Discussions = 'Discussions'
+  return (
+    <Row>
+      <Col md={4}>
+        <CommunityCard
+          // key={i}
+          summary={community.summary}
+          title={community.name}
+          icon={community.icon || ''}
+          id={''}
+          followed={community.followed}
+          followersCount={0}
+          collectionsCount={community.collections.length}
+          externalId={community.id}
+          threadsCount={0}
+        />
+      </Col>
+      <Col md={8}>
+        {community.collections.map((collection, i_col) => (
+          <Row>
+            <Col>
+              <CollectionCard
+                key={i_col}
+                collection={collection}
+                communityId={''}
+              />
+            </Col>
+            <Col>{collection_resources(collection)}</Col>
+          </Row>
+        ))}
+      </Col>
+    </Row>
+  );
 }
 
-const items = {
-  [TabEnum.YourLikes]: yourLikes,
-  [TabEnum.Communities]: communities,
-  [TabEnum.Collections]: collections,
-  [TabEnum.Resources]: resources,
-  [TabEnum.Discussions]: discussions
-};
+function collection_resources(collection) {
+  return collection.resources.map((resource, i_res) => (
+    <ResourceCard
+      key={i_res}
+      icon={resource.icon}
+      title={resource.name}
+      summary={resource.summary}
+      url={resource.url}
+      // localId={resource.localId}
+    />
+  ));
+}
+
+// const List = styled.div`
+//   display: grid;
+//   grid-template-columns: 1fr 1fr 1fr;
+//   grid-column-gap: 16px;
+//   grid-row-gap: 16px;
+//   // padding: 16px;
+//   // background: white;
+//   padding-top: 0;
+//   ${media.lessThan('medium')`
+//   grid-template-columns: 1fr;
+//   `};
+// `;
 
 export default class extends React.Component {
-  state = {
-    tab: TabEnum.All
-  };
-
   render() {
     //TODO support maybe not good enough? e.g. no ie 11 (https://caniuse.com/#feat=urlsearchparams)
     //TODO this is not SSR friendly, accessing window.location!! does react router give query params?
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
 
-    if (!query) {
-      return <Redirect to="/" />;
-    }
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const query = urlParams.get('q');
+
+    // if (!query) {
+    //   return <Redirect to="/" />;
+    // }
 
     return (
       <Main>
-        <Grid>
-          <Row>
-            <Col size={10}>
-              <Logo />
-              <P>
-                <Trans>Search results for {query}</Trans>
-              </P>
-            </Col>
-          </Row>
-          <Tabs
-            selectedKey={this.state.tab}
-            onChange={tab => this.setState({ tab })}
-          >
-            <TabPanel label={TabEnum.All} key={TabEnum.All}>
-              <Grid>
-                {yourLikes}
-                {communities}
-                {collections}
-                {resources}
-                {discussions}
-              </Grid>
-            </TabPanel>
-            {Object.keys(items).map(item => (
-              <TabPanel label={item} key={item}>
-                <Grid>{items[item]}</Grid>
-              </TabPanel>
-            ))}
-          </Tabs>
-        </Grid>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.1.1/themes/reset-min.css"
+        />
+
+        <InstantSearch searchClient={searchClient} indexName="next_moodlenet">
+          <SearchBox />
+          <h2>
+            <Trans>Filter</Trans>
+          </h2>
+          <RefinementList attribute="isAccessibleForFree" />
+          <ClearRefinements />
+          <Configure hitsPerPage={8} />
+          <Grid>
+            <Hits hitComponent={Hit} />
+          </Grid>
+          <Pagination />
+        </InstantSearch>
       </Main>
     );
   }
