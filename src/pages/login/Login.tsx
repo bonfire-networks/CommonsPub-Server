@@ -102,7 +102,7 @@ const LanguageWrapper = styled.div`
   }
 `;
 const Background = styled.div`
-  background-image: url('https://i.imgur.com/K9dci7b.jpg');
+  background-image: url('https://i.imgur.com/UjieHFO.png');
   background-size: cover;
   background-repeat: no-repeat;
   height: 100%;
