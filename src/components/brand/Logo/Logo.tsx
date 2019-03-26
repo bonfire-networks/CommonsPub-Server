@@ -59,7 +59,7 @@ export default ({ link = true, big }: LogoProps) => {
       </LogoH1>
       {big ? (
         <Small
-          href="https://blog.moodle.net/2019/moodlenet-0-5-alpha-update/"
+          href="https://blog.moodle.net/2019/moodlenet-0-7-alpha-update/"
           target="blank"
           big={big}
         >
