@@ -17,11 +17,11 @@ import P from '../../components/typography/P/P';
 import media from 'styled-media-query';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 const getUserQuery = require('../../graphql/getAgent.graphql');
-import { clearFix } from 'polished';
-import moment from 'moment';
-import Link from '../../components/elements/Link/Link';
+// import { clearFix } from 'polished';
+// import moment from 'moment';
+// import Link from '../../components/elements/Link/Link';
 
-import { Collection, Community, Eye } from '../../components/elements/Icons';
+import { Collection, Community } from '../../components/elements/Icons';
 enum TabsEnum {
   Overview = 'Overview',
   Communities = 'Joined communities',
@@ -35,14 +35,14 @@ interface Data extends GraphqlQueryControls {
     summary;
     id;
     localId;
-    inbox: {
-      edges: any[];
-      totalCount: number;
-      pageInfo: {
-        startCursor: number;
-        endCursor: number;
-      };
-    };
+    // outbox: {
+    //   edges: any[];
+    //   totalCount: number;
+    //   pageInfo: {
+    //     startCursor: number;
+    //     endCursor: number;
+    //   };
+    // };
     joinedCommunities: {
       edges: any[];
       totalCount: number;
@@ -114,7 +114,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       <OverlayTab>
                         <Tabs>
                           <SuperTabList>
-                            <SuperTab>
+                            {/* <SuperTab>
                               <span>
                                 <Eye
                                   width={20}
@@ -126,7 +126,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               <h5>
                                 <Trans>Timeline</Trans>
                               </h5>
-                            </SuperTab>
+                            </SuperTab> */}
                             <SuperTab>
                               <span>
                                 <Collection
@@ -154,9 +154,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               </h5>
                             </SuperTab>
                           </SuperTabList>
-                          <TabPanel>
+                          {/* <TabPanel>
                             <div>
-                              {this.props.data.user.inbox.edges.map((t, i) => (
+                              {this.props.data.user.outbox.edges.map((t, i) => (
                                 <FeedItem key={i}>
                                   <Member>
                                     <MemberItem>
@@ -273,19 +273,19 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                   </Member>
                                 </FeedItem>
                               ))}
-                              {(this.props.data.user.inbox.pageInfo
+                              {(this.props.data.user.outbox.pageInfo
                                 .startCursor === null &&
-                                this.props.data.user.inbox.pageInfo
+                                this.props.data.user.outbox.pageInfo
                                   .endCursor === null) ||
-                              (this.props.data.user.inbox.pageInfo
+                              (this.props.data.user.outbox.pageInfo
                                 .startCursor &&
-                                this.props.data.user.inbox.pageInfo
+                                this.props.data.user.outbox.pageInfo
                                   .endCursor === null) ? null : (
                                 <LoadMore
                                   onClick={() =>
                                     this.props.data.fetchMore({
                                       variables: {
-                                        end: this.props.data.user.inbox.pageInfo
+                                        end: this.props.data.user.outbox.pageInfo
                                           .endCursor
                                       },
                                       updateQuery: (
@@ -294,9 +294,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                       ) => {
                                         console.log(fetchMoreResult);
                                         const newNodes =
-                                          fetchMoreResult.user.inbox.edges;
+                                          fetchMoreResult.user.outbox.edges;
                                         const pageInfo =
-                                          fetchMoreResult.user.inbox.pageInfo;
+                                          fetchMoreResult.user.outbox.pageInfo;
                                         console.log(newNodes);
                                         return newNodes.length
                                           ? {
@@ -307,10 +307,10 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                                 __typename:
                                                   previousResult.user
                                                     .__typename,
-                                                inbox: {
-                                                  ...previousResult.user.inbox,
+                                                outbox: {
+                                                  ...previousResult.user.outbox,
                                                   edges: [
-                                                    ...previousResult.user.inbox
+                                                    ...previousResult.user.outbox
                                                       .edges,
                                                     ...newNodes
                                                   ]
@@ -324,12 +324,12 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                                 __typename:
                                                   previousResult.community
                                                     .__typename,
-                                                inbox: {
+                                                outbox: {
                                                   ...previousResult.community
-                                                    .inbox,
+                                                    .outbox,
                                                   edges: [
                                                     ...previousResult.community
-                                                      .inbox.edges
+                                                      .outbox.edges
                                                   ]
                                                 },
                                                 pageInfo
@@ -343,7 +343,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                 </LoadMore>
                               )}
                             </div>
-                          </TabPanel>
+                          </TabPanel> */}
                           <TabPanel>
                             <>
                               <ListCollections>
@@ -589,85 +589,85 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
-const Member = styled.div`
-  vertical-align: top;
-  margin-right: 14px;
-  ${clearFix()};
-`;
+// const Member = styled.div`
+//   vertical-align: top;
+//   margin-right: 14px;
+//   ${clearFix()};
+// `;
 
-const MemberInfo = styled.div`
-  display: inline-block;
-  & h3 {
-    font-size: 14px;
-    margin: 0;
-    color: ${props => props.theme.styles.colour.base2};
-    font-weight: 400;
-    & span {
-      margin: 0 4px;
-    }
-    & a {
-      text-decoration: underline;
-      font-weight: 500;
-    }
-  }
-`;
+// const MemberInfo = styled.div`
+//   display: inline-block;
+//   & h3 {
+//     font-size: 14px;
+//     margin: 0;
+//     color: ${props => props.theme.styles.colour.base2};
+//     font-weight: 400;
+//     & span {
+//       margin: 0 4px;
+//     }
+//     & a {
+//       text-decoration: underline;
+//       font-weight: 500;
+//     }
+//   }
+// `;
 
-const MemberItem = styled.span`
-  background-color: #d6dadc;
-  border-radius: 3px;
-  color: #4d4d4d;
-  display: inline-block;
-  height: 42px;
-  overflow: hidden;
-  position: relative;
-  width: 42px;
-  user-select: none;
-  z-index: 0;
-  vertical-align: inherit;
-  margin-right: 8px;
-`;
+// const MemberItem = styled.span`
+//   background-color: #d6dadc;
+//   border-radius: 3px;
+//   color: #4d4d4d;
+//   display: inline-block;
+//   height: 42px;
+//   overflow: hidden;
+//   position: relative;
+//   width: 42px;
+//   user-select: none;
+//   z-index: 0;
+//   vertical-align: inherit;
+//   margin-right: 8px;
+// `;
 
-const MeImg = styled.img`
-  width: 42px;
-  height: 42px;
-  display: block;
-  -webkit-appearance: none;
-  line-height: 42px;
-  text-indent: 4px;
-  font-size: 13px;
-  overflow: hidden;
-  max-width: 42px;
-  max-height: 42px;
-  text-overflow: ellipsis;
-  vertical-align: text-top;
-  margin-right: 8px;
-`;
+// const MeImg = styled.img`
+//   width: 42px;
+//   height: 42px;
+//   display: block;
+//   -webkit-appearance: none;
+//   line-height: 42px;
+//   text-indent: 4px;
+//   font-size: 13px;
+//   overflow: hidden;
+//   max-width: 42px;
+//   max-height: 42px;
+//   text-overflow: ellipsis;
+//   vertical-align: text-top;
+//   margin-right: 8px;
+// `;
 
-const Date = styled.div`
-  font-size: 12px;
-  line-height: 32px;
-  height: 20px;
-  margin: 0;
-  color: ${props => props.theme.styles.colour.base3};
-  margin-top: 0px;
-  font-weight: 500;
-`;
+// const Date = styled.div`
+//   font-size: 12px;
+//   line-height: 32px;
+//   height: 20px;
+//   margin: 0;
+//   color: ${props => props.theme.styles.colour.base3};
+//   margin-top: 0px;
+//   font-weight: 500;
+// `;
 
-const FeedItem = styled.div`
-  min-height: 30px;
-  position: relative;
-  margin: 0;
-  padding: 16px;
-  word-wrap: break-word;
-  font-size: 14px;
-  ${clearFix()};
-  transition: background 0.5s ease;
-  background: #fff;
-  margin-top: 0
-  z-index: 10;
-  position: relative;
-  border-bottom: 1px solid #eaeaea;
-`;
+// const FeedItem = styled.div`
+//   min-height: 30px;
+//   position: relative;
+//   margin: 0;
+//   padding: 16px;
+//   word-wrap: break-word;
+//   font-size: 14px;
+//   ${clearFix()};
+//   transition: background 0.5s ease;
+//   background: #fff;
+//   margin-top: 0
+//   z-index: 10;
+//   position: relative;
+//   border-bottom: 1px solid #eaeaea;
+// `;
 
 const WrapperHero = styled.div`
   // margin-top: -50px;
