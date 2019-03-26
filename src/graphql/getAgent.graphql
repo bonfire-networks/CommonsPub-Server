@@ -1,4 +1,12 @@
-query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int, $limit:Int, $end:Int)  {
+query getAgentQuery(
+  $id: Int!, 
+  $limitComm: Int, 
+  $endComm: Int, 
+  $limitColl: Int, 
+  $endColl: Int, 
+  # $limitTimeline:Int, 
+  # $endTimeline:Int
+  )  {
         user(localId: $id) {
             id
             localId
@@ -7,7 +15,7 @@ query getAgentQuery($id: Int!, $limitComm: Int, $endComm: Int, $limitColl: Int, 
             location
             summary
             icon
-  #           inbox (limit: $limit, after:$end) {
+  #           inbox (limit: $limitTimeline, after:$endTimeline) {
   #     pageInfo {
   #         startCursor
   #         endCursor
