@@ -277,9 +277,7 @@ class Login extends React.Component<LoginProps, LoginState> {
           <Roww>
             <Col md={5} sm={12}>
               <Logo big />
-              <Tagline>
-                <Trans>Share. Curate. Discuss.</Trans>
-              </Tagline>
+              <Tagline>Share. Curate. Discuss.</Tagline>
 
               <WrapperLogin>
                 <H6>
