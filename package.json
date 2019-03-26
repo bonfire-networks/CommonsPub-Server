@@ -42,7 +42,7 @@
     "@fortawesome/react-fontawesome": "0.1.3",
     "@jumpn/utils-graphql": "0.5.3",
     "@lingui/babel-preset-react": "2.7",
-    "@lingui/cli": "2.7",
+    "@lingui/cli": "2.7.4",
     "@lingui/core": "2.7",
     "@lingui/macro": "2.7",
     "@lingui/react": "2.7",
@@ -153,6 +153,6 @@
     "yup": "0.26.6"
   },
   "devDependencies": {
-    "@lingui/loader": "2.7"
+    "@lingui/loader": "2.7.4"
   }
 }
