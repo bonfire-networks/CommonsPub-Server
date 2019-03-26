@@ -69,6 +69,7 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
       <Switch>
         <Route exact path="/readme" component={Home} />
         <Route exact path="/login" component={Login} />
+        <Route exact path="/search" component={Search} />
         <ProtectedRoute
           path="/"
           component={props => (
@@ -85,7 +86,6 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
                 />
                 <Switch>
                   <Route exact path="/" component={Home} />
-                  <Route exact path="/search" component={Search} />
                   <Route exact path="/communities" component={CommunitiesAll} />
                   <Route
                     exact
