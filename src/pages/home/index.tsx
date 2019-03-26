@@ -18,41 +18,16 @@ const Home: React.SFC<Props> = props => (
         {props.data.user.data ? props.data.user.data.name : ''}!
       </Title>
       <p>
+        <Trans>Thank you for helping out by testing MoodleNet.</Trans>{' '}
         <Trans>
-          Thanks for being part of this testing process for MoodleNet.
-        </Trans>
-        <br />
-        <Trans>
-          Please pay attention to the video and text on this page, as they
-          contain some important information.
+          We’ve{' '}
+          <a href="https://blog.moodle.net/2019/what-we-learned-from-testing/">
+            successfully concluded the testing period
+          </a>{' '}
+          and are currently working on features and improvements to get
+          MoodleNet ready to move from ‘alpha’ to ‘beta’.
         </Trans>
       </p>
-      <Video>
-        <iframe
-          style={{
-            border: 'none',
-            padding: '5px',
-            borderRadius: '0.25em',
-            backgroundColor: 'rgb(232,232,232)'
-          }}
-          data-allowfullscreen
-          width="400"
-          height="337"
-          scrolling="no"
-          data-frameborder="0"
-          src="https://www.youtube-nocookie.com/embed/6fyrcm4N2CI?cc_load_policy=1"
-          data-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        />
-      </Video>
-      <p>
-        <Trans>We’re trying to discover the answer to this question:</Trans>
-      </p>
-      <blockquote>
-        <Trans>
-          Do educators want to join communities to curate collections of
-          resources?
-        </Trans>
-      </blockquote>
 
       <p>
         <Trans>Here are some important things to note:</Trans>
@@ -61,7 +36,7 @@ const Home: React.SFC<Props> = props => (
       <ol>
         <li>
           <Trans>
-            Your involvement in the testing process is subject to the{' '}
+            Your use of MoodleNet is subject to the
             <a href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct">
               Code of Conduct
             </a>
@@ -70,8 +45,10 @@ const Home: React.SFC<Props> = props => (
         </li>
         <li>
           <Trans>
-            During this testing period we will observe what you do with
-            MoodleNet, and listen to what you tell us about your experiences.
+            Although we’re keeping MoodleNet invite-only at the moment, soon
+            anyone on the internet will be able to view the communities and
+            collections you create, the resources you add, and the discussions
+            you engage in.
           </Trans>
         </li>
         <li>
@@ -83,30 +60,20 @@ const Home: React.SFC<Props> = props => (
         </li>
         <li>
           <Trans>
-            This test is semi-closed, but your contributions will live on beyond
-            the testing period. So curate and comment as if everything you share
-            is public.
-          </Trans>
-        </li>
-        <li>
-          <Trans>
-            We’re using{' '}
+            We’re still using{' '}
             <a href="https://changemap.co/moodle/moodlenet">Changemap</a> to
-            collect your feedback during this testing period, so please do use
-            that to suggest everything from small tweaks to major changes! You
-            can access this using the ‘Share feedback’ link in the sidebar:
+            collect your feedback, so please use it to suggest everything from
+            small tweaks to major changes! You can access this using the{' '}
+            <a href="https://changemap.co/moodle/moodlenet">Share feedback</a>{' '}
+            link in the sidebar.
           </Trans>
-          <Feedback target="blank" href="https://changemap.co/moodle/moodlenet">
-            🔬 <Trans>Share Feedback</Trans>
-          </Feedback>
         </li>
       </ol>
       <p>
         <Trans>
-          We’re really looking forward to seeing how you use MoodleNet to share
-          and curate resources, and collaborate with other educators! Get
-          started by clicking on ‘The Lounge’ in the sidebar and introducing
-          yourself, or by adding your first resource!
+          We’re busy working on the roadmap, with the most important next step
+          being federation (i.e. the ability to have separate instances of
+          MoodleNet that can communicate with one another).
         </Trans>
       </p>
       <Sign>
@@ -118,29 +85,6 @@ const Home: React.SFC<Props> = props => (
     </Wrapper>
   </Container>
 );
-
-const Feedback = styled.a`
-  display: block;
-  text-align: center;
-  animation: 0.5s slide-in;
-  position: relative;
-  height: 30px;
-  background: rgb(255, 239, 217);
-  border-bottom: 1px solid rgb(228, 220, 195);
-  color: #10100cc2 !important;
-  line-height: 30px;
-  padding: 0;
-  font-size: 13px;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-  margin-top: 8px;
-  cursor: pointer;
-  &:hover {
-    background: rgb(245, 229, 207);
-  }
-  max-width: 200px;
-`;
 
 const Container = styled.div`
   overflow-y: scroll;
@@ -162,10 +106,10 @@ const Sign = styled.div`
     letter-spacing: 1px;
   }
 `;
-const Video = styled.div`
-  margin: 16px auto;
-  text-align: center;
-`;
+// const Video = styled.div`
+//   margin: 16px auto;
+//   text-align: center;
+// `;
 const Wrapper = styled.div`
   width: 620px;
   margin: 0 auto;
@@ -179,17 +123,6 @@ const Wrapper = styled.div`
     text-decoration: none;
     font-weight: 700;
     position: relative;
-    &:before {
-      position: absolute;
-      content: '';
-      left: 0;
-      right: 0;
-      width: 100%;
-      height: 6px;
-      bottom: 1px;
-      background: #f9801182;
-      display: block;
-    }
   }
   & p,
   & li {
