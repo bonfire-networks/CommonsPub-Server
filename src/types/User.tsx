@@ -9,14 +9,14 @@ export default interface User {
   icon?: string;
   location: string;
   primaryLanguage: string;
-  inbox: {
-    edges: any;
-    pageInfo: {
-      endCursor: number;
-      startCursor: number;
-    };
-    totalCount: number;
-  };
+  // inbox: {
+  //   edges: any;
+  //   pageInfo: {
+  //     endCursor: number;
+  //     startCursor: number;
+  //   };
+  //   totalCount: number;
+  // };
   comments: {
     edges: [
       {

@@ -1,4 +1,11 @@
-query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int, $limit: Int, $end: Int )  {
+query meQuery(
+  $limitComm: Int, 
+  $endComm: Int, 
+  $limitColl: Int, 
+  $endColl: Int, 
+  # $limitTimeline:Int, 
+  # $endTimeline:Int
+  )  {
   me {
     user {
       id
@@ -31,71 +38,71 @@ query meQuery($limitComm: Int, $endComm: Int, $limitColl: Int, $endColl: Int, $l
         }
       }
     }
-    inbox (limit: $limit, after:$end) {
-      pageInfo {
-          startCursor
-          endCursor
-      }
-      edges {
-        node {
-          id
-          activityType
-          type
-          object {
-            __typename
-            ... on Community {
-            id
-            name
-            localId
-            }
-            ... on Comment {
-            id
-            localId
-             context {
-              __typename
-              ... on Community {
-                id
-                name
-                localId
-              }
-              ... on Collection {
-                id
-                name
-                localId
-              }
-            }
-            localId
-            }
-            ... on Collection {
-            id
-            name
-            localId
-            community {
-              localId
-            }
-            }
-              ... on Resource {
-            id
-            name
-            localId
-            collection {
-                name
-                localId
-                community {
-                  localId
-                }
-            }
-            }
-          }
-          user {
-            name
-            id
-            localId
-            icon
-          }
-      }
-    }
-  }
+  #   inbox (limit: $limitTimeline, after:$endTimeline) {
+  #     pageInfo {
+  #         startCursor
+  #         endCursor
+  #     }
+  #     edges {
+  #       node {
+  #         id
+  #         activityType
+  #         type
+  #         object {
+  #           __typename
+  #           ... on Community {
+  #           id
+  #           name
+  #           localId
+  #           }
+  #           ... on Comment {
+  #           id
+  #           localId
+  #            context {
+  #             __typename
+  #             ... on Community {
+  #               id
+  #               name
+  #               localId
+  #             }
+  #             ... on Collection {
+  #               id
+  #               name
+  #               localId
+  #             }
+  #           }
+  #           localId
+  #           }
+  #           ... on Collection {
+  #           id
+  #           name
+  #           localId
+  #           community {
+  #             localId
+  #           }
+  #           }
+  #             ... on Resource {
+  #           id
+  #           name
+  #           localId
+  #           collection {
+  #               name
+  #               localId
+  #               community {
+  #                 localId
+  #               }
+  #           }
+  #           }
+  #         }
+  #         user {
+  #           name
+  #           id
+  #           localId
+  #           icon
+  #         }
+  #     }
+  #   }
+  # }
     followingCollections(limit: $limitColl, after:$endColl) {
       pageInfo {
         startCursor
