@@ -11,7 +11,7 @@ import Main from '../../components/chrome/Main/Main';
 import Collection from '../../types/Collection';
 import Loader from '../../components/elements/Loader/Loader';
 import CollectionCard from '../../components/elements/Collection/Collection';
-
+import CollectionsLoadMore from '../../components/elements/Loadmore/collections';
 const { getCollectionsQuery } = require('../../graphql/getCollections.graphql');
 
 interface Data extends GraphqlQueryControls {
@@ -54,49 +54,10 @@ class CommunitiesYours extends React.Component<Props> {
                     />
                   ))}
                 </List>
-                {(this.props.data.collections.pageInfo.startCursor &&
-                  this.props.data.collections.pageInfo.endCursor === null) ||
-                (this.props.data.collections.pageInfo.startCursor === null &&
-                  this.props.data.collections.pageInfo.endCursor ===
-                    null) ? null : (
-                  <LoadMore
-                    onClick={() =>
-                      this.props.data.fetchMore({
-                        variables: {
-                          end: this.props.data.collections.pageInfo.endCursor
-                        },
-                        updateQuery: (previousResult, { fetchMoreResult }) => {
-                          const newNodes = fetchMoreResult.collections.nodes;
-                          const pageInfo = fetchMoreResult.collections.pageInfo;
-                          return newNodes.length
-                            ? {
-                                // Put the new comments at the end of the list and update `pageInfo`
-                                // so we have the new `endCursor` and `hasNextPage` values
-                                collections: {
-                                  __typename:
-                                    previousResult.collections.__typename,
-                                  nodes: [
-                                    ...previousResult.collections.nodes,
-                                    ...newNodes
-                                  ],
-                                  pageInfo
-                                }
-                              }
-                            : {
-                                collections: {
-                                  __typename:
-                                    previousResult.collections.__typename,
-                                  nodes: [...previousResult.collections.nodes],
-                                  pageInfo
-                                }
-                              };
-                        }
-                      })
-                    }
-                  >
-                    <Trans>Load more</Trans>
-                  </LoadMore>
-                )}
+                <CollectionsLoadMore
+                  fetchMore={this.props.data.fetchMore}
+                  collections={this.props.data.collections}
+                />
               </>
             )}
           </Wrapper>
@@ -105,23 +66,6 @@ class CommunitiesYours extends React.Component<Props> {
     );
   }
 }
-
-const LoadMore = styled.div`
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  color: #fff;
-  letter-spacing: 0.5px;
-  font-size: 14px;
-  background: #8fb7ff;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  margin-top: 8px;
-  &:hover {
-    background: #e7e7e7;
-  }
-`;
 
 const WrapperCont = styled.div`
   max-width: 1040px;
@@ -142,7 +86,6 @@ const Wrapper = styled.div`
     border-bottom: 1px solid #dadada;
     margin-bottom: 20px !important;
     line-height: 32px !important;
-    // background-color: #151b26;
     border-bottom: 1px solid #dddfe2;
     border-radius: 2px 2px 0 0;
     font-weight: bold;

@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { compose } from 'recompose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
+import styled from '../../themes/styled';
 
 import { Trans } from '@lingui/macro';
 
 import H4 from '../../components/typography/H4/H4';
-import styled from '../../themes/styled';
 import Main from '../../components/chrome/Main/Main';
 import Community from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import CommunityCard from '../../components/elements/Community/Community';
 import media from 'styled-media-query';
+import CommunitiesLoadMore from '../../components/elements/Loadmore/community';
 
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
@@ -63,49 +64,10 @@ class CommunitiesYours extends React.Component<Props> {
                     );
                   })}
                 </List>
-                {(this.props.data.communities.pageInfo.startCursor === null &&
-                  this.props.data.communities.pageInfo.endCursor === null) ||
-                (this.props.data.communities.pageInfo.startCursor &&
-                  this.props.data.communities.pageInfo.endCursor ===
-                    null) ? null : (
-                  <LoadMore
-                    onClick={() =>
-                      this.props.data.fetchMore({
-                        variables: {
-                          end: this.props.data.communities.pageInfo.endCursor
-                        },
-                        updateQuery: (previousResult, { fetchMoreResult }) => {
-                          const newNodes = fetchMoreResult.communities.nodes;
-                          const pageInfo = fetchMoreResult.communities.pageInfo;
-                          return newNodes.length
-                            ? {
-                                // Put the new comments at the end of the list and update `pageInfo`
-                                // so we have the new `endCursor` and `hasNextPage` values
-                                communities: {
-                                  __typename:
-                                    previousResult.communities.__typename,
-                                  nodes: [
-                                    ...previousResult.communities.nodes,
-                                    ...newNodes
-                                  ],
-                                  pageInfo
-                                }
-                              }
-                            : {
-                                communities: {
-                                  __typename:
-                                    previousResult.communities.__typename,
-                                  nodes: [...previousResult.communities.nodes],
-                                  pageInfo
-                                }
-                              };
-                        }
-                      })
-                    }
-                  >
-                    <Trans>Load more</Trans>
-                  </LoadMore>
-                )}
+                <CommunitiesLoadMore
+                  fetchMore={this.props.data.fetchMore}
+                  communities={this.props.data.communities}
+                />
               </>
             )}
           </Wrapper>
@@ -115,31 +77,11 @@ class CommunitiesYours extends React.Component<Props> {
   }
 }
 
-const LoadMore = styled.div`
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-  color: #fff;
-  letter-spacing: 0.5px;
-  font-size: 14px;
-  background: #8fb7ff;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  margin-top: 8px;
-  &:hover {
-    background: #e7e7e7;
-  }
-`;
-
 const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
   height: 100%;
-  // background: white;
-  // margin-top: 24px;
-  // border-radius: 4px;
 `;
 
 const Wrapper = styled.div`
@@ -167,8 +109,7 @@ const List = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
-  // padding: 16px;
-  // background: white;
+
   padding-top: 0;
   ${media.lessThan('medium')`
   grid-template-columns: 1fr;

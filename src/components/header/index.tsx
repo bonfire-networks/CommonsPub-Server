@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../themes/styled';
-import { Community } from '../elements/Icons';
+import { Community, Collection } from '../elements/Icons';
 import { Trans } from '@lingui/macro';
 import OutsideClickHandler from 'react-outside-click-handler';
 // import Text from '../inputs/Text/Text';
@@ -39,37 +39,59 @@ const Header: React.SFC<Props> = props => {
         <span onClick={() => props.onSidebar(!props.sidebar)}>
           <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
         </span>
-        <Logo />
+        <Link to="/communities">
+          <i>
+            <Community
+              width={18}
+              height={18}
+              color={'#3d3f4a80'}
+              strokeWidth={2}
+            />
+          </i>
+          <Trans>Communities</Trans>
+        </Link>
+        <Link to="/collections">
+          <i>
+            <Collection
+              width={18}
+              height={18}
+              color={'#3d3f4a80'}
+              strokeWidth={2}
+            />
+          </i>
+          <Trans>Collections</Trans>
+        </Link>
       </Left>
+      <Center>
+        <Logo />
+      </Center>
       <Right>
         <Bottom onClick={props.handleNewCommunity}>
           <span>
             <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
           </span>
-          <Title>
-            <Trans>Create a community</Trans>
-          </Title>
         </Bottom>
-
-        <Avatar>
-          <img
-            onClick={props.handleOpen}
-            src={
-              props.data.user.data.icon ||
-              `https://www.gravatar.com/avatar/${
-                props.data.user.data.localId
-              }?f=y&d=identicon`
-            }
-            alt="Avatar"
-          />
-        </Avatar>
+        <AvatarUsername>
+          <Avatar>
+            <img
+              onClick={props.handleOpen}
+              src={
+                props.data.user.data.icon ||
+                `https://www.gravatar.com/avatar/${
+                  props.data.user.data.localId
+                }?f=y&d=identicon`
+              }
+              alt="Avatar"
+            />
+          </Avatar>
+          {props.data.user.data.name}
+        </AvatarUsername>
       </Right>
       {props.isOpen ? (
         <>
           <OutsideClickHandler onOutsideClick={props.closeMenu}>
             <WrapperMenu>
               <ProfileMenu>
-                <List lined>{props.data.user.data.name}</List>
                 <List lined>
                   <Item>
                     <Link to="/profile">
@@ -103,15 +125,27 @@ const Header: React.SFC<Props> = props => {
     </Wrapper>
   );
 };
-
-const Title = styled.b`
-  ${media.lessThan('medium')`
-  display: none;
-`};
+const AvatarUsername = styled.div`
+  float: left;
+  float: left;
+  line-height: 32px;
+  margin-left: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #00002f;
+`;
+const Center = styled.span`
+  position: absolute;
+  left: 50%;
+  margin-left: -92px;
+  & h1 {
+    margin: 0;
+    line-height: 50px;
+  }
 `;
 const Bottom = styled.div`
   height: 30px;
-  background: ${props => props.theme.styles.colour.primaryAlt};
+  background: ${props => props.theme.styles.colour.primary};
   border-radius: 4px;
   text-align: center;
   line-height: 30px;
@@ -124,7 +158,6 @@ const Bottom = styled.div`
   & span {
     vertical-align: sub;
     display: inline-block;
-    margin-right: 8px;
     ${media.lessThan('medium')`
     margin-right: 0;
     `};
@@ -144,7 +177,7 @@ const Avatar = styled.div`
   height: 32px;
   border-radius: 100px;
   overflow: hidden;
-  margin-left: 16px;
+  margin-right: 8px;
   float: left;
   background: #e6e6e6;
 `;
@@ -196,13 +229,24 @@ const Item = styled.div`
 `;
 const Left = styled.div`
   float: left;
-  width: 120px;
-  height: 30px;
-  margin-top: 8px;
-  float: left;
-  width: 240px;
-  max-height: 30px;
-  margin-left: 8px;
+  line-height: 50px;
+  height: 50px;
+  max-height: 50px;
+  margin-left: 16px;
+  & a {
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #3d3f4a80 !important;
+    text-decoration: none;
+    margin-right: 24px;
+    & i {
+      margin-right: 8px;
+      & svg {
+        vertical-align: middle;
+      }
+    }
+  }
   & span {
     float: left;
     line-height: 30px;
@@ -227,7 +271,7 @@ const Left = styled.div`
 const Right = styled.div`
   float: right;
   margin-top: 9px;
-  margin-right: 8px;
+  margin-right: 16px;
   ${clearFix()};
   & img {
     cursor: pointer;

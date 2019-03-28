@@ -6,7 +6,7 @@ import styled from '../../themes/styled';
 import { Trans } from '@lingui/macro';
 import { compose, withState } from 'recompose';
 // import Menu from '../../components/chrome/Menu/Menu';
-import Nav from '../../components/chrome/Nav/Nav';
+// import Nav from '../../components/chrome/Nav/Nav';
 import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
 import CommunitiesAll from '../../pages/communities.all/CommunitiesAll';
 import CollectionsFeatured from '../../pages/collections.featured/CollectionsFeatured';
@@ -74,7 +74,7 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
           path="/"
           component={props => (
             <>
-              <Nav sidebar={p.sidebar} />
+              {/* <Nav sidebar={p.sidebar} /> */}
               <Main>
                 {p.sidebar ? (
                   <Overlay onClick={() => p.onSidebar(false)} />

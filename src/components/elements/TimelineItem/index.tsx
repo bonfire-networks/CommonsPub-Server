@@ -1,0 +1,182 @@
+import Link from '../Link/Link';
+import moment from 'moment';
+import styled from '../../../themes/styled';
+import * as React from 'react';
+import { SFC } from 'react';
+import { clearFix } from 'polished';
+import { Trans } from '@lingui/react';
+
+interface Props {
+  userpage?: boolean;
+  user: any;
+  node: any;
+}
+
+const Item: SFC<Props> = ({ user, node, userpage }) => (
+  <FeedItem>
+    <Member>
+      <MemberItem>
+        <Img src={user.icon} />
+      </MemberItem>
+      <MemberInfo>
+        <h3>
+          {userpage ? (
+            <b>{user.name}</b>
+          ) : (
+            <Link to={'/user/' + user.localId}>
+              <Name>{user.name}</Name>
+            </Link>
+          )}
+
+          {node.activityType === 'CreateCollection' ? (
+            <span>
+              <Trans>created the collection</Trans>{' '}
+              <Link to={`/collections/` + node.object.localId}>
+                {node.object.name}
+              </Link>{' '}
+            </span>
+          ) : node.activityType === 'UpdateCommunity' ? (
+            <span>
+              updated the community{' '}
+              <Link to={`/communities/${node.object.localId}`}>
+                {node.object.name}
+              </Link>
+            </span>
+          ) : node.activityType === 'UpdateCollection' ? (
+            <span>
+              updated the collection{' '}
+              <Link to={`/collections/` + node.object.localId}>
+                {node.object.name}
+              </Link>
+            </span>
+          ) : node.activityType === 'JoinCommunity' ? (
+            <span>
+              joined the community{' '}
+              <Link to={`/communities/${node.object.localId}`}>
+                {node.object.name}
+              </Link>
+            </span>
+          ) : node.activityType === 'CreateComment' ? (
+            <span>
+              posted a new{' '}
+              <Link
+                to={
+                  node.object.context.__typename === 'Community'
+                    ? `/communities/${node.object.context.localId}/thread/${
+                        node.object.localId
+                      }`
+                    : `/collections/${node.object.context.localId}/thread/${
+                        node.object.localId
+                      }`
+                }
+              >
+                comment
+              </Link>{' '}
+            </span>
+          ) : node.activityType === 'CreateResource' ? (
+            <span>
+              created the resource <b>{node.object.name}</b> on collection{' '}
+              <Link to={`/collections/` + node.object.collection.localId}>
+                {node.object.collection.name}
+              </Link>{' '}
+            </span>
+          ) : node.activityType === 'FollowCollection' ? (
+            <span>
+              started to follow the collection <b>{node.object.name}</b>
+            </span>
+          ) : null}
+        </h3>
+        <Date>{moment(node.published).fromNow()}</Date>
+      </MemberInfo>
+    </Member>
+  </FeedItem>
+);
+const Name = styled.span`
+  font-weight: 600;
+  color: ${props => props.theme.styles.colour.base2};
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const Member = styled.div`
+  vertical-align: top;
+  margin-right: 14px;
+  ${clearFix()};
+`;
+
+const MemberInfo = styled.div`
+  display: inline-block;
+  & h3 {
+    font-size: 14px;
+    margin: 0;
+    color: ${props => props.theme.styles.colour.base2};
+    font-weight: 400;
+    & span {
+      margin: 0 4px;
+    }
+    & a {
+      text-decoration: none;
+      font-weight: 500;
+    }
+  }
+`;
+
+const MemberItem = styled.span`
+  background-color: #d6dadc;
+  border-radius: 50px;
+  color: #4d4d4d;
+  display: inline-block;
+  height: 32px;
+  overflow: hidden;
+  position: relative;
+  width: 32px;
+  user-select: none;
+  z-index: 0;
+  vertical-align: inherit;
+  margin-right: 8px;
+`;
+
+const Img = styled.img`
+  width: 32px;
+  height: 32px;
+  display: block;
+  -webkit-appearance: none;
+  line-height: 32px;
+  text-indent: 4px;
+  font-size: 13px;
+  overflow: hidden;
+  max-width: 32px;
+  max-height: 32px;
+  text-overflow: ellipsis;
+  vertical-align: text-top;
+  margin-right: 8px;
+`;
+
+const Date = styled.div`
+  font-size: 12px;
+  line-height: 32px;
+  height: 20px;
+  margin: 0;
+  color: #667d99;
+  margin-top: 0px;
+  font-weight: 500;
+`;
+
+const FeedItem = styled.div`
+  min-height: 30px;
+  position: relative;
+  margin: 0;
+  padding: 16px;
+  word-wrap: break-word;
+  font-size: 14px;
+  ${clearFix()};
+  transition: background 0.5s ease;
+  background: #fff;
+  margin-top: 0
+  z-index: 10;
+  position: relative;
+  border-bottom: 1px solid #eaeaea;
+`;
+
+export default Item;
