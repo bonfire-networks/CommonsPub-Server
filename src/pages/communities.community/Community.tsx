@@ -91,6 +91,7 @@ const CommunityPage: SFC<Props> = ({
                 localId={community.localId}
                 id={community.id}
                 threads={community.threads}
+                type={type}
               />
               <Footer>
                 <Trans>Join the community to discuss</Trans>
