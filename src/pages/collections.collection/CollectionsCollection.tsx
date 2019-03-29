@@ -191,13 +191,11 @@ const WrapperCont = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  // height: 100%;
-
   box-sizing: border-box;
 `;
 
 const EditButton = styled.span`
-  color: #ff9d00;
+  color: ${props => props.theme.styles.colour.primary};
   height: 40px;
   font-weight: 600;
   font-size: 13px;
@@ -210,6 +208,7 @@ const EditButton = styled.span`
     text-align: center;
     vertical-align: text-bottom;
     margin-right: 8px;
+    color: inherit !important;
   }
 `;
 
@@ -220,7 +219,7 @@ const HeroInfo = styled.div`
     margin: 0;
     line-height: 32px !important;
     font-size: 24px !important;
-
+    color: ${props => props.theme.styles.colour.base1};
     ${media.lessThan('medium')`
       margin-top: 8px;
     `};
@@ -230,6 +229,7 @@ const HeroInfo = styled.div`
     color: rgba(0, 0, 0, 0.8);
     font-size: 15px;
     margin-top: 8px;
+    color: ${props => props.theme.styles.colour.base2};
   }
   & div {
     text-align: left;
@@ -241,7 +241,7 @@ const HeroCont = styled.div`
   border-radius: 6px;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: white;
 `;
 
 const Hero = styled.div`
@@ -261,7 +261,7 @@ const Background = styled.div`
   border-radius: 4px;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: #e6e6e6;
+  background-color: ${props => props.theme.styles.colour.base4};
   position: relative;
   margin: 0 auto;
 `;

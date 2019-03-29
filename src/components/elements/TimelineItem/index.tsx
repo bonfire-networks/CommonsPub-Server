@@ -113,7 +113,7 @@ const MemberInfo = styled.div`
     color: ${props => props.theme.styles.colour.base2};
     font-weight: 400;
     & span {
-      margin: 0 4px;
+      margin-right: 3px;
     }
     & a {
       text-decoration: none;
@@ -125,7 +125,6 @@ const MemberInfo = styled.div`
 const MemberItem = styled.span`
   background-color: #d6dadc;
   border-radius: 50px;
-  color: #4d4d4d;
   display: inline-block;
   height: 32px;
   overflow: hidden;
@@ -158,7 +157,7 @@ const Date = styled.div`
   line-height: 32px;
   height: 20px;
   margin: 0;
-  color: #667d99;
+  color: ${props => props.theme.styles.colour.base4};
   margin-top: 0px;
   font-weight: 500;
 `;

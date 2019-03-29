@@ -17,13 +17,8 @@ import { Collection, Community } from '../../components/elements/Icons';
 import FollowingCollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
 import JoinedCommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
 import HeroComp from '../Profile/Hero';
-import {
-  List,
-  ListCollections,
-  WrapperTab,
-  OverlayTab,
-  WrapperCont
-} from '../Profile';
+import { WrapperTab, OverlayTab } from '../communities.community/Community';
+import { List, ListCollections, WrapperCont } from '../Profile';
 enum TabsEnum {
   Overview = 'Overview',
   Communities = 'Joined communities',

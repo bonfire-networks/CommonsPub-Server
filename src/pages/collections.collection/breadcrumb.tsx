@@ -31,7 +31,6 @@ const Main = styled.div`
   font-weight: 700;
   text-decoration: none;
   text-transform: uppercase;
-  // height: 30px;
   line-height: 30px;
   border-radius: 6px;
   background: #fff;
@@ -49,6 +48,7 @@ const Main = styled.div`
     text-decoration: none;
     text-transform: uppercase;
     margin-left: 6px;
+    color: ${props => props.theme.styles.colour.base2};
   }
 `;
 

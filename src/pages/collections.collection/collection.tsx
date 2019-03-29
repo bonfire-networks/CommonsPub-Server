@@ -9,9 +9,15 @@ import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import ResourceCard from '../../components/elements/Resource/Resource';
 import P from '../../components/typography/P/P';
 import Button from '../../components/elements/Button/Button';
-import media from 'styled-media-query';
-
+import { clearFix } from 'polished';
 import { Resource, Message, Eye } from '../../components/elements/Icons';
+import Link from '../../components/elements/Link/Link';
+import {
+  Footer,
+  WrapperTab,
+  OverlayTab
+} from '../communities.community/Community';
+// import CollectionsLoadMore from 'src/components/elements/Loadmore/followingCollections';
 
 interface Props {
   collection: any;
@@ -29,7 +35,6 @@ const CommunityPage: SFC<Props> = ({
   resources,
   fetchMore,
   addNewResource,
-  match,
   type
 }) => (
   <WrapperTab>
@@ -77,6 +82,10 @@ const CommunityPage: SFC<Props> = ({
             {collection.inbox.edges.map((t, i) => (
               <TimelineItem node={t.node} user={t.node.user} key={i} />
             ))}
+            {/* <CollectionsLoadMore 
+              fetchMore={fetchMore}
+              inbox={}
+            /> */}
             {(collection.inbox.pageInfo.startCursor === null &&
               collection.inbox.pageInfo.endCursor === null) ||
             (collection.inbox.pageInfo.startCursor &&
@@ -134,11 +143,36 @@ const CommunityPage: SFC<Props> = ({
           <div
             style={{
               display: 'flex',
-              flexWrap: 'wrap',
-              background: '#e9ebef'
+              flexWrap: 'wrap'
             }}
           >
             <Wrapper>
+              {resources.totalCount > 9 ? null : collection.community
+                .followed ? (
+                <Actions>
+                  <Button onClick={addNewResource}>
+                    <span>
+                      <Resource
+                        width={18}
+                        height={18}
+                        strokeWidth={2}
+                        color={'#f0f0f0'}
+                      />
+                    </span>
+                    <Trans>Add a new resource</Trans>
+                  </Button>
+                </Actions>
+              ) : (
+                <Footer>
+                  <Trans>
+                    Join the{' '}
+                    <Link to={'/communities/' + collection.community.localId}>
+                      {community_name}
+                    </Link>{' '}
+                    community to add a resource
+                  </Trans>
+                </Footer>
+              )}
               {resources.totalCount ? (
                 <CollectionList>
                   {resources.edges.map((edge, i) => (
@@ -158,22 +192,6 @@ const CommunityPage: SFC<Props> = ({
                     <Trans>This collection has no resources.</Trans>
                   </P>
                 </OverviewCollection>
-              )}
-
-              {resources.totalCount > 9 ? null : collection.community
-                .followed ? (
-                <WrapperActions>
-                  <Button onClick={addNewResource}>
-                    <Trans>Add a new resource</Trans>
-                  </Button>
-                </WrapperActions>
-              ) : (
-                <Footer>
-                  <Trans>
-                    Join the <strong>{community_name}</strong> community to add
-                    a resource
-                  </Trans>
-                </Footer>
               )}
             </Wrapper>
           </div>
@@ -196,8 +214,11 @@ const CommunityPage: SFC<Props> = ({
               />
               <Footer>
                 <Trans>
-                  Join the <strong>{community_name}</strong> community to
-                  participate in discussions
+                  Join the{' '}
+                  <Link to={'/communities/' + collection.community.localId}>
+                    {community_name}
+                  </Link>{' '}
+                  community to participate in discussions
                 </Trans>
               </Footer>
             </>
@@ -208,13 +229,38 @@ const CommunityPage: SFC<Props> = ({
   </WrapperTab>
 );
 
+const Actions = styled.div`
+  ${clearFix()};
+  display: flex;
+  border-bottom: 1px solid #edf0f2;
+  & button {
+    border-radius: 4px;
+    background: #f98012;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 35px;
+    text-align: center;
+    cursor: pointer;
+    color: #f0f0f0;
+    margin: 8px;
+    float: left;
+    padding: 0 16px;
+    display: inline-block;
+  }
+  span {
+    & svg {
+      vertical-align: middle;
+      margin-right: 16px;
+    }
+  }
+`;
+
 const Wrapper = styled.div`
   flex: 1;
 `;
 
 const CollectionList = styled.div`
   flex: 1;
-  margin: 10px;
 `;
 
 const OverviewCollection = styled.div`
@@ -222,47 +268,6 @@ const OverviewCollection = styled.div`
   & p {
     margin-top: 14px !important;
     font-size: 14px;
-  }
-`;
-
-const Footer = styled.div`
-  height: 30px;
-  line-height: 30px;
-  font-weight: 600;
-  text-align: center;
-  background: #ffefd9;
-  font-size: 13px;
-  border-bottom: 1px solid #e4dcc3;
-  color: #544f46;
-`;
-
-const WrapperTab = styled.div`
-  display: flex;
-  flex: 1;
-  height: 100%;
-  border-radius: 6px;
-  height: 100%;
-  box-sizing: border-box;
-  border: 5px solid #e2e5ea;
-  margin-bottom: 24px;
-`;
-const OverlayTab = styled.div`
-  background: #fff;
-  height: 100%;
-  width: 100%;
-
-  & > div {
-    flex: 1;
-    height: 100%;
-  }
-`;
-
-const WrapperActions = styled.div`
-  margin: 8px;
-  & button {
-    ${media.lessThan('medium')`
-   width: 100%;
-    `};
   }
 `;
 

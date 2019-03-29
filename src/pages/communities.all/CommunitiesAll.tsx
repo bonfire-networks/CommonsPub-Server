@@ -5,19 +5,22 @@ import styled from '../../themes/styled';
 
 import { Trans } from '@lingui/macro';
 
-import H4 from '../../components/typography/H4/H4';
+// import H4 from '../../components/typography/H4/H4';
 import Main from '../../components/chrome/Main/Main';
-import Community from '../../types/Community';
+import CommunityType from '../../types/Community';
 import Loader from '../../components/elements/Loader/Loader';
 import CommunityCard from '../../components/elements/Community/Community';
 import media from 'styled-media-query';
 import CommunitiesLoadMore from '../../components/elements/Loadmore/community';
-
+import { Community, Eye } from '../../components/elements/Icons';
+import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
+import { Tabs, TabPanel } from 'react-tabs';
+import CommunitiesJoined from '../communities.joined';
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
   communities: {
-    nodes: Community[];
+    nodes: CommunityType[];
     pageInfo: {
       startCursor: number;
       endCursor: number;
@@ -35,41 +38,73 @@ class CommunitiesYours extends React.Component<Props> {
       <Main>
         <WrapperCont>
           <Wrapper>
-            <H4>
-              <Trans>All Communities</Trans>
-            </H4>
-            {this.props.data.error ? (
-              <span>
-                <Trans>Error loading communities</Trans>
-              </span>
-            ) : this.props.data.loading ? (
-              <Loader />
-            ) : (
-              <>
-                <List>
-                  {this.props.data.communities.nodes.map((community, i) => {
-                    return (
-                      <CommunityCard
-                        key={i}
-                        summary={community.summary}
-                        title={community.name}
-                        icon={community.icon || ''}
-                        id={community.localId}
-                        followed={community.followed}
-                        followersCount={community.members.totalCount}
-                        collectionsCount={community.collections.totalCount}
-                        externalId={community.id}
-                        threadsCount={community.threads.totalCount}
-                      />
-                    );
-                  })}
-                </List>
-                <CommunitiesLoadMore
-                  fetchMore={this.props.data.fetchMore}
-                  communities={this.props.data.communities}
-                />
-              </>
-            )}
+            <Tabs>
+              <SuperTabList>
+                <SuperTab>
+                  <span>
+                    <Community
+                      width={20}
+                      height={20}
+                      strokeWidth={2}
+                      color={'#a0a2a5'}
+                    />
+                  </span>
+                  <h5>
+                    <Trans>All communities</Trans>
+                  </h5>
+                </SuperTab>
+                <SuperTab>
+                  <span>
+                    <Eye
+                      width={20}
+                      height={20}
+                      strokeWidth={2}
+                      color={'#a0a2a5'}
+                    />
+                  </span>
+                  <h5>
+                    <Trans>Joined communities</Trans>
+                  </h5>
+                </SuperTab>
+              </SuperTabList>
+              <TabPanel>
+                {this.props.data.error ? (
+                  <span>
+                    <Trans>Error loading communities</Trans>
+                  </span>
+                ) : this.props.data.loading ? (
+                  <Loader />
+                ) : (
+                  <>
+                    <List>
+                      {this.props.data.communities.nodes.map((community, i) => {
+                        return (
+                          <CommunityCard
+                            key={i}
+                            summary={community.summary}
+                            title={community.name}
+                            icon={community.icon || ''}
+                            id={community.localId}
+                            followed={community.followed}
+                            followersCount={community.members.totalCount}
+                            collectionsCount={community.collections.totalCount}
+                            externalId={community.id}
+                            threadsCount={community.threads.totalCount}
+                          />
+                        );
+                      })}
+                    </List>
+                    <CommunitiesLoadMore
+                      fetchMore={this.props.data.fetchMore}
+                      communities={this.props.data.communities}
+                    />
+                  </>
+                )}
+              </TabPanel>
+              <TabPanel>
+                <CommunitiesJoined />
+              </TabPanel>
+            </Tabs>
           </Wrapper>
         </WrapperCont>
       </Main>
@@ -77,40 +112,50 @@ class CommunitiesYours extends React.Component<Props> {
   }
 }
 
-const WrapperCont = styled.div`
+export const WrapperCont = styled.div`
   max-width: 1040px;
   margin: 0 auto;
   width: 100%;
   height: 100%;
 `;
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
   margin-bottom: 24px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 7px 0px rgba(0, 0, 0, 0.1);
+  margin-top: 16px;
+  & ul {
+    display: block !important;
 
+    & li {
+      display: inline-block;
+
+      & h5 {
+        font-size: 13px;
+        font-weight: 500;
+        color: ${props => props.theme.styles.colour.base3};
+      }
+    }
+  }
   & h4 {
-    padding-left: 8px;
     margin: 0;
-    border-bottom: 1px solid #dadada;
-    margin-bottom: 20px !important;
-    line-height: 32px !important;
-    // background-color: #151b26;
-    border-bottom: 1px solid #dddfe2;
-    border-radius: 2px 2px 0 0;
-    font-weight: bold;
+    font-weight: 400 !important;
     font-size: 14px !important;
     color: #151b26;
+    line-height: 40px;
   }
 `;
-const List = styled.div`
+export const List = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
-
   padding-top: 0;
+  padding: 16px;
   ${media.lessThan('medium')`
   grid-template-columns: 1fr;
   `};
@@ -120,7 +165,7 @@ const withGetCommunities = graphql<
   {},
   {
     data: {
-      communities: Community[];
+      communities: CommunityType[];
     };
   }
 >(getCommunitiesQuery, {

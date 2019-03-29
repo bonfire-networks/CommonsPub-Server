@@ -13,10 +13,7 @@ interface CollectionProps {
   communityId: string;
 }
 
-const Collection: React.SFC<CollectionProps> = ({
-  collection,
-  communityId
-}) => {
+const Collection: React.SFC<CollectionProps> = ({ collection }) => {
   return (
     <Wrapper>
       <Link to={`/collections/${collection.localId}`}>
@@ -90,7 +87,7 @@ const ActionItem = styled.div`
   display: inline-block;
   font-size: 14px;
   font-weight: 600;
-  color: #8b98a2;
+  color: ${props => props.theme.styles.colour.base3};
   text-transform: uppercase;
   margin-right: 20px;
   & svg {
@@ -100,13 +97,13 @@ const ActionItem = styled.div`
 
 const Wrapper = styled.div`
   display: flex;
-  border-bottom: 1px solid #ebe8e8;
   cursor: pointer;
+  border: 3px solid #e4e6e6;
   padding: 8px 0;
-  cursor: pointer;
+  position: relative;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
   ${media.lessThan('medium')`
   display: block;
 `} & a {
@@ -138,12 +135,12 @@ const Title = styled(H5)`
   line-height: 20px !important;
   letter-spacing: 0.8px;
   font-weight: 600;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.base1};
 `;
 const Desc = styled(P)`
   margin: 0 !important;
   font-size: 14px !important;
-  color: #757575;
+  color: ${props => props.theme.styles.colour.base2};
   font-size: 48px;
   line-height: 20px;
 `;

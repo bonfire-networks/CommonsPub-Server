@@ -65,10 +65,8 @@ const Members = styled.div`
 `};
 `;
 const Follower = styled.div`
-  border-radius: 6px;
-  border: 1px solid #dadada;
-  &:hover {
-    background: rgba(0, 0, 0, 0.1);
+  & a {
+    text-decoration: none;
   }
 `;
 
@@ -80,6 +78,11 @@ const Img = styled.div`
   background-repeat: no-repeat;
   background-position: center center;
   background-color: #dadada;
+  width: 50%;
+  height: 0;
+  padding: 25%;
+  border-radius: 100px;
+  border: 5px solid #eceaea;
 `;
 const FollowerName = styled(H4)`
   margin-top: 8px !important;
@@ -87,7 +90,10 @@ const FollowerName = styled(H4)`
   font-size: 14px !important;
   line-height: 20px !important;
   text-decoration: none;
-  color: #413c4d;
+  color: ${props => props.theme.styles.colour.base1};
+  &:hover {
+    color: ${props => props.theme.styles.colour.primary};
+  }
 `;
 const Header = styled.div`
   height: 60px;
@@ -96,5 +102,6 @@ const Header = styled.div`
     text-align: center !important;
     line-height: 60px !important;
     margin: 0 !important;
+    color: ${props => props.theme.styles.colour.base1};
   }
 `;

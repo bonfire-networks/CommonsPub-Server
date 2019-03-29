@@ -23,7 +23,7 @@ import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import UsersModal from '../../components/elements/UsersModal';
 import Join from './Join';
 import CommunityPage from './Community';
-import { Settings, Users } from '../../components/elements/Icons';
+import { Settings, Users, Collection } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 enum TabsEnum {
   // Overview = 'Overview',
@@ -80,11 +80,19 @@ class CommunitiesFeatured extends React.Component<Props, State> {
           <Wrapper>
             {community.followed ? (
               <Header>
-                <div style={{ padding: '8px' }}>
+                <Actions>
                   <Button onClick={this.props.handleNewCollection}>
+                    <span>
+                      <Collection
+                        width={20}
+                        height={20}
+                        strokeWidth={2}
+                        color={'#fff'}
+                      />
+                    </span>
                     <Trans>Create a collection</Trans>
                   </Button>
-                </div>
+                </Actions>
               </Header>
             ) : (
               <Footer>
@@ -156,14 +164,17 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         />
                       </EditButton>
                     )}
-
+                  </HeroActions>
+                  <HeroInfo>
+                    <H2>{community.name}</H2>
+                    <P>{community.summary}</P>
                     <MembersTot onClick={() => this.props.showUsers(true)}>
                       <span>
                         <Users
                           width={18}
                           height={18}
                           strokeWidth={2}
-                          color={'#fff'}
+                          color={'#3c3c3c'}
                         />
                       </span>
                       {community.members.edges.slice(0, 3).map((a, i) => {
@@ -185,10 +196,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           : ``}
                       </Tot>
                     </MembersTot>
-                  </HeroActions>
-                  <HeroInfo>
-                    <H2>{community.name}</H2>
-                    <P>{community.summary}</P>
                   </HeroInfo>
                 </Hero>
               </HeroCont>
@@ -238,6 +245,32 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
+const Actions = styled.div`
+  ${clearFix()};
+  display: flex;
+  border-bottom: 1px solid #edf0f2;
+  & button {
+    border-radius: 4px;
+    background: #f98012;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 35px;
+    text-align: center;
+    cursor: pointer;
+    color: #f0f0f0;
+    margin: 8px;
+    float: left;
+    padding: 0 16px;
+    display: inline-block;
+  }
+  span {
+    & svg {
+      vertical-align: middle;
+      margin-right: 16px;
+    }
+  }
+`;
+
 const Header = styled.div`
   border-bottom: 1px solid #edf0f2;
   ${clearFix()};
@@ -255,6 +288,8 @@ const HeroCont = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
   box-sizing: border-box;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Tot = styled.div`
@@ -273,15 +308,11 @@ const Tot = styled.div`
 const MembersTot = styled.div`
   margin-top: 0px;
   font-size: 12px;
-  float: right;
   cursor: pointer;
-  padding: 4px 8px;
-  &:hover {
-    background: #333;
-    border-radius: 20px;
-  }
+  display: inline-block;
+  cursor: pointer;
   ${clearFix()} & span {
-    margin-right: 16px;
+    margin-right: 8px;
     float: left;
     height: 32px;
     line-height: 32px;
@@ -345,6 +376,7 @@ const Wrapper = styled.div`
 
 const CollectionList = styled.div`
   flex: 1;
+  padding: 8px;
 `;
 
 const OverviewCollection = styled.div`
@@ -374,18 +406,13 @@ const Background = styled.div`
   background-color: #e6e6e6;
   position: relative;
   margin: 0 auto;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
   background-position: center center;
   ${media.lessThan('medium')`
-  height: 200px;
 `} &:before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
     bottom: 0;
     left: 0;
     background-image: linear-gradient(to bottom, #002f4b66, #000);
@@ -397,21 +424,17 @@ const Background = styled.div`
 `;
 
 const HeroInfo = styled.div`
-  position: absolute;
-  z-index: 999;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
+  padding: 16px;
   & h2 {
     margin: 0;
     font-size: 24px !important;
     line-height: 40px !important;
     margin-bottom: 0px;
-    color: #f0f0f0;
+    color: ${props => props.theme.styles.colour.base1};
   }
   & p {
     margin-top: 8px;
-    color: #f0f0f0;
+    color: ${props => props.theme.styles.colour.base2};
   }
   & button {
     span {

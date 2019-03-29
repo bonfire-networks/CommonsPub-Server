@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { SFC } from 'react';
-
 import { Trans } from '@lingui/macro';
-
 import Link from '../../components/elements/Link/Link';
 import styled from '../../themes/styled';
 
@@ -25,8 +23,6 @@ const Main = styled.div`
   font-weight: 700;
   text-decoration: none;
   text-transform: uppercase;
-  // height: auto;
-  // min-height: 30px;
   line-height: 30px;
   background: #fff;
   padding: 0 8px;
@@ -45,6 +41,7 @@ const Main = styled.div`
     text-decoration: none;
     text-transform: uppercase;
     margin-left: 6px;
+    color: ${props => props.theme.styles.colour.base2};
   }
 `;
 

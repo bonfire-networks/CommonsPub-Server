@@ -17,6 +17,7 @@ const getUserQuery = require('../../graphql/getUser.graphql');
 import FollowingCollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
 import JoinedCommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
 import HeroComp from './Hero';
+import { WrapperTab, OverlayTab } from '../communities.community/Community';
 
 enum TabsEnum {
   Overview = 'Overview',
@@ -309,26 +310,24 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                         </div>
                       </TabPanel> */}
                       <TabPanel>
-                        <>
-                          <ListCollections>
-                            {this.props.data.me.user.followingCollections.edges.map(
-                              (comm, i) => (
-                                <CollectionCard
-                                  key={i}
-                                  collection={comm.node}
-                                  communityId={comm.node.localId}
-                                />
-                              )
-                            )}
-                          </ListCollections>
-                          <FollowingCollectionsLoadMore
-                            collections={
-                              this.props.data.me.user.followingCollections
-                            }
-                            fetchMore={this.props.data.fetchMore}
-                            me
-                          />
-                        </>
+                        <ListCollections>
+                          {this.props.data.me.user.followingCollections.edges.map(
+                            (comm, i) => (
+                              <CollectionCard
+                                key={i}
+                                collection={comm.node}
+                                communityId={comm.node.localId}
+                              />
+                            )
+                          )}
+                        </ListCollections>
+                        <FollowingCollectionsLoadMore
+                          collections={
+                            this.props.data.me.user.followingCollections
+                          }
+                          fetchMore={this.props.data.fetchMore}
+                          me
+                        />
                       </TabPanel>
                       <TabPanel
                         label={`${TabsEnum.Communities}`}
@@ -385,7 +384,7 @@ export const List = styled.div`
   grid-column-gap: 16px;
   grid-row-gap: 16px;
   padding: 16px;
-  padding-top: 0;
+  padding-top: 8px;
   background: white;
   ${media.lessThan('medium')`
   grid-template-columns: 1fr;
@@ -398,26 +397,7 @@ export const ListCollections = styled.div`
   grid-template-columns: 1fr;
   width: 100%;
   background: white;
-`;
-
-export const WrapperTab = styled.div`
-  display: flex;
-  flex: 1;
-  height: 100%;
-  border-radius: 6px;
-  height: 100%;
-  box-sizing: border-box;
-  border: 5px solid #e2e5ea;
-`;
-export const OverlayTab = styled.div`
-  background: #fff;
-  height: 100%;
-  width: 100%;
-
-  & > div {
-    flex: 1;
-    height: 100%;
-  }
+  padding: 8px;
 `;
 
 export const WrapperCont = styled.div`

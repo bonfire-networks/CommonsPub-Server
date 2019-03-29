@@ -3,19 +3,16 @@ import styled from '../../themes/styled';
 import { Community, Collection } from '../elements/Icons';
 import { Trans } from '@lingui/macro';
 import OutsideClickHandler from 'react-outside-click-handler';
-// import Text from '../inputs/Text/Text';
 import Logo from '../brand/Logo/Logo';
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
-// import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import NewCommunityModal from '../../components/elements/CreateCommunityModal';
 import SettingsModal from '../../components/elements/SettingsModal';
 import Link from '../elements/Link/Link';
-import { Menu } from '../elements/Icons';
 import media from 'styled-media-query';
-
+import { NavLink } from 'react-router-dom';
 interface Props {
   handleOpen(): boolean;
   closeMenu(): boolean;
@@ -36,10 +33,22 @@ const Header: React.SFC<Props> = props => {
   return (
     <Wrapper>
       <Left>
-        <span onClick={() => props.onSidebar(!props.sidebar)}>
+        {/* <span onClick={() => props.onSidebar(!props.sidebar)}>
           <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
-        </span>
-        <Link to="/communities">
+        </span> */}
+        <NavLink
+          isActive={(match, location) => {
+            return (
+              location.pathname === `/communities` ||
+              location.pathname === `/communities/`
+            );
+          }}
+          activeStyle={{
+            position: 'relative',
+            color: '#f98012'
+          }}
+          to={'/communities'}
+        >
           <i>
             <Community
               width={18}
@@ -48,9 +57,23 @@ const Header: React.SFC<Props> = props => {
               strokeWidth={2}
             />
           </i>
-          <Trans>Communities</Trans>
-        </Link>
-        <Link to="/collections">
+          <span>
+            <Trans>Communities</Trans>
+          </span>
+        </NavLink>
+        <NavLink
+          isActive={(match, location) => {
+            return (
+              location.pathname === `/collections` ||
+              location.pathname === `/collections/`
+            );
+          }}
+          activeStyle={{
+            position: 'relative',
+            color: '#f98012'
+          }}
+          to={'/collections'}
+        >
           <i>
             <Collection
               width={18}
@@ -59,22 +82,19 @@ const Header: React.SFC<Props> = props => {
               strokeWidth={2}
             />
           </i>
-          <Trans>Collections</Trans>
-        </Link>
+          <span>
+            <Trans>Collections</Trans>
+          </span>
+        </NavLink>
       </Left>
       <Center>
         <Logo />
       </Center>
       <Right>
-        <Bottom onClick={props.handleNewCommunity}>
-          <span>
-            <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
-          </span>
-        </Bottom>
-        <AvatarUsername>
+        <AvatarUsername onClick={props.handleOpen}>
+          <span>{props.data.user.data.name}</span>
           <Avatar>
             <img
-              onClick={props.handleOpen}
               src={
                 props.data.user.data.icon ||
                 `https://www.gravatar.com/avatar/${
@@ -84,8 +104,12 @@ const Header: React.SFC<Props> = props => {
               alt="Avatar"
             />
           </Avatar>
-          {props.data.user.data.name}
         </AvatarUsername>
+        <Bottom onClick={props.handleNewCommunity}>
+          <span>
+            <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
+          </span>
+        </Bottom>
       </Right>
       {props.isOpen ? (
         <>
@@ -127,12 +151,16 @@ const Header: React.SFC<Props> = props => {
 };
 const AvatarUsername = styled.div`
   float: left;
-  float: left;
   line-height: 32px;
   margin-left: 16px;
   font-size: 13px;
   font-weight: 500;
-  color: #00002f;
+  color: ${props => props.theme.styles.colour.base2};
+  cursor: pointer;
+  & span {
+    float: left;
+    margin-right: 8px;
+  }
 `;
 const Center = styled.span`
   position: absolute;
@@ -144,7 +172,6 @@ const Center = styled.span`
   }
 `;
 const Bottom = styled.div`
-  height: 30px;
   background: ${props => props.theme.styles.colour.primary};
   border-radius: 4px;
   text-align: center;
@@ -154,7 +181,17 @@ const Bottom = styled.div`
   font-size: 13px;
   font-weight: 600;
   float: left;
-  padding: 0 16px;
+  margin: 0;
+  padding: 0 10px;
+  font-size: 1.2em;
+  font-weight: 400;
+  text-decoration: none;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  transition: background 0.1s ease;
+  cursor: pointer;
+  margin-left: 16px;
   & span {
     vertical-align: sub;
     display: inline-block;
@@ -178,7 +215,6 @@ const Avatar = styled.div`
   border-radius: 100px;
   overflow: hidden;
   margin-right: 8px;
-  float: left;
   background: #e6e6e6;
 `;
 
@@ -218,7 +254,7 @@ const Item = styled.div`
   height: 30px;
   cursor: pointer;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.6);
+  color: ${props => props.theme.styles.colour.base3};
   & a {
     color: inherit !important;
     text-decoration: none;
@@ -237,28 +273,30 @@ const Left = styled.div`
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
-    color: #3d3f4a80 !important;
+    color: ${props => props.theme.styles.colour.base3};
     text-decoration: none;
-    margin-right: 24px;
+    margin-right: 32px;
+    
     & i {
       margin-right: 8px;
       & svg {
-        vertical-align: middle;
+        vertical-align: sub;
+        color: inherit !important;
       }
     }
   }
-  & span {
-    float: left;
-    line-height: 30px;
-    cursor: pointer;
-    display: none;
-    ${media.lessThan('medium')`
-    display: block;
-    & svg {
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-    `}
+  // & span {
+  //   &:before {
+  //     position: absolute;
+  //     content: "";
+  //     left: 0;
+  //     right:0;
+  //     height: 1px;
+  //     bottom: -10px;
+  //     background: ${props => props.theme.styles.colour.primary};
+  //   }
+  // }
+    
   & input {
     border: 0px solid !important;
     border-radius: 100px;
@@ -279,10 +317,6 @@ const Right = styled.div`
     max-height: 32px;
   }
 `;
-
-// const LanguageSelect = styled.div`
-//   display: inline-block;
-// `;
 
 export default compose(
   graphql(getUserQuery),

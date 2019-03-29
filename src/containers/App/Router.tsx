@@ -1,17 +1,9 @@
 import * as React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-
 import styled from '../../themes/styled';
-
-import { Trans } from '@lingui/macro';
 import { compose, withState } from 'recompose';
-// import Menu from '../../components/chrome/Menu/Menu';
-// import Nav from '../../components/chrome/Nav/Nav';
-import CommunitiesFeatured from '../../pages/communities.featured/CommunitiesFeatured';
 import CommunitiesAll from '../../pages/communities.all/CommunitiesAll';
-import CollectionsFeatured from '../../pages/collections.featured/CollectionsFeatured';
-import CollectionsYours from '../../pages/collections.yours/CollectionsYours';
-import CommunitiesYours from '../../pages/communities.yours/CommunitiesYours';
+import CollectionsAll from '../../pages/collections.all';
 import CommunitiesCommunity from '../../pages/communities.community/CommunitiesCommunity';
 import CollectionsCollection from '../../pages/collections.collection/CollectionsCollection';
 import Header from '../../components/header';
@@ -19,7 +11,6 @@ import Login from '../../pages/login/Login';
 import NotFound from '../../pages/not-found/NotFound';
 import ProtectedRoute from './ProtectedRoute';
 import Search from '../../pages/search/Search';
-import Thread from '../../pages/thread';
 import Home from '../../pages/home';
 import Profile from '../../pages/Profile';
 import User from '../../pages/User';
@@ -88,54 +79,19 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
                   <Route exact path="/" component={Home} />
                   <Route exact path="/communities" component={CommunitiesAll} />
                   <Route
-                    exact
-                    path="/communities/featured"
-                    component={CommunitiesFeatured}
-                  />
-                  <Route
-                    path="/communities/joined"
-                    component={CommunitiesYours}
-                  />
-                  <Route
                     path="/communities/:community"
                     component={CommunitiesCommunity}
                   />
-                  <Route exact path="/thread/:id" component={Thread} />
-                  <Route
-                    exact
-                    path="/collections"
-                    component={CollectionsFeatured}
-                  />
-                  <Route
-                    exact
-                    path="/collections/featured"
-                    component={() => (
-                      <div>
-                        <Trans>Featured Collections</Trans>
-                      </div>
-                    )}
-                  />
-                  <Route
-                    exact
-                    path="/collections/following"
-                    component={CollectionsYours}
-                  />
-
+                  <Route exact path="/collections" component={CollectionsAll} />
                   <Route
                     path="/collections/:collection"
                     component={CollectionsCollection}
                   />
                   <Route exact path="/profile" component={Profile} />
                   <Route exact path="/user/:id" component={User} />
-                  {/*<Route*/}
-                  {/*exact*/}
-                  {/*path="/communities/:community/collections/:collection/resources/:resource"*/}
-                  {/*component={ResourcesResource}*/}
-                  {/*/>*/}
                   <Route component={NotFound} />
                 </Switch>
               </Main>
-              {/* <Menu /> */}
             </>
           )}
         />

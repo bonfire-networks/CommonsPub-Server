@@ -33,8 +33,11 @@ const Community: React.SFC<Props> = ({
   <Wrapper>
     <Link to={`/communities/${id}`}>
       <WrapperImage>
-        <Img style={{ backgroundImage: `url(${icon})` }} />
-        <Overlay />
+        <Img
+          style={{
+            backgroundImage: `url(${icon || '../static/img/placeholder.png'})`
+          }}
+        />
       </WrapperImage>
       <H5>
         {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
@@ -83,20 +86,8 @@ const Actions = styled.div`
   ${clearFix()};
 `;
 
-const Overlay = styled.span`
-  position: absolute;
-  background: rgba(0, 0, 0, 0.5);
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  grid-template-columns: 1fr;
-  grid-column-gap: 8px;
-  display: none;
-`;
-
 const Members = styled(P)`
-  color: #1e1f2480;
+  color: ${props => props.theme.styles.colour.base3}
   margin: 8px 0;
   float: left;
   margin-right: 16px;
@@ -110,24 +101,36 @@ const Members = styled(P)`
 const Summary = styled(P)`
   margin: 0;
   font-size: 14px;
-  color: #757575;
-  margin-bottom: 40px;
+  color: ${props => props.theme.styles.colour.base2};
   word-break: break-word;
+  z-index: 99;
+  position: relative;
 `;
 const Wrapper = styled.div`
-  border: 1px solid #e4e6e6;
   padding: 8px;
   position: relative;
   max-height: 560px;
-  background: white;
+  background: #eaeef0;
   border-radius: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  z-index: 9;
+  &:hover {
+    p div {
+      z-index: 0;
+    }
+    h6 {
+      height: 40px;
+      z-index: 9999;
+      bottom: 0;
+    }
+  }
   & h5 {
     margin: 0;
     font-size: 16px !important;
     line-height: 24px !important;
     word-break: break-word;
     font-weight: 600;
+    color: ${props => props.theme.styles.colour.base1};
   }
   & a {
     color: inherit;
@@ -154,38 +157,21 @@ const Img = styled.div`
   margin-bottom: 8px;
   background-color: rgba(250, 250, 250, 0.8);
   position: relative;
-  &:before {
-    position: absolute;
-    content: '';
-    left: 0;
-    bottom: 0;
-    right: 0;
-    top: 0;
-    display: block;
-    background: transparent;
-  }
-  &:hover {
-    &:before {
-      background: rgba(0, 0, 0, 0.2);
-    }
-  }
 `;
-const Infos = styled.div`
+const Infos = styled.h6`
   border-top: 1px solid #e4e6e6;
-  margin-top: 16px;
   position: absolute;
   bottom: 0;
   left: 0;
   background: white;
   right: 0;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  & p  {
-    margin: 0;
-    font-weight: 300;
-    font-style: italic;
-    display: inline-block;
-    margin-right: 8px;
-    font-size: 13px;
-  }
+  margin: 0;
+  z-index: 0;
+  bottom: -30px;
+  background: #eaeef0;
+  padding: 8px;
+  transform: translate3d(0, 0, 0);
+  transition: height 0.2s ease;
+  transition: bottom 0.2s ease;
+  height: 31px;
 `;

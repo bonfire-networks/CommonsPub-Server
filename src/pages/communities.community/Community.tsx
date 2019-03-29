@@ -67,8 +67,9 @@ const CommunityPage: SFC<Props> = ({
             {community.inbox.edges.map((t, i) => (
               <TimelineItem node={t.node} user={t.node.user} key={i} />
             ))}
-
-            <LoadMoreTimeline fetchMore={fetchMore} community={community} />
+            <div style={{ padding: '8px' }}>
+              <LoadMoreTimeline fetchMore={fetchMore} community={community} />
+            </div>
           </div>
         </TabPanel>
         <TabPanel>
@@ -102,7 +103,7 @@ const CommunityPage: SFC<Props> = ({
   </WrapperTab>
 );
 
-const Footer = styled.div`
+export const Footer = styled.div`
   height: 30px;
   line-height: 30px;
   font-weight: 600;
@@ -113,21 +114,22 @@ const Footer = styled.div`
   color: #544f46;
 `;
 
-const WrapperTab = styled.div`
+export const WrapperTab = styled.div`
   display: flex;
   flex: 1;
   height: 100%;
   border-radius: 6px;
   height: 100%;
   box-sizing: border-box;
-  border: 5px solid #e2e5ea;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
-const OverlayTab = styled.div`
-  background: #fff;
+export const OverlayTab = styled.div`
   height: 100%;
   width: 100%;
-
   & > div {
     flex: 1;
     height: 100%;

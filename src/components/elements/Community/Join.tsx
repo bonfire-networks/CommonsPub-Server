@@ -172,17 +172,26 @@ const Join: React.SFC<Props> = ({
 
 const Span = styled.div`
   padding: 0px 10px;
-  color: #1e1f2480;
+  color: ${props => props.theme.styles.colour.base2};
   height: 40px;
   font-size: 15px;
   font-weight: 600;
   line-height: 40px;
   cursor: pointer;
   text-align: center;
+  border-radius: 3px;
+  padding: 0px 20px;
+  margin: 0;
+  margin-left: 5px;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.07);
+  height: 26px;
+  line-height: 26px;
+  background: white;
   &:hover {
-    color: ${props => props.theme.styles.colour.primaryAlt};
+    box-shadow: 0 0 0 1px #bbb, 0 1px 2px rgba(0, 0, 0, 0.07);
     & svg {
-      color: ${props => props.theme.styles.colour.primaryAlt};
+      color: ${props => props.theme.styles.colour.primary};
     }
   }
   & svg {

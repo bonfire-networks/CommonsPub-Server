@@ -116,7 +116,9 @@ const Join: React.SFC<Props> = ({
 const Span = styled.div<{ unfollow?: boolean }>`
   padding: 0px 10px;
   color: ${props =>
-    props.unfollow ? '#1e1f2480' : props.theme.styles.colour.primaryAlt};
+    props.unfollow
+      ? props => props.theme.styles.colour.base3
+      : props.theme.styles.colour.primary};
   height: 40px;
   font-weight: 600;
   font-size: 13px;
@@ -131,6 +133,7 @@ const Span = styled.div<{ unfollow?: boolean }>`
   & svg {
     margin-right: 8px;
     vertical-align: text-bottom;
+    color: inherit !important;
   }
 `;
 
