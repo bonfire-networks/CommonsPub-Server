@@ -1,0 +1,76 @@
+query meQuery(
+  $limit: Int, 
+  $end: Int
+  )  {
+  me {
+    user {
+      id
+    inbox (limit: $limit, after:$end) {
+      pageInfo {
+          startCursor
+          endCursor
+      }
+      edges {
+        node {
+          id
+          activityType
+          type
+          object {
+            __typename
+            ... on Community {
+            id
+            name
+            localId
+            }
+            ... on Comment {
+            id
+            localId
+             context {
+              __typename
+              ... on Community {
+                id
+                name
+                localId
+              }
+              ... on Collection {
+                id
+                name
+                localId
+              }
+            }
+            localId
+            }
+            ... on Collection {
+            id
+            name
+            localId
+            community {
+              localId
+            }
+            }
+              ... on Resource {
+            id
+            name
+            localId
+            collection {
+                name
+                localId
+                community {
+                  localId
+                }
+            }
+            }
+          }
+          user {
+            name
+            id
+            localId
+            icon
+          }
+      }
+    }
+  }
+    }
+  }
+}
+
