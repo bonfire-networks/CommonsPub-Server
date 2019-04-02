@@ -3,7 +3,6 @@ import compose from 'recompose/compose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import { Trans } from '@lingui/macro';
 import styled from '../../themes/styled';
-import Collection from '../../types/Collection';
 import Loader from '../../components/elements/Loader/Loader';
 import CollectionCard from '../../components/elements/Collection/Collection';
 import CollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
@@ -30,7 +29,7 @@ interface Props {
   data: Data;
 }
 
-class CommunitiesYours extends React.Component<Props> {
+class FollowingCollectionsComponent extends React.Component<Props> {
   render() {
     return this.props.data.error ? (
       <span>
@@ -69,13 +68,21 @@ const List = styled.div`
   padding-top: 0;
 `;
 
-const withGetCommunities = graphql<
+const withGetFollowingCollections = graphql<
   {},
   {
     data: {
-      followingCollections: Collection[];
+      me: any;
     };
   }
->(getFollowedCollections) as OperationOption<{}, {}>;
+>(getFollowedCollections, {
+  options: (props: Props) => ({
+    variables: {
+      limit: 15
+    }
+  })
+}) as OperationOption<{}, {}>;
 
-export default compose(withGetCommunities)(CommunitiesYours);
+export default compose(withGetFollowingCollections)(
+  FollowingCollectionsComponent
+);

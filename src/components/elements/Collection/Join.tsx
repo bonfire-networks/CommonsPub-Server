@@ -12,6 +12,8 @@ import gql from 'graphql-tag';
 import { Eye, Unfollow } from '../Icons';
 import { Trans } from '@lingui/macro';
 
+const getFollowedCollectionsQuery = require('../../../graphql/getFollowedCollections.graphql');
+
 interface Props {
   joinCollection: any;
   leaveCollection: any;
@@ -56,6 +58,32 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
+
+              let followedCollections = proxy.readQuery({
+                query: getFollowedCollectionsQuery,
+                variables: {
+                  limit: 15
+                }
+              });
+              let index = followedCollections.me.user.followingCollections.edges.findIndex(
+                e => e.node.id === externalId
+              );
+              if (index === -1) {
+                followedCollections.me.user.followingCollections.edges.unshift(
+                  collection
+                );
+              }
+              followedCollections.me.user.followingCollections.edges.splice(
+                index,
+                1
+              );
+              proxy.writeQuery({
+                query: getFollowedCollectionsQuery,
+                variables: {
+                  limit: 15
+                },
+                data: followedCollections
+              });
               proxy.writeFragment({
                 id: `Collection:${externalId}`,
                 fragment: fragment,
@@ -92,6 +120,31 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
+
+              let followedCollections = proxy.readQuery({
+                query: getFollowedCollectionsQuery,
+                variables: {
+                  limit: 15
+                }
+              });
+              if (followedCollections) {
+                let index = followedCollections.me.user.followingCollections.edges.findIndex(
+                  e => e.node.id === externalId
+                );
+                if (index === -1) {
+                  followedCollections.me.user.followingCollections.edges.unshift(
+                    collection
+                  );
+                }
+                proxy.writeQuery({
+                  query: getFollowedCollectionsQuery,
+                  variables: {
+                    limit: 15
+                  },
+                  data: followedCollections
+                });
+              }
+
               proxy.writeFragment({
                 id: `Collection:${externalId}`,
                 fragment: fragment,

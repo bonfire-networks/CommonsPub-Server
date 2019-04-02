@@ -420,8 +420,8 @@ const withGetCollections = graphql<
 >(getUserQuery, {
   options: (props: Props) => ({
     variables: {
-      limitComm: 5,
-      limitColl: 5
+      limitComm: 15,
+      limitColl: 15
     }
   })
 }) as OperationOption<{}, {}>;
