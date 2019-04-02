@@ -82,7 +82,10 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
             </span>
           ) : node.activityType === 'FollowCollection' ? (
             <span>
-              started to follow the collection <b>{node.object.name}</b>
+              started to follow the collection{' '}
+              <Link to={`/collections/` + node.object.localId}>
+                {node.object.name}
+              </Link>
             </span>
           ) : null}
         </h3>

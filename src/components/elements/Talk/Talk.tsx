@@ -39,66 +39,69 @@ interface FormValues {
   content: string;
 }
 
-const Component = (props: Props & FormikProps<FormValues>) => (
-  <>
-    <ContainerTalk
-      full={props.full}
-      expanded={props.full ? true : props.toggle}
-    >
-      <Expanded full={props.full}>
-        <Field
-          name="content"
-          render={({ field }) => (
-            <>
-              <PreviewTalk
-                full={props.full}
-                expanded={props.toggle}
-                onClick={() => props.onToggle(true)}
-                placeholder={tt.placeholders.message}
-                onChange={field.onChange}
-                name={field.name}
-                value={field.value}
-              />
-            </>
-          )}
-        />
-      </Expanded>
-      <Actions expanded={props.full}>
-        <Left onClick={() => props.onModalIsOpen(true)}>
-          <span>
-            <Type width={16} height={16} strokeWidth={2} color={'#777'} />
-          </span>
-        </Left>
-        <Button
-          disabled={!props.values.content}
-          onClick={() => props.onOpen(true)}
-        >
-          <Trans>Preview</Trans>
-        </Button>
-        {props.thread ? (
+const Component = (props: Props & FormikProps<FormValues>) => {
+  console.log(props);
+  return (
+    <>
+      <ContainerTalk
+        full={props.full}
+        expanded={props.full ? true : props.toggle}
+      >
+        <Expanded full={props.full}>
+          <Field
+            name="content"
+            render={({ field }) => (
+              <>
+                <PreviewTalk
+                  full={props.full}
+                  expanded={props.toggle}
+                  onClick={() => props.onToggle(true)}
+                  placeholder={tt.placeholders.message}
+                  onChange={field.onChange}
+                  name={field.name}
+                  value={field.value}
+                />
+              </>
+            )}
+          />
+        </Expanded>
+        <Actions expanded={props.full}>
+          <Left onClick={() => props.onModalIsOpen(true)}>
+            <span>
+              <Type width={16} height={16} strokeWidth={2} color={'#777'} />
+            </span>
+          </Left>
           <Button
-            onClick={() => props.onSelectedThread(null)}
-            style={{ marginRight: '8px' }}
+            disabled={!props.values.content}
+            onClick={() => props.onOpen(true)}
           >
-            <Trans>Cancel</Trans>
+            <Trans>Preview</Trans>
           </Button>
-        ) : null}
-      </Actions>
-      <Preview
-        isSubmitting={props.isSubmitting}
-        toggleModal={props.onOpen}
-        modalIsOpen={props.isOpen}
-        values={props.values}
-        user={props.data.user}
-        selectThread={props.selectThread}
+          {props.thread ? (
+            <Button
+              onClick={() => props.onSelectedThread(null)}
+              style={{ marginRight: '8px' }}
+            >
+              <Trans>Cancel</Trans>
+            </Button>
+          ) : null}
+        </Actions>
+        <Preview
+          isSubmitting={props.isSubmitting}
+          toggleModal={props.onOpen}
+          modalIsOpen={props.isOpen}
+          values={props.values}
+          user={props.data.user}
+          selectThread={props.selectThread}
+        />
+      </ContainerTalk>
+      <MarkdownModal
+        toggleModal={props.onModalIsOpen}
+        modalIsOpen={props.modalIsOpen}
       />
-    </ContainerTalk>
-    <MarkdownModal
-      toggleModal={props.onModalIsOpen}
-      modalIsOpen={props.modalIsOpen}
-    />
-  </>
-);
+    </>
+  );
+};
 
 export default compose(
   graphql(getUserQuery),

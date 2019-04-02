@@ -32,6 +32,7 @@ interface Props {
 }
 
 const Header: React.SFC<Props> = props => {
+  console.log(props);
   return (
     <Wrapper>
       {props.data.error ? (

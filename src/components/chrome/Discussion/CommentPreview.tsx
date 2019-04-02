@@ -28,11 +28,9 @@ interface EventProps {
 
 const Event: React.SFC<EventProps> = ({
   author,
-  thread,
   comment,
   noAction,
   totalReplies,
-  selectThread,
   selectedThread,
   communityId,
   type
