@@ -30,49 +30,51 @@ interface Props {
   data: Data;
 }
 
-const Home: React.SFC<Props> = props => (
-  <Main>
-    <WrapperCont>
-      <Wrapper>
-        <Tabs>
-          <SuperTabList>
-            <SuperTab>
-              <span>
-                <User
-                  width={20}
-                  height={20}
-                  strokeWidth={2}
-                  color={'#a0a2a5'}
-                />
-              </span>
-              <h5>
-                <Trans>Your feed</Trans>
-              </h5>
-            </SuperTab>
-          </SuperTabList>
-          <TabPanel>
-            {props.data.error ? (
-              <span>
-                <Trans>Error loading user</Trans>
-              </span>
-            ) : props.data.loading ? (
-              <Loader />
-            ) : (
-              <div>
-                {props.data.me.user.inbox.edges.map((t, i) => (
-                  <TimelineItem node={t.node} user={t.node.user} key={i} />
-                ))}
-                {/* <div style={{ padding: '8px' }}>
+const Home: React.SFC<Props> = props => {
+  return (
+    <Main>
+      <WrapperCont>
+        <Wrapper>
+          <Tabs>
+            <SuperTabList>
+              <SuperTab>
+                <span>
+                  <User
+                    width={20}
+                    height={20}
+                    strokeWidth={2}
+                    color={'#a0a2a5'}
+                  />
+                </span>
+                <h5>
+                  <Trans>Your feed</Trans>
+                </h5>
+              </SuperTab>
+            </SuperTabList>
+            <TabPanel>
+              {props.data.error ? (
+                <span>
+                  <Trans>Error loading user</Trans>
+                </span>
+              ) : props.data.loading ? (
+                <Loader />
+              ) : (
+                <div>
+                  {props.data.me.user.inbox.edges.map((t, i) => (
+                    <TimelineItem node={t.node} user={t.node.user} key={i} />
+                  ))}
+                  {/* <div style={{ padding: '8px' }}>
                   <LoadMoreTimeline fetchMore={fetchMore} community={community} />
                 </div> */}
-              </div>
-            )}
-          </TabPanel>
-        </Tabs>
-      </Wrapper>
-    </WrapperCont>
-  </Main>
-);
+                </div>
+              )}
+            </TabPanel>
+          </Tabs>
+        </Wrapper>
+      </WrapperCont>
+    </Main>
+  );
+};
 
 const withGetInbox = graphql<
   {},
