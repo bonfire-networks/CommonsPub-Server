@@ -122,6 +122,9 @@ query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
                     threads {
                         totalCount
                     }
+                    inbox {
+                        totalCount
+                    }
                 }
             }
           totalCount

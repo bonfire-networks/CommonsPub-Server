@@ -201,6 +201,17 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
                 totalCount: 1,
                 __typename: 'CollectionFollowersConnection'
               },
+              inbox: {
+                totalCount: 0,
+                edges: {
+                  node: {
+                    id: 1011,
+                    __typename: 'Activity'
+                  },
+                  __typename: 'CollectionActivitiesEdge'
+                },
+                __typename: 'CollectionInboxConnection'
+              },
               resources: {
                 totalCount: 0,
                 edges: {
