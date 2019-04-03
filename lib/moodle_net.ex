@@ -46,6 +46,12 @@ defmodule MoodleNet do
 
   # Community connections
 
+  defp outbox_query(actor) do
+    Query.new()
+    |> Query.with_type("Activity")
+    |> Query.belongs_to(:outbox, actor)
+  end
+
   defp inbox_query(actor) do
     Query.new()
     |> Query.with_type("Activity")
@@ -288,6 +294,17 @@ defmodule MoodleNet do
       on: entity.local_id == rel.subject_id,
       where: is_nil(rel.target_id)
     )
+  end
+
+  def user_outbox_list(user, opts) do
+    outbox_query(user)
+    |> Query.paginate(opts)
+    |> Query.all()
+  end
+
+  def user_outbox_count(user) do
+    outbox_query(user)
+    |> Query.count()
   end
 
   def user_inbox_list(user, opts) do
