@@ -120,7 +120,20 @@ const link = ApolloLink.split(
 
 const client = new ApolloClient({
   cache,
-  link
+  link,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'ignore'
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all'
+    },
+    mutate: {
+      errorPolicy: 'all'
+    }
+  }
 });
 
 interface MeQueryResult extends ApolloQueryResult<object> {

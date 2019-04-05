@@ -236,7 +236,7 @@ const WrapperMenu = styled.div`
   position: absolute;
   top: 50px;
   right: 10px;
-  z-index: 999999999999;
+  z-index: 9999;
 `;
 
 const Layer = styled.div`
