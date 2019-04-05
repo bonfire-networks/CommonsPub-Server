@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { Catalogs } from '@lingui/core';
 
-import styled from '../../themes/styled';
+// import styled from '../../themes/styled';
 import Router from './Router';
-import { moodlenet } from '../../themes';
-import { ThemeProvider } from '@zendeskgarden/react-theming';
 import { Chrome } from '@zendeskgarden/react-chrome';
 
 import { I18nProvider } from '@lingui/react';
@@ -26,14 +24,14 @@ import '@zendeskgarden/react-tooltips/dist/styles.css';
 import '../../styles/social-icons.css';
 import '../../styles/flag-icons.css';
 import '../../styles/loader.css';
+import { ThemeProvider } from '../../styleguide/Wrapper';
+// export const AppStyles = styled.div`
+//   font-family: ${props => props.theme.styles.fontFamily};
 
-export const AppStyles = styled.div`
-  font-family: ${props => props.theme.styles.fontFamily};
-
-  * {
-    font-family: ${props => props.theme.styles.fontFamily};
-  }
-`;
+//   * {
+//     font-family: ${props => props.theme.styles.fontFamily};
+//   }
+// `;
 
 export const locale_default = 'en_GB';
 
@@ -114,17 +112,17 @@ export default class App extends React.Component<{}, AppState> {
     }
 
     return (
-      <ThemeProvider theme={moodlenet}>
+      <ThemeProvider>
         <LocaleContext.Provider value={this.state}>
           <I18nProvider
             language={this.state.locale}
             catalogs={this.state.catalogs}
           >
-            <AppStyles>
-              <Chrome>
-                <Router />
-              </Chrome>
-            </AppStyles>
+            {/* <AppStyles> */}
+            <Chrome>
+              <Router />
+            </Chrome>
+            {/* </AppStyles> */}
           </I18nProvider>
         </LocaleContext.Provider>
       </ThemeProvider>

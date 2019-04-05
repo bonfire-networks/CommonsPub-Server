@@ -13,6 +13,8 @@ import SettingsModal from '../../components/elements/SettingsModal';
 import Link from '../elements/Link/Link';
 import media from 'styled-media-query';
 import { NavLink } from 'react-router-dom';
+import { useTheme } from '../../styleguide/Wrapper';
+
 interface Props {
   handleOpen(): boolean;
   closeMenu(): boolean;
@@ -30,12 +32,14 @@ interface Props {
 }
 
 const Header: React.SFC<Props> = props => {
+  const themeState = useTheme();
   return (
     <Wrapper>
       <Left>
         {/* <span onClick={() => props.onSidebar(!props.sidebar)}>
           <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
         </span> */}
+
         <NavLink
           isActive={(match, location) => {
             return (
@@ -45,7 +49,7 @@ const Header: React.SFC<Props> = props => {
           }}
           activeStyle={{
             position: 'relative',
-            color: '#f98012'
+            color: '#fff'
           }}
           to={'/communities'}
         >
@@ -70,7 +74,7 @@ const Header: React.SFC<Props> = props => {
           }}
           activeStyle={{
             position: 'relative',
-            color: '#f98012'
+            color: '#fff'
           }}
           to={'/collections'}
         >
@@ -125,6 +129,11 @@ const Header: React.SFC<Props> = props => {
                   <Item onClick={props.handleSettings}>
                     <Trans>Settings</Trans>
                   </Item>
+                  <Item onClick={() => themeState.toggle()}>
+                    {themeState.dark
+                      ? 'Switch to Light Mode'
+                      : 'Switch to Dark Mode'}
+                  </Item>
                 </List>
                 <List>
                   <Item onClick={props.logout}>
@@ -155,7 +164,7 @@ const AvatarUsername = styled.div`
   margin-left: 16px;
   font-size: 13px;
   font-weight: 500;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.headerLink};
   cursor: pointer;
   & span {
     float: left;
@@ -172,7 +181,7 @@ const Center = styled.span`
   }
 `;
 const Bottom = styled.div`
-  background: ${props => props.theme.styles.colour.primary};
+  background: ${props => props.theme.styles.colour.primaryDark};
   border-radius: 4px;
   text-align: center;
   line-height: 30px;
@@ -204,7 +213,7 @@ const Bottom = styled.div`
 const Wrapper = styled.div`
   height: 50px;
   min-height: 50px;
-  background: #fff;
+  background: ${props => props.theme.styles.colour.header};
   ${clearFix()};
   position: relative;
 `;
@@ -215,7 +224,7 @@ const Avatar = styled.div`
   border-radius: 100px;
   overflow: hidden;
   margin-right: 8px;
-  background: #e6e6e6;
+  background: ${props => props.theme.styles.colour.background};
 `;
 
 const WrapperMenu = styled.div`
@@ -227,7 +236,7 @@ const WrapperMenu = styled.div`
   position: absolute;
   top: 50px;
   right: 10px;
-  z-index: 9999;
+  z-index: 999999999999;
 `;
 
 const Layer = styled.div`
@@ -273,10 +282,10 @@ const Left = styled.div`
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
-    color: ${props => props.theme.styles.colour.base3};
+    color: ${props => props.theme.styles.colour.headerLink};
     text-decoration: none;
     margin-right: 32px;
-    
+
     & i {
       margin-right: 8px;
       & svg {
@@ -285,18 +294,7 @@ const Left = styled.div`
       }
     }
   }
-  // & span {
-  //   &:before {
-  //     position: absolute;
-  //     content: "";
-  //     left: 0;
-  //     right:0;
-  //     height: 1px;
-  //     bottom: -10px;
-  //     background: ${props => props.theme.styles.colour.primary};
-  //   }
-  // }
-    
+
   & input {
     border: 0px solid !important;
     border-radius: 100px;

@@ -1,5 +1,9 @@
 
-query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
+query getCommunityQuery(
+ $context: Int!,
+ $limit: Int, 
+ $end: Int
+ ) {
     community(local_id: $context) {
         id
         localId
@@ -18,52 +22,53 @@ query getCommunityQuery($context: Int!, $limit: Int, $end: Int) {
                     id
                     activityType
                     type
-                    object {
-                        __typename
-                        ... on Community {
-                        id
-                        name
-                        localId
-                        }
-                        ... on Collection {
-                        id
-                        name
-                        localId
-                        }
-                        ... on Comment {
-                        id
-                        localId
-                          context {
-                         __typename
-                         ... on Community {
-                           id
-                           name
-                           localId
-                         }
-                         ... on Collection {
-                           id
-                           name
-                           localId
-                         }
-                       }
-                        }
-                         ... on Resource {
-                        id
-                        name
-                        localId
-                        collection {
-                            name
-                            localId
-                        }
-                        }
-                    }
-                    user {
-                        name
-                        id
-                        localId
-                        icon
-                    }
                     published
+                    # object {
+                        
+                    #     ... on Community {
+                    #     id
+                    #     name
+                    #     localId
+                    #     }
+                    #     ... on Collection {
+                    #     id
+                    #     name
+                    #     localId
+                    #     }
+                    #     ... on Comment {
+                    #     id
+                    #     localId
+                    #       context {
+                    #      __typename
+                    #      ... on Community {
+                    #        id
+                    #        name
+                    #        localId
+                    #      }
+                    #      ... on Collection {
+                    #        id
+                    #        name
+                    #        localId
+                    #      }
+                    #    }
+                    #     }
+                    #      ... on Resource {
+                    #     id
+                    #     name
+                    #     localId
+                    #     collection {
+                    #         name
+                    #         localId
+                    #     }
+                    #     }
+                    #  }
+                    # user {
+                    #     name
+                    #     id
+                    #     localId
+                    #     icon
+                    # }
+                    
                 }
             }
         }

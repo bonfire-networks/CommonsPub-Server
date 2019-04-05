@@ -24,10 +24,11 @@ const Main = styled.div`
   text-decoration: none;
   text-transform: uppercase;
   line-height: 30px;
-  background: #fff;
+  background: ${props => props.theme.styles.colour.breadcrumb};
   padding: 0 8px;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+  color: ${props => props.theme.styles.colour.base6};
   & a {
     font-size: 12px;
     font-weight: 700;
@@ -41,7 +42,7 @@ const Main = styled.div`
     text-decoration: none;
     text-transform: uppercase;
     margin-left: 6px;
-    color: ${props => props.theme.styles.colour.base2};
+    color: ${props => props.theme.styles.colour.base6};
   }
 `;
 

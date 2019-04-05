@@ -38,7 +38,7 @@ query meQuery(
         }
       }
     }
-  #   inbox (limit: $limitTimeline, after:$endTimeline) {
+  #   outbox (limit: $limitTimeline, after:$endTimeline) {
   #     pageInfo {
   #         startCursor
   #         endCursor

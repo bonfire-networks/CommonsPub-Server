@@ -7,12 +7,12 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
   margin: 0;
   font-size: ${props => (props.big ? '28px' : '14px')};
   line-height: 32px;
-  color: ${props => props.theme.styles.colour.primary};
+  color: ${props => props.theme.styles.colour.logo};
   letter-spacing: 1px;
   margin-bottom: ${props => (props.big ? '8px' : '24px')};
 
   & a {
-    color: ${props => props.theme.styles.colour.primary};
+    color: ${props => props.theme.styles.colour.logo};
     text-decoration: none;
   }
 `;
@@ -21,8 +21,8 @@ const Small = styled.a<{ big?: boolean }>`
   margin-left: 4px;
   padding: 4px 8px;
   border-radius: 4px;
-  background: ${props => props.theme.styles.colour.primary};
-  color: white !important;
+  background: ${props => props.theme.styles.colour.primaryDark};
+  color: ${props => props.theme.styles.colour.headerLink} !important;
   font-weight: 600 !important;
   letter-spacing: 0.5px;
   font-size: 11px;

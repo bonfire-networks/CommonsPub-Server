@@ -87,7 +87,7 @@ const Actions = styled.div`
 `;
 
 const Members = styled(P)`
-  color: ${props => props.theme.styles.colour.base3}
+  color: ${props => props.theme.styles.colour.communityIcon}
   margin: 8px 0;
   float: left;
   margin-right: 16px;
@@ -96,12 +96,15 @@ const Members = styled(P)`
     display: inline-block;
     vertical-align: middle;
   }
+  & svg {
+    color: inherit !important;
+  }
 `;
 
 const Summary = styled(P)`
   margin: 0;
   font-size: 14px;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.communityNote};
   word-break: break-word;
   z-index: 99;
   position: relative;
@@ -110,7 +113,7 @@ const Wrapper = styled.div`
   padding: 8px;
   position: relative;
   max-height: 560px;
-  background: #eaeef0;
+  background: ${props => props.theme.styles.colour.communityBg};
   border-radius: 6px;
   overflow: hidden;
   z-index: 9;
@@ -130,7 +133,7 @@ const Wrapper = styled.div`
     line-height: 24px !important;
     word-break: break-word;
     font-weight: 600;
-    color: ${props => props.theme.styles.colour.base1};
+    color: ${props => props.theme.styles.colour.communityTitle};
   }
   & a {
     color: inherit;
