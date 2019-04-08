@@ -5,25 +5,17 @@ import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import { Col, Row } from '@zendeskgarden/react-grid';
 import { withTheme } from '@zendeskgarden/react-theming';
 import media from 'styled-media-query';
-
 import { i18nMark } from '@lingui/react';
 import { Trans } from '@lingui/macro';
-
 import styled, { ThemeInterface } from '../../themes/styled';
 import Logo from '../../components/brand/Logo/Logo';
-// import Link from '../../components/elements/Link/Link';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
-// import Body from '../../components/chrome/Body/Body';
-// import Button from '../../components/elements/Button/Button';
 import H6 from '../../components/typography/H6/H6';
-// import P from '../../components/typography/P/P';
 import LoginForm from './LoginForm';
-// import User from '../../types/User';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 const { setUserMutation } = require('../../graphql/setUser.client.graphql');
-// TODO make the login mutation also retrieve the user so a separate request is not necessary
 const { loginMutation } = require('../../graphql/login.graphql');
 import SignupModal from '../../components/elements/SignupModal';
 
@@ -50,18 +42,6 @@ const Signup = styled.div`
   }
 `;
 
-// const BodyCenterContent = styled(Body)`
-//   display: flex;
-//   align-items: center;
-//   margin: 0 auto;
-//   flex-direction: column;
-//   position: relative;
-//   margin-top: 36px;
-//   ${media.lessThan('medium')`
-//   width: 420px;
-//   `};
-// `;
-
 const BodyCenterContent = styled.div`
   margin: 0 auto;
   margin-top: 36px;
@@ -76,29 +56,13 @@ const WrapperLogin = styled.div`
   box-shadow: 0 4px 24px 4px rgba(100, 100, 100, 0.1);
   padding-top: 1px;
 `;
-// const Banner = styled.div`
-//   flex: 1;
-//   background: #ffc9c960;
-//   width: 100%;
-//   text-align: center;
-//   font-size: 15px;
-//   color: #5e1919;
-//   height: 60px;
-//   line-height: 60px;
-//   font-weight: 700;
-//   max-height: 60px;
-//   position: absolute;
-//   bottom: 0;
-//   left: 0;
-//   right: 0;
-// `;
 
 const LanguageWrapper = styled.div`
   margin-top: 24px;
   margin-bottom: 24px;
   & div {
     background: white !important;
-    color: #333 !important;
+    color: ${props => props.theme.styles.colour.base1} !important;
   }
 `;
 const Background = styled.div`

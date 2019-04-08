@@ -3,17 +3,40 @@ import { ThemedStyledComponentsModule } from 'styled-components';
 
 export interface MoodleThemeInterface {
   colour: {
+    background: string;
+    header: string;
+    headerLink: string;
+    breadcrumb: string;
+
+    // Community
+    communityBg: string;
+    communityTitle: string;
+    communityNote: string;
+    communityIcon: string;
+
+    // Collection
+    collectionBg: string;
+    collectionTitle: string;
+    collectionNote: string;
+    collectionIcon: string;
+
+    logo: string;
     primary: string;
     primaryAlt: string;
+    secondary: string;
     primaryDark: string;
-    community: string;
-    collection: string;
     base1: string;
     base2: string;
     base3: string;
     base4: string;
     base5: string;
     base6: string;
+    blue1: string;
+    blue2: string;
+    blue3: string;
+    green1: string;
+    green2: string;
+    green3: string;
   };
   fontFamily: string;
   fontWeight: {

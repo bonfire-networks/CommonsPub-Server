@@ -87,21 +87,21 @@ const ActionItem = styled.div`
   display: inline-block;
   font-size: 14px;
   font-weight: 600;
-  color: ${props => props.theme.styles.colour.base3};
+  color: ${props => props.theme.styles.colour.collectionIcon};
   text-transform: uppercase;
   margin-right: 20px;
   & svg {
     vertical-align: sub;
+    color: inherit !important;
   }
 `;
 
 const Wrapper = styled.div`
   display: flex;
   cursor: pointer;
-  border: 3px solid #e4e6e6;
   padding: 8px 0;
   position: relative;
-  background: white;
+  background: ${props => props.theme.styles.colour.collectionBg};
   border-radius: 6px;
   margin-bottom: 8px;
   ${media.lessThan('medium')`
@@ -122,7 +122,7 @@ const Img = styled.div`
   border-radius: 8px;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: #f0f0f0;
+  background-color: ${props => props.theme.styles.colour.secondary};
   margin-right: 8px;
   margin-left: 8px;
 `;
@@ -135,12 +135,12 @@ const Title = styled(H5)`
   line-height: 20px !important;
   letter-spacing: 0.8px;
   font-weight: 600;
-  color: ${props => props.theme.styles.colour.base1};
+  color: ${props => props.theme.styles.colour.collectionTitle};
 `;
 const Desc = styled(P)`
   margin: 0 !important;
   font-size: 14px !important;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.collectionNote};
   font-size: 48px;
   line-height: 20px;
 `;

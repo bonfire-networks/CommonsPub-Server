@@ -43,7 +43,7 @@ const Img = styled.div`
   width: 120px;
   height: 120px;
   border-radius: 100px;
-  background: antiquewhite;
+  background: ${props => props.theme.styles.colour.secondary};
   border: 5px solid white;
   margin: 0 auto;
   margin-bottom: 10px;
@@ -69,8 +69,11 @@ const HeroInfo = styled.div`
     font-size: 24px !important;
     line-height: 40px !important;
     margin-bottom: 16px;
+    color: ${props => props.theme.styles.colour.base1};
   }
-
+  & p {
+    color: ${props => props.theme.styles.colour.base6};
+  }
   & button {
     span {
       vertical-align: sub;

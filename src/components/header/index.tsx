@@ -4,7 +4,7 @@ import { Community, Collection } from '../elements/Icons';
 import { Trans } from '@lingui/macro';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Logo from '../brand/Logo/Logo';
-const { getUserQuery } = require('../../graphql/getUserBasic.graphql');
+const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 import { graphql } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
@@ -13,7 +13,7 @@ import SettingsModal from '../../components/elements/SettingsModal';
 import Link from '../elements/Link/Link';
 import media from 'styled-media-query';
 import { NavLink } from 'react-router-dom';
-import Loader from '../../components/elements/Loader/Loader';
+import { useTheme } from '../../styleguide/Wrapper';
 
 interface Props {
   handleOpen(): boolean;
@@ -32,139 +32,129 @@ interface Props {
 }
 
 const Header: React.SFC<Props> = props => {
-  console.log(props);
+  const themeState = useTheme();
   return (
     <Wrapper>
-      {props.data.error ? (
-        <span>
-          <Trans>Error loading user</Trans>
-        </span>
-      ) : props.data.loading ? (
-        <Loader />
-      ) : (
-        <>
-          <Left>
-            {/* <span onClick={() => props.onSidebar(!props.sidebar)}>
+      <Left>
+        {/* <span onClick={() => props.onSidebar(!props.sidebar)}>
           <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
         </span> */}
-            <NavLink
-              isActive={(match, location) => {
-                return (
-                  location.pathname === `/communities` ||
-                  location.pathname === `/communities/`
-                );
-              }}
-              activeStyle={{
-                position: 'relative',
-                color: '#f98012'
-              }}
-              to={'/communities'}
-            >
-              <i>
-                <Community
-                  width={18}
-                  height={18}
-                  color={'#3d3f4a80'}
-                  strokeWidth={2}
-                />
-              </i>
-              <span>
-                <Trans>Communities</Trans>
-              </span>
-            </NavLink>
-            <NavLink
-              isActive={(match, location) => {
-                return (
-                  location.pathname === `/collections` ||
-                  location.pathname === `/collections/`
-                );
-              }}
-              activeStyle={{
-                position: 'relative',
-                color: '#f98012'
-              }}
-              to={'/collections'}
-            >
-              <i>
-                <Collection
-                  width={18}
-                  height={18}
-                  color={'#3d3f4a80'}
-                  strokeWidth={2}
-                />
-              </i>
-              <span>
-                <Trans>Collections</Trans>
-              </span>
-            </NavLink>
-          </Left>
-          <Center>
-            <Logo />
-          </Center>
 
-          <Right>
-            <AvatarUsername onClick={props.handleOpen}>
-              <span>{props.data.me.user.name}</span>
-              <Avatar>
-                <img
-                  src={
-                    props.data.me.user.icon ||
-                    `https://www.gravatar.com/avatar/${
-                      props.data.user.me.data.localId
-                    }?f=y&d=identicon`
-                  }
-                  alt="Avatar"
-                />
-              </Avatar>
-            </AvatarUsername>
-            <Bottom onClick={props.handleNewCommunity}>
-              <span>
-                <Community
-                  width={18}
-                  height={18}
-                  color={'#fff'}
-                  strokeWidth={2}
-                />
-              </span>
-            </Bottom>
-          </Right>
-          {props.isOpen ? (
-            <>
-              <OutsideClickHandler onOutsideClick={props.closeMenu}>
-                <WrapperMenu>
-                  <ProfileMenu>
-                    <List lined>
-                      <Item>
-                        <Link to="/profile">
-                          <Trans>Profile</Trans>
-                        </Link>
-                      </Item>
-                      <Item onClick={props.handleSettings}>
-                        <Trans>Settings</Trans>
-                      </Item>
-                    </List>
-                    <List>
-                      <Item onClick={props.logout}>
-                        <Trans>Sign out</Trans>
-                      </Item>
-                    </List>
-                  </ProfileMenu>
-                </WrapperMenu>
-              </OutsideClickHandler>
-              <Layer />
-            </>
-          ) : null}
-          <NewCommunityModal
-            toggleModal={props.handleNewCommunity}
-            modalIsOpen={props.isOpenCommunity}
-          />
-          <SettingsModal
-            toggleModal={props.handleSettings}
-            modalIsOpen={props.isOpenSettings}
-            profile={props.data.me.user}
-          />
+        <NavLink
+          isActive={(match, location) => {
+            return (
+              location.pathname === `/communities` ||
+              location.pathname === `/communities/`
+            );
+          }}
+          activeStyle={{
+            position: 'relative',
+            color: '#fff'
+          }}
+          to={'/communities'}
+        >
+          <i>
+            <Community
+              width={18}
+              height={18}
+              color={'#3d3f4a80'}
+              strokeWidth={2}
+            />
+          </i>
+          <span>
+            <Trans>Communities</Trans>
+          </span>
+        </NavLink>
+        <NavLink
+          isActive={(match, location) => {
+            return (
+              location.pathname === `/collections` ||
+              location.pathname === `/collections/`
+            );
+          }}
+          activeStyle={{
+            position: 'relative',
+            color: '#fff'
+          }}
+          to={'/collections'}
+        >
+          <i>
+            <Collection
+              width={18}
+              height={18}
+              color={'#3d3f4a80'}
+              strokeWidth={2}
+            />
+          </i>
+          <span>
+            <Trans>Collections</Trans>
+          </span>
+        </NavLink>
+      </Left>
+      <Center>
+        <Logo />
+      </Center>
+      <Right>
+        <AvatarUsername onClick={props.handleOpen}>
+          <span>{props.data.user.data.name}</span>
+          <Avatar>
+            <img
+              src={
+                props.data.user.data.icon ||
+                `https://www.gravatar.com/avatar/${
+                  props.data.user.data.localId
+                }?f=y&d=identicon`
+              }
+              alt="Avatar"
+            />
+          </Avatar>
+        </AvatarUsername>
+        <Bottom onClick={props.handleNewCommunity}>
+          <span>
+            <Community width={18} height={18} color={'#fff'} strokeWidth={2} />
+          </span>
+        </Bottom>
+      </Right>
+      {props.isOpen ? (
+        <>
+          <OutsideClickHandler onOutsideClick={props.closeMenu}>
+            <WrapperMenu>
+              <ProfileMenu>
+                <List lined>
+                  <Item>
+                    <Link to="/profile">
+                      <Trans>Profile</Trans>
+                    </Link>
+                  </Item>
+                  <Item onClick={props.handleSettings}>
+                    <Trans>Settings</Trans>
+                  </Item>
+                  <Item onClick={() => themeState.toggle()}>
+                    {themeState.dark
+                      ? 'Switch to Light Mode'
+                      : 'Switch to Dark Mode'}
+                  </Item>
+                </List>
+                <List>
+                  <Item onClick={props.logout}>
+                    <Trans>Sign out</Trans>
+                  </Item>
+                </List>
+              </ProfileMenu>
+            </WrapperMenu>
+          </OutsideClickHandler>
+          <Layer />
         </>
-      )}
+      ) : null}
+      <NewCommunityModal
+        toggleModal={props.handleNewCommunity}
+        modalIsOpen={props.isOpenCommunity}
+      />
+      <SettingsModal
+        toggleModal={props.handleSettings}
+        modalIsOpen={props.isOpenSettings}
+        profile={props.data.user.data}
+      />
     </Wrapper>
   );
 };
@@ -174,7 +164,7 @@ const AvatarUsername = styled.div`
   margin-left: 16px;
   font-size: 13px;
   font-weight: 500;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.headerLink};
   cursor: pointer;
   & span {
     float: left;
@@ -191,7 +181,7 @@ const Center = styled.span`
   }
 `;
 const Bottom = styled.div`
-  background: ${props => props.theme.styles.colour.primary};
+  background: ${props => props.theme.styles.colour.primaryDark};
   border-radius: 4px;
   text-align: center;
   line-height: 30px;
@@ -223,7 +213,7 @@ const Bottom = styled.div`
 const Wrapper = styled.div`
   height: 50px;
   min-height: 50px;
-  background: #fff;
+  background: ${props => props.theme.styles.colour.header};
   ${clearFix()};
   position: relative;
 `;
@@ -234,7 +224,7 @@ const Avatar = styled.div`
   border-radius: 100px;
   overflow: hidden;
   margin-right: 8px;
-  background: #e6e6e6;
+  background: ${props => props.theme.styles.colour.background};
 `;
 
 const WrapperMenu = styled.div`
@@ -292,10 +282,10 @@ const Left = styled.div`
     font-weight: 600;
     font-size: 12px;
     text-transform: uppercase;
-    color: ${props => props.theme.styles.colour.base3};
+    color: ${props => props.theme.styles.colour.headerLink};
     text-decoration: none;
     margin-right: 32px;
-    
+
     & i {
       margin-right: 8px;
       & svg {
@@ -304,18 +294,7 @@ const Left = styled.div`
       }
     }
   }
-  // & span {
-  //   &:before {
-  //     position: absolute;
-  //     content: "";
-  //     left: 0;
-  //     right:0;
-  //     height: 1px;
-  //     bottom: -10px;
-  //     background: ${props => props.theme.styles.colour.primary};
-  //   }
-  // }
-    
+
   & input {
     border: 0px solid !important;
     border-radius: 100px;

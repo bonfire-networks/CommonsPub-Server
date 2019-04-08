@@ -12,12 +12,13 @@ import CommunityCard from '../../components/elements/Community/Community';
 import media from 'styled-media-query';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import { Tabs, TabPanel } from 'react-tabs';
-import { Collection, Community } from '../../components/elements/Icons';
+import { Collection, Community, Eye } from '../../components/elements/Icons';
 const getUserQuery = require('../../graphql/getUser.graphql');
 import FollowingCollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
 import JoinedCommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
 import HeroComp from './Hero';
 import { WrapperTab, OverlayTab } from '../communities.community/Community';
+// import TimelineItem from '../../components/elements/TimelineItem';
 
 enum TabsEnum {
   Overview = 'Overview',
@@ -33,6 +34,14 @@ interface Data extends GraphqlQueryControls {
       summary: string;
       id: string;
       localId: string;
+      outbox: {
+        edges: any[];
+        totalCount: number;
+        pageInfo: {
+          startCursor: number;
+          endCursor: number;
+        };
+      };
       joinedCommunities: {
         edges: any[];
         totalCount: number;
@@ -84,7 +93,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                   <OverlayTab>
                     <Tabs>
                       <SuperTabList>
-                        {/* <SuperTab>
+                        <SuperTab>
                           <span>
                             <Eye
                               width={20}
@@ -96,7 +105,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           <h5>
                             <Trans>Timeline</Trans>
                           </h5>
-                        </SuperTab> */}
+                        </SuperTab>
                         <SuperTab>
                           <span>
                             <Collection
@@ -124,124 +133,12 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           </h5>
                         </SuperTab>
                       </SuperTabList>
-                      {/* <TabPanel>
+                      <TabPanel>
                         <div>
-                          {this.props.data.me.user.outbox.edges.map((t, i) => (
-                            <FeedItem key={i}>
-                              <Member>
-                                <MemberItem>
-                                  <MeImg alt="user" src={t.node.user.icon} />
-                                </MemberItem>
-                                <MemberInfo>
-                                  <h3>
-                                    <b>{t.node.user.name}</b>
-                                    {t.node.activityType ===
-                                    'CreateCollection' ? (
-                                      <span>
-                                        created the collection{' '}
-                                        <Link
-                                          to={
-                                            `/collections/` +
-                                            t.node.object.localId
-                                          }
-                                        >
-                                          {t.node.object.name}
-                                        </Link>{' '}
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'UpdateCommunity' ? (
-                                      <span>
-                                        updated the community{' '}
-                                        <Link
-                                          to={`/communities/${
-                                            t.node.object.localId
-                                          }`}
-                                        >
-                                          {t.node.object.name}
-                                        </Link>
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'UpdateCollection' ? (
-                                      <span>
-                                        updated the collection{' '}
-                                        <Link
-                                          to={
-                                            `/collections/` +
-                                            t.node.object.localId
-                                          }
-                                        >
-                                          {t.node.object.name}
-                                        </Link>
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'JoinCommunity' ? (
-                                      <span>
-                                        joined the community{' '}
-                                        <Link
-                                          to={`/communities/${
-                                            t.node.object.localId
-                                          }`}
-                                        >
-                                          {t.node.object.name}
-                                        </Link>
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'CreateComment' ? (
-                                      <span>
-                                        posted a new{' '}
-                                        <Link
-                                          to={
-                                            t.node.object.context.__typename ===
-                                            'Community'
-                                              ? `/communities/${
-                                                  t.node.object.context.localId
-                                                }/thread/${
-                                                  t.node.object.localId
-                                                }`
-                                              : `/collections/${
-                                                  t.node.object.context.localId
-                                                }/thread/${
-                                                  t.node.object.localId
-                                                }`
-                                          }
-                                        >
-                                          comment
-                                        </Link>{' '}
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'CreateResource' ? (
-                                      <span>
-                                        created the resource{' '}
-                                        <b>{t.node.object.name}</b> on
-                                        collection{' '}
-                                        <Link
-                                          to={
-                                            `/communities/${
-                                              t.node.object.collection.community
-                                                .localId
-                                            }/collections/` +
-                                            t.node.object.collection.localId
-                                          }
-                                        >
-                                          {t.node.object.collection.name}
-                                        </Link>{' '}
-                                      </span>
-                                    ) : t.node.activityType ===
-                                    'FollowCollection' ? (
-                                      <span>
-                                        started to follow the collection{' '}
-                                        <b>{t.node.object.name}</b>
-                                      </span>
-                                    ) : null}
-                                  </h3>
-                                  <Date>
-                                    {moment(t.node.published).fromNow()}
-                                  </Date>
-                                </MemberInfo>
-                              </Member>
-                            </FeedItem>
-                          ))}
-                          {(this.props.data.me.user.outbox.pageInfo
+                          {/* {this.props.data.me.user.outbox.edges.map((t, i) => (
+                            <TimelineItem node={t.node} user={t.node.user} key={i} />
+                          ))} */}
+                          {/* {(this.props.data.me.user.outbox.pageInfo
                             .startCursor === null &&
                             this.props.data.me.user.outbox.pageInfo.endCursor ===
                               null) ||
@@ -306,9 +203,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             >
                               <Trans>Load more</Trans>
                             </LoadMore>
-                          )}
+                          )} */}
                         </div>
-                      </TabPanel> */}
+                      </TabPanel>
                       <TabPanel>
                         <ListCollections>
                           {this.props.data.me.user.followingCollections.edges.map(
@@ -385,7 +282,6 @@ export const List = styled.div`
   grid-row-gap: 16px;
   padding: 16px;
   padding-top: 8px;
-  background: white;
   ${media.lessThan('medium')`
   grid-template-columns: 1fr;
   grid-column-gap: 0px;
@@ -396,7 +292,6 @@ export const ListCollections = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   width: 100%;
-  background: white;
   padding: 8px;
 `;
 
