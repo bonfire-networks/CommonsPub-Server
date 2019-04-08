@@ -17,7 +17,7 @@ import { clearFix } from 'polished';
 import CollectionCard from '../../components/elements/Collection/Collection';
 import P from '../../components/typography/P/P';
 import H2 from '../../components/typography/H2/H2';
-import Button from '../../components/elements/Button/Button';
+// import Button from "../../components/elements/Button/Button";
 import CommunityModal from '../../components/elements/CommunityModal';
 import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import UsersModal from '../../components/elements/UsersModal';
@@ -81,7 +81,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             {community.followed ? (
               <Header>
                 <Actions>
-                  <Button onClick={this.props.handleNewCollection}>
+                  <Create onClick={this.props.handleNewCollection}>
                     <span>
                       <Collection
                         width={20}
@@ -91,7 +91,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       />
                     </span>
                     <Trans>Create a collection</Trans>
-                  </Button>
+                  </Create>
                 </Actions>
               </Header>
             ) : (
@@ -118,9 +118,9 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <Trans>This community has no collections.</Trans>
             </P>
             {community.followed ? (
-              <Button onClick={this.props.handleNewCollection}>
+              <Create onClick={this.props.handleNewCollection}>
                 <Trans>Create the first collection</Trans>
-              </Button>
+              </Create>
             ) : (
               <Footer>
                 <Trans>Join the community to create a collection</Trans>
@@ -245,34 +245,37 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
-const Actions = styled.div`
+export const Actions = styled.div`
   ${clearFix()};
   display: flex;
-  border-bottom: 1px solid #edf0f2;
-  & button {
-    border-radius: 4px;
-    background: #f98012;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 35px;
-    text-align: center;
-    cursor: pointer;
-    color: #f0f0f0;
-    margin: 8px;
-    float: left;
-    padding: 0 16px;
-    display: inline-block;
+  border-bottom: 1px solid ${props => props.theme.styles.colour.base3};
+`;
+export const Create = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  margin: 8px;
+  color: ${props => props.theme.styles.colour.base1};
+  display: inline-block;
+  line-height: 30px;
+  margin-left: 8px;
+  padding: 0 8px;
+  border-radius: 4px;
+  &:hover {
+    background: ${props => props.theme.styles.colour.primary};
   }
-  span {
+  & span {
+    display: inline-block;
+    vertical-align: middle;
     & svg {
-      vertical-align: middle;
-      margin-right: 16px;
+      vertical-align: sub;
+      margin-right: 8px;
     }
   }
 `;
 
 const Header = styled.div`
-  border-bottom: 1px solid #edf0f2;
   ${clearFix()};
 `;
 const HeroActions = styled.div`
@@ -430,11 +433,11 @@ const HeroInfo = styled.div`
     font-size: 24px !important;
     line-height: 40px !important;
     margin-bottom: 0px;
-    color: ${props => props.theme.styles.colour.base1};
+    color: ${props => props.theme.styles.colour.communityTitle};
   }
   & p {
     margin-top: 8px;
-    color: ${props => props.theme.styles.colour.base2};
+    color: ${props => props.theme.styles.colour.communityNote};
   }
   & button {
     span {

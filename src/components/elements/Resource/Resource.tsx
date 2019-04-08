@@ -109,7 +109,7 @@ const Url = styled.div`
 `;
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: ${props => props.theme.styles.colour.resourceBg};
   border-bottom: 1px solid rgba(0, 0, 0, 0.15);
   padding: 8px;
   display: flex;
@@ -132,7 +132,7 @@ const Img = styled.div`
   width: 120px;
   border-radius: 2px;
   background-position: center center;
-  background: ${props => props.theme.styles.colour.base4};
+  background: ${props => props.theme.styles.colour.resourceIcon};
   ${media.lessThan('medium')`
   margin: 0 auto;
   margin-bottom: 8px;
@@ -145,7 +145,8 @@ const Title = styled(H5)`
   line-height: 16px !important;
   margin-top: 8px;
   flex: 1;
-  color: ${props => props.theme.styles.colour.base1} ${media.lessThan('medium')`
+  color: ${props => props.theme.styles.colour.resourceTitle};
+  ${media.lessThan('medium')`
   text-align: center;
   padding: 0 8px;
   line-height: 24px !important;
@@ -154,8 +155,9 @@ const Title = styled(H5)`
 const Summary = styled(P)`
   margin: 0 !important;
   margin-top: 4px;
-  color: ${props => props.theme.styles.colour.base2}
-  font-size: 14px;
+  color: ${props => props.theme.styles.colour.resourceNote}
+  font-size: 13px;
+  line-height: 18px;
 `;
 const Actions = styled.div`
   width: 100px;
@@ -166,6 +168,9 @@ const Actions = styled.div`
     min-width: 80px;
     border-width: 1px !important;
     line-height: 25px;
+    color: ${props => props.theme.styles.colour.resourceIcon} svg {
+      color: inherit !important;
+    }
   }
 `;
 

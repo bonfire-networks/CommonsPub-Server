@@ -3,19 +3,39 @@ import createTheme from './create';
 const themeLight = createTheme({
   colour: {
     background: '#f5f6f7',
+    secondaryBg: '#fff',
     header: '#f98012',
     headerLink: '#fff',
     breadcrumb: '#fff',
+    // Hero
+    hero: '#eaeef0',
+    heroTitle: '#282828',
+    heroNote: '#3c3c3c',
+    heroIcon: '#848383',
 
+    // Hero Collection
+    heroCollection: '#eaeef0',
+    heroCollectionTitle: '#282828',
+    heroCollectionNote: '#a0a2a5',
+    heroCollectionIcon: '#848383',
+
+    // Collection element
+    collectionBg: '#eaeef0',
+    collectionTitle: '#282828',
+    collectionNote: '#3c3c3c',
+    collectionIcon: '#848383',
+
+    // Community element
     communityBg: '#eaeef0',
     communityTitle: '#282828',
     communityNote: '#3c3c3c',
     communityIcon: '#848383',
 
-    collectionBg: '#eaeef0',
-    collectionTitle: '#282828',
-    collectionNote: '#3c3c3c',
-    collectionIcon: '#848383',
+    // Resource element
+    resourceBg: '#eaeef0',
+    resourceTitle: '#282828',
+    resourceNote: '#3c3c3c',
+    resourceIcon: '#848383',
 
     primary: '#f98012',
     secondary: '#686566',
@@ -68,6 +88,7 @@ const themeLight = createTheme({
 const themeDark = createTheme({
   colour: {
     background: '#282a36',
+    secondaryBg: '#46495a',
     header: '#46495a',
     headerLink: '#fff',
     breadcrumb: '#46495a',
@@ -82,7 +103,25 @@ const themeDark = createTheme({
     collectionNote: '#3c3c3c',
     collectionIcon: '#848383',
 
-    primary: '#f8f8f2',
+    // Resource element
+    resourceBg: 'transparent',
+    resourceTitle: '#dddee4',
+    resourceNote: '#dddee4',
+    resourceIcon: '#848383',
+
+    // Hero
+    hero: '#eaeef0',
+    heroTitle: '#282828',
+    heroNote: '#a0a2a5',
+    heroIcon: '#848383',
+
+    // Hero Collection
+    heroCollection: '#46495a',
+    heroCollectionTitle: '#dddee4',
+    heroCollectionNote: '#dddee4',
+    heroCollectionIcon: '#dddee4',
+
+    primary: '#282a36',
     secondary: '#686566',
     logo: '#fff',
     primaryAlt: 'black',

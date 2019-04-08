@@ -29,7 +29,6 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
 const cache = new InMemoryCache({ fragmentMatcher });
 const token = localStorage.getItem('user_access_token');
 const user = localStorage.getItem('user_data');
-
 const defaults = {
   user: {
     __typename: 'User',

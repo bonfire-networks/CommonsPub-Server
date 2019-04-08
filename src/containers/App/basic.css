@@ -1,5 +1,6 @@
 .react-tabs__tab--selected {
   color: #f98012;
+  background: transparent;
 }
 
 .react-tabs__tab--selected svg {

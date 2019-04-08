@@ -4,7 +4,7 @@ import { SFC } from 'react';
 import { Trans } from '@lingui/macro';
 
 import Link from '../../components/elements/Link/Link';
-import styled from '../../themes/styled';
+import { Main } from '../communities.community/breadcrumb';
 
 interface Props {
   community: {
@@ -25,31 +25,5 @@ const Breadcrumb: SFC<Props> = ({ community, collectionName }) => (
     <span>{collectionName}</span>
   </Main>
 );
-
-const Main = styled.div`
-  font-size: 12px;
-  font-weight: 700;
-  text-decoration: none;
-  text-transform: uppercase;
-  line-height: 30px;
-  border-radius: 6px;
-  background: #fff;
-  padding: 0 8px;
-  & a {
-    font-size: 12px;
-    font-weight: 700;
-    text-decoration: none;
-    text-transform: uppercase;
-    margin-right: 6px;
-  }
-  & span {
-    font-size: 12px;
-    font-weight: 500;
-    text-decoration: none;
-    text-transform: uppercase;
-    margin-left: 6px;
-    color: ${props => props.theme.styles.colour.base2};
-  }
-`;
 
 export default Breadcrumb;

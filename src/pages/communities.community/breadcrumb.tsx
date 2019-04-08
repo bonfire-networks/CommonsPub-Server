@@ -18,7 +18,7 @@ const Breadcrumb: SFC<Props> = ({ name }) => (
   </Main>
 );
 
-const Main = styled.div`
+export const Main = styled.div`
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
@@ -28,13 +28,13 @@ const Main = styled.div`
   padding: 0 8px;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
-  color: ${props => props.theme.styles.colour.base6};
   & a {
     font-size: 12px;
     font-weight: 700;
     text-decoration: none;
     text-transform: uppercase;
     margin-right: 6px;
+    color: ${props => props.theme.styles.colour.base1} !important;
   }
   & span {
     font-size: 12px;

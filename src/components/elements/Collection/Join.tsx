@@ -159,7 +159,9 @@ const Join: React.SFC<Props> = ({
             .catch(err => console.log(err))
         }
       >
-        <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
+        <span>
+          <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
+        </span>
         <Trans>Follow</Trans>
       </Span>
     );
@@ -170,8 +172,8 @@ const Span = styled.div<{ unfollow?: boolean }>`
   padding: 0px 10px;
   color: ${props =>
     props.unfollow
-      ? props => props.theme.styles.colour.base3
-      : props.theme.styles.colour.primary};
+      ? props => props.theme.styles.colour.heroCollectionIcon
+      : props.theme.styles.colour.heroCollectionIcon};
   height: 40px;
   font-weight: 600;
   font-size: 13px;
@@ -183,9 +185,13 @@ const Span = styled.div<{ unfollow?: boolean }>`
   &:hover {
     background: ${props => (props.unfollow ? '#1e1f241a' : '#fa973d20')};
   }
+  & span {
+    display: inline-block;
+    vertical-align: middle;
+  }
   & svg {
     margin-right: 8px;
-    vertical-align: text-bottom;
+    vertical-align: sub;
     color: inherit !important;
   }
 `;

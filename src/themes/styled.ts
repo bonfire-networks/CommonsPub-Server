@@ -4,6 +4,7 @@ import { ThemedStyledComponentsModule } from 'styled-components';
 export interface MoodleThemeInterface {
   colour: {
     background: string;
+    secondaryBg: string;
     header: string;
     headerLink: string;
     breadcrumb: string;
@@ -19,6 +20,24 @@ export interface MoodleThemeInterface {
     collectionTitle: string;
     collectionNote: string;
     collectionIcon: string;
+
+    // Resource element
+    resourceBg: string;
+    resourceTitle: string;
+    resourceNote: string;
+    resourceIcon: string;
+
+    // Hero
+    hero: string;
+    heroTitle: string;
+    heroNote: string;
+    heroIcon: string;
+
+    // Hero Collection
+    heroCollection: string;
+    heroCollectionTitle: string;
+    heroCollectionNote: string;
+    heroCollectionIcon: string;
 
     logo: string;
     primary: string;

@@ -5,7 +5,6 @@ query getUserQuery {
         data {
             id
             name
-            email
             preferredUsername
             location
             icon

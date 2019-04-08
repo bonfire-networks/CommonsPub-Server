@@ -11,7 +11,7 @@ export default function setUser(_, { isAuthenticated, data }, { cache }) {
   const previousState = cache.readQuery({
     query: getUserQuery
   });
-
+  console.log(previousState);
   const cacheData = {
     user: {
       ...previousState.user,

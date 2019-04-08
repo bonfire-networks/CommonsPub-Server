@@ -124,7 +124,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   flex: 1;
   margin-bottom: 24px;
-  background: white;
+  background: ${props => props.theme.styles.colour.secondaryBg};
   border-radius: 6px;
   box-shadow: 0 1px 7px 0px rgba(0, 0, 0, 0.1);
   margin-top: 16px;

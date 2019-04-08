@@ -43,10 +43,7 @@ const Event: React.SFC<EventProps> = ({
           : '/collections/' + communityId + '/thread/' + comment.id
       }
     >
-      <FeedItem
-        active={selectedThread === Number(comment.id) ? true : false}
-        // onClick={() => selectThread(comment.id)}
-      >
+      <FeedItem active={selectedThread === Number(comment.id) ? true : false}>
         <Member>
           <MemberItem>
             <Img alt="user" src={author.icon} />
@@ -65,7 +62,6 @@ const Event: React.SFC<EventProps> = ({
               </Button>
             </h3>
             <Primary>
-              {/* <Markdown children={comment.body} /> */}
               {comment.body.length > 320
                 ? comment.body.replace(/^([\s\S]{316}[^\s]*)[\s\S]*/, '$1...')
                 : comment.body}

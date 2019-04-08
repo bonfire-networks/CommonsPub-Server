@@ -125,7 +125,7 @@ export const WrapperTab = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
   box-sizing: border-box;
-  background: white;
+  background: ${props => props.theme.styles.colour.secondaryBg};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 export const OverlayTab = styled.div`

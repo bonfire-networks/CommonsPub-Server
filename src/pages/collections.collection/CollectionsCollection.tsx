@@ -56,7 +56,6 @@ class CollectionComponent extends React.Component<Props> {
   render() {
     let collection;
     let resources;
-    // let discussions;
     if (this.props.data.error) {
       collection = null;
     } else if (this.props.data.loading) {
@@ -172,7 +171,12 @@ class CollectionComponent extends React.Component<Props> {
 }
 
 const ActionsHero = styled.div`
-  margin-top: 4px;
+  position: absolute;
+  bottom: 0;
+  margin-top: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid ${props => props.theme.styles.colour.heroCollectionIcon};
   & div {
     &:hover {
       background: transparent;
@@ -195,7 +199,7 @@ const WrapperCont = styled.div`
 `;
 
 const EditButton = styled.span`
-  color: ${props => props.theme.styles.colour.primary};
+  color: ${props => props.theme.styles.colour.heroCollectionIcon};
   height: 40px;
   font-weight: 600;
   font-size: 13px;
@@ -215,11 +219,12 @@ const EditButton = styled.span`
 const HeroInfo = styled.div`
   flex: 1;
   margin-left: 16px;
+  position: relative;
   & h2 {
     margin: 0;
     line-height: 32px !important;
     font-size: 24px !important;
-    color: ${props => props.theme.styles.colour.base1};
+    color: ${props => props.theme.styles.colour.heroCollectionTitle};
     ${media.lessThan('medium')`
       margin-top: 8px;
     `};
@@ -229,7 +234,7 @@ const HeroInfo = styled.div`
     color: rgba(0, 0, 0, 0.8);
     font-size: 15px;
     margin-top: 8px;
-    color: ${props => props.theme.styles.colour.base2};
+    color: ${props => props.theme.styles.colour.heroCollectionNote};
   }
   & div {
     text-align: left;
@@ -241,7 +246,7 @@ const HeroCont = styled.div`
   border-radius: 6px;
   box-sizing: border-box;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  background: white;
+  background: ${props => props.theme.styles.colour.heroCollection};
 `;
 
 const Hero = styled.div`

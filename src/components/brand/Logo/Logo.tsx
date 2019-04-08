@@ -7,12 +7,15 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
   margin: 0;
   font-size: ${props => (props.big ? '28px' : '14px')};
   line-height: 32px;
-  color: ${props => props.theme.styles.colour.logo};
+  color: ${props =>
+    props.big
+      ? props.theme.styles.colour.primary
+      : props.theme.styles.colour.logo};
   letter-spacing: 1px;
   margin-bottom: ${props => (props.big ? '8px' : '24px')};
 
   & a {
-    color: ${props => props.theme.styles.colour.logo};
+    color: inherit !important;
     text-decoration: none;
   }
 `;

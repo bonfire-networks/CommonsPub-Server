@@ -8,8 +8,8 @@ import styled from '../../themes/styled';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import ResourceCard from '../../components/elements/Resource/Resource';
 import P from '../../components/typography/P/P';
-import Button from '../../components/elements/Button/Button';
-import { clearFix } from 'polished';
+import { Actions, Create } from '../communities.community/CommunitiesCommunity';
+// import { clearFix } from 'polished';
 import { Resource, Message, Eye } from '../../components/elements/Icons';
 import Link from '../../components/elements/Link/Link';
 import {
@@ -150,7 +150,7 @@ const CommunityPage: SFC<Props> = ({
               {resources.totalCount > 9 ? null : collection.community
                 .followed ? (
                 <Actions>
-                  <Button onClick={addNewResource}>
+                  <Create onClick={addNewResource}>
                     <span>
                       <Resource
                         width={18}
@@ -160,7 +160,7 @@ const CommunityPage: SFC<Props> = ({
                       />
                     </span>
                     <Trans>Add a new resource</Trans>
-                  </Button>
+                  </Create>
                 </Actions>
               ) : (
                 <Footer>
@@ -229,31 +229,31 @@ const CommunityPage: SFC<Props> = ({
   </WrapperTab>
 );
 
-const Actions = styled.div`
-  ${clearFix()};
-  display: flex;
-  border-bottom: 1px solid #edf0f2;
-  & button {
-    border-radius: 4px;
-    background: #f98012;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 35px;
-    text-align: center;
-    cursor: pointer;
-    color: #f0f0f0;
-    margin: 8px;
-    float: left;
-    padding: 0 16px;
-    display: inline-block;
-  }
-  span {
-    & svg {
-      vertical-align: middle;
-      margin-right: 16px;
-    }
-  }
-`;
+// const Actions = styled.div`
+//   ${clearFix()};
+//   display: flex;
+//   border-bottom: 1px solid #edf0f2;
+//   & button {
+//     border-radius: 4px;
+//     background: #f98012;
+//     font-size: 13px;
+//     font-weight: 600;
+//     line-height: 35px;
+//     text-align: center;
+//     cursor: pointer;
+//     color: #f0f0f0;
+//     margin: 8px;
+//     float: left;
+//     padding: 0 16px;
+//     display: inline-block;
+//   }
+//   span {
+//     & svg {
+//       vertical-align: middle;
+//       margin-right: 16px;
+//     }
+//   }
+// `;
 
 const Wrapper = styled.div`
   flex: 1;
