@@ -37,14 +37,20 @@ defmodule MoodleNetWeb.ConnCase do
 
     conn = Phoenix.ConnTest.build_conn()
 
-    accept_header = case tags[:format] do
-      :json ->
-        "application/json"
-      :json_ld ->
-        "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
-      _ ->
-        "text/html"
-    end
+    accept_header =
+      case tags[:format] do
+        :activity ->
+          "application/activity+json"
+
+        :json_ld ->
+          "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
+
+        :json ->
+          "application/json"
+
+        _ ->
+          "text/html"
+      end
 
     conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
 
@@ -55,9 +61,12 @@ defmodule MoodleNetWeb.ConnCase do
         %{user: user, actor: actor} = MoodleNet.Factory.full_user()
         # we load the actor in the same way Plugs.Auth does to catch bugs
         user = MoodleNet.Accounts.User.preload_actor(%{user | actor: nil})
-        conn = conn
-               |> Plug.Conn.assign(:current_user, user)
-               |> Plug.Conn.assign(:auth_token, "faked_token")
+
+        conn =
+          conn
+          |> Plug.Conn.assign(:current_user, user)
+          |> Plug.Conn.assign(:auth_token, "faked_token")
+
         %{conn: conn, user: user, actor: actor}
       else
         ret

@@ -14,6 +14,12 @@ defmodule ActivityPub.Entity do
 
   def fields_for(_, _), do: %{}
 
+  def fields(entity) when APG.is_entity(entity) do
+    entity
+    |> aspects()
+    |> Enum.flat_map(&fields_for(entity, &1))
+  end
+
   def assocs_for(entity, aspect) when APG.has_aspect(entity, aspect),
     do: Map.take(entity, aspect.__aspect__(:associations))
 

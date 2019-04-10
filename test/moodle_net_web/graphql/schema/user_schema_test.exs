@@ -623,7 +623,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert %{
              "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
              "edges" => edges,
-             "totalCount" => 11
+             "totalCount" => 12
            } = ret
 
     assert [
@@ -655,6 +655,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
              %{
                "node" => %{
                  "activityType" => "CreateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeCollection"
                }
              },
              %{

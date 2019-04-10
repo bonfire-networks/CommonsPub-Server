@@ -427,6 +427,11 @@ defmodule ActivityPub.SQL.Query do
 
   def preload_assoc([], _preload), do: []
 
+  def preload_assoc(entity, :all) when APG.is_entity(entity) do
+    assoc_keys = Map.keys(Entity.assocs(entity))
+    preload_assoc(entity, assoc_keys)
+  end
+
   def preload_assoc(entity, preload) when not is_list(preload),
     do: preload_assoc(entity, List.wrap(preload))
 

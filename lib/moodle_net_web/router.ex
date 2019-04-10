@@ -83,6 +83,6 @@ defmodule MoodleNetWeb.Router do
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
 
-    forward "/", ActivityPubWeb.Router
+    forward "/activity_pub", ActivityPubWeb.Router
   end
 end
