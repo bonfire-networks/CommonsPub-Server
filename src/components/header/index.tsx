@@ -33,7 +33,6 @@ interface Props {
 }
 
 const Header: React.SFC<Props> = props => {
-  console.log(props);
   const themeState = useTheme();
   return (
     <Wrapper>
@@ -261,7 +260,7 @@ const WrapperMenu = styled.div`
   position: absolute;
   top: 50px;
   right: 10px;
-  z-index: 9999;
+  z-index: 999999999999;
 `;
 
 const Layer = styled.div`
@@ -363,6 +362,7 @@ export default compose(
     closeMenu: props => () => props.onOpen(false),
     logout: props => () => {
       localStorage.removeItem('user_access_token');
+      localStorage.removeItem('dark');
       return window.location.reload();
     }
   })
