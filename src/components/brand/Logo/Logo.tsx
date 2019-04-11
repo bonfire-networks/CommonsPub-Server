@@ -52,21 +52,21 @@ export default ({ link = true, big }: LogoProps) => {
         </Link>
         {big ? null : (
           <Small
-            href="https://blog.moodle.net/2019/moodlenet-0-7-alpha-update/"
+            href="https://blog.moodle.net/2019/moodlenet-0-9-alpha-update/"
             target="blank"
             big={big}
           >
-            <small>v 0.7 alpha</small>
+            <small>v 0.9 alpha</small>
           </Small>
         )}
       </LogoH1>
       {big ? (
         <Small
-          href="https://blog.moodle.net/2019/moodlenet-0-7-alpha-update/"
+          href="https://blog.moodle.net/2019/moodlenet-0-9-alpha-update/"
           target="blank"
           big={big}
         >
-          <small>v 0.7 alpha</small>
+          <small>v 0.9 alpha</small>
         </Small>
       ) : null}
     </>

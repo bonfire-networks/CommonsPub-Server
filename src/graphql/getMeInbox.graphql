@@ -17,6 +17,7 @@ query meQuery
           id
           activityType
           type
+          published
           object {
             __typename
             ... on Community {

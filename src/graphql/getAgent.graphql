@@ -25,6 +25,7 @@ query getAgentQuery(
                 id
                 activityType
                 type
+                published
                 object {
                   __typename
                   ... on Community {

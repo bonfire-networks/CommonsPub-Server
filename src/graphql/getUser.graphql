@@ -47,6 +47,7 @@ query meQuery(
           node {
             id
             activityType
+            published
             type
             object {
               __typename
