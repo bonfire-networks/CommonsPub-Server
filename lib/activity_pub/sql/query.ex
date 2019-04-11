@@ -126,6 +126,12 @@ defmodule ActivityPub.SQL.Query do
     )
   end
 
+  def without_type(%Ecto.Query{} = query, type) when is_binary(type) do
+    from([entity: entity] in query,
+      where: not(fragment("? @> array[?]", entity.type, ^type))
+    )
+  end
+
   def where(%Ecto.Query{} = query, clauses) do
     from(e in query,
       where: ^clauses

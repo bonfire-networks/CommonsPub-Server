@@ -49,12 +49,14 @@ defmodule MoodleNet do
   defp outbox_query(actor) do
     Query.new()
     |> Query.with_type("Activity")
+    |> Query.without_type("Undo")
     |> Query.belongs_to(:outbox, actor)
   end
 
   defp inbox_query(actor) do
     Query.new()
     |> Query.with_type("Activity")
+    |> Query.without_type("Undo")
     |> Query.belongs_to(:inbox, actor)
   end
 
@@ -271,6 +273,7 @@ defmodule MoodleNet do
   def local_activity_list(opts \\ %{}) do
     Query.new()
     |> Query.with_type("Activity")
+    |> Query.without_type("Undo")
     |> Query.preload_aspect(:activity)
     |> Query.paginate(opts)
     |> Query.all()
@@ -279,6 +282,7 @@ defmodule MoodleNet do
   def local_activity_count() do
     Query.new()
     |> Query.with_type("Activity")
+    |> Query.without_type("Undo")
     |> Query.count()
   end
 
