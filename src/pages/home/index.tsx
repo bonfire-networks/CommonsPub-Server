@@ -11,7 +11,8 @@ import { Tabs, TabPanel } from 'react-tabs';
 import { User } from '../../components/elements/Icons';
 const getMeInboxQuery = require('../../graphql/getMeInbox.graphql');
 import Loader from '../../components/elements/Loader/Loader';
-// import TimelineItem from '../../components/elements/TimelineItem';
+import TimelineItem from '../../components/elements/TimelineItem';
+import LoadMoreTimeline from '../../components/elements/Loadmore/timeline';
 
 interface Data extends GraphqlQueryControls {
   me: {
@@ -60,12 +61,15 @@ const Home: React.SFC<Props> = props => {
                 <Loader />
               ) : (
                 <div>
-                  {/* {props.data.me.user.inbox.edges.map((t, i) => (
+                  {props.data.me.user.inbox.edges.map((t, i) => (
                     <TimelineItem node={t.node} user={t.node.user} key={i} />
-                  ))} */}
-                  {/* <div style={{ padding: '8px' }}>
-                  <LoadMoreTimeline fetchMore={fetchMore} community={community} />
-                </div> */}
+                  ))}
+                  <div style={{ padding: '8px' }}>
+                    <LoadMoreTimeline
+                      fetchMore={props.data.fetchMore}
+                      community={props.data.me.user}
+                    />
+                  </div>
                 </div>
               )}
             </TabPanel>

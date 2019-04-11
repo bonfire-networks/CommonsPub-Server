@@ -18,7 +18,8 @@ import FollowingCollectionsLoadMore from '../../components/elements/Loadmore/fol
 import JoinedCommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
 import HeroComp from './Hero';
 import { WrapperTab, OverlayTab } from '../communities.community/Community';
-// import TimelineItem from '../../components/elements/TimelineItem';
+import TimelineItem from '../../components/elements/TimelineItem';
+import LoadMoreTimeline from '../../components/elements/Loadmore/timelineoutbox';
 
 enum TabsEnum {
   Overview = 'Overview',
@@ -135,75 +136,19 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                       </SuperTabList>
                       <TabPanel>
                         <div>
-                          {/* {this.props.data.me.user.outbox.edges.map((t, i) => (
-                            <TimelineItem node={t.node} user={t.node.user} key={i} />
-                          ))} */}
-                          {/* {(this.props.data.me.user.outbox.pageInfo
-                            .startCursor === null &&
-                            this.props.data.me.user.outbox.pageInfo.endCursor ===
-                              null) ||
-                          (this.props.data.me.user.outbox.pageInfo.startCursor &&
-                            this.props.data.me.user.outbox.pageInfo.endCursor ===
-                              null) ? null : (
-                            <LoadMore
-                              onClick={() =>
-                                this.props.data.fetchMore({
-                                  variables: {
-                                    end: this.props.data.me.user.outbox.pageInfo
-                                      .endCursor
-                                  },
-                                  updateQuery: (
-                                    previousResult,
-                                    { fetchMoreResult }
-                                  ) => {
-                                    console.log(fetchMoreResult);
-                                    const newNodes =
-                                      fetchMoreResult.me.user.outbox.edges;
-                                    const pageInfo =
-                                      fetchMoreResult.me.user.outbox.pageInfo;
-                                    console.log(newNodes);
-                                    return newNodes.length
-                                      ? {
-                                          // Put the new comments at the end of the list and update `pageInfo`
-                                          // so we have the new `endCursor` and `hasNextPage` values
-                                          community: {
-                                            ...previousResult.community,
-                                            __typename:
-                                              previousResult.me.user.__typename,
-                                            outbox: {
-                                              ...previousResult.me.user.outbox,
-                                              edges: [
-                                                ...previousResult.me.user.outbox
-                                                  .edges,
-                                                ...newNodes
-                                              ]
-                                            },
-                                            pageInfo
-                                          }
-                                        }
-                                      : {
-                                          community: {
-                                            ...previousResult.community,
-                                            __typename:
-                                              previousResult.community
-                                                .__typename,
-                                            outbox: {
-                                              ...previousResult.community.outbox,
-                                              edges: [
-                                                ...previousResult.community
-                                                  .outbox.edges
-                                              ]
-                                            },
-                                            pageInfo
-                                          }
-                                        };
-                                  }
-                                })
-                              }
-                            >
-                              <Trans>Load more</Trans>
-                            </LoadMore>
-                          )} */}
+                          {this.props.data.me.user.outbox.edges.map((t, i) => (
+                            <TimelineItem
+                              node={t.node}
+                              user={t.node.user}
+                              key={i}
+                            />
+                          ))}
+                          <div style={{ padding: '8px' }}>
+                            <LoadMoreTimeline
+                              fetchMore={this.props.data.fetchMore}
+                              community={this.props.data.me.user}
+                            />
+                          </div>
                         </div>
                       </TabPanel>
                       <TabPanel>

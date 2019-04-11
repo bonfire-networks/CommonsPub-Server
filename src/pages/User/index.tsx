@@ -13,12 +13,15 @@ import CollectionCard from '../../components/elements/Collection/Collection';
 import CommunityCard from '../../components/elements/Community/Community';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 const getUserQuery = require('../../graphql/getAgent.graphql');
-import { Collection, Community } from '../../components/elements/Icons';
+import { Collection, Community, Eye } from '../../components/elements/Icons';
 import FollowingCollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
 import JoinedCommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
 import HeroComp from '../Profile/Hero';
 import { WrapperTab, OverlayTab } from '../communities.community/Community';
 import { List, ListCollections, WrapperCont } from '../Profile';
+import TimelineItem from '../../components/elements/TimelineItem';
+import LoadMoreTimeline from '../../components/elements/Loadmore/timelineoutbox';
+
 enum TabsEnum {
   Overview = 'Overview',
   Communities = 'Joined communities',
@@ -32,14 +35,14 @@ interface Data extends GraphqlQueryControls {
     summary;
     id;
     localId;
-    // outbox: {
-    //   edges: any[];
-    //   totalCount: number;
-    //   pageInfo: {
-    //     startCursor: number;
-    //     endCursor: number;
-    //   };
-    // };
+    outbox: {
+      edges: any[];
+      totalCount: number;
+      pageInfo: {
+        startCursor: number;
+        endCursor: number;
+      };
+    };
     joinedCommunities: {
       edges: any[];
       totalCount: number;
@@ -91,19 +94,19 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                   <OverlayTab>
                     <Tabs>
                       <SuperTabList>
-                        {/* <SuperTab>
-                              <span>
-                                <Eye
-                                  width={20}
-                                  height={20}
-                                  strokeWidth={2}
-                                  color={'#a0a2a5'}
-                                />
-                              </span>
-                              <h5>
-                                <Trans>Timeline</Trans>
-                              </h5>
-                            </SuperTab> */}
+                        <SuperTab>
+                          <span>
+                            <Eye
+                              width={20}
+                              height={20}
+                              strokeWidth={2}
+                              color={'#a0a2a5'}
+                            />
+                          </span>
+                          <h5>
+                            <Trans>Timeline</Trans>
+                          </h5>
+                        </SuperTab>
                         <SuperTab>
                           <span>
                             <Collection
@@ -131,196 +134,23 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           </h5>
                         </SuperTab>
                       </SuperTabList>
-                      {/* <TabPanel>
-                            <div>
-                              {this.props.data.user.outbox.edges.map((t, i) => (
-                                <FeedItem key={i}>
-                                  <Member>
-                                    <MemberItem>
-                                      <MeImg
-                                        alt="user"
-                                        src={t.node.user.icon}
-                                      />
-                                    </MemberItem>
-                                    <MemberInfo>
-                                      <h3>
-                                        <b>{t.node.user.name}</b>
-                                        {t.node.activityType ===
-                                        'CreateCollection' ? (
-                                          <span>
-                                            created the collection{' '}
-                                            <Link
-                                              to={
-                                                `/collections/` +
-                                                t.node.object.localId
-                                              }
-                                            >
-                                              {t.node.object.name}
-                                            </Link>{' '}
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'UpdateCommunity' ? (
-                                          <span>
-                                            updated the community{' '}
-                                            <Link
-                                              to={`/communities/${
-                                                t.node.object.localId
-                                              }`}
-                                            >
-                                              {t.node.object.name}
-                                            </Link>
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'UpdateCollection' ? (
-                                          <span>
-                                            updated the collection{' '}
-                                            <Link
-                                              to={
-                                                `/collections/` +
-                                                t.node.object.localId
-                                              }
-                                            >
-                                              {t.node.object.name}
-                                            </Link>
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'JoinCommunity' ? (
-                                          <span>
-                                            joined the community{' '}
-                                            <Link
-                                              to={`/communities/${
-                                                t.node.object.localId
-                                              }`}
-                                            >
-                                              {t.node.object.name}
-                                            </Link>
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'CreateComment' ? (
-                                          <span>
-                                            posted a new{' '}
-                                            <Link
-                                              to={
-                                                t.node.object.context
-                                                  .__typename === 'Community'
-                                                  ? `/communities/${
-                                                      t.node.object.context
-                                                        .localId
-                                                    }/thread/${
-                                                      t.node.object.localId
-                                                    }`
-                                                  : `/collections/${
-                                                      t.node.object.context
-                                                        .localId
-                                                    }/thread/${
-                                                      t.node.object.localId
-                                                    }`
-                                              }
-                                            >
-                                              comment
-                                            </Link>
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'CreateResource' ? (
-                                          <span>
-                                            created the resource{' '}
-                                            <b>{t.node.object.name}</b> on
-                                            collection{' '}
-                                            <Link
-                                              to={
-                                                `/collections/` +
-                                                t.node.object.collection.localId
-                                              }
-                                            >
-                                              {t.node.object.collection.name}
-                                            </Link>{' '}
-                                          </span>
-                                        ) : t.node.activityType ===
-                                        'FollowCollection' ? (
-                                          <span>
-                                            started to follow the collection{' '}
-                                            <b>{t.node.object.name}</b>
-                                          </span>
-                                        ) : null}
-                                      </h3>
-                                      <Date>
-                                        {moment(t.node.published).fromNow()}
-                                      </Date>
-                                    </MemberInfo>
-                                  </Member>
-                                </FeedItem>
-                              ))}
-                              {(this.props.data.user.outbox.pageInfo
-                                .startCursor === null &&
-                                this.props.data.user.outbox.pageInfo
-                                  .endCursor === null) ||
-                              (this.props.data.user.outbox.pageInfo
-                                .startCursor &&
-                                this.props.data.user.outbox.pageInfo
-                                  .endCursor === null) ? null : (
-                                <LoadMore
-                                  onClick={() =>
-                                    this.props.data.fetchMore({
-                                      variables: {
-                                        end: this.props.data.user.outbox.pageInfo
-                                          .endCursor
-                                      },
-                                      updateQuery: (
-                                        previousResult,
-                                        { fetchMoreResult }
-                                      ) => {
-                                        console.log(fetchMoreResult);
-                                        const newNodes =
-                                          fetchMoreResult.user.outbox.edges;
-                                        const pageInfo =
-                                          fetchMoreResult.user.outbox.pageInfo;
-                                        console.log(newNodes);
-                                        return newNodes.length
-                                          ? {
-                                              // Put the new comments at the end of the list and update `pageInfo`
-                                              // so we have the new `endCursor` and `hasNextPage` values
-                                              community: {
-                                                ...previousResult.community,
-                                                __typename:
-                                                  previousResult.user
-                                                    .__typename,
-                                                outbox: {
-                                                  ...previousResult.user.outbox,
-                                                  edges: [
-                                                    ...previousResult.user.outbox
-                                                      .edges,
-                                                    ...newNodes
-                                                  ]
-                                                },
-                                                pageInfo
-                                              }
-                                            }
-                                          : {
-                                              community: {
-                                                ...previousResult.community,
-                                                __typename:
-                                                  previousResult.community
-                                                    .__typename,
-                                                outbox: {
-                                                  ...previousResult.community
-                                                    .outbox,
-                                                  edges: [
-                                                    ...previousResult.community
-                                                      .outbox.edges
-                                                  ]
-                                                },
-                                                pageInfo
-                                              }
-                                            };
-                                      }
-                                    })
-                                  }
-                                >
-                                  <Trans>Load more</Trans>
-                                </LoadMore>
-                              )}
-                            </div>
-                          </TabPanel> */}
+                      <TabPanel>
+                        <div>
+                          {this.props.data.user.outbox.edges.map((t, i) => (
+                            <TimelineItem
+                              node={t.node}
+                              user={t.node.user}
+                              key={i}
+                            />
+                          ))}
+                          <div style={{ padding: '8px' }}>
+                            <LoadMoreTimeline
+                              fetchMore={this.props.data.fetchMore}
+                              community={this.props.data.user}
+                            />
+                          </div>
+                        </div>
+                      </TabPanel>
                       <TabPanel>
                         <>
                           <ListCollections>

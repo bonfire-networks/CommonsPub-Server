@@ -8,13 +8,9 @@ const { getUserQuery } = require('../../graphql/getUser.client.graphql');
  * @param cache {Object} the Apollo cache
  */
 export default function setUser(_, { isAuthenticated, data }, { cache }) {
-  const previousState = cache.readQuery({
-    query: getUserQuery
-  });
-  console.log(previousState);
   const cacheData = {
     user: {
-      ...previousState.user,
+      __typename: 'User',
       isAuthenticated,
       data
     }

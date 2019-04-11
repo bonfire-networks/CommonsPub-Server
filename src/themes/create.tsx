@@ -215,17 +215,17 @@ export default function createTheme(theme: MoodleThemeInterface) {
 
             &.secondary {
                 background-color: transparent;
-                color: ${theme.colour.base1};
-                border: 2px solid ${theme.colour.base1};
+                color: ${theme.colour.base3};
+                border: 2px solid ${theme.colour.base3};
             }
             
             &.secondary:active,
             &.secondary:hover:not(:disabled),
             &.secondary[class*=is-active],
             &.secondary[class*=is-hovered] {
-                background-color: ${theme.colour.base1};
+                background-color: ${theme.colour.base3};
                 color: ${theme.colour.base6};
-                border-color: ${theme.colour.base1};
+                border-color: ${theme.colour.base3};
             }
             
             &:disabled {

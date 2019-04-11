@@ -19,7 +19,7 @@ import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
 import { onError } from 'apollo-link-error';
 
-const { meQuery } = require('../graphql/me.graphql');
+const { meQuery } = require('../graphql/getUser.client.graphql');
 const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
@@ -169,6 +169,7 @@ export default async function initialise() {
       localStorage.removeItem('user_access_token');
     } else {
       //TODO handle unknown error / warn user?
+      console.log('noi siamo qui');
     }
 
     localUser = {

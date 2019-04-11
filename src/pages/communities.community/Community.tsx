@@ -5,9 +5,9 @@ import { Tabs, TabPanel } from 'react-tabs';
 import Discussion from '../../components/chrome/Discussion/Discussion';
 import styled from '../../themes/styled';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
-// import TimelineItem from '../../components/elements/TimelineItem';
+import TimelineItem from '../../components/elements/TimelineItem';
 import { Collection, Message, Eye } from '../../components/elements/Icons';
-// import LoadMoreTimeline from '../../components/elements/Loadmore/timeline';
+import LoadMoreTimeline from '../../components/elements/Loadmore/timeline';
 interface Props {
   collections: any;
   community: any;
@@ -64,12 +64,12 @@ const CommunityPage: SFC<Props> = ({
         </SuperTabList>
         <TabPanel>
           <div>
-            {/* {community.inbox.edges.map((t, i) => (
+            {community.inbox.edges.map((t, i) => (
               <TimelineItem node={t.node} user={t.node.user} key={i} />
             ))}
             <div style={{ padding: '8px' }}>
               <LoadMoreTimeline fetchMore={fetchMore} community={community} />
-            </div> */}
+            </div>
           </div>
         </TabPanel>
         <TabPanel>

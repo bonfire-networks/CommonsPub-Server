@@ -23,51 +23,51 @@ query getCommunityQuery(
                     activityType
                     type
                     published
-                    # object {
+                    object {
                         
-                    #     ... on Community {
-                    #     id
-                    #     name
-                    #     localId
-                    #     }
-                    #     ... on Collection {
-                    #     id
-                    #     name
-                    #     localId
-                    #     }
-                    #     ... on Comment {
-                    #     id
-                    #     localId
-                    #       context {
-                    #      __typename
-                    #      ... on Community {
-                    #        id
-                    #        name
-                    #        localId
-                    #      }
-                    #      ... on Collection {
-                    #        id
-                    #        name
-                    #        localId
-                    #      }
-                    #    }
-                    #     }
-                    #      ... on Resource {
-                    #     id
-                    #     name
-                    #     localId
-                    #     collection {
-                    #         name
-                    #         localId
-                    #     }
-                    #     }
-                    #  }
-                    # user {
-                    #     name
-                    #     id
-                    #     localId
-                    #     icon
-                    # }
+                        ... on Community {
+                        id
+                        name
+                        localId
+                        }
+                        ... on Collection {
+                        id
+                        name
+                        localId
+                        }
+                        ... on Comment {
+                        id
+                        localId
+                          context {
+                         __typename
+                         ... on Community {
+                           id
+                           name
+                           localId
+                         }
+                         ... on Collection {
+                           id
+                           name
+                           localId
+                         }
+                       }
+                        }
+                         ... on Resource {
+                        id
+                        name
+                        localId
+                        collection {
+                            name
+                            localId
+                        }
+                        }
+                     }
+                    user {
+                        name
+                        id
+                        localId
+                        icon
+                    }
                     
                 }
             }
