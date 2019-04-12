@@ -35,8 +35,8 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_html, "~> 2.11"},
       {:phoenix_ecto, "~> 4.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:ecto, "~> 3.0"},
-      {:ecto_sql, "~> 3.0"},
+      {:ecto, "~> 3.1"},
+      {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
       {:jason, "~> 1.1"},
       {:gettext, "~> 0.15"},
@@ -56,6 +56,8 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_integration, "~> 0.6.0"},
       {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
+      {:appsignal, "~> 1.0"},
+      {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
     ]
   end

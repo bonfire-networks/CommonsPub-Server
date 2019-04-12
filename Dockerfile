@@ -63,6 +63,7 @@ FROM alpine:${ALPINE_VERSION}
 # The name of your application/release (required)
 ARG APP_NAME
 ARG APP_VSN
+ARG APP_BUILD
 
 RUN apk update && \
     apk add --no-cache \
@@ -71,7 +72,8 @@ RUN apk update && \
 
 ENV REPLACE_OS_VARS=true \
     APP_NAME=${APP_NAME} \
-    APP_VSN=${APP_VSN}
+    APP_VSN=${APP_VSN} \
+    APP_REVISION=${APP_VSN}-${APP_BUILD}
 
 WORKDIR /opt/app
 

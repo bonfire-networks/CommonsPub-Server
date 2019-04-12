@@ -16,11 +16,13 @@ build: ## Build the Docker image
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
@@ -31,10 +33,12 @@ build_with_cache: ## Build the Docker image using previous cache
 	@echo docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 

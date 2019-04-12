@@ -10,6 +10,7 @@ config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
 # Configures the endpoint
 config :moodle_net, MoodleNetWeb.Endpoint,
+  instrumenters: [Appsignal.Phoenix.Instrumenter],
   url: [host: "localhost"],
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
@@ -58,3 +59,7 @@ config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en e
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+config :phoenix, :template_engines,
+  eex: Appsignal.Phoenix.Template.EExEngine,
+  exs: Appsignal.Phoenix.Template.ExsEngine
