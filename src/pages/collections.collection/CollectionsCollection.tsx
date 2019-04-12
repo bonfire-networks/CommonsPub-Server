@@ -171,11 +171,8 @@ class CollectionComponent extends React.Component<Props> {
 }
 
 const ActionsHero = styled.div`
-  position: absolute;
-  bottom: 0;
-  margin-top: 0;
-  left: 0;
-  right: 0;
+  margin-top: 16px;
+
   border-top: 1px solid ${props => props.theme.styles.colour.heroCollectionIcon};
   & div {
     &:hover {

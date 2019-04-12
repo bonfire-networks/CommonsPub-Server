@@ -309,7 +309,11 @@ const Left = styled.div`
     color: ${props => props.theme.styles.colour.headerLink};
     text-decoration: none;
     margin-right: 32px;
-
+    ${media.lessThan('medium')`
+     span {
+       display: none;
+     }
+    `};
     & i {
       margin-right: 8px;
       & svg {
