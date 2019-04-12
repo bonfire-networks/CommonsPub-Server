@@ -318,9 +318,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       preload_args = {assoc, fields}
 
       args =
-        if Keyword.get(opts, :collection, false),
-          do: {__MODULE__, :preload_collection, preload_args},
-          else: {__MODULE__, :preload_assoc, preload_args}
+        cond do
+          Keyword.get(opts, :collection, false) ->
+            {__MODULE__, :preload_collection, preload_args}
+          Keyword.get(opts, :preload_assoc_individually, false) ->
+            {__MODULE__, :preload_assoc_individually, preload_args}
+          true ->
+            {__MODULE__, :preload_assoc, preload_args}
+        end
 
       batch(
         args,
@@ -368,6 +373,31 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   # It is called from Absinthe
+  def preload_assoc_individually({assoc, fields}, parent_list) do
+    parent_list = Query.preload_assoc(parent_list, assoc)
+
+    child_list =
+      parent_list
+      |> Enum.flat_map(&Map.get(&1, assoc))
+      |> Enum.uniq_by(&Entity.local_id(&1))
+
+    child_map =
+      child_list
+      |> Enum.map(&prepare(&1, fields))
+      |> Enum.group_by(&Entity.local_id/1)
+
+    Map.new(parent_list, fn parent ->
+      children =
+        parent
+        |> Map.get(assoc)
+        |> Enum.map(&Entity.local_id/1)
+        |> Enum.flat_map(&child_map[&1])
+
+      {Entity.local_id(parent), children}
+    end)
+  end
+
+  # It is called from Absinthe
   def preload_assoc({assoc, fields}, parent_list) do
     parent_list = Query.preload_assoc(parent_list, assoc)
 
@@ -377,7 +407,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       |> Enum.uniq_by(&Entity.local_id(&1))
 
     child_map =
-      prepare(child_list, fields)
+      child_list
+      |> prepare(fields)
       |> Enum.group_by(&Entity.local_id/1)
 
     Map.new(parent_list, fn parent ->

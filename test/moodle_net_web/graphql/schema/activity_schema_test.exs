@@ -19,16 +19,22 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchemaTest do
               id
               user {
                 id
+                name
+                preferredUsername
                 joinedCommunities { totalCount }
               }
               object {
                 __typename
                 ... on Community {
                   id
+                  name
+                  preferredUsername
                   members { totalCount }
                 }
                 ... on Collection {
                   id
+                  name
+                  preferredUsername
                   resources { totalCount }
                 }
                 ... on Resource {

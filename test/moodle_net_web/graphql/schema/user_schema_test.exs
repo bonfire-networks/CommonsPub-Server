@@ -603,7 +603,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
               cursor
               node {
                 id
-                activity_type
+                activityType
               }
             }
             totalCount
@@ -629,57 +629,212 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert [
              %{
                "node" => %{
-                 "activity_type" => "LikeComment"
+                 "activityType" => "LikeComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "LikeComment"
+                 "activityType" => "LikeComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateComment"
+                 "activityType" => "CreateComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateComment"
+                 "activityType" => "CreateComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateResource"
+                 "activityType" => "UpdateResource"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateResource"
+                 "activityType" => "CreateResource"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateCollection"
+                 "activityType" => "UpdateCollection"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "FollowCollection"
+                 "activityType" => "FollowCollection"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateCollection"
+                 "activityType" => "CreateCollection"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateCommunity"
+                 "activityType" => "UpdateCommunity"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "JoinCommunity"
+                 "activityType" => "JoinCommunity"
+               }
+             }
+           ] = edges
+  end
+
+  @tag :user
+  test "outbox connection", %{conn: conn, actor: actor} do
+    community = Factory.community(actor)
+
+    MoodleNet.update_community(actor, community, %{name: "Name"})
+
+    collection = Factory.collection(actor, community)
+    MoodleNet.update_collection(actor, collection, %{name: "Name"})
+    MoodleNet.like_collection(actor, collection)
+
+    resource = Factory.resource(actor, collection)
+    MoodleNet.update_resource(actor, resource, %{name: "Name"})
+    MoodleNet.like_resource(actor, resource)
+
+    comment = Factory.comment(actor, collection)
+    reply = Factory.reply(actor, comment)
+    MoodleNet.like_comment(actor, comment)
+    MoodleNet.like_comment(actor, reply)
+
+    comment = Factory.comment(actor, community)
+    reply = Factory.reply(actor, comment)
+    MoodleNet.like_comment(actor, comment)
+    MoodleNet.like_comment(actor, reply)
+
+    local_id = local_id(actor)
+
+    query = """
+      {
+        user(localId: #{local_id}) {
+          outbox {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                id
+                activityType
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("user")
+             |> Map.fetch!("outbox")
+
+    assert %{
+             "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+             "edges" => edges,
+             "totalCount" => 18
+           } = ret
+
+    assert [
+             %{
+               "node" => %{
+                 "activityType" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateComment"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "UpdateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateResource"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "LikeCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "UpdateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "FollowCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateCollection"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "UpdateCommunity"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "JoinCommunity"
+               }
+             },
+             %{
+               "node" => %{
+                 "activityType" => "CreateCommunity"
                }
              }
            ] = edges

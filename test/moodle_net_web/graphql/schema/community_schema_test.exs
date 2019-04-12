@@ -602,7 +602,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
               cursor
               node {
                 id
-                activity_type
+                activityType
               }
             }
             totalCount
@@ -628,42 +628,42 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     assert [
              %{
                "node" => %{
-                 "activity_type" => "CreateComment"
+                 "activityType" => "CreateComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateComment"
+                 "activityType" => "CreateComment"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateResource"
+                 "activityType" => "UpdateResource"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateResource"
+                 "activityType" => "CreateResource"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateCollection"
+                 "activityType" => "UpdateCollection"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "CreateCollection"
+                 "activityType" => "CreateCollection"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "UpdateCommunity"
+                 "activityType" => "UpdateCommunity"
                }
              },
              %{
                "node" => %{
-                 "activity_type" => "JoinCommunity"
+                 "activityType" => "JoinCommunity"
                }
              }
            ] = edges

@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
       resolve(Resolver.with_connection(:comment_liker))
     end
 
-    field(:context, :comment_context, do: resolve(Resolver.with_assoc(:context, single: true)))
+    field(:context, :comment_context, do: resolve(Resolver.with_assoc(:context, single: true, preload_assoc_individually: true)))
   end
 
   union :comment_context do
