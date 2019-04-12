@@ -193,12 +193,18 @@ const AvatarUsername = styled.div`
   & span {
     float: left;
     margin-right: 8px;
+    ${media.lessThan('medium')`
+    display: none;
+    `};
   }
 `;
 const Center = styled.span`
   position: absolute;
   left: 50%;
   margin-left: -92px;
+  ${media.lessThan('medium')`
+  margin-left: -44px;
+  `};
   & h1 {
     margin: 0;
     line-height: 50px;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import media from 'styled-media-query';
 import styled from '../../../themes/styled';
 import { Link } from 'react-router-dom';
 
@@ -32,6 +32,9 @@ const Small = styled.a<{ big?: boolean }>`
   text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
+  ${media.lessThan('medium')`
+    display: none;
+    `};
 `;
 
 type LogoProps = {
