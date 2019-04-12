@@ -184,7 +184,8 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
           const community = store.readQuery({
             query: getCommunityQuery,
             variables: {
-              context: props.communityId
+              context: props.communityId,
+              limit: 15
             }
           });
           const newCollection = {
