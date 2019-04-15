@@ -25,7 +25,7 @@ const CommunityPage: SFC<Props> = ({
 }) => (
   <WrapperTab>
     <OverlayTab>
-      <Tabs>
+      <Tabs defaultIndex={1}>
         <SuperTabList>
           <SuperTab>
             <span>

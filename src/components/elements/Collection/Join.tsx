@@ -183,7 +183,12 @@ const Span = styled.div<{ unfollow?: boolean }>`
   border-radius: 100px;
   padding: 0 14px;
   &:hover {
-    background: ${props => (props.unfollow ? '#1e1f241a' : '#fa973d20')};
+    color: ${props =>
+      props.unfollow
+        ? props => props.theme.styles.colour.heroCollectionIcon
+        : props.theme.styles.colour.base6};
+    background: ${props =>
+      props.unfollow ? '#1e1f241a' : props.theme.styles.colour.primary};
   }
   & span {
     display: inline-block;

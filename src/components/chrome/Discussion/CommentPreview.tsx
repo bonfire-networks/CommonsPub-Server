@@ -4,7 +4,7 @@ import { Message } from '../../elements/Icons';
 import { clearFix } from 'polished';
 import moment from 'moment';
 import Link from '../../elements/Link/Link';
-// import Markdown from 'markdown-to-jsx';
+import Markdown from 'markdown-to-jsx';
 
 interface EventProps {
   author: {
@@ -62,9 +62,16 @@ const Event: React.SFC<EventProps> = ({
               </Button>
             </h3>
             <Primary>
-              {comment.body.length > 320
-                ? comment.body.replace(/^([\s\S]{316}[^\s]*)[\s\S]*/, '$1...')
-                : comment.body}
+              <Markdown
+                children={
+                  comment.body.length > 320
+                    ? comment.body.replace(
+                        /^([\s\S]{316}[^\s]*)[\s\S]*/,
+                        '$1...'
+                      )
+                    : comment.body
+                }
+              />
             </Primary>
           </MemberInfo>
         </Member>
