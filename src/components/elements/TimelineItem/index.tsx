@@ -109,7 +109,7 @@ const Member = styled.div`
 `;
 
 const MemberInfo = styled.div`
-  display: inline-block;
+  margin-left: 40px;
   & h3 {
     font-size: 14px;
     margin: 0;
@@ -128,7 +128,6 @@ const MemberInfo = styled.div`
 const MemberItem = styled.span`
   background-color: #d6dadc;
   border-radius: 50px;
-  display: inline-block;
   height: 32px;
   overflow: hidden;
   position: relative;
@@ -137,6 +136,7 @@ const MemberItem = styled.span`
   z-index: 0;
   vertical-align: inherit;
   margin-right: 8px;
+  float: left;
 `;
 
 const Img = styled.img`
