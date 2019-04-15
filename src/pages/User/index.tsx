@@ -164,12 +164,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               )
                             )}
                           </ListCollections>
-                          <FollowingCollectionsLoadMore
-                            collections={
-                              this.props.data.user.followingCollections
-                            }
-                            fetchMore={this.props.data.fetchMore}
-                          />
+                          <div style={{ padding: '8px' }}>
+                            <FollowingCollectionsLoadMore
+                              collections={
+                                this.props.data.user.followingCollections
+                              }
+                              fetchMore={this.props.data.fetchMore}
+                            />
+                          </div>
                         </>
                       </TabPanel>
                       <TabPanel
@@ -200,10 +202,14 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               )
                             )}
                           </List>
-                          <JoinedCommunitiesLoadMore
-                            communities={this.props.data.user.joinedCommunities}
-                            fetchMore={this.props.data.fetchMore}
-                          />
+                          <div style={{ padding: '8px' }}>
+                            <JoinedCommunitiesLoadMore
+                              communities={
+                                this.props.data.user.joinedCommunities
+                              }
+                              fetchMore={this.props.data.fetchMore}
+                            />
+                          </div>
                         </>
                       </TabPanel>
                     </Tabs>
@@ -230,7 +236,8 @@ const withGetCollections = graphql<
     variables: {
       id: Number(props.match.params.id),
       limitComm: 15,
-      limitColl: 15
+      limitColl: 15,
+      limitTimeline: 15
     }
   })
 }) as OperationOption<{}, {}>;

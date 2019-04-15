@@ -145,6 +145,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           ))}
                           <div style={{ padding: '8px' }}>
                             <LoadMoreTimeline
+                              me
                               fetchMore={this.props.data.fetchMore}
                               community={this.props.data.me.user}
                             />
@@ -163,13 +164,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                             )
                           )}
                         </ListCollections>
-                        <FollowingCollectionsLoadMore
-                          collections={
-                            this.props.data.me.user.followingCollections
-                          }
-                          fetchMore={this.props.data.fetchMore}
-                          me
-                        />
+                        <div style={{ padding: '8px' }}>
+                          <FollowingCollectionsLoadMore
+                            collections={
+                              this.props.data.me.user.followingCollections
+                            }
+                            fetchMore={this.props.data.fetchMore}
+                            me
+                          />
+                        </div>
                       </TabPanel>
                       <TabPanel
                         label={`${TabsEnum.Communities}`}
@@ -199,13 +202,15 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                               )
                             )}
                           </List>
-                          <JoinedCommunitiesLoadMore
-                            me
-                            communities={
-                              this.props.data.me.user.joinedCommunities
-                            }
-                            fetchMore={this.props.data.fetchMore}
-                          />
+                          <div style={{ padding: '8px' }}>
+                            <JoinedCommunitiesLoadMore
+                              me
+                              communities={
+                                this.props.data.me.user.joinedCommunities
+                              }
+                              fetchMore={this.props.data.fetchMore}
+                            />
+                          </div>
                         </>
                       </TabPanel>
                     </Tabs>
@@ -261,7 +266,8 @@ const withGetCollections = graphql<
   options: (props: Props) => ({
     variables: {
       limitComm: 15,
-      limitColl: 15
+      limitColl: 15,
+      limitTimeline: 15
     }
   })
 }) as OperationOption<{}, {}>;

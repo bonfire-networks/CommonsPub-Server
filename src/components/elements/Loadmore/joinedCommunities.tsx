@@ -34,35 +34,31 @@ const JoinedCommunitiesLoadMore: SFC<Props> = ({
                     // Put the new comments at the end of the list and update `pageInfo`
                     // so we have the new `endCursor` and `hasNextPage` values
                     me: {
-                      __typename: previousResult.me.__typename,
+                      ...previousResult.me,
                       user: {
-                        id: previousResult.me.user.id,
-                        __typename: previousResult.me.user.__typename,
+                        ...previousResult.me.user,
                         joinedCommunities: {
+                          ...previousResult.me.user,
                           edges: [
                             ...previousResult.me.user.joinedCommunities.edges,
                             ...newNodes
                           ],
-                          pageInfo,
-                          __typename:
-                            previousResult.me.user.joinedCommunities.__typename
+                          pageInfo
                         }
                       }
                     }
                   }
                 : {
                     me: {
-                      __typename: previousResult.me.__typename,
+                      ...previousResult.me,
                       user: {
-                        id: previousResult.me.user.id,
-                        __typename: previousResult.me.user.__typename,
+                        ...previousResult.me.user,
                         joinedCommunities: {
+                          ...previousResult.me.user.joinedCommunities,
                           edges: [
                             ...previousResult.me.user.joinedCommunities.edges
                           ],
-                          pageInfo,
-                          __typename:
-                            previousResult.me.user.joinedCommunities.__typename
+                          pageInfo
                         }
                       }
                     }
@@ -76,28 +72,24 @@ const JoinedCommunitiesLoadMore: SFC<Props> = ({
                     // so we have the new `endCursor` and `hasNextPage` values
 
                     user: {
-                      id: previousResult.user.id,
-                      __typename: previousResult.user.__typename,
+                      ...previousResult.user,
                       joinedCommunities: {
+                        ...previousResult.user.joinedCommunities,
                         edges: [
                           ...previousResult.user.joinedCommunities.edges,
                           ...newNodes
                         ],
-                        pageInfo,
-                        __typename:
-                          previousResult.user.joinedCommunities.__typename
+                        pageInfo
                       }
                     }
                   }
                 : {
                     user: {
-                      id: previousResult.user.id,
-                      __typename: previousResult.user.__typename,
+                      ...previousResult.user,
                       joinedCommunities: {
+                        ...previousResult.user.joinedCommunities,
                         edges: [...previousResult.user.joinedCommunities.edges],
-                        pageInfo,
-                        __typename:
-                          previousResult.user.joinedCommunities.__typename
+                        pageInfo
                       }
                     }
                   };

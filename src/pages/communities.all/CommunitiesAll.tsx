@@ -94,10 +94,12 @@ class CommunitiesYours extends React.Component<Props> {
                         );
                       })}
                     </List>
-                    <CommunitiesLoadMore
-                      fetchMore={this.props.data.fetchMore}
-                      communities={this.props.data.communities}
-                    />
+                    <div style={{ padding: '8px' }}>
+                      <CommunitiesLoadMore
+                        fetchMore={this.props.data.fetchMore}
+                        communities={this.props.data.communities}
+                      />
+                    </div>
                   </>
                 )}
               </TabPanel>

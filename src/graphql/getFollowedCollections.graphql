@@ -1,10 +1,10 @@
 
 
-query getFollowedCollections($limit: Int, $end: Int) {
+query getFollowedCollections($limit: Int, $endColl: Int) {
     me {
         user {
           id
-          followingCollections(limit: $limit, after:$end) {
+          followingCollections(limit: $limit, after:$endColl) {
             pageInfo {
               startCursor
               endCursor

@@ -1,8 +1,8 @@
-query getJoinedCommunitiesQuery($limit: Int, $end: Int) {
+query getJoinedCommunitiesQuery($limit: Int, $endComm: Int) {
     me {
         user {
           id
-          joinedCommunities(limit: $limit, after:$end) {
+          joinedCommunities(limit: $limit, after:$endComm) {
             pageInfo {
               startCursor
               endCursor

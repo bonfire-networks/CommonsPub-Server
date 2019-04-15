@@ -12,7 +12,7 @@ import { User } from '../../components/elements/Icons';
 const getMeInboxQuery = require('../../graphql/getMeInbox.graphql');
 import Loader from '../../components/elements/Loader/Loader';
 import TimelineItem from '../../components/elements/TimelineItem';
-import LoadMoreTimeline from '../../components/elements/Loadmore/timeline';
+import LoadMoreTimeline from '../../components/elements/Loadmore/timelineUser';
 
 interface Data extends GraphqlQueryControls {
   me: {
