@@ -130,6 +130,7 @@
     "react-dev-utils": "6.0.4",
     "react-docgen-typescript": "1.10.0",
     "react-dom": "next",
+    "react-helmet": "5.2.0",
     "react-instantsearch-dom": "5.4.0",
     "react-loadable": "5.5.0",
     "react-outside-click-handler": "1.2.2",

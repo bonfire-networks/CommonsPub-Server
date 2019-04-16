@@ -13,6 +13,7 @@ const getMeInboxQuery = require('../../graphql/getMeInbox.graphql');
 import Loader from '../../components/elements/Loader/Loader';
 import TimelineItem from '../../components/elements/TimelineItem';
 import LoadMoreTimeline from '../../components/elements/Loadmore/timelineUser';
+import { Helmet } from 'react-helmet';
 
 interface Data extends GraphqlQueryControls {
   me: {
@@ -48,7 +49,10 @@ const Home: React.SFC<Props> = props => {
                   />
                 </span>
                 <h5>
-                  <Trans>Your feed</Trans>
+                  <Trans>My feed</Trans>
+                  <Helmet>
+                    <title>My MoodleNet feed</title>
+                  </Helmet>
                 </h5>
               </SuperTab>
             </SuperTabList>

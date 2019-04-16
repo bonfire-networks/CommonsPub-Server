@@ -5,6 +5,7 @@ import { Trans } from '@lingui/macro';
 
 import Link from '../../components/elements/Link/Link';
 import { Main } from '../communities.community/breadcrumb';
+import { Helmet } from 'react-helmet';
 
 interface Props {
   community: {
@@ -16,6 +17,11 @@ interface Props {
 
 const Breadcrumb: SFC<Props> = ({ community, collectionName }) => (
   <Main>
+    <Helmet>
+      <title>
+        MoodleNet > Community > {community.name} > Collection > {collectionName}
+      </title>
+    </Helmet>
     <Link to="/communities">
       <Trans>Communities</Trans>
     </Link>

@@ -141,6 +141,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             <WrapperCont>
               <HeroCont>
                 <Breadcrumb name={community.name} />
+
                 <Hero>
                   <Background
                     id="header"

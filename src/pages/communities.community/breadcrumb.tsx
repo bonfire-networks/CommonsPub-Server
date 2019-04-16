@@ -3,6 +3,7 @@ import { SFC } from 'react';
 import { Trans } from '@lingui/macro';
 import Link from '../../components/elements/Link/Link';
 import styled from '../../themes/styled';
+import { Helmet } from 'react-helmet';
 
 interface Props {
   name: string;
@@ -10,6 +11,9 @@ interface Props {
 
 const Breadcrumb: SFC<Props> = ({ name }) => (
   <Main>
+    <Helmet>
+      <title>MoodleNet > Community > {name}</title>
+    </Helmet>
     <Link to="/communities">
       <Trans>Communities</Trans>
     </Link>

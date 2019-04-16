@@ -11,6 +11,8 @@ import { Trans } from '@lingui/macro';
 import Link from '../../components/elements/Link/Link';
 import { Left } from '../../components/elements/Icons';
 import { clearFix } from 'polished';
+import { Helmet } from 'react-helmet';
+
 interface Data extends GraphqlQueryControls {
   comment: CommentType;
 }
@@ -58,6 +60,9 @@ const Component = ({ data, id, selectThread, match, type, history }) => {
   };
   return (
     <Container>
+      <Helmet>
+        <title>MoodleNet > Discussion Thread</title>
+      </Helmet>
       <Wrapper>
         <Header>
           <Link

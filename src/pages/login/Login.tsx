@@ -13,6 +13,7 @@ import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelec
 import H6 from '../../components/typography/H6/H6';
 import LoginForm from './LoginForm';
 import { ValidationField, ValidationObject, ValidationType } from './types';
+import { Helmet } from 'react-helmet';
 
 const { getUserQuery } = require('../../graphql/getUser.client.graphql');
 const { setUserMutation } = require('../../graphql/setUser.client.graphql');
@@ -237,6 +238,9 @@ class Login extends React.Component<LoginProps, LoginState> {
 
     return (
       <>
+        <Helmet>
+          <title>MoodleNet - Share. Curate. Discuss.</title>
+        </Helmet>
         <BodyCenterContent>
           <Roww>
             <Col md={5} sm={12}>

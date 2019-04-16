@@ -13,6 +13,8 @@ import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import { Tabs, TabPanel } from 'react-tabs';
 import styled from '../../themes/styled';
 import CollectionsFollowed from '../collections.followed';
+import { Helmet } from 'react-helmet';
+
 const { getCollectionsQuery } = require('../../graphql/getCollections.graphql');
 
 interface Data extends GraphqlQueryControls {
@@ -74,6 +76,9 @@ class CommunitiesYours extends React.Component<Props> {
                     <Loader />
                   ) : (
                     <>
+                      <Helmet>
+                        <title>MoodleNet > All collections</title>
+                      </Helmet>
                       <List>
                         {this.props.data.collections.nodes.map((coll, i) => (
                           <CollectionCard

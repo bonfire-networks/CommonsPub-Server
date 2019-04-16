@@ -16,6 +16,8 @@ import { Community, Eye } from '../../components/elements/Icons';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import { Tabs, TabPanel } from 'react-tabs';
 import CommunitiesJoined from '../communities.joined';
+import { Helmet } from 'react-helmet';
+
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
@@ -76,6 +78,9 @@ class CommunitiesYours extends React.Component<Props> {
                   <Loader />
                 ) : (
                   <>
+                    <Helmet>
+                      <title>MoodleNet > All communities</title>
+                    </Helmet>
                     <List>
                       {this.props.data.communities.nodes.map((community, i) => {
                         return (

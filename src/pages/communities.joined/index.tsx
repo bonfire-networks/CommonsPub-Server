@@ -7,6 +7,8 @@ import styled from '../../themes/styled';
 import Loader from '../../components/elements/Loader/Loader';
 import CommunityCard from '../../components/elements/Community/Community';
 import CommunitiesLoadMore from '../../components/elements/Loadmore/joinedCommunities';
+import { Helmet } from 'react-helmet';
+
 const {
   getJoinedCommunitiesQuery
 } = require('../../graphql/getJoinedCommunities.graphql');
@@ -38,31 +40,36 @@ class CommunitiesJoined extends React.Component<Props> {
     ) : this.props.data.loading ? (
       <Loader />
     ) : (
-      <ListWrapper>
-        <List>
-          {this.props.data.me.user.joinedCommunities.edges.map(
-            (community, i) => (
-              <CommunityCard
-                key={i}
-                summary={community.node.summary}
-                title={community.node.name}
-                collectionsCount={community.node.collections.totalCount}
-                icon={community.node.icon || ''}
-                followed={community.node.followed}
-                id={community.node.localId}
-                externalId={community.node.id}
-                followersCount={community.node.members.totalCount}
-                threadsCount={community.node.threads.totalCount}
-              />
-            )
-          )}
-        </List>
-        <CommunitiesLoadMore
-          me
-          fetchMore={this.props.data.fetchMore}
-          communities={this.props.data.me.user.joinedCommunities}
-        />
-      </ListWrapper>
+      <>
+        <Helmet>
+          <title>MoodleNet > Joined communities</title>
+        </Helmet>
+        <ListWrapper>
+          <List>
+            {this.props.data.me.user.joinedCommunities.edges.map(
+              (community, i) => (
+                <CommunityCard
+                  key={i}
+                  summary={community.node.summary}
+                  title={community.node.name}
+                  collectionsCount={community.node.collections.totalCount}
+                  icon={community.node.icon || ''}
+                  followed={community.node.followed}
+                  id={community.node.localId}
+                  externalId={community.node.id}
+                  followersCount={community.node.members.totalCount}
+                  threadsCount={community.node.threads.totalCount}
+                />
+              )
+            )}
+          </List>
+          <CommunitiesLoadMore
+            me
+            fetchMore={this.props.data.fetchMore}
+            communities={this.props.data.me.user.joinedCommunities}
+          />
+        </ListWrapper>
+      </>
     );
   }
 }

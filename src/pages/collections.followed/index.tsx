@@ -6,6 +6,7 @@ import styled from '../../themes/styled';
 import Loader from '../../components/elements/Loader/Loader';
 import CollectionCard from '../../components/elements/Collection/Collection';
 import CollectionsLoadMore from '../../components/elements/Loadmore/followingCollections';
+import { Helmet } from 'react-helmet';
 
 const {
   getFollowedCollections
@@ -38,22 +39,29 @@ class FollowingCollectionsComponent extends React.Component<Props> {
     ) : this.props.data.loading ? (
       <Loader />
     ) : (
-      <ListWrapper>
-        <List>
-          {this.props.data.me.user.followingCollections.edges.map((comm, i) => (
-            <CollectionCard
-              key={i}
-              collection={comm.node}
-              communityId={comm.node.localId}
-            />
-          ))}
-        </List>
-        <CollectionsLoadMore
-          fetchMore={this.props.data.fetchMore}
-          collections={this.props.data.me.user.followingCollections}
-          me
-        />
-      </ListWrapper>
+      <>
+        <Helmet>
+          <title>MoodleNet > Followed collections</title>
+        </Helmet>
+        <ListWrapper>
+          <List>
+            {this.props.data.me.user.followingCollections.edges.map(
+              (comm, i) => (
+                <CollectionCard
+                  key={i}
+                  collection={comm.node}
+                  communityId={comm.node.localId}
+                />
+              )
+            )}
+          </List>
+          <CollectionsLoadMore
+            fetchMore={this.props.data.fetchMore}
+            collections={this.props.data.me.user.followingCollections}
+            me
+          />
+        </ListWrapper>
+      </>
     );
   }
 }
