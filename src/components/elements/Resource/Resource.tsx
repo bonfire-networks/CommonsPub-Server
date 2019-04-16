@@ -8,6 +8,7 @@ import P from '../../typography/P/P';
 import Button from '../Button/Button';
 import { compose, withState, withHandlers } from 'recompose';
 import EditResourceModal from '../EditResourceModal';
+const PlaceholderImg = require('../Icons/file-text.svg');
 
 interface Props {
   icon: string;
@@ -25,7 +26,9 @@ const ResourceCard: React.SFC<Props> = props => {
   return (
     <Wrapper>
       <a target="blank" href={props.url}>
-        <Img style={{ backgroundImage: `url(${props.icon})` }} />
+        <Img
+          style={{ backgroundImage: `url(${props.icon || PlaceholderImg})` }}
+        />
       </a>
       <Info>
         <TitleWrapper>
@@ -132,11 +135,11 @@ const Img = styled.div`
   width: 120px;
   border-radius: 2px;
   background-position: center center;
-  background: ${props => props.theme.styles.colour.resourceIcon};
+  // background-color: ${props => props.theme.styles.colour.resourceIcon};
   ${media.lessThan('medium')`
-  margin: 0 auto;
-  margin-bottom: 8px;
-  margin-top: 8px;
+    margin: 0 auto;
+    margin-bottom: 8px;
+    margin-top: 8px;
   `};
 `;
 const Title = styled(H5)`

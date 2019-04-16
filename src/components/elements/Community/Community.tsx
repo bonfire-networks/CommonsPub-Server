@@ -159,7 +159,7 @@ const Img = styled.div`
   border-radius: 4px;
   background-repeat: no-repeat;
   margin-bottom: 8px;
-  background-color: rgba(250, 250, 250, 0.8);
+  // background-color: rgba(250, 250, 250, 0.8);
   position: relative;
 `;
 const Infos = styled.h6`
