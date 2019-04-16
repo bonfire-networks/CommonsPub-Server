@@ -151,15 +151,25 @@ const Header: React.SFC<Props> = props => {
                         )}
                       </Item>
                     </List>
-                    <List>
+                    <List lined>
                       <Item>
                         <a
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
                           target="blank"
                         >
-                          <Trans>Code of conduct</Trans>
+                          <Trans>Code of Conduct</Trans>
                         </a>
                       </Item>
+                      <Item>
+                        <a
+                          href="https://changemap.co/moodle/moodlenet/"
+                          target="blank"
+                        >
+                          <Trans>Feedback &amp; Suggestions</Trans>
+                        </a>
+                      </Item>
+                    </List>
+                    <List>
                       <Item onClick={props.logout}>
                         <Trans>Sign out</Trans>
                       </Item>
