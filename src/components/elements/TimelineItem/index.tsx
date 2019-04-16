@@ -37,28 +37,28 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
             </span>
           ) : node.activityType === 'UpdateCommunity' ? (
             <span>
-              updated the community{' '}
+              <Trans>updated the community</Trans>{' '}
               <Link to={`/communities/${node.object.localId}`}>
                 {node.object.name}
               </Link>
             </span>
           ) : node.activityType === 'UpdateCollection' ? (
             <span>
-              updated the collection{' '}
+              <Trans>updated the collection</Trans>{' '}
               <Link to={`/collections/` + node.object.localId}>
                 {node.object.name}
               </Link>
             </span>
           ) : node.activityType === 'JoinCommunity' ? (
             <span>
-              joined the community{' '}
+              <Trans>joined the community</Trans>{' '}
               <Link to={`/communities/${node.object.localId}`}>
                 {node.object.name}
               </Link>
             </span>
           ) : node.activityType === 'CreateComment' ? (
             <span>
-              posted a{' '}
+              <Trans>posted a</Trans>{' '}
               <Link
                 to={
                   node.object.context.__typename === 'Community'
@@ -70,12 +70,14 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
                       }`
                 }
               >
-                comment
+                <Trans>comment</Trans>
               </Link>{' '}
-              in the{' '}
-              {node.object.context.__typename === 'Community'
-                ? `community`
-                : `collection`}{' '}
+              <Trans>in the</Trans>{' '}
+              {node.object.context.__typename === 'Community' ? (
+                <Trans>community</Trans>
+              ) : (
+                <Trans>collection</Trans>
+              )}{' '}
               <Link
                 to={
                   node.object.context.__typename === 'Community'
@@ -88,14 +90,15 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
             </span>
           ) : node.activityType === 'CreateResource' ? (
             <span>
-              added the resource <b>{node.object.name}</b> on collection{' '}
+              <Trans>added the resource</Trans> <b>{node.object.name}</b>{' '}
+              <Trans>on collection</Trans>{' '}
               <Link to={`/collections/` + node.object.collection.localId}>
                 {node.object.collection.name}
               </Link>{' '}
             </span>
           ) : node.activityType === 'FollowCollection' ? (
             <span>
-              is following the collection{' '}
+              <Trans>is following the collection</Trans>{' '}
               <Link to={`/collections/` + node.object.localId}>
                 {node.object.name}
               </Link>

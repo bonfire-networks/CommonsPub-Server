@@ -144,9 +144,11 @@ const Header: React.SFC<Props> = props => {
                         <Trans>Settings</Trans>
                       </Item>
                       <Item onClick={() => themeState.toggle()}>
-                        {themeState.dark
-                          ? 'Switch to Light Mode'
-                          : 'Switch to Dark Mode'}
+                        {themeState.dark ? (
+                          <Trans>Switch to Light Mode</Trans>
+                        ) : (
+                          <Trans>Switch to Dark Mode</Trans>
+                        )}
                       </Item>
                     </List>
                     <List>
