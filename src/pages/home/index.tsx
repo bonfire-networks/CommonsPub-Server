@@ -55,7 +55,7 @@ const Home: React.SFC<Props> = props => {
             <TabPanel>
               {props.data.error ? (
                 <span>
-                  <Trans>Error loading user</Trans>
+                  <Trans>Error loading user timeline</Trans>
                 </span>
               ) : props.data.loading ? (
                 <Loader />

@@ -91,7 +91,7 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
           ) : node.activityType === 'CreateResource' ? (
             <span>
               <Trans>added the resource</Trans> <b>{node.object.name}</b>{' '}
-              <Trans>on collection</Trans>{' '}
+              <Trans>in the collection</Trans>{' '}
               <Link to={`/collections/` + node.object.collection.localId}>
                 {node.object.collection.name}
               </Link>{' '}

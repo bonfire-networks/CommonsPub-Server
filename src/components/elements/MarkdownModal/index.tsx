@@ -33,15 +33,6 @@ const CreateCommunityModal = (props: Props) => {
 
         <Row>
           <label>
-            <Trans># H1 ## H2 ### H3</Trans>
-          </label>
-          <label>
-            <Trans>Header</Trans>
-          </label>
-        </Row>
-
-        <Row>
-          <label>
             <Trans>**bold**</Trans>
           </label>
           <b>
@@ -61,7 +52,7 @@ const CreateCommunityModal = (props: Props) => {
             <Trans>~~strikethrough~~</Trans>
           </label>
           <del>
-            <Trans>italic</Trans>
+            <Trans>strikethrough</Trans>
           </del>
         </Row>
         <Row>
@@ -73,23 +64,36 @@ const CreateCommunityModal = (props: Props) => {
           </blockquote>
         </Row>
         <Row>
+          <label>{`[link](http://new.moodle.net)`}</label>
           <label>
-            <Trans>{`[title](http://)`}</Trans>
-          </label>
-          <label>
-            <Trans>
-              <a href="#">link</a>
-            </Trans>
+            <a href="http://new.moodle.net">link</a>
           </label>
         </Row>
         <Row>
           <label>
-            <Trans>{`![alt](http://)`}</Trans>
+            {`![Image description](https://new.moodle.net/images/favicon.png)`}
           </label>
           <label>
-            <Trans>Image</Trans>
+            <img
+              src="https://new.moodle.net/images/favicon.png"
+              alt="Image description"
+            />
           </label>
         </Row>
+
+        <Row>
+          <label>
+            # Header 1 <br />
+            ## Header 2 <br />
+            ### Header 3
+          </label>
+          <label>
+            <h1>Header 1</h1>
+            <h2>Header 2</h2>
+            <h3>Header 3</h3>
+          </label>
+        </Row>
+
         <Row>
           <label>
             <Trans>`code`</Trans>
@@ -146,12 +150,17 @@ const Row = styled.div<{ big?: boolean }>`
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
   background: ${props => (props.big ? '#f7f8fb' : 'inehrit')};
   font-weight: ${props => (props.big ? '600' : '500')};
-  height: 40px;
+  font-size: 0.7rem;
+  // height: 40px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 8px;
   grid-row-gap: 8px;
   padding: 0 16px;
+  // & img {
+  //   width: 100%;
+  //   height: auto;
+  // }
   & code {
     overflow-x: auto;
     padding: 0 4px;

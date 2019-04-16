@@ -59,7 +59,7 @@ export default ({ link = true, big }: LogoProps) => {
             target="blank"
             big={big}
           >
-            <small>v 0.9 alpha</small>
+            <small>v 0.9.1 alpha</small>
           </Small>
         )}
       </LogoH1>
@@ -69,7 +69,7 @@ export default ({ link = true, big }: LogoProps) => {
           target="blank"
           big={big}
         >
-          <small>v 0.9 alpha</small>
+          <small>v 0.9.1 alpha</small>
         </Small>
       ) : null}
     </>
