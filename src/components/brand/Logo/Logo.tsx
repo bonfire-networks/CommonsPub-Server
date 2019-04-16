@@ -2,6 +2,7 @@ import * as React from 'react';
 import media from 'styled-media-query';
 import styled from '../../../themes/styled';
 import { Link } from 'react-router-dom';
+const LogoImg = require('../../../static/img/moodlenet-logo-white.png');
 
 const LogoH1 = styled.h1<{ big?: boolean }>`
   margin: 0;
@@ -17,21 +18,26 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
   & a {
     color: inherit !important;
     text-decoration: none;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  & img {
+    height: 26px;
+    width: auto;
   }
 `;
 
 const Small = styled.a<{ big?: boolean }>`
-  margin-left: 4px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background: ${props => props.theme.styles.colour.primaryDark};
   color: ${props => props.theme.styles.colour.headerLink} !important;
-  font-weight: 600 !important;
+  font-weight: 400 !important;
   letter-spacing: 0.5px;
   font-size: 11px;
-  text-transform: uppercase;
+  line-height: auto;
+  vertical-align: top;
+  // text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
+  margin-left: 16px;
   ${media.lessThan('medium')`
     display: none;
     `};
@@ -51,7 +57,7 @@ export default ({ link = true, big }: LogoProps) => {
     <>
       <LogoH1 big={big}>
         <Link to="/" title="MoodleNet">
-          MoodleNet
+          <img src={LogoImg} alt="MoodleNet" />
         </Link>
         {big ? null : (
           <Small
@@ -59,7 +65,7 @@ export default ({ link = true, big }: LogoProps) => {
             target="blank"
             big={big}
           >
-            <small>v 0.9.1 alpha</small>
+            <small>0.9.1 alpha</small>
           </Small>
         )}
       </LogoH1>
@@ -69,7 +75,7 @@ export default ({ link = true, big }: LogoProps) => {
           target="blank"
           big={big}
         >
-          <small>v 0.9.1 alpha</small>
+          <small>0.9.1 alpha</small>
         </Small>
       ) : null}
     </>
