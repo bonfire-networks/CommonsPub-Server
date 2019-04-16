@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import Join from './Join';
 import { Resource, Eye, Message } from '../Icons';
 import media from 'styled-media-query';
+const PlaceholderImg = require('../Icons/layers.svg');
 
 interface CollectionProps {
   collection: Collection;
@@ -17,7 +18,11 @@ const Collection: React.SFC<CollectionProps> = ({ collection }) => {
   return (
     <Wrapper>
       <Link to={`/collections/${collection.localId}`}>
-        <Img style={{ backgroundImage: `url(${collection.icon})` }} />
+        <Img
+          style={{
+            backgroundImage: `url(${collection.icon || PlaceholderImg})`
+          }}
+        />
         <Infos>
           <Title>
             {collection.name.length > 80
@@ -122,7 +127,7 @@ const Img = styled.div`
   border-radius: 8px;
   background-size: cover;
   background-repeat: no-repeat;
-  background-color: ${props => props.theme.styles.colour.secondary};
+  // background-color: ${props => props.theme.styles.colour.secondary};
   margin-right: 8px;
   margin-left: 8px;
 `;

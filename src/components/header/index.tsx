@@ -152,19 +152,21 @@ const Header: React.SFC<Props> = props => {
                       </Item>
                     </List>
                     <List lined>
-                      <Item>
+                      {/* <Item>
                         <a href="https://new.moodle.net" target="blank">
                           <Trans>About MoodleNet</Trans>
                         </a>
-                      </Item>
+                      </Item> */}
+
                       <Item>
                         <a
                           href="https://blog.moodle.net/category/versions/"
                           target="blank"
                         >
-                          Alpha v0.9.1 <Trans>release notes</Trans>
+                          MoodleNet v0.9 alpha <Trans>release notes</Trans>
                         </a>
                       </Item>
+
                       <Item>
                         <a
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
@@ -173,6 +175,7 @@ const Header: React.SFC<Props> = props => {
                           <Trans>Code of Conduct</Trans>
                         </a>
                       </Item>
+
                       <Item>
                         <a
                           href="https://changemap.co/moodle/moodlenet/"

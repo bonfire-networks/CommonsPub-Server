@@ -6,6 +6,7 @@ import { Users, Collection, Message } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
 import { clearFix } from 'polished';
+const PlaceholderImg = require('../Icons/coffee.1.svg');
 
 interface Props {
   title: string;
@@ -35,7 +36,7 @@ const Community: React.SFC<Props> = ({
       <WrapperImage>
         <Img
           style={{
-            backgroundImage: `url(${icon || '../static/img/placeholder.png'})`
+            backgroundImage: `url(${icon || PlaceholderImg})`
           }}
         />
       </WrapperImage>
