@@ -39,6 +39,10 @@ query getCollection($id: Int!, $limit: Int, $end: Int) {
                          ... on Comment {
                         id
                         localId
+                        content
+                        inReplyTo {
+                            localId
+                        }
                           context {
                              __typename
                              ... on Community {

@@ -28,6 +28,10 @@ query meQuery
             ... on Comment {
             id
             localId
+            content
+            inReplyTo {
+              localId
+            }
              context {
               __typename
               ... on Community {
@@ -40,8 +44,7 @@ query meQuery
                 name
                 localId
               }
-            }
-            localId
+             }
             }
             ... on Collection {
             id

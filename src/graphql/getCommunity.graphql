@@ -38,7 +38,11 @@ query getCommunityQuery(
                         ... on Comment {
                         id
                         localId
-                          context {
+                        content
+                        inReplyTo {
+                            localId
+                        }
+                        context {
                          __typename
                          ... on Community {
                            id
@@ -49,8 +53,8 @@ query getCommunityQuery(
                            id
                            name
                            localId
+                          }
                          }
-                       }
                         }
                          ... on Resource {
                         id
