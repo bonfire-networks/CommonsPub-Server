@@ -4,7 +4,7 @@ const themeLight = createTheme({
   colour: {
     background: '#f5f6f7',
     secondaryBg: '#fff',
-    header: '#f98012',
+    header: '#46495a',
     headerLink: '#fff',
     breadcrumb: '#fff',
     // Hero

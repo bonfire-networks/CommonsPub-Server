@@ -159,6 +159,14 @@ const Header: React.SFC<Props> = props => {
                       </Item>
                       <Item>
                         <a
+                          href="https://blog.moodle.net/category/versions/"
+                          target="blank"
+                        >
+                          Alpha v0.9.1 <Trans>release notes</Trans>
+                        </a>
+                      </Item>
+                      <Item>
+                        <a
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
                           target="blank"
                         >
@@ -218,10 +226,10 @@ const AvatarUsername = styled.div`
 const Center = styled.span`
   position: absolute;
   left: 50%;
-  margin-left: -92px;
-  ${media.lessThan('medium')`
-  margin-left: -44px;
-  `};
+  margin-left: -75px;
+  // ${media.lessThan('medium')`
+  //   margin-left: -60px;
+  // `};
   & h1 {
     margin: 0;
     line-height: 50px;
