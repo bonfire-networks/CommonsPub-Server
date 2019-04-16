@@ -164,13 +164,11 @@ const CommunityPage: SFC<Props> = ({
                 </Actions>
               ) : (
                 <Footer>
-                  <Trans>
-                    Join the{' '}
-                    <Link to={'/communities/' + collection.community.localId}>
-                      {community_name}
-                    </Link>{' '}
-                    community to add a resource
-                  </Trans>
+                  <Trans>Join the community</Trans>{' '}
+                  <Link to={'/communities/' + collection.community.localId}>
+                    {community_name}
+                  </Link>{' '}
+                  <Trans>to add a resource</Trans>
                 </Footer>
               )}
               {resources.totalCount ? (
@@ -213,13 +211,11 @@ const CommunityPage: SFC<Props> = ({
                 type={type}
               />
               <Footer>
-                <Trans>
-                  Join the{' '}
-                  <Link to={'/communities/' + collection.community.localId}>
-                    {community_name}
-                  </Link>{' '}
-                  community to participate in discussions
-                </Trans>
+                <Trans>Join the community</Trans>{' '}
+                <Link to={'/communities/' + collection.community.localId}>
+                  {community_name}
+                </Link>{' '}
+                <Trans>to participate in discussions</Trans>
               </Footer>
             </>
           )}

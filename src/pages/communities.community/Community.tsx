@@ -94,7 +94,7 @@ const CommunityPage: SFC<Props> = ({
                 type={type}
               />
               <Footer>
-                <Trans>Join the community to discuss</Trans>
+                <Trans>Join the community to participate in discussions</Trans>
               </Footer>
             </>
           )}
