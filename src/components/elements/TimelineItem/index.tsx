@@ -58,7 +58,7 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
             </span>
           ) : node.activityType === 'CreateComment' ? (
             <span>
-              posted a new{' '}
+              posted a{' '}
               <Link
                 to={
                   node.object.context.__typename === 'Community'
@@ -72,17 +72,30 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
               >
                 comment
               </Link>{' '}
+              in the{' '}
+              {node.object.context.__typename === 'Community'
+                ? `community`
+                : `collection`}{' '}
+              <Link
+                to={
+                  node.object.context.__typename === 'Community'
+                    ? `/communities/${node.object.context.localId}`
+                    : `/collections/${node.object.context.localId}`
+                }
+              >
+                {node.object.context.name}
+              </Link>
             </span>
           ) : node.activityType === 'CreateResource' ? (
             <span>
-              created the resource <b>{node.object.name}</b> on collection{' '}
+              added the resource <b>{node.object.name}</b> on collection{' '}
               <Link to={`/collections/` + node.object.collection.localId}>
                 {node.object.collection.name}
               </Link>{' '}
             </span>
           ) : node.activityType === 'FollowCollection' ? (
             <span>
-              started to follow the collection{' '}
+              is following the collection{' '}
               <Link to={`/collections/` + node.object.localId}>
                 {node.object.name}
               </Link>
