@@ -2,7 +2,10 @@ import * as React from 'react';
 import styled from '../../../themes/styled';
 import { Reply } from '../../elements/Icons';
 import { clearFix } from 'polished';
-import moment from 'moment';
+
+import moment from 'moment-timezone';
+moment.tz.setDefault('UTC');
+
 import Markdown from 'markdown-to-jsx';
 
 import { Trans } from '@lingui/macro';

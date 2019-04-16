@@ -1,11 +1,13 @@
 import Link from '../Link/Link';
-import moment from 'moment';
 import styled from '../../../themes/styled';
 import * as React from 'react';
 import { SFC } from 'react';
 import { clearFix } from 'polished';
 import { Trans } from '@lingui/react';
 import removeMd from 'remove-markdown';
+
+import moment from 'moment-timezone';
+moment.tz.setDefault('UTC');
 
 interface Props {
   userpage?: boolean;
