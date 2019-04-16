@@ -9,7 +9,7 @@ import { compose } from 'react-apollo';
 import { withFormik, FormikProps, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import Alert from '../../elements/Alert';
-import LanguageSelect from '../../inputs/LanguageSelect/LanguageSelect';
+// import LanguageSelect from '../../inputs/LanguageSelect/LanguageSelect';
 import { graphql, OperationOption } from 'react-apollo';
 import User from '../../../types/User';
 import {
@@ -122,12 +122,12 @@ const CreateCommunityModal = (props: Props & FormikProps<FormValues>) => {
               {errors.image && touched.image && <Alert>{errors.image}</Alert>}
             </ContainerForm>
           </Row>
-          <Row>
+          {/* <Row>
             <label>
               <Trans>Primary Language</Trans>
             </label>
             <LanguageSelect />
-          </Row>
+          </Row> */}
           <Actions>
             <Button
               disabled={isSubmitting}

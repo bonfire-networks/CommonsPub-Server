@@ -15,6 +15,7 @@ import media from 'styled-media-query';
 import { NavLink } from 'react-router-dom';
 import { useTheme } from '../../styleguide/Wrapper';
 import Loader from '../../components/elements/Loader/Loader';
+// import LanguageSelect from '../inputs/LanguageSelect/LanguageSelect';
 
 interface Props {
   handleOpen(): boolean;
@@ -160,15 +161,6 @@ const Header: React.SFC<Props> = props => {
 
                       <Item>
                         <a
-                          href="https://blog.moodle.net/category/versions/"
-                          target="blank"
-                        >
-                          MoodleNet v0.9 alpha <Trans>release notes</Trans>
-                        </a>
-                      </Item>
-
-                      <Item>
-                        <a
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
                           target="blank"
                         >
@@ -182,6 +174,15 @@ const Header: React.SFC<Props> = props => {
                           target="blank"
                         >
                           <Trans>Feedback &amp; Suggestions</Trans>
+                        </a>
+                      </Item>
+
+                      <Item>
+                        <a
+                          href="https://blog.moodle.net/category/versions/"
+                          target="blank"
+                        >
+                          MoodleNet v0.9 alpha <Trans>release notes</Trans>
                         </a>
                       </Item>
                     </List>
