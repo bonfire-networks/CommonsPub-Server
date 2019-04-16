@@ -75,7 +75,7 @@ const Background = styled.div`
   `};
 `;
 const Tagline = styled.h5`
-  font-size: 42px;
+  font-size: 36px;
   margin-top: 24px;
   margin-bottom: 24px;
 `;

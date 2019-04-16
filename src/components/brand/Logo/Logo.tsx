@@ -22,7 +22,7 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
     margin-top: 8px;
   }
   & img {
-    height: 26px;
+    height: ${props => (props.big ? '62px' : '26px')};
     width: auto;
   }
 `;
@@ -59,17 +59,7 @@ export default ({ link = true, big }: LogoProps) => {
         <Link to="/" title="MoodleNet">
           <img src={LogoImg} alt="MoodleNet" />
         </Link>
-        {big ? null : (
-          <Small
-            href="https://blog.moodle.net/2019/moodlenet-0-9-alpha-update/"
-            target="blank"
-            big={big}
-          >
-            <small>0.9.1 alpha</small>
-          </Small>
-        )}
-      </LogoH1>
-      {big ? (
+
         <Small
           href="https://blog.moodle.net/2019/moodlenet-0-9-alpha-update/"
           target="blank"
@@ -77,7 +67,7 @@ export default ({ link = true, big }: LogoProps) => {
         >
           <small>0.9.1 alpha</small>
         </Small>
-      ) : null}
+      </LogoH1>
     </>
   );
 };
