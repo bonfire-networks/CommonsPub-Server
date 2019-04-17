@@ -2,7 +2,7 @@ import * as React from 'react';
 // import media from 'styled-media-query';
 import styled from '../../../themes/styled';
 import { Link } from 'react-router-dom';
-const LogoImg = require('../../../static/img/moodlenet-logo-white.png');
+import { useTheme } from '../../../styleguide/Wrapper';
 
 const LogoH1 = styled.h1<{ big?: boolean }>`
   margin: 0;
@@ -30,6 +30,14 @@ type LogoProps = {
   big?: boolean;
 };
 
+function getLogo() {
+  const themeState = useTheme();
+
+  return require(`../../../static/img/${
+    themeState.dark ? 'moodlenet-logo-white' : 'moodlenet-logo-grey'
+  }.png`);
+}
+
 /**
  * MoodleNet Logo component.
  * @param link {Boolean} wrap Logo component in a Link to the homepage
@@ -39,7 +47,7 @@ export default ({ link = true, big }: LogoProps) => {
     <>
       <LogoH1 big={big}>
         <Link to="/" title="MoodleNet">
-          <img src={LogoImg} alt="MoodleNet" />
+          <img src={getLogo()} alt="MoodleNet" />
         </Link>
       </LogoH1>
     </>
