@@ -14,7 +14,7 @@ const themeLight = createTheme({
     heroIcon: '#848383',
 
     // Hero Collection
-    heroCollection: '#eaeef0',
+    heroCollection: '#fff',
     heroCollectionTitle: '#282828',
     heroCollectionNote: '#a0a2a5',
     heroCollectionIcon: '#848383',
@@ -119,7 +119,7 @@ const themeDark = createTheme({
     heroCollection: '#46495a',
     heroCollectionTitle: '#dddee4',
     heroCollectionNote: '#dddee4',
-    heroCollectionIcon: '#dddee4',
+    heroCollectionIcon: '#848383',
 
     primary: '#282a36',
     secondary: '#686566',

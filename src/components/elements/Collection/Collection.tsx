@@ -76,11 +76,12 @@ const Collection: React.SFC<CollectionProps> = ({ collection }) => {
 
 const Right = styled.div`
   width: 160px;
+  margin-right: 8px;
   ${media.lessThan('medium')`
   margin-top: 8px;
   background: #f7f8f9;
   border-radius: 6px;
-  display: inline-block
+  display: inline-block;
   margin-left: 8px;
 `};
 `;

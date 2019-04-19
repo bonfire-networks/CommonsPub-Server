@@ -29,9 +29,11 @@ export const Main = styled.div`
   text-transform: uppercase;
   line-height: 30px;
   background: ${props => props.theme.styles.colour.breadcrumb};
+  border-bottom: ${props => props.theme.styles.colour.divider};
   padding: 0 8px;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+  color: ${props => props.theme.styles.colour.base1} !important;
   & a {
     font-size: 12px;
     font-weight: 700;

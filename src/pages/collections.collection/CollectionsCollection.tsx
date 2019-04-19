@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { Trans } from '@lingui/macro';
-
+import { clearFix } from 'polished';
 import { Grid } from '@zendeskgarden/react-grid';
 import P from '../../components/typography/P/P';
 import styled from '../../themes/styled';
@@ -171,9 +171,8 @@ class CollectionComponent extends React.Component<Props> {
 }
 
 const ActionsHero = styled.div`
-  margin-top: 16px;
-
-  border-top: 1px solid ${props => props.theme.styles.colour.heroCollectionIcon};
+  margin-top: 8px;
+  ${clearFix()};
   & div {
     &:hover {
       background: transparent;
@@ -217,6 +216,7 @@ const HeroInfo = styled.div`
   flex: 1;
   margin-left: 16px;
   position: relative;
+  ${clearFix()};
   & h2 {
     margin: 0;
     line-height: 32px !important;
@@ -235,14 +235,13 @@ const HeroInfo = styled.div`
   }
   & div {
     text-align: left;
-    padding: 0;
   }
 `;
 const HeroCont = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: ${props => props.theme.styles.colour.heroCollection};
 `;
 

@@ -111,7 +111,7 @@ export const Footer = styled.div`
   text-align: center;
   background: #ffefd9;
   font-size: 13px;
-  border-bottom: 1px solid #e4dcc3;
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
   color: #544f46;
 `;
 
@@ -126,7 +126,6 @@ export const WrapperTab = styled.div`
   border-radius: 6px;
   box-sizing: border-box;
   background: ${props => props.theme.styles.colour.secondaryBg};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 export const OverlayTab = styled.div`
   height: 100%;

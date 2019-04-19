@@ -249,7 +249,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 export const Actions = styled.div`
   ${clearFix()};
   display: flex;
-  border-bottom: 1px solid ${props => props.theme.styles.colour.base3};
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
 `;
 export const Create = styled.div`
   font-size: 13px;
@@ -263,8 +263,8 @@ export const Create = styled.div`
   margin-left: 8px;
   padding: 0 8px;
   border-radius: 4px;
+  background: ${props => props.theme.styles.colour.primary};
   &:hover {
-    background: ${props => props.theme.styles.colour.primary};
   }
   & span {
     display: inline-block;
@@ -293,7 +293,7 @@ const HeroCont = styled.div`
   border-radius: 6px;
   box-sizing: border-box;
   background: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Tot = styled.div`
@@ -361,7 +361,7 @@ const Footer = styled.div`
   text-align: center;
   background: #ffefd9;
   font-size: 13px;
-  border-bottom: 1px solid #e4dcc3;
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
   color: #544f46;
 `;
 

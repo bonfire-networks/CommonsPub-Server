@@ -156,6 +156,7 @@ const FeedItemContents = styled.div`
   margin-left: 40px;
   font-size: 14px;
   margin: 0;
+  flex: 1;
   color: ${props => props.theme.styles.colour.base2};
   font-weight: 400;
   & span {
