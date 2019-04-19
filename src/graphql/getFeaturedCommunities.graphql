@@ -1,5 +1,11 @@
-query getFeaturedCommunities {
-  one: community(local_id: 7) {
+query getFeaturedCommunities(
+  $one: Int!
+  $two: Int!
+  $three: Int!
+  $four: Int!
+  $five: Int!
+  ) {
+  one: community(localId:$one) {
     id
     localId
     preferredUsername
@@ -13,7 +19,7 @@ query getFeaturedCommunities {
             }
     followed
   }
-   two: community(localId: 15) {
+   two: community(localId:$two) {
     id
     localId
     preferredUsername
@@ -27,7 +33,7 @@ query getFeaturedCommunities {
     collections {totalCount}
     followed
   }
-   three: community(localId: 5774) {
+   three: community(localId:$three) {
     id
     localId
     preferredUsername
@@ -41,7 +47,7 @@ query getFeaturedCommunities {
     collections {totalCount}
     followed
   }
-   four: community(localId: 5030) {
+   four: community(localId:$four) {
     id
     localId
     preferredUsername
@@ -55,7 +61,7 @@ query getFeaturedCommunities {
     collections {totalCount}
     followed
   }
-   five: community(localId: 5018) {
+   five: community(localId:$five) {
     id
     localId
     preferredUsername

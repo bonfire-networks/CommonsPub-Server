@@ -129,6 +129,36 @@ const withGetInbox = graphql<
   {
     data: any;
   }
->(getFollowedCommunities) as OperationOption<{}, {}>;
+>(getFollowedCommunities, {
+  options: {
+    variables: {
+      one:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 7
+          : 834,
+      two:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 15
+          : 700,
+      three:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5774
+          : 666,
+      four:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5030
+          : 402,
+      five:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5018
+          : 353
+    }
+  }
+}) as OperationOption<{}, {}>;
 
 export default compose(withGetInbox)(MultipleItems);

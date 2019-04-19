@@ -1,5 +1,16 @@
-query getFeaturedCollections {
-  one: collection(local_id: 5571) {
+query getFeaturedCollections(
+  $one: Int!
+  $two: Int!
+  $three: Int!
+  $four: Int!
+  $five: Int!
+  $six: Int!
+  $seven: Int!
+  $eight: Int!
+  $nine: Int!
+  $ten: Int!
+  ) {
+  one: collection(localId: $one) {
     id
     localId
     name
@@ -10,7 +21,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-   two: collection(localId: 5487) {
+   two: collection(localId: $two) {
     id
     localId
     name
@@ -21,7 +32,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  three: collection(local_id: 5416) {
+  three: collection(localId: $three) {
     id
     localId
     name
@@ -32,7 +43,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-   four: collection(localId: 4944) {
+   four: collection(localId: $four) {
     id
     localId
     name
@@ -43,7 +54,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  five: collection(localId: 2374) {
+  five: collection(localId: $five) {
     id
     localId
     name
@@ -54,7 +65,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  six: collection(localId: 3530) {
+  six: collection(localId: $six) {
     id
     localId
     name
@@ -65,7 +76,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  seven: collection(localId: 3418) {
+  seven: collection(localId: $seven) {
     id
     localId
     name
@@ -76,7 +87,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  eight: collection(localId: 3081) {
+  eight: collection(localId: $eight) {
     id
     localId
     name
@@ -87,7 +98,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  nine: collection(localId: 2037) {
+  nine: collection(localId: $nine) {
     id
     localId
     name
@@ -98,7 +109,7 @@ query getFeaturedCollections {
     threads {totalCount}
     followed
   }
-  ten: collection(localId: 2486) {
+  ten: collection(localId: $ten) {
     id
     localId
     name

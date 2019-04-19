@@ -52,7 +52,7 @@ class MultipleItems extends React.Component<Props> {
       slidesToShow: 5,
       slidesToScroll: 1
     };
-
+    console.log(process.env);
     return (
       <>
         <Title>
@@ -103,6 +103,61 @@ const withGetInbox = graphql<
   {
     data: any;
   }
->(getFollowedCollections) as OperationOption<{}, {}>;
+>(getFollowedCollections, {
+  options: {
+    variables: {
+      one:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5571
+          : 845,
+      two:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5487
+          : 802,
+      three:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 5416
+          : 790,
+      four:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 4944
+          : 779,
+      five:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 2374
+          : 747,
+      six:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 3530
+          : 729,
+      seven:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 3418
+          : 709,
+      eight:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 3081
+          : 675,
+      nine:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 2037
+          : 639,
+      ten:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 2486
+          : 630
+    }
+  }
+}) as OperationOption<{}, {}>;
 
 export default compose(withGetInbox)(MultipleItems);
