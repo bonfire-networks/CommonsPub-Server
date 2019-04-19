@@ -59,41 +59,43 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
             </Link>
           </span>
         ) : node.activityType === 'CreateComment' ? (
-          <span>
-            {node.object.inReplyTo !== null ? (
-              <Trans>replied to</Trans>
-            ) : (
-              <Trans>started</Trans>
-            )}{' '}
-            <Link
-              to={
-                node.object.context.__typename === 'Community'
-                  ? `/communities/${node.object.context.localId}/thread/${
-                      node.object.localId
-                    }`
-                  : `/collections/${node.object.context.localId}/thread/${
-                      node.object.localId
-                    }`
-              }
-            >
-              <Trans>a discussion</Trans>
-            </Link>{' '}
-            <Trans>in the</Trans>{' '}
-            {node.object.context.__typename === 'Community' ? (
-              <Trans>community</Trans>
-            ) : (
-              <Trans>collection</Trans>
-            )}{' '}
-            <Link
-              to={
-                node.object.context.__typename === 'Community'
-                  ? `/communities/${node.object.context.localId}`
-                  : `/collections/${node.object.context.localId}`
-              }
-            >
-              {node.object.context.name}
-            </Link>
-            :
+          <>
+            <span>
+              {node.object.inReplyTo !== null ? (
+                <Trans>replied to</Trans>
+              ) : (
+                <Trans>started</Trans>
+              )}{' '}
+              <Link
+                to={
+                  node.object.context.__typename === 'Community'
+                    ? `/communities/${node.object.context.localId}/thread/${
+                        node.object.localId
+                      }`
+                    : `/collections/${node.object.context.localId}/thread/${
+                        node.object.localId
+                      }`
+                }
+              >
+                <Trans>a discussion</Trans>
+              </Link>{' '}
+              <Trans>in the</Trans>{' '}
+              {node.object.context.__typename === 'Community' ? (
+                <Trans>community</Trans>
+              ) : (
+                <Trans>collection</Trans>
+              )}{' '}
+              <Link
+                to={
+                  node.object.context.__typename === 'Community'
+                    ? `/communities/${node.object.context.localId}`
+                    : `/collections/${node.object.context.localId}`
+                }
+              >
+                {node.object.context.name}
+              </Link>
+              :
+            </span>
             <Comment>
               <Link
                 to={
@@ -114,7 +116,7 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
                   : removeMd(node.object.content)}
               </Link>
             </Comment>
-          </span>
+          </>
         ) : node.activityType === 'CreateResource' ? (
           <span>
             <Trans>added the resource</Trans> <b>{node.object.name}</b>{' '}
@@ -146,7 +148,7 @@ const Name = styled.span`
 
 const Member = styled.div`
   vertical-align: top;
-  margin-right: 14px;
+  display: flex;
   ${clearFix()};
 `;
 
@@ -211,7 +213,7 @@ const Date = styled.div`
   color: ${props => props.theme.styles.colour.base4};
   margin-top: 0px;
   font-weight: 500;
-  float: right;
+  // float: right;
 `;
 
 const FeedItem = styled.div`

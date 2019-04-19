@@ -14,7 +14,6 @@ const Title = styled.div`
   font-size: 15px;
   font-weight: 700;
   color: ${props => props.theme.styles.colour.base1};
-  border-bottom: 1px solid #dddee447;
   padding-bottom: 8px;
   margin-bottom: 16px;
   margin-top: 16px;
