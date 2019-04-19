@@ -6,8 +6,6 @@ import Button from '../Button/Button';
 import { FormikProps, Field } from 'formik';
 import { compose, withState } from 'recompose';
 import Preview from './Preview';
-const { getUserQuery } = require('../../../graphql/getUser.client.graphql');
-import { graphql } from 'react-apollo';
 import MarkdownModal from '../MarkdownModal';
 import { Trans } from '@lingui/macro';
 import { i18nMark } from '@lingui/react';
@@ -91,7 +89,7 @@ const Component = (props: Props & FormikProps<FormValues>) => {
           toggleModal={props.onOpen}
           modalIsOpen={props.isOpen}
           values={props.values}
-          user={props.data.user}
+          // user={props.data.user}
           selectThread={props.selectThread}
         />
       </ContainerTalk>
@@ -104,7 +102,7 @@ const Component = (props: Props & FormikProps<FormValues>) => {
 };
 
 export default compose(
-  graphql(getUserQuery),
+  // graphql(getUserQuery),
   withState('modalIsOpen', 'onModalIsOpen', false)
 )(Component);
 

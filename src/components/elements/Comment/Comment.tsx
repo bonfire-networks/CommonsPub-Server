@@ -12,11 +12,8 @@ import { Trans } from '@lingui/macro';
 import Link from '../Link/Link';
 
 interface EventProps {
-  author: {
-    localId: string;
-    name: string;
-    icon: string;
-  };
+  noAuthor?: boolean;
+  author?: any;
   comment: {
     id: string;
     body: string;
@@ -34,21 +31,24 @@ const Event: React.SFC<EventProps> = ({
   comment,
   noAction,
   totalReplies,
-  selectThread
+  selectThread,
+  noAuthor
 }) => {
   return (
     <FeedItem>
-      <Member>
-        <MemberItem>
-          <Img alt="user" src={author.icon} />
-        </MemberItem>
-        <MemberInfo>
-          <h3>
-            <Link to={'/user/' + author.localId}>{author.name}</Link>
-          </h3>
-          <Date>{moment(comment.date).fromNow()}</Date>
-        </MemberInfo>
-      </Member>
+      {noAuthor ? null : (
+        <Member>
+          <MemberItem>
+            <Img alt="user" src={author.icon} />
+          </MemberItem>
+          <MemberInfo>
+            <h3>
+              <Link to={'/user/' + author.localId}>{author.name}</Link>
+            </h3>
+            <Date>{moment(comment.date).fromNow()}</Date>
+          </MemberInfo>
+        </Member>
+      )}
       <Desc>
         <Primary>
           <Markdown children={comment.body} />

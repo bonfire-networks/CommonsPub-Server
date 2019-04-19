@@ -17,17 +17,17 @@ interface Props {
   modalIsOpen?: boolean;
   values: any;
   isSubmitting: boolean;
-  user: any;
+  // user: any;
   selectThread(number): number;
 }
 
 const PreviewModal = (props: Props) => {
   const { toggleModal, modalIsOpen } = props;
-  let author = {
-    localId: props.user.data.localId,
-    name: props.user.data.name,
-    icon: props.user.data.icon
-  };
+  // let author = {
+  //   localId: props.user.data.localId,
+  //   name: props.user.data.name,
+  //   icon: props.user.data.icon
+  // };
   let message = {
     body: props.values.content,
     date: new Date().getTime(),
@@ -44,7 +44,7 @@ const PreviewModal = (props: Props) => {
         <Form>
           <Comment
             selectThread={props.selectThread}
-            author={author}
+            noAuthor
             comment={message}
             noAction
           />
