@@ -8,7 +8,7 @@ export interface MoodleThemeInterface {
     header: string;
     headerLink: string;
     breadcrumb: string;
-
+    divider: string;
     // Community
     communityBg: string;
     communityTitle: string;

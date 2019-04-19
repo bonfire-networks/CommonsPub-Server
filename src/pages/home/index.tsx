@@ -14,6 +14,7 @@ import LoadMoreTimeline from '../../components/elements/Loadmore/timelineUser';
 import { Helmet } from 'react-helmet';
 import FeaturedCollections from '../../components/featuredCollections';
 import FeaturedCommunities from '../../components/featuredCommunities';
+import styled from '../../themes/styled';
 
 interface Data extends GraphqlQueryControls {
   me: {
@@ -36,8 +37,12 @@ const Home: React.SFC<Props> = props => {
   return (
     <Main>
       <WrapperCont>
-        <FeaturedCollections />
-        <FeaturedCommunities />
+        <WrapperFeatured>
+          <FeaturedCollections />
+        </WrapperFeatured>
+        <WrapperFeatured>
+          <FeaturedCommunities />
+        </WrapperFeatured>
         <Wrapper>
           <Tabs>
             <SuperTabList>
@@ -85,6 +90,16 @@ const Home: React.SFC<Props> = props => {
     </Main>
   );
 };
+
+const WrapperFeatured = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom: 24px;
+  background: ${props => props.theme.styles.colour.secondaryBg};
+  border-radius: 6px;
+  margin-top: 16px;
+`;
 
 const withGetInbox = graphql<
   {},

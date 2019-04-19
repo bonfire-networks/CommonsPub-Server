@@ -133,7 +133,6 @@ export const Wrapper = styled.div`
   margin-bottom: 24px;
   background: ${props => props.theme.styles.colour.secondaryBg};
   border-radius: 6px;
-  box-shadow: 0 1px 7px 0px rgba(0, 0, 0, 0.1);
   margin-top: 16px;
   & ul {
     display: block !important;

@@ -7,7 +7,7 @@ export const SuperTabList = styled(TabList)`
   list-style: none;
   padding: 0;
   margin: 0;
-  border-bottom: 1px solid ${props => props.theme.styles.colour.base3};
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 32px;

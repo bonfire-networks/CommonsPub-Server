@@ -577,6 +577,30 @@ export const Card: React.SFC<IconProps> = ({
   </svg>
 );
 
+// CARD
+export const ChevronLeft: React.SFC<IconProps> = ({
+  width = 24,
+  height = 24,
+  strokeWidth = 2,
+  color = '#333'
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    color={color}
+    width={width}
+    height={height}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="feather feather-clipboard"
+  >
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
 // LEFT
 export const Left: React.SFC<IconProps> = ({
   width = 24,
@@ -1541,6 +1565,7 @@ export default {
   Left,
   Right,
   Text,
+  ChevronLeft,
   ArrowRight,
   Unfollow,
   Message,

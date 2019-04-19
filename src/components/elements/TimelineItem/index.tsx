@@ -163,7 +163,11 @@ const FeedItemContents = styled.div`
   }
   & a {
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    color: ${props => props.theme.styles.colour.base2} !important;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 

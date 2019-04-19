@@ -30,7 +30,7 @@ const themeLight = createTheme({
     communityTitle: '#282828',
     communityNote: '#3c3c3c',
     communityIcon: '#848383',
-
+    divider: '#eaeaea',
     // Resource element
     resourceBg: '#eaeef0',
     resourceTitle: '#282828',
@@ -92,7 +92,7 @@ const themeDark = createTheme({
     header: '#46495a',
     headerLink: '#fff',
     breadcrumb: '#46495a',
-
+    divider: '#282a36',
     communityBg: '#eaeef0',
     communityTitle: '#282828',
     communityNote: '#3c3c3c',
