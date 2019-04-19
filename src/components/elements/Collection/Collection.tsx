@@ -1,13 +1,13 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
 import Collection from '../../../types/Collection';
-import H5 from '../../typography/H5/H5';
-import P from '../../typography/P/P';
 import { Link } from 'react-router-dom';
 import Join from './Join';
+import H5 from '../../typography/H5/H5';
+import P from '../../typography/P/P';
 import { Resource, Eye, Message } from '../Icons';
 import media from 'styled-media-query';
-const PlaceholderImg = require('../Icons/layers.svg');
+const PlaceholderImg = require('../Icons/collectionPlaceholder.png');
 
 interface CollectionProps {
   collection: Collection;

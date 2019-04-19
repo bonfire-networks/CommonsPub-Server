@@ -182,7 +182,7 @@ const Header: React.SFC<Props> = props => {
                           href="https://blog.moodle.net/category/versions/"
                           target="blank"
                         >
-                          MoodleNet v0.9 alpha <Trans>release notes</Trans>
+                          v0.9 alpha <Trans>Changelog</Trans>
                         </a>
                       </Item>
                     </List>

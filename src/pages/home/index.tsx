@@ -1,7 +1,5 @@
 import React from 'react';
 import { compose } from 'recompose';
-// const { getUserQuery } = require('../../graphql/getUser.client.graphql');
-// import styled from '../../themes/styled';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import { WrapperCont, Wrapper } from '../communities.all/CommunitiesAll';
 import Main from '../../components/chrome/Main/Main';
@@ -14,6 +12,8 @@ import Loader from '../../components/elements/Loader/Loader';
 import TimelineItem from '../../components/elements/TimelineItem';
 import LoadMoreTimeline from '../../components/elements/Loadmore/timelineUser';
 import { Helmet } from 'react-helmet';
+import FeaturedCollections from '../../components/featuredCollections';
+import FeaturedCommunities from '../../components/featuredCommunities';
 
 interface Data extends GraphqlQueryControls {
   me: {
@@ -36,6 +36,8 @@ const Home: React.SFC<Props> = props => {
   return (
     <Main>
       <WrapperCont>
+        <FeaturedCollections />
+        <FeaturedCommunities />
         <Wrapper>
           <Tabs>
             <SuperTabList>

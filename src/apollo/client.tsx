@@ -1,5 +1,5 @@
 import { ApolloLink } from 'apollo-link';
-import { ApolloClient, ApolloQueryResult } from 'apollo-client';
+import { ApolloClient } from 'apollo-client';
 import {
   InMemoryCache,
   IntrospectionFragmentMatcher
@@ -19,7 +19,7 @@ import { GRAPHQL_ENDPOINT, PHOENIX_SOCKET_ENDPOINT } from '../constants';
 
 import { onError } from 'apollo-link-error';
 
-const { meQuery } = require('../graphql/me.graphql');
+// const { meQuery } = require('../graphql/me.graphql');
 const { setUserMutation } = require('../graphql/setUser.client.graphql');
 
 const fragmentMatcher = new IntrospectionFragmentMatcher({
@@ -28,13 +28,13 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
 
 const cache = new InMemoryCache({ fragmentMatcher });
 const token = localStorage.getItem('user_access_token');
-const user = localStorage.getItem('user_data');
+// const user = localStorage.getItem('user_data');
 
 const defaults = {
   user: {
     __typename: 'User',
-    isAuthenticated: !!token,
-    data: user ? JSON.parse(user) : null
+    isAuthenticated: !!token
+    // data: user ? JSON.parse(user) : null
   }
 };
 
@@ -120,26 +120,26 @@ const link = ApolloLink.split(
 
 const client = new ApolloClient({
   cache,
-  link
-  // defaultOptions: {
-  // watchQuery: {
-  //   fetchPolicy: 'cache-and-network',
-  //   errorPolicy: 'ignore'
-  // },
-  // query: {
-  //   fetchPolicy: 'network-only',
-  //   errorPolicy: 'all'
-  // },
-  // mutate: {
-  //   errorPolicy: 'all'
-  // }
-  // }
+  link,
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'cache-and-network',
+      errorPolicy: 'ignore'
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all'
+    },
+    mutate: {
+      errorPolicy: 'all'
+    }
+  }
 });
 
-interface MeQueryResult extends ApolloQueryResult<object> {
-  // TODO don't use any type
-  me: any;
-}
+// interface MeQueryResult extends ApolloQueryResult<object> {
+//   // TODO don't use any type
+//   me: any;
+// }
 
 /**
  * Initialise the Apollo client by fetching the logged in user
@@ -150,17 +150,17 @@ export default async function initialise() {
   let localUser;
 
   try {
-    const result = await client.query<MeQueryResult>({
-      query: meQuery
-    });
-    console.log('logged in');
-    console.log(result);
+    // const result = await client.query<MeQueryResult>({
+    //   query: meQuery
+    // });
+    // console.log('logged in');
+    // console.log(result);
     localUser = {
-      isAuthenticated: true,
-      data: {
-        ...result.data.me.user,
-        email: result.data.me.email
-      }
+      isAuthenticated: true
+      // data: {
+      //   ...result.data.me.user,
+      //   email: result.data.me.email
+      // }
     };
   } catch (err) {
     console.log('err');
@@ -173,8 +173,8 @@ export default async function initialise() {
     }
 
     localUser = {
-      isAuthenticated: false,
-      data: null
+      isAuthenticated: false
+      // data: null
     };
   }
 

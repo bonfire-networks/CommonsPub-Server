@@ -1,0 +1,112 @@
+query getFeaturedCollections {
+  one: collection(local_id: 5571) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+   two: collection(localId: 5487) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  three: collection(local_id: 5416) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+   four: collection(localId: 4944) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  five: collection(localId: 2374) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  six: collection(localId: 3530) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  seven: collection(localId: 3418) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  eight: collection(localId: 3081) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  nine: collection(localId: 2037) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+  ten: collection(localId: 2486) {
+    id
+    localId
+    name
+    summary
+    icon
+    followers {totalCount}
+    resources {totalCount}
+    threads {totalCount}
+    followed
+  }
+}

@@ -167,6 +167,10 @@ const FeedItemContents = styled.div`
 
 const Comment = styled.div`
   margin-top: 6px;
+  & a {
+    color: ${props => props.theme.styles.colour.base2} !important;
+    font-weight: 400 !important;
+  }
 `;
 
 const MemberItem = styled.span`

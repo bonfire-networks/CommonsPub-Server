@@ -15,8 +15,8 @@ import LoginForm from './LoginForm';
 import { ValidationField, ValidationObject, ValidationType } from './types';
 import { Helmet } from 'react-helmet';
 
-const { getUserQuery } = require('../../graphql/getUser.client.graphql');
-const { setUserMutation } = require('../../graphql/setUser.client.graphql');
+// const { getUserQuery } = require('../../graphql/getUser.client.graphql');
+// const { setUserMutation } = require('../../graphql/setUser.client.graphql');
 const { loginMutation } = require('../../graphql/login.graphql');
 import SignupModal from '../../components/elements/SignupModal';
 
@@ -93,10 +93,11 @@ const Roww = styled(Row)`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
+  const token = localStorage.getItem('user_access_token');
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
-        if (data.user.isAuthenticated) {
+        if (token) {
           return <Redirect to="/" />;
         }
         return <Login data={data} {...props} {...rest} />;
@@ -106,7 +107,7 @@ function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
 }
 
 interface LoginProps extends RouteComponentProps {
-  setLocalUser: Function;
+  // setLocalUser: Function;
   login: Function;
   data: object;
   theme: ThemeInterface;
@@ -205,19 +206,20 @@ class Login extends React.Component<LoginProps, LoginState> {
 
     // TODO pull key out into constant
     localStorage.setItem('user_access_token', userData.token);
-    localStorage.setItem('user_data', JSON.stringify(userData.me.user));
+    window.location.reload();
+    // localStorage.setItem('user_data', JSON.stringify(userData.me.user));
     // delete userData.token;
-    console.log(userData);
+    // console.log(userData);
 
-    await this.props.setLocalUser({
-      variables: {
-        isAuthenticated: true,
-        data: {
-          ...userData.me.user
-          // email: result.data.createSession.me.email
-        }
-      }
-    });
+    // await this.props.setLocalUser({
+    //   variables: {
+    //     isAuthenticated: true,
+    //     data: {
+    //       ...userData.me.user
+    //       // email: result.data.createSession.me.email
+    //     }
+    //   }
+    // });
   }
 
   /** Clear the validation messages for a field and also generic validations when its value changes. */
@@ -299,13 +301,13 @@ export interface Args {
 }
 
 // get the user auth object from local cache
-const withUser = graphql<{}, Args>(getUserQuery);
+// const withUser = graphql<{}, Args>(getUserQuery);
 
 // get user mutation so we can set the user in the local cache
-const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
-  name: 'setLocalUser'
-  // TODO enforce proper types for OperationOption
-} as OperationOption<{}, {}>);
+// const withSetLocalUser = graphql<{}, Args>(setUserMutation, {
+//   name: 'setLocalUser'
+//   // TODO enforce proper types for OperationOption
+// } as OperationOption<{}, {}>);
 
 // to login via the API
 const withLogin = graphql<{}, Args>(loginMutation, {
@@ -315,8 +317,8 @@ const withLogin = graphql<{}, Args>(loginMutation, {
 
 export default compose(
   withTheme,
-  withUser,
-  withSetLocalUser,
+  // withUser,
+  // withSetLocalUser,
   withLogin,
   withState('isOpen', 'onOpen', false),
   withHandlers({

@@ -18,9 +18,11 @@ const LogoH1 = styled.h1<{ big?: boolean }>`
   & a {
     color: inherit !important;
     text-decoration: none;
+    display: block;
+    line-height: 42px;
   }
   & img {
-    height: ${props => (props.big ? '62px' : '26px')};
+    height: ${props => (props.big ? '62px' : '18px')};
     width: auto;
   }
 `;

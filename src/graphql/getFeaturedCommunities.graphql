@@ -1,5 +1,5 @@
 query getFeaturedCommunities {
-  thelounge: community(local_id: 7) {
+  one: community(local_id: 7) {
     id
     localId
     preferredUsername
@@ -13,7 +13,49 @@ query getFeaturedCommunities {
             }
     followed
   }
-   elsalon: community(localId: 15) {
+   two: community(localId: 15) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    members {totalCount}
+    threads {
+                totalCount
+            }
+    collections {totalCount}
+    followed
+  }
+   three: community(localId: 5774) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    members {totalCount}
+    threads {
+                totalCount
+            }
+    collections {totalCount}
+    followed
+  }
+   four: community(localId: 5030) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    members {totalCount}
+    threads {
+                totalCount
+            }
+    collections {totalCount}
+    followed
+  }
+   five: community(localId: 5018) {
     id
     localId
     preferredUsername

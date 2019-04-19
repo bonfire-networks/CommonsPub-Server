@@ -20,11 +20,13 @@ interface ProtectedRouteProps extends RouteComponentProps {
  * @constructor
  */
 function ProtectedRoute({ component: Component, data, ...rest }) {
+  const token = localStorage.getItem('user_access_token');
+
   return (
     <Route
       {...rest}
       render={(props: ProtectedRouteProps) => {
-        if (data.user.isAuthenticated) {
+        if (token) {
           return <Component {...props} />;
         }
         return (

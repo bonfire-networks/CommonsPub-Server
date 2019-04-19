@@ -11,8 +11,8 @@ export default function setUser(_, { isAuthenticated, data }, { cache }) {
   const cacheData = {
     user: {
       __typename: 'User',
-      isAuthenticated,
-      data
+      isAuthenticated
+      // data
     }
   };
 

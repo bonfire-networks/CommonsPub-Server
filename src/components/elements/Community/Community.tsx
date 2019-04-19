@@ -6,7 +6,7 @@ import { Users, Collection, Message } from '../Icons';
 import Join from './Join';
 import { Link } from 'react-router-dom';
 import { clearFix } from 'polished';
-const PlaceholderImg = require('../Icons/coffee.1.svg');
+const PlaceholderImg = require('../Icons/communityPlaceholder.png');
 
 interface Props {
   title: string;
@@ -159,7 +159,6 @@ const Img = styled.div`
   border-radius: 4px;
   background-repeat: no-repeat;
   margin-bottom: 8px;
-  // background-color: rgba(250, 250, 250, 0.8);
   position: relative;
 `;
 const Infos = styled.h6`
