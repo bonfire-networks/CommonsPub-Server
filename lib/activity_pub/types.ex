@@ -1,6 +1,4 @@
-defmodule ActivityPub.Types do
-  alias ActivityPub.{
-    ObjectAspect,
+defmodule ActivityPub.Types do alias ActivityPub.{ ObjectAspect,
     ActorAspect,
     ActivityAspect,
     # LinkAspect,
@@ -16,7 +14,6 @@ defmodule ActivityPub.Types do
     "Object" => {[], [ObjectAspect]},
     "Collection" => {~w[Object], [CollectionAspect]},
     "OrderedCollection" => {~w[Object Collection], []},
-    # "CollectionPage" => {~w[Object Collection], [CollectionPageAspect]},
     "CollectionPage" => {~w[Object Collection], []},
     "OrderedCollectionPage" => {~w[Object Collection OrderedCollection CollectionPage], []},
     "Actor" => {~w[Object], [ActorAspect]},

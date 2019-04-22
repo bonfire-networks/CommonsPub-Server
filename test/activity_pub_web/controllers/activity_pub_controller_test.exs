@@ -392,6 +392,31 @@ defmodule ActivityPub.ActivityPubControllerTest do
     assert resp["type"] == "Update"
     assert equal_list(resp["to"], [@public, actor.followers.id, community.id, community.followers.id, collection.id, collection.followers.id])
 
+    # Followers
+    local_id = ActivityPub.local_id(community.followers)
+    assert resp =
+             conn
+             |> get("/activity_pub/#{local_id}")
+             |> json_response(200)
+
+    assert resp["@context"] == @context
+    assert resp["id"] == community.followers.id
+    assert resp["type"] == "Collection"
+    assert resp["first"]
+    refute resp["items"]
+
+    page_id = resp["first"]
+    assert resp =
+             conn
+             |> get(page_id)
+             |> json_response(200)
+
+    assert resp["@context"] == @context
+    assert resp["id"] == page_id
+    assert resp["type"] == "CollectionPage"
+    refute resp["first"]
+    assert resp["items"] == [other_actor.id, actor.id]
+
     # Undo Like
     assert {:ok, _} = MoodleNet.undo_like(actor, collection)
     undo_like_collection_act = last_activity("Undo")

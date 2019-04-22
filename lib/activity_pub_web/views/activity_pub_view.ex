@@ -5,6 +5,7 @@ defmodule ActivityPubWeb.ActivityPubView do
   require ActivityPub.Guards, as: APG
 
   def render("show.json", %{entity: entity, conn: conn}) do
+    # def render("activity_pub.json", %{entity: entity, conn: conn}) do
     entity
     |> Entity.aspects()
     |> Enum.flat_map(&filter_by_aspect(entity, &1, conn))
@@ -26,7 +27,7 @@ defmodule ActivityPubWeb.ActivityPubView do
     |> custom_fields(entity, aspect, conn)
   end
 
-  defp common_fields(ret, entity, conn) do
+  defp common_fields(ret, entity, _conn) do
     ret
     |> Map.put("id", entity.id)
     |> Map.put("type", entity.type)
@@ -37,6 +38,22 @@ defmodule ActivityPubWeb.ActivityPubView do
   defp custom_fields(ret, _entity, ActivityPub.ActorAspect, conn) do
     ret
     |> add_endpoints(conn)
+  end
+
+  defp custom_fields(ret, entity, _, _conn)
+       when APG.has_type(entity, "CollectionPage")
+       when APG.has_type(entity, "MoodleNet:Community")
+       when APG.has_type(entity, "MoodleNet:Collection"),
+       do: ret
+
+  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, _conn)
+       when APG.has_type(entity, "CollectionPage"),
+       do: ret
+
+  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, conn) do
+    ret
+    |> Map.put("first", ActivityPub.CollectionPage.id(entity))
+    # |> Map.delete("items")
   end
 
   defp custom_fields(ret, _, _, _), do: ret
@@ -58,6 +75,7 @@ defmodule ActivityPubWeb.ActivityPubView do
     aspect.__aspect__(:fields)
     |> Enum.map(&aspect.__aspect__(:field, &1))
     |> Enum.reduce([], fn
+      %{name: :items}, acc -> [:items | acc]
       %{virtual: true}, acc -> acc
       %{name: name}, acc -> [name | acc]
     end)
@@ -92,6 +110,8 @@ defmodule ActivityPubWeb.ActivityPubView do
 
   defp set_custom_type(json, type), do: Map.put(json, "type", custom_type(type))
 
+  defp custom_type(["Object", "Collection"]), do: "Collection"
+  defp custom_type(["Object", "Collection", "CollectionPage"]), do: "CollectionPage"
   defp custom_type(["Object", "Note"]), do: "Note"
   defp custom_type(["Object", "Actor", "Person"]), do: "Person"
   defp custom_type(["Object", "Activity", activity_type]), do: activity_type

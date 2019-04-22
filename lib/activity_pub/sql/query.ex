@@ -128,7 +128,7 @@ defmodule ActivityPub.SQL.Query do
 
   def without_type(%Ecto.Query{} = query, type) when is_binary(type) do
     from([entity: entity] in query,
-      where: not(fragment("? @> array[?]", entity.type, ^type))
+      where: not fragment("? @> array[?]", entity.type, ^type)
     )
   end
 
@@ -232,6 +232,16 @@ defmodule ActivityPub.SQL.Query do
              APG.has_status(target, :loaded)
       when APG.is_entity(subject) and APG.has_status(subject, :loaded) and is_integer(target),
       do: do_has?(subject, rel, target)
+
+  def belongs_to(%Ecto.Query{} = query, collection) when APG.has_type(collection, "Collection") do
+    collection_local_id = ActivityPub.local_id(collection)
+    from([entity: entity] in query,
+      inner_join: rel in "activity_pub_collection_items",
+      as: :items,
+      on: entity.local_id == rel.target_id,
+      where: rel.subject_id == ^collection_local_id
+    )
+  end
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
     Enum.map(sql_aspect.__sql_aspect__(:associations), fn
