@@ -8,7 +8,7 @@ import P from '../../typography/P/P';
 import Button from '../Button/Button';
 import { compose, withState, withHandlers } from 'recompose';
 import EditResourceModal from '../EditResourceModal';
-const PlaceholderImg = require('../Icons/file-text.svg');
+const PlaceholderImg = require('../Icons/resourcePlaceholder.png');
 
 interface Props {
   icon: string;
