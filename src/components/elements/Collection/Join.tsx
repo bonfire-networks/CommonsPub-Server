@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../../themes/styled';
-import { compose } from 'recompose';
+import { compose, withState } from 'recompose';
 import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCollectionMutation
@@ -11,6 +11,7 @@ const {
 import gql from 'graphql-tag';
 import { Eye, Unfollow } from '../Icons';
 import { Trans } from '@lingui/macro';
+import Loader from '../Loader/Loader';
 
 interface Props {
   joinCollection: any;
@@ -18,6 +19,8 @@ interface Props {
   id: string;
   followed: boolean;
   externalId: string;
+  isSubmitting: boolean;
+  onSubmitting: any;
 }
 
 const withJoinCollection = graphql<{}>(joinCollectionMutation, {
@@ -35,14 +38,17 @@ const Join: React.SFC<Props> = ({
   id,
   leaveCollection,
   externalId,
-  followed
+  followed,
+  isSubmitting,
+  onSubmitting
 }) => {
   if (followed) {
     return (
       <Span
         unfollow
-        onClick={() =>
-          leaveCollection({
+        onClick={() => {
+          onSubmitting(true);
+          return leaveCollection({
             variables: { collectionId: id },
             update: (proxy, { data: { undoJoinCollection } }) => {
               const fragment = gql`
@@ -65,20 +71,32 @@ const Join: React.SFC<Props> = ({
             }
           })
             .then(res => {
-              console.log(res);
+              onSubmitting(false);
             })
-            .catch(err => console.log(err))
-        }
+            .catch(err => console.log(err));
+        }}
       >
-        <Unfollow width={18} height={18} strokeWidth={2} color={'#1e1f2480'} />
-        <Trans>Unfollow</Trans>
+        {isSubmitting ? (
+          <Loader />
+        ) : (
+          <>
+            <Unfollow
+              width={18}
+              height={18}
+              strokeWidth={2}
+              color={'#1e1f2480'}
+            />
+            <Trans>Unfollow</Trans>
+          </>
+        )}
       </Span>
     );
   } else {
     return (
       <Span
-        onClick={() =>
-          joinCollection({
+        onClick={() => {
+          onSubmitting(true);
+          return joinCollection({
             variables: { collectionId: id },
             update: (proxy, { data: { joinCollection } }) => {
               const fragment = gql`
@@ -101,15 +119,21 @@ const Join: React.SFC<Props> = ({
             }
           })
             .then(res => {
-              console.log(res);
+              onSubmitting(false);
             })
-            .catch(err => console.log(err))
-        }
+            .catch(err => console.log(err));
+        }}
       >
-        <span>
-          <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
-        </span>
-        <Trans>Follow</Trans>
+        {isSubmitting ? (
+          <Loader />
+        ) : (
+          <>
+            <span>
+              <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
+            </span>
+            <Trans>Follow</Trans>
+          </>
+        )}
       </Span>
     );
   }
@@ -155,5 +179,6 @@ const Span = styled.div<{ unfollow?: boolean }>`
 
 export default compose(
   withJoinCollection,
-  withLeaveCollection
+  withLeaveCollection,
+  withState('isSubmitting', 'onSubmitting', false)
 )(Join);

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '../../../themes/styled';
 import { Preferites } from '../Icons';
-import { compose } from 'recompose';
+import { compose, withState } from 'recompose';
 import { graphql, OperationOption } from 'react-apollo';
 const {
   joinCommunityMutation
@@ -11,10 +11,11 @@ const {
 } = require('../../../graphql/undoJoinCommunity.graphql');
 import { Trans } from '@lingui/macro';
 import gql from 'graphql-tag';
+import Loader from '../Loader/Loader';
 
-const {
-  getJoinedCommunitiesQuery
-} = require('../../../graphql/getJoinedCommunities.graphql');
+// const {
+//   getJoinedCommunitiesQuery
+// } = require('../../../graphql/getJoinedCommunities.graphql');
 
 interface Props {
   joinCommunity: any;
@@ -22,6 +23,8 @@ interface Props {
   id: string;
   followed: boolean;
   externalId: string;
+  isSubmitting: boolean;
+  onSubmitting: any;
 }
 
 const withJoinCommunity = graphql<{}>(joinCommunityMutation, {
@@ -39,13 +42,16 @@ const Join: React.SFC<Props> = ({
   id,
   leaveCommunity,
   externalId,
-  followed
+  followed,
+  isSubmitting,
+  onSubmitting
 }) => {
   if (followed) {
     return (
       <Span
-        onClick={() =>
-          leaveCommunity({
+        onClick={() => {
+          onSubmitting(true);
+          return leaveCommunity({
             variables: { communityId: id },
             update: (proxy, { data: { undoJoinCommunity } }) => {
               const fragment = gql`
@@ -59,31 +65,6 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
-              let joinedCommunities = proxy.readQuery({
-                query: getJoinedCommunitiesQuery,
-                variables: {
-                  limit: 15
-                }
-              });
-              let index = joinedCommunities.me.user.joinedCommunities.edges.findIndex(
-                e => e.node.id === externalId
-              );
-              if (index === -1) {
-                joinedCommunities.me.user.joinedCommunities.edges.unshift(
-                  collection
-                );
-              }
-              joinedCommunities.me.user.joinedCommunities.edges.splice(
-                index,
-                1
-              );
-              proxy.writeQuery({
-                query: getJoinedCommunitiesQuery,
-                variables: {
-                  limit: 15
-                },
-                data: joinedCommunities
-              });
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -93,19 +74,20 @@ const Join: React.SFC<Props> = ({
             }
           })
             .then(res => {
-              console.log(res);
+              onSubmitting(false);
             })
-            .catch(err => console.log(err))
-        }
+            .catch(err => console.log(err));
+        }}
       >
-        <Trans>Leave</Trans>
+        {isSubmitting ? <Loader /> : <Trans>Leave</Trans>}
       </Span>
     );
   } else {
     return (
       <Span
-        onClick={() =>
-          joinCommunity({
+        onClick={() => {
+          onSubmitting(true);
+          return joinCommunity({
             variables: { communityId: id },
             update: (proxy, { data: { joinCommunity } }) => {
               const fragment = gql`
@@ -119,31 +101,6 @@ const Join: React.SFC<Props> = ({
                 fragmentName: 'Res'
               });
               collection.followed = !collection.followed;
-
-              let joinedCommunities = proxy.readQuery({
-                query: getJoinedCommunitiesQuery,
-                variables: {
-                  limit: 15
-                }
-              });
-              if (joinedCommunities) {
-                let index = joinedCommunities.me.user.joinedCommunities.edges.findIndex(
-                  e => e.node.id === externalId
-                );
-                if (index === -1) {
-                  joinedCommunities.me.user.joinedCommunities.edges.unshift(
-                    collection
-                  );
-                }
-                proxy.writeQuery({
-                  query: getJoinedCommunitiesQuery,
-                  variables: {
-                    limit: 15
-                  },
-                  data: joinedCommunities
-                });
-              }
-
               proxy.writeFragment({
                 id: `Community:${externalId}`,
                 fragment: fragment,
@@ -153,18 +110,24 @@ const Join: React.SFC<Props> = ({
             }
           })
             .then(res => {
-              console.log(res);
+              onSubmitting(false);
             })
-            .catch(err => console.log(err))
-        }
+            .catch(err => console.log(err));
+        }}
       >
-        <Preferites
-          width={16}
-          height={16}
-          strokeWidth={2}
-          color={'#1e1f2480'}
-        />
-        <Trans>Join</Trans>
+        {isSubmitting ? (
+          <Loader />
+        ) : (
+          <>
+            <Preferites
+              width={16}
+              height={16}
+              strokeWidth={2}
+              color={'#1e1f2480'}
+            />
+            <Trans>Join</Trans>
+          </>
+        )}
       </Span>
     );
   }
@@ -202,5 +165,6 @@ const Span = styled.div`
 
 export default compose(
   withJoinCommunity,
-  withLeaveCommunity
+  withLeaveCommunity,
+  withState('isSubmitting', 'onSubmitting', false)
 )(Join);
