@@ -73,7 +73,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
         setSubmitting(false);
         setFieldValue('content', ' ');
         props.onSelectedThread(null);
-        // window.location.reload()
+        window.location.reload();
       })
       .catch(err => console.log(err));
   }
