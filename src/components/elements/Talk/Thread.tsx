@@ -18,13 +18,10 @@ interface MyFormProps {
   createThread: any;
   id: string;
   externalId: string;
-  onToggle(boolean): boolean;
-  toggle: boolean;
   setSubmitting(boolean): boolean;
   setFieldValue: any;
   isOpen: boolean;
-  selectThread(number): number;
-  onOpen(boolean): boolean;
+  onSelectedThread: any;
 }
 
 const withCreateThread = graphql<{}>(createThreadMutation, {
@@ -53,9 +50,11 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
           const data = proxy.readQuery({
             query: getCommunityQuery,
             variables: {
+              limit: 15,
               context: props.id
             }
           });
+          console.log(data);
           data.community.threads.edges.unshift({
             node: createThread,
             __typename: 'CommunityThreadsEdge'
@@ -70,10 +69,10 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
         }
       })
       .then(res => {
+        console.log(res);
         setSubmitting(false);
         setFieldValue('content', ' ');
-        props.onOpen(false);
-        props.onToggle(false);
+        props.onSelectedThread(null);
       })
       .catch(err => console.log(err));
   }

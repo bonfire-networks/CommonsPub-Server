@@ -41,7 +41,6 @@ const withGetThread = graphql<
 }) as OperationOption<{}, {}>;
 
 const Component = ({ data, id, selectThread, match, type, history }) => {
-  console.log(history);
   if (data.error) {
     return 'error...';
   } else if (data.loading) {
@@ -93,7 +92,7 @@ const Component = ({ data, id, selectThread, match, type, history }) => {
           author={author}
           comment={message}
         />
-        {data.comment.replies.edges.map((comment, i) => {
+        {data.comment.replies.edges.reverse().map((comment, i) => {
           let author = {
             localId: comment.node.author.localId,
             name: comment.node.author.name,

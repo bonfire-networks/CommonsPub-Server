@@ -1,6 +1,7 @@
 import * as React from 'react';
 import CommentPreview from './CommentPreview';
 import Talk from '../../elements/Talk/Thread';
+import TalkCollection from '../../elements/Talk/ThreadCollection';
 import { compose, withState } from 'recompose';
 import { Send } from '../../elements/Icons';
 import {
@@ -73,13 +74,23 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
           )}
         </>
       ) : props.selectedThread === 'thread' ? (
-        <Talk
-          full
-          id={props.localId}
-          thread
-          onSelectedThread={props.onSelectedThread}
-          externalId={props.id}
-        />
+        props.threads.__typename.includes('Collection') ? (
+          <TalkCollection
+            full
+            id={props.localId}
+            thread
+            onSelectedThread={props.onSelectedThread}
+            externalId={props.id}
+          />
+        ) : (
+          <Talk
+            full
+            id={props.localId}
+            thread
+            onSelectedThread={props.onSelectedThread}
+            externalId={props.id}
+          />
+        )
       ) : null}
     </div>
   );

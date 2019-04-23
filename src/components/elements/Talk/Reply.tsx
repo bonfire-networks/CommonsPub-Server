@@ -67,7 +67,7 @@ const TalkWithFormik = withFormik<MyFormProps, FormValues>({
             fragment: fragment,
             fragmentName: 'Comm'
           });
-          comment.replies.edges.push({
+          comment.replies.edges.unshift({
             node: createReply,
             __typename: 'CollectionRepliesEdge'
           });
