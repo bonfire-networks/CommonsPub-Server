@@ -20,7 +20,11 @@ interface ProtectedRouteProps extends RouteComponentProps {
  * @constructor
  */
 function ProtectedRoute({ component: Component, data, ...rest }) {
-  const token = localStorage.getItem('user_access_token');
+  let token;
+  process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+  'https://home.moodle.net/api/graphql'
+    ? (token = localStorage.getItem('user_access_token'))
+    : (token = localStorage.getItem('dev_user_access_token'));
 
   return (
     <Route

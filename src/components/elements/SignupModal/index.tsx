@@ -192,7 +192,13 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
         variables: variables
       })
       .then(res => {
-        localStorage.setItem('user_access_token', res.data.createUser.token);
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? localStorage.setItem('user_access_token', res.data.createUser.token)
+          : localStorage.setItem(
+              'dev_user_access_token',
+              res.data.createUser.token
+            );
         setSubmitting(false);
         window.location.reload();
       })

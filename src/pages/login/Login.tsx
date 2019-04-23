@@ -93,7 +93,12 @@ const Roww = styled(Row)`
  * @constructor
  */
 function RedirectIfAuthenticated({ component: Component, data, ...rest }) {
-  const token = localStorage.getItem('user_access_token');
+  let token;
+  process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+  'https://home.moodle.net/api/graphql'
+    ? (token = localStorage.getItem('user_access_token'))
+    : (token = localStorage.getItem('dev_user_access_token'));
+
   return (
     <Route
       render={(props: RouteComponentProps & LoginProps) => {
@@ -205,21 +210,11 @@ class Login extends React.Component<LoginProps, LoginState> {
     const userData = result.data.createSession;
 
     // TODO pull key out into constant
-    localStorage.setItem('user_access_token', userData.token);
+    process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+    'https://home.moodle.net/api/graphql'
+      ? localStorage.setItem('user_access_token', userData.token)
+      : localStorage.setItem('dev_user_access_token', userData.token);
     window.location.reload();
-    // localStorage.setItem('user_data', JSON.stringify(userData.me.user));
-    // delete userData.token;
-    // console.log(userData);
-
-    // await this.props.setLocalUser({
-    //   variables: {
-    //     isAuthenticated: true,
-    //     data: {
-    //       ...userData.me.user
-    //       // email: result.data.createSession.me.email
-    //     }
-    //   }
-    // });
   }
 
   /** Clear the validation messages for a field and also generic validations when its value changes. */

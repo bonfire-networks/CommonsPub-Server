@@ -27,8 +27,10 @@ const fragmentMatcher = new IntrospectionFragmentMatcher({
 });
 
 const cache = new InMemoryCache({ fragmentMatcher });
-const token = localStorage.getItem('user_access_token');
-// const user = localStorage.getItem('user_data');
+let token;
+process.env.REACT_APP_GRAPHQL_ENDPOINT === 'https://home.moodle.net/api/graphql'
+  ? (token = localStorage.getItem('user_access_token'))
+  : (token = localStorage.getItem('dev_user_access_token'));
 
 const defaults = {
   user: {
@@ -52,7 +54,12 @@ const stateLink = withClientState({
  */
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from localstorage if it exists
-  const token = localStorage.getItem('user_access_token');
+  let token;
+  process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+  'https://home.moodle.net/api/graphql'
+    ? (token = localStorage.getItem('user_access_token'))
+    : (token = localStorage.getItem('dev_user_access_token'));
+
   // return the headers to the context so httpLink can read them
   return {
     headers: {
