@@ -69,6 +69,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
     field(:primary_language, :string)
 
+    field(:creator, :user, do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
+
     field :collections, non_null(:community_collections_connection) do
       arg(:limit, :integer)
       arg(:before, :integer)

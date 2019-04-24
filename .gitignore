@@ -38,3 +38,5 @@ config/secret.exs
 
 cover
 priv/repo/structure.sql
+
+*.dump
