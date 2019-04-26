@@ -14,6 +14,7 @@ import Search from '../../pages/search/Search';
 import Home from '../../pages/home';
 import Profile from '../../pages/Profile';
 import User from '../../pages/User';
+import Settings from '../../pages/settings';
 import media from 'styled-media-query';
 
 const AppInner = styled.div`
@@ -77,6 +78,7 @@ export default compose(withState('sidebar', 'onSidebar', false))(p => (
                 />
                 <Switch>
                   <Route exact path="/" component={Home} />
+                  <Route exact path="/settings" component={Settings} />
                   <Route exact path="/communities" component={CommunitiesAll} />
                   <Route
                     path="/communities/:community"
