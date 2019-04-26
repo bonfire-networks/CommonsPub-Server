@@ -3,6 +3,11 @@
     "types": [
       {
         "kind": "UNION",
+        "name": "CommentContext",
+        "possibleTypes": [{ "name": "Collection" }, { "name": "Community" }]
+      },
+      {
+        "kind": "UNION",
         "name": "ActivityObject",
         "possibleTypes": [
           { "name": "Community" },
@@ -10,11 +15,6 @@
           { "name": "Resource" },
           { "name": "Comment" }
         ]
-      },
-      {
-        "kind": "UNION",
-        "name": "CommentContext",
-        "possibleTypes": [{ "name": "Collection" }, { "name": "Community" }]
       }
     ]
   }
