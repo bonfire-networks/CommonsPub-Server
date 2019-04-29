@@ -172,16 +172,19 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
     {
       comment(local_id: #{local_id(comment)}) {
         id
+        content
       }
     }
     """
 
-    assert nil ==
+    assert ret =
              conn
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("data")
              |> Map.fetch!("comment")
+
+    assert ret["content"] == ""
   end
 
   test "delete session", %{conn: conn} do

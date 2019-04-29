@@ -110,7 +110,7 @@ defmodule MoodleNet.Accounts do
     Query.new()
     |> Query.with_type("Note")
     |> Query.has(:attributed_to, actor)
-    |> Query.delete_all()
+    |> Query.update_all(set: [content: %{"und" => ""}])
 
     ActivityPub.delete(actor, [:icon, :location])
     :ok

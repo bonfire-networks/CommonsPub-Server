@@ -29,6 +29,12 @@ defmodule ActivityPub.SQL.Query do
     |> Repo.delete_all()
   end
 
+  # FIXME this should not be here?
+  def update_all(%Ecto.Query{} = query, updates) do
+    query
+    |> Repo.update_all(updates)
+  end
+
   def one(%Ecto.Query{} = query) do
     query
     # |> print_query()
