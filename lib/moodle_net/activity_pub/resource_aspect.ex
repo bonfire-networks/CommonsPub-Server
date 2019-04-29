@@ -1,5 +1,5 @@
-defmodule ActivityPub.ResourceAspect do
-  use ActivityPub.Aspect, persistence: ActivityPub.SQLResourceAspect
+defmodule MoodleNet.AP.ResourceAspect do
+  use ActivityPub.Aspect, persistence: MoodleNet.AP.SQLResourceAspect
 
   aspect do
     field(:same_as, :string)

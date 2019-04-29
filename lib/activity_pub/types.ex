@@ -1,15 +1,9 @@
-defmodule ActivityPub.Types do alias ActivityPub.{ ObjectAspect,
-    ActorAspect,
-    ActivityAspect,
-    # LinkAspect,
-    CollectionAspect,
-    ResourceAspect,
-  }
+defmodule ActivityPub.Types do
+  alias ActivityPub.{ObjectAspect, ActorAspect, ActivityAspect, CollectionAspect}
 
   alias ActivityPub.BuildError
 
   @type_map %{
-    # "Link" => {[], [LinkAspect]},
     "Link" => {[], []},
     "Object" => {[], [ObjectAspect]},
     "Collection" => {~w[Object], [CollectionAspect]},
@@ -65,10 +59,9 @@ defmodule ActivityPub.Types do alias ActivityPub.{ ObjectAspect,
     "Tombstone" => {~w[Object], []},
     "Video" => {~w[Object], []},
     "Mention" => {~w[Link], []},
-    "MoodleNet:Community" => {~w[Object Actor Group Collection], []},
-    "MoodleNet:Collection" => {~w[Object Actor Group Collection], []},
-    # "MoodleNet:EducationalResource" => {~w[Link], []},
-    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], [ResourceAspect]}
+    "MoodleNet:Community" => {~w[Object Actor Group], [MoodleNet.AP.CommunityAspect]},
+    "MoodleNet:Collection" => {~w[Object Actor Group], [MoodleNet.AP.CollectionAspect]},
+    "MoodleNet:EducationalResource" => {~w[Object Page WebPage], [MoodleNet.AP.ResourceAspect]}
   }
 
   def build(value) do

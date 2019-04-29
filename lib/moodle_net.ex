@@ -1,6 +1,6 @@
 defmodule MoodleNet do
   import ActivityPub.Guards
-  alias ActivityPub.SQL.Query
+  alias ActivityPub.SQL.{Query, Alter}
 
   alias MoodleNet.Policy
   require ActivityPub.Guards, as: APG
@@ -485,6 +485,7 @@ defmodule MoodleNet do
          activity = Map.put(activity, "object", collection),
          {:ok, activity} <- ActivityPub.new(activity),
          {:ok, %{object: [collection]}} <- ActivityPub.apply(activity),
+         {:ok, 1} <- Alter.add(community, :collections, collection),
          {:ok, true} <- MoodleNet.follow_collection(actor, collection) do
       {:ok, collection}
     end
@@ -566,7 +567,8 @@ defmodule MoodleNet do
          {:ok, resource} <- ActivityPub.new(attrs),
          activity = Map.put(activity, "object", resource),
          {:ok, activity} <- ActivityPub.new(activity),
-         {:ok, %{object: [resource]}} <- ActivityPub.apply(activity) do
+         {:ok, %{object: [resource]}} <- ActivityPub.apply(activity),
+         {:ok, 1} <- Alter.add(collection, :resources, resource) do
       {:ok, resource}
     end
   end

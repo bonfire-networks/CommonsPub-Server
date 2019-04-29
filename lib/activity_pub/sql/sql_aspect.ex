@@ -3,8 +3,7 @@ defmodule ActivityPub.SQLAspect do
     SQLObjectAspect,
     SQLActorAspect,
     SQLActivityAspect,
-    SQLCollectionAspect,
-    SQLResourceAspect
+    SQLCollectionAspect
   }
 
   alias ActivityPub.SQL.Associations.{ManyToMany, BelongsTo, Collection}
@@ -15,7 +14,9 @@ defmodule ActivityPub.SQLAspect do
       SQLActorAspect,
       SQLActivityAspect,
       SQLCollectionAspect,
-      SQLResourceAspect
+      MoodleNet.AP.SQLCommunityAspect,
+      MoodleNet.AP.SQLCollectionAspect,
+      MoodleNet.AP.SQLResourceAspect
     ]
 
   # FIXME make this similar to aspect where the user can redifine
