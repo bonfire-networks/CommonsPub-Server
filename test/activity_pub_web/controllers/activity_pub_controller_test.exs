@@ -100,17 +100,19 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp["@context"] == @context
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"]
-    assert resp["following"]
+    assert resp["followers"] == community.followers.id
+    assert resp["following"] == community.following.id
     assert resp["icon"]
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"]
-    assert resp["outbox"]
+    assert resp["inbox"] == community.inbox.id
+    assert resp["outbox"] == community.outbox.id
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
     assert resp["type"] == ["Group", "MoodleNet:Community"]
+    assert resp["streams"]["collections"] == community.collections.id
+    assert resp["streams"]["subcommunities"] == community.subcommunities.id
 
     collection = Factory.collection(actor, community)
     follow_collection_act = last_activity("Follow")
@@ -153,17 +155,19 @@ defmodule ActivityPub.ActivityPubControllerTest do
     assert resp["@context"] == @context
     assert resp["context"] == community.id
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"]
-    assert resp["following"]
+    assert resp["followers"] == collection.followers.id
+    assert resp["following"] == collection.following.id
     assert resp["icon"]
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"]
-    assert resp["outbox"]
+    assert resp["inbox"] == collection.inbox.id
+    assert resp["outbox"] == collection.outbox.id
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
     assert resp["type"] == ["Group", "MoodleNet:Collection"]
+    assert resp["streams"]["resources"] == collection.resources.id
+    assert resp["streams"]["subcollections"] == collection.subcollections.id
 
     resource = Factory.resource(actor, collection)
     create_resource_act = last_activity("Create")

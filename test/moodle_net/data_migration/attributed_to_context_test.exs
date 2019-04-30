@@ -1,7 +1,7 @@
-defmodule MoodleNet.DataMigration.CreateGravatarIconTest do
+defmodule MoodleNet.DataMigration.AttributedToContextTest do
   use MoodleNet.DataCase, async: true
 
-  alias ActivityPub.SQL.{Alter}
+  alias ActivityPub.SQL.{Alter, Query}
 
   test "works" do
     actor = Factory.actor()
@@ -18,5 +18,8 @@ defmodule MoodleNet.DataMigration.CreateGravatarIconTest do
     Alter.add(resource, :attributed_to, collection)
 
     MoodleNet.DataMigration.AttributedToContext.call()
+
+    assert Query.has?(collection, :context, community)
+    assert Query.has?(resource, :context, collection)
   end
 end

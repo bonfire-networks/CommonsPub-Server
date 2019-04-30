@@ -10,8 +10,9 @@ defmodule ActivityPubWeb.ActivityPubView do
     |> Entity.aspects()
     |> Enum.flat_map(&filter_by_aspect(entity, &1, conn))
     |> Enum.into(%{})
-    |> set_custom_type(entity.type)
-    |> set_custom_context()
+    |> set_type(entity.type)
+    |> set_context()
+    |> set_streams(entity)
     |> set_public()
   end
 
@@ -108,7 +109,7 @@ defmodule ActivityPubWeb.ActivityPubView do
   defp normalize_value(entity) when APG.is_entity(entity), do: entity.id
   defp normalize_value(value), do: value
 
-  defp set_custom_type(json, type), do: Map.put(json, "type", custom_type(type))
+  defp set_type(json, type), do: Map.put(json, "type", custom_type(type))
 
   defp custom_type(["Object", "Collection"]), do: "Collection"
   defp custom_type(["Object", "Collection", "CollectionPage"]), do: "CollectionPage"
@@ -142,8 +143,20 @@ defmodule ActivityPubWeb.ActivityPubView do
       "sensitive" => "as:sensitive"
     }
   ]
-  defp set_custom_context(json),
+  defp set_context(json),
     do: Map.put(json, "@context", @context)
+
+  defp set_streams(json, entity) when APG.has_type(entity, "MoodleNet:Community") do
+    {streams, json} = Map.split(json, ["collections", "subcommunities"])
+    Map.put(json, "streams", streams)
+  end
+
+  defp set_streams(json, entity) when APG.has_type(entity, "MoodleNet:Collection") do
+    {streams, json} = Map.split(json, ["resources", "subcollections"])
+    Map.put(json, "streams", streams)
+  end
+
+  defp set_streams(json, _entity), do: json
 
   defp set_public(%{"public" => true} = json) do
     json
