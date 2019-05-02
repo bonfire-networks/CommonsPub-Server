@@ -1,6 +1,8 @@
 defmodule ActivityPub.CollectionPage do
   import ActivityPub.Guards
+  alias ActivityPub.UrlBuilder
   alias ActivityPub.SQL.Query
+
   defguardp is_local_collection(collection) when has_type(collection, "Collection") and is_local(collection)
 
   def new(collection, params \\ %{}) when is_local_collection(collection) do
@@ -18,17 +20,8 @@ defmodule ActivityPub.CollectionPage do
     |> ActivityPub.new()
   end
 
-  def id(collection, params \\ %{}) when is_local_collection(collection) do
-    query =
-      params
-      |> Map.take(["before", "after", "limit"])
-      |> query()
-
-    collection.id <> "/page" <> query
-  end
-
-  defp query(params) when params == %{}, do: ""
-  defp query(params), do: "?#{URI.encode_query(params)}"
+  def id(collection, params \\ %{}) when is_local_collection(collection),
+    do: UrlBuilder.id({:page, ActivityPub.local_id(collection), params})
 
   defp get_items(collection, params) do
     Query.new()

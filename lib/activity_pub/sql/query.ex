@@ -76,6 +76,11 @@ defmodule ActivityPub.SQL.Query do
 
   def get_by_id(id, opts \\ []) when is_binary(id) do
     case UrlBuilder.get_local_id(id) do
+      {:ok, {:page, collection_id, params}} ->
+        collection = get_by_local_id(collection_id, opts)
+        {:ok, page} = ActivityPub.CollectionPage.new(collection, params)
+        page
+
       {:ok, local_id} ->
         get_by_local_id(local_id, opts)
 

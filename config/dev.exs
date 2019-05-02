@@ -81,3 +81,5 @@ config :moodle_net, MoodleNet.Repo,
   database: "moodle_net_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :moodle_net, :ap_base_url, "http://dev.localhost:4000/activity_pub"

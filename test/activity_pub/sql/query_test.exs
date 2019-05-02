@@ -51,6 +51,28 @@ defmodule ActivityPub.SQL.QueryTest do
     assert "alexcastano" == loaded.preferred_username
   end
 
+  test "get_by_id/1 page" do
+    actor = Factory.actor()
+    community = Factory.community(actor)
+    actor_4 = Factory.actor()
+    actor_3 = Factory.actor()
+    actor_2 = Factory.actor()
+    MoodleNet.join_community(actor_2, community)
+    MoodleNet.join_community(actor_3, community)
+    MoodleNet.join_community(actor_4, community)
+
+    assert {:ok, page} = ActivityPub.CollectionPage.new(community.followers)
+
+    assert loaded = Query.get_by_id(page.id)
+    # assert loaded == page
+    assert loaded["next"] == nil
+    assert loaded["prev"] == nil
+    assert loaded.total_items == 4
+    assert length(loaded.items) == 4
+    assert page["part_of"] == community.followers
+    assert [actor_4.id, actor_3.id, actor_2.id, actor.id] == Enum.map(loaded.items, & &1.id)
+  end
+
   test "preload/1" do
     map = %{type: "Person", preferred_username: "alex"}
     assert person = insert(map)
