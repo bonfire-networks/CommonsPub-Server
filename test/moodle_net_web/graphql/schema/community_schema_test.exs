@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   @tag :user
-  test "create community", %{conn: conn} do
+  test "create community", %{conn: conn, actor: actor} do
     query = """
       mutation {
         createCommunity(
@@ -81,6 +81,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           icon
           published
           updated
+          creator {
+            id
+            localId
+            joinedCommunities { totalCount }
+          }
         }
       }
     """
@@ -102,6 +107,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     assert community["preferredUsername"] == "community_preferredUser"
     assert community["primaryLanguage"] == "community_language"
     assert community["icon"] == "https://imag.es/community"
+    assert community["creator"] == %{
+      "id" => actor.id,
+      "localId" => local_id(actor),
+      "joinedCommunities" => %{"totalCount" => 1}
+    }
   end
 
   @tag :user

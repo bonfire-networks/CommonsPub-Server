@@ -68,4 +68,5 @@ run: ## Run the app in Docker
 	docker run\
 		--env-file config/docker.env \
 		--expose 4000 -p 4000:4000 \
-		--rm -it moodlenet:latest
+		--link postgres \
+		--rm -it moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)

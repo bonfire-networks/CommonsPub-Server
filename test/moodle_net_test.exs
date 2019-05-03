@@ -1,6 +1,8 @@
 defmodule MoodleNetTest do
   use MoodleNet.DataCase, async: true
 
+  alias ActivityPub.SQL.Query
+
   describe "community" do
     test "create" do
       actor = Factory.actor()
@@ -351,6 +353,7 @@ defmodule MoodleNetTest do
       assert collection["primary_language"] == attrs["primary_language"]
       url = get_in(collection, [:icon, Access.at(0), :url, Access.at(0)])
       assert url == attrs["icon"]["url"]
+      assert Query.has?(comm, :collections, collection)
     end
   end
 
@@ -383,6 +386,7 @@ defmodule MoodleNetTest do
       assert resource.educational_use == attrs["educational_use"]
       assert resource.time_required == attrs["time_required"]
       assert resource.typical_age_range == attrs["typical_age_range"]
+      assert Query.has?(coll, :resources, resource)
     end
   end
 
@@ -403,9 +407,13 @@ defmodule MoodleNetTest do
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
 
+      assert Query.has?(comm, :threads, comment)
+
       assert {:ok, comment} = MoodleNet.create_thread(actor, coll, attrs)
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
+
+      assert Query.has?(coll, :threads, comment)
     end
   end
 

@@ -83,7 +83,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
     field(:primary_language, :string)
 
-    field(:community, non_null(:community), do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
+    field(:creator, :user, do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
+
+    field(:community, non_null(:community), do: resolve(Resolver.with_assoc(:context, single: true)))
 
     field :followers, non_null(:collection_followers_connection) do
       arg(:limit, :integer)

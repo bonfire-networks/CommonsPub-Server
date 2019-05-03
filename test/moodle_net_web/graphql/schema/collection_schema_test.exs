@@ -83,6 +83,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
         icon
         published
         updated
+        creator {
+          id
+          localId
+          joinedCommunities { totalCount }
+        }
         community {
           id
           localId
@@ -113,6 +118,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
       "id" => community.id,
       "localId" => local_id(community),
       "name" => community.name["und"]
+    }
+    assert collection["creator"] == %{
+      "id" => actor.id,
+      "localId" => local_id(actor),
+      "joinedCommunities" => %{"totalCount" => 1}
     }
   end
 

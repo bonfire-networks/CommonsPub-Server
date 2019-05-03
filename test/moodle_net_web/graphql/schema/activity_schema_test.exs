@@ -105,28 +105,20 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchemaTest do
                "user" => %{"id" => ^actor_id}
              } = create
 
-      #       MoodleNet.undo_follow(actor, community)
+      MoodleNet.Accounts.delete_user(actor)
 
-      #       assert ret =
-      #                conn
-      #                |> post("/api/graphql", %{query: query})
-      #                |> json_response(200)
-      #                |> Map.fetch!("data")
-      #                |> Map.fetch!("localActivities")
+      assert ret =
+               conn
+               |> post("/api/graphql", %{query: query()})
+               |> json_response(200)
+               |> Map.fetch!("data")
+               |> Map.fetch!("localActivities")
 
-      #       assert %{
-      #             "pageInfo" => %{"startCursor" => nil, "endCursor" => endCursor},
-      #                "nodes" => [undo_join],
-      #                "totalCount" => 3
-      #              } = ret
-
-      #       assert endCursor
-
-      #       assert %{
-      #                "__typename" => "UndoJoinCommunity",
-      #                "object" => %{"id" => ^community_id, "members" => %{"totalCount" => 1}},
-      #                "user" => %{"id" => ^actor_id}
-      #              } = undo_join
+      assert %{
+               "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
+               "nodes" => [%{"user" => nil}, %{"user" => nil}],
+               "totalCount" => 2
+             } = ret
     end
 
     @tag :user

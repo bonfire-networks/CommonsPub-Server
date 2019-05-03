@@ -6,7 +6,8 @@ defmodule ActivityPub.Metadata do
     status: nil,
     persistence: nil,
     local_id: nil,
-    verified: false
+    verified: false,
+    local: true,
   ]
 
   def new(type_list) do
@@ -18,7 +19,8 @@ defmodule ActivityPub.Metadata do
       aspects: aspects,
       status: :new,
       persistence: nil,
-      verified: true
+      verified: true,
+      local: true,
     }
   end
 
@@ -29,6 +31,7 @@ defmodule ActivityPub.Metadata do
       status: :not_loaded,
       persistence: nil,
       verified: false,
+      local: true,
       local_id: nil
     }
   end
@@ -38,6 +41,7 @@ defmodule ActivityPub.Metadata do
       status: :not_loaded,
       persistence: nil,
       verified: true,
+      local: true,
       local_id: local_id
     }
   end
@@ -52,6 +56,7 @@ defmodule ActivityPub.Metadata do
       status: :loaded,
       persistence: sql,
       local_id: sql.local_id,
+      local: sql.local,
       verified: true
     }
   end
@@ -65,6 +70,9 @@ defmodule ActivityPub.Metadata do
   end
 
   def local_id(%__MODULE__{local_id: local_id}), do: local_id
+
+  def local?(%__MODULE__{local: true}), do: true
+  def local?(%__MODULE__{}), do: false
 
   def inspect(%__MODULE__{} = meta, opts) do
     pruned = %{
@@ -84,6 +92,7 @@ end
 
 defmodule ActivityPub.Metadata.Guards do
   defguard is_metadata(meta) when :erlang.map_get(:__struct__, meta) == ActivityPub.Metadata
+  defguard is_local(meta) when :erlang.map_get(:local, meta) == true
 
   defguard has_type(meta, type)
            when is_metadata(meta) and :erlang.map_get(type, :erlang.map_get(:types, meta))

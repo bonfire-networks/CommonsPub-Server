@@ -14,6 +14,12 @@ defmodule ActivityPub.Entity do
 
   def fields_for(_, _), do: %{}
 
+  def fields(entity) when APG.is_entity(entity) do
+    entity
+    |> aspects()
+    |> Enum.flat_map(&fields_for(entity, &1))
+  end
+
   def assocs_for(entity, aspect) when APG.has_aspect(entity, aspect),
     do: Map.take(entity, aspect.__aspect__(:associations))
 
@@ -35,10 +41,7 @@ defmodule ActivityPub.Entity do
     end)
   end
 
-  def local?(%{id: id} = e) when APG.is_entity(e) and not is_nil(id),
-    do: ActivityPub.UrlBuilder.local?(id)
-  def local?(%{id: nil} = e) when APG.has_local_id(e), do: true
-  def local?(%{id: nil} = e) when APG.is_entity(e), do: status(e) == :new
+  def local?(%{__ap__: ap} = e) when APG.is_entity(e), do: Metadata.local?(ap)
 
   def status(%{__ap__: %{status: status}} = e) when APG.is_entity(e), do: status
 
