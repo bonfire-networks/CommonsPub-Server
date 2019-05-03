@@ -109,7 +109,9 @@ const Url = styled.div`
 `;
 
 const Wrapper = styled.div`
-  background: ${props => props.theme.styles.colour.resourceBg};
+  &:hover {
+    background: ${props => props.theme.styles.colour.resourceBg};
+  }
   padding: 20px;
   margin-bottom: 8px;
   border-radius: 3px;
@@ -133,10 +135,8 @@ const Img = styled.div`
   height: 120px;
   width: 120px;
   margin: 0 auto;
-  border-radius: 2px;
+  border-radius: 120px;
   background-position: center center;
-  height: 120px;
-  width: 100%;
   margin-top: 20px;
   ${media.lessThan('medium')`
     margin: 0 auto;

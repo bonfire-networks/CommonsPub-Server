@@ -75,8 +75,8 @@ const Collection: React.SFC<CollectionProps> = ({ collection }) => {
 };
 
 const Right = styled.div`
-  width: 160px;
-  margin-right: 8px;
+  width: 70px;
+  margin-left: 16px;
   ${media.lessThan('medium')`
   margin-top: 8px;
   background: #f7f8f9;
@@ -105,11 +105,9 @@ const ActionItem = styled.div`
 const Wrapper = styled.div`
   display: flex;
   cursor: pointer;
-  padding: 8px 0;
   position: relative;
-  background: ${props => props.theme.styles.colour.collectionBg};
-  border-radius: 6px;
-  margin-bottom: 8px;
+  padding: 20px;
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
   ${media.lessThan('medium')`
   display: block;
 `} & a {
@@ -117,6 +115,7 @@ const Wrapper = styled.div`
     color: inherit;
     text-decoration: none;
     width: 100%;
+    flex: 1;
   }
   &:hover {
     background: rgba(241, 246, 249, 0.65);

@@ -407,7 +407,7 @@ const Wrapper = styled.div`
 
 const CollectionList = styled.div`
   flex: 1;
-  padding: 8px;
+  // padding: 8px;
 `;
 
 const OverviewCollection = styled.div`
