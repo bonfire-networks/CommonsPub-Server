@@ -407,9 +407,13 @@ defmodule MoodleNetTest do
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
 
+      assert Query.has?(comm, :threads, comment)
+
       assert {:ok, comment} = MoodleNet.create_thread(actor, coll, attrs)
       assert comment["primary_language"] == attrs["primary_language"]
       assert comment.content == %{"und" => attrs["content"]}
+
+      assert Query.has?(coll, :threads, comment)
     end
   end
 

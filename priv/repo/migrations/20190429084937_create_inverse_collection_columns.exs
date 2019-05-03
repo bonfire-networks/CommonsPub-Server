@@ -42,6 +42,16 @@ defmodule MoodleNet.Repo.Migrations.CreateInverseCollectionColumns do
           column: :local_id
         )
       )
+
+      add(
+        :threads_id,
+        references("activity_pub_collection_aspects",
+          type: :bigint,
+          on_update: :update_all,
+          on_delete: :nilify_all,
+          column: :local_id
+        )
+      )
     end
   end
 end

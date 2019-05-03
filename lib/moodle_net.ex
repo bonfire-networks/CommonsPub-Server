@@ -73,9 +73,7 @@ defmodule MoodleNet do
 
   defp community_thread_query(community) do
     Query.new()
-    |> Query.with_type("Note")
-    |> Query.has(:context, community)
-    |> has_no_replies()
+    |> Query.belongs_to(:threads, community)
   end
 
   def community_thread_list(community, opts \\ %{}) do
@@ -181,9 +179,7 @@ defmodule MoodleNet do
 
   defp collection_thread_query(collection) do
     Query.new()
-    |> Query.with_type("Note")
-    |> Query.has(:context, collection)
-    |> has_no_replies()
+    |> Query.belongs_to(:threads, collection)
   end
 
   def collection_thread_list(collection, opts \\ %{}) do
@@ -650,10 +646,15 @@ defmodule MoodleNet do
       preload_community(context)
       |> Query.preload_assoc(:followers)
 
-    attrs
-    |> Map.put(:context, [context])
-    |> Map.put(:attributed_to, [author])
-    |> create_comment()
+    ret =
+      attrs
+      |> Map.put(:context, [context])
+      |> Map.put(:attributed_to, [author])
+      |> create_comment()
+
+    with {:ok, comment} <- ret,
+         {:ok, 1} <- Alter.add(context, :threads, comment),
+         do: ret
   end
 
   def create_reply(author, in_reply_to, attrs)
