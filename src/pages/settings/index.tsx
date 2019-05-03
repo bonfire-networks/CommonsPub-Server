@@ -9,7 +9,7 @@ import { Trans } from '@lingui/macro';
 import { Helmet } from 'react-helmet';
 import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelect';
 import { useTheme } from '../../styleguide/Wrapper';
-
+import { Row, ContainerForm } from '../../components/elements/Modal/modal';
 import GeneralInfo from './generalInfo';
 
 interface Props {
@@ -70,14 +70,28 @@ const Component = (props: Props) => {
           <GeneralInfo profile={data.me} />
         ) : (
           <GenWrapper>
-            <LanguageSelect />
-            <Item onClick={() => themeState.toggle()}>
-              {themeState.dark ? (
-                <Trans>Switch to Light Mode</Trans>
-              ) : (
-                <Trans>Switch to Dark Mode</Trans>
-              )}
-            </Item>
+            <Row>
+              <label>
+                <Trans>Select language</Trans>
+              </label>
+              <ContainerForm>
+                <LanguageSelect />
+              </ContainerForm>
+            </Row>
+            <Row>
+              <label>
+                <Trans>Select theme</Trans>
+              </label>
+              <ContainerForm>
+                <Theme onClick={() => themeState.toggle()}>
+                  {themeState.dark ? (
+                    <Trans>Switch to Light Mode</Trans>
+                  ) : (
+                    <Trans>Switch to Dark Mode</Trans>
+                  )}
+                </Theme>
+              </ContainerForm>
+            </Row>
           </GenWrapper>
         )}
       </Container>
@@ -92,6 +106,18 @@ const Wrapper = styled.div`
   margin-top: 24px;
 `;
 const GenWrapper = styled.div``;
+const Theme = styled.div`
+  font-size: 14px;
+  padding: 0 18px;
+  background: ${props => props.theme.styles.colour.primary};
+  display: inline-block;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  color: ${props => props.theme.styles.colour.base1};
+`;
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -116,7 +142,7 @@ const Item = styled.span`
 const Sidebar = styled.div`
   box-sizing: border-box;
   width: 280px;
-  background: #fff;
+  background: ${props => props.theme.styles.colour.secondaryBg};
   border-radius: 6px;
   &span: last-of-type {
     border-bottom: 0px;
