@@ -208,4 +208,18 @@ defmodule MoodleNet.AccountsTest do
       assert {:error, _} = Accounts.remove_email_from_whitelist(email)
     end
   end
+
+  describe "delete_user" do
+    test "set to empty the comments" do
+      actor = Factory.actor()
+      community = Factory.community(actor)
+      comment = Factory.comment(actor, community)
+
+      Accounts.delete_user(actor)
+
+      reload_comment = ActivityPub.SQL.Query.get_by_id(comment.id)
+
+      assert reload_comment.content == %{"und" => ""}
+    end
+  end
 end

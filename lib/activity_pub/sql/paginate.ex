@@ -26,11 +26,15 @@ defmodule ActivityPub.SQL.Paginate do
 
     %{
       limit: calc_limit(query_params),
-      after: query_params[:after] || query_params["after"],
-      before: query_params[:before] || query_params["before"]
+      after: query_params[:after] || query_params["after"] |> to_integer(),
+      before: query_params[:before] || query_params["before"] |> to_integer()
     }
     |> calc_order()
   end
+
+  defp to_integer(binary) when is_binary(binary), do: String.to_integer(binary)
+  defp to_integer(integer) when is_integer(integer), do: integer
+  defp to_integer(nil), do: nil
 
   defp calc_limit(query_params) do
     Enum.min([query_params[:limit] || query_params["limit"] || 100, 100])

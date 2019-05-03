@@ -13,3 +13,5 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   url: [host: System.get_env("HOSTNAME"), port: port],
   root: ".",
   secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+config :moodle_net, :ap_base_url, System.get_env("AP_BASE_URL")

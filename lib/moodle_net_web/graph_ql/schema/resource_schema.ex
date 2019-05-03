@@ -68,8 +68,10 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
     field(:primary_language, :string)
     field(:url, :string)
 
+    field(:creator, :user, do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
+
     field(:collection, non_null(:collection),
-      do: resolve(Resolver.with_assoc(:attributed_to, single: true))
+      do: resolve(Resolver.with_assoc(:context, single: true))
     )
 
     field :likers, non_null(:collection_likers_connection) do

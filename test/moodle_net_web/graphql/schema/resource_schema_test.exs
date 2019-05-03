@@ -50,6 +50,11 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
         educationalUse
         timeRequired
         typicalAgeRange
+        creator {
+          id
+          localId
+          joinedCommunities { totalCount }
+        }
         collection {
           id
           localId
@@ -85,6 +90,12 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     assert resource["educationalUse"] == ["educational_use"]
     assert resource["timeRequired"] == 60
     assert resource["typicalAgeRange"] == "typical_age_range"
+
+    assert resource["creator"] == %{
+      "id" => actor.id,
+      "localId" => local_id(actor),
+      "joinedCommunities" => %{"totalCount" => 1}
+    }
 
     assert resource["collection"] == %{
       "id" => collection.id,

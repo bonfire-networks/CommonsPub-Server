@@ -2,6 +2,8 @@ defmodule MoodleNet.Policy do
   import ActivityPub.Guards
   alias ActivityPub.SQL.Query
 
+  import MoodleNet, only: [get_community: 1]
+
   def create_collection?(actor, community, _attrs)
       when has_type(community, "MoodleNet:Community") and has_type(actor, "Person") do
     actor_follows!(actor, community)
@@ -45,21 +47,4 @@ defmodule MoodleNet.Policy do
   defp actor_follows!(actor, object) do
     if Query.has?(actor, :following, object), do: :ok, else: {:error, :forbidden}
   end
-
-  defp get_community(comment) when has_type(comment, "Note") do
-    [context] = comment.context
-    get_community(context)
-  end
-
-  defp get_community(resource) when has_type(resource, "MoodleNet:EducationalResource") do
-    [collection] = resource.attributed_to
-    get_community(collection)
-  end
-
-  defp get_community(collection) when has_type(collection, "MoodleNet:Collection") do
-    [community] = collection.attributed_to
-    community
-  end
-
-  defp get_community(community) when has_type(community, "MoodleNet:Community"), do: community
 end

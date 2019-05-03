@@ -27,3 +27,5 @@ config :phoenix_integration,
 
 config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.TestAdapter
+
+config :moodle_net, :ap_base_url, "http://test.localhost:4001/activity_pub"

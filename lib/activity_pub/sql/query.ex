@@ -29,6 +29,12 @@ defmodule ActivityPub.SQL.Query do
     |> Repo.delete_all()
   end
 
+  # FIXME this should not be here?
+  def update_all(%Ecto.Query{} = query, updates) do
+    query
+    |> Repo.update_all(updates)
+  end
+
   def one(%Ecto.Query{} = query) do
     query
     # |> print_query()
@@ -70,6 +76,11 @@ defmodule ActivityPub.SQL.Query do
 
   def get_by_id(id, opts \\ []) when is_binary(id) do
     case UrlBuilder.get_local_id(id) do
+      {:ok, {:page, collection_id, params}} ->
+        collection = get_by_local_id(collection_id, opts)
+        {:ok, page} = ActivityPub.CollectionPage.new(collection, params)
+        page
+
       {:ok, local_id} ->
         get_by_local_id(local_id, opts)
 
@@ -128,7 +139,7 @@ defmodule ActivityPub.SQL.Query do
 
   def without_type(%Ecto.Query{} = query, type) when is_binary(type) do
     from([entity: entity] in query,
-      where: not(fragment("? @> array[?]", entity.type, ^type))
+      where: not fragment("? @> array[?]", entity.type, ^type)
     )
   end
 
@@ -232,6 +243,16 @@ defmodule ActivityPub.SQL.Query do
              APG.has_status(target, :loaded)
       when APG.is_entity(subject) and APG.has_status(subject, :loaded) and is_integer(target),
       do: do_has?(subject, rel, target)
+
+  def belongs_to(%Ecto.Query{} = query, collection) when APG.has_type(collection, "Collection") do
+    collection_local_id = ActivityPub.local_id(collection)
+    from([entity: entity] in query,
+      inner_join: rel in "activity_pub_collection_items",
+      as: :items,
+      on: entity.local_id == rel.target_id,
+      where: rel.subject_id == ^collection_local_id
+    )
+  end
 
   for sql_aspect <- ActivityPub.SQLAspect.all() do
     Enum.map(sql_aspect.__sql_aspect__(:associations), fn
@@ -426,6 +447,11 @@ defmodule ActivityPub.SQL.Query do
   end
 
   def preload_assoc([], _preload), do: []
+
+  def preload_assoc(entity, :all) when APG.is_entity(entity) do
+    assoc_keys = Map.keys(Entity.assocs(entity))
+    preload_assoc(entity, assoc_keys)
+  end
 
   def preload_assoc(entity, preload) when not is_list(preload),
     do: preload_assoc(entity, List.wrap(preload))
