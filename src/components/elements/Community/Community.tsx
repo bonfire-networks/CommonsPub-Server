@@ -33,6 +33,9 @@ const Community: React.SFC<Props> = ({
 }) => (
   <Wrapper>
     <Link to={`/communities/${id}`}>
+      <H5>
+        {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
+      </H5>
       <WrapperImage>
         <Img
           style={{
@@ -40,9 +43,6 @@ const Community: React.SFC<Props> = ({
           }}
         />
       </WrapperImage>
-      <H5>
-        {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
-      </H5>
     </Link>
     <Actions>
       <Members>
@@ -111,14 +111,31 @@ const Summary = styled(P)`
   position: relative;
 `;
 const Wrapper = styled.div`
-  padding: 8px;
+  padding: 20px;
   position: relative;
   max-height: 560px;
   background: ${props => props.theme.styles.colour.communityBg};
-  border-radius: 6px;
+  border-radius: 3px;
   overflow: hidden;
   z-index: 9;
+
+  animation-delay: 0.5s;
+  background-image: none;
+  background-size: contain;
+  background-position: center bottom;
+
+  animation: 0.6s cubic-bezier(0.15, 1, 0.33, 1) 0s 1 normal forwards running
+    fGLASt;
+  box-shadow: rgba(23, 43, 77, 0.2) 0px 1px 1px,
+    rgba(23, 43, 77, 0.25) 0px 0px 0.5px 0px;
+  transition: all 0.3s cubic-bezier(0.15, 1, 0.33, 1) 0s;
   &:hover {
+    transform: translateY(-2px);
+    box-shadow: rgba(23, 43, 77, 0.32) 0px 4px 8px -2px,
+      rgba(23, 43, 77, 0.25) 0px 0px 1px;
+    text-decoration: none;
+    color: rgb(9, 30, 66);
+
     p div {
       z-index: 0;
     }
@@ -130,22 +147,24 @@ const Wrapper = styled.div`
   }
   & h5 {
     margin: 0;
-    font-size: 16px !important;
-    line-height: 24px !important;
+    font-size: 14px !important;
+    line-height: 20px !important;
     word-break: break-word;
     font-weight: 600;
+    margin-bottom: 10px;
     color: ${props => props.theme.styles.colour.communityTitle};
   }
   & a {
     color: inherit;
     text-decoration: none;
     &:hover {
-      text-decoration: underline;
+      text-decoration: none;
     }
   }
 `;
 const WrapperImage = styled.div`
   position: relative;
+  margin: 0 -20px;
   &:hover {
     & span {
       display: block;
@@ -156,7 +175,7 @@ const Img = styled.div`
   height: 200px;
   background-size: cover;
   background-position: center center;
-  border-radius: 4px;
+  border-radius: 0px;
   background-repeat: no-repeat;
   margin-bottom: 8px;
   position: relative;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { compose } from 'recompose';
+import { compose, withState, withHandlers } from 'recompose';
 import { graphql, GraphqlQueryControls, OperationOption } from 'react-apollo';
 import styled from '../../themes/styled';
 
@@ -17,7 +17,7 @@ import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import { Tabs, TabPanel } from 'react-tabs';
 import CommunitiesJoined from '../communities.joined';
 import { Helmet } from 'react-helmet';
-
+import NewCommunityModal from '../../components/elements/CreateCommunityModal';
 const { getCommunitiesQuery } = require('../../graphql/getCommunities.graphql');
 
 interface Data extends GraphqlQueryControls {
@@ -32,6 +32,8 @@ interface Data extends GraphqlQueryControls {
 
 interface Props {
   data: Data;
+  handleNewCommunity(boolean): boolean;
+  isOpenCommunity: boolean;
 }
 
 class CommunitiesYours extends React.Component<Props> {
@@ -82,6 +84,21 @@ class CommunitiesYours extends React.Component<Props> {
                       <title>MoodleNet > All communities</title>
                     </Helmet>
                     <List>
+                      <AddNewCommunity onClick={this.props.handleNewCommunity}>
+                        <Action>
+                          <span>
+                            <Community
+                              width={40}
+                              height={40}
+                              color={'#282828'}
+                              strokeWidth={1}
+                            />
+                          </span>
+                          <Title>
+                            <Trans>Create a new community</Trans>
+                          </Title>
+                        </Action>
+                      </AddNewCommunity>
                       {this.props.data.communities.nodes.map((community, i) => {
                         return (
                           <CommunityCard
@@ -114,10 +131,51 @@ class CommunitiesYours extends React.Component<Props> {
             </Tabs>
           </Wrapper>
         </WrapperCont>
+        <NewCommunityModal
+          toggleModal={this.props.handleNewCommunity}
+          modalIsOpen={this.props.isOpenCommunity}
+        />
       </Main>
     );
   }
 }
+const Action = styled.div`
+  text-align: center;
+  margin: 0 auto;
+`;
+const Title = styled.h5``;
+
+const AddNewCommunity = styled.div`
+  padding: 8px;
+  position: relative;
+  max-height: 560px;
+  background: ${props => props.theme.styles.colour.communityBg};
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 9;
+  border: 2px dashed #2828281a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  &:hover {
+    background: #dae0e3;
+  }
+  & h5 {
+    margin: 0;
+    font-size: 16px !important;
+    line-height: 24px !important;
+    word-break: break-word;
+    font-weight: 600;
+    color: ${props => props.theme.styles.colour.communityTitle};
+  }
+  & a {
+    color: inherit;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
 
 export const WrapperCont = styled.div`
   max-width: 1040px;
@@ -182,4 +240,11 @@ const withGetCommunities = graphql<
   })
 }) as OperationOption<{}, {}>;
 
-export default compose(withGetCommunities)(CommunitiesYours);
+export default compose(
+  withGetCommunities,
+  withState('isOpenCommunity', 'onOpenCommunity', false),
+  withHandlers({
+    handleNewCommunity: props => () =>
+      props.onOpenCommunity(!props.isOpenCommunity)
+  })
+)(CommunitiesYours);

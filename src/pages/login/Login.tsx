@@ -67,8 +67,8 @@ const LanguageWrapper = styled.div`
   }
 `;
 const Background = styled.div`
-  background-image: url('https://i.imgur.com/UjieHFO.png');
-  background-size: cover;
+  background-image: url('https://i.imgur.com/zpWmkgE.png');
+  background-size: contain;
   background-repeat: no-repeat;
   height: 100%;
   ${media.lessThan('medium')`

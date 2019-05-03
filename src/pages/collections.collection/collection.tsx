@@ -8,10 +8,10 @@ import styled from '../../themes/styled';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import ResourceCard from '../../components/elements/Resource/Resource';
 import P from '../../components/typography/P/P';
-import { Actions, Create } from '../communities.community/CommunitiesCommunity';
-// import { clearFix } from 'polished';
 import { Resource, Message, Eye } from '../../components/elements/Icons';
 import Link from '../../components/elements/Link/Link';
+import media from 'styled-media-query';
+
 import {
   Footer,
   WrapperTab,
@@ -39,7 +39,7 @@ const CommunityPage: SFC<Props> = ({
 }) => (
   <WrapperTab>
     <OverlayTab>
-      <Tabs>
+      <Tabs defaultIndex={1}>
         <SuperTabList>
           <SuperTab>
             <span>
@@ -148,21 +148,7 @@ const CommunityPage: SFC<Props> = ({
           >
             <Wrapper>
               {resources.totalCount > 9 ? null : collection.community
-                .followed ? (
-                <Actions>
-                  <Create onClick={addNewResource}>
-                    <span>
-                      <Resource
-                        width={18}
-                        height={18}
-                        strokeWidth={2}
-                        color={'#f0f0f0'}
-                      />
-                    </span>
-                    <Trans>Add a new resource</Trans>
-                  </Create>
-                </Actions>
-              ) : (
+                .followed ? null : (
                 <Footer>
                   <Trans>Join the community</Trans>{' '}
                   <Link to={'/communities/' + collection.community.localId}>
@@ -173,6 +159,20 @@ const CommunityPage: SFC<Props> = ({
               )}
               {resources.totalCount ? (
                 <CollectionList>
+                  {resources.totalCount > 9 ? null : collection.community
+                    .followed ? (
+                    <Create onClick={addNewResource}>
+                      <span>
+                        <Resource
+                          width={40}
+                          height={40}
+                          strokeWidth={1}
+                          color={'#282828'}
+                        />
+                      </span>
+                      <Trans>Add a new resource</Trans>
+                    </Create>
+                  ) : null}
                   {resources.edges.map((edge, i) => (
                     <ResourceCard
                       key={i}
@@ -251,12 +251,40 @@ const CommunityPage: SFC<Props> = ({
 //   }
 // `;
 
+const Create = styled.div`
+  background: ${props => props.theme.styles.colour.resourceBg};
+  padding: 20px;
+  margin-bottom: 8px;
+  border-radius: 3px;
+  border: 2px dashed #2828281a;
+  cursor: pointer;
+  ${media.lessThan('medium')`
+display: block;
+padding: 0;
+padding: 20px;
+& a {
+  text-decoration: none;
+}
+&:last-of-type {
+  margin-bottom: 0;
+  border-bottom: 0px;
+}
+`};
+`;
 const Wrapper = styled.div`
   flex: 1;
 `;
 
 const CollectionList = styled.div`
-  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+  padding-top: 0;
+  padding: 16px;
+  ${media.lessThan('medium')`
+grid-template-columns: 1fr;
+`};
 `;
 
 const OverviewCollection = styled.div`

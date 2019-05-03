@@ -82,15 +82,17 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <Header>
                 <Actions>
                   <Create onClick={this.props.handleNewCollection}>
-                    <span>
-                      <Collection
-                        width={20}
-                        height={20}
-                        strokeWidth={2}
-                        color={'#fff'}
-                      />
-                    </span>
-                    <Trans>Create a collection</Trans>
+                    <WrapperAction>
+                      <span>
+                        <Collection
+                          width={40}
+                          height={40}
+                          strokeWidth={1}
+                          color={'#282828'}
+                        />
+                      </span>
+                      <Trans>Create a collection</Trans>
+                    </WrapperAction>
                   </Create>
                 </Actions>
               </Header>
@@ -118,9 +120,23 @@ class CommunitiesFeatured extends React.Component<Props, State> {
               <Trans>This community has no collections.</Trans>
             </P>
             {community.followed ? (
-              <Create onClick={this.props.handleNewCollection}>
-                <Trans>Create the first collection</Trans>
-              </Create>
+              <Header style={{ marginBottom: '8px' }}>
+                <Actions>
+                  <Create onClick={this.props.handleNewCollection}>
+                    <WrapperAction>
+                      <span>
+                        <Collection
+                          width={40}
+                          height={40}
+                          strokeWidth={1}
+                          color={'#282828'}
+                        />
+                      </span>
+                      <Trans>Create a collection</Trans>
+                    </WrapperAction>
+                  </Create>
+                </Actions>
+              </Header>
             ) : (
               <Footer>
                 <Trans>Join the community to create a collection</Trans>
@@ -246,33 +262,45 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   }
 }
 
+const WrapperAction = styled.div`
+  text-align: center;
+  flex: 1;
+`;
 export const Actions = styled.div`
   ${clearFix()};
   display: flex;
-  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
 `;
+
 export const Create = styled.div`
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
+  display: flex;
   cursor: pointer;
+  padding: 8px 0;
+  position: relative;
+  background: ${props => props.theme.styles.colour.collectionBg};
+  border-radius: 6px;
+  margin-bottom: 8px;
+  flex: 1;
   margin: 8px;
-  color: ${props => props.theme.styles.colour.base1};
-  display: inline-block;
-  line-height: 30px;
-  margin-left: 8px;
-  padding: 0 8px;
-  border-radius: 4px;
-  background: ${props => props.theme.styles.colour.primary};
-  &:hover {
-  }
+  height: 120px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  border: 2px dashed #2828281a;
   & span {
-    display: inline-block;
-    vertical-align: middle;
-    & svg {
-      vertical-align: sub;
-      margin-right: 8px;
-    }
+    display: inherit;
+    margin-bottom: 8px;
+  }
+  ${media.lessThan('medium')`
+display: block;
+
+`} & a {
+    display: flex;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+  }
+  &:hover {
+    background: rgba(241, 246, 249, 0.65);
   }
 `;
 
@@ -293,7 +321,6 @@ const HeroCont = styled.div`
   border-radius: 6px;
   box-sizing: border-box;
   background: white;
-  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const Tot = styled.div`
