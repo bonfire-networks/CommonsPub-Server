@@ -19,9 +19,6 @@ interface Data extends GraphqlQueryControls {
   five: any;
   six: any;
   seven: any;
-  eight: any;
-  nine: any;
-  ten: any;
 }
 
 interface Props {
@@ -110,9 +107,6 @@ class MultipleItems extends React.Component<Props> {
             <CollectionSmall collection={this.props.data.five} />
             <CollectionSmall collection={this.props.data.six} />
             <CollectionSmall collection={this.props.data.seven} />
-            <CollectionSmall collection={this.props.data.eight} />
-            <CollectionSmall collection={this.props.data.nine} />
-            <CollectionSmall collection={this.props.data.ten} />
           </Slider>
         )}
       </>
@@ -131,53 +125,38 @@ const withGetInbox = graphql<
       one:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5571
-          : 5571,
+          ? 7579
+          : 4944,
       two:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5487
-          : 5487,
+          ? 6464
+          : 5416,
       three:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5416
-          : 5416,
+          ? 6218
+          : 5571,
       four:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 4944
-          : 4944,
+          ? 8565
+          : 5487,
       five:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 2374
-          : 2374,
+          ? 5458
+          : 4944,
       six:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 3530
-          : 3530,
+          ? 5435
+          : 2374,
       seven:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 3418
-          : 3418,
-      eight:
-        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
-        'https://home.moodle.net/api/graphql'
-          ? 3081
-          : 3081,
-      nine:
-        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
-        'https://home.moodle.net/api/graphql'
-          ? 2037
-          : 2037,
-      ten:
-        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
-        'https://home.moodle.net/api/graphql'
-          ? 2486
-          : 2486
+          ? 4848
+          : 5571
     }
   }
 }) as OperationOption<{}, {}>;

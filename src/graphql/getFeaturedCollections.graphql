@@ -6,9 +6,6 @@ query getFeaturedCollections(
   $five: Int!
   $six: Int!
   $seven: Int!
-  $eight: Int!
-  $nine: Int!
-  $ten: Int!
   ) {
   one: collection(localId: $one) {
     id
@@ -77,39 +74,6 @@ query getFeaturedCollections(
     followed
   }
   seven: collection(localId: $seven) {
-    id
-    localId
-    name
-    summary
-    icon
-    followers {totalCount}
-    resources {totalCount}
-    threads {totalCount}
-    followed
-  }
-  eight: collection(localId: $eight) {
-    id
-    localId
-    name
-    summary
-    icon
-    followers {totalCount}
-    resources {totalCount}
-    threads {totalCount}
-    followed
-  }
-  nine: collection(localId: $nine) {
-    id
-    localId
-    name
-    summary
-    icon
-    followers {totalCount}
-    resources {totalCount}
-    threads {totalCount}
-    followed
-  }
-  ten: collection(localId: $ten) {
     id
     localId
     name
