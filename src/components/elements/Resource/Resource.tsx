@@ -20,6 +20,7 @@ interface Props {
   isEditResourceOpen: boolean;
   preview?: boolean;
   isEditable?: boolean;
+  coreIntegrationURL?: string;
 }
 
 const ResourceCard: React.SFC<Props> = props => {
@@ -40,6 +41,15 @@ const ResourceCard: React.SFC<Props> = props => {
               <Button hovered onClick={props.editResource}>
                 <Trans>Edit</Trans>
               </Button>
+            </Actions>
+          )}
+          {!props.coreIntegrationURL ? null : (
+            <Actions>
+              <a href={props.coreIntegrationURL}>
+                <Button hovered>
+                  <Trans>To Moodle!</Trans>
+                </Button>
+              </a>
             </Actions>
           )}
         </TitleWrapper>
