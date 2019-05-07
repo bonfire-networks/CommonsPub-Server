@@ -134,7 +134,7 @@ const client = new ApolloClient({
       errorPolicy: 'ignore'
     },
     query: {
-      fetchPolicy: 'network-only',
+      fetchPolicy: 'no-cache',
       errorPolicy: 'all'
     },
     mutate: {

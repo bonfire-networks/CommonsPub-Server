@@ -289,6 +289,7 @@ export const Create = styled.div`
   & span {
     display: inherit;
     margin-bottom: 8px;
+    margin: 0 16px;
   }
   ${media.lessThan('medium')`
 display: block;

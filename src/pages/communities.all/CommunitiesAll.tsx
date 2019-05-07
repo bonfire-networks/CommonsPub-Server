@@ -90,7 +90,7 @@ class CommunitiesYours extends React.Component<Props> {
                             <Community
                               width={40}
                               height={40}
-                              color={'#282828'}
+                              color={'#f98011'}
                               strokeWidth={1}
                             />
                           </span>
@@ -149,16 +149,16 @@ const AddNewCommunity = styled.div`
   padding: 8px;
   position: relative;
   max-height: 560px;
-  background: ${props => props.theme.styles.colour.communityBg};
+  background: ${props => props.theme.styles.colour.newcommunityBg};
   border-radius: 6px;
   overflow: hidden;
   z-index: 9;
-  border: 2px dashed #2828281a;
+  border: 2px dashed #f98011;
   cursor: pointer;
   display: flex;
   align-items: center;
   &:hover {
-    background: #dae0e3;
+    background: ${props => props.theme.styles.colour.newcommunityBgHover};
   }
   & h5 {
     margin: 0;
@@ -166,7 +166,7 @@ const AddNewCommunity = styled.div`
     line-height: 24px !important;
     word-break: break-word;
     font-weight: 600;
-    color: ${props => props.theme.styles.colour.communityTitle};
+    color: #f98011;
   }
   & a {
     color: inherit;

@@ -31,10 +31,10 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
               <Create onClick={() => props.onSelectedThread('thread')}>
                 <span>
                   <Send
-                    width={18}
-                    height={18}
-                    strokeWidth={2}
-                    color={'#f0f0f0'}
+                    width={40}
+                    height={40}
+                    strokeWidth={1}
+                    color={'#282828'}
                   />
                 </span>
                 <Trans>Start a new thread</Trans>
@@ -45,9 +45,11 @@ const CommunitiesFeatured: React.SFC<Props> = props => {
           {props.threads ? (
             props.threads.edges.map((comment, i) => {
               let author = {
-                id: comment.node.author.id,
-                name: comment.node.author.name,
-                icon: comment.node.author.icon
+                id: comment.node.author ? comment.node.author.id : null,
+                name: comment.node.author
+                  ? comment.node.author.name
+                  : 'Deleted User',
+                icon: comment.node.author ? comment.node.author.icon : ''
               };
               let message = {
                 body: comment.node.content,

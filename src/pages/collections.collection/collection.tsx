@@ -258,13 +258,23 @@ const Create = styled.div`
   border-radius: 3px;
   border: 2px dashed #2828281a;
   cursor: pointer;
+  text-align: center;
+  & span {
+    display: block;
+    text-align: center;
+    margin-top: 60px;
+    margin-bottom: 8px;
+  }
   ${media.lessThan('medium')`
-display: block;
-padding: 0;
-padding: 20px;
-& a {
-  text-decoration: none;
-}
+  display: block;
+  padding: 0;
+  padding: 20px;
+  & span {
+    margin-top: 10px;
+  }
+  & a {
+    text-decoration: none;
+  }
 &:last-of-type {
   margin-bottom: 0;
   border-bottom: 0px;

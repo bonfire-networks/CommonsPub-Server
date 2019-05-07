@@ -43,7 +43,11 @@ const Event: React.SFC<EventProps> = ({
           </MemberItem>
           <MemberInfo>
             <h3>
-              <Link to={'/user/' + author.localId}>{author.name}</Link>
+              {author.localId ? (
+                <Link to={'/user/' + author.localId}>{author.name}</Link>
+              ) : (
+                <b>{author.name}</b>
+              )}
             </h3>
             <Date>{moment(comment.date).fromNow()}</Date>
           </MemberInfo>

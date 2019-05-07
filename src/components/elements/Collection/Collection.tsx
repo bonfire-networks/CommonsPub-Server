@@ -118,7 +118,7 @@ const Wrapper = styled.div`
     flex: 1;
   }
   &:hover {
-    background: rgba(241, 246, 249, 0.65);
+    background: ${props => props.theme.styles.colour.collectionHover};
   }
 `;
 const Img = styled.div`
