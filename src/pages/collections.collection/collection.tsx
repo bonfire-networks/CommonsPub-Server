@@ -167,7 +167,7 @@ const CommunityPage: SFC<Props> = ({
                           width={40}
                           height={40}
                           strokeWidth={1}
-                          color={'#282828'}
+                          color={'#f98012'}
                         />
                       </span>
                       <Trans>Add a new resource</Trans>
@@ -256,9 +256,11 @@ const Create = styled.div`
   padding: 20px;
   margin-bottom: 8px;
   border-radius: 3px;
-  border: 2px dashed #2828281a;
+  border: 2px dashed #f98012;
   cursor: pointer;
   text-align: center;
+  max-height: 250px;
+  color: #f98012;
   & span {
     display: block;
     text-align: center;

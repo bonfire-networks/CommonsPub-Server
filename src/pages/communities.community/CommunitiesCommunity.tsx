@@ -88,7 +88,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                           width={40}
                           height={40}
                           strokeWidth={1}
-                          color={'#282828'}
+                          color={'#f98012'}
                         />
                       </span>
                       <Trans>Create a collection</Trans>
@@ -285,7 +285,8 @@ export const Create = styled.div`
   margin-top: 16px;
   display: flex;
   align-items: center;
-  border: 2px dashed #2828281a;
+  color: #f98012;
+  border: 2px dashed #f98012;
   & span {
     display: inherit;
     margin-bottom: 8px;

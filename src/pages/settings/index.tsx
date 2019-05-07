@@ -136,13 +136,13 @@ const Item = styled.span`
   padding: 0 8px;
   color: ${props => props.theme.styles.colour.base2};
   font-weight: 400;
-  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
+  border-bottom: 1px solid rgba(151, 151, 151, 0.2);
 `;
 
 const Sidebar = styled.div`
   box-sizing: border-box;
   width: 280px;
-  background: ${props => props.theme.styles.colour.secondaryBg};
+  background: #fff;
   border-radius: 6px;
   &span: last-of-type {
     border-bottom: 0px;
@@ -153,7 +153,9 @@ const SidebarHeader = styled.div`
   background: #f3f3f3;
   height: 32px;
   line-height: 32px;
-  color: ${props => props.theme.styles.colour.base1};
+  color: ${props => props.theme.styles.colour.base2};
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
   font-weight: 600;
   padding: 0 8px;
   font-size: 13px;
