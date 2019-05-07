@@ -135,12 +135,14 @@ const Wrapper = styled.div`
       rgba(23, 43, 77, 0.25) 0px 0px 1px;
     text-decoration: none;
     color: rgb(9, 30, 66);
-
+    & h5 {
+      color: rgb(9, 30, 66);
+    }
     p div {
       z-index: 0;
     }
     h6 {
-      height: 40px;
+      height: 45px;
       z-index: 9999;
       bottom: 0;
     }
