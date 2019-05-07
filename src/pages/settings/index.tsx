@@ -47,7 +47,7 @@ const Component = (props: Props) => {
         <Item
           style={
             props.switch === 'general'
-              ? { color: '#f98012' }
+              ? { color: '#000', fontWeight: 700, position: 'relative' }
               : { position: 'static' }
           }
           onClick={() => props.onSwitch('general')}
@@ -57,7 +57,7 @@ const Component = (props: Props) => {
         <Item
           style={
             props.switch === 'preferences'
-              ? { color: '#f98012' }
+              ? { color: '#000', fontWeight: 700, position: 'relative' }
               : { position: 'static' }
           }
           onClick={() => props.onSwitch('preferences')}
@@ -137,6 +137,16 @@ const Item = styled.span`
   color: ${props => props.theme.styles.colour.base2};
   font-weight: 400;
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
+  &:after {
+    position: absolute;
+    content: '';
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    width: 2px;
+    background: #f98012;
+    display: block;
+  }
 `;
 
 const Sidebar = styled.div`
