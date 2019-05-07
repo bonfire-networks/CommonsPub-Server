@@ -8,14 +8,10 @@ const { getUserQuery } = require('../../graphql/getUserBasic.graphql');
 import { graphql, OperationOption } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
-import NewCommunityModal from '../../components/elements/CreateCommunityModal';
-import SettingsModal from '../../components/elements/SettingsModal';
 import Link from '../elements/Link/Link';
 import media from 'styled-media-query';
 import { NavLink } from 'react-router-dom';
-import { useTheme } from '../../styleguide/Wrapper';
 import Loader from '../../components/elements/Loader/Loader';
-// import LanguageSelect from '../inputs/LanguageSelect/LanguageSelect';
 
 interface Props {
   handleOpen(): boolean;
@@ -26,15 +22,11 @@ interface Props {
   data: any;
   handleNewCommunity(): boolean;
   isOpenCommunity: boolean;
-  handleSettings(): boolean;
-  isOpenSettings: boolean;
-
   sidebar: boolean;
   onSidebar(boolean): boolean;
 }
 
 const Header: React.SFC<Props> = props => {
-  const themeState = useTheme();
   return (
     <Wrapper>
       {props.data.error ? (
@@ -119,16 +111,6 @@ const Header: React.SFC<Props> = props => {
                 />
               </Avatar>
             </AvatarUsername>
-            <Bottom onClick={props.handleNewCommunity}>
-              <span>
-                <Community
-                  width={18}
-                  height={18}
-                  color={'#fff'}
-                  strokeWidth={2}
-                />
-              </span>
-            </Bottom>
           </Right>
           {props.isOpen ? (
             <>
@@ -141,24 +123,13 @@ const Header: React.SFC<Props> = props => {
                           <Trans>Profile</Trans>
                         </Link>
                       </Item>
-                      <Item onClick={props.handleSettings}>
-                        <Trans>Settings</Trans>
-                      </Item>
-                      <Item onClick={() => themeState.toggle()}>
-                        {themeState.dark ? (
-                          <Trans>Switch to Light Mode</Trans>
-                        ) : (
-                          <Trans>Switch to Dark Mode</Trans>
-                        )}
+                      <Item>
+                        <Link to="/settings">
+                          <Trans>Settings</Trans>
+                        </Link>
                       </Item>
                     </List>
                     <List lined>
-                      {/* <Item>
-                        <a href="https://new.moodle.net" target="blank">
-                          <Trans>About MoodleNet</Trans>
-                        </a>
-                      </Item> */}
-
                       <Item>
                         <a
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
@@ -182,7 +153,7 @@ const Header: React.SFC<Props> = props => {
                           href="https://blog.moodle.net/category/versions/"
                           target="blank"
                         >
-                          v0.9.1 alpha <Trans>Changelog</Trans>
+                          v0.9.2 alpha <Trans>Changelog</Trans>
                         </a>
                       </Item>
                     </List>
@@ -197,15 +168,6 @@ const Header: React.SFC<Props> = props => {
               <Layer />
             </>
           ) : null}
-          <NewCommunityModal
-            toggleModal={props.handleNewCommunity}
-            modalIsOpen={props.isOpenCommunity}
-          />
-          <SettingsModal
-            toggleModal={props.handleSettings}
-            modalIsOpen={props.isOpenSettings}
-            profile={props.data.me.user}
-          />
         </>
       )}
     </Wrapper>
@@ -237,35 +199,6 @@ const Center = styled.span`
   & h1 {
     margin: 0;
     line-height: 50px;
-  }
-`;
-const Bottom = styled.div`
-  background: ${props => props.theme.styles.colour.primaryDark};
-  border-radius: 4px;
-  text-align: center;
-  line-height: 30px;
-  cursor: pointer;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-  float: left;
-  margin: 0;
-  padding: 0 10px;
-  font-size: 1.2em;
-  font-weight: 400;
-  text-decoration: none;
-  outline: none;
-  border: none;
-  border-radius: 4px;
-  transition: background 0.1s ease;
-  cursor: pointer;
-  margin-left: 16px;
-  & span {
-    vertical-align: sub;
-    display: inline-block;
-    ${media.lessThan('medium')`
-    margin-right: 0;
-    `};
   }
 `;
 
@@ -391,16 +324,16 @@ const withGetUser = graphql<
 export default compose(
   withGetUser,
   withState('isOpen', 'onOpen', false),
-  withState('isOpenSettings', 'onOpenSettings', false),
-  withState('isOpenCommunity', 'onOpenCommunity', false),
   withHandlers({
     handleOpen: props => () => props.onOpen(true),
-    handleSettings: props => () => props.onOpenSettings(!props.isOpenSettings),
-    handleNewCommunity: props => () =>
-      props.onOpenCommunity(!props.isOpenCommunity),
     closeMenu: props => () => props.onOpen(false),
     logout: props => () => {
-      localStorage.removeItem('user_access_token');
+      let token;
+      process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+      'https://home.moodle.net/api/graphql'
+        ? (token = 'user_access_token')
+        : (token = 'dev_user_access_token');
+      localStorage.removeItem(token);
       localStorage.removeItem('dark');
       return window.location.reload();
     }

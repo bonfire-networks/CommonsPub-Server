@@ -14,12 +14,15 @@ export interface MoodleThemeInterface {
     communityTitle: string;
     communityNote: string;
     communityIcon: string;
+    newcommunityBgHover: string;
+    newcommunityBg: string;
 
     // Collection
     collectionBg: string;
     collectionTitle: string;
     collectionNote: string;
     collectionIcon: string;
+    collectionHover: string;
 
     // Resource element
     resourceBg: string;

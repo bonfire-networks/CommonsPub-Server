@@ -74,7 +74,7 @@ export default class LanguageSelect extends React.Component<
                 this.setState({ selectedKey });
               }}
               options={options}
-              style={{ backgroundColor: '#151b26', color: '#ccc' }}
+              // style={{ backgroundColor: '#151b26', color: '#ccc' }}
             >
               {/* <Flag flag={locale.substr(-2).toLowerCase()} /> */}
               &nbsp;&nbsp;

@@ -140,20 +140,19 @@ const Join: React.SFC<Props> = ({
 };
 
 const Span = styled.div<{ unfollow?: boolean }>`
-  padding: 0px 10px;
   color: ${props =>
     props.unfollow
       ? props => props.theme.styles.colour.heroCollectionIcon
       : props.theme.styles.colour.heroCollectionIcon};
-  height: 40px;
+  // height: 40px;
   font-weight: 600;
   font-size: 13px;
-  line-height: 38px;
+  line-height: 20px;
   cursor: pointer;
   text-align: center;
-  border-radius: 100px;
-  padding: 0 24px;
-  border: 2px solid
+  border-radius: 3px;
+  padding: 10px;
+  border: 1px solid
     ${props =>
       props.unfollow
         ? props => props.theme.styles.colour.heroCollectionIcon
@@ -167,11 +166,11 @@ const Span = styled.div<{ unfollow?: boolean }>`
       props.unfollow ? '#1e1f241a' : props.theme.styles.colour.primary};
   }
   & span {
-    display: inline-block;
+    display: block;
     vertical-align: middle;
+    text-align: center;
   }
   & svg {
-    margin-right: 8px;
     vertical-align: sub;
     color: inherit !important;
   }

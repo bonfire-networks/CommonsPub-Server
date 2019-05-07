@@ -4,6 +4,8 @@ query getFeaturedCommunities(
   $three: Int!
   $four: Int!
   $five: Int!
+  $six: Int!
+  $seven: Int!
   ) {
   one: community(localId:$one) {
     id
@@ -62,6 +64,34 @@ query getFeaturedCommunities(
     followed
   }
    five: community(localId:$five) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    members {totalCount}
+    threads {
+                totalCount
+            }
+    collections {totalCount}
+    followed
+  }
+   six: community(localId:$six) {
+    id
+    localId
+    preferredUsername
+    name
+    summary
+    icon
+    members {totalCount}
+    threads {
+                totalCount
+            }
+    collections {totalCount}
+    followed
+  }
+   seven: community(localId:$seven) {
     id
     localId
     preferredUsername

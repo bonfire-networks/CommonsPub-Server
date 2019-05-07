@@ -24,6 +24,7 @@ const themeLight = createTheme({
     collectionTitle: '#282828',
     collectionNote: '#3c3c3c',
     collectionIcon: '#848383',
+    collectionHover: 'rgba(241, 246, 249, 0.65)',
 
     // Community element
     communityBg: '#eaeef0',
@@ -31,6 +32,9 @@ const themeLight = createTheme({
     communityNote: '#3c3c3c',
     communityIcon: '#848383',
     divider: '#eaeaea',
+    newcommunityBgHover: '#ebeaea',
+    newcommunityBg: '#f4f3f3',
+
     // Resource element
     resourceBg: '#eaeef0',
     resourceTitle: '#282828',
@@ -97,11 +101,14 @@ const themeDark = createTheme({
     communityTitle: '#282828',
     communityNote: '#3c3c3c',
     communityIcon: '#848383',
+    newcommunityBgHover: '#333543',
+    newcommunityBg: '#3d3f4d',
 
     collectionBg: '#eaeef0',
-    collectionTitle: '#282828',
-    collectionNote: '#3c3c3c',
+    collectionTitle: '#fff',
+    collectionNote: '#cdcccc',
     collectionIcon: '#848383',
+    collectionHover: 'rgb(61, 64, 77)',
 
     // Resource element
     resourceBg: 'transparent',

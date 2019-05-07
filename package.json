@@ -148,7 +148,7 @@
     "terser-webpack-plugin": "1.1.0",
     "time-ago": "0.2.1",
     "tslib": "1.9.3",
-    "typedoc": "0.13.0",
+    "typedoc": "0.14.2",
     "typescript": "3.1.6",
     "url-loader": "1.1.1",
     "webpack": "4.20.2",

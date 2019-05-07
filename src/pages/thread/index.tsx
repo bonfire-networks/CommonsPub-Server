@@ -46,10 +46,11 @@ const Component = ({ data, id, selectThread, match, type, history }) => {
   } else if (data.loading) {
     return <Loader />;
   }
+
   let author = {
-    localId: data.comment.author.localId,
-    name: data.comment.author.name,
-    icon: data.comment.author.icon
+    localId: data.comment.author ? data.comment.author.localId : null,
+    name: data.comment.author ? data.comment.author.name : 'Deleted User',
+    icon: data.comment.author ? data.comment.author.icon : ''
   };
 
   let message = {
@@ -93,10 +94,13 @@ const Component = ({ data, id, selectThread, match, type, history }) => {
           comment={message}
         />
         {data.comment.replies.edges.reverse().map((comment, i) => {
+          console.log(comment);
           let author = {
-            localId: comment.node.author.localId,
-            name: comment.node.author.name,
-            icon: comment.node.author.icon
+            localId: comment.node.author ? comment.node.author.localId : null,
+            name: comment.node.author
+              ? comment.node.author.name
+              : 'Deleted User',
+            icon: comment.node.author ? comment.node.author.icon : ''
           };
           let message = {
             body: comment.node.content,

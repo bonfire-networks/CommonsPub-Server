@@ -26,47 +26,43 @@ interface Props {
 const ResourceCard: React.SFC<Props> = props => {
   return (
     <Wrapper>
-      <a target="blank" href={props.url}>
+      <UrlLink target="blank" href={props.url}>
+        <Info>
+          <TitleWrapper>
+            <Title>{props.title}</Title>
+            {!props.isEditable ? null : (
+              <Actions>
+                <Button hovered onClick={props.editResource}>
+                  <Trans>Edit</Trans>
+                </Button>
+              </Actions>
+            )}
+            {!props.coreIntegrationURL ? null : (
+              <Actions>
+                <a href={props.coreIntegrationURL}>
+                  <Button hovered>
+                    <Trans>To Moodle!</Trans>
+                  </Button>
+                </a>
+              </Actions>
+            )}
+          </TitleWrapper>
+          <Url>{props.url}</Url>
+          <Summary>
+            {props.summary.split('\n').map(function(item, key) {
+              return (
+                <span key={key}>
+                  {item}
+                  <br />
+                </span>
+              );
+            })}
+          </Summary>
+        </Info>
         <Img
           style={{ backgroundImage: `url(${props.icon || PlaceholderImg})` }}
         />
-      </a>
-      <Info>
-        <TitleWrapper>
-          <a target="blank" href={props.url}>
-            <Title>{props.title}</Title>
-          </a>
-          {!props.isEditable ? null : (
-            <Actions>
-              <Button hovered onClick={props.editResource}>
-                <Trans>Edit</Trans>
-              </Button>
-            </Actions>
-          )}
-          {!props.coreIntegrationURL ? null : (
-            <Actions>
-              <a href={props.coreIntegrationURL}>
-                <Button hovered>
-                  <Trans>To Moodle!</Trans>
-                </Button>
-              </a>
-            </Actions>
-          )}
-        </TitleWrapper>
-        <UrlLink target="blank" href={props.url}>
-          <Url>{props.url}</Url>
-        </UrlLink>
-        <Summary>
-          {props.summary.split('\n').map(function(item, key) {
-            return (
-              <span key={key}>
-                {item}
-                <br />
-              </span>
-            );
-          })}
-        </Summary>
-      </Info>
+      </UrlLink>
       <EditResourceModal
         toggleModal={props.editResource}
         modalIsOpen={props.isEditResourceOpen}
@@ -81,6 +77,7 @@ const ResourceCard: React.SFC<Props> = props => {
 };
 
 const UrlLink = styled.a`
+  text-decoration: none;
   ${media.lessThan('medium')`
   text-align:center;
   display: block;
@@ -109,7 +106,7 @@ const Url = styled.div`
   font-size: 14px;
   color: ${props => props.theme.styles.colour.base3};
   font-weight: 400;
-  ${ellipsis('420px')};
+  ${ellipsis('270px')};
   margin-top: 8px;
 
   ${media.lessThan('medium')`
@@ -122,15 +119,19 @@ const Url = styled.div`
 `;
 
 const Wrapper = styled.div`
-  background: ${props => props.theme.styles.colour.resourceBg};
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-  padding: 8px;
-  display: flex;
+  &:hover {
+    background: ${props => props.theme.styles.colour.resourceBg};
+  }
+  padding: 20px;
   margin-bottom: 8px;
+  border-radius: 3px;
   ${media.lessThan('medium')`
   display: block;
   padding: 0;
-  padding: 8px;
+  padding: 20px;
+  & a {
+    text-decoration: none;
+  }
   &:last-of-type {
     margin-bottom: 0;
     border-bottom: 0px;
@@ -143,9 +144,10 @@ const Img = styled.div`
   background-repeat: none;
   height: 120px;
   width: 120px;
-  border-radius: 2px;
+  margin: 0 auto;
+  border-radius: 120px;
   background-position: center center;
-  // background-color: ${props => props.theme.styles.colour.resourceIcon};
+  margin-top: 20px;
   ${media.lessThan('medium')`
     margin: 0 auto;
     margin-bottom: 8px;
@@ -154,8 +156,8 @@ const Img = styled.div`
 `;
 const Title = styled(H5)`
   margin: 0 !important;
-  font-size: 16px !important;
-  line-height: 16px !important;
+  font-size: 15px !important;
+  line-height: 22px !important;
   margin-top: 8px;
   flex: 1;
   color: ${props => props.theme.styles.colour.resourceTitle};

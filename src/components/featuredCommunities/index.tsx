@@ -55,6 +55,8 @@ interface Data extends GraphqlQueryControls {
   three: any;
   four: any;
   five: any;
+  six: any;
+  seven: any;
 }
 
 interface Props {
@@ -140,6 +142,8 @@ class MultipleItems extends React.Component<Props> {
             <CommunitySmall collection={this.props.data.three} />
             <CommunitySmall collection={this.props.data.four} />
             <CommunitySmall collection={this.props.data.five} />
+            <CommunitySmall collection={this.props.data.six} />
+            <CommunitySmall collection={this.props.data.seven} />
           </Slider>
         )}
       </>
@@ -159,27 +163,37 @@ const withGetInbox = graphql<
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
           ? 7
-          : 834,
+          : 7,
       two:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
           ? 15
-          : 700,
+          : 15,
       three:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5774
-          : 666,
+          ? 7633
+          : 7633,
       four:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5030
-          : 402,
+          ? 5939
+          : 5939,
       five:
         process.env.REACT_APP_GRAPHQL_ENDPOINT ===
         'https://home.moodle.net/api/graphql'
-          ? 5018
-          : 353
+          ? 4241
+          : 4241,
+      six:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 2900
+          : 2900,
+      seven:
+        process.env.REACT_APP_GRAPHQL_ENDPOINT ===
+        'https://home.moodle.net/api/graphql'
+          ? 2708
+          : 2708
     }
   }
 }) as OperationOption<{}, {}>;
