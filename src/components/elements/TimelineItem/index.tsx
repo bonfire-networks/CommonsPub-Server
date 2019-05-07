@@ -19,15 +19,19 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
   <FeedItem>
     <Member>
       <MemberItem>
-        <Img src={user.icon} />
+        <Img src={user ? user.icon : ''} />
       </MemberItem>
       <FeedItemContents>
         {userpage ? (
-          <b>{user.name}</b>
-        ) : (
+          <b>{user ? user.name : <Trans>Deleted user</Trans>}</b>
+        ) : user ? (
           <Link to={'/user/' + user.localId}>
             <Name>{user.name}</Name>
           </Link>
+        ) : (
+          <Name>
+            <Trans>Deleted user</Trans>
+          </Name>
         )}
 
         {node.activityType === 'CreateCollection' ? (
@@ -119,7 +123,7 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
           </>
         ) : node.activityType === 'CreateResource' ? (
           <span>
-            <Trans>added the resource</Trans>
+            <Trans>added the resource</Trans>{' '}
             <Link to={`/collections/` + node.object.collection.localId}>
               {node.object.name}
             </Link>{' '}
