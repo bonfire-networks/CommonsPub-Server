@@ -11,8 +11,8 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
     end
   end
 
-  def user(%{local_id: local_id}, info) do
-    with {:ok, user} <- fetch(local_id, "Person") do
+  def user(%{id: id}, info) do
+    with {:ok, user} <- fetch(id, "Person") do
       fields = requested_fields(info)
       user = prepare(user, fields)
       {:ok, user}

@@ -1,7 +1,6 @@
 defmodule MoodleNetWeb.GraphQL.AccountTest do
   use MoodleNetWeb.ConnCase
 
-  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   alias MoodleNet.Repo
@@ -170,7 +169,7 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
 
     query = """
     {
-      comment(local_id: #{local_id(comment)}) {
+      comment(id: "#{comment.id}") {
         id
         content
       }

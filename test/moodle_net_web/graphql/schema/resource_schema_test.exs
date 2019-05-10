@@ -1,7 +1,6 @@
 defmodule MoodleNetWeb.GraphQL.ResourceTest do
   use MoodleNetWeb.ConnCase#, async: true
 
-  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user
@@ -12,7 +11,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
     mutation {
       createResource(
-        collectionLocalId: #{local_id(collection)},
+        collectionId: "#{collection.id}",
         resource: {
           name: "resource_name"
           summary: "resource_summary"
@@ -32,7 +31,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
         }
       ) {
         id
-        localId
         name
         summary
         content
@@ -52,12 +50,10 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
         typicalAgeRange
         creator {
           id
-          localId
           joinedCommunities { totalCount }
         }
         collection {
           id
-          localId
           name
         }
       }
@@ -72,7 +68,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> Map.fetch!("createResource")
 
     assert resource["id"]
-    assert resource["localId"]
     assert resource["published"]
     assert resource["updated"]
     assert resource["name"] == "resource_name"
@@ -93,13 +88,11 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     assert resource["creator"] == %{
       "id" => actor.id,
-      "localId" => local_id(actor),
       "joinedCommunities" => %{"totalCount" => 1}
     }
 
     assert resource["collection"] == %{
       "id" => collection.id,
-      "localId" => local_id(collection),
       "name" => collection.name["und"]
     }
   end
@@ -113,11 +106,10 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
     mutation {
       copyResource(
-        resourceLocalId: #{local_id(resource)}
-        collectionLocalId: #{local_id(collection)}
+        resourceId: "#{resource.id}"
+        collectionId: "#{collection.id}"
       ) {
         id
-        localId
         name
         summary
         content
@@ -148,9 +140,8 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     query = """
     {
-      resource(local_id: #{local_id(resource)}) {
+      resource(id: "#{resource.id}") {
         id
-        localId
         name
         summary
         content
@@ -180,7 +171,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> Map.fetch!("resource")
 
     assert ret_resource["id"] != copy_resource["id"]
-    assert ret_resource["localId"] != copy_resource["localId"]
     assert ret_resource["name"] == copy_resource["name"]
     assert ret_resource["summary"] == copy_resource["summary"]
     assert ret_resource["content"] == copy_resource["content"]
@@ -203,12 +193,11 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     community = Factory.community(actor)
     collection = Factory.collection(actor, community)
     resource = Factory.resource(actor, collection)
-    resource_id = local_id(resource)
 
     query = """
       mutation {
         undoLikeResource(
-          localId: #{resource_id}
+          id: "#{resource.id}"
         )
       }
     """
@@ -227,7 +216,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
       mutation {
         likeResource(
-          localId: #{resource_id}
+          id: "#{resource.id}"
         )
       }
     """
@@ -240,15 +229,13 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     query = """
     {
-      resource(localId: #{resource_id}) {
+      resource(id: "#{resource.id}") {
         id
-        localId
         likers {
           totalCount
           edges {
             node {
               id
-              localId
               local
               type
               preferredUsername
@@ -271,14 +258,12 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> Map.fetch!("resource")
 
     assert resource_map["id"] == resource.id
-    assert resource_map["localId"] == local_id(resource)
     assert %{
       "totalCount" => 1,
       "edges" => [%{"node" => user_map}]
     } = resource_map["likers"]
 
     assert user_map["id"] == actor.id
-    assert user_map["localId"] == local_id(actor)
     assert user_map["local"] == ActivityPub.Entity.local?(actor)
     assert user_map["type"] == actor.type
     assert user_map["preferredUsername"] == actor.preferred_username
@@ -290,7 +275,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
       mutation {
         undoLikeResource(
-          localId: #{resource_id}
+          id: "#{resource.id}"
         )
       }
     """
@@ -303,9 +288,8 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     query = """
     {
-      resource(localId: #{resource_id}) {
+      resource(id: "#{resource.id}") {
         id
-        localId
         likers {
           totalCount
           edges {
@@ -326,7 +310,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> Map.fetch!("resource")
 
     assert resource_map["id"] == resource.id
-    assert resource_map["localId"] == local_id(resource)
     assert %{
       "totalCount" => 0,
       "edges" => []
@@ -335,7 +318,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
       mutation {
         undoLikeResource(
-          localId: #{resource_id}
+          id: "#{resource.id}"
         )
       }
     """
@@ -358,11 +341,10 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
     res = Factory.resource(actor, coll)
-    local_id = local_id(res)
 
     query = """
       {
-        resource(localId: #{local_id}) {
+        resource(id: "#{res.id}") {
           likers {
             pageInfo {
               startCursor
@@ -445,7 +427,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     query = """
     mutation {
-      deleteResource(local_id: #{local_id(resource)})
+      deleteResource(id: "#{resource.id}")
     }
     """
 
@@ -470,7 +452,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     query = """
     mutation {
       updateResource(
-        resourceLocalId: #{local_id(resource)},
+        resourceId: "#{resource.id}",
         resource: {
           name: "resource_name"
           summary: "resource_summary"
@@ -490,7 +472,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
         }
       ) {
         id
-        localId
         name
         summary
         content
@@ -520,7 +501,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> Map.fetch!("updateResource")
 
     assert ret_resource["id"]
-    assert ret_resource["localId"]
     assert ret_resource["published"]
     assert ret_resource["updated"]
     assert ret_resource["name"] == "resource_name"
@@ -541,8 +521,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
     query = """
     {
-      resource(localId: #{local_id(resource)}) { id
-        localId
+      resource(id: "#{resource.id}") { id
         name
         summary
         content

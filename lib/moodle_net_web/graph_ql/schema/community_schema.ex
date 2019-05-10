@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
     @desc "Get a community"
     field :community, :community do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(Resolver.resolve_by_id_and_type("MoodleNet:Community"))
     end
   end
@@ -29,33 +29,32 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
     @desc "Update a community"
     field :update_community, type: :community do
-      arg(:community_local_id, non_null(:integer))
+      arg(:community_id, non_null(:string))
       arg(:community, non_null(:community_input))
       resolve(&CommunityResolver.update_community/2)
     end
 
     @desc "Delete a community"
     field :delete_community, type: :boolean do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(&CommunityResolver.delete_community/2)
     end
 
     @desc "Join a community"
     field :join_community, type: :boolean do
-      arg(:community_local_id, non_null(:integer))
+      arg(:community_id, non_null(:string))
       resolve(&CommunityResolver.join_community/2)
     end
 
     @desc "Undo join a community"
     field :undo_join_community, type: :boolean do
-      arg(:community_local_id, non_null(:integer))
+      arg(:community_id, non_null(:string))
       resolve(&CommunityResolver.undo_join_community/2)
     end
   end
 
   object :community do
     field(:id, :string)
-    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 

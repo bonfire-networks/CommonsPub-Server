@@ -9,7 +9,6 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
   object :comment do
     field(:id, :string)
-    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
@@ -83,7 +82,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     Resolver.prepare_common_fields(e)
   end
 
-  def create_thread(%{context_local_id: context_id} = args, info) do
+  def create_thread(%{context_id: context_id} = args, info) do
     with {:ok, author} <- Resolver.current_actor(info),
          {:ok, context} <- fetch_create_comment_context(context_id),
          {:ok, comment} <- MoodleNet.create_thread(author, context, args.comment) do
@@ -93,8 +92,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     |> Errors.handle_error()
   end
 
-  def create_reply(%{in_reply_to_local_id: in_reply_to_id} = args, info)
-      when is_integer(in_reply_to_id) do
+  def create_reply(%{in_reply_to_id: in_reply_to_id} = args, info) do
     with {:ok, author} <- Resolver.current_actor(info),
          {:ok, in_reply_to} <- Resolver.fetch(in_reply_to_id, "Note"),
          {:ok, comment} <- MoodleNet.create_reply(author, in_reply_to, args.comment) do
@@ -105,9 +103,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
   end
 
   defp fetch_create_comment_context(context_id) do
-    Query.new()
-    |> Query.where(local_id: context_id)
-    |> Query.one()
+    Query.get_by_id(context_id)
     |> case do
       nil ->
         Errors.not_found_error(context_id, "Context")
@@ -122,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     end
   end
 
-  def like_comment(%{local_id: comment_id}, info) do
+  def like_comment(%{id: comment_id}, info) do
     with {:ok, liker} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
       MoodleNet.like_comment(liker, comment)
@@ -130,7 +126,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     |> Errors.handle_error()
   end
 
-  def undo_like_comment(%{local_id: comment_id}, info) do
+  def undo_like_comment(%{id: comment_id}, info) do
     with {:ok, actor} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
       MoodleNet.undo_like(actor, comment)
@@ -138,7 +134,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     |> Errors.handle_error()
   end
 
-  def delete_comment(%{local_id: id}, info) do
+  def delete_comment(%{id: id}, info) do
     with {:ok, author} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(id, "Note"),
          :ok <- MoodleNet.delete_comment(author, comment) do
@@ -146,5 +142,4 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     end
     |> Errors.handle_error()
   end
-
 end

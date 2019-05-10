@@ -11,10 +11,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   alias MoodleNetWeb.GraphQL.{CommentSchema, ActivitySchema}
 
   def resolve_by_id_and_type(type) do
-    fn %{local_id: local_id}, info ->
+    fn %{id: id}, info ->
       fields = requested_fields(info)
 
-      case get_by_id_and_type(local_id, type) do
+      case get_by_id_and_type(id, type) do
         nil -> {:ok, nil}
         comm -> {:ok, prepare(comm, fields)}
       end
@@ -23,16 +23,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   # Resource
 
-  defp get_by_id_and_type(local_id, type) do
-    Query.new()
-    |> Query.where(local_id: local_id)
-    |> Query.with_type(type)
-    |> Query.one()
+  defp get_by_id_and_type(id, type) do
+    entity = Query.get_by_id(id)
+    if entity && type in entity.type, do: entity
   end
 
-  def fetch(local_id, type) do
-    case get_by_id_and_type(local_id, type) do
-      nil -> Errors.not_found_error(local_id, type)
+  def fetch(id, type) do
+    case get_by_id_and_type(id, type) do
+      nil -> Errors.not_found_error(id, type)
       entity -> {:ok, entity}
     end
   end
@@ -139,7 +137,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   def prepare_common_fields(entity) do
     entity
-    |> Map.put(:local_id, Entity.local_id(entity))
     |> Map.put(:local, Entity.local?(entity))
     |> Map.update!(:name, &from_language_value/1)
     |> Map.update!(:content, &from_language_value/1)

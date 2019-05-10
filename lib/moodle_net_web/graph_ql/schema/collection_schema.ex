@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
     @desc "Get a collection"
     field :collection, :collection do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(Resolver.resolve_by_id_and_type("MoodleNet:Collection"))
     end
   end
@@ -23,45 +23,45 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   object :collection_mutations do
     @desc "Create a collection"
     field :create_collection, type: :collection do
-      arg(:community_local_id, non_null(:integer))
+      arg(:community_id, non_null(:string))
       arg(:collection, non_null(:collection_input))
       resolve(&CollectionResolver.create_collection/2)
     end
 
     @desc "Update a collection"
     field :update_collection, type: :collection do
-      arg(:collection_local_id, non_null(:integer))
+      arg(:collection_id, non_null(:string))
       arg(:collection, non_null(:collection_input))
       resolve(&CollectionResolver.update_collection/2)
     end
 
     @desc "Delete a collection"
     field :delete_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(&CollectionResolver.delete_collection/2)
     end
 
     @desc "Follow a collection"
     field :follow_collection, type: :boolean do
-      arg(:collection_local_id, non_null(:integer))
+      arg(:collection_id, non_null(:string))
       resolve(&CollectionResolver.follow_collection/2)
     end
 
     @desc "Undo follow a collection"
     field :undo_follow_collection, type: :boolean do
-      arg(:collection_local_id, non_null(:integer))
+      arg(:collection_id, non_null(:string))
       resolve(&CollectionResolver.undo_follow_collection/2)
     end
 
     @desc "Like a collection"
     field :like_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(&CollectionResolver.like_collection/2)
     end
 
     @desc "Undo a previous like to a collection"
     field :undo_like_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(&CollectionResolver.undo_like_collection/2)
     end
   end
@@ -69,7 +69,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
   object :collection do
     field(:id, :string)
-    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
 
