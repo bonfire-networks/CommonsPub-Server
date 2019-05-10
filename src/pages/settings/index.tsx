@@ -11,6 +11,7 @@ import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelec
 import { useTheme } from '../../styleguide/Wrapper';
 import { Row, ContainerForm } from '../../components/elements/Modal/modal';
 import GeneralInfo from './generalInfo';
+import media from 'styled-media-query';
 
 interface Props {
   data: any;
@@ -101,9 +102,15 @@ const Component = (props: Props) => {
 
 const Wrapper = styled.div`
   display: flex;
-  width: 1040px;
+  max-width: 1040px;
   margin: 0 auto;
   margin-top: 24px;
+  width: 100%;
+  ${media.lessThan('medium')`
+    flex-direction: column;
+    margin: 0 16px;
+    width: auto;
+  `};
 `;
 const GenWrapper = styled.div``;
 const Theme = styled.div`
@@ -123,6 +130,10 @@ const Container = styled.div`
   box-sizing: border-box;
   flex: 1;
   margin-left: 16px;
+  ${media.lessThan('medium')`
+  margin: 0;
+  margin-top: 16px;
+  `};
   background: #fff;
   border-radius: 6px;
 `;
@@ -154,6 +165,11 @@ const Sidebar = styled.div`
   width: 280px;
   background: #fff;
   border-radius: 6px;
+  ${media.lessThan('medium')`
+  margin-top: 16px;
+  flex: 1;
+  width: 100%;
+  `};
   &span: last-of-type {
     border-bottom: 0px;
   }
