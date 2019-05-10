@@ -7,24 +7,21 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
   # , async: true
   use MoodleNetWeb.ConnCase
 
-  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user
   test "create thread", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
-    local_id = local_id(community)
 
     query = """
     mutation {
       createThread(
-        contextLocalId: #{local_id},
+        contextId: "#{community.id}",
         comment: {
           content:"comment_1"
         }
       ) {
           id
-          localId
           local
           type
           content
@@ -46,7 +43,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("createThread")
 
     assert comment["id"]
-    assert comment["localId"]
     assert comment["local"] == true
     assert comment["type"] == ["Object", "Note"]
     assert comment["updated"]
@@ -57,17 +53,15 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     assert comment["author"]["preferredUsername"] == actor.preferred_username
 
     collection = Factory.collection(actor, community)
-    local_id = local_id(collection)
     query = """
     mutation {
       createThread(
-        contextLocalId: #{local_id},
+        contextId: "#{collection.id}",
         comment: {
           content:"comment_2"
         }
       ) {
           id
-          localId
           local
           type
           content
@@ -89,7 +83,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("createThread")
 
     assert comment["id"]
-    assert comment["localId"]
     assert comment["local"] == true
     assert comment["type"] == ["Object", "Note"]
     assert comment["updated"]
@@ -110,7 +103,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(localId: #{local_id(comm_comment)}) {
+      comment(id: "#{comm_comment.id}") {
         id
         context {
           __typename
@@ -161,7 +154,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(localId: #{local_id(coll_comment)}) {
+      comment(id: "#{coll_comment.id}") {
         id
         context {
           __typename
@@ -215,18 +208,16 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
   test "create reply", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     comment = Factory.comment(actor, community)
-    local_id = local_id(comment)
 
     query = """
     mutation {
       createReply(
-        inReplyToLocalId: #{local_id},
+        inReplyToId: "#{comment.id}",
         comment: {
           content:"comment_2"
         }
       ) {
           id
-          localId
           local
           type
           content
@@ -248,7 +239,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("createReply")
 
     assert comment["id"]
-    assert comment["localId"]
     assert comment["local"] == true
     assert comment["type"] == ["Object", "Note"]
     assert comment["updated"]
@@ -264,11 +254,10 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
     comment = Factory.comment(actor, coll)
-    comment_id = local_id(comment)
 
     query = """
       {
-        comment(localId: #{comment_id}) {
+        comment(id: "#{comment.id}") {
           inReplyTo {
             id
             content
@@ -290,11 +279,10 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     assert %{"inReplyTo" => nil} = ret
 
     reply = Factory.reply(actor, comment)
-    reply_id = local_id(reply)
 
     query = """
       {
-        comment(localId: #{reply_id}) {
+        comment(id: "#{reply.id}") {
           inReplyTo {
             id
             content
@@ -327,11 +315,10 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
     comment = Factory.comment(actor, coll)
-    local_id = local_id(comment)
 
     query = """
       {
-        comment(localId: #{local_id}) {
+        comment(id: "#{comment.id}") {
           replies {
             pageInfo {
               startCursor
@@ -408,12 +395,11 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     community = Factory.community(actor)
     collection = Factory.collection(actor, community)
     comment = Factory.comment(actor, collection)
-    comment_id = local_id(comment)
 
     query = """
       mutation {
         undoLikeComment(
-          localId: #{comment_id}
+          id: "#{comment.id}"
         )
       }
     """
@@ -432,7 +418,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     query = """
       mutation {
         likeComment(
-          localId: #{comment_id}
+          id: "#{comment.id}"
         )
       }
     """
@@ -445,15 +431,13 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(localId: #{comment_id}) {
+      comment(id: "#{comment.id}") {
         id
-        localId
         likers {
           totalCount
           edges {
             node {
               id
-              localId
               local
               type
               preferredUsername
@@ -476,7 +460,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("comment")
 
     assert comment_map["id"] == comment.id
-    assert comment_map["localId"] == local_id(comment)
 
     assert %{
              "totalCount" => 1,
@@ -484,7 +467,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
            } = comment_map["likers"]
 
     assert user_map["id"] == actor.id
-    assert user_map["localId"] == local_id(actor)
     assert user_map["local"] == ActivityPub.Entity.local?(actor)
     assert user_map["type"] == actor.type
     assert user_map["preferredUsername"] == actor.preferred_username
@@ -496,7 +478,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     query = """
       mutation {
         undoLikeComment(
-          localId: #{comment_id}
+          id: "#{comment.id}"
         )
       }
     """
@@ -509,9 +491,8 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(localId: #{comment_id}) {
+      comment(id: "#{comment.id}") {
         id
-        localId
         likers {
           totalCount
           edges {
@@ -532,7 +513,6 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> Map.fetch!("comment")
 
     assert comment_map["id"] == comment.id
-    assert comment_map["localId"] == local_id(comment)
 
     assert %{
              "totalCount" => 0,
@@ -542,7 +522,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     query = """
       mutation {
         undoLikeComment(
-          localId: #{comment_id}
+          id: "#{comment.id}"
         )
       }
     """
@@ -565,11 +545,10 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
     comment = Factory.comment(actor, coll)
-    local_id = local_id(comment)
 
     query = """
       {
-        comment(localId: #{local_id}) {
+        comment(id: "#{comment.id}") {
           likers {
             pageInfo {
               startCursor
@@ -654,7 +633,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     mutation {
-      deleteComment(local_id: #{local_id(comment)})
+      deleteComment(id: "#{comment.id}")
     }
     """
 
@@ -667,7 +646,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(local_id: #{local_id(comment)}) {
+      comment(id: "#{comment.id}") {
         id
       }
     }
@@ -682,7 +661,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     mutation {
-      deleteComment(local_id: #{local_id(other_comment)})
+      deleteComment(id: "#{other_comment.id}")
     }
     """
 
@@ -699,7 +678,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
 
     query = """
     {
-      comment(local_id: #{local_id(other_comment)}) {
+      comment(id: "#{other_comment.id}") {
         id
       }
     }

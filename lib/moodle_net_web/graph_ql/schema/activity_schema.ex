@@ -12,7 +12,6 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   object :activity do
     field(:id, :string)
-    field(:local_id, :integer)
     field(:published, :string)
     field(:type, non_null(list_of(non_null(:string))))
     field(:activity_type, :string)

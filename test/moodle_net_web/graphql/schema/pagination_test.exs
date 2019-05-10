@@ -6,7 +6,6 @@
 defmodule MoodleNetWeb.GraphQL.PaginationTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user
@@ -23,7 +22,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -47,13 +45,11 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
     assert a_map == %{
       "id" => a.id,
-      "localId" => local_id(a),
       "name" => a.name["und"]
     }
 
     assert b_map == %{
       "id" => b.id,
-      "localId" => local_id(b),
       "name" => b.name["und"]
     }
 
@@ -66,7 +62,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -97,7 +92,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -128,7 +122,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -159,7 +152,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -190,7 +182,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -221,7 +212,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
         }
         nodes {
           id
-          localId
           name
         }
       }
@@ -249,11 +239,10 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
   @tag :user
   test "paginates by collection insertion", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
-    comm_local_id = local_id(community)
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1) {
           pageInfo {
             startCursor
@@ -263,7 +252,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -295,7 +283,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
     assert actor_map == %{
              "id" => actor.id,
              "name" => actor.name["und"],
-             "localId" => local_id(actor)
            }
 
     other_actor = Factory.actor()
@@ -326,12 +313,11 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
     assert other_actor_map == %{
              "id" => other_actor.id,
              "name" => other_actor.name["und"],
-             "localId" => local_id(other_actor)
            }
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1, after: #{cursor}) {
           pageInfo {
             startCursor
@@ -341,7 +327,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -372,7 +357,7 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1, after: #{cursor}) {
           pageInfo {
             startCursor
@@ -382,7 +367,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -410,7 +394,7 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1, before: #{cursor}) {
           pageInfo {
             startCursor
@@ -420,7 +404,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -451,7 +434,7 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1, before: #{cursor}) {
           pageInfo {
             startCursor
@@ -461,7 +444,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -492,7 +474,7 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members(limit: 1, before: #{cursor}) {
           pageInfo {
             startCursor
@@ -502,7 +484,6 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
             cursor
             node {
               id
-              localId
               name
             }
           }
@@ -532,11 +513,10 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
   @tag :user
   test "works when asking only total count", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
-    comm_local_id = local_id(community)
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members {
           totalCount
         }
@@ -557,11 +537,10 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
   @tag :user
   test "works when asking only page info", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
-    comm_local_id = local_id(community)
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members {
           pageInfo {
             startCursor
@@ -585,11 +564,10 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
   @tag :user
   test "works when asking only edges", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
-    comm_local_id = local_id(community)
 
     query = """
     {
-      community(localId: #{comm_local_id}) {
+      community(id: "#{community.id}") {
         members {
           edges {
             cursor
