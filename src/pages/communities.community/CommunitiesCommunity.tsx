@@ -75,6 +75,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
       collections = <Loader />;
     } else if (this.props.data.community) {
       community = this.props.data.community;
+
       if (this.props.data.community.collections.totalCount) {
         collections = (
           <Wrapper>
@@ -148,8 +149,18 @@ class CommunitiesFeatured extends React.Component<Props, State> {
     }
 
     if (!community) {
-      return <Loader />;
+      if (this.props.data.loading) {
+        return <Loader />;
+      } else {
+        // TODO better handling of no community
+        return (
+          <span>
+            <Trans>Could not load the community.</Trans>
+          </span>
+        );
+      }
     }
+
     return (
       <>
         <Main>
@@ -490,7 +501,7 @@ const withGetCollections = graphql<
   options: (props: Props) => ({
     variables: {
       limit: 15,
-      context: parseInt(props.match.params.community)
+      context: props.match.params.community
     }
   })
 }) as OperationOption<{}, {}>;

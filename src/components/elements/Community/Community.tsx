@@ -32,7 +32,13 @@ const Community: React.SFC<Props> = ({
   externalId
 }) => (
   <Wrapper>
-    <Link to={`/communities/${id}`}>
+    <Link
+      to={
+        id
+          ? `/communities/${id}`
+          : `/communities/federate?url=${encodeURI(externalId)}`
+      }
+    >
       <H5>
         {title.length > 60 ? title.replace(/^(.{56}[^\s]*).*/, '$1...') : title}
       </H5>

@@ -17,7 +17,13 @@ interface CollectionProps {
 const Collection: React.SFC<CollectionProps> = ({ collection }) => {
   return (
     <Wrapper>
-      <Link to={`/collections/${collection.localId}`}>
+      <Link
+        to={
+          collection.localId
+            ? `/collections/${collection.localId}`
+            : `/collections/federate?url=${encodeURI(collection.id)}`
+        }
+      >
         <Img
           style={{
             backgroundImage: `url(${collection.icon || PlaceholderImg})`

@@ -87,11 +87,13 @@ function collection_resources(collection) {
       url={resource.url}
       coreIntegrationURL={
         moodle_core_download_url +
-        `&externalurl=` +
+        `&sourceurl=` +
         encodeURIComponent(resource.url) +
-        `&externalname=` +
+        `&moodleneturl=` +
+        encodeURIComponent(collection.id) +
+        `&name=` +
         encodeURIComponent(resource.name) +
-        `&externaldescription=` +
+        `&description=` +
         encodeURIComponent(resource.summary)
       }
       // localId={resource.localId}
