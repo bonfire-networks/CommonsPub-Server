@@ -37,6 +37,8 @@ interface FormValues {
   name: string;
   summary: string;
   image: string;
+  username: string;
+  location: string;
 }
 
 interface MyFormProps {
@@ -45,8 +47,7 @@ interface MyFormProps {
 }
 
 const Component = (props: Props & FormikProps<FormValues>) => {
-  const { errors, touched, isSubmitting, profile } = props;
-  console.log(profile);
+  const { errors, touched, isSubmitting } = props;
   return (
     <Form>
       <Row>
@@ -68,6 +69,50 @@ const Component = (props: Props & FormikProps<FormValues>) => {
             )}
           />
           {errors.name && touched.name && <Alert>{errors.name}</Alert>}
+        </ContainerForm>
+      </Row>
+      <Row>
+        <label>
+          <Trans>Preferred username</Trans>
+        </label>
+        <ContainerForm>
+          <Field
+            name="username"
+            render={({ field }) => (
+              <>
+                <Text
+                  // placeholder="The name of the community..."
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </>
+            )}
+          />
+          {errors.username &&
+            touched.username && <Alert>{errors.username}</Alert>}
+        </ContainerForm>
+      </Row>
+      <Row>
+        <label>
+          <Trans>Location</Trans>
+        </label>
+        <ContainerForm>
+          <Field
+            name="location"
+            render={({ field }) => (
+              <>
+                <Text
+                  // placeholder="The name of the community..."
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              </>
+            )}
+          />
+          {errors.location &&
+            touched.location && <Alert>{errors.location}</Alert>}
         </ContainerForm>
       </Row>
       <Row big>
@@ -93,7 +138,7 @@ const Component = (props: Props & FormikProps<FormValues>) => {
       </Row>
       <Row>
         <label>
-          <Trans>Image</Trans>
+          <Trans>Avatar</Trans>
         </label>
         <ContainerForm>
           <Field
@@ -110,6 +155,25 @@ const Component = (props: Props & FormikProps<FormValues>) => {
           {errors.image && touched.image && <Alert>{errors.image}</Alert>}
         </ContainerForm>
       </Row>
+      {/* <Row>
+        <label>
+          <Trans>Header image</Trans>
+        </label>
+        <ContainerForm>
+          <Field
+            name="header"
+            render={({ field }) => (
+              <Text
+                // placeholder="Type a url of a background image..."
+                name={field.name}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          {errors.header && touched.header && <Alert>{errors.header}</Alert>}
+        </ContainerForm>
+      </Row> */}
       {/* <Row>
             <label>
               <Trans>Primary Language</Trans>
@@ -133,19 +197,24 @@ const ModalWithFormik = withFormik<MyFormProps, FormValues>({
   mapPropsToValues: props => ({
     name: props.profile.user.name || '',
     summary: props.profile.user.summary || '',
-    image: props.profile.user.icon || ''
+    location: props.profile.user.location || '',
+    image: props.profile.user.icon || '',
+    username: props.profile.user.preferredUsername || ''
   }),
   validationSchema: Yup.object().shape({
     name: Yup.string().required(),
     summary: Yup.string(),
-    image: Yup.string().url()
+    image: Yup.string().url(),
+    username: Yup.string(),
+    location: Yup.string()
   }),
   handleSubmit: (values, { props, setSubmitting }) => {
     const variables = {
       profile: {
         name: values.name,
-        preferredUsername: values.name,
+        preferredUsername: values.username,
         summary: values.summary,
+        location: values.location,
         icon: values.image
       }
     };

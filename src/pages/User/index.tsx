@@ -34,6 +34,8 @@ interface Data extends GraphqlQueryControls {
     icon;
     summary;
     id;
+    location;
+    preferredUsername;
     localId;
     outbox: {
       edges: any[];
