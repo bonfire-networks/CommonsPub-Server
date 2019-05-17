@@ -4,6 +4,7 @@ stages:
   - deploy
 
 before_script:
+  - apt update && apt update -y python3-pip && pip install awscli # Install the AWS SDK for pushing the docs
   - mix local.hex --force
   - mix local.rebar --force
   - 'MIX_ENV=dev mix deps.get'
@@ -12,7 +13,9 @@ pages:
   stage: deploy
   script:
   - MIX_ENV=dev mix docs
-  - mv doc public
+  - mv doc public # serve as GitLab Pages artifact
+  - aws s3 sync public/ s3://${DOCS_STAGING_BUCKET}/docs/server/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to S3-served website
+  - aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/server/*' # invalidate CloudFront's cache to serve the new version
   artifacts:
     paths:
     - public
