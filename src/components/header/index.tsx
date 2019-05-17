@@ -194,7 +194,7 @@ const Header: React.SFC<Props> = props => {
                               color={'#333'}
                             />
                           </span>
-                          v0.9.2 alpha <Trans>Changelog</Trans>
+                          v0.9.3 alpha <Trans>Changelog</Trans>
                         </a>
                       </Item>
                     </List>

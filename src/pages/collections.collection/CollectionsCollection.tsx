@@ -62,7 +62,9 @@ class CollectionComponent extends React.Component<Props> {
       return <Loader />;
     } else {
       collection = this.props.data.collection;
-      resources = this.props.data.collection.resources;
+      resources = this.props.data.collection
+        ? this.props.data.collection.resources
+        : [];
     }
     if (!collection) {
       // TODO better handling of no collection
@@ -278,7 +280,7 @@ const withGetCollection = graphql<
   options: (props: Props) => ({
     variables: {
       limit: 15,
-      id: Number(props.match.params.collection)
+      id: props.match.params.collection
     }
   })
 }) as OperationOption<{}, {}>;

@@ -11,6 +11,7 @@ import LanguageSelect from '../../components/inputs/LanguageSelect/LanguageSelec
 import { useTheme } from '../../styleguide/Wrapper';
 import { Row, ContainerForm } from '../../components/elements/Modal/modal';
 import GeneralInfo from './generalInfo';
+import media from 'styled-media-query';
 
 interface Props {
   data: any;
@@ -47,7 +48,7 @@ const Component = (props: Props) => {
         <Item
           style={
             props.switch === 'general'
-              ? { color: '#f98012' }
+              ? { color: '#000', fontWeight: 700, position: 'relative' }
               : { position: 'static' }
           }
           onClick={() => props.onSwitch('general')}
@@ -57,7 +58,7 @@ const Component = (props: Props) => {
         <Item
           style={
             props.switch === 'preferences'
-              ? { color: '#f98012' }
+              ? { color: '#000', fontWeight: 700, position: 'relative' }
               : { position: 'static' }
           }
           onClick={() => props.onSwitch('preferences')}
@@ -101,9 +102,15 @@ const Component = (props: Props) => {
 
 const Wrapper = styled.div`
   display: flex;
-  width: 1040px;
+  max-width: 1040px;
   margin: 0 auto;
   margin-top: 24px;
+  width: 100%;
+  ${media.lessThan('medium')`
+    flex-direction: column;
+    margin: 0 16px;
+    width: auto;
+  `};
 `;
 const GenWrapper = styled.div``;
 const Theme = styled.div`
@@ -123,6 +130,10 @@ const Container = styled.div`
   box-sizing: border-box;
   flex: 1;
   margin-left: 16px;
+  ${media.lessThan('medium')`
+  margin: 0;
+  margin-top: 16px;
+  `};
   background: #fff;
   border-radius: 6px;
 `;
@@ -137,6 +148,16 @@ const Item = styled.span`
   color: ${props => props.theme.styles.colour.base2};
   font-weight: 400;
   border-bottom: 1px solid rgba(151, 151, 151, 0.2);
+  &:after {
+    position: absolute;
+    content: '';
+    left: 0px;
+    top: 0px;
+    height: 100%;
+    width: 2px;
+    background: #f98012;
+    display: block;
+  }
 `;
 
 const Sidebar = styled.div`
@@ -144,6 +165,11 @@ const Sidebar = styled.div`
   width: 280px;
   background: #fff;
   border-radius: 6px;
+  ${media.lessThan('medium')`
+  margin-top: 16px;
+  flex: 1;
+  width: 100%;
+  `};
   &span: last-of-type {
     border-bottom: 0px;
   }

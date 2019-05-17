@@ -74,6 +74,10 @@ function Hit(props) {
 }
 
 function collection_resources(collection) {
+  const urlParams = new URLSearchParams(window.location.search);
+  const moodle_core_download_url = decodeURI(
+    urlParams.get('moodle_core_download_url') || ''
+  );
   return collection.resources.map((resource, i_res) => (
     <ResourceCard
       key={i_res}
@@ -81,6 +85,17 @@ function collection_resources(collection) {
       title={resource.name}
       summary={resource.summary}
       url={resource.url}
+      coreIntegrationURL={
+        moodle_core_download_url +
+        `&sourceurl=` +
+        encodeURIComponent(resource.url) +
+        `&moodleneturl=` +
+        encodeURIComponent(collection.id) +
+        `&name=` +
+        encodeURIComponent(resource.name) +
+        `&description=` +
+        encodeURIComponent(resource.summary)
+      }
       // localId={resource.localId}
     />
   ));
@@ -100,12 +115,15 @@ function collection_resources(collection) {
 // `;
 
 export default class extends React.Component {
+  // ={'test'}
+
   render() {
     //TODO support maybe not good enough? e.g. no ie 11 (https://caniuse.com/#feat=urlsearchparams)
     //TODO this is not SSR friendly, accessing window.location!! does react router give query params?
 
     // const urlParams = new URLSearchParams(window.location.search);
-    // const query = urlParams.get('q');
+    // // const query = urlParams.get('q');
+    // const moodle_core_download_url = urlParams.get('moodle_core_download_url');
 
     // if (!query) {
     //   return <Redirect to="/" />;
