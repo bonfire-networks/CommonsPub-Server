@@ -3,12 +3,13 @@ image: elixir:latest
 stages:
   - deploy
 
+before_script:
+  - mix local.hex --force
+  - 'MIX_ENV=dev mix deps.get'
+
 pages:
   stage: deploy
   script:
-  - 'cd $CI_PROJECT_DIR'
-  - mkdir public
-  - MIX_ENV=dev mix deps.get
   - MIX_ENV=dev mix docs
   - mv doc public
   artifacts:
