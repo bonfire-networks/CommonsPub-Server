@@ -23,7 +23,7 @@ import EditCommunityModal from '../../components/elements/EditCommunityModal';
 import UsersModal from '../../components/elements/UsersModal';
 import Join from './Join';
 import CommunityPage from './Community';
-import { Settings, Users, Collection } from '../../components/elements/Icons';
+import { Settings, Collection } from '../../components/elements/Icons';
 const { getCommunityQuery } = require('../../graphql/getCommunity.graphql');
 enum TabsEnum {
   // Overview = 'Overview',
@@ -186,14 +186,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     <H2>{community.name}</H2>
                     <P>{community.summary}</P>
                     <MembersTot onClick={() => this.props.showUsers(true)}>
-                      <span>
-                        <Users
-                          width={18}
-                          height={18}
-                          strokeWidth={2}
-                          color={'#3c3c3c'}
-                        />
-                      </span>
                       {community.members.edges.slice(0, 3).map((a, i) => {
                         return (
                           <ImgTot
@@ -276,7 +268,7 @@ export const Create = styled.div`
   cursor: pointer;
   padding: 8px 0;
   position: relative;
-  background: ${props => props.theme.styles.colour.collectionBg};
+  background: ${props => props.theme.styles.colour.newcommunityBg};
   border-radius: 6px;
   margin-bottom: 8px;
   flex: 1;
@@ -292,17 +284,14 @@ export const Create = styled.div`
     margin-bottom: 8px;
     margin: 0 16px;
   }
-  ${media.lessThan('medium')`
-display: block;
-
-`} & a {
+  ${media.lessThan('medium')`display: block;`} & a {
     display: flex;
     color: inherit;
     text-decoration: none;
     width: 100%;
   }
   &:hover {
-    background: rgba(241, 246, 249, 0.65);
+    background: ${props => props.theme.styles.colour.newcommunityBgHover};
   }
 `;
 
@@ -322,7 +311,7 @@ const HeroCont = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
   box-sizing: border-box;
-  background: white;
+  background: ${props => props.theme.styles.colour.communityBg};
 `;
 
 const Tot = styled.div`

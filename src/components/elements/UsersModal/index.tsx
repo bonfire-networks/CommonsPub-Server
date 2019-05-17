@@ -90,7 +90,7 @@ const FollowerName = styled(H4)`
   font-size: 14px !important;
   line-height: 20px !important;
   text-decoration: none;
-  color: ${props => props.theme.styles.colour.base1};
+  color: ${props => props.theme.styles.colour.base2};
   &:hover {
     color: ${props => props.theme.styles.colour.primary};
   }
@@ -102,6 +102,6 @@ const Header = styled.div`
     text-align: center !important;
     line-height: 60px !important;
     margin: 0 !important;
-    color: ${props => props.theme.styles.colour.base1};
+    color: ${props => props.theme.styles.colour.base2};
   }
 `;

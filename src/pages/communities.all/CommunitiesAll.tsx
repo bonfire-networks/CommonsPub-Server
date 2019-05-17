@@ -88,8 +88,8 @@ class CommunitiesYours extends React.Component<Props> {
                         <Action>
                           <span>
                             <Community
-                              width={40}
-                              height={40}
+                              width={30}
+                              height={30}
                               color={'#f98011'}
                               strokeWidth={1}
                             />
@@ -153,7 +153,7 @@ const AddNewCommunity = styled.div`
   border-radius: 6px;
   overflow: hidden;
   z-index: 9;
-  border: 2px dashed #f98011;
+  border: 1px dashed #f98011;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -162,10 +162,10 @@ const AddNewCommunity = styled.div`
   }
   & h5 {
     margin: 0;
-    font-size: 16px !important;
+    font-size: 14px !important;
     line-height: 24px !important;
     word-break: break-word;
-    font-weight: 600;
+    font-weight: 500;
     color: #f98011;
   }
   & a {
