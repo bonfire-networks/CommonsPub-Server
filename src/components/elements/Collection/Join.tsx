@@ -153,13 +153,11 @@ const Span = styled.div<{ unfollow?: boolean }>`
         : props.theme.styles.colour.primary};
   &:hover {
     color: ${props =>
-      props.unfollow
-        ? props => props.theme.styles.colour.primary
-        : props.theme.styles.colour.base6};
+      props.unfollow ? props => 'white' : props.theme.styles.colour.base6};
     background: ${props =>
       props.unfollow
         ? props.theme.styles.colour.primary
-        : props.theme.styles.colour.primary};
+        : props.theme.styles.colour.newcommunityBgHover};
   }
   & span {
     display: block;

@@ -182,7 +182,11 @@ const ActionsHero = styled.div`
   }
 `;
 const HeroJoin = styled.div`
-  float: left;
+  width: 38px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  text-align: center;
 `;
 
 const Actions = styled.div``;
@@ -235,15 +239,11 @@ const HeroInfo = styled.div`
     margin-top: 8px;
     color: ${props => props.theme.styles.colour.heroCollectionNote};
   }
-  & div {
-    text-align: left;
-  }
 `;
 const HeroCont = styled.div`
   margin-bottom: 16px;
   border-radius: 6px;
   box-sizing: border-box;
-  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background: ${props => props.theme.styles.colour.heroCollection};
 `;
 
@@ -280,7 +280,7 @@ const withGetCollection = graphql<
   options: (props: Props) => ({
     variables: {
       limit: 15,
-      id: props.match.params.collection
+      id: Number(props.match.params.collection)
     }
   })
 }) as OperationOption<{}, {}>;

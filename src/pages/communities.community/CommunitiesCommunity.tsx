@@ -65,6 +65,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
+    console.log(this.props.match.params.community);
     if (this.props.data.error) {
       collections = (
         <span>
@@ -174,48 +175,49 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                     id="header"
                     style={{ backgroundImage: `url(${community.icon})` }}
                   />
-                  <HeroActions>
-                    <Join
-                      id={community.localId}
-                      followed={community.followed}
-                      externalId={community.id}
-                    />
-                    {community.localId === 7 ||
-                    community.localId === 15 ||
-                    community.followed == false ? null : (
-                      <EditButton onClick={this.props.editCommunity}>
-                        <Settings
-                          width={18}
-                          height={18}
-                          strokeWidth={2}
-                          color={'#fff'}
-                        />
-                      </EditButton>
-                    )}
-                  </HeroActions>
+
                   <HeroInfo>
                     <H2>{community.name}</H2>
                     <P>{community.summary}</P>
-                    <MembersTot onClick={() => this.props.showUsers(true)}>
-                      {community.members.edges.slice(0, 3).map((a, i) => {
-                        return (
-                          <ImgTot
-                            key={i}
-                            style={{
-                              backgroundImage: `url(${a.node.icon ||
-                                `https://www.gravatar.com/avatar/${
-                                  a.node.localId
-                                }?f=y&d=identicon`})`
-                            }}
+                    <HeroActions>
+                      <MembersTot onClick={() => this.props.showUsers(true)}>
+                        {community.members.edges.slice(0, 3).map((a, i) => {
+                          return (
+                            <ImgTot
+                              key={i}
+                              style={{
+                                backgroundImage: `url(${a.node.icon ||
+                                  `https://www.gravatar.com/avatar/${
+                                    a.node.localId
+                                  }?f=y&d=identicon`})`
+                              }}
+                            />
+                          );
+                        })}{' '}
+                        <Tot>
+                          {community.members.totalCount - 3 > 0
+                            ? `+ ${community.members.totalCount - 3} More`
+                            : ``}
+                        </Tot>
+                      </MembersTot>
+                      <Join
+                        id={community.localId}
+                        followed={community.followed}
+                        externalId={community.id}
+                      />
+                      {community.localId === 7 ||
+                      community.localId === 15 ||
+                      community.followed == false ? null : (
+                        <EditButton onClick={this.props.editCommunity}>
+                          <Settings
+                            width={18}
+                            height={18}
+                            strokeWidth={2}
+                            color={'#fff'}
                           />
-                        );
-                      })}{' '}
-                      <Tot>
-                        {community.members.totalCount - 3 > 0
-                          ? `+ ${community.members.totalCount - 3} More`
-                          : ``}
-                      </Tot>
-                    </MembersTot>
+                        </EditButton>
+                      )}
+                    </HeroActions>
                   </HeroInfo>
                 </Hero>
               </HeroCont>
@@ -310,12 +312,7 @@ const Header = styled.div`
   ${clearFix()};
 `;
 const HeroActions = styled.div`
-  position: absolute;
-  top: 20px;
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  right: 16px;
+  position: relative;
 `;
 
 const HeroCont = styled.div`
@@ -374,8 +371,13 @@ const EditButton = styled.span`
   border-radius: 40px;
   text-align: center;
   cursor: pointer;
+  position: absolute;
+  right: 40px;
+  top: 0;
   &:hover {
-    background: #f9801240;
+    svg {
+      color: ${props => props.theme.styles.colour.primary};
+    }
   }
   & svg {
     margin-top: 8px;
@@ -409,7 +411,6 @@ const Wrapper = styled.div`
 
 const CollectionList = styled.div`
   flex: 1;
-  // padding: 8px;
 `;
 
 const OverviewCollection = styled.div`
@@ -440,20 +441,6 @@ const Background = styled.div`
   position: relative;
   margin: 0 auto;
   background-position: center center;
-  ${media.lessThan('medium')`
-`} &:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: linear-gradient(to bottom, #002f4b66, #000);
-    opacity: 0.9;
-    ${media.lessThan('medium')`
-    top: 0%;
-  `};
-  }
 `;
 
 const HeroInfo = styled.div`
@@ -490,7 +477,7 @@ const withGetCollections = graphql<
   options: (props: Props) => ({
     variables: {
       limit: 15,
-      context: props.match.params.community
+      context: Number(props.match.params.community)
     }
   })
 }) as OperationOption<{}, {}>;
