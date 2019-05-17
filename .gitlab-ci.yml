@@ -4,7 +4,7 @@ stages:
   - deploy
 
 before_script:
-  - apt-get update -qq && apt-get install -y -qq python3-pip python3-setuptools && && pip3 install --upgrade pip && pip install awscli # Install the AWS SDK for pushing the docs python3 
+  - apt-get update -qq && apt-get install -y -qq python3-pip python3-setuptools && pip3 install --upgrade pip && pip install awscli # Install the AWS SDK for pushing the docs python3 
   - mix local.hex --force
   - mix local.rebar --force
   - 'MIX_ENV=dev mix deps.get'
