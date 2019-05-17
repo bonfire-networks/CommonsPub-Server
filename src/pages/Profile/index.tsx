@@ -32,7 +32,9 @@ interface Data extends GraphqlQueryControls {
     user: {
       name: string;
       icon: string;
+      location: string;
       summary: string;
+      preferredUsername: string;
       id: string;
       localId: string;
       outbox: {
@@ -89,7 +91,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
             ) : (
               <WrapperCont>
                 <HeroComp user={this.props.data.me.user} />
-
                 <WrapperTab>
                   <OverlayTab>
                     <Tabs>
@@ -242,7 +243,6 @@ export const ListCollections = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   width: 100%;
-  padding: 8px;
 `;
 
 export const WrapperCont = styled.div`
