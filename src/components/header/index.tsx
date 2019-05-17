@@ -1,6 +1,15 @@
 import React from 'react';
 import styled from '../../themes/styled';
-import { Community, Collection } from '../elements/Icons';
+import {
+  Community,
+  Collection,
+  User,
+  Settings,
+  Power,
+  Shield,
+  Card,
+  Validate
+} from '../elements/Icons';
 import { Trans } from '@lingui/macro';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Logo from '../brand/Logo/Logo';
@@ -8,7 +17,6 @@ const { getUserQuery } = require('../../graphql/getUserBasic.graphql');
 import { graphql, OperationOption } from 'react-apollo';
 import { clearFix } from 'polished';
 import { compose, withHandlers, withState } from 'recompose';
-import Link from '../elements/Link/Link';
 import media from 'styled-media-query';
 import { NavLink } from 'react-router-dom';
 import Loader from '../../components/elements/Loader/Loader';
@@ -22,6 +30,7 @@ interface Props {
   data: any;
   handleNewCommunity(): boolean;
   isOpenCommunity: boolean;
+  navigateToPage(string): any;
   sidebar: boolean;
   onSidebar(boolean): boolean;
 }
@@ -38,10 +47,6 @@ const Header: React.SFC<Props> = props => {
       ) : (
         <>
           <Left>
-            {/* <span onClick={() => props.onSidebar(!props.sidebar)}>
-          <Menu width={18} height={18} color={'#68737d'} strokeWidth={2} />
-        </span> */}
-
             <NavLink
               isActive={(match, location) => {
                 return (
@@ -118,15 +123,27 @@ const Header: React.SFC<Props> = props => {
                 <WrapperMenu>
                   <ProfileMenu>
                     <List lined>
-                      <Item>
-                        <Link to="/profile">
-                          <Trans>Profile</Trans>
-                        </Link>
+                      <Item onClick={() => props.navigateToPage('/profile')}>
+                        <span>
+                          <User
+                            width={18}
+                            height={18}
+                            strokeWidth={1}
+                            color={'#333'}
+                          />
+                        </span>
+                        <Trans>Profile</Trans>
                       </Item>
-                      <Item>
-                        <Link to="/settings">
-                          <Trans>Settings</Trans>
-                        </Link>
+                      <Item onClick={() => props.navigateToPage('/settings')}>
+                        <span>
+                          <Settings
+                            width={18}
+                            height={18}
+                            strokeWidth={1}
+                            color={'#333'}
+                          />
+                        </span>
+                        <Trans>Settings</Trans>
                       </Item>
                     </List>
                     <List lined>
@@ -135,6 +152,14 @@ const Header: React.SFC<Props> = props => {
                           href="https://docs.moodle.org/dev/MoodleNet/Code_of_Conduct"
                           target="blank"
                         >
+                          <span>
+                            <Shield
+                              width={18}
+                              height={18}
+                              strokeWidth={1}
+                              color={'#333'}
+                            />
+                          </span>
                           <Trans>Code of Conduct</Trans>
                         </a>
                       </Item>
@@ -144,6 +169,14 @@ const Header: React.SFC<Props> = props => {
                           href="https://changemap.co/moodle/moodlenet/"
                           target="blank"
                         >
+                          <span>
+                            <Validate
+                              width={18}
+                              height={18}
+                              strokeWidth={1}
+                              color={'#333'}
+                            />
+                          </span>
                           <Trans>Feedback &amp; Suggestions</Trans>
                         </a>
                       </Item>
@@ -153,12 +186,28 @@ const Header: React.SFC<Props> = props => {
                           href="https://blog.moodle.net/category/versions/"
                           target="blank"
                         >
-                          v0.9.1 alpha <Trans>Changelog</Trans>
+                          <span>
+                            <Card
+                              width={18}
+                              height={18}
+                              strokeWidth={1}
+                              color={'#333'}
+                            />
+                          </span>
+                          v0.9.2 alpha <Trans>Changelog</Trans>
                         </a>
                       </Item>
                     </List>
                     <List>
                       <Item onClick={props.logout}>
+                        <span>
+                          <Power
+                            width={18}
+                            height={18}
+                            strokeWidth={1}
+                            color={'#333'}
+                          />
+                        </span>
                         <Trans>Sign out</Trans>
                       </Item>
                     </List>
@@ -177,10 +226,11 @@ const AvatarUsername = styled.div`
   float: left;
   line-height: 32px;
   margin-left: 16px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   color: ${props => props.theme.styles.colour.headerLink};
   cursor: pointer;
+  letter-spacing: 1px;
   & span {
     float: left;
     margin-right: 8px;
@@ -256,6 +306,13 @@ const Item = styled.div`
   cursor: pointer;
   font-weight: 600;
   color: ${props => props.theme.styles.colour.base3};
+  & span {
+    display: inline-block;
+    margin-right: 8px;
+    & svg {
+      vertical-align: sub;
+    }
+  }
   & a {
     color: inherit !important;
     text-decoration: none;
@@ -336,6 +393,12 @@ export default compose(
       localStorage.removeItem(token);
       localStorage.removeItem('dark');
       return window.location.reload();
+    }
+  }),
+  withHandlers({
+    navigateToPage: props => url => {
+      props.closeMenu();
+      return props.history.push(url);
     }
   })
 )(Header);
