@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '../../../themes/styled';
-import { Preferites } from '../Icons';
+import { Plus, Minus } from '../Icons';
 import { compose, withState } from 'recompose';
 import { graphql, OperationOption } from 'react-apollo';
 const {
@@ -9,13 +9,8 @@ const {
 const {
   undoJoinCommunityMutation
 } = require('../../../graphql/undoJoinCommunity.graphql');
-import { Trans } from '@lingui/macro';
 import gql from 'graphql-tag';
 import Loader from '../Loader/Loader';
-
-// const {
-//   getJoinedCommunitiesQuery
-// } = require('../../../graphql/getJoinedCommunities.graphql');
 
 interface Props {
   joinCommunity: any;
@@ -48,39 +43,45 @@ const Join: React.SFC<Props> = ({
 }) => {
   if (followed) {
     return (
-      <Span
-        onClick={() => {
-          onSubmitting(true);
-          return leaveCommunity({
-            variables: { communityId: id },
-            update: (proxy, { data: { undoJoinCommunity } }) => {
-              const fragment = gql`
-                fragment Res on Community {
-                  followed
-                }
-              `;
-              let collection = proxy.readFragment({
-                id: `Community:${externalId}`,
-                fragment: fragment,
-                fragmentName: 'Res'
-              });
-              collection.followed = !collection.followed;
-              proxy.writeFragment({
-                id: `Community:${externalId}`,
-                fragment: fragment,
-                fragmentName: 'Res',
-                data: collection
-              });
-            }
-          })
-            .then(res => {
-              onSubmitting(false);
+      <MinusBg>
+        <Span
+          onClick={() => {
+            onSubmitting(true);
+            return leaveCommunity({
+              variables: { communityId: id },
+              update: (proxy, { data: { undoJoinCommunity } }) => {
+                const fragment = gql`
+                  fragment Res on Community {
+                    followed
+                  }
+                `;
+                let collection = proxy.readFragment({
+                  id: `Community:${externalId}`,
+                  fragment: fragment,
+                  fragmentName: 'Res'
+                });
+                collection.followed = !collection.followed;
+                proxy.writeFragment({
+                  id: `Community:${externalId}`,
+                  fragment: fragment,
+                  fragmentName: 'Res',
+                  data: collection
+                });
+              }
             })
-            .catch(err => console.log(err));
-        }}
-      >
-        {isSubmitting ? <Loader /> : <Trans>Leave</Trans>}
-      </Span>
+              .then(res => {
+                onSubmitting(false);
+              })
+              .catch(err => console.log(err));
+          }}
+        >
+          {isSubmitting ? (
+            <Loader />
+          ) : (
+            <Minus width={16} height={16} strokeWidth={3} color={'#1e1f2480'} />
+          )}
+        </Span>
+      </MinusBg>
     );
   } else {
     return (
@@ -119,13 +120,7 @@ const Join: React.SFC<Props> = ({
           <Loader />
         ) : (
           <>
-            <Preferites
-              width={16}
-              height={16}
-              strokeWidth={2}
-              color={'#1e1f2480'}
-            />
-            <Trans>Join</Trans>
+            <Plus width={16} height={16} strokeWidth={3} color={'#1e1f2480'} />
           </>
         )}
       </Span>
@@ -133,33 +128,41 @@ const Join: React.SFC<Props> = ({
   }
 };
 
+const MinusBg = styled.div`
+  & svg {
+    color: #fff !important;
+  }
+  & div {
+    background: ${props => props.theme.styles.colour.primary} !important;
+  }
+`;
+
 const Span = styled.div`
-  padding: 0px 10px;
   color: ${props => props.theme.styles.colour.base2};
-  height: 40px;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 40px;
   cursor: pointer;
   text-align: center;
   border-radius: 3px;
-  padding: 0px 20px;
-  margin: 0;
-  margin-left: 5px;
+  margin-left: 8px;
   box-sizing: border-box;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.07);
-  height: 26px;
-  line-height: 26px;
-  background: white;
+  display: inline-block;
+  padding: 0;
+  min-width: 0;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  border-radius: 4px;
+  line-height: 32px;
+  position: absolute;
+  top: 2px;
+  right: 0;
+  border: 2px solid ${props => props.theme.styles.colour.primary};
   &:hover {
-    box-shadow: 0 0 0 1px #bbb, 0 1px 2px rgba(0, 0, 0, 0.07);
-    & svg {
-      color: ${props => props.theme.styles.colour.primary};
-    }
+    background: ${props => props.theme.styles.colour.newcommunityBgHover};
   }
   & svg {
-    margin-right: 8px;
-    vertical-align: sub;
+    vertical-align: text-top;
+    color: ${props => props.theme.styles.colour.primary};
   }
 `;
 
