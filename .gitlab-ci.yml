@@ -5,6 +5,7 @@ stages:
 
 before_script:
   - mix local.hex --force
+  - mix local.rebar --force
   - 'MIX_ENV=dev mix deps.get'
 
 pages:
