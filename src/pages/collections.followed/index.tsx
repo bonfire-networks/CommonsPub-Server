@@ -66,9 +66,7 @@ class FollowingCollectionsComponent extends React.Component<Props> {
   }
 }
 
-const ListWrapper = styled.div`
-  padding: 16px;
-`;
+const ListWrapper = styled.div``;
 
 const List = styled.div`
   display: grid;

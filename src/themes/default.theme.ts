@@ -100,7 +100,7 @@ const themeDark = createTheme({
     header: '#46495a',
     headerLink: '#fff',
     breadcrumb: '#46495a',
-    divider: '#282a36',
+    divider: '#3b3d45',
     communityBg: '#565968',
     communityTitle: '#f7f7f7',
     communityNote: '#f7f7f7',

@@ -10,7 +10,6 @@ const {
 } = require('../../../graphql/undoJoinCollection.graphql');
 import gql from 'graphql-tag';
 import { Eye, Unfollow } from '../Icons';
-import { Trans } from '@lingui/macro';
 import Loader from '../Loader/Loader';
 
 interface Props {
@@ -86,7 +85,6 @@ const Join: React.SFC<Props> = ({
               strokeWidth={2}
               color={'#1e1f2480'}
             />
-            <Trans>Unfollow</Trans>
           </>
         )}
       </Span>
@@ -131,7 +129,6 @@ const Join: React.SFC<Props> = ({
             <span>
               <Eye width={18} height={18} strokeWidth={2} color={'#f98012'} />
             </span>
-            <Trans>Follow</Trans>
           </>
         )}
       </Span>
@@ -141,29 +138,28 @@ const Join: React.SFC<Props> = ({
 
 const Span = styled.div<{ unfollow?: boolean }>`
   color: ${props =>
-    props.unfollow
-      ? props => props.theme.styles.colour.heroCollectionIcon
-      : props.theme.styles.colour.heroCollectionIcon};
-  // height: 40px;
-  font-weight: 600;
-  font-size: 13px;
-  line-height: 20px;
+    props.unfollow ? '#fff' : props.theme.styles.colour.primary};
+  background: ${props =>
+    props.unfollow ? props.theme.styles.colour.primary : 'transparent'};
   cursor: pointer;
-  text-align: center;
+  height: 38px;
+  line-height: 38px;
   border-radius: 3px;
-  padding: 10px;
-  border: 1px solid
+  text-align: center;
+  border: 2px solid
     ${props =>
       props.unfollow
-        ? props => props.theme.styles.colour.heroCollectionIcon
-        : props.theme.styles.colour.heroCollectionIcon};
+        ? props => props.theme.styles.colour.primary
+        : props.theme.styles.colour.primary};
   &:hover {
     color: ${props =>
       props.unfollow
-        ? props => props.theme.styles.colour.heroCollectionIcon
+        ? props => props.theme.styles.colour.primary
         : props.theme.styles.colour.base6};
     background: ${props =>
-      props.unfollow ? '#1e1f241a' : props.theme.styles.colour.primary};
+      props.unfollow
+        ? props.theme.styles.colour.primary
+        : props.theme.styles.colour.primary};
   }
   & span {
     display: block;

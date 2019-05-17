@@ -67,7 +67,7 @@ class CommunitiesYours extends React.Component<Props> {
                 </SuperTab>
               </SuperTabList>
               <TabPanel>
-                <div style={{ padding: '16px' }}>
+                <div>
                   {this.props.data.error ? (
                     <span>
                       <Trans>Error loading collections</Trans>

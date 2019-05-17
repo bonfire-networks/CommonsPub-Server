@@ -81,7 +81,7 @@ const Collection: React.SFC<CollectionProps> = ({ collection }) => {
 };
 
 const Right = styled.div`
-  width: 70px;
+  width: 38px;
   margin-left: 16px;
   ${media.lessThan('medium')`
   margin-top: 8px;
@@ -133,12 +133,12 @@ const Img = styled.div`
   border-radius: 8px;
   background-size: cover;
   background-repeat: no-repeat;
-  // background-color: ${props => props.theme.styles.colour.secondary};
   margin-right: 8px;
   margin-left: 8px;
 `;
 const Infos = styled.div`
   flex: 1;
+  margin-left: 8px;
 `;
 const Title = styled(H5)`
   font-size: 16px !important;
