@@ -35,6 +35,10 @@ const themeLight = createTheme({
     newcommunityBgHover: '#ebeaea',
     newcommunityBg: '#f4f3f3',
 
+    // Feed item
+    feedBg: '#fff',
+    feedText: '#3c3c3c',
+
     // Resource element
     resourceBg: '#eaeef0',
     resourceTitle: '#282828',
@@ -97,12 +101,16 @@ const themeDark = createTheme({
     headerLink: '#fff',
     breadcrumb: '#46495a',
     divider: '#282a36',
-    communityBg: '#eaeef0',
-    communityTitle: '#282828',
-    communityNote: '#3c3c3c',
-    communityIcon: '#848383',
-    newcommunityBgHover: '#333543',
-    newcommunityBg: '#3d3f4d',
+    communityBg: '#565968',
+    communityTitle: '#f7f7f7',
+    communityNote: '#f7f7f7',
+    communityIcon: '#f7f7f7',
+    newcommunityBgHover: '#404356',
+    newcommunityBg: '#565968',
+
+    // Feed item
+    feedBg: '#46495a',
+    feedText: '#f7f7f7',
 
     collectionBg: '#eaeef0',
     collectionTitle: '#fff',
@@ -128,7 +136,7 @@ const themeDark = createTheme({
     heroCollectionNote: '#dddee4',
     heroCollectionIcon: '#848383',
 
-    primary: '#282a36',
+    primary: '#f98012',
     secondary: '#686566',
     logo: '#fff',
     primaryAlt: 'black',

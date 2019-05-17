@@ -17,6 +17,9 @@ export interface MoodleThemeInterface {
     newcommunityBgHover: string;
     newcommunityBg: string;
 
+    // Feed
+    feedBg: string;
+    feedText: string;
     // Collection
     collectionBg: string;
     collectionTitle: string;

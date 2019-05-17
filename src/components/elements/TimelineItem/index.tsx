@@ -147,7 +147,7 @@ const Item: SFC<Props> = ({ user, node, userpage }) => (
 );
 const Name = styled.span`
   font-weight: 600;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.feedText};
   &:hover {
     text-decoration: underline;
   }
@@ -164,7 +164,7 @@ const FeedItemContents = styled.div`
   font-size: 14px;
   margin: 0;
   flex: 1;
-  color: ${props => props.theme.styles.colour.base2};
+  color: ${props => props.theme.styles.colour.feedText};
   font-weight: 400;
   & span {
     margin-right: 3px;
@@ -172,7 +172,7 @@ const FeedItemContents = styled.div`
   & a {
     text-decoration: none;
     font-weight: 600;
-    color: ${props => props.theme.styles.colour.base2} !important;
+    color: ${props => props.theme.styles.colour.feedText} !important;
     &:hover {
       text-decoration: underline;
     }
@@ -182,7 +182,7 @@ const FeedItemContents = styled.div`
 const Comment = styled.div`
   margin-top: 6px;
   & a {
-    color: ${props => props.theme.styles.colour.base2} !important;
+    color: ${props => props.theme.styles.colour.feedText} !important;
     font-weight: 400 !important;
   }
 `;
@@ -225,7 +225,6 @@ const Date = styled.div`
   color: ${props => props.theme.styles.colour.base4};
   margin-top: 0px;
   font-weight: 500;
-  // float: right;
 `;
 
 const FeedItem = styled.div`
@@ -237,11 +236,11 @@ const FeedItem = styled.div`
   font-size: 14px;
   ${clearFix()};
   transition: background 0.5s ease;
-  background: #fff;
+  background:${props => props.theme.styles.colour.feedBg};
   margin-top: 0
   z-index: 10;
   position: relative;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid ${props => props.theme.styles.colour.divider};
 `;
 
 export default Item;
