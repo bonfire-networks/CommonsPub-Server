@@ -22,7 +22,6 @@ defmodule ActivityPub.Aspect do
   Any aspect module will generate the `__aspect__` function that can be used for runtime introspection of the aspect. This concept is key for the library and it is used continuously. `ActivityPub.AspectTest` has simple example of this introspection: [/test/activity_pub/aspect_test.exs#L15](https://gitlab.com/moodlenet/servers/federated/blob/develop/test/activity_pub/aspect_test.exs#L15). A more complex example is `ActivityPub.Entity.fields_for/2`.
 
   The `Aspect` DSL allows us to also define non-standard aspects (_meaning they are ActivityStreams extensions_), for our specific project. We define 3 aspects for MoodleNet in [moodle_net/activity_pub/](https://gitlab.com/moodlenet/servers/federated/tree/develop/lib/moodle_net/activity_pub): `MoodleNet.AP.CommunityAspect`, `MoodleNet.AP.CollectionAspect`, and `MoodleNet.AP.ResourceAspect`.
-
   """
 
   alias ActivityPub.{Field, Association}
