@@ -2,14 +2,32 @@
 
 ## About the project
 
-This back-end is written in Elixir (running on the Erlang VM, and using the Phoenix web framework). The client API uses GraphQL. The main front-end is in React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react?nav_source=navbar)).
+This is the MoodleNet back-end, written in Elixir (running on the Erlang VM, and using the Phoenix web framework). The client API uses GraphQL. The federation API uses [ActivityPub](http://activitypub.rocks/) The MoodleNet front-end is built with React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react?nav_source=navbar)).
 
-This codebase was forked from [CommonsPub](http://commonspub.org/) (project to create a generic federated server, based on the ActivityPub and ActivityStreams web standards) which was originally forked from Pleroma. 
+This codebase was forked from [CommonsPub](http://commonspub.org/) (project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards) which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma). 
+
+---
 
 ## Installation
 
-### With Docker (recommended)
-Make sure you have [docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs, and [make](https://www.gnu.org/software/make/) installed:
+### Configuring the back-end
+
+In the `config/` directory, you will find the following default config files:
+
+* `config.exs`: default base configuration
+* `dev.exs`: default extra configuration for `MIX_ENV=dev`
+* `prod.exs`: default extra configuration for `MIX_ENV=prod`
+
+
+Do not modify the files above. Instead, overload the settings by editing the following files:
+
+* `dev.secret.exs`: custom extra configuration for `MIX_ENV=dev`
+* `prod.secret.exs`: custom extra configuration for `MIX_ENV=prod`
+
+---
+
+### Install using Docker containers (recommended)
+Make sure you have [docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs), and [make](https://www.gnu.org/software/make/) installed:
 ```sh
 $ docker version
 Docker version 18.09.1-ce
@@ -31,23 +49,31 @@ Build the docker image:
 $ make build
 ```
 
+If you want to use the docker cache during subsequent build use:
+```
+$ make build_with_cache
+```
+
 Start the docker containers with docker-compose:
 ```sh
 $ docker-compose up
 ```
+
 App should be running at [http://localhost:4000/](http://localhost:4000/).
+
+If that worked, start the app as a daemon next time:
+```sh
+$ docker-compose up -d
+```
 
 #### Configuration
 
 The docker image can be found in: https://hub.docker.com/r/moodlenet/moodlenet/
 
-The docker images needs the environment variables to work.
-An updated list of them can be found in the file `config/docker.env` in this same repository.
+The docker image needs the environment variables to work, a list of which can be found in the file `config/docker.env` in this same repository.
 
 The easiest way to launch the docker image is using the `docker-compose` tool.
-The `docker-compose.yml` uses the previous `config/docker.env` to launch a `moodlenet` container
-and all the dependencies, currently, only a postgres container is needed it.
-
+The `docker-compose.yml` uses `config/docker.env` to launch a `moodlenet` container and all its dependencies, currently that means an extra postgres container.
 
 #### Docker commands
 
@@ -68,11 +94,9 @@ Other important commands are:
 * `docker-compose run --rm web bin/moodle_net help` returns all the possible commands
 
 There is a command that currently is not working: `seed_db`.
-The reason is that to generate ActivityPub ID we need the URL where the server is running,
-but `Phoenix` is not launched in this command.
+The reason is that to generate ActivityPub IDs we need the URL where the server is running, but `Phoenix` is not launched in this command.
 
-However, we can still do it.
-To seed the database we can run the following command in an `iex` console:
+However, we can do so by running the following command in an `iex` console:
 
 `iex> MoodleNet.ReleaseTasks.seed_db([])`
 
@@ -83,14 +107,25 @@ There is a `Makefile` with two commands:
 * `make build` which builds the docker image in `moodlenet:latest` and `moodlenet:$VERSION-$BUILD`
 * `make run` which can be used to run the docker built docker image without `docker-compose`
 
+### Devops information
+
+The [Dockerfile](https://gitlab.com/moodlenet/servers/federated/blob/develop/Dockerfile) uses the [multistage build](https://docs.docker.com/develop/develop-images/multistage-build/) feature to make the image as small as possible.
+
+It is a very common release using [Distillery](https://hexdocs.pm/distillery/home.html)
+
+It generates the release which is later copied into the final image:
+*   [/Dockerfile#L57](https://gitlab.com/moodlenet/servers/federated/blob/develop/Dockerfile#L57)
+*   [/Dockerfile#L80](https://gitlab.com/moodlenet/servers/federated/blob/develop/Dockerfile#L80)
+
 ---
-### Manual installation
+
+### Manual installation (without Docker)
 
 #### 1. Install dependencies
 
-* Postgresql version 9.6 or newer
-* Build-essential tools
-* Elixir version 1.7.4 with OTP 21 (or newer). If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf) (run `asdf install` in this directory).
+* Postgres version 9.6 or newer
+* Build tools
+* Elixir version 1.7.4 with OTP 21 (or possibly newer). If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf) (run `asdf install` in this directory).
 
 #### 2. Install the app
 
@@ -109,23 +144,24 @@ There is a `Makefile` with two commands:
 * The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/moodle_net.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
   The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
 
+---
 
 ## Running
 
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
+---
 
-# Configuring the server
+## Localisation
 
-In the `config/` directory, you will find the following relevant files:
+The backend code currently has very few translatable strings, basically error messages transactional emails:
 
-* `config.exs`: default base configuration
-* `dev.exs`: default additional configuration for `MIX_ENV=dev`
-* `prod.exs`: default additional configuration for `MIX_ENV=prod`
+*   Email subject lines in `MoodleNet.Email` (eg: [moodle_net/email.ex#L8](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net/email.ex#L8))
+*   Email templates in [moodle_net_web/email/](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net_web/email/templates/)
+*   Errors passed through Gettext in `MoodleNetWeb.ErrorHelpers` and `MoodleNetWeb.GraphQL.Errors`
 
+The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the header or a param.
 
-Do not modify files in the list above.
-Instead, overload the settings by editing the following files:
+If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
 
-* `dev.secret.exs`: custom additional configuration for `MIX_ENV=dev`
-* `prod.secret.exs`: custom additional configuration for `MIX_ENV=prod`
+If you've downloaded or received new transladed files, copy them to the approriate languages folder(s) in `/priv/gettext/` before rebuilding the app.

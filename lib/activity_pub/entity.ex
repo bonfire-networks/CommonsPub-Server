@@ -5,7 +5,7 @@ defmodule ActivityPub.Entity do
 
 **Note:** Elixir Structs couldn't be used because they have fixed fields, which would produce compilation errors in case of unknown properties.
 
-In addition to the `Metadata` struct in the `__ap__` field, the map it also stores every property it has, like in JSON. This allows working with the `Entity` in simple ways:
+In addition to the `ActivityPub.Metadata` struct in the `__ap__` field, the map it also stores every property it has, like in JSON. This allows working with the `Entity` in simple ways:
 - actor.followers
 - actor[:followers]
   """

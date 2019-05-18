@@ -1,4 +1,14 @@
 defmodule ActivityPub.ActorAspect do
+    @moduledoc """
+`ActorAspect` implements [_Actor_ as defined in the ActivityPub specifications](https://www.w3.org/TR/activitypub/#actors). There are different _Actor_ types: _Application, Group, Person_, etc. but all of them can have common properties: _preferred_username, inbox, outbox, followers_, etc.
+
+An `ActivityPub.Aspect` is a group of fields and functionality that an `ActivityPub.Entity` can have. `Aspects` are similar to [ActivityStreams core types](https://www.w3.org/TR/activitystreams-vocabulary/#types), but not exactly the same.
+
+The `ActivityPub.Aspect` is responsible for an `ActivityPub.Entity`'s fields and associations. An `ActivityPub.Entity` can implement one or more `Aspects` at the same time.
+
+A _Person_ for example, in addition of the `ActivityPub.ActorAspect`, also has the `ActivityPub.ObjectAspect` which contains all the fields that any _Object_ can have: _id, type, attachment, audience, bcc, bto_, etc.
+  """
+
   use ActivityPub.Aspect, persistence: ActivityPub.SQLActorAspect
 
   aspect do

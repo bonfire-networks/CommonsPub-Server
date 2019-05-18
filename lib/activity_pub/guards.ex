@@ -1,4 +1,18 @@
 defmodule ActivityPub.Guards do
+    @moduledoc """
+Thanks to the `ActivityPub.Metadata` struct we can use some guards to make this library work in a similar way to Elixir's regular structs.
+
+This allows us to create clauses depending on:
+
+*   If the object is an AP entity
+*   The aspects that it implements
+*   The types that it has
+*   If the entity is local or not
+*   If the entity is new, loaded, fetched, etc
+
+Example: In the `ActivityPub.SQLEntity.insert/2` function we only allow an `ActivityPub.Entity` whose state is :new
+  """
+
   alias ActivityPub.Metadata.Guards, as: APMG
   require APMG
 

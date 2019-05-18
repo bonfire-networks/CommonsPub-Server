@@ -24,6 +24,9 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
+  @doc """
+  Only allow an `ActivityPub.Entity` whose state is :new
+  """
   def insert(entity, repo \\ Repo) when APG.is_entity(entity) and APG.has_status(entity, :new) do
     changeset = insert_changeset(entity)
     with {:ok, sql_entity} <- repo.insert(changeset) do
