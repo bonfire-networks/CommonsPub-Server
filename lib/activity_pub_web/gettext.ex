@@ -20,6 +20,7 @@ defmodule ActivityPubWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
+
   # FIXME
   # use Gettext, otp_app: :activity_pub
   use Gettext, otp_app: :moodle_net

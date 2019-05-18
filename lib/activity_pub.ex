@@ -7,8 +7,14 @@ defmodule ActivityPub do
   defdelegate delete(entity, assocs), to: ActivityPub.SQLEntity
   defdelegate get_by_local_id(params), to: ActivityPub.SQL.Query
   defdelegate get_by_local_id(params, opts), to: ActivityPub.SQL.Query
+
+
+  # @doc """
+  # Returns an object given an ID.
+  # """
   defdelegate get_by_id(params), to: ActivityPub.SQL.Query
   defdelegate get_by_id(params, opts), to: ActivityPub.SQL.Query
+
   defdelegate reload(params), to: ActivityPub.SQL.Query
   defdelegate apply(params), to: ActivityPub.ApplyAction
   defdelegate local_id(entity), to: ActivityPub.Entity
@@ -90,7 +96,7 @@ defmodule ActivityPub do
   # end
 
   # @doc """
-  # Returns an object given and ID.
+  # Returns an object given an ID.
 
   # Options:
   #   * `:cache` when is `true`, it uses cache to try to get the object.

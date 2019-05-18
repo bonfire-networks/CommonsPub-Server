@@ -1,13 +1,12 @@
 defmodule ActivityPub.Entity do
   @moduledoc """
+  `Entity` is used to refer to any ActivityPub `Object` or `Link` in the library—ActivityPub `Object` and `Link` are disjoint, they are different things. An AP `Entity` is just a map which also has the field `__ap__` set to a `ActivityPub.Metadata` struct.
 
-`Entity` is used to refer to any ActivityPub `Object` or `Link` in the library—ActivityPub `Object` and `Link` are disjoint, they are different things. An AP `Entity` is just a map which also has the field `__ap__` set to a `ActivityPub.Metadata` struct.
+  **Note:** Elixir Structs couldn't be used because they have fixed fields, which would produce compilation errors in case of unknown properties.
 
-**Note:** Elixir Structs couldn't be used because they have fixed fields, which would produce compilation errors in case of unknown properties.
-
-In addition to the `ActivityPub.Metadata` struct in the `__ap__` field, the map it also stores every property it has, like in JSON. This allows working with the `Entity` in simple ways:
-- actor.followers
-- actor[:followers]
+  In addition to the `ActivityPub.Metadata` struct in the `__ap__` field, the map it also stores every property it has, like in JSON. This allows working with the `Entity` in simple ways:
+  - actor.followers
+  - actor[:followers]
   """
 
   require ActivityPub.Guards, as: APG

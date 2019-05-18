@@ -1,5 +1,8 @@
 defmodule ActivityPub.StringListType do
-  #FIXME this module probably is not needed anymore
+  @doc """
+  FIXME: this module probably is not needed anymore
+  """
+
   @behaviour Ecto.Type
 
   def type, do: {:array, :string}

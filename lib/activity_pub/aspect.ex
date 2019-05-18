@@ -1,22 +1,22 @@
 defmodule ActivityPub.Aspect do
   @moduledoc """
-We focus on `Aspects` instead of working directly with ActivityPub _types_. An `Aspect`—a concept we coined as well—is a group of fields and functionality that any `ActivityPub.Entity` can have.
+  We focus on `Aspects` instead of working directly with ActivityPub _types_. An `Aspect`—a concept we coined as well—is a group of fields and functionality that any `ActivityPub.Entity` can have.
 
-The clearest example of an `Aspect` is [_Actor_ as defined in the ActivityPub specifications](https://www.w3.org/TR/activitypub/#actors), which we implemented as `ActivityPub.ActorAspect`. There are different _Actor_ types: _Application, Group, Person_, etc. but all of them can have the properties: _inbox, outbox, followers_, etc.
+  The clearest example of an `Aspect` is [_Actor_ as defined in the ActivityPub specifications](https://www.w3.org/TR/activitypub/#actors), which we implemented as `ActivityPub.ActorAspect`. There are different _Actor_ types: _Application, Group, Person_, etc. but all of them can have the properties: _inbox, outbox, followers_, etc.
 
-The `Aspect` is responsible for an `ActivityPub.Entity`'s fields and associations.
+  The `Aspect` is responsible for an `ActivityPub.Entity`'s fields and associations.
 
-An `ActivityPub.Entity` can implement one or more aspects at the same time. So a _Person_, in addition of the `ActivityPub.ActorAspect`, also has the `ActivityPub.ObjectAspect` which contains all the fields that any _Object_ has: _id, type, attachment, audience, bcc, bto_, etc.
+  An `ActivityPub.Entity` can implement one or more aspects at the same time. So a _Person_, in addition of the `ActivityPub.ActorAspect`, also has the `ActivityPub.ObjectAspect` which contains all the fields that any _Object_ has: _id, type, attachment, audience, bcc, bto_, etc.
 
-`Aspects` are similar to [ActivityStreams core types](https://www.w3.org/TR/activitystreams-vocabulary/#types), but not exactly the same. Some of them match with the `Aspect` we define in the generic library—and the fields defined in each one too: `ActivityPub.ActivityAspect`, `ActivityPub.CollectionAspect`, `ActivityPub.LinkAspect` and `ActivityPub.ObjectAspect`.
+  `Aspects` are similar to [ActivityStreams core types](https://www.w3.org/TR/activitystreams-vocabulary/#types), but not exactly the same. Some of them match with the `Aspect` we define in the generic library—and the fields defined in each one too: `ActivityPub.ActivityAspect`, `ActivityPub.CollectionAspect`, `ActivityPub.LinkAspect` and `ActivityPub.ObjectAspect`.
 
-This [DSL](https://elixir-lang.org/getting-started/meta/domain-specific-languages.html) is used to define _Aspect_.
+  This [DSL](https://elixir-lang.org/getting-started/meta/domain-specific-languages.html) is used to define _Aspect_.
 
-The architecture is very similar to Ecto's. We store the different fields and association that an aspect has and we create a schema. An `ActivityPub.Entity` can have one or more aspects (this is defined in [activity_pub/entity.ex](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/activity_pub/entity.ex)).
+  The architecture is very similar to Ecto's. We store the different fields and association that an aspect has and we create a schema. An `ActivityPub.Entity` can have one or more aspects (this is defined in [activity_pub/entity.ex](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/activity_pub/entity.ex)).
 
-Any aspect module will generate the `__aspect__` function that can be used for runtime introspection of the aspect. This concept is key for the library and it is used continuously. `ActivityPub.AspectTest` has simple example of this introspection: [/test/activity_pub/aspect_test.exs#L15](https://gitlab.com/moodlenet/servers/federated/blob/develop/test/activity_pub/aspect_test.exs#L15). A more complex example is `ActivityPub.Entity.fields_for/2`.
+  Any aspect module will generate the `__aspect__` function that can be used for runtime introspection of the aspect. This concept is key for the library and it is used continuously. `ActivityPub.AspectTest` has simple example of this introspection: [/test/activity_pub/aspect_test.exs#L15](https://gitlab.com/moodlenet/servers/federated/blob/develop/test/activity_pub/aspect_test.exs#L15). A more complex example is `ActivityPub.Entity.fields_for/2`.
 
-The `Aspect` DSL allows us to also define non-standard aspects (_meaning they are ActivityStreams extensions_), for our specific project. We define 3 aspects for MoodleNet in [moodle_net/activity_pub/](https://gitlab.com/moodlenet/servers/federated/tree/develop/lib/moodle_net/activity_pub): `MoodleNet.AP.CommunityAspect`, `MoodleNet.AP.CollectionAspect`, and `MoodleNet.AP.ResourceAspect`.
+  The `Aspect` DSL allows us to also define non-standard aspects (_meaning they are ActivityStreams extensions_), for our specific project. We define 3 aspects for MoodleNet in [moodle_net/activity_pub/](https://gitlab.com/moodlenet/servers/federated/tree/develop/lib/moodle_net/activity_pub): `MoodleNet.AP.CommunityAspect`, `MoodleNet.AP.CollectionAspect`, and `MoodleNet.AP.ResourceAspect`.
 
   """
 

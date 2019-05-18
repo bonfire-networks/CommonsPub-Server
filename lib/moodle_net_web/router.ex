@@ -14,8 +14,8 @@ defmodule MoodleNetWeb.Router do
   # end
 
   pipeline :api_browser do
-    # Not sure this is ok?
-    # Mixing browser and api stuff does not seem right...
+    # Not sure if this is ok?
+    # Mixing browser and API stuff does not seem right...
     # FIXME
     plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
 

@@ -19,9 +19,10 @@ defmodule ActivityPub.SQLAspect do
       MoodleNet.AP.SQLResourceAspect
     ]
 
-  # FIXME make this similar to aspect where the user can redifine
-  # assocs and fields to be persisted in another way than the default!
-  # This way we can remove :inv property
+  @doc """
+  FIXME: make this similar to aspect where the user can redefine assocs and fields to be persisted in a way other than the default!
+  This way we can remove :inv property
+  """
   defmacro __using__(options) do
     quote bind_quoted: [options: options] do
       aspect = Keyword.fetch!(options, :aspect)
