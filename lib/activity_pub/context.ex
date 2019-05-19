@@ -1,6 +1,6 @@
 defmodule ActivityPub.Context do
   @doc """
-    FIXME: Sure this can be done much better but I didn't completely understand JSON-LD context
+    FIXME: To be improved, it is not working well in any case, as Alex didn't completely understand JSON-LD context
   """
 
   defstruct values: [], language: "und"

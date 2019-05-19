@@ -1,5 +1,57 @@
 defmodule ActivityPub.Builder do
-  @moduledoc false
+  @moduledoc """
+  Builds an `ActivityPub.Entity`. Delegated from `ActivityPub.new/1`.
+
+  ## Example
+  ```
+  {:ok, entity} = ActivityPub.new(%{type: "Object", content: "hello world"})
+  ```
+
+  ## Normalizing `ActivityPub.Entity`
+
+  The first thing we do is detect the `ActivityPub.Entity` type. From the type we can infer the `ActivityPub.Aspect`(s) implemented by the `ActivityPub.Entity` (using the conversion table in `ActivityPub.Types`).
+
+  Once we know the `ActivityPub.Aspect`(s) that the `ActivityPub.Entity` implements, the `ActivityPub.Metadata` field is created.
+
+  We then generate then an `ActivityPub.Entity`, with the metadata and some basic fields (`entity = %{__ap__: meta, id: params["id"], type: type, "@context": context}`).
+
+  We then iterate for each implemented `ActivityPub.Aspect` passing the rest of the fields provided and the empty `ActivityPub.Entity`. Each `ActivityPub.Aspect` iterates each field and each `ActivityPub.Entity` that it has defined and it also _normalizes the values_ to add them to the `ActivityPub.Entity`. So each `ActivityPub.Aspect` deals with its fields and the rest of them are passed to the next `ActivityPub.Aspect`(s).
+
+  If after iterating each `ActivityPub.Aspect` there are leftover fields that haven't been normalized and added to the final `ActivityPub.Entity`, these are considered _extension fields_ and added to the `Entity` using a string key.
+
+  ## Normalizing values/fields of `ActivityPub.Entity`
+
+  The process of normalizing values is important to simplify the code, to avoid repeated conditional code when working with such dynamic structures. So if an _entity_ was created using the library functions we can ensure that the 'to' property will be always an array (possibly empty), and elements would always be other _entities_, whether fully loaded or not. This simplifies the code a lot.
+
+  Some examples of this normalization follow.
+
+  ### Normalize _Natural Language Values_
+
+  Please refer to the [ActivityStreams spec about natural language values](https://www.w3.org/TR/activitystreams-core/#naturalLanguageValues).
+
+  For such translatable fields, if we receive just a string we convert it to: %{"und" => string} (meaning it's a [string in an unknown language](https://www.w3.org/TR/activitystreams-core/#fig-using-the-und-language-tag)). The goal is always to use a map to avoid the next conditional cluttering the code everytime we use a Natural Language Value: _if this value is a string do this, else if the value is a map do this other thing._
+
+  Remember we started building a generic library for any kind of project, including those with multilingual content.
+
+  ### No functional associations
+
+  Most of the associations aren't functional, so they could be an array. However, when only one value is provided, the array is optional. When normalizing, the associations with only one value are wrapped in a list, to avoid having to check if it is a list or a single value.
+
+  ### Partial object representation
+
+  ActivityStreams `Objects` (whether they originate on another instance or are an association with another local `Object`) can be represented using:
+
+  *   only the ID
+  *   with a partial representation of the object (only some fields)
+  *   with the full representation (all the fields of the original object are present).
+
+  Even if it receives only an ID, the library creates a "full object" with only the ID and _Metadata_ indicating that it is _not loaded_. This avoids having to check if an object is a string or an `ActivityPub.Entity`. In the future we can add hooks to fetch the full `Object` from its originating instance (when necessary).
+
+  #### Empty fields
+
+  When a field isn't present but is defined in an `ActivityPub.Aspect` it is set to nil or [] (depending on if it's functional or not), to avoid having to check if the field is in the map or not before accessing it).
+
+  """
 
   alias ActivityPub.{Entity, Context, Types, Metadata}
   alias ActivityPub.{BuildError, LanguageValueType}

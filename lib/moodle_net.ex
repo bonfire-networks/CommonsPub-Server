@@ -1,13 +1,18 @@
 defmodule MoodleNet do
+  @moduledoc """
+  Contains many functions for MoodleNet
+
+  FIXME - many preload of aspects and assocs for `to` property.
+  It probably can be optimized or paralelized in a better way.
+
+  TODO - move some of these functions to more approriate modules, including into `ActivityPub` for those that aren't MoodleNet-specific.
+
+  """
   import ActivityPub.Guards
   alias ActivityPub.SQL.{Query, Alter}
 
   alias MoodleNet.Policy
   require ActivityPub.Guards, as: APG
-
-  # FIXME many preload of aspects and assocs for `to` property.
-  # It's probably it can be optimized or paralalized in a better way
-
 
   @doc """
   User connections
@@ -110,7 +115,7 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  defp community_collection_query(community) do
+  def community_collection_query(community) do
     Query.new()
     |> Query.with_type("MoodleNet:Collection")
     |> Query.has(:context, community)

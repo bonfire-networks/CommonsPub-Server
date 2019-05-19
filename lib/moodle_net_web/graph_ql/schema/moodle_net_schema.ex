@@ -1,4 +1,9 @@
 defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
+  @moduledoc """
+  Some common functions used by the resolvers.
+
+  (TODO: The module name should be changed to something better like `ResolverCommon` or `ResolverUtils`.)
+  """
   use Absinthe.Schema.Notation
 
   alias ActivityPub.SQL.{Query}
@@ -10,6 +15,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   alias MoodleNetWeb.GraphQL.{UserResolver, CommunityResolver}
   alias MoodleNetWeb.GraphQL.{CommentSchema, ActivitySchema}
 
+  @doc """
+  Load by id and type
+  """
   def resolve_by_id_and_type(type) do
     fn %{local_id: local_id}, info ->
       fields = requested_fields(info)
@@ -75,6 +83,11 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   def prepare([], _), do: []
 
+  @doc """
+  Translate from AP notation to MoodleNet API notation
+
+  Loads all the needed `ActivityPub.Aspect`(s) and associations to make the translation.
+  """
   def prepare([e | _] = list, fields) when APG.has_type(e, "MoodleNet:Community"),
     do: CommunityResolver.prepare_community(list, fields)
 
@@ -159,10 +172,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Map.put(:updated, Entity.persistence(entity).updated_at |> NaiveDateTime.to_iso8601())
   end
 
-  defp from_language_value(string) when is_binary(string), do: string
-  defp from_language_value(%{"und" => value}), do: value
-  defp from_language_value(%{}), do: nil
-  defp from_language_value(_), do: nil
+  @doc """
+  Transform Natural Language Values to just a simple string
+  """
+  def from_language_value(string) when is_binary(string), do: string
+  def from_language_value(%{"und" => value}), do: value
+  def from_language_value(%{}), do: nil
+  def from_language_value(_), do: nil
 
   defp to_icon([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
@@ -224,6 +240,21 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  @doc """
+  Used to resolve many associations. See for example `:joined_communities` in `MoodleNetWeb.GraphQL.UserSchema`.
+
+  The argument passed to this function is the function to be called from the `MoodleNet` module, in this example: `MoodleNet.joined_communities_list/2`.
+
+  When the field `totalCount` is requested in the association, a SQL count query is also performed. See for example how `calculate_connection_count/3` triggers `MoodleNet.joined_communities_count/1`.
+
+  This function handles pagination correctly.
+
+  *FIXME - This function has a 1+n query problem* (example of the problem: load a community list and then for each community perform a separate query to load its members).
+
+  When Alex implemented pagination, he found that the batch middleware used in `with_assoc/2` and pagination didn’t play well together (or just couldn’t make it work). The batch functionality works well when loading all of the association `Entities`, but each `ActivityPub.Entity` has its own id to paginate. We couldn't paginate more than one relation in the same query.
+
+  All this means that every `ActivityPub.Entity` we currently return in GraphQL implies at least one query per `ActivityPub.Entity` in the database.
+  """
   def with_connection(method) do
     fn parent, args, info ->
       fields = requested_fields(info)
@@ -243,14 +274,14 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  defp calculate_connection_count(nil, method, fields) do
+  def calculate_connection_count(nil, method, fields) do
     if "totalCount" in fields do
       count_method = String.to_atom("#{method}_count")
       apply(MoodleNet, count_method, [])
     end
   end
 
-  defp calculate_connection_count(parent, method, fields) do
+  def calculate_connection_count(parent, method, fields) do
     if "totalCount" in fields do
       count_method = String.to_atom("#{method}_count")
       apply(MoodleNet, count_method, [parent])
@@ -312,6 +343,11 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   def with_assoc(assoc, opts \\ [])
 
+  @doc """
+  This function was created before `MoodleNetWeb.GraphQL.MoodleNetSchema.with_connection/1`. It supports “single” and “many” associations. It also used the [batch API](https://hexdocs.pm/absinthe/Absinthe.Middleware.Batch.html).
+
+  This middleware avoids the 1+n query problem (example of the problem: load a community list and then for each community perform a separate query to load its members). This middleware can for example receive a community list and perform a single query to load all their members. But unfortunately it does not seem to play well with pagination.
+  """
   def with_assoc(assoc, opts) do
     fn parent, _, info ->
       fields = requested_fields(info)
@@ -341,6 +377,9 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  @doc """
+  Used to load the `followed` virtual attribute, for example in `MoodleNetWeb.GraphQL.CommunitySchema` (if the `current_user` is following a community this attribute will be true, otherwise false). This function could also be used for `Like` and similar functionalities.
+  """
   def with_bool_join(:follow) do
     fn parent, _, info ->
       {:ok, current_actor} = current_actor(info)

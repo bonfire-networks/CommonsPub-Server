@@ -1,20 +1,10 @@
 defmodule ActivityPubWeb do
   @moduledoc """
-  The entrypoint for defining your web interface, such
-  as controllers, views, channels and so on.
+  Entrypoint for defining the ActivityPub web interfaces, such as the REST API for server-to-server federation.
 
-  This can be used in your application as:
+  The definitions below will be executed for every view, controller, etc, so keep them short and clean, focused on imports, uses and aliases.
 
-      use ActivityPubWeb, :controller
-      use ActivityPubWeb, :view
-
-  The definitions below will be executed for every view,
-  controller, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
-
-  Do NOT define functions inside the quoted expressions
-  below. Instead, define any helper function in modules
-  and import those modules here.
+  Do NOT define functions inside the quoted expressions below. Instead, define any helper function in modules and import those modules here.
   """
 
   def controller do

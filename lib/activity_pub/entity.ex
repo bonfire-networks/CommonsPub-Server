@@ -64,5 +64,19 @@ defmodule ActivityPub.Entity do
 
   def local_id(%{__ap__: meta} = e) when APG.is_entity(e), do: Metadata.local_id(meta)
 
+  @doc """
+  ## `Entity` Persistence
+  `ActivityPub.Entity` only works with `Entities` in memory during runtime. Persistence is a separate layer, so in theory, this would allow creating other persistence layers using different types of storage — for example, graph databases.
+
+  Our current persistence layer is `ActivityPub.SQLEntity` which uses Ecto and Postgres.
+
+  It is important to understand that `ActivityPub.SQLEntity` and `ActivityPub.Entity` are completely separate modules with completely separate functionality:
+
+  * `ActivityPub.SQLEntity` receives an `ActivityPub.Entity` and stores it in the database.
+
+  * When something is loaded from the database, `ActivityPub.SQLEntity` returns an `ActivityPub.Entity`.
+
+  * `ActivityPub.SQLEntity` knows about `ActivityPub.Entity`, but `ActivityPub.Entity` shouldn’t know anything about `ActivityPub.SQLEntity` (apart from knowing the names of modules to use persistence of course).
+  """
   def persistence(%{__ap__: %{persistence: persistence}} = e) when APG.is_entity(e), do: persistence
 end

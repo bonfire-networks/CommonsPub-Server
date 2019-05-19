@@ -2,9 +2,9 @@
 
 ## About the project
 
-This is the MoodleNet back-end, written in Elixir (running on the Erlang VM, and using the Phoenix web framework). The client API uses GraphQL. The federation API uses [ActivityPub](http://activitypub.rocks/) The MoodleNet front-end is built with React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react?nav_source=navbar)).
+This is the MoodleNet back-end, written in Elixir (running on the Erlang VM, and using the Phoenix web framework). The client API uses GraphQL. The federation API uses [ActivityPub](http://activitypub.rocks/). The MoodleNet front-end is built with React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react)).
 
-This codebase was forked from [CommonsPub](http://commonspub.org/) (project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards) which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma). 
+This codebase was forked from [CommonsPub](http://commonspub.org/) (project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards) which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma). All three projects are [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html) licensed.
 
 ---
 
@@ -165,3 +165,9 @@ The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the
 If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
 
 If you've downloaded or received new transladed files, copy them to the approriate languages folder(s) in `/priv/gettext/` before rebuilding the app.
+
+## Documentation
+
+The code is somewhat documented inline. You can read the resulting [Module & Function Documentation](https://new.next.moodle.net/docs/server/api-reference.html#modules) on the project website. 
+
+If you add more documentation (thanks!), you can generate HTML docs (using `Exdoc`) by running `mix docs`. 

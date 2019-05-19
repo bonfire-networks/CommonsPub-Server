@@ -1,4 +1,8 @@
 defmodule ActivityPubWeb.ActivityPubView do
+  @moduledoc """
+  Even though store the data in AS format, some changes need to be applied to the entity before serving it in the AP REST response. This is done in this module.
+  """
+
   use ActivityPubWeb, :view
 
   alias ActivityPub.Entity

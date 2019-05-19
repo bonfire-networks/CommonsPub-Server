@@ -1,4 +1,8 @@
 defmodule ActivityPub.SQLActorAspect do
+  @moduledoc """
+  `ActivityPub.SQLAspect` for `ActivityPub.ActorAspect`
+  """
+
   use ActivityPub.SQLAspect,
     aspect: ActivityPub.ActorAspect,
     persistence_method: :table,

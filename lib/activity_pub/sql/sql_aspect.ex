@@ -1,4 +1,24 @@
 defmodule ActivityPub.SQLAspect do
+  @moduledoc """
+  `SQLAspect` receives a runtime `ActivityPub.Aspect` module, and creates a `SQLAspect`, with an Ecto schema with the same fields. It also contains the functionality to store its fields in the database, which can be done in 4 different ways:
+
+  1.   In its own table with all the aspect fields. They are connected using the `local_id` column which is `primary_key` and `foreign_key` at the same time. So all the tables share the same `local_id` column making it easy to load the full entity.
+  2.   The aspect fields are stored in the main table `activity_pub_objects`.
+  3.   The aspect fields are stored in a JSONB column in the main table `activity_pub_objects`. Not 100% implemented.
+  4.   The aspect fields are stored in the `extension_fields` column. This is 0% implemented but it is possible.
+
+  So, in a similar way to `ActivityPub.Aspect`s only dealing with their fields, `ActivityPub.SQLAspect`s only store their fields, in a predefined way.
+
+  We have an `SQLAspect` for each `ActivityPub.Aspect`:
+  *   `ActivityPub.SQLActivityAspect`
+  *   `ActivityPub.SQLActorAspect`
+  *   `ActivityPub.SQLCollectionAspect`
+  *   `ActivityPub.SQLObjectAspect`
+
+  The definitions of those modules are very small, because the functionality is defined here in `ActivityPub.SQLAspect`.
+
+  """
+
   alias ActivityPub.{
     SQLObjectAspect,
     SQLActorAspect,
@@ -131,6 +151,15 @@ defmodule ActivityPub.SQLAspect do
     end
   end
 
+  @doc """
+  `SQLAspects` define their own associations.
+
+  When it is a functional relation, it defines a `belongs_to` association, for example, `ActivityPub.ActorAspect` defines `followers_id`, which is always a single `collection`: [migrations/20181105145654_create_activity_pub_tables.exs#L46](https://gitlab.com/moodlenet/servers/federated/blob/develop/priv/repo/migrations/20181105145654_create_activity_pub_tables.exs#L46)
+
+  However, when a relation is not functional, a `many_to_many` relation is created, which means a “join table” is necessary, for example, an `ActivityPub.ActivityAspect` can have many `Actors`: [migrations/20181105145654_create_activity_pub_tables.exs#L46](https://gitlab.com/moodlenet/servers/federated/blob/develop/priv/repo/migrations/20181105145654_create_activity_pub_tables.exs#L46)
+
+  *It is important to note that naming is playing an important role in the library. The library can infer the name of the tables and columns using the name of the `aspects` and fields.*
+  """
   defmacro inject_assocs(associations) do
     quote bind_quoted: [associations: associations] do
       Enum.map(associations, fn

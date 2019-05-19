@@ -1,6 +1,18 @@
 defmodule ActivityPub.SQL.Paginate do
+  @moduledoc """
+  Paginate queries.
+
+  Pagination is used in two situations:
+
+  * `ActivityPub.CollectionPage` in the AP API
+  * Pagination within `MoodleNetWeb.GraphQL` queries
+  """
+
   import Ecto.Query
 
+  @doc """
+  Paginate by creation date using the `local_id` (used for example to paginate the list of users)
+  """
   def by_local_id(query, params) do
     params = normalize_params(params)
 
@@ -11,6 +23,9 @@ defmodule ActivityPub.SQL.Paginate do
     |> order_by([entity: entity], [{^params[:order], entity.local_id}])
   end
 
+  @doc """
+  Paginate by insertion date in a `Collection` (used for example to paginate the list of followers, which should be sorted by when the `Follow` Activity was created, not when the following actors were created). For this use `paginate_collection/2`.
+  """
   def by_collection_insert(query, params) do
     params = normalize_params(params)
 

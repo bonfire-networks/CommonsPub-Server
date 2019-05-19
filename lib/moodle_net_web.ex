@@ -1,19 +1,10 @@
 defmodule MoodleNetWeb do
   @moduledoc """
-  A module that keeps using definitions for controllers,
-  views and so on.
+  Entrypoint for defining the MoodleNet web interfaces, such as controllers, views, channels and so on.
 
-  This can be used in your application as:
+  The definitions below will be executed for every view, controller, etc, so keep them short and clean, focused on imports, uses and aliases.
 
-      use MoodleNetWeb, :controller
-      use MoodleNetWeb, :view
-
-  The definitions below will be executed for every view,
-  controller, etc, so keep them short and clean, focused
-  on imports, uses and aliases.
-
-  Do NOT define functions inside the quoted expressions
-  below.
+  Do NOT define functions inside the quoted expressions below. Instead, define any helper function in modules and import those modules here.
   """
 
   def controller do
