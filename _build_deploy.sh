@@ -13,7 +13,7 @@ npm run styleguide:build
 
 cp -r build/* $TARGET
 
-cp -r styleguide $TARGET
+mv styleguide $TARGET/docs
 
 cd $TARGET
 git pull

@@ -52,4 +52,5 @@ const ThemeProvider = ({ children }) => {
   );
 };
 
+export default ThemeProvider;
 export { ThemeProvider, useTheme };

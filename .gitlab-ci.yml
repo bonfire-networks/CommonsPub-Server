@@ -20,12 +20,15 @@ develop: # build and deploy develop branch to staging
     - tx pull --force --no-interactive # pull all the latest localised PO files from transifex 
     - npm run compile # compile localisation PO files into .js files 
     - REACT_APP_GRAPHQL_ENDPOINT=https://home.next.moodle.net/api/graphql CI=false npm run build --prod # Build for prod, need to specify URL of backend API, and CI=false to avoid failing on warnings
+    - npm run styleguide:build # generate styleguide docs 
     - rm -rf public # CRA and gitlab pages both use the public folder. Only do this in a build pipeline.
     - mv build public # Move build files to public dir for Gitlab Pages
     - cp public/index.html public/404.html # Not necessary, but helps with https://medium.com/@pshrmn/demystifying-single-page-applications-3068d0555d46
     # Next install the AWS SDK and push files to S3
     - find public/ && pip install awscli && aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
     - aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --paths '/*' # invalidate CloudFront's cache to serve the new version
+    - aws s3 sync styleguide/ s3://${DOCS_STAGING_BUCKET}/docs/styleguide/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to (a different) S3-served website
+    - aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/styleguide/*' # invalidate the docs CloudFront's cache to serve the new version
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
