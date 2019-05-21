@@ -108,23 +108,22 @@ class CollectionComponent extends React.Component<Props> {
                     </P>
                     <ActionsHero>
                       <HeroJoin>
+                        {collection.community.followed ? (
+                          <EditButton onClick={this.props.editCollection}>
+                            <Settings
+                              width={18}
+                              height={18}
+                              strokeWidth={2}
+                              color={'#f98012'}
+                            />
+                          </EditButton>
+                        ) : null}
                         <Join
                           followed={collection.followed}
                           id={collection.localId}
                           externalId={collection.id}
                         />
                       </HeroJoin>
-                      {collection.community.followed ? (
-                        <EditButton onClick={this.props.editCollection}>
-                          <Settings
-                            width={18}
-                            height={18}
-                            strokeWidth={2}
-                            color={'#f98012'}
-                          />
-                          <Trans>Edit collection</Trans>
-                        </EditButton>
-                      ) : null}
                     </ActionsHero>
                   </HeroInfo>
                 </Hero>
@@ -209,6 +208,16 @@ const EditButton = styled.span`
   margin-left: 24px;
   cursor: pointer;
   display: inline-block;
+  width: 40px;
+  height: 40px;
+  vertical-align: bottom;
+  margin-left: 8px;
+  border-radius: 40px;
+  text-align: center;
+  cursor: pointer;
+  position: absolute;
+  right: 40px;
+  top: 0;
   & svg {
     margin-top: 8px;
     text-align: center;

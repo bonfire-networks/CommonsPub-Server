@@ -125,7 +125,7 @@ const themeDark = createTheme({
     resourceIcon: '#848383',
 
     // Hero
-    hero: '#eaeef0',
+    hero: '#46495a',
     heroTitle: '#282828',
     heroNote: '#a0a2a5',
     heroIcon: '#848383',
@@ -134,7 +134,7 @@ const themeDark = createTheme({
     heroCollection: '#46495a',
     heroCollectionTitle: '#dddee4',
     heroCollectionNote: '#dddee4',
-    heroCollectionIcon: '#848383',
+    heroCollectionIcon: '#dddee4',
 
     primary: '#f98012',
     secondary: '#686566',

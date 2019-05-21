@@ -65,7 +65,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
   render() {
     let collections;
     let community;
-    console.log(this.props.match.params.community);
     if (this.props.data.error) {
       collections = (
         <span>
@@ -372,7 +371,7 @@ const EditButton = styled.span`
   text-align: center;
   cursor: pointer;
   position: absolute;
-  right: 40px;
+  right: 100px;
   top: 0;
   &:hover {
     svg {
@@ -382,6 +381,7 @@ const EditButton = styled.span`
   & svg {
     margin-top: 8px;
     text-align: center;
+    color: ${props => props.theme.styles.colour.base1};
   }
 `;
 

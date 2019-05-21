@@ -7,7 +7,6 @@ import TimelineItem from '../../components/elements/TimelineItem';
 import styled from '../../themes/styled';
 import { SuperTab, SuperTabList } from '../../components/elements/SuperTab';
 import ResourceCard from '../../components/elements/Resource/Resource';
-import P from '../../components/typography/P/P';
 import { Resource, Message, Eye } from '../../components/elements/Icons';
 import Link from '../../components/elements/Link/Link';
 import media from 'styled-media-query';
@@ -36,142 +35,146 @@ const CommunityPage: SFC<Props> = ({
   fetchMore,
   addNewResource,
   type
-}) => (
-  <WrapperTab>
-    <OverlayTab>
-      <Tabs defaultIndex={1}>
-        <SuperTabList>
-          <SuperTab>
-            <span>
-              <Eye width={20} height={20} strokeWidth={2} color={'#a0a2a5'} />
-            </span>
-            <h5>
-              <Trans>Timeline</Trans>
-            </h5>
-          </SuperTab>
-          <SuperTab>
-            <span>
-              <Resource
-                width={20}
-                height={20}
-                strokeWidth={2}
-                color={'#a0a2a5'}
-              />
-            </span>
-            <h5>
-              <Trans>Resources</Trans> ({collection.resources.totalCount}
-              /10)
-            </h5>
-          </SuperTab>
-          <SuperTab>
-            <span>
-              <Message
-                width={20}
-                height={20}
-                strokeWidth={2}
-                color={'#a0a2a5'}
-              />
-            </span>{' '}
-            <h5>
-              <Trans>Discussions</Trans>
-            </h5>
-          </SuperTab>
-        </SuperTabList>
-        <TabPanel>
-          <div>
-            {collection.inbox.edges.map((t, i) => (
-              <TimelineItem node={t.node} user={t.node.user} key={i} />
-            ))}
-            {/* <CollectionsLoadMore 
+}) => {
+  return (
+    <WrapperTab>
+      <OverlayTab>
+        <Tabs defaultIndex={1}>
+          <SuperTabList>
+            <SuperTab>
+              <span>
+                <Eye width={20} height={20} strokeWidth={2} color={'#a0a2a5'} />
+              </span>
+              <h5>
+                <Trans>Timeline</Trans>
+              </h5>
+            </SuperTab>
+            <SuperTab>
+              <span>
+                <Resource
+                  width={20}
+                  height={20}
+                  strokeWidth={2}
+                  color={'#a0a2a5'}
+                />
+              </span>
+              <h5>
+                <Trans>Resources</Trans> ({collection.resources.totalCount}
+                /10)
+              </h5>
+            </SuperTab>
+            <SuperTab>
+              <span>
+                <Message
+                  width={20}
+                  height={20}
+                  strokeWidth={2}
+                  color={'#a0a2a5'}
+                />
+              </span>{' '}
+              <h5>
+                <Trans>Discussions</Trans>
+              </h5>
+            </SuperTab>
+          </SuperTabList>
+          <TabPanel>
+            <div>
+              {collection.inbox.edges.map((t, i) => (
+                <TimelineItem node={t.node} user={t.node.user} key={i} />
+              ))}
+              {/* <CollectionsLoadMore 
               fetchMore={fetchMore}
               inbox={}
             /> */}
-            {(collection.inbox.pageInfo.startCursor === null &&
-              collection.inbox.pageInfo.endCursor === null) ||
-            (collection.inbox.pageInfo.startCursor &&
-              collection.inbox.pageInfo.endCursor === null) ? null : (
-              <LoadMore
-                onClick={() =>
-                  fetchMore({
-                    variables: {
-                      end: collection.inbox.pageInfo.endCursor
-                    },
-                    updateQuery: (previousResult, { fetchMoreResult }) => {
-                      const newNodes = fetchMoreResult.collection.inbox.edges;
-                      const pageInfo =
-                        fetchMoreResult.collection.inbox.pageInfo;
-                      return newNodes.length
-                        ? {
-                            // Put the new comments at the end of the list and update `pageInfo`
-                            // so we have the new `endCursor` and `hasNextPage` values
-                            collection: {
-                              ...previousResult.collection,
-                              __typename: previousResult.collection.__typename,
-                              inbox: {
-                                ...previousResult.collection.inbox,
-                                edges: [
-                                  ...previousResult.collection.inbox.edges,
-                                  ...newNodes
-                                ]
-                              },
-                              pageInfo
+              {(collection.inbox.pageInfo.startCursor === null &&
+                collection.inbox.pageInfo.endCursor === null) ||
+              (collection.inbox.pageInfo.startCursor &&
+                collection.inbox.pageInfo.endCursor === null) ? null : (
+                <LoadMore
+                  onClick={() =>
+                    fetchMore({
+                      variables: {
+                        end: collection.inbox.pageInfo.endCursor
+                      },
+                      updateQuery: (previousResult, { fetchMoreResult }) => {
+                        const newNodes = fetchMoreResult.collection.inbox.edges;
+                        const pageInfo =
+                          fetchMoreResult.collection.inbox.pageInfo;
+                        return newNodes.length
+                          ? {
+                              // Put the new comments at the end of the list and update `pageInfo`
+                              // so we have the new `endCursor` and `hasNextPage` values
+                              collection: {
+                                ...previousResult.collection,
+                                __typename:
+                                  previousResult.collection.__typename,
+                                inbox: {
+                                  ...previousResult.collection.inbox,
+                                  edges: [
+                                    ...previousResult.collection.inbox.edges,
+                                    ...newNodes
+                                  ]
+                                },
+                                pageInfo
+                              }
                             }
-                          }
-                        : {
-                            collection: {
-                              ...previousResult.collection,
-                              __typename: previousResult.collection.__typename,
-                              inbox: {
-                                ...previousResult.collection.inbox,
-                                edges: [
-                                  ...previousResult.collection.inbox.edges
-                                ]
-                              },
-                              pageInfo
-                            }
-                          };
-                    }
-                  })
-                }
-              >
-                <Trans>Load more</Trans>
-              </LoadMore>
-            )}
-          </div>
-        </TabPanel>
-        <TabPanel>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap'
-            }}
-          >
-            <Wrapper>
-              {resources.totalCount > 9 ? null : collection.community
-                .followed ? null : (
-                <Footer>
-                  <Trans>Join the community</Trans>{' '}
-                  <Link to={'/communities/' + collection.community.localId}>
-                    {community_name}
-                  </Link>{' '}
-                  <Trans>to add a resource</Trans>
-                </Footer>
+                          : {
+                              collection: {
+                                ...previousResult.collection,
+                                __typename:
+                                  previousResult.collection.__typename,
+                                inbox: {
+                                  ...previousResult.collection.inbox,
+                                  edges: [
+                                    ...previousResult.collection.inbox.edges
+                                  ]
+                                },
+                                pageInfo
+                              }
+                            };
+                      }
+                    })
+                  }
+                >
+                  <Trans>Load more</Trans>
+                </LoadMore>
               )}
-              {resources.totalCount ? (
+            </div>
+          </TabPanel>
+          <TabPanel>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap'
+              }}
+            >
+              <Wrapper>
+                {resources.totalCount > 9 ? null : collection.community
+                  .followed ? null : (
+                  <Footer>
+                    <Trans>Join the community</Trans>{' '}
+                    <Link to={'/communities/' + collection.community.localId}>
+                      {community_name}
+                    </Link>{' '}
+                    <Trans>to add a resource</Trans>
+                  </Footer>
+                )}
                 <CollectionList>
-                  {resources.totalCount > 9 ? null : collection.community
-                    .followed ? (
-                    <Create onClick={addNewResource}>
-                      <span>
-                        <Resource
-                          width={40}
-                          height={40}
-                          strokeWidth={1}
-                          color={'#f98012'}
-                        />
-                      </span>
-                      <Trans>Add a new resource</Trans>
-                    </Create>
+                  {collection.community.followed &&
+                  resources.totalCount < 10 ? (
+                    <>
+                      <Create onClick={addNewResource}>
+                        <span>
+                          <Resource
+                            width={40}
+                            height={40}
+                            strokeWidth={1}
+                            color={'#f98012'}
+                          />
+                        </span>
+                        <Trans>Add a new resource</Trans>
+                      </Create>
+                    </>
                   ) : null}
                   {resources.edges.map((edge, i) => (
                     <ResourceCard
@@ -184,46 +187,40 @@ const CommunityPage: SFC<Props> = ({
                     />
                   ))}
                 </CollectionList>
-              ) : (
-                <OverviewCollection>
-                  <P>
-                    <Trans>This collection has no resources.</Trans>
-                  </P>
-                </OverviewCollection>
-              )}
-            </Wrapper>
-          </div>
-        </TabPanel>
-        <TabPanel>
-          {collection.community.followed ? (
-            <Discussion
-              localId={collection.localId}
-              id={collection.id}
-              threads={collection.threads}
-              followed
-            />
-          ) : (
-            <>
+              </Wrapper>
+            </div>
+          </TabPanel>
+          <TabPanel>
+            {collection.community.followed ? (
               <Discussion
                 localId={collection.localId}
                 id={collection.id}
                 threads={collection.threads}
-                type={type}
+                followed
               />
-              <Footer>
-                <Trans>Join the community</Trans>{' '}
-                <Link to={'/communities/' + collection.community.localId}>
-                  {community_name}
-                </Link>{' '}
-                <Trans>to participate in discussions</Trans>
-              </Footer>
-            </>
-          )}
-        </TabPanel>
-      </Tabs>
-    </OverlayTab>
-  </WrapperTab>
-);
+            ) : (
+              <>
+                <Discussion
+                  localId={collection.localId}
+                  id={collection.id}
+                  threads={collection.threads}
+                  type={type}
+                />
+                <Footer>
+                  <Trans>Join the community</Trans>{' '}
+                  <Link to={'/communities/' + collection.community.localId}>
+                    {community_name}
+                  </Link>{' '}
+                  <Trans>to participate in discussions</Trans>
+                </Footer>
+              </>
+            )}
+          </TabPanel>
+        </Tabs>
+      </OverlayTab>
+    </WrapperTab>
+  );
+};
 
 // const Actions = styled.div`
 //   ${clearFix()};
@@ -297,14 +294,6 @@ const CollectionList = styled.div`
   ${media.lessThan('medium')`
 grid-template-columns: 1fr;
 `};
-`;
-
-const OverviewCollection = styled.div`
-  padding: 8px;
-  & p {
-    margin-top: 14px !important;
-    font-size: 14px;
-  }
 `;
 
 const LoadMore = styled.div`
