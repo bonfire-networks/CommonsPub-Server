@@ -10,6 +10,7 @@ const {
   undoJoinCommunityMutation
 } = require('../../graphql/undoJoinCommunity.graphql');
 import gql from 'graphql-tag';
+import { Trans } from '@lingui/macro';
 
 interface Props {
   joinCommunity: any;
@@ -70,6 +71,7 @@ const Join: React.SFC<Props> = ({
           }
         >
           <Minus width={16} height={16} strokeWidth={3} color={'#f98012'} />
+          <Trans>Leave</Trans>
         </Span>
       </MinusBg>
     );
@@ -106,6 +108,7 @@ const Join: React.SFC<Props> = ({
         }
       >
         <Plus width={16} height={16} strokeWidth={2} color={'#f98012'} />
+        <Trans>Join</Trans>
       </Span>
     );
   }
@@ -117,6 +120,7 @@ const MinusBg = styled.div`
   }
   & div {
     background: ${props => props.theme.styles.colour.primary} !important;
+    color: white !important;
   }
 `;
 
@@ -129,9 +133,8 @@ const Span = styled.div`
   box-sizing: border-box;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.07);
   display: inline-block;
-  padding: 0;
+  padding: 0 10px;
   min-width: 0;
-  width: 32px;
   height: 32px;
   font-size: 16px;
   border-radius: 4px;
@@ -140,10 +143,16 @@ const Span = styled.div`
   top: 0px;
   right: 0;
   border: 2px solid ${props => props.theme.styles.colour.primary};
+  font-size: 14px;
+  line-height: 29px;
+  color: ${props => props.theme.styles.colour.primary};
+  font-weight: 600;
+  letter-spacing: 1px;
   &:hover {
     background: ${props => props.theme.styles.colour.newcommunityBgHover};
   }
   & svg {
+    margin-right: 4px;
     vertical-align: text-top;
     color: ${props => props.theme.styles.colour.primary};
   }

@@ -33,12 +33,14 @@ const HeroComp: SFC<Props> = ({ user }) => (
         </HeroInfo>
       </WrapperHero>
       <P>{user.summary}</P>
-      <Location>
-        <span>
-          <Globe width={20} height={20} strokeWidth={1} color={'#333'} />
-        </span>
-        {user.location}
-      </Location>
+      {user.location ? (
+        <Location>
+          <span>
+            <Globe width={20} height={20} strokeWidth={1} color={'#333'} />
+          </span>
+          {user.location}
+        </Location>
+      ) : null}
     </Hero>
   </HeroCont>
 );
@@ -46,13 +48,13 @@ const HeroComp: SFC<Props> = ({ user }) => (
 export default HeroComp;
 
 const PreferredUsername = styled.div`
-  color: ${props => props.theme.styles.colour.base6};
+  color: #fff;
   opacity: 0.6;
   font-weight: 600;
 `;
 
 const Location = styled.div`
-  color: ${props => props.theme.styles.colour.base6};
+  color: ${props => props.theme.styles.colour.heroIcon};
   opacity: 0.6;
   font-weight: 600;
   padding: 0 24px;
@@ -65,12 +67,11 @@ const Location = styled.div`
   line-height: 26px;
   font-size: 16px;
   padding-bottom: 16px;
-  text-shadow: 0 1px #0005;
   span {
     display: inline-block;
     margin-right: 8px;
     & svg {
-      color: ${props => props.theme.styles.colour.base6};
+      color: ${props => props.theme.styles.colour.heroIcon};
       vertical-align: text-bottom;
     }
   }
@@ -121,9 +122,9 @@ const Hero = styled.div`
   width: 100%;
   position: relative;
   border-radius: 6px;
-  background: ${props => props.theme.styles.colour.secondaryBg};
+  background: ${props => props.theme.styles.colour.hero};
   & p {
-    color: white;
+    color: ${props => props.theme.styles.colour.heroNote};
     padding: 0 24px;
     margin-left: 120px;
     margin: 0;
@@ -132,7 +133,6 @@ const Hero = styled.div`
     line-height: 26px;
     font-size: 16px;
     padding-bottom: 16px;
-    text-shadow: 0 1px #0005;
   }
 `;
 
@@ -144,7 +144,7 @@ const HeroInfo = styled.div`
     line-height: 40px !important;
     margin-bottom: 0px;
     text-shadow: 0 1px #0005;
-    color: ${props => props.theme.styles.colour.base1};
+    color: #fff;
   }
   & button {
     span {
