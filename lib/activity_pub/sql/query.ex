@@ -168,9 +168,6 @@ defmodule ActivityPub.SQL.Query do
     |> Enum.map(& &1.field_name())
   end
 
-  defp normalize_aspect(aspect),
-    do: raise(ArgumentError, "Invalid aspect #{inspect(aspect)}")
-
 
   @doc """
   To load `ActivityPub.Aspect`(s) in case you have an `ActivityPub.Entity` or several `Entities` with some associations and `Aspects` not loaded.
@@ -218,6 +215,9 @@ defmodule ActivityPub.SQL.Query do
         end
     end
   end
+
+  defp normalize_aspect(aspect),
+    do: raise(ArgumentError, "Invalid aspect #{inspect(aspect)}")
 
   def preload_aspect(%Ecto.Query{} = query, aspects) when is_list(aspects),
     do: Enum.reduce(aspects, query, &preload_aspect(&2, &1))
@@ -489,6 +489,9 @@ defmodule ActivityPub.SQL.Query do
 
   It is possible to load both aspects and associations at the same time and with deeper associations, see `MoodleNet.update_collection/3` and `MoodleNet.create_resource/3` for examples.
   """
+
+  def preload_assoc([], _preload), do: []
+
   def preload_assoc(entity, :all) when APG.is_entity(entity) do
     assoc_keys = Map.keys(Entity.assocs(entity))
     preload_assoc(entity, assoc_keys)
@@ -496,8 +499,6 @@ defmodule ActivityPub.SQL.Query do
 
   def preload_assoc(entity, preload) when not is_list(preload),
     do: preload_assoc(entity, List.wrap(preload))
-
-  def preload_assoc([], _preload), do: []
 
   def preload_assoc(e, _preloads) when APG.is_entity(e) and not APG.has_status(e, :loaded),
     do: preload_error(e)
