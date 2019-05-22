@@ -1,12 +1,13 @@
 # App artifacts
 /_build
+/builds
 /db
 /deps
 /*.ez
 /uploads
 /test/uploads
 /.elixir_ls
-doc
+/doc
 /assets/node_modules
 /priv/static
 

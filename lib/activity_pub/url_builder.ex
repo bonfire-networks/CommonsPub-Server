@@ -1,6 +1,6 @@
 defmodule ActivityPub.UrlBuilder do
   defp base_url() do
-    Application.get_env(:moodle_net, :ap_base_url, MoodleNetWeb.base_url())
+    Application.get_env(:moodle_net, :ap_base_url) || MoodleNetWeb.base_url()
   end
 
   def id({:page, local_id, params}) do

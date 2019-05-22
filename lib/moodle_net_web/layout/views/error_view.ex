@@ -43,8 +43,9 @@ defmodule MoodleNetWeb.ErrorView do
     render(MoodleNetWeb.ErrorView, "not_found.html", assigns)
   end
 
-  # In case no render clause matches or no
-  # template is found, let's render it as 500
+  @doc """
+    In case no render clause matches or no template is found, let's render it as 500
+  """
   def template_not_found(template, assigns) do
     if String.ends_with?(template, "json") do
       render "500.json", assigns

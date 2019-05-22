@@ -1,0 +1,58 @@
+image: elixir:1.7.4 #update this when we switch Elixir version
+
+variables: 
+  POSTGRES_DB: moodle_net_test
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  DB_HOST: postgres
+  MIX_ENV: test
+  
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - deps
+    - _build
+
+stages:
+  - build
+  - test
+  - deploy
+
+before_script:
+  - mix local.hex --force
+  - mix local.rebar --force
+  
+build:
+  stage: build
+  script:
+    - mix deps.get
+    - mix compile --force
+    
+unit-testing:
+  stage: test
+  services:
+  - name: postgres:9.6.6
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
+  script:
+    - mix deps.get
+    - mix ecto.create
+    - mix ecto.migrate
+    - mix test --trace --preload-modules
+
+pages:
+  stage: deploy
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq python3-pip python3-setuptools && pip3 install --upgrade pip && pip install awscli # Install the AWS SDK for pushing the docs python3 
+    - mix local.hex --force
+    - mix local.rebar --force
+    - 'MIX_ENV=dev mix deps.get'
+  script:
+    - MIX_ENV=dev mix docs
+    - mv doc public # serve as GitLab Pages artifact
+    - aws s3 sync public/ s3://${DOCS_STAGING_BUCKET}/docs/server/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to S3-served website
+    - aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/server/*' # invalidate CloudFront's cache to serve the new version
+  artifacts:
+    paths:
+    - public
+  only:
+  - develop

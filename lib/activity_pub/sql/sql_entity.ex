@@ -1,4 +1,13 @@
 defmodule ActivityPub.SQLEntity do
+  @moduledoc """
+  Most of the SQL work is in this `SQLEntity`. It defines the database fields that every `ActivityPub.Entity` must implement: `id`, `@context`, `type` and two helper fields: `local` and `extension_fields` (a JSONB column to store all _ActivityStreams extension_ fields).
+
+  (_TODO: Maybe we are not using the 'local' field anymore?_)
+
+  The Ecto schemas are quite different from a regular project, as we wanted everything to be easily extensible. The database revolves around a primary table called `activity_pub_objects`. You can consult the [initial schema](https://www.dbdesigner.net/designer/schema/208495), which has changed slightly over time, or better yet, make a dump of the current database.
+
+  `SQLEntity` has a `primary_key` of `local_id` and a `has_one` relation with each defined `ActivityPub.SQLAspect` (using `local_id` as the `foreign_key`). This means that every `ActivityPub.SQLAspect` has the same `local_id` as its `ActivityPub.SQLEntity` parent.
+  """
   use Ecto.Schema
   require ActivityPub.Guards, as: APG
 
@@ -24,6 +33,31 @@ defmodule ActivityPub.SQLEntity do
     end
   end
 
+  @doc """
+  ## Persists and entity in the database
+
+  So when a new Entity has to be stored the process is something like:
+
+  1. `SQLEntity` creates a changeset with the common fields: id, type, @context, and extension_fields
+
+  2. Each implemented `ActivityPub.SQLAspect` receives the changeset and depending on its way to store the fields, in the `insert_changeset_for_aspect` function:
+
+      a. It creates a new changeset which is connected to the main changeset.
+
+      b. It adds more changes to the changeset
+
+  3. For each association in each `ActivityPub.Aspect`, a new changeset is generated—calling the same function, as `insert_changeset` is a recursive function — and then it is correctly connected to the main changeset, using the `put_assocs_in_changeset` function.
+
+      a. If the association is already an _entity_, it just creates the association.
+
+      b. If the association is also new entity, it is stored as well.
+
+  4. When all the fields and associations are done, it inserts the main changeset. If any error occurred, it returns the error and nothing is stored.
+
+  5. Once the changeset has been inserted, the inverse process starts, using `to_entity/1`.
+
+  `insert` only accepts an `ActivityPub.Entity` whose state is :new
+  """
   def insert(entity, repo \\ Repo) when APG.is_entity(entity) and APG.has_status(entity, :new) do
     changeset = insert_changeset(entity)
     with {:ok, sql_entity} <- repo.insert(changeset) do
@@ -99,6 +133,11 @@ defmodule ActivityPub.SQLEntity do
     |> Map.put(:extension_fields, Entity.extension_fields(entity))
   end
 
+  @doc """
+  Alex is not happy with this update functionality, because it does not work the same as inserting new `Entities`. Updates currently only work with fields and not with associations.
+
+  The associations are more complex to handle correctly, for example, in Ecto you should preload all the entities or handle them manually with Changesets. So Alex opted for a simpler solution with `ActivityPub.SQL.Alter`.
+  """
   def update(entity, changes) when APG.is_entity(entity) and APG.has_status(entity, :loaded) do
     with entity = ActivityPub.SQL.Query.preload_aspect(entity, :all),
          {:ok, entity} <- ActivityPub.Builder.update(entity, changes),
@@ -165,8 +204,24 @@ defmodule ActivityPub.SQLEntity do
     |> Query.delete_all()
   end
 
-  def to_entity(nil), do: nil
+  @doc """
+  Converts an `SQLEntity` — which is an Ecto.Schema — back to a runtime `ActivityPub.Entity`.
 
+  In this process, all of the `ActivityPub.SQLAspect`s are added as `ActivityPub.Aspect` in the `ActivityPub.Entity`, and the SQL associations are converted to `ActivityPub.Entity` fields.
+
+  When you insert a new `ActivityPub.Entity`, the `SQLEntity` has the full information, all the _aspects_ and all the associations are loaded, so the returned `ActivityPub.Entity` is completely loaded.
+
+  However, the process from _SQLEntity_ to `ActivityPub.Entity` also happens when loading an `ActivityPub.Entity` using a SQL Query. In this case, it is possible — and likely — that the `SQLEntity` is not fully loaded. A regular `SQLEntity` object has more than 10 "many to many" relations, to load all of them we need more than 10 double joins.
+
+  In case an association is not preloaded in the `SQLEntity`, the final `ActivityPub.Entity` will have the `ActivityPub.SQL.AssociationNotLoaded` struct in the field value.
+
+  It can also happen that a `ActivityPub.SQLAspect` is not preloaded in the _SQLEntity_, in this case the field is set to the `ActivityPub.SQL.FieldNotLoaded` struct.
+
+  ### Note:_ ID_ of local entities is _null_
+
+  The field/column _ID_ is an [ActivityPub ID](https://www.w3.org/TR/activitypub/#obj-id) (which means it is a URI), and is null (in the database) for local entities (originating from the local instance). At load-time, the null value is transformed into a URL in `calc_ap_id/1` using `ActivityPub.URLBuilder`.
+
+  """
   def to_entity(%__MODULE__{} = sql_entity) do
     entity = %{
       __ap__: Metadata.load(sql_entity),
@@ -186,6 +241,8 @@ defmodule ActivityPub.SQLEntity do
 
   def to_entity(sql_entities) when is_list(sql_entities),
     do: Enum.map(sql_entities, &to_entity/1)
+
+  def to_entity(nil), do: nil
 
   defp calc_ap_id(%__MODULE__{local: true, local_id: local_id}), do: UrlBuilder.id(local_id)
   defp calc_ap_id(%__MODULE__{id: id}), do: id

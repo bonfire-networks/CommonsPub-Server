@@ -1,17 +1,70 @@
 defmodule ActivityPub do
+  @moduledoc """
+  Delegates some functions to related ActivityPub submodules
+  """
+
+  @doc """
+  Builds an `ActivityPub.Entity`. Delegates to `ActivityPub.Builder.new/1` (see that module for more docs).
+
+  ## Example
+  ```
+  {:ok, entity} = ActivityPub.new(%{type: "Object", content: "hello world"})
+  ```
+  """
   defdelegate new(params), to: ActivityPub.Builder
+
+
+  @doc """
+  Delegates to `ActivityPub.Entity.local_id/1`
+  """
+  defdelegate local_id(entity), to: ActivityPub.Entity
+
+
+  @doc """
+  Delegates to `ActivityPub.ApplyAction.apply/1`
+  """
+  defdelegate apply(params), to: ActivityPub.ApplyAction
+
+
+  @doc """
+  Delegates to `ActivityPub.SQLEntity.insert/1`
+  """
   defdelegate insert(entity), to: ActivityPub.SQLEntity
   defdelegate insert(entity, repo), to: ActivityPub.SQLEntity
+
+
+  @doc """
+  Delegates to `ActivityPub.SQLEntity.update/2`
+  """
   defdelegate update(entity, changes), to: ActivityPub.SQLEntity
+
+
+  @doc """
+  Delegates to `ActivityPub.SQLEntity.delete/1`
+  """
   defdelegate delete(entity), to: ActivityPub.SQLEntity
   defdelegate delete(entity, assocs), to: ActivityPub.SQLEntity
+
+
+  @doc """
+  Delegates to `ActivityPub.SQL.Query.get_by_local_id/1`
+  """
   defdelegate get_by_local_id(params), to: ActivityPub.SQL.Query
   defdelegate get_by_local_id(params, opts), to: ActivityPub.SQL.Query
+
+
+  @doc """
+  Returns an object given an ActivityPub ID. Delegates to `ActivityPub.SQL.Query.get_by_id/1`
+  """
   defdelegate get_by_id(params), to: ActivityPub.SQL.Query
   defdelegate get_by_id(params, opts), to: ActivityPub.SQL.Query
+
+
+  @doc """
+  Delegates to `ActivityPub.SQL.Query.reload/1`
+  """
   defdelegate reload(params), to: ActivityPub.SQL.Query
-  defdelegate apply(params), to: ActivityPub.ApplyAction
-  defdelegate local_id(entity), to: ActivityPub.Entity
+
 
   # @doc """
   # Returns true if the given argument is a valid ActivityPub IRI,
@@ -90,7 +143,7 @@ defmodule ActivityPub do
   # end
 
   # @doc """
-  # Returns an object given and ID.
+  # Returns an object given an ID.
 
   # Options:
   #   * `:cache` when is `true`, it uses cache to try to get the object.

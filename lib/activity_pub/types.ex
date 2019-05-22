@@ -1,4 +1,9 @@
 defmodule ActivityPub.Types do
+  @moduledoc """
+  Contains the conversion table for Activities/Objects, used to detect the `ActivityPub.Entity` type and infer the `ActivityPub.Aspect`(s) implemented by the `Entity`.
+
+  """
+
   alias ActivityPub.{ObjectAspect, ActorAspect, ActivityAspect, CollectionAspect}
 
   alias ActivityPub.BuildError

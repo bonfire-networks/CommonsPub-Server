@@ -1,16 +1,23 @@
 defmodule MoodleNet do
+  @moduledoc """
+  Contains many functions for MoodleNet
+
+  FIXME - many preload of aspects and assocs for `to` property.
+  It probably can be optimized or paralelized in a better way.
+
+  TODO - move some of these functions to more approriate modules, including into `ActivityPub` for those that aren't MoodleNet-specific.
+
+  """
   import ActivityPub.Guards
   alias ActivityPub.SQL.{Query, Alter}
 
   alias MoodleNet.Policy
   require ActivityPub.Guards, as: APG
 
-  # FIXME many preload of aspects and assocs for `to` property.
-  # It's probably it can be optimized or paralalized in a better way
-
-  # User connections
-
-  defp joined_communities_query(actor) do
+  @doc """
+  User connections
+  """
+  def joined_communities_query(actor) do
     Query.new()
     |> Query.with_type("MoodleNet:Community")
     |> Query.belongs_to(:following, actor)
@@ -44,22 +51,30 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Community connections
 
-  defp outbox_query(actor) do
+  @doc """
+  Actor Outbox (eg. user's activities)
+  """
+  def outbox_query(actor) do
     Query.new()
     |> Query.with_type("Activity")
     |> Query.without_type("Undo")
     |> Query.belongs_to(:outbox, actor)
   end
 
-  defp inbox_query(actor) do
+  @doc """
+  Actor Inbox (eg. user's timeline of activities from followed actors)
+  """
+  def inbox_query(actor) do
     Query.new()
     |> Query.with_type("Activity")
     |> Query.without_type("Undo")
     |> Query.belongs_to(:inbox, actor)
   end
 
+  @doc """
+  Community connections
+  """
   def community_inbox_list(community, opts) do
     inbox_query(community)
     |> Query.paginate(opts)
@@ -100,7 +115,7 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  defp community_collection_query(community) do
+  def community_collection_query(community) do
     Query.new()
     |> Query.with_type("MoodleNet:Collection")
     |> Query.has(:context, community)
@@ -117,8 +132,10 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Collection connections
-  #
+
+  @doc """
+  Collection connections
+  """
   def collection_inbox_list(collection, opts) do
     inbox_query(collection)
     |> Query.paginate(opts)
@@ -210,9 +227,11 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Resource connections
 
-  defp resource_liker_query(resource) do
+  @doc """
+  Resource connections
+  """
+  def resource_liker_query(resource) do
     Query.new()
     |> Query.with_type("Person")
     |> Query.belongs_to(:likers, resource)
@@ -229,9 +248,11 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Comment connections
 
-  defp comment_liker_query(comment) do
+  @doc """
+  Comment connections
+  """
+  def comment_liker_query(comment) do
     Query.new()
     |> Query.with_type("Person")
     |> Query.belongs_to(:likers, comment)
@@ -265,7 +286,10 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Activities
+
+  @doc """
+  Activities
+  """
   def local_activity_list(opts \\ %{}) do
     Query.new()
     |> Query.with_type("Activity")

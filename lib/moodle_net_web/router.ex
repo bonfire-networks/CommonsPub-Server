@@ -13,9 +13,12 @@ defmodule MoodleNetWeb.Router do
   #   plug :put_secure_browser_headers
   # end
 
+  @doc """
+  Serve the GraphiQL API browser on /api/graphql
+  """
   pipeline :api_browser do
-    # Not sure this is ok?
-    # Mixing browser and api stuff does not seem right...
+    # Not sure if this is ok?
+    # Mixing browser and API stuff does not seem right...
     # FIXME
     plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
 
@@ -33,6 +36,9 @@ defmodule MoodleNetWeb.Router do
     plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
 
+  @doc """
+  Serve GraphQL API queries
+  """
   pipeline :graphql do
     plug(MoodleNetWeb.Plugs.Auth)
     plug MoodleNetWeb.GraphQL.Context
@@ -62,6 +68,9 @@ defmodule MoodleNetWeb.Router do
     )
   end
 
+  @doc """
+  Serve OAuth flows
+  """
   scope "/oauth", MoodleNetWeb.OAuth do
     get("/authorize", OAuthController, :authorize)
     post("/authorize", OAuthController, :create_authorization)
@@ -80,6 +89,9 @@ defmodule MoodleNetWeb.Router do
     get("/:sig/:url", MediaProxyController, :remote)
   end
 
+  @doc """
+  Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
+  """
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
 

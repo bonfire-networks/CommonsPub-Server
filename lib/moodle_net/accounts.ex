@@ -1,6 +1,6 @@
 defmodule MoodleNet.Accounts do
   @moduledoc """
-  The Accounts context.
+  User Accounts context
   """
 
   alias MoodleNet.Repo

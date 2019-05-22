@@ -1,4 +1,10 @@
 defmodule ActivityPub.SQL.Alter do
+  @moduledoc """
+  _Alter_ allows adding or removing _ActivityPub.Entity_(s) to the associations.
+
+  If the association is a single collection, the operation is applied to the collection items.
+  """
+
   alias MoodleNet.Repo
 
   alias ActivityPub.SQL.Associations.{BelongsTo, ManyToMany, Collection}

@@ -46,7 +46,9 @@ defmodule MoodleNetWeb.FallbackController do
     |> render("error.json", changeset: changeset)
   end
 
-  # For Multi fails
+  @doc """
+  For Multi fails
+  """
   def call(conn, {:error, _, error, _}) do
     call(conn, {:error, error})
   end

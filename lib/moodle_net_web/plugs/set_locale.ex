@@ -1,4 +1,8 @@
 defmodule MoodleNetWeb.Plugs.SetLocale do
+  @moduledoc """
+  Sets the back-end locale by checking the `accept-language` header or a param
+  """
+
   @locales Gettext.known_locales(MoodleNetWeb.Gettext)
 
   def init(_opts), do: nil
@@ -21,8 +25,9 @@ defmodule MoodleNetWeb.Plugs.SetLocale do
 
   defp validate_locale(_locale), do: nil
 
-  # Taken from set_locale plug written by Gerard de Brieder
-  # https://github.com/smeevil/set_locale/blob/fd35624e25d79d61e70742e42ade955e5ff857b8/lib/headers.ex
+  @doc """
+  Taken from set_locale plug written by Gerard de Brieder: https://github.com/smeevil/set_locale/blob/fd35624e25d79d61e70742e42ade955e5ff857b8/lib/headers.ex
+  """
   defp locale_from_header(conn) do
     conn
     |> extract_accept_language()

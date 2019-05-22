@@ -1,4 +1,14 @@
 defmodule ActivityPub.CollectionPage do
+  @moduledoc """
+  TODO - Not every _ActivityPub.Entity_ should be persisted in the database, for example, a _CollectionPage_ is ephemeral. They are continuously changing, so it does not make sense to store them in the database.
+
+  To solve that, this module for a virtual `CollectionPage` has started being developed.   This is interesting for the ActivityPub API and to iterate through a Collection.
+
+  A `CollectionPage` has the same `id` as the `Collection`, and can be queried by appending something like: `/page?query_params_for_pagination`
+
+  So a `CollectionPage` can be built passing the `Collection` and the query params for pagination.
+  """
+
   import ActivityPub.Guards
   alias ActivityPub.UrlBuilder
   alias ActivityPub.SQL.Query
