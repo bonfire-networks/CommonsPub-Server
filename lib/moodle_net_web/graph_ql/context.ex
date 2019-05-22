@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.Context do
+  @moduledoc """
+  GraphQL Plug to add current user to the context
+  """
   @behaviour Plug
 
   def init(opts), do: opts

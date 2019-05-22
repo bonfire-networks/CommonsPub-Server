@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.Migration do
+  @moduledoc """
+  Some migrations helpers
+  """
   defmacro __using__(_) do
     quote do
       use Ecto.Migration

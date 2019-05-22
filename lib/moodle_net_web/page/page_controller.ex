@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.PageController do
+  @moduledoc """
+  Standard page controller created by Phoenix generator
+  """
   use MoodleNetWeb, :controller
 
   def index(conn, _params) do

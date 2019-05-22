@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Application do
+  @moduledoc """
+  MoodleNet Application
+  """
   use Application
 
   def start(_type, _args) do

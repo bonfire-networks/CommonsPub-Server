@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Plugs.ScrubParams do
+  @moduledoc """
+  Halts a connection if a given param does not exist
+  """
   def init(key), do: key
   def call(conn, key) do
     Phoenix.Controller.scrub_params(conn, key)

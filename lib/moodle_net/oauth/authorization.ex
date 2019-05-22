@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.OAuth.Authorization do
+  @moduledoc """
+  OAuth authorization model
+  """
   use Ecto.Schema
 
   alias Ecto.Changeset

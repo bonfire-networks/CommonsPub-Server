@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Router do
+  @moduledoc """
+  MoodleNet Router
+  """
   use MoodleNetWeb, :router
 
   if Mix.env == :dev do

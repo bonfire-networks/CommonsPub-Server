@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
+  @moduledoc """
+  Halts the conn if the user is not authenticated
+  """
   import Plug.Conn
   import Phoenix.Controller
 

@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Email do
+  @moduledoc """
+  Email Bamboo module
+  """
   import MoodleNetWeb.Gettext
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
 

@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Router do
+  @moduledoc """
+  ActivityPub router
+  """
   use ActivityPubWeb, :router
 
   pipeline :activity_pub do

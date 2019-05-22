@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.Association do
+  @moduledoc """
+  Defines the struct with the properties for an ActivityPub association.
+  """
   @enforce_keys [:aspect, :name]
   defstruct aspect: nil,
             name: nil,

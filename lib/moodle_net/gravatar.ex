@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Gravatar do
+  @moduledoc """
+  Gravatar utils
+  """
   @uri %URI{
     scheme: "https",
     host: "s.gravatar.com",

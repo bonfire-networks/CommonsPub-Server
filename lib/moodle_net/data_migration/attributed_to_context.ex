@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.DataMigration.AttributedToContext do
+  @moduledoc """
+  Temporal data migration
+  """
   alias MoodleNet.Repo
   alias ActivityPub.SQLEntity
   require Logger

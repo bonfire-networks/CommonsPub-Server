@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.OAuth.AppController do
+  @moduledoc """
+  OAuth application controller
+  """
   use MoodleNetWeb, :controller
 
   alias MoodleNet.OAuth

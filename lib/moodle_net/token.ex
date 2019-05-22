@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Token do
+  @moduledoc """
+  Utilities to create tokens
+  """
   def random_key(length \\ 32) do
     length
     |> :crypto.strong_rand_bytes()

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.StringListType do
-  @doc """
+  @moduledoc """
   FIXME: this module probably is not needed anymore
   """
 

@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UserSchema do
+  @moduledoc """
+  GraphQL user fields, associations, queries and mutations.
+  """
   use Absinthe.Schema.Notation
 
   import MoodleNetWeb.GraphQL.MoodleNetSchema

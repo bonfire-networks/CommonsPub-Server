@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ReleaseTasks do
+  @moduledoc """
+  Some tasks useful in production
+  """
     @start_apps [
     :crypto,
     :ssl,

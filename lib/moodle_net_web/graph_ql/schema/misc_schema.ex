@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.MiscSchema do
+  @moduledoc """
+  Stuff without a clear module
+  """
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.Errors

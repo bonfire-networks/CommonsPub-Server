@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Accounts.WhitelistEmail do
+  @moduledoc """
+  Model to store the emails allowed to sign up
+  """
   use Ecto.Schema
 
   @primary_key false

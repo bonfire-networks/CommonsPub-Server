@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Accounts.EmailConfirmationToken do
+  @moduledoc """
+  Model to store the email confirmation tokens
+  """
   use Ecto.Schema
 
   alias MoodleNet.Accounts.User

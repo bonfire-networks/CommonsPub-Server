@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UserResolver do
+  @moduledoc """
+  Performs the GraphQL User queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   require ActivityPub.Guards, as: APG
   alias MoodleNetWeb.GraphQL.Errors

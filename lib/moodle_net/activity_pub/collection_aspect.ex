@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.AP.CollectionAspect do
+  @moduledoc """
+  MoodleNet Collection ActivityPub Aspect
+  """
   use ActivityPub.Aspect, persistence: MoodleNet.AP.SQLCollectionAspect,
     name: "mn_collection_aspect"
 
