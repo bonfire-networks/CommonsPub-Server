@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.CommunityResolver do
+  @moduledoc """
+  Performs the GraphQL Community queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
 
   alias MoodleNetWeb.GraphQL.Errors

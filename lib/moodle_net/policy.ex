@@ -1,4 +1,7 @@
 defmodule MoodleNet.Policy do
+  @moduledoc """
+  Module to define if a user can or cannot do an operation
+  """
   import ActivityPub.Guards
   alias ActivityPub.SQL.Query
 

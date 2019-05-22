@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.UserResolver do
+  @moduledoc """
+  Performs the GraphQL User queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   alias MoodleNetWeb.GraphQL.Errors
   require ActivityPub.Guards, as: APG

@@ -1,5 +1,5 @@
 defmodule ActivityPub.Context do
-  @doc """
+  @moduledoc """
     FIXME: To be improved, it is not working well in any case, as Alex didn't completely understand JSON-LD context
   """
 

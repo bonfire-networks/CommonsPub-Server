@@ -1,4 +1,7 @@
 defmodule AppsignalAbsinthePlug do
+  @moduledoc """
+  Appsignal plug to register GraphQL queries
+  """
   alias Appsignal.Transaction
 
   def init(_), do: nil

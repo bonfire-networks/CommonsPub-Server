@@ -1,4 +1,7 @@
 defmodule ActivityPub.SQL.Associations.Collection do
+  @moduledoc """
+  Defines the struct with the properties for an ActivityPub.SQL association using an intermediate collection.
+  """
   @enforce_keys [:sql_aspect, :aspect, :name]
   defstruct sql_aspect: nil,
     aspect: nil,

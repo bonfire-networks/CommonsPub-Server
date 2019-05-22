@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.MiscSchema do
+  @moduledoc """
+  Stuff without a clear module
+  """
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.Errors

@@ -1,4 +1,8 @@
 defmodule ActivityPub.SQL.Common do
+  @moduledoc """
+  The way that entity "local" functionality works has changed several times.
+  #TODO This is one of them, but it should be unified.
+  """
   alias ActivityPub.Entity
 
   import ActivityPub.Guards

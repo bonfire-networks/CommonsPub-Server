@@ -1,4 +1,7 @@
 defmodule MoodleNet.Accounts.PasswordAuth do
+  @moduledoc """
+  Model to store the encrypted passwords
+  """
   use Ecto.Schema
 
   schema "accounts_password_auths" do

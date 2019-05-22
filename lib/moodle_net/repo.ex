@@ -1,4 +1,8 @@
 defmodule MoodleNet.Repo do
+  @moduledoc """
+  MoodleNet main Ecto Repo
+  """
+
   use Ecto.Repo,
     otp_app: :moodle_net,
     adapter: Ecto.Adapters.Postgres

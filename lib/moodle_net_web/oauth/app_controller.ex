@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.OAuth.AppController do
+  @moduledoc """
+  OAuth application controller
+  """
   use MoodleNetWeb, :controller
 
   alias MoodleNet.OAuth

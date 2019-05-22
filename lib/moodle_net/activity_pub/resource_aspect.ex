@@ -1,4 +1,7 @@
 defmodule MoodleNet.AP.ResourceAspect do
+  @moduledoc """
+  ActivityPub Aspect for MoodleNet Resource
+  """
   use ActivityPub.Aspect, persistence: MoodleNet.AP.SQLResourceAspect
 
   aspect do

@@ -1,4 +1,7 @@
 defmodule ActivityPub.UrlBuilder do
+  @moduledoc """
+  This module manages ActivityPub ID.
+  """
   defp base_url() do
     Application.get_env(:moodle_net, :ap_base_url) || MoodleNetWeb.base_url()
   end

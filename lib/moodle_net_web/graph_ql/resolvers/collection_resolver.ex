@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.CollectionResolver do
+  @moduledoc """
+  Performs the GraphQL Collection queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
 
   alias MoodleNetWeb.GraphQL.Errors

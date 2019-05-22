@@ -1,5 +1,5 @@
 defmodule ActivityPub.StringListType do
-  @doc """
+  @moduledoc """
   FIXME: this module probably is not needed anymore
   """
 

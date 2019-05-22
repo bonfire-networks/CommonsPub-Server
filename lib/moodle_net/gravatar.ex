@@ -1,4 +1,7 @@
 defmodule MoodleNet.Gravatar do
+  @moduledoc """
+  Gravatar utils
+  """
   @uri %URI{
     scheme: "https",
     host: "s.gravatar.com",

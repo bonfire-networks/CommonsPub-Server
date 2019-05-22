@@ -1,4 +1,7 @@
 defmodule ActivityPub.Migration do
+  @moduledoc """
+  Some migrations helpers
+  """
   defmacro __using__(_) do
     quote do
       use Ecto.Migration

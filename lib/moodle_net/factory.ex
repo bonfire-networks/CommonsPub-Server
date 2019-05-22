@@ -1,4 +1,7 @@
 defmodule MoodleNet.Factory do
+  @moduledoc """
+  Factory to build entities
+  """
   def attributes(:user) do
     name = Faker.Name.name()
 

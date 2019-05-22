@@ -1,4 +1,7 @@
 defmodule ActivityPub.Field do
+  @moduledoc """
+  Defines the struct with the properties for an ActivityPub field.
+  """
   @enforce_keys [:aspect, :name, :type]
   defstruct aspect: nil,
     name: nil,

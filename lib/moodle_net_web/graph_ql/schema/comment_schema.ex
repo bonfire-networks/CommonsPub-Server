@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.CommentSchema do
+  @moduledoc """
+  GraphQL comment fields, associations, queries and mutations.
+  """
   use Absinthe.Schema.Notation
 
   require ActivityPub.Guards, as: APG

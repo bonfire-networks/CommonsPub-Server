@@ -1,4 +1,7 @@
 defmodule MoodleNet.OAuth.Token do
+  @moduledoc """
+  OAuth token model
+  """
   use Ecto.Schema
 
   alias Ecto.Changeset

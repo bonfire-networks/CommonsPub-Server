@@ -1,4 +1,7 @@
 defmodule MoodleNet.Accounts.User do
+  @moduledoc """
+  User model
+  """
   use Ecto.Schema
 
   schema "accounts_users" do

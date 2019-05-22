@@ -1,4 +1,7 @@
 defmodule MoodleNet.AP.SQLResourceAspect do
+  @moduledoc """
+  `ActivityPub.SQLAspect` for `ActivityPub.ResourceAspect`
+  """
   use ActivityPub.SQLAspect,
     aspect: MoodleNet.AP.ResourceAspect,
     persistence_method: :table,

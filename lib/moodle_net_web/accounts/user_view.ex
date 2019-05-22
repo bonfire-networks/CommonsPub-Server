@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.Accounts.UserView do
+  @moduledoc """
+  User view
+  """
   use MoodleNetWeb, :view
   alias MoodleNetWeb.OAuth.OAuthView
 

@@ -1,4 +1,7 @@
 defmodule MoodleNet.AP.CollectionAspect do
+  @moduledoc """
+  MoodleNet Collection ActivityPub Aspect
+  """
   use ActivityPub.Aspect, persistence: MoodleNet.AP.SQLCollectionAspect,
     name: "mn_collection_aspect"
 

@@ -1,4 +1,8 @@
 defmodule MoodleNetWeb.Plugs.Auth do
+  @moduledoc """
+  Authentication plug.
+  Checks if the token is valid and load the user
+  """
   import Plug.Conn
 
   def init(_opts), do: nil

@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.ResourceResolver do
+  @moduledoc """
+  Performs the GraphQL Resource queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
 
   alias MoodleNetWeb.GraphQL.Errors

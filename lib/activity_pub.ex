@@ -1,5 +1,6 @@
 defmodule ActivityPub do
   @moduledoc """
+  ActivityPub API
   Delegates some functions to related ActivityPub submodules
   """
 

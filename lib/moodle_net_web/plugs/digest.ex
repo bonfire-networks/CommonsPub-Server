@@ -1,4 +1,9 @@
 defmodule MoodleNetWeb.Plugs.DigestPlug do
+  @moduledoc """
+  Generates the digest for the body.
+
+  Not used at the moment
+  """
   alias Plug.Conn
   require Logger
 

@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
+  @moduledoc """
+  Halts the conn if the user is not authenticated
+  """
   import Plug.Conn
   import Phoenix.Controller
 

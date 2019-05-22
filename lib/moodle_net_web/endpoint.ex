@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.Endpoint do
+  @moduledoc """
+  MoodleNet Phoenix Endpoint
+  """
   use Phoenix.Endpoint, otp_app: :moodle_net
   use Appsignal.Phoenix
 

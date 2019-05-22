@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.Router do
+  @moduledoc """
+  MoodleNet Router
+  """
   use MoodleNetWeb, :router
 
   if Mix.env == :dev do

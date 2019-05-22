@@ -1,4 +1,7 @@
 defmodule MoodleNet.Token do
+  @moduledoc """
+  Utilities to create tokens
+  """
   def random_key(length \\ 32) do
     length
     |> :crypto.strong_rand_bytes()

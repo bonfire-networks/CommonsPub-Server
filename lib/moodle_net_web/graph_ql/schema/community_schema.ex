@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.CommunitySchema do
+  @moduledoc """
+  GraphQL community fields, associations, queries and mutations.
+  """
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver

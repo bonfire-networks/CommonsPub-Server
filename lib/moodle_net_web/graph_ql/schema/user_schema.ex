@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.UserSchema do
+  @moduledoc """
+  GraphQL user fields, associations, queries and mutations.
+  """
   use Absinthe.Schema.Notation
 
   import MoodleNetWeb.GraphQL.MoodleNetSchema

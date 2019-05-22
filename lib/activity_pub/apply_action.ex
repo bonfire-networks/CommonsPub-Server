@@ -1,4 +1,7 @@
 defmodule ActivityPub.ApplyAction do
+  @moduledoc """
+  Generic implementation to process activities
+  """
   import ActivityPub.Guards
   alias ActivityPub.SQL.{Alter}
   alias ActivityPub.SQLEntity

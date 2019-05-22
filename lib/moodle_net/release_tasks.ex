@@ -1,4 +1,7 @@
 defmodule MoodleNet.ReleaseTasks do
+  @moduledoc """
+  Some tasks useful in production
+  """
     @start_apps [
     :crypto,
     :ssl,

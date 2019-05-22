@@ -1,4 +1,7 @@
 defmodule MoodleNet.DataMigration.AttributedToContext do
+  @moduledoc """
+  Temporal data migration
+  """
   alias MoodleNet.Repo
   alias ActivityPub.SQLEntity
 

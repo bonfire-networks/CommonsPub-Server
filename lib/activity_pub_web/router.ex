@@ -1,4 +1,7 @@
 defmodule ActivityPubWeb.Router do
+  @moduledoc """
+  ActivityPub router
+  """
   use ActivityPubWeb, :router
 
   pipeline :activity_pub do

@@ -1,4 +1,7 @@
 defmodule MoodleNet.DataMigration.InverseCollections do
+  @moduledoc """
+  Temporal data migration
+  """
   alias MoodleNet.Repo
 
   def call() do

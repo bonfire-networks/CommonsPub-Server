@@ -1,4 +1,7 @@
 defmodule ActivityPub.LanguageValueType do
+  @moduledoc """
+  Ecto type to cast ActivityStream natural language values: https://www.w3.org/TR/activitystreams-core/#naturalLanguageValues
+  """
   @behaviour Ecto.Type
 
   def type, do: {:map, :string}

@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.OAuth.OAuthView do
+  @moduledoc """
+  OAuth View
+  """
   use MoodleNetWeb, :view
 
   def render("token.json", %{token: token}) do
