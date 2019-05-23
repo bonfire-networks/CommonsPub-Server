@@ -6,8 +6,6 @@
     "start": "cross-env NODE_ENV=development node scripts/start.js",
     "build": "cross-env NODE_ENV=production node scripts/build.js",
     "precommit": "lint-staged",
-    "styleguide": "styleguidist server",
-    "styleguide:build": "styleguidist build",
     "add-locale": "lingui add-locale",
     "extract": "lingui extract --clean",
     "compile": "lingui compile",
