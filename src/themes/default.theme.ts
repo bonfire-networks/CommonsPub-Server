@@ -128,7 +128,7 @@ const themeDark = createTheme({
     hero: '#46495a',
     heroTitle: '#282828',
     heroNote: '#a0a2a5',
-    heroIcon: '#848383',
+    heroIcon: '#fff',
 
     // Hero Collection
     heroCollection: '#46495a',

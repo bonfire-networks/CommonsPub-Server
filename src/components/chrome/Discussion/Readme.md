@@ -1,0 +1,12 @@
+```js
+<CommentPreview
+  totalReplies={comment.node.replies.totalCount}
+  key={comment.node.id}
+  author={author}
+  comment={message}
+  selectThread={props.onSelectedThread}
+  selectedThread={props.selectedThread}
+  communityId={props.localId}
+  type={props.type}
+/>
+```

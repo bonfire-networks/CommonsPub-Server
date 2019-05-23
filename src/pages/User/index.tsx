@@ -161,7 +161,6 @@ class CommunitiesFeatured extends React.Component<Props, State> {
                                 <CollectionCard
                                   key={i}
                                   collection={comm.node}
-                                  communityId={comm.node.localId}
                                 />
                               )
                             )}

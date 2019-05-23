@@ -256,12 +256,15 @@ const Create = styled.div`
   border: 2px dashed #f98012;
   cursor: pointer;
   text-align: center;
-  max-height: 250px;
+  max-height: 120px;
   color: #f98012;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   & span {
     display: block;
     text-align: center;
-    margin-top: 60px;
+    // margin-top: 60px;
     margin-bottom: 8px;
   }
   ${media.lessThan('medium')`
@@ -286,7 +289,7 @@ const Wrapper = styled.div`
 
 const CollectionList = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-column-gap: 16px;
   grid-row-gap: 16px;
   padding-top: 0;

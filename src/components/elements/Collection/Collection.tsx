@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from '../../../themes/styled';
-import Collection from '../../../types/Collection';
+import CollectionType from '../../../types/Collection';
 import { Link } from 'react-router-dom';
 import Join from './Join';
 import H5 from '../../typography/H5/H5';
@@ -10,11 +10,13 @@ import media from 'styled-media-query';
 const PlaceholderImg = require('../Icons/collectionPlaceholder.png');
 
 interface CollectionProps {
-  collection: Collection;
-  communityId: string;
+  collection: CollectionType;
 }
+/**
+ * Collection component.
+ */
 
-const Collection: React.SFC<CollectionProps> = ({ collection }) => {
+export default ({ collection }: CollectionProps) => {
   return (
     <Wrapper>
       <Link
@@ -156,4 +158,4 @@ const Desc = styled(P)`
   line-height: 20px;
 `;
 
-export default Collection;
+// export default Collection;

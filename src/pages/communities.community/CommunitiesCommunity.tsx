@@ -105,11 +105,7 @@ class CommunitiesFeatured extends React.Component<Props, State> {
 
             <CollectionList>
               {this.props.data.community.collections.edges.map((e, i) => (
-                <CollectionCard
-                  communityId={this.props.data.community.localId}
-                  key={i}
-                  collection={e.node}
-                />
+                <CollectionCard key={i} collection={e.node} />
               ))}
             </CollectionList>
           </Wrapper>

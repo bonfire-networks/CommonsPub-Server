@@ -1,4 +1,8 @@
 const path = require('path')
+const camelCase = require('lodash/camelCase')
+const upperFirst = require('lodash/upperFirst')
+const { styles, theme } = require('./styleguide.styles')
+const { version } = require('./package.json')
 
 const webpackConfig = require('./config/webpack.config.dev.js')
 
@@ -20,6 +24,13 @@ webpackConfig.module.rules.push({
 });
 
 module.exports = {
+  title: `MoodleNet ${version}`,
+  template: './styleguide.template.html',
+  editorConfig: { theme: 'cobalt' },
+  showUsage: true,
+  styles,
+  theme,
+
   components: 'src/components/**/*.tsx',
   ignore: [
     'src/components/chrome/{Body,Menu,Nav,Main}/*.tsx',
@@ -33,22 +44,6 @@ module.exports = {
     .parse,
   styleguideComponents: {
     Wrapper: path.join(__dirname, 'src/styleguide/Wrapper.tsx')
-  },
-  template: {
-    head: {
-      links: [
-        {
-          rel: 'stylesheet',
-          // this should be the same as the link element in `public/index.html`
-          href: 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700'
-        }
-      ]
-    }
-  },
-  theme: {
-    fontFamily: {
-      base: '"Open Sans", sans-serif'
-    }
   },
   webpackConfig
 }

@@ -71,7 +71,7 @@ const Component = (props: Props & FormikProps<FormValues>) => {
           {errors.name && touched.name && <Alert>{errors.name}</Alert>}
         </ContainerForm>
       </Row>
-      <Row>
+      {/* <Row>
         <label>
           <Trans>Preferred username</Trans>
         </label>
@@ -92,7 +92,7 @@ const Component = (props: Props & FormikProps<FormValues>) => {
           {errors.username &&
             touched.username && <Alert>{errors.username}</Alert>}
         </ContainerForm>
-      </Row>
+      </Row> */}
       <Row>
         <label>
           <Trans>Location</Trans>

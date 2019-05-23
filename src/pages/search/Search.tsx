@@ -59,11 +59,7 @@ function Hit(props) {
         {community.collections.map((collection, i_col) => (
           <Row>
             <Col>
-              <CollectionCard
-                key={i_col}
-                collection={collection}
-                communityId={''}
-              />
+              <CollectionCard key={i_col} collection={collection} />
             </Col>
             <Col>{collection_resources(collection)}</Col>
           </Row>

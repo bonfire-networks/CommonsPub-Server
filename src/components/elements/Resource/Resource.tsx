@@ -1,3 +1,16 @@
+/**
+ * The only true button.
+ *
+ * @visibleName The Best Button Ever 🐙
+ * Avatar component.
+ * @param children {JSX.Element} children of Avatar
+ * @param size {"small"|"large"} size of avatar
+ * @param marked {Boolean} whether blue dot should appear on avatar
+ * @param className {String} additional class names of avatar
+ * @param props {Object} avatar props
+
+ */
+
 import * as React from 'react';
 import styled from '../../../themes/styled';
 import { Trans } from '@lingui/macro';
@@ -23,10 +36,13 @@ interface Props {
   coreIntegrationURL?: string;
 }
 
-const ResourceCard: React.SFC<Props> = props => {
+const Resource: React.SFC<Props> = props => {
   return (
     <Wrapper>
       <UrlLink target="blank" href={props.url}>
+        <Img
+          style={{ backgroundImage: `url(${props.icon || PlaceholderImg})` }}
+        />
         <Info>
           <TitleWrapper>
             <Title>{props.title}</Title>
@@ -59,9 +75,6 @@ const ResourceCard: React.SFC<Props> = props => {
             })}
           </Summary>
         </Info>
-        <Img
-          style={{ backgroundImage: `url(${props.icon || PlaceholderImg})` }}
-        />
       </UrlLink>
       <EditResourceModal
         toggleModal={props.editResource}
@@ -78,6 +91,7 @@ const ResourceCard: React.SFC<Props> = props => {
 
 const UrlLink = styled.a`
   text-decoration: none;
+  display: flex;
   ${media.lessThan('medium')`
   text-align:center;
   display: block;
@@ -145,9 +159,8 @@ const Img = styled.div`
   height: 120px;
   width: 120px;
   margin: 0 auto;
-  border-radius: 120px;
   background-position: center center;
-  margin-top: 20px;
+  margin-right: 20px;
   ${media.lessThan('medium')`
     margin: 0 auto;
     margin-bottom: 8px;
@@ -196,4 +209,4 @@ export default compose(
     editResource: props => () =>
       props.onEditResourceOpen(!props.isEditResourceOpen)
   })
-)(ResourceCard);
+)(Resource);

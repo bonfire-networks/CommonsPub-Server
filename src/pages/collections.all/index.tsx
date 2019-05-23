@@ -81,11 +81,7 @@ class CommunitiesYours extends React.Component<Props> {
                       </Helmet>
                       <List>
                         {this.props.data.collections.nodes.map((coll, i) => (
-                          <CollectionCard
-                            key={i}
-                            collection={coll}
-                            communityId={coll.community.localId}
-                          />
+                          <CollectionCard key={i} collection={coll} />
                         ))}
                       </List>
                       <CollectionsLoadMore
