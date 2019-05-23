@@ -27,8 +27,8 @@ develop: # build and deploy develop branch to staging
     # Next install the AWS SDK and push files to S3
     - find public/ && pip install awscli && aws s3 sync public/ s3://${STAGING_BUCKET} --delete --exclude .git --exclude README.md --acl public-read
     - aws cloudfront create-invalidation --distribution-id ${STAGING_DISTRIBUTION_ID} --paths '/*' # invalidate CloudFront's cache to serve the new version
-    - aws s3 sync styleguide/ s3://${DOCS_STAGING_BUCKET}/docs/styleguide/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to (a different) S3-served website
-    - aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/styleguide/*' # invalidate the docs CloudFront's cache to serve the new version
+    #- aws s3 sync styleguide/ s3://${DOCS_STAGING_BUCKET}/docs/styleguide/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to (a different) S3-served website
+    #- aws cloudfront create-invalidation --distribution-id ${DOCS_STAGING_DISTRIBUTION_ID} --paths '/docs/styleguide/*' # invalidate the docs CloudFront's cache to serve the new version
   artifacts:
     paths:
     - public # The built files for Gitlab Pages to serve
