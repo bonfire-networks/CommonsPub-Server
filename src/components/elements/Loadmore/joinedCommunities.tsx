@@ -21,6 +21,7 @@ const JoinedCommunitiesLoadMore: SFC<Props> = ({
     <LoadMore
       onClick={() =>
         fetchMore({
+          fetchPolicy: 'cache-first',
           variables: {
             endComm: communities.pageInfo.endCursor
           },

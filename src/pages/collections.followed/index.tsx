@@ -83,6 +83,7 @@ const withGetFollowingCollections = graphql<
   }
 >(getFollowedCollections, {
   options: (props: Props) => ({
+    fetchPolicy: 'cache-and-network',
     variables: {
       limit: 15
     }

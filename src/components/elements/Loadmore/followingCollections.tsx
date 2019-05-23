@@ -17,6 +17,7 @@ const CollectionsLoadMore: SFC<Props> = ({ fetchMore, collections, me }) =>
     <LoadMore
       onClick={() =>
         fetchMore({
+          fetchPolicy: 'cache-first',
           variables: {
             endColl: collections.pageInfo.endCursor
           },

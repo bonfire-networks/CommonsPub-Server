@@ -17,6 +17,7 @@ const TimelineLoadMore: SFC<Props> = ({ fetchMore, me, community }) =>
     <LoadMore
       onClick={() =>
         fetchMore({
+          fetchPolicy: 'cache-first',
           variables: {
             endTimeline: community.outbox.pageInfo.endCursor
           },

@@ -16,6 +16,7 @@ const TimelineLoadMore: SFC<Props> = ({ fetchMore, community }) =>
     <LoadMore
       onClick={() =>
         fetchMore({
+          fetchPolicy: 'cache-first',
           variables: {
             end: community.inbox.pageInfo.endCursor
           },
