@@ -29,7 +29,7 @@ const HeroComp: SFC<Props> = ({ user }) => (
         />
         <HeroInfo>
           <H2>{user.name}</H2>
-          <PreferredUsername>@{user.preferredUsername}</PreferredUsername>
+          {/* <PreferredUsername>@{user.preferredUsername}</PreferredUsername> */}
         </HeroInfo>
       </WrapperHero>
       <P>{user.summary}</P>
@@ -47,11 +47,11 @@ const HeroComp: SFC<Props> = ({ user }) => (
 
 export default HeroComp;
 
-const PreferredUsername = styled.div`
-  color: #fff;
-  opacity: 0.6;
-  font-weight: 600;
-`;
+// const PreferredUsername = styled.div`
+//   color: #fff;
+//   opacity: 0.6;
+//   font-weight: 600;
+// `;
 
 const Location = styled.div`
   color: ${props => props.theme.styles.colour.heroIcon};

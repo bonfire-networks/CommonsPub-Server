@@ -234,7 +234,6 @@ const withGetCommunities = graphql<
   }
 >(getCommunitiesQuery, {
   options: (props: Props) => ({
-    fetchPolicy: 'cache-first',
     variables: {
       limit: 15
     }
