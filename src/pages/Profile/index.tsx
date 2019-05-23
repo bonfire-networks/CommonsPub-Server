@@ -260,6 +260,7 @@ const withGetCollections = graphql<
   }
 >(getUserQuery, {
   options: (props: Props) => ({
+    fetchPolicy: 'no-cache',
     variables: {
       limitComm: 15,
       limitColl: 15,

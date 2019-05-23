@@ -234,6 +234,7 @@ const withGetCollections = graphql<
   }
 >(getUserQuery, {
   options: (props: Props) => ({
+    fetchPolicy: 'no-cache',
     variables: {
       id: Number(props.match.params.id),
       limitComm: 15,
