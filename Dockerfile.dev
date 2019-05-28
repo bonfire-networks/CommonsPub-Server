@@ -1,0 +1,12 @@
+FROM elixir:1.7.4-alpine
+
+ENV HOME=/opt/app/ TERM=xterm
+
+WORKDIR $HOME
+
+RUN apk update && \
+    apk add --no-cache build-base cmake curl git bash openssl-dev inotify-tools
+
+EXPOSE 4000/tcp
+
+CMD iex -S mix phx.server
