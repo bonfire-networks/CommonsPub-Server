@@ -4,7 +4,7 @@ variables:
   POSTGRES_DB: moodle_net_test
   POSTGRES_USER: postgres
   POSTGRES_PASSWORD: postgres
-  DB_HOST: postgres
+  DATABASE_HOST: postgres
   MIX_ENV: test
   
 cache:
