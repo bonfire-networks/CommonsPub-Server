@@ -1,0 +1,25 @@
+version: '3.5'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: "Dockerfile.dev"
+    ports:
+      - "4000:4000"
+    env_file:
+      - config/docker.dev.env
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: .
+        target: /opt/app
+  db:
+    image: postgres:9.6.6-alpine
+    # volumes:
+    #   - "./volumes/postgres:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    env_file:
+      - config/docker.dev.env
