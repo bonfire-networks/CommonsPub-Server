@@ -27,7 +27,9 @@ Do not modify the files above. Instead, overload the settings by editing the fol
 ---
 
 ### Install using Docker containers (recommended)
+
 Make sure you have [docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs), and [make](https://www.gnu.org/software/make/) installed:
+
 ```sh
 $ docker version
 Docker version 18.09.1-ce
@@ -45,16 +47,19 @@ $ cd federated
 ```
 
 Build the docker image:
+
 ```
 $ make build
 ```
 
 If you want to use the docker cache during subsequent build use:
+
 ```
 $ make build_with_cache
 ```
 
 Start the docker containers with docker-compose:
+
 ```sh
 $ docker-compose up
 ```
@@ -151,6 +156,25 @@ It generates the release which is later copied into the final image:
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 ---
+
+## Development Setup
+
+### Docker - recommended
+
+From a fresh checkout:
+
+```make dev-setup```
+
+You should then be able to run with:
+
+```make dev```
+
+Here are the other useful tasks:
+
+- `make dev-build` - rebuild the dev docker image
+- `make dev-db` - rebuild the development database
+- `make dev-test-db` - rebuild the test database
+- `make dev-test` - run the tests
 
 ## Localisation
 
