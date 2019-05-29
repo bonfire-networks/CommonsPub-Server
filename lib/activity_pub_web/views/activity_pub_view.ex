@@ -77,11 +77,7 @@ defmodule ActivityPubWeb.ActivityPubView do
     entity
     |> Entity.extension_fields()
     |> Enum.filter(&filter_by_value/1)
-<<<<<<< HEAD
     |> Enum.map(&normalize_value/1)
-=======
-    # |> Enum.map(&map_value/1)
->>>>>>> Comment out unused reference to unknown function in not yet used activity pub view to avoid an error
   end
 
   # FIXME this can be calculated in compilation time :)
