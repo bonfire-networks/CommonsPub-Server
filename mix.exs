@@ -5,8 +5,8 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.9.4", # current MoodleNet Server version
-      elixir: "~> 1.7", # required version of Elixir
+      version: "0.9.4",
+      elixir: "~> 1.8",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -35,132 +35,6 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  @doc """
-<<<<<<< HEAD
-  Specify the Elixir project dependencies.
-
-  In addition to common Phoenix dependencies, there are the following dependencies:
-
-  ```
-  {:comeonin, "~> 4.1.1"},
-  {:pbkdf2_elixir, "~> 0.12.3"},
-  ```
-  ^ To store the passwords safely
-
-  ```
-  {:cors_plug, "~> 2.0"},
-  ```
-  ^ To reply correctly to CORS requests
-
-  ```
-  {:distillery, "~> 2.0"},
-  ```
-  ^ To build releases
-
-  ```
-  {:bamboo, "~> 1.1"},
-  ```
-  ^ To send emails
-
-  ```
-  {:faker, "~> 0.11"},
-  ```
-  ^ To create fake data for tests
-
-  ```
-  {:recase, "~> 0.2"},
-  ```
-  ^ To recase between Elixir conventions and ActivityPub conventions in JSON messages
-
-  ```
-  {:absinthe, "~> 1.4"}, {:absinthe_plug, "~> 1.4"},
-  ```
-  ^ for GraphQL
-
-  ```
-  {:phoenix_integration, "~> 0.6.0"},
-  ```
-  ^ It was used at the beginning of the project, I think there is only one test running this
-
-  ```
-  {:furlex, git: "https://github.com/alexcastano/furlex"},
-  ```
-  ^ A modified version of https://hex.pm/packages/furlex - to fetch the metadata when adding a resource/webpage in MoodleNet
-
-  ```
-  {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-  ```
-  ^ Useful to find bugs
-
-  ```
-  {:appsignal, "~> 1.0"},
-  {:telemetry, "~> 0.4.0"},
-  ```
-  ^ Orchestration
-=======
-Specify the Elixir project dependencies.
-
-In addition to common Phoenix dependencies, there are the following dependencies:
-
-```
-{:comeonin, "~> 4.1.1"},
-{:pbkdf2_elixir, "~> 0.12.3"},
-```
-^ To store the passwords safely
-
-```
-{:cors_plug, "~> 2.0"},
-```
-^ To reply correctly to CORS requests
-
-```
-{:distillery, "~> 2.0"},
-```
-^ To build releases
-
-```
-{:bamboo, "~> 1.1"},
-```
-^ To send emails
-
-```
-{:faker, "~> 0.11"},
-```
-^ To create fake data for tests
-
-```
-{:recase, "~> 0.2"},
-```
-^ To recase between Elixir conventions and ActivityPub conventions in JSON messages
-
-```
-{:absinthe, "~> 1.4"}, {:absinthe_plug, "~> 1.4"},
-```
-^ for GraphQL
-
-```
-{:phoenix_integration, "~> 0.6.0"},
-```
-^ It was used at the beginning of the project, I think there is only one test running this
-
-```
-{:furlex, git: "https://github.com/alexcastano/furlex"},
-```
-^ A modified version of https://hex.pm/packages/furlex - to fetch the metadata when adding a resource/webpage in MoodleNet
-
-```
-{:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-```
-^ Useful to find bugs
-
-```
-{:appsignal, "~> 1.0"},
-{:telemetry, "~> 0.4.0"},
-```
-^ Orchestration
-
->>>>>>> slowly adding docs
-  """
   defp deps do
     [
       {:phoenix, "~> 1.4.0"},
