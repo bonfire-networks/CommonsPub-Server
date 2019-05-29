@@ -10,6 +10,8 @@
 /doc
 /assets/node_modules
 /priv/static
+.mix
+.hex
 
 *.sql
 
