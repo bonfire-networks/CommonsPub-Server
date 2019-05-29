@@ -114,7 +114,7 @@ defmodule MoodleNet.Mixfile do
       {:pbkdf2_elixir, "~> 0.12.3"},
       {:cors_plug, "~> 2.0"},
       {:distillery, "~> 2.0"},
-      {:bamboo, "~> 1.1"},
+      {:bamboo, "~> 1.2"},
       # FIXME using prod as well for the moment
       {:faker, "~> 0.11"},
       {:recase, "~> 0.2"},
