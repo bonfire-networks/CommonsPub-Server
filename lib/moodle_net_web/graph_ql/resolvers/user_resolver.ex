@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
   end
 
   def create_user(%{user: attrs}, info) do
-    attrs = attrs |> set_icon() |> set_location()
+    attrs = attrs |> set_icon() |> set_location() |> set_website()
 
     with {:ok, %{actor: actor, user: user}} <- MoodleNet.Accounts.register_user(attrs),
          {:ok, token} <- MoodleNet.OAuth.create_token(user.id) do
@@ -88,14 +88,14 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
 
   def prepare_user([e | _] = list, fields) when APG.has_type(e, "Person") do
     list
-    |> preload_assoc_cond([:icon, :location], fields)
+    |> preload_assoc_cond([:icon, :location, :attachment], fields)
     |> preload_aspect_cond([:actor_aspect], fields)
     |> Enum.map(&prepare(&1, fields))
   end
 
   def prepare_user(e, fields) when APG.has_type(e, "Person") do
     e
-    |> preload_assoc_cond([:icon, :location], fields)
+    |> preload_assoc_cond([:icon, :location, :attachment], fields)
     |> preload_aspect_cond([:actor_aspect], fields)
     |> prepare_common_fields()
   end

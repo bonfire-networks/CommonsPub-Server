@@ -18,6 +18,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
               email: "alexcastano@newworld.com"
               password: "password"
               primaryLanguage: "Elixir"
+              website: "test.tld"
             }
           ) {
             token
@@ -34,6 +35,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
                 location
                 icon
                 primaryLanguage
+                website
               }
             }
           }
@@ -59,6 +61,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
       assert user["location"] == "MoodleNet"
       assert user["icon"] == "https://imag.es/alexcastano"
       assert user["primaryLanguage"] == "Elixir"
+      assert user["website"] == "test.tld"
     end
 
     test "email should be whitelist", %{conn: conn} do
@@ -527,6 +530,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
             location: "MoodleNet"
             icon: "https://imag.es/alexcastano"
             primaryLanguage: "Elixir"
+            website: "test.tld"
           }
         ) {
           email
@@ -539,6 +543,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
             name
             summary
             location
+            website
             icon
             primaryLanguage
           }
@@ -560,6 +565,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["summary"] == "Summary"
     assert user["primaryLanguage"] == "Elixir"
     assert user["location"] == "MoodleNet"
+    assert user["website"] == "test.tld"
     assert user["icon"] == "https://imag.es/alexcastano"
   end
 
