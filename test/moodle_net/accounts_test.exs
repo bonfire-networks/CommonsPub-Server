@@ -75,14 +75,15 @@ defmodule MoodleNet.AccountsTest do
 
   describe "update_user/2" do
     test "works" do
-      actor = Factory.actor(location: nil)
+      actor = Factory.actor(location: nil, attachment: nil)
       attrs = %{
         name: "name",
         preferred_username: "username",
         locale: "fr",
         primary_language: "cz",
         summary: "summary",
-        location: nil
+        location: nil,
+        website: nil
       }
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, attrs)
       assert actor.name == %{"und" => attrs.name}
@@ -97,6 +98,23 @@ defmodule MoodleNet.AccountsTest do
 
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: nil})
       assert [] == actor.location
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{website: "kawen.space"})
+      assert [%{
+        :name => %{"und" => "Website"},
+        :type => ["Object", "PropertyValue"],
+        "value" => "kawen.space"
+      }] = actor.attachment
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{website: "testing.kawen.dance"})
+      assert [%{
+        :name => %{"und" => "Website"},
+        :type => ["Object", "PropertyValue"],
+        "value" => "testing.kawen.dance"
+      }] = actor.attachment
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{website: nil})
+      assert [] == actor.attachment
     end
   end
 

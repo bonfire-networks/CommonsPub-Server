@@ -87,6 +87,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:name, :string)
     field(:summary, :string)
     field(:location, :string)
+    field(:website, :string)
     field(:icon, :string)
     field(:primary_language, :string)
 
@@ -184,6 +185,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:name, :string)
     field(:summary, :string)
     field(:location, :string)
+    field(:website, :string)
     field(:icon, :string)
     field(:primary_language, :string)
   end
@@ -194,6 +196,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:summary, :string)
     field(:primary_language, :string)
     field(:location, :string)
+    field(:website, :string)
     field(:icon, :string)
   end
 
