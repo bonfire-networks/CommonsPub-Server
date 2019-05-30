@@ -156,6 +156,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     Query.preload_aspect(entities, aspects)
   end
 
+  # FIXME add proper resolving to fields with hardcoded values?
   def prepare_common_fields(entity) do
     website = to_website(entity.attachment)
 
