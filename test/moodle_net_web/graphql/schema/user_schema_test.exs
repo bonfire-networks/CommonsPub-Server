@@ -251,6 +251,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
         name
         summary
         location
+        website
         icon
         primaryLanguage
       }
@@ -270,6 +271,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["name"] == actor.name["und"]
     assert user["summary"] == actor.summary["und"]
     assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user["website"] == get_in(actor, [:attachment, Access.at(0), "value"])
     assert user["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
     assert user["primaryLanguage"] == actor["primary_language"]
   end
