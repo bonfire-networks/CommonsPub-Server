@@ -30,8 +30,8 @@ config :mime, :types, %{
 
 config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.MailgunAdapter, # replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
-  api_key: Application.get_env(:moodle_net, :mail_key), # use API key from environment variable (make sure to set it on the server or CI config)
-  domain: Application.get_env(:moodle_net, :mail_domain), # use sending domain from env, or fallback to a sandbox domain (to avoid build errors)
+  api_key: Application.get_env(:moodle_net, :mail_key) || System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
+  domain: Application.get_env(:moodle_net, :mail_domain) || System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
   open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
 
 version =
