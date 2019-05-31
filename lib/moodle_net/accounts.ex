@@ -71,17 +71,20 @@ defmodule MoodleNet.Accounts do
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
     {location_content, changes} = Map.pop(changes, :location)
+    {website, changes} = Map.pop(changes, :website)
     icon = Query.new() |> Query.belongs_to(:icon, actor) |> Query.one()
     location = Query.new() |> Query.belongs_to(:location, actor) |> Query.one()
+    attachment = Query.new() |> Query.belongs_to(:attachment, actor) |> Query.one()
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
          {:ok, _location} <- update_location(location, location_content, actor),
+         {:ok, _attachment} <- update_attachment(attachment, website, actor),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
       # FIXME
       actor =
         ActivityPub.reload(actor)
-        |> Query.preload_assoc([:icon, :location])
+        |> Query.preload_assoc([:icon, :location, :attachment])
 
       {:ok, actor}
     end
@@ -103,6 +106,28 @@ defmodule MoodleNet.Accounts do
 
   defp update_location(location, content, _) do
     ActivityPub.update(location, content: content)
+  end
+  
+  defp update_attachment(nil, nil, _), do: {:ok, nil}
+
+  defp update_attachment(attachment, nil, _) do
+    ActivityPub.delete(attachment)
+    {:ok, nil}
+  end
+    
+  defp update_attachment(nil, changes, actor) do
+    with {:ok, attachment} <- ActivityPub.new(%{
+        name: "Website",
+        type: "PropertyValue",
+        value: changes
+         }),
+         {:ok, attachment} <- ActivityPub.insert(attachment),
+         {:ok, _} <- Alter.add(actor, :attachment, attachment),
+    do: {:ok, attachment}
+  end
+
+  defp update_attachment(attachment, changes, _) do
+    ActivityPub.update(attachment, value: changes)
   end
 
   def delete_user(actor) do

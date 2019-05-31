@@ -29,7 +29,9 @@ config :mime, :types, %{
 }
 
 config :moodle_net, MoodleNet.Mailer,
-  adapter: Bamboo.LocalAdapter,
+  adapter: Bamboo.MailgunAdapter, # replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
+  api_key: Application.get_env(:moodle_net, :mail_key) || System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
+  domain: Application.get_env(:moodle_net, :mail_domain) || System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
   open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
 
 version =
@@ -44,9 +46,9 @@ config :moodle_net, :http, proxy_url: nil
 
 config :moodle_net, :instance,
   version: version,
-  name: "Pub of the Commons",
-  email: "example@example.local",
-  description: "A Pub of the Commons instance, a generic fediverse server"
+  name: "MoodleNet",
+  email: "moodlenet-moderators@moodle.com",
+  description: "An instance of MoodleNet, a federated server for educators"
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason

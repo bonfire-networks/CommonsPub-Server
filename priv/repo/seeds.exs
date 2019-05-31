@@ -16,7 +16,7 @@ MoodleNet.Repo.transaction(fn ->
   actors = for _ <- 1..5, do: Factory.actor()
 
   communities = for _ <- 1..3, do: Factory.community(Enum.random(actors))
-  for a <- actor, c <- communitities, do: MoodleNet.follow(a, c)
+  for a <- actors, c <- communities, do: MoodleNet.join_community(a, c)
 
   collections =
     for _ <- 1..5,

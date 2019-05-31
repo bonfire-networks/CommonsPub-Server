@@ -55,6 +55,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   def set_location(attrs), do: attrs
 
+  def set_website(%{website: website} = attrs) when is_binary(website) do
+    Map.put(attrs, :attachment, %{type: "PropertyValue", name: "Website", value: website})
+  end
+
+  def set_website(attrs), do: attrs
+
   def current_user(%{context: %{current_user: nil}}), do: Errors.unauthorized_error()
   def current_user(%{context: %{current_user: user}}), do: {:ok, user}
 
@@ -148,7 +154,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     Query.preload_aspect(entities, aspects)
   end
 
+  # FIXME add proper resolving to fields with hardcoded values?
   def prepare_common_fields(entity) do
+    website = to_website(entity.attachment)
+
     entity
     |> Map.put(:local, Entity.local?(entity))
     |> Map.update!(:name, &from_language_value/1)
@@ -158,6 +167,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Map.update(:preferred_username, nil, &from_language_value/1)
     |> Map.update(:icon, nil, &to_icon/1)
     |> Map.update(:location, nil, &to_location/1)
+    |> Map.put(:website, website)
     |> Map.put(:followers_count, count_items(entity, :followers))
     |> Map.put(:following_count, 15)
     |> Map.put(:likes_count, entity[:likers_count])
@@ -196,6 +206,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   defp to_location(_), do: nil
+
+  defp to_website([entity | _]) when APG.is_entity(entity) do
+    with website <- entity["value"] do
+      website
+    else
+      _ -> nil
+    end
+  end
+
+  defp to_website(_), do: nil
 
   defp count_items(entity, collection) do
     case entity[collection] do
@@ -354,8 +374,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
         cond do
           Keyword.get(opts, :collection, false) ->
             {__MODULE__, :preload_collection, preload_args}
+
           Keyword.get(opts, :preload_assoc_individually, false) ->
             {__MODULE__, :preload_assoc_individually, preload_args}
+
           true ->
             {__MODULE__, :preload_assoc, preload_args}
         end

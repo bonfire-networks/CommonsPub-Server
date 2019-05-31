@@ -17,6 +17,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
               email: "alexcastano@newworld.com"
               password: "password"
               primaryLanguage: "Elixir"
+              website: "test.tld"
             }
           ) {
             token
@@ -32,6 +33,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
                 location
                 icon
                 primaryLanguage
+                website
               }
             }
           }
@@ -57,6 +59,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
       assert user["location"] == "MoodleNet"
       assert user["icon"] == "https://imag.es/alexcastano"
       assert user["primaryLanguage"] == "Elixir"
+      assert user["website"] == "test.tld"
     end
 
     test "email should be whitelist", %{conn: conn} do
@@ -242,6 +245,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
         name
         summary
         location
+        website
         icon
         primaryLanguage
       }
@@ -260,6 +264,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["name"] == actor.name["und"]
     assert user["summary"] == actor.summary["und"]
     assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user["website"] == get_in(actor, [:attachment, Access.at(0), "value"])
     assert user["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
     assert user["primaryLanguage"] == actor["primary_language"]
   end
@@ -514,6 +519,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
             location: "MoodleNet"
             icon: "https://imag.es/alexcastano"
             primaryLanguage: "Elixir"
+            website: "test.tld"
           }
         ) {
           email
@@ -525,6 +531,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
             name
             summary
             location
+            website
             icon
             primaryLanguage
           }
@@ -546,6 +553,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["summary"] == "Summary"
     assert user["primaryLanguage"] == "Elixir"
     assert user["location"] == "MoodleNet"
+    assert user["website"] == "test.tld"
     assert user["icon"] == "https://imag.es/alexcastano"
   end
 

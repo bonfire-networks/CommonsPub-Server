@@ -5,8 +5,8 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.0.19", # current MoodleNet Server version
-      elixir: "~> 1.7.4", # required version of Elixir
+      version: "0.0.23", # current MoodleNet Server version
+      elixir: "~> 1.7", # required version of Elixir
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -114,7 +114,7 @@ defmodule MoodleNet.Mixfile do
       {:pbkdf2_elixir, "~> 0.12.3"},
       {:cors_plug, "~> 2.0"},
       {:distillery, "~> 2.0"},
-      {:bamboo, "~> 1.1"},
+      {:bamboo, "~> 1.2"},
       # FIXME using prod as well for the moment
       {:faker, "~> 0.11"},
       {:recase, "~> 0.2"},

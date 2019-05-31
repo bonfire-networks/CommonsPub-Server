@@ -16,7 +16,7 @@ config :moodle_net, MoodleNet.Repo,
   username: "postgres",
   password: "postgres",
   database: "moodle_net_test",
-  hostname: System.get_env("DB_HOST") || "localhost",
+  hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
 # Reduce hash rounds for testing

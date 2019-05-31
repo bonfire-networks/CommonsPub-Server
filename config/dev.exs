@@ -79,7 +79,7 @@ config :moodle_net, MoodleNet.Repo,
   username: "postgres",
   password: "postgres",
   database: "moodle_net_dev",
-  hostname: "localhost",
+  hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool_size: 10
 
 config :moodle_net, :ap_base_url, "http://dev.localhost:4000/activity_pub"

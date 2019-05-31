@@ -1,4 +1,4 @@
-.PHONY: help
+.PHONY: help dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
 APP_NAME ?= `grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g'`
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
@@ -63,6 +63,29 @@ push_stable: ## Tag stable, latest and version tags to the last build and push
 	@docker push moodlenet/moodlenet:$(APP_VSN)
 	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+
+dev-build:
+	docker-compose -f docker-compose.dev.yml build web
+
+dev-deps:
+	docker-compose -f docker-compose.dev.yml run web mix local.hex --force
+	docker-compose -f docker-compose.dev.yml run web mix local.rebar --force
+	docker-compose -f docker-compose.dev.yml run web mix deps.get
+
+dev-db:
+	docker-compose -f docker-compose.dev.yml run web mix ecto.reset
+
+dev-test-db:
+	docker-compose -f docker-compose.dev.yml -e MIX_ENV=test run web mix ecto.reset
+
+dev-test:
+	docker-compose -f docker-compose.dev.yml run web mix test
+
+dev-setup: dev-deps dev-db
+
+dev:
+	docker-compose -f docker-compose.dev.yml run --service-ports web
+
 
 run: ## Run the app in Docker
 	docker run\
