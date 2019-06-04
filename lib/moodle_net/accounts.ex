@@ -86,7 +86,7 @@ defmodule MoodleNet.Accounts do
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
-         {:ok, _image} <- ActivityPub.update(image, url: image_url),
+         {:ok, _image} <- update_image(image, image_url, actor),
          {:ok, _location} <- update_location(location, location_content, actor),
          {:ok, _attachment} <- update_attachment(attachment, website, actor),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
@@ -96,6 +96,18 @@ defmodule MoodleNet.Accounts do
         |> Query.preload_assoc([:icon, :image, :location, :attachment])
 
       {:ok, actor}
+    end
+  end
+
+  defp update_image(image, url, actor) do
+    case image do
+      nil ->
+        with {:ok, image} <- ActivityPub.new(url: url),
+             {:ok, image} <- ActivityPub.insert(image),
+             {:ok, _} <- Alter.add(actor, :image, image),
+             do: {:ok, image}
+      image ->
+        ActivityPub.update(image, url: url)
     end
   end
 

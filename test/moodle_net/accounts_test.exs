@@ -92,7 +92,7 @@ defmodule MoodleNet.AccountsTest do
 
   describe "update_user/2" do
     test "works" do
-      actor = Factory.actor(location: nil, attachment: nil)
+      actor = Factory.actor(location: nil, attachment: nil, image: nil)
       attrs = %{
         name: "name",
         preferred_username: "username",
@@ -111,6 +111,9 @@ defmodule MoodleNet.AccountsTest do
       assert actor["locale"] == "fr"
       assert actor["primary_language"] == "cz"
       assert actor.location == []
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{image: "https://images.unsplash.com/photo-1557943978-bea7e84f0e87"})
+      assert [%{url: ["https://images.unsplash.com/photo-1557943978-bea7e84f0e87"]}] = actor.image
 
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: "location"})
       assert [%{content: %{"und" => "location"}, type: ["Object", "Place"]}] = actor.location
