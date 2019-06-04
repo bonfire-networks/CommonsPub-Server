@@ -102,7 +102,7 @@ defmodule MoodleNet.Accounts do
   defp update_image(image, url, actor) do
     case image do
       nil ->
-        with {:ok, image} <- ActivityPub.new(url: url),
+        with {:ok, image} <- ActivityPub.new(type: "Image", url: url),
              {:ok, image} <- ActivityPub.insert(image),
              {:ok, _} <- Alter.add(actor, :image, image),
              do: {:ok, image}

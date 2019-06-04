@@ -104,7 +104,7 @@ defmodule MoodleNet.AccountsTest do
         website: nil
       }
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, attrs)
-      assert [%{url: ["https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"]}] = actor.image
+      assert [%{url: ["https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"], type: ["Object", "Image"]}] = actor.image
       assert actor.name == %{"und" => attrs.name}
       assert actor.summary == %{"und" => attrs.summary}
       assert actor.preferred_username == attrs.preferred_username
