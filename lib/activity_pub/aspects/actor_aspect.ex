@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule ActivityPub.ActorAspect do
   @moduledoc """
   `ActorAspect` implements [_Actor_ as defined in the ActivityPub specifications](https://www.w3.org/TR/activitypub/#actors). There are different _Actor_ types: _Application, Group, Person_, etc. but all of them can have common properties: _preferred_username, inbox, outbox, followers_, etc.
