@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule ActivityPub.SQLEntity do
   @moduledoc """
   Most of the SQL work is in this `SQLEntity`. It defines the database fields that every `ActivityPub.Entity` must implement: `id`, `@context`, `type` and two helper fields: `local` and `extension_fields` (a JSONB column to store all _ActivityStreams extension_ fields).
