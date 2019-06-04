@@ -93,7 +93,7 @@ defmodule MoodleNet.Accounts do
       # FIXME
       actor =
         ActivityPub.reload(actor)
-        |> Query.preload_assoc([:icon, :location, :attachment])
+        |> Query.preload_assoc([:icon, :image, :location, :attachment])
 
       {:ok, actor}
     end

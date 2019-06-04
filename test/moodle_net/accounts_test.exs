@@ -99,10 +99,12 @@ defmodule MoodleNet.AccountsTest do
         locale: "fr",
         primary_language: "cz",
         summary: "summary",
+        image: "https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971",
         location: nil,
         website: nil
       }
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, attrs)
+      assert [%{url: ["https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"]}] = actor.image
       assert actor.name == %{"und" => attrs.name}
       assert actor.summary == %{"und" => attrs.summary}
       assert actor.preferred_username == attrs.preferred_username
