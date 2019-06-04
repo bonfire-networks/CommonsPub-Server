@@ -94,6 +94,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
     field(:primary_language, :string)
 
     field :joined_communities, :user_joined_communities_connection do
@@ -192,6 +193,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
     field(:primary_language, :string)
   end
 
@@ -203,6 +205,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
   end
 
   input_object :login_input do

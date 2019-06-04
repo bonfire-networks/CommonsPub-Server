@@ -43,6 +43,7 @@ defmodule MoodleNet.Accounts do
       |> Map.delete(:password)
       |> Map.delete("password")
       |> set_default_icon()
+      |> set_default_image()
 
     password = attrs[:password] || attrs["password"]
 
@@ -75,14 +76,17 @@ defmodule MoodleNet.Accounts do
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
+    {image_url, changes} = Map.pop(changes, :image)
     {location_content, changes} = Map.pop(changes, :location)
     {website, changes} = Map.pop(changes, :website)
     icon = Query.new() |> Query.belongs_to(:icon, actor) |> Query.one()
+    image = Query.new() |> Query.belongs_to(:image, actor) |> Query.one()
     location = Query.new() |> Query.belongs_to(:location, actor) |> Query.one()
     attachment = Query.new() |> Query.belongs_to(:attachment, actor) |> Query.one()
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
+         {:ok, _image} <- ActivityPub.update(image, url: image_url),
          {:ok, _location} <- update_location(location, location_content, actor),
          {:ok, _attachment} <- update_attachment(attachment, website, actor),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
@@ -277,5 +281,12 @@ defmodule MoodleNet.Accounts do
     else
       attrs
     end
+  end
+
+  defp set_default_image(%{image: _} = attrs), do: attrs
+
+  @default_image "https://images.unsplash.com/photo-1557943978-bea7e84f0e87?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+  defp set_default_image(attrs) do
+    Map.put(attrs, :image, %{type: "Image", url: @default_image})
   end
 end
