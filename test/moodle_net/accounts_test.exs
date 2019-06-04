@@ -26,6 +26,7 @@ defmodule MoodleNet.AccountsTest do
       assert ret.actor["extra_field"] == attrs["extra_field"]
       assert [icon] = ret.actor[:icon]
       assert [icon_attrs["url"]] == get_in(ret, [:actor, :icon, Access.at(0), :url])
+      assert [%{type: ["Object", "Place"]}] = ret.actor.location
 
       assert_delivered_email(MoodleNet.Email.welcome(ret.user, ret.email_confirmation_token.token))
     end
@@ -99,7 +100,7 @@ defmodule MoodleNet.AccountsTest do
       assert actor.location == []
 
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: "location"})
-      assert [%{content: %{"und" => "location"}}] = actor.location
+      assert [%{content: %{"und" => "location"}, type: ["Object", "Place"]}] = actor.location
 
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: nil})
       assert [] == actor.location
