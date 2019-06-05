@@ -18,6 +18,8 @@ defmodule MoodleNet.AccountsTest do
         |> Map.put("icon", icon_attrs)
         |> Map.put("extra_field", "extra")
 
+      assert true == Accounts.is_username_available?(attrs["preferred_username"])
+
       Accounts.add_email_to_whitelist(attrs["email"])
       assert {:ok, ret} = Accounts.register_user(attrs)
       assert attrs["email"] == ret.user.email
@@ -28,6 +30,8 @@ defmodule MoodleNet.AccountsTest do
       assert [icon_attrs["url"]] == get_in(ret, [:actor, :icon, Access.at(0), :url])
 
       assert_delivered_email(MoodleNet.Email.welcome(ret.user, ret.email_confirmation_token.token))
+
+      assert false == Accounts.is_username_available?(ret.actor.preferred_username)
     end
 
     test "works with moodle.com emails" do
