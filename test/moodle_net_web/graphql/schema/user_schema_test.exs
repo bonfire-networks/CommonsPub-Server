@@ -289,6 +289,35 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
   end
 
   @tag :user
+  test "check if a preferred username is taken", %{conn: conn, actor: actor} do
+    query = """
+    {
+      usernameAvailable(username: "jameslaver")
+    }
+    """
+
+    assert true ==
+      conn
+      |> post("/api/graphql", %{query: query})
+      |> json_response(200)
+      |> Map.fetch!("data")
+      |> Map.fetch!("usernameAvailable")
+
+    query = """
+    {
+      usernameAvailable(username: "#{actor.preferred_username}")
+    }
+    """
+
+    assert false ==
+      conn
+      |> post("/api/graphql", %{query: query})
+      |> json_response(200)
+      |> Map.fetch!("data")
+      |> Map.fetch!("usernameAvailable")
+  end
+
+  @tag :user
   test "joined_communities connection", %{conn: conn, actor: actor} do
     local_id = local_id(actor)
 
