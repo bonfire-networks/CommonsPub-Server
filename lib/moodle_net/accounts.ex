@@ -103,7 +103,7 @@ defmodule MoodleNet.Accounts do
   end
 
   defp update_location(nil, content, actor) do
-    with {:ok, location} <- ActivityPub.new(content: content),
+    with {:ok, location} <- ActivityPub.new(type: "Place", content: content),
          {:ok, location} <- ActivityPub.insert(location),
          {:ok, _} <- Alter.add(actor, :location, location),
          do: {:ok, location}
