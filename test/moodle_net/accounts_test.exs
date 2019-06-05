@@ -37,6 +37,7 @@ defmodule MoodleNet.AccountsTest do
       assert true == Accounts.is_username_available?(attrs["preferred_username"])
       Accounts.add_email_to_whitelist(attrs["email"])
       assert {:ok, ret} = Accounts.register_user(attrs)
+      assert false == Accounts.is_username_available?(ret.actor.preferred_username)
       assert attrs["email"] == ret.user.email
       assert ret.actor
       assert attrs["preferred_username"] == ret.actor.preferred_username
