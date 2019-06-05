@@ -12,10 +12,12 @@ defmodule MoodleNet.AccountsTest do
   describe "register_user" do
     test "works" do
       icon_attrs = Factory.attributes(:image)
+      image_attrs = Factory.attributes(:image)
 
       attrs =
         Factory.attributes(:user)
         |> Map.put("icon", icon_attrs)
+        |> Map.put("image", image_attrs)
         |> Map.put("extra_field", "extra")
 
       Accounts.add_email_to_whitelist(attrs["email"])
@@ -27,6 +29,8 @@ defmodule MoodleNet.AccountsTest do
       assert [icon] = ret.actor[:icon]
       assert [icon_attrs["url"]] == get_in(ret, [:actor, :icon, Access.at(0), :url])
       assert [%{type: ["Object", "Place"]}] = ret.actor.location
+      assert [image] = ret.actor[:image]
+      assert [image_attrs["url"]] == get_in(ret, [:actor, :image, Access.at(0), :url])
 
       assert_delivered_email(MoodleNet.Email.welcome(ret.user, ret.email_confirmation_token.token))
     end
@@ -45,6 +49,13 @@ defmodule MoodleNet.AccountsTest do
       assert ["https://s.gravatar.com/avatar/7779b850ea05dbeca7fc39a910a77f21?d=identicon&r=g&s=80"] == get_in(actor, [:icon, Access.at(0), :url])
     end
 
+    test "set default header image" do
+      attrs = Factory.attributes(:user, email: "karenk@moodle.com")
+              |> Map.delete("image")
+              
+      assert {:ok, %{actor: actor}} = Accounts.register_user(attrs)
+      assert ["https://images.unsplash.com/photo-1557943978-bea7e84f0e87?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"] == get_in(actor, [:image, Access.at(0), :url])
+    end
 
     test "fails with invalid password values" do
       attrs = Factory.attributes(:user) |> Map.delete("password")
@@ -81,23 +92,28 @@ defmodule MoodleNet.AccountsTest do
 
   describe "update_user/2" do
     test "works" do
-      actor = Factory.actor(location: nil, attachment: nil)
+      actor = Factory.actor(location: nil, attachment: nil, image: nil)
       attrs = %{
         name: "name",
         preferred_username: "username",
         locale: "fr",
         primary_language: "cz",
         summary: "summary",
+        image: "https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971",
         location: nil,
         website: nil
       }
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, attrs)
+      assert [%{url: ["https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"], type: ["Object", "Image"]}] = actor.image
       assert actor.name == %{"und" => attrs.name}
       assert actor.summary == %{"und" => attrs.summary}
       assert actor.preferred_username == attrs.preferred_username
       assert actor["locale"] == "fr"
       assert actor["primary_language"] == "cz"
       assert actor.location == []
+
+      assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{image: "https://images.unsplash.com/photo-1557943978-bea7e84f0e87"})
+      assert [%{url: ["https://images.unsplash.com/photo-1557943978-bea7e84f0e87"]}] = actor.image
 
       assert {:ok, actor} = MoodleNet.Accounts.update_user(actor, %{location: "location"})
       assert [%{content: %{"und" => "location"}, type: ["Object", "Place"]}] = actor.location
