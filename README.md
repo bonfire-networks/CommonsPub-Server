@@ -10,6 +10,10 @@ This codebase was forked from [CommonsPub](http://commonspub.org/) (project to c
 
 ## Installation
 
+These instructions are for installing moodlenet in production. If you
+wish to run moodlenet in development, please refer to our [Developer
+Guide](https://gitlab.com/moodlenet/servers/federated/blob/develop/HACKING.md)!
+
 ### Configuring the back-end
 
 In the `config/` directory, you will find the following default config files:
@@ -157,26 +161,7 @@ By default, the back-end listens on port 4000 (TCP), so you can access it on htt
 
 ---
 
-## Development Setup
-
-### Docker - recommended
-
-From a fresh checkout:
-
-```make dev-setup```
-
-You should then be able to run with:
-
-```make dev```
-
-Here are the other useful tasks:
-
-- `make dev-build` - rebuild the dev docker image
-- `make dev-db` - rebuild the development database
-- `make dev-test-db` - rebuild the test database
-- `make dev-test` - run the tests
-
-## Localisation
+## Internationalisation
 
 The backend code currently has very few translatable strings, basically error messages transactional emails:
 
