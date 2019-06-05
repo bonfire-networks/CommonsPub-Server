@@ -99,6 +99,26 @@ steps above, except:
    * `DATABASE_NAME`
 2. You will not need to run `make dev-db-up`
 
+## Documentation
+
+The code is somewhat documented inline. You can read the resulting [Module & Function Documentation](https://new.next.moodle.net/docs/server/api-reference.html#modules) on the project website. 
+
+If you add more documentation (thanks!), you can generate HTML docs (using `Exdoc`) by running `mix docs`. 
+
+## Internationalisation
+
+The backend code currently has very few translatable strings, basically error messages transactional emails:
+
+*   Email subject lines in `MoodleNet.Email` (eg: [moodle_net/email.ex#L8](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net/email.ex#L8))
+*   Email templates in [moodle_net_web/email/](https://gitlab.com/moodlenet/servers/federated/blob/develop/lib/moodle_net_web/email/templates/)
+*   Errors passed through Gettext in `MoodleNetWeb.ErrorHelpers` and `MoodleNetWeb.GraphQL.Errors`
+
+The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the header or a param.
+
+If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
+
+If you've downloaded or received new translated files, copy them to the approriate languages folder(s) in `/priv/gettext/` before rebuilding the app.
+
 ## What happens when I get this error?
 
 ### (Mix) Package fetch failed
@@ -148,5 +168,4 @@ config :moodle_net, MoodleNet.Repo,
   pool_size: 10,
   timeout: 60_000
 ```
-
 
