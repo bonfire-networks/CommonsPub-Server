@@ -21,6 +21,12 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
       arg(:local_id, non_null(:integer))
       resolve(&UserResolver.user/2)
     end
+
+    @desc "Check if a user exists with a username"
+    field :username_available, type: :boolean do
+      arg(:username, non_null(:string))
+      resolve(&UserResolver.check_username_available/2)
+    end
   end
 
   object :user_mutations do
