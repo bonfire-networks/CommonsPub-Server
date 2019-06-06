@@ -2,9 +2,9 @@
 
 Hello, potential contributor!
 
-This is a work in progress guide to getting moodlenet up and running
-as a developer. Please ask questions in the public telegram channel or
-via gitlab if something is not clear.
+This is a work in progress guide to getting MoodleNet up and running
+as a developer. Please ask questions in the [public Telegram chat](https://t.me/moodlenet_devs) or
+via GitLab if something is not clear.
 
 Happy hacking!
 
@@ -15,19 +15,19 @@ users:
 
 ### Easy Option - fully managed via docker-compose
 
-Dependencies:
+1. Dependencies:
 
 * `make`
 * Docker
-* Docker Compose
+* Docker Compose (recent version)
 
-From a fresh checkout, download the dependencies and setup the database:
+2. From a fresh checkout, download the dependencies and setup the database:
 
 ```
 make dev-setup
 ```
 
-You should then be able to run with:
+3. You should then be able to run with:
 
 ```
 make dev
@@ -169,3 +169,8 @@ config :moodle_net, MoodleNet.Repo,
   timeout: 60_000
 ```
 
+## Running
+
+By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
+
+The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
