@@ -1,19 +1,18 @@
 # Installation and deployment
 
-These instructions are for installing moodlenet in production. If you
-wish to run moodlenet in development, please refer to our [Developer
+These instructions are for installing MoodleNet in production. If you
+wish to run MoodleNet in development, please refer to our [Developer
 Guide](https://gitlab.com/moodlenet/servers/federated/blob/develop/HACKING.md)!
 
 ### Configuring the back-end
 
-In the `config/` directory, you will find the following default config files:
+In the `config/` directory, there are following default config files:
 
 * `config.exs`: default base configuration
 * `dev.exs`: default extra configuration for `MIX_ENV=dev`
 * `prod.exs`: default extra configuration for `MIX_ENV=prod`
 
-
-Do not modify the files above. Instead, overload the settings by editing the following files:
+Do NOT modify the files above. Instead, overload any settings from the above files by editing the following files:
 
 * `dev.secret.exs`: custom extra configuration for `MIX_ENV=dev`
 * `prod.secret.exs`: custom extra configuration for `MIX_ENV=prod`
@@ -22,7 +21,7 @@ Do not modify the files above. Instead, overload the settings by editing the fol
 
 ### Install using Docker containers (recommended)
 
-Make sure you have [docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs), and [make](https://www.gnu.org/software/make/) installed:
+1. Make sure you have [Docker](https://www.docker.com/), a recent [docker-compose](https://docs.docker.com/compose/install/#install-compose) (which supports v3 configs), and [make](https://www.gnu.org/software/make/) installed:
 
 ```sh
 $ docker version
@@ -34,33 +33,29 @@ GNU Make 4.2.1
 ...
 ```
 
-Clone this repo and change into the directory:
+2. Clone this repository and change into the directory:
 ```sh
 $ git clone https://gitlab.com/moodlenet/servers/federated.git
 $ cd federated
 ```
 
-Build the docker image:
+3. Build the docker image:
 
 ```
 $ make build
 ```
 
-If you want to use the docker cache during subsequent build use:
+(During subsequent builds, you may want to build using the docker cache: `make build_with_cache`)
 
-```
-$ make build_with_cache
-```
-
-Start the docker containers with docker-compose:
+4. Start the docker containers with docker-compose:
 
 ```sh
 $ docker-compose up
 ```
 
-App should be running at [http://localhost:4000/](http://localhost:4000/).
+5. The backend should now be running at [http://localhost:4000/](http://localhost:4000/).
 
-If that worked, start the app as a daemon next time:
+6. If that worked, start the app as a daemon next time:
 ```sh
 $ docker-compose up -d
 ```
@@ -99,14 +94,14 @@ However, we can do so by running the following command in an `iex` console:
 
 `iex> MoodleNet.ReleaseTasks.seed_db([])`
 
-#### Build Docker image
+#### Building a Docker image
 
 There is a `Makefile` with two commands:
 
 * `make build` which builds the docker image in `moodlenet:latest` and `moodlenet:$VERSION-$BUILD`
 * `make run` which can be used to run the docker built docker image without `docker-compose`
 
-### Devops information
+### DevOps information
 
 The [Dockerfile](https://gitlab.com/moodlenet/servers/federated/blob/develop/Dockerfile) uses the [multistage build](https://docs.docker.com/develop/develop-images/multistage-build/) feature to make the image as small as possible.
 
@@ -118,7 +113,7 @@ It generates the release which is later copied into the final image:
 
 ---
 
-### Manual installation (without Docker)
+### Alternative installation without Docker
 
 #### 1. Install dependencies
 
@@ -149,3 +144,4 @@ It generates the release which is later copied into the final image:
 
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
+The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
