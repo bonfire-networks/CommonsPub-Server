@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule ActivityPub.CollectionPage do
   @moduledoc """
   TODO - Not every _ActivityPub.Entity_ should be persisted in the database, for example, a _CollectionPage_ is ephemeral. They are continuously changing, so it does not make sense to store them in the database.

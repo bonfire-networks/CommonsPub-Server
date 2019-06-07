@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule MoodleNet.Accounts do
   @moduledoc """
   User Accounts context
@@ -98,7 +103,7 @@ defmodule MoodleNet.Accounts do
   end
 
   defp update_location(nil, content, actor) do
-    with {:ok, location} <- ActivityPub.new(content: content),
+    with {:ok, location} <- ActivityPub.new(type: "Place", content: content),
          {:ok, location} <- ActivityPub.insert(location),
          {:ok, _} <- Alter.add(actor, :location, location),
          do: {:ok, location}

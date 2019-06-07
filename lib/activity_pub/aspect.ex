@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule ActivityPub.Aspect do
   @moduledoc """
   We focus on `Aspects` instead of working directly with ActivityPub _types_. An `Aspect`—a concept we coined as well—is a group of fields and functionality that any `ActivityPub.Entity` can have.
