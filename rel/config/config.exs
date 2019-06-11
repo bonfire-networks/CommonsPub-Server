@@ -23,5 +23,6 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   
 config :moodle_net, :ap_base_url, env.("AP_BASE_URL")
   
-config :moodle_net, :mail_domain, env.("MAIL_DOMAIN")
-config :moodle_net, :mail_key, env.("MAIL_KEY")
+config :moodle_net, MoodleNet.Mailer,
+  domain: env.("MAIL_DOMAIN"),
+  api_key: env.("MAIL_KEY")
