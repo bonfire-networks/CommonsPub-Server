@@ -25,6 +25,15 @@ defmodule ActivityPubWeb.ActivityPubView do
     |> set_public()
   end
 
+  def prepare_embedded(entity) do
+    entity
+    |> Entity.aspects()
+    |> Enum.flat_map(&filter_by_aspect(entity, &1))
+    |> Enum.into(%{})
+    |> Map.delete("likersCount")
+    |> set_type(entity.type)
+  end
+
   defp filter_by_aspect(entity, aspect, conn) do
     fields_name = filter_fields_by_definition(aspect)
 
@@ -35,6 +44,16 @@ defmodule ActivityPubWeb.ActivityPubView do
     |> normalize()
     |> common_fields(entity, conn)
     |> custom_fields(entity, aspect, conn)
+  end
+
+  defp filter_by_aspect(entity, aspect) do
+    fields_name = filter_fields_by_definition(aspect)
+
+    entity
+    |> Map.take(fields_name)
+    |> Enum.concat(Entity.assocs(entity))
+    |> Enum.filter(&filter_by_value/1)
+    |> normalize()
   end
 
   defp common_fields(ret, entity, _conn) do
@@ -63,6 +82,7 @@ defmodule ActivityPubWeb.ActivityPubView do
   defp custom_fields(ret, entity, ActivityPub.CollectionAspect, _conn) do
     ret
     |> Map.put("first", ActivityPub.CollectionPage.id(entity))
+
     # |> Map.delete("items")
   end
 
@@ -108,14 +128,26 @@ defmodule ActivityPubWeb.ActivityPubView do
   defp normalize_value(list) when is_list(list),
     do: Enum.map(list, &normalize_value/1)
 
-  defp normalize_value(entity) when APG.is_entity(entity), do: entity.id
+  defp normalize_value(entity) when APG.is_entity(entity) do
+    case entity.type do
+      ["Object", "Image"] ->
+        prepare_embedded(entity)
+
+      ["Object", "Place"] ->
+        prepare_embedded(entity)
+
+      _ ->
+        entity.id
+    end
+  end
+
   defp normalize_value(value), do: value
 
   defp set_type(json, type), do: Map.put(json, "type", custom_type(type))
 
   defp custom_type(["Object", "Collection"]), do: "Collection"
   defp custom_type(["Object", "Collection", "CollectionPage"]), do: "CollectionPage"
-  defp custom_type(["Object", "Note"]), do: "Note"
+  defp custom_type(["Object", object_type]), do: object_type
   defp custom_type(["Object", "Actor", "Person"]), do: "Person"
   defp custom_type(["Object", "Activity", activity_type]), do: activity_type
 
