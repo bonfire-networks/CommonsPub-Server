@@ -74,6 +74,6 @@ config :moodle_net, MoodleNet.Repo,
   pool_size: 10
 
 config :moodle_net, :ap_base_url,
-  (System.get_env("AP_BASE_URL") || "http://dev.localhost:4000/activity_pub")
+  (System.get_env("AP_BASE_URL") || "http://dev.localhost:4000/")
 config :moodle_net, :frontend_base_url,
   (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")

@@ -99,9 +99,24 @@ defmodule MoodleNetWeb.Router do
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
+
+  pipeline :activity_pub do
+    plug(:accepts, ["activity+json", "json"])
+  end
+
+  scope "/", ActivityPubWeb do
+    pipe_through(:activity_pub)
+
+    get "/:id", ActivityPubController, :show
+    get "/:id/outbox", ActivityPubController, :outbox
+    get "/:id/followers", ActivityPubController, :followers
+    get "/:id/following", ActivityPubController, :following
+    get "/:id/liked", ActivityPubController, :liked
+    get "/:id/page", ActivityPubController, :collection_page
+    post "/shared_inbox", ActivityPubController, :shared_inbox, as: :shared_inbox
+  end
+
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
-
-    forward "/activity_pub", ActivityPubWeb.Router
   end
 end
