@@ -74,6 +74,10 @@ dev-rebuild:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml build --no-cache web
 
 
+dev-rebuild:
+	docker-compose -f docker-compose.dev.yml build --no-cache web
+
+
 dev-deps:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix local.hex --force
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix local.rebar --force
