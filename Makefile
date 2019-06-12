@@ -68,30 +68,33 @@ dev-exports:
 	awk '{print "export " $$0}' config/docker.dev.env
 
 dev-build:
-	docker-compose -f docker-compose.dev.yml build web
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml build web
 
 dev-rebuild:
-	docker-compose -f docker-compose.dev.yml build --no-cache web
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml build --no-cache web
 
 
 dev-deps:
-	docker-compose -f docker-compose.dev.yml run web mix local.hex --force
-	docker-compose -f docker-compose.dev.yml run web mix local.rebar --force
-	docker-compose -f docker-compose.dev.yml run web mix deps.get
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix local.hex --force
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix local.rebar --force
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix deps.get
+
+dev-db-up:
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml up db
 
 dev-db:
-	docker-compose -f docker-compose.dev.yml run web mix ecto.reset
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix ecto.reset
 
 dev-test-db:
-	docker-compose -f docker-compose.dev.yml -e MIX_ENV=test run web mix ecto.reset
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml -e MIX_ENV=test run web mix ecto.reset
 
 dev-test:
-	docker-compose -f docker-compose.dev.yml run web mix test
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix test
 
 dev-setup: dev-deps dev-db
 
 dev:
-	docker-compose -f docker-compose.dev.yml run --service-ports web
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run --service-ports web
 
 manual-deps:
 	mix local.hex --force
