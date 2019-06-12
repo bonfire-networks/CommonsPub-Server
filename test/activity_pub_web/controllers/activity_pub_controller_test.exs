@@ -36,7 +36,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
   ]
 
   test "show", %{conn: conn} do
-    assert get(conn, "/activity_pub/404")
+    assert get(conn, "/404")
            |> response(404)
 
     actor = Factory.actor()
@@ -44,7 +44,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
     
     assert resp["@context"] == @context
@@ -69,7 +69,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(follow_community_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -86,7 +86,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_community_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -100,18 +100,18 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"] == community.followers.id
-    assert resp["following"] == community.following.id
+    assert resp["followers"] == "#{community.id}/followers"
+    assert resp["following"] == "#{community.id}/following"
     assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"] == community.inbox.id
-    assert resp["outbox"] == community.outbox.id
+    assert resp["inbox"] == "#{community.id}/inbox"
+    assert resp["outbox"] == "#{community.id}/outbox"
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
@@ -125,7 +125,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(follow_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -140,7 +140,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -154,19 +154,19 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
     assert resp["context"] == community.id
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"] == collection.followers.id
-    assert resp["following"] == collection.following.id
+    assert resp["followers"] == "#{collection.id}/followers"
+    assert resp["following"] == "#{collection.id}/following"
     assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"] == collection.inbox.id
-    assert resp["outbox"] == collection.outbox.id
+    assert resp["inbox"] == "#{collection.id}/inbox"
+    assert resp["outbox"] == "#{collection.id}/outbox"
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
@@ -180,7 +180,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_resource_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -194,7 +194,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -211,7 +211,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_note_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -225,7 +225,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -242,7 +242,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_reply_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -256,7 +256,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -272,7 +272,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_col_note_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -286,7 +286,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -301,7 +301,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(create_reply_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -315,7 +315,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -330,7 +330,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(like_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -345,7 +345,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(like_resource_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -360,7 +360,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(like_comment_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -376,7 +376,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(update_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -391,7 +391,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(update_resource_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -405,7 +405,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(community.followers)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -432,7 +432,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(undo_like_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -447,7 +447,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(undo_like_resource_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -462,7 +462,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(undo_like_comment_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -478,7 +478,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(undo_follow_collection_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context
@@ -493,7 +493,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     local_id = ActivityPub.local_id(undo_follow_community_act)
     assert resp =
              conn
-             |> get("/activity_pub/#{local_id}")
+             |> get("/#{local_id}")
              |> json_response(200)
 
     assert resp["@context"] == @context

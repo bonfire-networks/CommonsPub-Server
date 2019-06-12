@@ -18,6 +18,7 @@ defmodule ActivityPubWeb.ActivityPubView do
     entity
     |> Entity.aspects()
     |> Enum.flat_map(&filter_by_aspect(entity, &1, conn))
+    |> Enum.map(&fix_ids(entity, &1))
     |> Enum.into(%{})
     |> set_type(entity.type)
     |> set_context()
@@ -79,7 +80,7 @@ defmodule ActivityPubWeb.ActivityPubView do
        when APG.has_type(entity, "CollectionPage"),
        do: ret
 
-  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, conn) do
+  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, _conn) do
     ret
     |> Map.put("first", ActivityPub.CollectionPage.id(entity))
 
@@ -216,4 +217,13 @@ defmodule ActivityPubWeb.ActivityPubView do
     do: Map.put(json, "to", [@public_address | list])
 
   defp add_public_address(json), do: Map.put(json, "to", @public_address)
+
+  defp fix_ids(entity, {key, value}) do
+    if key in ["inbox", "outbox", "followers", "following", "liked"] do
+      value = "#{entity.id}/#{key}"
+      {key, value}
+    else
+      {key, value}
+    end
+  end
 end
