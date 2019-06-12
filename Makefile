@@ -1,4 +1,4 @@
-.PHONY: help dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
+.PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
 APP_NAME ?= `grep 'app:' mix.exs | sed -e 's/\[//g' -e 's/ //g' -e 's/app://' -e 's/[:,]//g'`
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
@@ -64,8 +64,15 @@ push_stable: ## Tag stable, latest and version tags to the last build and push
 	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
+dev-exports:
+	awk '{print "export " $$0}' config/docker.dev.env
+
 dev-build:
 	docker-compose -f docker-compose.dev.yml build web
+
+dev-rebuild:
+	docker-compose -f docker-compose.dev.yml build --no-cache web
+
 
 dev-deps:
 	docker-compose -f docker-compose.dev.yml run web mix local.hex --force
@@ -86,10 +93,17 @@ dev-setup: dev-deps dev-db
 dev:
 	docker-compose -f docker-compose.dev.yml run --service-ports web
 
+manual-deps:
+	mix local.hex --force
+	mix local.rebar --force
+	mix deps.get
+
+manual-db:
+	mix ecto.reset
 
 run: ## Run the app in Docker
 	docker run\
 		--env-file config/docker.env \
 		--expose 4000 -p 4000:4000 \
-		--link postgres \
+		--link db \
 		--rm -it moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
