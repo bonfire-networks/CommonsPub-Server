@@ -46,15 +46,15 @@ defmodule ActivityPub.ActivityPubControllerTest do
              conn
              |> get("/activity_pub/#{local_id}")
              |> json_response(200)
-
+    
     assert resp["@context"] == @context
     assert resp["id"]
     assert resp["type"] == "Person"
     assert resp["followers"]
     assert resp["following"]
-    assert resp["icon"]
     assert resp["liked"]
-    assert resp["location"]
+    assert is_map(resp["icon"])
+    assert is_map(resp["location"])
     assert resp["name"]
     assert resp["inbox"]
     assert resp["outbox"]
@@ -107,7 +107,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     assert resp["attributedTo"] == actor.id
     assert resp["followers"] == community.followers.id
     assert resp["following"] == community.following.id
-    assert resp["icon"]
+    assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
     assert resp["inbox"] == community.inbox.id
@@ -162,7 +162,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
     assert resp["attributedTo"] == actor.id
     assert resp["followers"] == collection.followers.id
     assert resp["following"] == collection.following.id
-    assert resp["icon"]
+    assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
     assert resp["inbox"] == collection.inbox.id
