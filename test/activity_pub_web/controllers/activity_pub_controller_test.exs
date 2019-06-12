@@ -47,7 +47,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
              conn
              |> get("/#{local_id}")
              |> json_response(200)
-    
+
     assert resp["@context"] == @context
     assert resp["id"]
     assert resp["type"] == "Person"
