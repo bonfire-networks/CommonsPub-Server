@@ -36,6 +36,7 @@ make dev
 #### Other useful makefile tasks
 
 - `make dev-build` - rebuild the dev docker image
+- `make dev-rebuild` - `dev-build`, but without caches
 - `make dev-db` - rebuild the development database
 - `make dev-test-db` - rebuild the test database
 - `make dev-test` - run the tests
