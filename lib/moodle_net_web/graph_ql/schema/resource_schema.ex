@@ -79,11 +79,11 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
       do: resolve(Resolver.with_assoc(:context, single: true))
     )
 
-    field :likers, :collection_likers_connection do
+    field :likers, non_null(:resource_likers_connection) do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(Resolver.with_connection(:collection_liker))
+      resolve(Resolver.with_connection(:resource_liker))
     end
 
 
