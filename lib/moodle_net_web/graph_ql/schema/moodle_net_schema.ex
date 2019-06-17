@@ -54,6 +54,12 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   def set_icon(attrs), do: attrs
 
+  def set_image(%{image: url} = attrs) when is_binary(url) do
+    Map.put(attrs, :image, %{type: "Image", url: url})
+  end
+
+  def set_image(attrs), do: attrs
+
   def set_location(%{location: location} = attrs) when is_binary(location) do
     Map.put(attrs, :location, %{type: "Place", content: location})
   end
@@ -171,6 +177,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     |> Map.update!(:url, &List.first/1)
     |> Map.update(:preferred_username, nil, &from_language_value/1)
     |> Map.update(:icon, nil, &to_icon/1)
+    |> Map.update(:image, nil, &to_image/1)
     |> Map.update(:location, nil, &to_location/1)
     |> Map.put(:website, website)
     |> Map.put(:followers_count, count_items(entity, :followers))
@@ -201,6 +208,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   defp to_icon(_), do: nil
+
+  defp to_image([entity | _]) when APG.is_entity(entity) do
+    with [url | _] <- entity[:url] do
+      url
+    else
+      _ -> nil
+    end
+  end
+
+  defp to_image(_), do: nil
 
   defp to_location([entity | _]) when APG.is_entity(entity) do
     with %{} = content <- entity[:content] do

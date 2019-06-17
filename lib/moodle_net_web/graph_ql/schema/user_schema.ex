@@ -24,6 +24,12 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
       arg(:id, non_null(:string))
       resolve(&UserResolver.user/2)
     end
+
+    @desc "Check if a user exists with a username"
+    field :username_available, type: :boolean do
+      arg(:username, non_null(:string))
+      resolve(&UserResolver.check_username_available/2)
+    end
   end
 
   object :user_mutations do
@@ -96,6 +102,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
     field(:primary_language, :string)
 
     field :joined_communities, :user_joined_communities_connection do
@@ -194,6 +201,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
     field(:primary_language, :string)
   end
 
@@ -205,6 +213,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
+    field(:image, :string)
   end
 
   input_object :login_input do

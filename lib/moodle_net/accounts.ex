@@ -8,9 +8,10 @@ defmodule MoodleNet.Accounts do
   User Accounts context
   """
 
+  require Ecto.Query
   alias MoodleNet.Repo
   alias Ecto.Multi
-
+  alias Ecto.Query, as: EQuery
   alias MoodleNet.Accounts.{
     User,
     PasswordAuth,
@@ -19,7 +20,7 @@ defmodule MoodleNet.Accounts do
     WhitelistEmail
   }
 
-  alias MoodleNet.{Mailer, Email}
+  alias MoodleNet.{Mailer, Email, Token, Gravatar}
 
   alias ActivityPub.SQL.{Alter, Query}
 
@@ -43,6 +44,7 @@ defmodule MoodleNet.Accounts do
       |> Map.delete(:password)
       |> Map.delete("password")
       |> set_default_icon()
+      |> set_default_image()
 
     password = attrs[:password] || attrs["password"]
 
@@ -75,23 +77,38 @@ defmodule MoodleNet.Accounts do
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
+    {image_url, changes} = Map.pop(changes, :image)
     {location_content, changes} = Map.pop(changes, :location)
     {website, changes} = Map.pop(changes, :website)
     icon = Query.new() |> Query.belongs_to(:icon, actor) |> Query.one()
+    image = Query.new() |> Query.belongs_to(:image, actor) |> Query.one()
     location = Query.new() |> Query.belongs_to(:location, actor) |> Query.one()
     attachment = Query.new() |> Query.belongs_to(:attachment, actor) |> Query.one()
 
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
+         {:ok, _image} <- update_image(image, image_url, actor),
          {:ok, _location} <- update_location(location, location_content, actor),
          {:ok, _attachment} <- update_attachment(attachment, website, actor),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
       # FIXME
       actor =
         ActivityPub.reload(actor)
-        |> Query.preload_assoc([:icon, :location, :attachment])
+        |> Query.preload_assoc([:icon, :image, :location, :attachment])
 
       {:ok, actor}
+    end
+  end
+
+  defp update_image(image, url, actor) do
+    case image do
+      nil ->
+        with {:ok, image} <- ActivityPub.new(type: "Image", url: url),
+             {:ok, image} <- ActivityPub.insert(image),
+             {:ok, _} <- Alter.add(actor, :image, image),
+             do: {:ok, image}
+      image ->
+        ActivityPub.update(image, url: url)
     end
   end
 
@@ -187,7 +204,7 @@ defmodule MoodleNet.Accounts do
   end
 
   defp renew_reset_password_token(user) do
-    changeset = MoodleNet.Accounts.ResetPasswordToken.build_changeset(user)
+    changeset = ResetPasswordToken.build_changeset(user)
     opts = [returning: true, on_conflict: :replace_all, conflict_target: :user_id]
     Repo.insert(changeset, opts)
   end
@@ -218,7 +235,7 @@ defmodule MoodleNet.Accounts do
   end
 
   defp get_reset_password_token(full_token) do
-    with {:ok, {user_id, _}} <- MoodleNet.Token.split_id_and_token(full_token),
+    with {:ok, {user_id, _}} <- Token.split_id_and_token(full_token),
          ret = %{token: rp_token} <- Repo.get_by(ResetPasswordToken, user_id: user_id),
          false <- expired_token?(ret),
          ^full_token <- rp_token do
@@ -226,6 +243,15 @@ defmodule MoodleNet.Accounts do
     else
       _ -> {:error, {:not_found, full_token, "Token"}}
     end
+  end
+
+  def is_username_available?(username) do
+    ret =
+      "activity_pub_actor_aspects"
+      |> EQuery.where([a], a.preferred_username == ^username)
+      |> Repo.aggregate(:count, :local_id)
+
+    ret == 0
   end
 
   @two_days 60 * 60 * 24 * 2
@@ -246,7 +272,7 @@ defmodule MoodleNet.Accounts do
   end
 
   defp get_email_confirmation_token(full_token) do
-    with {:ok, {user_id, _}} <- MoodleNet.Token.split_id_and_token(full_token),
+    with {:ok, {user_id, _}} <- Token.split_id_and_token(full_token),
          ret = %{token: ec_token} <- Repo.get_by(EmailConfirmationToken, user_id: user_id),
          ^full_token <- ec_token do
       {:ok, ret}
@@ -273,9 +299,16 @@ defmodule MoodleNet.Accounts do
 
   defp set_default_icon(attrs) do
     if email = attrs["email"] || attrs[:email] do
-      Map.put(attrs, :icon, %{type: "Image", url: MoodleNet.Gravatar.url(email)})
+      Map.put(attrs, :icon, %{type: "Image", url: Gravatar.url(email)})
     else
       attrs
     end
+  end
+
+  defp set_default_image(%{image: _} = attrs), do: attrs
+
+  @default_image "https://images.unsplash.com/photo-1557943978-bea7e84f0e87?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"
+  defp set_default_image(attrs) do
+    Map.put(attrs, :image, %{type: "Image", url: @default_image})
   end
 end
