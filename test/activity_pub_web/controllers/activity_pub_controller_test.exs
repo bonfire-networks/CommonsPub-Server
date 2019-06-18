@@ -41,6 +41,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     actor = Factory.actor()
     local_id = ActivityPub.local_id(actor)
+    base_url = ActivityPub.UrlBuilder.base_url()
 
     assert resp =
              conn
@@ -105,13 +106,13 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
     assert resp["@context"] == @context
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"] == "#{community.id}/followers"
-    assert resp["following"] == "#{community.id}/following"
+    assert resp["followers"] == "#{base_url}/actors/#{local_id}/followers"
+    assert resp["following"] == "#{base_url}/actors/#{local_id}/following"
     assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"] == "#{community.id}/inbox"
-    assert resp["outbox"] == "#{community.id}/outbox"
+    assert resp["inbox"] == "#{base_url}/actors/#{local_id}/inbox"
+    assert resp["outbox"] == "#{base_url}/actors/#{local_id}/outbox"
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
@@ -160,13 +161,13 @@ defmodule ActivityPub.ActivityPubControllerTest do
     assert resp["@context"] == @context
     assert resp["context"] == community.id
     assert resp["attributedTo"] == actor.id
-    assert resp["followers"] == "#{collection.id}/followers"
-    assert resp["following"] == "#{collection.id}/following"
+    assert resp["followers"] == "#{base_url}/actors/#{local_id}/followers"
+    assert resp["following"] == "#{base_url}/actors/#{local_id}/following"
     assert is_map(resp["icon"])
     assert resp["liked"]
     assert resp["name"]
-    assert resp["inbox"] == "#{collection.id}/inbox"
-    assert resp["outbox"] == "#{collection.id}/outbox"
+    assert resp["inbox"] == "#{base_url}/actors/#{local_id}/inbox"
+    assert resp["outbox"] == "#{base_url}/actors/#{local_id}/outbox"
     assert resp["endpoints"]["sharedInbox"]
     assert resp["preferredUsername"]
     assert resp["summary"]
@@ -409,7 +410,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
              |> json_response(200)
 
     assert resp["@context"] == @context
-    assert resp["id"] == community.followers.id
+    assert resp["id"] == "#{base_url}/objects/#{local_id}"
     assert resp["type"] == "Collection"
     assert resp["first"]
     refute resp["items"]
