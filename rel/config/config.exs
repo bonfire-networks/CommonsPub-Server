@@ -25,7 +25,11 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 config :moodle_net, :ap_base_url, env.("AP_BASE_URL")
 
 config :moodle_net, :frontend_base_url, env.("FRONTEND_BASE_URL")
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> Require envvar: FRONTEND_BASE_URL
 config :moodle_net, MoodleNet.Mailer,
   domain: env.("MAIL_DOMAIN"),
   api_key: env.("MAIL_KEY")
