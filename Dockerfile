@@ -45,7 +45,7 @@ RUN npm run-script deploy
 ##################3
 FROM deps-getter as builder
 
-ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
+ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod APPSIGNAL_BUILD_FOR_MUSL=1
 
 WORKDIR $HOME
 

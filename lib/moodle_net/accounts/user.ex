@@ -5,6 +5,7 @@
 
 defmodule MoodleNet.Accounts.User do
   use Ecto.Schema
+  alias Ecto.Changeset
 
   schema "accounts_users" do
     field(:email, :string)
@@ -20,39 +21,39 @@ defmodule MoodleNet.Accounts.User do
     actor_id = ActivityPub.Entity.local_id(actor)
 
     %__MODULE__{}
-    |> Ecto.Changeset.cast(attrs, [:email])
-    |> Ecto.Changeset.validate_format(:email, ~r/.+\@.+\..+/)
-    # |> Ecto.Changeset.put_assoc(:primary_actor, actor)
-    |> Ecto.Changeset.change(actor: actor, actor_id: actor_id)
-    |> Ecto.Changeset.validate_required([:actor_id, :email])
-    |> Ecto.Changeset.unique_constraint(:email)
+    |> Changeset.cast(attrs, [:email])
+    |> Changeset.validate_format(:email, ~r/.+\@.+\..+/)
+    # |> Changeset.put_assoc(:primary_actor, actor)
+    |> Changeset.change(actor: actor, actor_id: actor_id)
+    |> Changeset.validate_required([:actor_id, :email])
+    |> Changeset.unique_constraint(:email)
     |> lower_case_email()
     |> whitelist_email()
   end
 
-  defp lower_case_email(%Ecto.Changeset{valid?: false} = ch), do: ch
+  defp lower_case_email(%Changeset{valid?: false} = ch), do: ch
 
-  defp lower_case_email(%Ecto.Changeset{} = ch) do
-    {_, email} = Ecto.Changeset.fetch_field(ch, :email)
-    Ecto.Changeset.change(ch, email: String.downcase(email))
+  defp lower_case_email(%Changeset{} = ch) do
+    {_, email} = Changeset.fetch_field(ch, :email)
+    Changeset.change(ch, email: String.downcase(email))
   end
 
-  defp whitelist_email(%Ecto.Changeset{valid?: false} = ch), do: ch
+  defp whitelist_email(%Changeset{valid?: false} = ch), do: ch
 
-  defp whitelist_email(%Ecto.Changeset{} = ch) do
-    {_, email} = Ecto.Changeset.fetch_field(ch, :email)
+  defp whitelist_email(%Changeset{} = ch) do
+    {_, email} = Changeset.fetch_field(ch, :email)
 
     if MoodleNet.Accounts.is_email_in_whitelist?(email) do
       ch
     else
-      Ecto.Changeset.add_error(ch, :email, "You cannot register with this email address",
+      Changeset.add_error(ch, :email, "You cannot register with this email address",
         validation: "inclusion"
       )
     end
   end
 
   def confirm_email_changeset(%__MODULE__{} = user) do
-    Ecto.Changeset.change(user, confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second))
+    Changeset.change(user, confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
   def name(%__MODULE__{} = user) do

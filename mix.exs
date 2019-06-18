@@ -5,7 +5,7 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.9.4-dev.2", # current MoodleNet Server version
+      version: "0.9.4-dev.4", # current MoodleNet Server version
       elixir: "~> 1.7", # required version of Elixir
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -26,7 +26,9 @@ defmodule MoodleNet.Mixfile do
   # Configuration for the OTP application.
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {MoodleNet.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
+    [mod: {MoodleNet.Application, []},
+     extra_applications: [:logger, :runtime_tools, :comeonin]
+    ]
   end
 
   # Specifies which paths to compile per environment.
