@@ -45,7 +45,7 @@ defmodule MoodleNet.Email do
 
   defp reset_password_url(token) do
     MoodleNetWeb.Endpoint.struct_url()
-    |> Map.put(:path, "/reset_password?token=#{token}")
+    |> Map.put(:path, "/reset/#{token}")
     |> URI.to_string()
   end
 end
