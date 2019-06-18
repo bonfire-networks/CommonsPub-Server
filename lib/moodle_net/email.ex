@@ -38,18 +38,13 @@ defmodule MoodleNet.Email do
   end
 
   defp email_confirmation_url(_id, token),
-    do: frontend_url("/confirm-email/#{token}")
+    do: frontend_url("confirm-email/#{token}")
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
 
   # Note that the base url is expected to end with a slash (/)
   defp frontend_url(path) do
     Application.fetch_env!(:moodle_net, :frontend_base_url) <> path
-
-  defp reset_password_url(token) do
-    MoodleNetWeb.Endpoint.struct_url()
-    |> Map.put(:path, "/reset/#{token}")
-    |> URI.to_string()
   end
 
 end
