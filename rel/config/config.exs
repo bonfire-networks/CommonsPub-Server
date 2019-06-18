@@ -14,7 +14,7 @@ config :moodle_net, MoodleNet.Repo,
   hostname: env.("DATABASE_HOST"),
   pool_size: 15
   
-port = String.to_integer(env.("PORT") || "8080")
+port = String.to_integer(System.get_env("PORT") || "8080")
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [port: port],
   url: [host: env.("HOSTNAME"), port: port],
@@ -22,6 +22,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   secret_key_base: env.("SECRET_KEY_BASE")
   
 config :moodle_net, :ap_base_url, env.("AP_BASE_URL")
+config :moodle_net, :frontend_base_url, env.("FRONTEND_BASE_URL")
   
 config :moodle_net, MoodleNet.Mailer,
   domain: env.("MAIL_DOMAIN"),
