@@ -45,6 +45,11 @@ defmodule MoodleNet.Email do
   # Note that the base url is expected to end with a slash (/)
   defp frontend_url(path) do
     Application.fetch_env!(:moodle_net, :frontend_base_url) <> path
+
+  defp reset_password_url(token) do
+    MoodleNetWeb.Endpoint.struct_url()
+    |> Map.put(:path, "/reset/#{token}")
+    |> URI.to_string()
   end
 
 end
