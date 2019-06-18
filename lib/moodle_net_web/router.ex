@@ -108,10 +108,14 @@ defmodule MoodleNetWeb.Router do
     pipe_through(:activity_pub)
 
     get "/:id", ActivityPubController, :show
-    get "/:id/outbox", ActivityPubController, :outbox
-    get "/:id/followers", ActivityPubController, :followers
-    get "/:id/following", ActivityPubController, :following
-    get "/:id/liked", ActivityPubController, :liked
+    get "/objects/:id", ActivityPubController, :show
+    get "/activities/:id", ActivityPubController, :show
+    get "/actors/:id", ActivityPubController, :show
+    #TODO: Pagination for user collections
+    get "/actors/:id/outbox", ActivityPubController, :outbox
+    get "/actors/:id/followers", ActivityPubController, :followers
+    get "/actors/:id/following", ActivityPubController, :following
+    get "/actors/:id/liked", ActivityPubController, :liked
     get "/:id/page", ActivityPubController, :collection_page
     post "/shared_inbox", ActivityPubController, :shared_inbox, as: :shared_inbox
   end
