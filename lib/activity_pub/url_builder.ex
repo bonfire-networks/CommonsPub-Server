@@ -7,7 +7,7 @@ defmodule ActivityPub.UrlBuilder do
   @moduledoc """
   This module manages ActivityPub ID.
   """
-  defp base_url() do
+  def base_url() do
     Application.get_env(:moodle_net, :ap_base_url) || MoodleNetWeb.base_url()
   end
 
@@ -46,7 +46,13 @@ defmodule ActivityPub.UrlBuilder do
       uri_id.port == uri_base.port
   end
 
-  defp truncate_base_path(nil, uri_id_path), do: {:ok, uri_id_path}
+  defp truncate_base_path(nil, uri_id_path) do
+    if String.starts_with?(uri_id_path, "/") do
+      {:ok, String.trim_leading(uri_id_path, "/")}
+    else
+      {:ok, uri_id_path}
+    end
+  end
 
   defp truncate_base_path(base, path_id) do
     base = append_bar_if_needed(base)
