@@ -68,7 +68,8 @@ defmodule MoodleNet.Accounts do
     |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
       email =
         Email.welcome(user, token.token)
-        |> Mailer.deliver_later()
+        # TODO: Properly implement welcome emails
+        # |> Mailer.deliver_later()
 
       {:ok, email}
     end)
