@@ -129,14 +129,14 @@ defmodule MoodleNet.Accounts do
   defp update_location(location, content, _) do
     ActivityPub.update(location, content: content)
   end
-  
+
   defp update_attachment(nil, nil, _), do: {:ok, nil}
 
   defp update_attachment(attachment, nil, _) do
     ActivityPub.delete(attachment)
     {:ok, nil}
   end
-    
+
   defp update_attachment(nil, changes, actor) do
     with {:ok, attachment} <- ActivityPub.new(%{
         name: "Website",
@@ -248,7 +248,10 @@ defmodule MoodleNet.Accounts do
   def is_username_available?(username) do
     ret =
       "activity_pub_actor_aspects"
-      |> EQuery.where([a], a.preferred_username == ^username)
+      |> EQuery.where(
+        [a],
+        fragment("lower(?)", a.preferred_username) == fragment("lower(?)", ^username)
+      )
       |> Repo.aggregate(:count, :local_id)
 
     ret == 0
