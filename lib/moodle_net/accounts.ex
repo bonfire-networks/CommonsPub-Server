@@ -72,16 +72,24 @@ defmodule MoodleNet.Accounts do
   end
 
   defp register_actor_attrs(attrs) do
-    attrs =
-      attrs
-      |> Map.put("type", "Person")
-      |> Map.delete(:password)
-      |> Map.delete("password")
-      |> set_default_icon()
-      |> set_default_image()
-      |> validate_username(Map.get(attrs, "preferred_username"))
-    end
+    attrs
+    |> Map.put("type", "Person")
+    |> Map.delete(:password)
+    |> Map.delete("password")
+    |> set_default_icon()
+    |> set_default_image()
+    |> validate_username()
   end
+
+  # This may be a bit of a hack because i have no idea where this
+  # validation and processing really belongs
+  defp validate_username(attrs),
+    do: validate_username(attrs, Map.get(attrs, "preferred_username"))
+
+  defp validate_username(attrs, nil), do: {:ok, attrs}
+
+  defp validate_username(_attrs, username) when not is_binary(username),
+    do: {:error, {:invalid_username, username}}
 
   # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
   defp validate_username(attrs, nil), do: {:ok, attrs}
