@@ -72,36 +72,39 @@ defmodule MoodleNet.Accounts do
   end
 
   defp register_actor_attrs(attrs) do
-    attrs =
-      attrs
-      |> Map.put("type", "Person")
-      |> Map.delete(:password)
-      |> Map.delete("password")
-      |> set_default_icon()
-      |> set_default_image()
-    username = Map.get(attrs, "preferred_username")
-
-    cond do
-      is_nil(username) -> {:ok, attrs}
-      valid_username?(username) -> {:ok, attrs}
-      true -> {:error, {:invalid_username, username}}
-    end
+    attrs
+    |> Map.put("type", "Person")
+    |> Map.delete(:password)
+    |> Map.delete("password")
+    |> set_default_icon()
+    |> set_default_image()
+    |> validate_username()
   end
 
-  # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
-  defp valid_username?(username) when is_binary(username),
-    do: Regex.match?(~r(^[a-z0-9]{3,16}$), username)
-  defp valid_username?(_username), do: false
+  # This may be a bit of a hack because i have no idea where this
+  # validation and processing really belongs
+  defp validate_username(attrs),
+    do: validate_username(attrs, Map.get(attrs, "preferred_username"))
 
-  # defp normalise_username(username) do
-  #   name = String.downcase(Regex.replace(~r([^a-zA-Z0-9]+), username, ""))
-  #   size = byte_size(name) # because of the alphabet, chars are 1 byte
-  #   cond do
-  #     size < 3 -> {:error, :username_too_short}
-  #     size > 16 -> {:error, :username_too_long}
-  #     true -> {:ok, name}
-  #   end
-  # end
+  defp validate_username(attrs, nil), do: {:ok, attrs}
+
+  defp validate_username(_attrs, username) when not is_binary(username),
+    do: {:error, {:invalid_username, username}}
+
+  # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
+  defp validate_username(attrs, username) do
+    if not Regex.match?(~r(^[a-z0-9]{3,16}$), username),
+      do: {:error, {:invalid_username, username}},
+      else: {:ok, attrs}
+    # if we move back to doing the transformation, replace body with this:
+    # name = String.downcase(Regex.replace(~r([^a-zA-Z0-9]+), username, ""))
+    # size = byte_size(name) # because of the alphabet, chars are 1 byte
+    # cond do
+    #   size < 3 -> {:error, :username_too_short}
+    #   size > 16 -> {:error, :username_too_long}
+    #   true -> {:ok, Map.put(attrs, "preferred_username", name)}
+    # end
+  end
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
