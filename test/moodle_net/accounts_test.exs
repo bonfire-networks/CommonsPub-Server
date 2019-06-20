@@ -92,6 +92,30 @@ defmodule MoodleNet.AccountsTest do
       assert {:ok, ret} = Accounts.register_user(attrs)
       assert ret.user.email == email
     end
+
+    test "fails with invalid username" do
+      icon_attrs = Factory.attributes(:image)
+      image_attrs = Factory.attributes(:image)
+
+      attrs =
+        Factory.attributes(:user)
+        |> Map.put("icon", icon_attrs)
+        |> Map.put("image", image_attrs)
+        |> Map.put("extra_field", "extra")
+
+      Accounts.add_email_to_whitelist(attrs["email"])
+
+      for bad <- ["ABC", "ab", "abcdefghijklmnopq", "a_b", "a-b", "a+b", "a*b"] do
+        attrs = Map.put(attrs, "preferred_username", bad)
+
+	# we currently don't bother with validation for the availability check
+	assert true == Accounts.is_username_available?(bad)
+
+	assert {:error, {:invalid_username, bad}} == Accounts.register_user(attrs)
+      end
+
+    end
+
   end
 
   describe "update_user/2" do

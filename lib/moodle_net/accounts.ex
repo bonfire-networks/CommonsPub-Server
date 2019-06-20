@@ -38,43 +38,75 @@ defmodule MoodleNet.Accounts do
   """
   def register_user(attrs \\ %{}) do
     # FIXME this should be a only one transaction
-    actor_attrs =
-      attrs
-      |> Map.put("type", "Person")
-      |> Map.delete(:password)
-      |> Map.delete("password")
-      |> set_default_icon()
-      |> set_default_image()
+    with {:ok, actor_attrs} <- register_actor_attrs(attrs) do
 
-    password = attrs[:password] || attrs["password"]
+      password = attrs[:password] || attrs["password"]
 
-    Multi.new()
-    |> Multi.run(:new_actor, fn _, _ -> ActivityPub.new(actor_attrs) end)
-    |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
-      ActivityPub.insert(new_actor, repo)
-    end)
-    |> Multi.run(:user, fn repo, %{actor: actor} ->
-      User.changeset(actor, attrs)
-      |> repo.insert()
-    end)
-    |> Multi.run(
-      :password_auth,
-      &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
-    )
-    |> Multi.run(
-      :email_confirmation_token,
-      &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
-    )
-    |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
-      email =
-        Email.welcome(user, token.token)
-        # TODO: Properly implement welcome emails
-        # |> Mailer.deliver_later()
+      Multi.new()
+      |> Multi.run(:new_actor, fn _, _ -> ActivityPub.new(actor_attrs) end)
+      |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
+        ActivityPub.insert(new_actor, repo)
+      end)
+      |> Multi.run(:user, fn repo, %{actor: actor} ->
+        User.changeset(actor, attrs)
+        |> repo.insert()
+      end)
+      |> Multi.run(
+        :password_auth,
+        &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
+      )
+      |> Multi.run(
+        :email_confirmation_token,
+        &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
+      )
+      |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
+        email =
+          Email.welcome(user, token.token)
+          # TODO: Properly implement welcome emails
+          # |> Mailer.deliver_later()
 
-      {:ok, email}
-    end)
-    |> Repo.transaction()
+        {:ok, email}
+      end)
+      |> Repo.transaction()
+    end
   end
+
+  defp register_actor_attrs(attrs) do
+    attrs
+    |> Map.put("type", "Person")
+    |> Map.delete(:password)
+    |> Map.delete("password")
+    |> set_default_icon()
+    |> set_default_image()
+    |> validate_username()
+  end
+
+  # This may be a bit of a hack because i have no idea where this
+  # validation and processing really belongs
+  defp validate_username(attrs),
+    do: validate_username(attrs, Map.get(attrs, "preferred_username"))
+
+  defp validate_username(attrs, nil), do: {:ok, attrs}
+
+  defp validate_username(_attrs, username) when not is_binary(username),
+    do: {:error, {:invalid_username, username}}
+
+  # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
+  defp validate_username(attrs, username) do
+    if not Regex.match?(~r(^[a-z0-9]{3,16}$), username),
+      do: {:error, {:invalid_username, username}},
+      else: {:ok, attrs}
+    # if we move back to doing the transformation, replace body with this:
+    # name = String.downcase(Regex.replace(~r([^a-zA-Z0-9]+), username, ""))
+    # size = byte_size(name) # because of the alphabet, chars are 1 byte
+    # cond do
+    #   size < 3 -> {:error, :username_too_short}
+    #   size > 16 -> {:error, :username_too_long}
+    #   true -> {:ok, Map.put(attrs, "preferred_username", name)}
+    # end
+  end
+
+
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
