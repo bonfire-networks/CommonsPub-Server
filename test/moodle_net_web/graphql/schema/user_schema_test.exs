@@ -561,13 +561,14 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert cursor_b > cursor_a
   end
 
+  @doc "TODO: Write better tests for changing the username"
+
   @tag :user
   test "update profile", %{conn: conn, actor: actor} do
     query = """
       mutation {
         updateProfile(
           profile: {
-            preferredUsername: "alexcastano"
             name: "Alejandro Castaño"
             summary: "Summary"
             location: "MoodleNet"
@@ -605,7 +606,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
 
     assert me["email"] == actor["email"]
     assert user = me["user"]
-    assert user["preferredUsername"] == "alexcastano"
+    assert user["preferredUsername"] == actor.preferred_username
     assert user["name"] == "Alejandro Castaño"
     assert user["summary"] == "Summary"
     assert user["primaryLanguage"] == "Elixir"

@@ -38,58 +38,87 @@ defmodule MoodleNet.Accounts do
   """
   def register_user(attrs \\ %{}) do
     # FIXME this should be a only one transaction
-    actor_attrs =
+    with {:ok, actor_attrs} <- register_actor_attrs(attrs) do
+
+      password = attrs[:password] || attrs["password"]
+
+      Multi.new()
+      |> Multi.run(:new_actor, fn _, _ -> ActivityPub.new(actor_attrs) end)
+      |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
+        ActivityPub.insert(new_actor, repo)
+      end)
+      |> Multi.run(:user, fn repo, %{actor: actor} ->
+        User.changeset(actor, attrs)
+        |> repo.insert()
+      end)
+      |> Multi.run(
+        :password_auth,
+        &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
+      )
+      |> Multi.run(
+        :email_confirmation_token,
+        &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
+      )
+      |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
+        email =
+          Email.welcome(user, token.token)
+          # TODO: Properly implement welcome emails
+          # |> Mailer.deliver_later()
+
+        {:ok, email}
+      end)
+      |> Repo.transaction()
+    end
+  end
+
+  defp register_actor_attrs(attrs) do
+    attrs =
       attrs
       |> Map.put("type", "Person")
       |> Map.delete(:password)
       |> Map.delete("password")
       |> set_default_icon()
       |> set_default_image()
+    username = Map.get(attrs, "preferred_username")
 
-    password = attrs[:password] || attrs["password"]
-
-    Multi.new()
-    |> Multi.run(:new_actor, fn _, _ -> ActivityPub.new(actor_attrs) end)
-    |> Multi.run(:actor, fn repo, %{new_actor: new_actor} ->
-      ActivityPub.insert(new_actor, repo)
-    end)
-    |> Multi.run(:user, fn repo, %{actor: actor} ->
-      User.changeset(actor, attrs)
-      |> repo.insert()
-    end)
-    |> Multi.run(
-      :password_auth,
-      &(PasswordAuth.create_changeset(&2.user.id, password) |> &1.insert())
-    )
-    |> Multi.run(
-      :email_confirmation_token,
-      &(EmailConfirmationToken.build_changeset(&2.user.id) |> &1.insert())
-    )
-    |> Multi.run(:email, fn _, %{user: user, email_confirmation_token: token} ->
-      email =
-        Email.welcome(user, token.token)
-        |> Mailer.deliver_later()
-
-      {:ok, email}
-    end)
-    |> Repo.transaction()
+    cond do
+      is_nil(username) -> {:ok, attrs}
+      valid_username?(username) -> {:ok, attrs}
+      true -> {:error, {:invalid_username, username}}
+    end
   end
+
+  # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
+  defp valid_username?(username) when is_binary(username),
+    do: Regex.match?(~r(^[a-z0-9]{3,16}$), username)
+  defp valid_username?(username), do: false
+
+  # defp normalise_username(username) do
+  #   name = String.downcase(Regex.replace(~r([^a-zA-Z0-9]+), username, ""))
+  #   size = byte_size(name) # because of the alphabet, chars are 1 byte
+  #   cond do
+  #     size < 3 -> {:error, :username_too_short}
+  #     size > 16 -> {:error, :username_too_long}
+  #     true -> {:ok, name}
+  #   end
+  # end
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
     {image_url, changes} = Map.pop(changes, :image)
     {location_content, changes} = Map.pop(changes, :location)
     {website, changes} = Map.pop(changes, :website)
+    {username, changes} = Map.pop(changes, :preferred_username)
     icon = Query.new() |> Query.belongs_to(:icon, actor) |> Query.one()
     image = Query.new() |> Query.belongs_to(:image, actor) |> Query.one()
     location = Query.new() |> Query.belongs_to(:location, actor) |> Query.one()
     attachment = Query.new() |> Query.belongs_to(:attachment, actor) |> Query.one()
-
     # FIXME this should be a transaction
     with {:ok, _icon} <- ActivityPub.update(icon, url: icon_url),
          {:ok, _image} <- update_image(image, image_url, actor),
          {:ok, _location} <- update_location(location, location_content, actor),
          {:ok, _attachment} <- update_attachment(attachment, website, actor),
+         {:ok, changes} <- update_username(actor, username, changes),
          {:ok, actor} <- ActivityPub.update(actor, changes) do
       # FIXME
       actor =
@@ -97,6 +126,18 @@ defmodule MoodleNet.Accounts do
         |> Query.preload_assoc([:icon, :image, :location, :attachment])
 
       {:ok, actor}
+    end
+  end
+
+  defp update_username(actor, username, changes) do
+    existing = Map.get(actor, :preferred_username)
+    cond do
+      is_nil(username) -> {:ok, changes}
+      existing == username -> {:ok, changes}
+      not is_nil(existing) -> {:error, :usernames_may_not_be_changed}
+      not valid_username?(username) -> {:error, {:invalid_username, username}}
+      not is_username_available?(username) -> {:error, :username_not_available}
+      true -> {:ok, Map.put(changes, :preferred_username, username)}
     end
   end
 
