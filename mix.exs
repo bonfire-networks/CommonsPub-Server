@@ -66,6 +66,7 @@ defmodule MoodleNet.Mixfile do
       {:sentry, "~> 7.1"},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:tesla, "~> 1.2"}
     ]
   end
 
