@@ -230,7 +230,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     base_id = entity.id
               |> String.split("/")
               |> List.last()
-    id = case entity.type do
+    case entity.type do
       ["Object"] -> "#{base_url}/objects/#{base_id}"
       ["Object", "Actor"] -> "#{base_url}/actors/#{base_id}"
       ["Object", "Actor", _] -> "#{base_url}/actors/#{base_id}"
