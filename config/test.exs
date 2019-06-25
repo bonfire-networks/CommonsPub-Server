@@ -29,3 +29,5 @@ config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.TestAdapter
 
 config :moodle_net, :ap_base_url, "http://localhost:4001"
+
+config :tesla, adapter: Tesla.Mock

@@ -128,6 +128,7 @@ defmodule MoodleNet.Mixfile do
       {:appsignal, "~> 1.0"},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:tesla, "~> 1.2"}
     ]
   end
 
