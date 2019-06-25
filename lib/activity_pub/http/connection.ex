@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.HTTP.Connection do
+  @moduledoc """
+  Specifies connection options for HTTP requests
+  """
+
   @hackney_options [
     connect_timeout: 10_000,
     recv_timeout: 20_000,

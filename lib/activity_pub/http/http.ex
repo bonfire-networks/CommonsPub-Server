@@ -68,6 +68,5 @@ defmodule ActivityPub.HTTP do
 
   see ActivityPub.HTTP.request/5
   """
-  def get(url, headers \\ [], options \\ []), do:
-    request(:get, url, "", headers, options)
+  def get(url, headers \\ [], options \\ []), do: request(:get, url, "", headers, options)
 end
