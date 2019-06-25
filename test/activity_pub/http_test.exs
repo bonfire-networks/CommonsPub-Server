@@ -29,7 +29,9 @@ defmodule ActivityPub.HTTPTest do
 
   describe "get/2 (with headers)" do
     test "returns successfully result for json content-type" do
-      assert ActivityPub.HTTP.get("http://example.com/hello", [{"content-type", "application/json"}]) ==
+      assert ActivityPub.HTTP.get("http://example.com/hello", [
+               {"content-type", "application/json"}
+             ]) ==
                {
                  :ok,
                  %Tesla.Env{

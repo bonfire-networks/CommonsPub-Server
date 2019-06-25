@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.HTTP.RequestBuilder do
+  @moduledoc """
+  Helper functions for building HTTP requests
+  """
+
   def method(request, m) do
     Map.put_new(request, :method, m)
   end
