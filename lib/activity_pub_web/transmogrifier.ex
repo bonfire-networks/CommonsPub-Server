@@ -214,9 +214,9 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp add_public_address(json), do: Map.put(json, "to", @public_address)
 
-  @endpoint_types ["inbox", "outbox", "followers", "following", "liked"]
+  @collection_types ["inbox", "outbox", "followers", "following", "liked", "likes"]
   defp fix_ids(entity, {key, value}) do
-    if key in @endpoint_types do
+    if key in @collection_types do
       id = set_id(entity)
       value = "#{id}/#{key}"
       {key, value}
