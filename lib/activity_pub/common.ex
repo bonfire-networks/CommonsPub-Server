@@ -8,8 +8,9 @@ defmodule ActivityPub.SQL.Common do
 
   import ActivityPub.Guards
 
-  def local_id(%ActivityPub.SQL.AssociationNotLoaded{}=thing),
-    do: Map.get(thing, :local_id)
+  def local_id(%ActivityPub.SQL.AssociationNotLoaded{local_id: local_id})
+       when not is_nil(local_id),
+       do: local_id
 
   def local_id(entity) when has_local_id(entity),
     do: Entity.local_id(entity)
