@@ -35,6 +35,7 @@ defmodule ActivityPubWeb.ActivityPubController do
   end
 
   #FIXME: these might be possible with only one SQL query returning the result from the base entity
+  #FIXME: Rework AP pagination  
   def outbox(conn, %{"id" => id}) do
     id = String.to_integer(id)
 
@@ -117,6 +118,28 @@ defmodule ActivityPubWeb.ActivityPubController do
           |> Query.preload_assoc(:all)
 
         render(conn, "show.json", entity: liked_entity)
+
+      _ ->
+        send_resp(conn, :not_found, "")
+    end
+  end
+
+  def likes(conn, %{"id" => id}) do
+    id = String.to_integer(id)
+
+    case ActivityPub.get_by_local_id(id) do
+      entity when is_local(entity) ->
+        entity =
+          entity
+          |> Query.preload_aspect(:object)
+          |> Query.preload_assoc(:likes)
+
+        likes_entity =
+          ActivityPub.get_by_id(entity.likes.id)
+          |> Query.preload_aspect(:all)
+          |> Query.preload_assoc(:all)
+
+        render(conn, "show.json", entity: likes_entity)
 
       _ ->
         send_resp(conn, :not_found, "")

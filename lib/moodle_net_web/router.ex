@@ -112,11 +112,12 @@ defmodule MoodleNetWeb.Router do
     get "/objects/:id", ActivityPubController, :show
     get "/activities/:id", ActivityPubController, :show
     get "/actors/:id", ActivityPubController, :show
-    #TODO: Pagination for user collections
+    #TODO: Pagination for collections
     get "/actors/:id/outbox", ActivityPubController, :outbox
     get "/actors/:id/followers", ActivityPubController, :followers
     get "/actors/:id/following", ActivityPubController, :following
     get "/actors/:id/liked", ActivityPubController, :liked
+    get "/objects/:id/likes", ActivityPubController, :likes
     get "/:id/page", ActivityPubController, :collection_page
     post "/shared_inbox", ActivityPubController, :shared_inbox, as: :shared_inbox
   end
