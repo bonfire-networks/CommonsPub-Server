@@ -73,6 +73,12 @@ defmodule ActivityPubWeb.ActivityPubView do
     Map.put(ret, "endpoints", endpoints)
   end
 
+  defp extension_fields(entity) do
+    entity
+    |> Entity.extension_fields()
+    |> Enum.filter(&filter_by_value/1)
+    |> Enum.map(&normalize_value/1)
+
   # FIXME this can be calculated in compilation time :)
   defp filter_fields_by_definition(aspect) do
     aspect.__aspect__(:fields)
