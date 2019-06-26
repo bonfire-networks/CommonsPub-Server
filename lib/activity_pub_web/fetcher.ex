@@ -24,6 +24,8 @@ defmodule ActivityPubWeb.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id) do
         {:ok, data}
+      else
+        e -> {:error, e}
       end
     end
   end
@@ -42,6 +44,12 @@ defmodule ActivityPubWeb.Fetcher do
            ),
          {:ok, data} <- Jason.decode(body) do
       {:ok, data}
+    else
+      {:ok, %{status: code}} when code in [404, 410] ->
+        {:error, "Object has been deleted"}
+
+      e ->
+        {:error, e}
     end
   end
 end
