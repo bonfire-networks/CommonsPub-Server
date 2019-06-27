@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
   object :collection_queries do
     @desc "Get list of collections"
-    field :collections, non_null(:collection_page) do
+    field :collections, :collection_page do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -135,13 +135,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
   object :collection_page do
     field(:page_info, non_null(:page_info))
-    field(:nodes, non_null(list_of(non_null(:collection))))
+    field(:nodes, list_of(:collection))
     field(:total_count, non_null(:integer))
   end
 
   object :collection_followers_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(:collection_followers_edge)))
+    field(:edges, list_of(:collection_followers_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -152,7 +152,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
   object :collection_resources_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:collection_resources_edge))))
+    field(:edges, list_of(:collection_resources_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -174,7 +174,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
 
   object :collection_likers_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:collection_likers_edge))))
+    field(:edges, list_of(:collection_likers_edge))
     field(:total_count, non_null(:integer))
   end
 

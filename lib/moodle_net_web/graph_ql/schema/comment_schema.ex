@@ -26,14 +26,14 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
     field(:in_reply_to, :comment, do: resolve(Resolver.with_assoc(:in_reply_to, single: true)))
 
-    field :replies, non_null(:comment_replies_connection) do
+    field :replies, :comment_replies_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:comment_reply))
     end
 
-    field :likers, non_null(:comment_likers_connection) do
+    field :likers, :comment_likers_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -56,7 +56,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
   object :comment_replies_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:comment_replies_edge))))
+    field(:edges, list_of(:comment_replies_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -67,7 +67,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
   object :comment_likers_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:comment_likers_edge))))
+    field(:edges, list_of(:comment_likers_edge))
     field(:total_count, non_null(:integer))
   end
 
