@@ -76,8 +76,8 @@ config :phoenix, :plug_init_mode, :runtime
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: System.get_env("DATABASE_USER") || "postgres",
+  password: System.get_env("DATABASE_PASS") || "postgres",
   database: "moodle_net_dev",
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool_size: 10
