@@ -4,10 +4,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Transmogrifier do
+  @moduledoc """
+  This module normalises outgoing data to conform with AS2/AP specs
+  and handles incoming objects and activities
+  """
 
   alias ActivityPub.Entity
+  alias ActivityPub.Object
   require ActivityPub.Guards, as: APG
 
+  @doc """
+  Translates MN Entity to an AP compatible format
+  """
   def prepare_outgoing(entity) do
     entity
     |> Entity.aspects()
@@ -226,10 +234,13 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp set_id(entity) do
-    base_url = Application.get_env(:moodle_net, :ap_base_url) 
-    base_id = entity.id
-              |> String.split("/")
-              |> List.last()
+    base_url = Application.get_env(:moodle_net, :ap_base_url)
+
+    base_id =
+      entity.id
+      |> String.split("/")
+      |> List.last()
+
     case entity.type do
       ["Object"] -> "#{base_url}/objects/#{base_id}"
       ["Object", "Actor"] -> "#{base_url}/actors/#{base_id}"
@@ -240,5 +251,28 @@ defmodule ActivityPubWeb.Transmogrifier do
       ["Object", _] -> "#{base_url}/objects/#{base_id}"
       _ -> entity.id
     end
+  end
+
+  @doc """
+  Normalises and inserts an incoming AS2 object. Returns MN entity.
+  """
+  def handle_incoming(%{"type" => "Create"} = activity) do
+    with {:ok, data} <- prepare_data(activity),
+         {:ok, object} <- Object.insert(data),
+         {:ok, entity} <- ActivityPub.new(object.data) do
+      {:ok, entity}
+    else
+      {:error, e} -> e 
+    end
+  end
+
+  defp prepare_data(activity) do
+    data = %{}
+    |> Map.put(:data, activity)
+    |> Map.put(:recipients, activity["to"] ++ activity["cc"])
+    |> Map.put(:actor, activity["actor"])
+    |> Map.put(:local, false)
+
+    {:ok, data}
   end
 end
