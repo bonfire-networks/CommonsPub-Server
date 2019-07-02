@@ -1,4 +1,4 @@
-image: elixir:1.7.4 #update this when we switch Elixir version
+image: elixir:1.9.0 #update this when we switch Elixir version
 
 variables: 
   POSTGRES_DB: moodle_net_test
