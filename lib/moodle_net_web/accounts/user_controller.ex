@@ -9,12 +9,6 @@ defmodule MoodleNetWeb.Accounts.UserController do
   alias MoodleNet.{Accounts, OAuth}
   alias MoodleNetWeb.Plugs.Auth
 
-  plug(:accepts, ["html"] when action in [:new])
-
-  def new(conn, _params) do
-    render(conn, "new.html")
-  end
-
   plug(ScrubParams, "user" when action == :create)
 
   def create(conn, params) do

@@ -7,6 +7,9 @@ defmodule MoodleNetWeb.PageController do
   use MoodleNetWeb, :controller
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    url = Application.get_env(:moodle_net, :frontend_base_url)
+    conn
+    |> put_status(:moved_permanently)
+    |> redirect(external: url)
   end
 end
