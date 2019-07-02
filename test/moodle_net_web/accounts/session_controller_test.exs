@@ -59,22 +59,3 @@ defmodule MoodleNetWeb.Accounts.SessionControllerTest do
                |> redirected_to(302)
   end
 end
-
-defmodule MoodleNetWeb.Accounts.SessionControllerIntegrationTest do
-  use MoodleNetWeb.IntegrationCase, async: true
-
-  @tag format: :html
-  test "login works", %{conn: conn} do
-    user = Factory.user()
-    params = %{email: user.email, password: "password"}
-
-    conn
-    |> get("api/v1/sessions/new")
-    |> follow_form(%{authorization: params})
-    |> assert_response(
-      status: 200,
-      html: "Welcome back",
-      html: user.email
-    )
-  end
-end
