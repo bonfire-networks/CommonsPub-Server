@@ -10,6 +10,7 @@ defmodule ActivityPubWeb.Fetcher do
 
   alias MoodleNet.Repo
   alias ActivityPub.HTTP
+  alias ActivityPubWeb.Transmogrifier
   require Logger
 
   @doc """
@@ -22,8 +23,18 @@ defmodule ActivityPubWeb.Fetcher do
     if entity = ActivityPub.get_by_id(id) do
       {:ok, entity}
     else
-      with {:ok, data} <- fetch_remote_object_from_id(id) do
-        {:ok, data}
+      with {:ok, data} <- fetch_remote_object_from_id(id),
+           activity <- %{
+              "type" => "Create",
+              "to" => data["to"],
+              "cc" => data["cc"],
+              "actor" => data["actor"],
+              "object" => data
+            },
+           {:ok, entity} <- Transmogrifier.handle_incoming(activity),
+           entity <- entity.object,
+           entity <- List.first(entity) do
+        {:ok, entity}
       else
         e -> {:error, e}
       end
