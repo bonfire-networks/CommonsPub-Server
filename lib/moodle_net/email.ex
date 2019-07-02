@@ -37,7 +37,7 @@ defmodule MoodleNet.Email do
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
 
-  defp email_confirmation_url(id, token),
+  defp email_confirmation_url(_id, token),
     do: frontend_url("/confirm-email/#{token}")
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")

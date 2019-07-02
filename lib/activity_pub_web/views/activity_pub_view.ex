@@ -60,7 +60,7 @@ defmodule ActivityPubWeb.ActivityPubView do
        when APG.has_type(entity, "CollectionPage"),
        do: ret
 
-  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, conn) do
+  defp custom_fields(ret, entity, ActivityPub.CollectionAspect, _conn) do
     ret
     |> Map.put("first", ActivityPub.CollectionPage.id(entity))
     # |> Map.delete("items")
@@ -71,13 +71,6 @@ defmodule ActivityPubWeb.ActivityPubView do
   defp add_endpoints(ret, conn) do
     endpoints = %{"sharedInbox" => Routes.shared_inbox_url(conn, :shared_inbox)}
     Map.put(ret, "endpoints", endpoints)
-  end
-
-  defp extension_fields(entity) do
-    entity
-    |> Entity.extension_fields()
-    |> Enum.filter(&filter_by_value/1)
-    |> Enum.map(&normalize_value/1)
   end
 
   # FIXME this can be calculated in compilation time :)

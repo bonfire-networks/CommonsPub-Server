@@ -112,7 +112,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
        when APG.has_type(activity, "Like") and APG.has_type(object, "Note"),
        do: "LikeComment"
 
-  defp resolve_activity_type(activity, object)
+  defp resolve_activity_type(activity, _object)
   when APG.has_type(activity, "Undo"), do: "Undo"
 
   defp resolve_activity_type(_, _), do: "UnknownActivity"
