@@ -7,10 +7,6 @@ defmodule MoodleNetWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :moodle_net
   use Appsignal.Phoenix
 
-  #  socket "/socket", ActivityPubWeb.UserSocket,
-  #    websocket: true,
-  #    longpoll: false
-
   @doc """
   Serves at "/" the static files from "priv/static" directory.
 
