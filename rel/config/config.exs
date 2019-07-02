@@ -29,3 +29,13 @@ config :moodle_net, :frontend_base_url, env.("FRONTEND_BASE_URL")
 config :moodle_net, MoodleNet.Mailer,
   domain: env.("MAIL_DOMAIN"),
   api_key: env.("MAIL_KEY")
+
+sentry_dsn = System.get_env("SENTRY_DSN")
+sentry_env = System.get_env("SENTRY_ENV")
+if not is_nil(sentry_dsn) do
+  config :sentry,
+    dsn: sentry_dsn,
+    environment_name: sentry_env || Mix.env,
+    root_source_code_path: File.cwd!,
+    enable_source_code_context: true
+end

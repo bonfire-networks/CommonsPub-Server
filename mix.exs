@@ -63,20 +63,17 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_integration, "~> 0.6.0"},
       {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:appsignal, "~> 1.0"},
+      {:sentry, "~> 7.1"},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to create, migrate and run the seeds file at once:
-  #     $ mix ecto.setup
-  # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "sentry.recompile": ["deps.compile sentry --force", "compile"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end
