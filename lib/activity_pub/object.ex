@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.Object do
-
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -13,10 +12,10 @@ defmodule ActivityPub.Object do
   @primary_key {:id, :binary_id, autogenerate: true}
 
   schema "objects" do
-    field :data, :map
-    field :local, :boolean, default: true
-    field :actor, :string
-    field :recipients, {:array, :string}, default: []
+    field(:data, :map)
+    field(:local, :boolean, default: true)
+    field(:actor, :string)
+    field(:recipients, {:array, :string}, default: [])
 
     timestamps()
   end
