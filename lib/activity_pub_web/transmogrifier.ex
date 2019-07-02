@@ -262,16 +262,17 @@ defmodule ActivityPubWeb.Transmogrifier do
          {:ok, entity} <- ActivityPub.new(object.data) do
       {:ok, entity}
     else
-      {:error, e} -> e 
+      {:error, e} -> e
     end
   end
 
   defp prepare_data(activity) do
-    data = %{}
-    |> Map.put(:data, activity)
-    |> Map.put(:recipients, activity["to"] ++ activity["cc"])
-    |> Map.put(:actor, activity["actor"])
-    |> Map.put(:local, false)
+    data =
+      %{}
+      |> Map.put(:data, activity)
+      |> Map.put(:recipients, activity["to"] ++ activity["cc"])
+      |> Map.put(:actor, activity["actor"])
+      |> Map.put(:local, false)
 
     {:ok, data}
   end

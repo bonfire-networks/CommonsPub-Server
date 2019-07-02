@@ -25,12 +25,12 @@ defmodule ActivityPubWeb.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            activity <- %{
-              "type" => "Create",
-              "to" => data["to"],
-              "cc" => data["cc"],
-              "actor" => data["actor"],
-              "object" => data
-            },
+             "type" => "Create",
+             "to" => data["to"],
+             "cc" => data["cc"],
+             "actor" => data["actor"],
+             "object" => data
+           },
            {:ok, entity} <- Transmogrifier.handle_incoming(activity),
            entity <- entity.object,
            entity <- List.first(entity) do
