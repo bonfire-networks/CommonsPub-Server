@@ -10,7 +10,7 @@ ARG APP_VSN
 
 FROM elixir:1.9.0-alpine as builder
 
-ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod APPSIGNAL_BUILD_FOR_MUSL=1
+ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 
 WORKDIR $HOME
 
