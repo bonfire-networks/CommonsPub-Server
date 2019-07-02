@@ -235,8 +235,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp to_website([entity | _]) when APG.is_entity(entity) do
     with website <- entity["value"] do
       website
-    else
-      _ -> nil
     end
   end
 

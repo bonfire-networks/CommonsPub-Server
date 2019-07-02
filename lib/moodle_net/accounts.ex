@@ -91,7 +91,7 @@ defmodule MoodleNet.Accounts do
   # Usernames must be lowercase a-z 0-9 between 3 and 16 characters long
   defp valid_username?(username) when is_binary(username),
     do: Regex.match?(~r(^[a-z0-9]{3,16}$), username)
-  defp valid_username?(username), do: false
+  defp valid_username?(_username), do: false
 
   # defp normalise_username(username) do
   #   name = String.downcase(Regex.replace(~r([^a-zA-Z0-9]+), username, ""))

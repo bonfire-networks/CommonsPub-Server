@@ -11,9 +11,6 @@ defmodule MoodleNet.AccountsTest do
 
   describe "is_username_available?" do
     test "works" do
-      icon_attrs = Factory.attributes(:image)
-      image_attrs = Factory.attributes(:image)
-
       attrs = Factory.attributes(:user)
 
       assert true == Accounts.is_username_available?(attrs["preferred_username"])
