@@ -102,7 +102,6 @@ defmodule MoodleNet.Accounts do
   #     true -> {:ok, name}
   #   end
   # end
-  end
 
   def update_user(actor, changes) do
     {icon_url, changes} = Map.pop(changes, :icon)
