@@ -5,7 +5,10 @@
 
 defmodule MoodleNetWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :moodle_net
-  use Appsignal.Phoenix
+
+  if System.get_env("SENTRY_DSN") do
+    use Sentry.Phoenix.Endpoint
+  end
 
   @doc """
   Serves at "/" the static files from "priv/static" directory.
@@ -49,7 +52,6 @@ defmodule MoodleNetWeb.Endpoint do
   )
 
   plug(CORSPlug)
-  plug(AppsignalAbsinthePlug)
   plug(MoodleNetWeb.Router)
 
   @doc """
