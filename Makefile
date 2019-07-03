@@ -85,6 +85,9 @@ dev-db-up:
 dev-db:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix ecto.reset
 
+dev-db-migrate:
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix ecto.migrate
+
 dev-test-db:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml -e MIX_ENV=test run web mix ecto.reset
 
