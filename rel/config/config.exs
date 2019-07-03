@@ -14,7 +14,6 @@ config :moodle_net, MoodleNet.Repo,
   hostname: env.("DATABASE_HOST"),
   pool_size: 15
 
-
 port = String.to_integer(System.get_env("PORT") || "8080")
 
 config :moodle_net, MoodleNetWeb.Endpoint,

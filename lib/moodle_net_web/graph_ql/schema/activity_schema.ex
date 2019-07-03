@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   object :generic_activity_page do
     field(:page_info, non_null(:page_info))
-    field(:nodes, non_null(list_of(non_null(:activity))))
+    field(:nodes, list_of(:activity))
     field(:total_count, non_null(:integer))
   end
 
