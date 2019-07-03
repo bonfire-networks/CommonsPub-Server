@@ -1,5 +1,5 @@
 # The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.8.1-alpine` image uses
+# This should match the version of Alpine that the `elixir:1.9.0-alpine` image uses
 ARG ALPINE_VERSION=3.9
 
 # The following are build arguments used to change variable parts of the image.
