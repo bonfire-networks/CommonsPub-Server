@@ -12,6 +12,7 @@ defmodule ActivityPub.SQL.Query do
   import SQLEntity, only: [to_entity: 1]
   import Ecto.Query, only: [from: 2]
   require ActivityPub.Guards, as: APG
+  require Logger
   alias MoodleNet.Repo
   alias ActivityPub.SQL.{Common, Paginate}
   alias ActivityPub.SQL.Associations.{ManyToMany, BelongsTo, Collection}
@@ -25,7 +26,6 @@ defmodule ActivityPub.SQL.Query do
 
   def all(%Ecto.Query{} = query) do
     query
-    # |> print_query()
     |> Repo.all()
     |> to_entity()
   end
@@ -49,7 +49,6 @@ defmodule ActivityPub.SQL.Query do
 
   def one(%Ecto.Query{} = query) do
     query
-    # |> print_query()
     |> Repo.one()
     |> to_entity()
   end
@@ -545,7 +544,7 @@ defmodule ActivityPub.SQL.Query do
 
   def print_query(query) do
     {query_str, args} = Ecto.Adapters.SQL.to_sql(:all, Repo, query)
-    IO.puts("#{query_str} <=> #{inspect(args)}")
+    Logger.debug("#{query_str} <=> #{inspect(args)}")
     query
   end
 end
