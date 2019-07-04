@@ -24,16 +24,8 @@ defmodule ActivityPubWeb.Fetcher do
       {:ok, entity}
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
-           activity <- %{
-             "type" => "Create",
-             "to" => data["to"],
-             "cc" => data["cc"],
-             "actor" => data["actor"],
-             "object" => data
-           },
-           {:ok, entity} <- Transmogrifier.handle_incoming(activity),
-           entity <- entity.object,
-           entity <- List.first(entity) do
+           true <- data["type"] in ["Note", "Article", "Person"],
+           {:ok, entity} <- Transmogrifier.handle_incoming(data) do
         {:ok, entity}
       else
         e -> {:error, e}
