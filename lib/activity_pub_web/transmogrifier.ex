@@ -256,8 +256,8 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Normalises and inserts an incoming AS2 object. Returns MN entity.
   """
-  def handle_incoming(%{"type" => "Create"} = activity) do
-    with {:ok, data} <- prepare_data(activity),
+  def handle_incoming(data) do
+    with {:ok, data} <- prepare_data(data),
          {:ok, object} <- Object.insert(data),
          {:ok, entity} <- ActivityPub.new(object.data) do
       {:ok, entity}
@@ -266,12 +266,12 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
-  defp prepare_data(activity) do
+  defp prepare_data(data) do
     data =
       %{}
-      |> Map.put(:data, activity)
-      |> Map.put(:recipients, activity["to"] ++ activity["cc"])
-      |> Map.put(:actor, activity["actor"])
+      |> Map.put(:data, data)
+      |> Map.put(:recipients, Enum.uniq(data["to"] ++ data["cc"]))
+      |> Map.put(:actor, data["actor"])
       |> Map.put(:local, false)
 
     {:ok, data}
