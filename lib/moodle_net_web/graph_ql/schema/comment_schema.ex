@@ -40,6 +40,13 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
       resolve(Resolver.with_connection(:comment_liker))
     end
 
+    field :flags, :comment_flags_connection do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:comment_flags))
+    end
+
     field(:context, :comment_context, do: resolve(Resolver.with_assoc(:context, single: true, preload_assoc_individually: true)))
   end
 
@@ -72,6 +79,17 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
   end
 
   object :comment_likers_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :user)
+  end
+
+  object :comment_flags_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:comment_flags_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :comment_flags_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
   end
@@ -139,6 +157,22 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     with {:ok, actor} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
       MoodleNet.undo_like(actor, comment)
+    end
+    |> Errors.handle_error()
+  end
+
+  def flag_comment(%{local_id: comment_id, reason: reason}, info) do
+    with {:ok, liker} <- Resolver.current_actor(info),
+         {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
+      MoodleNet.flag_comment(liker, comment, %{reason: reason})
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_flag_comment(%{local_id: comment_id}, info) do
+    with {:ok, actor} <- Resolver.current_actor(info),
+         {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
+      MoodleNet.undo_flag(actor, comment)
     end
     |> Errors.handle_error()
   end

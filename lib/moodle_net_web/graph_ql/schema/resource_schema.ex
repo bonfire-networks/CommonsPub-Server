@@ -56,6 +56,20 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
       arg(:local_id, non_null(:integer))
       resolve(&ResourceResolver.undo_like_resource/2)
     end
+
+    @desc "Flag a resource"
+    field :flag_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
+      resolve(&ResourceResolver.flag_resource/2)
+    end
+
+    @desc "Undo a previous flag to a resource"
+    field :undo_flag_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&ResourceResolver.undo_flag_resource/2)
+    end
+
   end
 
   object :resource do
@@ -86,6 +100,12 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
       resolve(Resolver.with_connection(:resource_liker))
     end
 
+    field :flags, non_null(:resource_flags_connection) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:resource_flags))
+    end
 
     field(:published, :string)
     field(:updated, :string)
@@ -108,6 +128,17 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
   end
 
   object :resource_likers_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :user)
+  end
+
+  object :resource_flags_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:resource_flags_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :resource_flags_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
   end

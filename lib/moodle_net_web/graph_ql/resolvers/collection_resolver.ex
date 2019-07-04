@@ -72,4 +72,21 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
+  def flag_collection(%{local_id: collection_id, reason: reason}, info) do
+    with {:ok, liker} <- current_actor(info),
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
+      MoodleNet.flag_collection(liker, collection, %{reason: reason})
+    end
+    |> Errors.handle_error()
+  end
+
+  def undo_flag_collection(%{local_id: collection_id}, info) do
+    with {:ok, actor} <- current_actor(info),
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
+      MoodleNet.undo_flag(actor, collection)
+    end
+    |> Errors.handle_error()
+  end
+
+
 end

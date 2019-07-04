@@ -232,10 +232,24 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
+  defp collection_flags_query(collection) do
+    Query.new()
+    |> Query.belongs_to(:flags, collection)
+  end
 
-  @doc """
-  Resource connections
-  """
+  def collection_flags_list(collection, opts \\ %{}) do
+    collection_flags_query(collection)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def collection_flags_count(collection) do
+    collection_flags_query(collection)
+    |> Query.count()
+  end
+
+  # Resource Likes
+
   def resource_liker_query(resource) do
     Query.new()
     |> Query.with_type("Person")
@@ -253,10 +267,27 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
+  # Resource Flags
 
-  @doc """
-  Comment connections
-  """
+  def resource_flags_query(resource) do
+    Query.new()
+    |> Query.belongs_to(:flags, resource)
+  end
+
+  def resource_flags_list(resource, opts \\ %{}) do
+    resource_flags_query(resource)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def resource_flags_count(resource) do
+    resource_flags_query(resource)
+    |> Query.count()
+  end
+
+
+  # Comment Likes
+
   def comment_liker_query(comment) do
     Query.new()
     |> Query.with_type("Person")
@@ -273,6 +304,26 @@ defmodule MoodleNet do
     comment_liker_query(comment)
     |> Query.count()
   end
+
+  # Comment Flags
+
+  def comment_flags_query(comment) do
+    Query.new()
+    |> Query.belongs_to(:flags, comment)
+  end
+
+  def comment_flags_list(comment, opts \\ %{}) do
+    comment_flags_query(comment)
+    |> Query.paginate_collection(opts)
+    |> Query.all()
+  end
+
+  def comment_flags_count(comment) do
+    comment_flags_query(comment)
+    |> Query.count()
+  end
+
+  # Comment Replies
 
   defp comment_reply_query(comment) do
     Query.new()
@@ -841,6 +892,84 @@ defmodule MoodleNet do
     end
   end
 
+  def flag_comment(actor, comment, %{reason: reason})
+  when has_type(actor, "Person") and has_type(comment, "Note") do
+    comment =
+      comment
+      |> Query.preload_assoc([:attributed_to, context: [:followers, :context]])
+
+    [attributed_to] = comment.attributed_to
+    actor = Query.preload_assoc(actor, :followers)
+    [context] = comment.context
+
+    attrs = %{
+      type: "Flag",
+      _public: true,
+      actor: actor,
+      object: comment,
+      reason: reason,
+      to: [actor.followers, attributed_to, context, context.followers]
+    }
+
+    with :ok <- Policy.flag_comment?(actor, comment, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def flag_collection(actor, collection, %{reason: reason})
+  when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
+    collection =
+      Query.preload_assoc(collection, [:followers, context: [:followers]])
+      |> Query.preload_aspect(:actor)
+
+    [community] = collection.context
+
+    attrs = %{
+      type: "Flag",
+      actor: actor,
+      object: collection,
+      reason: reason,
+      to: [Query.preload(actor.followers), collection, collection.followers, community.followers]
+    }
+
+    with :ok <- Policy.flag_collection?(actor, collection, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def flag_resource(actor, resource, %{reason: reason})
+      when has_type(actor, "Person") and has_type(resource, "MoodleNet:EducationalResource") do
+    resource = preload_community(resource)
+    [collection] = resource.context
+
+    attrs = %{
+      type: "Flag",
+      actor: actor,
+      object: resource,
+      reason: reason,
+      to: [collection, Query.preload(collection.followers), Query.preload(actor.followers)]
+    }
+
+    with :ok <- Policy.flag_resource?(actor, resource, attrs),
+         {:ok, activity} = ActivityPub.new(attrs),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  def flag(flagger, flags, %{reason: reason}) do
+    params = %{type: "Flag", actor: flagger, object: flags, reason: reason}
+
+    with {:ok, activity} = ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
   def undo_follow(follower, following) do
     with :ok <- find_current_relation(follower, :following, following),
          {:ok, follow} <- find_activity("Follow", follower, following),
@@ -885,6 +1014,45 @@ defmodule MoodleNet do
 
   defp calc_undo_like_to(collection) when has_type(collection, "MoodleNet:Collection"),
     do: [collection, get_community(collection)]
+
+####
+
+ def undo_flag(flagger, flags) do
+    flags = undo_flag_preload_flags(flags)
+
+    with :ok <- find_current_relation(flags, :flags, flags),
+         {:ok, flag} <- find_activity("Flag", flagger, flags),
+         to <- calc_undo_flag_to(flags),
+         params = %{type: "Undo", actor: flagger, object: flag, to: to, _public: true},
+         {:ok, activity} <- ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  defp undo_flag_preload_flags(comment) when has_type(comment, "Note"),
+    do: Query.preload_assoc(comment, [:attributed_to, context: {[:actor], [:context]}])
+
+  defp undo_flag_preload_flags(resource) when has_type(resource, "MoodleNet:EducationalResource"),
+    do: Query.preload_assoc(resource, [:attributed_to, context: {[:actor], [:context]}])
+
+  defp undo_flag_preload_flags(collection) when has_type(collection, "MoodleNet:Collection"),
+    do: Query.preload_assoc(collection, context: {[:actor], []})
+
+  defp calc_undo_flag_to(comment) when has_type(comment, "Note") do
+    [author] = comment.attributed_to
+    [author, get_community(comment)]
+  end
+
+  defp calc_undo_flag_to(resource) when has_type(resource, "MoodleNet:EducationalResource") do
+    [author] = resource.attributed_to
+    [author, get_community(resource)]
+  end
+
+  defp calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
+    do: [collection, get_community(collection)]
+
+######
 
   defp find_current_relation(subject, relation, object) do
     if Query.has?(subject, relation, object) do

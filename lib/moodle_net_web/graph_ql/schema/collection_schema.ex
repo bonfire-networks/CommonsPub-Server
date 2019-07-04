@@ -69,6 +69,18 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
       arg(:local_id, non_null(:integer))
       resolve(&CollectionResolver.undo_like_collection/2)
     end
+
+    @desc "Flag a collection"
+    field :flag_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.flag_collection/2)
+    end
+
+    @desc "Undo a previous flag of a collection"
+    field :undo_flag_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.undo_flag_collection/2)
+    end
   end
 
 
@@ -118,6 +130,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:collection_liker))
+    end
+
+    field :flags, :collection_flags_connection do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:collection_flags))
     end
 
     field :inbox, :collection_inbox_connection do
@@ -179,6 +198,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   end
 
   object :collection_likers_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :user)
+  end
+
+  object :collection_flags_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:collection_flags_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :collection_flags_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
   end
