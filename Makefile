@@ -88,10 +88,16 @@ dev-db-migrate:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix ecto.migrate
 
 dev-test-db:
-	docker-compose -p moodlenet_dev -f docker-compose.dev.yml -e MIX_ENV=test run web mix ecto.reset
+	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run -e MIX_ENV=test web mix ecto.reset
 
 dev-test:
 	docker-compose -p moodlenet_dev -f docker-compose.dev.yml run web mix test
+
+dev-psql:
+	psql -h localhost -U postgres moodle_net_dev
+
+dev-test-psql:
+	psql -h localhost -U postgres moodle_net_test
 
 dev-setup: dev-deps dev-db
 
