@@ -71,8 +71,9 @@ defmodule MoodleNet.Mixfile do
 
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.seeds": ["run priv/repo/seeds.exs"],
       "sentry.recompile": ["deps.compile sentry --force", "compile"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
