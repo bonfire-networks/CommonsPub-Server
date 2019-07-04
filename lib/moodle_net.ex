@@ -234,6 +234,7 @@ defmodule MoodleNet do
 
   defp collection_flags_query(collection) do
     Query.new()
+    |> Query.with_type("Flag")
     |> Query.belongs_to(:flags, collection)
   end
 

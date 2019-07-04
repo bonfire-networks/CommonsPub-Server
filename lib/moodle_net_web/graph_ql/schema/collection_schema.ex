@@ -73,6 +73,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
     @desc "Flag a collection"
     field :flag_collection, type: :boolean do
       arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
       resolve(&CollectionResolver.flag_collection/2)
     end
 
@@ -211,6 +212,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   object :collection_flags_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
+    field(:reason, :string)
   end
 
   object :collection_inbox_connection do

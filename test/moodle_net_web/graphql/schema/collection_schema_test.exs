@@ -773,6 +773,251 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert cursor_b > cursor_a
   end
 
+  ######
+  
+  @tag :user
+  test "flag and unflag", %{conn: conn, actor: actor} do
+    reason = Faker.Pokemon.name()
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    collection_id = local_id(collection)
+
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    query = """
+      mutation {
+        flagCollection(
+          localId: #{collection_id}
+	  reason: "#{reason}"
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("flagCollection")
+
+    query = """
+    {
+      collection(localId: #{collection_id}) {
+        id
+        localId
+        flags {
+          totalCount
+          edges {
+            reason
+            node {
+              id
+              localId
+              local
+              type
+              preferredUsername
+              name
+              summary
+              location
+              icon
+            }
+          }
+        }
+      }
+    }
+    """
+
+    assert collection_map =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+
+    assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
+    assert %{
+      "totalCount" => 1,
+      "edges" => [%{"node" => user_map, "reason" => reason2}]
+    } = collection_map["flags"]
+
+    assert user_map["id"] == actor.id
+    assert user_map["localId"] == local_id(actor)
+    assert user_map["local"] == ActivityPub.Entity.local?(actor)
+    assert user_map["type"] == actor.type
+    assert user_map["preferredUsername"] == actor.preferred_username
+    assert user_map["name"] == actor.name["und"]
+    assert user_map["summary"] == actor.summary["und"]
+    assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
+    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+    assert reason == reason2
+    
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("undoFlagCollection")
+
+    query = """
+    {
+      collection(localId: #{collection_id}) {
+        id
+        localId
+        flags {
+          totalCount
+          edges {
+	    reason
+            node {
+              id
+            }
+          }
+        }
+      }
+    }
+    """
+
+    assert collection_map =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+
+    assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
+    assert %{
+      "totalCount" => 0,
+      "edges" => []
+    } = collection_map["flags"]
+
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
+  @tag :user
+  test "flags list", %{conn: conn, actor: actor} do
+    %{id: actor_id} = actor
+    comm = Factory.community(actor)
+    coll = Factory.collection(actor, comm)
+    local_id = local_id(coll)
+
+    query = """
+      {
+        collection(localId: #{local_id}) {
+          flags {
+            pageInfo {
+              startCursor
+              endCursor
+            }
+            edges {
+              cursor
+              node {
+                id
+                joinedCommunities {
+                  totalCount
+                }
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    """
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+             |> Map.fetch!("flags")
+
+    assert %{
+      "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
+      "edges" => [],
+      "totalCount" => 0
+    } = ret
+
+    %{id: other_actor_id} = other_actor = Factory.actor()
+    {:ok, _} = MoodleNet.join_community(other_actor, comm)
+    {:ok, _} = MoodleNet.like_collection(other_actor, coll)
+
+    {:ok, _} = MoodleNet.like_collection(actor, coll)
+
+    assert ret =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("data")
+             |> Map.fetch!("collection")
+             |> Map.fetch!("flags")
+
+    assert %{
+      "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
+      "edges" => edges,
+      "totalCount" => 2
+    } = ret
+
+    assert [
+      %{
+        "cursor" => cursor_b,
+        "node" => %{
+          "id" => ^actor_id,
+        }
+      },
+      %{
+        "cursor" => cursor_a,
+        "node" => %{
+          "id" => ^other_actor_id,
+        }
+      }
+    ] = edges
+
+    assert cursor_a
+    assert cursor_b
+    assert cursor_b > cursor_a
+  end
+####
+
   @tag :user
   test "delete a collection", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
