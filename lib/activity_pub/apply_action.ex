@@ -124,20 +124,19 @@ defmodule ActivityPub.ApplyAction do
   # FIXME - this should be an ActivityPub.SQL* modules
   defp insert_into_inbox_collections(collections, activity_id) do
     collection_ids = Enum.map(collections, &ActivityPub.SQL.Common.local_id/1)
-    sql_array = "'{#{Enum.join(collection_ids, ",")}}'"
 
     select = """
-    SELECT a1."inbox_id", #{activity_id}::bigint FROM "activity_pub_collection_items"
+    SELECT a1."inbox_id", $1::bigint FROM "activity_pub_collection_items"
     AS a0 INNER JOIN "activity_pub_actor_aspects" AS a1
     ON a1."local_id" = a0."target_id"
-    WHERE (a0."subject_id" = ANY(#{sql_array}))
+    WHERE (a0."subject_id" = ANY($2))
     """
 
     query =
       "INSERT INTO activity_pub_collection_items (subject_id, target_id) #{select}" <>
         "ON CONFLICT (subject_id, target_id) DO NOTHING;"
 
-    %{num_rows: rows} = Ecto.Adapters.SQL.query!(MoodleNet.Repo, query, [])
+    %{num_rows: rows} = Ecto.Adapters.SQL.query!(MoodleNet.Repo, query, [activity_id, collection_ids])
     {:ok, rows}
   end
 
