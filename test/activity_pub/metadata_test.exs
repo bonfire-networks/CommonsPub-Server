@@ -8,12 +8,69 @@ defmodule ActivityPub.MetadataTest do
 
   alias ActivityPub.Metadata
 
-  describe "new" do
-    test "works" do
-      types = ["Object", "Activity", "Follow", "CustomFollowType"]
+  test "new" do
+    types = ["Activity", "CustomFollowType", "Follow", "Object"]
+    metadata = Metadata.new(types)
+    assert metadata.status == :new
+    assert metadata.persistence == nil
+    assert metadata.verified
+    assert metadata.local
+  end
 
-      assert Metadata.new(types)
-    end
+  test "aspects" do
+    metadata = Metadata.new(["Object", "Activity"])
+    assert Metadata.aspects(metadata) == [
+      ActivityPub.ActivityAspect,
+      ActivityPub.ObjectAspect
+    ]
+  end
+
+  test "types" do
+    types = ["Activity", "CustomFollowType", "Follow", "Object"]
+    metadata = Metadata.new(types)
+    assert Metadata.types(metadata) == types
+  end
+
+  test "not_loaded" do
+    assert %Metadata{
+      status: :not_loaded,
+      verified: false,
+      local_id: nil
+    } = Metadata.not_loaded(nil)
+
+    assert %Metadata{
+      status: not_loaded,
+      verified: true,
+      local_id: 25
+    } = Metadata.not_loaded(25)
+  end
+
+  test "local_id" do
+    assert Metadata.local_id(Metadata.not_loaded(nil)) == nil
+    assert Metadata.local_id(Metadata.not_loaded(25)) == 25
+  end
+
+  test "local?" do
+    metadata = Metadata.new([])
+    assert Metadata.local?(%Metadata{metadata | local: true})
+    refute Metadata.local?(%Metadata{metadata | local: false})
+  end
+
+  test "load" do
+    entity_map = %{
+      type: "Person",
+      name: "Jenkins",
+      preferred_username: "jenkins"
+    }
+    assert {:ok, entity} = ActivityPub.Builder.new(entity_map)
+    assert {:ok, sql_entity} = ActivityPub.SQLEntity.insert(entity)
+    # FIXME: SQLEntity.insert actually calls Metadata.load, it doesn't return an SQLEntity,
+    # FIXME: but rather a map representing an entity.
+    # assert metadata = Metadata.load(sql_entity)
+    assert metadata = sql_entity.__ap__
+    assert metadata.status == :loaded
+    assert metadata.local
+    assert metadata.local_id
   end
 
   describe "guards" do
