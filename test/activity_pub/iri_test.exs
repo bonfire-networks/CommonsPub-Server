@@ -51,5 +51,10 @@ defmodule AcivityPub.IRITest do
     test "fails for relative references" do
       assert {:error, :invalid_scheme} = IRI.validate("/api/oauth")
     end
+
+    test "fails for invalid IRI's" do
+      assert {:error, :invalid_scheme} = IRI.validate("social.example")
+      assert {:error, :invalid_host} = IRI.validate("https://")
+    end
   end
 end
