@@ -74,8 +74,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
 
   def flag_collection(%{local_id: collection_id, reason: reason}, info) do
     with {:ok, actor} <- current_actor(info),
-         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
-      MoodleNet.flag_collection(actor, collection, %{reason: reason})
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
+         {:ok, activity} <- MoodleNet.flag_collection(actor, collection, %{reason: reason}) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end

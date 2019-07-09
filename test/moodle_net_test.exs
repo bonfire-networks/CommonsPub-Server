@@ -180,6 +180,23 @@ defmodule MoodleNetTest do
     end
   end
 
+  describe "collection flags" do
+    test "works" do
+      %{id: actor_id} = actor = Factory.actor()
+
+      comm = Factory.community(actor)
+      coll = Factory.collection(actor, comm)
+
+      assert [] = MoodleNet.collection_flags_list(coll)
+      assert 0 = MoodleNet.collection_flags_count(coll)
+
+      {:ok, activity} = MoodleNet.flag_collection(actor, coll, %{reason: "Terrible joke"})
+      IO.inspect(activity: activity)
+      assert [%{id: ^actor_id, reason: "Terrible joke"}] = MoodleNet.collection_flags_list(coll)
+      assert 1 = MoodleNet.collection_flags_count(coll)
+    end
+  end
+
   describe "resource likers" do
     test "works" do
       %{id: actor_id} = actor = Factory.actor()

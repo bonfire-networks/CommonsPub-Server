@@ -234,7 +234,6 @@ defmodule MoodleNet do
 
   defp collection_flags_query(collection) do
     Query.new()
-    |> Query.with_type("Flag")
     |> Query.belongs_to(:flags, collection)
   end
 
@@ -936,9 +935,9 @@ defmodule MoodleNet do
     }
 
     with :ok <- Policy.flag_collection?(actor, collection, attrs),
-         {:ok, activity} = ActivityPub.new(attrs),
-         {:ok, _activity} <- ActivityPub.apply(activity) do
-      {:ok, true}
+         {:ok, activity} <- ActivityPub.new(attrs),
+         {:ok, activity} <- ActivityPub.apply(activity) do
+      {:ok, activity}
     end
   end
 
