@@ -8,7 +8,7 @@ ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
-FROM elixir:1.8.1-alpine as builder
+FROM elixir:1.9.0-alpine as builder
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 
