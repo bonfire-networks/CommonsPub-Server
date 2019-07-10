@@ -5,7 +5,7 @@
 
 defmodule MoodleNetWeb.GraphQL.CollectionResolver do
   import MoodleNetWeb.GraphQL.MoodleNetSchema
-
+  alias MoodleNet.Collections
   alias MoodleNetWeb.GraphQL.Errors
 
   def collection_list(args, info), do: to_page(:collection, args, info)
@@ -75,7 +75,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
   def flag_collection(%{local_id: collection_id, reason: reason}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
-         {:ok, activity} <- MoodleNet.flag_collection(actor, collection, %{reason: reason}) do
+         {:ok, _activity} <- Collections.flag(actor, collection, %{reason: reason}) do
       {:ok, true}
     end
     |> Errors.handle_error()
@@ -83,8 +83,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
 
   def undo_flag_collection(%{local_id: collection_id}, info) do
     with {:ok, actor} <- current_actor(info),
-         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
-      MoodleNet.undo_flag(actor, collection)
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
+         {:ok, _activity} <- Collections.undo_flag(actor, collection) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end
