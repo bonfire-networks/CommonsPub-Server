@@ -232,22 +232,6 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  defp collection_flags_query(collection) do
-    Query.new()
-    |> Query.belongs_to(:flags, collection)
-  end
-
-  def collection_flags_list(collection, opts \\ %{}) do
-    collection_flags_query(collection)
-    |> Query.paginate_collection(opts)
-    |> Query.all()
-  end
-
-  def collection_flags_count(collection) do
-    collection_flags_query(collection)
-    |> Query.count()
-  end
-
   # Resource Likes
 
   def resource_liker_query(resource) do
@@ -267,25 +251,6 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
-  # Resource Flags
-
-  def resource_flags_query(resource) do
-    Query.new()
-    |> Query.belongs_to(:flags, resource)
-  end
-
-  def resource_flags_list(resource, opts \\ %{}) do
-    resource_flags_query(resource)
-    |> Query.paginate_collection(opts)
-    |> Query.all()
-  end
-
-  def resource_flags_count(resource) do
-    resource_flags_query(resource)
-    |> Query.count()
-  end
-
-
   # Comment Likes
 
   def comment_liker_query(comment) do
@@ -302,24 +267,6 @@ defmodule MoodleNet do
 
   def comment_liker_count(comment) do
     comment_liker_query(comment)
-    |> Query.count()
-  end
-
-  # Comment Flags
-
-  def comment_flags_query(comment) do
-    Query.new()
-    |> Query.belongs_to(:flags, comment)
-  end
-
-  def comment_flags_list(comment, opts \\ %{}) do
-    comment_flags_query(comment)
-    |> Query.paginate_collection(opts)
-    |> Query.all()
-  end
-
-  def comment_flags_count(comment) do
-    comment_flags_query(comment)
     |> Query.count()
   end
 
@@ -892,84 +839,6 @@ defmodule MoodleNet do
     end
   end
 
-  def flag_comment(actor, comment, %{reason: reason})
-  when has_type(actor, "Person") and has_type(comment, "Note") do
-    comment =
-      comment
-      |> Query.preload_assoc([:attributed_to, context: [:followers, :context]])
-
-    [attributed_to] = comment.attributed_to
-    actor = Query.preload_assoc(actor, :followers)
-    [context] = comment.context
-
-    attrs = %{
-      type: "Flag",
-      _public: true,
-      actor: actor,
-      object: comment,
-      reason: reason,
-      to: [actor.followers, attributed_to, context, context.followers]
-    }
-
-    with :ok <- Policy.flag_comment?(actor, comment, attrs),
-         {:ok, activity} = ActivityPub.new(attrs),
-         {:ok, _activity} <- ActivityPub.apply(activity) do
-      {:ok, true}
-    end
-  end
-
-  def flag_collection(actor, collection, %{reason: reason})
-  when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
-    collection =
-      Query.preload_assoc(collection, [:followers, context: [:followers]])
-      |> Query.preload_aspect(:actor)
-
-    [community] = collection.context
-
-    attrs = %{
-      type: "Flag",
-      actor: actor,
-      object: collection,
-      reason: reason,
-      to: [Query.preload(actor.followers), collection, collection.followers, community.followers]
-    }
-
-    with :ok <- Policy.flag_collection?(actor, collection, attrs),
-         {:ok, activity} <- ActivityPub.new(attrs),
-         {:ok, activity} <- ActivityPub.apply(activity) do
-      {:ok, activity}
-    end
-  end
-
-  def flag_resource(actor, resource, %{reason: reason})
-      when has_type(actor, "Person") and has_type(resource, "MoodleNet:EducationalResource") do
-    resource = preload_community(resource)
-    [collection] = resource.context
-
-    attrs = %{
-      type: "Flag",
-      actor: actor,
-      object: resource,
-      reason: reason,
-      to: [collection, Query.preload(collection.followers), Query.preload(actor.followers)]
-    }
-
-    with :ok <- Policy.flag_resource?(actor, resource, attrs),
-         {:ok, activity} = ActivityPub.new(attrs),
-         {:ok, _activity} <- ActivityPub.apply(activity) do
-      {:ok, true}
-    end
-  end
-
-  def flag(flagger, flags, %{reason: reason}) do
-    params = %{type: "Flag", actor: flagger, object: flags, reason: reason}
-
-    with {:ok, activity} = ActivityPub.new(params),
-         {:ok, _activity} <- ActivityPub.apply(activity) do
-      {:ok, true}
-    end
-  end
-
   def undo_follow(follower, following) do
     with :ok <- find_current_relation(follower, :following, following),
          {:ok, follow} <- find_activity("Follow", follower, following),
@@ -1112,4 +981,5 @@ defmodule MoodleNet do
   end
 
   def get_community(community) when has_type(community, "MoodleNet:Community"), do: community
+
 end
