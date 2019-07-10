@@ -3,7 +3,7 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.ActivityPunch.Comment.CommentFlag do
+defmodule MoodleNet.Comments.CommentFlag do
   use Ecto.Schema
   alias MoodleNet.ActivityPug.Object
   alias Ecto.Changeset
