@@ -5,7 +5,7 @@
 
 defmodule MoodleNetWeb.GraphQL.CollectionTest do
   use MoodleNetWeb.ConnCase#, async: true
-  alias MoodleNet.{Collections, Factory, Repo}
+  alias MoodleNet.{Collections, Factory}
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
@@ -817,7 +817,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
            |> Map.fetch!("data")
            |> Map.fetch!("flagCollection")
 
-    assert [flag] = Collections.flags(actor)
+    assert [flag] = Collections.all_flags(actor)
     assert flag.flagged_object_id == collection_id
     assert flag.flagging_object_id == actor_id
     assert flag.reason == reason
@@ -837,7 +837,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
            |> Map.fetch!("data")
            |> Map.fetch!("undoFlagCollection")
 
-    assert [] == Collections.flags(actor)
+    assert [] == Collections.all_flags(actor)
 
     query = """
       mutation {

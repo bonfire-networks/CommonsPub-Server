@@ -153,6 +153,19 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve(&CommentSchema.undo_like_comment/2)
     end
 
+    @desc "Like a comment"
+    field :flag_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
+      resolve(&CommentSchema.flag_comment/2)
+    end
+
+    @desc "Undo a previous like to a comment"
+    field :undo_flag_comment, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommentSchema.undo_flag_comment/2)
+    end
+
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, type: :web_metadata do
       arg(:url, non_null(:string))

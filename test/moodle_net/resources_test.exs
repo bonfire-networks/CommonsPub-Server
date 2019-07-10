@@ -8,7 +8,6 @@ defmodule MoodleNet.ResourcesTest do
 
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.Resources
-  alias ActivityPub.SQL.Query
 
   describe "resource flags" do
     test "works" do
@@ -16,15 +15,14 @@ defmodule MoodleNet.ResourcesTest do
       actor_id = local_id(actor)
       comm = Factory.community(actor)
       coll = Factory.collection(actor, comm)
-      coll_id = local_id(coll)
       res = Factory.resource(actor, coll)
       res_id = local_id(res)
 
-      assert [] = Resources.flags(actor)
+      assert [] = Resources.all_flags(actor)
 
-      {:ok, activity} = Resources.flag(actor, res, %{reason: "Terrible joke"})
+      {:ok, _activity} = Resources.flag(actor, res, %{reason: "Terrible joke"})
 
-      assert [flag] = Resources.flags(actor)
+      assert [flag] = Resources.all_flags(actor)
       assert flag.flagged_object_id == res_id
       assert flag.flagging_object_id == actor_id
       assert flag.reason == "Terrible joke"

@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
   require ActivityPub.Guards, as: APG
 
   alias ActivityPub.SQL.Query
+  alias MoodleNet.Comments
   alias MoodleNetWeb.GraphQL.Errors
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
 
@@ -163,16 +164,18 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
   def flag_comment(%{local_id: comment_id, reason: reason}, info) do
     with {:ok, liker} <- Resolver.current_actor(info),
-         {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
-      MoodleNet.flag_comment(liker, comment, %{reason: reason})
+         {:ok, comment} <- Resolver.fetch(comment_id, "Note"),
+         {:ok, _flag} <- Comments.flag(liker, comment, %{reason: reason}) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end
 
   def undo_flag_comment(%{local_id: comment_id}, info) do
     with {:ok, actor} <- Resolver.current_actor(info),
-         {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
-      MoodleNet.undo_flag(actor, comment)
+         {:ok, comment} <- Resolver.fetch(comment_id, "Note"),
+         {:ok, _flag} <- Comments.undo_flag(actor, comment) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end

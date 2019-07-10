@@ -4,52 +4,28 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments do
 
-  import ActivityPub.Guards
-  import ActivityPub.Entity, only: [local_id: 1]
-  alias MoodleNet.{Policy,Repo}
+  alias MoodleNet.Common
   alias MoodleNet.Comments.CommentFlag
-  import MoodleNetWeb.GraphQL.MoodleNetSchema
-  import Ecto.Query
 
-  # flag(actor(), comment(), %{reason: binary()}) ::
-  # {:ok, CommentFlag.t()} | {:error, any()}
-  def flag(actor, comment, attrs=%{reason: reason}) do
-    attrs = flag_attrs(actor, comment, %{reason: reason})
-    with :ok <- Policy.flag_comment?(actor, comment, attrs),
-      do: Repo.insert(CommentFlag.changeset(attrs))
-  end
+  @doc """
+  Flags a comment with a given reason
+  {:ok, CommentFlag} | {:error, reason}
+  """
+  def flag(actor, comment, attrs=%{reason: reason}),
+    do: Common.flag(CommentFlag, :flag_comment?, actor, comment, attrs)
 
-  # {:ok, CommentFlag.t()} | {:error, Changeset.t()}
-  def undo_flag(actor, comment) do
-    case Repo.get_by(CommentFlag, flag_attrs(actor, comment)) do
-      nil -> {:error, :not_found}
-      flag -> Repo.delete(flag)
-    end
-  end
+  @doc """
+  Undoes a previous flag
+  {:ok, CommentFlag} | {:error, term()}
+  """
+  def undo_flag(actor, comment), do: Common.undo_flag(CommentFlag, actor, comment)
 
-  defp flag_attrs(actor, comment, base \\ %{}) do
-    base
-    |> Map.put(:flagged_object_id, local_id(comment))
-    |> Map.put(:flagging_object_id, local_id(actor))
-  end
-
-  def flags(actor, filters \\ %{}) when has_type(actor, "Person") do
-    with :ok <- Policy.list_comment_flags?(actor) do
-      flags_query(filters)
-      |> Repo.all()
-    end
-  end
-
-  defp flags_query(filters) do
-    CommentFlag
-    |> filter_open(filters)
-  end
-  
-  # optionally filters by whether the flag is open or not
-
-  defp filter_open(query, %{open: open}) when is_boolean(open),
-    do: where(query, [f], f.open == ^open)
-
-  defp filter_open(query, _), do: query
+  @doc """
+  Lists all CommentFlag matching the provided optional filters.
+  Filters:
+    :open :: boolean
+  """
+  def all_flags(actor, filters \\ %{}),
+    do: Common.flags(CommentFlag, :list_comment_flags?, actor, filters)
 
 end

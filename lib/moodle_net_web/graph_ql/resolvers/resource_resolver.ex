@@ -5,7 +5,7 @@
 
 defmodule MoodleNetWeb.GraphQL.ResourceResolver do
   import MoodleNetWeb.GraphQL.MoodleNetSchema
-
+  alias MoodleNet.Resources
   alias MoodleNetWeb.GraphQL.Errors
 
 
@@ -27,16 +27,18 @@ defmodule MoodleNetWeb.GraphQL.ResourceResolver do
 
   def flag_resource(%{local_id: resource_id, reason: reason}, info) do
     with {:ok, liker} <- current_actor(info),
-         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
-      MoodleNet.flag_resource(liker, resource, %{reason: reason})
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource"),
+         {:ok, _flag} <- Resources.flag(liker, resource, %{reason: reason}) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end
 
   def undo_flag_resource(%{local_id: resource_id}, info) do
     with {:ok, actor} <- current_actor(info),
-         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource") do
-      MoodleNet.undo_flag(actor, resource)
+         {:ok, resource} <- fetch(resource_id, "MoodleNet:EducationalResource"),
+         {:ok, _flag} <- Resources.undo_flag(actor, resource) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end

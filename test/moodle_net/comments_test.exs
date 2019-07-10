@@ -8,7 +8,6 @@ defmodule MoodleNet.CommentsTest do
 
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.Comments
-  alias ActivityPub.SQL.Query
 
   describe "comment flags" do
     test "works" do
@@ -18,11 +17,11 @@ defmodule MoodleNet.CommentsTest do
       comment = Factory.comment(actor, comm)
       comment_id = local_id(comment)
 
-      assert [] = Comments.flags(actor)
+      assert [] = Comments.all_flags(actor)
 
-      {:ok, activity} = Comments.flag(actor, comment, %{reason: "Terrible joke"})
+      {:ok, _activity} = Comments.flag(actor, comment, %{reason: "Terrible joke"})
 
-      assert [flag] = Comments.flags(actor)
+      assert [flag] = Comments.all_flags(actor)
       assert flag.flagged_object_id == comment_id
       assert flag.flagging_object_id == actor_id
       assert flag.reason == "Terrible joke"

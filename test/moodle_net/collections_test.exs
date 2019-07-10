@@ -8,7 +8,6 @@ defmodule MoodleNet.CollectionsTest do
 
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.Collections
-  alias ActivityPub.SQL.Query
 
   describe "collection flags" do
     test "works" do
@@ -18,11 +17,11 @@ defmodule MoodleNet.CollectionsTest do
       coll = Factory.collection(actor, comm)
       coll_id = local_id(coll)
 
-      assert [] = Collections.flags(actor)
+      assert [] = Collections.all_flags(actor)
 
-      {:ok, activity} = Collections.flag(actor, coll, %{reason: "Terrible joke"})
+      {:ok, _activity} = Collections.flag(actor, coll, %{reason: "Terrible joke"})
 
-      assert [flag] = Collections.flags(actor)
+      assert [flag] = Collections.all_flags(actor)
       assert flag.flagged_object_id == coll_id
       assert flag.flagging_object_id == actor_id
       assert flag.reason == "Terrible joke"
