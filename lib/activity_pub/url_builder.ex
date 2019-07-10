@@ -8,6 +8,14 @@ defmodule ActivityPub.UrlBuilder do
     Application.get_env(:moodle_net, :ap_base_url) || MoodleNetWeb.base_url()
   end
 
+  @type page :: {:page, integer, Map.t()}
+
+  @doc """
+  Create a URL using a local ID.
+
+  A page can also be provided with its parameters.
+  """
+  @spec id(integer | page) :: binary
   def id({:page, local_id, params}) do
     id(local_id) <> "/page" <> params_to_query(params)
   end
@@ -15,8 +23,12 @@ defmodule ActivityPub.UrlBuilder do
   def id(local_id) when is_integer(local_id),
     do: append_bar_if_needed(base_url()) <> to_string(local_id)
 
+  @doc """
+  Predicate to check if given URL is on the same scheme, host and port as the
+  current running instance.
+  """
+  @spec local?(binary) :: boolean
   def local?(nil), do: false
-
   def local?(id) when is_binary(id) do
     uri_id = URI.parse(id)
     uri_base = URI.parse(base_url())
@@ -25,6 +37,12 @@ defmodule ActivityPub.UrlBuilder do
       uri_id.port == uri_base.port
   end
 
+  @doc """
+  Get the local ID contained within the URL if there is one.
+
+  If it is a page, a tuple is returned with the local ID and any URL parameters.
+  """
+  @spec get_local_id(binary) :: {:ok, integer | page} | :error
   def get_local_id(id) when is_binary(id) do
     uri_id = URI.parse(id)
     uri_base = URI.parse(base_url())

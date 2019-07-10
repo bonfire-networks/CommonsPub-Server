@@ -22,6 +22,12 @@ defmodule ActivityPub.SQL.QueryTest do
     assert [%{id: ^id}] = Query.new() |> Query.all()
   end
 
+  test "count/2" do
+    assert 0 = Query.new() |> Query.count()
+    insert(%{})
+    assert 1 = Query.new() |> Query.count()
+  end
+
   test "one/1 works" do
     assert nil == Query.new() |> Query.one()
     assert %{id: id} = insert(%{})
@@ -31,6 +37,22 @@ defmodule ActivityPub.SQL.QueryTest do
     assert_raise Ecto.MultipleResultsError, fn ->
       assert %{id: ^id} = Query.new() |> Query.one()
     end
+  end
+
+  test "first/2" do
+    assert nil == Query.new() |> Query.first()
+    assert %{id: steve_id} = insert(%{name: "Steve"})
+    assert %{id: bob_id} = insert(%{name: "Bob"})
+    assert %{id: ^steve_id} = Query.new() |> Query.first()
+    assert %{id: ^bob_id} = Query.new() |> Query.first(:name)
+  end
+
+  test "last/2" do
+    assert nil == Query.new() |> Query.last()
+    assert %{id: steve_id} = insert(%{name: "Steve"})
+    assert %{id: bob_id} = insert(%{name: "Bob"})
+    assert %{id: ^bob_id} = Query.new() |> Query.last()
+    assert %{id: ^steve_id} = Query.new() |> Query.last(:name)
   end
 
   test "get_by_local_id/1" do

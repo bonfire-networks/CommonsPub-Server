@@ -24,6 +24,8 @@ defmodule ActivityPub.IRI do
   > Relative IRI (and URL) references SHOULD NOT be used within an Activity Streams 2.0 document due to the fact that many JSON parser implementations are not capable of reliably preserving the base context necessary to properly resolve relative references.
   """
 
+  # TODO: change API to take a string, not a map
+  @spec parse(params :: Map.t(), key :: any) :: {:ok, String.t()} | {:error, term}
   def parse(params, key) do
     case params[key] do
       nil ->

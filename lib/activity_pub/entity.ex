@@ -20,26 +20,51 @@ defmodule ActivityPub.Entity do
 
   # FIXME Inject here the builder with a list of aspects (and a list of types)?
 
+  @type t :: Map.t()
+
+  @doc """
+  Return all aspects for an entity.
+  """
+  @spec aspects(t) :: [atom]
   def aspects(entity = %{__ap__: meta}) when APG.is_entity(entity),
     do: Metadata.aspects(meta)
 
+  @doc """
+  Return all fields used by an entity with the given aspect.
+  """
+  @spec fields_for(t, atom) :: Map.t()
   def fields_for(entity, aspect) when APG.has_aspect(entity, aspect) do
     Map.take(entity, aspect.__aspect__(:fields))
   end
 
   def fields_for(_, _), do: %{}
 
+  @doc """
+  Return all fields, for all aspects, of an entity.
+  """
+  @spec fields(t) :: [Map.t()]
   def fields(entity) when APG.is_entity(entity) do
     entity
     |> aspects()
     |> Enum.flat_map(&fields_for(entity, &1))
   end
 
+  @doc """
+  Return all associations used by an entity with the given aspect.
+  """
+  @spec assocs_for(t, atom) :: Map.t()
   def assocs_for(entity, aspect) when APG.has_aspect(entity, aspect),
     do: Map.take(entity, aspect.__aspect__(:associations))
 
   def assocs_for(_, _), do: %{}
 
+  @doc """
+  Return all associations, for all aspects, of an entity.
+
+  This is returned as a map, all conflicting associations are merged using the
+  standard `Map.merge/2`.
+  """
+  @spec assocs(t) :: Map.t()
   def assocs(e) when APG.is_entity(e) do
     e
     |> aspects()
@@ -56,6 +81,7 @@ defmodule ActivityPub.Entity do
   1. We have a clear difference between extension fields and regular fields defined by an _aspect_.
   2. We avoid the "atom overload" attack—the BEAM Garbage Collector doesn't collect atoms.
   """
+  @spec extension_fields(t) :: Map.t()
   def extension_fields(entity) when APG.is_entity(entity) do
     Enum.reduce(entity, %{}, fn
       {key, _}, acc when is_atom(key) -> acc
@@ -63,10 +89,24 @@ defmodule ActivityPub.Entity do
     end)
   end
 
+  @doc """
+  Return true if the entity is on the local server.
+  """
+  @spec local?(t) :: boolean
   def local?(%{__ap__: ap} = e) when APG.is_entity(e), do: Metadata.local?(ap)
 
+  @doc """
+  Return the status of the entity.
+
+  See `ActivityPub.Metadata` for status codes.
+  """
+  @spec status(t) :: atom
   def status(%{__ap__: %{status: status}} = e) when APG.is_entity(e), do: status
 
+  @doc """
+  Return the local ID of the entity, if it is local.
+  """
+  @spec local_id(t) :: integer
   def local_id(%{__ap__: meta} = e) when APG.is_entity(e), do: Metadata.local_id(meta)
 
   @doc """
@@ -83,5 +123,6 @@ defmodule ActivityPub.Entity do
 
   * `ActivityPub.SQLEntity` knows about `ActivityPub.Entity`, but `ActivityPub.Entity` shouldn’t know anything about `ActivityPub.SQLEntity` (apart from knowing the names of modules to use persistence of course).
   """
+  @spec persistence(t) :: any
   def persistence(%{__ap__: %{persistence: persistence}} = e) when APG.is_entity(e), do: persistence
 end
