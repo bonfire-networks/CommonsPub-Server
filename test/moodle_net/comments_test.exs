@@ -16,7 +16,7 @@ defmodule MoodleNet.CommentsTest do
       actor_id = local_id(actor)
       comm = Factory.community(actor)
       comment = Factory.comment(actor, comm)
-      comment_id = local_id(comm)
+      comment_id = local_id(comment)
 
       assert [] = Comments.flags(actor)
 
