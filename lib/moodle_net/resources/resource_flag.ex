@@ -8,7 +8,7 @@ defmodule MoodleNet.Resources.ResourceFlag do
   alias MoodleNet.ActivityPug.Object
   alias Ecto.Changeset
 
-  schema "mn_collection_flags" do
+  schema "mn_resource_flags" do
     belongs_to :flagged_object, Object
     belongs_to :flagging_object, Object
     field :reason, :string
