@@ -11,7 +11,7 @@ defmodule MoodleNet.Comments do
   Flags a comment with a given reason
   {:ok, CommentFlag} | {:error, reason}
   """
-  def flag(actor, comment, attrs=%{reason: reason}),
+  def flag(actor, comment, attrs=%{reason: _}),
     do: Common.flag(CommentFlag, :flag_comment?, actor, comment, attrs)
 
   @doc """

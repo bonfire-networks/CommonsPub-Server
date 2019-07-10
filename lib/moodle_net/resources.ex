@@ -11,7 +11,7 @@ defmodule MoodleNet.Resources do
   Flags a resource with a given reason
   {:ok, ResourceFlag} | {:error, reason}
   """
-  def flag(actor, resource, attrs=%{reason: reason}),
+  def flag(actor, resource, attrs=%{reason: _}),
     do: Common.flag(ResourceFlag, :flag_resource?, actor, resource, attrs)
 
   @doc """

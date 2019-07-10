@@ -11,7 +11,7 @@ defmodule MoodleNet.Collections do
   Flags a collection with a given reason
   {:ok, CollectionFlag} | {:error, reason}
   """
-  def flag(actor, collection, attrs=%{reason: reason}),
+  def flag(actor, collection, attrs=%{reason: _}),
     do: Common.flag(CollectionFlag, :flag_collection?, actor, collection, attrs)
 
   @doc """
