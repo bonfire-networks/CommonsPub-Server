@@ -23,7 +23,7 @@ RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
 
 COPY . .
 
-RUN mix do phx.digest, release --env=prod --verbose --no-tar
+RUN mix do phx.digest, distillery.release --env=prod --verbose --no-tar
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
