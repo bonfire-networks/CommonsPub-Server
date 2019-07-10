@@ -70,19 +70,19 @@ defmodule MoodleNet.Policy do
   end
 
   def list_collection_flags?(actor)
-  when has_type(actor, "Person"), do: is_user_administrator?(actor)
+  when has_type(actor, "Person"), do: administrator?(actor)
 
   def list_comment_flags?(actor)
-  when has_type(actor, "Person"), do: is_user_administrator?(actor)
+  when has_type(actor, "Person"), do: administrator?(actor)
 
   def list_resource_flags?(actor)
-  when has_type(actor, "Person"), do: is_user_administrator?(actor)
+  when has_type(actor, "Person"), do: administrator?(actor)
 
   defp actor_follows!(actor, object) do
     if Query.has?(actor, :following, object), do: :ok, else: {:error, :forbidden}
   end
 
   #### TODO: how do we verify the user's adminship?
-  defp is_user_administrator?(actor), do: true
+  defp administrator?(actor), do: :ok
 
 end
