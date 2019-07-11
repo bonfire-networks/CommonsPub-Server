@@ -7,6 +7,10 @@ defmodule MoodleNet.Repo.Migrations.MakePreferredUsernameUnique do
   use ActivityPub.Migration
 
   def change do
+    execute """
+    UPDATE activity_pub_actor_aspects SET preferred_username = null
+    """
+    flush()
     create unique_index(:activity_pub_actor_aspects, :preferred_username)
   end
 end

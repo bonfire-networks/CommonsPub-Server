@@ -6,15 +6,6 @@
 defmodule MoodleNetWeb.Accounts.UserControllerTest do
   use MoodleNetWeb.ConnCase
 
-  @tag format: :json
-  describe "new" do
-    test "does not accept json format", %{conn: conn} do
-      assert_raise Phoenix.NotAcceptableError, fn ->
-        get(conn, "api/v1/users/new")
-      end
-    end
-  end
-
   describe "create" do
     @tag format: :json
     test "works", %{conn: conn} do
@@ -54,24 +45,5 @@ defmodule MoodleNetWeb.Accounts.UserControllerTest do
                "errors" => %{"password" => ["should be at least 6 character(s)"]}
              } = ret
     end
-  end
-end
-
-defmodule MoodleNetWeb.Accoutns.UserControllerIntegrationTest do
-  use MoodleNetWeb.IntegrationCase, async: true
-
-  @tag format: :html
-  test "works", %{conn: conn} do
-    params = %{
-        email: "alex@moodle.net",
-        password: "password",
-        preferred_username: "alex"
-      }
-
-    MoodleNet.Accounts.add_email_to_whitelist(params[:email])
-    conn
-    |> get("api/v1/users/new")
-    |> follow_form(%{user: params})
-    |> assert_response(status: 200, html: params[:email])
   end
 end

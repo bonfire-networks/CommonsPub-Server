@@ -126,14 +126,14 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
       resolve(with_connection(:user_comment))
     end
 
-    field :inbox, non_null(:user_inbox_connection) do
+    field :inbox, :user_inbox_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(with_connection(:user_inbox))
     end
 
-    field :outbox, non_null(:user_outbox_connection) do
+    field :outbox, :user_outbox_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -143,7 +143,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
   object :user_joined_communities_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:user_joined_communities_edge))))
+    field(:edges, list_of(:user_joined_communities_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -154,7 +154,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
   object :user_following_collections_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:user_following_collections_edge))))
+    field(:edges, list_of(:user_following_collections_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -165,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
   object :user_created_comments_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:user_created_comments_edge))))
+    field(:edges, list_of(:user_created_comments_edge))
     field(:total_count, non_null(:integer))
   end
 

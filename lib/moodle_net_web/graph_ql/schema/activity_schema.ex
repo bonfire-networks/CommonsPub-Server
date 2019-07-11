@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   object :generic_activity_page do
     field(:page_info, non_null(:page_info))
-    field(:nodes, non_null(list_of(non_null(:activity))))
+    field(:nodes, list_of(:activity))
     field(:total_count, non_null(:integer))
   end
 
@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
        when APG.has_type(activity, "Like") and APG.has_type(object, "Note"),
        do: "LikeComment"
 
-  defp resolve_activity_type(activity, object)
+  defp resolve_activity_type(activity, _object)
   when APG.has_type(activity, "Undo"), do: "Undo"
 
   defp resolve_activity_type(_, _), do: "UnknownActivity"

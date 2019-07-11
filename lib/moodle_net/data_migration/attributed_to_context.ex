@@ -9,6 +9,7 @@ defmodule MoodleNet.DataMigration.AttributedToContext do
   """
   alias MoodleNet.Repo
   alias ActivityPub.SQLEntity
+  require Logger
 
   def call() do
     {collection_rel_ids, collection_assocs} =
@@ -50,7 +51,7 @@ defmodule MoodleNet.DataMigration.AttributedToContext do
       )
       |> Repo.all()
 
-    IO.puts(
+    Logger.debug(
       "There are #{length(ret)} #{subject_type} entities whose attributed_to has the type #{
         target_type
       }"
@@ -61,7 +62,7 @@ defmodule MoodleNet.DataMigration.AttributedToContext do
 
   defp delete_rels(rel_ids) do
     {num, _} = Repo.delete_all(delete_all_query(rel_ids))
-    IO.puts("Rels deleted: #{num}")
+    Logger.debug("Rels deleted: #{num}")
   end
 
   defp delete_all_query(ids) do
@@ -71,6 +72,6 @@ defmodule MoodleNet.DataMigration.AttributedToContext do
 
   defp insert_rels(assocs) do
     {num, _} = Repo.insert_all("activity_pub_object_contexts", assocs)
-    IO.puts("Inserted in 'activity_pub_object_contexts': #{num}")
+    Logger.debug("Inserted in 'activity_pub_object_contexts': #{num}")
   end
 end

@@ -315,16 +315,6 @@ defmodule MoodleNet do
     ActivityPub.SQL.Paginate.meta(results, opts)
   end
 
-  defp has_no_replies(query) do
-    import Ecto.Query, only: [from: 2]
-
-    from([entity: entity] in query,
-      left_join: rel in fragment("activity_pub_object_in_reply_tos"),
-      on: entity.local_id == rel.subject_id,
-      where: is_nil(rel.target_id)
-    )
-  end
-
   def user_outbox_list(user, opts) do
     outbox_query(user)
     |> Query.paginate(opts)

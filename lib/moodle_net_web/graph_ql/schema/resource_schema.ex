@@ -77,11 +77,11 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
 
     field(:creator, :user, do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
 
-    field(:collection, non_null(:collection),
+    field(:collection, :collection,
       do: resolve(Resolver.with_assoc(:context, single: true))
     )
 
-    field :likers, non_null(:collection_likers_connection) do
+    field :likers, :collection_likers_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -105,7 +105,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
 
   object :resource_likers_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(non_null(:resource_likers_edge))))
+    field(:edges, list_of(:resource_likers_edge))
     field(:total_count, non_null(:integer))
   end
 

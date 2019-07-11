@@ -11,18 +11,6 @@ defmodule MoodleNetWeb.OAuth.OAuthController do
 
   alias MoodleNet.{Accounts, OAuth}
 
-  # action_fallback(MoodleNetWeb.OAuth.FallbackController)
-
-  def authorize(conn, params) do
-    render(conn, "show.html", %{
-      response_type: params["response_type"],
-      client_id: params["client_id"],
-      scope: params["scope"],
-      redirect_uri: params["redirect_uri"],
-      state: params["state"]
-    })
-  end
-
   defmodule AuthorizationParams do
     use Ecto.Schema
 

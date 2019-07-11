@@ -18,8 +18,8 @@ config :logger, level: :warn
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: System.get_env("DATABASE_USER") || "postgres",
+  password: System.get_env("DATABASE_PASS") || "postgres",
   database: "moodle_net_test",
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
@@ -34,5 +34,7 @@ config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.TestAdapter
 
 config :moodle_net, :ap_base_url, "http://localhost:4001"
+config :moodle_net, :frontend_base_url,
+  (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock

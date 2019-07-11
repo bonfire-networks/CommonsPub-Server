@@ -43,3 +43,5 @@ cover
 priv/repo/structure.sql
 
 *.dump
+/.mix
+/.hex

@@ -1,4 +1,0 @@
-<section class="phx-hero">
-  <h1><%= gettext "pages.index.welcome", name: "Phoenix" %></h1>
-  <p>A productive web framework that<br/>does not compromise speed and maintainability.</p>
-</section>

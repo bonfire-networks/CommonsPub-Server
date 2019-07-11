@@ -63,8 +63,8 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/v1" do
-    resources("/users", MoodleNetWeb.Accounts.UserController, only: [:new, :create])
-    resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:new, :create])
+    resources("/users", MoodleNetWeb.Accounts.UserController, only: [:create])
+    resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:create])
   end
 
   scope "/api/v1" do
@@ -80,7 +80,6 @@ defmodule MoodleNetWeb.Router do
   Serve OAuth flows
   """
   scope "/oauth", MoodleNetWeb.OAuth do
-    get("/authorize", OAuthController, :authorize)
     post("/authorize", OAuthController, :create_authorization)
     post("/token", OAuthController, :token_exchange)
     post("/revoke", OAuthController, :token_revoke)

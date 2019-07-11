@@ -7,13 +7,27 @@ defmodule MoodleNet.Factory do
   @moduledoc """
   Factory to build entities
   """
+
+  defp username(name) do
+    name =
+      name
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]/, "")
+    size = byte_size(name)
+    cond do
+      size > 16 -> String.slice(name, 0, 16)
+      size < 3 -> name <> name <> name # we tried. hope it's not zero
+      true -> name
+    end
+  end
+
   def attributes(:user) do
     name = Faker.Name.name()
 
     %{
       "email" => Faker.Internet.safe_email(),
       "name" => name,
-      "preferred_username" => name |> String.downcase() |> String.replace(~r/[^a-z0-9]/, "_"),
+      "preferred_username" => username(name),
       "password" => "password",
       "locale" => "es",
       "icon" => attributes(:image),
@@ -38,7 +52,7 @@ defmodule MoodleNet.Factory do
   def attributes(:community) do
     %{
       "content" => Faker.Lorem.sentence(),
-      "preferred_username" => Faker.Internet.user_name(),
+      "preferred_username" => username(Faker.Internet.user_name()),
       "name" => Faker.Pokemon.name(),
       "summary" => Faker.Lorem.sentence(),
       "primary_language" => "es",
@@ -51,7 +65,7 @@ defmodule MoodleNet.Factory do
       "content" => Faker.Lorem.sentence(),
       "name" => Faker.Beer.brand(),
       "icon" => attributes(:image),
-      "preferred_username" => Faker.Internet.user_name(),
+      "preferred_username" => username(Faker.Internet.user_name()),
       "summary" => Faker.Lorem.sentence(),
       "primary_language" => "es"
     }

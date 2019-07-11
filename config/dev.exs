@@ -14,16 +14,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "http",
   debug_errors: true,
   code_reloader: true,
-  check_origin: false,
-  watchers: [
-    node: [
-      "node_modules/webpack/bin/webpack.js",
-      "--mode",
-      "development",
-      "--watch-stdin",
-      cd: Path.expand("../assets", __DIR__)
-    ]
-  ]
+  check_origin: false
 
 # ## SSL Support
 #
@@ -76,10 +67,13 @@ config :phoenix, :plug_init_mode, :runtime
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: System.get_env("DATABASE_USER") || "postgres",
+  password: System.get_env("DATABASE_PASS") || "postgres",
   database: "moodle_net_dev",
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool_size: 10
 
-config :moodle_net, :ap_base_url, "http://localhost:4000"
+config :moodle_net, :ap_base_url,
+  (System.get_env("AP_BASE_URL") || "http://dev.localhost:4000")
+config :moodle_net, :frontend_base_url,
+  (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")

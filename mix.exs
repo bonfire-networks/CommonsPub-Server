@@ -5,8 +5,8 @@ defmodule MoodleNet.Mixfile do
   def project do
     [
       app: :moodle_net,
-      version: "0.9.4-dev.3", # current MoodleNet Server version
-      elixir: "~> 1.7", # required version of Elixir
+      version: "0.9.5-dev",
+      elixir: "~> 1.9.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -35,68 +35,6 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  @doc """
-  Specify the Elixir project dependencies.
-
-  In addition to common Phoenix dependencies, there are the following dependencies:
-
-  ```
-  {:comeonin, "~> 4.1.1"},
-  {:pbkdf2_elixir, "~> 0.12.3"},
-  ```
-  ^ To store the passwords safely
-
-  ```
-  {:cors_plug, "~> 2.0"},
-  ```
-  ^ To reply correctly to CORS requests
-
-  ```
-  {:distillery, "~> 2.0"},
-  ```
-  ^ To build releases
-
-  ```
-  {:bamboo, "~> 1.1"},
-  ```
-  ^ To send emails
-
-  ```
-  {:faker, "~> 0.11"},
-  ```
-  ^ To create fake data for tests
-
-  ```
-  {:recase, "~> 0.2"},
-  ```
-  ^ To recase between Elixir conventions and ActivityPub conventions in JSON messages
-
-  ```
-  {:absinthe, "~> 1.4"}, {:absinthe_plug, "~> 1.4"},
-  ```
-  ^ for GraphQL
-
-  ```
-  {:phoenix_integration, "~> 0.6.0"},
-  ```
-  ^ It was used at the beginning of the project, I think there is only one test running this
-
-  ```
-  {:furlex, git: "https://github.com/alexcastano/furlex"},
-  ```
-  ^ A modified version of https://hex.pm/packages/furlex - to fetch the metadata when adding a resource/webpage in MoodleNet
-
-  ```
-  {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-  ```
-  ^ Useful to find bugs
-
-  ```
-  {:appsignal, "~> 1.0"},
-  {:telemetry, "~> 0.4.0"},
-  ```
-  ^ Orchestration
-  """
   defp deps do
     [
       {:phoenix, "~> 1.4.0"},
@@ -125,21 +63,18 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_integration, "~> 0.6.0"},
       {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:appsignal, "~> 1.0"},
+      {:sentry, "~> 7.1"},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:tesla, "~> 1.2"}
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to create, migrate and run the seeds file at once:
-  #     $ mix ecto.setup
-  # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "sentry.recompile": ["deps.compile sentry --force", "compile"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end

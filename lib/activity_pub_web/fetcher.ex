@@ -8,7 +8,6 @@ defmodule ActivityPubWeb.Fetcher do
   Handles fetching AS2 objects from remote instances.
   """
 
-  alias MoodleNet.Repo
   alias ActivityPub.HTTP
   alias ActivityPubWeb.Transmogrifier
   require Logger
@@ -25,10 +24,10 @@ defmodule ActivityPubWeb.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            true <- data["type"] in ["Note", "Article", "Person"],
-           {:ok, entity} <- Transmogrifier.handle_incoming(data) do
-        {:ok, entity}
+           {:ok, object} <- Transmogrifier.handle_incoming(data) do
+        {:ok, object}
       else
-        e -> {:error, e}
+        {:error, e} -> {:error, e}
       end
     end
   end

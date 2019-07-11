@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
   object :community_queries do
     @desc "Get list of communities"
-    field :communities, non_null(:community_page) do
+    field :communities, :community_page do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -78,28 +78,28 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
     field(:creator, :user, do: resolve(Resolver.with_assoc(:attributed_to, single: true)))
 
-    field :collections, non_null(:community_collections_connection) do
+    field :collections, :community_collections_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:community_collection))
     end
 
-    field :threads, non_null(:community_threads_connection) do
+    field :threads, :community_threads_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:community_thread))
     end
 
-    field :members, non_null(:community_members_connection) do
+    field :members, :community_members_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:community_member))
     end
 
-    field :inbox, non_null(:community_inbox_connection) do
+    field :inbox, :community_inbox_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
@@ -114,13 +114,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
   object :community_page do
     field(:page_info, non_null(:page_info))
-    field(:nodes, non_null(list_of(non_null(:community))))
+    field(:nodes, list_of(:community))
     field(:total_count, non_null(:integer))
   end
 
   object :community_collections_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(:community_collections_edge)))
+    field(:edges, list_of(:community_collections_edge))
     field(:total_count, non_null(:integer))
   end
 
@@ -131,7 +131,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
 
   object :community_threads_connection do
     field(:page_info, non_null(:page_info))
-    field(:edges, non_null(list_of(:community_threads_edge)))
+    field(:edges, list_of(:community_threads_edge))
     field(:total_count, non_null(:integer))
   end
 

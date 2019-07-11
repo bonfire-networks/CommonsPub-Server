@@ -259,21 +259,37 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(data) do
     with {:ok, data} <- prepare_data(data),
          {:ok, object} <- Object.insert(data),
-         {:ok, entity} <- ActivityPub.new(object.data) do
-      {:ok, entity}
+         {:ok, object} <- check_if_public(object) do
+      {:ok, object}
     else
-      {:error, e} -> e
+      {:error, e} -> {:error, e}
+      {:reject, nil} -> {:error, "reject"}
     end
   end
 
   defp prepare_data(data) do
+    recipients = (data["to"] || []) ++ (data["cc"] || [])
+
     data =
       %{}
       |> Map.put(:data, data)
-      |> Map.put(:recipients, Enum.uniq(data["to"] ++ data["cc"]))
+      |> Map.put(:recipients, Enum.uniq(recipients))
       |> Map.put(:actor, data["actor"])
       |> Map.put(:local, false)
 
     {:ok, data}
+  end
+
+  defp check_if_public(object) do
+    cond do
+      object.recipients == [] ->
+        {:ok, object}
+
+      Enum.member?(object.recipients, "https://www.w3.org/ns/activitystreams#Public") ->
+        {:ok, object}
+
+      true ->
+        {:reject, nil}
+    end
   end
 end

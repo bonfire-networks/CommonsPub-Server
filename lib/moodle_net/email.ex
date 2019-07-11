@@ -11,7 +11,7 @@ defmodule MoodleNet.Email do
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
 
   def welcome(user, token) do
-    url = email_confirmation_url(token)
+    url = email_confirmation_url(user.id, token)
     base_email(user)
     |> subject(gettext("Welcome to MoodleNet"))
     |> render(:welcome, user: user, url: url)
@@ -40,15 +40,14 @@ defmodule MoodleNet.Email do
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
 
-  defp email_confirmation_url(token) do
-    MoodleNetWeb.Endpoint.struct_url()
-    |> Map.put(:path, "/email_confirmation?token=#{token}")
-    |> URI.to_string()
+  defp email_confirmation_url(_id, token),
+    do: frontend_url("/confirm-email/#{token}")
+
+  defp reset_password_url(token), do: frontend_url("reset/#{token}")
+
+  # Note that the base url is expected to end with a slash (/)
+  defp frontend_url(path) do
+    Application.fetch_env!(:moodle_net, :frontend_base_url) <> path
   end
 
-  defp reset_password_url(token) do
-    MoodleNetWeb.Endpoint.struct_url()
-    |> Map.put(:path, "/reset_password?token=#{token}")
-    |> URI.to_string()
-  end
 end

@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   require ActivityPub.Guards, as: APG
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, OAuth, Repo}
+  alias MoodleNet.{Accounts, OAuth}
 
   def me(_, info) do
     with {:ok, actor} <- current_actor(info) do
