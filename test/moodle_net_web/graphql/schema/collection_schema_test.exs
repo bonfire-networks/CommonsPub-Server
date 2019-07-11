@@ -806,7 +806,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
       mutation {
         flagCollection(
           localId: #{collection_id}
-	  reason: "#{reason}"
+          reason: "#{reason}"
         )
       }
     """
