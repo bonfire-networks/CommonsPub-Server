@@ -38,7 +38,7 @@ defmodule MoodleNet.Email do
   end
 
   defp email_confirmation_url(_id, token),
-    do: frontend_url("/confirm-email/#{token}")
+    do: frontend_url("confirm-email/#{token}")
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
 

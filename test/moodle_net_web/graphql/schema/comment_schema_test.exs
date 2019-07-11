@@ -7,6 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
   # , async: true
   use MoodleNetWeb.ConnCase
 
+  alias MoodleNet.Comments
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
@@ -558,6 +559,95 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
              |> json_response(200)
              |> Map.fetch!("errors")
   end
+
+  @tag :user
+  test "flag and unflag a comment", %{conn: conn, actor: actor} do
+    actor_id = local_id(actor)
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    comment = Factory.comment(actor, collection)
+    comment_id = local_id(comment)
+    reason = "Terrible joke"
+
+    assert [] == Comments.all_flags(actor)
+    
+    query = """
+      mutation {
+        undoFlagComment(
+          localId: #{comment_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    query = """
+      mutation {
+        flagComment(
+          localId: #{comment_id}
+          reason: "#{reason}"
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("flagComment")
+
+
+    assert [flag] = Comments.all_flags(actor)
+    assert flag.flagged_object_id == comment_id
+    assert flag.flagging_object_id == actor_id
+    assert flag.reason == reason
+    assert flag.open
+
+    query = """
+      mutation {
+        undoFlagComment(
+          localId: #{comment_id}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("undoFlagComment")
+
+    assert [] == Comments.all_flags(actor)
+
+    query = """
+      mutation {
+        undoFlagComment(
+          localId: #{comment_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
 
   @tag :user
   test "liker list", %{conn: conn, actor: actor} do

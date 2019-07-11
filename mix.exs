@@ -63,16 +63,19 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_integration, "~> 0.6.0"},
       {:furlex, git: "https://github.com/alexcastano/furlex"},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:sentry, "~> 7.1"},
+      {:sentry, "~> 7.1", runtime: sentry?()},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
     ]
   end
 
+  defp sentry?(), do: Mix.env not in [:dev, :test]
+
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.seeds": ["run priv/repo/seeds.exs"],
       "sentry.recompile": ["deps.compile sentry --force", "compile"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]

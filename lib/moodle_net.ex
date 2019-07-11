@@ -232,10 +232,8 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
+  # Resource Likes
 
-  @doc """
-  Resource connections
-  """
   def resource_liker_query(resource) do
     Query.new()
     |> Query.with_type("Person")
@@ -253,10 +251,8 @@ defmodule MoodleNet do
     |> Query.count()
   end
 
+  # Comment Likes
 
-  @doc """
-  Comment connections
-  """
   def comment_liker_query(comment) do
     Query.new()
     |> Query.with_type("Person")
@@ -273,6 +269,8 @@ defmodule MoodleNet do
     comment_liker_query(comment)
     |> Query.count()
   end
+
+  # Comment Replies
 
   defp comment_reply_query(comment) do
     Query.new()
@@ -886,6 +884,45 @@ defmodule MoodleNet do
   defp calc_undo_like_to(collection) when has_type(collection, "MoodleNet:Collection"),
     do: [collection, get_community(collection)]
 
+####
+
+ def undo_flag(flagger, flags) do
+    flags = undo_flag_preload_flags(flags)
+
+    with :ok <- find_current_relation(flags, :flags, flags),
+         {:ok, flag} <- find_activity("Flag", flagger, flags),
+         to <- calc_undo_flag_to(flags),
+         params = %{type: "Undo", actor: flagger, object: flag, to: to, _public: true},
+         {:ok, activity} <- ActivityPub.new(params),
+         {:ok, _activity} <- ActivityPub.apply(activity) do
+      {:ok, true}
+    end
+  end
+
+  defp undo_flag_preload_flags(comment) when has_type(comment, "Note"),
+    do: Query.preload_assoc(comment, [:attributed_to, context: {[:actor], [:context]}])
+
+  defp undo_flag_preload_flags(resource) when has_type(resource, "MoodleNet:EducationalResource"),
+    do: Query.preload_assoc(resource, [:attributed_to, context: {[:actor], [:context]}])
+
+  defp undo_flag_preload_flags(collection) when has_type(collection, "MoodleNet:Collection"),
+    do: Query.preload_assoc(collection, context: {[:actor], []})
+
+  defp calc_undo_flag_to(comment) when has_type(comment, "Note") do
+    [author] = comment.attributed_to
+    [author, get_community(comment)]
+  end
+
+  defp calc_undo_flag_to(resource) when has_type(resource, "MoodleNet:EducationalResource") do
+    [author] = resource.attributed_to
+    [author, get_community(resource)]
+  end
+
+  defp calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
+    do: [collection, get_community(collection)]
+
+######
+
   defp find_current_relation(subject, relation, object) do
     if Query.has?(subject, relation, object) do
       :ok
@@ -944,4 +981,5 @@ defmodule MoodleNet do
   end
 
   def get_community(community) when has_type(community, "MoodleNet:Community"), do: community
+
 end

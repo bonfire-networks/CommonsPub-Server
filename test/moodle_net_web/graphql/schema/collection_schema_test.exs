@@ -5,7 +5,7 @@
 
 defmodule MoodleNetWeb.GraphQL.CollectionTest do
   use MoodleNetWeb.ConnCase#, async: true
-
+  alias MoodleNet.{Collections, Factory}
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
@@ -771,6 +771,92 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert cursor_a
     assert cursor_b
     assert cursor_b > cursor_a
+  end
+
+  ######
+  
+  @tag :user
+  test "flag and unflag", %{conn: conn, actor: actor} do
+    actor_id = local_id(actor)
+    reason = Faker.Pokemon.name()
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    collection_id = local_id(collection)
+
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    query = """
+      mutation {
+        flagCollection(
+          localId: #{collection_id}
+          reason: "#{reason}"
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("flagCollection")
+
+    assert [flag] = Collections.all_flags(actor)
+    assert flag.flagged_object_id == collection_id
+    assert flag.flagging_object_id == actor_id
+    assert flag.reason == reason
+    assert flag.open == true
+
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("undoFlagCollection")
+
+    assert [] == Collections.all_flags(actor)
+
+    query = """
+      mutation {
+        undoFlagCollection(
+          localId: #{collection_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
   end
 
   @tag :user
