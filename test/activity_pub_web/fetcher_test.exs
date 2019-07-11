@@ -26,18 +26,18 @@ defmodule ActivityPubWeb.FetcherTest do
 
   describe "fetching objects" do
     test "fetches a pleroma note" do
-      {:ok, entity} =
+      {:ok, object} =
         Fetcher.fetch_object_from_id(
           "https://kawen.space/objects/eb3b1181-38cc-4eaf-ba1b-3f5431fa9779"
         )
 
-      assert entity
+      assert object
     end
 
     test "fetches a pleroma actor" do
-      {:ok, entity} = Fetcher.fetch_object_from_id("https://kawen.space/users/karen")
+      {:ok, object} = Fetcher.fetch_object_from_id("https://kawen.space/users/karen")
 
-      assert entity
+      assert object
     end
 
     test "rejects private posts" do

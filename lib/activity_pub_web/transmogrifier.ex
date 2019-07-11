@@ -254,7 +254,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   @doc """
-  Normalises and inserts an incoming AS2 object. Returns MN entity.
+  Normalises and inserts an incoming AS2 object. Returns Object.
   """
   def handle_incoming(data) do
     with {:ok, data} <- prepare_data(data),

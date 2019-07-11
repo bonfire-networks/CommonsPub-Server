@@ -30,8 +30,7 @@ defmodule HttpRequestMock do
     {:ok,
      %Tesla.Env{
        status: 200,
-       body:
-         File.read!("test/fixtures/pleroma_note.json")
+       body: File.read!("test/fixtures/pleroma_note.json")
      }}
   end
 
@@ -39,8 +38,7 @@ defmodule HttpRequestMock do
     {:ok,
      %Tesla.Env{
        status: 200,
-       body:
-         File.read!("test/fixtures/pleroma_user_actor.json")
+       body: File.read!("test/fixtures/pleroma_user_actor.json")
      }}
   end
 
@@ -48,8 +46,7 @@ defmodule HttpRequestMock do
     {:ok,
      %Tesla.Env{
        status: 200,
-       body:
-         File.read!("test/fixtures/pleroma_private_note.json")
+       body: File.read!("test/fixtures/pleroma_private_note.json")
      }}
   end
 end
