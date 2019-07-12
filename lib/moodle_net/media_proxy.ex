@@ -4,18 +4,33 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MediaProxy do
-  @callback fetch(url :: String.t()) :: {:ok, File.t()} | {:error, term}
+  @callback fetch(url :: String.t()) :: {:ok, String.t()} | {:error, term}
 end
 
-# defmodule MoodleNet.DirectHTTPMediaProxy do
-#   alias MoodleNet.MediaProxy.URLBuilder
+defmodule MoodleNet.DirectHTTPMediaProxy do
+  alias MoodleNet.MediaProxy.URLBuilder
 
-#   @behaviour MoodleNet.MediaProxy
+  @behaviour MoodleNet.MediaProxy
 
-#   def fetch(url) do
-#     decoded_url = URLBuilder.decode(url)
-#     {:ok, status, headers, client} = :hackney.get(decoded_url)
-#     {:ok, content} = :hackney.body(client)
-#     {:ok, content}
-#   end
-# end
+  def fetch(url) do
+    with {:ok, decoded_url} <- URLBuilder.decode(url) do
+      {:ok, 200, _headers, client} = :hackney.get(decoded_url)
+      {:ok, fetch_stream(client)}
+    end
+  end
+
+  defp fetch_stream(client) do
+    Stream.resource(
+      fn -> client end,
+      fn client ->
+        case :hackney.stream_body(client) do
+          {:ok, data} ->
+            {[data], client}
+          :done ->
+            {:halt, client}
+        end
+      end,
+      fn client -> :hackney.close(client) end
+    )
+  end
+end
