@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MediaProxy do
-  @callback fetch(url :: String.t()) :: {:ok, String.t()} | {:error, term}
+  @callback fetch(sig :: String.t(), url :: String.t()) :: {:ok, Stream.t()} | {:error, term}
 end
 
 defmodule MoodleNet.DirectHTTPMediaProxy do
@@ -12,8 +12,8 @@ defmodule MoodleNet.DirectHTTPMediaProxy do
 
   @behaviour MoodleNet.MediaProxy
 
-  def fetch(url) do
-    with {:ok, decoded_url} <- URLBuilder.decode(url) do
+  def fetch(sig, url) do
+    with {:ok, decoded_url} <- URLBuilder.decode(sig, url) do
       {:ok, 200, _headers, client} = :hackney.get(decoded_url)
       {:ok, fetch_stream(client)}
     end

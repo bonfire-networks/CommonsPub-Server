@@ -26,8 +26,7 @@ defmodule MoodleNet.MediaProxy.URLBuilder do
     end
   end
 
-  @spec filename(URI.t() | binary) :: binary | nil
-  def filename(url_or_path) do
+  defp filename(url_or_path) do
     if path = URI.parse(url_or_path).path, do: Path.basename(path)
   end
 
@@ -50,19 +49,23 @@ defmodule MoodleNet.MediaProxy.URLBuilder do
   end
 
   @doc """
-  Attempt to decode a URL back into its original form.
-
-  This can fail if the local secret signature has changed, the link will become
-  un-decodable and will return `{:error, :invalid_signature}`.
+  Same as `decode/2`, but attempts to extract the signature from the URL.
   """
   @spec decode(binary) :: {:ok, binary} | {:error, term}
   def decode(url) do
     with {:ok, sig64, url64} <- extract_url(URI.parse(url)) do
-      decode_url(sig64, url64)
+      decode(sig64, url64)
     end
   end
 
-  defp decode_url(sig, url) do
+  @doc """
+  Decode a URL back into its original form.
+
+  This can fail if the local secret signature has changed, the link will become
+  un-decodable and will return `{:error, :invalid_signature}`.
+  """
+  @spec decode(binary, binary) :: {:ok, binary} | {:error, term}
+  def decode(sig, url) do
     sig = Base.url_decode64!(sig, @base64_opts)
     local_sig = :crypto.hmac(:sha, fetch_secret!(), url)
 

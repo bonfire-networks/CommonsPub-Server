@@ -86,11 +86,13 @@ defmodule MoodleNetWeb.Router do
 
   pipeline :remote_media do
     plug(:accepts, ["html"])
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
-  scope "/proxy/", MoodleNetWeb.MediaProxy do
+  scope "/media/", MoodleNetWeb do
     pipe_through(:remote_media)
-    get("/:sig/:url", MediaProxyController, :remote)
+    get("/:sig/:url/*_rest", MediaProxyController, :remote)
   end
 
   @doc """
