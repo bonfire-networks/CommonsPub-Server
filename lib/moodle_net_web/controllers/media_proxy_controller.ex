@@ -6,14 +6,21 @@
 defmodule MoodleNetWeb.MediaProxyController do
   use MoodleNetWeb, :controller
 
+  require Logger
+
   @proxy MoodleNet.DirectHTTPMediaProxy
 
   def remote(conn, %{"sig" => sig, "url" => url}) do
-    {:ok, content_type, stream} = @proxy.fetch(sig, url)
-    conn
-    |> put_resp_content_type(content_type)
-    |> send_chunked(200)
-    |> stream_respond(stream)
+    case @proxy.fetch(sig, url) do
+      {:ok, content_type, stream} ->
+        conn
+        |> put_resp_content_type(content_type)
+        |> send_chunked(200)
+        |> stream_respond(stream)
+      {:error, reason} ->
+        Logger.debug("Media proxy failed: #{inspect(reason)}")
+        send_resp(conn, 404, "not found")
+    end
   end
 
   # send a chunked http response using a stream
