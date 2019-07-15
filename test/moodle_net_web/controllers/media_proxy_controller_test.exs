@@ -5,6 +5,9 @@ defmodule MoodleNetWeb.MediaProxyControllerTest do
 
   test "fetches remote media", %{conn: conn} do
     url = URLBuilder.encode("https://via.placeholder.com/150.png")
-    assert conn |> get(url) |> response(200)
+
+    conn = get(conn, url)
+    assert conn.status == 200
+    assert get_resp_header(conn, "content-type") == ["image/png; charset=utf-8"]
   end
 end

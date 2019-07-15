@@ -9,9 +9,9 @@ defmodule MoodleNetWeb.MediaProxyController do
   @proxy MoodleNet.DirectHTTPMediaProxy
 
   def remote(conn, %{"sig" => sig, "url" => url}) do
-    {:ok, stream} = @proxy.fetch(sig, url)
+    {:ok, content_type, stream} = @proxy.fetch(sig, url)
     conn
-    # FIXME: add headers for media type
+    |> put_resp_content_type(content_type)
     |> send_chunked(200)
     |> stream_respond(stream)
   end
