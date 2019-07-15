@@ -73,4 +73,9 @@ defmodule MoodleNetWeb do
   def base_url do
     MoodleNetWeb.Endpoint.url()
   end
+
+  def media_path do
+    Application.fetch_env!(:moodle_net, MoodleNetWeb.Endpoint)
+    |> Keyword.fetch!(:media_path)
+  end
 end

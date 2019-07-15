@@ -4,6 +4,7 @@ defmodule MoodleNetWeb.MediaProxyControllerTest do
   alias MoodleNet.MediaProxy.URLBuilder
 
   @base_url MoodleNetWeb.base_url()
+  @media_path MoodleNetWeb.media_path()
 
   test "fetches remote media", %{conn: conn} do
     url = URLBuilder.encode("https://via.placeholder.com/150.png")
@@ -14,7 +15,7 @@ defmodule MoodleNetWeb.MediaProxyControllerTest do
   end
 
   test "fails with an invalid signature", %{conn: conn} do
-    url = "#{@base_url}/media/INVALID_SIG/INVALID_URL/image.png"
+    url = "#{@base_url}/#{@media_path}/INVALID_SIG/INVALID_URL/image.png"
     assert conn |> get(url) |> response(404)
   end
 end

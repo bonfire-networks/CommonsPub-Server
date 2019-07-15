@@ -6,7 +6,7 @@
 # Some code here is taken from https://framagit.org/framasoft/mobilizon
 defmodule MoodleNet.MediaProxy.URLBuilder do
   @base64_opts [padding: false]
-  @proxy_path "media"
+  @proxy_path MoodleNetWeb.media_path()
 
   @moduledoc """
   Handles URL's to be used for proxying media files.

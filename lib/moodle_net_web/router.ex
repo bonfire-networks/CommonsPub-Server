@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.Router do
     plug(:put_secure_browser_headers)
   end
 
-  scope "/media/", MoodleNetWeb do
+  scope "/#{MoodleNetWeb.media_path()}/", MoodleNetWeb do
     pipe_through(:remote_media)
     get("/:sig/:url/*_rest", MediaProxyController, :remote)
   end

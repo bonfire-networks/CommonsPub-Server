@@ -12,6 +12,7 @@ config :moodle_net, ecto_repos: [MoodleNet.Repo]
 config :moodle_net, MoodleNetWeb.Endpoint,
   url: [host: "localhost"],
   protocol: "https",
+  media_path: "media",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
   pubsub: [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2],
