@@ -12,7 +12,6 @@ config :moodle_net, ecto_repos: [MoodleNet.Repo]
 config :moodle_net, MoodleNetWeb.Endpoint,
   url: [host: "localhost"],
   protocol: "https",
-  media_path: "media",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
   pubsub: [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2],
@@ -33,6 +32,10 @@ config :moodle_net, MoodleNet.Mailer,
   api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
   domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
   open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
+
+config :moodle_net, MoodleNet.MediaProxy,
+  impl: MoodleNet.DirectHTTPMediaProxy,
+  path: "/media/"
 
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do

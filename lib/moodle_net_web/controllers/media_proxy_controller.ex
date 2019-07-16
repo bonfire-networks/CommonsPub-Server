@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.MediaProxyController do
 
   require Logger
 
-  @proxy MoodleNet.DirectHTTPMediaProxy
+  @proxy MoodleNet.MediaProxy.current()
 
   def remote(conn, %{"sig" => sig, "url" => url}) do
     case @proxy.fetch(sig, url) do
@@ -17,8 +17,8 @@ defmodule MoodleNetWeb.MediaProxyController do
         |> put_resp_content_type(content_type)
         |> send_chunked(200)
         |> stream_respond(stream)
-      {:error, reason} ->
-        Logger.debug("Media proxy failed: #{inspect(reason)}")
+      {:error, :invalid_signature} ->
+        Logger.warn("Invalid signature detected: #{sig}, URL: #{url}")
         send_resp(conn, 404, "not found")
     end
   end

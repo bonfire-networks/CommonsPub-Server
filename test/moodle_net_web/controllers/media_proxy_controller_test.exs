@@ -4,7 +4,7 @@ defmodule MoodleNetWeb.MediaProxyControllerTest do
   alias MoodleNet.MediaProxy.URLBuilder
 
   @base_url MoodleNetWeb.base_url()
-  @media_path MoodleNetWeb.media_path()
+  @media_path MoodleNet.MediaProxy.media_path()
 
   test "fetches remote media", %{conn: conn} do
     url = URLBuilder.encode("https://via.placeholder.com/150.png")
