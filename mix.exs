@@ -70,7 +70,7 @@ defmodule MoodleNet.Mixfile do
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
       # Password hashing
-      {:comeonin, "~> 4.1.1"}, 
+      {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       # Outbound HTTP
       {:hackney, "~> 1.15"},
@@ -90,6 +90,10 @@ defmodule MoodleNet.Mixfile do
       {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:tesla, "~> 1.2"},
+      {:http_signatures,
+       git: "https://git.pleroma.social/pleroma/http_signatures.git",
+       ref: "9789401987096ead65646b52b5a2ca6bf52fc531"}
     ]
   end
 
