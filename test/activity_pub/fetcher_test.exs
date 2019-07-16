@@ -7,7 +7,7 @@ defmodule ActivityPubWeb.FetcherTest do
   use MoodleNet.DataCase
   import Tesla.Mock
 
-  alias ActivityPubWeb.Fetcher
+  alias ActivityPub.Fetcher
 
   setup do
     mock(fn
@@ -26,12 +26,25 @@ defmodule ActivityPubWeb.FetcherTest do
 
   describe "fetching objects" do
     test "fetches a pleroma note" do
-      {:ok, data} =
+      {:ok, object} =
         Fetcher.fetch_object_from_id(
           "https://kawen.space/objects/eb3b1181-38cc-4eaf-ba1b-3f5431fa9779"
         )
 
-      assert data
+      assert object
+    end
+
+    test "fetches a pleroma actor" do
+      {:ok, object} = Fetcher.fetch_object_from_id("https://kawen.space/users/karen")
+
+      assert object
+    end
+
+    test "rejects private posts" do
+      {:error, _} =
+        Fetcher.fetch_object_from_id(
+          "https://testing.kawen.dance/objects/d953809b-d968-49c8-aa8f-7545b9480a12"
+        )
     end
   end
 

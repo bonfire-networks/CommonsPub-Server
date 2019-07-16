@@ -3,13 +3,13 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule ActivityPubWeb.Fetcher do
+defmodule ActivityPub.Fetcher do
   @moduledoc """
   Handles fetching AS2 objects from remote instances.
   """
 
-  alias MoodleNet.Repo
   alias ActivityPub.HTTP
+  alias ActivityPubWeb.Transmogrifier
   require Logger
 
   @doc """
@@ -22,10 +22,12 @@ defmodule ActivityPubWeb.Fetcher do
     if entity = ActivityPub.get_by_id(id) do
       {:ok, entity}
     else
-      with {:ok, data} <- fetch_remote_object_from_id(id) do
-        {:ok, data}
+      with {:ok, data} <- fetch_remote_object_from_id(id),
+           true <- data["type"] in ["Note", "Article", "Person"],
+           {:ok, object} <- Transmogrifier.handle_incoming(data) do
+        {:ok, object}
       else
-        e -> {:error, e}
+        {:error, e} -> {:error, e}
       end
     end
   end

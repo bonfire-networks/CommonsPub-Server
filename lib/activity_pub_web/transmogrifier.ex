@@ -4,15 +4,22 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Transmogrifier do
+  @moduledoc """
+  This module normalises outgoing data to conform with AS2/AP specs
+  and handles incoming objects and activities
+  """
 
   alias ActivityPub.Entity
+  alias ActivityPub.Object
   require ActivityPub.Guards, as: APG
 
+  @doc """
+  Translates MN Entity to an AP compatible format
+  """
   def prepare_outgoing(entity) do
     entity
     |> Entity.aspects()
     |> Enum.flat_map(&filter_by_aspect(entity, &1))
-    |> Enum.map(&fix_ids(entity, &1))
     |> Enum.into(%{})
     |> set_type(entity.type)
     |> set_context()
@@ -52,10 +59,9 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp common_fields(ret, entity) do
-    id = set_id(entity)
 
     ret
-    |> Map.put("id", id)
+    |> Map.put("id", entity.id)
     |> Map.put("type", entity.type)
     |> Map.put("@context", entity["@context"])
     |> Map.delete("likersCount")
@@ -214,31 +220,43 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp add_public_address(json), do: Map.put(json, "to", @public_address)
 
-  @collection_types ["inbox", "outbox", "followers", "following", "liked", "likes"]
-  defp fix_ids(entity, {key, value}) do
-    if key in @collection_types do
-      id = set_id(entity)
-      value = "#{id}/#{key}"
-      {key, value}
+  @doc """
+  Normalises and inserts an incoming AS2 object. Returns Object.
+  """
+  def handle_incoming(data) do
+    with {:ok, data} <- prepare_data(data),
+         {:ok, object} <- Object.insert(data),
+         {:ok, object} <- check_if_public(object) do
+      {:ok, object}
     else
-      {key, value}
+      {:error, e} -> {:error, e}
+      {:reject, nil} -> {:error, "reject"}
     end
   end
 
-  defp set_id(entity) do
-    base_url = Application.get_env(:moodle_net, :ap_base_url) 
-    base_id = entity.id
-              |> String.split("/")
-              |> List.last()
-    case entity.type do
-      ["Object"] -> "#{base_url}/objects/#{base_id}"
-      ["Object", "Actor"] -> "#{base_url}/actors/#{base_id}"
-      ["Object", "Actor", _] -> "#{base_url}/actors/#{base_id}"
-      ["Object", "Actor", _, _] -> "#{base_url}/actors/#{base_id}"
-      ["Object", "Activity"] -> "#{base_url}/activities/#{base_id}"
-      ["Object", "Activity", _] -> "#{base_url}/activities/#{base_id}"
-      ["Object", _] -> "#{base_url}/objects/#{base_id}"
-      _ -> entity.id
+  defp prepare_data(data) do
+    recipients = (data["to"] || []) ++ (data["cc"] || [])
+
+    data =
+      %{}
+      |> Map.put(:data, data)
+      |> Map.put(:recipients, Enum.uniq(recipients))
+      |> Map.put(:actor, data["actor"])
+      |> Map.put(:local, false)
+
+    {:ok, data}
+  end
+
+  defp check_if_public(object) do
+    cond do
+      object.recipients == [] ->
+        {:ok, object}
+
+      Enum.member?(object.recipients, "https://www.w3.org/ns/activitystreams#Public") ->
+        {:ok, object}
+
+      true ->
+        {:reject, nil}
     end
   end
 end
