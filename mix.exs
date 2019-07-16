@@ -81,7 +81,10 @@ defmodule MoodleNet.Mixfile do
       {:sentry, "~> 7.1", runtime: sentry?()},
       {:telemetry, "~> 0.4.0"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:tesla, "~> 1.2"}
+      {:tesla, "~> 1.2"},
+      {:http_signatures,
+       git: "https://git.pleroma.social/pleroma/http_signatures.git",
+       ref: "9789401987096ead65646b52b5a2ca6bf52fc531"}
     ]
   end
 
