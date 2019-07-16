@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
     end
   end
 
-  def create_user(%{user: attrs}, info) do
+  def create(%{user: attrs}, info) do
     attrs = attrs |> set_icon() |> set_image() |> set_location() |> set_website()
 
     with {:ok, %{actor: actor, user: user}} <- Accounts.register_user(attrs),
@@ -46,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
     |> Errors.handle_error()
   end
 
-  def delete_user(_, info) do
+  def delete(_, info) do
     with {:ok, current_actor} <- current_actor(info) do
       Accounts.delete_user(current_actor)
       {:ok, true}

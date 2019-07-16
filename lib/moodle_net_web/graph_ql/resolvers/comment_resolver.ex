@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.GraphQL.CommentResolver do
   require ActivityPub.Guards, as: APG
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, OAuth}
+  alias MoodleNet.OAuth
 
   alias ActivityPub.SQL.Query
   alias MoodleNet.Comments
@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.GraphQL.CommentResolver do
     end
   end
 
-  def like_comment(%{local_id: comment_id}, info) do
+  def like(%{local_id: comment_id}, info) do
     with {:ok, liker} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
       MoodleNet.like_comment(liker, comment)
@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.CommentResolver do
     |> Errors.handle_error()
   end
 
-  def undo_like_comment(%{local_id: comment_id}, info) do
+  def undo_like(%{local_id: comment_id}, info) do
     with {:ok, actor} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note") do
       MoodleNet.undo_like(actor, comment)
@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.GraphQL.CommentResolver do
     |> Errors.handle_error()
   end
 
-  def flag_comment(%{local_id: comment_id, reason: reason}, info) do
+  def flag(%{local_id: comment_id, reason: reason}, info) do
     with {:ok, liker} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note"),
          {:ok, _flag} <- Comments.flag(liker, comment, %{reason: reason}) do
@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.GraphQL.CommentResolver do
     |> Errors.handle_error()
   end
 
-  def undo_flag_comment(%{local_id: comment_id}, info) do
+  def undo_flag(%{local_id: comment_id}, info) do
     with {:ok, actor} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(comment_id, "Note"),
          {:ok, _flag} <- Comments.undo_flag(actor, comment) do
@@ -89,7 +89,7 @@ defmodule MoodleNetWeb.GraphQL.CommentResolver do
     |> Errors.handle_error()
   end
 
-  def delete_comment(%{local_id: id}, info) do
+  def delete(%{local_id: id}, info) do
     with {:ok, author} <- Resolver.current_actor(info),
          {:ok, comment} <- Resolver.fetch(id, "Note"),
          :ok <- MoodleNet.delete_comment(author, comment) do

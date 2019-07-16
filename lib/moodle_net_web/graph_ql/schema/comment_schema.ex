@@ -8,9 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
 
   require ActivityPub.Guards, as: APG
 
-  alias ActivityPub.SQL.Query
-  alias MoodleNet.Comments
-  alias MoodleNetWeb.GraphQL.{CommentResolver, Errors}
+  alias MoodleNetWeb.GraphQL.CommentResolver
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
 
   object :comment_queries do
@@ -42,32 +40,32 @@ defmodule MoodleNetWeb.GraphQL.CommentSchema do
     @desc "Delete a comment"
     field :delete_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CommentResolver.delete_comment/2)
+      resolve(&CommentResolver.delete/2)
     end
 
     @desc "Like a comment"
     field :like_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CommentResolver.like_comment/2)
+      resolve(&CommentResolver.like/2)
     end
 
     @desc "Undo a previous like to a comment"
     field :undo_like_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CommentResolver.undo_like_comment/2)
+      resolve(&CommentResolver.undo_like/2)
     end
 
     @desc "Like a comment"
     field :flag_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
       arg(:reason, non_null(:string))
-      resolve(&CommentResolver.flag_comment/2)
+      resolve(&CommentResolver.flag/2)
     end
 
     @desc "Undo a previous like to a comment"
     field :undo_flag_comment, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CommentResolver.undo_flag_comment/2)
+      resolve(&CommentResolver.undo_flag/2)
     end
 
   end

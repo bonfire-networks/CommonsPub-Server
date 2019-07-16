@@ -49,31 +49,38 @@ defmodule MoodleNet.Policy do
     actor_follows!(actor, community)
   end
 
-  ### TODO: community seems to be a not loaded??
   def flag_comment?(actor, comment, _attrs)
   when has_type(comment, "Note") and has_type(actor, "Person") do
-    # community = get_community(comment)
-    # actor_follows!(actor, community)
     :ok
   end
 
-  ### TODO: community seems to be a not loaded??
   def flag_resource?(actor, resource, _attrs)
   when has_type(resource, "MoodleNet:EducationalResource") and has_type(actor, "Person") do
-    # community = get_community(resource)
-    # actor_follows!(actor, community)
     :ok
   end
   
-  ### TODO: community seems to be a not loaded??
   def flag_collection?(actor, collection, _attrs)
   when has_type(collection, "MoodleNet:Collection") and has_type(actor, "Person") do
-    # community = get_community(collection)
-    # actor_follows!(actor, community)
+    :ok
+  end
+
+  def flag_community?(actor, community, _attrs)
+  when has_type(community, "MoodleNet:Community") and has_type(actor, "Person") do
+    :ok
+  end
+
+  def flag_user?(actor, user, _attrs)
+  when has_type(user, "Person") and has_type(actor, "Person") do
     :ok
   end
 
   def list_collection_flags?(actor)
+  when has_type(actor, "Person"), do: administrator?(actor)
+
+  def list_community_flags?(actor)
+  when has_type(actor, "Person"), do: administrator?(actor)
+
+  def list_user_flags?(actor)
   when has_type(actor, "Person"), do: administrator?(actor)
 
   def list_comment_flags?(actor)
