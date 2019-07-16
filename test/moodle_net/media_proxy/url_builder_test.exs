@@ -38,7 +38,7 @@ defmodule MoodleNet.MediaProxy.URLBuilderTest do
 
   describe "decode/1" do
     test "round trip" do
-      url = "http://example.com/docs/important.pdf"
+      url = "http://example.com/docs/important.pdf?legacy=true"
       assert {:ok, ^url} = url |> URLBuilder.encode() |> URLBuilder.decode()
     end
 

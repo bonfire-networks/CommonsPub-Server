@@ -6,7 +6,9 @@
 defmodule MoodleNetWeb.GraphQL.CollectionTest do
   use MoodleNetWeb.ConnCase#, async: true
   alias MoodleNet.{Collections, Factory}
+  import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import ActivityPub.Entity, only: [local_id: 1]
+
   @moduletag format: :json
 
   @tag :user
@@ -118,7 +120,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert collection["content"] == "collection_content"
     assert collection["preferredUsername"] == "collection_preferredUser"
     assert collection["primaryLanguage"] == "collection_language"
-    assert collection["icon"] == "https://imag.es/collection"
+    assert collection["icon"] == encode("https://imag.es/collection")
     assert collection["community"] == %{
       "id" => community.id,
       "localId" => local_id(community),
@@ -622,7 +624,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert user_map["name"] == actor.name["und"]
     assert user_map["summary"] == actor.summary["und"]
     assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+    assert user_map["icon"] == encode(get_in(actor, [:icon, Access.at(0), :url, Access.at(0)]))
 
     query = """
       mutation {
@@ -935,7 +937,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert ret_collection["content"] == "collection_content"
     assert ret_collection["preferredUsername"] == "collection_preferredUser"
     assert ret_collection["primaryLanguage"] == "collection_language"
-    assert ret_collection["icon"] == "https://imag.es/collection"
+    assert ret_collection["icon"] == encode("https://imag.es/collection")
 
     query = """
     {

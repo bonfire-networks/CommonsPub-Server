@@ -7,6 +7,8 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
   use MoodleNetWeb.ConnCase
 
   import ActivityPub.Entity, only: [local_id: 1]
+  import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
+
   @moduletag format: :json
 
   describe "createUser" do
@@ -66,8 +68,8 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
       assert user["name"] == "Alejandro Castaño"
       assert user["summary"] == "Summary"
       assert user["location"] == "MoodleNet"
-      assert user["icon"] == "https://imag.es/alexcastano"
-      assert user["image"] == "https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"
+      assert user["icon"] == encode("https://imag.es/alexcastano")
+      assert user["image"] == encode("https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971")
       assert user["primaryLanguage"] == "Elixir"
       assert user["website"] == "test.tld"
     end
@@ -207,8 +209,12 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["name"] == actor.name["und"]
     assert user["summary"] == actor.summary["und"]
     assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
-    assert user["image"] == get_in(actor, [:image, Access.at(0), :url, Access.at(0)])
+    assert user["icon"] == actor
+    |> get_in([:icon, Access.at(0), :url, Access.at(0)])
+    |> encode()
+    assert user["image"] == actor
+    |> get_in([:image, Access.at(0), :url, Access.at(0)])
+    |> encode()
     assert user["primaryLanguage"] == actor["primary_language"]
   end
 
@@ -283,8 +289,12 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["summary"] == actor.summary["und"]
     assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
     assert user["website"] == get_in(actor, [:attachment, Access.at(0), "value"])
-    assert user["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
-    assert user["image"] == get_in(actor, [:image, Access.at(0), :url, Access.at(0)])
+    assert user["icon"] == actor
+    |> get_in([:icon, Access.at(0), :url, Access.at(0)])
+    |> encode()
+    assert user["image"] == actor
+    |> get_in([:image, Access.at(0), :url, Access.at(0)])
+    |> encode()
     assert user["primaryLanguage"] == actor["primary_language"]
   end
 
@@ -612,8 +622,8 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     assert user["primaryLanguage"] == "Elixir"
     assert user["location"] == "MoodleNet"
     assert user["website"] == "test.tld"
-    assert user["icon"] == "https://imag.es/alexcastano"
-    assert user["image"] == "https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"
+    assert user["icon"] == encode("https://imag.es/alexcastano")
+    assert user["image"] == encode("https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971")
   end
 
   @tag :user

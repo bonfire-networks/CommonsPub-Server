@@ -20,6 +20,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   alias MoodleNetWeb.GraphQL.{UserResolver, CommunityResolver}
   alias MoodleNetWeb.GraphQL.{CommentResolver, ActivitySchema}
 
+  alias MoodleNet.MediaProxy.URLBuilder
+
   @doc """
   Load by id and type
   """
@@ -204,7 +206,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp to_icon([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
-      url
+      URLBuilder.encode(url)
     else
       _ -> nil
     end
@@ -214,7 +216,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp to_image([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
-      url
+      URLBuilder.encode(url)
     else
       _ -> nil
     end

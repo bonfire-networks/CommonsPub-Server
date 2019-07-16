@@ -7,6 +7,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   use MoodleNetWeb.ConnCase
 
   import ActivityPub.Entity, only: [local_id: 1]
+  import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
+
   @moduletag format: :json
 
   @tag :user
@@ -111,7 +113,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     assert community["content"] == "community_content"
     assert community["preferredUsername"] == "community_preferredUser"
     assert community["primaryLanguage"] == "community_language"
-    assert community["icon"] == "https://imag.es/community"
+    assert community["icon"] == encode("https://imag.es/community")
     assert community["creator"] == %{
       "id" => actor.id,
       "localId" => local_id(actor),
@@ -560,7 +562,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     assert ret_community["content"] == "community_content"
     assert ret_community["preferredUsername"] == "community_preferredUser"
     assert ret_community["primaryLanguage"] == "community_language"
-    assert ret_community["icon"] == "https://imag.es/community"
+    assert ret_community["icon"] == encode("https://imag.es/community")
 
     query = """
     {
