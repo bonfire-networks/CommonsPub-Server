@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.Errors
-  alias ActivityPubWeb.Fetcher
+  alias ActivityPub.Fetcher
 
   object :web_metadata do
     field(:title, :string)

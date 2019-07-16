@@ -7,7 +7,7 @@ defmodule ActivityPubWeb.FetcherTest do
   use MoodleNet.DataCase
   import Tesla.Mock
 
-  alias ActivityPubWeb.Fetcher
+  alias ActivityPub.Fetcher
 
   setup do
     mock(fn

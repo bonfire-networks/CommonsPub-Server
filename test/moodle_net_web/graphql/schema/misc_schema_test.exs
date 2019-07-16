@@ -110,7 +110,6 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
                |> json_response(200)
                |> Map.fetch!("data")
                |> Map.fetch!("fetchObject")
-               |> IO.inspect()
       end
 
     @url "https://kawen.space/users/karen"
@@ -134,7 +133,6 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
                |> json_response(200)
                |> Map.fetch!("data")
                |> Map.fetch!("fetchObject")
-               |> IO.inspect()
 
     end
   end

@@ -3,7 +3,7 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule ActivityPubWeb.Fetcher do
+defmodule ActivityPub.Fetcher do
   @moduledoc """
   Handles fetching AS2 objects from remote instances.
   """
