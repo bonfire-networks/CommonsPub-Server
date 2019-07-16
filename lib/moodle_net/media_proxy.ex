@@ -4,14 +4,27 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MediaProxy do
+  @moduledoc """
+  A behaviour for fetching media using a proxy.
+  """
+
+  @type content_type :: String.t()
+
+  @doc """
+  Fetch a stream of binary data, along with its content type, from a remote source.
+  """
   @callback fetch(sig :: String.t(), url :: String.t()) ::
-              {:ok, String.t(), Stream.t()} | {:error, term}
+              {:ok, content_type(), Stream.t()} | {:error, term}
 end
 
 defmodule MoodleNet.DirectHTTPMediaProxy do
   alias MoodleNet.MediaProxy.URLBuilder
 
   @behaviour MoodleNet.MediaProxy
+
+  @moduledoc """
+  Fetches remote media using HTTP/HTTPS, without any caching being used.
+  """
 
   def fetch(sig, url) do
     with {:ok, decoded_url} <- URLBuilder.decode(sig, url) do
