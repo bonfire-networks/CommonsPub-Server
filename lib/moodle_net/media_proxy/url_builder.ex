@@ -1,9 +1,9 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# Contains code from Mobilizon <https://joinmobilizon.org/>, Pleroma
+# <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-# Some code here is taken from https://framagit.org/framasoft/mobilizon
 defmodule MoodleNet.MediaProxy.URLBuilder do
   @base64_opts [padding: false]
   @proxy_path MoodleNet.MediaProxy.media_path() |> Path.basename()
