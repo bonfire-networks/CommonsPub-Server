@@ -8,9 +8,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
   alias MoodleNet.Collections
   alias MoodleNetWeb.GraphQL.Errors
 
-  def collection_list(args, info), do: to_page(:collection, args, info)
+  def list(args, info), do: to_page(:collection, args, info)
 
-  def create_collection(%{collection: attrs, community_local_id: comm_id}, info) do
+  def create(%{collection: attrs, community_local_id: comm_id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, community} <- fetch(comm_id, "MoodleNet:Community"),
          attrs = set_icon(attrs),
@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def update_collection(%{collection: changes, collection_local_id: id}, info) do
+  def update(%{collection: changes, collection_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(id, "MoodleNet:Collection"),
          {:ok, collection} <- MoodleNet.update_collection(actor, collection, changes) do
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def delete_collection(%{local_id: id}, info) do
+  def delete(%{local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(id, "MoodleNet:Collection"),
          :ok <- MoodleNet.delete_collection(actor, collection) do
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def follow_collection(%{collection_local_id: id}, info) do
+  def follow(%{collection_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
       MoodleNet.follow_collection(actor, collection)
@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def undo_follow_collection(%{collection_local_id: id}, info) do
+  def undo_follow(%{collection_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(id, "MoodleNet:Collection") do
       MoodleNet.undo_follow(actor, collection)
@@ -56,7 +56,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def like_collection(%{local_id: collection_id}, info) do
+  def like(%{local_id: collection_id}, info) do
     with {:ok, liker} <- current_actor(info),
          {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
       MoodleNet.like_collection(liker, collection)
@@ -64,7 +64,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def undo_like_collection(%{local_id: collection_id}, info) do
+  def undo_like(%{local_id: collection_id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
       MoodleNet.undo_like(actor, collection)
@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def flag_collection(%{local_id: collection_id, reason: reason}, info) do
+  def flag(%{local_id: collection_id, reason: reason}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
          {:ok, _activity} <- Collections.flag(actor, collection, %{reason: reason}) do
@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def undo_flag_collection(%{local_id: collection_id}, info) do
+  def undo_flag(%{local_id: collection_id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
          {:ok, _activity} <- Collections.undo_flag(actor, collection) do
