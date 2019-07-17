@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityResolver do
     |> Errors.handle_error()
   end
 
-  def update_community(%{community: changes, community_id: id}, info) do
+  def update_community(%{community: changes, community_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, community} <- fetch(id, "MoodleNet:Community"),
          {:ok, community} <- MoodleNet.update_community(actor, community, changes) do
@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityResolver do
     |> Errors.handle_error()
   end
 
-  def delete_community(%{id: id}, info) do
+  def delete_community(%{local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, community} <- fetch(id, "MoodleNet:Community"),
          :ok <- MoodleNet.delete_community(actor, community) do
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityResolver do
     |> Errors.handle_error()
   end
 
-  def join_community(%{community_id: id}, info) do
+  def join_community(%{community_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, community} <- fetch(id, "MoodleNet:Community") do
       MoodleNet.join_community(actor, community)
@@ -52,7 +52,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityResolver do
     |> Errors.handle_error()
   end
 
-  def undo_join_community(%{community_id: id}, info) do
+  def undo_join_community(%{community_local_id: id}, info) do
     with {:ok, actor} <- current_actor(info),
          {:ok, community} <- fetch(id, "MoodleNet:Community") do
       MoodleNet.undo_follow(actor, community)

@@ -6,6 +6,7 @@
 defmodule MoodleNetWeb.GraphQL.CollectionTest do
   use MoodleNetWeb.ConnCase#, async: true
 
+  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user
@@ -67,7 +68,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
     mutation {
       createCollection(
-        communityId: "#{community.id}",
+        communityLocalId: #{local_id(community)},
         collection: {
           name: "collection_name"
           summary: "collection_summary"
@@ -78,6 +79,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
         }
       ) {
         id
+        localId
         name
         summary
         content
@@ -88,10 +90,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
         updated
         creator {
           id
+          localId
           joinedCommunities { totalCount }
         }
         community {
           id
+          localId
           name
         }
       }
@@ -106,6 +110,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("createCollection")
 
     assert collection["id"]
+    assert collection["localId"]
     assert collection["published"]
     assert collection["updated"]
     assert collection["name"] == "collection_name"
@@ -116,10 +121,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     assert collection["icon"] == "https://imag.es/collection"
     assert collection["community"] == %{
       "id" => community.id,
+      "localId" => local_id(community),
       "name" => community.name["und"]
     }
     assert collection["creator"] == %{
       "id" => actor.id,
+      "localId" => local_id(actor),
       "joinedCommunities" => %{"totalCount" => 1}
     }
   end
@@ -129,11 +136,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     %{id: other_actor_id} = other_actor = Factory.actor()
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
+    local_id = local_id(coll)
     actor_id = actor.id
 
     query = """
       {
-        collection(id: "#{coll.id}") {
+        collection(localId: #{local_id}) {
           followers {
             pageInfo {
               startCursor
@@ -215,11 +223,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   test "follow_collection & undo", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     collection = Factory.collection(actor, community)
+    collection_id = local_id(collection)
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(localId: #{collection_id}) {
         id
+        localId
         followed
         followers {
           totalCount
@@ -241,6 +251,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("collection")
 
     assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
     assert collection_map["followed"] == true
 
     assert %{
@@ -257,7 +268,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
       mutation {
         undoFollowCollection(
-          collectionId: "#{collection.id}"
+          collectionLocalId: #{local_id(collection)}
         )
       }
     """
@@ -281,8 +292,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(localId: #{collection_id}) {
         id
+        localId
         followed
         followers {
           totalCount
@@ -304,6 +316,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("collection")
 
     assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
     assert collection_map["followed"] == false
 
     assert %{
@@ -314,7 +327,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
       mutation {
         followCollection(
-          collectionId: "#{collection.id}"
+          collectionLocalId: #{local_id(collection)}
         )
       }
     """
@@ -327,8 +340,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(localId: #{collection_id}) {
         id
+        localId
         followed
         followers {
           totalCount
@@ -350,6 +364,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("collection")
 
     assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
     assert collection_map["followed"] == true
 
     assert %{
@@ -367,10 +382,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   test "resource list", %{conn: conn, actor: actor} do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
+    local_id = local_id(coll)
 
     query = """
       {
-        collection(id: "#{coll.id}") {
+        collection(localId: #{local_id}) {
           resources {
             pageInfo {
               startCursor
@@ -444,10 +460,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   test "thread list", %{conn: conn, actor: actor} do
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
+    local_id = local_id(coll)
 
     query = """
       {
-        collection(id: "#{coll.id}") {
+        collection(localId: #{local_id}) {
           threads {
             pageInfo {
               startCursor
@@ -523,11 +540,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   test "like and unlike", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
     collection = Factory.collection(actor, community)
+    collection_id = local_id(collection)
 
     query = """
       mutation {
         undoLikeCollection(
-          id: "#{collection.id}"
+          localId: #{collection_id}
         )
       }
     """
@@ -546,7 +564,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
       mutation {
         likeCollection(
-          id: "#{collection.id}"
+          localId: #{collection_id}
         )
       }
     """
@@ -559,13 +577,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(localId: #{collection_id}) {
         id
+        localId
         likers {
           totalCount
           edges {
             node {
               id
+              localId
               local
               type
               preferredUsername
@@ -588,12 +608,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("collection")
 
     assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
     assert %{
       "totalCount" => 1,
       "edges" => [%{"node" => user_map}]
     } = collection_map["likers"]
 
     assert user_map["id"] == actor.id
+    assert user_map["localId"] == local_id(actor)
     assert user_map["local"] == ActivityPub.Entity.local?(actor)
     assert user_map["type"] == actor.type
     assert user_map["preferredUsername"] == actor.preferred_username
@@ -605,7 +627,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
       mutation {
         undoLikeCollection(
-          id: "#{collection.id}"
+          localId: #{collection_id}
         )
       }
     """
@@ -618,8 +640,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(localId: #{collection_id}) {
         id
+        localId
         likers {
           totalCount
           edges {
@@ -640,6 +663,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("collection")
 
     assert collection_map["id"] == collection.id
+    assert collection_map["localId"] == local_id(collection)
     assert %{
       "totalCount" => 0,
       "edges" => []
@@ -648,7 +672,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
       mutation {
         undoLikeCollection(
-          id: "#{collection.id}"
+          localId: #{collection_id}
         )
       }
     """
@@ -670,10 +694,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     %{id: actor_id} = actor
     comm = Factory.community(actor)
     coll = Factory.collection(actor, comm)
+    local_id = local_id(coll)
 
     query = """
       {
-        collection(id: "#{coll.id}") {
+        collection(localId: #{local_id}) {
           likers {
             pageInfo {
               startCursor
@@ -758,7 +783,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     mutation {
-      deleteCollection(id: "#{collection.id}")
+      deleteCollection(local_id: #{local_id(collection)})
     }
     """
 
@@ -784,7 +809,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     query = """
     mutation {
       updateCollection(
-        collectionId: "#{collection.id}",
+        collection_local_id: #{local_id(collection)},
         collection: {
           name: "collection_name"
           summary: "collection_summary"
@@ -795,6 +820,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
         }
       ) {
         id
+        localId
         name
         summary
         content
@@ -815,6 +841,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
              |> Map.fetch!("updateCollection")
 
     assert ret_collection["id"] == collection.id
+    assert ret_collection["localId"]
     assert ret_collection["published"]
     assert ret_collection["updated"]
     assert ret_collection["name"] == "collection_name"
@@ -826,8 +853,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
 
     query = """
     {
-      collection(id: "#{collection.id}") {
+      collection(local_id: #{local_id(collection)}) {
         id
+        localId
         name
         summary
         content
@@ -868,9 +896,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
     MoodleNet.like_comment(actor, comment)
     MoodleNet.like_comment(actor, reply)
 
+    local_id = local_id(collection)
+
     query = """
       {
-        collection(id: "#{collection.id}") {
+        collection(localId: #{local_id}) {
           inbox {
             pageInfo {
               startCursor

@@ -98,7 +98,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     @desc "Get a comment"
     field :comment, :comment do
-      arg(:id, non_null(:string))
+      arg(:local_id, non_null(:integer))
       resolve(MoodleNetSchema.resolve_by_id_and_type("Note"))
     end
 
@@ -123,33 +123,33 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     @desc "Create a new thread"
     field :create_thread, type: :comment do
-      arg(:context_id, non_null(:string))
+      arg(:context_local_id, non_null(:integer))
       arg(:comment, non_null(:comment_input))
       resolve(&CommentSchema.create_thread/2)
     end
 
     @desc "Create a reply"
     field :create_reply, type: :comment do
-      arg(:in_reply_to_id, non_null(:string))
+      arg(:in_reply_to_local_id, non_null(:integer))
       arg(:comment, non_null(:comment_input))
       resolve(&CommentSchema.create_reply/2)
     end
 
     @desc "Delete a comment"
     field :delete_comment, type: :boolean do
-      arg(:id, non_null(:string))
+      arg(:local_id, non_null(:integer))
       resolve(&CommentSchema.delete_comment/2)
     end
 
     @desc "Like a comment"
     field :like_comment, type: :boolean do
-      arg(:id, non_null(:string))
+      arg(:local_id, non_null(:integer))
       resolve(&CommentSchema.like_comment/2)
     end
 
     @desc "Undo a previous like to a comment"
     field :undo_like_comment, type: :boolean do
-      arg(:id, non_null(:string))
+      arg(:local_id, non_null(:integer))
       resolve(&CommentSchema.undo_like_comment/2)
     end
 

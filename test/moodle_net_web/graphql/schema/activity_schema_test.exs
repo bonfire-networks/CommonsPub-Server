@@ -6,6 +6,7 @@
 defmodule MoodleNetWeb.GraphQL.ActivitySchemaTest do
   use MoodleNetWeb.ConnCase
 
+  # import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user

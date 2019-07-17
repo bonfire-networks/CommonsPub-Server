@@ -6,6 +6,7 @@
 defmodule MoodleNetWeb.GraphQL.CommunityTest do
   use MoodleNetWeb.ConnCase
 
+  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   @tag :user
@@ -76,6 +77,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           }
         ) {
           id
+          localId
           name
           summary
           content
@@ -86,6 +88,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           updated
           creator {
             id
+            localId
             joinedCommunities { totalCount }
           }
         }
@@ -100,6 +103,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              |> Map.fetch!("createCommunity")
 
     assert community["id"]
+    assert community["localId"]
     assert community["published"]
     assert community["updated"]
     assert community["name"] == "community_name"
@@ -110,6 +114,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     assert community["icon"] == "https://imag.es/community"
     assert community["creator"] == %{
       "id" => actor.id,
+      "localId" => local_id(actor),
       "joinedCommunities" => %{"totalCount" => 1}
     }
   end
@@ -117,10 +122,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   @tag :user
   test "collection connection", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
+    local_id = local_id(community)
 
     query = """
       {
-        community(id: "#{community.id}") {
+        community(localId: #{local_id}) {
           collections {
             pageInfo {
               startCursor
@@ -195,10 +201,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   @tag :user
   test "thread connection", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
+    local_id = local_id(community)
 
     query = """
       {
-        community(id: "#{community.id}") {
+        community(localId: #{local_id}) {
           threads {
             pageInfo {
               startCursor
@@ -270,10 +277,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   @tag :user
   test "members", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
+    local_id = local_id(community)
 
     query = """
     {
-      community(id: "#{community.id}") {
+      community(local_id: #{local_id}) {
         members {
           pageInfo {
             startCursor
@@ -283,6 +291,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
             cursor
             node {
               id
+              localId
               name
             }
           }
@@ -318,11 +327,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   @tag :user
   test "join_community & undo", %{conn: conn, actor: actor} do
     community = Factory.community(actor)
+    community_local_id = local_id(community)
 
     query = """
     {
-      community(id: "#{community.id}") {
+      community(localId: #{community_local_id}) {
         id
+        localId
         followed
         members {
           totalCount
@@ -344,6 +355,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              |> Map.fetch!("community")
 
     assert community_map["id"] == community.id
+    assert community_map["localId"] == community_local_id
     assert community_map["followed"] == true
 
     assert %{
@@ -360,7 +372,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     query = """
       mutation {
         undoJoinCommunity(
-          communityId: "#{community.id}"
+          communityLocalId: #{community_local_id}
         )
       }
     """
@@ -384,8 +396,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     query = """
     {
-      community(id: "#{community.id}") {
+      community(localId: #{community_local_id}) {
         id
+        localId
         followed
         members {
           totalCount
@@ -407,6 +420,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              |> Map.fetch!("community")
 
     assert community_map["id"] == community.id
+    assert community_map["localId"] == community_local_id
     assert community_map["followed"] == false
 
     assert %{
@@ -417,7 +431,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     query = """
       mutation {
         joinCommunity(
-          communityId: "#{community.id}"
+          communityLocalId: #{community_local_id}
         )
       }
     """
@@ -430,8 +444,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     query = """
     {
-      community(id: "#{community.id}") {
+      community(localId: #{community_local_id}) {
         id
+        localId
         followed
         members {
           totalCount
@@ -453,6 +468,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              |> Map.fetch!("community")
 
     assert community_map["id"] == community.id
+    assert community_map["localId"] == community_local_id
     assert community_map["followed"] == true
 
     assert %{
@@ -478,7 +494,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     query = """
     mutation {
-      deleteCommunity(id: "#{community.id}")
+      deleteCommunity(localId: #{local_id(community)})
     }
     """
 
@@ -504,7 +520,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     query = """
       mutation {
         updateCommunity(
-          communityId: "#{community.id}"
+          community_local_id: #{local_id(community)}
           community: {
             name: "community_name"
             summary: "community_summary"
@@ -515,6 +531,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           }
         ) {
           id
+          localId
           name
           summary
           content
@@ -535,6 +552,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
              |> Map.fetch!("updateCommunity")
 
     assert ret_community["id"] == community.id
+    assert ret_community["localId"]
     assert ret_community["published"]
     assert ret_community["updated"]
     assert ret_community["name"] == "community_name"
@@ -546,8 +564,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     query = """
     {
-      community(id: "#{community.id}") {
+      community(local_id: #{local_id(community)}) {
         id
+        localId
         name
         summary
         content
@@ -584,9 +603,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     comment = Factory.comment(actor, community)
     Factory.reply(actor, comment)
 
+    local_id = local_id(community)
+
     query = """
       {
-        community(id: "#{community.id}") {
+        community(localId: #{local_id}) {
           inbox {
             pageInfo {
               startCursor

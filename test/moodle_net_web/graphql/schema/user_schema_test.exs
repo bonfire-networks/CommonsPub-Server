@@ -6,6 +6,7 @@
 defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
   use MoodleNetWeb.ConnCase
 
+  import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
   describe "createUser" do
@@ -31,6 +32,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
               email
               user {
                 id
+                localId
                 local
                 type
                 preferredUsername
@@ -174,6 +176,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
             email
             user {
               id
+              localId
               local
               type
               preferredUsername
@@ -245,10 +248,13 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
 
   @tag :user
   test "get user", %{conn: conn, actor: actor} do
+    local_id = local_id(actor)
+
     query = """
     {
-      user(id: "#{actor.id}") {
+      user(localId: #{local_id}) {
         id
+        localId
         local
         type
         preferredUsername
@@ -271,6 +277,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
              |> Map.fetch!("user")
 
     assert user["id"] == actor.id
+    assert user["localId"] == local_id
     assert user["preferredUsername"] == actor.preferred_username
     assert user["name"] == actor.name["und"]
     assert user["summary"] == actor.summary["und"]
@@ -312,9 +319,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
 
   @tag :user
   test "joined_communities connection", %{conn: conn, actor: actor} do
+    local_id = local_id(actor)
+
     query = """
       {
-        user(id: "#{actor.id}") {
+        user(localId: #{local_id}) {
           joinedCommunities {
             pageInfo {
               startCursor
@@ -392,9 +401,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
 
   @tag :user
   test "following collections connection", %{conn: conn, actor: actor} do
+    local_id = local_id(actor)
+
     query = """
       {
-        user(id: "#{actor.id}") {
+        user(localId: #{local_id}) {
           followingCollections {
             pageInfo {
               startCursor
@@ -473,9 +484,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
 
   @tag :user
   test "created comments connection", %{conn: conn, actor: actor} do
+    local_id = local_id(actor)
+
     query = """
       {
-        user(id: "#{actor.id}") {
+        user(localId: #{local_id}) {
           comments {
             pageInfo {
               startCursor
@@ -568,6 +581,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
           email
           user {
             id
+            localId
             local
             type
             preferredUsername
@@ -628,9 +642,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     MoodleNet.like_comment(owner, comment)
     MoodleNet.like_comment(owner, reply)
 
+    local_id = local_id(actor)
+
     query = """
       {
-        user(id: "#{actor.id}") {
+        user(localId: #{local_id}) {
           inbox {
             pageInfo {
               startCursor
@@ -751,9 +767,11 @@ defmodule MoodleNetWeb.GraphQL.UserSchemaTest do
     MoodleNet.like_comment(actor, comment)
     MoodleNet.like_comment(actor, reply)
 
+    local_id = local_id(actor)
+
     query = """
       {
-        user(id: "#{actor.id}") {
+        user(localId: #{local_id}) {
           outbox {
             pageInfo {
               startCursor

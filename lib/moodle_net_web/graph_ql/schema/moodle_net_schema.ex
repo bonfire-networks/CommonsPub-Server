@@ -24,10 +24,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   Load by id and type
   """
   def resolve_by_id_and_type(type) do
-    fn %{id: id}, info ->
+    fn %{local_id: local_id}, info ->
       fields = requested_fields(info)
 
-      case get_by_id_and_type(id, type) do
+      case get_by_id_and_type(local_id, type) do
         nil -> {:ok, nil}
         comm -> {:ok, prepare(comm, fields)}
       end
@@ -36,14 +36,16 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   # Resource
 
-  defp get_by_id_and_type(id, type) do
-    entity = Query.get_by_id(id)
-    if entity && type in entity.type, do: entity
+  defp get_by_id_and_type(local_id, type) do
+    Query.new()
+    |> Query.where(local_id: local_id)
+    |> Query.with_type(type)
+    |> Query.one()
   end
 
-  def fetch(id, type) do
-    case get_by_id_and_type(id, type) do
-      nil -> Errors.not_found_error(id, type)
+  def fetch(local_id, type) do
+    case get_by_id_and_type(local_id, type) do
+      nil -> Errors.not_found_error(local_id, type)
       entity -> {:ok, entity}
     end
   end
@@ -170,6 +172,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     website = to_website(entity.attachment)
 
     entity
+    |> Map.put(:local_id, Entity.local_id(entity))
     |> Map.put(:local, Entity.local?(entity))
     |> Map.update!(:name, &from_language_value/1)
     |> Map.update!(:content, &from_language_value/1)

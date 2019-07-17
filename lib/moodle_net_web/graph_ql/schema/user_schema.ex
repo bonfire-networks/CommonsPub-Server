@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
     @desc "Get an user"
     field :user, type: :user do
-      arg(:id, non_null(:string))
+      arg(:local_id, non_null(:integer))
       resolve(&UserResolver.user/2)
     end
 
@@ -94,6 +94,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
   object :user do
     field(:id, :id)
+    field(:local_id, :integer)
     field(:local, :boolean)
     field(:type, list_of(:string))
     field(:preferred_username, :string)
