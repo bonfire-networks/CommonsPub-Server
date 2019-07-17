@@ -1,5 +1,5 @@
 # The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.8.1-alpine` image uses
+# This should match the version of Alpine that the `elixir:1.9.0-alpine` image uses
 ARG ALPINE_VERSION=3.9
 
 # The following are build arguments used to change variable parts of the image.
@@ -23,7 +23,7 @@ RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
 
 COPY . .
 
-RUN mix do phx.digest, release --env=prod --verbose --no-tar
+RUN mix do phx.digest, distillery.release --env=prod --verbose --no-tar
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}

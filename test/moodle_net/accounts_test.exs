@@ -46,6 +46,7 @@ defmodule MoodleNet.AccountsTest do
       assert [image_attrs["url"]] == get_in(ret, [:actor, :image, Access.at(0), :url])
       # TODO: properly implement welcome emails
       # assert_delivered_email(MoodleNet.Email.welcome(ret.user, ret.email_confirmation_token.token))
+      assert false == Accounts.is_username_available?(ret.actor.preferred_username)
     end
 
     test "works with moodle.com emails" do

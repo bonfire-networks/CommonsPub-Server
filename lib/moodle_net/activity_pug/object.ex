@@ -2,17 +2,15 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
-defmodule MoodleNetWeb.PageController do
+defmodule MoodleNet.ActivityPug.Object do
   @moduledoc """
-  Standard page controller created by Phoenix generator
+  This ecto schema is just a placeholder to make real ecto models be
+  able to point at something with belongs_to.
+  You will still need to use the activitypub libraries to actually fetch this data
   """
-  use MoodleNetWeb, :controller
+  use Ecto.Schema
 
-  def index(conn, _params) do
-    url = Application.get_env(:moodle_net, :frontend_base_url)
-    conn
-    |> put_status(:moved_permanently)
-    |> redirect(external: url)
+  schema "activity_pub_objects" do
   end
+
 end

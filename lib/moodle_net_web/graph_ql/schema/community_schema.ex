@@ -32,32 +32,45 @@ defmodule MoodleNetWeb.GraphQL.CommunitySchema do
     @desc "Create a community"
     field :create_community, type: :community do
       arg(:community, non_null(:community_input))
-      resolve(&CommunityResolver.create_community/2)
+      resolve(&CommunityResolver.create/2)
     end
 
     @desc "Update a community"
     field :update_community, type: :community do
       arg(:community_local_id, non_null(:integer))
       arg(:community, non_null(:community_input))
-      resolve(&CommunityResolver.update_community/2)
+      resolve(&CommunityResolver.update/2)
     end
 
     @desc "Delete a community"
     field :delete_community, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CommunityResolver.delete_community/2)
+      resolve(&CommunityResolver.delete/2)
     end
 
     @desc "Join a community"
     field :join_community, type: :boolean do
       arg(:community_local_id, non_null(:integer))
-      resolve(&CommunityResolver.join_community/2)
+      resolve(&CommunityResolver.join/2)
     end
 
     @desc "Undo join a community"
     field :undo_join_community, type: :boolean do
       arg(:community_local_id, non_null(:integer))
-      resolve(&CommunityResolver.undo_join_community/2)
+      resolve(&CommunityResolver.undo_join/2)
+    end
+
+    @desc "Flag a community"
+    field :flag_community, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
+      resolve(&CommunityResolver.flag/2)
+    end
+
+    @desc "Undo a previous flag of a community"
+    field :undo_flag_community, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CommunityResolver.undo_flag/2)
     end
   end
 

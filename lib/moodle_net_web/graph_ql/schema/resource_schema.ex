@@ -13,55 +13,73 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
   alias MoodleNetWeb.GraphQL.ResourceResolver
 
   object :resource_queries do
+
     @desc "Get a resource"
     field :resource, :resource do
       arg(:local_id, non_null(:integer))
       resolve(Resolver.resolve_by_id_and_type("MoodleNet:EducationalResource"))
     end
+
   end
 
   object :resource_mutations do
+
     @desc "Create a resource"
     field :create_resource, type: :resource do
       arg(:collection_local_id, non_null(:integer))
       arg(:resource, non_null(:resource_input))
-      resolve(&ResourceResolver.create_resource/2)
+      resolve(&ResourceResolver.create/2)
     end
 
     @desc "Update a resource"
     field :update_resource, type: :resource do
       arg(:resource_local_id, non_null(:integer))
       arg(:resource, non_null(:resource_input))
-      resolve(&ResourceResolver.update_resource/2)
+      resolve(&ResourceResolver.update/2)
     end
 
     @desc "Delete a resource"
     field :delete_resource, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&ResourceResolver.delete_resource/2)
+      resolve(&ResourceResolver.delete/2)
     end
 
     @desc "Copy a resource"
     field :copy_resource, type: non_null(:resource) do
       arg(:resource_local_id, non_null(:integer))
       arg(:collection_local_id, non_null(:integer))
-      resolve(&ResourceResolver.copy_resource/2)
+      resolve(&ResourceResolver.copy/2)
     end
 
     @desc "Like a resource"
     field :like_resource, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&ResourceResolver.like_resource/2)
+      resolve(&ResourceResolver.like/2)
     end
 
     @desc "Undo a previous like to a resource"
     field :undo_like_resource, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&ResourceResolver.undo_like_resource/2)
+      resolve(&ResourceResolver.undo_like/2)
     end
+
+    @desc "Flag a resource"
+    field :flag_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
+      resolve(&ResourceResolver.flag/2)
+    end
+
+    @desc "Undo a previous flag to a resource"
+    field :undo_flag_resource, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&ResourceResolver.undo_flag/2)
+    end
+
   end
 
   object :resource do
+
     field(:id, :string)
     field(:local_id, :integer)
     field(:local, :boolean)
@@ -82,13 +100,19 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
       do: resolve(Resolver.with_assoc(:context, single: true))
     )
 
-    field :likers, :collection_likers_connection do
+    field :likers, non_null(:resource_likers_connection) do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(Resolver.with_connection(:collection_liker))
+      resolve(Resolver.with_connection(:resource_liker))
     end
 
+    field :flags, non_null(:resource_flags_connection) do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:resource_flags))
+    end
 
     field(:published, :string)
     field(:updated, :string)
@@ -115,6 +139,17 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
     field(:node, :user)
   end
 
+  object :resource_flags_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:resource_flags_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :resource_flags_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :user)
+  end
+
   input_object :resource_input do
     field(:id, :string)
     field(:local_id, :integer)
@@ -136,4 +171,5 @@ defmodule MoodleNetWeb.GraphQL.ResourceSchema do
     field(:time_required, :integer)
     field(:typical_age_range, :string)
   end
+
 end

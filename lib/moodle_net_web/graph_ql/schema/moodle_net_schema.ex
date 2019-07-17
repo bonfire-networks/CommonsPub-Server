@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   alias MoodleNetWeb.GraphQL.Errors
 
   alias MoodleNetWeb.GraphQL.{UserResolver, CommunityResolver}
-  alias MoodleNetWeb.GraphQL.{CommentSchema, ActivitySchema}
+  alias MoodleNetWeb.GraphQL.{CommentResolver, ActivitySchema}
 
   @doc """
   Load by id and type
@@ -145,10 +145,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     do: UserResolver.prepare_user(e, fields)
 
   def prepare([e | _] = list, fields) when APG.has_type(e, "Note"),
-    do: CommentSchema.prepare(list, fields)
+    do: CommentResolver.prepare(list, fields)
 
   def prepare(e, fields) when APG.has_type(e, "Note"),
-    do: CommentSchema.prepare(e, fields)
+    do: CommentResolver.prepare(e, fields)
 
   def prepare([e | _] = list, fields) when APG.has_type(e, "Activity"),
     do: ActivitySchema.prepare(list, fields)

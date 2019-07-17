@@ -10,10 +10,10 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
   use Absinthe.Schema.Notation
 
   import MoodleNetWeb.GraphQL.MoodleNetSchema
-
   alias MoodleNetWeb.GraphQL.UserResolver
 
   object :user_queries do
+
     @desc "Get my user"
     field :me, type: :me do
       resolve(&UserResolver.me/2)
@@ -30,13 +30,15 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
       arg(:username, non_null(:string))
       resolve(&UserResolver.check_username_available/2)
     end
+
   end
 
   object :user_mutations do
+
     @desc "Create a user"
     field :create_user, type: :auth_payload do
       arg(:user, non_null(:registration_input))
-      resolve(&UserResolver.create_user/2)
+      resolve(&UserResolver.create/2)
     end
 
     @desc "Update a profile"
@@ -47,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
 
     @desc "Delete a user"
     field :delete_user, type: :boolean do
-      resolve(&UserResolver.delete_user/2)
+      resolve(&UserResolver.delete/2)
     end
 
     @desc "Reset password request"
@@ -80,6 +82,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
     field :delete_session, type: :boolean do
       resolve(&UserResolver.delete_session/2)
     end
+
   end
 
   object :auth_payload do
@@ -93,6 +96,7 @@ defmodule MoodleNetWeb.GraphQL.UserSchema do
   end
 
   object :user do
+
     field(:id, :id)
     field(:local_id, :integer)
     field(:local, :boolean)

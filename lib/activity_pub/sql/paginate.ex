@@ -29,7 +29,11 @@ defmodule ActivityPub.SQL.Paginate do
   end
 
   @doc """
-  Paginate by insertion date in a `Collection` (used for example to paginate the list of followers, which should be sorted by when the `Follow` Activity was created, not when the following actors were created). For this use `paginate_collection/2`.
+  Paginate by insertion date in a `Collection`.
+
+  Used for example to paginate the list of followers, which should be sorted by
+  when the `Follow` Activity was created, not when the following actors were
+  created. For this use `Query.paginate_collection/2`.
   """
   def by_collection_insert(query, params) do
     params = normalize_params(params)

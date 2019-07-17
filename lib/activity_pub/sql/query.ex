@@ -53,7 +53,6 @@ defmodule ActivityPub.SQL.Query do
     |> to_entity()
   end
 
-  # FIXME add test to those two functions
   def first(%Ecto.Query{} = query, order_by \\ :local_id) do
     query
     |> Ecto.Query.first(order_by)

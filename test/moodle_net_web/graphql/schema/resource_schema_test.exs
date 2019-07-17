@@ -6,6 +6,7 @@
 defmodule MoodleNetWeb.GraphQL.ResourceTest do
   use MoodleNetWeb.ConnCase#, async: true
 
+  alias MoodleNet.Resources
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
@@ -356,6 +357,94 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
              |> json_response(200)
              |> Map.fetch!("errors")
   end
+
+  @tag :user
+  test "flag and unflag", %{conn: conn, actor: actor} do
+    actor_id = local_id(actor)
+    community = Factory.community(actor)
+    collection = Factory.collection(actor, community)
+    resource = Factory.resource(actor, collection)
+    resource_id = local_id(resource)
+    reason = "Terrible joke"
+
+    assert [] == Resources.all_flags(actor)
+
+    query = """
+      mutation {
+        undoFlagResource(
+          localId: #{resource_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+
+    query = """
+      mutation {
+        flagResource(
+          localId: #{resource_id}
+          reason: "#{reason}"
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("flagResource")
+
+    assert [flag] = Resources.all_flags(actor)
+    assert flag.flagged_object_id == resource_id
+    assert flag.flagging_object_id == actor_id
+    assert flag.reason == reason
+    assert flag.open == true
+
+    query = """
+      mutation {
+        undoFlagResource(
+          localId: #{resource_id}
+        )
+      }
+    """
+
+    assert conn
+           |> post("/api/graphql", %{query: query})
+           |> json_response(200)
+           |> Map.fetch!("data")
+           |> Map.fetch!("undoFlagResource")
+
+    assert [] == Resources.all_flags(actor)
+
+    query = """
+      mutation {
+        undoFlagResource(
+          localId: #{resource_id}
+        )
+      }
+    """
+
+    assert [
+             %{
+               "code" => "not_found",
+               # "message" => "Activity not found"
+             }
+           ] =
+             conn
+             |> post("/api/graphql", %{query: query})
+             |> json_response(200)
+             |> Map.fetch!("errors")
+  end
+
 
   @tag :user
   test "liker list", %{conn: conn, actor: actor} do

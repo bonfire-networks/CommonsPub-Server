@@ -13,12 +13,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   alias MoodleNetWeb.GraphQL.CollectionResolver
 
   object :collection_queries do
+
     @desc "Get list of collections"
     field :collections, :collection_page do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)
-      resolve(&CollectionResolver.collection_list/2)
+      resolve(&CollectionResolver.list/2)
     end
 
     @desc "Get a collection"
@@ -33,44 +34,57 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
     field :create_collection, type: :collection do
       arg(:community_local_id, non_null(:integer))
       arg(:collection, non_null(:collection_input))
-      resolve(&CollectionResolver.create_collection/2)
+      resolve(&CollectionResolver.create/2)
     end
 
     @desc "Update a collection"
     field :update_collection, type: :collection do
       arg(:collection_local_id, non_null(:integer))
       arg(:collection, non_null(:collection_input))
-      resolve(&CollectionResolver.update_collection/2)
+      resolve(&CollectionResolver.update/2)
     end
 
     @desc "Delete a collection"
     field :delete_collection, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.delete_collection/2)
+      resolve(&CollectionResolver.delete/2)
     end
 
     @desc "Follow a collection"
     field :follow_collection, type: :boolean do
       arg(:collection_local_id, non_null(:integer))
-      resolve(&CollectionResolver.follow_collection/2)
+      resolve(&CollectionResolver.follow/2)
     end
 
     @desc "Undo follow a collection"
     field :undo_follow_collection, type: :boolean do
       arg(:collection_local_id, non_null(:integer))
-      resolve(&CollectionResolver.undo_follow_collection/2)
+      resolve(&CollectionResolver.undo_follow/2)
     end
 
     @desc "Like a collection"
     field :like_collection, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.like_collection/2)
+      resolve(&CollectionResolver.like/2)
     end
 
     @desc "Undo a previous like to a collection"
     field :undo_like_collection, type: :boolean do
       arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.undo_like_collection/2)
+      resolve(&CollectionResolver.undo_like/2)
+    end
+
+    @desc "Flag a collection"
+    field :flag_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      arg(:reason, non_null(:string))
+      resolve(&CollectionResolver.flag/2)
+    end
+
+    @desc "Undo a previous flag of a collection"
+    field :undo_flag_collection, type: :boolean do
+      arg(:local_id, non_null(:integer))
+      resolve(&CollectionResolver.undo_flag/2)
     end
   end
 
@@ -121,6 +135,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
       arg(:before, :integer)
       arg(:after, :integer)
       resolve(Resolver.with_connection(:collection_liker))
+    end
+
+    field :flags, :collection_flags_connection do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(Resolver.with_connection(:collection_flags))
     end
 
     field :inbox, :collection_inbox_connection do
@@ -184,6 +205,18 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
   object :collection_likers_edge do
     field(:cursor, non_null(:integer))
     field(:node, :user)
+  end
+
+  object :collection_flags_connection do
+    field(:page_info, non_null(:page_info))
+    field(:edges, list_of(:collection_flags_edge))
+    field(:total_count, non_null(:integer))
+  end
+
+  object :collection_flags_edge do
+    field(:cursor, non_null(:integer))
+    field(:node, :user)
+    field(:reason, :string)
   end
 
   object :collection_inbox_connection do
