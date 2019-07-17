@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.CollectionResolver do
+  @moduledoc """
+  Performs the GraphQL Collection queries.
+  """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   alias MoodleNet.Collections
   alias MoodleNetWeb.GraphQL.Errors

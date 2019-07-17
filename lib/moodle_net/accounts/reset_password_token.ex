@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Accounts.ResetPasswordToken do
+  @moduledoc """
+  Model to store the reset password token
+  """
   use Ecto.Schema
 
   alias MoodleNet.Accounts.User

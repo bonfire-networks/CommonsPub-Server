@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Repo do
+  @moduledoc """
+  MoodleNet main Ecto Repo
+  """
+
   use Ecto.Repo,
     otp_app: :moodle_net,
     adapter: Ecto.Adapters.Postgres

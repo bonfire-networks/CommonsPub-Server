@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Router do
+  @moduledoc """
+  MoodleNet Router
+  """
   use MoodleNetWeb, :router
 
   if Mix.env == :dev do
@@ -98,9 +101,20 @@ defmodule MoodleNetWeb.Router do
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
+
+  pipeline :activity_pub do
+    plug(:accepts, ["activity+json", "json"])
+  end
+
+  scope "/", ActivityPubWeb do
+    pipe_through(:activity_pub)
+
+    get "/:id", ActivityPubController, :show
+    get "/:id/page", ActivityPubController, :collection_page
+    post "/shared_inbox", ActivityPubController, :shared_inbox, as: :shared_inbox
+  end
+
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
-
-    forward "/activity_pub", ActivityPubWeb.Router
   end
 end

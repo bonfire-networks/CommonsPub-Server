@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 use Mix.Config
 
 # We don't run a server during test. If one is required,
@@ -28,6 +33,8 @@ config :phoenix_integration,
 config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.TestAdapter
 
-config :moodle_net, :ap_base_url, "http://test.localhost:4001/activity_pub"
+config :moodle_net, :ap_base_url, "http://localhost:4001"
 config :moodle_net, :frontend_base_url,
   (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
+
+config :tesla, adapter: Tesla.Mock

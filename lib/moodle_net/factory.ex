@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Factory do
+  @moduledoc """
+  Factory to build entities
+  """
 
   defp username(name) do
     name =

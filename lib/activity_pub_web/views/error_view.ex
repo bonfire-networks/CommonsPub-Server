@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.ErrorView do
+  @moduledoc """
+  Standard error view
+  """
   use ActivityPubWeb, :view
 
   # If you want to customize a particular status code

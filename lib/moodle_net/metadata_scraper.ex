@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.MetadataScraper do
+  @moduledoc """
+  Given a url, it downloads the html metadata
+  """
   def fetch(url) when is_binary(url) do
     with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
       {:ok, format_data(data, url)}

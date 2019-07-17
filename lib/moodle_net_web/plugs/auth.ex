@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Plugs.Auth do
+  @moduledoc """
+  Authentication plug.
+  Checks if the token is valid and load the user
+  """
   import Plug.Conn
 
   def init(_opts), do: nil

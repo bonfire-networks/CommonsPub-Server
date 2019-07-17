@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.SQL.Common do
+  @moduledoc """
+  The way that entity "local" functionality works has changed several times.
+  #TODO This is one of them, but it should be unified.
+  """
   alias ActivityPub.Entity
 
   import ActivityPub.Guards

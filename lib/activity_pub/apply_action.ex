@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.ApplyAction do
+  @moduledoc """
+  Generic implementation to process activities
+  """
   import ActivityPub.Guards
   alias ActivityPub.SQL.{Alter}
   alias ActivityPub.SQLEntity

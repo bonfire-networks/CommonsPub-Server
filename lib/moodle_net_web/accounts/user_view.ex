@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Accounts.UserView do
+  @moduledoc """
+  User view
+  """
   use MoodleNetWeb, :view
   alias MoodleNetWeb.OAuth.OAuthView
 

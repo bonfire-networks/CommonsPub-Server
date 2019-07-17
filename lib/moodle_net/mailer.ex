@@ -4,5 +4,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Mailer do
+  @moduledoc """
+  Mailer
+  """
   use Bamboo.Mailer, otp_app: :moodle_net
 end

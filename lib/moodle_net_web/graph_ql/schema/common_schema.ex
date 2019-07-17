@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
+  @moduledoc """
+  Common schemas fields. Node is not used.
+  """
   use Absinthe.Schema.Notation
 
   interface :node do

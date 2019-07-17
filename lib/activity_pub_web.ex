@@ -19,7 +19,7 @@ defmodule ActivityPubWeb do
 
       import Plug.Conn
       import ActivityPubWeb.Gettext
-      alias ActivityPubWeb.Router.Helpers, as: Routes
+      alias MoodleNetWeb.Router.Helpers, as: Routes
     end
   end
 
@@ -37,7 +37,7 @@ defmodule ActivityPubWeb do
 
       import ActivityPubWeb.ErrorHelpers
       import ActivityPubWeb.Gettext
-      alias ActivityPubWeb.Router.Helpers, as: Routes
+      alias MoodleNetWeb.Router.Helpers, as: Routes
     end
   end
 

@@ -6,6 +6,8 @@
 defmodule MoodleNetWeb.GraphQL.MiscTest do
   use MoodleNetWeb.ConnCase, async: true
 
+  import Tesla.Mock
+
   @moduletag format: :json
 
   describe "fetch metadata" do
@@ -73,6 +75,65 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
                |> post("/api/graphql", %{query: query})
                |> json_response(200)
                |> Map.fetch!("errors")
+    end
+  end
+
+  describe "fetch object" do
+
+    setup do
+      mock(fn
+        env ->
+          apply(HttpRequestMock, :request, [env])
+      end)
+
+      :ok
+    end
+
+    @url "https://kawen.space/objects/eb3b1181-38cc-4eaf-ba1b-3f5431fa9779"
+    test "fetch note object", %{conn: conn} do
+      query = """
+        mutation {
+          fetchObject(url: "#{@url}") {
+            name
+            actor_name
+            actor_summary
+            summary
+            content
+            type
+          }
+        }
+      """
+
+      assert object =
+               conn
+               |> post("/api/graphql", %{query: query})
+               |> json_response(200)
+               |> Map.fetch!("data")
+               |> Map.fetch!("fetchObject")
+      end
+
+    @url "https://kawen.space/users/karen"
+    test "fetch actor object", %{conn: conn} do
+      query = """
+        mutation {
+          fetchObject(url: "#{@url}") {
+            name
+            actor_name
+            actor_summary
+            summary
+            content
+            type
+          }
+        }
+      """
+
+      assert object =
+               conn
+               |> post("/api/graphql", %{query: query})
+               |> json_response(200)
+               |> Map.fetch!("data")
+               |> Map.fetch!("fetchObject")
+
     end
   end
 end

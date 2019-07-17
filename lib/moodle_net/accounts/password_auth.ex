@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Accounts.PasswordAuth do
+  @moduledoc """
+  Model to store the encrypted passwords
+  """
   use Ecto.Schema
 
   schema "accounts_password_auths" do

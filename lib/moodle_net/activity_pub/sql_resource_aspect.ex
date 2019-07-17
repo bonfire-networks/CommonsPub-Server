@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.AP.SQLResourceAspect do
+  @moduledoc """
+  `ActivityPub.SQLAspect` for `ActivityPub.ResourceAspect`
+  """
   use ActivityPub.SQLAspect,
     aspect: MoodleNet.AP.ResourceAspect,
     persistence_method: :table,

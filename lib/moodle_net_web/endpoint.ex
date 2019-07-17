@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Endpoint do
+  @moduledoc """
+  MoodleNet Phoenix Endpoint
+  """
   use Phoenix.Endpoint, otp_app: :moodle_net
 
   if System.get_env("SENTRY_DSN") do

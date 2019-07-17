@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.OAuth.OAuthView do
+  @moduledoc """
+  OAuth View
+  """
   use MoodleNetWeb, :view
 
   def render("token.json", %{token: token}) do

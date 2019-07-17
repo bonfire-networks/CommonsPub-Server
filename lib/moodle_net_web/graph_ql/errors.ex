@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.Errors do
+  @moduledoc """
+  Handle GraphQL errors
+  """
   import MoodleNetWeb.Gettext
 
   def handle_error({:error, _, error, _}),

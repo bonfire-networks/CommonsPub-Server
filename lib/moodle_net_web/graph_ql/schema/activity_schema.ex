@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.ActivitySchema do
+  @moduledoc """
+  GraphQL activity fields, associations, queries and mutations.
+  """
   use Absinthe.Schema.Notation
 
   require ActivityPub.Guards, as: APG

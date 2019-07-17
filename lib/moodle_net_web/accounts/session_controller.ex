@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Accounts.SessionController do
+  @moduledoc """
+  Session controller
+  """
   use MoodleNetWeb, :controller
 
   alias MoodleNet.{Accounts, OAuth}
