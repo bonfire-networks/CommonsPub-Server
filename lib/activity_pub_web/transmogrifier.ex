@@ -59,7 +59,6 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp common_fields(ret, entity) do
-
     ret
     |> Map.put("id", entity.id)
     |> Map.put("type", entity.type)
@@ -235,24 +234,22 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp prepare_data(data) do
-    recipients = (data["to"] || []) ++ (data["cc"] || [])
-
     data =
       %{}
       |> Map.put(:data, data)
-      |> Map.put(:recipients, Enum.uniq(recipients))
-      |> Map.put(:actor, data["actor"])
       |> Map.put(:local, false)
 
     {:ok, data}
   end
 
   defp check_if_public(object) do
+    recipients = (object.data["to"] || []) ++ (object.data["cc"] || [])
+
     cond do
-      object.recipients == [] ->
+      recipients == [] ->
         {:ok, object}
 
-      Enum.member?(object.recipients, "https://www.w3.org/ns/activitystreams#Public") ->
+      Enum.member?(recipients, "https://www.w3.org/ns/activitystreams#Public") ->
         {:ok, object}
 
       true ->

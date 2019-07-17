@@ -6,8 +6,6 @@ defmodule MoodleNet.Repo.Migrations.AddObjectsTable do
       add :id, :uuid, primary_key: true
       add :data, :map
       add :local, :boolean
-      add :actor, :string
-      add :recipients, {:array, :string}
 
       timestamps()
     end
