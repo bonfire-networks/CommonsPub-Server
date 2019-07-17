@@ -14,9 +14,6 @@ defmodule ActivityPub.Fetcher do
 
   @doc """
   Checks if an object exists in the database and fetches it if it doesn't.
-
-  Currently only returns a decoded JSON.
-  TODO: normalise (in transmogrifier module?) and insert the object into database.
   """
   def fetch_object_from_id(id) do
     if entity = ActivityPub.get_by_id(id) do
