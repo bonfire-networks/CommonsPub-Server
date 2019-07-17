@@ -6,14 +6,7 @@
 defmodule MoodleNet.ReleaseTasks do
     require Logger
 
-    @start_apps [
-    :crypto,
-    :ssl,
-    :postgrex,
-    :ecto,
-    :ecto_sql # If using Ecto 3.0 or higher
-  ]
-
+  @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
 
   def create_db() do
