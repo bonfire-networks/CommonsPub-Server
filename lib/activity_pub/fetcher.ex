@@ -20,7 +20,7 @@ defmodule ActivityPub.Fetcher do
       {:ok, entity}
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
-           true <- data["type"] in ["Note", "Article", "Person"],
+           {:ok, data} <- check_object_type(data),
            {:ok, object} <- Transmogrifier.handle_incoming(data),
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
@@ -50,6 +50,15 @@ defmodule ActivityPub.Fetcher do
 
       e ->
         {:error, e}
+    end
+  end
+
+  @supported_types ["Note", "Article", "Person"]
+  defp check_object_type(data) do
+    if data["type"] in @supported_types do
+      {:ok, data}
+    else
+      {:error, "Unsupported type"}
     end
   end
 
