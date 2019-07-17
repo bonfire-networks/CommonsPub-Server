@@ -43,7 +43,8 @@ defmodule ActivityPub.Fetcher do
              id,
              [{:Accept, "application/activity+json"}]
            ),
-         {:ok, data} <- Jason.decode(body) do
+         {:ok, data} <- Jason.decode(body),
+         {:ok, data} <- contain_uri(id, data) do
       {:ok, data}
     else
       {:ok, %{status: code}} when code in [404, 410] ->
@@ -86,4 +87,12 @@ defmodule ActivityPub.Fetcher do
   defp check_if_public(public) when public == true, do: {:ok}
 
   defp check_if_public(_public), do: {:error, "Not public"}
+
+  defp contain_uri(id, %{"id" => json_id} = data) do
+    if id == json_id do
+      {:ok, data}
+    else
+      {:error, "Containment error"}
+    end
+  end
 end
