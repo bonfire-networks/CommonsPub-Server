@@ -12,6 +12,8 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   alias MoodleNetWeb.GraphQL.Errors
   alias ActivityPub.Fetcher
 
+  import_types(MoodleNetWeb.Schema.Types.Custom.JSON)
+
   object :web_metadata do
     field(:title, :string)
     field(:summary, :string)
@@ -24,12 +26,10 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   end
 
   object :fetched_object do
-    field(:name, :string)
-    field(:actor_name, :string)
-    field(:actor_summary, :string)
-    field(:summary, :string)
-    field(:content, :string)
-    field(:type, :string)
+    field(:id, :string)
+    field(:data, :json)
+    field(:local, :boolean)
+    field(:public, :boolean)
   end
 
   def fetch_web_metadata(%{url: url}, info) do
@@ -42,32 +42,17 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   end
 
   def fetch_object(%{url: url}, _info) do
-    with {:ok, object} <- Fetcher.fetch_object_from_id(url),
-         {:ok, actor_data} <- get_actor_data(object),
-         ret <- %{
-           name: object.data["name"],
-           content: object.data["content"],
-           actor_name: actor_data.name,
-           actor_summary: actor_data.summary,
-           summary: object.data["summary"],
-           type: object.data["type"]
-         } do
-      {:ok, ret}
-    end
-  end
-
-  defp get_actor_data(object) do
-    if object.data["type"] == "Note" do
-      {:ok, actor_object} = Fetcher.fetch_object_from_id(object.data["attributedTo"])
-
+    with {:ok, object} <- Fetcher.fetch_object_from_id(url) do
       ret = %{
-        name: actor_object.data["name"],
-        summary: actor_object.data["summary"]
+        id: object.id,
+        data: object.data,
+        local: object.local,
+        public: object.public
       }
 
       {:ok, ret}
     else
-      {:ok, %{name: nil, summary: nil}}
+      {:error, e} -> {:error, e}
     end
   end
 

@@ -6,8 +6,10 @@
 defmodule ActivityPub.Object do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
 
   alias MoodleNet.Repo
+  alias ActivityPub.Object
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
@@ -17,6 +19,12 @@ defmodule ActivityPub.Object do
     field(:public, :boolean)
 
     timestamps()
+  end
+
+  def get_by_id(id), do: Repo.get(Object, id)
+
+  def get_by_ap_id(ap_id) do
+    Repo.one(from(object in Object, where: fragment("(?)->>'id' = ?", object.data, ^ap_id)))
   end
 
   def insert(attrs) do

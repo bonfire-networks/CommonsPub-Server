@@ -53,6 +53,20 @@ defmodule ActivityPubWeb.FetcherTest do
           "https://letsalllovela.in/objects/89a60bfd-6b05-42c0-acde-ce73cc9780e6"
         )
     end
+
+    test "doesn't insert posts twice" do
+      {:ok, object_1} =
+        Fetcher.fetch_object_from_id(
+          "https://kawen.space/objects/eb3b1181-38cc-4eaf-ba1b-3f5431fa9779"
+        )
+
+      {:ok, object_2} =
+        Fetcher.fetch_object_from_id(
+          "https://kawen.space/objects/eb3b1181-38cc-4eaf-ba1b-3f5431fa9779"
+        )
+
+      assert object_1.id == object_2.id
+    end
   end
 
   describe "handles errors" do
