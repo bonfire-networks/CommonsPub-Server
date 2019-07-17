@@ -9,6 +9,7 @@ defmodule ActivityPub.Fetcher do
   """
 
   alias ActivityPub.HTTP
+  alias ActivityPub.Object
   alias ActivityPubWeb.Transmogrifier
   require Logger
 
@@ -16,8 +17,8 @@ defmodule ActivityPub.Fetcher do
   Checks if an object exists in the database and fetches it if it doesn't.
   """
   def fetch_object_from_id(id) do
-    if entity = ActivityPub.get_by_id(id) do
-      {:ok, entity}
+    if object = Object.get_by_ap_id(id) do
+      {:ok, object}
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            {:ok, data} <- contain_origin(data),
