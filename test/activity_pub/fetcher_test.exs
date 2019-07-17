@@ -46,6 +46,13 @@ defmodule ActivityPubWeb.FetcherTest do
           "https://testing.kawen.dance/objects/d953809b-d968-49c8-aa8f-7545b9480a12"
         )
     end
+
+    test "rejects posts with spoofed origin" do
+      {:error, _} =
+        Fetcher.fetch_object_from_id(
+          "https://letsalllovela.in/objects/89a60bfd-6b05-42c0-acde-ce73cc9780e6"
+        )
+    end
   end
 
   describe "handles errors" do

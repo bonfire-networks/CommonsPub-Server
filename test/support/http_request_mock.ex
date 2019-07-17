@@ -49,4 +49,12 @@ defmodule HttpRequestMock do
        body: File.read!("test/fixtures/pleroma_private_note.json")
      }}
   end
+
+  def get("https://letsalllovela.in/objects/89a60bfd-6b05-42c0-acde-ce73cc9780e6", _, _, _) do
+    {:ok,
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/spoofed_pleroma_note.json")
+     }}
+  end
 end

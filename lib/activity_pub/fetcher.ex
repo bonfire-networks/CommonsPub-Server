@@ -21,6 +21,7 @@ defmodule ActivityPub.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            {:ok, data} <- check_object_type(data),
+           {:ok, data} <- contain_origin(data),
            {:ok, object} <- Transmogrifier.handle_incoming(data),
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
@@ -61,6 +62,26 @@ defmodule ActivityPub.Fetcher do
       {:error, "Unsupported type"}
     end
   end
+
+  defp contain_origin(%{"id" => id} = data) do
+    if data["type"] == "Person" do
+      {:ok, data}
+    else
+      actor = get_actor(data)
+      actor_uri = URI.parse(actor)
+      id_uri = URI.parse(id)
+
+      if id_uri.host == actor_uri.host do
+        {:ok, data}
+      else
+        {:error, "Containment error"}
+      end
+    end
+  end
+
+  defp get_actor(%{"actor" => nil, "attributedTo" => actor} = _data), do: actor
+
+  defp get_actor(%{"actor" => actor} = _data), do: actor
 
   defp check_if_public(public) when public == true, do: {:ok}
 
