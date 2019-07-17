@@ -23,7 +23,7 @@ RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
 
 COPY . .
 
-RUN mix do phx.digest, distillery.release --env=prod --verbose --no-tar
+RUN mix do phx.digest, release
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
@@ -38,8 +38,7 @@ RUN apk update && \
       bash \
       openssl-dev
 
-ENV REPLACE_OS_VARS=true \
-    APP_NAME=${APP_NAME} \
+ENV APP_NAME=${APP_NAME} \
     APP_VSN=${APP_VSN} \
     APP_REVISION=${APP_VSN}-${APP_BUILD}
 
@@ -47,4 +46,4 @@ WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
 
-CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} foreground
+CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} start

@@ -2,12 +2,6 @@
 ## You can find a full list of flags and their behaviours at
 ## http://erlang.org/doc/man/erl.html
 
-## Name of the node
--name <%= release_name %>@127.0.0.1
-
-## Cookie for distributed erlang
--setcookie <%= release.profile.cookie %>
-
 -kernel inet_dist_listen_min 9000 inet_dist_listen_max 9002
 
 ## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive

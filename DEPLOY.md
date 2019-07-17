@@ -115,28 +115,62 @@ It generates the release which is later copied into the final image:
 
 ### Alternative installation without Docker
 
-#### 1. Install dependencies
+#### Dependencies
 
 * Postgres version 9.6 or newer
 * Build tools
-* Elixir version 1.7.4 with OTP 21 (or possibly newer). If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf) (run `asdf install` in this directory).
+* Elixir version 1.9.0 with OTP 22 (or possibly newer). If your distribution only has an old version available, check [Elixir's install page](https://elixir-lang.org/install.html) or use a tool like [asdf](https://github.com/asdf-vm/asdf) (run `asdf install` in this directory).
 
-#### 2. Install the app
+#### Quickstart
+
+The quick way to get started with building a release, assuming that elixir and erlang
+are already installed.
+
+```bash
+$ export MIX_ENV=prod
+$ mix deps.get
+$ mix release
+# TODO: load required env variables
+$ _build/prod/rel/moodle_net/bin/moodle_net eval 'MoodleNet.ReleaseTasks.create_db()'
+# DB created
+$ _build/prod/rel/moodle_net/bin/moodle_net eval 'MoodleNet.ReleaseTasks.migrate_db()'
+# DB migrated
+$ _build/prod/rel/moodle_net/bin/moodle_net foreground
+# App started in foreground
+```
+
+See the section on [Runtime Configuration](#runtime-configuration) for information on exporting environment variables.
+
+#### 1. Building the release
 
 * Clone this repo.
 
 * Run `mix deps.get` to install elixir dependencies.
+* From here on out, you may want to consider what your `MIX_ENV` is set to. For production,
+ensure that you either export `MIX_ENV=prod` or use it for each command. Continuing, we are 
+assuming `MIX_ENV=prod`.
+* Run `mix release` to create an elixir release. This will create an executable in your `_build/prod/rel/moodle_net` directory. We will be using the `bin/moodle_net` executable from here on.
 
-* Run `mix generate_config`. This will ask you a few questions about your instance and generate a configuration file in `config/generated_config.exs`. Check that and copy it to either `config/dev.secret.exs` or `config/prod.secret.exs`. It will also create a `config/setup_db.psql`; you may want to double-check this file in case you wanted a different username, or database name than the default. Then you need to run the script as PostgreSQL superuser (i.e. `sudo su postgres -c "psql -f config/setup_db.psql"`). It will create a db user, database and will setup needed extensions that need to be set up. Postgresql super-user privileges are only needed for this step.
+#### 2. Running the release
 
-* For these next steps, the default will be to run the server using the dev configuration file, `config/dev.secret.exs`. To run them using the prod config file, prefix each command at the shell with `MIX_ENV=prod`. For example: `MIX_ENV=prod mix phx.server`.
+* Export all required environment variables. See [Runtime Configuration](#runtime-configuration) section.
 
-* Run `mix ecto.migrate` to run the database migrations. You will have to do this again after certain updates.
+* Create a database, if one is not created already with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.create_db()'`.
+* You will likely also want to run the migrations. This is done similarly with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.migrate_db()'`.
 
-* You can check if your instance is configured correctly by running it with `mix phx.server` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
+* You can check if your instance is configured correctly by running it with `moodle_net foreground` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
 
-* The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/moodle_net.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
-  The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
+#### 3. Adding HTTPS
+
+The common and convenient way for adding HTTPS is by using Nginx as a reverse proxy. You can look at example Nginx configuration in `installation/moodle_net.nginx`. If you need TLS/SSL certificates for HTTPS, you can look get some for free with letsencrypt: https://letsencrypt.org/
+
+The simplest way to obtain and install a certificate is to use [Certbot.](https://certbot.eff.org) Depending on your specific setup, certbot may be able to get a certificate and configure your web server automatically.
+  
+#### Runtime configuration
+
+You will need to load the required environment variables for the release to run properly. 
+
+See [`config/releases.exs`](config/releases.exs) for all used variables. Consider also viewing there [`config/docker.env`](config/docker.env) file for some examples of values.
 
 ---
 
