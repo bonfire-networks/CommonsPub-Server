@@ -79,7 +79,6 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
   end
 
   describe "fetch object" do
-
     setup do
       mock(fn
         env ->
@@ -94,12 +93,10 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
       query = """
         mutation {
           fetchObject(url: "#{@url}") {
-            name
-            actor_name
-            actor_summary
-            summary
-            content
-            type
+            id,
+            data,
+            local,
+            public
           }
         }
       """
@@ -110,19 +107,17 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
                |> json_response(200)
                |> Map.fetch!("data")
                |> Map.fetch!("fetchObject")
-      end
+    end
 
     @url "https://kawen.space/users/karen"
     test "fetch actor object", %{conn: conn} do
       query = """
         mutation {
           fetchObject(url: "#{@url}") {
-            name
-            actor_name
-            actor_summary
-            summary
-            content
-            type
+            id,
+            data,
+            local,
+            public
           }
         }
       """
@@ -133,7 +128,6 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
                |> json_response(200)
                |> Map.fetch!("data")
                |> Map.fetch!("fetchObject")
-
     end
   end
 end
