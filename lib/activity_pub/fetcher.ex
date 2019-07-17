@@ -24,7 +24,8 @@ defmodule ActivityPub.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            true <- data["type"] in ["Note", "Article", "Person"],
-           {:ok, object} <- Transmogrifier.handle_incoming(data) do
+           {:ok, object} <- Transmogrifier.handle_incoming(data),
+           {:ok} <- check_if_public(object.public) do
         {:ok, object}
       else
         {:error, e} -> {:error, e}
@@ -54,4 +55,8 @@ defmodule ActivityPub.Fetcher do
         {:error, e}
     end
   end
+
+  defp check_if_public(public) when public == true, do: {:ok}
+
+  defp check_if_public(_public), do: {:error, "Not public"}
 end

@@ -14,6 +14,7 @@ defmodule ActivityPub.Object do
   schema "objects" do
     field(:data, :map)
     field(:local, :boolean, default: true)
+    field(:public, :boolean)
 
     timestamps()
   end
@@ -31,7 +32,7 @@ defmodule ActivityPub.Object do
 
   def changeset(object, attrs) do
     object
-    |> cast(attrs, [:data, :local])
+    |> cast(attrs, [:data, :local, :public])
     |> validate_required(:data)
   end
 end
