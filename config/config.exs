@@ -33,6 +33,10 @@ config :moodle_net, MoodleNet.Mailer,
   domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
   open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
 
+config :moodle_net, MoodleNet.MediaProxy,
+  impl: MoodleNet.DirectHTTPMediaProxy,
+  path: "/media/"
+
 version =
   with {version, 0} <- System.cmd("git", ["rev-parse", "HEAD"]) do
     "MoodleNet #{Mix.Project.config()[:version]} #{String.trim(version)}"

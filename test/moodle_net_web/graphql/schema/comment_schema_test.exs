@@ -492,7 +492,9 @@ defmodule MoodleNetWeb.GraphQL.CommentTest do
     assert user_map["name"] == actor.name["und"]
     assert user_map["summary"] == actor.summary["und"]
     assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+    assert user_map["icon"] == actor
+    |> get_in([:icon, Access.at(0), :url, Access.at(0)])
+    |> MoodleNet.MediaProxy.URLBuilder.encode()
 
     query = """
       mutation {

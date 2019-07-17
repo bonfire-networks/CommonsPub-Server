@@ -12,6 +12,7 @@ defmodule MoodleNet.Mixfile do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      releases: releases(),
       name: "MoodleNet",
       homepage_url: "http://new.moodle.net",
       source_url: "https://gitlab.com/moodlenet/servers/federated",
@@ -27,7 +28,20 @@ defmodule MoodleNet.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {MoodleNet.Application, []},
-     extra_applications: [:logger, :runtime_tools, :comeonin]
+     extra_applications: [
+       :logger,
+       :runtime_tools,
+       :comeonin,
+       :hackney
+     ]
+    ]
+  end
+
+  defp releases do
+    [
+      moodle_net: [
+        include_executables_for: [:unix]
+      ]
     ]
   end
 
@@ -50,10 +64,11 @@ defmodule MoodleNet.Mixfile do
       {:cowboy, "~> 2.5"},
       {:plug_cowboy, "~> 2.0"},
       {:plug, "~> 1.7"},
+      # HTTP client
+      {:hackney, "~> 1.15"},
       {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       {:cors_plug, "~> 2.0"},
-      {:distillery, "~> 2.1"},
       {:bamboo, "~> 1.2"},
       # FIXME using prod as well for the moment
       {:faker, "~> 0.11"},

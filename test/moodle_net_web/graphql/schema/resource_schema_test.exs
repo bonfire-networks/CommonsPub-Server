@@ -7,7 +7,9 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
   use MoodleNetWeb.ConnCase#, async: true
 
   alias MoodleNet.Resources
+  import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import ActivityPub.Entity, only: [local_id: 1]
+
   @moduletag format: :json
 
   @tag :user
@@ -86,7 +88,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     assert resource["content"] == "resource_content"
     assert resource["url"] == "resource_url"
     assert resource["primaryLanguage"] == "resource_language"
-    assert resource["icon"] == "https://imag.es/resource"
+    assert resource["icon"] == encode("https://imag.es/resource")
     assert resource["sameAs"] == "same_as"
     assert resource["inLanguage"] == ["language"]
     assert resource["publicAccess"] == true
@@ -291,7 +293,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     assert user_map["name"] == actor.name["und"]
     assert user_map["summary"] == actor.summary["und"]
     assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-    assert user_map["icon"] == get_in(actor, [:icon, Access.at(0), :url, Access.at(0)])
+    assert user_map["icon"] == encode(get_in(actor, [:icon, Access.at(0), :url, Access.at(0)]))
 
     query = """
       mutation {
@@ -622,7 +624,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     assert ret_resource["content"] == "resource_content"
     assert ret_resource["url"] == "resource_url"
     assert ret_resource["primaryLanguage"] == "resource_language"
-    assert ret_resource["icon"] == "https://imag.es/resource"
+    assert ret_resource["icon"] == encode("https://imag.es/resource")
     assert ret_resource["sameAs"] == "same_as"
     assert ret_resource["inLanguage"] == ["language"]
     assert ret_resource["publicAccess"] == true
