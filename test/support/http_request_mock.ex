@@ -57,4 +57,12 @@ defmodule HttpRequestMock do
        body: File.read!("test/fixtures/spoofed_pleroma_note.json")
      }}
   end
+
+  def get("https://home.next.moodle.net/1", _, _, _) do
+    {:ok,
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/moodlenet_person_actor.json")
+     }}
+  end
 end
