@@ -135,7 +135,7 @@ $ _build/prod/rel/moodle_net/bin/moodle_net eval 'MoodleNet.ReleaseTasks.create_
 # DB created
 $ _build/prod/rel/moodle_net/bin/moodle_net eval 'MoodleNet.ReleaseTasks.migrate_db()'
 # DB migrated
-$ _build/prod/rel/moodle_net/bin/moodle_net foreground
+$ _build/prod/rel/moodle_net/bin/moodle_net start
 # App started in foreground
 ```
 
@@ -158,7 +158,9 @@ assuming `MIX_ENV=prod`.
 * Create a database, if one is not created already with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.create_db()'`.
 * You will likely also want to run the migrations. This is done similarly with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.migrate_db()'`.
 
-* You can check if your instance is configured correctly by running it with `moodle_net foreground` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
+* You can check if your instance is configured correctly by running it with `moodle_net start` and checking the instance info endpoint at `/api/v1/instance`. If it shows your uri, name and email correctly, you are configured correctly. If it shows something like `localhost:4000`, your configuration is probably wrong, unless you are running a local development setup.
+
+* To run the instance as a daemon, use `bin/moodle_net daemon`.
 
 #### 3. Adding HTTPS
 
