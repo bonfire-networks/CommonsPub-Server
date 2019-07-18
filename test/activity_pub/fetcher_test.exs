@@ -67,6 +67,12 @@ defmodule ActivityPubWeb.FetcherTest do
 
       assert object_1.id == object_2.id
     end
+
+    test "accepts objects containing different scheme than requested" do
+      {:ok, object} = Fetcher.fetch_object_from_id("https://home.next.moodle.net/1")
+
+      assert object
+    end
   end
 
   describe "handles errors" do

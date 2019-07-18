@@ -50,6 +50,9 @@ defmodule ActivityPub.Fetcher do
       {:ok, %{status: code}} when code in [404, 410] ->
         {:error, "Object has been deleted"}
 
+      {:error, e} ->
+        {:error, e}
+
       e ->
         {:error, e}
     end
@@ -67,7 +70,7 @@ defmodule ActivityPub.Fetcher do
       if id_uri.host == actor_uri.host do
         {:ok, data}
       else
-        {:error, "Containment error"}
+        {:error, "Object containment error"}
       end
     end
   end
@@ -81,10 +84,13 @@ defmodule ActivityPub.Fetcher do
   defp check_if_public(_public), do: {:error, "Not public"}
 
   defp contain_uri(id, %{"id" => json_id} = data) do
-    if id == json_id do
+    id_uri = URI.parse(id)
+    json_id_uri = URI.parse(json_id)
+
+    if id_uri.host == json_id_uri.host do
       {:ok, data}
     else
-      {:error, "Containment error"}
+      {:error, "URI containment error"}
     end
   end
 end
