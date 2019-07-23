@@ -66,7 +66,16 @@ defmodule ActivityPub.HTTP do
   @doc """
   Makes a GET request
 
-  see ActivityPub.HTTP.request/5
+  see `ActivityPub.HTTP.request/5`
   """
-  def get(url, headers \\ [], options \\ []), do: request(:get, url, "", headers, options)
+  def get(url, headers \\ [], options \\ []),
+    do: request(:get, url, "", headers, options)
+
+  @doc """
+  Makes a POST request
+
+  see `ActivityPub.HTTP.request/5`
+  """
+  def post(url, body, headers \\ [], options \\ []),
+    do: request(:post, url, body, headers, options)
 end
