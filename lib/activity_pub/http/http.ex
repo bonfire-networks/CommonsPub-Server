@@ -29,7 +29,9 @@ defmodule ActivityPub.HTTP do
   """
   def request(method, url, body \\ "", headers \\ [], options \\ []) do
     try do
-      options = process_sni_options(options, url)
+      options =
+        process_request_options(options)
+        |> process_sni_options(url)
 
       params = Keyword.get(options, :params, [])
 
@@ -49,6 +51,10 @@ defmodule ActivityPub.HTTP do
       :exit, e ->
         {:error, e}
     end
+  end
+
+  defp process_request_options(options) do
+    Keyword.merge(Connection.hackney_options([]), options)
   end
 
   defp process_sni_options(options, nil), do: options
