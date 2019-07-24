@@ -25,6 +25,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> set_context()
     |> set_streams(entity)
     |> set_public()
+    |> maybe_inject_object()
   end
 
   def prepare_embedded(entity) do
@@ -34,6 +35,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> Enum.into(%{})
     |> Map.delete("likersCount")
     |> set_type(entity.type)
+    |> maybe_put_id(entity)
   end
 
   defp filter_by_aspect(entity, aspect) do
@@ -65,6 +67,23 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> Map.put("@context", entity["@context"])
     |> Map.delete("likersCount")
   end
+
+  defp maybe_put_id(%{"type" => "Image"} = ret, _entity), do: ret
+
+  defp maybe_put_id(ret, entity), do: Map.put(ret, "id", entity.id)
+
+  defp maybe_inject_object(%{"object" => object} = entity) when is_map(object) do
+    object = object
+    |> Map.put("@context", entity["@context"])
+    |> Map.put("attributedTo", entity["actor"])
+    |> Map.put("to", entity["to"])
+    |> Map.put("cc", entity["cc"])
+
+    entity
+    |> Map.put("object", object)
+  end
+
+  defp maybe_inject_object(entity), do: entity
 
   defp custom_fields(ret, _entity, ActivityPub.ActorAspect) do
     ret
@@ -139,14 +158,9 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp normalize_value(entity) when APG.is_entity(entity) do
     case entity.type do
-      ["Object", "Image"] ->
-        prepare_embedded(entity)
-
-      ["Object", "Place"] ->
-        prepare_embedded(entity)
-
-      _ ->
-        entity.id
+      ["Object", "Collection"] -> entity.id
+      ["Object", _] -> prepare_embedded(entity)
+      _ -> entity.id
     end
   end
 
