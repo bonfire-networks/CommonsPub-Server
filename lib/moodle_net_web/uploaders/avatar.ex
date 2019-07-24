@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
   use Arc.Definition
 
   @moduledoc """
-  An avatar definition, used for profile pictures.
+  An profile image/avatar definition.
 
   Will resize images so that they are clamped to a maximum size and also generate
   thumbnail versions of each image.
@@ -11,9 +11,9 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
   # Allowed extensions.
   @extension_whitelist ~w(.jpg .jpeg .png)
   # The size to resize thumbnail images to.
-  @thumbnail_size {150, 150}
+  @thumbnail_size {300, 300}
   # The maximum size for an image, anything larger is resized.
-  @max_size {500, 500}
+  @max_size {1000, 1000}
 
   @versions [:original, :thumbnail]
 
