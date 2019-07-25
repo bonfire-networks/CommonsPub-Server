@@ -66,6 +66,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> Map.put("type", entity.type)
     |> Map.put("@context", entity["@context"])
     |> Map.delete("likersCount")
+    |> Map.delete("attributedToInv")
   end
 
   defp maybe_put_id(%{"type" => "Image"} = ret, _entity), do: ret
