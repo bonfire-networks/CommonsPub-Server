@@ -3,6 +3,8 @@ defmodule MoodleNetWeb.Uploaders.Background do
 
   @moduledoc """
   A background image uploader definition.
+
+  Will resize an image down to a maximum size if exceeded.
   """
 
   @extension_whitelist ~w(.jpg .jpeg .png)
