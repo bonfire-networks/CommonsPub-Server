@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
   use Arc.Definition
 
   @moduledoc """
-  An profile image/avatar definition.
+  A profile image/avatar definition.
 
   Will resize images so that they are clamped to a maximum size and also generate
   thumbnail versions of each image.

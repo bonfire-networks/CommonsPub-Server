@@ -11,7 +11,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   alias MoodleNetWeb.GraphQL.UsersResolver
   import_types Absinthe.Plug.Types
 
-
   object :user_queries do
     @desc "Get my user"
     field :me, type: :me do
@@ -51,12 +50,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :update_profile, type: :me do
       arg :profile, non_null(:update_profile_input)
       resolve &UsersResolver.update_profile/2
-    end
-
-    @desc "Upload a user avatar image"
-    field :upload_icon, type: :boolean do
-      arg(:image, non_null(:upload))
-      resolve(&UserResolver.upload_icon/2)
     end
 
     @desc "Delete a user"

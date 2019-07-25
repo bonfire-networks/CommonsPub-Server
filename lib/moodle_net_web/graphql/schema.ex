@@ -82,6 +82,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     MoodleNetSchema,
     MiscSchema,
+    UploadSchema
   }
 
   import_types ActivitiesSchema
@@ -93,8 +94,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types CommentsSchema
   import_types CollectionsSchema
   import_types ResourcesSchema
-  
   import_types MiscSchema
+  import_types UploadSchema
 
   query do
     import_fields :communities_queries
@@ -123,6 +124,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :comments_mutations
     import_fields :collection_mutations
     import_fields :resource_mutations
+    import_fields :upload_mutations
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, type: :web_metadata do

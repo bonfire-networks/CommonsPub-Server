@@ -108,13 +108,4 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
     |> preload_aspect_cond([:actor_aspect], fields)
     |> prepare_common_fields()
   end
-
-  def upload_icon(%{image: image}, info) do
-    # FIXME: relative URL is no good for federation
-    with {:ok, url} <- MoodleNetWeb.Uploaders.Avatar.store(image),
-         {:ok, actor} <- current_actor(info) do
-      Accounts.update_user(actor, %{icon: url})
-      {:ok, true}
-    end
-  end
 end
