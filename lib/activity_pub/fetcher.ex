@@ -58,17 +58,18 @@ defmodule ActivityPub.Fetcher do
     end
   end
 
-  @actor_and_collection_types [
+  @skipped_types [
     "Person",
     ["Group", "MoodleNet:Community"],
     ["Group", "MoodleNet:Collection"],
+    ["Page", "MoodleNet:EducationalResource"],
     "Collection",
     "OrderedCollection",
     "CollectionPage",
     "OrderedCollectionPage"
   ]
   defp contain_origin(%{"id" => id} = data) do
-    if data["type"] in @actor_and_collection_types do
+    if data["type"] in @skipped_types do
       {:ok, data}
     else
       actor = get_actor(data)
