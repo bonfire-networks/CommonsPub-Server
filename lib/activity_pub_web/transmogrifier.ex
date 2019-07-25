@@ -73,11 +73,12 @@ defmodule ActivityPubWeb.Transmogrifier do
   defp maybe_put_id(ret, entity), do: Map.put(ret, "id", entity.id)
 
   defp maybe_inject_object(%{"object" => object} = entity) when is_map(object) do
-    object = object
-    |> Map.put("@context", entity["@context"])
-    |> Map.put("attributedTo", entity["actor"])
-    |> Map.put("to", entity["to"])
-    |> Map.put("cc", entity["cc"])
+    object =
+      object
+      |> Map.put("@context", entity["@context"])
+      |> Map.put("attributedTo", entity["actor"])
+      |> Map.put("to", entity["to"])
+      |> Map.put("cc", entity["cc"])
 
     entity
     |> Map.put("object", object)
@@ -236,9 +237,19 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Normalises and inserts an incoming AS2 object. Returns Object.
   """
-  def handle_incoming(data) do
-    with {:ok, data} <- prepare_data(data),
-         {:ok, object} <- Object.insert(data) do
+
+  @collection_types ["Collection", "OrderedCollection", "CollectionPage", "OrderedCollectionPage"]
+  def handle_object(%{"type" => type} = data) when type in @collection_types do
+    with {:ok, object} <- prepare_data(data) do
+      {:ok, object}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def handle_object(data) do
+    with {:ok, object} <- prepare_data(data),
+         {:ok, object} <- Object.insert(object) do
       {:ok, object}
     else
       {:error, e} -> {:error, e}
@@ -246,7 +257,6 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp prepare_data(data) do
-
     data =
       %{}
       |> Map.put(:data, data)
