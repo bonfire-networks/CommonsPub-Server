@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
 
   def filename(version, {file, _}) do
     file_name = MoodleNet.File.basename(file.file_name)
-    "#{version}_#{file_name}"
+    Path.join(["profiles", "#{version}_#{file_name}"])
   end
 
   def transform(:thumbnail, _) do

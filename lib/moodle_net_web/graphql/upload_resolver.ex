@@ -6,7 +6,6 @@
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   alias ActivityPub.SQL.Query
-  alias MoodleNet.Accounts
   alias MoodleNetWeb.Uploaders.{Avatar, Background}
 
   def upload_icon(params, info) do
@@ -25,8 +24,8 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   defp do_upload(uploader, field_name, %{local_id: local_id, image: image}) do
     with {:ok, object} <- fetch_object_by_id(local_id),
          image_object = fetch_image_field(object, field_name),
-         # FIXME: relative URL's are no good for federation
-         {:ok, url} <- uploader.store(image),
+         {:ok, local_path} <- uploader.store(image),
+         url = uploader.url(local_path),
          {:ok, _} <- ActivityPub.update(object, url: url) do
       {:ok, url}
     end
