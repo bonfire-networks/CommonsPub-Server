@@ -16,8 +16,8 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
 config :moodle_net,
-  base_url: System.fetch_env!("BASE_URL")
-  ap_base_url: System.fetch_env!("AP_BASE_URL"),
+  base_url: System.fetch_env!("BASE_URL"),
+  ap_base_url: System.get_env("AP_BASE_URL"),
   frontend_base_url: System.fetch_env!("FRONTEND_BASE_URL")
 
 config :moodle_net, MoodleNet.Mail.MailService,

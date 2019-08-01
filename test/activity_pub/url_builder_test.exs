@@ -8,7 +8,7 @@ defmodule ActivityPub.UrlBuilderTest do
 
   alias ActivityPub.UrlBuilder
 
-  @base_url Application.get_env(:moodle_net, :ap_base_url)
+  @base_url UrlBuilder.base_url()
 
   describe "id" do
     test "works with regular entities" do
