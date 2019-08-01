@@ -8,7 +8,10 @@ defmodule ActivityPub.UrlBuilder do
   This module manages ActivityPub ID.
   """
   def base_url() do
-    Application.get_env(:moodle_net, :ap_base_url) || MoodleNetWeb.base_url()
+    MoodleNetWeb.base_url()
+    |> URI.parse()
+    |> URI.merge(Application.get_env(:moodle_net, :ap_base_url, ""))
+    |> to_string()
   end
 
   @type page :: {:page, integer, Map.t()}
