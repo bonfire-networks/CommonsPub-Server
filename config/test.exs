@@ -33,8 +33,8 @@ config :phoenix_integration,
 config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.TestAdapter
 
-config :moodle_net, :ap_base_url, "http://localhost:4001"
-config :moodle_net, :frontend_base_url,
-  (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
+config :moodle_net,
+  base_url: "http://localhost:4001",
+  frontend_base_url: System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/"
 
 config :tesla, adapter: Tesla.Mock
