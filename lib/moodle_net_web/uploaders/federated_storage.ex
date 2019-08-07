@@ -1,17 +1,18 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule MoodleNetWeb.Uploaders.FederatedStorage do
   @moduledoc """
   Storage to be plugged in to Arc for use inside of a federated network.
 
-  This keeps the file on each federation server and ensures that no file
-  uploaded is already present in any part of the federation, avoiding re-downloading.
-
-  It also ensures URL's are formatted correctly, according to federation server
+  It ensures URL's are formatted correctly, according to federation server
   rather than just a local path, which is what `Arc.Storage.Local` gives you.
   """
 
   def put(definition, version, {file, scope}) do
-    destination_dir = definition.storage_dir(version, {file, scope})
-    path = Path.join(destination_dir, file.file_name)
+    path = build_local_path(definition, version, {file, scope})
     path |> Path.dirname() |> File.mkdir_p!()
 
     if binary = file.binary do
