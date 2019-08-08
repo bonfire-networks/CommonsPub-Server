@@ -50,7 +50,6 @@ defmodule MoodleNet.Repo.Migrations.CreateActivityPubTables do
       add_foreign_key(:following_id, "activity_pub_objects", column: :local_id)
       add_foreign_key(:followers_id, "activity_pub_objects", column: :local_id)
       add_foreign_key(:liked_id, "activity_pub_objects", column: :local_id)
-      add(:keys, :text)
       add(:preferred_username, :text)
       add(:streams, :jsonb)
       add(:endpoints, :jsonb)
