@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     with {:ok, object} <- fetch_object_by_id(local_id),
          image_object = fetch_image_field(object, field_name),
          {:ok, url} <- uploader.store(image),
-         {:ok, _} <- ActivityPub.update(object, url: url),
+         {:ok, _} <- ActivityPub.update(image_object, url: url),
       do: {:ok, url}
   end
 
