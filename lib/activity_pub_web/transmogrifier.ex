@@ -26,6 +26,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> set_streams(entity)
     |> set_public()
     |> maybe_inject_object()
+    |> set_public_key(entity)
   end
 
   def prepare_embedded(entity) do
@@ -234,6 +235,24 @@ defmodule ActivityPubWeb.Transmogrifier do
     do: Map.put(json, "to", [@public_address | list])
 
   defp add_public_address(json), do: Map.put(json, "to", @public_address)
+
+  defp set_public_key(json, entity) when APG.has_aspect(entity, ActivityPub.ActorAspect) do
+    {:ok, entity} = ActivityPub.Utils.ensure_keys_present(entity)
+    {:ok, _, public_key} = ActivityPub.Keys.keys_from_pem(entity.keys)
+    public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
+    public_key = :public_key.pem_encode([public_key])
+
+    public_key = %{
+      "id" => "#{entity.id}#main-key",
+      "owner" => entity.id,
+      "publicKeyPem" => public_key
+    }
+
+    json
+    |> Map.put("publicKey", public_key)
+  end
+
+  defp set_public_key(json, _entity), do: json
 
   @doc """
   Normalises and inserts an incoming AS2 object. Returns Object.
