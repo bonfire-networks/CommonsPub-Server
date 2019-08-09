@@ -7,10 +7,14 @@ defmodule ActivityPub.UrlBuilder do
   @moduledoc """
   This module manages ActivityPub ID.
   """
+
+  @doc """
+  Prepare ActivityPub base URL (upon which object IDs, etc will be appended) based on base_url and ap_base_path
+  """
   def base_url() do
     MoodleNetWeb.base_url()
     |> URI.parse()
-    |> URI.merge(Application.get_env(:moodle_net, :ap_base_url, ""))
+    |> URI.merge(Application.get_env(:moodle_net, :ap_base_path, ""))
     |> to_string()
   end
 
