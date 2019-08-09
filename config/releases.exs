@@ -17,8 +17,8 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 config :moodle_net,
   base_url: System.fetch_env!("BASE_URL"),
-  ap_base_url: System.get_env("AP_BASE_URL"),
-  frontend_base_url: System.fetch_env!("FRONTEND_BASE_URL")
+  ap_base_path: System.get_env("AP_BASE_PATH") || "/pub/",
+  frontend_base_url: System.fetch_env!("FRONTEND_BASE_URL") || System.fetch_env!("BASE_URL")
 
 config :moodle_net, MoodleNet.Mailer,
   domain: System.fetch_env!("MAIL_DOMAIN"),
