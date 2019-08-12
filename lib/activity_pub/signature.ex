@@ -6,15 +6,46 @@
 defmodule ActivityPub.Signature do
   @behaviour HTTPSignatures.Adapter
 
+  alias ActivityPub.Actor
   alias ActivityPub.Keys
   alias ActivityPub.Utils
 
-  def fetch_public_key(conn) do
+  def key_id_to_actor_id(key_id) do
+    uri =
+      URI.parse(key_id)
+      |> Map.put(:fragment, nil)
 
+    uri =
+      if not is_nil(uri.path) and String.ends_with?(uri.path, "/publickey") do
+        Map.put(uri, :path, String.replace(uri.path, "/publickey", ""))
+      else
+        uri
+      end
+
+    URI.to_string(uri)
+  end
+
+  def fetch_public_key(conn) do
+    with %{"keyId" => kid} <- HTTPSignatures.signature_for_conn(conn),
+         actor_id <- key_id_to_actor_id(kid),
+         {:ok, public_key} <- Actor.get_public_key_for_ap_id(actor_id) do
+      {:ok, public_key}
+    else
+      e ->
+        {:error, e}
+    end
   end
 
   def refetch_public_key(conn) do
-
+    with %{"keyId" => kid} <- HTTPSignatures.signature_for_conn(conn),
+         actor_id <- key_id_to_actor_id(kid),
+         {:ok, _actor} <- Actor.update_actor(actor_id),
+         {:ok, public_key} <- Actor.get_public_key_for_ap_id(actor_id) do
+      {:ok, public_key}
+    else
+      e ->
+        {:error, e}
+    end
   end
 
   def sign(actor, headers) do
