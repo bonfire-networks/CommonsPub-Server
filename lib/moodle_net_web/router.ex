@@ -98,6 +98,14 @@ defmodule MoodleNetWeb.Router do
     get("/:sig/:url/*rest", MediaProxyController, :remote)
   end
 
+  pipeline :well_known do
+    plug(:accepts, ["json", "jrd+json"])
+  end
+
+  scope "/.well_known", ActivityPubWeb do
+    get "/webfinger", WebFingerController, :webfinger
+  end
+
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
