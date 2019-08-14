@@ -7,11 +7,14 @@ defmodule ActivityPub.Actor do
   @moduledoc """
   Functions for dealing with ActivityPub actors
   """
+  require Ecto.Query
 
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
+  alias ActivityPub.SQL.Query
 
   alias Ecto.Changeset
+  alias Ecto.Query, as: EQuery
   alias MoodleNet.Repo
 
   # TODO: make better
@@ -42,6 +45,25 @@ defmodule ActivityPub.Actor do
       {:ok, public_key}
     else
       _ -> :error
+    end
+  end
+
+  def get_by_username(username) do
+    query =
+      "activity_pub_actor_aspects"
+      |> EQuery.where([a], a.preferred_username == ^username)
+      |> EQuery.select([a], a.local_id)
+
+    case Repo.one(query) do
+      nil ->
+        {:error, "Not found"}
+
+      id ->
+        actor =
+          ActivityPub.get_by_local_id(id, aspect: :actor)
+          |> Query.preload_assoc(:all)
+
+        {:ok, actor}
     end
   end
 end
