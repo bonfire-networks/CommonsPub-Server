@@ -104,6 +104,7 @@ defmodule MoodleNetWeb.Router do
 
   pipeline :activity_pub do
     plug(:accepts, ["activity+json", "json"])
+    plug(ActivityPubWeb.Plugs.HTTPSignaturePlug)
   end
 
   ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
