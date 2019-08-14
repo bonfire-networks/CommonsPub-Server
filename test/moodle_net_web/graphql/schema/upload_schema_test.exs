@@ -43,6 +43,19 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadImage" => url}} = resp
       assert url =~ file.filename
+
+      fetch_query = """
+      query {
+        user(localId: #{local_id(actor)}) {
+          image
+        }
+      }
+      """
+      assert resp =
+        conn
+        |> post("/api/graphql", %{query: fetch_query})
+        |> json_response(200)
+      assert get_in(resp, ["data", "user", "image"]) == url
     end
 
     @tag :user
@@ -103,6 +116,25 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadIcon" => url}} = resp
       assert url =~ file.filename
+
+      fetch_query = """
+      query {
+        user(localId: #{local_id(actor)}) {
+          icon {
+            url
+            preview {
+              url
+            }
+          }
+        }
+      }
+      """
+      assert resp =
+        conn
+        |> post("/api/graphql", %{query: fetch_query})
+        |> json_response(200)
+      assert get_in(resp, ["data", "user", "icon", "url"]) == url
+      assert get_in(resp, ["data", "user", "icon", "preview", "url"]) =~ "thumbnail_" <> file.filename
     end
 
     @tag :user

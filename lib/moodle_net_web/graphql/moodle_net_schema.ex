@@ -169,7 +169,13 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp to_icon([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
-      URLBuilder.encode(url)
+      # FIXME: don't preload here
+      preview = Query.new() |> Query.belongs_to(:preview, entity) |> Query.one()
+      %{
+        url: URLBuilder.encode(url),
+        # previews don't need encoding since they're generated on our end
+        preview: preview
+      }
     else
       _ -> nil
     end
@@ -312,7 +318,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp calculate_connection_page_info(entities, args, fields) when is_list(entities) do
     if "pageInfo" in fields do
       page_info = MoodleNet.page_info(entities, args)
-
       %{
         start_cursor: page_info.newer,
         end_cursor: page_info.older

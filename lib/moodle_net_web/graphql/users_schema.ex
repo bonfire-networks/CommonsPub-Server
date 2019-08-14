@@ -101,16 +101,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user do
-    field :id, :id
-    field :local, :boolean
-    field :preferred_username, :string
-    field :name, :string
-    field :summary, :string
-    field :location, :string
-    field :website, :string
-    field :icon, :string
-    field :image, :string
-    field :primary_language, :language
+    field(:id, :id)
+    field(:local, :boolean)
+    field(:preferred_username, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:location, :string)
+    field(:website, :string)
+    field(:image, :string)
+    field(:primary_language, :string)
+    field(:icon, :icon)
 
     field :joined_communities, :user_joined_communities_connection do
       arg :limit, :integer

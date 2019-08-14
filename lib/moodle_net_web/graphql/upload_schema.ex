@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   import_types Absinthe.Plug.Types
 
   object :upload_mutations do
+    # TODO: return icon
     @desc "Upload an avatar (icon in ActivityPub)"
     field :upload_icon, type: :string do
       arg(:local_id, non_null(:integer))
@@ -23,5 +24,15 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
       arg(:image, non_null(:upload))
       resolve(&UploadResolver.upload_image/2)
     end
+  end
+
+  object :icon do
+    field(:url, :string)
+    field(:preview, :preview)
+  end
+
+  object :preview do
+    field(:url, :string)
+    field(:media_type, :string)
   end
 end
