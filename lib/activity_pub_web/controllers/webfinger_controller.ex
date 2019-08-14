@@ -6,6 +6,8 @@
 defmodule ActivityPubWeb.WebFingerController do
   use ActivityPubWeb, :controller
 
+  alias ActivityPub.WebFinger
+
   def webfinger(conn, %{"resource" => resource}) do
     with {:ok, response} <- WebFinger.webfinger(resource) do
       json(conn, response)
