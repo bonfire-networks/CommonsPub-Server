@@ -65,4 +65,20 @@ defmodule HttpRequestMock do
        body: File.read!("test/fixtures/moodlenet_person_actor.json")
      }}
   end
+
+  def get("https://kawen.space/.well-known/webfinger?resource=acct:karen@kawen.space", _, _, _) do
+    {:ok,
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/pleroma_webfinger.json")
+     }}
+  end
+
+  def get("https://niu.moe/.well-known/webfinger?resource=acct:karen@niu.moe", _, _, _) do
+    {:ok,
+    %Tesla.Env{
+      status: 200,
+      body: File.read!("test/fixtures/mastodon_webfinger.json")
+    }}
+  end
 end
