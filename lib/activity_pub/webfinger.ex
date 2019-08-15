@@ -11,7 +11,7 @@ defmodule ActivityPub.WebFinger do
   require Logger
 
   def webfinger(resource) do
-    host = MoodleNetWeb.base_url()
+    host = MoodleNetWeb.Endpoint.host()
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
 
     with %{"username" => username} <- Regex.named_captures(regex, resource),
@@ -19,11 +19,11 @@ defmodule ActivityPub.WebFinger do
       {:ok, represent_user(actor)}
     else
       _e ->
-        with actor <- ActivityPub.get_by_id(resource, aspect: :actor),
-             true <- ActivityPub.Guards.is_entity(actor) do
+        actor = ActivityPub.get_by_id(resource, aspect: :actor)
+        if actor do
           {:ok, represent_user(actor)}
         else
-          _e -> {:error, "Couldn't find"}
+          {:error, "Couldn't find"}
         end
     end
   end
@@ -32,7 +32,7 @@ defmodule ActivityPub.WebFinger do
     {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
 
     %{
-      "subject" => "acct:#{actor.preferred_username}@#{MoodleNetWeb.base_url()}",
+      "subject" => "acct:#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}",
       "aliases" => [actor.id],
       "links" => [
         %{

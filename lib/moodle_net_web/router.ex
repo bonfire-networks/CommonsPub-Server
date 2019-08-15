@@ -102,7 +102,7 @@ defmodule MoodleNetWeb.Router do
     plug(:accepts, ["json", "jrd+json"])
   end
 
-  scope "/.well_known", ActivityPubWeb do
+  scope "/.well-known", ActivityPubWeb do
     get "/webfinger", WebFingerController, :webfinger
   end
 
