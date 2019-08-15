@@ -20,7 +20,7 @@ defmodule ActivityPub.WebFingerTest do
       actor = Factory.actor()
 
       {:ok, result} =
-        WebFinger.webfinger("#{actor.preferred_username}@#{MoodleNetWeb.base_url()}")
+        WebFinger.webfinger("#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}")
 
       assert is_map(result)
     end
