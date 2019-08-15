@@ -7,7 +7,6 @@ defmodule ActivityPub.WebFinger do
   alias ActivityPub.Actor
   alias ActivityPub.HTTP
 
-  require ActivityPub.Guards
   require Logger
 
   def webfinger(resource) do
