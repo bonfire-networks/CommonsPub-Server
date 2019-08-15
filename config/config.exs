@@ -27,7 +27,8 @@ config :logger, :console,
 
 config :mime, :types, %{
   "application/activity+json" => ["json"],
-  "application/ld+json" => ["json"]
+  "application/ld+json" => ["json"],
+  "application/jrd+json" => ["json"]
 }
 
 config :moodle_net, MoodleNet.Mailer,
