@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.Uploaders.Background do
   @extension_whitelist ~w(.jpg .jpeg .png)
   @max_size {3000, 3000}
 
-  @versions [:original]
+  @versions [:full]
 
   def validate({file, _}) do
     MoodleNet.File.has_extension?(file.file_name, @extension_whitelist)
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.Uploaders.Background do
     Path.join([to_string(local_id), file_name])
   end
 
-  def transform(:original, _) do
+  def transform(:full, _) do
     {max_width, max_height} = @max_size
     # note the '>' symbol at the end, this means only resize if those
     # dimensions are exceeded.

@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
   # The maximum size for an image, anything larger is resized.
   @max_size {1000, 1000}
 
-  @versions [:original, :thumbnail]
+  @versions [:full, :thumbnail]
 
   def validate({file, _}) do
     MoodleNet.File.has_extension?(file.file_name, @extension_whitelist)
@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
     {:convert, "-strip -thumbnail #{w}x#{h} -gravity center -extent #{w}x#{h}"}
   end
 
-  def transform(:original, _) do
+  def transform(:full, _) do
     {max_width, max_height} = @max_size
     # note the '>' symbol at the end, this means only resize if those
     # dimensions are exceeded.

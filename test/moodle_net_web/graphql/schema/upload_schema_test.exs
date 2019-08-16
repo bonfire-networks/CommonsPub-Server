@@ -117,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadIcon" => url}} = resp
-      assert url =~ "#{local_id(actor)}/original_#{file.filename}"
+      assert url =~ "#{local_id(actor)}/full_#{file.filename}"
 
       fetch_query = """
       query {

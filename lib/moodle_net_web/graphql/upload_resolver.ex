@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
          {:ok, object} <- fetch_object_by_id(params.local_id),
          image_object = fetch_image_field(object, :icon),
          {:ok, ref_url} <- Avatar.store({params.image, params.local_id}) do
-      %{original: original_url, thumbnail: thumbnail_url} =
+      %{full: original_url, thumbnail: thumbnail_url} =
         Avatar.urls({ref_url, params.local_id})
 
       with {:ok, _} <- ActivityPub.update(image_object, url: original_url),
