@@ -21,7 +21,10 @@ defmodule MoodleNetWeb.Uploaders.Background do
     MoodleNet.File.has_extension?(file.file_name, @extension_whitelist)
   end
 
-  def filename(_, {file, _}), do: MoodleNet.File.basename(file.file_name)
+  def filename(_, {file, local_id}) when is_integer(local_id) do
+    file_name = MoodleNet.File.basename(file.file_name)
+    Path.join([to_string(local_id), file_name])
+  end
 
   def transform(:original, _) do
     {max_width, max_height} = @max_size

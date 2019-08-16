@@ -13,8 +13,9 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     with {:ok, _} <- current_actor(info),
          {:ok, object} <- fetch_object_by_id(params.local_id),
          image_object = fetch_image_field(object, :icon),
-         {:ok, ref_url} <- Avatar.store(params.image) do
-      %{original: original_url, thumbnail: thumbnail_url} = Avatar.urls(ref_url)
+         {:ok, ref_url} <- Avatar.store({params.image, params.local_id}) do
+      %{original: original_url, thumbnail: thumbnail_url} =
+        Avatar.urls({ref_url, params.local_id})
 
       with {:ok, _} <- ActivityPub.update(image_object, url: original_url),
            {:ok, preview_object} <- update_preview(image_object, thumbnail_url),
@@ -25,8 +26,8 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   def upload_image(params, info) do
     with {:ok, object} <- fetch_object_by_id(params.local_id),
          image_object = fetch_image_field(object, :image),
-         {:ok, ref_url} <- Background.store(params.image),
-         url = Background.url(ref_url),
+         {:ok, ref_url} <- Background.store({params.image, params.local_id}),
+         url = Background.url({ref_url, params.local_id}),
          {:ok, _} <- ActivityPub.update(image_object, url: url),
       do: {:ok, url}
   end

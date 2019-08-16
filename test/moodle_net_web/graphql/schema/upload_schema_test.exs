@@ -9,6 +9,8 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
 
+  # TODO: delete upload directory
+
   def upload_query(actor, query_name, file) do
     local_id = local_id(actor)
     query = """
@@ -42,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadImage" => url}} = resp
-      assert url =~ file.filename
+      assert url =~ "#{local_id(actor)}/#{file.filename}"
 
       fetch_query = """
       query {
@@ -115,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadIcon" => url}} = resp
-      assert url =~ file.filename
+      assert url =~ "#{local_id(actor)}/original_#{file.filename}"
 
       fetch_query = """
       query {
@@ -134,7 +136,8 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
         |> post("/api/graphql", %{query: fetch_query})
         |> json_response(200)
       assert get_in(resp, ["data", "user", "icon", "url"]) == url
-      assert get_in(resp, ["data", "user", "icon", "preview", "url"]) =~ "thumbnail_" <> file.filename
+      thumbnail_url = "#{local_id(actor)}/thumbnail_#{file.filename}"
+      assert get_in(resp, ["data", "user", "icon", "preview", "url"]) =~ thumbnail_url
     end
 
     @tag :user

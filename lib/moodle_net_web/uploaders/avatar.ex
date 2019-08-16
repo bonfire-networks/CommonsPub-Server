@@ -26,9 +26,9 @@ defmodule MoodleNetWeb.Uploaders.Avatar do
     MoodleNet.File.has_extension?(file.file_name, @extension_whitelist)
   end
 
-  def filename(version, {file, _}) do
+  def filename(version, {file, local_id}) when is_integer(local_id) do
     file_name = MoodleNet.File.basename(file.file_name)
-    Path.join(["profiles", "#{version}_#{file_name}"])
+    Path.join([to_string(local_id), "#{version}_#{file_name}"])
   end
 
   def transform(:thumbnail, _) do
