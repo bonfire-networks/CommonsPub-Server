@@ -35,6 +35,7 @@ config :moodle_net, MoodleNet.Mailer,
 
 config :moodle_net,
   base_url: "http://localhost:4001",
+  ap_base_path: "/pub",
   frontend_base_url: System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/"
 
 config :tesla, adapter: Tesla.Mock
