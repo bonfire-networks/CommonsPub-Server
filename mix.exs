@@ -32,7 +32,8 @@ defmodule MoodleNet.Mixfile do
        :logger,
        :runtime_tools,
        :comeonin,
-       :hackney
+       :hackney,
+       :mime
      ]
     ]
   end
@@ -67,6 +68,10 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_ecto, "~> 4.0"},
       # File/Image uploads
       {:arc, "~> 0.11"},
+      # File format parsing
+      {:format_parser, "~> 1.3.0"},
+      # MIME type map
+      {:mime, "~> 1.2"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},

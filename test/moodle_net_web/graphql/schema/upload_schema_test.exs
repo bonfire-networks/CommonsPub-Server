@@ -124,8 +124,14 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
         user(localId: #{local_id(actor)}) {
           icon {
             url
+            mediaType
+            width
+            height
             preview {
               url
+              mediaType
+              width
+              height
             }
           }
         }
@@ -135,9 +141,21 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
         conn
         |> post("/api/graphql", %{query: fetch_query})
         |> json_response(200)
-      assert get_in(resp, ["data", "user", "icon", "url"]) == url
-      thumbnail_url = "#{local_id(actor)}/thumbnail_#{file.filename}"
-      assert get_in(resp, ["data", "user", "icon", "preview", "url"]) =~ thumbnail_url
+
+      assert %{
+        "url" => ^url,
+        "mediaType" => "image/png",
+        "width" => 150,
+        "height" => 150
+      } = get_in(resp, ["data", "user", "icon"])
+
+      preview = get_in(resp, ["data", "user", "icon", "preview"])
+      assert preview["url"] =~ "#{local_id(actor)}/thumbnail_#{file.filename}"
+      assert %{
+        "mediaType" => "image/png",
+        "width" => 300,
+        "height" => 300
+      } = preview
     end
 
     @tag :user

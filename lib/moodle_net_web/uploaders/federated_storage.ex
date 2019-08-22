@@ -12,7 +12,8 @@ defmodule MoodleNetWeb.Uploaders.FederatedStorage do
   """
 
   def put(definition, version, {file, scope}) do
-    path = build_local_path(definition, version, {file, scope})
+    destination_dir = definition.storage_dir(version, {file, scope})
+    path = Path.join(destination_dir, file.file_name)
     path |> Path.dirname() |> File.mkdir_p!()
 
     if binary = file.binary do
@@ -33,6 +34,7 @@ defmodule MoodleNetWeb.Uploaders.FederatedStorage do
       "/" <> local_path
     end
 
+    # TODO: replace base_url() with configuration
     MoodleNetWeb.base_url()
     |> URI.merge(url)
     |> to_string()

@@ -27,12 +27,17 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   end
 
   object :icon do
-    field(:url, :string)
+    field(:url, non_null(:string))
+    field(:media_type, :string)
+    field(:width, :integer)
+    field(:height, :integer)
     field(:preview, :preview)
   end
 
   object :preview do
-    field(:url, :string)
+    field(:url, non_null(:string))
     field(:media_type, :string)
+    field(:width, :integer)
+    field(:height, :integer)
   end
 end

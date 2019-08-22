@@ -173,8 +173,11 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
       preview = Query.new() |> Query.belongs_to(:preview, entity) |> Query.one()
       %{
         url: URLBuilder.encode(url),
-        # previews don't need encoding since they're generated on our end
-        preview: preview
+        media_type: entity[:media_type],
+        # NOTE: the mixing of strings and keys is intentional
+        width: entity["width"],
+        height: entity["height"],
+        preview: to_preview([preview])
       }
     else
       _ -> nil
@@ -182,6 +185,22 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   end
 
   defp to_icon(_), do: nil
+
+  defp to_preview([entity | _]) when APG.is_entity(entity) do
+    with [url | _] <- entity[:url] do
+      %{
+        url: URLBuilder.encode(url),
+        media_type: entity[:media_type],
+        # NOTE: the mixing of strings and keys is intentional
+        width: entity["width"],
+        height: entity["height"]
+      }
+    else
+      _ -> nil
+    end
+  end
+
+  defp to_preview(_), do: nil
 
   defp to_image([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
