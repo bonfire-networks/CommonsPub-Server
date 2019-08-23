@@ -6,6 +6,7 @@
 defmodule ActivityPub.WebFinger do
   alias ActivityPub.Actor
   alias ActivityPub.HTTP
+  alias ActivityPubWeb.Federator.Publisher
 
   require Logger
 
@@ -27,25 +28,23 @@ defmodule ActivityPub.WebFinger do
     end
   end
 
+  defp gather_links(actor) do
+    [
+      %{
+        "rel" => "http://webfinger.net/rel/profile-page",
+        "type" => "text/html",
+        "href" => actor.id
+      }
+    ] ++ Publisher.gather_webfinger_links(actor)
+  end
+
   def represent_user(actor) do
     {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
 
     %{
       "subject" => "acct:#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}",
       "aliases" => [actor.id],
-      "links" => [
-        %{
-          "rel" => "http://webfinger.net/rel/profile-page",
-          "type" => "text/html",
-          "href" => actor.id
-        },
-        %{"rel" => "self", "type" => "application/activity+json", "href" => actor.id},
-        %{
-          "rel" => "self",
-          "type" => "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"",
-          "href" => actor.id
-        }
-      ]
+      "links" => gather_links(actor)
     }
   end
 

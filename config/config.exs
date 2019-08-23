@@ -64,7 +64,8 @@ config :moodle_net, :instance,
   version: version,
   name: "MoodleNet",
   email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated server for educators"
+  description: "An instance of MoodleNet, a federated server for educators",
+  federation_publisher_modules: [ActivityPubWeb.Publisher]
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason

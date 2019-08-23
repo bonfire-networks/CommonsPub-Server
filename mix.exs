@@ -93,7 +93,8 @@ defmodule MoodleNet.Mixfile do
       {:tesla, "~> 1.2"},
       {:http_signatures,
        git: "https://git.pleroma.social/pleroma/http_signatures.git",
-       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}
+       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"},
+      {:pleroma_job_queue, "~> 0.3"}
     ]
   end
 
