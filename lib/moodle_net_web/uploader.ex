@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.Uploader do
       uploads = for {version, url} <- urls, into: %{} do
         {:ok, metadata} = file_metadata(url)
         file_info = %{
-          url: url,
+          url: resolve_url(url),
           media_type: format_to_media_type(metadata[:format]),
           metadata: metadata
         }
@@ -14,6 +14,13 @@ defmodule MoodleNetWeb.Uploader do
 
       {:ok, uploads}
     end
+  end
+
+  defp resolve_url(url) do
+    MoodleNetWeb.base_url()
+    |> URI.merge(url)
+    |> to_string()
+    |> URI.encode()
   end
 
   defp file_metadata(url) do

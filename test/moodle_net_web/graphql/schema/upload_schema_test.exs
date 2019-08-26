@@ -26,6 +26,13 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
     }
   end
 
+  def assert_valid_url(url) do
+    uri = URI.parse(url)
+    assert uri.scheme
+    assert uri.host
+    assert uri.path
+  end
+
   describe "image" do
     @tag :user
     test "upload an image for an existing object", %{conn: conn, actor: actor} do
@@ -45,6 +52,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadImage" => url}} = resp
       assert url =~ "#{local_id(actor)}/#{file.filename}"
+      assert_valid_url url
 
       fetch_query = """
       query {
@@ -118,6 +126,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
       refute Map.has_key?(resp, "errors")
       assert %{"data" => %{"uploadIcon" => url}} = resp
       assert url =~ "#{local_id(actor)}/full_#{file.filename}"
+      assert_valid_url url
 
       fetch_query = """
       query {
@@ -151,6 +160,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
       preview = get_in(resp, ["data", "user", "icon", "preview"])
       assert preview["url"] =~ "#{local_id(actor)}/thumbnail_#{file.filename}"
+      assert_valid_url preview["url"]
       assert %{
         "mediaType" => "image/png",
         "width" => 300,
