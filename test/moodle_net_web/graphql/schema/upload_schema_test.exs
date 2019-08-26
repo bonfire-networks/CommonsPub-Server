@@ -33,6 +33,12 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
     assert uri.path
   end
 
+  setup_all do
+    on_exit(fn ->
+      File.rm_rf!(Application.fetch_env!(:arc, :storage_dir))
+    end)
+  end
+
   describe "image" do
     @tag :user
     test "upload an image for an existing object", %{conn: conn, actor: actor} do
