@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias ActivityPub.SQL.Query
 
   alias MoodleNetWeb.Uploader
-  alias MoodleNetWeb.Uploaders.{Avatar, Background}
+  alias MoodleNetWeb.Uploader.{Avatar, Background}
 
   def upload_icon(params, info) do
     # FIXME: this isn't authorization
