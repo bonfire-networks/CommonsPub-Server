@@ -21,8 +21,17 @@ defmodule ActivityPubWeb.Federator do
   def perform(:publish, activity) do
     Logger.debug(fn -> "Running publish for #{activity["id"]}" end)
 
-    with actor <- ActivityPub.get_by_id(activity["actor"], aspect: :actor),
-         {:ok, actor} <- Utils.ensure_keys_present(actor) do
+    actor_id =
+      activity
+      |> Map.get(:actor)
+      |> List.first()
+      |> Map.get(:id)
+
+    actor =
+      ActivityPub.get_by_id(actor_id, aspect: :actor)
+      |> ActivityPub.SQL.Query.preload_assoc(:all)
+
+    with {:ok, actor} <- Utils.ensure_keys_present(actor) do
       Publisher.publish(actor, activity)
     end
   end
