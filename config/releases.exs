@@ -8,7 +8,7 @@ config :moodle_net, MoodleNet.Repo,
   pool_size: 15
 
 port = String.to_integer(System.get_env("PORT", "4000"))
-base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME")),
+base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
 
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [port: port],
