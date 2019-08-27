@@ -106,9 +106,9 @@ defmodule MoodleNetWeb.Router do
     plug(:accepts, ["activity+json", "json"])
   end
 
-  ap_base_path = System.get_env("AP_BASE_PATH", "/pub/")
+  ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
-  scope "/" <> ap_base_path, ActivityPubWeb do
+  scope ap_base_path, ActivityPubWeb do
     pipe_through(:activity_pub)
 
     get "/:id", ActivityPubController, :show
