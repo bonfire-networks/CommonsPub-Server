@@ -130,7 +130,7 @@ defmodule MoodleNetWeb.Router do
     get "/:id/page", ActivityPubController, :collection_page
   end
 
-  scope "/", ActivityPubWeb do
+  scope ap_base_path, ActivityPubWeb do
     pipe_through(:signed_activity_pub)
 
     post "/:id", ActivityPubController, :inbox
