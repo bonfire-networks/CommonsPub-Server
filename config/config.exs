@@ -24,7 +24,8 @@ config :logger, :console,
 
 config :mime, :types, %{
   "application/activity+json" => ["json"],
-  "application/ld+json" => ["json"]
+  "application/ld+json" => ["json"],
+  "application/jrd+json" => ["json"]
 }
 
 config :moodle_net, MoodleNet.Mailer,
@@ -44,7 +45,17 @@ version =
   end
 
 # Configures http settings, upstream proxy etc.
-config :moodle_net, :http, proxy_url: nil
+config :moodle_net, :http,
+  proxy_url: nil,
+  send_user_agent: true,
+  adapter: [
+    ssl_options: [
+      # Workaround for remote server certificate chain issues
+      partial_chain: &:hackney_connect.partial_chain/1,
+      # We don't support TLS v1.3 yet
+      versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"]
+    ]
+  ]
 
 config :moodle_net, :instance,
   version: version,
@@ -61,6 +72,8 @@ config :furlex, Furlex.Oembed,
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
 config :tesla, adapter: Tesla.Adapter.Hackney
+
+config :http_signatures, adapter: ActivityPub.Signature
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
