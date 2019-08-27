@@ -67,13 +67,13 @@ config :phoenix, :plug_init_mode, :runtime
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("DATABASE_USER") || "postgres",
-  password: System.get_env("DATABASE_PASS") || "postgres",
-  database: "moodle_net_dev",
-  hostname: System.get_env("DATABASE_HOST") || "localhost",
+  username: System.get_env("DATABASE_USER", "postgres"),
+  password: System.get_env("DATABASE_PASS", "postgres"),
+  database: System.get_env("DATABASE_NAME", "moodle_net_dev"),
+  hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
 config :moodle_net,
-  base_url: System.get_env("BASE_URL") || "http://localhost:4000",
-  ap_base_path: System.get_env("AP_BASE_PATH") || "/pub/",
-  frontend_base_url: System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/"
+  base_url: System.get_env("BASE_URL", "http://localhost:4000"),
+  ap_base_path: System.get_env("AP_BASE_PATH", "/pub/"),
+  frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")

@@ -18,10 +18,10 @@ config :logger, level: :warn
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("DATABASE_USER") || "postgres",
-  password: System.get_env("DATABASE_PASS") || "postgres",
+  username: System.get_env("DATABASE_USER", "postgres"),
+  password: System.get_env("DATABASE_PASS", "postgres"),
   database: "moodle_net_test",
-  hostname: System.get_env("DATABASE_HOST") || "localhost",
+  hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool: Ecto.Adapters.SQL.Sandbox
 
 # Reduce hash rounds for testing
@@ -35,7 +35,7 @@ config :moodle_net, MoodleNet.Mailer,
 
 config :moodle_net,
   base_url: "http://localhost:4001",
-  ap_base_path: "/pub",
-  frontend_base_url: System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/"
+  ap_base_path: System.get_env("AP_BASE_PATH", "/pub/"),
+  frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock
