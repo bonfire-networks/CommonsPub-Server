@@ -12,6 +12,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   alias ActivityPub.Entity
   alias ActivityPub.Object
   require ActivityPub.Guards, as: APG
+  require Logger
 
   @doc """
   Translates MN Entity to an AP compatible format
@@ -254,10 +255,22 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp set_public_key(json, _entity), do: json
 
+  #incoming activities
+
+  def handle_incoming(%{"type" => "Create", "object" => object} = data) do
+
+  end
+
+  def handle_incoming(data) do
+    Logger.info("Unhandled activity. Storing...")
+    {:ok, activity, object} = prepare_activity(data)
+    handle_object(object)
+    handle_object(activity)
+  end
+
   @doc """
   Normalises and inserts an incoming AS2 object. Returns Object.
   """
-
   @collection_types ["Collection", "OrderedCollection", "CollectionPage", "OrderedCollectionPage"]
   def handle_object(%{"type" => type} = data) when type in @collection_types do
     with {:ok, object} <- prepare_data(data) do
@@ -284,6 +297,12 @@ defmodule ActivityPubWeb.Transmogrifier do
       |> Map.put(:public, public?(data))
 
     {:ok, data}
+  end
+
+  defp prepare_activity(%{"object" => object} = data) do
+    activity = Map.put(data, "object", data["object"]["id"])
+
+    {:ok, activity, object}
   end
 
   defp public?(data) do

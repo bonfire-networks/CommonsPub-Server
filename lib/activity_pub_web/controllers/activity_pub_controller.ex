@@ -15,7 +15,12 @@ defmodule ActivityPubWeb.ActivityPubController do
 
   import ActivityPub.Guards
 
+  require Logger
+
+  alias ActivityPub.Fetcher
   alias ActivityPub.SQL.Query
+  alias ActivityPubWeb.Federator
+  alias ActivityPubWeb.Transmogrifier
 
   def show(conn, %{"id" => id}) do
     id = String.to_integer(id)
@@ -45,5 +50,35 @@ defmodule ActivityPubWeb.ActivityPubController do
       _ ->
         send_resp(conn, :not_found, "")
     end
+  end
+
+  def inbox(%{assigns: %{valid_signature: true}} = conn, params) do
+    Federator.incoming_ap_doc(params)
+    json(conn, "ok")
+  end
+
+  # only accept relayed Creates
+  def inbox(conn, %{"type" => "Create"} = params) do
+    Logger.info(
+      "Signature missing or not from author, relayed Create message, fetching object from source"
+    )
+
+    Fetcher.fetch_object_from_id(params["object"]["id"])
+
+    json(conn, "ok")
+  end
+
+  def inbox(conn, params) do
+    headers = Enum.into(conn.req_headers, %{})
+
+    if String.contains?(headers["signature"], params["actor"]) do
+      Logger.info(
+        "Signature validation error for: #{params["actor"]}, make sure you are forwarding the HTTP Host header!"
+      )
+
+      Logger.info(inspect(conn.req_headers))
+    end
+
+    json(conn, dgettext("errors", "error"))
   end
 end
