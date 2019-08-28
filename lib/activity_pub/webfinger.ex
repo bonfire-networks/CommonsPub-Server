@@ -4,11 +4,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPub.WebFinger do
+  @moduledoc """
+  Serves and fetches data (mainly actor URI) necessary for federation when only the username and host is known.
+  """
+
   alias ActivityPub.Actor
   alias ActivityPub.HTTP
 
   require Logger
 
+  @doc """
+  Serves a webfinger response for the requested username.
+  """
   def webfinger(resource) do
     host = System.get_env("HOSTNAME") || MoodleNetWeb.Endpoint.host()
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
@@ -19,6 +26,7 @@ defmodule ActivityPub.WebFinger do
     else
       _e ->
         actor = ActivityPub.get_by_id(resource, aspect: :actor)
+
         if actor do
           {:ok, represent_user(actor)}
         else
@@ -27,6 +35,9 @@ defmodule ActivityPub.WebFinger do
     end
   end
 
+  @doc """
+  Formats gathered data into a JRD format.
+  """
   def represent_user(actor) do
     {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
 
@@ -81,6 +92,9 @@ defmodule ActivityPub.WebFinger do
     {:ok, data}
   end
 
+  @doc """
+  Fetches webfinger data for an account given in "@username@domain.tld" format.
+  """
   def finger(account) do
     account = String.trim_leading(account, "@")
 
