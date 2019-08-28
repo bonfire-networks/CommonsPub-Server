@@ -17,7 +17,7 @@ defmodule ActivityPub.WebFinger do
   Serves a webfinger response for the requested username.
   """
   def webfinger(resource) do
-    host = System.get_env("HOSTNAME") || MoodleNetWeb.Endpoint.host()
+    host = System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host())
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
 
     with %{"username" => username} <- Regex.named_captures(regex, resource),
