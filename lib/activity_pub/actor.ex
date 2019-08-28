@@ -49,8 +49,6 @@ defmodule ActivityPub.Actor do
   end
 
   def get_by_username(username) do
-    IO.inspect(username)
-
     query =
       "activity_pub_actor_aspects"
       |> EQuery.where([a], a.preferred_username == ^username)

@@ -6,6 +6,7 @@ variables:
   POSTGRES_PASSWORD: postgres
   DATABASE_HOST: postgres
   MIX_ENV: test
+  HOSTNAME: localhost
   
 cache:
   key: $CI_COMMIT_REF_SLUG
