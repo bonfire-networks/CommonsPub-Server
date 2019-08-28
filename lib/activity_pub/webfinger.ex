@@ -10,7 +10,7 @@ defmodule ActivityPub.WebFinger do
   require Logger
 
   def webfinger(resource) do
-    host = MoodleNetWeb.Endpoint.host()
+    host = System.get_env("HOSTNAME") || MoodleNetWeb.Endpoint.host()
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
 
     with %{"username" => username} <- Regex.named_captures(regex, resource),
