@@ -8,28 +8,24 @@ defmodule MoodleNet.File do
   Utilities for working with files.
   """
 
-  @spec has_extension?(binary, [binary]) :: boolean
-
   @doc """
   Returns true if the given `filepath` contains one of the
   extensions in `allowed_exts`.
 
   Note that the comparison is case-insensitive.
   """
+  @spec has_extension?(binary, [binary]) :: boolean
   def has_extension?(filepath, allowed_exts) do
     Enum.member?(allowed_exts, extension(filepath))
   end
 
-  @spec extension(binary) :: binary
-
   @doc """
   Return the file extension of the given `filepath` in lowercase.
   """
+  @spec extension(binary) :: binary
   def extension(filepath) do
     filepath |> Path.extname |> String.downcase
   end
-
-  @spec basename(binary) :: binary
 
   @doc """
   Return the base name of a full file path without the extension.
@@ -39,10 +35,29 @@ defmodule MoodleNet.File do
   iex> basename("some/path/file.txt")
   "file"
   """
+  @spec basename(binary) :: binary
   def basename(filepath) do
     case extension(filepath) do
       ""  -> Path.basename(filepath)
       ext -> Path.basename(filepath, ext)
     end
+  end
+
+  # Taken from https://github.com/stavro/arc/blob/master/lib/arc/file.ex
+  @doc """
+  Generate a path in the OS temporary directory.
+
+  If a file is supplied, the extension of the file name is preserved.
+  """
+  @spec generate_temporary_path(file :: any) :: binary
+  def generate_temporary_path(file \\ nil) do
+    extension = extension((file && file.path) || "")
+
+    filename =
+      :crypto.strong_rand_bytes(20)
+      |> Base.encode32()
+      |> Kernel.<>(extension)
+
+    Path.join(System.tmp_dir(), filename)
   end
 end

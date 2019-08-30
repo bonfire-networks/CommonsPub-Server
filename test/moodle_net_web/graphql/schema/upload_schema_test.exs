@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
   setup_all do
     on_exit(fn ->
-      File.rm_rf!(Application.fetch_env!(:arc, :storage_dir))
+      File.rm_rf!(Application.fetch_env!(:moodle_net, :upload_dir))
     end)
   end
 

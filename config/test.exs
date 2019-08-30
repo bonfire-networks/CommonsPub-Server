@@ -54,6 +54,4 @@ config :moodle_net, MoodleNet.OAuth,
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
 
-config :arc,
-  storage: Arc.Storage.Local,
-  storage_dir: "test_uploads"
+config :moodle_net, upload_dir: "uploads"

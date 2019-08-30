@@ -110,4 +110,4 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
-config :arc, storage: Arc.Storage.Local
+config :moodle_net, upload_dir: "uploads"

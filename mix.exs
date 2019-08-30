@@ -66,8 +66,6 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
-      # File/Image uploads
-      {:arc, "~> 0.11"},
       # File format parsing
       {:format_parser, "~> 1.3.0"},
       # MIME type map

@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
       params = upload_to_icon(uploads.full)
       with {:ok, _} <- ActivityPub.update(image_object, params),
            {:ok, preview_object} <- update_preview(image_object, uploads.thumbnail),
-           do: {:ok, params.url}
+           do: {:ok, uploads.full.url}
     end
   end
 

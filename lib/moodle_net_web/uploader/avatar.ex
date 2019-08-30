@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.Uploader.Avatar do
-  use Arc.Definition
+  use MoodleNetWeb.Uploader.Definition
 
   @moduledoc """
   A profile image/avatar definition.
@@ -20,26 +20,25 @@ defmodule MoodleNetWeb.Uploader.Avatar do
   # The maximum size for an image, anything larger is resized.
   @max_size {1000, 1000}
 
-  @versions [:full, :thumbnail]
+  def versions, do: [:full, :thumbnail]
 
-  def validate({file, _}) do
-    MoodleNet.File.has_extension?(file.file_name, @extension_whitelist)
+  def valid?(file, _) do
+    MoodleNet.File.has_extension?(file.filename, @extension_whitelist)
   end
 
-  def filename(version, {file, local_id}) when is_integer(local_id) do
-    file_name = MoodleNet.File.basename(file.file_name)
-    Path.join([to_string(local_id), "#{version}_#{file_name}"])
+  def filename(version, file, local_id) when is_integer(local_id) do
+    Path.join([to_string(local_id), "#{version}_#{file.filename}"])
   end
 
-  def transform(:thumbnail, _) do
+  def transform(:thumbnail, _, _) do
     {w, h} = @thumbnail_size
-    {:convert, "-strip -thumbnail #{w}x#{h} -gravity center -extent #{w}x#{h}"}
+    {:convert, ~w(-strip -thumbnail #{w}x#{h} -gravity center -extent #{w}x#{h})}
   end
 
-  def transform(:full, _) do
+  def transform(:full, _, _) do
     {max_width, max_height} = @max_size
     # note the '>' symbol at the end, this means only resize if those
     # dimensions are exceeded.
-    {:convert, "-resize #{max_width}x#{max_height}>"}
+    {:convert, ~w(-resize #{max_width}x#{max_height}>)}
   end
 end
