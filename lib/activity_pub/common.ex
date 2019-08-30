@@ -23,4 +23,5 @@ defmodule ActivityPub.SQL.Common do
     do: raise ArgumentError, "Entity must be loaded to persist correctly"
 
   def local_id(id) when is_integer(id), do: id
+
 end

@@ -11,6 +11,8 @@ defmodule MoodleNet.Communities.Member do
   alias MoodleNet.Collections.Collection
   
   schema "mn_community_member" do
+    field :public, :boolean
+    field :create_collection, :boolean
     belongs_to :user, User
     belongs_to :community, Community
     timestamps()

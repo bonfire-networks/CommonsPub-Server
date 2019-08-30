@@ -15,7 +15,6 @@ defmodule MoodleNet.Communities.Community do
     field :name, :string
     field :preferred_username, :string
     field :summary, :string
-    field :content, :string
     field :icon, :string # todo: reference the images table when we have one
     field :primary_language, :string
     belongs_to :creator, User
@@ -24,11 +23,8 @@ defmodule MoodleNet.Communities.Community do
     has_many :members, Member
     timestamps()
   end
-
-  @required_attrs [
-    :local, :name, :preferred_username,
-    :summary, :content, :primary_language,
-  ]
+p
+  @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
   @optional_attrs [:creator]
   @cast_attrs @required_attrs ++ @optional_attrs
   

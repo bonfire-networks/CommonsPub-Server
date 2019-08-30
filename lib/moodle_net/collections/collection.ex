@@ -12,9 +12,9 @@ defmodule MoodleNet.Collections.Collection do
 
   schema "mn_collection" do
     field :local, :boolean
+    field :public, :boolean
     field :name, :string
     field :summary, :string
-    field :content, :string
     field :icon, :string # todo: reference the images table when we have one
     field :primary_language, :string
     belongs_to :creator, User
@@ -23,19 +23,15 @@ defmodule MoodleNet.Collections.Collection do
     timestamps()
   end
 
-  @required_attrs [
-    :local, :name, :preferred_username,
-    :summary, :content, :primary_language,
-  ]
+  @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
   @optional_attrs [:creator_id]
   @cast_attrs @required_attrs ++ @optional_attrs
   
-  def changeset(community \\ %Community{}, attrs)
-  def changeset(%Community{}=community, attrs) when is_map(attrs) do
-    community
+  def changeset(collection \\ %Collection{}, attrs)
+  def changeset(%Collection{}=collection, attrs) when is_map(attrs) do
+    collection
     |> Changeset.cast(attrs, @cast_attrs)
     |> Changeset.validate_required(@required_attrs)
-    |> Changeset.unique_constraint(:preferred_username)
   end
 
 end

@@ -12,6 +12,9 @@ defmodule MoodleNet.Policy do
 
   import MoodleNet, only: [get_community: 1]
 
+  @doc "Check the given policy (an atom naming a policy function)"
+  def check(policy, args), do: apply(__MODULE__, policy, args)
+
   def create_collection?(actor, community, _attrs)
   when has_type(community, "MoodleNet:Community") and has_type(actor, "Person") do
     actor_follows!(actor, community)
@@ -34,20 +37,33 @@ defmodule MoodleNet.Policy do
     actor_follows!(actor, community)
   end
 
+  def like?(actor, , _attrs) when is_() do
+  end
+  def like?(actor, , _attrs) when is_() do
+  end
+  def like?(actor, , _attrs) when is_() do
+  end
+  def like?(actor, , _attrs) when is_() do
+  end
+  def like?(actor, , _attrs) when is_() do
+  end
   def like_comment?(actor, comment, _attrs)
   when has_type(comment, "Note") and has_type(actor, "Person") do
+    comment = Query.preload_assoc(comment, [context: [:context]])
     community = get_community(comment)
     actor_follows!(actor, community)
   end
 
   def like_resource?(actor, resource, _attrs)
   when has_type(resource, "MoodleNet:EducationalResource") and has_type(actor, "Person") do
+    resource = Query.preload_assoc(resource, [:context])
     community = get_community(resource)
     actor_follows!(actor, community)
   end
 
   def like_collection?(actor, collection, _attrs)
   when has_type(collection, "MoodleNet:Collection") and has_type(actor, "Person") do
+    collection = Query.preload_assoc(collection, [:context])
     community = get_community(collection)
     actor_follows!(actor, community)
   end

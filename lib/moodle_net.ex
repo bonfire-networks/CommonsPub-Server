@@ -17,7 +17,7 @@ defmodule MoodleNet do
   alias ActivityPub.SQL.{Query, Alter}
 
   alias MoodleNet.Policy
-  require ActivityPub.Guards, as: APG
+    require ActivityPub.Guards, as: APG
 
   @doc """
   User connections
@@ -789,27 +789,8 @@ defmodule MoodleNet do
     end
   end
 
-  def like_collection(actor, collection)
-      when has_type(actor, "Person") and has_type(collection, "MoodleNet:Collection") do
-    collection =
-      Query.preload_assoc(collection, [:followers, context: [:followers]])
-      |> Query.preload_aspect(:actor)
-
-    [community] = collection.context
-
-    attrs = %{
-      type: "Like",
-      actor: actor,
-      object: collection,
-      to: [Query.preload(actor.followers), collection, collection.followers, community.followers]
-    }
-
-    with :ok <- Policy.like_collection?(actor, collection, attrs),
-         {:ok, activity} = ActivityPub.new(attrs),
-         {:ok, _activity} <- ActivityPub.apply(activity) do
-      {:ok, true}
-    end
-  end
+  # def like_collection
+  # end
 
   def like_resource(actor, resource)
       when has_type(actor, "Person") and has_type(resource, "MoodleNet:EducationalResource") do
@@ -918,12 +899,12 @@ defmodule MoodleNet do
     [author, get_community(resource)]
   end
 
-  defp calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
+  def calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
     do: [collection, get_community(collection)]
 
 ######
 
-  defp find_current_relation(subject, relation, object) do
+  def find_current_relation(subject, relation, object) do
     if Query.has?(subject, relation, object) do
       :ok
     else
@@ -933,7 +914,7 @@ defmodule MoodleNet do
     end
   end
 
-  defp find_activity(type, actor, object) do
+  def find_activity(type, actor, object) do
     Query.new()
     |> Query.with_type(type)
     |> Query.has(:actor, actor)

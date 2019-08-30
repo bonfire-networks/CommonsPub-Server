@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
   def call(conn, _) do
     with {:ok, token} <- get_token(conn),
          {:ok, user} <- MoodleNet.OAuth.get_user_by_token(token) do
-      user = MoodleNet.Accounts.User.preload_actor(user)
+      user = MoodleNet.Users.preload_actor(user)
       put_current_user(conn, user, token)
     else
       {:error, error} ->

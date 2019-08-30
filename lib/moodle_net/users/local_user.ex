@@ -3,31 +3,31 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Accounts.User do
+defmodule MoodleNet.Users.LocalUser do
   @moduledoc """
   User model
   """
   use Ecto.Schema
   alias Ecto.Changeset
+  alias MoodleNet.Users.{User, LocalUser}
+  alias MoodleNet.Actors.Actor
 
-  schema "accounts_users" do
-    field(:email, :string)
-    field(:actor_id, :integer)
-    field(:confirmed_at, :utc_datetime)
-
-    field(:actor, :any, virtual: true)
-
+  schema "mn_local_users" do
+    belongs_to :user, User
+    field :email, :string
+    field :password, :string
+    field :confirmed_at, :utc_datetime
+    field :confirmation_token, :string
     timestamps()
   end
 
-  def changeset(actor, attrs) do
-    actor_id = ActivityPub.Entity.local_id(actor)
+  @cast_attrs []
+  @required_attrs []
 
-    %__MODULE__{}
+  def changeset(%User{}=user, attrs) do
+    user
     |> Changeset.cast(attrs, [:email])
     |> Changeset.validate_format(:email, ~r/.+\@.+\..+/)
-    # |> Changeset.put_assoc(:primary_actor, actor)
-    |> Changeset.change(actor: actor, actor_id: actor_id)
     |> Changeset.validate_required([:actor_id, :email])
     |> Changeset.unique_constraint(:email)
     |> lower_case_email()
@@ -59,15 +59,4 @@ defmodule MoodleNet.Accounts.User do
     Changeset.change(user, confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second))
   end
 
-  def name(%__MODULE__{} = user) do
-    user = preload_actor(user)
-    get_in(user.actor, [:name, "und"]) || user.actor.preferred_username
-  end
-
-  def preload_actor(%__MODULE__{actor: nil} = user) do
-    actor = ActivityPub.get_by_local_id(user.actor_id, aspect: :actor)
-    %{user | actor: actor}
-  end
-
-  def preload_actor(%__MODULE__{} = user), do: user
 end

@@ -1,13 +1,24 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.CommunitiesTest do
   use MoodleNet.DataCase, async: true
 
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.Communities
+
+  describe "membership" do
+    test "joining" do
+      
+      Communities.join()
+    end
+    test "leaving" do
+    end
+    test "listing" do
+    end
+    test "listing as admin" do
+    end
+  end
 
   describe "community flags" do
     test "works" do

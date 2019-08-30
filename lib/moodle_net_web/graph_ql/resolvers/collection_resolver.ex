@@ -59,18 +59,20 @@ defmodule MoodleNetWeb.GraphQL.CollectionResolver do
     |> Errors.handle_error()
   end
 
-  def like(%{local_id: collection_id}, info) do
+  def like(%{local_id: collection_id}=attrs, info) do
     with {:ok, liker} <- current_actor(info),
-         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
-      MoodleNet.like_collection(liker, collection)
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
+         {:ok, _like} <- Collections.like(liker, collection) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end
 
   def undo_like(%{local_id: collection_id}, info) do
     with {:ok, actor} <- current_actor(info),
-         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection") do
-      MoodleNet.undo_like(actor, collection)
+         {:ok, collection} <- fetch(collection_id, "MoodleNet:Collection"),
+         {:ok, _like} <- Collections.undo_like(actor, collection) do
+      {:ok, true}
     end
     |> Errors.handle_error()
   end

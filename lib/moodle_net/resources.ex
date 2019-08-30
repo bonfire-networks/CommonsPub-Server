@@ -8,6 +8,27 @@ defmodule MoodleNet.Resources do
   alias MoodleNet.Resources.ResourceFlag
 
   @doc """
+  Likes a resource with a given reason
+  {:ok, ResourceLike} | {:error, reason}
+  """
+  def like(actor, resource),
+    do: Common.like(ResourceLike, :like_resource?, actor, resource)
+
+  @doc """
+  Undoes a previous like
+  {:ok, ResourceLike} | {:error, term()}
+  """
+  def undo_like(actor, resource), do: Common.undo_like(ResourceLike, actor, resource)
+
+  @doc """
+  Lists all ResourceLike matching the provided optional filters.
+  Filters:
+    :open :: boolean
+  """
+  def all_likes(actor, filters \\ %{}),
+    do: Common.likes(ResourceLike, :list_resource_likes?, actor, filters)
+
+  @doc """
   Flags a resource with a given reason
   {:ok, ResourceFlag} | {:error, reason}
   """

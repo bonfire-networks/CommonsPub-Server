@@ -5,7 +5,35 @@
 defmodule MoodleNet.Comments do
 
   alias MoodleNet.Common
-  alias MoodleNet.Comments.CommentFlag
+  alias MoodleNet.Comments.{
+    CommentFlag,
+    CommentLike,
+  }
+
+  @doc """
+  Likes a comment with a given reason
+  {:ok, CommentLike} | {:error, reason}
+  """
+  def like(actor, comment),
+    do: Common.like(CommentLike, :like_comment?, actor, comment)
+
+  @doc """
+  Undoes a previous like
+  {:ok, CommentLike} | {:error, term()}
+  """
+  def undo_like(actor, comment), do: Common.undo_like(CommentLike, actor, comment)
+
+  @doc """
+  Lists all CommentLike matching the provided optional filters.
+  Filters:
+    :open :: boolean
+  """
+  def all_likes(actor, filters \\ %{}),
+    do: Common.likes(CommentLike, :list_comment_likes?, actor, filters)
+
+
+
+  ###
 
   @doc """
   Flags a comment with a given reason

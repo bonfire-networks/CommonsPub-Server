@@ -11,12 +11,13 @@ defmodule MoodleNet.Collections.CollectionFlag do
   schema "mn_collection_flags" do
     belongs_to :flagged_object, Object
     belongs_to :flagging_object, Object
+    belongs_to :community_object, Object
     field :reason, :string
     field :open, :boolean, default: true
   end
 
-  @cast_attrs [:flagged_object_id, :flagging_object_id, :reason, :open]
-  @required_attrs [:flagged_object_id, :flagging_object_id, :reason]
+  @cast_attrs [:flagged_object_id, :flagging_object_id, :community_object_id, :reason, :open]
+  @required_attrs [:flagged_object_id, :flagging_object_id, :community_object_id, :reason]
 
   @unique_index :mn_collection_flags_once_index
 
