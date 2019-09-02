@@ -11,6 +11,7 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   alias ActivityPub.Entity
   alias ActivityPub.Object
+  alias ActivityPub.Utils
   require ActivityPub.Guards, as: APG
   require Logger
 
@@ -255,16 +256,15 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp set_public_key(json, _entity), do: json
 
-  #incoming activities
+  # incoming activities
 
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
-
   end
 
   def handle_incoming(data) do
     Logger.info("Unhandled activity. Storing...")
-    {:ok, activity, object} = prepare_activity(data)
-    handle_object(object)
+
+    {:ok, activity, _object} = Utils.insert_full_object(data)
     handle_object(activity)
   end
 
@@ -273,7 +273,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   """
   @collection_types ["Collection", "OrderedCollection", "CollectionPage", "OrderedCollectionPage"]
   def handle_object(%{"type" => type} = data) when type in @collection_types do
-    with {:ok, object} <- prepare_data(data) do
+    with {:ok, object} <- Utils.prepare_data(data) do
       {:ok, object}
     else
       {:error, e} -> {:error, e}
@@ -281,42 +281,11 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_object(data) do
-    with {:ok, object} <- prepare_data(data),
+    with {:ok, object} <- Utils.prepare_data(data),
          {:ok, object} <- Object.insert(object) do
       {:ok, object}
     else
       {:error, e} -> {:error, e}
-    end
-  end
-
-  defp prepare_data(data) do
-    data =
-      %{}
-      |> Map.put(:data, data)
-      |> Map.put(:local, false)
-      |> Map.put(:public, public?(data))
-
-    {:ok, data}
-  end
-
-  defp prepare_activity(%{"object" => object} = data) do
-    activity = Map.put(data, "object", data["object"]["id"])
-
-    {:ok, activity, object}
-  end
-
-  defp public?(data) do
-    recipients = (data["to"] || []) ++ (data["cc"] || [])
-
-    cond do
-      recipients == [] ->
-        true
-
-      Enum.member?(recipients, "https://www.w3.org/ns/activitystreams#Public") ->
-        true
-
-      true ->
-        false
     end
   end
 end

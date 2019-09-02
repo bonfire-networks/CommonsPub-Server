@@ -20,7 +20,6 @@ defmodule ActivityPubWeb.ActivityPubController do
   alias ActivityPub.Fetcher
   alias ActivityPub.SQL.Query
   alias ActivityPubWeb.Federator
-  alias ActivityPubWeb.Transmogrifier
 
   def show(conn, %{"id" => id}) do
     id = String.to_integer(id)
