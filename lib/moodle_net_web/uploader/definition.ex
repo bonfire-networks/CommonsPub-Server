@@ -1,5 +1,5 @@
 defmodule MoodleNetWeb.Uploader.Definition do
-  @type file :: %Plug.Upload{} | %{path: Path.t()} | %{binary: binary} | binary
+  @type file :: Plug.Upload.t() | %{path: Path.t(), filename: binary}
   @type scope :: any
   @type version :: atom
 

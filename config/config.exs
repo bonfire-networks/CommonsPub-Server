@@ -110,4 +110,5 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
-config :moodle_net, upload_dir: "uploads"
+config :moodle_net, MoodleNetWeb.Uploader,
+  upload_dir: "uploads"

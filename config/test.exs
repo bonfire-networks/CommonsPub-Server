@@ -54,4 +54,5 @@ config :moodle_net, MoodleNet.OAuth,
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
 
-config :moodle_net, upload_dir: "uploads"
+config :moodle_net, MoodleNetWeb.Uploader,
+  upload_dir: "test_uploads"

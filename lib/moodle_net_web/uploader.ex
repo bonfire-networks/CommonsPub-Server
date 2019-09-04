@@ -1,3 +1,8 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Contains code from Pleroma <https://pleroma.social/>, CommonsPub <https://commonspub.org/> and Arc <https://github.com/stavro/arc>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule MoodleNetWeb.Uploader do
   @type file_info :: %{
           url: binary(),
@@ -5,39 +10,76 @@ defmodule MoodleNetWeb.Uploader do
           metadata: map()
         }
 
+  alias MoodleNetWeb.Uploader.Definition
+
+  @spec storage_dir() :: Path.t()
+  def storage_dir do
+    Application.fetch_env!(:moodle_net, MoodleNetWeb.Uploader)
+    |> Keyword.fetch!(:upload_dir)
+  end
+
   @doc """
-  Store a file using an Arc uploader.
+  Attempt to store a file in remote storage.
 
   Will return a map, where each key corresponds to a "version" of the file (if the
   file has been transformed for example) and the value containing a map of file
   information.
   """
-  @spec store(definition :: atom, file :: any, scope :: any) :: {:ok, file_info} | {:error, term}
+  @spec store(definition :: atom, file :: Definition.file(), scope :: Definition.scope()) ::
+          {:ok, %{Definition.version() => file_info}} | {:error, term}
   def store(definition, file, scope \\ nil) do
-    if File.exists?(file.path) do
-      uploads = for version <- definition.versions() do
+    with {:ok, path} <- ensure_file_exists(file.path) do
+      uploads =
+      for version <- definition.versions() do
         put_version(definition, version, file, scope)
       end
 
       case handle_errors(uploads) do
         [] ->
-          uploads = uploads
-          |> Enum.map(fn {_status, upload} -> upload end)
-          |> Enum.into(%{})
+          uploads =
+            uploads
+            |> Enum.map(fn {_status, upload} -> upload end)
+            |> Enum.into(%{})
+
           {:ok, uploads}
 
         errors ->
           {:error, errors}
       end
-    else
-      {:error, :invalid_file_path}
     end
+  end
+
+  @doc """
+  Attempt to fetch a file path from remote storage using a path, excluding the upload directory..
+  """
+  @spec fetch_relative(path :: binary | [binary]) :: {:ok, binary} | {:error, term}
+  def fetch_relative(path) when is_binary(path) do
+    case URI.parse(path) do
+      %URI{path: path} ->
+        ensure_file_exists(Path.join(storage_dir(), path))
+
+      _ ->
+        {:error, :invalid_url}
+    end
+  end
+
+  def fetch_relative(path_parts) when is_list(path_parts) do
+    path_parts |> Path.join() |> fetch_relative()
   end
 
   defp handle_errors(uploads) do
     uploads
     |> Enum.filter(fn upload -> elem(upload, 0) == :error end)
     |> Enum.map(fn {_, reason} -> reason end)
+  end
+
+  defp ensure_file_exists(path) do
+    # TODO: move behind behaviour
+    if File.exists?(path) do
+      {:ok, path}
+    else
+      {:error, :not_found}
+    end
   end
 
   defp put_version(definition, version, file, scope) do
@@ -60,7 +102,7 @@ defmodule MoodleNetWeb.Uploader do
 
   # TODO: move behind a behaviour
   defp put_file(definition, version, file, scope) do
-    destination_dir = Application.fetch_env!(:moodle_net, :upload_dir)
+    destination_dir = storage_dir()
     filename = definition.filename(version, file, scope)
     path = Path.join(destination_dir, filename)
 
@@ -73,12 +115,14 @@ defmodule MoodleNetWeb.Uploader do
 
   defp do_transformation(definition, version, file, scope) do
     case definition.transform(version, file, scope) do
-      :skip -> {:ok, file}
+      :skip ->
+        {:ok, file}
+
       {cmd, args} ->
         new_path = MoodleNet.File.generate_temporary_path(file)
         # assumes a certain command line format for programs
         with :ok <- run_command(cmd, [file.path | args] ++ [new_path]),
-          do: {:ok, Map.put(file, :path, new_path)}
+             do: {:ok, Map.put(file, :path, new_path)}
     end
   end
 

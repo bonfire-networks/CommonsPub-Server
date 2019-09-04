@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
 
   setup_all do
     on_exit(fn ->
-      File.rm_rf!(Application.fetch_env!(:moodle_net, :upload_dir))
+      File.rm_rf!(MoodleNetWeb.Uploader.storage_dir())
     end)
   end
 
@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
         |> post("/api/graphql", query)
         |> json_response(200)
 
-      assert %{"errors" => [%{"message" => "invalid_file_path"}]} = resp
+      assert %{"errors" => [%{"message" => "not_found"}]} = resp
       assert %{"data" => %{"uploadImage" => nil}} = resp
     end
   end
@@ -208,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchemaTest do
         |> post("/api/graphql", query)
         |> json_response(200)
 
-      assert %{"errors" => [%{"message" => "invalid_file_path"}]} = resp
+      assert %{"errors" => [%{"message" => "not_found"}]} = resp
       assert %{"data" => %{"uploadIcon" => nil}} = resp
     end
   end
