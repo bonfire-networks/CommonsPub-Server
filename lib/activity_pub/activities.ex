@@ -57,23 +57,23 @@ defmodule ActivityPub.Activities do
     end
   end
 
-  @doc """
-  Undoes a like of the collection.
-  Side Effects:
-  1. Marks the like as deleted
-  2. Publishes an AP unlike message to the relevant inboxes
-  """
-  def undo_like_collection(actor, collection) do
-    Repo.transaction fn ->
-      case Repo.get_by(CollectionLike
-      with {:ok, true} <- MoodleNet.undo_like(actor, collection),
-           {:ok, _like} <- Repo.delete(
-      else
-	{:error, other} -> Repo.rollback(other)
-        other -> Repo.rollback(other)
-      end
-    end
-  end
+  # @doc """
+  # Undoes a like of the collection.
+  # Side Effects:
+  # 1. Marks the like as deleted
+  # 2. Publishes an AP unlike message to the relevant inboxes
+  # """
+  # def undo_like_collection(actor, collection) do
+  #   Repo.transaction fn ->
+  #     case Repo.get_by(CollectionLike
+  #     with {:ok, true} <- MoodleNet.undo_like(actor, collection),
+  #          {:ok, _like} <- Repo.delete(
+  #     else
+  # 	{:error, other} -> Repo.rollback(other)
+  #       other -> Repo.rollback(other)
+  #     end
+  #   end
+  # end
 
   defp preload_for_like(collection) when is_collection(collection) do
     collection

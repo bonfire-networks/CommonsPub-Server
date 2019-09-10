@@ -11,20 +11,17 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Collections.{Collection, Thread}
 
   schema "mn_collection" do
-    field :local, :boolean
     field :public, :boolean
-    field :name, :string
-    field :summary, :string
     field :icon, :string # todo: reference the images table when we have one
     field :primary_language, :string
     belongs_to :creator, User
-    belongs_to :collection, Collection
+    belongs_to :collection, Community
     has_many :threads, Thread
     timestamps()
   end
 
   @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
-  @optional_attrs [:creator_id]
+  @optional_attrs []
   @cast_attrs @required_attrs ++ @optional_attrs
   
   def changeset(collection \\ %Collection{}, attrs)

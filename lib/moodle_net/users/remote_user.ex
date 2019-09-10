@@ -7,14 +7,18 @@ defmodule MoodleNet.Users.RemoteUser do
   """
   use Ecto.Schema
   alias Ecto.Changeset
+  alias MoodleNet.Instances.Instance
   alias MoodleNet.Users.{User, RemoteUser}
 
-  schema "mn_remote_users" do
-    belongs_to :user, User
+  @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
+  schema "mn_remote_user" do
+    belongs_to :instance, Instance
+    has_one :user, User
     timestamps()
   end
 
-  @cast_attrs ~w(user_id)a
+  @cast_attrs ~w(instance_id)a
   @required_attrs @cast_attrs
 
   def changeset(%User{}=user, attrs) do

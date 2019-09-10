@@ -20,7 +20,8 @@ defmodule MoodleNet.Accounts do
     WhitelistEmail
   }
 
-  alias MoodleNet.{Mailer, Email, Token, Gravatar}
+  alias MoodleNet.Mail.{MailService, Email}
+  alias MoodleNet.Users.{Token, Gravatar}
 
   alias ActivityPub.SQL.{Alter, Query}
 
@@ -63,7 +64,7 @@ defmodule MoodleNet.Accounts do
         email =
           Email.welcome(user, token.token)
           # TODO: Properly implement welcome emails
-          # |> Mailer.deliver_later()
+          # |> MailService.deliver_later()
 
         {:ok, email}
       end)
@@ -233,7 +234,7 @@ defmodule MoodleNet.Accounts do
       {:ok, reset_password_token} = renew_reset_password_token(user)
 
       Email.reset_password_request(user, reset_password_token.token)
-      |> Mailer.deliver_later()
+      |> MailService.deliver_later()
 
       {:ok, reset_password_token}
     else
@@ -264,7 +265,7 @@ defmodule MoodleNet.Accounts do
         User
         |> repo.get(reset_password_token.user_id)
         |> Email.password_reset()
-        |> Mailer.deliver_later()
+        |> MailService.deliver_later()
 
         {:ok, nil}
       end)

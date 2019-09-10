@@ -1,8 +1,6 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.Users.LocalUser do
   @moduledoc """
   User model
@@ -12,27 +10,42 @@ defmodule MoodleNet.Users.LocalUser do
   alias MoodleNet.Users.{User, LocalUser}
   alias MoodleNet.Actors.Actor
 
-  schema "mn_local_users" do
-    belongs_to :user, User
+  @primary_key false
+  @foreign_key_type :binary_id
+  schema "mn_local_user" do
+    has_one :user, User
     field :email, :string
-    field :password, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
     field :confirmed_at, :utc_datetime
-    field :confirmation_token, :string
     timestamps()
   end
 
-  @cast_attrs []
-  @required_attrs []
+  @email_regexp ~r/.+\@.+\..+/
 
-  def changeset(%User{}=user, attrs) do
+  @register_cast_attrs ~w(email password)a
+  @register_required_attrs ~w(email password_hash)a
+
+  @doc "Create a changeset for registration"
+  def register_changeset(%User{}=user, attrs) do
     user
-    |> Changeset.cast(attrs, [:email])
-    |> Changeset.validate_format(:email, ~r/.+\@.+\..+/)
-    |> Changeset.validate_required([:actor_id, :email])
+    |> Changeset.cast(attrs, @register_cast_attrs)
+    |> Changeset.validate_format(:email, @email_regexp)
     |> Changeset.unique_constraint(:email)
+    |> Changeset.foreign_key_constraint(:user_id)
+    |> Changeset.validate_length(:password, min: 6)
     |> lower_case_email()
-    |> whitelist_email()
+    |> hash_password()
+    |> Changeset.validate_required(@register_required_attrs)
   end
+
+  @doc "Create a changeset for confirming an email"
+  def confirm_email_changeset(%__MODULE__{} = user) do
+    Changeset.change user,
+      confirmed_at: DateTime.truncate(DateTime.utc_now(), :second)
+  end
+
+  # internals
 
   defp lower_case_email(%Changeset{valid?: false} = ch), do: ch
 
@@ -41,22 +54,9 @@ defmodule MoodleNet.Users.LocalUser do
     Changeset.change(ch, email: String.downcase(email))
   end
 
-  defp whitelist_email(%Changeset{valid?: false} = ch), do: ch
-
-  defp whitelist_email(%Changeset{} = ch) do
-    {_, email} = Changeset.fetch_field(ch, :email)
-
-    if MoodleNet.Accounts.is_email_in_whitelist?(email) do
-      ch
-    else
-      Changeset.add_error(ch, :email, "You cannot register with this email address",
-        validation: "inclusion"
-      )
-    end
-  end
-
-  def confirm_email_changeset(%__MODULE__{} = user) do
-    Changeset.change(user, confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second))
-  end
+  defp hash_password(%Changeset{valid?: true, changes: %{password: pass}} = ch),
+    do: Changeset.change(ch, password_hash: Comeonin.Pbkdf2.hashpwsalt(pass))
+  
+  defp hash_password(changeset), do: changeset
 
 end

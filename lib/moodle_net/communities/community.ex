@@ -12,10 +12,6 @@ defmodule MoodleNet.Communities.Community do
   
   schema "mn_community" do
     field :local, :boolean
-    field :name, :string
-    field :preferred_username, :string
-    field :summary, :string
-    field :icon, :string # todo: reference the images table when we have one
     field :primary_language, :string
     belongs_to :creator, User
     has_many :collections, Collection
@@ -23,7 +19,7 @@ defmodule MoodleNet.Communities.Community do
     has_many :members, Member
     timestamps()
   end
-p
+
   @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
   @optional_attrs [:creator]
   @cast_attrs @required_attrs ++ @optional_attrs

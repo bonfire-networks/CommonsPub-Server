@@ -8,6 +8,9 @@ use Mix.Config
 # General application configuration
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
+config :moodle_net, MoodleNet.Repo,
+  migration_primary_key: [name: :id, type: :binary_id]
+
 # Configures the endpoint
 config :moodle_net, MoodleNetWeb.Endpoint,
   url: [host: "localhost"],
@@ -27,7 +30,7 @@ config :mime, :types, %{
   "application/ld+json" => ["json"]
 }
 
-config :moodle_net, MoodleNet.Mailer,
+config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.MailgunAdapter, # replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
   domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable

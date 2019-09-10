@@ -37,16 +37,16 @@ defmodule MoodleNet.Policy do
     actor_follows!(actor, community)
   end
 
-  def like?(actor, , _attrs) when is_() do
-  end
-  def like?(actor, , _attrs) when is_() do
-  end
-  def like?(actor, , _attrs) when is_() do
-  end
-  def like?(actor, , _attrs) when is_() do
-  end
-  def like?(actor, , _attrs) when is_() do
-  end
+  # def like?(actor, , _attrs) when is_() do
+  # end
+  # def like?(actor, , _attrs) when is_() do
+  # end
+  # def like?(actor, , _attrs) when is_() do
+  # end
+  # def like?(actor, , _attrs) when is_() do
+  # end
+  # def like?(actor, , _attrs) when is_() do
+  # end
   def like_comment?(actor, comment, _attrs)
   when has_type(comment, "Note") and has_type(actor, "Person") do
     comment = Query.preload_assoc(comment, [context: [:context]])

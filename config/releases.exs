@@ -19,7 +19,7 @@ config :moodle_net,
   ap_base_url: System.fetch_env!("AP_BASE_URL"),
   frontend_base_url: System.fetch_env!("FRONTEND_BASE_URL")
 
-config :moodle_net, MoodleNet.Mailer,
+config :moodle_net, MoodleNet.Mail.MailService,
   domain: System.fetch_env!("MAIL_DOMAIN"),
   api_key: System.fetch_env!("MAIL_KEY")
 

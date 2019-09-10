@@ -3,10 +3,10 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.EmailTest do
+defmodule MoodleNet.Mail.EmailTest do
   use MoodleNet.DataCase, async: true
 
-  alias MoodleNet.Email
+  alias MoodleNet.Mail.Email
 
   test "welcome/2" do
     user = Factory.user()

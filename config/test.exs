@@ -30,7 +30,7 @@ config :pbkdf2_elixir, rounds: 1
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint
 
-config :moodle_net, MoodleNet.Mailer,
+config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.TestAdapter
 
 config :moodle_net, :ap_base_url, "http://localhost:4001"

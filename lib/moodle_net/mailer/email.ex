@@ -3,7 +3,7 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNet.Email do
+defmodule MoodleNet.Mail.Email do
   @moduledoc """
   Email Bamboo module
   """
