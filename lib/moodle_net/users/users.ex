@@ -6,7 +6,7 @@ defmodule MoodleNet.Users do
   A "Context" for dealing with users, both local and remote
   """
   alias MoodleNet.Common
-  alias MoodleNet.Users.UserFlag
+  alias MoodleNet.Users.{User, UserFlag}
 
   @doc """
   Registers a local user:
@@ -54,8 +54,7 @@ defmodule MoodleNet.Users do
   def preload_actor(%User{}=user, opts),
     do: Repo.preload(user, :actor, opts)
 
-  defp extra_relation(%User{local_user_id: id}) when is_integer(id), do: :local_user
-  defp extra_relation(%User{remote_user_id: id}) when is_integer(id), do: :remote_user
+  defp extra_relation(%User{id: id}) when is_integer(id), do: :user
 
   defp preload_extra(%User{}=user, opts \\ []),
     do: Repo.preload(user, extra_relation(user), opts)

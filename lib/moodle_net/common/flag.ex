@@ -19,7 +19,7 @@ defmodule MoodleNet.Common.Flag do
   @create_cast ~w(flagged_id flagger_id community_id reason)a
   @create_required ~w(id flagged_id flagger_id reason)a
   def create_changeset(id, attrs) do
-    %Flag{id: id}
+    %__MODULE__{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> Changeset.foreign_key_constraint(:id)
@@ -28,7 +28,7 @@ defmodule MoodleNet.Common.Flag do
     |> Changeset.foreign_key_constraint(:community_id)
   end
 
-  def resolve_changeset(%Flag{resolved_at: nil}=flag),
+  def resolve_changeset(%__MODULE__{resolved_at: nil}=flag),
     do: Changeset.change(flag, resolved_at: DateTime.utc_now())
 
 end

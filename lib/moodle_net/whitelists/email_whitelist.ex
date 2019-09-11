@@ -13,8 +13,8 @@ defmodule MoodleNet.Whitelist.EmailWhitelist do
   end
 
   def changeset(email) do
-    Changeset.cast %EmailEmailWhitelist{}, %{email: email}
-    Changeset.validate_format(:email, @email_regexp)
+    %__MODULE__{}
+    |> Changeset.cast(email: email)
+    |> Changeset.validate_format(:email, @email_regexp)
   end
-
 end

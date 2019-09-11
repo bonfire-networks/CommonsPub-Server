@@ -21,11 +21,11 @@ defmodule ActivityPub.Activities do
     actor = preload_followers(actor)
     thing = preload_for_like(thing)
     attrs = like_attrs(actor, thing)
-    with :ok <- Policy.like(actor, comment, attrs),
+    with :ok <- Policy.like(actor, thing, attrs),
          {:ok, activity} <- ActivityPub.new(attrs),
          {:ok, _activity} <- ActivityPub.apply(activity) do
       {:ok, true}
-    end					 
+    end
   end
 
   def undo_like(actor, thing) when is_person(actor) and is_likeable(thing) do
@@ -102,7 +102,7 @@ defmodule ActivityPub.Activities do
   defp like_attrs(actor, resource) when is_resource(resource) do
     [collection] = resource.context
     collection = preload_followers(collection)
-    community = get_community(preload_community(collection))
+    # community = get_community(preload_community(collection))
     attrs = %{
       type: "Like",
       actor: actor,

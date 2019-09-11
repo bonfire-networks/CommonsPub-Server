@@ -31,13 +31,9 @@ defmodule MoodleNet.Meta do
 
   alias MoodleNet.Meta.{Pointer, Table, TableService}
 
-  def pointer(table) when is_string(table) do
-    {:ok, table_id} = TableService.lookup(table)
-    create_pointer(table_id)
-  end
-
-  def pointer(table_id) when is_integer(table_id) do
-    {:ok, _} = TableService.lookup(table)
+  @spec pointer(table_or_id :: binary | integer) :: {:ok, %Pointer{}} | {:error, term}
+  def pointer(table_or_id) do
+    {:ok, table_id} = TableService.lookup(table_or_id)
     create_pointer(table_id)
   end
 
@@ -46,7 +42,4 @@ defmodule MoodleNet.Meta do
   # end
 
   defp create_pointer(table_id), do: Repo.insert(Pointer.changeset(table_id))
-
-  
-
 end

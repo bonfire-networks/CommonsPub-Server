@@ -899,7 +899,7 @@ defmodule MoodleNet do
     [author, get_community(resource)]
   end
 
-  def calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
+  defp calc_undo_flag_to(collection) when has_type(collection, "MoodleNet:Collection"),
     do: [collection, get_community(collection)]
 
 ######

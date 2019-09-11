@@ -44,6 +44,7 @@ defmodule MoodleNet.Actors.Actor do
     case Changeset.fetch_change(changeset, :preferred_username) do
       :error -> changeset
       {:ok, name} ->
+    end
   end
     
 

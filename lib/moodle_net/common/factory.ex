@@ -145,7 +145,7 @@ defmodule MoodleNet.Factory do
 
   alias MoodleNet.OAuth
 
-  def oauth_token(%MoodleNet.Accounts.User{id: user_id}) do
+  def oauth_token(%MoodleNet.Users.User{id: user_id}) do
     {:ok, token} = OAuth.create_token(user_id)
     token
   end

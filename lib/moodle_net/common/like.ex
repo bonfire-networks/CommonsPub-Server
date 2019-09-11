@@ -1,6 +1,7 @@
 defmodule MoodleNet.Common.Like do
 
   use Ecto.Schema
+  alias MoodleNet.Common.Flag
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Communities.Community
 

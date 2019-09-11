@@ -3,34 +3,59 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users.User do
   @moduledoc """
-  A user known to the system
-
-  Inserting a user requires having already inserted either a
-  local_user or remote_user
+  User model
   """
   use Ecto.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Users.{User, LocalUser, RemoteUser}
+  alias MoodleNet.Users.{User, LocalUser}
   alias MoodleNet.Actors.Actor
 
-  @primary_key {:id, :binary_id, autogenerate: true}
+  # @primary_key false
   @foreign_key_type :binary_id
   schema "mn_user" do
-    belongs_to :actor, Actor
-    belongs_to :local_user, LocalUser
-    belongs_to :remote_user, RemoteUser
+    field :email, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
+    field :confirmed_at, :utc_datetime
     timestamps()
   end
 
-  @create_cast ~w(actor_id local_user_id remote_user_id)a
-  @create_required @create_cast
-  
-  def create_changeset(%Actor{id: id}) do
-    attrs = %{actor_id: id}
-    %User{}
-    |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(@create_required)
-    |> Changeset.unique_constraint(:actor_id)
+  @email_regexp ~r/.+\@.+\..+/
+
+  @register_cast_attrs ~w(email password)a
+  @register_required_attrs ~w(email password_hash)a
+
+  @doc "Create a changeset for registration"
+  def register_changeset(%User{}=user, attrs) do
+    user
+    |> Changeset.cast(attrs, @register_cast_attrs)
+    |> Changeset.validate_format(:email, @email_regexp)
+    |> Changeset.unique_constraint(:email)
+    |> Changeset.foreign_key_constraint(:user_id)
+    |> Changeset.validate_length(:password, min: 6)
+    |> lower_case_email()
+    |> hash_password()
+    |> Changeset.validate_required(@register_required_attrs)
   end
+
+  @doc "Create a changeset for confirming an email"
+  def confirm_email_changeset(%__MODULE__{} = user) do
+    Changeset.change user,
+      confirmed_at: DateTime.truncate(DateTime.utc_now(), :second)
+  end
+
+  # internals
+
+  defp lower_case_email(%Changeset{valid?: false} = ch), do: ch
+
+  defp lower_case_email(%Changeset{} = ch) do
+    {_, email} = Changeset.fetch_field(ch, :email)
+    Changeset.change(ch, email: String.downcase(email))
+  end
+
+  defp hash_password(%Changeset{valid?: true, changes: %{password: pass}} = ch),
+    do: Changeset.change(ch, password_hash: Comeonin.Pbkdf2.hashpwsalt(pass))
+  
+  defp hash_password(changeset), do: changeset
 
 end

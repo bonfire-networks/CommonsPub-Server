@@ -1,7 +1,8 @@
 defmodule MoodleNet.Communities.Members do
 
   import Ecto.Query
-  alias MoodleNet.Communities.{Member, Members}
+  alias MoodleNet.Communities.{Community, Member, Members}
+  alias MoodleNet.Users.User
 
   @sortable_fields [:inserted_at]
   @default_ordering [desc_nulls_last: :inserted_at]
@@ -16,20 +17,20 @@ defmodule MoodleNet.Communities.Members do
   def list_q(ordering \\ @default_ordering, pagination_opts) do
     Member
     |> Ectil.filter_private()                   # privacy
-    |> ordered(ordering)               # determinism
+    # |> ordered(ordering)               # determinism
     |> Ectil.paginate(pagination_opts) # size reduction
   end
 
-  defp ordered(query, ordering \\ @default_ordering),
-    do: Ectil.order_by([member], @sortable_fields, ordering)
+  # defp ordered(query, ordering \\ @default_ordering),
+  #   do: Ectil.order_by([member], @sortable_fields, ordering)
       
-  defp only_public(query),
-    do: Query.where([member], member.is_public == true)
+  # defp only_public(query),
+  #   do: Query.where([member], member.is_public == true)
 
-  def filter_q(query, %User{id: id}),
-    do: Query.where(query, [member], member.user_id == ^id)
+  # def filter_q(query, %User{id: id}),
+  #   do: Query.where(query, [member], member.user_id == id)
 
-  def filter_q(query, %Community{id: id}),
-    do: Query.where(query, [member], member.community_id == ^id)
+  # def filter_q(query, %Community{id: id}),
+  #   do: Query.where(query, [member], member.community_id == id)
 
 end

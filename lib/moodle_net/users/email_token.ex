@@ -10,26 +10,26 @@ defmodule MoodleNet.Users.EmailToken do
   """
   use Ecto.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Users.{EmailToken, LocalUser, Token}
+  alias MoodleNet.Users.{EmailToken, User, Token}
   alias MoodleNet.Actors.Actor
 
   @default_validity {2, :day}
-  
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
-  schema "mn_local_user_email_token" do
-    belongs_to :local_user, LocalUser
+
+  @primary_key {:id, :id, autogenerate: true}
+  @foreign_key_type :id
+  schema "mn_user_email_token" do
+    belongs_to :user, User
     field :expires_at, :utc_datetime
     field :claimed_at, :utc_datetime
     timestamps()
   end
 
-  def create_changeset(local_user, validity_period \\ @validity_period)
-  def create_changeset(%LocalUser{id: id}, validity) do
+  def create_changeset(user, validity_period \\ @validity_period)
+  def create_changeset(%User{id: id}, validity) do
     Changeset.change %EmailToken{},
       id: Token.random_key_with_id(id),
-      local_user_id: id,
-      expires_at: expires_at(validity)     
+      user_id: id,
+      expires_at: expires_at(validity)
   end
 
   def claim_changeset(%EmailToken{}=token) do

@@ -38,10 +38,6 @@ defmodule ActivityPub.SQLAspect do
       SQLObjectAspect,
       SQLActorAspect,
       SQLActivityAspect,
-      SQLCollectionAspect,
-      MoodleNet.AP.SQLCommunityAspect,
-      MoodleNet.AP.SQLCollectionAspect,
-      MoodleNet.AP.SQLResourceAspect
     ]
 
   @doc """

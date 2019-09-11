@@ -5,9 +5,11 @@ defmodule MoodleNet.Communities do
 
   alias MoodleNet.Common
   alias MoodleNet.Communities.{
+    Community,
     CommunityFlag,
     CommunityLike,
   }
+  alias MoodleNet.Users.User
 
   @doc """
   Likes a community with a given reason
@@ -53,10 +55,10 @@ defmodule MoodleNet.Communities do
     do: Common.flags(CommunityFlag, :list_community_flags?, actor, filters)
 
   def members_query(%Community{}=community, %User{}=user, opts \\ []) do
-    
+    # TODO
+    community
     |> Common.paginate(opts)
   end
-
 
   @doc ""
   def members(%Community{}=community, %User{}=user, opts \\ []) do

@@ -35,19 +35,19 @@ defmodule MoodleNet.Common do
       case Repo.get_by(model, like_attrs(actor, thing)) do
         nil -> Repo.rollback({:not_found, [thing.id, actor.id], "Activity"})
         like ->
-	  liked = undo_like_preload_liked(liked)
-          with :ok <- find_current_relation(liker, :liked, liked),
-               {:ok, like} <- find_activity("Like", liker, liked),
-               to <- calc_undo_like_to(liked),
-               params = %{type: "Undo", actor: liker, object: like, to: to, _public: true},
-               {:ok, activity} <- ActivityPub.new(params),
-               {:ok, _activity} <- ActivityPub.apply(activity) do
-            Repo.delete(like)
-            true
-          else
-            {:error, other} -> Repo.rollback(other)
-            other ->  Repo.rollback(other)
-          end
+	        # liked = undo_like_preload_liked(thing)
+          # with :ok <- find_current_relation(liker, :liked, liked),
+          #      {:ok, like} <- find_activity("Like", liker, liked),
+          #      to <- calc_undo_like_to(liked),
+          #      params = %{type: "Undo", actor: liker, object: like, to: to, _public: true},
+          #      {:ok, activity} <- ActivityPub.new(params),
+          #      {:ok, _activity} <- ActivityPub.apply(activity) do
+          #   Repo.delete(like)
+          # else
+          #   {:error, other} -> Repo.rollback(other)
+          #   other ->  Repo.rollback(other)
+          # end
+            Repo.rollback(:unimplemented)
       end
     end
   end

@@ -8,10 +8,9 @@ defmodule MoodleNet.Queue.FeedPublishQueue do
   """
   use Ecto.Schema
   alias Ecto.Changeset
-  import MoodleNet.Queue
+  import MoodleNet.Queue.Macros, only: [queue_fields: 0]
 
   schema "mn_queue_feed" do
     queue_fields()
   end
-
 end
