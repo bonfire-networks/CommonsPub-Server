@@ -44,6 +44,10 @@ defmodule MoodleNet.Meta.TableService do
     {:ok, []}
   end
 
+  import Ecto.Query, only: [select: 3]
+
+  defp query(), do: select(Table, [t], {t.id, t.table})
+
   defp populate_table(table) do
     forwards = Repo.all(query())
     backwards = Enum.map(forwards, fn {x,y} -> {y,x} end)
