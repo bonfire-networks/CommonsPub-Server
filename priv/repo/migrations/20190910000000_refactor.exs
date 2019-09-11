@@ -230,7 +230,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :content, :text
       timestamps(updated_at: false)
     end
-n
+
     create index(:mn_comment_revision, [:comment_id, :inserted_at])
 
     flush()
@@ -280,14 +280,15 @@ n
 
     create index(:mn_flag, :flagger_id)
     create index(:mn_flag, :flagged_id)
+
     ### blocking system
 
     # desc: one thing missing is silence/block/ban of user/group/instance,
     #       by users, community moderators, or admins
     
     create table(:mn_block) do
-      add :blocker_id, references(:actor, on_delete: :delete_all), null: false
-      add :blocked_id, references(:pointer, on_delete: :delete_all), null: false
+      add :blocker_id, references("actor", on_delete: :delete_all), null: false
+      add :blocked_id, references("pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :muted_at, :timestamptz
       add :blocked_at, :timestamptz
@@ -295,8 +296,8 @@ n
       timestamps()
     end
 
-    create index(:mn_block, :blocked_id)
-    create unique_index(:mn_block, [:blocker_id, :blocked_id])
+    create index(:mn_block, :blocked_id, where: "deleted_at is null")
+    create unique_index(:mn_block, [:blocker_id, :blocked_id], where: "deleted_at is null")
     # 
 
     create table(:mn_worker_task) do
@@ -309,8 +310,8 @@ n
     create index(:mn_worker_task, :updated_at, where: "deleted_at is null")
 
     create table(:mn_worker_performance) do
-      add :task_id, references("mn_worker_task")
-      timestamps(upda
+      add :task_id, references("mn_worker_task", on_delete: :delete_all)
+      timestamps(updated_at: false)
     end
 
     flush()
@@ -323,10 +324,14 @@ n
     """
 
     create table(:mn_actor_feed) do
-      add :actor_id, references("mn_actor"), null: false
-      add :pointer_id, references("mn_pointer"), null: false
+      add :actor_id, references("mn_actor", on_delete: :delete_all), null: false
+      add :pointer_id, references("mn_pointer", on_delete: :delete_all), null: false
       timestamps(updated_at: false)
     end
+
+    create index(:mn_actor_feed, :actor_id)
+    create index(:mn_actor_feed, :pointer_id)
+    create index(:mn_actor_feed, :inserted_at)
 
     create table(:mn_community_role) do
       add :name, :text, null: false
