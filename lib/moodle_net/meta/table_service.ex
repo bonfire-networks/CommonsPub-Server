@@ -12,6 +12,8 @@ defmodule MoodleNet.Meta.TableService do
   """
   
   alias MoodleNet.Meta.{Table, TableService}
+  alias MoodleNet.Repo
+  import Ecto.Query, only: [select: 3]
 
   use GenServer
 
@@ -38,15 +40,16 @@ defmodule MoodleNet.Meta.TableService do
   @doc false
   def init(_) do
     @table_name = :ets.new(@table_name, [:named_table])
-    populate_table()
+    populate_table(@table_name)
     {:ok, []}
   end
 
-  defp populate_table() do
-    forwards = :ets.new(@table_name, [:named_table])
+  defp populate_table(table) do
+    forwards = Repo.all(query())
     backwards = Enum.map(forwards, fn {x,y} -> {y,x} end)
-    true = :ets.insert(@table_name, forwards)
-    true = :ets.insert(@table_name, backwards)
+    true = :ets.insert(table, forwards)
+    true = :ets.insert(table, backwards)
   end
 
+  defp query, do: select(Table, [t], {t.id, t.table})
 end
