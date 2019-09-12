@@ -11,7 +11,7 @@ defmodule MoodleNet.Meta.TableService do
   the ets table directly.
   """
   
-  alias MoodleNet.Meta.{Table, TableService}
+  alias MoodleNet.Meta.{Table, TableService, TableNotFoundError}
   alias MoodleNet.Repo
   import Ecto.Query, only: [select: 3]
 
@@ -20,6 +20,11 @@ defmodule MoodleNet.Meta.TableService do
   @service_name __MODULE__
   @table_name __MODULE__.Cache
 
+  @type table_id :: binary() | integer()
+
+  @type lookup_ok :: {:ok, integer() | binary()}
+  @type lookup_error :: {:error, TableNotFoundError.t()}
+
   # public api
 
   @spec start_link() :: GenServer.on_start()
@@ -27,13 +32,37 @@ defmodule MoodleNet.Meta.TableService do
   def start_link(),
     do: GenServer.start_link(__MODULE__, [name: @service_name])
 
-  @spec lookup(integer() | binary()) :: {:ok, integer() | binary()} | :error
-  @doc "Look up a table name by id or id by name"
+  @spec lookup(table_id()) :: lookup_ok() | lookup_error()
+  @doc "Look up a Table by name or id"
   def lookup(key) when is_integer(key) or is_binary(key),
-    do: lookup_result(:ets.lookup_element(@table_name, key, 2))
+    do: lookup_result(key, :ets.lookup(@table_name, key))
 	  
-  defp lookup_result([]), do: :error
-  defp lookup_result([v]), do: {:ok, v}
+  defp lookup_result(key, []), do: {:error, TableNotFoundError.new(key)}
+  defp lookup_result(_, [{_,v}]), do: {:ok, v}
+
+  @spec lookup!(table_id()) :: binary() | integer()
+  @doc "Look up a Table by name or id, throw if not found"
+  def lookup!(key) do
+    case lookup(key) do
+      {:ok, v} -> v
+      {:error, reason} -> throw reason
+    end
+  end
+
+  @spec lookup_id(table_id()) :: {:ok, integer()} | lookup_error()
+  @doc "Look up a table id by id or name"
+  def lookup_id(key) do
+    with {:ok, val} <- lookup(key), do: {:ok, val.id}
+  end
+
+  @spec lookup!(table_id()) :: binary() | integer()
+  @doc "Look up up a table id by id or name, throw if not found"
+  def lookup_id!(key) do
+    case lookup_id(key) do
+      {:ok, v} -> v
+      {:error, reason} -> throw reason
+    end
+  end
 
   # callbacks
 
@@ -44,16 +73,12 @@ defmodule MoodleNet.Meta.TableService do
     {:ok, []}
   end
 
-  import Ecto.Query, only: [select: 3]
-
-  defp query(), do: select(Table, [t], {t.id, t.table})
-
   defp populate_table(table) do
-    forwards = Repo.all(query())
-    backwards = Enum.map(forwards, fn {x,y} -> {y,x} end)
-    true = :ets.insert(table, forwards)
-    true = :ets.insert(table, backwards)
+    entries = Repo.all(Table)
+    by_id = Enum.map(entries, fn table -> {table.id, table} end)
+    by_table = Enum.map(entries, fn table -> {table.table, table} end)
+    true = :ets.insert(table, by_id)
+    true = :ets.insert(table, by_table)
   end
 
-  defp query, do: select(Table, [t], {t.id, t.table})
 end

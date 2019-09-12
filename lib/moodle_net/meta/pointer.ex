@@ -12,7 +12,7 @@ defmodule MoodleNet.Meta.Pointer do
   """
   
   use Ecto.Schema
-
+  alias Ecto.Changeset
   alias MoodleNet.Meta.{Pointer, Table}
 
   @primary_key {:id, :binary_id, autogenerate: true}

@@ -17,10 +17,12 @@ defmodule MoodleNet.Meta do
   Participating tables must:
 
   * Have an entry in `MoodleNet.Meta.Table`
-  * Have a UUID primary key which is also a foreign key to
-    `MoodleNet.Meta.Pointer`
+
+  * Have a UUID primary key which is also a foreign key which
+    references `MoodleNet.Meta.Pointer`
+
   * Have a deletion trigger that cascades the delete to
-    `MoodleNet.Meta.Pointer`
+    `MoodleNet.Meta.Pointer` (TODO - delete the pointer for now and it will cascade)
 
   Insertion operations on participating tables must:
 
@@ -29,17 +31,35 @@ defmodule MoodleNet.Meta do
     failing, the Pointer will also be removed.
   """
 
-  alias MoodleNet.Meta.{Pointer, Table, TableService}
+  alias Ecto.Changeset
+  alias MoodleNet.Repo
+  alias MoodeNet.Peers.Peer
+  alias MoodleNet.Meta.{Pointer, Table, TableService, NotInTransactionError}
 
-  @spec pointer(table_or_id :: binary | integer) :: {:ok, %Pointer{}} | {:error, term}
-  def pointer(table_or_id) do
-    {:ok, table_id} = TableService.lookup(table_or_id)
-    create_pointer(table_id)
-  end
+  def find(id), do: Repo.get(Pointer, id)
+  def find!(id), do: Repo.get!(Pointer, id)
 
-  # TODO: assume it's an ecto schema, attempt to query
-  # def pointer(table, id) when is_atom(table) do
+  # @meta_tables %{
+  #   "mn_peer" => Peer,
+  # }
+  # def follow(%Pointer{id: id, table_id: table_id}),
+  #   do: Repo.get(Pointer,
   # end
 
-  defp create_pointer(table_id), do: Repo.insert(Pointer.changeset(table_id))
+  @doc """
+  Creates a Pointer in the database, pointing to the given table or throws
+  Note: Requires being in a transaction!
+  """
+  @spec point!(TableService.table_id()) :: Pointer.t()
+  def point!(table) do
+    if not Repo.in_transaction?(),
+      do: throw NotInTransactionError.new({__MODULE__, :pointer!, [table]})
+    Repo.insert!(point_changeset!(table))
+  end
+
+  @doc "Creates a changeset for a pointer to an entry in the provided table or throws"
+  @spec point_changeset!(TableService.table_id()) :: Changeset.t()
+  def point_changeset!(table),
+    do: Pointer.changeset(TableService.lookup_id!(table))
+
 end

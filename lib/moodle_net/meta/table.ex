@@ -17,7 +17,7 @@ defmodule MoodleNet.Meta.Table do
   @foreign_key_type :id
   schema "mn_meta_table" do
     field :table, :string
-    timestamps()
+    timestamps(updated_at: false)
   end
   
 end

@@ -65,10 +65,10 @@ defmodule MoodleNet.Test.Fake do
   def bool(), do: Faker.Util.pick([true, false])
   @doc "Generates a random unique uuid"
   def uuid(), do: unused(&Faker.UUID.v4/0, :uuid)
+  @doc "Generates a random url"
+  def url(), do: Faker.Internet.url()
   @doc "Generates a random unique email"
   def email(), do: unused(&Faker.Internet.email/0, :email)
-  @doc "Generates a random unique okta id"
-  def okta_id(), do: unused(fn -> String.upcase(Faker.App.name()) end, :okta_id)
   @doc "Generates a random date of birth based on an age range of 18-99"
   def date_of_birth(), do: Faker.Date.date_of_birth(18..99)
   @doc "Picks a date up to 300 days in the past, not including today"
@@ -79,10 +79,15 @@ defmodule MoodleNet.Test.Fake do
   def future_datetime(), do: Faker.DateTime.forward(300)
   @doc "Picks a random gender from a (woefully short) list"
   def gender(), do: Faker.Util.pick(["Male", "Female", "Other", "Prefer not to say"])
-  @doc "Picks a random role for a user tenant"
-  def role(), do: Faker.Util.pick(["staff", "call_center", "call_center_readonly"])
-
   
+
+  def peer(overrides \\ %{}) do
+    overrides
+    |> Map.put_new_lazy(:ap_url_base, &url/0)
+  end
+
+
+
   # def user()
   # def community(owner)
   # def collection(community)
