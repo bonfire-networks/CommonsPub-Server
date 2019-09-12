@@ -3,51 +3,45 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
-  import Ecto.Adapters.SQL, only: [execute]
-
-  @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_comment mn_flag)a
+  alias Ecto.Adapters.SQL
+  
   def up do
 
     ### localisation system
 
     # countries
     # only updated during migrations!
-    @primary_key false
-    create table(:mn_country) do
-      add :iso2, :text, size: 2, null: false, primary_key: true
+    create table(:mn_country, primary_key: false) do
+      add :id, :char, size: 2, null: false, primary_key: true
       add :english_name, :text, null: false
       add :local_name, :text, null: false
-      timestamps()
+      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
     end
 
     # languages
     # only updated during migrations!    
-    @primary_key false
-    create table(:mn_language) do
-      add :iso2, :text, size: 2, null: false, primary_key: true
+    create table(:mn_language, primary_key: false) do
+      add :id, :char, size: 2, null: false, primary_key: true
       add :english_name, :text, null: false
       add :local_name, :text, null: false
-      timestamps()
+      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
     end
-
-    create unique_index(:mn_language, :iso2)
 
     ### meta system
 
     # database tables participating in the 'meta' abstraction
     # only updated during migrations!
-    @primary_key false
-    create table(:mn_meta_table) do
-      add :id, :int2, primary_key: true
+    create table(:mn_meta_table, primary_key: false) do
+      add :id, :smallserial, primary_key: true
       add :table, :text, null: false
-      timestamps()
+      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
     end
 
     create unique_index(:mn_meta_table, :table)
 
     # a pointer to an entry in any table participating in the meta abstraction
     create table(:mn_meta_pointer) do
-      add :table_id, references("mn_meta_table", on_delete: :restrict),	null: false
+      add :table_id, references("mn_meta_table", type: :int2, on_delete: :restrict), null: false
     end
 
     create index(:mn_meta_pointer, :table_id)
@@ -55,13 +49,14 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     ### activitypub system
     
     # an activitypub-compatible peer instance
-    create table(:mn_peer) do
+    create table(:mn_peer, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :ap_url_base, :text, null: false
-      field :is_deleted, :boolean, null: false
+      add :deleted_at, :timestamptz
       timestamps()
     end
 
-    create unique_index(:mn_peer, :ap_url_base)
+    create unique_index(:mn_peer, :ap_url_base, where: "deleted_at is null")
 
     ### actor system
     
@@ -69,10 +64,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # defining qualities:
     #  * it authors and owns content
     #  * it has an instance-unique preferred username
-    @primary_key false
-    create table(:mn_actor) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
-      add :alias_id, references("mn_pointer", on_delete: :delete_all) # user or collection etc.
+    create table(:mn_actor, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+      add :alias_id, references("mn_meta_pointer", on_delete: :delete_all) # user or collection etc.
       add :peer_id, references("mn_peer", on_delete: :delete_all) # null for local
       add :preferred_username, :text # null just in case, expected to be filled
       add :published_at, :timestamptz
@@ -97,21 +91,12 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_actor_revision, [:actor_id, :inserted_at])
 
-    # provide easy access to the latest revision id for each actor
-    flush()
-    execute """
-    create view mn_actor_latest_revision as
-    select actor_id, first_value(id) as revision_id over revisions
-    group by actor_id
-    window revisions as (partition by actor_id order by inserted_at desc)
-    """
 
     ### user system
 
     # a user that signed up on our instance
-    @primary_key false
-    create table(:mn_user) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_user, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :email, :text, null: false
       add :password_hash, :text, null: false
       add :confirmed_at, :timestamptz
@@ -135,11 +120,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     
     # a community is a group actor that is home to collections,
     # threads and members
-    @primary_key false
-    create table(:mn_community) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_community, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps()
@@ -149,11 +133,10 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_community, :primary_language_id, where: "deleted_at is null")
 
     # a collection is a group actor that is home to resources
-    @primary_key false
-    create table(:mn_collection) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_collection, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps()
@@ -163,12 +146,11 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_collection, :primary_language_id, where: "deleted_at is null")
 
     # a resource is an item in a collection, a link somewhere or some text
-    @primary_key false
-    create table(:mn_resource) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_resource, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :collection_id, references("mn_collection", on_delete: :delete_all), null: false
-      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps()
@@ -195,17 +177,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_resource_revision, [:resource_id, "inserted_at desc"])
 
-    flush()
-
-    execute """
-    create view mn_resource_latest_revision as
-    select resource_id, first_value(id) as revision_id over revisions
-    group by resource_id
-    window revisions as (partition by resource_id order by inserted_at desc)
-    """
-
     create table(:mn_thread) do
-      add :parent_id, references("mn_pointer", on_delete: :delete_all), null: false
+      add :parent_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps()
@@ -213,9 +186,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_thread, :parent_id, where: "deleted_at is null")
 
-    @primary_key false
-    create table(:mn_comment) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_comment, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :thread_id, references("mn_thread", on_delete: :delete_all), null: false
       add :reply_to_id, references("mn_comment", on_delete: :nilify_all)
       add :published_at, :timestamptz
@@ -233,18 +205,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_comment_revision, [:comment_id, :inserted_at])
 
-    flush()
-
-    execute """
-    create view mn_comment_latest_revision as
-    select comment_id, first_value(id) as revision_id over revisions
-    group by comment_id
-    window revisions as (partition by comment_id order by inserted_at desc)
-    """
-
     create table(:mn_follow) do
       add :follower_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :followed_id, references("mn_pointer", on_delete: :delete_all), null: false
+      add :followed_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :muted_at, :boolean, null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
@@ -256,21 +219,20 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create table(:mn_like) do
       add :liker_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :liked_id, references("mn_pointer", on_delete: :delete_all), null: false
+      add :liked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps()
     end
 
-    create unique_index(:mn_like, [:liker_id, :liked_id], where: "deleted_at is null"
+    create unique_index(:mn_like, [:liker_id, :liked_id], where: "deleted_at is null")
 
     # a flagged piece of content. may be a user, community,
     # collection, resource, thread, comment
-    @primary_key false
-    create table(:mn_flag) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    create table(:mn_flag, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :flagger_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :flagged_id, references("mn_pointer", on_delete: :delete_all), null: false
+      add :flagged_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :resolver_id, references("mn_actor", on_delete: :nilify_all)
       add :message, :text, null: false
@@ -287,8 +249,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     #       by users, community moderators, or admins
     
     create table(:mn_block) do
-      add :blocker_id, references("actor", on_delete: :delete_all), null: false
-      add :blocked_id, references("pointer", on_delete: :delete_all), null: false
+      add :blocker_id, references("mn_actor", on_delete: :delete_all), null: false
+      add :blocked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :muted_at, :timestamptz
       add :blocked_at, :timestamptz
@@ -314,18 +276,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps(updated_at: false)
     end
 
-    flush()
-    
-    execute """
-    create view mn_worker_performance_latest as
-    select task_id, first_value(id) as performance_id over performances
-    group by task_id
-    window performances as (partition by task_id order by inserted_at desc)
-    """
-
-    create table(:mn_actor_feed) do
-      add :actor_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :pointer_id, references("mn_pointer", on_delete: :delete_all), null: false
+    create table(:mn_actor_feed, primary_key: false) do
+      add :actor_id, references("mn_actor", on_delete: :delete_all), primary_key: true
+      add :pointer_id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       timestamps(updated_at: false)
     end
 
@@ -358,7 +311,55 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps()
     end
 
-    Repo.insert_all
+    flush()
+
+    :ok = execute """
+    insert into mn_meta_table ("table")
+    values ('mn_peer'),       ('mn_actor'),    ('mn_user'),    ('mn_community'),
+           ('mn_collection'), ('mn_resource'), ('mn_comment'), ('mn_flag')
+    """
+
+    # provide easy access to the latest revision id for each actor
+    :ok = execute """
+    create view mn_actor_latest_revision as
+    (select
+       distinct on (actor_id)
+       actor_id, id
+     from mn_actor_revision
+     order by actor_id, id
+    )
+    """
+ 
+
+    :ok = execute """
+    create view mn_resource_latest_revision as
+    (select
+       distinct on (resource_id)
+       resource_id, id
+     from mn_resource_revision
+     order by resource_id, id
+    )
+    """
+
+    :ok = execute """
+    create view mn_comment_latest_revision as
+    (select
+       distinct on (comment_id)
+       comment_id, id
+     from mn_comment_revision
+     order by comment_id, id
+    )
+    """
+
+    :ok = execute """
+    create view mn_worker_performance_latest as
+    (select
+       distinct on (task_id)
+       task_id, id
+     from mn_worker_performance
+     order by task_id, id
+    )
+    """
   end
 
   def down do
