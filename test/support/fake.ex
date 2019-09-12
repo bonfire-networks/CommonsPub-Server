@@ -83,8 +83,29 @@ defmodule MoodleNet.Test.Fake do
   def role(), do: Faker.Util.pick(["staff", "call_center", "call_center_readonly"])
 
   
-  def user()
-  def community(owner)
-  def collection(community)
-  def 
+  # def user()
+  # def community(owner)
+  # def collection(community)
+  # def
+
+  # Support for `unused/3`
+
+  @doc false
+  def used_key(name), do: {__MODULE__, {:used, name}}
+  @doc false
+  def get_used(name), do: Process.get(used_key(name), [])
+  @doc false
+  def set_used(name, used) when is_list(used), do: Process.put(used_key(name), used)
+
+  # support for `sequential/2`
+
+  defp nextval(id, start)
+  defp nextval(nil, start), do: start
+  defp nextval(id, start) when id < start, do: start
+  defp nextval(id, _), do: id + 1
+
+  defp seq_key(name), do: {__MODULE__, {:seq, name}}
+  defp get_seq(name, default), do: Process.get(seq_key(name), default)
+  defp set_seq(name, seq) when is_integer(seq), do: Process.put(seq_key(name), seq)
+
 end
