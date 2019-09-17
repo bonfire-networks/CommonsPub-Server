@@ -6,19 +6,74 @@ defmodule MoodleNet.Users do
   A "Context" for dealing with users, both local and remote
   """
   alias MoodleNet.Common
+  alias MoodleNet.Repo
+  alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Users.{User, UserFlag}
+  alias MoodleNet.Meta
 
   @doc """
-  Registers a local user:
+  Registers a user:
   1. Splits attrs into actor and user fields
-  2. Creates actor, user and localuser
+  2. Creates actor, user
   """
-  def register_local(attrs \\ %{}) do
+  def register(attrs \\ %{}) do
+    user_changeset = User.register_changeset(%User{}, attrs)
+
+    user_keys =
+      user_changeset.changes
+      |> Map.keys()
+      |> Enum.map(&Atom.to_string/1)
+
+    pointer_changeset =
+      Meta.TableService.lookup!("mn_user")
+      |> Map.fetch!(:id)
+      |> Meta.Pointer.changeset()
+
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:pointer, pointer_changeset)
+    |> Ecto.Multi.run(:user, fn repo, %{pointer: pointer} ->
+      user_changeset
+      |> Ecto.Changeset.put_change(:id, pointer.id)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:actor, fn repo, %{user: user} ->
+      actor_attrs = Map.drop(attrs, user_keys)
+
+      user.id
+      |> Actor.create_changeset(actor_attrs)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
+      revision_keys =
+        actor
+        |> Map.keys()
+        |> Enum.map(&Atom.to_string/1)
+
+      revision_attrs = Map.drop(attrs, user_keys ++ revision_keys)
+
+      ActorRevision.create_changeset(actor, revision_attrs)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:actor_revision_extras, fn repo, %{actor: actor, actor_revision: actor_revision} ->
+      actor_keys =
+        actor
+        |> Map.keys()
+        |> Enum.map(&Atom.to_string/1)
+
+      revision_keys =
+        actor_revision
+        |> Map.keys()
+        |> Enum.map(&Atom.to_string/1)
+
+      extra_attrs = Map.drop(attrs, user_keys ++ actor_keys ++ revision_keys)
+
+      actor_revision
+      |> ActorRevision.update_extra(extra_attrs)
+      |> repo.update()
+    end)
+    |> Repo.transaction()
   end
 
-  def create_remote(attrs \\ %{}) do
-  end
-  
   @doc """
   Update a User, RemoteUser or LocalUser
   """
@@ -29,7 +84,7 @@ defmodule MoodleNet.Users do
   Flags a user with a given reason
   {:ok, UserFlag} | {:error, reason}
   """
-  def flag(actor, user, attrs=%{reason: _}),
+  def flag(actor, user, attrs = %{reason: _}),
     do: Common.flag(UserFlag, :flag_user?, actor, user, attrs)
 
   @doc """
@@ -46,17 +101,16 @@ defmodule MoodleNet.Users do
   def all_flags(actor, filters \\ %{}),
     do: Common.flags(UserFlag, :list_user_flags?, actor, filters)
 
-  def communities_query(%User{id: them_id}=them, %User{}=me) do
+  def communities_query(%User{id: them_id} = them, %User{} = me) do
     Communities.Members.list()
     |> Communities.Members.filter_query(them_id)
   end
-  
-  def preload_actor(%User{}=user, opts),
+
+  def preload_actor(%User{} = user, opts),
     do: Repo.preload(user, :actor, opts)
 
   defp extra_relation(%User{id: id}) when is_integer(id), do: :user
 
-  defp preload_extra(%User{}=user, opts \\ []),
+  defp preload_extra(%User{} = user, opts \\ []),
     do: Repo.preload(user, extra_relation(user), opts)
-
 end

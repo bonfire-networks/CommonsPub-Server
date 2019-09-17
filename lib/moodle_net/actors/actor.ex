@@ -5,24 +5,25 @@ defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Instances.Instance
 
   meta_schema "mn_actor" do
-    belongs_to :instance, Instance
+    belongs_to :peer, MoodleNet.Peers.Peer
+    belongs_to :alias, MoodleNet.Meta.Pointer
+    has_many :actor_revisions, ActorRevision
     field :preferred_username, :string
-    field :icon, :string
-    field :image, :string
-    field :extra, {:map, :string}
+    field :published_at, :utc_datetime
+    field :deleted_at, :utc_datetime
     timestamps()
   end
 
-  @create_cast ~w(is_local preferred_username icon image)a
-  @create_required ~w(is_local preferred_username)
+  @create_cast ~w(preferred_username)a
+  @create_required ~w(preferred_username)a
 
-  def create_changeset(%Pointer{id: id}, attrs) do
-    %Actor{id: id}
+  def create_changeset(pointer_id, attrs) do
+    %Actor{id: pointer_id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> Changeset.foreign_key_constraint(:id)
@@ -39,11 +40,11 @@ defmodule MoodleNet.Actors.Actor do
     |> validate_username()
   end
 
-  defp validate_username(changeset), do: changeset
-  #   case Changeset.fetch_change(changeset, :preferred_username) do
-  #     :error -> changeset
-  #     {:ok, name} ->
-  #   end
-  # end
-
+  defp validate_username(changeset) do
+    # TODO
+    case Changeset.fetch_change(changeset, :preferred_username) do
+      :error -> changeset
+      {:ok, name} -> Changeset.put_change(changeset, :preferred_username, name)
+    end
+  end
 end

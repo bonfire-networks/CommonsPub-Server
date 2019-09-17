@@ -8,7 +8,7 @@ defmodule MoodleNet.Actors do
   
   * Users
   * Communities
-
+  * Collections
   """
 
   alias MoodleNet.Actors
@@ -26,5 +26,4 @@ defmodule MoodleNet.Actors do
 
   def delete(%Actor{}=actor) do
   end
-
 end

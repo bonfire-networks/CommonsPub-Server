@@ -25,5 +25,4 @@ defmodule MoodleNet.Meta.Pointer do
     |> Changeset.change(table_id: table_id)
     |> Changeset.foreign_key_constraint(:table_id)
   end
-  
 end
