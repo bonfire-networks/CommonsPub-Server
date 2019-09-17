@@ -25,8 +25,7 @@ defmodule MoodleNet.Users do
       |> Enum.map(&Atom.to_string/1)
 
     pointer_changeset =
-      Meta.TableService.lookup!("mn_user")
-      |> Map.fetch!(:id)
+      Meta.TableService.lookup_id!("mn_user")
       |> Meta.Pointer.changeset()
 
     Ecto.Multi.new()
@@ -36,40 +35,9 @@ defmodule MoodleNet.Users do
       |> Ecto.Changeset.put_change(:id, pointer.id)
       |> repo.insert()
     end)
-    |> Ecto.Multi.run(:actor, fn repo, %{user: user} ->
+    |> Ecto.Multi.run(:actor, fn _repo, %{user: user} ->
       actor_attrs = Map.drop(attrs, user_keys)
-
-      user.id
-      |> Actor.create_changeset(actor_attrs)
-      |> repo.insert()
-    end)
-    |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
-      revision_keys =
-        actor
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      revision_attrs = Map.drop(attrs, user_keys ++ revision_keys)
-
-      ActorRevision.create_changeset(actor, revision_attrs)
-      |> repo.insert()
-    end)
-    |> Ecto.Multi.run(:actor_revision_extras, fn repo, %{actor: actor, actor_revision: actor_revision} ->
-      actor_keys =
-        actor
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      revision_keys =
-        actor_revision
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      extra_attrs = Map.drop(attrs, user_keys ++ actor_keys ++ revision_keys)
-
-      actor_revision
-      |> ActorRevision.update_extra(extra_attrs)
-      |> repo.update()
+      MoodleNet.Actors.create(user.id, actor_attrs)
     end)
     |> Repo.transaction()
   end

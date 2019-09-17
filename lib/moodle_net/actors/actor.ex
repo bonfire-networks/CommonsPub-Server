@@ -40,6 +40,18 @@ defmodule MoodleNet.Actors.Actor do
     |> validate_username()
   end
 
+  @update_cast ~w(preferred_username)a
+  @update_required ~w(preferred_username)a
+
+  def update_changeset(%Actor{} = actor, attrs) do
+    actor
+    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.validate_required(@update_required)
+    |> Changeset.foreign_key_constraint(:id)
+    |> Changeset.unique_constraint(:preferred_username, name: :mn_actor_preferred_username_instance_key)
+    |> validate_username()
+  end
+
   defp validate_username(changeset) do
     # TODO
     case Changeset.fetch_change(changeset, :preferred_username) do

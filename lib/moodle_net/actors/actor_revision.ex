@@ -5,7 +5,6 @@ defmodule MoodleNet.Actors.ActorRevision do
   use Ecto.Schema
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
-  alias MoodleNet.Instances.Instance
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key :binary_id
