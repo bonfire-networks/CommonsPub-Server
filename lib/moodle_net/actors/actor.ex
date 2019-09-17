@@ -2,16 +2,17 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
+
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Instances.Instance
+  alias MoodleNet.Peers.Peer
 
   meta_schema "mn_actor" do
-    belongs_to :peer, MoodleNet.Peers.Peer
-    belongs_to :alias, MoodleNet.Meta.Pointer
+    belongs_to :peer, Peer
+    belongs_to :alias, Pointer
     has_many :actor_revisions, ActorRevision
     field :preferred_username, :string
     field :signing_key, :string

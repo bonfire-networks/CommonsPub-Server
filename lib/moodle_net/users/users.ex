@@ -24,9 +24,7 @@ defmodule MoodleNet.Users do
       |> Map.keys()
       |> Enum.map(&Atom.to_string/1)
 
-    pointer_changeset =
-      Meta.TableService.lookup_id!("mn_user")
-      |> Meta.Pointer.changeset()
+    pointer_changeset = Meta.pointer_changeset(User)
 
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:pointer, pointer_changeset)
@@ -35,9 +33,23 @@ defmodule MoodleNet.Users do
       |> Ecto.Changeset.put_change(:id, pointer.id)
       |> repo.insert()
     end)
-    |> Ecto.Multi.run(:actor, fn _repo, %{user: user} ->
+    |> Ecto.Multi.run(:actor, fn repo, %{user: user} ->
       actor_attrs = Map.drop(attrs, user_keys)
-      MoodleNet.Actors.create(user.id, actor_attrs)
+
+      user.id
+      |> Actor.create_changeset(actor_attrs)
+      |> repo.insert()
+    end)
+    |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
+      revision_keys =
+        actor
+        |> Map.keys()
+        |> Enum.map(&Atom.to_string/1)
+
+      revision_attrs = Map.drop(attrs, user_keys ++ revision_keys)
+
+      ActorRevision.create_changeset(actor, revision_attrs)
+      |> repo.insert()
     end)
     |> Repo.transaction()
   end
