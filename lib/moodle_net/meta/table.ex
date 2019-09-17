@@ -13,10 +13,10 @@ defmodule MoodleNet.Meta.Table do
 
   use Ecto.Schema
 
-  @primary_key {:id, :id, autogenerate: true}
-  @foreign_key_type :id
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "mn_meta_table" do
     field :table, :string
+    field :schema, :any, virtual: true
     timestamps(updated_at: false)
   end
   

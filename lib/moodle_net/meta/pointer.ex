@@ -16,11 +16,11 @@ defmodule MoodleNet.Meta.Pointer do
   alias MoodleNet.Meta.{Pointer, Table}
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key_type :binary_id
   schema "mn_meta_pointer" do
     belongs_to :table, Table, type: :integer
   end
 
+  @spec changeset(integer()) :: Changeset.t()
   def changeset(table_id) when is_integer(table_id) do
     %Pointer{}
     |> Changeset.change(table_id: table_id)

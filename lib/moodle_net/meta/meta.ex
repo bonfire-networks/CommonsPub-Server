@@ -33,33 +33,89 @@ defmodule MoodleNet.Meta do
 
   alias Ecto.Changeset
   alias MoodleNet.Repo
-  alias MoodeNet.Peers.Peer
-  alias MoodleNet.Meta.{Pointer, Table, TableService, NotInTransactionError}
+  alias MoodleNet.Peers.Peer
+  alias MoodleNet.Meta.{
+    Introspection,
+    NotInTransactionError,
+    Pointer,
+    PointerDanglingError,
+    PointerInsertError,
+    PointerNotFoundError,
+    Table,
+    TableNotFoundError,
+    TableService,
+  }
 
-  def find(id), do: Repo.get(Pointer, id)
-  def find!(id), do: Repo.get!(Pointer, id)
+  @spec find(binary()) :: {:ok, Pointer.t()} | {:error, PointerNotFoundError.t()}
+  @doc "Looks up a pointer by id"
+  def find(id), do: find_result(Repo.get(Pointer, id), id)
 
-  # @meta_tables %{
-  #   "mn_peer" => Peer,
-  # }
-  # def follow(%Pointer{id: id, table_id: table_id}),
-  #   do: Repo.get(Pointer,
+  defp find_result(nil, id), do: {:error, PointerNotFoundError.new(id)}
+  defp find_result(pointer, id), do: {:ok, pointer}
+
+  @spec find!(binary()) :: Pointer.t()
+  @doc "Looks up a pointer by id or throws a PointerNotFoundError"
+  def find!(id), do: find_result!(find(id))
+    
+  defp find_result!({:ok, v}), do: v
+  defp find_result!({:error, e}), do: throw e
+
+
+  @spec follow!(Pointer.t()) :: any()
+  @doc """
+  Follows the Pointer - look up up the record it points to
+  Note: throws if the table in the pointer is invalid or the pointed value is not found
+  """
+  def follow!(%Pointer{id: id, table_id: table_id}=pointer) do
+    table = TableService.lookup_schema!(table_id)
+    follow_result(Repo.get(table, id), pointer)
+  end
+
+  defp follow_result(nil, pointer), do: {:error, PointerDanglingError.new(pointer)}
+  defp follow_result(thing, _), do: thing
+
+  # TODO: following many
+  # def follow_many(pointers) when is_list(pointers) do
+  #   plan = follow_many_plan(pointers)
+  #   Enum.sort_by
+  # end
+
+  # defp follow_many_plan(pointers) when is_list(pointers),
+  #   do: Enum.reduce(pointers, %{}, &follow_one_plan/2)
+
+  # defp follow_one_plan(%Pointer{id: id, table_id: table_id}, acc) do
+  #   case Map.fetch(acc, table_id) do
+  #     {:ok, ids} -> Map.put(acc, table_id, [id | ids])
+  #     _ -> Map.put(acc, table_id, [id])
+  #   end
   # end
 
   @doc """
   Creates a Pointer in the database, pointing to the given table or throws
-  Note: Requires being in a transaction!
+  Note: throws NotInTransactionError unless you're in a transaction
   """
   @spec point!(TableService.table_id()) :: Pointer.t()
   def point!(table) do
     if not Repo.in_transaction?(),
-      do: throw NotInTransactionError.new({__MODULE__, :pointer!, [table]})
-    Repo.insert!(point_changeset!(table))
+      do: throw NotInTransactionError.new(table)
+      
+    table
+    |> point_changeset()
+    |> Repo.insert()
+    |> point_result()
   end
 
-  @doc "Creates a changeset for a pointer to an entry in the provided table or throws"
-  @spec point_changeset!(TableService.table_id()) :: Changeset.t()
-  def point_changeset!(table),
+  defp point_result({:ok, v}), do: v
+  defp point_result({:error, e}), do: throw PointerInsertError.new(e)
+
+  defp point_changeset(table),
     do: Pointer.changeset(TableService.lookup_id!(table))
+
+  @doc """
+  Retrieves the Table that a pointer points to
+  Note: Throws a TableNotFoundError if the table cannot be found
+  """
+  @spec points_to!(Pointer.t()) :: Table.t()
+  def points_to!(%Pointer{table_id: id}), do: TableService.lookup!(id)
 
 end
