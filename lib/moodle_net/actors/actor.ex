@@ -14,12 +14,13 @@ defmodule MoodleNet.Actors.Actor do
     belongs_to :alias, MoodleNet.Meta.Pointer
     has_many :actor_revisions, ActorRevision
     field :preferred_username, :string
+    field :signing_key, :string
     field :published_at, :utc_datetime
     field :deleted_at, :utc_datetime
     timestamps()
   end
 
-  @create_cast ~w(preferred_username)a
+  @create_cast ~w(preferred_username signing_key)a
   @create_required ~w(preferred_username)a
 
   def create_changeset(pointer_id, attrs) do
@@ -40,7 +41,7 @@ defmodule MoodleNet.Actors.Actor do
     |> validate_username()
   end
 
-  @update_cast ~w(preferred_username)a
+  @update_cast ~w(preferred_username signing_key)a
   @update_required ~w(preferred_username)a
 
   def update_changeset(%Actor{} = actor, attrs) do

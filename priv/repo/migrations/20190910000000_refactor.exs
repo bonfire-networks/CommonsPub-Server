@@ -92,6 +92,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :preferred_username, :text # null just in case, expected to be filled
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
+      add :signing_key, :string
       timestamps(type: :utc_datetime_usec)
     end
 
