@@ -53,7 +53,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :ap_url_base, :text, null: false
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_peer, :ap_url_base, where: "deleted_at is null")
@@ -71,7 +71,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :preferred_username, :text # null just in case, expected to be filled
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_actor, :peer_id, where: "deleted_at is null")
@@ -86,7 +86,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :icon, :text
       add :image, :text
       add :extra, :jsonb
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
     create index(:mn_actor_revision, [:actor_id, :inserted_at])
@@ -103,7 +103,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :wants_email_digest, :boolean, null: false
       add :wants_notifications, :boolean, null: false
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_user, :email, where: "deleted_at is null")
@@ -113,7 +113,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :confirmed_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_user_email_confirm_token, :user_id, where: "confirmed_at is null")
@@ -126,7 +126,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_community, :creator_id, where: "deleted_at is null")
@@ -139,7 +139,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_collection, :creator_id, where: "deleted_at is null")
@@ -153,7 +153,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_resource, :creator_id, where: "deleted_at is null")
@@ -172,7 +172,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :educational_use, {:array, :string}
       add :time_required, :integer
       add :typical_age_range, :string
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
     create index(:mn_resource_revision, [:resource_id, "inserted_at desc"])
@@ -181,7 +181,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :parent_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_thread, :parent_id, where: "deleted_at is null")
@@ -192,7 +192,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :reply_to_id, references("mn_comment", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_comment, :thread_id, where: "deleted_at is null")
@@ -200,7 +200,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_comment_revision) do
       add :comment_id, references("mn_comment", on_delete: :delete_all), null: false
       add :content, :text
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
     create index(:mn_comment_revision, [:comment_id, :inserted_at])
@@ -211,7 +211,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :muted_at, :boolean, null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_follow,[:follower_id, :followed_id], where: "deleted_at is null")
@@ -222,7 +222,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :liked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_like, [:liker_id, :liked_id], where: "deleted_at is null")
@@ -237,7 +237,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :resolver_id, references("mn_actor", on_delete: :nilify_all)
       add :message, :text, null: false
       add :resolved_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_flag, :flagger_id)
@@ -255,7 +255,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :muted_at, :timestamptz
       add :blocked_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_block, :blocked_id, where: "deleted_at is null")
@@ -266,20 +266,20 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :deleted_at, :timestamptz
       add :type, :varchar
       add :data, :jsonb
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_worker_task, :updated_at, where: "deleted_at is null")
 
     create table(:mn_worker_performance) do
       add :task_id, references("mn_worker_task", on_delete: :delete_all)
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
     create table(:mn_actor_feed, primary_key: false) do
       add :actor_id, references("mn_actor", on_delete: :delete_all), primary_key: true
       add :pointer_id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      timestamps(updated_at: false)
+      timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
     create index(:mn_actor_feed, :actor_id)
@@ -308,7 +308,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       # comments / threads
       add :can_edit_comment, :boolean, null: false
       add :can_delete_comment, :boolean, null: false
-      timestamps()
+      timestamps(type: :utc_datetime_usec)
     end
 
     flush()
