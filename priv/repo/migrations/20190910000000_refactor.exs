@@ -4,7 +4,14 @@
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
   alias Ecto.Adapters.SQL
-  
+
+  @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_comment mn_like mn_flag)
+  @revised [
+    {"mn_actor", "actor_id"},
+    {"mn_resource", "resource_id"},
+    {"mn_comment", "comment_id"},
+  ]
+
   def up do
 
     ### localisation system
@@ -325,46 +332,20 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps(type: :utc_datetime_usec)
     end
 
+    # now we are going to do things with what we've already created.
+    # ecto naturally wants to delay running any of this because we
+    # might be running in mysql which doesn't have DDL transactions
+    # as we happen to know we're not, carry on...
     flush()
 
-    :ok = execute """
-    insert into mn_meta_table ("table")
-    values ('mn_peer'),       ('mn_actor'),    ('mn_user'),    ('mn_community'),
-           ('mn_collection'), ('mn_resource'), ('mn_comment'), ('mn_flag')
-    """
+    # insert records of the tables participating in the meta abstraction
+    vals =
+      @meta_tables
+      |> Enum.map(fn x -> "('#{x}')" end)
+      |> Enum.join(", ")
+    :ok = execute "insert into mn_meta_table ("table") values #{vals}"
 
-    # provide easy access to the latest revision id for each actor
-    :ok = execute """
-    create view mn_actor_latest_revision as
-    (select
-       distinct on (actor_id)
-       actor_id, id
-     from mn_actor_revision
-     order by actor_id, id
-    )
-    """
- 
-
-    :ok = execute """
-    create view mn_resource_latest_revision as
-    (select
-       distinct on (resource_id)
-       resource_id, id
-     from mn_resource_revision
-     order by resource_id, id
-    )
-    """
-
-    :ok = execute """
-    create view mn_comment_latest_revision as
-    (select
-       distinct on (comment_id)
-       comment_id, id
-     from mn_comment_revision
-     order by comment_id, id
-    )
-    """
-
+    # create a view showing the latest performance of tasks by workers
     :ok = execute """
     create view mn_worker_performance_latest as
     (select
