@@ -248,6 +248,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create unique_index(:mn_like, [:liker_id, :liked_id], where: "deleted_at is null")
+    create index(:mn_like, :liked_id, where: "deleted_at is null")
 
     # a flagged piece of content. may be a user, community,
     # collection, resource, thread, comment
