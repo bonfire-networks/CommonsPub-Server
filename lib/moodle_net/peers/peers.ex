@@ -1,19 +1,62 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Peers do
-  alias MoodleNet.Repo
-  alias MoodleNet.Meta
+  @moduledoc """
+  Manages peers, servers with which we connect via synchronisation
+  protocols, currently:
+
+  * ActivityPub
+  
+  A `MoodleNet.Peers.Peer` is created from a MoodleNet.Meta.Pointer`
+  as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
+
+  """
+  alias MoodleNet.{Common, Meta, Peers, Repo}
+  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Peers
   alias MoodleNet.Peers.Peer
 
-  @peer_table "mn_peer"
+  # Querying
   
+  @spec fetch(binary()) :: {:ok, Peer.t()} | {:error, NotFoundError.t()}
+  @doc "Looks up the Peer with the given id in the database"
+  def fetch(id), do: fetch_result(Repo.get(Peer, id), id)
+
+  defp fetch_result(nil, id), do: {:error, NotFoundError.new(id)}
+  defp fetch_result(peer, _), do: {:ok, peer}
+
+  # Insertion
+
+  @spec create(Pointer.t(), map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
+  @doc "Create a Peer from the provided pointer and attributes"
   def create(%Pointer{}=pointer, attrs),
     do: Repo.insert(Peer.create_changeset(pointer, attrs))
 
-  def create!(pointer \\ Meta.point!(@peer_table), attrs)
-  def create!(%Pointer{}=pointer, attrs),
-    do: Repo.insert!(Peer.create_changeset(pointer, attrs))
-
-  def get(id), do: Repo.get(Peer, id)
+  # Updating
   
+  @spec update(Peer.t(), map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
+  def update(%Peer{}=peer, fields),
+    do: Repo.update(Peer.update_changeset(peer, fields))
+
+  # Soft deletion
+  
+  @spec soft_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
+  @doc "Marks an Peer as deleted in the database"
+  def soft_delete(%Peer{}=peer), do: Common.soft_delete(peer)
+
+  @spec soft_delete!(Peer.t()) :: Peer.t()
+  @doc "Marks a Peer as deleted in the database or throws a DeletionError"
+  def soft_delete!(%Peer{}=peer), do: Common.soft_delete!(peer)
+
+  # Hard deletion - todo chase links
+  
+  @spec hard_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
+  @doc "Deletes a Peer from the database"
+  def hard_delete(%Peer{}=peer), do: Common.hard_delete(peer)
+
+  @spec hard_delete!(Peer.t()) :: Peer.t()
+  @doc "Deletes an entry from the database, or throws a DeletionError"
+  def hard_delete!(%Peer{}=peer), do: Common.hard_delete!(peer)
+
 end

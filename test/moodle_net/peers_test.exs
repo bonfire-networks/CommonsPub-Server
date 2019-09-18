@@ -1,16 +1,44 @@
 defmodule MoodleNet.PeersTest do
   use MoodleNet.DataCase
-  alias MoodleNet.Peers
+  alias MoodleNet.{Meta, Peers}
+  alias MoodleNet.Peers.Peer
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
   
   describe "CRUD" do
     test "insertion and retrieval" do
       Repo.transaction fn ->
+	pointer = Meta.point_to!(Peer)
 	attrs = Fake.peer()
-	assert peer = Peers.create!(attrs)
-	peer2 = Peers.get(peer.id)
+	assert {:ok, peer} = Peers.create(pointer, attrs)
+	assert {:ok, peer2} = Peers.fetch(peer.id)
 	assert peer == peer2
+      end
+    end
+
+    test "updates" do
+      Repo.transaction fn ->
+        peer = fake_peer!()
+        attrs =
+          peer
+          |> Map.from_struct()
+          |> Map.delete(:ap_url_base)
+          |> Fake.peer()
+        assert {:ok, peer2} = Peers.update(peer, attrs)
+        assert peer2.id == peer.id
+        assert peer2.ap_url_base == attrs[:ap_url_base]
+      end
+    end
+
+    @tag :skip
+    test "soft deletion" do
+      Repo.transaction fn -> :ok
+      end
+    end
+
+    @tag :skip
+    test "hard deletion" do
+      Repo.transaction fn -> :ok
       end
     end
   end
