@@ -34,9 +34,9 @@ defmodule MoodleNet.Meta do
   alias Ecto.Changeset
   alias MoodleNet.Repo
   alias MoodleNet.Peers.Peer
+  alias MoodleNet.Common.NotInTransactionError
   alias MoodleNet.Meta.{
     Introspection,
-    NotInTransactionError,
     Pointer,
     PointerDanglingError,
     PointerInsertError,
