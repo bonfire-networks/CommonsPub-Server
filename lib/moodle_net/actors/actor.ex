@@ -20,7 +20,7 @@ defmodule MoodleNet.Actors.Actor do
     timestamps()
   end
 
-  @create_cast ~w(preferred_username signing_key)a
+  @create_cast ~w(preferred_username peer_id signing_key)a
   @create_required ~w(preferred_username)a
 
   def create_changeset(pointer_id, attrs) do
@@ -41,7 +41,7 @@ defmodule MoodleNet.Actors.Actor do
     |> validate_username()
   end
 
-  @update_cast ~w(preferred_username signing_key)a
+  @update_cast ~w(preferred_username peer_id signing_key)a
   @update_required ~w(preferred_username)a
 
   def update_changeset(%Actor{} = actor, attrs) do
