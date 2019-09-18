@@ -257,14 +257,13 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :flagger_id, references("mn_actor", on_delete: :delete_all), null: false
       add :flagged_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :community_id, references("mn_community", on_delete: :nilify_all)
-      add :resolver_id, references("mn_actor", on_delete: :nilify_all)
       add :message, :text, null: false
-      add :resolved_at, :timestamptz
+      add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
     end
 
-    create index(:mn_flag, :flagger_id)
-    create index(:mn_flag, :flagged_id)
+    create index(:mn_flag, :flagger_id, where: "deleted_at is null")
+    create index(:mn_flag, :flagged_id, where: "deleted_at is null")
 
     ### blocking system
 
@@ -316,7 +315,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :can_revoke_role, :boolean, null: false
       # moderation
       add :can_list_flag, :boolean, null: false
-      add :can_resolve_flag, :boolean, null: false
+      add :can_delete_flag, :boolean, null: false
       add :can_ban, :boolean, null: false
       # community
       add :can_edit_community, :boolean, null: false
