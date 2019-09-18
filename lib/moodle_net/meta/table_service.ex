@@ -32,6 +32,7 @@ defmodule MoodleNet.Meta.TableService do
   @table_name __MODULE__.Cache
 
   @type table_id :: binary() | integer() | atom()
+  @type lookup_error :: {:error, term}
 
   # public api
 
