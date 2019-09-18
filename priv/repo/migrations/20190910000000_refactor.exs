@@ -356,8 +356,76 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
      order by task_id, id
     )
     """
+
+    # create views showing the latest revision of revised tables
+
+    for {table, column} <- @revised do
+      :ok = execute """
+      create view #{table}_latest_revision as
+      (select
+       distinct on (#{column})
+       #{column}, id
+       from #{table}_revision
+       order by #{column}, id)
+      """
+    end
+
+    # create triggers that cascade deletes on meta tables to pointers
+
+    ### pointer cascade triggers to clean up dangling pointers
+    # :ok = execute """
+    # create function cascade_pointer_delete() returns trigger as $cascade_pointer_delete$
+    #   begin
+    #     delete from mn_pointer where id = old.id;
+    #     return null;
+    #   end;
+    # $cascade_pointer_delete$ language plpgsql
+    # """
+
+    # for table <-  @meta_tables do
+    #   :ok = execute """
+    #   create trigger #{table}_cascade_pointer_delete
+    #   after delete on #{table}
+    #   for each row
+    #   execute procedure cascade_pointer_delete()
+    #   """
+    # end
   end
 
   def down do
+
+    # todo: drop indices
+    # for table <- @meta_tables do
+    #   :ok = execute "drop trigger #{table}_cascade_pointer_delete"
+    # end
+    # :ok = execute "drop function cascade_pointer_delete()"
+    # for {table, _} <- @revised do
+    #   :ok = execute "drop view #{table}_latest_revision"
+    # end
+
+    :ok = execute "drop view mn_worker_performance_latest"
+    drop table(:mn_actor_feed)
+    drop table(:mn_worker_performance)
+    drop table(:mn_worker_task)
+    drop table(:mn_community_role)
+    drop table(:mn_block)
+    drop table(:mn_follow)
+    drop table(:mn_like)
+    drop table(:mn_flag)
+    drop table(:mn_comment)
+    drop table(:mn_thread)
+    drop table(:mn_resource_revision)
+    drop table(:mn_resource)
+    drop table(:mn_collection)
+    drop table(:mn_community)
+    drop table(:mn_user_email_confirm_token)
+    drop table(:mn_user)
+    drop table(:mn_actor_revision)
+    drop table(:mn_actor)
+    drop table(:mn_meta_pointer)
+    drop table(:mn_meta_table)
+    drop table(:mn_country)
+    drop table(:mn_language)
   end
+
 end
