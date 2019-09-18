@@ -7,7 +7,7 @@ defmodule MoodleNet.Communities.Community do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Communities.{Community, Member}
+  alias MoodleNet.Communities.Community
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Meta.Pointer
@@ -15,7 +15,6 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Users.User
   
   meta_schema "mn_community" do
-    belongs_to :peer, Peer
     belongs_to :creator, User
     belongs_to :primary_language, Language
     field :is_published, :boolean, virtual: true
@@ -23,7 +22,7 @@ defmodule MoodleNet.Communities.Community do
     field :deleted_at, :utc_datetime_usec
     has_many :collections, Collection
     has_many :threads, Thread
-    has_many :members, Member
+    # has_many :members, Member
     timestamps()
   end
 
