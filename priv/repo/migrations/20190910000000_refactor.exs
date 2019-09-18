@@ -121,8 +121,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :email, :text, null: false
       add :password_hash, :text, null: false
       add :confirmed_at, :timestamptz
-      add :wants_email_digest, :boolean, null: false
-      add :wants_notifications, :boolean, null: false
+      add :wants_email_digest, :boolean, null: false, default: false
+      add :wants_notifications, :boolean, null: false, default: false
+      add :is_local_admin, :boolean, null: false, default: false
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
     end
