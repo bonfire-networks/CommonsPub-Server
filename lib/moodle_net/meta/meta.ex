@@ -41,6 +41,7 @@ defmodule MoodleNet.Meta do
     PointerDanglingError,
     PointerInsertError,
     PointerNotFoundError,
+    PointerTypeError,
     Table,
     TableNotFoundError,
     TableService,
@@ -94,19 +95,19 @@ defmodule MoodleNet.Meta do
   Creates a Pointer in the database, pointing to the given table or throws
   Note: throws NotInTransactionError unless you're in a transaction
   """
-  @spec point!(TableService.table_id()) :: Pointer.t()
-  def point!(table) do
+  @spec point_to!(TableService.table_id()) :: Pointer.t()
+  def point_to!(table) do
     if not Repo.in_transaction?(),
       do: throw NotInTransactionError.new(table)
       
     table
     |> point_changeset()
     |> Repo.insert()
-    |> point_result()
+    |> point_to_result()
   end
 
-  defp point_result({:ok, v}), do: v
-  defp point_result({:error, e}), do: throw PointerInsertError.new(e)
+  defp point_to_result({:ok, v}), do: v
+  defp point_to_result({:error, e}), do: throw PointerInsertError.new(e)
 
   defp point_changeset(table),
     do: Pointer.changeset(TableService.lookup_id!(table))
@@ -117,5 +118,15 @@ defmodule MoodleNet.Meta do
   """
   @spec points_to!(Pointer.t()) :: Table.t()
   def points_to!(%Pointer{table_id: id}), do: TableService.lookup!(id)
+
+  @doc """
+  Throws if the pointer does not point to the schema provided
+  """
+  @spec assert_points_to!(Pointer.t(), atom()) :: :ok
+  def assert_points_to!(%Pointer{}=pointer, table) when is_atom(table) do
+    if table == points_to!(pointer).schema,
+      do: :ok,
+      else: throw PointerTypeError.new(pointer)
+  end
 
 end

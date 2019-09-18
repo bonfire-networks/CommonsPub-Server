@@ -57,7 +57,7 @@ defmodule MoodleNet.Meta.TableService do
     end
   end
 
-  @spec lookup_id(table_id()) :: {:ok, integer()} | lookup_error()
+  @spec lookup_id(table_id()) :: {:ok, integer()} | {:error, TableNotFoundError.t()}
   @doc "Look up a table id by id, name or schema"
   def lookup_id(key) do
     with {:ok, val} <- lookup(key), do: {:ok, val.id}
@@ -72,7 +72,7 @@ defmodule MoodleNet.Meta.TableService do
     end
   end
 
-  @spec lookup_schema(table_id()) :: {:ok, atom()} | lookup_error()
+  @spec lookup_schema(table_id()) :: {:ok, atom()} | {:error, TableNotFoundError.t()}
   @doc "Look up a schema module by id, name or schema"
   def lookup_schema(key) do
     with {:ok, val} <- lookup(key), do: {:ok, val.schema}
