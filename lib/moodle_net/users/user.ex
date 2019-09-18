@@ -5,14 +5,12 @@ defmodule MoodleNet.Users.User do
   @moduledoc """
   User model
   """
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
   alias Ecto.Changeset
   alias MoodleNet.Users.{User, LocalUser}
   alias MoodleNet.Actors.Actor
 
-  # @primary_key false
-  @foreign_key_type :binary_id
-  schema "mn_user" do
+  meta_schema "mn_user" do
     field :email, :string
     field :password, :string, virtual: true
     field :password_hash, :string
