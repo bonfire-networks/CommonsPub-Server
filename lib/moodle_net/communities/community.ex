@@ -4,32 +4,50 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Communities.Community do
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
-  alias MoodleNet.Communities.{Community, Member, Thread}
+  alias MoodleNet.Communities.{Community, Member}
+  alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Peers.Peer
+  alias MoodleNet.Users.User
   
-  schema "mn_community" do
-    field :local, :boolean
-    field :primary_language, :string
+  meta_schema "mn_community" do
+    belongs_to :peer, Peer
     belongs_to :creator, User
+    belongs_to :primary_language, Language
+    field :is_published, :boolean, virtual: true
+    field :published_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
     has_many :collections, Collection
     has_many :threads, Thread
     has_many :members, Member
     timestamps()
   end
 
-  @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
-  @optional_attrs [:creator]
-  @cast_attrs @required_attrs ++ @optional_attrs
+  @create_cast ~w(peer_id creator_id primary_language_id is_public)
+  @create_required @create_cast
   
-  def changeset(community \\ %Community{}, attrs)
-  def changeset(%Community{}=community, attrs) when is_map(attrs) do
-    community
-    |> Changeset.cast(attrs, @cast_attrs)
-    |> Changeset.validate_required(@required_attrs)
+  def create_changeset(%Pointer{id: id}=pointer, fields) do
+    Meta.assert_points_to!(pointer, __MODULE__)
+    %Community{id: id}
+    |> Changeset.cast(fields, @create_cast)
+    |> Changeset.validate_required(@create_required)
     |> Changeset.unique_constraint(:preferred_username)
+    |> change_public()
+  end
+
+  @update_cast ~w(primary_language_id is_public)
+  @update_required @update_cast
+
+  def update_changeset(%Community{}=community, fields) do
+    community
+    |> Changeset.cast(fields, @create_cast)
+    |> Changeset.validate_required(@create_required)
+    |> Changeset.unique_constraint(:preferred_username)
+    |> change_public()
   end
 
 end
