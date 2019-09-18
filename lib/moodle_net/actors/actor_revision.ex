@@ -2,13 +2,11 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.ActorRevision do
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
 
-  @primary_key {:id, :binary_id, autogenerate: true}
-  @foreign_key :binary_id
-  schema "mn_actor_revision" do
+  standalone_schema "mn_actor_revision" do
     belongs_to :actor, Actor, type: :binary_id
     field :name, :string
     field :summary, :string
@@ -26,7 +24,7 @@ defmodule MoodleNet.Actors.ActorRevision do
     |> Changeset.validate_required(@create_required)
   end
 
-  @update_cast ~w(icon image)
+  @update_cast ~w(icon image)a
 
   def update_changeset(%ActorRevision{}=actor_revision, attrs) do
     Changeset.cast(actor_revision, attrs, @update_cast)

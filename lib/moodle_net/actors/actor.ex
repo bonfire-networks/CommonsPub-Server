@@ -27,18 +27,9 @@ defmodule MoodleNet.Actors.Actor do
     %Actor{id: pointer_id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
-    |> Changeset.foreign_key_constraint(:id)
     |> Changeset.unique_constraint(:preferred_username, name: :mn_actor_preferred_username_instance_key)
     |> validate_username()
     |> meta_pointer_constraint()
-  end
-
-  @update_cast ~w(preferred_username icon image)
-  @update_required ~w(preferred_username)
-  def update_changeset(%Actor{}=actor, attrs) do
-    actor
-    |> Changeset.cast(attrs, @update_cast)
-    |> validate_username()
   end
 
   @update_cast ~w(preferred_username peer_id signing_key)a

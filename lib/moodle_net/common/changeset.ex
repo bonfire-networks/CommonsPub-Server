@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Changeset do
   @moduledoc "Helper functions for changesets"
-  
+
   alias Ecto.Changeset
 
   @spec meta_pointer_constraint(Changeset.t()) :: Changeset.t()
