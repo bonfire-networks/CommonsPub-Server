@@ -18,7 +18,7 @@ defmodule MoodleNet.Accounts do
     ResetPasswordToken,
     EmailConfirmationToken,
   }
-  alias MoodleNet.Whitelist.EmailWhitelist
+  alias MoodleNet.Whitelist.RegisterEmailWhitelist
 
   alias MoodleNet.Mail.{MailService, Email}
   alias MoodleNet.Users.{Token, Gravatar}
@@ -324,17 +324,17 @@ defmodule MoodleNet.Accounts do
   end
 
   def add_email_to_whitelist(email) do
-    %EmailWhitelist{email: email}
+    %RegisterEmailWhitelist{email: email}
     |> Repo.insert()
   end
 
   def remove_email_from_whitelist(email) do
-    %EmailWhitelist{email: email}
+    %RegisterEmailWhitelist{email: email}
     |> Repo.delete(stale_error_field: :email)
   end
 
   def is_email_in_whitelist?(email) do
-    String.ends_with?(email, "@moodle.com") || Repo.get(EmailWhitelist, email) != nil
+    String.ends_with?(email, "@moodle.com") || Repo.get(RegisterEmailWhitelist, email) != nil
   end
 
   defp set_default_icon(%{icon: _} = attrs), do: attrs
