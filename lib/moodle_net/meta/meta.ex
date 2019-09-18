@@ -62,19 +62,6 @@ defmodule MoodleNet.Meta do
   defp find_result!({:error, e}), do: throw e
 
 
-  @spec follow!(Pointer.t()) :: any()
-  @doc """
-  Follows the Pointer - look up up the record it points to
-  Note: throws if the table in the pointer is invalid or the pointed value is not found
-  """
-  def follow!(%Pointer{id: id, table_id: table_id}=pointer) do
-    table = TableService.lookup_schema!(table_id)
-    follow_result(Repo.get(table, id), pointer)
-  end
-
-  defp follow_result(nil, pointer), do: {:error, PointerDanglingError.new(pointer)}
-  defp follow_result(thing, _), do: thing
-
   # TODO: following many
   # def follow_many(pointers) when is_list(pointers) do
   #   plan = follow_many_plan(pointers)
@@ -127,6 +114,78 @@ defmodule MoodleNet.Meta do
     if table == points_to!(pointer).schema,
       do: :ok,
       else: throw PointerTypeError.new(pointer)
+  end
+
+  @spec follow(Pointer.t) :: {:ok, any()} | {:error, PointerDanglingError.t}
+  @doc """
+  Follows the Pointer - look up up the record it points to
+  Note: throws if the table in the pointer is invalid
+  """
+  def follow(%Pointer{id: id, table_id: table_id}=pointer) do
+    table = TableService.lookup_schema!(table_id)
+    follow_result(Repo.get(table, id), pointer)
+  end
+
+  defp follow_result(nil, pointer), do: {:error, PointerDanglingError.new(pointer)}
+  defp follow_result(thing, _), do: {:ok, thing}
+
+  @spec follow!(Pointer.t()) :: any()
+  def follow!(%Pointer{}=pointer) do
+    case follow(pointer) do
+      {:ok, thing} -> thing
+      {:error, e} -> throw e
+    end
+  end
+
+  @spec preload!(Pointer.t | [Pointer.t]) :: Pointer.t | [Pointer.t]
+  @spec preload!(Pointer.t | [Pointer.t], list) :: Pointer.t | [Pointer.t]
+  @doc """
+  Follows one or more pointers and adds the pointed records to the `pointed` attrs
+  """
+  def preload!(pointer_or_pointers, opts \\ [])
+  def preload!(%Pointer{}=pointer, opts) do
+    if is_nil(pointer.pointed) or Keyword.get(opts, :force),
+      do: %{ pointer | pointed: follow!(pointer) },
+      else: pointer
+  end
+  def preload!(pointers, opts) when is_list(pointers) do
+    pointers
+    |> preload_load(opts)
+    |> preload_collate(pointers)
+  end
+
+  defp preload_collate(loaded, pointers),
+    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.fetch!(loaded, p.id) } end)
+
+  defp preload_load(pointers, opts) do
+    force = Keyword.get(opts, :force, false)
+    pointers
+    |> Enum.reduce(%{}, &preload_search(force, &1, &2)) # find ids
+    |> Enum.reduce(%{}, &preload_per_table/2)           # query
+  end
+  
+  defp preload_search(false, %{pointed: pointed}=pointer, acc)
+  when not is_nil(pointed), do: acc
+  
+  defp preload_search(_force, pointer, acc) do
+    ids = [ pointer.id | Map.get(acc, pointer.table_id, []) ]
+    Map.put(acc, pointer.table_id, ids)
+  end
+    
+  defp preload_per_table({table_id, ids}, acc) do
+    load_many(table_id, ids)
+    |> Enum.reduce(acc, &Map.put(&2, &1.id, &1))
+  end
+  import Ecto.Query
+  
+  defp load_many(table_id, ids) do
+    TableService.lookup_schema!(table_id)
+    |> load_many_query(ids)
+    |> Repo.all()
+  end
+
+  defp load_many_query(schema, ids) do
+    from s in schema, where: s.id in ^ids
   end
 
 end

@@ -73,13 +73,13 @@ defmodule MoodleNet.MetaTest do
     end
   end
 
-  describe "MoodleNet.Meta." do
-    test "point_to! throws when not in a transaction" do
+  describe "MoodleNet.Meta.point_to!" do
+    test "throws when not in a transaction" do
       expected_error = %NotInTransactionError{cause: "mn_peer"} 
       assert catch_throw(Meta.point_to!("mn_peer")) == expected_error
     end
 
-    test "point_to! inserts a pointer when in a transaction" do
+    test "inserts a pointer when in a transaction" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       Repo.transaction fn ->
 	%Pointer{} = ptr = Meta.point_to!("mn_peer")
@@ -89,9 +89,16 @@ defmodule MoodleNet.MetaTest do
 	assert ptr2 == ptr
       end
     end
+  end
 
-    test "follow! follows pointers" do
+  describe "MoodleNet.Meta." do
+
+    setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      {:ok, %{}}
+    end
+
+    test "follow follows pointers" do
       Repo.transaction fn ->
 	assert peer = fake_peer!()
 	assert pointer = Meta.find!(peer.id)
@@ -99,13 +106,45 @@ defmodule MoodleNet.MetaTest do
 	assert table.table == "mn_peer"
 	assert table.schema == Peer
 	assert table.id == pointer.table_id
-	assert peer2 = Meta.follow!(pointer)
+	assert {:ok, peer2} = Meta.follow(pointer)
+	assert peer3 = Meta.follow!(pointer)
 	assert peer2 == peer
+	assert peer3 == peer
       end
     end
 
-    @tag :skip
-    test "following many pointers" do
+    test "preload! can load one pointer" do
+      Repo.transaction fn ->
+	assert peer = fake_peer!()
+	assert pointer = Meta.find!(peer.id)
+	assert table = Meta.points_to!(pointer)
+	assert table.table == "mn_peer"
+	assert table.schema == Peer
+	assert table.id == pointer.table_id
+	assert pointer2 = Meta.preload!(pointer)
+	assert pointer2.pointed == peer
+	assert pointer2.id == pointer.id
+	assert pointer2.table_id == pointer.table_id
+	assert [pointer3] = Meta.preload!([pointer])
+	assert pointer2 == pointer3
+      end
+    end
+
+    test "preload! can load many pointers" do
+      Repo.transaction fn ->
+	assert peer = fake_peer!()
+	assert peer2 = fake_peer!()
+	assert pointer = Meta.find!(peer.id)
+	assert pointer2 = Meta.find!(peer2.id)
+
+	assert [pointer3, pointer4] = Meta.preload!([pointer, pointer2])
+	assert pointer3.id == pointer.id
+	assert pointer4.id == pointer2.id
+	assert pointer3.table_id == pointer.table_id
+	assert pointer4.table_id == pointer2.table_id
+	assert pointer3.pointed == peer
+	assert pointer4.pointed == peer2
+      end
     end
   end
 

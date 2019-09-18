@@ -17,6 +17,7 @@ defmodule MoodleNet.Meta.Pointer do
 
   standalone_schema "mn_meta_pointer" do
     belongs_to :table, Table, type: :integer
+    field :pointed, :any, virtual: true
   end
 
   @spec changeset(integer()) :: Changeset.t()
@@ -25,4 +26,5 @@ defmodule MoodleNet.Meta.Pointer do
     |> Changeset.change(table_id: table_id)
     |> Changeset.foreign_key_constraint(:table_id)
   end
+
 end
