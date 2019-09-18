@@ -4,13 +4,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.Collections.Collection do
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.{Collection, Thread}
 
-  schema "mn_collection" do
+  meta_schema "mn_collection" do
     field :public, :boolean
     field :icon, :string # todo: reference the images table when we have one
     field :primary_language, :string
