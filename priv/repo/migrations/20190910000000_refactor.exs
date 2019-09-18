@@ -27,6 +27,20 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
     end
 
+    # whitelists
+
+    create table(:mn_whitelist_register_email_domain) do
+      add :domain, :text, null: false
+    end
+
+    create unique_index(:mn_whitelist_register_email_domain, :domain)
+
+    create table(:mn_whitelist_register_email) do
+      add :email, :text, null: false
+    end
+
+    create unique_index(:mn_whitelist_register_email, :email)
+
     ### meta system
 
     # database tables participating in the 'meta' abstraction
