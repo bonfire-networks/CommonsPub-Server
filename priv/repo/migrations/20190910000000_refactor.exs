@@ -107,7 +107,6 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :summary, :text
       add :icon, :text
       add :image, :text
-      add :extra, :jsonb
       timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 

@@ -22,7 +22,7 @@ defmodule MoodleNet.Actors do
     Ecto.Multi.new()
     |> Ecto.Multi.insert(:actor, Actor.create_changeset(pointer_id, attrs))
     |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
-      insert_revision(actor, attrs)
+      insert_revision(repo, actor, attrs)
     end)
     |> Repo.transaction()
   end
@@ -31,7 +31,7 @@ defmodule MoodleNet.Actors do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:actor, Actor.update_changeset(actor, attrs))
     |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
-      insert_revision(actor, attrs)
+      insert_revision(repo, actor, attrs)
     end)
     |> Repo.transaction()
   end
@@ -41,33 +41,15 @@ defmodule MoodleNet.Actors do
     Repo.delete(actor)
   end
 
-  defp insert_revision(actor, attrs) do
+  defp insert_revision(repo, actor, attrs) do
     actor_keys =
       actor
       |> Map.keys()
       |> Enum.map(&Atom.to_string/1)
 
-    actor_attrs = Map.drop(attrs, actor_keys)
-
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:actor_revision, ActorRevision.create_changeset(actor, actor_attrs))
-    |> Ecto.Multi.run(:actor_revision_extras, fn repo, %{actor_revision: actor_revision} ->
-      actor_keys =
-        actor
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      revision_keys =
-        actor_revision
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      extra_attrs = Map.drop(attrs, actor_keys ++ revision_keys)
-
-      actor_revision
-      |> ActorRevision.update_extra(extra_attrs)
-      |> repo.update()
-    end)
-    |> Repo.transaction()
+    revision_attrs = Map.drop(attrs, actor_keys)
+    actor
+    |> ActorRevision.create_changeset(revision_attrs)
+    |> repo.insert()
   end
 end

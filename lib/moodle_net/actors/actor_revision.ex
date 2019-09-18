@@ -14,11 +14,10 @@ defmodule MoodleNet.Actors.ActorRevision do
     field :summary, :string
     field :icon, :string
     field :image, :string
-    field :extra, {:map, :string}
     timestamps(updated_at: false)
   end
 
-  @create_cast ~w(name summary icon image extra)a
+  @create_cast ~w(name summary icon image)a
   @create_required ~w()
 
   def create_changeset(%Actor{} = actor, attrs) do
@@ -27,13 +26,9 @@ defmodule MoodleNet.Actors.ActorRevision do
     |> Changeset.validate_required(@create_required)
   end
 
-  @update_cast ~w(icon image extra)
+  @update_cast ~w(icon image)
 
   def update_changeset(%ActorRevision{}=actor_revision, attrs) do
     Changeset.cast(actor_revision, attrs, @update_cast)
-  end
-
-  def update_extra(%ActorRevision{}=actor, extra) when is_map(extra) do
-    Changeset.change(actor, extra: extra)
   end
 end
