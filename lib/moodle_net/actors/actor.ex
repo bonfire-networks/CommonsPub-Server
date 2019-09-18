@@ -8,48 +8,48 @@ defmodule MoodleNet.Actors.Actor do
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Meta.Pointer
+
   alias MoodleNet.Peers.Peer
 
+  # TODO: match the agreed rules
+  @username_regex ~r([a-zA-Z0-9]+)
+
   meta_schema "mn_actor" do
-    belongs_to :peer, Peer
-    belongs_to :alias, Pointer
+    belongs_to :instance, Instance
+    belongs_to :peer, MoodleNet.Peers.Peer
+    belongs_to :alias, MoodleNet.Meta.Pointer
     has_many :actor_revisions, ActorRevision
     field :preferred_username, :string
     field :signing_key, :string
-    field :published_at, :utc_datetime
-    field :deleted_at, :utc_datetime
+    field :published_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
     timestamps()
   end
 
-  @create_cast ~w(preferred_username peer_id signing_key)a
+  @create_cast ~w(preferred_username peer_id signing_key icon image)a
   @create_required ~w(preferred_username)a
 
-  def create_changeset(pointer_id, attrs) do
-    %Actor{id: pointer_id}
+  def create_changeset(%Pointer{id: id}, attrs) do
+    %Actor{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_format(:preferred_username, @username_regex)
+    |> Changeset.unique_constraint(:alias_id)
     |> Changeset.unique_constraint(:preferred_username, name: :mn_actor_preferred_username_instance_key)
-    |> validate_username()
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(preferred_username peer_id signing_key)a
+  @update_cast ~w(preferred_username peer_id signing_key icon image)a
   @update_required ~w(preferred_username)a
 
   def update_changeset(%Actor{} = actor, attrs) do
     actor
     |> Changeset.cast(attrs, @update_cast)
     |> Changeset.validate_required(@update_required)
-    |> Changeset.foreign_key_constraint(:id)
-    |> Changeset.unique_constraint(:preferred_username, name: :mn_actor_preferred_username_instance_key)
-    |> validate_username()
+    |> Changeset.validate_format(:preferred_username, @username_regex)
+    |> Changeset.unique_constraint(:alias_id)
+    |> Changeset.unique_constraint([:preferred_username, :peer_id])
+    |> meta_pointer_constraint()
   end
 
-  defp validate_username(changeset) do
-    # TODO
-    case Changeset.fetch_change(changeset, :preferred_username) do
-      :error -> changeset
-      {:ok, name} -> Changeset.put_change(changeset, :preferred_username, name)
-    end
-  end
 end
