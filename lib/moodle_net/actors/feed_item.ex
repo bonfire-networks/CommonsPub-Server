@@ -6,6 +6,9 @@ defmodule MoodleNet.Actors.FeedItem do
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor,FeedItem}
 
+  @primary_key {:id,:binary_id, autogenerate: false}
+  @foreign_key_type :binary_id
+  @timestamps_opts [type: :utc_datetime_usec]
   schema "mn_actor_feed_items" do
     belongs_to :actor, Actor
     field :item_type, :string
