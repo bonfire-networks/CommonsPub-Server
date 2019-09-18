@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
-  alias Ecto.Adapters.SQL
 
   @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_comment mn_like mn_flag)
   @revised [
@@ -98,7 +97,11 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_actor, :peer_id, where: "deleted_at is null")
     create unique_index(:mn_actor, :alias_id,  where: "deleted_at is null")
-    create unique_index(:mn_actor, [:preferred_username, :peer_id], where: "deleted_at is null")
+    create unique_index(
+      :mn_actor, [:preferred_username, :peer_id],
+      where: "deleted_at is null",
+      name: :mn_actor_preferred_username_peer_id_index
+    )
 
     # most content of the actor is revision-tracked
     create table(:mn_actor_revision) do
@@ -344,7 +347,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       @meta_tables
       |> Enum.map(fn x -> "('#{x}')" end)
       |> Enum.join(", ")
-    :ok = execute "insert into mn_meta_table ("table") values #{vals}"
+    :ok = execute "insert into mn_meta_table (\"table\") values #{vals}"
 
     # create a view showing the latest performance of tasks by workers
     :ok = execute """

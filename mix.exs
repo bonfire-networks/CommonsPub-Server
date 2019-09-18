@@ -71,7 +71,7 @@ defmodule MoodleNet.Mixfile do
       {:cors_plug, "~> 2.0"},
       {:bamboo, "~> 1.2"},
       # FIXME using prod as well for the moment
-      {:faker, "~> 0.11"},
+      {:faker, "~> 0.12"},
       {:recase, "~> 0.2"},
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},

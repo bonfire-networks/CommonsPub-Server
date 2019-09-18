@@ -67,6 +67,8 @@ defmodule MoodleNet.Test.Fake do
   def uuid(), do: unused(&Faker.UUID.v4/0, :uuid)
   @doc "Generates a random url"
   def url(), do: Faker.Internet.url()
+  @doc "Picks a name"
+  def name(), do: Faker.Company.name()
   @doc "Generates a random unique email"
   def email(), do: unused(&Faker.Internet.email/0, :email)
   @doc "Generates a random date of birth based on an age range of 18-99"
@@ -77,20 +79,46 @@ defmodule MoodleNet.Test.Fake do
   def future_date(), do: Faker.Date.forward(300)
   @doc "Picks a datetime up to 300 days in the future, not including today"
   def future_datetime(), do: Faker.DateTime.forward(300)
+  @doc "Generates a random paragraph"
+  def paragraph(), do: Faker.Lorem.paragraph()
+  @doc "Generates random base64 text"
+  def base64(), do: Faker.String.base64()
+
+  # Custom data
+
+  @doc "Picks a summary text paragraph"
+  def summary(), do: paragraph()
+  @doc "Picks an icon url"
+  def icon(), do: Faker.Avatar.image_url()
+  @doc "Picks an image url"
+  def image(), do: Faker.Avatar.image_url()
+  @doc "Picks a fake signing key"
+  def signing_key(), do: base64()
+
+  # Unique data
+
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
-  # @doc "Picks a unique preferred_username"
-  # def preferred_username(), do: unused(
-  
+  @doc "Picks a unique preferred_username"
+  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+
+  # models
+
   def peer(base \\ %{}) do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
   end
 
-  # def actor(base \\ %{}) do
-  #   base
-  #   |> Map.put_new_lazy(:preferred_username, )
-  # end
+  def actor(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
+    |> Map.put_new_lazy(:image, &image/0)
+    |> Map.put_new_lazy(:signing_key, &signing_key/0)
+    |> Map.put_new_lazy(:is_public, &bool/0)
+  end
 
   # def actor_revision(base \\ %{}) do
   #   base

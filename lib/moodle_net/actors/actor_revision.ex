@@ -15,7 +15,7 @@ defmodule MoodleNet.Actors.ActorRevision do
     timestamps(updated_at: false)
   end
 
-  @create_cast ~w(name summary icon image extra)a
+  @create_cast ~w(name summary icon image)a
   @create_required ~w()
 
   def create_changeset(%Actor{} = actor, attrs) do

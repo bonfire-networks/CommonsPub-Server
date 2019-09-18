@@ -4,7 +4,7 @@
 defmodule MoodleNet.Actors.Actor do
 
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Meta.Pointer
@@ -15,19 +15,19 @@ defmodule MoodleNet.Actors.Actor do
   @username_regex ~r([a-zA-Z0-9]+)
 
   meta_schema "mn_actor" do
-    belongs_to :instance, Instance
     belongs_to :peer, MoodleNet.Peers.Peer
     belongs_to :alias, MoodleNet.Meta.Pointer
     has_many :actor_revisions, ActorRevision
     field :preferred_username, :string
     field :signing_key, :string
+    field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
     timestamps()
   end
 
-  @create_cast ~w(preferred_username peer_id signing_key icon image)a
-  @create_required ~w(preferred_username)a
+  @create_cast ~w(peer_id alias_id preferred_username signing_key is_public)a
+  @create_required ~w(preferred_username is_public)a
 
   def create_changeset(%Pointer{id: id}, attrs) do
     %Actor{id: id}
@@ -35,20 +35,17 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.validate_required(@create_required)
     |> Changeset.validate_format(:preferred_username, @username_regex)
     |> Changeset.unique_constraint(:alias_id)
-    |> Changeset.unique_constraint(:preferred_username, name: :mn_actor_preferred_username_instance_key)
+    |> Changeset.unique_constraint(:preferred_username, name: "mn_actor_preferred_username_peer_id_index")
     |> meta_pointer_constraint()
+    |> change_public()
   end
 
-  @update_cast ~w(preferred_username peer_id signing_key icon image)a
-  @update_required ~w(preferred_username)a
+  @update_cast ~w(alias_id signing_key is_public)a
 
   def update_changeset(%Actor{} = actor, attrs) do
     actor
     |> Changeset.cast(attrs, @update_cast)
-    |> Changeset.validate_required(@update_required)
-    |> Changeset.validate_format(:preferred_username, @username_regex)
     |> Changeset.unique_constraint(:alias_id)
-    |> Changeset.unique_constraint([:preferred_username, :peer_id])
     |> meta_pointer_constraint()
   end
 

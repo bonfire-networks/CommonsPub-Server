@@ -101,7 +101,7 @@ defmodule MoodleNet.Meta do
       do: throw NotInTransactionError.new(table)
       
     table
-    |> point_changeset()
+    |> pointer_changeset()
     |> Repo.insert()
     |> point_to_result()
   end
@@ -109,7 +109,7 @@ defmodule MoodleNet.Meta do
   defp point_to_result({:ok, v}), do: v
   defp point_to_result({:error, e}), do: throw PointerInsertError.new(e)
 
-  defp point_changeset(table),
+  def pointer_changeset(table),
     do: Pointer.changeset(TableService.lookup_id!(table))
 
   @doc """

@@ -18,12 +18,13 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Comments.Comment
   alias MoodleNet.Common.{
     Flag,
+    Like,
     NotInTransactionError,
   }    
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
 
-  @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Flag]
+  @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Flag, Like]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
   @expected_table_names Enum.sort(@known_tables)
@@ -78,7 +79,7 @@ defmodule MoodleNet.MetaTest do
       assert catch_throw(Meta.point_to!("mn_peer")) == expected_error
     end
 
-    test "pointer! inserts a pointer when in a transaction" do
+    test "point_to! inserts a pointer when in a transaction" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       Repo.transaction fn ->
 	%Pointer{} = ptr = Meta.point_to!("mn_peer")
@@ -89,7 +90,7 @@ defmodule MoodleNet.MetaTest do
       end
     end
 
-    test "following pointers - peers" do
+    test "follow! follows pointers" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       Repo.transaction fn ->
 	assert peer = fake_peer!()

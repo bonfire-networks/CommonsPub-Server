@@ -32,10 +32,10 @@ defmodule MoodleNet.Common.Changeset do
       {{:ok, true}, {:data, value}} when not is_nil(value) -> changeset
 
       {{:ok, true}, _} ->
-	Changeset.change(changeset, timestamp_field, DateTime.utc_now())
+	Changeset.change(changeset, [{timestamp_field, DateTime.utc_now()}])
 
       {{:ok, false}, {:data, value}} when not is_nil(value) ->
-	Changeset.change(changeset, timestamp_field, nil)
+	Changeset.change(changeset, [{timestamp_field, nil}])
 
 	_ -> changeset
     end
