@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
-  alias MoodleNet.Meta
-  alias MoodleNet.Peers
-  alias MoodleNet.Repo
+  alias MoodleNet.{Meta,Peers,Repo}
+  alias MoodleNet.Peers.Peer
   
-  def fake_peer!(overrides \\ %{}) when is_map(overrides),
-    do: Peers.create!(Fake.peer(overrides))
+  def fake_peer!(overrides \\ %{}) when is_map(overrides) do
+    pointer = Meta.point_to!(Peer)
+    {:ok, peer} = Peers.create(pointer, Fake.peer(overrides))
+    peer
+  end
   
 end

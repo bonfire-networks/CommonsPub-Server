@@ -77,20 +77,57 @@ defmodule MoodleNet.Test.Fake do
   def future_date(), do: Faker.Date.forward(300)
   @doc "Picks a datetime up to 300 days in the future, not including today"
   def future_datetime(), do: Faker.DateTime.forward(300)
-  @doc "Picks a random gender from a (woefully short) list"
-  def gender(), do: Faker.Util.pick(["Male", "Female", "Other", "Prefer not to say"])
+  @doc "Picks a unique random url for an ap endpoint"
+  def ap_url_base(), do: unused(&url/0, :ap_url_base)
+  # @doc "Picks a unique preferred_username"
+  # def preferred_username(), do: unused(
   
-
-  def peer(overrides \\ %{}) do
-    overrides
-    |> Map.put_new_lazy(:ap_url_base, &url/0)
+  def peer(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
   end
 
+  # def actor(base \\ %{}) do
+  #   base
+  #   |> Map.put_new_lazy(:preferred_username, )
+  # end
 
+  # def actor_revision(base \\ %{}) do
+  #   base
+  # end
 
-  # def user()
-  # def community(owner)
-  # def collection(community)
+  # def user(base \\ %{}) do
+  #   base
+  # end
+
+  # def community(base \\ %{}) do
+  #   base
+  # end
+
+  # def collection(base \\ %{}) do
+  #   base
+  # end
+
+  # def resource(base \\ %{}) do
+  #   base
+  # end
+
+  # def resource_revision(base \\ %{}) do
+  #   base
+  # end
+
+  # def thread(base \\ %{}) do
+  #   base
+  # end
+
+  # def comment(base \\ %{}) do
+  #   base
+  # end
+
+  # def community_role(base \\ %{}) do
+  #   base
+  # end
+
   # def
 
   # Support for `unused/3`
