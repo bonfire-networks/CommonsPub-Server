@@ -10,14 +10,16 @@ defmodule MoodleNet.MetaTest do
     Table,
     TableService,
     TableNotFoundError,
-    NotInTransactionError,
   }
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Comments.Comment
-  alias MoodleNet.Common.Flag
+  alias MoodleNet.Common.{
+    Flag,
+    NotInTransactionError,
+  }    
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
 
@@ -71,15 +73,15 @@ defmodule MoodleNet.MetaTest do
   end
 
   describe "MoodleNet.Meta." do
-    test "pointer! throws when not in a transaction" do
+    test "point_to! throws when not in a transaction" do
       expected_error = %NotInTransactionError{cause: "mn_peer"} 
-      assert catch_throw(Meta.point!("mn_peer")) == expected_error
+      assert catch_throw(Meta.point_to!("mn_peer")) == expected_error
     end
 
     test "pointer! inserts a pointer when in a transaction" do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       Repo.transaction fn ->
-	%Pointer{} = ptr = Meta.point!("mn_peer")
+	%Pointer{} = ptr = Meta.point_to!("mn_peer")
 	assert ptr.table_id == TableService.lookup_id!("mn_peer")
 	assert ptr.__meta__.state == :loaded
 	assert ptr2 = Meta.find!(ptr.id)
