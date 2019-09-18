@@ -7,9 +7,11 @@ defmodule MoodleNet.Common do
   import ActivityPub.Guards
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.{Policy,Repo}
+  alias MoodleNet.Common.DeletionError
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   import Ecto.Query
   alias ActivityPub.Activities
+  alias MoodleNet.Common.Changeset
 
   ### pagination
 
@@ -101,5 +103,31 @@ defmodule MoodleNet.Common do
     do: where(query, [f], f.open == ^open)
 
   defp filter_open(query, _), do: query
+
+  ## Deletion
+
+  @spec soft_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
+  @doc "Marks an entry as deleted in the database"
+  def soft_delete(it), do: deletion_result(do_soft_delete(it))
+
+  @spec soft_delete!(any()) :: any()
+  @doc "Marks an entry as deleted in the database or throws a DeletionError"
+  def soft_delete!(it), do: deletion_result!(do_soft_delete(it))
+
+  defp do_soft_delete(it), do: Repo.update(Changeset.soft_delete_changeset(it))
+
+  @spec hard_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
+  @doc "Deletes an entry from the database"
+  def hard_delete(it), do: deletion_result(Repo.delete(it))
+
+  @spec hard_delete!(any()) :: any()
+  @doc "Deletes an entry from the database, or throws a DeletionError"
+  def hard_delete!(it), do: deletion_result!(Repo.delete(it))
+
+  defp deletion_result({:error, e}), do: {:error, DeletionError.new(e)}
+  defp deletion_result(other), do: other
+
+  defp deletion_result!({:ok, val}), do: val
+  defp deletion_result!({:error, e}), do: throw DeletionError.new(e)
 
 end
