@@ -1,11 +1,8 @@
 defmodule MoodleNet.Comments.Comment do
 
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
 
-  @primary_key {:id, :binary_id, autogenerate: false}
-  @foreign_key :binary_id
-  @timestamps_opts [type: :utc_datetime_usec]
-  schema "mn_comment" do
+  meta_schema "mn_comment" do
   end
 
 end
