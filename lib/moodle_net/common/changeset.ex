@@ -12,12 +12,12 @@ defmodule MoodleNet.Common.Changeset do
     do: Changeset.foreign_key_constraint(changeset, :id)
 
   @doc "Creates a changest for deleting an entity"
-  def soft_delete_changeset(it),
-    do: Changeset.change(it, deleted_at: DateTime.utc_now())
+  def soft_delete_changeset(it, column \\ :deleted_at),
+    do: Changeset.change(it, {column, DateTime.utc_now()})
 
   @doc "Keeps published_at in accord with is_public"
   def change_public(%Changeset{}=changeset),
-    do: change_timestamp(changeset, :is_public, :published_at)
+    do: change_synced_timestamp(changeset, :is_public, :published_at)
 
   @doc """
   If a changeset includes a change to `bool`, we ensure that the
@@ -25,7 +25,7 @@ defmodule MoodleNet.Common.Changeset do
   means setting it to now if it is null and in the case of false, this
   means setting it to null if it is not null.
   """
-  def change_timestamp(changeset, bool_field, timestamp_field) do
+  def change_synced_timestamp(changeset, bool_field, timestamp_field) do
     bool_val = Changeset.fetch_change(changeset, bool_field)
     timestamp_val = Changeset.fetch_field(changeset, timestamp_field)
     case {bool_val, timestamp_val} do
