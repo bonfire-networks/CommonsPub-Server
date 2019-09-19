@@ -124,10 +124,10 @@ defmodule MoodleNet.Common do
   @doc "Deletes an entry from the database, or throws a DeletionError"
   def hard_delete!(it), do: deletion_result!(Repo.delete(it))
 
-  defp deletion_result({:error, e}), do: {:error, DeletionError.new(e)}
-  defp deletion_result(other), do: other
+  def deletion_result({:error, e}), do: {:error, DeletionError.new(e)}
+  def deletion_result(other), do: other
 
-  defp deletion_result!({:ok, val}), do: val
-  defp deletion_result!({:error, e}), do: throw DeletionError.new(e)
+  def deletion_result!({:ok, val}), do: val
+  def deletion_result!({:error, e}), do: throw DeletionError.new(e)
 
 end

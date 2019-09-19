@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Whitelist.RegisterEmailWhitelist do
+defmodule MoodleNet.Whitelists.RegisterEmailWhitelist do
   @moduledoc """
   A simple standalone schema listing email addresses which are
   permitted to register a MoodleNet account while public signup is
@@ -10,7 +10,7 @@ defmodule MoodleNet.Whitelist.RegisterEmailWhitelist do
 
   use MoodleNet.Common.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Whitelist.RegisterEmailWhitelist
+  alias MoodleNet.Whitelists.RegisterEmailWhitelist
 
   @email_regexp ~r/.+\@.+\..+/
 
