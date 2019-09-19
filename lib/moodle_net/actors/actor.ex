@@ -18,6 +18,7 @@ defmodule MoodleNet.Actors.Actor do
     belongs_to :peer, MoodleNet.Peers.Peer
     belongs_to :alias, MoodleNet.Meta.Pointer
     has_many :actor_revisions, ActorRevision
+    field :latest_revision, :any, virtual: true
     field :preferred_username, :string
     field :signing_key, :string
     field :is_public, :boolean, virtual: true
@@ -48,5 +49,4 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.unique_constraint(:alias_id)
     |> meta_pointer_constraint()
   end
-
 end
