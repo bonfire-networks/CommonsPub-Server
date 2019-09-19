@@ -7,6 +7,7 @@ defmodule MoodleNet.Users do
   """
   alias MoodleNet.Common
   alias MoodleNet.Repo
+  alias MoodleNet.Actors
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Users.{User, UserFlag}
   alias MoodleNet.Meta
@@ -16,41 +17,16 @@ defmodule MoodleNet.Users do
   1. Splits attrs into actor and user fields
   2. Creates actor, user
   """
-  def register(attrs \\ %{}) do
-    user_changeset = User.register_changeset(%User{}, attrs)
-
-    user_keys =
-      user_changeset.changes
-      |> Map.keys()
-      |> Enum.map(&Atom.to_string/1)
-
-    pointer_changeset = Meta.pointer_changeset(User)
-
-    Ecto.Multi.new()
-    |> Ecto.Multi.insert(:pointer, pointer_changeset)
+  def register(multi \\ Multi.new(), attrs \\ %{}) do
+    multi
+    |> Ecto.Multi.insert(:pointer, Meta.pointer_changeset(User))
     |> Ecto.Multi.run(:user, fn repo, %{pointer: pointer} ->
-      user_changeset
+      %User{}
+      |> User.register_changeset(attrs)
       |> Ecto.Changeset.put_change(:id, pointer.id)
       |> repo.insert()
     end)
-    |> Ecto.Multi.run(:actor, fn repo, %{user: user} ->
-      actor_attrs = Map.drop(attrs, user_keys)
-
-      user.id
-      |> Actor.create_changeset(actor_attrs)
-      |> repo.insert()
-    end)
-    |> Ecto.Multi.run(:actor_revision, fn repo, %{actor: actor} ->
-      revision_keys =
-        actor
-        |> Map.keys()
-        |> Enum.map(&Atom.to_string/1)
-
-      revision_attrs = Map.drop(attrs, user_keys ++ revision_keys)
-
-      ActorRevision.create_changeset(actor, revision_attrs)
-      |> repo.insert()
-    end)
+    |> Actors.create(attrs)
     |> Repo.transaction()
   end
 

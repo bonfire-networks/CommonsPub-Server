@@ -81,5 +81,4 @@ defmodule MoodleNet.Actors do
     do: {:ok, Map.fetch!(changes, :actor)}
 
   defp parse_actor_changes({:error, _, changeset, _}), do: {:error, changeset}
-
 end
