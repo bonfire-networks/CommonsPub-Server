@@ -19,4 +19,18 @@ defmodule MoodleNet.Repo do
   def init(_, opts) do
     {:ok, Keyword.put(opts, :url, System.get_env("DATABASE_URL"))}
   end
+
+  @doc """
+  Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
+  tuple. If an error tuple is returned, the transaction is aborted.
+  """
+  @spec transact_with(fun :: (-> {:ok, any()} | {:error, any()})) :: {:ok, any()} | {:error, any()}
+  def transact_with(fun) do
+    transaction(fn ->
+      case fun.() do
+        {:ok, v} -> v
+        {:error, reason} -> rollback(reason)
+      end
+    end)
+  end
 end

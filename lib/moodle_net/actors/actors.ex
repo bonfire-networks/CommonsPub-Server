@@ -16,46 +16,26 @@ defmodule MoodleNet.Actors do
   alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
-  @attrs ~w(is_public)
-  def attrs(attrs), do: Map.take(attrs, @attrs)
-
-
   @spec create(attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
-  @spec create(multi :: Multi.t, attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
-  def create(multi \\ Multi.new(), attrs) when is_map(attrs) do
-    create_multi(multi, attrs)
-    |> Repo.transaction()
-    |> parse_actor_changes()
-  end
+  def create(attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      actor_pointer = Meta.point_to!(Actor)
 
-  @spec create_multi(attrs :: map) :: Multi.t
-  @spec create_multi(multi :: Multi.t, attrs :: map) :: Multi.t
-  def create_multi(multi \\ Multi.new(), attrs) when is_map(attrs) do
-    multi
-    |> Ecto.Multi.insert(:actor_pointer, Meta.pointer_changeset(Actor))
-    |> Ecto.Multi.run(:actor, fn repo, ctx ->
-      repo.insert(Actor.create_changeset(ctx.actor_pointer, attrs))
-    end)
-    |> Ecto.Multi.run(:actor_revision, fn repo, ctx ->
-      insert_revision(repo, ctx.actor, attrs)
+      with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)),
+           {:ok, _} <- insert_revision(actor, attrs) do
+        {:ok, actor}
+      end
     end)
   end
 
   @spec update(actor :: Actor.t, attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
-  @spec update(multi :: Multi.t, actor :: Actor.t, attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
-  def update(multi \\ Multi.new(), %Actor{} = actor, attrs) when is_map(attrs) do
-    multi
-    |> update_multi(actor, attrs)
-    |> Repo.transaction()
-    |> parse_actor_changes()
-  end
-
-  @spec update_multi(actor :: Actor.t, attrs :: map) :: Multi.t
-  @spec update_multi(multi :: Multi.t, actor :: Actor.t, attrs :: map) :: Multi.t
-  def update_multi(multi \\ Multi.new(), %Actor{} = actor, attrs) when is_map(attrs) do
-    multi
-    |> Ecto.Multi.update(:actor, Actor.update_changeset(actor, attrs))
-    |> Ecto.Multi.run(:actor_revision, fn repo, ctx -> insert_revision(repo, ctx.actor, attrs) end)
+  def update(%Actor{} = actor, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)),
+           {:ok, _} <- insert_revision(actor, attrs) do
+        {:ok, actor}
+      end
+    end)
   end
 
   @spec delete(actor :: Actor.t) :: {:ok, Actor.t} | {:error, term}
@@ -64,7 +44,7 @@ defmodule MoodleNet.Actors do
     Repo.delete(actor)
   end
 
-  defp insert_revision(repo, actor, attrs) do
+  defp insert_revision(actor, attrs) do
     actor_keys =
       actor
       |> Map.keys()
@@ -74,11 +54,6 @@ defmodule MoodleNet.Actors do
 
     actor
     |> ActorRevision.create_changeset(revision_attrs)
-    |> repo.insert()
+    |> Repo.insert()
   end
-
-  defp parse_actor_changes({:ok, changes}),
-    do: {:ok, Map.fetch!(changes, :actor)}
-
-  defp parse_actor_changes({:error, _, changeset, _}), do: {:error, changeset}
 end
