@@ -17,23 +17,25 @@ defmodule MoodleNet.Users do
   1. Splits attrs into actor and user fields
   2. Creates actor, user
   """
-  def register(multi \\ Multi.new(), attrs \\ %{}) do
-    multi
-    |> Ecto.Multi.insert(:pointer, Meta.pointer_changeset(User))
-    |> Ecto.Multi.run(:user, fn repo, %{pointer: pointer} ->
+  def register(attrs \\ %{}) do
+    Repo.transact_with(fn ->
+      pointer = Meta.point_to!(User)
+
       %User{}
       |> User.register_changeset(attrs)
       |> Ecto.Changeset.put_change(:id, pointer.id)
-      |> repo.insert()
+      |> Repo.insert()
     end)
-    |> Actors.create(attrs)
-    |> Repo.transaction()
   end
 
   @doc """
-  Update a User, RemoteUser or LocalUser
+  Verify a user, allowing them to access their account and creating the relevant
+  relations (i.e. Actors).
   """
-  def update(user, changes) do
+  def verify(%User{} = user) do
+  end
+
+  def update() do
   end
 
   @doc """
