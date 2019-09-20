@@ -93,6 +93,15 @@ defmodule MoodleNet.Meta do
     |> point_to_result()
   end
 
+  @doc """
+  Create a pointer using a structure that participates in the meta abstraction.
+  """
+  @spec forge!(%{__struct__: atom, id: binary}) :: %Pointer{}
+  def forge!(%{__struct__: table_id, id: id} = pointed) do
+    table = TableService.lookup!(table_id)
+    %Pointer{id: id, table: table, table_id: table.id, pointed: pointed}
+  end
+
   defp point_to_result({:ok, v}), do: v
   defp point_to_result({:error, e}), do: throw PointerInsertError.new(e)
 
