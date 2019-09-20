@@ -71,6 +71,8 @@ defmodule MoodleNet.Test.Fake do
   def name(), do: Faker.Company.name()
   @doc "Generates a random unique email"
   def email(), do: unused(&Faker.Internet.email/0, :email)
+  @doc "Generates a random password string"
+  def password(), do: base64()
   @doc "Generates a random date of birth based on an age range of 18-99"
   def date_of_birth(), do: Faker.Date.date_of_birth(18..99)
   @doc "Picks a date up to 300 days in the past, not including today"
@@ -124,9 +126,13 @@ defmodule MoodleNet.Test.Fake do
   #   base
   # end
 
-  # def user(base \\ %{}) do
-  #   base
-  # end
+  def user(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:email, &email/0)
+    |> Map.put_new_lazy(:password, &password/0)
+    |> Map.put_new_lazy(:wants_email_digest, &bool/0)
+    |> Map.put_new_lazy(:wants_notifications, &bool/0)
+  end
 
   # def community(base \\ %{}) do
   #   base

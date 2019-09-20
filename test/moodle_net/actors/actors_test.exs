@@ -42,8 +42,10 @@ defmodule MoodleNet.ActorsTest do
 
   describe "create_with_alias" do
     test "creates a new actor with an alias set" do
-      assert {:ok, actor_alias} = Actors.create(Fake.actor())
-      assert {:ok, _} = Actors.create_with_alias(actor_alias.id, Fake.actor())
+      Repo.transaction(fn ->
+        assert {:ok, actor_alias} = Actors.create(Fake.actor())
+        assert {:ok, _} = Actors.create_with_alias(actor_alias.id, Fake.actor())
+      end)
     end
   end
 
