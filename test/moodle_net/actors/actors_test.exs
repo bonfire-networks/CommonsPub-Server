@@ -4,8 +4,7 @@
 defmodule MoodleNet.ActorsTest do
   use MoodleNet.DataCase, async: true
 
-  alias MoodleNet.{Actors, Meta, Repo}
-  alias MoodleNet.Actors.Actor
+  alias MoodleNet.{Actors, Repo}
   alias MoodleNet.Test.Fake
 
   def assert_actor_equal(actor, attrs) do
@@ -38,6 +37,13 @@ defmodule MoodleNet.ActorsTest do
         assert {:error, changeset} = Actors.create(invalid_attrs)
         assert Keyword.get(changeset.errors, :preferred_username)
       end
+    end
+  end
+
+  describe "create_with_alias" do
+    test "creates a new actor with an alias set" do
+      assert {:ok, actor_alias} = Actors.create(Fake.actor())
+      assert {:ok, _} = Actors.create_with_alias(actor_alias.id, Fake.actor())
     end
   end
 

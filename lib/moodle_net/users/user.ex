@@ -6,17 +6,19 @@ defmodule MoodleNet.Users.User do
   User model
   """
   use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_user" do
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    field :confirmed_at, :utc_datetime
-    field :wants_email_digest, :boolean
-    field :wants_notifications, :boolean
+    field(:email, :string)
+    field(:password, :string, virtual: true)
+    field(:password_hash, :string)
+    field(:confirmed_at, :utc_datetime)
+    field(:wants_email_digest, :boolean)
+    field(:wants_notifications, :boolean)
     timestamps()
   end
 
@@ -26,22 +28,23 @@ defmodule MoodleNet.Users.User do
   @register_required_attrs ~w(email password wants_email_digest wants_notifications)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%User{}=user, attrs) do
-    user
+  def register_changeset(%Pointer{id: id}, attrs) do
+    %User{id: id}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)
     |> Changeset.validate_format(:email, @email_regexp)
     |> Changeset.unique_constraint(:email)
-    |> Changeset.foreign_key_constraint(:user_id)
     |> Changeset.validate_length(:password, min: 6)
+    |> meta_pointer_constraint()
     |> hash_password()
     |> lower_case_email()
   end
 
   @doc "Create a changeset for confirming an email"
   def confirm_email_changeset(%__MODULE__{} = user) do
-    Changeset.change user,
+    Changeset.change(user,
       confirmed_at: DateTime.truncate(DateTime.utc_now(), :second)
+    )
   end
 
   # internals

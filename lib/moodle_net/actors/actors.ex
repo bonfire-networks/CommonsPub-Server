@@ -16,7 +16,7 @@ defmodule MoodleNet.Actors do
   alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
-  @spec create(attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
+  @spec create(attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       actor_pointer = Meta.point_to!(Actor)
@@ -28,7 +28,19 @@ defmodule MoodleNet.Actors do
     end)
   end
 
-  @spec update(actor :: Actor.t, attrs :: map) :: {:ok, Actor.t} :: {:error, Changeset.t}
+  @spec create_with_alias(alias_id :: binary, attrs :: map) ::
+          {:ok, Actor.t()} :: {:error, Changeset.t()}
+  def create_with_alias(alias_id, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- create(attrs) do
+        actor
+        |> Changeset.change(alias_id: alias_id)
+        |> Repo.update()
+      end
+    end)
+  end
+
+  @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
   def update(%Actor{} = actor, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)),
@@ -38,7 +50,7 @@ defmodule MoodleNet.Actors do
     end)
   end
 
-  @spec delete(actor :: Actor.t) :: {:ok, Actor.t} | {:error, term}
+  @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor) do
     # should cascade delete
     Repo.delete(actor)

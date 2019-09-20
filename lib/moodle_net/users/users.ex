@@ -11,19 +11,18 @@ defmodule MoodleNet.Users do
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Users.{User, UserFlag}
   alias MoodleNet.Meta
+  alias Ecto.Changeset
 
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
   2. Creates actor, user
   """
-  def register(attrs \\ %{}) do
+  @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
+  def register(attrs) do
     Repo.transact_with(fn ->
-      pointer = Meta.point_to!(User)
-
-      %User{}
+      Meta.point_to!(User)
       |> User.register_changeset(attrs)
-      |> Ecto.Changeset.put_change(:id, pointer.id)
       |> Repo.insert()
     end)
   end
@@ -32,7 +31,13 @@ defmodule MoodleNet.Users do
   Verify a user, allowing them to access their account and creating the relevant
   relations (i.e. Actors).
   """
-  def verify(%User{} = user) do
+  def verify(%User{} = user, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- Repo.update(User.confirm_email_changeset(user)),
+           {:ok, actor} <- Actors.create_with_alias(user.id, attrs) do
+        {:ok, user}
+      end
+    end)
   end
 
   def update() do
