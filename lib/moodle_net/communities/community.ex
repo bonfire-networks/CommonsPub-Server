@@ -25,7 +25,7 @@ defmodule MoodleNet.Communities.Community do
     timestamps()
   end
 
-  @create_cast ~w(creator_id primary_language_id is_public)
+  @create_cast ~w(creator_id primary_language_id is_public)a
   @create_required @create_cast
 
   def create_changeset(%Pointer{id: id}=pointer, fields) do
@@ -37,8 +37,8 @@ defmodule MoodleNet.Communities.Community do
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(primary_language_id is_public)
-  @update_required @update_cast
+  @update_cast ~w(primary_language_id is_public)a
+  @update_required ~w()a
 
   def update_changeset(%Community{}=community, fields) do
     community

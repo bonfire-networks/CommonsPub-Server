@@ -15,7 +15,7 @@ defmodule MoodleNet.Peers.Peer do
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.Peer
-  
+
   meta_schema "mn_peer" do
     field :ap_url_base, :string
     field :deleted_at, :utc_datetime_usec
@@ -26,7 +26,7 @@ defmodule MoodleNet.Peers.Peer do
   @create_required @create_cast
 
   @update_cast ~w(ap_url_base)a
-  @update_required @update_cast
+  @update_required ~w()a
 
   def create_changeset(%Pointer{id: id}=pointer, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)

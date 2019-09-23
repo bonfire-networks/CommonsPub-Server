@@ -5,30 +5,45 @@
 
 defmodule MoodleNet.Collections.Collection do
   use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.{Collection, Thread}
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_collection" do
-    field :public, :boolean
-    field :icon, :string # todo: reference the images table when we have one
-    field :primary_language, :string
-    belongs_to :creator, User
-    belongs_to :collection, Community
-    has_many :threads, Thread
+    belongs_to(:creator, Actor)
+    belongs_to(:primary_language, Language)
+    belongs_to(:community, Community)
+    has_many(:resources, Resource)
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
     timestamps()
   end
 
-  @required_attrs [:local, :name, :preferred_username, :summary, :primary_language]
-  @optional_attrs []
-  @cast_attrs @required_attrs ++ @optional_attrs
-  
-  def changeset(collection \\ %Collection{}, attrs)
-  def changeset(%Collection{}=collection, attrs) when is_map(attrs) do
-    collection
-    |> Changeset.cast(attrs, @cast_attrs)
-    |> Changeset.validate_required(@required_attrs)
+  @create_cast ~w(community_id creator_id primary_language_id is_public)a
+  @create_required @create_cast
+
+  @update_cast ~w(primary_language_id is_public)a
+  @update_required ~w()a
+
+  def create_changeset(%Pointer{id: id} = pointer, attrs) do
+    Meta.assert_points_to!(pointer, __MODULE__)
+
+    %Collection{id: id}
+    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.validate_required(@create_required)
+    |> change_public()
+    |> meta_pointer_constraint()
   end
 
+  def update_changeset(%Collection{} = collection, attrs) do
+    collection
+    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.validate_required(@update_required)
+    |> change_public()
+    |> meta_pointer_constraint()
+  end
 end
