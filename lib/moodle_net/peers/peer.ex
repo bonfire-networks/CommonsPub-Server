@@ -33,8 +33,8 @@ defmodule MoodleNet.Peers.Peer do
     %Peer{id: id}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
+    |> validate_http_url(:ap_url_base)
     |> meta_pointer_constraint()
-    # |> validate_http_url(:ap_url_base)
   end
 
   def update_changeset(%Peer{}=peer, fields) do
@@ -43,17 +43,18 @@ defmodule MoodleNet.Peers.Peer do
     |> Changeset.validate_required(@update_required)
     |> meta_pointer_constraint()
   end
-  
-  # TODO
-  def validate_http_url(changeset, _field), do: changeset
-    # case Changeset.fetch_change(changeset, field) do
-    #   {:ok, change} ->
-    # 	case URI.parse
-    # end
-  # TODO
-  # defp parse_http_url(url) when is_binary(url) do
-  #   uri = URI.parse(url)
-  #   valid = (uri.scheme in ["http", "https"]) && not is_nil(uri.host)
-  #   && not is_nil(uri.path)
-  # end
+
+  defp validate_http_url(changeset, field) do
+    Changeset.validate_change(changeset, field, fn ^field, url ->
+      if valid_http_uri?(URI.parse(url)) do
+        []
+      else
+        [{field, "has an invalid URL format"}]
+      end
+    end)
+  end
+
+  defp valid_http_uri?(%URI{scheme: scheme, host: host, path: path}) do
+    scheme in ["http", "https"] && not is_nil(host) && not is_nil(path)
+  end
 end
