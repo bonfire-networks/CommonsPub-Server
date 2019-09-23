@@ -10,6 +10,7 @@ defmodule MoodleNet.Users.User do
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_user" do
@@ -28,7 +29,8 @@ defmodule MoodleNet.Users.User do
   @register_required_attrs ~w(email password wants_email_digest wants_notifications)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%Pointer{id: id}, attrs) do
+  def register_changeset(%Pointer{id: id} = pointer, attrs) do
+    Meta.assert_points_to!(pointer, __MODULE__)
     %User{id: id}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)

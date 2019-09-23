@@ -7,6 +7,7 @@ defmodule MoodleNet.Actors.Actor do
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorRevision}
+  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   alias MoodleNet.Peers.Peer
@@ -30,7 +31,8 @@ defmodule MoodleNet.Actors.Actor do
   @create_cast ~w(peer_id alias_id preferred_username signing_key is_public)a
   @create_required ~w(preferred_username is_public)a
 
-  def create_changeset(%Pointer{id: id}, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, attrs) do
+    Meta.assert_points_to!(pointer, __MODULE__)
     %Actor{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
