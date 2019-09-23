@@ -160,6 +160,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # a collection is a group actor that is home to resources
     create table(:mn_collection, primary_key: false) do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+      add :community_id, references("mn_community", on_delete: :delete_all), null: false
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
       add :published_at, :timestamptz

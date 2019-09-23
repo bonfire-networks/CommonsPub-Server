@@ -13,29 +13,28 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
-  
+
   meta_schema "mn_community" do
     belongs_to :creator, User
     belongs_to :primary_language, Language
-    field :is_published, :boolean, virtual: true
+    field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
     has_many :collections, Collection
-    has_many :threads, Thread
-    # has_many :members, Member
+    has_many :flags, Flag
     timestamps()
   end
 
-  @create_cast ~w(peer_id creator_id primary_language_id is_public)
+  @create_cast ~w(creator_id primary_language_id is_public)
   @create_required @create_cast
-  
+
   def create_changeset(%Pointer{id: id}=pointer, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)
     %Community{id: id}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
-    |> Changeset.unique_constraint(:preferred_username)
     |> change_public()
+    |> meta_pointer_constraint()
   end
 
   @update_cast ~w(primary_language_id is_public)
@@ -45,8 +44,8 @@ defmodule MoodleNet.Communities.Community do
     community
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
-    |> Changeset.unique_constraint(:preferred_username)
     |> change_public()
+    |> meta_pointer_constraint()
   end
 
 end
