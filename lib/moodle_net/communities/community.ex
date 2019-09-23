@@ -11,7 +11,6 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
 
   meta_schema "mn_community" do
@@ -47,5 +46,4 @@ defmodule MoodleNet.Communities.Community do
     |> change_public()
     |> meta_pointer_constraint()
   end
-
 end
