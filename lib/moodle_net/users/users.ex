@@ -25,7 +25,11 @@ defmodule MoodleNet.Users do
       |> User.register_changeset(attrs)
       |> Repo.insert()
     end)
+    |> register_result()
   end
+
+  defp register_result({:ok, user}), do: {:ok, Map.put(user, :password, nil)}
+  defp register_result(other), do: other
 
   @doc """
   Verify a user, allowing them to access their account and creating the relevant
