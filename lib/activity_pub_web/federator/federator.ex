@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Federator do
-  alias ActivityPub.Adapter
+  alias ActivityPub.Actor
   alias ActivityPub.Utils
   alias ActivityPubWeb.Federator.Publisher
   alias ActivityPubWeb.Transmogrifier
@@ -22,7 +22,7 @@ defmodule ActivityPubWeb.Federator do
   def perform(:publish, activity) do
     Logger.debug(fn -> "Running publish for #{activity["id"]}" end)
 
-    with {:ok, actor} <- Adapter.get_actor_by_ap_id(activity.data["actor"]),
+    with {:ok, actor} <- Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, actor} <- Utils.ensure_keys_present(actor) do
       Publisher.publish(actor, activity)
     end

@@ -79,7 +79,7 @@ defmodule ActivityPub.Utils do
             activity.data,
             ^followed_id
           ),
-        order_by: [fragment("? desc nulls last", activity.id)],
+        order_by: [fragment("? desc nulls last", activity.inserted_at)],
         limit: 1
       )
 

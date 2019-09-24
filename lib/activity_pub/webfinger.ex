@@ -5,7 +5,6 @@
 
 defmodule ActivityPub.WebFinger do
   alias ActivityPub.Actor
-  alias ActivityPub.Adapter
   alias ActivityPub.HTTP
   alias ActivityPubWeb.Federator.Publisher
 
