@@ -7,6 +7,7 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Meta.{
     Pointer,
+    PointerNotFoundError,
     Table,
     TableService,
     TableNotFoundError,
@@ -27,6 +28,7 @@ defmodule MoodleNet.MetaTest do
   @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Flag, Like]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
+  @schema_tables Map.new(Enum.zip(@known_schemas, @known_tables))
   @expected_table_names Enum.sort(@known_tables)
 
   describe "MoodleNet.Meta.TableService" do
@@ -74,6 +76,7 @@ defmodule MoodleNet.MetaTest do
   end
 
   describe "MoodleNet.Meta.point_to!" do
+
     test "throws when not in a transaction" do
       expected_error = %NotInTransactionError{cause: "mn_peer"} 
       assert catch_throw(Meta.point_to!("mn_peer")) == expected_error
@@ -91,14 +94,110 @@ defmodule MoodleNet.MetaTest do
     end
   end
 
-  describe "MoodleNet.Meta." do
+  describe "MoodleNet.Meta.forge!" do
 
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       {:ok, %{}}
     end
 
-    test "follow follows pointers" do
+    test "forges a pointer for a peer" do
+      peer = fake_peer!()
+      pointer = Meta.forge!(peer)
+      assert pointer.id == peer.id
+      assert pointer.pointed == peer
+      assert pointer.table_id == pointer.table.id
+      assert pointer.table.table == "mn_peer"
+    end
+
+    test "forges a pointer for an actor" do
+      actor = fake_actor!()
+      pointer = Meta.forge!(actor)
+      assert pointer.id == actor.id
+      assert pointer.pointed == actor
+      assert pointer.table_id == pointer.table.id
+      assert pointer.table.table == "mn_actor"
+    end
+
+    test "forges a pointer for a user" do
+      user = fake_user!()
+      pointer = Meta.forge!(user)
+      assert pointer.id == user.id
+      assert pointer.pointed == user
+      assert pointer.table_id == pointer.table.id
+      assert pointer.table.table == "mn_user"
+    end
+
+    # TODO: others
+    # @tag :skip
+    # test "forges a pointer for a " do
+    # end
+
+    test "throws TableNotFoundError when given a non-meta table" do
+      table = %Table{table: "power_of_greyskull"}
+      assert %TableNotFoundError{table: Table} ==
+	catch_throw(Meta.forge!(table))
+    end
+  end
+
+  describe "MoodleNet.Meta.points_to!" do
+
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      {:ok, %{}}
+    end
+
+    test "returns the Table the Pointer points to" do
+      assert user = fake_user!()
+      assert pointer = Meta.forge!(user)
+      assert user_table = TableService.lookup!(User)
+      assert table = Meta.points_to!(pointer)
+      assert table == user_table
+    end
+
+    test "throws a TableNotFoundError if the Pointer doesn't point to a known table" do
+      pointer = %Pointer{id: 123, table_id: 999}
+      assert %TableNotFoundError{table: 999} =
+        catch_throw(Meta.points_to!(pointer))
+    end
+
+  end
+
+  describe "MoodleNet.Meta.assert_points_to!" do
+
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      {:ok, %{}}
+    end
+
+    test "returns :ok if the Pointer points to the correct table" do
+      assert user = fake_user!()
+      assert pointer = Meta.forge!(user)
+      assert :ok == Meta.assert_points_to!(pointer, User)
+    end
+
+    test "throws an error if the Pointer points to the wrong table" do
+      assert user = fake_user!()
+      assert pointer = Meta.forge!(user)
+      assert :ok == Meta.assert_points_to!(pointer, User)
+    end
+
+    test "throws an error if the input isn't a known table name" do
+      pointer = %Pointer{id: 123, table_id: :bibbity_bobbity_boo}
+      assert %TableNotFoundError{table: :bibbity_bobbity_boo} =
+        catch_throw(Meta.assert_points_to!(pointer, :bibbity_bobbity_boo))
+    end
+
+  end
+
+  describe "MoodleNet.Meta.follow" do
+
+    setup do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
+      {:ok, %{}}
+    end
+
+    test "follows pointers" do
       Repo.transaction fn ->
 	assert peer = fake_peer!()
 	assert pointer = Meta.find!(peer.id)
@@ -136,7 +235,6 @@ defmodule MoodleNet.MetaTest do
 	assert peer2 = fake_peer!()
 	assert pointer = Meta.find!(peer.id)
 	assert pointer2 = Meta.find!(peer2.id)
-
 	assert [pointer3, pointer4] = Meta.preload!([pointer, pointer2])
 	assert pointer3.id == pointer.id
 	assert pointer4.id == pointer2.id
@@ -144,6 +242,34 @@ defmodule MoodleNet.MetaTest do
 	assert pointer4.table_id == pointer2.table_id
 	assert pointer3.pointed == peer
 	assert pointer4.pointed == peer2
+      end
+    end
+
+    # TODO: merge antonis' work and figure out preloads
+    test "preload! can load many pointers of many types" do
+      Repo.transaction fn ->
+	assert peer = fake_peer!()
+	assert peer2 = fake_peer!()
+	assert user = fake_user!()
+	assert user2 = fake_user!()
+	assert actor = fake_actor!()
+	assert pointer = Meta.find!(peer.id)
+	assert pointer2 = Meta.find!(peer2.id)
+	assert pointer3 = Meta.find!(user.id)
+	assert pointer4 = Meta.find!(user2.id)
+	assert pointer5 = Meta.find!(actor.id)
+	assert [pointer6, pointer7, pointer8, pointer9, pointer10] =
+	  Meta.preload!([pointer, pointer2, pointer3, pointer4, pointer5])
+	assert pointer6.id  == pointer.id
+	assert pointer7.id  == pointer2.id
+	assert pointer8.id  == pointer3.id
+	assert pointer9.id  == pointer4.id
+	assert pointer10.id == pointer5.id
+	assert pointer6.pointed == peer
+	assert pointer7.pointed == peer2
+	assert pointer8.pointed == user
+	assert pointer9.pointed == user2
+	# assert pointer10.pointed == actor
       end
     end
   end

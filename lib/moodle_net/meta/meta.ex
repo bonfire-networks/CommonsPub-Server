@@ -105,7 +105,7 @@ defmodule MoodleNet.Meta do
   defp point_to_result({:ok, v}), do: v
   defp point_to_result({:error, e}), do: throw PointerInsertError.new(e)
 
-  def pointer_changeset(table),
+  defp pointer_changeset(table),
     do: Pointer.changeset(TableService.lookup_id!(table))
 
   @doc """
