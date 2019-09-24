@@ -66,7 +66,8 @@ config :moodle_net, :instance,
   email: "moodlenet-moderators@moodle.com",
   description: "An instance of MoodleNet, a federated server for educators",
   federation_publisher_modules: [ActivityPubWeb.Publisher],
-  federation_reachability_timeout_days: 7
+  federation_reachability_timeout_days: 7,
+  federating: true
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
@@ -80,6 +81,12 @@ config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
 
+config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPubMock
+
+config :pleroma_job_queue, :queues,
+federator_incoming: 50,
+federator_outgoing: 50
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
@@ -90,7 +97,3 @@ config :moodle_net, MoodleNet.Users,
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
-
-  config :pleroma_job_queue, :queues,
-  federator_incoming: 50,
-  federator_outgoing: 50

@@ -9,7 +9,9 @@ defmodule ActivityPubWeb.Transmogrifier do
   and handles incoming objects and activities
   """
 
+  alias ActivityPub.Actor
   alias ActivityPub.Entity
+  alias ActivityPub.Fetcher
   alias ActivityPub.Object
   alias ActivityPub.Utils
   require ActivityPub.Guards, as: APG
@@ -117,13 +119,6 @@ defmodule ActivityPubWeb.Transmogrifier do
   defp add_endpoints(ret) do
     endpoints = %{"sharedInbox" => ActivityPub.UrlBuilder.base_url() <> "/shared_inbox"}
     Map.put(ret, "endpoints", endpoints)
-  end
-
-  defp extension_fields(entity) do
-    entity
-    |> Entity.extension_fields()
-    |> Enum.filter(&filter_by_value/1)
-    |> Enum.map(&normalize_value/1)
   end
 
   # FIXME this can be calculated in compilation time :)
@@ -258,7 +253,96 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   # incoming activities
 
+  # TODO
+  defp mastodon_follow_hack(_, _), do: {:error, nil}
+
+  defp get_follow_activity(follow_object, followed) do
+    with object_id when not is_nil(object_id) <- Utils.get_ap_id(follow_object),
+         {_, %Object{} = activity} <- {:activity, Object.get_by_ap_id(object_id)} do
+      {:ok, activity}
+    else
+      # Can't find the activity. This might a Mastodon 2.3 "Accept"
+      {:activity, nil} ->
+        mastodon_follow_hack(follow_object, followed)
+
+      _ ->
+        {:error, nil}
+    end
+  end
+
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
+    data = Utils.normalize_params(data)
+    {:ok, actor} = Actor.get_by_ap_id(data["actor"])
+
+    params = %{
+      to: data["to"],
+      object: object,
+      actor: actor.data,
+      context: object["conversation"],
+      local: false,
+      published: data["published"],
+      additional:
+        Map.take(data, [
+          "cc",
+          "directMessage",
+          "id"
+        ])
+    }
+
+    ActivityPub.create(params)
+  end
+
+  def handle_incoming(
+        %{"type" => "Follow", "object" => followed, "actor" => follower, "id" => id} = data
+      ) do
+    with {:ok, followed} <- Actor.get_by_ap_id(followed),
+         {:ok, follower} <- Actor.get_by_ap_id(follower),
+         {:ok, activity} <- ActivityPub.follow(follower, followed, id, false) do
+      ActivityPub.accept(%{
+        to: [follower["id"]],
+        actor: followed,
+        object: data,
+        local: true
+      })
+
+      {:ok, activity}
+    end
+  end
+
+  def handle_incoming(
+        %{"type" => "Accept", "object" => follow_object, "actor" => _actor, "id" => _id} = data
+      ) do
+    with actor <- Fetcher.get_actor(data),
+         {:ok, followed} <- Actor.get_by_ap_id(actor),
+         {:ok, follow_activity} <- get_follow_activity(follow_object, followed) do
+      ActivityPub.accept(%{
+        to: follow_activity.data["to"],
+        type: "Accept",
+        actor: followed,
+        object: follow_activity.data["id"],
+        local: false
+      })
+    else
+      _e -> :error
+    end
+  end
+
+  #TODO: add reject
+
+  def handle_incoming(
+        %{
+          "type" => "Undo",
+          "object" => %{"type" => "Follow", "object" => followed},
+          "actor" => follower,
+          "id" => id
+        } = _data
+      ) do
+    with {:ok, follower} <- Actor.get_by_ap_id(follower),
+         {:ok, followed} <- Actor.get_by_ap_id(followed) do
+          ActivityPub.unfollow(follower, followed, id, false)
+    else
+      _e -> :error
+    end
   end
 
   def handle_incoming(data) do

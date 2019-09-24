@@ -13,7 +13,7 @@ defmodule ActivityPub.Object do
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
-  schema "mn_ap_object" do
+  schema "ap_object" do
     field(:data, :map)
     field(:local, :boolean, default: true)
     field(:public, :boolean)

@@ -7,12 +7,12 @@ defmodule ActivityPub.ActorTest do
   use MoodleNet.DataCase
 
   test "get_by_username/1" do
-    actor = Factory.actor()
+    actor = Factory.ap_actor()
 
-    username = actor.preferred_username
+    username = actor.data["preferredUsername"]
 
     {:ok, fetched_actor} = ActivityPub.Actor.get_by_username(username)
 
-    assert fetched_actor.preferred_username == username
+    assert fetched_actor.data["preferredUsername"] == username
   end
 end

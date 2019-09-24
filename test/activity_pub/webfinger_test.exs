@@ -17,18 +17,18 @@ defmodule ActivityPub.WebFingerTest do
 
   describe "incoming webfinger request" do
     test "works for fqns" do
-      actor = Factory.actor()
+      actor = Factory.ap_actor(%{"preferredUsername" => "name", "id" => "http://localhost:4000/actors/name"})
 
       {:ok, result} =
-        WebFinger.webfinger("#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}")
+        WebFinger.webfinger("#{actor.data["preferredUsername"]}@#{MoodleNetWeb.Endpoint.host()}")
 
       assert is_map(result)
     end
 
     test "works for ap_ids" do
-      actor = Factory.actor()
+      actor = Factory.ap_actor()
 
-      {:ok, result} = WebFinger.webfinger(actor.id)
+      {:ok, result} = WebFinger.webfinger(actor.data["id"])
       assert is_map(result)
     end
   end

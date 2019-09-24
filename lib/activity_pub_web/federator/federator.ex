@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Federator do
+  alias ActivityPub.Adapter
   alias ActivityPub.Utils
   alias ActivityPubWeb.Federator.Publisher
   alias ActivityPubWeb.Transmogrifier
@@ -21,23 +22,16 @@ defmodule ActivityPubWeb.Federator do
   def perform(:publish, activity) do
     Logger.debug(fn -> "Running publish for #{activity["id"]}" end)
 
-    actor_id =
-      activity
-      |> Map.get(:actor)
-      |> List.first()
-      |> Map.get(:id)
-
-    actor =
-      ActivityPub.get_by_id(actor_id, aspect: :actor)
-      |> ActivityPub.SQL.Query.preload_assoc(:all)
-
-    with {:ok, actor} <- Utils.ensure_keys_present(actor) do
+    with {:ok, actor} <- Adapter.get_actor_by_ap_id(activity.data["actor"]),
+         {:ok, actor} <- Utils.ensure_keys_present(actor) do
       Publisher.publish(actor, activity)
     end
   end
 
   def perform(:incoming_ap_doc, params) do
     Logger.info("Handling incoming AP activity")
+
+    params = Utils.normalize_params(params)
 
     Transmogrifier.handle_incoming(params)
   end

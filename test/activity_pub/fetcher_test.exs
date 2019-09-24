@@ -8,6 +8,7 @@ defmodule ActivityPubWeb.FetcherTest do
   import Tesla.Mock
 
   alias ActivityPub.Fetcher
+  alias MoodleNet.Factory
 
   setup do
     mock(fn
@@ -41,6 +42,8 @@ defmodule ActivityPubWeb.FetcherTest do
     end
 
     test "rejects private posts" do
+      _actor = Factory.ap_actor(%{"id" => "https://testing.kawen.dance/users/karen"})
+
       {:error, _} =
         Fetcher.fetch_object_from_id(
           "https://testing.kawen.dance/objects/d953809b-d968-49c8-aa8f-7545b9480a12"

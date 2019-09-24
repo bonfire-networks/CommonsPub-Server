@@ -5,6 +5,7 @@
 
 defmodule ActivityPub.WebFinger do
   alias ActivityPub.Actor
+  alias ActivityPub.Adapter
   alias ActivityPub.HTTP
   alias ActivityPubWeb.Federator.Publisher
 
@@ -19,11 +20,12 @@ defmodule ActivityPub.WebFinger do
       {:ok, represent_user(actor)}
     else
       _e ->
-        actor = ActivityPub.get_by_id(resource, aspect: :actor)
-        if actor do
-          {:ok, represent_user(actor)}
-        else
-          {:error, "Couldn't find"}
+        case Actor.get_by_ap_id(resource) do
+          {:ok, actor} ->
+            {:ok, represent_user(actor)}
+
+          _ ->
+            {:error, "Couldn't find"}
         end
     end
   end
@@ -33,17 +35,15 @@ defmodule ActivityPub.WebFinger do
       %{
         "rel" => "http://webfinger.net/rel/profile-page",
         "type" => "text/html",
-        "href" => actor.id
+        "href" => actor.data["id"]
       }
     ] ++ Publisher.gather_webfinger_links(actor)
   end
 
   def represent_user(actor) do
-    {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
-
     %{
-      "subject" => "acct:#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}",
-      "aliases" => [actor.id],
+      "subject" => "acct:#{actor.data["preferredUsername"]}@#{MoodleNetWeb.Endpoint.host()}",
+      "aliases" => [actor.data["id"]],
       "links" => gather_links(actor)
     }
   end

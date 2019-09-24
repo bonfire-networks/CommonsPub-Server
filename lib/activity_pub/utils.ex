@@ -4,9 +4,15 @@ defmodule ActivityPub.Utils do
   """
   alias ActivityPub.Keys
   alias ActivityPub.Object
+  alias Ecto.UUID
+  alias MoodleNet.Repo
 
-  defp get_ap_id(%{"id" => id} = _), do: id
-  defp get_ap_id(id), do: id
+  import Ecto.Query
+
+  @public_uri "https://www.w3.org/ns/activitystreams#Public"
+
+  def get_ap_id(%{"id" => id} = _), do: id
+  def get_ap_id(id), do: id
 
   @doc """
   Some implementations send the actor URI as the actor field, others send the entire actor object,
@@ -16,6 +22,94 @@ defmodule ActivityPub.Utils do
     Map.put(params, "actor", get_ap_id(params["actor"]))
   end
 
+  defp make_date do
+    DateTime.utc_now() |> DateTime.to_iso8601()
+  end
+
+  def generate_context_id do
+    generate_id("contexts")
+  end
+
+  def generate_object_id do
+    generate_id("objects")
+  end
+
+  def generate_id(type) do
+    "#{MoodleNetWeb.base_url()}/#{type}/#{UUID.generate()}"
+  end
+
+  def make_follow_data(
+        %{data: %{"id" => follower_id}},
+        %{data: %{"id" => followed_id}} = _followed,
+        activity_id
+      ) do
+    data = %{
+      "type" => "Follow",
+      "actor" => follower_id,
+      "to" => [followed_id],
+      "cc" => [@public_uri],
+      "object" => followed_id,
+      "state" => "pending"
+    }
+
+    data = if activity_id, do: Map.put(data, "id", activity_id), else: data
+
+    data
+  end
+
+  def fetch_latest_follow(%{data: %{"id" => follower_id}}, %{data: %{"id" => followed_id}}) do
+    query =
+      from(
+        activity in Object,
+        where:
+          fragment(
+            "? ->> 'type' = 'Follow'",
+            activity.data
+          ),
+        where:
+          fragment(
+            "? ->> 'actor' = ?",
+            activity.data,
+            ^follower_id
+          ),
+        where:
+          fragment(
+            "coalesce((?)->'object'->>'id', (?)->>'object') = ?",
+            activity.data,
+            activity.data,
+            ^followed_id
+          ),
+        order_by: [fragment("? desc nulls last", activity.id)],
+        limit: 1
+      )
+
+    Repo.one(query)
+  end
+
+  def make_unfollow_data(follower, followed, follow_activity, activity_id) do
+    data = %{
+      "type" => "Undo",
+      "actor" => follower.data["id"],
+      "to" => [followed.data["id"]],
+      "object" => follow_activity.data
+    }
+
+    if activity_id, do: Map.put(data, "id", activity_id), else: data
+  end
+
+  def make_create_data(params, additional) do
+    published = params.published || make_date()
+
+    %{
+      "type" => "Create",
+      "to" => params.to |> Enum.uniq(),
+      "actor" => params.actor["id"],
+      "object" => params.object,
+      "published" => published,
+      "context" => params.context
+    }
+    |> Map.merge(additional)
+  end
 
   @doc """
   Checks if an actor struct has a non-nil keys field and generates a PEM if it doesn't.
@@ -27,6 +121,7 @@ defmodule ActivityPub.Utils do
     else
       {:ok, pem} = Keys.generate_rsa_pem()
 
+      #TODO: change to work with new DB
       ActivityPub.update(actor, %{keys: pem})
     end
   end
@@ -72,10 +167,58 @@ defmodule ActivityPub.Utils do
   def prepare_data(data) do
     data =
       %{}
-      |> Map.put(:data, normalize_params(data))
+      |> Map.put(:data, data)
       |> Map.put(:local, false)
       |> Map.put(:public, public?(data))
 
     {:ok, data}
+  end
+
+  @doc """
+  Enqueues an activity for federation if it's local
+  """
+  def maybe_federate(%Object{local: true} = activity) do
+    if MoodleNet.Config.get!([:instance, :federating]) do
+      priority =
+        case activity.data["type"] do
+          "Delete" -> 10
+          "Create" -> 1
+          _ -> 5
+        end
+
+      ActivityPubWeb.Federator.publish(activity, priority)
+    end
+
+    :ok
+  end
+
+  def maybe_federate(_), do: :ok
+
+  def lazy_put_activity_defaults(map) do
+    context = create_context(map["context"])
+
+    map =
+      map
+      |> Map.put_new_lazy("id", &generate_object_id/0)
+      |> Map.put_new_lazy("published", &make_date/0)
+      |> Map.put_new("context", context)
+
+    if is_map(map["object"]) do
+      object = lazy_put_object_defaults(map["object"], map)
+      %{map | "object" => object}
+    else
+      map
+    end
+  end
+
+  def lazy_put_object_defaults(map, activity) do
+    map
+    |> Map.put_new_lazy("id", &generate_object_id/0)
+    |> Map.put_new_lazy("published", &make_date/0)
+    |> Map.put_new("context", activity["context"])
+  end
+
+  def create_context(context) do
+    context || generate_id("contexts")
   end
 end
