@@ -14,7 +14,7 @@ defmodule MoodleNet.Whitelists.RegisterEmailWhitelist do
 
   @email_regexp ~r/.+\@.+\..+/
 
-  standalone_schema "mn_whitelist_email" do
+  standalone_schema "mn_whitelist_register_email" do
     field(:email, :string, primary_key: true)
     timestamps()
   end

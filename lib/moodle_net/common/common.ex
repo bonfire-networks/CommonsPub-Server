@@ -118,16 +118,23 @@ defmodule MoodleNet.Common do
 
   @spec hard_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}
   @doc "Deletes an entry from the database"
-  def hard_delete(it), do: deletion_result(Repo.delete(it))
+  def hard_delete(it) do
+    it
+    |> Repo.delete(
+      stale_error_field: :id,
+      stale_error_message: "has already been deleted"
+    ) |> deletion_result()
+  end
 
   @spec hard_delete!(any()) :: any()
   @doc "Deletes an entry from the database, or throws a DeletionError"
-  def hard_delete!(it), do: deletion_result!(Repo.delete(it))
+  def hard_delete!(it),
+    do: deletion_result!(hard_delete(it))
 
   def deletion_result({:error, e}), do: {:error, DeletionError.new(e)}
   def deletion_result(other), do: other
 
   def deletion_result!({:ok, val}), do: val
-  def deletion_result!({:error, e}), do: throw DeletionError.new(e)
+  def deletion_result!({:error, e}), do: throw e
 
 end

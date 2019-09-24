@@ -37,12 +37,14 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create table(:mn_whitelist_register_email_domain) do
       add :domain, :text, null: false
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_whitelist_register_email_domain, :domain)
 
     create table(:mn_whitelist_register_email) do
       add :email, :text, null: false
+      timestamps(type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_whitelist_register_email, :email)

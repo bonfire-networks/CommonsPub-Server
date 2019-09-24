@@ -18,6 +18,7 @@ defmodule MoodleNet.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias MoodleNet.Common.DeletionError
 
   using do
     quote do
@@ -60,4 +61,18 @@ defmodule MoodleNet.DataCase do
       end)
     end)
   end
+
+  @doc "Returns a copy of the loaded ecto model which is marked as deleted"
+  def deleted(%{__meta__: %{state: :loaded}=meta}=thing) do
+    meta2 = Map.put(meta, :state, :deleted)
+    Map.put(thing, :__meta__, meta2)
+  end
+
+  @doc "Returns true if the provided is a DeletionError that was stale"
+  def was_already_deleted?(
+    %DeletionError{changeset: %{errors: [id: {"has already been deleted", [stale: true]}]}}
+  ), do: true
+
+  def was_already_deleted?(_), do: false
+
 end
