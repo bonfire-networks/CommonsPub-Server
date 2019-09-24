@@ -2,7 +2,6 @@ defmodule MoodleNet.Localisation.CountryServiceTest do
   use ExUnit.Case, async: true
 
   import ExUnit.Assertions
-  import MoodleNet.Test.Faking
   alias MoodleNet.Repo
   alias MoodleNet.Localisation.{Country, CountryService, CountryNotFoundError}
   
