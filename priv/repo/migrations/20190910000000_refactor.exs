@@ -11,6 +11,13 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     {"mn_comment", "comment_id"},
   ]
 
+  @languages [
+    {"en", "English", "English"}
+  ]
+
+  @countries [
+    {"nl", "Netherlands", "Nederland"}
+  ]
   def up do
 
     ### localisation system
@@ -56,7 +63,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_meta_table, primary_key: false) do
       add :id, :smallserial, primary_key: true
       add :table, :text, null: false
-      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
+      add :inserted_at, :timestamptz, null: false, default: fragment("(now() at time zone 'UTC')")
     end
 
     create unique_index(:mn_meta_table, :table)
@@ -345,12 +352,28 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # as we happen to know we're not, carry on...
     flush()
 
+    langs =
+      @languages
+      |> Enum.map(fn {code, name, name2} -> "('#{code}', '#{name}', '#{name2}')" end)
+      |> Enum.join(", ")
+    :ok = execute """
+    insert into mn_language (\"id\", \"english_name\", \"local_name\") values #{langs}
+    """
+
+    countries =
+      @countries
+      |> Enum.map(fn {code, name, name2} -> "('#{code}', '#{name}', '#{name2}')" end)
+      |> Enum.join(", ")
+    :ok = execute """
+    insert into mn_country (\"id\", \"english_name\", \"local_name\") values #{countries}
+    """
+
     # insert records of the tables participating in the meta abstraction
-    vals =
+    tables =
       @meta_tables
       |> Enum.map(fn x -> "('#{x}')" end)
       |> Enum.join(", ")
-    :ok = execute "insert into mn_meta_table (\"table\") values #{vals}"
+    :ok = execute "insert into mn_meta_table (\"table\") values #{tables}"
 
     # create a view showing the latest performance of tasks by workers
     :ok = execute """
