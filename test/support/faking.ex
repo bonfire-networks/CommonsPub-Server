@@ -22,21 +22,18 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_peer!(overrides \\ %{}) when is_map(overrides) do
-    fake_meta!(Peer, &Peers.create/2, Fake.peer(overrides))
+    {:ok, peer} = Peers.create(Fake.peer(overrides))
+    peer
   end
 
   def fake_actor!(overrides \\ %{}) when is_map(overrides) do
-    fake_meta!(Actor, &Actors.create/2, Fake.actor(overrides))
+    {:ok, actor} = Actors.create(Fake.actor(overrides))
+    actor
   end
 
   def fake_user!(overrides \\ %{}) when is_map(overrides) do
-    fake_meta!(User, &Users.create/2, Fake.user(overrides))
-  end
-
-  defp fake_meta!(table_id, create_fn, params) do
-    pointer = Meta.point_to!(table_id)
-    {:ok, val} = create_fn.(pointer, params)
-    val
+    {:ok, user} = Users.register(Fake.user(overrides))
+    user
   end
 
 end

@@ -64,7 +64,7 @@ defmodule MoodleNet.Test.Fake do
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
   @doc "Generates a random url"
-  def url(), do: Faker.Internet.url()
+  def url(), do: Faker.Internet.url() <> "/"
   @doc "Picks a name"
   def name(), do: Faker.Company.name()
   @doc "Generates a random password string"
