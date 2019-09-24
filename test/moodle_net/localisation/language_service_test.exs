@@ -37,6 +37,7 @@ defmodule MoodleNet.Localisation.LanguageServiceTest do
 	assert id == code
 	assert name == designation
 	assert nom == naam
+	assert id == LanguageService.lookup_id!(code)
       end
 
       for l <- @bad_language_codes do
@@ -47,5 +48,5 @@ defmodule MoodleNet.Localisation.LanguageServiceTest do
       end
     end
   end
-
+  
 end

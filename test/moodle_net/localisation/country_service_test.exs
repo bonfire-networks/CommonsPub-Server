@@ -37,6 +37,7 @@ defmodule MoodleNet.Localisation.CountryServiceTest do
 	assert id == code
 	assert name == designation
 	assert nom == naam
+	assert id == CountryService.lookup_id!(code)
       end
 
       for c <- @bad_country_codes do
