@@ -106,6 +106,13 @@ defmodule MoodleNet.Test.Fake do
 
   # models
 
+  def primary_language(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
+  end
+
   def peer(base \\ %{}) do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
@@ -134,9 +141,11 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:wants_notifications, &bool/0)
   end
 
-  # def community(base \\ %{}) do
-  #   base
-  # end
+  def community(base \\ %{}) do
+    # TODO: add relations
+    base
+    |> Map.put_new_lazy(:is_public, &bool/0)
+  end
 
   # def collection(base \\ %{}) do
   #   base

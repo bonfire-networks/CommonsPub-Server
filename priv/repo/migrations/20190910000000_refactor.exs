@@ -18,7 +18,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # countries
     # only updated during migrations!
     create table(:mn_country, primary_key: false) do
-      add :id, :char, size: 2, null: false, primary_key: true
+      add :id, :string, size: 2, null: false, primary_key: true
       add :english_name, :text, null: false
       add :local_name, :text, null: false
       add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
@@ -27,7 +27,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # languages
     # only updated during migrations!    
     create table(:mn_language, primary_key: false) do
-      add :id, :char, size: 2, null: false, primary_key: true
+      add :id, :string, size: 2, null: false, primary_key: true
       add :english_name, :text, null: false
       add :local_name, :text, null: false
       add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
@@ -148,7 +148,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_community, primary_key: false) do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
@@ -162,7 +162,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :community_id, references("mn_community", on_delete: :delete_all), null: false
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
@@ -176,7 +176,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :collection_id, references("mn_collection", on_delete: :delete_all), null: false
-      add :primary_language_id, references("mn_language", type: :char, on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
