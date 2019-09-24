@@ -44,9 +44,7 @@ defmodule MoodleNet.Users.User do
 
   @doc "Create a changeset for confirming an email"
   def confirm_email_changeset(%__MODULE__{} = user) do
-    Changeset.change(user,
-      confirmed_at: DateTime.truncate(DateTime.utc_now(), :second)
-    )
+    Changeset.change(user, confirmed_at: DateTime.utc_now())
   end
 
   # internals
