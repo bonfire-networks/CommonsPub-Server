@@ -44,7 +44,7 @@ defmodule MoodleNet.Peers.Peer do
     |> meta_pointer_constraint()
   end
 
-  defp validate_http_url(changeset, field) do
+  def validate_http_url(changeset, field) do
     Changeset.validate_change(changeset, field, fn ^field, url ->
       if valid_http_uri?(URI.parse(url)) do
         []
@@ -55,6 +55,6 @@ defmodule MoodleNet.Peers.Peer do
   end
 
   defp valid_http_uri?(%URI{scheme: scheme, host: host, path: path}) do
-    scheme in ["http", "https"] && not is_nil(host) && not is_nil(path)
+    scheme in ["http", "https"] && not is_nil(host)
   end
 end
