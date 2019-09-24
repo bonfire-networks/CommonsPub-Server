@@ -6,13 +6,13 @@ defmodule MoodleNet.PeersTest do
   alias MoodleNet.Test.Fake
 
   describe "CRUD" do
+
     test "insertion and retrieval" do
       Repo.transaction fn ->
-        pointer = Meta.point_to!(Peer)
-        attrs = Fake.peer()
-        assert {:ok, peer} = Peers.create(pointer, attrs)
-        assert {:ok, peer2} = Peers.fetch(peer.id)
-        assert peer == peer2
+	attrs = Fake.peer()
+	assert {:ok, peer} = Peers.create(attrs)
+	assert {:ok, peer2} = Peers.fetch(peer.id)
+	assert peer == peer2
       end
     end
 
@@ -33,6 +33,7 @@ defmodule MoodleNet.PeersTest do
     @tag :skip
     test "soft deletion" do
       Repo.transaction fn -> :ok
+        peer = fake_peer!()
       end
     end
 

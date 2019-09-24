@@ -28,21 +28,26 @@ defmodule MoodleNet.Peers do
 
   # Insertion
 
-  @spec create(Pointer.t(), map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
-  @doc "Create a Peer from the provided pointer and attributes"
-  def create(%Pointer{}=pointer, attrs),
-    do: Repo.insert(Peer.create_changeset(pointer, attrs))
+  @spec create(map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
+  @doc "Create a Peer from the provided attributes"
+  def create(attrs) do
+    Repo.transact_with fn ->
+      pointer = Meta.point_to!(Peer)
+      Repo.insert(Peer.create_changeset(pointer, attrs))
+    end
+  end
 
   # Updating
   
   @spec update(Peer.t(), map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
+  @doc "Update the provided Peer with the provided attributes"
   def update(%Peer{}=peer, fields),
     do: Repo.update(Peer.update_changeset(peer, fields))
 
   # Soft deletion
   
   @spec soft_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
-  @doc "Marks an Peer as deleted in the database"
+  @doc "Marks a Peer as deleted in the database"
   def soft_delete(%Peer{}=peer), do: Common.soft_delete(peer)
 
   @spec soft_delete!(Peer.t()) :: Peer.t()
