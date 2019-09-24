@@ -68,4 +68,5 @@ defmodule MoodleNet.Actors do
     |> ActorRevision.create_changeset(revision_attrs)
     |> Repo.insert()
   end
+
 end

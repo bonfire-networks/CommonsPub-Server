@@ -31,6 +31,8 @@ defmodule MoodleNet.Actors.Actor do
   @create_cast ~w(peer_id alias_id preferred_username signing_key is_public)a
   @create_required ~w(preferred_username is_public)a
 
+  @spec create_changeset(Pointer.t, map) :: Changeset.t
+  @doc "Creates a changeset for insertion from the given pointer and attrs"
   def create_changeset(%Pointer{id: id} = pointer, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
     %Actor{id: id}
@@ -45,10 +47,13 @@ defmodule MoodleNet.Actors.Actor do
 
   @update_cast ~w(alias_id signing_key is_public)a
 
+  @spec update_changeset(%Actor{}, map) :: Changeset.t
+  @doc "Creates a changeset for updating the given actor from the given attrs"
   def update_changeset(%Actor{} = actor, attrs) do
     actor
     |> Changeset.cast(attrs, @update_cast)
     |> Changeset.unique_constraint(:alias_id)
     |> meta_pointer_constraint()
   end
+
 end
