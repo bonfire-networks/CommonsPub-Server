@@ -52,7 +52,7 @@ defmodule MoodleNet.MetaTest do
       tables = Repo.all(Table)
       assert Enum.count(tables) == Enum.count(@expected_table_names)
       # Every db entry must match up to our module metadata
-      for t <- Repo.all(Table) do
+      for t <- tables do
 	assert %{id: id, table: table} = t
 	# we must know about this schema to pair it up
 	assert schema = Map.fetch!(@table_schemas, table)
