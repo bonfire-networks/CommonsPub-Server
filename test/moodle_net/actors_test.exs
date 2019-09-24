@@ -20,23 +20,23 @@ defmodule MoodleNet.ActorsTest do
 
   describe "create" do
     test "creates a new actor with a revision" do
-      Repo.transaction fn ->
+      Repo.transaction(fn ->
         attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(attrs)
-        assert_actor_equal actor, attrs
+        assert_actor_equal(actor, attrs)
 
         assert actor = Repo.preload(actor, :actor_revisions)
         assert actor_revision = hd(actor.actor_revisions)
-        assert_revision_equal actor_revision, attrs
-      end
+        assert_revision_equal(actor_revision, attrs)
+      end)
     end
 
     test "returns an error if there are missing required attributes" do
-      Repo.transaction fn ->
+      Repo.transaction(fn ->
         invalid_attrs = Map.delete(Fake.actor(), :preferred_username)
         assert {:error, changeset} = Actors.create(invalid_attrs)
         assert Keyword.get(changeset.errors, :preferred_username)
-      end
+      end)
     end
   end
 
@@ -51,27 +51,27 @@ defmodule MoodleNet.ActorsTest do
 
   describe "update" do
     test "updates an existing actor with valid attributes and adds revision" do
-      Repo.transaction fn ->
+      Repo.transaction(fn ->
         original_attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(original_attrs)
 
         updated_attrs =
-	  original_attrs
+          original_attrs
           |> Map.take(~w(preferred_username signing_key)a)
-	  |> Fake.actor()
+          |> Fake.actor()
 
         assert {:ok, actor} = Actors.update(actor, updated_attrs)
-        assert_actor_equal actor, updated_attrs
+        assert_actor_equal(actor, updated_attrs)
 
         assert actor = Repo.preload(actor, :actor_revisions)
         assert Enum.count(actor.actor_revisions) == 2
 
         assert original_revision = List.first(actor.actor_revisions)
-        assert_revision_equal original_revision, original_attrs
+        assert_revision_equal(original_revision, original_attrs)
 
         assert latest_revision = List.last(actor.actor_revisions)
-        assert_revision_equal latest_revision, updated_attrs
-      end
+        assert_revision_equal(latest_revision, updated_attrs)
+      end)
     end
   end
 end

@@ -4,15 +4,15 @@ defmodule MoodleNet.PeersTest do
   alias MoodleNet.Peers.Peer
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
-  
+
   describe "CRUD" do
     test "insertion and retrieval" do
       Repo.transaction fn ->
-	pointer = Meta.point_to!(Peer)
-	attrs = Fake.peer()
-	assert {:ok, peer} = Peers.create(pointer, attrs)
-	assert {:ok, peer2} = Peers.fetch(peer.id)
-	assert peer == peer2
+        pointer = Meta.point_to!(Peer)
+        attrs = Fake.peer()
+        assert {:ok, peer} = Peers.create(pointer, attrs)
+        assert {:ok, peer2} = Peers.fetch(peer.id)
+        assert peer == peer2
       end
     end
 
