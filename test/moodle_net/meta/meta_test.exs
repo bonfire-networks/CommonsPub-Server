@@ -7,7 +7,6 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Meta.{
     Pointer,
-    PointerNotFoundError,
     Table,
     TableService,
     TableNotFoundError,
@@ -28,7 +27,6 @@ defmodule MoodleNet.MetaTest do
   @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Flag, Like]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
-  @schema_tables Map.new(Enum.zip(@known_schemas, @known_tables))
   @expected_table_names Enum.sort(@known_tables)
 
   describe "MoodleNet.Meta.TableService" do
@@ -269,7 +267,8 @@ defmodule MoodleNet.MetaTest do
 	assert pointer7.pointed == peer2
 	assert pointer8.pointed == user
 	assert pointer9.pointed == user2
-	# assert pointer10.pointed == actor
+	assert pointer10.pointed ==
+	  Map.merge(actor,%{is_public: nil, latest_revision: nil})
       end
     end
   end
