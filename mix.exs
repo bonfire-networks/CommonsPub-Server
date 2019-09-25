@@ -50,38 +50,46 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    [
-      {:phoenix, "~> 1.4.0"},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_html, "~> 2.11"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:ecto, "~> 3.1"},
-      {:ecto_sql, "~> 3.1"},
-      {:postgrex, "~> 0.14"},
-      {:jason, "~> 1.1"},
-      {:gettext, "~> 0.15"},
+    [ # graphql
+      {:absinthe, "~> 1.4"},
+      {:absinthe_plug, "~> 1.4"},
+      # webserver
       {:cowboy, "~> 2.5"},
       {:plug_cowboy, "~> 2.0"},
       {:plug, "~> 1.7"},
-      # HTTP client
-      {:hackney, "~> 1.15"},
-      {:comeonin, "~> 4.1.1"},
-      {:pbkdf2_elixir, "~> 0.12.3"},
-      {:cors_plug, "~> 2.0"},
-      {:bamboo, "~> 1.2"},
-      # FIXME using prod as well for the moment
-      {:faker, "~> 0.12"},
-      {:recase, "~> 0.2"},
-      {:absinthe, "~> 1.4"},
-      {:absinthe_plug, "~> 1.4"},
+      {:cors_plug, "~> 2.0"}, # security (CORS)
+      # phoenix
+      {:phoenix, "~> 1.4.0"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:phoenix_html, "~> 2.11"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
-      {:furlex, git: "https://github.com/alexcastano/furlex"},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:sentry, "~> 7.1", runtime: sentry?()},
-      {:telemetry, "~> 0.4.0"},
+      {:phoenix_ecto, "~> 4.0"},
+      # database
+      {:ecto, "~> 3.1"},
+      {:ecto_sql, "~> 3.1"},
+      {:postgrex, "~> 0.14"},
+      # Password hashing
+      {:comeonin, "~> 4.1.1"}, 
+      {:pbkdf2_elixir, "~> 0.12.3"},
+      # Outbound HTTP
+      {:hackney, "~> 1.15"},
+      {:tesla, "~> 1.2"},
+      # Email
+      {:bamboo, "~> 1.2"}, # sending
+      {:email_checker, "~> 0.1"}, # checking validity
+      # Monitoring
+      {:telemetry, "~> 0.4.0"}, # stats
+      {:sentry, "~> 7.1", runtime: sentry?()}, # production only
+      # Misc
+      {:jason, "~> 1.1"},    # json
+      {:gettext, "~> 0.17"}, # localisation
+      {:recase, "~> 0.2"},   # camel/snake/kebabification
+      {:furlex, git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
+      # dev/test only
+      {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:tesla, "~> 1.2"}
     ]
   end
 
