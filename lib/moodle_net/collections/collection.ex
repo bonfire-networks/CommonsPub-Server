@@ -8,11 +8,13 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Users.User
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_collection" do
     belongs_to(:creator, Actor)
-    belongs_to(:primary_language, Language)
+    belongs_to(:primary_language, Language, type: :binary)
     belongs_to(:community, Community)
     has_many(:resources, Resource)
     field(:is_public, :boolean, virtual: true)

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors,Communities,Meta,Peers,Users,Localisation}
+  alias MoodleNet.{Actors,Communities,Collections,Meta,Peers,Users,Localisation}
   alias MoodleNet.Whitelists
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
@@ -42,5 +42,19 @@ defmodule MoodleNet.Test.Faking do
     |> Fake.community()
     |> Communities.create()
     community
+  end
+
+  def fake_collection!(overrides \\ %{}) when is_map(overrides) do
+    actor = fake_actor!(overrides)
+    community = fake_community!(overrides)
+    language = Localisation.language!("en")
+
+    {:ok, collection} = overrides
+    |> Map.put_new(:community_id, community.id)
+    |> Map.put_new(:creator_id, actor.id)
+    |> Map.put_new(:primary_language_id, language.id)
+    |> Fake.collection()
+    |> Collections.create()
+    collection
   end
 end

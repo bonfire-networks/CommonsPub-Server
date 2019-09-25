@@ -2,9 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.Common
+  alias MoodleNet.{Common, Repo, Meta}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Repo
 
   @spec create(attrs :: map) :: {:ok, %Collection{}} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
@@ -66,6 +65,4 @@ defmodule MoodleNet.Collections do
   # """
   # def all_flags(actor, filters \\ %{}),
   #   do: Common.flags(CollectionFlag, :list_collection_flags?, actor, filters)
-
-
 end
