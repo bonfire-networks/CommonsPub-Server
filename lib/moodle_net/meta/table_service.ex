@@ -28,6 +28,7 @@ defmodule MoodleNet.Meta.TableService do
 
   use GenServer
 
+  @init_query_name __MODULE__
   @service_name __MODULE__
   @table_name __MODULE__.Cache
 
@@ -93,7 +94,7 @@ defmodule MoodleNet.Meta.TableService do
   @doc false
   def init(_) do
     Table
-    |> Repo.all()
+    |> Repo.all(telemetry_event: @init_query_name)
     |> pair_schemata()
     |> populate_table()
     {:ok, []}
