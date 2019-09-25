@@ -6,6 +6,7 @@ defmodule MoodleNet.Communities do
   alias MoodleNet.Common
   alias MoodleNet.Communities.Community
   alias MoodleNet.Users.User
+  alias MoodleNet.Meta
   alias MoodleNet.Repo
 
   @spec create(attrs :: map) :: {:ok, %Community{}} | {:error, Changeset.t()}
@@ -24,6 +25,12 @@ defmodule MoodleNet.Communities do
       |> Community.update_changeset(attrs)
       |> Repo.update()
     end)
+  end
+
+  def join(community, member) do
+  end
+
+  def leave(community, member) do
   end
 
   # @doc """

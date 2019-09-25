@@ -5,17 +5,51 @@ defmodule MoodleNet.CommunitiesTest do
   use MoodleNet.DataCase, async: true
 
   import ActivityPub.Entity, only: [local_id: 1]
-  alias MoodleNet.Communities
+  alias MoodleNet.{Actors, Communities, Localisation}
+  alias MoodleNet.Test.Fake
+
+  describe "create" do
+    test "creates a community given valid attributes" do
+      assert {:ok, actor} = Actors.create(Fake.actor())
+      assert {:ok, language} = Localisation.language("en")
+      attrs = Fake.community(%{creator_id: actor.id, primary_language_id: language.id})
+      assert {:ok, community} = Communities.create(attrs)
+    end
+
+    test "fails if given invalid attributes" do
+      assert {:error, changeset} = Communities.create(%{})
+      assert Keyword.get(changeset.errors, :creator_id)
+      assert Keyword.get(changeset.errors, :primary_language_id)
+      assert Keyword.get(changeset.errors, :is_public)
+    end
+  end
+
+  describe "update" do
+    test "updates a community with the given attributes" do
+      assert {:ok, actor} = Actors.create(Fake.actor())
+      assert {:ok, language} = Localisation.language("en")
+
+      attrs =
+        Fake.community(%{is_public: true, creator_id: actor.id, primary_language_id: language.id})
+
+      assert {:ok, community} = Communities.create(attrs)
+      assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
+      assert updated_community != community
+      refute updated_community.is_public
+    end
+  end
 
   describe "membership" do
     test "joining" do
-      
-      Communities.join()
+      # Communities.join()
     end
+
     test "leaving" do
     end
+
     test "listing" do
     end
+
     test "listing as admin" do
     end
   end
@@ -38,5 +72,4 @@ defmodule MoodleNet.CommunitiesTest do
       assert flag.open == true
     end
   end
-
 end
