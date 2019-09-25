@@ -5,6 +5,31 @@ defmodule MoodleNet.Common.Changeset do
   @moduledoc "Helper functions for changesets"
 
   alias Ecto.Changeset
+  alias MoodleNet.Mail.Checker
+
+  @spec validate_email(Changeset.t, atom) :: Changeset.t
+  @doc "Validates an email for correctness"
+  def validate_email(changeset, field) do
+    with {:ok, email} <- Changeset.fetch_change(changeset, field),
+         {:error, reason} <- Checker.validate_email(email) do
+      message = validate_email_message(reason)
+      Changeset.add_error(changeset, field, message)
+    else _ -> changeset
+    end
+  end
+
+  @spec validate_email_domain(Changeset.t, atom) :: Changeset.t
+  def validate_email_domain(changeset, field) do
+    with {:ok, domain} <- Changeset.fetch_change(changeset, field),
+         {:error, reason} <- Checker.validate_domain(domain) do
+      message = validate_email_message(reason)
+      Changeset.add_error(changeset, field, message)
+    else _ -> changeset
+    end
+  end
+
+  defp validate_email_message(:format), do: "is of the wrong format"
+  defp validate_email_message(:mx), do: "failed an MX record check"
 
   @spec meta_pointer_constraint(Changeset.t()) :: Changeset.t()
   @doc "Adds a foreign key constraint for pointer on the id"

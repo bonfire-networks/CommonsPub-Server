@@ -38,3 +38,4 @@ config :moodle_net, :frontend_base_url,
   (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock
+config :moodle_net, MoodleNet.Mail.Checker, mx: false

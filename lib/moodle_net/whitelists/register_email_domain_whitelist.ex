@@ -9,9 +9,8 @@ defmodule MoodleNet.Whitelists.RegisterEmailDomainWhitelist do
   """
   use MoodleNet.Common.Schema
   alias Ecto.Changeset
+  import MoodleNet.Common.Changeset, only: [validate_email_domain: 2]
   alias MoodleNet.Whitelists.RegisterEmailDomainWhitelist
-
-  @domain_regexp ~r/[a-z]+(?:\.[a-z]+)+/
 
   standalone_schema "mn_whitelist_register_email_domain" do
     field(:domain, :string)
@@ -27,7 +26,7 @@ defmodule MoodleNet.Whitelists.RegisterEmailDomainWhitelist do
     entry
     |> Changeset.cast(fields, @cast)
     |> Changeset.validate_required(@required)
-    |> Changeset.validate_format(:domain, @domain_regexp)
+    |> validate_email_domain(:domain)
     |> Changeset.unique_constraint(:domain)
   end
   
