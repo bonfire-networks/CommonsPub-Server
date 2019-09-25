@@ -23,6 +23,7 @@ defmodule MoodleNet.Localisation.LanguageService do
 
   use GenServer
 
+  @init_query_name __MODULE__
   @service_name __MODULE__
   @table_name __MODULE__.Cache
 
@@ -70,7 +71,7 @@ defmodule MoodleNet.Localisation.LanguageService do
   @doc false
   def init(_) do
     Language
-    |> Repo.all()
+    |> Repo.all(telemetry_event: @init_query_name)
     |> populate_languages()
     {:ok, []}
   end
