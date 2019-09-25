@@ -22,10 +22,17 @@ defmodule MoodleNet.Mail.Checker do
     end
   end
 
+  @domain_regex ~r/(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)/
+
   @spec validate_domain(domain :: binary) :: :ok | {:error, error_reason}
   @doc "Checks whether an email domain is valid, returns a reason if not"
-  def validate_domain(domain), do: validate_email("test@" <> domain)
+  def validate_domain(domain) do
+    if Regex.match?(@domain_regex, domain) do
+      validate_email("test@" <> domain)
+    else
+      {:error, :format}
+    end
+  end
 
   defp config(), do: Application.get_env(:moodle_net, __MODULE__, [])
-
 end

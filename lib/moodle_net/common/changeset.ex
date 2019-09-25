@@ -13,7 +13,7 @@ defmodule MoodleNet.Common.Changeset do
     with {:ok, email} <- Changeset.fetch_change(changeset, field),
          {:error, reason} <- Checker.validate_email(email) do
       message = validate_email_message(reason)
-      Changeset.add_error(changeset, field, message)
+      Changeset.add_error(changeset, field, message, validation: reason)
     else _ -> changeset
     end
   end
@@ -23,7 +23,7 @@ defmodule MoodleNet.Common.Changeset do
     with {:ok, domain} <- Changeset.fetch_change(changeset, field),
          {:error, reason} <- Checker.validate_domain(domain) do
       message = validate_email_message(reason)
-      Changeset.add_error(changeset, field, message)
+      Changeset.add_error(changeset, field, message, validation: reason)
     else _ -> changeset
     end
   end

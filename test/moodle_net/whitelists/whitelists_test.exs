@@ -28,7 +28,7 @@ defmodule MoodleNet.WhitelistsTest do
       Repo.transaction(fn ->
         invalid = Fake.email()
         assert {:error, %Changeset{} = cs} = Whitelists.create_register_email_domain(invalid)
-        assert [{:domain, "is of the wrong format", [validation: :format]}] == cs.errors
+        assert [{:domain, {"is of the wrong format", [validation: :format]}}] == cs.errors
       end)
     end
   end
@@ -48,7 +48,7 @@ defmodule MoodleNet.WhitelistsTest do
       Repo.transaction(fn ->
         invalid = Fake.icon()
         assert {:error, %Changeset{} = cs} = Whitelists.create_register_email(invalid)
-        assert [email: {"is of the wrong format", []}] == cs.errors
+        assert [email: {"is of the wrong format", [validation: :format]}] == cs.errors
       end)
     end
   end
