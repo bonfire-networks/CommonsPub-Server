@@ -6,11 +6,11 @@ defmodule MoodleNet.CommunitiesTest do
 
   import ActivityPub.Entity, only: [local_id: 1]
   alias MoodleNet.{Actors, Communities, Localisation}
-  alias MoodleNet.Test.Fake
+  alias MoodleNet.Test.{Fake, Faking}
 
   describe "create" do
     test "creates a community given valid attributes" do
-      assert {:ok, actor} = Actors.create(Fake.actor())
+      assert actor = Faking.fake_actor!()
       assert {:ok, language} = Localisation.language("en")
       attrs = Fake.community(%{creator_id: actor.id, primary_language_id: language.id})
       assert {:ok, community} = Communities.create(attrs)
@@ -26,13 +26,7 @@ defmodule MoodleNet.CommunitiesTest do
 
   describe "update" do
     test "updates a community with the given attributes" do
-      assert {:ok, actor} = Actors.create(Fake.actor())
-      assert {:ok, language} = Localisation.language("en")
-
-      attrs =
-        Fake.community(%{is_public: true, creator_id: actor.id, primary_language_id: language.id})
-
-      assert {:ok, community} = Communities.create(attrs)
+      community = Faking.fake_community!(%{is_public: true})
       assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
       assert updated_community != community
       refute updated_community.is_public

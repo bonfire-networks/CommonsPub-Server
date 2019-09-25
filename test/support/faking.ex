@@ -3,11 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors,Meta,Peers,Users,Repo}
-  alias MoodleNet.Peers.Peer
-  alias MoodleNet.Users.User
+  alias MoodleNet.{Actors,Communities,Meta,Peers,Users,Localisation}
   alias MoodleNet.Whitelists
-  alias MoodleNet.Whitelists.{RegisterEmailDomainWhitelist, RegisterEmailWhitelist}
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
   when is_binary(domain) do
@@ -36,4 +33,14 @@ defmodule MoodleNet.Test.Faking do
     user
   end
 
+  def fake_community!(overrides \\ %{}) when is_map(overrides) do
+    actor = fake_actor!(overrides)
+    language = Localisation.language!("en")
+    {:ok, community} = overrides
+    |> Map.put_new(:creator_id, actor.id)
+    |> Map.put_new(:primary_language_id, language.id)
+    |> Fake.community()
+    |> Communities.create()
+    community
+  end
 end
