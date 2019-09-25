@@ -23,11 +23,4 @@ defmodule MoodleNet.Actors.ActorRevision do
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
   end
-
-  @update_cast ~w(icon image)a
-
-  def update_changeset(%ActorRevision{}=actor_revision, attrs) do
-    Changeset.cast(actor_revision, attrs, @update_cast)
-  end
-
 end
