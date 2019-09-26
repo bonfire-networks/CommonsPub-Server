@@ -89,7 +89,7 @@ defmodule MoodleNet.Mixfile do
       # dev/test only
       {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:tesla, "~> 1.2"},
       {:http_signatures,
        git: "https://git.pleroma.social/pleroma/http_signatures.git",
