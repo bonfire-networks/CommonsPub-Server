@@ -393,9 +393,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       create view #{table}_latest_revision as
       (select
        distinct on (#{column})
-       #{column}, id
+       #{column}, id as revision_id,inserted_at
        from #{table}_revision
-       order by #{column}, id)
+       order by #{column}, inserted_at, id)
       """
     end
 

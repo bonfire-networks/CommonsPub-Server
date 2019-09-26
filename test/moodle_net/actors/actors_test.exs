@@ -25,9 +25,10 @@ defmodule MoodleNet.ActorsTest do
         assert {:ok, actor} = Actors.create(attrs)
         assert_actor_equal(actor, attrs)
 
-        assert actor = Repo.preload(actor, :actor_revisions)
-        assert actor_revision = hd(actor.actor_revisions)
+        assert actor = Repo.preload(actor, [:revisions, :profile])
+        assert [actor_revision] = actor.revisions
         assert_revision_equal(actor_revision, attrs)
+	assert_revision_equal(actor.profile, attrs)
       end)
     end
 
@@ -63,13 +64,13 @@ defmodule MoodleNet.ActorsTest do
         assert {:ok, actor} = Actors.update(actor, updated_attrs)
         assert_actor_equal(actor, updated_attrs)
 
-        assert actor = Repo.preload(actor, :actor_revisions)
-        assert Enum.count(actor.actor_revisions) == 2
+        assert actor = Repo.preload(actor, :revisions)
+        assert Enum.count(actor.revisions) == 2
 
-        assert original_revision = List.first(actor.actor_revisions)
+        assert original_revision = List.first(actor.revisions)
         assert_revision_equal(original_revision, original_attrs)
 
-        assert latest_revision = List.last(actor.actor_revisions)
+        assert latest_revision = List.last(actor.revisions)
         assert_revision_equal(latest_revision, updated_attrs)
       end)
     end

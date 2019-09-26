@@ -6,7 +6,7 @@ defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Actors.{Actor, ActorRevision}
+  alias MoodleNet.Actors.{Actor, ActorRevision, ActorLatestRevision}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
@@ -18,8 +18,9 @@ defmodule MoodleNet.Actors.Actor do
   meta_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer
     belongs_to :alias, MoodleNet.Meta.Pointer
-    has_many :actor_revisions, ActorRevision
-    field :latest_revision, :any, virtual: true
+    has_many :revisions, ActorRevision
+    has_one :latest_revision, ActorLatestRevision
+    has_one :profile, through: [:latest_revision, :revision] # poke through to revision itself
     field :preferred_username, :string
     field :signing_key, :string
     field :is_public, :boolean, virtual: true

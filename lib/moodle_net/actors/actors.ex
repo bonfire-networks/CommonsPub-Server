@@ -12,7 +12,7 @@ defmodule MoodleNet.Actors do
   """
 
   alias MoodleNet.{Actors, Meta, Repo}
-  alias MoodleNet.Actors.{Actor, ActorRevision}
+  alias MoodleNet.Actors.{Actor, ActorRevision, ActorLatestRevision}
   alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
@@ -22,8 +22,9 @@ defmodule MoodleNet.Actors do
       actor_pointer = Meta.point_to!(Actor)
 
       with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)),
-           {:ok, latest_revision} <- insert_revision(actor, attrs) do
-        {:ok, %Actor{actor | latest_revision: latest_revision}}
+           {:ok, revision} <- insert_revision(actor, attrs) do
+        latest_revision = ActorLatestRevision.forge(revision)
+        {:ok, %Actor{actor | latest_revision: latest_revision, profile: revision}}
       end
     end)
   end
@@ -44,8 +45,9 @@ defmodule MoodleNet.Actors do
   def update(%Actor{} = actor, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)),
-           {:ok, latest_revision} <- insert_revision(actor, attrs) do
-        {:ok, %Actor{actor | latest_revision: latest_revision}}
+           {:ok, revision} <- insert_revision(actor, attrs) do
+        latest_revision = ActorLatestRevision.forge(revision)
+        {:ok, %Actor{actor | latest_revision: latest_revision, profile: revision}}
       end
     end)
   end
