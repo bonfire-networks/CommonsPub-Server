@@ -24,13 +24,16 @@ defmodule MoodleNet.Common.Like do
     timestamps()
   end
 
-  @create_cast ~w(liked_id liker_id is_public)a
-  @create_required @create_cast
+  @cast ~w(is_public)a
+  @required @cast
 
-  def create_changeset(%Pointer{id: id}, fields) do
-    %Like{id: id}
-    |> Changeset.cast(fields, @create_cast)
-    |> Changeset.validate_required(@create_required)
+  def create_changeset(%Pointer{id: id}, %Actor{id: liker_id}, %{id: liked_id}, %{}=fields),
+    do: update_changeset(%Like{id: id, liker_id: liker_id, liked_id: liked_id}, fields)
+
+  def update_changeset(%Like{}=like, %{}=fields) do
+    like
+    |> Changeset.cast(fields, @cast)
+    |> Changeset.validate_required(@required)
     |> Changeset.foreign_key_constraint(:liked_id)
     |> Changeset.foreign_key_constraint(:liker_id)
     |> meta_pointer_constraint()
