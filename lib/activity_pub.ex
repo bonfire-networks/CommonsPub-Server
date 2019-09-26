@@ -83,7 +83,7 @@ defmodule ActivityPub do
     # only accept false as false value
     local = !(params[:local] == false)
 
-    with data <- %{"to" => to, "type" => "Accept", "actor" => actor.ap_id, "object" => object},
+    with data <- %{"to" => to, "type" => "Accept", "actor" => actor.data["id"], "object" => object},
          {:ok, activity} <- insert(data, local),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
@@ -104,7 +104,7 @@ defmodule ActivityPub do
     # only accept false as false value
     local = !(params[:local] == false)
 
-    with data <- %{"to" => to, "type" => "Reject", "actor" => actor.ap_id, "object" => object},
+    with data <- %{"to" => to, "type" => "Reject", "actor" => actor.data["id"], "object" => object},
          {:ok, activity} <- insert(data, local),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
