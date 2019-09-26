@@ -61,8 +61,19 @@ defmodule MoodleNet.Test.Fake do
 
   # Basic data
 
+  @integer_min -32768
+  @integer_max 32767
+
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
+  @doc "Generate a random boolean that set to nil"
+  def maybe_bool(), do: Faker.Util.pick([true, false, nil])
+  @doc "Generate a random signed integer"
+  def integer(), do: Faker.random_between(@integer_min, @integer_max)
+  @doc "Generate a random positive integer"
+  def pos_integer(), do: Faker.random_between(0, @integer_max)
+  @doc "Generate a random negative integer"
+  def neg_integer(), do: Faker.random_between(@integer_min, 0)
   @doc "Generates a random url"
   def url(), do: Faker.Internet.url() <> "/"
   @doc "Picks a name"
@@ -92,6 +103,15 @@ defmodule MoodleNet.Test.Fake do
   def image(), do: Faker.Avatar.image_url()
   @doc "Picks a fake signing key"
   def signing_key(), do: base64()
+  @doc "A random license for content"
+  def license(), do: Faker.Util.pick(["GPLv3", "BSDv3", "AGPL", "Creative Commons"])
+  @doc "A list of random education uses"
+  def educational_use(),
+    do: [Faker.Industry.industry(), Faker.Industry.sector(), Faker.Industry.sub_sector()]
+  @doc "Picks a learning resource type"
+  def learning_resource(), do: Faker.Util.pick(["video", "podcast", "article", "paper"])
+  @doc "Picks an age range, represented as a string"
+  def age_range(), do: "#{Faker.random_between(6, 15)}-#{Faker.random_between(16, 100)}"
 
   # Unique data
 
@@ -155,6 +175,15 @@ defmodule MoodleNet.Test.Fake do
   def resource(base \\ %{}) do
     base
     |> Map.put_new_lazy(:is_public, &bool/0)
+    |> Map.put_new_lazy(:content, &paragraph/0)
+    |> Map.put_new_lazy(:url, &url/0)
+    |> Map.put_new_lazy(:free_access, &maybe_bool/0)
+    |> Map.put_new_lazy(:public_access, &maybe_bool/0)
+    |> Map.put_new_lazy(:license, &license/0)
+    |> Map.put_new_lazy(:learning_resource_type, &learning_resource/0)
+    |> Map.put_new_lazy(:educational_use, &educational_use/0)
+    |> Map.put_new_lazy(:time_required, &pos_integer/0)
+    |> Map.put_new_lazy(:typical_age_range, &age_range/0)
   end
 
   # def resource_revision(base \\ %{}) do

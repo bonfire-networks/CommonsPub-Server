@@ -40,6 +40,15 @@ defmodule MoodleNet.ResourcesTest do
       end)
     end
 
+    test "creates a revision for the resource" do
+      resource = Faking.fake_resource!()
+      assert {:ok, resource} = Resources.fetch(resource.id)
+      assert resource = Repo.preload(resource, [:revisions, :current])
+      assert [revision] = resource.revisions
+      assert revision == resource.current
+      assert revision.inserted_at == resource.current.inserted_at
+    end
+
     test "fails given invalid attributes" do
       Repo.transaction(fn ->
         assert {:error, changeset} = Resources.create(%{})
@@ -57,6 +66,18 @@ defmodule MoodleNet.ResourcesTest do
       assert {:ok, updated_resource} = Resources.update(resource, %{is_public: false})
       assert updated_resource != resource
       refute updated_resource.is_public
+    end
+
+    test "creates a new revision for the update, keeping the old one" do
+      resource = Faking.fake_resource!()
+      assert {:ok, updated_resource} = Resources.update(resource, Fake.resource())
+      assert updated_resource.current != resource.current
+      assert updated_resource.current.inserted_at > resource.current.inserted_at
+
+      assert updated_resource = Repo.preload(updated_resource, :revisions)
+      assert [latest_revision, oldest_revision] = updated_resource.revisions
+      assert latest_revision != oldest_revision
+      assert latest_revision.inserted_at > oldest_revision.inserted_at
     end
   end
 

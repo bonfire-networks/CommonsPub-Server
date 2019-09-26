@@ -10,7 +10,7 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Resources.{Resource, ResourceRevision}
+  alias MoodleNet.Resources.{Resource, ResourceRevision, ResourceLatestRevision}
 
   meta_schema "mn_resource" do
     belongs_to(:creator, Actor)
