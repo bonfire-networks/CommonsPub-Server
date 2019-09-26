@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors,Communities,Collections,Meta,Peers,Users,Localisation}
+  alias MoodleNet.{Actors,Communities,Collections,Meta,Peers,Users,Localisation,Resources}
   alias MoodleNet.Whitelists
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
@@ -34,27 +34,31 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_community!(overrides \\ %{}) when is_map(overrides) do
-    actor = fake_actor!(overrides)
-    language = Localisation.language!("en")
-    {:ok, community} = overrides
-    |> Map.put_new(:creator_id, actor.id)
-    |> Map.put_new(:primary_language_id, language.id)
-    |> Fake.community()
-    |> Communities.create()
+    attrs = overrides
+    |> Map.put_new_lazy(:creator_id, fn -> fake_actor!(overrides).id end)
+    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
+
+    {:ok, community} = attrs |> Fake.community() |> Communities.create()
     community
   end
 
   def fake_collection!(overrides \\ %{}) when is_map(overrides) do
-    actor = fake_actor!(overrides)
-    community = fake_community!(overrides)
-    language = Localisation.language!("en")
+    attrs = overrides
+    |> Map.put_new_lazy(:creator_id, fn ->  fake_actor!(overrides).id end)
+    |> Map.put_new_lazy(:community_id, fn -> fake_community!(overrides).id end)
+    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
 
-    {:ok, collection} = overrides
-    |> Map.put_new(:community_id, community.id)
-    |> Map.put_new(:creator_id, actor.id)
-    |> Map.put_new(:primary_language_id, language.id)
-    |> Fake.collection()
-    |> Collections.create()
+    {:ok, collection} = attrs |> Fake.collection() |> Collections.create()
     collection
+  end
+
+  def fake_resource!(overrides \\ %{}) when is_map(overrides) do
+    attrs = overrides
+    |> Map.put_new_lazy(:creator_id, fn -> fake_actor!(overrides).id end)
+    |> Map.put_new_lazy(:collection_id, fn -> fake_collection!(overrides).id end)
+    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
+
+    {:ok, resource} = attrs |> Fake.resource() |> Resources.create()
+    resource
   end
 end

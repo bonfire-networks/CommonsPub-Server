@@ -152,9 +152,10 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_public, &bool/0)
   end
 
-  # def resource(base \\ %{}) do
-  #   base
-  # end
+  def resource(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_public, &bool/0)
+  end
 
   # def resource_revision(base \\ %{}) do
   #   base

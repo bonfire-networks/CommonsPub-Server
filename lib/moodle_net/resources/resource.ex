@@ -15,9 +15,10 @@ defmodule MoodleNet.Resources.Resource do
   meta_schema "mn_resource" do
     belongs_to(:creator, Actor)
     belongs_to(:collection, Collection)
-    belongs_to(:primary_language, Language)
+    belongs_to(:primary_language, Language, type: :binary)
     has_many(:revisions, ResourceRevision)
-    field(:latest_revision, :any, virtual: true)
+    has_one(:latest_revision, ResourceLatestRevision)
+    has_one(:current, through: [:latest_revision, :revision])
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
@@ -45,7 +46,7 @@ defmodule MoodleNet.Resources.Resource do
   @doc "Creates a changeset for updating the resource with the given attributes."
   def update_changeset(%Resource{} = resource, attrs) do
     resource
-    |> Changeset.cast(@update_cast)
+    |> Changeset.cast(attrs, @update_cast)
     |> meta_pointer_constraint()
     |> change_public()
   end

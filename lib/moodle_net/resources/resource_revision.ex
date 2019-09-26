@@ -1,5 +1,6 @@
 defmodule MoodleNet.Resources.ResourceRevision do
   use MoodleNet.Common.Schema
+  alias Ecto.Changeset
   alias MoodleNet.Resources.{Resource, ResourceRevision}
 
   standalone_schema "mn_resource_revision" do

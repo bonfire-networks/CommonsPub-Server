@@ -6,15 +6,16 @@ defmodule MoodleNet.Resources do
 
   alias MoodleNet.{Common, Repo, Meta}
   alias MoodleNet.Common.Revision
-  alias MoodleNet.Resources.{Resource, ResourceFlag}
+  alias MoodleNet.Resources.{Resource, ResourceRevision, ResourceLatestRevision, ResourceFlag}
 
   def create(attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.point_to!(Resource)
 
       with {:ok, resource} <- Repo.insert(Resource.create_changeset(pointer, attrs)),
-            {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-        {:ok, %Resource{resource | latest_revision: latest_revision}}
+            {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        latest_revision = ResourceLatestRevision.forge(revision)
+        {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
@@ -22,8 +23,9 @@ defmodule MoodleNet.Resources do
   def update(%Resource{} = resource, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- Repo.update(Resource.update_changeset(resource, attrs)),
-      {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-        {:ok, %Resource{resource | latest_revision: latest_revision}}
+           {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        latest_revision = ResourceLatestRevision.forge(revision)
+        {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
