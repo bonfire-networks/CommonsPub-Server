@@ -2,7 +2,6 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
-
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
@@ -32,29 +31,32 @@ defmodule MoodleNet.Actors.Actor do
   @create_cast ~w(peer_id alias_id preferred_username signing_key is_public)a
   @create_required ~w(preferred_username is_public)a
 
-  @spec create_changeset(Pointer.t, map) :: Changeset.t
+  @spec create_changeset(Pointer.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion from the given pointer and attrs"
   def create_changeset(%Pointer{id: id} = pointer, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
+
     %Actor{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> Changeset.validate_format(:preferred_username, @username_regex)
     |> Changeset.unique_constraint(:alias_id)
-    |> Changeset.unique_constraint(:preferred_username, name: "mn_actor_preferred_username_peer_id_index")
+    |> Changeset.unique_constraint(:preferred_username,
+      name: "mn_actor_preferred_username_peer_id_index"
+    )
     |> meta_pointer_constraint()
     |> change_public()
   end
 
   @update_cast ~w(alias_id signing_key is_public)a
 
-  @spec update_changeset(%Actor{}, map) :: Changeset.t
+  @spec update_changeset(%Actor{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the given actor from the given attrs"
   def update_changeset(%Actor{} = actor, attrs) do
     actor
     |> Changeset.cast(attrs, @update_cast)
     |> Changeset.unique_constraint(:alias_id)
     |> meta_pointer_constraint()
+    |> change_public()
   end
-
 end

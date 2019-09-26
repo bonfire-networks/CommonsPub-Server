@@ -4,8 +4,29 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
 
-  alias MoodleNet.Common
-  alias MoodleNet.Resources.ResourceFlag
+  alias MoodleNet.{Common, Repo, Meta}
+  alias MoodleNet.Common.Revision
+  alias MoodleNet.Resources.{Resource, ResourceFlag}
+
+  def create(attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      pointer = Meta.point_to!(Resource)
+
+      with {:ok, resource} <- Repo.insert(Resource.create_changeset(pointer, attrs)),
+            {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        {:ok, %Resource{resource | latest_revision: latest_revision}}
+      end
+    end)
+  end
+
+  def update(%Resource{} = resource, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, resource} <- Repo.update(Resource.update_changeset(resource, attrs)),
+      {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        {:ok, %Resource{resource | latest_revision: latest_revision}}
+      end
+    end)
+  end
 
   @doc """
   Likes a resource with a given reason
