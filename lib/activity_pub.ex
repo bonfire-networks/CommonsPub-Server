@@ -6,6 +6,10 @@
 defmodule ActivityPub do
   @moduledoc """
   ActivityPub API
+
+  In general, the functions in this module take object-like formatted struct as the input for actor parameters.
+  Use the functions in the `ActivityPub.Actor` module (`ActivityPub.Actor.get_by_ap_id/1` for example) to retrieve those.
+
   Legacy: Delegates some functions to related ActivityPub submodules
   """
   alias ActivityPub.Adapter
@@ -35,6 +39,16 @@ defmodule ActivityPub do
     end
   end
 
+  @doc """
+  Generates and federates a Create activity via the data passed through `params`.
+
+  Requires `to`, `actor`, `context` and `object` fields to be present in the input map.
+
+  `to` must be a list.</br>
+  `actor` must be an `ActivityPub.Object`-like struct.</br>
+  `context` must be a string. Use `ActivityPub.Utils.generate_context_id/0` to generate a default context.</br>
+  `object` must be a map.
+  """
   def create(%{to: to, actor: actor, context: context, object: object} = params) do
     additional = params[:additional] || %{}
     # only accept false as false value
@@ -55,6 +69,16 @@ defmodule ActivityPub do
     end
   end
 
+
+  @doc """
+  Generates and federates an Accept activity via the data passed through `params`.
+
+  Requires 'to', actor' and 'object' fields to be present in the input map.
+
+  `to` must be a list.</br>
+  `actor` must be an `ActivityPub.Object`-like struct.</br>
+  `object` should be the URI of the object that is being accepted.
+  """
   def accept(%{to: to, actor: actor, object: object} = params) do
     # only accept false as false value
     local = !(params[:local] == false)
@@ -67,6 +91,15 @@ defmodule ActivityPub do
     end
   end
 
+  @doc """
+  Generates and federates a Reject activity via the data passed through `params`.
+
+  Requires 'to', actor' and 'object' fields to be present in the input map.
+
+  `to` must be a list.<br/>
+  `actor` must be an `ActivityPub.Object`-like struct.<br/>
+  `object` should be the URI of the object that is being rejected
+  """
   def reject(%{to: to, actor: actor, object: object} = params) do
     # only accept false as false value
     local = !(params[:local] == false)
@@ -79,6 +112,11 @@ defmodule ActivityPub do
     end
   end
 
+  @doc """
+  Generates and federates a Follow activity.
+
+  Note: the follow should be reflected on the host database side only after receiving an `Accept` activity in response!
+  """
   def follow(follower, followed, activity_id \\ nil, local \\ true) do
     with data <- Utils.make_follow_data(follower, followed, activity_id),
          {:ok, activity} <- insert(data, local),
@@ -88,6 +126,9 @@ defmodule ActivityPub do
     end
   end
 
+  @doc """
+  Generates and federates an Unfollow activity.
+  """
   def unfollow(follower, followed, activity_id \\ nil, local \\ true) do
     with %Object{} = follow_activity <- Utils.fetch_latest_follow(follower, followed),
          unfollow_data <-
