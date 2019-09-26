@@ -33,22 +33,16 @@ defmodule MoodleNet.Test.Faking do
     user
   end
 
-  def fake_community!(overrides \\ %{}) when is_map(overrides) do
-    actor = fake_actor!(overrides)
-    language = Localisation.language!("en")
+  def fake_community!(actor, language, overrides \\ %{}) when is_map(overrides) do
     {:ok, community} = overrides
-    |> Map.put_new(:creator_id, actor.id)
-    |> Map.put_new(:primary_language_id, language.id)
+    |> Map.put_new_lazy(:creator_id, fn -> actor.id end)
+    |> Map.put_new_lazy(:primary_language_id, fn -> language.id end)
     |> Fake.community()
     |> Communities.create()
     community
   end
 
-  def fake_collection!(overrides \\ %{}) when is_map(overrides) do
-    actor = fake_actor!(overrides)
-    community = fake_community!(overrides)
-    language = Localisation.language!("en")
-
+  def fake_collection!(actor, community, language, overrides \\ %{}) when is_map(overrides) do
     {:ok, collection} = overrides
     |> Map.put_new(:community_id, community.id)
     |> Map.put_new(:creator_id, actor.id)
