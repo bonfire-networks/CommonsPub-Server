@@ -9,6 +9,17 @@ defmodule MoodleNet.ResourcesTest do
   alias MoodleNet.{Resources, Repo}
   alias MoodleNet.Test.{Fake, Faking}
 
+  describe "fetch" do
+    test "fetches an existing resource" do
+      assert {:ok, resource} = Resources.fetch(Faking.fake_resource!().id)
+    end
+
+    test "returns not found if the resource is missing" do
+      assert {:error, %MoodleNet.Common.NotFoundError{}} =
+        Resources.fetch(Faker.UUID.v4())
+    end
+  end
+
   describe "create" do
     test "creates a new resource given valid attributes" do
       Repo.transaction(fn ->
