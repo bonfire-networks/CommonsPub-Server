@@ -44,4 +44,19 @@ defmodule MoodleNet.Common.Schema do
     end
   end
 
+  @doc """
+  Declares a schema for a view:
+  * No primary key
+  * Foreign keys default to UUID
+  * Timestamp columns default to microsecond resolution UTC
+  """
+  defmacro view_schema(view, body) do
+    quote do
+      @primary_key false
+      @foreign_key_type :binary_id
+      @timestamps_opts [type: :utc_datetime_usec]
+      schema(unquote(view), unquote(body))
+    end
+  end
+
 end
