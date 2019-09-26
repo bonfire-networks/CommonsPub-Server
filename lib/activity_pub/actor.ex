@@ -5,7 +5,7 @@
 
 defmodule ActivityPub.Actor do
   @moduledoc """
-  Functions for dealing with ActivityPub actors
+  Functions for dealing with ActivityPub actors.
   """
   require Ecto.Query
 
@@ -16,8 +16,11 @@ defmodule ActivityPub.Actor do
   alias Ecto.Changeset
   alias MoodleNet.Repo
 
-  # TODO: make better
+  @doc """
+  Updates an existing actor struct by its AP ID.
+  """
   def update_actor(actor_id) do
+    # TODO: make better
     with {:ok, %Object{local: false} = actor} <- Fetcher.fetch_object_from_id(actor_id),
          {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id) do
       actor
@@ -26,7 +29,7 @@ defmodule ActivityPub.Actor do
     end
   end
 
-  def public_key_from_data(%{"publicKey" => %{"publicKeyPem" => public_key_pem}}) do
+  defp public_key_from_data(%{"publicKey" => %{"publicKeyPem" => public_key_pem}}) do
     key =
       public_key_pem
       |> :public_key.pem_decode()
@@ -36,8 +39,11 @@ defmodule ActivityPub.Actor do
     {:ok, key}
   end
 
-  def public_key_from_data(_), do: {:error, "Key not found"}
+  defp public_key_from_data(_), do: {:error, "Key not found"}
 
+  @doc """
+  Fetches the public key for given actor AP ID.
+  """
   def get_public_key_for_ap_id(ap_id) do
     with {:ok, actor} <- get_by_ap_id(ap_id),
          {:ok, public_key} <- public_key_from_data(actor.data) do
@@ -57,19 +63,12 @@ defmodule ActivityPub.Actor do
     |> List.last()
   end
 
-  def get_by_username(username) do
-    with {:ok, actor} <- Adapter.get_actor_by_username(username),
-         actor <- format_local_actor(actor) do
-      {:ok, actor}
-    end
-  end
-
-  def get_local_actor(ap_id) do
+  defp get_local_actor(ap_id) do
     username = username_from_ap_id(ap_id)
     get_by_username(username)
   end
 
-  def get_remote_actor(ap_id) do
+  defp get_remote_actor(ap_id) do
     with {:ok, actor} <- Fetcher.fetch_object_from_id(ap_id),
          false <- check_if_time_to_update(actor) do
       {:ok, actor}
@@ -82,6 +81,23 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  @doc """
+  Fetches a local actor given its preferred username.
+  """
+  def get_by_username(username) do
+    with {:ok, actor} <- Adapter.get_actor_by_username(username),
+         actor <- format_local_actor(actor) do
+      {:ok, actor}
+    end
+  end
+
+  @doc """
+  Fetches an actor given its AP ID.
+
+  Remote actors are first checked if they exist in database and are fetched remotely if they don't.
+
+  Remote actors are also automatically updated every 24 hours.
+  """
   @spec get_by_ap_id(String.t()) :: {:ok, Map.t()} | {:error, any()}
   def get_by_ap_id(ap_id) do
     host = URI.parse(ap_id)
@@ -93,6 +109,7 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  @doc false
   def set_public_key(%{data: data} = actor) do
     {:ok, entity} = ActivityPub.Utils.ensure_keys_present(actor)
     {:ok, _, public_key} = ActivityPub.Keys.keys_from_pem(actor.keys)
@@ -109,6 +126,9 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
+  @doc """
+  Formats an actor struct from the host database to match AS2 actor format and AP database object format.
+  """
   def format_local_actor(actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/#{actor.preferred_username}"

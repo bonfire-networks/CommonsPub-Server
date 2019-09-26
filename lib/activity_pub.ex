@@ -17,6 +17,7 @@ defmodule ActivityPub do
   alias ActivityPub.Object
   alias MoodleNet.Repo
 
+  @doc false
   def insert(map, local) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
          {:ok, map, object} <- Utils.insert_full_object(map) do
@@ -73,7 +74,7 @@ defmodule ActivityPub do
   @doc """
   Generates and federates an Accept activity via the data passed through `params`.
 
-  Requires 'to', actor' and 'object' fields to be present in the input map.
+  Requires `to`, `actor` and `object` fields to be present in the input map.
 
   `to` must be a list.</br>
   `actor` must be an `ActivityPub.Object`-like struct.</br>
@@ -94,7 +95,7 @@ defmodule ActivityPub do
   @doc """
   Generates and federates a Reject activity via the data passed through `params`.
 
-  Requires 'to', actor' and 'object' fields to be present in the input map.
+  Requires `to`, `actor` and `object` fields to be present in the input map.
 
   `to` must be a list.<br/>
   `actor` must be an `ActivityPub.Object`-like struct.<br/>
