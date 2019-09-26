@@ -19,7 +19,7 @@ defmodule MoodleNet.Actors.Actor do
     belongs_to :alias, MoodleNet.Meta.Pointer
     has_many :revisions, ActorRevision
     has_one :latest_revision, ActorLatestRevision
-    has_one :profile, through: [:latest_revision, :revision] # poke through to revision itself
+    has_one :current, through: [:latest_revision, :revision] # poke through to revision itself
     field :preferred_username, :string
     field :signing_key, :string
     field :is_public, :boolean, virtual: true

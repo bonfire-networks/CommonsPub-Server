@@ -25,10 +25,10 @@ defmodule MoodleNet.ActorsTest do
         assert {:ok, actor} = Actors.create(attrs)
         assert_actor_equal(actor, attrs)
 
-        assert actor = Repo.preload(actor, [:revisions, :profile])
+        assert actor = Repo.preload(actor, [:revisions, :current])
         assert [actor_revision] = actor.revisions
         assert_revision_equal(actor_revision, attrs)
-	      assert_revision_equal(actor.profile, attrs)
+	      assert_revision_equal(actor.current, attrs)
       end)
     end
 

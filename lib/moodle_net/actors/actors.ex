@@ -25,7 +25,7 @@ defmodule MoodleNet.Actors do
       with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)),
            {:ok, revision} <- Revision.insert(ActorRevision, actor, attrs) do
         latest_revision = ActorLatestRevision.forge(revision)
-        {:ok, %Actor{actor | latest_revision: latest_revision, profile: revision}}
+        {:ok, %Actor{actor | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
@@ -48,7 +48,7 @@ defmodule MoodleNet.Actors do
       with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)),
            {:ok, revision} <- Revision.insert(ActorRevision, actor, attrs) do
         latest_revision = ActorLatestRevision.forge(revision)
-        {:ok, %Actor{actor | latest_revision: latest_revision, profile: revision}}
+        {:ok, %Actor{actor | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
