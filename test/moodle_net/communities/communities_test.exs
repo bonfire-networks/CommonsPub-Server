@@ -5,21 +5,25 @@ defmodule MoodleNet.CommunitiesTest do
   use MoodleNet.DataCase, async: true
 
   import ActivityPub.Entity, only: [local_id: 1]
-  alias MoodleNet.{Actors, Communities, Localisation}
+  alias MoodleNet.{Actors, Communities}
   alias MoodleNet.Test.{Fake, Faking}
 
   describe "create" do
     test "creates a community given valid attributes" do
-      assert actor = Faking.fake_actor!()
-      assert {:ok, language} = Localisation.language("en")
-      attrs = Fake.community(%{creator_id: actor.id, primary_language_id: language.id})
-      assert {:ok, community} = Communities.create(attrs)
+      actor = Faking.fake_actor!()
+      language = Faking.fake_language!()
+
+      attrs = Fake.community()
+      assert {:ok, community} = Communities.create(actor, language, attrs)
+      assert community.creator_id == actor.id
+      assert community.primary_language_id == language.id
+      assert community.is_public == attrs[:is_public]
     end
 
     test "fails if given invalid attributes" do
-      assert {:error, changeset} = Communities.create(%{})
-      assert Keyword.get(changeset.errors, :creator_id)
-      assert Keyword.get(changeset.errors, :primary_language_id)
+      actor = Faking.fake_actor!()
+      language = Fake.fake_language!()
+      assert {:error, changeset} = Communities.create(actor, language, %{})
       assert Keyword.get(changeset.errors, :is_public)
     end
   end
@@ -50,18 +54,16 @@ defmodule MoodleNet.CommunitiesTest do
 
   describe "community flags" do
     test "works" do
-      actor = Factory.actor()
-      actor_id = local_id(actor)
-      comm = Factory.community(actor)
-      comm_id = local_id(comm)
+      actor = Faking.fake_actor!()
+      comm = Faking.fake_community!(%{creator_id: actor.id})
 
       assert [] = Communities.all_flags(actor)
 
       {:ok, _activity} = Communities.flag(actor, comm, %{reason: "Terrible joke"})
 
       assert [flag] = Communities.all_flags(actor)
-      assert flag.flagged_object_id == comm_id
-      assert flag.flagging_object_id == actor_id
+      assert flag.flagged_object_id == comm.id
+      assert flag.flagging_object_id == actor.id
       assert flag.reason == "Terrible joke"
       assert flag.open == true
     end

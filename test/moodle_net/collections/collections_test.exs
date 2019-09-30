@@ -14,24 +14,17 @@ defmodule MoodleNet.CollectionsTest do
     test "creates a new collection" do
       creator = Faking.fake_actor!()
       community = Faking.fake_community!(%{creator_id: creator.id})
-
-      assert {:ok, collection} =
-               %{
-                 community_id: community.id,
-                 creator_id: creator.id,
-                 primary_language_id: community.primary_language_id
-               }
-               |> Fake.collection()
-               |> Collections.create()
-
+      language = Faking.fake_language!()
+      attrs = Fake.collection()
+      assert {:ok, collection} = Collections.create(community, creator, language, attrs)
       assert collection.community_id == community.id
     end
 
     test "fails if given invalid attributes" do
-      assert {:error, changeset} = Collections.create(%{})
-      assert Keyword.get(changeset.errors, :creator_id)
-      assert Keyword.get(changeset.errors, :community_id)
-      assert Keyword.get(changeset.errors, :primary_language_id)
+      creator = Faking.fake_actor!()
+      community = Faking.fake_community!(%{creator_id: creator.id})
+      language = Faking.fake_language!()
+      assert {:error, changeset} = Collections.create(community, creator, language, %{})
       assert Keyword.get(changeset.errors, :is_public)
     end
   end
@@ -40,7 +33,6 @@ defmodule MoodleNet.CollectionsTest do
     test "updates a collection with the given attributes" do
       collection = Faking.fake_collection!(%{is_public: true})
       assert {:ok, updated_collection} = Collections.update(collection, %{is_public: false})
-      assert updated_collection != collection
       refute updated_collection.is_public
     end
   end

@@ -18,6 +18,12 @@ defmodule MoodleNet.Test.Faking do
     wl
   end
 
+  def fake_language!(overrides \\ %{}) do
+    overrides
+    |> Map.get(:id, "en")
+    |> Localisation.language!()
+  end
+
   def fake_peer!(overrides \\ %{}) when is_map(overrides) do
     {:ok, peer} = Peers.create(Fake.peer(overrides))
     peer
@@ -34,21 +40,18 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_community!(overrides \\ %{}) when is_map(overrides) do
-    attrs = overrides
-    |> Map.put_new_lazy(:creator_id, fn -> fake_actor!(overrides).id end)
-    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
-
-    {:ok, community} = attrs |> Fake.community() |> Communities.create()
+    actor = fake_actor!(overrides)
+    language = fake_language!()
+    {:ok, community} = Communities.create(actor, language, Fake.community(overrides))
     community
   end
 
   def fake_collection!(overrides \\ %{}) when is_map(overrides) do
-    attrs = overrides
-    |> Map.put_new_lazy(:creator_id, fn ->  fake_actor!(overrides).id end)
-    |> Map.put_new_lazy(:community_id, fn -> fake_community!(overrides).id end)
-    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
-
-    {:ok, collection} = attrs |> Fake.collection() |> Collections.create()
+    # FIXME: allow setup of actor + community relationship
+    actor = fake_actor!()
+    language = fake_language!()
+    community = fake_community!(overrides)
+    {:ok, collection} = Collections.create(community, actor, language, Fake.collection())
     collection
   end
 

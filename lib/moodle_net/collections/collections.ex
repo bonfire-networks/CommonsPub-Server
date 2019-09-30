@@ -5,11 +5,12 @@ defmodule MoodleNet.Collections do
   alias MoodleNet.{Common, Repo, Meta}
   alias MoodleNet.Collections.Collection
 
-  @spec create(attrs :: map) :: {:ok, %Collection{}} | {:error, Changeset.t()}
-  def create(attrs) when is_map(attrs) do
+  @spec create(Community.t(), Actor.t(), Language.t(), attrs :: map) ::
+          {:ok, %Collection{}} | {:error, Changeset.t()}
+  def create(community, creator, language, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       Meta.point_to!(Collection)
-      |> Collection.create_changeset(attrs)
+      |> Collection.create_changeset(community, creator, language, attrs)
       |> Repo.insert()
     end)
   end
