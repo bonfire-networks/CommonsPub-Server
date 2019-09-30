@@ -16,12 +16,13 @@ defmodule MoodleNet.Resources do
     end
   end
 
-  @spec create(attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}
-  def create(attrs) when is_map(attrs) do
+  @spec create(Collection.t(), Actor.t(), Language.t(), attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}
+  def create(collection, creator, language, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.point_to!(Resource)
 
-      with {:ok, resource} <- Repo.insert(Resource.create_changeset(pointer, attrs)),
+      changeset = Resource.create_changeset(pointer, collection, creator, language, attrs)
+      with {:ok, resource} <- Repo.insert(changeset),
            {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
         latest_revision = ResourceLatestRevision.forge(revision)
         {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}

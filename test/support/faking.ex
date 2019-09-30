@@ -3,17 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors,Communities,Collections,Meta,Peers,Users,Localisation,Resources}
+  alias MoodleNet.{Actors, Communities, Collections, Meta, Peers, Users, Localisation, Resources}
   alias MoodleNet.Whitelists
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
-  when is_binary(domain) do
+      when is_binary(domain) do
     {:ok, wl} = Whitelists.create_register_email_domain(domain)
     wl
   end
 
   def fake_register_email_whitelist!(email \\ Fake.email())
-  when is_binary(email) do
+      when is_binary(email) do
     {:ok, wl} = Whitelists.create_register_email(email)
     wl
   end
@@ -48,20 +48,18 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_collection!(overrides \\ %{}) when is_map(overrides) do
     # FIXME: allow setup of actor + community relationship
-    actor = fake_actor!()
+    actor = fake_actor!(overrides)
     language = fake_language!()
     community = fake_community!(overrides)
-    {:ok, collection} = Collections.create(community, actor, language, Fake.collection())
+    {:ok, collection} = Collections.create(community, actor, language, Fake.collection(overrides))
     collection
   end
 
   def fake_resource!(overrides \\ %{}) when is_map(overrides) do
-    attrs = overrides
-    |> Map.put_new_lazy(:creator_id, fn -> fake_actor!(overrides).id end)
-    |> Map.put_new_lazy(:collection_id, fn -> fake_collection!(overrides).id end)
-    |> Map.put_new_lazy(:primary_language_id, fn -> Localisation.language!("en").id end)
-
-    {:ok, resource} = attrs |> Fake.resource() |> Resources.create()
+    actor = fake_actor!(overrides)
+    language = fake_language!()
+    collection = fake_collection!(overrides)
+    {:ok, resource} = Resources.create(collection, actor, language, Fake.resource(overrides))
     resource
   end
 end

@@ -25,29 +25,32 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @create_cast ~w(creator_id collection_id primary_language_id is_public)a
+  @create_cast ~w(is_public)a
   @create_required @create_cast
 
-  @spec create_changeset(Pointer.t(), map) :: Changeset.t()
+  @spec create_changeset(Pointer.t(), Collection.t(), Actor.t(), Language.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given pointer and attributes."
-  def create_changeset(%Pointer{id: id} = pointer, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, collection, creator, language, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Resource{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
-    |> meta_pointer_constraint()
+    |> Changeset.put_assoc(:collection, collection)
+    |> Changeset.put_assoc(:creator, creator)
+    |> Changeset.put_assoc(:primary_language, language)
     |> change_public()
+    |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(primary_language_id is_public)a
+  @update_cast ~w(is_public)a
 
   @spec update_changeset(%Resource{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the resource with the given attributes."
   def update_changeset(%Resource{} = resource, attrs) do
     resource
     |> Changeset.cast(attrs, @update_cast)
-    |> meta_pointer_constraint()
     |> change_public()
+    |> meta_pointer_constraint()
   end
 end

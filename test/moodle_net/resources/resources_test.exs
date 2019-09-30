@@ -24,17 +24,10 @@ defmodule MoodleNet.ResourcesTest do
     test "creates a new resource given valid attributes" do
       Repo.transaction(fn ->
         creator = Faking.fake_actor!()
-        collection = Faking.fake_collection!()
-
-        assert {:ok, resource} =
-          %{
-            creator_id: creator.id,
-            collection_id: collection.id,
-            primary_language_id: collection.primary_language_id
-          }
-          |> Fake.resource()
-          |> Resources.create()
-
+        collection = Faking.fake_collection!(%{creator_id: creator.id})
+        language = Faking.fake_language!()
+        attrs = Fake.resource()
+        assert {:ok, resource} = Resources.create(collection, creator, language, attrs)
         assert resource.collection_id == collection.id
         assert resource.creator_id == creator.id
       end)
@@ -51,10 +44,10 @@ defmodule MoodleNet.ResourcesTest do
 
     test "fails given invalid attributes" do
       Repo.transaction(fn ->
-        assert {:error, changeset} = Resources.create(%{})
-        assert Keyword.get(changeset.errors, :creator_id)
-        assert Keyword.get(changeset.errors, :collection_id)
-        assert Keyword.get(changeset.errors, :primary_language_id)
+        creator = Faking.fake_actor!()
+        collection = Faking.fake_collection!(%{creator_id: creator.id})
+        language = Faking.fake_language!()
+        assert {:error, changeset} = Resources.create(collection, creator, language, %{})
         assert Keyword.get(changeset.errors, :is_public)
       end)
     end
