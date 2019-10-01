@@ -7,51 +7,53 @@ defmodule MoodleNet.CollectionsTest do
   use MoodleNet.DataCase, async: true
 
   import ActivityPub.Entity, only: [local_id: 1]
+  import MoodleNet.Test.Faking
   alias MoodleNet.Collections
-  alias MoodleNet.Test.{Fake, Faking}
+  alias MoodleNet.Test.Fake
+
+  setup do
+    actor = fake_actor!()
+    language = fake_language!()
+    community = fake_community!(actor, language)
+    collection = fake_collection!(actor, community, language)
+    {:ok, %{actor: actor, language: language, community: community, collection: collection}}
+  end
 
   describe "create" do
-    test "creates a new collection" do
-      creator = Faking.fake_actor!()
-      community = Faking.fake_community!(%{creator_id: creator.id})
-      language = Faking.fake_language!()
+    test "creates a new collection", context do
       attrs = Fake.collection()
-      assert {:ok, collection} = Collections.create(community, creator, language, attrs)
-      assert collection.community_id == community.id
+
+      assert {:ok, collection} =
+               Collections.create(context.community, context.actor, context.language, attrs)
+
+      assert collection.community_id == context.community.id
+      assert collection.is_public == attrs[:is_public]
     end
 
-    test "fails if given invalid attributes" do
-      creator = Faking.fake_actor!()
-      community = Faking.fake_community!(%{creator_id: creator.id})
-      language = Faking.fake_language!()
-      assert {:error, changeset} = Collections.create(community, creator, language, %{})
+    test "fails if given invalid attributes", context do
+      assert {:error, changeset} =
+               Collections.create(context.community, context.actor, context.language, %{})
+
       assert Keyword.get(changeset.errors, :is_public)
     end
   end
 
   describe "update" do
-    test "updates a collection with the given attributes" do
-      collection = Faking.fake_collection!(%{is_public: true})
+    test "updates a collection with the given attributes", %{collection: collection} do
       assert {:ok, updated_collection} = Collections.update(collection, %{is_public: false})
       refute updated_collection.is_public
     end
   end
 
   describe "collection flags" do
-    test "works" do
-      actor = Factory.actor()
-      actor_id = local_id(actor)
-      comm = Factory.community(actor)
-      coll = Factory.collection(actor, comm)
-      coll_id = local_id(coll)
-
+    test "works", %{actor: actor, collection: coll} do
       assert [] = Collections.all_flags(actor)
 
       {:ok, _activity} = Collections.flag(actor, coll, %{reason: "Terrible joke"})
 
       assert [flag] = Collections.all_flags(actor)
-      assert flag.flagged_object_id == coll_id
-      assert flag.flagging_object_id == actor_id
+      assert flag.flagged_object_id == coll.id
+      assert flag.flagging_object_id == actor.id
       assert flag.reason == "Terrible joke"
       assert flag.open == true
     end

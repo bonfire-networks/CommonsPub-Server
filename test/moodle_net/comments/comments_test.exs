@@ -7,15 +7,16 @@ defmodule MoodleNet.CommentsTest do
   use MoodleNet.DataCase, async: true
 
   import ActivityPub.Entity, only: [local_id: 1]
+  import MoodleNet.Test.Faking
   alias MoodleNet.Comments
   alias MoodleNet.Meta
-  alias MoodleNet.Test.{Fake, Faking}
+  alias MoodleNet.Test.Fake
 
   describe "create_thread" do
     test "creates a new thread with any parent" do
-      resource = Faking.fake_resource!()
+      actor = fake_actor!()
       attrs = Fake.thread()
-      assert {:ok, thread} = Comments.create_thread(Meta.find!(resource.id), attrs)
+      assert {:ok, thread} = Comments.create_thread(Meta.find!(actor.id), attrs)
       assert thread.is_public == attrs.is_public
     end
   end
