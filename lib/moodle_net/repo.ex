@@ -21,6 +21,7 @@ defmodule MoodleNet.Repo do
   end
 
   @doc "Like Repo.get, but returns an ok/error tuple"
+  @spec fetch(atom, integer | binary) :: {:ok, atom} | {:error, NotFoundError.t()}
   def fetch(queryable, id) do
     case get(queryable, id) do
       nil -> {:error, NotFoundError.new(id)}

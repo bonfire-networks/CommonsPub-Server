@@ -15,19 +15,8 @@ defmodule MoodleNet.Comments do
   alias MoodleNet.Common.{Revision, NotFoundError}
   alias MoodleNet.Repo
 
-  def fetch_thread(id) do
-    case Repo.get(Thread, id) do
-      nil -> {:error, NotFoundError.new(id)}
-      thread -> {:ok, thread}
-    end
-  end
-
-  def fetch_comment(id) do
-    case Repo.get(Comment, id) do
-      nil -> {:error, NotFoundError.new(id)}
-      comment -> {:ok, comment}
-    end
-  end
+  def fetch_thread(id), do: Repo.fetch(Thread, id)
+  def fetch_comment(id), do: Repo.fetch(Comment, id)
 
   def create_thread(parent, attrs) do
     Repo.transact_with(fn ->
