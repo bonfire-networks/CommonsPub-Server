@@ -5,6 +5,8 @@ defmodule MoodleNet.ActorsTest do
   use MoodleNet.DataCase, async: true
 
   alias MoodleNet.{Actors, Repo}
+  alias MoodleNet.Actors.ActorRevision
+  alias MoodleNet.Common.Revision
   alias MoodleNet.Test.Fake
 
   def assert_actor_equal(actor, attrs) do
@@ -64,9 +66,7 @@ defmodule MoodleNet.ActorsTest do
         assert {:ok, actor} = Actors.update(actor, updated_attrs)
         assert_actor_equal(actor, updated_attrs)
 
-        assert actor = Repo.preload(actor, :revisions)
-        assert Enum.count(actor.revisions) == 2
-
+        assert actor = Revision.preload(ActorRevision, actor)
         assert [latest_revision, oldest_revision] = actor.revisions
         assert_revision_equal(latest_revision, updated_attrs)
         assert_revision_equal(oldest_revision, original_attrs)

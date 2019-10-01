@@ -6,9 +6,10 @@
 defmodule MoodleNet.CommentsTest do
   use MoodleNet.DataCase, async: true
 
-  import ActivityPub.Entity, only: [local_id: 1]
   import MoodleNet.Test.Faking
+  alias MoodleNet.Common.Revision
   alias MoodleNet.Comments
+  alias MoodleNet.Comments.CommentRevision
   alias MoodleNet.Meta
   alias MoodleNet.Test.Fake
 
@@ -100,10 +101,10 @@ defmodule MoodleNet.CommentsTest do
       assert {:ok, updated_comment} = Comments.update_comment(comment, Fake.comment())
       assert updated_comment.current != comment.current
 
-      assert updated_comment = Repo.preload(updated_comment, :revisions)
+      assert updated_comment = Revision.preload(CommentRevision, updated_comment)
       assert [latest_revision, oldest_revision] = updated_comment.revisions
       assert latest_revision != oldest_revision
-      assert latest_revision.inserted_at > oldest_revision.inserted_at
+      assert :gt = DateTime.compare(latest_revision.inserted_at, oldest_revision.inserted_at)
     end
   end
 end

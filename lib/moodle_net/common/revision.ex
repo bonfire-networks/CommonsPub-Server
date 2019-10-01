@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.Revision do
   alias MoodleNet.Repo
+  import Ecto.Query, only: [from: 2]
 
   def insert(module, parent, attrs) do
     parent_keys =
@@ -15,5 +16,10 @@ defmodule MoodleNet.Common.Revision do
     parent
     |> module.create_changeset(revision_attrs)
     |> Repo.insert()
+  end
+
+  def preload(module, queryable) do
+    query = from(r in module, order_by: [desc: r.inserted_at])
+    Repo.preload(queryable, [revisions: query])
   end
 end

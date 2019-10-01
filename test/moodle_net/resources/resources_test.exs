@@ -5,9 +5,10 @@
 
 defmodule MoodleNet.ResourcesTest do
   use MoodleNet.DataCase, async: true
-
   import MoodleNet.Test.Faking
   alias MoodleNet.{Resources, Repo}
+  alias MoodleNet.Resources.ResourceRevision
+  alias MoodleNet.Common.Revision
   alias MoodleNet.Test.Fake
 
   setup do
@@ -88,10 +89,10 @@ defmodule MoodleNet.ResourcesTest do
       assert {:ok, updated_resource} = Resources.update(resource, Fake.resource())
       assert updated_resource.current != resource.current
 
-      assert updated_resource = Repo.preload(updated_resource, :revisions)
+      assert updated_resource = Revision.preload(ResourceRevision, updated_resource)
       assert [latest_revision, oldest_revision] = updated_resource.revisions
       assert latest_revision != oldest_revision
-      assert latest_revision.inserted_at > oldest_revision.inserted_at
+      assert :gt = DateTime.compare(latest_revision.inserted_at, oldest_revision.inserted_at)
     end
   end
 end
