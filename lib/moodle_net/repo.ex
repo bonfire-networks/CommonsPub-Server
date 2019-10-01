@@ -27,6 +27,7 @@ defmodule MoodleNet.Repo do
       thing -> {:ok, thing}
     end
   end
+
   @doc """
   Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
   tuple. If an error tuple is returned, the transaction is aborted.
@@ -40,4 +41,5 @@ defmodule MoodleNet.Repo do
       end
     end)
   end
+
 end
