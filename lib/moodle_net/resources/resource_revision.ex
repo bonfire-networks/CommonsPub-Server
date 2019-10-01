@@ -21,7 +21,8 @@ defmodule MoodleNet.Resources.ResourceRevision do
   @create_cast ~w(content url same_as free_access public_access license learning_resource_type educational_use time_required typical_age_range)a
 
   def create_changeset(%Resource{} = resource, attrs) do
-    %ResourceRevision{resource: resource}
+    %ResourceRevision{}
     |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.put_assoc(:resource, resource)
   end
 end

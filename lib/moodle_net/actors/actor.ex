@@ -16,7 +16,7 @@ defmodule MoodleNet.Actors.Actor do
 
   meta_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer
-    belongs_to :alias, MoodleNet.Meta.Pointer
+    belongs_to :alias, Pointer
     has_many :revisions, ActorRevision
     has_one :latest_revision, ActorLatestRevision
     has_one :current, through: [:latest_revision, :revision] # poke through to revision itself

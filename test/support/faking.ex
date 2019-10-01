@@ -49,32 +49,21 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_community!(actor, language, overrides \\ %{}) when is_map(overrides) do
-    attrs =
-      overrides
-      |> Map.put_new_lazy(:creator_id, fn -> actor.id end)
-      |> Map.put_new_lazy(:primary_language_id, fn -> language.id end)
-      |> Fake.community()
-    {:ok, community} = Communities.create(actor, language, attrs)
+    {:ok, community} = Communities.create(actor, language, Fake.community(overrides))
     community
   end
 
   def fake_collection!(actor, community, language, overrides \\ %{}) when is_map(overrides) do
-    {:ok, collection} =
-      overrides
-      |> Map.put_new(:community_id, community.id)
-      |> Map.put_new(:creator_id, actor.id)
-      |> Map.put_new(:primary_language_id, language.id)
-      |> Fake.collection()
-    {:ok, community} = Collections.create(community, language, Fake.community(overrides))
-    community
+    {:ok, collection} = Collections.create(community, actor, language, Fake.collection(overrides))
+    collection
   end
 
-  # def fake_resource!(overrides \\ %{}) when is_map(overrides) do
-  #   actor = fake_actor!(overrides)
-  #   language = fake_language!()
-  #   collection = fake_collection!(overrides)
-  #   {:ok, resource} = Resources.create(collection, actor, language, Fake.resource(overrides))
-  #   resource
-  # end
+  def fake_resource!(actor, collection, language, overrides \\ %{}) when is_map(overrides) do
+    {:ok, resource} = Resources.create(collection, actor, language, Fake.resource(overrides))
+    resource
+  end
 
+  def fake_thread!(parent, overrides \\ %{}) when is_map(overrides) do
+    Comments.create_thread(parent, Fake.thread(overrides))
+  end
 end

@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments.CommentRevision do
   use MoodleNet.Common.Schema
-  alias MoodleNet.Comments.Comment
+  alias Ecto.Changeset
+  alias MoodleNet.Comments.{Comment, CommentRevision}
 
   standalone_schema "mn_comment_revision" do
     belongs_to(:comment, Comment)
@@ -11,4 +12,13 @@ defmodule MoodleNet.Comments.CommentRevision do
     timestamps(updated_at: false)
   end
 
+  @create_cast ~w(content)a
+  @create_required @create_cast
+
+  def create_changeset(%Comment{} = comment, attrs) do
+    %CommentRevision{}
+    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.validate_required(attrs, @create_cast)
+    |> Changeset.put_assoc(:comment, comment)
+  end
 end
