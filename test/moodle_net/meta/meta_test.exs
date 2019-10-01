@@ -267,8 +267,9 @@ defmodule MoodleNet.MetaTest do
 	assert pointer7.pointed == peer2
 	assert pointer8.pointed == user
 	assert pointer9.pointed == user2
-	assert pointer10.pointed ==
-	  Map.merge(actor,%{is_public: nil, latest_revision: nil})
+	pointed10 = Map.drop(pointer10.pointed, [:current, :is_public, :latest_revision])
+	actor2 = Map.drop(actor, [:current, :is_public, :latest_revision])
+	assert actor2 == pointed10
       end
     end
   end

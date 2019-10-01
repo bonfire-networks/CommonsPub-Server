@@ -37,8 +37,11 @@ defmodule MoodleNet.Common.Changeset do
     do: Changeset.foreign_key_constraint(changeset, :id)
 
   @doc "Creates a changest for deleting an entity"
-  def soft_delete_changeset(it, column \\ :deleted_at),
-    do: Changeset.change(it, {column, DateTime.utc_now()})
+  def soft_delete_changeset(it, column \\ :deleted_at) do
+    it
+    |> Changeset.cast(%{}, [])
+    |> Changeset.change([{column, DateTime.utc_now()}])
+  end
 
   @doc "Keeps published_at in accord with is_public"
   def change_public(%Changeset{}=changeset),

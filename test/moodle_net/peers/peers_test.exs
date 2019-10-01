@@ -1,7 +1,7 @@
 defmodule MoodleNet.PeersTest do
   use MoodleNet.DataCase
-  alias MoodleNet.{Meta, Peers}
-  alias MoodleNet.Peers.Peer
+  alias MoodleNet.Peers
+  # alias MoodleNet.Peers.Peer
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
 
@@ -30,13 +30,18 @@ defmodule MoodleNet.PeersTest do
       end
     end
 
-    @tag :skip
+    # TODO: chasing? discuss.
     test "soft deletion" do
       Repo.transaction fn -> :ok
         peer = fake_peer!()
+	assert {:ok, peer2} = Peers.soft_delete(peer)
+	assert was_updated_since?(peer2, peer)
+	# no deleted() ? not actually deleted, is it? -- jjl
+	assert timeless(peer2) == timeless(peer)
       end
     end
 
+    # TODO: chasing
     @tag :skip
     test "hard deletion" do
       Repo.transaction fn -> :ok
