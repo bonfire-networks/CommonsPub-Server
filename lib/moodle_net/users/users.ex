@@ -5,7 +5,7 @@ defmodule MoodleNet.Users do
   @doc """
   A "Context" for dealing with users, both local and remote
   """
-  alias MoodleNet.{Actors, Common, Meta, Repo}
+  alias MoodleNet.{Actors, Common, Meta, Repo, Whitelists}
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Users.{
@@ -24,19 +24,33 @@ defmodule MoodleNet.Users do
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
-  2. Creates actor, user, email confirm token
-  
+  2. Inserts user (because the whitelist check isn't very good at crap emails yet
+  3. Checks the whitelist
+  4. Creates actor, email confirm token
   """
-  @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
-  def register(%{} = attrs) do
+  # @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
+  # @spec register(attrs :: map, opts :: Keyword.t) :: {:ok, %User{}} | {:error, Changeset.t}
+  def register(%{} = attrs, opts \\ []) do
     Repo.transact_with(fn ->
       with {:ok, user} <- insert_user(attrs),
+           :ok <- check_register_whitelist(attrs.email, opts),
            {:ok, actor} <- Actors.create_with_alias(user.id, attrs),
            {:ok, token} <- create_email_confirm_token(user) do
         user = %{ user | email_confirm_tokens: [token], password: nil }
         {:ok, %{ actor | alias: Meta.forge!(user) } }
       end
     end)
+  end
+
+  defp should_check_register_whitelist?(opts) do
+    opts = opts ++ Application.get_env(:moodle_net, __MODULE__, [])
+    not Keyword.get(opts, :public_registration, false)
+  end
+
+  defp check_register_whitelist(email, opts) do
+    if should_check_register_whitelist?(opts),
+      do: Whitelists.check_register_whitelist(email),
+      else: :ok
   end
 
   defp insert_user(%{} = attrs) do

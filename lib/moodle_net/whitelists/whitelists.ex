@@ -10,7 +10,11 @@ defmodule MoodleNet.Whitelists do
   alias Ecto.Changeset
   alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Whitelists.{RegisterEmailDomainWhitelist, RegisterEmailWhitelist}
+  alias MoodleNet.Whitelists.{
+    NotWhitelistedError,
+    RegisterEmailDomainWhitelist,
+    RegisterEmailWhitelist,
+  }
 
   @type whitelist :: RegisterEmailDomainWhitelist.t | RegisterEmailWhitelist.t
 
@@ -73,6 +77,13 @@ defmodule MoodleNet.Whitelists do
       false
     else {:ok, _} -> true
     end
+  end
+
+  @doc ":ok if the user's email is whitelisted, else error tuple"
+  def check_register_whitelist(email) do
+    if is_register_whitelisted?(email),
+      do: :ok,
+      else: {:error, NotWhitelistedError.new()}
   end
 
   defp email_domain(email) do
