@@ -10,6 +10,8 @@ defmodule MoodleNet.Repo do
     otp_app: :moodle_net,
     adapter: Ecto.Adapters.Postgres
 
+  alias MoodleNet.Common.NotFoundError
+
   @doc """
   Dynamically loads the repository url from the
   DATABASE_URL environment variable.
@@ -18,6 +20,13 @@ defmodule MoodleNet.Repo do
     {:ok, Keyword.put(opts, :url, System.get_env("DATABASE_URL"))}
   end
 
+  @doc "Like Repo.get, but returns an ok/error tuple"
+  def fetch(queryable, id) do
+    case get(queryable, id) do
+      nil -> {:error, NotFoundError.new(id)}
+      thing -> {:ok, thing}
+    end
+  end
   @doc """
   Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
   tuple. If an error tuple is returned, the transaction is aborted.
