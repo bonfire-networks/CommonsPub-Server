@@ -94,19 +94,4 @@ defmodule MoodleNet.ResourcesTest do
       assert latest_revision.inserted_at > oldest_revision.inserted_at
     end
   end
-
-  describe "resource flags" do
-    @tag :skip
-    test "works", %{actor: actor, resource: res} do
-      assert [] = Resources.all_flags(actor)
-
-      {:ok, _activity} = Resources.flag(actor, res, %{reason: "Terrible joke"})
-
-      assert [flag] = Resources.all_flags(actor)
-      assert flag.flagged_object_id == res.id
-      assert flag.flagging_object_id == actor.id
-      assert flag.reason == "Terrible joke"
-      assert flag.open == true
-    end
-  end
 end

@@ -106,24 +106,4 @@ defmodule MoodleNet.CommentsTest do
       assert latest_revision.inserted_at > oldest_revision.inserted_at
     end
   end
-
-  describe "comment flags" do
-    test "works" do
-      actor = Factory.actor()
-      actor_id = local_id(actor)
-      comm = Factory.community(actor)
-      comment = Factory.comment(actor, comm)
-      comment_id = local_id(comment)
-
-      assert [] = Comments.all_flags(actor)
-
-      {:ok, _activity} = Comments.flag(actor, comment, %{reason: "Terrible joke"})
-
-      assert [flag] = Comments.all_flags(actor)
-      assert flag.flagged_object_id == comment_id
-      assert flag.flagging_object_id == actor_id
-      assert flag.reason == "Terrible joke"
-      assert flag.open == true
-    end
-  end
 end

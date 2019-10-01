@@ -44,18 +44,4 @@ defmodule MoodleNet.CollectionsTest do
       refute updated_collection.is_public
     end
   end
-
-  describe "collection flags" do
-    test "works", %{actor: actor, collection: coll} do
-      assert [] = Collections.all_flags(actor)
-
-      {:ok, _activity} = Collections.flag(actor, coll, %{reason: "Terrible joke"})
-
-      assert [flag] = Collections.all_flags(actor)
-      assert flag.flagged_object_id == coll.id
-      assert flag.flagging_object_id == actor.id
-      assert flag.reason == "Terrible joke"
-      assert flag.open == true
-    end
-  end
 end

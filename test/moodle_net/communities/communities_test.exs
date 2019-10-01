@@ -41,32 +41,4 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
   end
-
-  describe "membership" do
-
-    test "joining" do
-      # Communities.join()
-    end
-
-    test "leaving" do
-    end
-
-    test "listing" do
-    end
-
-    test "listing as admin" do
-    end
-  end
-
-  describe "community flags" do
-    test "works" do
-      # actor = fake_actor!()
-      # comm = fake_community!(%{creator_id: actor.id})
-      # assert [flag] = Communities.all_flags(actor)
-      # assert flag.flagged_object_id == comm.id
-      # assert flag.flagging_object_id == actor.id
-      # assert flag.reason == "Terrible joke"
-      # assert flag.open == true
-    end
-  end
 end
