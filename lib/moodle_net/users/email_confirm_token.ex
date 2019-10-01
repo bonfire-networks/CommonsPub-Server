@@ -14,14 +14,14 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   alias MoodleNet.Users.{EmailConfirmToken, User, Token}
   alias MoodleNet.Actors.Actor
 
-  @type validity :: { pos_integer(), System.time_unit }
+  @type validity :: { pos_integer, System.time_unit }
 
-  @default_validity {2, :day}
+  @default_validity {60 * 60 * 48, :second}
 
   standalone_schema "mn_user_email_confirm_token" do
     belongs_to :user, User
-    field :expires_at, :utc_datetime
-    field :claimed_at, :utc_datetime
+    field :expires_at, :utc_datetime_usec
+    field :confirmed_at, :utc_datetime_usec
     timestamps()
   end
 
@@ -33,15 +33,13 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   """
   def create_changeset(user, validity_period \\ @default_validity)
   def create_changeset(%User{id: user_id}, validity) do
-    id = Token.random_key_with_id(user_id)
-    expires_at = expires_at(validity)
-
-    %EmailConfirmToken{id: id}
-    |> Changeset.change(user_id: user_id, expires_at: expires_at)
+    %EmailConfirmToken{}
+    |> Changeset.cast(%{}, [])
+    |> Changeset.change(user_id: user_id, expires_at: expires_at(validity))
   end
 
   def claim_changeset(%EmailConfirmToken{}=token),
-    do: soft_delete_changeset(token, :claimed_at)
+    do: soft_delete_changeset(token, :confirmed_at)
 
   defp expires_at({count, unit}) when is_integer(count) and count > 0,
     do: DateTime.add(DateTime.utc_now(), count, unit)

@@ -5,45 +5,90 @@ defmodule MoodleNet.Users do
   @doc """
   A "Context" for dealing with users, both local and remote
   """
-  alias MoodleNet.Common
-  alias MoodleNet.Repo
-  alias MoodleNet.Actors
+  alias MoodleNet.{Actors, Common, Meta, Repo}
   alias MoodleNet.Actors.{Actor, ActorRevision}
-  alias MoodleNet.Users.{User, UserFlag}
-  alias MoodleNet.Meta
+  alias MoodleNet.Common.NotFoundError
+  alias MoodleNet.Users.{
+    EmailConfirmToken,
+    TokenAlreadyClaimedError,
+    TokenExpiredError,
+    User,
+    UserFlag,
+  }
   alias Ecto.Changeset
+
+  @doc "Fetches a user by id"
+  @spec fetch(id :: binary) :: {:ok, %User{}} | {:error, NotFoundError.t}
+  def fetch(id) when is_binary(id), do: Repo.fetch(User, id)
 
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
-  2. Creates actor, user
+  2. Creates actor, user, email confirm token
+  
   """
   @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
-  def register(attrs) do
+  def register(%{} = attrs) do
     Repo.transact_with(fn ->
-      Meta.point_to!(User)
-      |> User.register_changeset(attrs)
-      |> Repo.insert()
-    end)
-    |> register_result()
-  end
-
-  defp register_result({:ok, user}), do: {:ok, Map.put(user, :password, nil)}
-  defp register_result(other), do: other
-
-  @doc """
-  Verify a user, allowing them to access their account and creating the relevant
-  relations (i.e. Actors).
-  """
-  def verify(%User{} = user, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- Repo.update(User.confirm_email_changeset(user)),
-           {:ok, actor} <- Actors.create_with_alias(user.id, attrs) do
-        {:ok, user}
+      with {:ok, user} <- insert_user(attrs),
+           {:ok, actor} <- Actors.create_with_alias(user.id, attrs),
+           {:ok, token} <- create_email_confirm_token(user) do
+        user = %{ user | email_confirm_tokens: [token], password: nil }
+        {:ok, %{ actor | alias: Meta.forge!(user) } }
       end
     end)
   end
 
+  defp insert_user(%{} = attrs) do
+    Meta.point_to!(User)
+    |> User.register_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  defp create_email_confirm_token(%User{} = user),
+    do: Repo.insert(EmailConfirmToken.create_changeset(user))
+
+  @doc "Uses an email confirmation token, returns ok/error tuple"
+  def claim_email_confirm_token(token, now \\ DateTime.utc_now())
+  def claim_email_confirm_token(token, %DateTime{} = now) when is_binary(token) do
+    Repo.transact_with fn ->
+      with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
+           :ok <- validate_confirm_email_token(token, now),
+           token = Repo.preload(token, :user),
+           {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)) do
+        confirm_email(token.user)
+      end
+    end
+  end
+
+  defp validate_confirm_email_token(%EmailConfirmToken{} = token, %DateTime{} = now) do
+    cond do
+      not is_nil(token.confirmed_at) ->
+	{:error, TokenAlreadyClaimedError.new(token)}
+
+      :gt == DateTime.compare(now, token.expires_at) ->
+	{:error, TokenExpiredError.new(token)}
+
+      true -> :ok
+    end
+  end
+							     
+
+
+  @scope :test # use the email confirmation mechanism
+  @doc """
+  Verify a user's email address, allowing them to access their account.
+
+  Note: this is for the benefit of the test suite. In normal use you
+  should use the email confirmation mechanism.
+  """
+  def confirm_email(%User{} = user),
+    do: Repo.update(User.confirm_email_changeset(user))
+
+  def unconfirm_email(%User{} = user),
+    do: Repo.update(User.unconfirm_email_changeset(user))
+
+  ## TODO
   def update() do
   end
 

@@ -8,7 +8,7 @@ defmodule MoodleNet.Users.User do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
+  alias MoodleNet.Users.{User, EmailConfirmToken}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
@@ -20,6 +20,7 @@ defmodule MoodleNet.Users.User do
     field(:confirmed_at, :utc_datetime_usec)
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
+    has_many :email_confirm_tokens, EmailConfirmToken
     timestamps()
   end
 
@@ -45,6 +46,11 @@ defmodule MoodleNet.Users.User do
   @doc "Create a changeset for confirming an email"
   def confirm_email_changeset(%__MODULE__{} = user) do
     Changeset.change(user, confirmed_at: DateTime.utc_now())
+  end
+
+  @doc "Create a changeset for unconfirming an email"
+  def unconfirm_email_changeset(%__MODULE__{} = user) do
+    Changeset.change(user, confirmed_at: nil)
   end
 
   # internals

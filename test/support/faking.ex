@@ -44,8 +44,8 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_user!(overrides \\ %{}) when is_map(overrides) do
-    {:ok, user} = Users.register(Fake.user(overrides))
-    user
+    {:ok, actor} = Users.register(Fake.user(Fake.actor(overrides)))
+    actor.alias.pointed
   end
 
   def fake_community!(actor, language, overrides \\ %{}) when is_map(overrides) do
