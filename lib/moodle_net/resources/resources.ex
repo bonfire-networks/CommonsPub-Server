@@ -3,27 +3,40 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
-
+  alias Ecto.Changeset
   alias MoodleNet.{Common, Repo, Meta}
-  alias MoodleNet.Common.Revision
-  alias MoodleNet.Resources.{Resource, ResourceFlag}
+  alias MoodleNet.Common.{Revision, NotFoundError}
+  alias MoodleNet.Resources.{Resource, ResourceRevision, ResourceLatestRevision, ResourceFlag}
 
-  def create(attrs) when is_map(attrs) do
+  @spec fetch(binary()) :: {:ok, %Resource{}} | {:error, NotFoundError.t()}
+  def fetch(id) do
+    case Repo.get(Resource, id) do
+      nil -> {:error, NotFoundError.new(id)}
+      resource -> {:ok, resource}
+    end
+  end
+
+  @spec create(Collection.t(), Actor.t(), Language.t(), attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}
+  def create(collection, creator, language, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.point_to!(Resource)
 
-      with {:ok, resource} <- Repo.insert(Resource.create_changeset(pointer, attrs)),
-            {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-        {:ok, %Resource{resource | latest_revision: latest_revision}}
+      changeset = Resource.create_changeset(pointer, collection, creator, language, attrs)
+      with {:ok, resource} <- Repo.insert(changeset),
+           {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        latest_revision = ResourceLatestRevision.forge(revision)
+        {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
 
+  @spec update(%Resource{}, attrs :: map) :: {:ok, %Resource{}} | {:error, %Changeset{}}
   def update(%Resource{} = resource, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, resource} <- Repo.update(Resource.update_changeset(resource, attrs)),
-      {:ok, latest_revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-        {:ok, %Resource{resource | latest_revision: latest_revision}}
+           {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
+        latest_revision = ResourceLatestRevision.forge(revision)
+        {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
       end
     end)
   end
@@ -53,7 +66,7 @@ defmodule MoodleNet.Resources do
   Flags a resource with a given reason
   {:ok, ResourceFlag} | {:error, reason}
   """
-  def flag(actor, resource, attrs=%{reason: _}),
+  def flag(actor, resource, attrs = %{reason: _}),
     do: Common.flag(ResourceFlag, :flag_resource?, actor, resource, attrs)
 
   @doc """
@@ -69,5 +82,4 @@ defmodule MoodleNet.Resources do
   """
   def all_flags(actor, filters \\ %{}),
     do: Common.flags(ResourceFlag, :list_resource_flags?, actor, filters)
-
 end

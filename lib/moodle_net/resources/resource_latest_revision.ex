@@ -21,5 +21,4 @@ defmodule MoodleNet.Resources.ResourceLatestRevision do
       inserted_at: inserted_at,
     }
   end
-
 end

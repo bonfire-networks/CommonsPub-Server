@@ -5,8 +5,8 @@ defmodule MoodleNet.CommunitiesTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Actors, Communities, Localisation}
   alias MoodleNet.Test.Fake
+  alias MoodleNet.{Actors, Communities, Localisation}
 
   defp english(), do: Localisation.language!("en")
 
@@ -14,18 +14,17 @@ defmodule MoodleNet.CommunitiesTest do
     test "creates a community given valid attributes" do
       assert actor = fake_actor!()
       assert language = english()
-      attrs =
-	%{creator_id: actor.id, primary_language_id: language.id}
-        |> Fake.community()
-      assert {:ok, community} = Communities.create(attrs)
+      attrs = Fake.community()
+      assert {:ok, community} = Communities.create(actor, language, attrs)
       assert community.creator_id == actor.id
       assert community.primary_language_id == language.id
+      assert community.is_public == attrs[:is_public]
     end
 
     test "fails if given invalid attributes" do
-      assert {:error, changeset} = Communities.create(%{})
-      assert Keyword.get(changeset.errors, :creator_id)
-      assert Keyword.get(changeset.errors, :primary_language_id)
+      actor = fake_actor!()
+      language = Fake.fake_language!()
+      assert {:error, changeset} = Communities.create(actor, language, %{})
       assert Keyword.get(changeset.errors, :is_public)
     end
   end
@@ -59,23 +58,15 @@ defmodule MoodleNet.CommunitiesTest do
     end
   end
 
-  # describe "community flags" do
-  #   test "works" do
-  #     actor = Factory.actor()
-  #     actor_id = local_id(actor)
-  #     comm = Factory.community(actor)
-  #     comm_id = local_id(comm)
-
-  #     assert [] = Communities.all_flags(actor)
-
-  #     {:ok, _activity} = Communities.flag(actor, comm, %{reason: "Terrible joke"})
-
-  #     assert [flag] = Communities.all_flags(actor)
-  #     assert flag.flagged_object_id == comm_id
-  #     assert flag.flagging_object_id == actor_id
-  #     assert flag.reason == "Terrible joke"
-  #     assert flag.open == true
-  #   end
-  # end
-
+  describe "community flags" do
+    test "works" do
+      actor = fake_actor!()
+      comm = fake_community!(%{creator_id: actor.id})
+      assert [flag] = Communities.all_flags(actor)
+      assert flag.flagged_object_id == comm.id
+      assert flag.flagging_object_id == actor.id
+      assert flag.reason == "Terrible joke"
+      assert flag.open == true
+    end
+  end
 end
