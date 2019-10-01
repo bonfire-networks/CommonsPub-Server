@@ -12,7 +12,22 @@ defmodule MoodleNet.Comments do
     CommentLike,
     Thread
   }
+  alias MoodleNet.Common.{Revision, NotFoundError}
   alias MoodleNet.Repo
+
+  def fetch_thread(id) do
+    case Repo.get(Thread, id) do
+      nil -> {:error, NotFoundError.new(id)}
+      thread -> {:ok, thread}
+    end
+  end
+
+  def fetch_comment(id) do
+    case Repo.get(Comment, id) do
+      nil -> {:error, NotFoundError.new(id)}
+      comment -> {:ok, comment}
+    end
+  end
 
   def create_thread(parent, attrs) do
     Repo.transact_with(fn ->
@@ -28,7 +43,7 @@ defmodule MoodleNet.Comments do
 
   def create_comment(thread, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      pointer = Meta.point_to!(Common)
+      pointer = Meta.point_to!(Comment)
 
       changeset = Comment.create_changeset(pointer, thread, attrs)
       with {:ok, comment} <- Repo.insert(changeset),
@@ -39,7 +54,14 @@ defmodule MoodleNet.Comments do
     end)
   end
 
-  def update(%Comment{} = comment, attrs) do
+  def update_comment(%Comment{} = comment, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, comment} <- Repo.update(Comment.update_changeset(comment, attrs)),
+           {:ok, revision} <- Revision.insert(CommentRevision, comment, attrs) do
+        latest_revision = CommentLatestRevision.forge(revision)
+        {:ok, %Comment{comment | latest_revision: latest_revision, current: revision}}
+      end
+    end)
   end
 
   @doc """

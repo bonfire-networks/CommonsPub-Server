@@ -52,7 +52,6 @@ defmodule MoodleNet.ResourcesTest do
       assert resource = Repo.preload(resource, [:revisions, :current])
       assert [revision] = resource.revisions
       assert revision == resource.current
-      assert revision.inserted_at == resource.current.inserted_at
     end
 
     test "fails given invalid attributes", context do
@@ -88,7 +87,6 @@ defmodule MoodleNet.ResourcesTest do
     test "creates a new revision for the update, keeping the old one", %{resource: resource} do
       assert {:ok, updated_resource} = Resources.update(resource, Fake.resource())
       assert updated_resource.current != resource.current
-      assert updated_resource.current.inserted_at > resource.current.inserted_at
 
       assert updated_resource = Repo.preload(updated_resource, :revisions)
       assert [latest_revision, oldest_revision] = updated_resource.revisions

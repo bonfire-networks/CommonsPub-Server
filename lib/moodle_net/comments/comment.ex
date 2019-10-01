@@ -1,7 +1,9 @@
 defmodule MoodleNet.Comments.Comment do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
-  alias MoodleNet.Comments.{Comment, Thread}
+  alias Ecto.Changeset
+  alias MoodleNet.Common.Revision
+  alias MoodleNet.Comments.{Comment, CommentRevision, CommentLatestRevision, Thread}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
@@ -27,7 +29,7 @@ defmodule MoodleNet.Comments.Comment do
 
     %Comment{id: id}
     |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(attrs, @create_required)
+    |> Changeset.validate_required(@create_required)
     |> Changeset.put_assoc(:thread, thread)
     |> change_public()
     |> meta_pointer_constraint()

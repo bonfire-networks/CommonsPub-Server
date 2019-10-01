@@ -18,7 +18,7 @@ defmodule MoodleNet.Comments.CommentRevision do
   def create_changeset(%Comment{} = comment, attrs) do
     %CommentRevision{}
     |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(attrs, @create_cast)
+    |> Changeset.validate_required(@create_cast)
     |> Changeset.put_assoc(:comment, comment)
   end
 end

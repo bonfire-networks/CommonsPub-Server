@@ -5,6 +5,7 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
   alias MoodleNet.{
     Actors,
+    Comments,
     Communities,
     Collections,
     Meta,
@@ -64,6 +65,12 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_thread!(parent, overrides \\ %{}) when is_map(overrides) do
-    Comments.create_thread(parent, Fake.thread(overrides))
+    {:ok, thread} = Comments.create_thread(parent, Fake.thread(overrides))
+    thread
+  end
+
+  def fake_comment!(thread, overrides \\ %{}) when is_map(overrides) do
+    {:ok, comment} = Comments.create_comment(thread, Fake.comment(overrides))
+    comment
   end
 end
