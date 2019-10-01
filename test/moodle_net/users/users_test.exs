@@ -20,7 +20,6 @@ defmodule MoodleNet.UsersTest do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-	[_,domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, %Actor{} = actor} = Users.register(attrs, public_registration: true)
 	assert actor.preferred_username == attrs.preferred_username
         assert %User{} = user = actor.alias.pointed
@@ -36,7 +35,6 @@ defmodule MoodleNet.UsersTest do
     test "creates a user account with valid attrs when email whitelisted" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-	IO.inspect(email: attrs.email)
 	assert {:ok, _} = Whitelists.create_register_email(attrs.email)
         assert {:ok, %Actor{} = actor} = Users.register(attrs, public_registration: false)
 	assert actor.preferred_username == attrs.preferred_username
