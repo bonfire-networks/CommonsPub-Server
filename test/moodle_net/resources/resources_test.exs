@@ -6,66 +6,87 @@
 defmodule MoodleNet.ResourcesTest do
   use MoodleNet.DataCase, async: true
 
+  import MoodleNet.Test.Faking
   alias MoodleNet.{Resources, Repo}
-  alias MoodleNet.Test.{Fake, Faking}
+  alias MoodleNet.Test.Fake
+
+  setup do
+    actor = fake_actor!()
+    language = fake_language!()
+    community = fake_community!(actor, language)
+    collection = fake_collection!(actor, community, language)
+    resource = fake_resource!(actor, collection, language)
+    {:ok, %{actor: actor, collection: collection, language: language, resource: resource}}
+  end
 
   describe "fetch" do
-    test "fetches an existing resource" do
-      assert {:ok, resource} = Resources.fetch(Faking.fake_resource!().id)
+    test "fetches an existing resource", %{resource: resource} do
+      assert {:ok, _} = Resources.fetch(resource.id)
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} =
-        Resources.fetch(Faker.UUID.v4())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.fetch(Faker.UUID.v4())
     end
   end
 
   describe "create" do
-    test "creates a new resource given valid attributes" do
+    test "creates a new resource given valid attributes", context do
       Repo.transaction(fn ->
-        creator = Faking.fake_actor!()
-        collection = Faking.fake_collection!(%{creator_id: creator.id})
-        language = Faking.fake_language!()
         attrs = Fake.resource()
-        assert {:ok, resource} = Resources.create(collection, creator, language, attrs)
-        assert resource.collection_id == collection.id
-        assert resource.creator_id == creator.id
+
+        assert {:ok, resource} =
+                 Resources.create(
+                   context.collection,
+                   context.actor,
+                   context.language,
+                   attrs
+                 )
+
+        assert resource.current.content == attrs[:content]
+        assert resource.current.url == attrs[:url]
       end)
     end
 
-    test "creates a revision for the resource" do
-      resource = Faking.fake_resource!()
+    test "creates a revision for the resource", %{resource: resource} do
       assert {:ok, resource} = Resources.fetch(resource.id)
       assert resource = Repo.preload(resource, [:revisions, :current])
       assert [revision] = resource.revisions
       assert revision == resource.current
-      assert revision.inserted_at == resource.current.inserted_at
     end
 
-    test "fails given invalid attributes" do
+    test "fails given invalid attributes", context do
       Repo.transaction(fn ->
-        creator = Faking.fake_actor!()
-        collection = Faking.fake_collection!(%{creator_id: creator.id})
-        language = Faking.fake_language!()
-        assert {:error, changeset} = Resources.create(collection, creator, language, %{})
+        assert {:error, changeset} =
+                 Resources.create(
+                   context.collection,
+                   context.actor,
+                   context.language,
+                   %{}
+                 )
+
         assert Keyword.get(changeset.errors, :is_public)
       end)
     end
   end
 
   describe "update" do
-    test "updates a resource given valid attributes" do
-      resource = Faking.fake_resource!(%{is_public: true})
+    test "updates a resource given valid attributes", context do
+      resource =
+        fake_resource!(
+          context.actor,
+          context.collection,
+          context.language,
+          %{is_public: true}
+        )
+
       assert {:ok, updated_resource} = Resources.update(resource, %{is_public: false})
       assert updated_resource != resource
       refute updated_resource.is_public
     end
 
-    test "creates a new revision for the update, keeping the old one" do
-      resource = Faking.fake_resource!()
+    test "creates a new revision for the update, keeping the old one", %{resource: resource} do
       assert {:ok, updated_resource} = Resources.update(resource, Fake.resource())
       assert updated_resource.current != resource.current
-      assert updated_resource.current.inserted_at > resource.current.inserted_at
 
       assert updated_resource = Repo.preload(updated_resource, :revisions)
       assert [latest_revision, oldest_revision] = updated_resource.revisions
@@ -76,12 +97,7 @@ defmodule MoodleNet.ResourcesTest do
 
   describe "resource flags" do
     @tag :skip
-    test "works" do
-      actor = Faking.fake_actor!()
-      comm = Faking.fake_community!()
-      coll = Faking.fake_collection!(%{creator_id: actor.id, community_id: comm.id})
-      res = Faking.fake_resource!(%{creator_id: actor.id, collection_id: coll.id})
-
+    test "works", %{actor: actor, resource: res} do
       assert [] = Resources.all_flags(actor)
 
       {:ok, _activity} = Resources.flag(actor, res, %{reason: "Terrible joke"})
@@ -93,5 +109,4 @@ defmodule MoodleNet.ResourcesTest do
       assert flag.open == true
     end
   end
-
 end

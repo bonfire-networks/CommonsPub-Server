@@ -18,13 +18,10 @@ defmodule MoodleNet.Peers do
   alias MoodleNet.Peers.Peer
 
   # Querying
-  
+
   @spec fetch(binary()) :: {:ok, Peer.t()} | {:error, NotFoundError.t()}
   @doc "Looks up the Peer with the given id in the database"
-  def fetch(id), do: fetch_result(Repo.get(Peer, id), id)
-
-  defp fetch_result(nil, id), do: {:error, NotFoundError.new(id)}
-  defp fetch_result(peer, _), do: {:ok, peer}
+  def fetch(id), do: Repo.fetch(Peer, id)
 
   # Insertion
 

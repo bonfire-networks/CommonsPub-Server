@@ -10,10 +10,7 @@ defmodule MoodleNet.Resources do
 
   @spec fetch(binary()) :: {:ok, %Resource{}} | {:error, NotFoundError.t()}
   def fetch(id) do
-    case Repo.get(Resource, id) do
-      nil -> {:error, NotFoundError.new(id)}
-      resource -> {:ok, resource}
-    end
+    Repo.fetch(Resource, id)
   end
 
   @spec create(Collection.t(), Actor.t(), Language.t(), attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}

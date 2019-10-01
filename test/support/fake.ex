@@ -186,15 +186,18 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:typical_age_range, &age_range/0)
   end
 
+  def thread(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_public, &bool/0)
+  end
+
+  def comment(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_public, &bool/0)
+    |> Map.put_new_lazy(:content, &paragraph/0)
+  end
+
   # def resource_revision(base \\ %{}) do
-  #   base
-  # end
-
-  # def thread(base \\ %{}) do
-  #   base
-  # end
-
-  # def comment(base \\ %{}) do
   #   base
   # end
 

@@ -67,11 +67,9 @@ defmodule MoodleNet.ActorsTest do
         assert actor = Repo.preload(actor, :revisions)
         assert Enum.count(actor.revisions) == 2
 
-        assert original_revision = List.first(actor.revisions)
-        assert_revision_equal(original_revision, original_attrs)
-
-        assert latest_revision = List.last(actor.revisions)
+        assert [latest_revision, oldest_revision] = actor.revisions
         assert_revision_equal(latest_revision, updated_attrs)
+        assert_revision_equal(oldest_revision, original_attrs)
       end)
     end
   end

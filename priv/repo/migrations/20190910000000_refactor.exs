@@ -122,7 +122,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_actor_revision, [:actor_id, :inserted_at])
+    create index(:mn_actor_revision, [:actor_id, "inserted_at desc"])
 
 
     ### user system
@@ -238,7 +238,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_comment_revision, [:comment_id, :inserted_at])
+    create index(:mn_comment_revision, [:comment_id, "inserted_at desc"])
 
     create table(:mn_follow) do
       add :follower_id, references("mn_actor", on_delete: :delete_all), null: false
