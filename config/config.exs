@@ -70,6 +70,9 @@ config :tesla, adapter: Tesla.Adapter.Hackney
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
 
+config :moodle_net, MoodleNet.Users,
+  public_registration: false
+
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
