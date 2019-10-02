@@ -38,6 +38,17 @@ defmodule ActivityPub.Utils do
     "#{MoodleNetWeb.base_url()}/#{type}/#{UUID.generate()}"
   end
 
+  def make_json_ld_header do
+    %{
+      "@context" => [
+        "https://www.w3.org/ns/activitystreams",
+        %{
+          "@language" => "und"
+        }
+      ]
+    }
+  end
+
   def make_follow_data(
         %{data: %{"id" => follower_id}},
         %{data: %{"id" => followed_id}} = _followed,

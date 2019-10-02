@@ -131,7 +131,7 @@ defmodule ActivityPub.Actor do
   """
   def format_local_actor(actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/#{actor.preferred_username}"
+    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
 
     data = %{
       "type" => "Person",

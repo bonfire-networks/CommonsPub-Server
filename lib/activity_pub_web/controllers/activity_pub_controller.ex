@@ -17,9 +17,13 @@ defmodule ActivityPubWeb.ActivityPubController do
 
   require Logger
 
+  alias ActivityPub.Actor
   alias ActivityPub.Fetcher
+  alias ActivityPub.Object
   alias ActivityPub.SQL.Query
+  alias ActivityPubWeb.ActorView
   alias ActivityPubWeb.Federator
+  alias ActivityPubWeb.ObjectView
 
   def show(conn, %{"id" => id}) do
     id = String.to_integer(id)
@@ -48,6 +52,29 @@ defmodule ActivityPubWeb.ActivityPubController do
 
       _ ->
         send_resp(conn, :not_found, "")
+    end
+  end
+
+  def object(conn, %{"uuid" => uuid}) do
+    with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
+         %Object{} = object <- Object.get_by_ap_id(ap_id),
+         true <- object.public do
+      conn
+      |> put_resp_header("content-type", "application/activity+json")
+      |> json(ObjectView.render("object.json", %{object: object}))
+    else
+      _->
+        {:error, :not_found}
+    end
+  end
+
+  def actor(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_by_username(username) do
+      conn
+      |> put_resp_header("content-type", "application/activity+json")
+      |> json(ActorView.render("actor.json", %{actor: actor}))
+    else
+      {:error, _e} -> {:error, :not_found}
     end
   end
 

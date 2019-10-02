@@ -128,12 +128,18 @@ defmodule MoodleNetWeb.Router do
 
     get "/:id", ActivityPubController, :show
     get "/:id/page", ActivityPubController, :collection_page
+    get "/objects/:uuid", ActivityPubController, :object
+    get "/actors/:username", ActivityPubController, :user
+    # These don't have to be implemented right now.
+    get "/actors/:username/followers", ActivityPubController, :noop
+    get "/actors/:username/following", ActivityPubController, :noop
+    get "/actors/:username/outbox", ActivityPubController, :noop
   end
 
   scope ap_base_path, ActivityPubWeb do
     pipe_through(:signed_activity_pub)
 
-    post "/:id", ActivityPubController, :inbox
+    post "/users/:username/inbox", ActivityPubController, :inbox
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
