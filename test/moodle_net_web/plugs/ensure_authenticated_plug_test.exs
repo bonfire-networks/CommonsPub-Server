@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlugTest do
   use MoodleNetWeb.PlugCase, async: true
 
   alias MoodleNetWeb.Plugs.EnsureAuthenticatedPlug
-  alias MoodleNet.Accounts.User
+  alias MoodleNet.Users.User
 
   describe "in json format" do
     @tag format: :json

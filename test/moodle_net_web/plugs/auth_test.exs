@@ -107,6 +107,5 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     assert conn.assigns[:auth_token] == nil
     assert conn.assigns.auth_error == TokenExpiredError.new(token)
   end
-
 end
 
