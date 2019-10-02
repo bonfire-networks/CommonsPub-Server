@@ -17,11 +17,29 @@ defmodule MoodleNet.Actors do
   alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
+  @doc "Fetches an actor by id"
+  @spec fetch(id :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
+  def fetch(id) when is_binary(id), do: Repo.fetch(Actor, id)
+
+  @doc "Fetches an actor by username"
+  @spec fetch(username :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
+  def fetch_by_username(username) when is_binary(username),
+    do: Repo.fetch_by(Actor, preferred_username: username)
+
+  @doc "true if the provided preferred_username is available to register"
+  @spec is_username_available?(username :: binary) :: boolean()
+  def is_username_available?(username) when is_binary(username) do
+    case fetch_by_username(username) do
+      {:ok, _} -> false
+      _ -> true
+    end
+  end
+
+  @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, %Actor{}} :: {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       actor_pointer = Meta.point_to!(Actor)
-
       with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)),
            {:ok, revision} <- Revision.insert(ActorRevision, actor, attrs) do
         latest_revision = ActorLatestRevision.forge(revision)
