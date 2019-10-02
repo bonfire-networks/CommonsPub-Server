@@ -5,6 +5,7 @@ defmodule MoodleNet.UsersTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
+  alias Ecto.Changeset
   alias MoodleNet.{Users, Whitelists}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Users.{
@@ -20,10 +21,10 @@ defmodule MoodleNet.UsersTest do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-        assert {:ok, %Actor{} = actor} = Users.register(attrs, public_registration: true)
-	assert actor.preferred_username == attrs.preferred_username
-        assert %User{} = user = actor.alias.pointed
-	assert actor.alias_id == user.id
+        assert {:ok, user} = Users.register(attrs, public_registration: true)
+	
+	assert user.actor.preferred_username == attrs.preferred_username
+	assert user.actor.alias_id == user.id
         assert user.email == attrs.email
         assert user.wants_email_digest == attrs.wants_email_digest
         assert user.wants_notifications == attrs.wants_notifications
@@ -36,10 +37,9 @@ defmodule MoodleNet.UsersTest do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
 	assert {:ok, _} = Whitelists.create_register_email(attrs.email)
-        assert {:ok, %Actor{} = actor} = Users.register(attrs, public_registration: false)
-	assert actor.preferred_username == attrs.preferred_username
-        assert %User{} = user = actor.alias.pointed
-	assert actor.alias_id == user.id
+        assert {:ok, user} = Users.register(attrs, public_registration: false)
+	assert user.actor.preferred_username == attrs.preferred_username
+	assert user.actor.alias_id == user.id
         assert user.email == attrs.email
         assert user.wants_email_digest == attrs.wants_email_digest
         assert user.wants_notifications == attrs.wants_notifications
@@ -53,10 +53,9 @@ defmodule MoodleNet.UsersTest do
         attrs = Fake.actor(Fake.user())
 	[_,domain] = String.split(attrs.email, "@", parts: 2)
 	assert {:ok, _} = Whitelists.create_register_email_domain(domain)
-        assert {:ok, %Actor{} = actor} = Users.register(attrs, public_registration: false)
-	assert actor.preferred_username == attrs.preferred_username
-        assert %User{} = user = actor.alias.pointed
-	assert actor.alias_id == user.id
+        assert {:ok, user} = Users.register(attrs, public_registration: false)
+	assert user.actor.preferred_username == attrs.preferred_username
+	assert user.actor.alias_id == user.id
         assert user.email == attrs.email
         assert user.wants_email_digest == attrs.wants_email_digest
         assert user.wants_notifications == attrs.wants_notifications
@@ -65,18 +64,31 @@ defmodule MoodleNet.UsersTest do
       end)
     end
 
+    test "fails if the username is already taken" do
+      Repo.transaction fn ->
+	assert user = fake_user!()
+        attrs =
+          %{preferred_username: user.actor.preferred_username}
+          |> Fake.user()
+          |> Fake.actor()
+        assert {:error, %Changeset{} = error} =
+	  Users.register(attrs, public_registration: true)
+      end
+    end
+
     test "fails if given invalid attributes" do
-      Repo.transaction(fn ->
+      Repo.transaction fn ->
         invalid_attrs = Map.delete(Fake.user(), :email)
         assert {:error, changeset} = Users.register(invalid_attrs, public_registration: true)
         assert Keyword.get(changeset.errors, :email)
-      end)
+      end
     end
 
     test "fails if the user's email is not whitelisted - email whitelist" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-        assert {:error, %NotWhitelistedError{}} == Users.register(attrs, public_registration: false)
+        assert {:error, %NotWhitelistedError{}} ==
+	  Users.register(attrs, public_registration: false)
       end)
     end
   end

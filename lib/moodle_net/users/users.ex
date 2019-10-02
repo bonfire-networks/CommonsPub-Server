@@ -21,6 +21,16 @@ defmodule MoodleNet.Users do
   @spec fetch(id :: binary) :: {:ok, %User{}} | {:error, NotFoundError.t}
   def fetch(id) when is_binary(id), do: Repo.fetch(User, id)
 
+  # TODO: one query
+  def fetch_by_username(username) when is_binary(username) do
+    Repo.transact_with fn ->
+      with {:ok, actor} <- Actors.fetch_by_username(username),
+           {:ok, user} <- Meta.follow(Meta.forge!(User, actor.alias_id)) do
+        {:ok, %{ user | actor: actor }}
+      end
+    end
+  end
+
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
@@ -36,8 +46,7 @@ defmodule MoodleNet.Users do
            :ok <- check_register_whitelist(attrs.email, opts),
            {:ok, actor} <- Actors.create_with_alias(user.id, attrs),
            {:ok, token} <- create_email_confirm_token(user) do
-        user = %{ user | email_confirm_tokens: [token], password: nil }
-        {:ok, %{ actor | alias: Meta.forge!(user) } }
+        {:ok, %{ user | email_confirm_tokens: [token], password: nil, actor: actor }}
       end
     end)
   end

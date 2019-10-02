@@ -20,6 +20,7 @@ defmodule MoodleNet.Users.User do
     field(:confirmed_at, :utc_datetime_usec)
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
+    field(:actor, :any, virtual: true) # todo: can we somehow squeeze this into ecto's relations?
     has_many :email_confirm_tokens, EmailConfirmToken
     timestamps()
   end
