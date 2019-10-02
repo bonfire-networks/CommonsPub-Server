@@ -265,11 +265,11 @@ defmodule MoodleNet.MetaTest do
 	assert pointer10.id == pointer5.id
 	assert pointer6.pointed == peer
 	assert pointer7.pointed == peer2
-	pointed8 = Map.drop(pointer8.pointed, [:email_confirm_tokens])
-	user3 = Map.drop(user, [:email_confirm_tokens])
+	pointed8 = Map.drop(pointer8.pointed, [:actor, :email_confirm_tokens])
+	user3 = Map.drop(user, [:actor, :email_confirm_tokens])
 	assert pointed8 == user3
-	pointed9 = Map.drop(pointer9.pointed, [:email_confirm_tokens])
-	user4 = Map.drop(user2, [:email_confirm_tokens])
+	pointed9 = Map.drop(pointer9.pointed, [:actor, :email_confirm_tokens])
+	user4 = Map.drop(user2, [:actor, :email_confirm_tokens])
 	assert pointed9 == user4
 	pointed10 = Map.drop(pointer10.pointed, [:current, :is_public, :latest_revision])
 	actor2 = Map.drop(actor, [:current, :is_public, :latest_revision])
