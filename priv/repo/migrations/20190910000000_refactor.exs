@@ -111,6 +111,11 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       where: "deleted_at is null",
       name: :mn_actor_preferred_username_peer_id_index
     )
+    create unique_index(
+      :mn_actor, [:preferred_username],
+      where: "preferred_username is null",
+      name: :mn_actor_preferred_username_index
+    )
 
     # most content of the actor is revision-tracked
     create table(:mn_actor_revision) do

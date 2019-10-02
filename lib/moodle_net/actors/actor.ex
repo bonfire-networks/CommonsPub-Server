@@ -41,8 +41,11 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.validate_required(@create_required)
     |> Changeset.validate_format(:preferred_username, @username_regex)
     |> Changeset.unique_constraint(:alias_id)
-    |> Changeset.unique_constraint(:preferred_username,
+    |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
+    )
+    |> Changeset.unique_constraint(:preferred_username, # without peer (local)
+      name: "mn_actor_preferred_username_index"
     )
     |> meta_pointer_constraint()
     |> change_public()
