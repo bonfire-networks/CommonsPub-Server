@@ -116,8 +116,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     )
     create unique_index(
       :mn_actor, [:preferred_username],
-      where: "preferred_username is null",
-      name: :mn_actor_preferred_username_index
+      where: "peer_id is null",
+      name: :mn_actor_peer_id_null_index
     )
 
     # most content of the actor is revision-tracked

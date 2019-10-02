@@ -45,7 +45,7 @@ defmodule MoodleNet.Actors.Actor do
       name: "mn_actor_preferred_username_peer_id_index"
     )
     |> Changeset.unique_constraint(:preferred_username, # without peer (local)
-      name: "mn_actor_preferred_username_index"
+      name: "mn_actor_peer_id_null_index"
     )
     |> meta_pointer_constraint()
     |> change_public()
