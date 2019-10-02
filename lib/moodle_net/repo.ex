@@ -29,6 +29,14 @@ defmodule MoodleNet.Repo do
     end
   end
 
+  @doc "Like Repo.get_by, but returns an ok/error tuple"
+  def fetch_by(queryable, term) do
+    case get_by(queryable, term) do
+      nil -> {:error, NotFoundError.new(term)}
+      thing -> {:ok, thing}
+    end
+  end
+
   @doc """
   Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
   tuple. If an error tuple is returned, the transaction is aborted.
