@@ -94,12 +94,27 @@ defmodule MoodleNet.Meta do
   end
 
   @doc """
-  Create a pointer using a structure that participates in the meta abstraction.
+  Forge a pointer from a structure that participates in the meta abstraction.
+
+  Does not hit the database, is safe so long as the provided struct
+  participates in the meta abstraction
   """
   @spec forge!(%{__struct__: atom, id: binary}) :: %Pointer{}
   def forge!(%{__struct__: table_id, id: id} = pointed) do
     table = TableService.lookup!(table_id)
     %Pointer{id: id, table: table, table_id: table.id, pointed: pointed}
+  end
+
+  @doc """
+  Forges a pointer to a meta entry we don't actually have loaded.
+
+  Does not hit the database, is safe so long as the entry we wish to
+  synthesise represents a legitimate entry in the database.
+  """
+  @spec forge!(table_id :: integer | atom, id :: binary) :: %Pointer{}
+  def forge!(table_id, id) do
+    table = TableService.lookup!(table_id)
+    %Pointer{id: id, table: table, table_id: table.id}
   end
 
   defp point_to_result({:ok, v}), do: v
