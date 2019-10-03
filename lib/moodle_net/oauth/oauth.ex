@@ -1,109 +1,83 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.OAuth do
   @moduledoc """
   The OAuth context.
   """
 
   alias MoodleNet.Repo
-  alias MoodleNet.OAuth.{App, Authorization, Token}
-  alias Ecto.Multi
+  alias MoodleNet.OAuth.{
+    Authorization,
+    AuthorizationAlreadyClaimedError,
+    AuthorizationExpiredError,
+    Token,
+    TokenExpiredError,
+    TokenNotFoundError,
+    UserEmailNotConfirmedError,
+  }
+  alias MoodleNet.Users.User
+  alias Ecto.UUID
 
-  def create_app(params) do
-    App.register_changeset(params)
-    |> Repo.insert()
+  @default_token_validity 60 * 10 # seconds: this seems short, but it's what alex set it to
+
+  def fetch_auth_by(params), do: Repo.fetch_by(Authorization, params)
+
+  @doc """
+  Fetches a token along with the user it is linked to
+
+  Note: does not validate the validity of the token, you must do that afterwards
+  """
+  def fetch_token_and_user(token) do
+    case UUID.cast(token) do
+      {:ok, token} -> Repo.een(fetch_token_and_user_query(token))
+      :error -> {:error, TokenNotFoundError.new()}
+    end
   end
 
-  @local_app_id "https://moodlenet/"
-  def get_local_app() do
-    # FIXME Momentary shortcut!
-    if app = get_app_by(client_id: @local_app_id), do: app, else: create_local_app()
+  defp fetch_token_and_user_query(token) do
+    import Ecto.Query, only: [from: 2]
+    tok = UUID.cast(token)
+    from t in Token,
+      inner_join: a in assoc(t, :auth),
+      inner_join: u in assoc(a, :user),
+      where: t.id == ^token,
+      select: {t, u}
   end
 
-  defp create_local_app() do
-    %App{
-      client_name: "MoodleNet",
-      client_id: @local_app_id,
-      redirect_uri: @local_app_id,
-      website: @local_app_id,
-      scopes: "read,write,follow"
-    }
-    |> Repo.insert!()
-  end
+  def create_auth(%User{id: id}), do: Repo.insert(Authorization.create_changeset(id))
 
-  def get_app_by(params) do
-    Repo.get_by(App, params)
-  end
-
-  def get_app_by!(params) do
-    Repo.get_by!(App, params)
-  end
-
-  def get_auth_by(params) do
-    Repo.get_by(Authorization, params)
-  end
-
-  def get_auth_by!(params) do
-    Repo.get_by!(Authorization, params)
-  end
-
-  def get_user_by_token(token) do
-    with {:ok, {user_id, _}} <- MoodleNet.Token.split_id_and_token(token) do
-      user_id
-      |> get_user_by_token_query(token)
-      |> Repo.one()
-      |> case do
-        nil -> {:error, :token_not_found}
-        user -> {:ok, user}
+  @doc "Turns an authorization into a token if it hasn't expired or been claimed"
+  def claim_token(auth, now \\ DateTime.utc_now()) do
+    Repo.transact_with fn ->
+      with :ok <- ensure_valid(auth, now),
+           {:ok, auth} <- Repo.update(Authorization.claim_changeset(auth)) do
+        Repo.insert(Token.create_changeset(auth.user_id, auth.id))
       end
-    else
-      _ -> {:error, :invalid_token}
     end
   end
 
-  defp get_user_by_token_query(user_id, token) do
-    import Ecto.Query, only: [from: 2]
+  def hard_delete_token(token), do: Common.hard_delete(token)
 
-    from(t in Token,
-      # FIXME valid_until not used here?
-      where: t.hash == ^token and t.user_id == ^user_id,
-      inner_join: u in assoc(t, :user),
-      select: u
-    )
-  end
-
-  def create_token(user_id, app_id \\ nil) do
-    app_id = app_id || get_local_app().id
-
-    Token.build(app_id, user_id)
-    |> Repo.insert()
-  end
-
-  def exchange_token(app, auth) do
-    with true <- auth.app_id == app.id do
-      Multi.new()
-      |> Multi.update(:authorization, Authorization.use_changeset(auth))
-      |> Multi.insert(:token, Token.build(app.id, auth.user_id))
-      |> Repo.transaction()
+  @doc """
+  Ensures that an Authorization or Token is valid.
+  For both: ensures not expired
+  For authorization ensures not already claimed
+  """
+  def ensure_valid(auth_or_token, now \\ DateTime.utc_now())
+  def ensure_valid(%Authorization{}=auth, now) do
+    cond do
+      :gt != DateTime.compare(auth.expires_at, now) ->
+        {:error, AuthorizationExpiredError.new(auth)}
+      not is_nil(auth.claimed_at) ->
+        {:error, AuthorizationAlreadyClaimedError.new(auth)}
+      true -> :ok
     end
   end
-
-  def create_authorization(user_id, app_id) do
-    Authorization.build(user_id, app_id)
-    |> Repo.insert()
+  def ensure_valid(%Token{}=token, now) do
+    if :gt == DateTime.compare(token.expires_at, now),
+      do: :ok,
+      else: {:error, TokenExpiredError.new(token)}
   end
 
-  def revoke_token(hash, app_id \\ nil) do
-    app_id = app_id || get_local_app().id
-    revoke_token_query(hash, app_id) |> Repo.delete_all()
-  end
-
-  defp revoke_token_query(hash, app_id) do
-    import Ecto.Query, only: [from: 2]
-
-    from(t in Token, where: t.hash == ^hash and t.app_id == ^app_id)
-  end
 end

@@ -1,39 +1,37 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.OAuth.Token do
   @moduledoc """
   OAuth token model
   """
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
+  alias MoodleNet.Users.User
+  alias MoodleNet.OAuth.{Authorization, Token}
 
-  alias Ecto.Changeset
+  alias Ecto.{Changeset, UUID}
 
-  schema "oauth_tokens" do
-    field(:hash, :string)
-    field(:refresh_hash, :string)
-    field(:valid_until, :naive_datetime_usec)
-    belongs_to(:user, MoodleNet.Accounts.User)
-    belongs_to(:app, MoodleNet.OAuth.App)
+  @default_validity 60 * 10 # seconds: this seems short, but it's what alex set it to
 
+  standalone_schema "oauth_tokens" do
+    field :refresh_token, UUID
+    field :expires_at, :utc_datetime_usec
+    belongs_to :user, User
+    belongs_to :auth, Authorization
     timestamps()
   end
 
-  def build(app_id, user_id) do
-    hash = MoodleNet.Token.random_key_with_id(user_id)
-    refresh_hash = MoodleNet.Token.random_key_with_id(user_id)
-
-    Changeset.change(%__MODULE__{},
-      hash: hash,
-      refresh_hash: refresh_hash,
+  def create_changeset(user_id, auth_id, validity \\ @default_validity) do
+    Changeset.change(%Token{},
       user_id: user_id,
-      app_id: app_id,
-      valid_until: expiration_time()
+      auth_id: auth_id,
+      refresh_token: UUID.generate(),
+      expires_at: expires_at(validity)
     )
-    |> Changeset.validate_required([:user_id, :app_id])
+    |> Changeset.validate_required([:user_id, :auth_id])
   end
 
-  defp expiration_time(), do: NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 10)
+  defp expires_at(validity),
+    do: DateTime.add(DateTime.utc_now(), validity)
+
 end

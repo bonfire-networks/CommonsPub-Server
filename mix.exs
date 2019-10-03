@@ -61,7 +61,7 @@ defmodule MoodleNet.Mixfile do
       # phoenix
       {:phoenix, "~> 1.4.0"},
       {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_html, "~> 2.11"},
+      {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
