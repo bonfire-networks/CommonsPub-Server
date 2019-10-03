@@ -9,12 +9,14 @@ defmodule MoodleNet.Test.Faking do
     Communities,
     Collections,
     Meta,
+    OAuth,
     Peers,
     Users,
     Localisation,
     Resources,
     Whitelists,
   }
+  alias MoodleNet.Users.User
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
   when is_binary(domain) do
@@ -44,9 +46,25 @@ defmodule MoodleNet.Test.Faking do
     actor
   end
 
-  def fake_user!(overrides \\ %{}) when is_map(overrides) do
+  def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     {:ok, user} = Users.register(Fake.user(Fake.actor(overrides)), public_registration: true)
     user
+    |> maybe_confirm_user_email(opts)
+  end
+
+  defp maybe_confirm_user_email(user, opts) do
+    if Keyword.get(opts, :confirm_email) do
+      {:ok, user} = Users.confirm_email(user)
+      user
+    else
+      user
+    end
+  end
+
+  def fake_token!(%User{}=user) do
+    {:ok, auth} = OAuth.create_auth(user)
+    {:ok, token} = OAuth.claim_token(auth)
+    token
   end
 
   def fake_community!(actor, language, overrides \\ %{}) when is_map(overrides) do
