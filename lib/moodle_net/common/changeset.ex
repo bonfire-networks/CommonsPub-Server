@@ -31,16 +31,34 @@ defmodule MoodleNet.Common.Changeset do
   defp validate_email_message(:format), do: "is of the wrong format"
   defp validate_email_message(:mx), do: "failed an MX record check"
 
-  @spec meta_pointer_constraint(Changeset.t()) :: Changeset.t()
+  @doc "Validates that the entity has not expired"
+  def validate_not_expired(cs, now \\ DateTime.utc_now(), column \\ :expires_at, message \\ "expired") do
+    case Changeset.fetch_field(cs, column) do
+      {_, time} ->
+	case DateTime.compare(time, now) do
+	  :gt -> cs
+	  _ -> Changeset.add_error(cs, column, message)
+	end
+    end
+  end
+
   @doc "Adds a foreign key constraint for pointer on the id"
+  @spec meta_pointer_constraint(Changeset.t()) :: Changeset.t()
   def meta_pointer_constraint(changeset),
     do: Changeset.foreign_key_constraint(changeset, :id)
 
-  @doc "Creates a changest for deleting an entity"
-  def soft_delete_changeset(it, column \\ :deleted_at) do
-    it
-    |> Changeset.cast(%{}, [])
-    |> Changeset.change([{column, DateTime.utc_now()}])
+  @doc "Creates a changeset for claiming an entity"
+  def claim_changeset(it, column \\ :claimed_at, error \\ "was already claimed"),
+    do: soft_delete_changeset(it, column, error)
+
+  @doc "Creates a changeset for deleting an entity"
+  def soft_delete_changeset(it, column \\ :deleted_at, error \\ "was already deleted") do
+    cs = Changeset.cast(it, %{}, [])
+    case Changeset.fetch_field(cs, column) do
+      :error -> Changeset.change(cs, [{column, DateTime.utc_now()}])
+      {_, nil} -> Changeset.change(cs, [{column, DateTime.utc_now()}])
+      {_, _} -> Changeset.add_error(cs, column, error)
+    end
   end
 
   @doc "Keeps published_at in accord with is_public"
