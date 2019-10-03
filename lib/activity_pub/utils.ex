@@ -36,7 +36,9 @@ defmodule ActivityPub.Utils do
   end
 
   def generate_id(type) do
-    "#{MoodleNetWeb.base_url()}/#{type}/#{UUID.generate()}"
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+    "#{MoodleNetWeb.base_url()}#{ap_base_path}/#{type}/#{UUID.generate()}"
   end
 
   def make_json_ld_header do

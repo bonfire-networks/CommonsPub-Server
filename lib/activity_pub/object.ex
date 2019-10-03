@@ -51,7 +51,11 @@ defmodule ActivityPub.Object do
   def normalize(ap_id, false) when is_binary(ap_id), do: get_by_ap_id(ap_id)
 
   def normalize(ap_id, true) when is_binary(ap_id) do
-    Fetcher.fetch_object_from_id(ap_id)
+    with {:ok, object} <- Fetcher.fetch_object_from_id(ap_id) do
+      object
+    else
+      _e -> nil
+    end
   end
 
   def normalize(_, _), do: nil
