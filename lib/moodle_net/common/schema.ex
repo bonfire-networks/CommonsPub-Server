@@ -4,6 +4,7 @@
 defmodule MoodleNet.Common.Schema do
 
   @moduledoc "Macros for defining Ecto Schemas"
+  alias Ecto.UUID
 
   @doc "Uses Ecto.Schema and imports the contents of this module"
   defmacro __using__(_) do
@@ -22,8 +23,8 @@ defmodule MoodleNet.Common.Schema do
   """
   defmacro standalone_schema(table, body) do
     quote do
-      @primary_key {:id, :binary_id, autogenerate: true}
-      @foreign_key_type :binary_id
+      @primary_key {:id, UUID, autogenerate: true}
+      @foreign_key_type UUID
       @timestamps_opts [type: :utc_datetime_usec]
       schema(unquote(table), unquote(body))
     end
@@ -37,8 +38,8 @@ defmodule MoodleNet.Common.Schema do
   """
   defmacro meta_schema(table, body) do
     quote do
-      @primary_key {:id, :binary_id, autogenerate: false}
-      @foreign_key_type :binary_id
+      @primary_key {:id, UUID, autogenerate: false}
+      @foreign_key_type UUID
       @timestamps_opts [type: :utc_datetime_usec]
       schema(unquote(table), unquote(body))
     end
