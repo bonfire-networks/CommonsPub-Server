@@ -20,7 +20,32 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Translates MN Entity to an AP compatible format
   """
-  def prepare_outgoing(entity) do
+  def prepare_outgoing(%{"type" => "Create", "object" => object_id} = data) do
+    object =
+      object_id
+      |> Object.normalize()
+      |> Map.get(:data)
+      |> prepare_object
+
+    data =
+      data
+      |> Map.put("object", object)
+      |> Map.merge(Utils.make_json_ld_header())
+      |> Map.delete("bcc")
+
+    {:ok, data}
+  end
+
+  # TODO hack for mastodon accept and reject type activity formats
+  def prepare_outgoing(%{"type" => _type} = data) do
+    data =
+      data
+      |> Map.merge(Utils.make_json_ld_header())
+
+    {:ok, data}
+  end
+
+  def prepare_outgoing(entity) when APG.is_entity(entity) do
     entity
     |> Entity.aspects()
     |> Enum.flat_map(&filter_by_aspect(entity, &1))
@@ -32,6 +57,9 @@ defmodule ActivityPubWeb.Transmogrifier do
     |> maybe_inject_object()
     |> set_public_key(entity)
   end
+
+  # We currently do not perform any transformations on objects
+  def prepare_object(object), do: object
 
   def prepare_embedded(entity) do
     entity
@@ -327,7 +355,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
-  #TODO: add reject
+  # TODO: add reject
 
   def handle_incoming(
         %{
@@ -339,7 +367,7 @@ defmodule ActivityPubWeb.Transmogrifier do
       ) do
     with {:ok, follower} <- Actor.get_by_ap_id(follower),
          {:ok, followed} <- Actor.get_by_ap_id(followed) do
-          ActivityPub.unfollow(follower, followed, id, false)
+      ActivityPub.unfollow(follower, followed, id, false)
     else
       _e -> :error
     end

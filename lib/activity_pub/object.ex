@@ -9,6 +9,7 @@ defmodule ActivityPub.Object do
   import Ecto.Query
 
   alias MoodleNet.Repo
+  alias ActivityPub.Fetcher
   alias ActivityPub.Object
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -43,4 +44,15 @@ defmodule ActivityPub.Object do
     |> cast(attrs, [:data, :local, :public])
     |> validate_required(:data)
   end
+
+  def normalize(_, fetch_remote \\ true)
+  def normalize(%Object{} = object, _), do: object
+  def normalize(%{"id" => ap_id}, fetch_remote), do: normalize(ap_id, fetch_remote)
+  def normalize(ap_id, false) when is_binary(ap_id), do: get_by_ap_id(ap_id)
+
+  def normalize(ap_id, true) when is_binary(ap_id) do
+    Fetcher.fetch_object_from_id(ap_id)
+  end
+
+  def normalize(_, _), do: nil
 end

@@ -118,7 +118,7 @@ defmodule ActivityPubWeb.Publisher do
   end
 
   def publish(actor, activity) do
-    data = Transmogrifier.prepare_outgoing(activity)
+    data = Transmogrifier.prepare_outgoing(activity.data)
     json = Jason.encode!(data)
 
     recipients(actor, activity)
