@@ -52,7 +52,6 @@ defmodule ActivityPubTest do
     assert activity.data["type"] == "Undo"
     assert activity.data["actor"] == follower.data["id"]
 
-    IO.inspect(activity.data)
     embedded_object = activity.data["object"]
     assert is_map(embedded_object)
     assert embedded_object["type"] == "Follow"
