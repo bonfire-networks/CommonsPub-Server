@@ -54,9 +54,9 @@ defmodule MoodleNet.Mixfile do
       {:absinthe, "~> 1.4"},
       {:absinthe_plug, "~> 1.4"},
       # webserver
-      {:cowboy, "~> 2.5"},
-      {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.7"},
+      {:cowboy, "~> 2.6"},
+      {:plug_cowboy, "~> 2.1"},
+      {:plug, "~> 1.8"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
       # phoenix
       {:phoenix, "~> 1.4.0"},
