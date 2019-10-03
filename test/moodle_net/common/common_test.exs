@@ -5,12 +5,11 @@ defmodule MoodleNet.CommonTest do
   use MoodleNet.DataCase, async: true
   import MoodleNet.Test.Faking
   # alias MoodleNet.Test.Fake
-  alias MoodleNet.{Common, Localisation}
+  alias MoodleNet.{Common, Localisation, Meta}
 
   defp english(), do: Localisation.language!("en")
 
-  describe "MoodleNet.Common.like/3" do
-
+  describe "like/3" do
     test "with a community" do
       assert actor = fake_actor!()
       assert language = english()
@@ -27,7 +26,11 @@ defmodule MoodleNet.CommonTest do
       assert like.liker_id == alice.id
       assert like.liked_id == bob.id
     end
-
   end
 
+  describe "likes_by/1" do
+  end
+
+  describe "likes_of/1" do
+  end
 end

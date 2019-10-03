@@ -27,8 +27,10 @@ defmodule MoodleNet.Common do
   """
   def like(%Actor{}=liker, liked, fields) do
     Repo.transact_with fn ->
+      liked_pointer = Meta.find!(liked.id)
+
       Meta.point_to!(Like)
-      |> Like.create_changeset(liker, liked, fields)
+      |> Like.create_changeset(liker, liked_pointer, fields)
       |> Repo.insert()
     end
   end

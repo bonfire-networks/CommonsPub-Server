@@ -27,17 +27,22 @@ defmodule MoodleNet.Common.Like do
   @cast ~w(is_public)a
   @required @cast
 
-  def create_changeset(%Pointer{id: id}, %Actor{id: liker_id}, %{id: liked_id}, %{}=fields),
-    do: update_changeset(%Like{id: id, liker_id: liker_id, liked_id: liked_id}, fields)
-
-  def update_changeset(%Like{}=like, %{}=fields) do
-    like
+  def create_changeset(%Pointer{id: id}, %Actor{} = liker, %Pointer{} = liked, %{}=fields) do
+    %Like{id: id}
     |> Changeset.cast(fields, @cast)
     |> Changeset.validate_required(@required)
+    |> Changeset.put_assoc(:liker, liker)
+    |> Changeset.put_assoc(:liked, liked)
     |> Changeset.foreign_key_constraint(:liked_id)
     |> Changeset.foreign_key_constraint(:liker_id)
     |> meta_pointer_constraint()
     |> change_public()
   end
 
+  def update_changeset(%Like{}=like, %{}=fields) do
+    like
+    |> Changeset.cast(fields, @cast)
+    |> meta_pointer_constraint()
+    |> change_public()
+  end
 end

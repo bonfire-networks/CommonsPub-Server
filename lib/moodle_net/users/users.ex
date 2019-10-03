@@ -43,7 +43,7 @@ defmodule MoodleNet.Users do
   def register(%{} = attrs, opts \\ []) do
     Repo.transact_with(fn ->
       with {:ok, user} <- insert_user(attrs),
-           :ok <- check_register_whitelist(attrs.email, opts),
+           :ok <- check_register_whitelist(user.email, opts),
            {:ok, actor} <- Actors.create_with_alias(user.id, attrs),
            {:ok, token} <- create_email_confirm_token(user) do
         {:ok, %{ user | email_confirm_tokens: [token], password: nil, actor: actor }}

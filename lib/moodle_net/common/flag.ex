@@ -23,17 +23,19 @@ defmodule MoodleNet.Common.Flag do
     timestamps()
   end
 
-  @create_cast ~w(flagged_id flagger_id community_id reason)a
-  @create_required ~w(flagged_id flagger_id reason)a
+  @create_cast ~w(reason)a
+  @create_required ~w(reason)a
 
-  def create_changeset(%Pointer{id: id}, attrs) do
+  def create_changeset(%Pointer{id: id}, %Community{} = community, %Actor{} = flagger, %Pointer{} = flagged, attrs) do
     %__MODULE__{id: id}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
+    |> Changeset.put_assoc(:community, community)
+    |> Changeset.put_assoc(:flagged, flagged)
+    |> Changeset.put_assoc(:flagger, flagger)
+    |> Changeset.foreign_key_constraint(:community_id)
     |> Changeset.foreign_key_constraint(:flagged_id)
     |> Changeset.foreign_key_constraint(:flagger_id)
-    |> Changeset.foreign_key_constraint(:community_id)
     |> meta_pointer_constraint()
   end
-
 end
