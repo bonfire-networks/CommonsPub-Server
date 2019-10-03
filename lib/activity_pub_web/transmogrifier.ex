@@ -305,7 +305,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     params = %{
       to: data["to"],
       object: object,
-      actor: actor.data,
+      actor: actor,
       context: object["conversation"],
       local: false,
       published: data["published"],

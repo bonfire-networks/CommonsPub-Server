@@ -10,6 +10,7 @@ defmodule ActivityPub.Utils do
   import Ecto.Query
 
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
+  @supported_object_types ["Article", "Note", "Video", "Page", "Question", "Answer"]
 
   def get_ap_id(%{"id" => id} = _), do: id
   def get_ap_id(id), do: id
@@ -140,8 +141,8 @@ defmodule ActivityPub.Utils do
   @doc """
   Inserts a full object if it is contained in an activity.
   """
-  def insert_full_object(%{"object" => object_data} = map)
-      when is_map(object_data) do
+  def insert_full_object(%{"object" => %{"type" => type} = object_data} = map)
+      when is_map(object_data) and type in @supported_object_types do
     with {:ok, data} <- prepare_data(object_data),
          {:ok, object} <- Object.insert(data) do
       map =
