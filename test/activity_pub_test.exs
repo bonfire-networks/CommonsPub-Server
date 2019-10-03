@@ -9,21 +9,24 @@ defmodule ActivityPubTest do
 
   doctest ActivityPub
 
-  test "create" do
-    actor = MoodleNet.Factory.actor()
-    context = "blabla"
-    object = %{"content" => "content"}
-    to = ["https://testing.kawen.dance/users/karen"]
+  describe "create" do
+    test "works" do
+      actor = MoodleNet.Factory.ap_actor()
+      context = "blabla"
+      object = %{"content" => "content"}
+      to = ["https://testing.kawen.dance/users/karen"]
 
-    params = %{
-      actor: actor,
-      context: context,
-      object: object,
-      to: to
-    }
+      params = %{
+        actor: actor,
+        context: context,
+        object: object,
+        to: to
+      }
 
-    {:ok, activity} = ActivityPub.create(params)
+      {:ok, activity} = ActivityPub.create(params)
 
-    IO.inspect(activity)
+      assert actor.data["id"] == activity.data["actor"]
+      assert activity.data["object"] == activity.object.data["id"]
+    end
   end
 end
