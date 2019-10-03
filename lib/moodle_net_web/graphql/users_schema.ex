@@ -3,84 +3,84 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.UserSchema do
+defmodule MoodleNetWeb.GraphQL.UsersSchema do
   @moduledoc """
   GraphQL user fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
 
   import MoodleNetWeb.GraphQL.MoodleNetSchema
-  alias MoodleNetWeb.GraphQL.UserResolver
+  alias MoodleNetWeb.GraphQL.UsersResolver
 
-  object :user_queries do
+  object :users_queries do
 
     @desc "Get my user"
     field :me, type: :me do
-      resolve(&UserResolver.me/2)
+      resolve(&UsersResolver.me/2)
     end
 
     @desc "Get an user"
     field :user, type: :user do
       arg(:local_id, non_null(:integer))
-      resolve(&UserResolver.user/2)
+      resolve(&UsersResolver.user/2)
     end
 
     @desc "Check if a user exists with a username"
     field :username_available, type: :boolean do
       arg(:username, non_null(:string))
-      resolve(&UserResolver.check_username_available/2)
+      resolve(&UsersResolver.check_username_available/2)
     end
 
   end
 
-  object :user_mutations do
+  object :users_mutations do
 
     @desc "Create a user"
     field :create_user, type: :auth_payload do
       arg(:user, non_null(:registration_input))
-      resolve(&UserResolver.create/2)
+      resolve(&UsersResolver.create/2)
     end
 
     @desc "Update a profile"
     field :update_profile, type: :me do
       arg(:profile, non_null(:update_profile_input))
-      resolve(&UserResolver.update_profile/2)
+      resolve(&UsersResolver.update_profile/2)
     end
 
     @desc "Delete a user"
     field :delete_user, type: :boolean do
-      resolve(&UserResolver.delete/2)
+      resolve(&UsersResolver.delete/2)
     end
 
     @desc "Reset password request"
     field :reset_password_request, type: :boolean do
       arg(:email, non_null(:string))
-      resolve(&UserResolver.reset_password_request/2)
+      resolve(&UsersResolver.reset_password_request/2)
     end
 
     @desc "Reset password"
     field :reset_password, type: :boolean do
       arg(:token, non_null(:string))
       arg(:password, non_null(:string))
-      resolve(&UserResolver.reset_password/2)
+      resolve(&UsersResolver.reset_password/2)
     end
 
     @desc "Confirm email"
     field :confirm_email, type: :boolean do
       arg(:token, non_null(:string))
-      resolve(&UserResolver.confirm_email/2)
+      resolve(&UsersResolver.confirm_email/2)
     end
 
     @desc "Login"
     field :create_session, type: :auth_payload do
       arg(:email, non_null(:string))
       arg(:password, non_null(:string))
-      resolve(&UserResolver.create_session/2)
+      resolve(&UsersResolver.create_session/2)
     end
 
     @desc "Logout"
     field :delete_session, type: :boolean do
-      resolve(&UserResolver.delete_session/2)
+      resolve(&UsersResolver.delete_session/2)
     end
 
   end

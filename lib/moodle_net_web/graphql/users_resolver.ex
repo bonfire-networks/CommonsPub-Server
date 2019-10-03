@@ -1,16 +1,14 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
-defmodule MoodleNetWeb.GraphQL.UserResolver do
+defmodule MoodleNetWeb.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   require ActivityPub.Guards, as: APG
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, OAuth}
+  alias MoodleNet.{Accounts, Actors, OAuth, Users}
 
   def me(_, info) do
     with {:ok, actor} <- current_actor(info) do
@@ -76,7 +74,7 @@ defmodule MoodleNetWeb.GraphQL.UserResolver do
   end
 
   def check_username_available(%{username: username}, _info),
-    do: {:ok, Accounts.is_username_available?(username)}
+    do: {:ok, Actors.is_username_available?(username)}
 
   def reset_password_request(%{email: email}, _info) do
     # Note: This can be done async, but then, the async tests will fail

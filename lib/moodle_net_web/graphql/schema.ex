@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     MoodleNetSchema,
     MiscSchema,
     CommonSchema,
-    UserSchema,
+    UsersSchema,
     CommunitySchema,
     CollectionSchema,
     ResourceSchema,
@@ -80,7 +80,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     ActivitySchema
   }
 
-  import_types(UserSchema)
+  import_types(UsersSchema)
   import_types(CommentSchema)
   import_types(CommunitySchema)
   import_types(CollectionSchema)
@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(CommonSchema)
 
   query do
-    import_fields(:user_queries)
+    import_fields(:users_queries)
     import_fields(:comment_queries)
     import_fields(:community_queries)
     import_fields(:collection_queries)
@@ -107,7 +107,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
   mutation do
-    import_fields(:user_mutations)
+    import_fields(:users_mutations)
     import_fields(:comment_mutations)
     import_fields(:community_mutations)
     import_fields(:collection_mutations)
