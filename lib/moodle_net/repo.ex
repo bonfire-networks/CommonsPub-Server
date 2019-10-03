@@ -20,6 +20,16 @@ defmodule MoodleNet.Repo do
     {:ok, Keyword.put(opts, :url, System.get_env("DATABASE_URL"))}
   end
 
+  @doc """
+  Like Repo.one, but returns an ok/error tuple. Dutch for one, like 'ain' as in 'pain'
+  """
+  def een(q) do
+    case one(q) do
+      nil -> {:error, NotFoundError.new(q)}
+      other -> {:ok, other}
+    end
+  end
+
   @doc "Like Repo.get, but returns an ok/error tuple"
   @spec fetch(atom, integer | binary) :: {:ok, atom} | {:error, NotFoundError.t()}
   def fetch(queryable, id) do
