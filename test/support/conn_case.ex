@@ -1,33 +1,24 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNetWeb.ConnCase do
   @moduledoc """
-  This module defines the test case to be used by
-  tests that require setting up a connection.
-
-  Such tests rely on `Phoenix.ConnTest` and also
-  import other functionality to make it easier
-  to build common datastructures and query the data layer.
-
-  Finally, if the test case interacts with the database,
-  it cannot be async. For this reason, every test runs
-  inside a transaction which is reset at the beginning
-  of the test unless the test case is marked as async.
+  This case template is for graphql tests. It is a slimmed down
+  version of ConnCase.
   """
 
   use ExUnit.CaseTemplate
+  alias Phoenix.ConnTest
+  require Phoenix.ConnTest
+
+  @endpoint MoodleNetWeb.Endpoint
 
   using do
     quote do
-      # Import conveniences for testing with connections
       use Phoenix.ConnTest
+      import MoodleNetWeb.ConnCase
+      import MoodleNetWeb.Test.ConnHelpers
       import MoodleNetWeb.Router.Helpers
-
-      alias MoodleNet.Factory
-
       # The default endpoint for testing
       @endpoint MoodleNetWeb.Endpoint
     end
@@ -39,44 +30,7 @@ defmodule MoodleNetWeb.ConnCase do
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(MoodleNet.Repo, {:shared, self()})
     end
-
-    conn = Phoenix.ConnTest.build_conn()
-
-    accept_header =
-      case tags[:format] do
-        :activity ->
-          "application/activity+json"
-
-        :json_ld ->
-          "application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\""
-
-        :json ->
-          "application/json"
-
-        _ ->
-          "text/html"
-      end
-
-    conn = Plug.Conn.put_req_header(conn, "accept", accept_header)
-
-    ret = %{conn: conn}
-
-    ret =
-      if tags[:user] do
-        %{user: user, actor: actor} = MoodleNet.Factory.full_user()
-        # we load the actor in the same way Plugs.Auth does to catch bugs
-        user = MoodleNet.Accounts.User.preload_actor(%{user | actor: nil})
-
-        conn =
-          conn
-          |> Plug.Conn.assign(:current_user, user)
-          |> Plug.Conn.assign(:auth_token, "faked_token")
-
-        %{conn: conn, user: user, actor: actor}
-      else
-        ret
-      end
-
-    {:ok, ret}
+    {:ok, %{}}
   end
+
 end
