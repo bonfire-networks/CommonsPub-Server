@@ -7,7 +7,6 @@ defmodule MoodleNet.UsersTest do
   import MoodleNet.Test.Faking
   alias Ecto.Changeset
   alias MoodleNet.{Users, Whitelists}
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
