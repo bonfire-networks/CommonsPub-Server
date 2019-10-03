@@ -20,6 +20,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
   ]
   def up do
 
+    execute """
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp"
+    """
     ### localisation system
 
     # countries
@@ -351,7 +354,22 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       timestamps(type: :utc_datetime_usec)
     end
 
-    # now we are going to do things with what we've already created.
+    create table(:oauth_authorizations) do
+      add :user_id, references("mn_user", on_delete: :delete_all), null: false
+      add :expires_at, :timestamptz, null: false
+      add :claimed_at, :timestamptz
+      timestamps(type: :utc_datetime_usec)
+    end
+
+    create table(:oauth_tokens) do
+      add :auth_id, references("oauth_authorizations", on_delete: :delete_all), null: false
+      add :user_id, references("mn_user", on_delete: :delete_all), null: false
+      add :refresh_token, :uuid, null: false, default: fragment("uuid_generate_v4()")
+      add :expires_at, :timestamptz, null: false
+      timestamps(type: :utc_datetime_usec)
+    end
+
+   # now we are going to do things with what we've already created.
     # ecto naturally wants to delay running any of this because we
     # might be running in mysql which doesn't have DDL transactions
     # as we happen to know we're not, carry on...
