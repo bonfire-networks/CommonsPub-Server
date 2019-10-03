@@ -114,7 +114,7 @@ defmodule ActivityPub.Utils do
     %{
       "type" => "Create",
       "to" => params.to |> Enum.uniq(),
-      "actor" => params.actor["id"],
+      "actor" => params.actor.data["id"],
       "object" => params.object,
       "published" => published,
       "context" => params.context
