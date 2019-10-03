@@ -79,3 +79,10 @@ config :moodle_net, :frontend_base_url,
   (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
+
+config :moodle_net, MoodleNet.OAuth,
+  client_name: "MoodleNet",
+  client_id: "MoodleNET",
+  redirect_uri: "https://moodlenet.dev.local/",
+  website: "https://moodlenet.dev.local/",
+  scopes: "read,write,follow"

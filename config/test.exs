@@ -39,3 +39,10 @@ config :moodle_net, :frontend_base_url,
 
 config :tesla, adapter: Tesla.Mock
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
+
+config :moodle_net, MoodleNet.OAuth,
+  client_name: "MoodleNet",
+  client_id: "MoodleNET",
+  redirect_uri: "https://moodlenet.dev.local/",
+  website: "https://moodlenet.dev.local/",
+  scopes: "read,write,follow"
