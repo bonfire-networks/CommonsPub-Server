@@ -8,7 +8,6 @@ defmodule MoodleNetWeb.ConnCase do
   """
 
   use ExUnit.CaseTemplate
-  alias Phoenix.ConnTest
   require Phoenix.ConnTest
 
   @endpoint MoodleNetWeb.Endpoint

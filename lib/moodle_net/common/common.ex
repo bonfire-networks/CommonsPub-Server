@@ -3,14 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common do
 
-  import ActivityPub.Guards
-  import ActivityPub.Entity, only: [local_id: 1]
-  alias MoodleNet.{Meta, Policy,Repo}
+  alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.{DeletionError, Like}
-  import MoodleNetWeb.GraphQL.MoodleNetSchema
+  alias MoodleNet.Common.{DeletionError, Flag, Like}
   import Ecto.Query
-  alias ActivityPub.Activities
   alias MoodleNet.Common.Changeset
 
   ### pagination
@@ -27,10 +23,10 @@ defmodule MoodleNet.Common do
   """
   def like(%Actor{}=liker, liked, fields) do
     Repo.transact_with fn ->
-      liked_pointer = Meta.find!(liked.id)
+      pointer = Meta.find!(liked.id)
 
       Meta.point_to!(Like)
-      |> Like.create_changeset(liker, liked_pointer, fields)
+      |> Like.create_changeset(liker, pointer, fields)
       |> Repo.insert()
     end
   end
@@ -42,7 +38,7 @@ defmodule MoodleNet.Common do
 
   def likes_by(%Actor{}=actor), do: Repo.all(likes_by_query(actor))
 
-  def likes_of(%{id: id}=thing), do: Repo.all(likes_of_query(thing))
+  def likes_of(%{id: _id}=thing), do: Repo.all(likes_of_query(thing))
 
   import Ecto.Query, only: [from: 2]
   
@@ -56,6 +52,18 @@ defmodule MoodleNet.Common do
     from l in Like,
       where: is_nil(l.deleted_at),
       where: l.liked_id == ^id
+  end
+
+  ## Flagging
+
+  def flag(%Actor{} = flagger, flagged, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(flagged.id)
+
+      Meta.point_to!(Flag)
+      |> Flag.create_changeset(flagger, pointer, fields)
+      |> Repo.insert()
+    end)
   end
 
   ## Deletion

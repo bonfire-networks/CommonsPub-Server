@@ -95,7 +95,7 @@ defmodule MoodleNetWeb.Router do
 
   scope MoodleNet.MediaProxy.media_path(), MoodleNetWeb do
     pipe_through(:remote_media)
-    get("/:sig/:url/*_rest", MediaProxyController, :remote)
+    get("/:sig/:url/*rest", MediaProxyController, :remote)
   end
 
   @doc """
