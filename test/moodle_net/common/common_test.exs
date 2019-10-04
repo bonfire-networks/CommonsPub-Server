@@ -4,7 +4,7 @@
 defmodule MoodleNet.CommonTest do
   use MoodleNet.DataCase, async: true
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Common, Meta}
+  alias MoodleNet.Common
 
   setup do
     {:ok, %{actor: fake_actor!(), language: fake_language!()}}
@@ -16,7 +16,7 @@ defmodule MoodleNet.CommonTest do
       community = fake_community!(liker, language)
       collection = fake_collection!(liker, community, language)
       resource = fake_resource!(liker, collection, language)
-      thread = fake_thread!(Meta.find!(resource.id))
+      thread = fake_thread!(resource)
       comment = fake_comment!(thread)
       likeable = [actor, community, collection, resource, comment]
 
@@ -31,7 +31,7 @@ defmodule MoodleNet.CommonTest do
 
   describe "likes_by/1" do
     test "returns a list of likes for an actor", %{actor: actor, language: language} do
-      thread = fake_thread!(Meta.find!(actor.id))
+      thread = fake_thread!(actor)
       things = [fake_actor!(), fake_community!(actor, language), fake_comment!(thread)]
 
       for thing <- things do

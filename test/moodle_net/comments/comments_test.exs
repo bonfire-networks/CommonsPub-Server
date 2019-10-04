@@ -10,11 +10,10 @@ defmodule MoodleNet.CommentsTest do
   alias MoodleNet.Common.Revision
   alias MoodleNet.Comments
   alias MoodleNet.Comments.CommentRevision
-  alias MoodleNet.Meta
   alias MoodleNet.Test.Fake
 
   setup do
-    parent = Meta.find!(fake_actor!().id)
+    parent = fake_actor!()
     thread = fake_thread!(parent)
     {:ok, %{parent: parent, thread: thread}}
   end

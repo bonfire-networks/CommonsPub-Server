@@ -18,16 +18,16 @@ defmodule MoodleNet.Comments do
   def fetch_thread(id), do: Repo.fetch(Thread, id)
   def fetch_comment(id), do: Repo.fetch(Comment, id)
 
-  # TODO: extract parent pointer
   def create_thread(parent, attrs) do
     Repo.transact_with(fn ->
-      Repo.insert(Thread.create_changeset(parent, attrs))
+      pointer = Meta.find!(parent.id)
+      Repo.insert(Thread.create_changeset(pointer, attrs))
     end)
   end
 
-  def update_thread(parent, attrs) do
+  def update_thread(thread, attrs) do
     Repo.transact_with(fn ->
-      Repo.update(Thread.update_changeset(parent, attrs))
+      Repo.update(Thread.update_changeset(thread, attrs))
     end)
   end
 
