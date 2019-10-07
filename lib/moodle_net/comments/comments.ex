@@ -16,10 +16,10 @@ defmodule MoodleNet.Comments do
   def fetch_thread(id), do: Repo.fetch(Thread, id)
   def fetch_comment(id), do: Repo.fetch(Comment, id)
 
-  def create_thread(parent, attrs) do
+  def create_thread(parent, creator, attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.find!(parent.id)
-      Repo.insert(Thread.create_changeset(pointer, attrs))
+      Repo.insert(Thread.create_changeset(pointer, creator, attrs))
     end)
   end
 
@@ -29,11 +29,11 @@ defmodule MoodleNet.Comments do
     end)
   end
 
-  def create_comment(thread, attrs) when is_map(attrs) do
+  def create_comment(thread, creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.point_to!(Comment)
 
-      changeset = Comment.create_changeset(pointer, thread, attrs)
+      changeset = Comment.create_changeset(pointer, creator, thread, attrs)
       with {:ok, comment} <- Repo.insert(changeset),
            {:ok, revision} <- Revision.insert(CommentRevision, comment, attrs) do
         latest_revision = CommentLatestRevision.forge(revision)

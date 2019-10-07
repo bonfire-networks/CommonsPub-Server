@@ -13,9 +13,10 @@ defmodule MoodleNet.CommentsTest do
   alias MoodleNet.Test.Fake
 
   setup do
+    actor = fake_actor!()
     parent = fake_actor!()
-    thread = fake_thread!(parent)
-    {:ok, %{parent: parent, thread: thread}}
+    thread = fake_thread!(actor, parent)
+    {:ok, %{actor: actor, parent: parent, thread: thread}}
   end
 
   describe "fetch_thread" do
@@ -29,29 +30,29 @@ defmodule MoodleNet.CommentsTest do
   end
 
   describe "create_thread" do
-    test "creates a new thread with any parent", %{parent: parent} do
+    test "creates a new thread with any parent", %{actor: creator, parent: parent} do
       attrs = Fake.thread()
-      assert {:ok, thread} = Comments.create_thread(parent, attrs)
+      assert {:ok, thread} = Comments.create_thread(parent, creator, attrs)
       assert thread.is_public == attrs.is_public
     end
 
-    test "fails to create a thread with invalid attributes", %{parent: parent} do
-      assert {:error, changeset} = Comments.create_thread(parent, %{})
+    test "fails to create a thread with invalid attributes", %{actor: creator, parent: parent} do
+      assert {:error, changeset} = Comments.create_thread(parent, creator, %{})
       assert Keyword.get(changeset.errors, :is_public)
     end
   end
 
   describe "update_thread" do
-    test "updates a thread with new attributes", %{parent: parent} do
-      thread = fake_thread!(parent, %{is_public: true})
+    test "updates a thread with new attributes", %{actor: creator, parent: parent} do
+      thread = fake_thread!(creator, parent, %{is_public: true})
       assert {:ok, updated_thread} = Comments.update_thread(thread, %{is_public: false})
       assert updated_thread != thread
     end
   end
 
   describe "fetch_comment" do
-    test "fetches an existing comment", %{thread: thread} do
-      comment = fake_comment!(thread)
+    test "fetches an existing comment", %{actor: creator, thread: thread} do
+      comment = fake_comment!(creator, thread)
       assert {:ok, _} = Comments.fetch_comment(comment.id)
     end
 
@@ -61,32 +62,32 @@ defmodule MoodleNet.CommentsTest do
   end
 
   describe "create_comment" do
-    test "creates a new comment with a thread parent", %{thread: thread} do
+    test "creates a new comment with a thread parent", %{actor: creator, thread: thread} do
       attrs = Fake.comment()
-      assert {:ok, comment} = Comments.create_comment(thread, attrs)
+      assert {:ok, comment} = Comments.create_comment(thread, creator, attrs)
       assert comment.is_public == attrs.is_public
       assert comment.current.content == attrs.content
     end
 
-    test "creates a revision for the comment", %{thread: thread} do
-      comment = fake_comment!(thread)
+    test "creates a revision for the comment", %{actor: creator, thread: thread} do
+      comment = fake_comment!(creator, thread)
       assert {:ok, comment} = Comments.fetch_comment(comment.id)
       assert comment = Repo.preload(comment, [:revisions, :current])
       assert [revision] = comment.revisions
       assert revision == comment.current
     end
 
-    test "fails given invalid attributes", %{thread: thread} do
-      assert {:error, changeset} = Comments.create_comment(thread, %{})
+    test "fails given invalid attributes", %{actor: creator, thread: thread} do
+      assert {:error, changeset} = Comments.create_comment(thread, creator, %{})
       assert Keyword.get(changeset.errors, :is_public)
-      assert {:error, changeset} = Comments.create_comment(thread, %{is_public: false})
+      assert {:error, changeset} = Comments.create_comment(thread, creator, %{is_public: false})
       assert Keyword.get(changeset.errors, :content)
     end
   end
 
   describe "update_comment" do
-    test "updates a comment given valid attributes", %{thread: thread} do
-      comment = fake_comment!(thread, %{is_public: true})
+    test "updates a comment given valid attributes", %{actor: creator, thread: thread} do
+      comment = fake_comment!(creator, thread, %{is_public: true})
 
       assert {:ok, updated_comment} =
                Comments.update_comment(comment, Fake.comment(%{is_public: false}))
@@ -95,8 +96,8 @@ defmodule MoodleNet.CommentsTest do
       refute updated_comment.is_public
     end
 
-    test "creates a new revision for the update", %{thread: thread} do
-      comment = fake_comment!(thread)
+    test "creates a new revision for the update", %{actor: creator, thread: thread} do
+      comment = fake_comment!(creator, thread)
       assert {:ok, updated_comment} = Comments.update_comment(comment, Fake.comment())
       assert updated_comment.current != comment.current
 

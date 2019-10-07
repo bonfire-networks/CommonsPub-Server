@@ -221,6 +221,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_resource_revision, [:resource_id, "inserted_at desc"])
 
     create table(:mn_thread) do
+      add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :parent_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
@@ -231,6 +232,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create table(:mn_comment, primary_key: false) do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+      add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :thread_id, references("mn_thread", on_delete: :delete_all), null: false
       add :reply_to_id, references("mn_comment", on_delete: :nilify_all)
       add :published_at, :timestamptz
