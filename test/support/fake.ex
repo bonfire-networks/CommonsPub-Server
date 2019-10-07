@@ -197,6 +197,11 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:content, &paragraph/0)
   end
 
+  def flag(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:message, &paragraph/0)
+  end
+
   # def resource_revision(base \\ %{}) do
   #   base
   # end

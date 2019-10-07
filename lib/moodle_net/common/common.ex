@@ -6,6 +6,7 @@ defmodule MoodleNet.Common do
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.{DeletionError, Flag, Like}
+  alias MoodleNet.Communities.Community
   import Ecto.Query
   alias MoodleNet.Common.Changeset
 
@@ -36,12 +37,16 @@ defmodule MoodleNet.Common do
     |> Repo.update()
   end
 
+  @doc """
+  Return a list of likes for an actor.
+  """
   def likes_by(%Actor{}=actor), do: Repo.all(likes_by_query(actor))
 
+  @doc """
+  Return a list of likes for any object participating in the meta abstraction.
+  """
   def likes_of(%{id: _id}=thing), do: Repo.all(likes_of_query(thing))
 
-  import Ecto.Query, only: [from: 2]
-  
   defp likes_by_query(%Actor{id: id}) do
     from l in Like,
       where: is_nil(l.deleted_at),
@@ -64,6 +69,55 @@ defmodule MoodleNet.Common do
       |> Flag.create_changeset(flagger, pointer, fields)
       |> Repo.insert()
     end)
+  end
+
+  def flag(%Actor{} = flagger, flagged, community, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(flagged.id)
+
+      Meta.point_to!(Flag)
+      |> Flag.create_changeset(flagger, community, pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  def resolve_flag(%Flag{} = flag) do
+    Repo.transact_with(fn ->
+      soft_delete(flag)
+    end)
+  end
+
+  @doc """
+  Return a list of open flags for an actor.
+  """
+  def flags_by(%Actor{} = actor), do: Repo.all(flags_by_query(actor))
+
+  @doc """
+  Return a list of open flags for any object participating in the meta abstraction.
+  """
+  def flags_of(%{id: _id} = thing), do: Repo.all(flags_of_query(thing))
+
+  @doc """
+  Return open flags for a community.
+  """
+  def flags_of_community(%Community{id: id}) do
+    query = from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.community_id == ^id
+
+    Repo.all(query)
+  end
+
+  defp flags_by_query(%Actor{id: id}) do
+    from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.flagger_id == ^id
+  end
+
+  defp flags_of_query(%{id: id}) do
+    from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.flagged_id == ^id
   end
 
   ## Deletion
