@@ -21,9 +21,9 @@ defmodule MoodleNet.Repo do
   end
 
   @doc """
-  Like Repo.one, but returns an ok/error tuple. Dutch for one, like 'ain' as in 'pain'
+  Like Repo.one, but returns an ok/error tuple.
   """
-  def een(q) do
+  def single(q) do
     case one(q) do
       nil -> {:error, NotFoundError.new(q)}
       other -> {:ok, other}
