@@ -1,4 +1,4 @@
-<p><%= gettext("Hi %{name}", name: User.name(@user)) <> "," %></p>
+<p><%= gettext("Hi %{name}", name: @actor.name) <> "," %></p>
 
 <p><%= gettext("To complete your sign up, please verify your email:") %></p>
 

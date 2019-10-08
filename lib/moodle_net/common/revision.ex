@@ -20,6 +20,6 @@ defmodule MoodleNet.Common.Revision do
 
   def preload(module, queryable) do
     query = from(r in module, order_by: [desc: r.inserted_at])
-    Repo.preload(queryable, [revisions: query])
+    Repo.preload(queryable, [:current ,revisions: query])
   end
 end

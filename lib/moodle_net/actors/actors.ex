@@ -19,12 +19,19 @@ defmodule MoodleNet.Actors do
 
   @doc "Fetches an actor by id"
   @spec fetch(id :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
-  def fetch(id) when is_binary(id), do: Repo.fetch(Actor, id)
+  def fetch(id) when is_binary(id), do: preload_current_revision(Repo.fetch(Actor, id))
+
+  @spec fetch_by_alias(id :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
+  def fetch_by_alias(alias_id) when is_binary(alias_id),
+    do: preload_current_revision(Repo.fetch_by(Actor, alias_id: alias_id))
 
   @doc "Fetches an actor by username"
   @spec fetch(username :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
   def fetch_by_username(username) when is_binary(username),
-    do: Repo.fetch_by(Actor, preferred_username: username)
+    do: preload_current_revision(Repo.fetch_by(Actor, preferred_username: username))
+
+  defp preload_current_revision({:ok, actor}), do: {:ok, Repo.preload(actor, :current)}
+  defp preload_current_revision(error), do: error
 
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()

@@ -6,7 +6,6 @@
 defmodule MoodleNet.CollectionsTest do
   use MoodleNet.DataCase, async: true
 
-  import ActivityPub.Entity, only: [local_id: 1]
   import MoodleNet.Test.Faking
   alias MoodleNet.Collections
   alias MoodleNet.Test.Fake
