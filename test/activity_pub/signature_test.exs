@@ -53,7 +53,7 @@ defmodule ActivityPub.SignatureTest do
 
   describe "sign/2" do
     test "works" do
-      actor = actor()
+      actor = ap_actor()
 
       _signature =
         Signature.sign(actor, %{
