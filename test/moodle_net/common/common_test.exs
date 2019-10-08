@@ -16,8 +16,8 @@ defmodule MoodleNet.CommonTest do
     community = fake_community!(actor, language)
     collection = fake_collection!(actor, community, language)
     resource = fake_resource!(actor, collection, language)
-    thread = fake_thread!(resource)
-    comment = fake_comment!(thread)
+    thread = fake_thread!(actor, resource)
+    comment = fake_comment!(actor, thread)
     Faker.Util.pick([actor, community, collection, resource, comment])
   end
 
@@ -33,8 +33,7 @@ defmodule MoodleNet.CommonTest do
 
   describe "likes_by/1" do
     test "returns a list of likes for an actor", %{actor: actor, language: language} do
-      thread = fake_thread!(actor)
-      things = [fake_actor!(), fake_community!(actor, language), fake_comment!(thread)]
+      things = for _ <- 1..3, do: fake_meta!(language)
 
       for thing <- things do
         assert {:ok, like} = Common.like(actor, thing, %{is_public: true})
