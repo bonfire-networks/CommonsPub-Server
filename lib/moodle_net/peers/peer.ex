@@ -10,7 +10,7 @@ defmodule MoodleNet.Peers.Peer do
   Peers participate in the meta system and must be created from a Pointer
   """
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, validate_http_url: 2]
   alias Ecto.Changeset
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
@@ -42,19 +42,5 @@ defmodule MoodleNet.Peers.Peer do
     |> Changeset.cast(fields, @update_cast)
     |> Changeset.validate_required(@update_required)
     |> meta_pointer_constraint()
-  end
-
-  def validate_http_url(changeset, field) do
-    Changeset.validate_change(changeset, field, fn ^field, url ->
-      if valid_http_uri?(URI.parse(url)) do
-        []
-      else
-        [{field, "has an invalid URL format"}]
-      end
-    end)
-  end
-
-  defp valid_http_uri?(%URI{scheme: scheme, host: host, path: path}) do
-    scheme in ["http", "https"] && not is_nil(host)
   end
 end
