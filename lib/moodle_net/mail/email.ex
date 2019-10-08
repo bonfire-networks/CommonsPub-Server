@@ -10,7 +10,6 @@ defmodule MoodleNet.Mail.Email do
   import MoodleNetWeb.Gettext
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
   alias MoodleNet.Actors
-  alias MoodleNet.Repo
 
   def welcome(user, token) do
     url = email_confirmation_url(user.id, token)
