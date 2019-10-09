@@ -5,7 +5,7 @@ defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.{DeletionError, Flag, Like}
+  alias MoodleNet.Common.{DeletionError, Flag, Follow, Like}
   alias MoodleNet.Communities.Community
   import Ecto.Query
   alias MoodleNet.Common.Changeset
@@ -119,6 +119,31 @@ defmodule MoodleNet.Common do
       where: is_nil(f.deleted_at),
       where: f.flagged_id == ^id
   end
+
+  ## Following
+
+  @spec follow(Actor.t(), any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def follow(%Actor{} = follower, followed, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(followed.id)
+
+      follower
+      |> Follow.create_changeset(pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  @spec update_follow(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def update_follow(%Follow{} = follow, fields) do
+    Repo.transact_with(fn ->
+      follow
+      |> Follow.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec unfollow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def unfollow(%Follow{} = follow), do: soft_delete(follow)
 
   ## Deletion
 

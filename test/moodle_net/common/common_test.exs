@@ -154,4 +154,46 @@ defmodule MoodleNet.CommonTest do
       assert flag.deleted_at
     end
   end
+
+  describe "follow/3" do
+    test "creates a follow for any meta object", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, %{is_public: true, is_muted: false})
+      assert follow.follower_id == follower.id
+      assert follow.followed_id == followed.id
+      assert follow.published_at
+      refute follow.muted_at
+    end
+
+    test "can mute a follow", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, %{is_public: true, is_muted: true})
+      assert follow.muted_at
+    end
+
+    test "fails to create a follow with missing attributes", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:error, _} = Common.follow(follower, followed, %{})
+    end
+  end
+
+  describe "update_follow/2" do
+    test "updates the attributes of an existing follow", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_public: false}))
+      assert {:ok, updated_follow} = Common.update_follow(follow, Fake.follow(%{is_public: true}))
+      assert follow != updated_follow
+    end
+  end
+
+  describe "unfollow/1" do
+    test "removes a follower from a followed object", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+      refute follow.deleted_at
+
+      assert {:ok, follow} = Common.unfollow(follow)
+      assert follow.deleted_at
+    end
+  end
 end
