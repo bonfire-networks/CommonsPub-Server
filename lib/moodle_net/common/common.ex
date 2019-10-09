@@ -13,6 +13,12 @@ defmodule MoodleNet.Common do
   ### pagination
 
   def paginate(query, opts) do
+    offset = opts[:offset] || opts["offset"]
+    limit = opts[:limit] || opts["limit"]
+
+    query
+    |> offset(^offset)
+    |> limit(^limit)
   end
 
   ### liking
