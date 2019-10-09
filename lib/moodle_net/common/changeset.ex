@@ -92,6 +92,11 @@ defmodule MoodleNet.Common.Changeset do
   def change_public(%Changeset{} = changeset),
     do: change_synced_timestamp(changeset, :is_public, :published_at)
 
+  @spec change_muted(Changeset.t()) :: Changeset.t()
+  @doc "Keeps muted_at in accord with is_muted"
+  def change_muted(%Changeset{} = changeset),
+    do: change_synced_timestamp(changeset, :is_muted, :muted_at)
+
   @spec change_synced_timestamp(Changeset.t(), atom, atom) :: Changeset.t()
   @doc """
   If a changeset includes a change to `bool`, we ensure that the

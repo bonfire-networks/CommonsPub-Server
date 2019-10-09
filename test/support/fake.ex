@@ -208,6 +208,13 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_muted, &bool/0)
   end
 
+  def block(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_public, &bool/0)
+    |> Map.put_new_lazy(:is_muted, &bool/0)
+    |> Map.put_new_lazy(:is_blocked, &bool/0)
+  end
+
   # def community_role(base \\ %{}) do
   #   base
   # end

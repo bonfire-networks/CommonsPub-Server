@@ -26,7 +26,7 @@ defmodule MoodleNet.CommonTest do
 
   describe "paginate" do
     test "can take a limit and an offset", %{actor: actor} do
-      actors = [actor] ++ for _ <- 1..5, do: fake_actor!()
+      actors = [actor] ++ for _ <- 1..4, do: fake_actor!()
 
       actors =
         Enum.sort_by(actors, & &1.inserted_at, fn a, b -> :lt == DateTime.compare(a, b) end)
@@ -216,7 +216,7 @@ defmodule MoodleNet.CommonTest do
 
     test "can mute a follow", %{actor: follower, language: language} do
       followed = fake_meta!(language)
-      assert {:ok, follow} = Common.follow(follower, followed, %{is_public: true, is_muted: true})
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.block(%{is_muted: true}))
       assert follow.muted_at
     end
 
@@ -246,6 +246,38 @@ defmodule MoodleNet.CommonTest do
 
       assert {:ok, follow} = Common.unfollow(follow)
       assert follow.deleted_at
+    end
+  end
+
+  describe "block/3" do
+    test "creates a block for any meta object", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+
+      assert {:ok, block} =
+               Common.block(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
+
+      assert block.blocked_at
+      assert block.muted_at
+    end
+  end
+
+  describe "update_block/2" do
+    test "updates the attributes of an existing block", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      assert {:ok, updated_block} = Common.update_block(block, Fake.block(%{is_blocked: true}))
+      assert block != updated_block
+    end
+  end
+
+  describe "delete_block/1" do
+    test "removes a block", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      refute block.deleted_at
+
+      assert {:ok, block} = Common.delete_block(block)
+      assert block.deleted_at
     end
   end
 end

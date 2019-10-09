@@ -5,7 +5,7 @@ defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.{DeletionError, Flag, Follow, Like}
+  alias MoodleNet.Common.{Block, DeletionError, Flag, Follow, Like}
   alias MoodleNet.Communities.Community
   import Ecto.Query
   alias MoodleNet.Common.Changeset
@@ -150,6 +150,31 @@ defmodule MoodleNet.Common do
 
   @spec unfollow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def unfollow(%Follow{} = follow), do: soft_delete(follow)
+
+  ## Blocking
+
+  @spec block(Actor.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def block(%Actor{} = blocker, blocked, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(blocked.id)
+
+      blocker
+      |> Block.create_changeset(pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  @spec update_block(Block.t(), map) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def update_block(%Block{} = block, fields) do
+    Repo.transact_with(fn ->
+      block
+      |> Block.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec delete_block(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def delete_block(%Block{} = block), do: soft_delete(block)
 
   ## Deletion
 
