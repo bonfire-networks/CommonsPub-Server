@@ -5,13 +5,13 @@
 
 defmodule ActivityPubTest do
   use MoodleNet.DataCase
-  import MoodleNet.Factory
+  import MoodleNet.Test.Faking
 
   doctest ActivityPub
 
   describe "create" do
     test "works" do
-      actor = ap_actor()
+      actor = fake_ap_actor!()
       context = "blabla"
       object = %{"content" => "content", "type" => "Note"}
       to = ["https://testing.kawen.dance/users/karen"]
@@ -32,8 +32,8 @@ defmodule ActivityPubTest do
 
   describe "following / unfollowing" do
     test "creates a follow activity" do
-      follower = ap_actor()
-      followed = ap_actor()
+      follower = fake_ap_actor!()
+      followed = fake_ap_actor!()
 
       {:ok, activity} = ActivityPub.follow(follower, followed)
       assert activity.data["type"] == "Follow"
@@ -43,8 +43,8 @@ defmodule ActivityPubTest do
   end
 
   test "creates an undo activity for the last follow" do
-    follower = ap_actor()
-    followed = ap_actor()
+    follower = fake_ap_actor!()
+    followed = fake_ap_actor!()
 
     {:ok, follow_activity} = ActivityPub.follow(follower, followed)
     {:ok, activity} = ActivityPub.unfollow(follower, followed)

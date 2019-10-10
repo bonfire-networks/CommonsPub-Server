@@ -6,10 +6,12 @@
 defmodule ActivityPub.ActorTest do
   use MoodleNet.DataCase
 
-  test "get_by_username/1" do
-    actor = Factory.ap_actor()
+  alias MoodleNet.Test.Faking
 
-    username = actor.data["preferredUsername"]
+  test "get_by_username/1" do
+    actor = Faking.fake_actor!()
+
+    username = actor.preferred_username
 
     {:ok, fetched_actor} = ActivityPub.Actor.get_by_username(username)
 

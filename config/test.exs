@@ -49,8 +49,5 @@ config :moodle_net, MoodleNet.OAuth,
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
 
-config :moodle_net, ActivityPub.Adapter,
-  adapter: MoodleNet.ActivityPubMock
-
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false

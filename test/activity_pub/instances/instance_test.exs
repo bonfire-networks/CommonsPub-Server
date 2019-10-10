@@ -6,7 +6,7 @@
 defmodule ActivityPub.Instances.InstanceTest do
   alias ActivityPub.Instances.Instance
   alias MoodleNet.Repo
-  alias MoodleNet.Factory
+  alias MoodleNet.Test.Faking
 
   require Ecto.Query
 
@@ -24,14 +24,14 @@ defmodule ActivityPub.Instances.InstanceTest do
 
   describe "set_reachable/1" do
     test "clears `unreachable_since` of existing matching Instance record having non-nil `unreachable_since`" do
-      {:ok, instance} = Factory.instance(NaiveDateTime.utc_now())
+      {:ok, instance} = Faking.fake_instance(NaiveDateTime.utc_now())
 
       assert {:ok, instance} = Instance.set_reachable(instance.host)
       refute instance.unreachable_since
     end
 
     test "keeps nil `unreachable_since` of existing matching Instance record having nil `unreachable_since`" do
-      {:ok, instance} = Factory.instance
+      {:ok, instance} = Faking.fake_instance
 
       assert {:ok, instance} = Instance.set_reachable(instance.host)
       refute instance.unreachable_since
@@ -56,7 +56,7 @@ defmodule ActivityPub.Instances.InstanceTest do
     end
 
     test "does NOT modify `unreachable_since` value of existing record in case it's present" do
-      {:ok, instance} = Factory.instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
+      {:ok, instance} = Faking.fake_instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
 
       assert instance.unreachable_since
       initial_value = instance.unreachable_since
@@ -70,7 +70,7 @@ defmodule ActivityPub.Instances.InstanceTest do
 
   describe "set_unreachable/2" do
     test "sets `unreachable_since` value of existing record in case it's newer than supplied value" do
-      {:ok, instance} = Factory.instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
+      {:ok, instance} = Faking.fake_instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
 
       assert instance.unreachable_since
 
@@ -82,7 +82,7 @@ defmodule ActivityPub.Instances.InstanceTest do
     end
 
     test "does NOT modify `unreachable_since` value of existing record in case it's equal to or older than supplied value" do
-      {:ok, instance} = Factory.instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
+      {:ok, instance} = Faking.fake_instance(NaiveDateTime.add(NaiveDateTime.utc_now(), -10))
 
       assert instance.unreachable_since
       initial_value = instance.unreachable_since

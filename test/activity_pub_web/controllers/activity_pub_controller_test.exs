@@ -6,12 +6,12 @@
 defmodule ActivityPub.ActivityPubControllerTest do
   use MoodleNetWeb.ConnCase
 
-  import MoodleNet.Factory
+  import MoodleNet.Test.Faking
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
   describe "object" do
-    test "works for activities", %{conn: conn} do
-      actor = ap_actor()
+    test "works for activities" do
+      actor = fake_ap_actor!()
       context = "blabla"
       object = %{"content" => "content", "type" => "Note"}
       to = ["https://testing.kawen.dance/users/karen"]
@@ -32,7 +32,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
         |> List.last()
 
       resp =
-        conn
+        build_conn()
         |> put_req_header("accept", "application/json")
         |> get("/pub/objects/#{uuid}")
         |> json_response(200)
@@ -41,8 +41,8 @@ defmodule ActivityPub.ActivityPubControllerTest do
       assert resp["type"] == "Create"
     end
 
-    test "works for objects", %{conn: conn} do
-      actor = ap_actor()
+    test "works for objects" do
+      actor = fake_ap_actor!()
       context = "blabla"
       object = %{"content" => "content", "type" => "Note"}
       to = ["https://testing.kawen.dance/users/karen"]
@@ -63,7 +63,7 @@ defmodule ActivityPub.ActivityPubControllerTest do
         |> List.last()
 
       resp =
-        conn
+        build_conn()
         |> put_req_header("accept", "application/json")
         |> get("/pub/objects/#{uuid}")
         |> json_response(200)

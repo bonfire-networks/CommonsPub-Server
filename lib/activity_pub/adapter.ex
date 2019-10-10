@@ -14,12 +14,6 @@ defmodule ActivityPub.Adapter do
   @adapter Config.get!(ActivityPub.Adapter)[:adapter]
 
   @doc """
-  Fetch an actor given an URI string identifying that actor
-  """
-  @callback get_actor_by_ap_id(String.t()) :: {:ok, any()} | {:error, any()}
-  defdelegate get_actor_by_ap_id(ap_id), to: @adapter
-
-  @doc """
   Fetch an actor given its preferred username
   """
   @callback get_actor_by_username(String.t()) :: {:ok, any()} | {:error, any()}

@@ -100,7 +100,7 @@ defmodule ActivityPub.Actor do
   """
   @spec get_by_ap_id(String.t()) :: {:ok, Map.t()} | {:error, any()}
   def get_by_ap_id(ap_id) do
-    host = URI.parse(ap_id)
+    host = URI.parse(ap_id).host
 
     if host == System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()) do
       get_local_actor(ap_id)
@@ -141,10 +141,10 @@ defmodule ActivityPub.Actor do
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
       "preferredUsername" => actor.preferred_username,
-      "name" => actor.name,
-      "summary" => actor.summary,
-      "icon" => actor.icon,
-      "image" => actor.image
+      "name" => actor.latest_revision.revision.name,
+      "summary" => actor.latest_revision.revision.summary,
+      "icon" => actor.latest_revision.revision.icon,
+      "image" => actor.latest_revision.revision.image
     }
 
     %{

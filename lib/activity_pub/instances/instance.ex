@@ -15,7 +15,9 @@ defmodule ActivityPub.Instances.Instance do
   import Ecto.Query
   import Ecto.Changeset
 
-  schema "instances" do
+  @primary_key {:id, :binary_id, autogenerate: true}
+
+  schema "ap_instance" do
     field(:host, :string)
     field(:unreachable_since, :naive_datetime_usec)
 

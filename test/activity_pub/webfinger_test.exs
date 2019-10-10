@@ -7,6 +7,7 @@ defmodule ActivityPub.WebFingerTest do
   use MoodleNet.DataCase
 
   alias ActivityPub.WebFinger
+  alias MoodleNet.Test.Faking
 
   import Tesla.Mock
 
@@ -17,16 +18,16 @@ defmodule ActivityPub.WebFingerTest do
 
   describe "incoming webfinger request" do
     test "works for fqns" do
-      actor = Factory.ap_actor(%{"preferredUsername" => "name", "id" => "http://localhost:4000/actors/name"})
+      actor = Faking.fake_actor!()
 
       {:ok, result} =
-        WebFinger.webfinger("#{actor.data["preferredUsername"]}@#{MoodleNetWeb.Endpoint.host()}")
+        WebFinger.webfinger("#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}")
 
       assert is_map(result)
     end
 
     test "works for ap_ids" do
-      actor = Factory.ap_actor()
+      actor = Faking.fake_ap_actor!()
 
       {:ok, result} = WebFinger.webfinger(actor.data["id"])
       assert is_map(result)

@@ -81,7 +81,7 @@ config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
 
-config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPubMock
+config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
 config :pleroma_job_queue, :queues,
 federator_incoming: 50,
