@@ -5,7 +5,7 @@ defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.{DeletionError, Flag, Like}
+  alias MoodleNet.Common.{Block, DeletionError, Flag, Follow, Like}
   alias MoodleNet.Communities.Community
   import Ecto.Query
   alias MoodleNet.Common.Changeset
@@ -13,6 +13,12 @@ defmodule MoodleNet.Common do
   ### pagination
 
   def paginate(query, opts) do
+    offset = opts[:offset] || opts["offset"]
+    limit = opts[:limit] || opts["limit"]
+
+    query
+    |> offset(^offset)
+    |> limit(^limit)
   end
 
   ### liking
@@ -119,6 +125,56 @@ defmodule MoodleNet.Common do
       where: is_nil(f.deleted_at),
       where: f.flagged_id == ^id
   end
+
+  ## Following
+
+  @spec follow(Actor.t(), any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def follow(%Actor{} = follower, followed, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(followed.id)
+
+      follower
+      |> Follow.create_changeset(pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  @spec update_follow(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def update_follow(%Follow{} = follow, fields) do
+    Repo.transact_with(fn ->
+      follow
+      |> Follow.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec unfollow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def unfollow(%Follow{} = follow), do: soft_delete(follow)
+
+  ## Blocking
+
+  @spec block(Actor.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def block(%Actor{} = blocker, blocked, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(blocked.id)
+
+      blocker
+      |> Block.create_changeset(pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  @spec update_block(Block.t(), map) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def update_block(%Block{} = block, fields) do
+    Repo.transact_with(fn ->
+      block
+      |> Block.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec delete_block(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def delete_block(%Block{} = block), do: soft_delete(block)
 
   ## Deletion
 

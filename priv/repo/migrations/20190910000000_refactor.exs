@@ -256,7 +256,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_follow) do
       add :follower_id, references("mn_actor", on_delete: :delete_all), null: false
       add :followed_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
-      add :muted_at, :boolean, null: false
+      add :muted_at, :timestamptz
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)

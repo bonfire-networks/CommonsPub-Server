@@ -3,9 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.CommonTest do
   use MoodleNet.DataCase, async: true
+  require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.Test.Fake
+  alias MoodleNet.Actors.Actor
   alias MoodleNet.Common
+  alias MoodleNet.Repo
+  alias MoodleNet.Test.Fake
 
   setup do
     {:ok, %{actor: fake_actor!(), language: fake_language!()}}
@@ -19,6 +22,49 @@ defmodule MoodleNet.CommonTest do
     thread = fake_thread!(actor, resource)
     comment = fake_comment!(actor, thread)
     Faker.Util.pick([actor, community, collection, resource, comment])
+  end
+
+  describe "paginate" do
+    test "can take a limit and an offset", %{actor: actor} do
+      actors = [actor] ++ for _ <- 1..4, do: fake_actor!()
+
+      actors =
+        Enum.sort_by(actors, & &1.inserted_at, fn a, b -> :lt == DateTime.compare(a, b) end)
+
+      query = Ecto.Query.from(_ in Actor)
+
+      [first, second] =
+        query
+        |> Common.paginate(%{offset: 2, limit: 2})
+        |> Repo.all()
+
+      assert first.id == Enum.at(actors, 2).id
+      assert second.id == Enum.at(actors, 3).id
+
+      # no limit
+      fetched =
+        query
+        |> Common.paginate(%{offset: 2})
+        |> Repo.all()
+
+      assert Enum.map(fetched, & &1.id) == actors |> Enum.drop(2) |> Enum.map(& &1.id)
+
+      # no offset
+      fetched =
+        query
+        |> Common.paginate(%{limit: 2})
+        |> Repo.all()
+
+      assert Enum.map(fetched, & &1.id) == actors |> Enum.take(2) |> Enum.map(& &1.id)
+
+      # neither parameters
+      fetched =
+        query
+        |> Common.paginate(%{})
+        |> Repo.all()
+
+      assert Enum.map(fetched, & &1.id) == actors |> Enum.map(& &1.id)
+    end
   end
 
   describe "like/3" do
@@ -152,6 +198,86 @@ defmodule MoodleNet.CommonTest do
 
       assert {:ok, flag} = Common.resolve_flag(flag)
       assert flag.deleted_at
+    end
+  end
+
+  describe "follow/3" do
+    test "creates a follow for any meta object", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+
+      assert {:ok, follow} =
+               Common.follow(follower, followed, %{is_public: true, is_muted: false})
+
+      assert follow.follower_id == follower.id
+      assert follow.followed_id == followed.id
+      assert follow.published_at
+      refute follow.muted_at
+    end
+
+    test "can mute a follow", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.block(%{is_muted: true}))
+      assert follow.muted_at
+    end
+
+    test "fails to create a follow with missing attributes", %{
+      actor: follower,
+      language: language
+    } do
+      followed = fake_meta!(language)
+      assert {:error, _} = Common.follow(follower, followed, %{})
+    end
+  end
+
+  describe "update_follow/2" do
+    test "updates the attributes of an existing follow", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_public: false}))
+      assert {:ok, updated_follow} = Common.update_follow(follow, Fake.follow(%{is_public: true}))
+      assert follow != updated_follow
+    end
+  end
+
+  describe "unfollow/1" do
+    test "removes a follower from a followed object", %{actor: follower, language: language} do
+      followed = fake_meta!(language)
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+      refute follow.deleted_at
+
+      assert {:ok, follow} = Common.unfollow(follow)
+      assert follow.deleted_at
+    end
+  end
+
+  describe "block/3" do
+    test "creates a block for any meta object", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+
+      assert {:ok, block} =
+               Common.block(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
+
+      assert block.blocked_at
+      assert block.muted_at
+    end
+  end
+
+  describe "update_block/2" do
+    test "updates the attributes of an existing block", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      assert {:ok, updated_block} = Common.update_block(block, Fake.block(%{is_blocked: true}))
+      assert block != updated_block
+    end
+  end
+
+  describe "delete_block/1" do
+    test "removes a block", %{actor: blocker, language: language} do
+      blocked = fake_meta!(language)
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      refute block.deleted_at
+
+      assert {:ok, block} = Common.delete_block(block)
+      assert block.deleted_at
     end
   end
 end
