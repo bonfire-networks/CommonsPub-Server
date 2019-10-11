@@ -31,12 +31,20 @@ defmodule MoodleNet.Users do
     end
   end
 
+  def fetch_actor(%User{id: id}), do: Actors.fetch_by_alias(id)
+
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
-  2. Inserts user (because the whitelist check isn't very good at crap emails yet
+  2. Inserts user (because the whitelist check isn't very good at crap emails yet)
   3. Checks the whitelist
   4. Creates actor, email confirm token
+
+  This is all controlled by options. An optional keyword list
+  provided to this argument will be prepended to the application
+  config under the path`[:moodle_net, MoodleNet.Users]`. Keys:
+
+  `:public_registration` - boolean, default false. if false, whitelists will be checked
   """
   # @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
   # @spec register(attrs :: map, opts :: Keyword.t) :: {:ok, %User{}} | {:error, Changeset.t}
