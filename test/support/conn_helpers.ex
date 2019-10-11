@@ -3,18 +3,34 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
   alias MoodleNet.OAuth.Token
+  alias MoodleNet.Users.User
   
   @endpoint MoodleNetWeb.Endpoint
 
   def conn(), do: ConnTest.build_conn()
 
+  def with_method(conn, :get), do: %{conn | method: "GET"}
+
+  def with_method(conn, :post), do: %{conn | method: "POST"}
+
+  def with_params(conn, %{}=params), do: %{conn | params: params}
+
+  def with_user(conn, %User{}=user), do: Conn.assign(conn, :current_user, user)
+
   def with_accept_json(conn),
     do: Conn.put_req_header(conn, "accept", "application/json")
+
+  def with_accept_html(conn),
+    do: Conn.put_req_header(conn, "accept", "text/html")
 
   def with_authorization(conn, %Token{id: id}),
     do: Conn.put_req_header(conn, "authorization", "Bearer #{id}")
 
   def json_conn(), do: with_accept_json(conn())
+
+  def html_conn(), do: with_accept_html(conn())
+
+  def user_conn(conn \\ json_conn(), user), do: with_user(conn, user)
 
   @default_opts [
     store: :cookie,
@@ -26,7 +42,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   @secret String.duplicate("abcdef0123456789", 8)
   @signing_opts Plug.Session.init(Keyword.put(@default_opts, :encrypt, false))
 
-  def plugged(conn \\ conn()) do
+  def plugged(conn \\ json_conn()) do
     conn
     |> Conn.put_private(:phoenix_endpoint, MoodleNetWeb.Endpoint)
     |> Map.put(:secret_key_base, @secret)
@@ -38,7 +54,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   end    
     
   def gql_post(conn \\ json_conn(), query, code) do
-    ConnTest.post(conn, "/api/graphql", %{query: query})
+    ConnTest.post(conn, "/api/graphql", query)
     |> ConnTest.json_response(code)
   end
 
