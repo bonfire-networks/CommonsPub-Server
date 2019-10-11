@@ -52,44 +52,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
-  def set_icon(%{icon: url} = attrs) when is_binary(url) do
-    Map.put(attrs, :icon, %{type: "Image", url: url})
-  end
-
-  def set_icon(attrs), do: attrs
-
-  def set_image(%{image: url} = attrs) when is_binary(url) do
-    Map.put(attrs, :image, %{type: "Image", url: url})
-  end
-
-  def set_image(attrs), do: attrs
-
-  def set_location(%{location: location} = attrs) when is_binary(location) do
-    Map.put(attrs, :location, %{type: "Place", content: location})
-  end
-
-  def set_location(attrs), do: attrs
-
-  def set_website(%{website: website} = attrs) when is_binary(website) do
-    Map.put(attrs, :attachment, %{type: "PropertyValue", name: "Website", value: website})
-  end
-
-  def set_website(attrs), do: attrs
-
-  def current_user(%{context: %{current_user: nil}}), do: Errors.unauthorized_error()
-  def current_user(%{context: %{current_user: user}}), do: {:ok, user}
-
-  def current_actor(info) do
-    case current_user(info) do
-      {:ok, user} ->
-        {:ok, user.actor}
-
-      ret ->
-        ret
-    end
-  end
-
-  def prepare(:auth_payload, token, actor, info) do
+ def prepare(:auth_payload, token, actor, info) do
     user_fields = requested_fields(info, [:me, :user])
     me = prepare(:me, actor, user_fields)
     %{token: token.hash, me: me}
@@ -421,23 +384,25 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
     end
   end
 
+  def current_actor(_), do: nil
+
   @doc """
   Used to load the `followed` virtual attribute, for example in `MoodleNetWeb.GraphQL.CommunitySchema` (if the `current_user` is following a community this attribute will be true, otherwise false). This function could also be used for `Like` and similar functionalities.
   """
   def with_bool_join(:follow) do
-    fn parent, _, info ->
-      {:ok, current_actor} = current_actor(info)
-      collection_id = ActivityPub.SQL.Common.local_id(current_actor.following)
-      args = {__MODULE__, :preload_bool_join, {:follow, collection_id}}
+    # fn parent, _, info ->
+    #   {:ok, current_actor} = current_actor(info)
+    #   collection_id = ActivityPub.SQL.Common.local_id(current_actor.following)
+    #   args = {__MODULE__, :preload_bool_join, {:follow, collection_id}}
 
-      batch(
-        args,
-        parent,
-        fn children_map ->
-          Map.fetch(children_map, Entity.local_id(parent))
-        end
-      )
-    end
+    #   batch(
+    #     args,
+    #     parent,
+    #     fn children_map ->
+    #       Map.fetch(children_map, Entity.local_id(parent))
+    #     end
+    #   )
+    # end
   end
 
   defp ensure_single(children, false), do: children

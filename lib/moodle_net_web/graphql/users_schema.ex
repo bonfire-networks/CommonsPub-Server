@@ -1,8 +1,6 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNetWeb.GraphQL.UsersSchema do
   @moduledoc """
   GraphQL user fields, associations, queries and mutations.
@@ -21,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "Get an user"
     field :user, type: :user do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:string))
       resolve(&UsersResolver.user/2)
     end
 
@@ -96,11 +94,8 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user do
-
     field(:id, :id)
-    field(:local_id, :integer)
     field(:local, :boolean)
-    field(:type, list_of(:string))
     field(:preferred_username, :string)
     field(:name, :string)
     field(:summary, :string)
@@ -208,6 +203,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field(:icon, :string)
     field(:image, :string)
     field(:primary_language, :string)
+    field(:is_public, non_null(:boolean))
+    field(:wants_email_digest, :boolean)
+    field(:wants_notifications, :boolean)
   end
 
   input_object :update_profile_input do

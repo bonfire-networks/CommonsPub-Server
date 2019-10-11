@@ -8,106 +8,101 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNet.Test.Faking
+  import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Test.Fake
+  alias MoodleNet.{Actors, Whitelists}
+
+  @user_basic_fields "id local preferredUsername name summary location website icon image primaryLanguage"
 
   describe "UsersResolver.username_available" do
 
-    test "works as you'd expect" do
+    test "works for a guest" do
       query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
-      assert true == Map.fetch!(gql_post_data(query), "usernameAvailable")
+      assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
 
       actor = fake_actor!()
       query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
-      assert false == Map.fetch!(gql_post_data(query), "usernameAvailable")
+      assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
+    end
+
+    test "works for a logged in user" do
+      user = fake_user!()
+      {:ok, actor} = Actors.fetch_by_alias(user.id)
+      conn = user_conn(user)
+      query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
+      assert true == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
+
+      query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
+      assert false == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
     end
 
   end
 
   describe "UsersResolver.me" do
 
-    @tag :skip
     test "Works for a logged in user" do
-      query = "{ me { email } }"
-  #   user = Factory.user()
-  #   token = Factory.oauth_token(user)
-
-  #   assert me =
-  #            conn
-  #            |> put_req_header("authorization", "Bearer #{token.hash}")
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("me")
-
-  #   assert me["email"] == user.email
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "{ me { email user { #{@user_basic_fields} }} }"
+      assert %{"email" => email, "user" => user2} =
+	Map.fetch!(gql_post_data(conn, %{query: query}), "me")
+      assert user.email == email
+      assert %{"id" => id, "preferredUsername" => preferred_username} = user2
+      assert user.actor.id == id
+      assert user.actor.preferred_username == preferred_username
+      assert %{"name" => name, "summary" => summary} = user2
+      assert user.actor.current.name == name
+      assert user.actor.current.summary == summary
+      # assert %{"location" => location, "website" => website} = user2
+      # assert user.actor.current.location == user2["location"]
+      # assert user.actor.current.website == user2["website"]
+      assert %{"icon" => icon, "image" => image} = user2
+      assert user.actor.current.icon == icon
+      assert user.actor.current.image == image
+      # assert user.actor.current.primary_language == user2["primaryLanguage"]
     end
 
     test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      query = "{ me { email user { #{@user_basic_fields} }} }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
 
   describe "UsersResolver.user" do
 
-    @tag :skip
     test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "{ user(id: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
+      user2 = Map.fetch!(gql_post_data(conn, %{query: query}), "user")
+      assert %{"id" => id, "preferredUsername" => preferred_username} = user2
+      assert user.actor.id == id
+      assert user.actor.preferred_username == preferred_username
+      assert %{"name" => name, "summary" => summary} = user2
+      assert user.actor.current.name == name
+      assert user.actor.current.summary == summary
+      # assert %{"location" => location, "website" => website} = user2
+      # assert user.actor.current.location == user2["location"]
+      # assert user.actor.current.website == user2["website"]
+      assert %{"icon" => icon, "image" => image} = user2
+      assert user.actor.current.icon == icon
+      assert user.actor.current.image == image
+      # assert user.actor.current.primary_language == user2["primaryLanguage"]
+    end
+
+    test "Does not work for a guest" do
+      user = fake_user!()
+      query = "{ user(id: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["user"])
     end
 
     @tag :skip
-    test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+    test "Does not work for a user that is not public" do
+
     end
 
   end
-
-  # @tag :user
-  # test "get user", %{conn: conn, actor: actor} do
-  #   local_id = local_id(actor)
-
-  #   query = """
-  #   {
-  #     user(localId: #{local_id}) {
-  #       id
-  #       localId
-  #       local
-  #       type
-  #       preferredUsername
-  #       name
-  #       summary
-  #       location
-  #       website
-  #       icon
-  #       image
-  #       primaryLanguage
-  #     }
-  #   }
-  #   """
-
-  #   assert user =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("user")
-
-  #   assert user["id"] == actor.id
-  #   assert user["localId"] == local_id
-  #   assert user["preferredUsername"] == actor.preferred_username
-  #   assert user["name"] == actor.name["und"]
-  #   assert user["summary"] == actor.summary["und"]
-  #   assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-  #   assert user["website"] == get_in(actor, [:attachment, Access.at(0), "value"])
-  #   assert user["icon"] == actor
-  #   |> get_in([:icon, Access.at(0), :url, Access.at(0)])
-  #   |> encode()
-  #   assert user["image"] == actor
-  #   |> get_in([:image, Access.at(0), :url, Access.at(0)])
-  #   |> encode()
-  #   assert user["primaryLanguage"] == actor["primary_language"]
-  # end
 
   # @tag :user
   # test "joined_communities connection", %{conn: conn, actor: actor} do
@@ -638,137 +633,58 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   describe "UsersResolver.create_user" do
 
-    @tag :skip
     test "Works for a guest with good inputs" do
+      reg = Fake.registration_input()
+      assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+      query = """
+        mutation Test($user: RegistrationInput){
+          createUser(user:$user) {
+            me { email user { #{@user_basic_fields} } }
+          }
+        }
+      """
+      query = %{ operationName: "Test", query: query, variables: %{"user" => reg} }
+      Map.fetch!(gql_post_data(json_conn(), query), "createUser")
+      # assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+      # Map.fetch!(gql_post_data(conn, query), "createUser")
+    end
+
+    test "Does not work for a logged in user" do
+      reg = Fake.registration_input()
+      assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+      query = """
+        mutation Test($user: RegistrationInput) {
+          createUser(user:$user) {
+            me { email user { #{@user_basic_fields} } }
+          }
+        }
+      """
+      query = %{ operationName: "Test", query: query, variables: %{"user" => reg} }
+      user = fake_user!()
+      conn = user_conn(user)
+      assert_not_permitted(gql_post_errors(conn, query), ["createUser"])
     end
 
     @tag :skip
-    test "Does not work for a logged in user" do
+    test "Does not work for a taken preferred username" do
     end
+
+    @tag :skip
+    test "Does not work for a taken email" do
+    end
+
+    # test "" do
+    # end
 
   end
 
   # describe "createUser" do
-  #   test "register user", %{conn: conn} do
-  #     query = """
-  #       mutation {
-  #         createUser(
-  #           user: {
-  #             preferredUsername: "alexcastano"
-  #             name: "Alejandro Castaño"
-  #             summary: "Summary"
-  #             location: "MoodleNet"
-  #             icon: "https://imag.es/alexcastano"
-  #             image: "https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971"
-  #             email: "alexcastano@newworld.com"
-  #             password: "password"
-  #             primaryLanguage: "Elixir"
-  #             website: "test.tld"
-  #           }
-  #         ) {
-  #           token
-  #           me {
-  #             email
-  #             user {
-  #               id
-  #               localId
-  #               local
-  #               type
-  #               preferredUsername
-  #               name
-  #               summary
-  #               location
-  #               icon
-  #               image
-  #               primaryLanguage
-  #               website
-  #             }
-  #           }
-  #         }
-  #       }
-  #     """
-  #     Whitelists.create_register_email("alexcastano@newworld.com")
-
-  #     assert auth_payload =
-  #              conn
-  #              |> post("/api/graphql", %{query: query})
-  #              |> json_response(200)
-  #              |> Map.fetch!("data")
-  #              |> Map.fetch!("createUser")
-
-  #     assert auth_payload["token"]
-  #     assert me = auth_payload["me"]
-  #     assert me["email"] == "alexcastano@newworld.com"
-  #     assert user = me["user"]
-  #     assert user["preferredUsername"] == "alexcastano"
-  #     assert user["name"] == "Alejandro Castaño"
-  #     assert user["summary"] == "Summary"
-  #     assert user["location"] == "MoodleNet"
-  #     assert user["icon"] == encode("https://imag.es/alexcastano")
-  #     assert user["image"] == encode("https://images.unsplash.com/flagged/photo-1551255868-86bbc8e0f971")
-  #     assert user["primaryLanguage"] == "Elixir"
-  #     assert user["website"] == "test.tld"
-  #   end
-
-  #   test "email should be whitelist", %{conn: conn} do
-  #     query = """
-  #       mutation {
-  #         createUser(
-  #           user: {
-  #             preferredUsername: "alexcastano"
-  #             name: "Alejandro Castaño"
-  #             summary: "Summary"
-  #             location: "MoodleNet"
-  #             icon: "https://imag.es/alexcastano"
-  #             email: "alexcastano@newworld.com"
-  #             password: "password"
-  #             primaryLanguage: "Elixir"
-  #           }
-  #         ) {
-  #           token
-  #           me {
-  #             email
-  #           }
-  #         }
-  #       }
-  #     """
-
-  #     assert [error] =
-  #              conn
-  #              |> Plug.Conn.put_req_header("accept-language", "es")
-  #              |> post("/api/graphql", %{query: query})
-  #              |> json_response(200)
-  #              |> Map.fetch!("errors")
-
-  #     assert %{
-  #              "extra" => %{
-  #                "validation" => "inclusion",
-  #                "field" => "email"
-  #              },
-  #              "code" => "validation",
-  #              "locations" => [%{"column" => 0, "line" => 2}],
-  #              "message" => "You cannot register with this email address",
-  #              "path" => ["createUser"]
-  #            } = error
-  #   end
-
   #   test "createUser errors", %{conn: conn} do
   #     MoodleNet.Accounts.add_email_to_whitelist("alexcastano@newworld.com")
 
   #     query = """
   #       mutation {
-  #         createUser(
-  #           user: {
-  #             preferredUsername: "alexcastano"
-  #             name: "Alejandro Castaño"
-  #             summary: "Summary"
-  #             location: "MoodleNet"
-  #             icon: "https://imag.es/alexcastano"
-  #             email: "alexcastano@newworld.com"
-  #             password: "short"
-  #             primaryLanguage: "Elixir"
-  #           }
-  #         ) {
+  #         createUser(user: {...}) {
   #           token
   #           me {
   #             email
@@ -808,8 +724,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     @tag :skip
     test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      query = """
+      """
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -878,7 +795,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -892,7 +809,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a logged in user" do
       query = "{ reset_password_request(\"\") }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -907,7 +824,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a user" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
  end
@@ -917,7 +834,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -927,7 +844,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -991,7 +908,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
@@ -1001,9 +918,12 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
+  end
+
+  describe "UsersResolver.check_username_available" do
   end
 
   describe "UsersResolver.undo_flag_user" do
@@ -1011,7 +931,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_unauthorized(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(query), ["me"])
     end
 
   end
