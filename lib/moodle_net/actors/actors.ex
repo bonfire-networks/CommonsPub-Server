@@ -21,10 +21,12 @@ defmodule MoodleNet.Actors do
   @spec fetch(id :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
   def fetch(id) when is_binary(id), do: preload_current_revision(Repo.fetch(Actor, id))
 
+  # TODO: one query
   @spec fetch_by_alias(id :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
   def fetch_by_alias(alias_id) when is_binary(alias_id),
     do: preload_current_revision(Repo.fetch_by(Actor, alias_id: alias_id))
 
+  # TODO: one query
   @doc "Fetches an actor by username"
   @spec fetch(username :: binary) :: {:ok, %Actor{}} | {:error, NotFoundError.t}
   def fetch_by_username(username) when is_binary(username),

@@ -17,7 +17,7 @@ defmodule MoodleNet.OAuth do
     UserEmailNotConfirmedError,
   }
   alias MoodleNet.Users.User
-  alias Ecto.UUID
+  alias Ecto.{Changeset, UUID}
 
   @default_token_validity 60 * 10 # seconds: this seems short, but it's what alex set it to
 
@@ -29,6 +29,7 @@ defmodule MoodleNet.OAuth do
 
   Note: does not validate the validity of the token, you must do that afterwards.
   """
+  @spec fetch_token_and_user(token :: binary) :: {:ok, %Token{}} | {:error, TokenNotFoundError.t}
   def fetch_token_and_user(token) when is_binary(token) do
     case UUID.cast(token) do
       {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
@@ -46,6 +47,8 @@ defmodule MoodleNet.OAuth do
       select: {t, u}
   end
 
+  @doc "Creates an authorization for a user"
+  @spec create_auth(%User{}) :: {:ok, %Authorization{}} | {:error, UserEmailNotConfirmedError.t | Changeset.t}
   def create_auth(%User{confirmed_at: nil}=user),
     do: {:error, UserEmailNotConfirmedError.new(user)}
 
