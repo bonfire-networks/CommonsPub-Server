@@ -1,8 +1,6 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNetWeb.GraphQL.Context do
   @moduledoc """
   GraphQL Plug to add current user to the context
@@ -18,8 +16,8 @@ defmodule MoodleNetWeb.GraphQL.Context do
 
   defp build_context(conn) do
     %{
-      current_user: conn.assigns.current_user,
-      auth_token: conn.assigns.auth_token
+      current_user: conn.assigns[:current_user],
+      auth_token: conn.assigns[:auth_token],
     }
   end
 end
