@@ -10,7 +10,6 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     MalformedAuthorizationHeaderError,
     TokenExpiredError,
     TokenNotFoundError,
-    UserEmailNotConfirmedError,
   }
   alias MoodleNetWeb.Plugs.Auth
 
@@ -48,7 +47,6 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
   end
 
   test "validates token is sent" do
-    user = fake_user!(%{}, confirm_email: true)
     assert conn = Auth.call(plugged(), [])
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
@@ -80,20 +78,6 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     assert conn.assigns.auth_error == MalformedAuthorizationHeaderError.new("abcdef")
   end
 
-  test "validates user has confirmed their email address" do
-    user = fake_user!(%{}, confirm_email: false)
-    token = fake_token!(user)
-    assert conn =
-      plugged()
-      |> with_authorization(token)
-      |> Auth.call([])
-    assert conn.halted == false
-    assert conn.assigns[:current_user] == nil
-    assert conn.assigns[:auth_token] == nil
-    assert %UserEmailNotConfirmedError{user: user2} = conn.assigns.auth_error
-    assert strip_user(user) == strip_user(user2)
-  end
-
   test "validates token has not expired" do
     user = fake_user!(%{}, confirm_email: true)
     token = fake_token!(user)
@@ -107,5 +91,5 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     assert conn.assigns[:auth_token] == nil
     assert conn.assigns.auth_error == TokenExpiredError.new(token)
   end
-end
 
+end
