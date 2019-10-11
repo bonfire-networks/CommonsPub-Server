@@ -112,6 +112,12 @@ defmodule MoodleNet.Test.Fake do
   def learning_resource(), do: Faker.Util.pick(["video", "podcast", "article", "paper"])
   @doc "Picks an age range, represented as a string"
   def age_range(), do: "#{Faker.random_between(6, 15)}-#{Faker.random_between(16, 100)}"
+  @doc "Returns a city and country"
+  def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
+  @doc "A website address"
+  def website(), do: Faker.Internet.url()
+  @doc "A language name (not really)"
+  def language(), do: Faker.Address.country()
 
   # Unique data
 
@@ -147,8 +153,11 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:location, &location/0)
+    |> Map.put_new_lazy(:website, &website/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
+    |> Map.put_new_lazy(:primary_language, &image/0)
     |> Map.put_new_lazy(:signing_key, &signing_key/0)
     |> Map.put_new_lazy(:is_public, &bool/0)
   end
@@ -159,6 +168,23 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:password, &password/0)
     |> Map.put_new_lazy(:wants_email_digest, &bool/0)
     |> Map.put_new_lazy(:wants_notifications, &bool/0)
+  end
+
+  def registration_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("email", &email/0)
+    |> Map.put_new_lazy("password", &password/0)
+    |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("location", &location/0)
+    |> Map.put_new_lazy("website", &website/0)
+    |> Map.put_new_lazy("icon", &icon/0)
+    |> Map.put_new_lazy("image", &image/0)
+    |> Map.put_new_lazy("primary_language", &image/0)
+    |> Map.put_new_lazy("is_public", &bool/0)
+    |> Map.put_new_lazy("wants_email_digest", &bool/0)
+    |> Map.put_new_lazy("wants_notifications", &bool/0)
   end
 
   def community(base \\ %{}) do
