@@ -5,9 +5,9 @@ defmodule MoodleNet.Common.NotFoundError do
   @enforce_keys [:key]
   defstruct @enforce_keys
 
-  @type t :: %__MODULE__{ key: term() }
+  @type t :: %__MODULE__{ key: term }
 
-  @spec new(term()) :: t()
   @doc "Create a new NotFoundError with the given key"
+  @spec new(key :: term) :: t
   def new(key), do: %__MODULE__{key: key}
 end
