@@ -308,6 +308,21 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_block, :blocked_id, where: "deleted_at is null")
     create unique_index(:mn_block, [:blocker_id, :blocked_id], where: "deleted_at is null")
+
+    ### tagging
+
+    create table(:mn_tag) do
+      add :tagger_id, references("mn_actor", on_delete: :delete_all), null: false
+      add :tagged_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+      add :name, :text, null: false
+      add :published_at, :timestamptz
+      add :deleted_at, :timestamptz
+      timestamps(type: :utc_datetime_usec)
+    end
+
+    create index(:mn_tag, :tagged_id, where: "deleted_at is null")
+    create unique_index(:mn_tag, [:tagger_id, :tagged_id], where: "deleted_at is null")
+
     # 
 
     create table(:mn_worker_task) do

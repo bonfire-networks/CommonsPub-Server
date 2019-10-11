@@ -5,7 +5,7 @@ defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.{Block, DeletionError, Flag, Follow, Like}
+  alias MoodleNet.Common.{Block, DeletionError, Flag, Follow, Like, Tag}
   alias MoodleNet.Communities.Community
   import Ecto.Query
   alias MoodleNet.Common.Changeset
@@ -175,6 +175,31 @@ defmodule MoodleNet.Common do
 
   @spec delete_block(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete_block(%Block{} = block), do: soft_delete(block)
+
+  ## Tagging
+
+  @spec tag(Actor.t(), any, map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def tag(%Actor{} = tagger, tagged, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(tagged.id)
+
+      tagger
+      |> Tag.create_changeset(pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  @spec update_tag(Tag.t(), map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def update_tag(%Tag{} = tag, fields) do
+    Repo.transact_with(fn ->
+      tag
+      |> Tag.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec untag(Tag.t()) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def untag(%Tag{} = tag), do: soft_delete(tag)
 
   ## Deletion
 

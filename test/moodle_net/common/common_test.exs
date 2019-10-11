@@ -280,4 +280,47 @@ defmodule MoodleNet.CommonTest do
       assert block.deleted_at
     end
   end
+
+  describe "tag/3" do
+    test "creates a tag for any meta object", %{actor: tagger, language: language} do
+      tagged = fake_meta!(language)
+
+      assert {:ok, tag} =
+               Common.tag(tagger, tagged, Fake.tag(%{is_public: true, name: "Testing"}))
+
+      assert tag.published_at
+      assert tag.name == "Testing"
+    end
+
+    test "fails to create a tag if attributes are missing", %{actor: tagger, language: language} do
+      tagged = fake_meta!(language)
+      assert {:error, changeset} = Common.tag(tagger, tagged, %{})
+      assert Keyword.get(changeset.errors, :name)
+    end
+  end
+
+  describe "update_tag/2" do
+    test "updates the attributes of an existing tag", %{actor: tagger, language: language} do
+      tagged = fake_meta!(language)
+      assert {:ok, tag} = Common.tag(tagger, tagged, Fake.tag(%{name: "Testy No.1"}))
+      assert {:ok, updated_tag} = Common.update_tag(tag, %{name: "Testy Mc.Testface"})
+      assert tag != updated_tag
+    end
+
+    test "fails to update if attributes are missing", %{actor: tagger, language: language} do
+      tagged = fake_meta!(language)
+      assert {:error, changeset} = Common.tag(tagger, tagged, %{})
+      assert Keyword.get(changeset.errors, :name)
+    end
+  end
+
+  describe "untag/1" do
+    test "removes a tag", %{actor: tagger, language: language} do
+      tagged = fake_meta!(language)
+      assert {:ok, tag} = Common.tag(tagger, tagged, Fake.tag())
+      refute tag.deleted_at
+      assert {:ok, tag} = Common.untag(tag)
+      assert tag.deleted_at
+    end
+  end
 end
