@@ -100,8 +100,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :alias_id, references("mn_meta_pointer", on_delete: :delete_all) # user or collection etc.
       add :peer_id, references("mn_peer", on_delete: :delete_all) # null for local
-      add :preferred_username, :text # null just in case, expected to be filled
-      add :published_at, :timestamptz
+      add :preferred_username, :text
+      add :published_at, :timestamptz # null just in case, expected to be filled
       add :deleted_at, :timestamptz
       add :signing_key, :string
       timestamps(type: :utc_datetime_usec)
@@ -127,6 +127,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :summary, :text
       add :icon, :text
       add :image, :text
+      add :location, :text
+      add :website, :text
+      add :primary_language, :text
       timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
