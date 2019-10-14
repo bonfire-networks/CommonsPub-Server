@@ -145,7 +145,7 @@ This respects the version bounds in `mix.exs` (`~> 2.0`).
 Example:
 
 ```
-** (DBConnection.ConnectionError) tcp recv: closed (the connection was closed by the pool, poissibly due to a timeout or because the pool has been terminated)
+** (DBConnection.ConnectionError) tcp recv: closed (the connection was closed by the pool, possibly due to a timeout or because the pool has been terminated)
 ```
 
 In this case, the seeds were unable to complete because a query took
@@ -178,11 +178,13 @@ The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/r
 
 ## Codebase navigation
 
-The codebase is hierarchically structured like most elixir
+The codebase is hierarchically structured like most Elixir
 applications. The two root modules are:
 
 * `MoodleNet` - Main application logic, schemas etc.
 * `MoodleNetWeb` - Phoenix/Absinthe webapp wrapping `MoodleNet`
+* `ActivityPub` - ActivityPub federation application logic, schemas etc.
+* `ActivityPubWeb` - Phoenix webapp / REST API wrapping `ActivityPub`
 
 This maintains a clean separation between the responsibility for
 managing data and applying business logic (`MoodleNet`) and the means
@@ -211,16 +213,16 @@ Here are the current contexts:
 * `MoodleNet.Communities` (for managing and querying communities)
 * `MoodleNet.Mail` (for rendering and sending emails)
 * `MoodleNet.Meta` (for managing and querying references to content in many tables)
-* `MoodleNet.MediaProxy` (for managing and querying references to content in many tables)
 * `MoodleNet.OAuth` (for OAuth functionality)
 * `MoodleNet.Resources` (for managing and querying the resources in collections)
 * `MoodleNet.Users` (for managing and querying both local and remote users)
 * `MoodleNet.Whitelists` (for managing and querying email whitelists)
 
-There are also some additional modules:
+There are some additional modules:
 
 * `MoodleNet.Application` (OTP application)
-* `MoodleNet.MetadataScraper` (for scraping metadata from a url)
+* `MoodleNet.MediaProxy` (for fetching remote media)
+* `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
 * `MoodleNet.Policy` (centralised permission management)
 * `MoodleNet.ReleaseTasks` (OTP release tasks)
 * `MoodleNet.Repo` (Ecto repository)
