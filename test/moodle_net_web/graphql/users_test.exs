@@ -726,7 +726,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     test "Does not work for a guest" do
       query = """
       """
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -792,10 +792,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     test "Works for a logged in user" do
     end
 
-    @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -808,8 +807,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     @tag :skip
     test "Does not work for a logged in user" do
-      query = "{ reset_password_request(\"\") }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      user = fake_user!()
+      query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -821,20 +821,18 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       
     end
 
-    @tag :skip
     test "Does not work for a user" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
  end
 
   describe "UsersResolver.confirm_email" do
 
-    @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -844,7 +842,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -904,21 +902,17 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   # end
 
   describe "UsersResolver.delete_session" do
-
-    @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
 
   describe "UsersResolver.flag_user" do
-
-    @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
@@ -927,11 +921,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.undo_flag_user" do
-
-    @tag :skip
     test "Does not work for a guest" do
       query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(query), ["me"])
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
     end
 
   end
