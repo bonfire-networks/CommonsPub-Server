@@ -829,10 +829,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
  end
 
   describe "UsersResolver.confirm_email" do
-
-    test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+    test "Works for anybody assuming correct token" do
+      user = fake_user!()
+      [token] = user.email_confirm_tokens
+      query = "mutation { confirmEmail(token: \"#{token.id}\") }"
+      assert gql_post_data(%{query: query})
     end
 
   end

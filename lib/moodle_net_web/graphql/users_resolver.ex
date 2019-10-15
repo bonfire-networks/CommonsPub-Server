@@ -93,25 +93,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     # |> Errors.handle_error()
   end
 
-  def confirm_email(%{token: token}, _info) do
-    # with {:ok, _} <- Accounts.confirm_email(token) do
-    #   {:ok, true}
-    # end
-    # |> Errors.handle_error()
+  def confirm_email(%{token: token}, info) do
+    with {:ok, _} <- Users.claim_email_confirm_token(token) do
+      {:ok, true}
+    else
+      err -> GrapGL.response(err, info)
+    end
   end
-
-  def prepare_user([e | _] = list, fields) when APG.has_type(e, "Person") do
-    # list
-    # |> preload_assoc_cond([:icon, :image, :location, :attachment], fields)
-    # |> preload_aspect_cond([:actor_aspect], fields)
-    # |> Enum.map(&prepare(&1, fields))
-  end
-
-  def prepare_user(e, fields) when APG.has_type(e, "Person") do
-    # e
-    # |> preload_assoc_cond([:icon, :image, :location, :attachment], fields)
-    # |> preload_aspect_cond([:actor_aspect], fields)
-    # |> prepare_common_fields()
-  end
-  
 end
