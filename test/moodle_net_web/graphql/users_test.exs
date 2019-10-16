@@ -815,7 +815,6 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.reset_password" do
- 
     @tag :skip
     test "Works for a guest with a valid token" do
       
@@ -829,11 +828,27 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
  end
 
   describe "UsersResolver.confirm_email" do
-    test "Works for anybody assuming correct token" do
+    test "Works for a guest with a valid token" do
       user = fake_user!()
       [token] = user.email_confirm_tokens
       query = "mutation { confirmEmail(token: \"#{token.id}\") }"
-      assert gql_post_data(%{query: query})
+
+      auth_token = Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
+      assert is_binary(auth_token)
+    end
+
+    test "Works with an authenticated user" do
+      user = fake_user!()
+      [token] = user.email_confirm_tokens
+      query = "mutation { confirmEmail(token: \"#{token.id}\") }"
+
+      auth_token = Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
+      assert is_binary(auth_token)
+    end
+
+    test "Fails with an invalid token" do
+      query = "mutation { confirmEmail(token: \"#{Faker.UUID.v4()}\") }"
+      assert_not_found gql_post_errors(%{query: query}), ["confirmEmail"]
     end
 
   end

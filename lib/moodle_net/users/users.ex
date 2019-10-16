@@ -117,7 +117,7 @@ defmodule MoodleNet.Users do
   def unconfirm_email(%User{} = user),
     do: Repo.update(User.unconfirm_email_changeset(user))
 
-  ## TODO
+  ## TODO_
   def update() do
   end
 

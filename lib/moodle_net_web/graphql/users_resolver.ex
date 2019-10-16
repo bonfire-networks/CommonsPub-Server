@@ -9,8 +9,9 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   import MoodleNet.GraphQL.Schema
   require ActivityPub.Guards, as: APG
   alias Absinthe.Resolution
+  alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, Actors, GraphQL, OAuth, Users}
+  alias MoodleNet.{Accounts, Actors, GraphQL, OAuth, Repo, Users}
 
   def check_username_available(%{username: username}, _info),
     do: {:ok, Actors.is_username_available?(username)}
@@ -54,7 +55,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def delete(_, info) do
-    
     # with {:ok, current_actor} <- current_actor(info) do
     #   Accounts.delete_user(current_actor)
     #   {:ok, true}
@@ -94,10 +94,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def confirm_email(%{token: token}, info) do
-    with {:ok, _} <- Users.claim_email_confirm_token(token) do
-      {:ok, true}
-    else
-      err -> GrapGL.response(err, info)
-    end
+    Repo.transact_with(fn ->
+      with {:ok, user} <- Users.claim_email_confirm_token(token),
+           {:ok, auth} <- OAuth.create_auth(user),
+           {:ok, auth_token} <- OAuth.claim_token(auth) do
+        {:ok, auth_token.id}
+      else
+        err -> GraphQL.response(err, info)
+      end
+    end)
   end
 end
