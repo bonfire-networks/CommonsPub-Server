@@ -58,4 +58,34 @@ defmodule ActivityPubTest do
     assert embedded_object["object"] == followed.data["id"]
     assert embedded_object["id"] == follow_activity.data["id"]
   end
+
+  describe "blocking / unblocking" do
+    test "creates a block activity" do
+      blocker = fake_ap_actor!()
+      blocked = fake_ap_actor!()
+
+      {:ok, activity} = ActivityPub.block(blocker, blocked)
+
+      assert activity.data["type"] == "Block"
+      assert activity.data["actor"] == blocker.data["id"]
+      assert activity.data["object"] == blocked.data["id"]
+    end
+
+    test "creates an undo activity for the last block" do
+      blocker = fake_ap_actor!()
+      blocked = fake_ap_actor!()
+
+      {:ok, block_activity} = ActivityPub.block(blocker, blocked)
+      {:ok, activity} = ActivityPub.unblock(blocker, blocked)
+
+      assert activity.data["type"] == "Undo"
+      assert activity.data["actor"] == blocker.data["id"]
+
+      embedded_object = activity.data["object"]
+      assert is_map(embedded_object)
+      assert embedded_object["type"] == "Block"
+      assert embedded_object["object"] == blocked.data["id"]
+      assert embedded_object["id"] == block_activity.data["id"]
+    end
+  end
 end

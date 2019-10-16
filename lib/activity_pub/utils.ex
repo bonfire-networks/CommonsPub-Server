@@ -53,6 +53,7 @@ defmodule ActivityPub.Utils do
     }
   end
 
+  #### Follow-related helpers
   def make_follow_data(
         %{data: %{"id" => follower_id}},
         %{data: %{"id" => followed_id}} = _followed,
@@ -112,6 +113,59 @@ defmodule ActivityPub.Utils do
     if activity_id, do: Map.put(data, "id", activity_id), else: data
   end
 
+  #### Block-related helpers
+  def fetch_latest_block(%{data: %{"id" => blocker_id}}, %{data: %{"id" => blocked_id}}) do
+    query =
+      from(
+        activity in Object,
+        where:
+          fragment(
+            "? ->> 'type' = 'Block'",
+            activity.data
+          ),
+        where:
+          fragment(
+            "? ->> 'actor' = ?",
+            activity.data,
+            ^blocker_id
+          ),
+        where:
+          fragment(
+            "coalesce((?)->'object'->>'id', (?)->>'object') = ?",
+            activity.data,
+            activity.data,
+            ^blocked_id
+          ),
+        order_by: [fragment("? desc nulls last", activity.inserted_at)],
+        limit: 1
+      )
+
+    Repo.one(query)
+  end
+
+  def make_block_data(blocker, blocked, activity_id) do
+    data = %{
+      "type" => "Block",
+      "actor" => blocker.data["id"],
+      "to" => [blocked.data["id"]],
+      "object" => blocked.data["id"]
+    }
+
+    if activity_id, do: Map.put(data, "id", activity_id), else: data
+  end
+
+  def make_unblock_data(blocker, blocked, block_activity, activity_id) do
+    data = %{
+      "type" => "Undo",
+      "actor" => blocker.data["id"],
+      "to" => [blocked.data["id"]],
+      "object" => block_activity.data
+    }
+
+    if activity_id, do: Map.put(data, "id", activity_id), else: data
+  end
+
+  #### Create-related helpers
   def make_create_data(params, additional) do
     published = params.published || make_date()
 

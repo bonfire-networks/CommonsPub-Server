@@ -70,7 +70,6 @@ defmodule ActivityPub do
     end
   end
 
-
   @doc """
   Generates and federates an Accept activity via the data passed through `params`.
 
@@ -84,7 +83,12 @@ defmodule ActivityPub do
     # only accept false as false value
     local = !(params[:local] == false)
 
-    with data <- %{"to" => to, "type" => "Accept", "actor" => actor.data["id"], "object" => object},
+    with data <- %{
+           "to" => to,
+           "type" => "Accept",
+           "actor" => actor.data["id"],
+           "object" => object
+         },
          {:ok, activity} <- insert(data, local),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
@@ -105,7 +109,12 @@ defmodule ActivityPub do
     # only accept false as false value
     local = !(params[:local] == false)
 
-    with data <- %{"to" => to, "type" => "Reject", "actor" => actor.data["id"], "object" => object},
+    with data <- %{
+           "to" => to,
+           "type" => "Reject",
+           "actor" => actor.data["id"],
+           "object" => object
+         },
          {:ok, activity} <- insert(data, local),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
@@ -135,6 +144,30 @@ defmodule ActivityPub do
          unfollow_data <-
            Utils.make_unfollow_data(follower, followed, follow_activity, activity_id),
          {:ok, activity} <- insert(unfollow_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
+
+  def block(blocker, blocked, activity_id \\ nil, local \\ true) do
+    follow_activity = Utils.fetch_latest_follow(blocker, blocked)
+    if follow_activity, do: unfollow(blocker, blocked, nil, local)
+
+    with block_data <- Utils.make_block_data(blocker, blocked, activity_id),
+         {:ok, activity} <- insert(block_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    else
+      _e -> {:ok, nil}
+    end
+  end
+
+  def unblock(blocker, blocked, activity_id \\ nil, local \\ true) do
+    with block_activity <- Utils.fetch_latest_block(blocker, blocked),
+         unblock_data <- Utils.make_unblock_data(blocker, blocked, block_activity, activity_id),
+         {:ok, activity} <- insert(unblock_data, local),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}

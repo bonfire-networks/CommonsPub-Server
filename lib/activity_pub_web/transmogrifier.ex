@@ -358,6 +358,18 @@ defmodule ActivityPubWeb.Transmogrifier do
   # TODO: add reject
 
   def handle_incoming(
+        %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = _data
+      ) do
+    with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
+         {:ok, blocker} <- Actor.get_by_ap_id(blocker),
+         {:ok, activity} <- ActivityPub.block(blocker, blocked, id, false) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
         %{
           "type" => "Undo",
           "object" => %{"type" => "Follow", "object" => followed},
@@ -368,6 +380,23 @@ defmodule ActivityPubWeb.Transmogrifier do
     with {:ok, follower} <- Actor.get_by_ap_id(follower),
          {:ok, followed} <- Actor.get_by_ap_id(followed) do
       ActivityPub.unfollow(follower, followed, id, false)
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
+        %{
+          "type" => "Undo",
+          "object" => %{"type" => "Block", "object" => blocked},
+          "actor" => blocker,
+          "id" => id
+        } = _data
+      ) do
+    with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
+         {:ok, blocker} <- Actor.get_by_ap_id(blocker),
+         {:ok, activity} <- ActivityPub.unblock(blocker, blocked, id, false) do
+      {:ok, activity}
     else
       _e -> :error
     end
