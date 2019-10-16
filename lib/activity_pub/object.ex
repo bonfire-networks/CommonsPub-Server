@@ -59,4 +59,27 @@ defmodule ActivityPub.Object do
   end
 
   def normalize(_, _), do: nil
+
+  def make_tombstone(%Object{data: %{"id" => id, "type" => type}}, deleted \\ DateTime.utc_now()) do
+    %{
+      "id" => id,
+      "formerType" => type,
+      "deleted" => deleted,
+      "type" => "Tombstone"
+    }
+  end
+
+  def swap_object_with_tombstone(object) do
+    tombstone = make_tombstone(object)
+
+    object
+    |> Object.changeset(%{data: tombstone})
+    |> Repo.update()
+  end
+
+  def delete(%Object{} = object) do
+    with {:ok, _obj} = swap_object_with_tombstone(object) do
+      {:ok, object}
+    end
+  end
 end

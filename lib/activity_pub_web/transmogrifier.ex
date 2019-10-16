@@ -370,6 +370,19 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_incoming(
+        %{"type" => "Delete", "object" => object_id, "actor" => _actor, "id" => _id} = _data
+      ) do
+    object_id = Utils.get_ap_id(object_id)
+
+    with {:ok, object} <- Object.get_by_ap_id(object_id),
+         {:ok, activity} <- ActivityPub.delete(object, false) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
         %{
           "type" => "Undo",
           "object" => %{"type" => "Follow", "object" => followed},

@@ -6,11 +6,12 @@
 defmodule ActivityPubTest do
   use MoodleNet.DataCase
   import MoodleNet.Test.Faking
+  alias ActivityPub.Object
 
   doctest ActivityPub
 
   describe "create" do
-    test "works" do
+    test "crates a create activity" do
       actor = fake_ap_actor!()
       context = "blabla"
       object = %{"content" => "content", "type" => "Note"}
@@ -86,6 +87,34 @@ defmodule ActivityPubTest do
       assert embedded_object["type"] == "Block"
       assert embedded_object["object"] == blocked.data["id"]
       assert embedded_object["id"] == block_activity.data["id"]
+    end
+  end
+
+  describe "deletion" do
+    test "it creates a delete activity and deletes the original object" do
+      actor = fake_ap_actor!()
+      context = "blabla"
+      object = %{"content" => "content", "type" => "Note", "actor" => actor.data["id"]}
+      to = ["https://testing.kawen.dance/users/karen"]
+
+      params = %{
+        actor: actor,
+        context: context,
+        object: object,
+        to: to
+      }
+
+      {:ok, activity} = ActivityPub.create(params)
+      object = activity.object
+      {:ok, delete} = ActivityPub.delete(object)
+
+      assert delete.data["type"] == "Delete"
+      assert delete.data["actor"] == object.data["actor"]
+      assert delete.data["object"] == object.data["id"]
+
+      assert Object.get_by_id(delete.id) != nil
+
+      assert Repo.get(Object, object.id).data["type"] == "Tombstone"
     end
   end
 end
