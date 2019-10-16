@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "UsersResolver.user" do
 
     test "Works for a logged in user" do
-      user = fake_user!()
+      user = fake_user!(%{is_public: true})
       conn = user_conn(user)
       query = "{ user(id: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
       user2 = Map.fetch!(gql_post_data(conn, %{query: query}), "user")
@@ -97,9 +97,12 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert_not_logged_in(gql_post_errors(%{query: query}), ["user"])
     end
 
-    @tag :skip
     test "Does not work for a user that is not public" do
-
+      user = fake_user!(%{is_public: false})
+      conn = user_conn(user)
+      query = "{ user(id: \"#{user.actor.id}\") { #{@user_basic_fields} }}"
+      # TODO: ensure this is correct, we may want unauthorized
+      assert_not_found gql_post_errors(conn, %{query: query}), ["user"]
     end
 
   end

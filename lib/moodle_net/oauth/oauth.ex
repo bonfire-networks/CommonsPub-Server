@@ -39,7 +39,6 @@ defmodule MoodleNet.OAuth do
 
   defp fetch_token_and_user_query(token) do
     import Ecto.Query, only: [from: 2]
-    tok = UUID.cast(token)
     from t in Token,
       inner_join: a in assoc(t, :auth),
       inner_join: u in assoc(a, :user),
