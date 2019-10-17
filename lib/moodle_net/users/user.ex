@@ -78,7 +78,7 @@ defmodule MoodleNet.Users.User do
   end
 
   defp hash_password(%Changeset{valid?: true, changes: %{password: pass}} = ch),
-    do: Changeset.change(ch, password_hash: Comeonin.Pbkdf2.hashpwsalt(pass))
+    do: Changeset.change(ch, password_hash: Argon2.hash_pwd_salt(pass))
 
   defp hash_password(changeset), do: changeset
 end

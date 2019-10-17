@@ -24,8 +24,10 @@ config :moodle_net, MoodleNet.Repo,
   hostname: System.get_env("DATABASE_HOST") || "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
-# Reduce hash rounds for testing
-config :pbkdf2_elixir, rounds: 1
+# Reduce cost of hashing for testing
+config :argon2_elixir,
+  t_cost: 1,
+  m_cost: 8
 
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint

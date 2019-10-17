@@ -70,8 +70,7 @@ defmodule MoodleNet.Mixfile do
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
       # Password hashing
-      {:comeonin, "~> 4.1.1"}, 
-      {:pbkdf2_elixir, "~> 0.12.3"},
+      {:argon2_elixir, "~> 2.0"},
       # Outbound HTTP
       {:hackney, "~> 1.15"},
       {:tesla, "~> 1.2"},
