@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
   alias MoodleNet.{Accounts, Actors, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.OAuth.Token
 
   def check_username_available(%{username: username}, _info),
     do: {:ok, Actors.is_username_available?(username)}
@@ -63,15 +64,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def create_session(%{email: email, password: password}, info) do
-    # with {:ok, user} <- Accounts.authenticate_by_email_and_pass(email, password),
-    #      {:ok, token} <- OAuth.create_token(user.id) do
-    #   actor = load_actor(user)
-    #   auth_payload = prepare(:auth_payload, token, actor, info)
-    #   {:ok, auth_payload}
-    # else
-    #   _ ->
-    #     Errors.invalid_credential_error()
-    # end
+    with {:ok, user} <- Users.fetch_by_email(email),
+         {:ok, token} <- OAuth.create_token(user, password) do
+      {:ok, token.id}
+    end
   end
 
   def delete_session(_, info) do

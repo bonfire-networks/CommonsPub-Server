@@ -31,6 +31,10 @@ defmodule MoodleNet.Users do
     end
   end
 
+  def fetch_by_email(email) when is_binary(email) do
+    Repo.fetch_by(User, email: email)
+  end
+
   def fetch_actor(%User{id: id}), do: Actors.fetch_by_alias(id)
 
   @doc """
