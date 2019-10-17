@@ -129,7 +129,7 @@ defmodule MoodleNetWeb.Router do
     get "/:id", ActivityPubController, :show
     get "/:id/page", ActivityPubController, :collection_page
     get "/objects/:uuid", ActivityPubController, :object
-    get "/actors/:username", ActivityPubController, :user
+    get "/actors/:username", ActivityPubController, :actor
     # These don't have to be implemented right now.
     get "/actors/:username/followers", ActivityPubController, :noop
     get "/actors/:username/following", ActivityPubController, :noop

@@ -5,6 +5,7 @@
 
 defmodule ActivityPubWeb.ActorView do
   use ActivityPubWeb, :view
+  alias ActivityPub.Utils
 
   def render("actor.json", %{actor: actor}) do
     {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
@@ -12,12 +13,15 @@ defmodule ActivityPubWeb.ActorView do
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 
-    Map.merge(actor.data, %{
+    actor.data
+    |> Map.put("url", actor.data["id"])
+    |> Map.merge(%{
       "publicKey" => %{
         "id" => "#{actor.data["id"]}#main-key",
         "owner" => actor.data["id"],
         "publicKeyPem" => public_key
       }
     })
+    |> Map.merge(Utils.make_json_ld_header())
   end
 end
