@@ -118,7 +118,14 @@ defmodule MoodleNet.Users do
     do: Repo.update(User.unconfirm_email_changeset(user))
 
   ## TODO_
-  def update() do
+  def update(%User{} = user, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- fetch_actor(user),
+           {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
+           {:ok, actor} <- Actors.update(actor, attrs) do
+        {:ok, %User{user | actor: actor}}
+      end
+    end)
   end
 
   def preload_actor(%User{} = user, opts),

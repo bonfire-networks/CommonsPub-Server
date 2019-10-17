@@ -36,12 +36,7 @@ defmodule MoodleNet.Users.User do
     %User{id: id}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)
-    |> Changeset.validate_format(:email, @email_regexp)
-    |> Changeset.unique_constraint(:email)
-    |> Changeset.validate_length(:password, min: 6)
-    |> meta_pointer_constraint()
-    |> hash_password()
-    |> lower_case_email()
+    |> common_changeset()
   end
 
   @doc "Create a changeset for confirming an email"
@@ -52,6 +47,25 @@ defmodule MoodleNet.Users.User do
   @doc "Create a changeset for unconfirming an email"
   def unconfirm_email_changeset(%__MODULE__{} = user) do
     Changeset.change(user, confirmed_at: nil)
+  end
+
+  @update_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+
+  @doc "Update the attributes for a user"
+  def update_changeset(%User{} = user, attrs) do
+    user
+    |> Changeset.cast(attrs, @update_cast_attrs)
+    |> common_changeset()
+  end
+
+  defp common_changeset(changeset) do
+    changeset
+    |> Changeset.validate_format(:email, @email_regexp)
+    |> Changeset.unique_constraint(:email)
+    |> Changeset.validate_length(:password, min: 6)
+    |> meta_pointer_constraint()
+    |> hash_password()
+    |> lower_case_email()
   end
 
   # internals

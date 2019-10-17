@@ -721,15 +721,38 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   describe "UsersResolver.update_profile" do
 
-    @tag :skip
     test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = %{
+        query: """
+        mutation Test($profile: UpdateProfileInput!) {
+          updateProfile(profile: $profile) {
+            user { #{@user_basic_fields} }
+          }
+        }
+        """,
+        operationName: "Test",
+        variables: %{"profile" => Fake.profile_update_input()},
+      }
+
+      assert data = gql_post_data(conn, query)["updateProfile"]
+      assert MapSet.new(Map.keys(data["user"])) == MapSet.new(String.split(@user_basic_fields))
     end
 
-    @tag :skip
     test "Does not work for a guest" do
-      query = """
-      """
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+      query = %{
+        query: """
+        mutation Test($profile: UpdateProfileInput!) {
+          updateProfile(profile: $profile) {
+            user { #{@user_basic_fields} }
+          }
+        }
+        """,
+        operationName: "Test",
+        variables: %{"profile" => Fake.profile_update_input()},
+      }
+      assert_not_logged_in(gql_post_errors(query), ["updateProfile"])
     end
 
   end

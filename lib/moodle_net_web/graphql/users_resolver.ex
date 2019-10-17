@@ -19,6 +19,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def me(_, info) do
     with {:ok, current_user} <- GraphQL.current_user(info),
          {:ok, actor} <- Users.fetch_actor(current_user) do
+      # FIXME
       actor = GraphQL.response(actor, info, ~w(user)a)
       me = GraphQL.response(%{email: current_user.email, user: actor}, info)
       {:ok, me}
@@ -45,13 +46,13 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def update_profile(%{profile: attrs}, info) do
-    # with {:ok, current_actor} <- current_actor(info),
-    #      {:ok, current_actor} <- Accounts.update_user(current_actor, attrs) do
-    #   user_fields = requested_fields(info, :user)
-    #   current_actor = prepare(:me, current_actor, user_fields)
-    #   {:ok, current_actor}
-    # end
-    # |> Errors.handle_error()
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, user} <- Users.update(user, attrs) do
+      actor = GraphQL.response(user.actor, info, ~w(user)a)
+      me = GraphQL.response(%{email: user.email, user: actor}, info)
+      {:ok, me}
+    end
+    |> GraphQL.response(info)
   end
 
   def delete(_, info) do

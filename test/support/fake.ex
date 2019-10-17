@@ -148,18 +148,23 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
   end
 
+  def actor_revision(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
+    |> Map.put_new_lazy(:image, &image/0)
+  end
+
   def actor(base \\ %{}) do
     base
     |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
-    |> Map.put_new_lazy(:name, &name/0)
-    |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:website, &website/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:primary_language, &image/0)
     |> Map.put_new_lazy(:signing_key, &signing_key/0)
     |> Map.put_new_lazy(:is_public, &bool/0)
+    |> Map.merge(actor_revision(base))
   end
 
   def user(base \\ %{}) do
@@ -186,6 +191,8 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("wants_email_digest", &bool/0)
     |> Map.put_new_lazy("wants_notifications", &bool/0)
   end
+
+  def profile_update_input(base \\ %{}), do: actor_revision(base)
 
   def community(base \\ %{}) do
     # TODO: add relations
