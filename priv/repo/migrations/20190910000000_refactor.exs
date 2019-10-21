@@ -382,7 +382,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create table(:oauth_tokens) do
-      add :auth_id, references("oauth_authorizations", on_delete: :delete_all), null: false
+      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
       add :refresh_token, :uuid, null: false, default: fragment("uuid_generate_v4()")
       add :expires_at, :timestamptz, null: false

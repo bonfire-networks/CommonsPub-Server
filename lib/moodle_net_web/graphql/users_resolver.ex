@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
   alias MoodleNet.{Accounts, Actors, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.Common.NotPermittedError
   alias MoodleNet.OAuth.Token
 
   def check_username_available(%{username: username}, _info),
@@ -66,8 +67,13 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def create_session(%{email: email, password: password}, info) do
     with {:ok, user} <- Users.fetch_by_email(email),
          {:ok, token} <- OAuth.create_token(user, password) do
-      {:ok, token.id}
+      me = %{email: user.email, user: user.actor}
+      {:ok, %{token: token.id, me: me}}
+    else
+      # don't expose if email or password failed
+      _ -> {:error, NotPermittedError.new()}
     end
+    |> GraphQL.response(info)
   end
 
   def delete_session(_, info) do

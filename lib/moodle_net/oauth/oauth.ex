@@ -62,8 +62,8 @@ defmodule MoodleNet.OAuth do
   """
   @spec create_token(User.t(), binary) :: {:ok, Authorization.t()} | {:error, atom | Changeset.t()}
   def create_token(%User{id: id} = user, password) do
-    if Argon2.verify_pass(password, user.password) do
-      Repo.insert(Token.create_changeset(user))
+    if Argon2.verify_pass(password, user.password_hash) do
+      Repo.insert(Token.user_only_changeset(user))
     else
       {:error, InvalidCredentialError.new()}
     end
@@ -75,7 +75,8 @@ defmodule MoodleNet.OAuth do
     Repo.transact_with fn ->
       with :ok <- ensure_valid(auth, now),
            {:ok, auth} <- Repo.update(Authorization.claim_changeset(auth)) do
-        Repo.insert(Token.create_changeset(auth.user_id, auth.id))
+        auth = Repo.preload(auth, :user)
+        Repo.insert(Token.create_changeset(auth.user, auth))
       end
     end
   end

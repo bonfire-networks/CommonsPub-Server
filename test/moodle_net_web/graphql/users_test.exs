@@ -843,7 +843,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "UsersResolver.reset_password" do
     @tag :skip
     test "Works for a guest with a valid token" do
-      
+
     end
 
     test "Does not work for a user" do
@@ -880,68 +880,47 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.create_session" do
+    test "Works with a valid email and password" do
+      user = fake_user!(%{password: "password"})
+      query = """
+      mutation {
+        createSession(email: \"#{user.email}\", password: \"password\") {
+          token
+          me {
+            email
+          }
+        }
+      }
+      """
 
-    @tag :skip
-    test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+      assert resp = %{query: query} |> gql_post_data() |> Map.get("createSession")
+      assert is_binary(resp["token"])
+      assert resp["me"]["email"] == user.email
     end
 
+    test "Does not work for a missing email" do
+      query = """
+      mutation {
+        createSession(email: \"#{Fake.email()}\", password: \"#{Fake.password()}\") {
+          token
+        }
+      }
+      """
+      assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
+    end
+
+    test "Does not work with an invalid password" do
+      user = fake_user!()
+      query = """
+      mutation {
+        createSession(email: \"#{user.email}\", password: \"invalid\") {
+          token
+        }
+      }
+      """
+      assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
+    end
   end
-
-  # test "create session", %{conn: conn} do
-  #   actor = Factory.actor()
-
-  #   query = """
-  #     mutation {
-  #       createSession(
-  #         email: "#{actor["email"]}"
-  #         password: "password"
-  #       ) {
-  #         token
-  #         me {
-  #           email
-  #           user {
-  #             id
-  #             localId
-  #             local
-  #             type
-  #             preferredUsername
-  #             name
-  #             summary
-  #             location
-  #             icon
-  #             image
-  #             primaryLanguage
-  #           }
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert auth_payload =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("createSession")
-
-  #   assert auth_payload["token"]
-  #   assert me = auth_payload["me"]
-  #   assert me["email"] == actor["email"]
-  #   assert user = me["user"]
-  #   assert user["preferredUsername"] == actor.preferred_username
-  #   assert user["name"] == actor.name["und"]
-  #   assert user["summary"] == actor.summary["und"]
-  #   assert user["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-  #   assert user["icon"] == actor
-  #   |> get_in([:icon, Access.at(0), :url, Access.at(0)])
-  #   |> encode()
-  #   assert user["image"] == actor
-  #   |> get_in([:image, Access.at(0), :url, Access.at(0)])
-  #   |> encode()
-  #   assert user["primaryLanguage"] == actor["primary_language"]
-  # end
 
   describe "UsersResolver.delete_session" do
     test "Does not work for a guest" do
