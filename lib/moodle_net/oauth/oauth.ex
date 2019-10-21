@@ -25,6 +25,9 @@ defmodule MoodleNet.OAuth do
   def fetch_auth(id), do: Repo.fetch(Authorization, id)
   def fetch_auth_by(params), do: Repo.fetch_by(Authorization, params)
 
+  def fetch_session_token(%User{id: user_id}),
+    do: Repo.fetch_by(Token, user_id: user_id)
+
   @doc """
   Fetches a token along with the user it is linked to.
 

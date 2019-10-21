@@ -23,11 +23,9 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
          {:ok, actor} <- Users.fetch_actor(current_user) do
       # FIXME
       actor = GraphQL.response(actor, info, ~w(user)a)
-      me = GraphQL.response(%{email: current_user.email, user: actor}, info)
-      {:ok, me}
-    else
-      other -> GraphQL.response(other, info)
+      {:ok, %{email: current_user.email, user: actor}}
     end
+    |> GraphQL.response(info)
   end
 
   def user(%{id: id}, info) do
@@ -50,9 +48,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def update_profile(%{profile: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user(info),
          {:ok, user} <- Users.update(user, attrs) do
-      actor = GraphQL.response(user.actor, info, ~w(user)a)
-      me = GraphQL.response(%{email: user.email, user: actor}, info)
-      {:ok, me}
+      {:ok, %{email: user.email, user: user.actor}}
     end
     |> GraphQL.response(info)
   end
@@ -77,10 +73,13 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def delete_session(_, info) do
-    # with {:ok, _} <- current_user(info) do
-    #   OAuth.revoke_token(info.context.auth_token)
-    #   {:ok, true}
-    # end
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, token} <- OAuth.fetch_session_token(user),
+         {:ok, token} <- OAuth.hard_delete(token) do
+      {:ok, true}
+    else
+      err -> GraphQL.response(err, info)
+    end
   end
 
   def reset_password_request(%{email: email}, _info) do
