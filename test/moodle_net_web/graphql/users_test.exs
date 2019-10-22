@@ -714,13 +714,16 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.delete_user" do
-    @tag :skip
     test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "mutation { deleteUser }"
+      assert conn |> gql_post_data(%{query: query}) |> Map.get("deleteUser")
     end
 
     test "Does not work for a guest" do
-      query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+      query = "mutation { deleteUser }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteUser"])
     end
   end
 

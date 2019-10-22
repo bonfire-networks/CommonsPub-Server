@@ -18,6 +18,7 @@ defmodule MoodleNet.Users.User do
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
     field(:confirmed_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
     field(:actor, :any, virtual: true) # todo: can we somehow squeeze this into ecto's relations?
@@ -57,6 +58,9 @@ defmodule MoodleNet.Users.User do
     |> Changeset.cast(attrs, @update_cast_attrs)
     |> common_changeset()
   end
+
+  def soft_delete_changeset(%User{} = user),
+    do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
 
   defp common_changeset(changeset) do
     changeset

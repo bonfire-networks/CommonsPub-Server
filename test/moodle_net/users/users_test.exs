@@ -152,6 +152,16 @@ defmodule MoodleNet.UsersTest do
     end
   end
 
+  describe "soft_delete/1" do
+    test "updates the deletion timestamp" do
+      user = fake_user!()
+      refute user.deleted_at
+      assert {:ok, user} = Users.soft_delete(user)
+      assert user.deleted_at
+      assert user.actor.deleted_at
+    end
+  end
+
   # describe "user flags" do
   #   test "works" do
   #     actor = Factory.actor()

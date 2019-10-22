@@ -96,6 +96,10 @@ defmodule MoodleNet.Actors do
     end)
   end
 
+  def soft_delete(%Actor{} = actor) do
+    Repo.update(Actor.soft_delete_changeset(actor))
+  end
+
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor) do
     # should cascade delete

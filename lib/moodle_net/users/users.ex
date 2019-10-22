@@ -121,12 +121,21 @@ defmodule MoodleNet.Users do
   def unconfirm_email(%User{} = user),
     do: Repo.update(User.unconfirm_email_changeset(user))
 
-  ## TODO_
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- fetch_actor(user),
            {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs) do
+        {:ok, %User{user | actor: actor}}
+      end
+    end)
+  end
+
+  def soft_delete(%User{} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
+           {:ok, actor} <- fetch_actor(user),
+           {:ok, actor} <- Actors.soft_delete(actor) do
         {:ok, %User{user | actor: actor}}
       end
     end)

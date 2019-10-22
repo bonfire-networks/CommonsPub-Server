@@ -56,10 +56,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def delete(_, info) do
-    # with {:ok, current_actor} <- current_actor(info) do
-    #   Accounts.delete_user(current_actor)
-    #   {:ok, true}
-    # end
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, _} <- Users.soft_delete(user) do
+      {:ok, true}
+    else
+      err -> GraphQL.response(err, info)
+    end
   end
 
   def create_session(%{email: email, password: password}, info) do
