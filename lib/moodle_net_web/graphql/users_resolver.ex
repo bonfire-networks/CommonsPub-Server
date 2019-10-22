@@ -47,8 +47,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def update_profile(%{profile: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, user} <- Users.update(user, attrs) do
-      {:ok, %{email: user.email, user: user.actor}}
+         {:ok, user} <- Users.update(user, attrs),
+         {:ok, actor} <- Users.fetch_actor(user) do
+      actor = GraphQL.response(actor, info, ~w(user)a)
+      {:ok, %{email: user.email, user: actor}}
     end
     |> GraphQL.response(info)
   end
@@ -62,8 +64,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def create_session(%{email: email, password: password}, info) do
     with {:ok, user} <- Users.fetch_by_email(email),
+         {:ok, actor} <- Users.fetch_actor(user),
          {:ok, token} <- OAuth.create_token(user, password) do
-      me = %{email: user.email, user: user.actor}
+      actor = GraphQL.response(actor, info, ~w(user)a)
+      me = %{email: user.email, user: actor}
       {:ok, %{token: token.id, me: me}}
     else
       # don't expose if email or password failed
@@ -105,5 +109,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         err -> GraphQL.response(err, info)
       end
     end)
+  end
+
+  def inbox(_params, _info) do
   end
 end
