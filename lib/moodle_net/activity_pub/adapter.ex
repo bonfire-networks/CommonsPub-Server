@@ -9,6 +9,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   defp maybe_fix_image_object(url) when is_binary(url), do: url
   defp maybe_fix_image_object(%{"url" => url}), do: url
+  defp maybe_fix_image_object(_), do: nil
 
   def create_remote_actor(actor, username) do
     create_attrs = %{
