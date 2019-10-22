@@ -5,6 +5,7 @@
 
 defmodule ActivityPubWeb.Publisher do
 
+  alias ActivityPub.Actor
   alias ActivityPub.HTTP
   alias ActivityPub.Instances
   alias ActivityPubWeb.Transmogrifier
@@ -71,7 +72,7 @@ defmodule ActivityPubWeb.Publisher do
 
   defp recipients(actor, activity) do
     {:ok, followers} =
-      if actor.followers in activity.recipients do
+      if actor.data["followers"] in activity.data["to"] ++ activity.data["cc"] do
         Actor.get_external_followers(actor)
       else
         {:ok, []}

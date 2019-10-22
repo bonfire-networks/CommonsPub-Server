@@ -185,4 +185,19 @@ defmodule ActivityPub.Actor do
       local: true
     }
   end
+
+  # TODO: write
+  def get_external_followers(actor) do
+    []
+  end
+
+  # TODO: add bcc
+  def remote_users(_actor, %{data: %{"to" => to}} = data) do
+    cc = Map.get(data, "cc", [])
+
+    [to, cc]
+    |> Enum.concat()
+    |> Enum.map(&get_by_ap_id/1)
+    |> Enum.filter(fn actor -> actor && !actor.local end)
+  end
 end
