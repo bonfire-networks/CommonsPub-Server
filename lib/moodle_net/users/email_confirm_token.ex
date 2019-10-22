@@ -32,10 +32,11 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   Validity period is that accepted by `DateTime.add/3`, default: 2 days.
   """
   def create_changeset(user, validity_period \\ @default_validity)
-  def create_changeset(%User{id: user_id}, validity) do
+  def create_changeset(%User{} = user, validity) do
     %EmailConfirmToken{}
     |> Changeset.cast(%{}, [])
-    |> Changeset.change(user_id: user_id, expires_at: expires_at(validity))
+    |> Changeset.put_assoc(:user, user)
+    |> Changeset.put_change(:expires_at, expires_at(validity))
   end
 
   def claim_changeset(%EmailConfirmToken{}=token),
