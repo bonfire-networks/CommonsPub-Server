@@ -73,7 +73,7 @@ defmodule MoodleNet.Mixfile do
       {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       # Outbound HTTP
-      {:hackney, "~> 1.15"},
+      {:hackney, "~> 1.15.2"},
       {:tesla, "~> 1.2"},
       # Email
       {:bamboo, "~> 1.2"}, # sending
