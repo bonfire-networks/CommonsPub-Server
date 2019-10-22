@@ -100,6 +100,7 @@ defmodule ActivityPub.Actor do
   defp get_remote_actor(ap_id) do
     with {:ok, actor} <- Fetcher.fetch_object_from_id(ap_id),
          false <- check_if_time_to_update(actor) do
+      Adapter.maybe_create_remote_actor(actor)
       {:ok, actor}
     else
       true ->

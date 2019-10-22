@@ -19,6 +19,9 @@ defmodule ActivityPub.Adapter do
   @callback get_actor_by_username(String.t()) :: {:ok, any()} | {:error, any()}
   defdelegate get_actor_by_username(username), to: @adapter
 
+  @callback maybe_create_remote_actor(Object.t()) :: :ok
+  defdelegate maybe_create_remote_actor(actor), to: @adapter
+
   @doc """
   Passes data to be handled by the host application
   """
