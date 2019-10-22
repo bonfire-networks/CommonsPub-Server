@@ -8,7 +8,7 @@ defmodule ActivityPub.UrlBuilderTest do
 
   alias ActivityPub.UrlBuilder
 
-  @base_url Application.get_env(:moodle_net, :ap_base_url)
+  @base_url UrlBuilder.base_url()
 
   describe "id" do
     test "works with regular entities" do
@@ -51,13 +51,13 @@ defmodule ActivityPub.UrlBuilderTest do
     end
 
     test "returns errors" do
-      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/activity_pub")
-      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/activity_pubs/1")
-      assert :error = UrlBuilder.get_local_id("https://test.localhost:4001/activity_pub/1")
-      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/activity_pub/1/leave")
-      assert :error = UrlBuilder.get_local_id("http://localhost:4001/activity_pub/1")
-      assert :error = UrlBuilder.get_local_id("http://test.localhost:4000/activity_pub/1")
-      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/activity_pub/uno")
+      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/pub")
+      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/pubs/1")
+      assert :error = UrlBuilder.get_local_id("https://test.localhost:4001/pub/1")
+      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/pub/1/leave")
+      assert :error = UrlBuilder.get_local_id("http://localhost:4000/pub/1")
+      assert :error = UrlBuilder.get_local_id("http://test.localhost:4000/pub/1")
+      assert :error = UrlBuilder.get_local_id("http://test.localhost:4001/pub/uno")
       assert :error = UrlBuilder.get_local_id("https://google.com/1")
     end
   end

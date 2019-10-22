@@ -58,10 +58,12 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
     |> Resolver.prepare_common_fields()
   end
 
-  defp prepare_activity_fields(e) do
-    object = hd(e.object)
-
+  defp prepare_activity_fields(%{object: [object | _]} = e) do
     Map.put(e, :activity_type, resolve_activity_type(e, object))
+  end
+
+  defp prepare_activity_fields(%{object: []} = e) do
+    e
   end
 
   defp resolve_activity_type(activity, object)

@@ -22,7 +22,7 @@ defmodule ActivityPub.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            {:ok, data} <- contain_origin(data),
-           {:ok, object} <- Transmogrifier.handle_incoming(data),
+           {:ok, object} <- Transmogrifier.handle_object(data),
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
       else
@@ -58,9 +58,18 @@ defmodule ActivityPub.Fetcher do
     end
   end
 
-  @actor_types ["Person", ["Group", "MoodleNet:Community"], ["Group", "MoodleNet:Collection"]]
+  @skipped_types [
+    "Person",
+    ["Group", "MoodleNet:Community"],
+    ["Group", "MoodleNet:Collection"],
+    ["Page", "MoodleNet:EducationalResource"],
+    "Collection",
+    "OrderedCollection",
+    "CollectionPage",
+    "OrderedCollectionPage"
+  ]
   defp contain_origin(%{"id" => id} = data) do
-    if data["type"] in @actor_types do
+    if data["type"] in @skipped_types do
       {:ok, data}
     else
       actor = get_actor(data)
