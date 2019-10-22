@@ -12,6 +12,7 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Adapter
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
+  alias ActivityPub.WebFinger
 
   alias Ecto.Changeset
   alias MoodleNet.Repo
@@ -57,6 +58,34 @@ defmodule ActivityPub.Actor do
     NaiveDateTime.diff(NaiveDateTime.utc_now(), actor.updated_at) >= 86_400
   end
 
+  @doc """
+  Fetches a remote actor by username in `username@domain.tld` format
+  """
+  def fetch_by_username(username) do
+    with {:ok, %{"id" => ap_id}} when not is_nil(ap_id) <- WebFinger.finger(username) do
+      get_remote_actor(ap_id)
+    else
+      _e -> {:error, "No AP id in WebFinger"}
+    end
+  end
+
+  @doc """
+  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld' format.
+  """
+  def get_or_fetch_by_username(username) do
+    with {:ok, actor} <- get_by_username(username) do
+      {:ok, actor}
+    else
+      _e ->
+        with [_nick, _domain] <- String.split(username, "@"),
+        {:ok, actor} <- fetch_by_username(username) do
+          {:ok, actor}
+        else
+          _e -> {:error, "not found " <> username}
+        end
+    end
+  end
+
   defp username_from_ap_id(ap_id) do
     ap_id
     |> String.split("/")
@@ -88,6 +117,8 @@ defmodule ActivityPub.Actor do
     with {:ok, actor} <- Adapter.get_actor_by_username(username),
          actor <- format_local_actor(actor) do
       {:ok, actor}
+    else
+      _e -> {:error, "not found"}
     end
   end
 
