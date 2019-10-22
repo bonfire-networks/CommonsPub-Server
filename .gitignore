@@ -12,7 +12,7 @@
 /priv/static
 .mix
 .hex
-
+.\#*
 *.sql
 
 

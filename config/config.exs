@@ -8,6 +8,9 @@ use Mix.Config
 # General application configuration
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
+config :moodle_net, MoodleNet.Repo,
+  migration_primary_key: [name: :id, type: :binary_id]
+
 # Configures the endpoint
 config :moodle_net, MoodleNetWeb.Endpoint,
   url: [host: "localhost"],
@@ -78,6 +81,9 @@ config :http_signatures, adapter: ActivityPub.Signature
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+config :moodle_net, MoodleNet.Users,
+  public_registration: false
 
 config :sentry,
   enable_source_code_context: true,

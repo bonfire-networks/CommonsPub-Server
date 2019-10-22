@@ -73,7 +73,21 @@ config :moodle_net, MoodleNet.Repo,
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
-config :moodle_net,
-  base_url: System.get_env("BASE_URL", "http://localhost:4000"),
-  ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
-  frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
+config :moodle_net, :base_url,
+  System.get_env("BASE_URL", "http://localhost:4000")
+
+config :moodle_net, :ap_base_path,
+  System.get_env("AP_BASE_PATH", "/pub"),
+  
+config :moodle_net, :frontend_base_url,
+  System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
+
+config :moodle_net, MoodleNet.Mail.Checker, mx: false
+
+config :moodle_net, MoodleNet.OAuth,
+  client_name: "MoodleNet",
+  client_id: "MoodleNET",
+  redirect_uri: "https://moodlenet.dev.local/",
+  website: "https://moodlenet.dev.local/",
+  scopes: "read,write,follow"
+

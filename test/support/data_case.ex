@@ -18,6 +18,7 @@ defmodule MoodleNet.DataCase do
   """
 
   use ExUnit.CaseTemplate
+  alias MoodleNet.Common.DeletionError
 
   using do
     quote do
@@ -60,4 +61,26 @@ defmodule MoodleNet.DataCase do
       end)
     end)
   end
+
+  @doc "true if the first was updated more recently than the second"
+  def was_updated_since?(new_thing, old_thing) do
+    DateTime.compare(new_thing.updated_at, old_thing.updated_at) == :gt
+  end
+
+  @doc "Removes the timestamps from a thing"
+  def timeless(thing), do: Map.drop(thing, [:inserted_at, :updated_at, :deleted_at])
+
+  @doc "Returns a copy of the loaded ecto model which is marked as deleted"
+  def deleted(%{__meta__: %{state: :loaded}=meta}=thing) do
+    meta2 = Map.put(meta, :state, :deleted)
+    Map.put(thing, :__meta__, meta2)
+  end
+
+  @doc "Returns true if the provided is a DeletionError that was stale"
+  def was_already_deleted?(
+    %DeletionError{changeset: %{errors: [id: {"has already been deleted", [stale: true]}]}}
+  ), do: true
+
+  def was_already_deleted?(_), do: false
+
 end

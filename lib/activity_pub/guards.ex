@@ -28,6 +28,12 @@ defmodule ActivityPub.Guards do
   defguard has_status(e, status) when APMG.has_status(:erlang.map_get(:__ap__, e), status)
   defguard has_local_id(e) when APMG.has_local_id(:erlang.map_get(:__ap__, e))
 
+  defguard is_person(e) when has_type(e, "Person")
+  defguard is_comment(e) when has_type(e, "Note")
+  defguard is_community(e) when has_type(e, "MoodleNet:Community")
+  defguard is_collection(e) when has_type(e, "MoodleNet:Collection")
+  defguard is_resource(e) when has_type(e, "MoodleNet:EducationalResource")
+  
   defmacro status(e) do
     quote bind_quoted: [e: e] do
       :erlang.map_get(:status, :erlang.map_get(:meta, e))

@@ -145,7 +145,7 @@ This respects the version bounds in `mix.exs` (`~> 2.0`).
 Example:
 
 ```
-** (DBConnection.ConnectionError) tcp recv: closed (the connection was closed by the pool, poissibly due to a timeout or because the pool has been terminated)
+** (DBConnection.ConnectionError) tcp recv: closed (the connection was closed by the pool, possibly due to a timeout or because the pool has been terminated)
 ```
 
 In this case, the seeds were unable to complete because a query took
@@ -175,3 +175,77 @@ config :moodle_net, MoodleNet.Repo,
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
 
 The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+
+## Codebase navigation
+
+The codebase is hierarchically structured like most Elixir
+applications. The two root modules are:
+
+* `MoodleNet` - Main application logic, schemas etc.
+* `MoodleNetWeb` - Phoenix/Absinthe webapp wrapping `MoodleNet`
+* `ActivityPub` - ActivityPub federation application logic, schemas etc.
+* `ActivityPubWeb` - Phoenix webapp / REST API wrapping `ActivityPub`
+
+This maintains a clean separation between the responsibility for
+managing data and applying business logic (`MoodleNet`) and the means
+of access to these facilities (`MoodleNetWeb`). If we later wished to
+add another transport (perhaps an ssh-based management terminal), this
+would be another top level module which called into `MoodleNet`.
+
+### `MoodleNet`
+
+The `MoodleNet` namespace is occupied mostly by contexts. These are
+top level modules which comprise a grouping of:
+
+* A top level library module
+* Additional library modules
+* OTP services
+* Ecto schemas
+
+They are 
+
+Here are the current contexts:
+
+* `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
+* `MoodleNet.Collections` (for managing and querying collections of resources)
+* `MoodleNet.Comments` (for managing and querying comments on content)
+* `MoodleNet.Common` (functionality shared across many contexts, mostly database related)
+* `MoodleNet.Communities` (for managing and querying communities)
+* `MoodleNet.Mail` (for rendering and sending emails)
+* `MoodleNet.Meta` (for managing and querying references to content in many tables)
+* `MoodleNet.OAuth` (for OAuth functionality)
+* `MoodleNet.Resources` (for managing and querying the resources in collections)
+* `MoodleNet.Users` (for managing and querying both local and remote users)
+* `MoodleNet.Whitelists` (for managing and querying email whitelists)
+
+There are some additional modules:
+
+* `MoodleNet.Application` (OTP application)
+* `MoodleNet.MediaProxy` (for fetching remote media)
+* `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
+* `MoodleNet.Policy` (centralised permission management)
+* `MoodleNet.ReleaseTasks` (OTP release tasks)
+* `MoodleNet.Repo` (Ecto repository)
+
+### `MoodleNetWeb`
+
+TODO
+
+## Subsystems
+
+## Naming
+
+It is said that naming is one of the four hard problems of computer
+science (along with cache management and off-by-one errors). We don't
+claim our scheme is the best, but we do strive for consistency.
+
+The rules:
+
+* Context names all begin `MoodleNet.` and are named in plural where possible.
+* Everything within a context begins with the context name and a `.`
+* Ecto schemas should be named in the singular
+* Database tables should be named in the singular
+* Acronyms in module names should be all uppercase
+* OTP services should have the `Service` suffix (without a preceding `.`)
+
+

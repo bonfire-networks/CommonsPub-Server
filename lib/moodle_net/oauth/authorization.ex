@@ -1,59 +1,34 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.OAuth.Authorization do
   @moduledoc """
-  OAuth authorization model
+  An authorization is what allows you to claim a token
   """
-  use Ecto.Schema
-
+  use MoodleNet.Common.Schema
+  alias MoodleNet.OAuth.Token
+  alias MoodleNet.Users.User
   alias Ecto.Changeset
+  alias MoodleNet.Common.Changeset, as: Changeset2
 
-  schema "oauth_authorizations" do
-    field(:hash, :string)
-    field(:valid_until, :naive_datetime_usec)
-    field(:used, :boolean, default: false)
-    belongs_to(:user, MoodleNet.Accounts.User)
-    belongs_to(:app, MoodleNet.OAuth.App)
+  @default_validity 60 * 10 # seconds: this seems short, but it's what alex set it to
 
+  standalone_schema "oauth_authorizations" do
+    belongs_to :user, User
+    field :expires_at, :utc_datetime_usec
+    field :claimed_at, :utc_datetime_usec
     timestamps()
   end
 
-  def build(user_id, app_id) do
-    hash = MoodleNet.Token.random_key()
-
+  def create_changeset(user_id, validity \\ @default_validity) do
     %__MODULE__{}
-    |> Changeset.change(
-      hash: hash,
-      used: false,
-      user_id: user_id,
-      app_id: app_id,
-      valid_until: expiration_time()
-    )
+    |> Changeset.cast(%{}, [])
+    |> Changeset.change(user_id: user_id, expires_at: expires_at(validity))
     |> Changeset.foreign_key_constraint(:user_id)
-    |> Changeset.foreign_key_constraint(:app_id)
   end
 
-  defp expiration_time(), do: NaiveDateTime.add(NaiveDateTime.utc_now(), 60 * 10)
+  def claim_changeset(auth), do: Changeset2.claim_changeset(auth, :claimed_at)
 
-  def use_changeset(%__MODULE__{used: true} = auth) do
-    auth
-    |> Changeset.change()
-    |> Changeset.add_error(:used, "already used")
-  end
+  defp expires_at(validity), do: DateTime.add(DateTime.utc_now(), validity)
 
-  def use_changeset(%__MODULE__{} = auth) do
-    if expired?(auth) do
-      auth
-      |> Changeset.change()
-      |> Changeset.add_error(:valid_until, "expired")
-    else
-      Changeset.change(auth, used: true)
-    end
-  end
-
-  def expired?(%__MODULE__{valid_until: valid_until}),
-    do: NaiveDateTime.compare(valid_until, NaiveDateTime.utc_now()) == :gt
 end

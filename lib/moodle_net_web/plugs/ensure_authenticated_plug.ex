@@ -9,10 +9,11 @@ defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
   """
   import Plug.Conn
   import Phoenix.Controller
+  alias MoodleNet.Users.User
 
   def init(options), do: options
 
-  def call(%{assigns: %{current_user: %{}}} = conn, _), do: conn
+  def call(%{assigns: %{current_user: %User{}}} = conn, _), do: conn
 
   def call(conn, _) do
     case get_format(conn) do

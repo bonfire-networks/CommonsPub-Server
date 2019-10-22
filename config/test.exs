@@ -30,7 +30,7 @@ config :pbkdf2_elixir, rounds: 1
 config :phoenix_integration,
   endpoint: MoodleNetWeb.Endpoint
 
-config :moodle_net, MoodleNet.Mailer,
+config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.TestAdapter
 
 config :moodle_net,
@@ -39,3 +39,11 @@ config :moodle_net,
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock
+config :moodle_net, MoodleNet.Mail.Checker, mx: false
+
+config :moodle_net, MoodleNet.OAuth,
+  client_name: "MoodleNet",
+  client_id: "MoodleNET",
+  redirect_uri: "https://moodlenet.dev.local/",
+  website: "https://moodlenet.dev.local/",
+  scopes: "read,write,follow"

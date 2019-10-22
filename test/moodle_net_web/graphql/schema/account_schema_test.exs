@@ -1,6 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.AccountTest do
@@ -18,6 +17,7 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
     }
     """
 
+    
     assert [
              %{
                "code" => "not_found",
@@ -29,6 +29,8 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
              |> post("/api/graphql", %{query: query})
              |> json_response(200)
              |> Map.fetch!("errors")
+
+    user = fake_user!()
 
     %{email_confirmation_token: %{token: token}} = Factory.full_user()
 
