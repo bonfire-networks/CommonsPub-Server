@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
   use MoodleNetWeb.ConnCase
 
   import ActivityPub.Entity, only: [local_id: 1]
+  import MoodleNet.Test.Faking
   @moduletag format: :json
 
   alias MoodleNet.Repo
@@ -17,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
     }
     """
 
-    
+
     assert [
              %{
                "code" => "not_found",
