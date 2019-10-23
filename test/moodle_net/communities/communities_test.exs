@@ -22,8 +22,8 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     test "fails if given invalid attributes" do
-      assert actor = fake_actor!()
-      assert language = english()
+      actor = fake_actor!()
+      language = fake_language!()
       assert {:error, changeset} = Communities.create(actor, language, %{})
       assert Keyword.get(changeset.errors, :is_public)
     end
