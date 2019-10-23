@@ -13,6 +13,8 @@ defmodule ActivityPub.Fetcher do
   alias ActivityPubWeb.Transmogrifier
   require Logger
 
+  @create_object_types ["Article", "Note", "Video", "Page", "Question", "Answer"]
+
   @doc """
   Checks if an object exists in the database and fetches it if it doesn't.
   """
