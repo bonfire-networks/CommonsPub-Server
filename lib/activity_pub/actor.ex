@@ -141,6 +141,11 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_by_ap_id!(ap_id) do
+    {:ok, actor} = get_by_ap_id(ap_id)
+    actor
+  end
+
   @doc false
   def set_public_key(%{data: data} = actor) do
     {:ok, entity} = ActivityPub.Utils.ensure_keys_present(actor)
@@ -187,7 +192,7 @@ defmodule ActivityPub.Actor do
   end
 
   # TODO: write
-  def get_external_followers(actor) do
+  def get_external_followers(_actor) do
     []
   end
 
@@ -197,7 +202,7 @@ defmodule ActivityPub.Actor do
 
     [to, cc]
     |> Enum.concat()
-    |> Enum.map(&get_by_ap_id/1)
+    |> Enum.map(&get_by_ap_id!/1)
     |> Enum.filter(fn actor -> actor && !actor.local end)
   end
 end

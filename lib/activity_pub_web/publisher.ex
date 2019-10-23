@@ -10,15 +10,13 @@ defmodule ActivityPubWeb.Publisher do
   alias ActivityPub.Instances
   alias ActivityPubWeb.Transmogrifier
 
-  require ActivityPub.Guards, as: APG
   require Logger
 
   @behaviour ActivityPubWeb.Federator.Publisher
 
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
-  def is_representable?(activity) when APG.is_entity(activity), do: true
-  def is_representable?(_), do: false
+  def is_representable?(_activity), do: true
 
   @doc """
   Publish a single message to a peer.  Takes a struct with the following
@@ -72,7 +70,7 @@ defmodule ActivityPubWeb.Publisher do
 
   defp recipients(actor, activity) do
     {:ok, followers} =
-      if actor.data["followers"] in activity.data["to"] ++ activity.data["cc"] do
+      if actor.data["followers"] in (activity.data["to"] || []) ++ (activity.data["cc"] || []) do
         Actor.get_external_followers(actor)
       else
         {:ok, []}
@@ -119,7 +117,7 @@ defmodule ActivityPubWeb.Publisher do
   end
 
   def publish(actor, activity) do
-    data = Transmogrifier.prepare_outgoing(activity.data)
+    {:ok, data} = Transmogrifier.prepare_outgoing(activity.data)
     json = Jason.encode!(data)
 
     recipients(actor, activity)
@@ -133,7 +131,7 @@ defmodule ActivityPubWeb.Publisher do
       inbox: inbox,
       json: json,
       actor: actor,
-      id: activity.id,
+      id: activity.data["id"],
       unreachable_since: unreachable_since
     })
     end)
