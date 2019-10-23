@@ -17,8 +17,8 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
 
 config :moodle_net,
-  base_url: base_url
-  ap_base_path: System.get_env("AP_BASE_PATH", "/pub") # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
+  base_url: base_url,
+  ap_base_path: System.get_env("AP_BASE_PATH", "/pub"), # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url) # env variable for URL of frontend, otherwise assume proxied behind same host as backend
 
 mail_domain = System.get_env("MAIL_DOMAIN")
