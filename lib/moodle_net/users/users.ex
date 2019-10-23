@@ -9,6 +9,7 @@ defmodule MoodleNet.Users do
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Common.NotFoundError
 
+  alias MoodleNet.Mail.{Email, MailService}
   alias MoodleNet.Users.{
     EmailConfirmToken,
     ResetPasswordToken,
@@ -61,6 +62,9 @@ defmodule MoodleNet.Users do
            :ok <- check_register_whitelist(user.email, opts),
            {:ok, actor} <- Actors.create_with_alias(user.id, attrs),
            {:ok, token} <- create_email_confirm_token(user) do
+        user
+        |> Email.welcome(token)
+        |> MailService.deliver_now()
         {:ok, %{user | email_confirm_tokens: [token], password: nil, actor: actor}}
       end
     end)
@@ -114,8 +118,14 @@ defmodule MoodleNet.Users do
     do: Repo.update(User.unconfirm_email_changeset(user))
 
   def request_password_reset(%User{} = user) do
-    # TODO: send an email
-    Repo.insert(ResetPasswordToken.create_changeset(user))
+    Repo.transact_with(fn ->
+      with {:ok, token} <- Repo.insert(ResetPasswordToken.create_changeset(user)) do
+        user
+        |> Email.reset_password_request(token)
+        |> MailService.deliver_now()
+        {:ok, token}
+      end
+    end)
   end
 
   def claim_password_reset(token, password, now \\ DateTime.utc_now())
@@ -125,6 +135,9 @@ defmodule MoodleNet.Users do
            {:ok, user} <- fetch(token.user_id),
            {:ok, token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- update(user, %{password: password}) do
+        user
+        |> Email.password_reset()
+        |> MailService.deliver_now()
         {:ok, token}
       end
     end)

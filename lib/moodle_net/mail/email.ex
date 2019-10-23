@@ -12,7 +12,7 @@ defmodule MoodleNet.Mail.Email do
   alias MoodleNet.Actors
 
   def welcome(user, token) do
-    url = email_confirmation_url(user.id, token)
+    url = email_confirmation_url(user.id, token.id)
     {:ok, actor} = Actors.fetch_by_alias(user.id)
     base_email(user)
     |> subject(gettext("Welcome to MoodleNet"))
@@ -20,7 +20,7 @@ defmodule MoodleNet.Mail.Email do
   end
 
   def reset_password_request(user, token) do
-    url = reset_password_url(token)
+    url = reset_password_url(token.id)
     {:ok, actor} = Actors.fetch_by_alias(user.id)
     base_email(user)
     |> subject(gettext("Did you forget your MoodleNet password?"))
