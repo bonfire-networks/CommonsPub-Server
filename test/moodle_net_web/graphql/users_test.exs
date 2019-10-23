@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors, OAuth, Whitelists}
+  alias MoodleNet.{Actors, OAuth, Users, Whitelists}
 
   @user_basic_fields "id local preferredUsername name summary location website icon image primaryLanguage"
 
@@ -728,26 +728,32 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.reset_password_request" do
-    @tag :skip
     test "Works for a guest" do
-    end
-
-    @tag :skip
-    test "Does not work for a logged in user" do
       user = fake_user!()
       query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+      assert token = gql_post_data(%{query: query}) |> Map.get("resetPasswordRequest")
+      assert is_binary(token)
+      # TODO: check that an email is sent
+    end
+
+    test "Does not work for an invalid email" do
+      query = "mutation { resetPasswordRequest(email: \"#{Fake.email()}\") }"
+      assert_not_found(gql_post_errors(%{query: query}), ["resetPasswordRequest"])
     end
   end
 
   describe "UsersResolver.reset_password" do
-    @tag :skip
     test "Works for a guest with a valid token" do
+      user = fake_user!()
+      assert {:ok, %{id: token}} = Users.request_password_reset(user)
+
+      query = "mutation { resetPassword(token: \"#{token}\", password: \"password\") }"
+      assert %{query: query} |> gql_post_data() |> Map.get("resetPassword")
     end
 
     test "Does not work for a user" do
-      query = "{ me { email } }"
-      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+      query = "mutation { resetPassword(token: \"#{Fake.uuid()}\", password: \"password\") }"
+      assert_not_found(gql_post_errors(%{query: query}), ["resetPassword"])
     end
   end
 

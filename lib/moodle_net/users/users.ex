@@ -10,13 +10,14 @@ defmodule MoodleNet.Users do
   alias MoodleNet.Common.NotFoundError
 
   alias MoodleNet.Mail.{Email, MailService}
+
   alias MoodleNet.Users.{
     EmailConfirmToken,
     ResetPasswordToken,
     TokenAlreadyClaimedError,
     TokenExpiredError,
     User,
-    UserFlag,
+    UserFlag
   }
 
   alias Ecto.Changeset
@@ -65,6 +66,7 @@ defmodule MoodleNet.Users do
         user
         |> Email.welcome(token)
         |> MailService.deliver_now()
+
         {:ok, %{user | email_confirm_tokens: [token], password: nil, actor: actor}}
       end
     end)
@@ -92,6 +94,7 @@ defmodule MoodleNet.Users do
 
   @doc "Uses an email confirmation token, returns ok/error tuple"
   def claim_email_confirm_token(token, now \\ DateTime.utc_now())
+
   def claim_email_confirm_token(token, %DateTime{} = now) when is_binary(token) do
     Repo.transact_with(fn ->
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
@@ -123,21 +126,26 @@ defmodule MoodleNet.Users do
         user
         |> Email.reset_password_request(token)
         |> MailService.deliver_now()
+
         {:ok, token}
       end
     end)
   end
 
   def claim_password_reset(token, password, now \\ DateTime.utc_now())
-  def claim_password_reset(token, password, %DateTime{} = now) when is_binary(password) do
+
+  def claim_password_reset(token, password, %DateTime{} = now)
+      when is_binary(password) do
     Repo.transact_with(fn ->
-      with :ok <- validate_token(token, :reset_at, now),
+      with {:ok, token} <- Repo.fetch(ResetPasswordToken, token),
+           :ok <- validate_token(token, :reset_at, now),
            {:ok, user} <- fetch(token.user_id),
            {:ok, token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- update(user, %{password: password}) do
         user
         |> Email.password_reset()
         |> MailService.deliver_now()
+
         {:ok, token}
       end
     end)

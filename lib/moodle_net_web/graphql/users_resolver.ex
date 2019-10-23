@@ -88,17 +88,21 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def reset_password_request(%{email: email}, _info) do
-    # # Note: This can be done async, but then, the async tests will fail
-    # Accounts.reset_password_request(email)
-    # {:ok, true}
+  def reset_password_request(%{email: email}, info) do
+    with {:ok, user} <- Users.fetch_by_email(email),
+         {:ok, token} <- Users.request_password_reset(user) do
+      {:ok, token.id}
+    else
+      err -> GraphQL.response(err, info)
+    end
   end
 
-  def reset_password(%{token: token, password: password}, _info) do
-    # with {:ok, _} <- Accounts.reset_password(token, password) do
-    #   {:ok, true}
-    # end
-    # |> Errors.handle_error()
+  def reset_password(%{token: token, password: password}, info) do
+    with {:ok, _} <- Users.claim_password_reset(token, password) do
+      {:ok, true}
+    else
+      err -> GraphQL.response(err, info)
+    end
   end
 
   def confirm_email(%{token: token}, info) do

@@ -167,7 +167,7 @@ defmodule MoodleNet.UsersTest do
       user = fake_user!()
       assert {:ok, token} = Users.request_password_reset(user)
       refute token.reset_at
-      assert {:ok, token} = Users.claim_password_reset(token, "password")
+      assert {:ok, token} = Users.claim_password_reset(token.id, "password")
       assert token.reset_at
 
       assert {:ok, updated_user} = Users.fetch(user.id)
