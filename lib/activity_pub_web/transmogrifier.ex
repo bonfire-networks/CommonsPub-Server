@@ -65,6 +65,16 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
+  defp can_delete_object?(ap_id) do
+    case Fetcher.fetch_remote_object_from_id(ap_id) do
+      {:error, "Object has been deleted"} -> true
+
+      %{"type" => "Tombstone"} -> true
+
+      _ -> false
+    end
+  end
+
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
     {:ok, actor} = Actor.get_by_ap_id(data["actor"])
@@ -141,7 +151,8 @@ defmodule ActivityPubWeb.Transmogrifier do
       ) do
     object_id = Utils.get_ap_id(object_id)
 
-    with {:ok, object} <- Object.get_by_ap_id(object_id),
+    with true <- can_delete_object?(object_id),
+         {:ok, object} <- Object.get_by_ap_id(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
       {:ok, activity}
     else
