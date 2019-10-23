@@ -9,11 +9,12 @@ defmodule ActivityPub.Object do
   import Ecto.Query
 
   alias MoodleNet.Repo
+  alias ActivityPub.Fetcher
   alias ActivityPub.Object
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
-  schema "objects" do
+  schema "ap_object" do
     field(:data, :map)
     field(:local, :boolean, default: true)
     field(:public, :boolean)
@@ -42,5 +43,43 @@ defmodule ActivityPub.Object do
     object
     |> cast(attrs, [:data, :local, :public])
     |> validate_required(:data)
+  end
+
+  def normalize(_, fetch_remote \\ true)
+  def normalize(%Object{} = object, _), do: object
+  def normalize(%{"id" => ap_id}, fetch_remote), do: normalize(ap_id, fetch_remote)
+  def normalize(ap_id, false) when is_binary(ap_id), do: get_by_ap_id(ap_id)
+
+  def normalize(ap_id, true) when is_binary(ap_id) do
+    with {:ok, object} <- Fetcher.fetch_object_from_id(ap_id) do
+      object
+    else
+      _e -> nil
+    end
+  end
+
+  def normalize(_, _), do: nil
+
+  def make_tombstone(%Object{data: %{"id" => id, "type" => type}}, deleted \\ DateTime.utc_now()) do
+    %{
+      "id" => id,
+      "formerType" => type,
+      "deleted" => deleted,
+      "type" => "Tombstone"
+    }
+  end
+
+  def swap_object_with_tombstone(object) do
+    tombstone = make_tombstone(object)
+
+    object
+    |> Object.changeset(%{data: tombstone})
+    |> Repo.update()
+  end
+
+  def delete(%Object{} = object) do
+    with {:ok, _obj} = swap_object_with_tombstone(object) do
+      {:ok, object}
+    end
   end
 end

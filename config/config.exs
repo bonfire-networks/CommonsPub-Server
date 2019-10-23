@@ -64,7 +64,10 @@ config :moodle_net, :instance,
   version: version,
   name: "MoodleNet",
   email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated server for educators"
+  description: "An instance of MoodleNet, a federated server for educators",
+  federation_publisher_modules: [ActivityPubWeb.Publisher],
+  federation_reachability_timeout_days: 7,
+  federating: true
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
@@ -77,6 +80,12 @@ config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en e
 config :tesla, adapter: Tesla.Adapter.Hackney
 
 config :http_signatures, adapter: ActivityPub.Signature
+
+config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
+
+config :pleroma_job_queue, :queues,
+federator_incoming: 50,
+federator_outgoing: 50
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

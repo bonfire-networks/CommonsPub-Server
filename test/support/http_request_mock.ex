@@ -42,6 +42,14 @@ defmodule HttpRequestMock do
      }}
   end
 
+  def get("https://testing.kawen.dance/users/karen", _, _, _) do
+    {:ok,
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/pleroma_user_actor2.json")
+     }}
+  end
+
   def get("https://testing.kawen.dance/objects/d953809b-d968-49c8-aa8f-7545b9480a12", _, _, _) do
     {:ok,
      %Tesla.Env{

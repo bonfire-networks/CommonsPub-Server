@@ -7,10 +7,10 @@ defmodule ActivityPub.SignatureTest do
   use MoodleNet.DataCase
 
   import ExUnit.CaptureLog
-  import MoodleNet.Factory
   import Tesla.Mock
 
   alias ActivityPub.Signature
+  alias MoodleNet.Test.Faking
 
   setup do
     mock(fn env -> apply(HttpRequestMock, :request, [env]) end)
@@ -53,7 +53,7 @@ defmodule ActivityPub.SignatureTest do
 
   describe "sign/2" do
     test "works" do
-      actor = actor()
+      actor = Faking.fake_ap_actor!
 
       _signature =
         Signature.sign(actor, %{

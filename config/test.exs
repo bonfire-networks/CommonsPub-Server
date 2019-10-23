@@ -39,6 +39,7 @@ config :moodle_net,
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock
+
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
 config :moodle_net, MoodleNet.OAuth,
@@ -47,3 +48,6 @@ config :moodle_net, MoodleNet.OAuth,
   redirect_uri: "https://moodlenet.dev.local/",
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
+
+# Do not federate activities during tests
+config :moodle_net, :instance, federating: false

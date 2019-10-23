@@ -91,4 +91,13 @@ defmodule MoodleNet.Test.Faking do
     {:ok, comment} = Comments.create_comment(thread, actor, Fake.comment(overrides))
     comment
   end
+
+  def fake_ap_actor!(overrides \\ %{}) when is_map(overrides) do
+    {:ok, actor} = Actors.create(Fake.actor(overrides))
+    ActivityPub.Actor.format_local_actor(actor)
+  end
+
+  def fake_instance(since \\ nil) do
+    ActivityPub.Instances.set_unreachable("domain.com", since)
+  end
 end

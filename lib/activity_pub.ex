@@ -6,163 +6,188 @@
 defmodule ActivityPub do
   @moduledoc """
   ActivityPub API
-  Delegates some functions to related ActivityPub submodules
+
+  In general, the functions in this module take object-like formatted struct as the input for actor parameters.
+  Use the functions in the `ActivityPub.Actor` module (`ActivityPub.Actor.get_by_ap_id/1` for example) to retrieve those.
+
+  Legacy: Delegates some functions to related ActivityPub submodules
   """
+  alias ActivityPub.Adapter
+  alias ActivityPub.Utils
+  alias ActivityPub.Object
+  alias MoodleNet.Repo
+
+  @doc false
+  def insert(map, local) when is_map(map) and is_boolean(local) do
+    with map <- Utils.lazy_put_activity_defaults(map),
+         {:ok, map, object} <- Utils.insert_full_object(map) do
+      {:ok, activity} =
+        Repo.insert(%Object{
+          data: map,
+          local: local,
+          public: Utils.public?(map)
+        })
+
+      # Splice in the child object if we have one.
+      activity =
+        if !is_nil(object) do
+          Map.put(activity, :object, object)
+        else
+          activity
+        end
+
+      {:ok, activity}
+    end
+  end
 
   @doc """
-  Builds an `ActivityPub.Entity`. Delegates to `ActivityPub.Builder.new/1` (see that module for more docs).
+  Generates and federates a Create activity via the data passed through `params`.
 
-  ## Example
-  ```
-  {:ok, entity} = ActivityPub.new(%{type: "Object", content: "hello world"})
-  ```
+  Requires `to`, `actor`, `context` and `object` fields to be present in the input map.
+
+  `to` must be a list.</br>
+  `actor` must be an `ActivityPub.Object`-like struct.</br>
+  `context` must be a string. Use `ActivityPub.Utils.generate_context_id/0` to generate a default context.</br>
+  `object` must be a map.
   """
-  defdelegate new(params), to: ActivityPub.Builder
+  def create(%{to: to, actor: actor, context: context, object: object} = params) do
+    additional = params[:additional] || %{}
+    # only accept false as false value
+    local = !(params[:local] == false)
+    published = params[:published]
 
+    with create_data <-
+           Utils.make_create_data(
+             %{to: to, actor: actor, published: published, context: context, object: object},
+             additional
+           ),
+         {:ok, activity} <- insert(create_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    else
+      {:error, message} -> {:error, message}
+    end
+  end
 
   @doc """
-  Delegates to `ActivityPub.Entity.local_id/1`
-  """
-  defdelegate local_id(entity), to: ActivityPub.Entity
+  Generates and federates an Accept activity via the data passed through `params`.
 
+  Requires `to`, `actor` and `object` fields to be present in the input map.
+
+  `to` must be a list.</br>
+  `actor` must be an `ActivityPub.Object`-like struct.</br>
+  `object` should be the URI of the object that is being accepted.
+  """
+  def accept(%{to: to, actor: actor, object: object} = params) do
+    # only accept false as false value
+    local = !(params[:local] == false)
+
+    with data <- %{
+           "to" => to,
+           "type" => "Accept",
+           "actor" => actor.data["id"],
+           "object" => object
+         },
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 
   @doc """
-  Delegates to `ActivityPub.ApplyAction.apply/1`
-  """
-  defdelegate apply(params), to: ActivityPub.ApplyAction
+  Generates and federates a Reject activity via the data passed through `params`.
 
+  Requires `to`, `actor` and `object` fields to be present in the input map.
+
+  `to` must be a list.<br/>
+  `actor` must be an `ActivityPub.Object`-like struct.<br/>
+  `object` should be the URI of the object that is being rejected
+  """
+  def reject(%{to: to, actor: actor, object: object} = params) do
+    # only accept false as false value
+    local = !(params[:local] == false)
+
+    with data <- %{
+           "to" => to,
+           "type" => "Reject",
+           "actor" => actor.data["id"],
+           "object" => object
+         },
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 
   @doc """
-  Delegates to `ActivityPub.SQLEntity.insert/1`
-  """
-  defdelegate insert(entity), to: ActivityPub.SQLEntity
-  defdelegate insert(entity, repo), to: ActivityPub.SQLEntity
+  Generates and federates a Follow activity.
 
+  Note: the follow should be reflected on the host database side only after receiving an `Accept` activity in response!
+  """
+  def follow(follower, followed, activity_id \\ nil, local \\ true) do
+    with data <- Utils.make_follow_data(follower, followed, activity_id),
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 
   @doc """
-  Delegates to `ActivityPub.SQLEntity.update/2`
+  Generates and federates an Unfollow activity.
   """
-  defdelegate update(entity, changes), to: ActivityPub.SQLEntity
+  def unfollow(follower, followed, activity_id \\ nil, local \\ true) do
+    with %Object{} = follow_activity <- Utils.fetch_latest_follow(follower, followed),
+         unfollow_data <-
+           Utils.make_unfollow_data(follower, followed, follow_activity, activity_id),
+         {:ok, activity} <- insert(unfollow_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 
+  def block(blocker, blocked, activity_id \\ nil, local \\ true) do
+    follow_activity = Utils.fetch_latest_follow(blocker, blocked)
+    if follow_activity, do: unfollow(blocker, blocked, nil, local)
 
-  @doc """
-  Delegates to `ActivityPub.SQLEntity.delete/1`
-  """
-  defdelegate delete(entity), to: ActivityPub.SQLEntity
-  defdelegate delete(entity, assocs), to: ActivityPub.SQLEntity
+    with block_data <- Utils.make_block_data(blocker, blocked, activity_id),
+         {:ok, activity} <- insert(block_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    else
+      _e -> {:ok, nil}
+    end
+  end
 
+  def unblock(blocker, blocked, activity_id \\ nil, local \\ true) do
+    with block_activity <- Utils.fetch_latest_block(blocker, blocked),
+         unblock_data <- Utils.make_unblock_data(blocker, blocked, block_activity, activity_id),
+         {:ok, activity} <- insert(unblock_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 
-  @doc """
-  Delegates to `ActivityPub.SQL.Query.get_by_local_id/1`
-  """
-  defdelegate get_by_local_id(params), to: ActivityPub.SQL.Query
-  defdelegate get_by_local_id(params, opts), to: ActivityPub.SQL.Query
+  def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local \\ true) do
+    to = (object.data["to"] || []) ++ (object.data["cc"] || [])
 
-
-  @doc """
-  Returns an object given an ActivityPub ID. Delegates to `ActivityPub.SQL.Query.get_by_id/1`
-  """
-  defdelegate get_by_id(params), to: ActivityPub.SQL.Query
-  defdelegate get_by_id(params, opts), to: ActivityPub.SQL.Query
-
-
-  @doc """
-  Delegates to `ActivityPub.SQL.Query.reload/1`
-  """
-  defdelegate reload(params), to: ActivityPub.SQL.Query
-
-
-  # @doc """
-  # Returns true if the given argument is a valid ActivityPub IRI,
-  # otherwise, returns false.
-
-  # ## Examples
-
-  #     iex> ActivityPub.valid_iri?(nil)
-  #     false
-
-  #     iex> ActivityPub.valid_iri?("https://social.example/")
-  #     true
-
-  #     iex> ActivityPub.valid_iri?("https://social.example/alyssa/")
-  #     true
-  # """
-  # @spec valid_iri?(String.t()) :: boolean
-  # def valid_iri?(iri), do: validate_iri(iri) == :ok
-
-  # @doc """
-  # Verifies the given argument is an ActivityPub valid IRI
-  # and returns the reason if not.
-
-  # ## Examples
-
-  #     iex> ActivityPub.validate_iri(nil)
-  #     {:error, :not_string}
-
-  #     iex> ActivityPub.validate_iri("social.example")
-  #     {:error, :invalid_scheme}
-
-  #     iex> ActivityPub.validate_iri("https://")
-  #     {:error, :invalid_host}
-
-  #     iex> ActivityPub.validate_iri("https://social.example/alyssa")
-  #     :ok
-  # """
-  # @spec validate_iri(String.t()) ::
-  #         :ok
-  #         | {:error, :invalid_scheme}
-  #         | {:error, :invalid_host}
-  #         | {:error, :not_string}
-  # def validate_iri(iri), do: IRI.validate(iri)
-
-  # alias ActivityPub.Actor
-  # alias Ecto.Multi
-
-  # def create_actor(multi, params, opts \\ []) do
-  #   key = Keyword.get(opts, :key, :actor)
-  #   pre_key = String.to_atom("_pre_#{key}")
-
-  #   multi
-  #   |> Multi.insert(pre_key, Actor.create_local_changeset(params))
-  #   |> Multi.run(key, &(Actor.set_uris(&2[pre_key]) |> &1.update()))
-  # end
-
-  # def get_actor!(id) do
-  #   Repo.get!(Actor, id)
-  # end
-
-  # def follow(multi, follower, following, opts \\ []) do
-  #   key = Keyword.get(opts, :key, :follow)
-  #   ch = ActivityPub.Follow.create_changeset(follower, following)
-
-  #   Multi.insert(multi, key, ch,
-  #     returning: true,
-  #     conflict_target: [:follower_id, :following_id],
-  #     on_conflict: {:replace, [:follower_id]}
-  #   )
-  # end
-
-  # def unfollow(multi, follower, following, opts \\ []) do
-  #   key = Keyword.get(opts, :key, :unfollow)
-  #   query = ActivityPub.Follow.delete_query(follower, following)
-  #   Multi.delete_all(multi, key, query)
-  # end
-
-  # @doc """
-  # Returns an object given an ID.
-
-  # Options:
-  #   * `:cache` when is `true`, it uses cache to try to get the object.
-  #     This is the first option.
-  #     Default value is `true`.
-  #   * `:database` when is `true`, it uses the database like second option get the object.
-  #     This is the second option, so it is only used when cache is disabled or it couldn't be found.
-  #     Default value is `true`.
-  #   * `:external` when is `true`, it makes a request to an external server to get the object.
-  #     This is the third option, so it is only used when the database is disabled or it couldn't be found.
-  #     Default value is `true`.
-  # """
-  # @spec get_object(binary, map | Keyword.t()) ::
-  #         {:ok, Object.t()} | {:error, :not_found} | {:error, :invalid_id}
-  # def get_object(id, opts \\ %{cache: true, database: true, external: true})
+    with {:ok, _object} <- Object.delete(object),
+         data <- %{
+           "type" => "Delete",
+           "actor" => actor,
+           "object" => id,
+           "to" => to,
+         },
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 end

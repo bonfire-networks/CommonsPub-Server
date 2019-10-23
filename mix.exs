@@ -70,7 +70,7 @@ defmodule MoodleNet.Mixfile do
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
       # Password hashing
-      {:comeonin, "~> 4.1.1"}, 
+      {:comeonin, "~> 4.1.1"},
       {:pbkdf2_elixir, "~> 0.12.3"},
       # Outbound HTTP
       {:hackney, "~> 1.15"},
@@ -86,14 +86,15 @@ defmodule MoodleNet.Mixfile do
       {:gettext, "~> 0.17"}, # localisation
       {:recase, "~> 0.2"},   # camel/snake/kebabification
       {:furlex, git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
+      {:http_signatures,
+      git: "https://git.pleroma.social/pleroma/http_signatures.git",
+      ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
+      {:pleroma_job_queue, "~> 0.3"}, # job queue
+      {:timex, "~> 3.5"}, # timedate headers
       # dev/test only
       {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:tesla, "~> 1.2"},
-      {:http_signatures,
-       git: "https://git.pleroma.social/pleroma/http_signatures.git",
-       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
 
