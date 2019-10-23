@@ -22,12 +22,12 @@ config :moodle_net,
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url) # env variable for URL of frontend, otherwise assume proxied behind same host as backend
 
 mail_domain = System.get_env("MAIL_DOMAIN")
-mail_key: System.get_env("MAIL_KEY")
+mail_key = System.get_env("MAIL_KEY")
 
 if not is_nil(mail_key) do
   config :moodle_net, MoodleNet.Mailer,
-  domain: mail_domain,
-  api_key: mail_key
+    domain: mail_domain,
+    api_key: mail_key
 end
 
 sentry_dsn = System.get_env("SENTRY_DSN")
