@@ -7,25 +7,11 @@ defmodule ActivityPub.ActivityPubControllerTest do
   use MoodleNetWeb.ConnCase
 
   import MoodleNet.Test.Faking
-  @public_uri "https://www.w3.org/ns/activitystreams#Public"
+  import ActivityPub.Factory
 
   describe "object" do
     test "works for activities" do
-      actor = fake_ap_actor!()
-      context = "blabla"
-      object = %{"content" => "content", "type" => "Note"}
-      to = ["https://testing.kawen.dance/users/karen"]
-      additional = %{"cc" => [@public_uri]}
-
-      params = %{
-        actor: actor,
-        context: context,
-        object: object,
-        to: to,
-        additional: additional
-      }
-
-      {:ok, activity} = ActivityPub.create(params)
+      activity = insert(:note_activity)
 
       uuid =
         String.split(activity.data["id"], "/")
@@ -42,24 +28,10 @@ defmodule ActivityPub.ActivityPubControllerTest do
     end
 
     test "works for objects" do
-      actor = fake_ap_actor!()
-      context = "blabla"
-      object = %{"content" => "content", "type" => "Note"}
-      to = ["https://testing.kawen.dance/users/karen"]
-      additional = %{"cc" => [@public_uri]}
-
-      params = %{
-        actor: actor,
-        context: context,
-        object: object,
-        to: to,
-        additional: additional
-      }
-
-      {:ok, activity} = ActivityPub.create(params)
+      object = insert(:note)
 
       uuid =
-        String.split(activity.data["object"], "/")
+        String.split(object.data["id"], "/")
         |> List.last()
 
       resp =
