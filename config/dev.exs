@@ -77,8 +77,8 @@ config :moodle_net, :base_url,
   System.get_env("BASE_URL", "http://localhost:4000")
 
 config :moodle_net, :ap_base_path,
-  System.get_env("AP_BASE_PATH", "/pub"),
-  
+  System.get_env("AP_BASE_PATH", "/pub")
+
 config :moodle_net, :frontend_base_url,
   System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
 

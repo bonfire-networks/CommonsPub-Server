@@ -5,14 +5,14 @@
 
 defmodule ActivityPubTest do
   use MoodleNet.DataCase
-  import MoodleNet.Test.Faking
+  import ActivityPub.Factory
   alias ActivityPub.Object
 
   doctest ActivityPub
 
   describe "create" do
     test "crates a create activity" do
-      actor = fake_ap_actor!()
+      actor = insert(:actor)
       context = "blabla"
       object = %{"content" => "content", "type" => "Note"}
       to = ["https://testing.kawen.dance/users/karen"]
@@ -33,8 +33,8 @@ defmodule ActivityPubTest do
 
   describe "following / unfollowing" do
     test "creates a follow activity" do
-      follower = fake_ap_actor!()
-      followed = fake_ap_actor!()
+      follower = insert(:actor)
+      followed = insert(:actor)
 
       {:ok, activity} = ActivityPub.follow(follower, followed)
       assert activity.data["type"] == "Follow"
@@ -44,8 +44,8 @@ defmodule ActivityPubTest do
   end
 
   test "creates an undo activity for the last follow" do
-    follower = fake_ap_actor!()
-    followed = fake_ap_actor!()
+    follower = insert(:actor)
+    followed = insert(:actor)
 
     {:ok, follow_activity} = ActivityPub.follow(follower, followed)
     {:ok, activity} = ActivityPub.unfollow(follower, followed)
@@ -62,8 +62,8 @@ defmodule ActivityPubTest do
 
   describe "blocking / unblocking" do
     test "creates a block activity" do
-      blocker = fake_ap_actor!()
-      blocked = fake_ap_actor!()
+      blocker = insert(:actor)
+      blocked = insert(:actor)
 
       {:ok, activity} = ActivityPub.block(blocker, blocked)
 
@@ -73,8 +73,8 @@ defmodule ActivityPubTest do
     end
 
     test "creates an undo activity for the last block" do
-      blocker = fake_ap_actor!()
-      blocked = fake_ap_actor!()
+      blocker = insert(:actor)
+      blocked = insert(:actor)
 
       {:ok, block_activity} = ActivityPub.block(blocker, blocked)
       {:ok, activity} = ActivityPub.unblock(blocker, blocked)
@@ -92,7 +92,7 @@ defmodule ActivityPubTest do
 
   describe "deletion" do
     test "it creates a delete activity and deletes the original object" do
-      actor = fake_ap_actor!()
+      actor = insert(:actor)
       context = "blabla"
       object = %{"content" => "content", "type" => "Note", "actor" => actor.data["id"]}
       to = ["https://testing.kawen.dance/users/karen"]

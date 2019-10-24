@@ -7,6 +7,7 @@ defmodule ActivityPub.WebFingerTest do
   use MoodleNet.DataCase
 
   alias ActivityPub.WebFinger
+  alias ActivityPub.Actor
   alias MoodleNet.Test.Faking
 
   import Tesla.Mock
@@ -27,9 +28,10 @@ defmodule ActivityPub.WebFingerTest do
     end
 
     test "works for ap_ids" do
-      actor = Faking.fake_ap_actor!()
+      actor = Faking.fake_actor!()
+      {:ok, ap_actor} = Actor.get_by_username(actor.preferred_username)
 
-      {:ok, result} = WebFinger.webfinger(actor.data["id"])
+      {:ok, result} = WebFinger.webfinger(ap_actor.data["id"])
       assert is_map(result)
     end
   end
