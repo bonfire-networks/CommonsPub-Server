@@ -93,6 +93,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       # dev/test only
       {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
+      {:ex_machina, "~> 2.3", only: :test}, # fake data generation for AP
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
