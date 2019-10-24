@@ -128,4 +128,17 @@ defmodule ActivityPub.Factory do
       unreachable_since: nil
     }
   end
+
+  def tombstone_factory do
+    data = %{
+      "type" => "Tombstone",
+      "id" => ActivityPub.Utils.generate_object_id(),
+      "formerType" => "Note",
+      "deleted" => DateTime.utc_now() |> DateTime.to_iso8601()
+    }
+
+    %ActivityPub.Object{
+      data: data
+    }
+  end
 end
