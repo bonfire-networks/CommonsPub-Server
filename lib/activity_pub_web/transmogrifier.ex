@@ -152,7 +152,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     object_id = Utils.get_ap_id(object_id)
 
     with true <- can_delete_object?(object_id),
-         {:ok, object} <- Object.get_by_ap_id(object_id),
+         {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
       {:ok, activity}
     else
@@ -198,6 +198,10 @@ defmodule ActivityPubWeb.Transmogrifier do
 
     {:ok, activity, _object} = Utils.insert_full_object(data)
     handle_object(activity)
+  end
+
+  defp get_obj_helper(id) do
+    if object = Object.normalize(id, true), do: {:ok, object}, else: nil
   end
 
   @doc """
