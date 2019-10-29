@@ -13,37 +13,65 @@ defmodule ActivityPubWeb.ActivityPubController do
 
   use ActivityPubWeb, :controller
 
-  import ActivityPub.Guards
+  require Logger
 
-  alias ActivityPub.SQL.Query
+  alias ActivityPub.Actor
+  alias ActivityPub.Fetcher
+  alias ActivityPub.Object
+  alias ActivityPubWeb.ActorView
+  alias ActivityPubWeb.Federator
+  alias ActivityPubWeb.ObjectView
 
-  def show(conn, %{"id" => id}) do
-    id = String.to_integer(id)
-
-    case ActivityPub.get_by_local_id(id) do
-      entity when is_local(entity) ->
-        entity =
-          entity
-          |> Query.preload_aspect(:all)
-          |> Query.preload_assoc(:all)
-
-        render(conn, "show.json", entity: entity)
-
-      _ ->
-        send_resp(conn, :not_found, "")
+  def object(conn, %{"uuid" => uuid}) do
+    with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
+         %Object{} = object <- Object.get_by_ap_id(ap_id),
+         true <- object.public do
+      conn
+      |> put_resp_header("content-type", "application/activity+json")
+      |> json(ObjectView.render("object.json", %{object: object}))
+    else
+      _->
+        {:error, :not_found}
     end
   end
 
-  def collection_page(conn, %{"id" => id}) do
-    id = String.to_integer(id)
-
-    case ActivityPub.get_by_local_id(id) do
-      collection when is_local(collection) and has_type(collection, "Collection") ->
-        {:ok, entity} = ActivityPub.CollectionPage.new(collection, conn.query_params)
-        render(conn, "show.json", entity: entity)
-
-      _ ->
-        send_resp(conn, :not_found, "")
+  def actor(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_by_username(username) do
+      conn
+      |> put_resp_header("content-type", "application/activity+json")
+      |> json(ActorView.render("actor.json", %{actor: actor}))
+    else
+      {:error, _e} -> {:error, :not_found}
     end
+  end
+
+  def inbox(%{assigns: %{valid_signature: true}} = conn, params) do
+    Federator.incoming_ap_doc(params)
+    json(conn, "ok")
+  end
+
+  # only accept relayed Creates
+  def inbox(conn, %{"type" => "Create"} = params) do
+    Logger.info(
+      "Signature missing or not from author, relayed Create message, fetching object from source"
+    )
+
+    Fetcher.fetch_object_from_id(params["object"]["id"])
+
+    json(conn, "ok")
+  end
+
+  def inbox(conn, params) do
+    headers = Enum.into(conn.req_headers, %{})
+
+    if String.contains?(headers["signature"], params["actor"]) do
+      Logger.info(
+        "Signature validation error for: #{params["actor"]}, make sure you are forwarding the HTTP Host header!"
+      )
+
+      Logger.info(inspect(conn.req_headers))
+    end
+
+    json(conn, dgettext("errors", "error"))
   end
 end

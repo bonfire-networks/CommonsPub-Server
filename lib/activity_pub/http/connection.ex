@@ -20,10 +20,14 @@ defmodule ActivityPub.HTTP.Connection do
     Tesla.client([], {@adapter, hackney_options(opts)})
   end
 
-  defp hackney_options(opts) do
+  def hackney_options(opts) do
     options = Keyword.get(opts, :adapter, [])
+    adapter_options = Application.get_env(:moodle_net, :http)[:adapter] || []
+    proxy_url = Application.get_env(:moodle_net, :http)[:proxy_url]
 
     @hackney_options
+    |> Keyword.merge(adapter_options)
     |> Keyword.merge(options)
+    |> Keyword.merge(proxy: proxy_url)
   end
 end

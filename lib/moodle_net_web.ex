@@ -71,6 +71,6 @@ defmodule MoodleNetWeb do
   end
 
   def base_url do
-    MoodleNetWeb.Endpoint.url()
+    Application.get_env(:moodle_net, :base_url) || MoodleNetWeb.Endpoint.url()
   end
 end

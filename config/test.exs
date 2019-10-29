@@ -18,10 +18,10 @@ config :logger, level: :warn
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("DATABASE_USER") || "postgres",
-  password: System.get_env("DATABASE_PASS") || "postgres",
+  username: System.get_env("DATABASE_USER", "postgres"),
+  password: System.get_env("DATABASE_PASS", "postgres"),
   database: "moodle_net_test",
-  hostname: System.get_env("DATABASE_HOST") || "localhost",
+  hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool: Ecto.Adapters.SQL.Sandbox
 
 # Reduce cost of hashing for testing
@@ -35,11 +35,13 @@ config :phoenix_integration,
 config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.TestAdapter
 
-config :moodle_net, :ap_base_url, "http://localhost:4001"
-config :moodle_net, :frontend_base_url,
-  (System.get_env("FRONTEND_BASE_URL") || "http://localhost:3000/")
+config :moodle_net,
+  base_url: "http://localhost:4001",
+  ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
+  frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
 
 config :tesla, adapter: Tesla.Mock
+
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
 config :moodle_net, MoodleNet.OAuth,
@@ -48,3 +50,6 @@ config :moodle_net, MoodleNet.OAuth,
   redirect_uri: "https://moodlenet.dev.local/",
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
+
+# Do not federate activities during tests
+config :moodle_net, :instance, federating: false

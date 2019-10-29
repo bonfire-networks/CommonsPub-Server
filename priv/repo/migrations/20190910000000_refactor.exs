@@ -35,7 +35,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     # languages
-    # only updated during migrations!    
+    # only updated during migrations!
     create table(:mn_language, primary_key: false) do
       add :id, :string, size: 2, null: false, primary_key: true
       add :english_name, :text, null: false
@@ -77,9 +77,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create index(:mn_meta_pointer, :table_id)
-    
+
     ### activitypub system
-    
+
     # an activitypub-compatible peer instance
     create table(:mn_peer, primary_key: false) do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
@@ -91,7 +91,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create unique_index(:mn_peer, :ap_url_base, where: "deleted_at is null")
 
     ### actor system
-    
+
     # an actor is either a user or a group actor. it has several
     # defining qualities:
     #  * it authors and owns content
@@ -103,7 +103,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :preferred_username, :text
       add :published_at, :timestamptz # null just in case, expected to be filled
       add :deleted_at, :timestamptz
-      add :signing_key, :string
+      add :signing_key, :text # string type too short for the data stored
       timestamps(type: :utc_datetime_usec)
     end
 
@@ -152,7 +152,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create unique_index(:mn_user, :email, where: "deleted_at is null")
-    
+
     # a storage for time-limited email confirmation tokens
     create table(:mn_user_email_confirm_token) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
@@ -304,7 +304,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     # desc: one thing missing is silence/block/ban of user/group/instance,
     #       by users, community moderators, or admins
-    
+
     create table(:mn_block) do
       add :blocker_id, references("mn_actor", on_delete: :delete_all), null: false
       add :blocked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
@@ -332,7 +332,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_tag, :tagged_id, where: "deleted_at is null")
     create unique_index(:mn_tag, [:tagger_id, :tagged_id], where: "deleted_at is null")
 
-    # 
+    #
 
     create table(:mn_worker_task) do
       add :deleted_at, :timestamptz

@@ -102,7 +102,7 @@ defmodule MoodleNet.Test.Fake do
   @doc "Picks an image url"
   def image(), do: Faker.Avatar.image_url()
   @doc "Picks a fake signing key"
-  def signing_key(), do: base64()
+  def signing_key(), do: nil
   @doc "A random license for content"
   def license(), do: Faker.Util.pick(["GPLv3", "BSDv3", "AGPL", "Creative Commons"])
   @doc "A list of random education uses"

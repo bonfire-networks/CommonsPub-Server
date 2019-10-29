@@ -98,6 +98,16 @@ defmodule MoodleNetWeb.Router do
     get("/:sig/:url/*rest", MediaProxyController, :remote)
   end
 
+  pipeline :well_known do
+    plug(:accepts, ["json", "jrd+json"])
+  end
+
+  scope "/.well-known", ActivityPubWeb do
+    pipe_through(:well_known)
+
+    get "/webfinger", WebFingerController, :webfinger
+  end
+
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
@@ -106,12 +116,31 @@ defmodule MoodleNetWeb.Router do
     plug(:accepts, ["activity+json", "json"])
   end
 
-  scope "/", ActivityPubWeb do
+  pipeline :signed_activity_pub do
+    plug(:accepts, ["activity+json", "json"])
+    plug(ActivityPubWeb.Plugs.HTTPSignaturePlug)
+  end
+
+  ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+  scope ap_base_path, ActivityPubWeb do
     pipe_through(:activity_pub)
 
     get "/:id", ActivityPubController, :show
     get "/:id/page", ActivityPubController, :collection_page
-    post "/shared_inbox", ActivityPubController, :shared_inbox, as: :shared_inbox
+    get "/objects/:uuid", ActivityPubController, :object
+    get "/actors/:username", ActivityPubController, :actor
+    # These don't have to be implemented right now.
+    get "/actors/:username/followers", ActivityPubController, :noop
+    get "/actors/:username/following", ActivityPubController, :noop
+    get "/actors/:username/outbox", ActivityPubController, :noop
+  end
+
+  scope ap_base_path, ActivityPubWeb do
+    pipe_through(:signed_activity_pub)
+
+    post "/users/:username/inbox", ActivityPubController, :inbox
+    post "/shared_inbox", ActivityPubController, :inbox
   end
 
   scope "/" do

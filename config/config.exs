@@ -27,17 +27,17 @@ config :logger, :console,
 
 config :mime, :types, %{
   "application/activity+json" => ["json"],
-  "application/ld+json" => ["json"]
+  "application/ld+json" => ["json"],
+  "application/jrd+json" => ["json"]
 }
 
 config :argon2_elixir,
   argon2_type: 2 # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
 
-config :moodle_net, MoodleNet.Mail.MailService,
-  adapter: Bamboo.MailgunAdapter, # replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
-  api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
-  domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
-  open_email_in_browser_url: "http://localhost:4000/sent_emails" # optional
+config :moodle_net, MoodleNet.Mailer,
+  adapter: Bamboo.MailgunAdapter # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
+  # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
+  # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
 
 config :moodle_net, MoodleNet.MediaProxy,
   impl: MoodleNet.DirectHTTPMediaProxy,
@@ -51,13 +51,26 @@ version =
   end
 
 # Configures http settings, upstream proxy etc.
-config :moodle_net, :http, proxy_url: nil
+config :moodle_net, :http,
+  proxy_url: nil,
+  send_user_agent: true,
+  adapter: [
+    ssl_options: [
+      # Workaround for remote server certificate chain issues
+      partial_chain: &:hackney_connect.partial_chain/1,
+      # We don't support TLS v1.3 yet
+      versions: [:tlsv1, :"tlsv1.1", :"tlsv1.2"]
+    ]
+  ]
 
 config :moodle_net, :instance,
   version: version,
   name: "MoodleNet",
   email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated server for educators"
+  description: "An instance of MoodleNet, a federated server for educators",
+  federation_publisher_modules: [ActivityPubWeb.Publisher],
+  federation_reachability_timeout_days: 7,
+  federating: true
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
@@ -68,6 +81,14 @@ config :furlex, Furlex.Oembed,
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
 config :tesla, adapter: Tesla.Adapter.Hackney
+
+config :http_signatures, adapter: ActivityPub.Signature
+
+config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
+
+config :pleroma_job_queue, :queues,
+federator_incoming: 50,
+federator_outgoing: 50
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

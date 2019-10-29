@@ -13,6 +13,8 @@ defmodule ActivityPub.Fetcher do
   alias ActivityPubWeb.Transmogrifier
   require Logger
 
+  @create_object_types ["Article", "Note", "Video", "Page", "Question", "Answer"]
+
   @doc """
   Checks if an object exists in the database and fetches it if it doesn't.
   """
@@ -22,7 +24,7 @@ defmodule ActivityPub.Fetcher do
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
            {:ok, data} <- contain_origin(data),
-           {:ok, object} <- Transmogrifier.handle_incoming(data),
+           {:ok, object} <- insert_object(data),
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
       else
@@ -58,9 +60,18 @@ defmodule ActivityPub.Fetcher do
     end
   end
 
-  @actor_types ["Person", ["Group", "MoodleNet:Community"], ["Group", "MoodleNet:Collection"]]
+  @skipped_types [
+    "Person",
+    ["Group", "MoodleNet:Community"],
+    ["Group", "MoodleNet:Collection"],
+    ["Page", "MoodleNet:EducationalResource"],
+    "Collection",
+    "OrderedCollection",
+    "CollectionPage",
+    "OrderedCollectionPage"
+  ]
   defp contain_origin(%{"id" => id} = data) do
-    if data["type"] in @actor_types do
+    if data["type"] in @skipped_types do
       {:ok, data}
     else
       actor = get_actor(data)
@@ -75,9 +86,26 @@ defmodule ActivityPub.Fetcher do
     end
   end
 
-  defp get_actor(%{"actor" => nil, "attributedTo" => actor} = _data), do: actor
+  # Wrapping object in a create activity to easily pass it to the MN database.
+  defp insert_object(%{"type" => type} = data) when type in @create_object_types do
+    with params <- %{
+           "type" => "Create",
+           "to" => data["to"],
+           "cc" => data["cc"],
+           "actor" => data["actor"],
+           "object" => data
+         },
+         {:ok, activity} <- Transmogrifier.handle_incoming(params),
+         object <- activity.object do
+      {:ok, object}
+    end
+  end
 
-  defp get_actor(%{"actor" => actor} = _data), do: actor
+  defp insert_object(data), do: Transmogrifier.handle_object(data)
+
+  def get_actor(%{"actor" => nil, "attributedTo" => actor} = _data), do: actor
+
+  def get_actor(%{"actor" => actor} = _data), do: actor
 
   defp check_if_public(public) when public == true, do: {:ok}
 
