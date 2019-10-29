@@ -18,6 +18,7 @@ defmodule MoodleNet.Users.User do
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
     field(:confirmed_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
     field(:actor, :any, virtual: true) # todo: can we somehow squeeze this into ecto's relations?
@@ -36,12 +37,7 @@ defmodule MoodleNet.Users.User do
     %User{id: id}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)
-    |> Changeset.validate_format(:email, @email_regexp)
-    |> Changeset.unique_constraint(:email)
-    |> Changeset.validate_length(:password, min: 6)
-    |> meta_pointer_constraint()
-    |> hash_password()
-    |> lower_case_email()
+    |> common_changeset()
   end
 
   @doc "Create a changeset for confirming an email"
@@ -54,6 +50,28 @@ defmodule MoodleNet.Users.User do
     Changeset.change(user, confirmed_at: nil)
   end
 
+  @update_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+
+  @doc "Update the attributes for a user"
+  def update_changeset(%User{} = user, attrs) do
+    user
+    |> Changeset.cast(attrs, @update_cast_attrs)
+    |> common_changeset()
+  end
+
+  def soft_delete_changeset(%User{} = user),
+    do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
+
+  defp common_changeset(changeset) do
+    changeset
+    |> Changeset.validate_format(:email, @email_regexp)
+    |> Changeset.unique_constraint(:email)
+    |> Changeset.validate_length(:password, min: 6)
+    |> meta_pointer_constraint()
+    |> hash_password()
+    |> lower_case_email()
+  end
+
   # internals
 
   defp lower_case_email(%Changeset{valid?: false} = ch), do: ch
@@ -64,7 +82,7 @@ defmodule MoodleNet.Users.User do
   end
 
   defp hash_password(%Changeset{valid?: true, changes: %{password: pass}} = ch),
-    do: Changeset.change(ch, password_hash: Comeonin.Pbkdf2.hashpwsalt(pass))
+    do: Changeset.change(ch, password_hash: Argon2.hash_pwd_salt(pass))
 
   defp hash_password(changeset), do: changeset
 end

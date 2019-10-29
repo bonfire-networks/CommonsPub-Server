@@ -21,14 +21,17 @@ defmodule MoodleNet.OAuth.Token do
     timestamps()
   end
 
-  def create_changeset(user_id, auth_id, validity \\ @default_validity) do
-    Changeset.change(%Token{},
-      user_id: user_id,
-      auth_id: auth_id,
-      refresh_token: UUID.generate(),
-      expires_at: expires_at(validity)
-    )
-    |> Changeset.validate_required([:user_id, :auth_id])
+  def create_changeset(%User{} = user, %Authorization{} = auth, validity \\ @default_validity) do
+    user_only_changeset(user, validity)
+    |> Changeset.put_assoc(:auth, auth)
+  end
+
+  def user_only_changeset(%User{} = user, validity \\ @default_validity) do
+    %Token{}
+    |> Changeset.cast(%{}, [])
+    |> Changeset.put_assoc(:user, user)
+    |> Changeset.put_change(:refresh_token, UUID.generate())
+    |> Changeset.put_change(:expires_at, expires_at(validity))
   end
 
   defp expires_at(validity),

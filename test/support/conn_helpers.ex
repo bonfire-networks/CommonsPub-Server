@@ -20,13 +20,16 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def with_accept_json(conn),
     do: Conn.put_req_header(conn, "accept", "application/json")
 
+  def with_request_json(conn),
+    do: Conn.put_resp_content_type(conn, "application/json")
+
   def with_accept_html(conn),
     do: Conn.put_req_header(conn, "accept", "text/html")
 
   def with_authorization(conn, %Token{id: id}),
     do: Conn.put_req_header(conn, "authorization", "Bearer #{id}")
 
-  def json_conn(), do: with_accept_json(conn())
+  def json_conn(), do: conn() |> with_accept_json() |> with_request_json()
 
   def html_conn(), do: with_accept_html(conn())
 

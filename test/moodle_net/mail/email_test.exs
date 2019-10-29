@@ -15,7 +15,7 @@ defmodule MoodleNet.Mail.EmailTest do
 
   test "welcome/2", %{user: user} do
     token = "this_is_the_token"
-    email = Email.welcome(user, token)
+    email = Email.welcome(user, %{id: token})
 
     assert email.to == user.email
     assert email.html_body =~ token
@@ -24,7 +24,7 @@ defmodule MoodleNet.Mail.EmailTest do
 
   test "reset_password_request/2", %{user: user} do
     token = "this_is_the_token"
-    email = Email.reset_password_request(user, token)
+    email = Email.reset_password_request(user, %{id: token})
 
     assert email.to == user.email
     assert email.html_body =~ token

@@ -29,6 +29,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve(&UsersResolver.check_username_available/2)
     end
 
+    # TODO
+    field :user_inbox, type: :boolean do
+      arg(:limit, :integer)
+      arg(:before, :integer)
+      arg(:after, :integer)
+      resolve(&UsersResolver.inbox/2)
+    end
   end
 
   object :users_mutations do
@@ -126,14 +133,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve(with_connection(:user_comment))
     end
 
-    field :inbox, :user_inbox_connection do
-      arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
-      resolve(with_connection(:user_inbox))
-    end
-
-    field :outbox, :user_outbox_connection do
+    field :wall, :user_outbox_connection do
       arg(:limit, :integer)
       arg(:before, :integer)
       arg(:after, :integer)

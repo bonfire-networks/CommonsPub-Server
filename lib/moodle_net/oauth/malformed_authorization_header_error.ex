@@ -12,5 +12,4 @@ defmodule MoodleNet.OAuth.MalformedAuthorizationHeaderError do
   @spec new(term) :: t
   @doc "Create a new MalformedAuthorizationHeaderError with the given authorization header"
   def new(authorization), do: %__MODULE__{authorization: authorization}
-  
 end

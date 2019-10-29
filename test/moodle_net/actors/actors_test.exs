@@ -4,6 +4,7 @@
 defmodule MoodleNet.ActorsTest do
   use MoodleNet.DataCase, async: true
 
+  import MoodleNet.Test.Faking
   alias MoodleNet.{Actors, Repo}
   alias MoodleNet.Actors.ActorRevision
   alias MoodleNet.Common.Revision
@@ -71,6 +72,15 @@ defmodule MoodleNet.ActorsTest do
         assert_revision_equal(latest_revision, updated_attrs)
         assert_revision_equal(oldest_revision, original_attrs)
       end)
+    end
+  end
+
+  describe "soft_delete" do
+    test "updates the deletion timestamp" do
+      actor = fake_actor!()
+      refute actor.deleted_at
+      assert {:ok, actor} = Actors.soft_delete(actor)
+      assert actor.deleted_at
     end
   end
 end

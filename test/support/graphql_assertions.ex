@@ -21,11 +21,18 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_not_permitted(errs, path) do
     assert [err] = errs
     assert %{"code" => code, "message" => message} = err
-    assert %{"path" => path2, "locations" => [loc]} = err
+    assert %{"path" => ^path, "locations" => [loc]} = err
     assert code == "unauthorized"
     assert message == "You do not have permission to see this."
-    assert path == path2
     assert_location(loc)
   end
 
+  def assert_not_found(errs, path) do
+    assert [err] = errs
+    assert %{"code" => code, "message" => message} = err
+    assert %{"path" => ^path, "locations" => [loc]} = err
+    assert code == "not_found"
+    assert message == "not found"
+    assert_location(loc)
+  end
 end

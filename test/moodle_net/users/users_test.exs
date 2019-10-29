@@ -152,6 +152,39 @@ defmodule MoodleNet.UsersTest do
     end
   end
 
+  describe "request_password_reset" do
+    test "creates a reset password token for a valid user" do
+      user = fake_user!()
+      assert {:ok, token} = Users.request_password_reset(user)
+      assert token.user_id == user.id
+      assert token.expires_at
+      refute token.reset_at
+    end
+  end
+
+  describe "claim_password_reset" do
+    test "claims a reset token and changes the password" do
+      user = fake_user!()
+      assert {:ok, token} = Users.request_password_reset(user)
+      refute token.reset_at
+      assert {:ok, token} = Users.claim_password_reset(token.id, "password")
+      assert token.reset_at
+
+      assert {:ok, updated_user} = Users.fetch(user.id)
+      assert user.password_hash != updated_user.password_hash
+    end
+  end
+
+  describe "soft_delete/1" do
+    test "updates the deletion timestamp" do
+      user = fake_user!()
+      refute user.deleted_at
+      assert {:ok, user} = Users.soft_delete(user)
+      assert user.deleted_at
+      assert user.actor.deleted_at
+    end
+  end
+
   # describe "user flags" do
   #   test "works" do
   #     actor = Factory.actor()

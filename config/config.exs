@@ -31,6 +31,9 @@ config :mime, :types, %{
   "application/jrd+json" => ["json"]
 }
 
+config :argon2_elixir,
+  argon2_type: 2 # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
+
 config :moodle_net, MoodleNet.Mailer,
   adapter: Bamboo.MailgunAdapter # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable

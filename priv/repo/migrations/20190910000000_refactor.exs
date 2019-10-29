@@ -163,6 +163,15 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_user_email_confirm_token, :user_id, where: "confirmed_at is null")
 
+    create table(:mn_user_reset_password_token) do
+      add :user_id, references("mn_user", on_delete: :delete_all), null: false
+      add :expires_at, :timestamptz, null: false
+      add :reset_at, :timestamptz
+      timestamps(type: :utc_datetime_usec)
+    end
+
+    create index(:mn_user_reset_password_token, :user_id, where: "reset_at is null")
+    
     # a community is a group actor that is home to collections,
     # threads and members
     create table(:mn_community, primary_key: false) do
@@ -382,7 +391,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create table(:oauth_tokens) do
-      add :auth_id, references("oauth_authorizations", on_delete: :delete_all), null: false
+      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
       add :refresh_token, :uuid, null: false, default: fragment("uuid_generate_v4()")
       add :expires_at, :timestamptz, null: false

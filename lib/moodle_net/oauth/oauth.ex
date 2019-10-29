@@ -15,6 +15,7 @@ defmodule MoodleNet.OAuth do
     TokenExpiredError,
     TokenNotFoundError,
     UserEmailNotConfirmedError,
+    InvalidCredentialError,
   }
   alias MoodleNet.Users.User
   alias Ecto.{Changeset, UUID}
@@ -23,6 +24,9 @@ defmodule MoodleNet.OAuth do
 
   def fetch_auth(id), do: Repo.fetch(Authorization, id)
   def fetch_auth_by(params), do: Repo.fetch_by(Authorization, params)
+
+  def fetch_session_token(%User{id: user_id}),
+    do: Repo.fetch_by(Token, user_id: user_id)
 
   @doc """
   Fetches a token along with the user it is linked to.
@@ -39,7 +43,6 @@ defmodule MoodleNet.OAuth do
 
   defp fetch_token_and_user_query(token) do
     import Ecto.Query, only: [from: 2]
-    tok = UUID.cast(token)
     from t in Token,
       inner_join: a in assoc(t, :auth),
       inner_join: u in assoc(a, :user),
@@ -55,13 +58,28 @@ defmodule MoodleNet.OAuth do
   def create_auth(%User{id: id}=user),
     do: Repo.insert(Authorization.create_changeset(id))
 
+  @doc """
+  Creates a token for a user, without requiring an Authorization
+
+  Requires a correct password for the token to be created.
+  """
+  @spec create_token(User.t(), binary) :: {:ok, Authorization.t()} | {:error, atom | Changeset.t()}
+  def create_token(%User{id: id} = user, password) do
+    if Argon2.verify_pass(password, user.password_hash) do
+      Repo.insert(Token.user_only_changeset(user))
+    else
+      {:error, InvalidCredentialError.new()}
+    end
+  end
+
   @doc "Turns an authorization into a token if it hasn't expired or been claimed"
   def claim_token(auth, now \\ DateTime.utc_now())
   def claim_token(%Authorization{}=auth, %DateTime{}=now) do
     Repo.transact_with fn ->
       with :ok <- ensure_valid(auth, now),
            {:ok, auth} <- Repo.update(Authorization.claim_changeset(auth)) do
-        Repo.insert(Token.create_changeset(auth.user_id, auth.id))
+        auth = Repo.preload(auth, :user)
+        Repo.insert(Token.create_changeset(auth.user, auth))
       end
     end
   end
