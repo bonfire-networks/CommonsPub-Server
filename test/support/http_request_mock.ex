@@ -89,4 +89,11 @@ defmodule HttpRequestMock do
       body: File.read!("test/fixtures/mastodon_webfinger.json")
     }}
   end
+
+  def get(url, query, body, headers) do
+    {:error,
+     "Not implemented the mock response for get #{inspect(url)}, #{query}, #{inspect(body)}, #{
+       inspect(headers)
+     }"}
+  end
 end
