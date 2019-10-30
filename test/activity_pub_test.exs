@@ -8,6 +8,7 @@ defmodule ActivityPubTest do
   import ActivityPub.Factory
   alias ActivityPub.Actor
   alias ActivityPub.Object
+  alias ActivityPub.Utils
   alias MoodleNet.Test.Faking
 
   doctest ActivityPub
@@ -204,5 +205,36 @@ defmodule ActivityPubTest do
 
       assert Object.get_by_id(announce_activity.id) == nil
     end
+  end
+
+  test "it can create a Flag activity" do
+    reporter = insert(:actor)
+    target_account = insert(:actor)
+    note_activity = insert(:note_activity, %{actor: target_account})
+    context = Utils.generate_context_id()
+    content = "foobar"
+
+    reporter_ap_id = reporter.data["id"]
+    target_ap_id = target_account.data["id"]
+    activity_ap_id = note_activity.data["id"]
+
+    assert {:ok, activity} =
+             ActivityPub.flag(%{
+               actor: reporter,
+               context: context,
+               account: target_account,
+               statuses: [note_activity],
+               content: content
+             })
+
+    assert %Object{
+             data: %{
+               "actor" => ^reporter_ap_id,
+               "type" => "Flag",
+               "content" => ^content,
+               "context" => ^context,
+               "object" => [^target_ap_id, ^activity_ap_id]
+             }
+           } = activity
   end
 end

@@ -336,6 +336,28 @@ defmodule ActivityPub.Utils do
     |> Map.merge(additional)
   end
 
+  #### Flag-related helpers
+  def make_flag_data(params, additional) do
+    status_ap_ids =
+      Enum.map(params.statuses || [], fn
+        %Object{} = act -> act.data["id"]
+        act when is_map(act) -> act["id"]
+        act when is_binary(act) -> act
+      end)
+
+    object = [params.account.data["id"]] ++ status_ap_ids
+
+    %{
+      "type" => "Flag",
+      "actor" => params.actor.data["id"],
+      "content" => params.content,
+      "object" => object,
+      "context" => params.context,
+      "state" => "open"
+    }
+    |> Map.merge(additional)
+  end
+
   @doc """
   Checks if an actor struct has a non-nil keys field and generates a PEM if it doesn't.
   """

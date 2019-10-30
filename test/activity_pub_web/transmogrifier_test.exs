@@ -203,5 +203,29 @@ defmodule ActivityPubWeb.TransmogrifierTest do
       assert object_data["id"] ==
                "http://mastodon.example.org/users/admin/statuses/99542391527669785/activity"
     end
+
+    test "it accepts Flag activities" do
+      actor = insert(:actor)
+      other_actor = insert(:actor)
+
+      activity = insert(:note_activity, %{actor: actor})
+      object = Object.normalize(activity)
+
+      message = %{
+        "@context" => "https://www.w3.org/ns/activitystreams",
+        "cc" => [actor.data["id"]],
+        "object" => [actor.data["id"], object.data["id"]],
+        "type" => "Flag",
+        "content" => "blocked AND reported!!!",
+        "actor" => other_actor.data["id"]
+      }
+
+      assert {:ok, activity} = Transmogrifier.handle_incoming(message)
+
+      assert activity.data["object"] == [actor.data["id"], object.data["id"]]
+      assert activity.data["content"] == "blocked AND reported!!!"
+      assert activity.data["actor"] == other_actor.data["id"]
+      assert activity.data["cc"] == [actor.data["id"]]
+    end
   end
 end

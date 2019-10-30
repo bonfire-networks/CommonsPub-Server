@@ -262,4 +262,42 @@ defmodule ActivityPub do
       {:ok, activity}
     end
   end
+
+  def flag(
+        %{
+          actor: actor,
+          context: context,
+          account: account,
+          statuses: statuses,
+          content: content
+        } = params
+      ) do
+    # only accept false as false value
+    local = !(params[:local] == false)
+    forward = !(params[:forward] == false)
+
+    additional = params[:additional] || %{}
+
+    params = %{
+      actor: actor,
+      context: context,
+      account: account,
+      statuses: statuses,
+      content: content
+    }
+
+    additional =
+      if forward do
+        Map.merge(additional, %{"to" => [], "cc" => [account.data["id"]]})
+      else
+        Map.merge(additional, %{"to" => [], "cc" => []})
+      end
+
+    with flag_data <- Utils.make_flag_data(params, additional),
+         {:ok, activity} <- insert(flag_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
 end
