@@ -73,6 +73,18 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
+  @doc """
+  Handles incoming data, inserts it into the database and triggers side effects if the data is a supported activity type.
+  """
+  def handle_incoming(data)
+
+  # disallow objects with bogus IDs
+  def handle_incoming(%{"id" => nil}), do: :error
+  def handle_incoming(%{"id" => ""}), do: :error
+  # length of https:// = 8, should validate better, but good enough for now.
+  def handle_incoming(%{"id" => id}) when not (is_binary(id) and length(id) > 8),
+    do: :error
+
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
     {:ok, actor} = Actor.get_by_ap_id(data["actor"])
