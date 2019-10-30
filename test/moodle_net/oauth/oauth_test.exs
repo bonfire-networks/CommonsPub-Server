@@ -15,6 +15,7 @@ defmodule MoodleNet.OAuthTest do
     TokenNotFoundError,
     UserEmailNotConfirmedError,
   }
+  @moduletag :skip
 
   defp strip_user(user), do: Map.drop(user, [:actor, :email_confirm_tokens])
 

@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
 
   @moduletag format: :json
+  @moduletag :skip
 
   @tag :user
   test "community list", %{conn: conn, actor: actor} do

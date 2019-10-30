@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.GraphQL.MiscTest do
   import Tesla.Mock
 
   @moduletag format: :json
+  @moduletag :skip
 
   describe "fetch metadata" do
     @tag :external

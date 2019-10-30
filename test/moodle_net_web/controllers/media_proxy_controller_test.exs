@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.MediaProxyControllerTest do
 
   @base_url MoodleNetWeb.base_url()
   @media_path MoodleNet.MediaProxy.media_path()
+  @moduletag :skip
 
   # test "fetches remote media", %{conn: conn} do
   #   url = URLBuilder.encode("https://via.placeholder.com/150.png")

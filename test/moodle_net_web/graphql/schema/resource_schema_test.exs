@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
   import ActivityPub.Entity, only: [local_id: 1]
 
   @moduletag format: :json
+  @moduletag :skip
 
   @tag :user
   test "create", %{conn: conn, actor: actor} do

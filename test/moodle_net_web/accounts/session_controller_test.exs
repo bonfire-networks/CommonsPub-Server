@@ -5,6 +5,7 @@
 
 defmodule MoodleNetWeb.Accounts.SessionControllerTest do
   use MoodleNetWeb.ConnCase, async: true
+  @moduletag :skip
 
   describe "create" do
     @tag format: :json
