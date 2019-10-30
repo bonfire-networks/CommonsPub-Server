@@ -9,7 +9,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   alias MoodleNetWeb.GraphQL.UsersResolver
-  import_types Absinthe.Plug.Types
 
   object :user_queries do
     @desc "Get my user"
@@ -38,7 +37,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :users_mutations do
+  object :user_mutations do
 
     @desc "Create a user"
     field :create_user, type: :auth_payload do

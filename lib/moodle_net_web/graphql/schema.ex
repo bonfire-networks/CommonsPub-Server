@@ -113,7 +113,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     #   arg :after, :integer
     #   resolve &InstanceSchema.feed/2
     # end
-
   end
 
   mutation do
