@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.PaginationTest do
 
   import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
+  @moduletag :skip
 
   @tag :user
   test "paginates by creation", %{conn: conn, actor: actor} do

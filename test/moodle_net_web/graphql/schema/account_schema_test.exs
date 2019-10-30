@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.AccountTest do
   import ActivityPub.Entity, only: [local_id: 1]
   import MoodleNet.Test.Faking
   @moduletag format: :json
-
+  @moduletag :skip
   alias MoodleNet.Repo
 
   test "confirm email", %{conn: conn} do

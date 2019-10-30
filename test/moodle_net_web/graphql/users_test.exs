@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.UsersTest do
   use MoodleNetWeb.ConnCase, async: true
+  @moduletag :skip
 
   # alias MoodleNet.Whitelists
   # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]

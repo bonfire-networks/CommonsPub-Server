@@ -13,6 +13,8 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
   }
   alias MoodleNetWeb.Plugs.Auth
 
+  @moduletag :skip
+
   defp strip_user(user), do: Map.drop(user, [:actor, :email_confirm_tokens])
 
   test "works with a current user" do

@@ -7,6 +7,7 @@ defmodule MoodleNetTest do
   use MoodleNet.DataCase, async: true
 
   alias ActivityPub.SQL.Query
+  @moduletag :skip
 
   describe "community" do
     test "create" do

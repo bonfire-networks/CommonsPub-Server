@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   import ActivityPub.Entity, only: [local_id: 1]
 
   @moduletag format: :json
+  @moduletag :skip
 
   @tag :user
   test "list", %{conn: conn, actor: actor} do
@@ -776,7 +777,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionTest do
   end
 
   ######
-  
+
   @tag :user
   test "flag and unflag", %{conn: conn, actor: actor} do
     actor_id = local_id(actor)

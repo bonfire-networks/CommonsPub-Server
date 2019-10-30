@@ -5,6 +5,7 @@
 
 defmodule MoodleNetWeb.Accounts.UserControllerTest do
   use MoodleNetWeb.ConnCase
+  @moduletag :skip
 
   describe "create" do
     @tag format: :json

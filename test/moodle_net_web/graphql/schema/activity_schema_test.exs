@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchemaTest do
 
   # import ActivityPub.Entity, only: [local_id: 1]
   @moduletag format: :json
+  @moduletag :skip
 
   @tag :user
   describe "local activity list" do
