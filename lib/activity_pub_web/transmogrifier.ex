@@ -146,6 +146,20 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_incoming(
+        %{"type" => "Announce", "object" => object_id, "actor" => _actor, "id" => id} = data
+      ) do
+    with actor <- Fetcher.get_actor(data),
+         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, object} <- get_obj_helper(object_id),
+         public <- Utils.public?(data),
+         {:ok, activity, _object} <- ActivityPub.announce(actor, object, id, false, public) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = _data
       ) do
     with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
@@ -165,6 +179,24 @@ defmodule ActivityPubWeb.Transmogrifier do
     with true <- can_delete_object?(object_id),
          {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
+        %{
+          "type" => "Undo",
+          "object" => %{"type" => "Announce", "object" => object_id},
+          "actor" => _actor,
+          "id" => id
+        } = data
+      ) do
+    with actor <- Fetcher.get_actor(data),
+         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, object} <- get_obj_helper(object_id),
+         {:ok, activity, _} <- ActivityPub.unannounce(actor, object, id, false) do
       {:ok, activity}
     else
       _e -> :error

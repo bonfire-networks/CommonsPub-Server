@@ -162,4 +162,47 @@ defmodule ActivityPubTest do
       assert Object.get_by_id(like_activity.id) == nil
     end
   end
+
+  describe "announcing an object" do
+    test "adds an announce activity to the db" do
+      note_activity = insert(:note_activity)
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      {:ok, announce_activity, object} = ActivityPub.announce(actor, object)
+
+      assert announce_activity.data["to"] == [
+               actor.data["followers"],
+               note_activity.data["actor"]
+             ]
+
+      assert announce_activity.data["object"] == object.data["id"]
+      assert announce_activity.data["actor"] == actor.data["id"]
+      assert announce_activity.data["context"] == object.data["context"]
+    end
+  end
+
+  describe "unannouncing an object" do
+    test "unannouncing a previously announced object" do
+      note_activity = insert(:note_activity)
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      {:ok, announce_activity, object} = ActivityPub.announce(actor, object)
+
+      {:ok, unannounce_activity, _object} = ActivityPub.unannounce(actor, object)
+
+      assert unannounce_activity.data["to"] == [
+               actor.data["followers"],
+               announce_activity.data["actor"]
+             ]
+
+      assert unannounce_activity.data["type"] == "Undo"
+      assert unannounce_activity.data["object"] == announce_activity.data
+      assert unannounce_activity.data["actor"] == actor.data["id"]
+      assert unannounce_activity.data["context"] == announce_activity.data["context"]
+
+      assert Object.get_by_id(announce_activity.id) == nil
+    end
+  end
 end
