@@ -68,9 +68,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   defp can_delete_object?(ap_id) do
     case Fetcher.fetch_remote_object_from_id(ap_id) do
       {:error, "Object has been deleted"} -> true
-
       %{"type" => "Tombstone"} -> true
-
       _ -> false
     end
   end
