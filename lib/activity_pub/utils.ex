@@ -54,6 +54,77 @@ defmodule ActivityPub.Utils do
     }
   end
 
+  #### Like-related helpers
+  @doc """
+  Returns an existing like if a user already liked an object
+  """
+  def get_existing_like(actor, %{data: %{"id" => id}}) do
+    query =
+      from(
+        object in Object,
+        where: fragment("(?)->>'actor' = ?", object.data, ^actor),
+        # this is to use the index
+        where:
+          fragment(
+            "coalesce((?)->'object'->>'id', (?)->>'object') = ?",
+            object.data,
+            object.data,
+            ^id
+          ),
+        where: fragment("(?)->>'type' = 'Like'", object.data)
+      )
+
+    Repo.one(query)
+  end
+
+  def make_like_data(
+        %{data: %{"id" => ap_id}} = actor,
+        %{data: %{"actor" => object_actor_id, "id" => id}} = object,
+        activity_id
+      ) do
+    {:ok, object_actor} = Actor.get_by_ap_id(object_actor_id)
+
+    to =
+      if public?(object.data) do
+        [actor.data["followers"], object.data["actor"]]
+      else
+        [object.data["actor"]]
+      end
+
+    cc =
+      (object.data["to"] ++ (object.data["cc"] || []))
+      |> List.delete(ap_id)
+      |> List.delete(object_actor.data["followers"])
+
+    data = %{
+      "type" => "Like",
+      "actor" => ap_id,
+      "object" => id,
+      "to" => to,
+      "cc" => cc,
+      "context" => object.data["context"]
+    }
+
+    if activity_id, do: Map.put(data, "id", activity_id), else: data
+  end
+
+  def make_unlike_data(
+        %{data: %{"id" => ap_id}} = actor,
+        %{data: %{"context" => context}} = activity,
+        activity_id
+      ) do
+    data = %{
+      "type" => "Undo",
+      "actor" => ap_id,
+      "object" => activity.data,
+      "to" => [actor.data["followers"], activity.data["actor"]],
+      "cc" => ["https://www.w3.org/ns/activitystreams#Public"],
+      "context" => context
+    }
+
+    if activity_id, do: Map.put(data, "id", activity_id), else: data
+  end
+
   #### Follow-related helpers
   def make_follow_data(
         %{data: %{"id" => follower_id}},

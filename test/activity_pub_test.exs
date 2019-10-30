@@ -6,7 +6,9 @@
 defmodule ActivityPubTest do
   use MoodleNet.DataCase
   import ActivityPub.Factory
+  alias ActivityPub.Actor
   alias ActivityPub.Object
+  alias MoodleNet.Test.Faking
 
   doctest ActivityPub
 
@@ -115,6 +117,49 @@ defmodule ActivityPubTest do
       assert Object.get_by_id(delete.id) != nil
 
       assert Repo.get(Object, object.id).data["type"] == "Tombstone"
+    end
+  end
+
+  describe "like an object" do
+    test "adds a like activity to the db" do
+      actor = Faking.fake_actor!()
+      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      note_activity = insert(:note_activity, %{actor: note_actor})
+      assert object = Object.normalize(note_activity)
+
+      actor = insert(:actor)
+
+      {:ok, like_activity, object} = ActivityPub.like(actor, object)
+
+      assert like_activity.data["actor"] == actor.data["id"]
+      assert like_activity.data["type"] == "Like"
+      assert like_activity.data["object"] == object.data["id"]
+      assert like_activity.data["to"] == [actor.data["followers"], note_activity.data["actor"]]
+      assert like_activity.data["context"] == object.data["context"]
+
+      # Just return the original activity if the user already liked it.
+      {:ok, same_like_activity, _object} = ActivityPub.like(actor, object)
+
+      assert like_activity == same_like_activity
+    end
+  end
+
+  describe "unliking" do
+    test "unliking a previously liked object" do
+      actor = Faking.fake_actor!()
+      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      note_activity = insert(:note_activity, %{actor: note_actor})
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      # Unliking something that hasn't been liked does nothing
+      {:ok, object} = ActivityPub.unlike(actor, object)
+
+      {:ok, like_activity, object} = ActivityPub.like(actor, object)
+
+      {:ok, _, _, _object} = ActivityPub.unlike(actor, object)
+
+      assert Object.get_by_id(like_activity.id) == nil
     end
   end
 end

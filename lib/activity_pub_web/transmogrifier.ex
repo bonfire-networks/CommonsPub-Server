@@ -135,6 +135,19 @@ defmodule ActivityPubWeb.Transmogrifier do
   # TODO: add reject
 
   def handle_incoming(
+        %{"type" => "Like", "object" => object_id, "actor" => _actor, "id" => id} = data
+      ) do
+    with actor <- Fetcher.get_actor(data),
+         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, object} <- get_obj_helper(object_id),
+         {:ok, activity, _object} <- ActivityPub.like(actor, object, id, false) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = _data
       ) do
     with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
@@ -154,6 +167,24 @@ defmodule ActivityPubWeb.Transmogrifier do
     with true <- can_delete_object?(object_id),
          {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
+      {:ok, activity}
+    else
+      _e -> :error
+    end
+  end
+
+  def handle_incoming(
+        %{
+          "type" => "Undo",
+          "object" => %{"type" => "Like", "object" => object_id},
+          "actor" => _actor,
+          "id" => id
+        } = data
+      ) do
+    with actor <- Fetcher.get_actor(data),
+         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, object} <- get_obj_helper(object_id),
+         {:ok, activity, _, _} <- ActivityPub.unlike(actor, object, id, false) do
       {:ok, activity}
     else
       _e -> :error

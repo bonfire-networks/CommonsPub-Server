@@ -150,6 +150,42 @@ defmodule ActivityPub do
     end
   end
 
+  def like(
+        %{data: %{"id" => ap_id}} = actor,
+        %Object{data: %{"id" => _}} = object,
+        activity_id \\ nil,
+        local \\ true
+      ) do
+    with nil <- Utils.get_existing_like(ap_id, object),
+         like_data <- Utils.make_like_data(actor, object, activity_id),
+         {:ok, activity} <- insert(like_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity, object}
+    else
+      %Object{} = activity -> {:ok, activity, object}
+      error -> {:error, error}
+    end
+  end
+
+  def unlike(
+        %{data: %{"id" => ap_id}} = actor,
+        %Object{} = object,
+        activity_id \\ nil,
+        local \\ true
+      ) do
+    with %Object{} = like_activity <- Utils.get_existing_like(ap_id, object),
+         unlike_data <- Utils.make_unlike_data(actor, like_activity, activity_id),
+         {:ok, unlike_activity} <- insert(unlike_data, local),
+         {:ok, _activity} <- Repo.delete(like_activity),
+         :ok <- Utils.maybe_federate(unlike_activity),
+         :ok <- Adapter.maybe_handle_activity(unlike_activity) do
+      {:ok, unlike_activity, like_activity, object}
+    else
+      _e -> {:ok, object}
+    end
+  end
+
   def block(blocker, blocked, activity_id \\ nil, local \\ true) do
     follow_activity = Utils.fetch_latest_follow(blocker, blocked)
     if follow_activity, do: unfollow(blocker, blocked, nil, local)
