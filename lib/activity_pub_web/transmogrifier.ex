@@ -73,6 +73,52 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
+  @doc """
+  Handles incoming data, inserts it into the database and triggers side effects if the data is a supported activity type.
+  """
+  def handle_incoming(data)
+
+  # Flag objects are placed ahead of the ID check because Mastodon 2.8 and earlier send them
+  # with nil ID.
+  def handle_incoming(%{"type" => "Flag", "object" => objects, "actor" => actor} = data) do
+    with context <- data["context"] || Utils.generate_context_id(),
+         content <- data["content"] || "",
+         {:ok, actor} <- Actor.get_by_ap_id(actor),
+
+         # Reduce the object list to find the reported user.
+         account <-
+           Enum.reduce_while(objects, nil, fn ap_id, _ ->
+             with {:ok, actor} <- Actor.get_by_ap_id(ap_id) do
+               {:halt, actor}
+             else
+               _ -> {:cont, nil}
+             end
+           end),
+
+         # Remove the reported user from the object list.
+         statuses <- Enum.filter(objects, fn ap_id -> ap_id != account.data["id"] end) do
+      params = %{
+        actor: actor,
+        context: context,
+        account: account,
+        statuses: statuses,
+        content: content,
+        additional: %{
+          "cc" => [account.data["id"]]
+        }
+      }
+
+      ActivityPub.flag(params)
+    end
+  end
+
+  # disallow objects with bogus IDs
+  def handle_incoming(%{"id" => nil}), do: :error
+  def handle_incoming(%{"id" => ""}), do: :error
+  # length of https:// = 8, should validate better, but good enough for now.
+  def handle_incoming(%{"id" => id}) when not (is_binary(id) and length(id) > 8),
+    do: :error
+
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
     {:ok, actor} = Actor.get_by_ap_id(data["actor"])
