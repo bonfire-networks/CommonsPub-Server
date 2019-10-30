@@ -13,7 +13,7 @@ defmodule ActivityPub.Factory do
 
     id =
       attrs[:data]["id"] ||
-        MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{data["preferredUsername"]}"
+        "https://example.tld" <> ap_base_path <> "/actors/#{data["preferredUsername"]}"
 
     data =
       Map.merge(data, %{

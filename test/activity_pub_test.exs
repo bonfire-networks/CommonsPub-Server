@@ -6,7 +6,9 @@
 defmodule ActivityPubTest do
   use MoodleNet.DataCase
   import ActivityPub.Factory
+  alias ActivityPub.Actor
   alias ActivityPub.Object
+  alias MoodleNet.Test.Faking
 
   doctest ActivityPub
 
@@ -115,6 +117,92 @@ defmodule ActivityPubTest do
       assert Object.get_by_id(delete.id) != nil
 
       assert Repo.get(Object, object.id).data["type"] == "Tombstone"
+    end
+  end
+
+  describe "like an object" do
+    test "adds a like activity to the db" do
+      actor = Faking.fake_actor!()
+      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      note_activity = insert(:note_activity, %{actor: note_actor})
+      assert object = Object.normalize(note_activity)
+
+      actor = insert(:actor)
+
+      {:ok, like_activity, object} = ActivityPub.like(actor, object)
+
+      assert like_activity.data["actor"] == actor.data["id"]
+      assert like_activity.data["type"] == "Like"
+      assert like_activity.data["object"] == object.data["id"]
+      assert like_activity.data["to"] == [actor.data["followers"], note_activity.data["actor"]]
+      assert like_activity.data["context"] == object.data["context"]
+
+      # Just return the original activity if the user already liked it.
+      {:ok, same_like_activity, _object} = ActivityPub.like(actor, object)
+
+      assert like_activity == same_like_activity
+    end
+  end
+
+  describe "unliking" do
+    test "unliking a previously liked object" do
+      actor = Faking.fake_actor!()
+      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      note_activity = insert(:note_activity, %{actor: note_actor})
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      # Unliking something that hasn't been liked does nothing
+      {:ok, object} = ActivityPub.unlike(actor, object)
+
+      {:ok, like_activity, object} = ActivityPub.like(actor, object)
+
+      {:ok, _, _, _object} = ActivityPub.unlike(actor, object)
+
+      assert Object.get_by_id(like_activity.id) == nil
+    end
+  end
+
+  describe "announcing an object" do
+    test "adds an announce activity to the db" do
+      note_activity = insert(:note_activity)
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      {:ok, announce_activity, object} = ActivityPub.announce(actor, object)
+
+      assert announce_activity.data["to"] == [
+               actor.data["followers"],
+               note_activity.data["actor"]
+             ]
+
+      assert announce_activity.data["object"] == object.data["id"]
+      assert announce_activity.data["actor"] == actor.data["id"]
+      assert announce_activity.data["context"] == object.data["context"]
+    end
+  end
+
+  describe "unannouncing an object" do
+    test "unannouncing a previously announced object" do
+      note_activity = insert(:note_activity)
+      object = Object.normalize(note_activity)
+      actor = insert(:actor)
+
+      {:ok, announce_activity, object} = ActivityPub.announce(actor, object)
+
+      {:ok, unannounce_activity, _object} = ActivityPub.unannounce(actor, object)
+
+      assert unannounce_activity.data["to"] == [
+               actor.data["followers"],
+               announce_activity.data["actor"]
+             ]
+
+      assert unannounce_activity.data["type"] == "Undo"
+      assert unannounce_activity.data["object"] == announce_activity.data
+      assert unannounce_activity.data["actor"] == actor.data["id"]
+      assert unannounce_activity.data["context"] == announce_activity.data["context"]
+
+      assert Object.get_by_id(announce_activity.id) == nil
     end
   end
 end

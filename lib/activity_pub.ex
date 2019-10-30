@@ -150,6 +150,78 @@ defmodule ActivityPub do
     end
   end
 
+  def like(
+        %{data: %{"id" => ap_id}} = actor,
+        %Object{data: %{"id" => _}} = object,
+        activity_id \\ nil,
+        local \\ true
+      ) do
+    with nil <- Utils.get_existing_like(ap_id, object),
+         like_data <- Utils.make_like_data(actor, object, activity_id),
+         {:ok, activity} <- insert(like_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity, object}
+    else
+      %Object{} = activity -> {:ok, activity, object}
+      error -> {:error, error}
+    end
+  end
+
+  def unlike(
+        %{data: %{"id" => ap_id}} = actor,
+        %Object{} = object,
+        activity_id \\ nil,
+        local \\ true
+      ) do
+    with %Object{} = like_activity <- Utils.get_existing_like(ap_id, object),
+         unlike_data <- Utils.make_unlike_data(actor, like_activity, activity_id),
+         {:ok, unlike_activity} <- insert(unlike_data, local),
+         {:ok, _activity} <- Repo.delete(like_activity),
+         :ok <- Utils.maybe_federate(unlike_activity),
+         :ok <- Adapter.maybe_handle_activity(unlike_activity) do
+      {:ok, unlike_activity, like_activity, object}
+    else
+      _e -> {:ok, object}
+    end
+  end
+
+  def announce(
+        %{data: %{"id" => _}} = actor,
+        %Object{data: %{"id" => _}} = object,
+        activity_id \\ nil,
+        local \\ true,
+        public \\ true
+      ) do
+    with true <- Utils.public?(object.data),
+         announce_data <- Utils.make_announce_data(actor, object, activity_id, public),
+         {:ok, activity} <- insert(announce_data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity, object}
+    else
+      error -> {:error, error}
+    end
+  end
+
+  def unannounce(
+        %{data: %{"id" => ap_id}} = actor,
+        %Object{} = object,
+        activity_id \\ nil,
+        local \\ true
+      ) do
+    with %Object{} = announce_activity <- Utils.get_existing_announce(ap_id, object),
+         unannounce_data <- Utils.make_unannounce_data(actor, announce_activity, activity_id),
+         {:ok, unannounce_activity} <- insert(unannounce_data, local),
+         :ok <- Utils.maybe_federate(unannounce_activity),
+         {:ok, _activity} <- Repo.delete(announce_activity),
+         :ok <- Adapter.maybe_handle_activity(unannounce_activity) do
+      {:ok, unannounce_activity, object}
+    else
+      _e -> {:ok, object}
+    end
+  end
+
   def block(blocker, blocked, activity_id \\ nil, local \\ true) do
     follow_activity = Utils.fetch_latest_follow(blocker, blocked)
     if follow_activity, do: unfollow(blocker, blocked, nil, local)
@@ -182,7 +254,7 @@ defmodule ActivityPub do
            "type" => "Delete",
            "actor" => actor,
            "object" => id,
-           "to" => to,
+           "to" => to
          },
          {:ok, activity} <- insert(data, local),
          :ok <- Utils.maybe_federate(activity),
