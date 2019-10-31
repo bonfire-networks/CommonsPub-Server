@@ -16,10 +16,11 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
   alias ActivityPubWeb.Transmogrifier
+  alias MoodleNet.Repo
 
   @type t :: %Actor{}
 
-  defstruct [:data, :local, :keys, :ap_id]
+  defstruct [:id, :data, :local, :keys, :ap_id]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -190,6 +191,7 @@ defmodule ActivityPub.Actor do
     }
 
     %__MODULE__{
+      id: actor.id,
       data: data,
       keys: actor.signing_key,
       local: true,
@@ -199,6 +201,7 @@ defmodule ActivityPub.Actor do
 
   defp format_remote_actor(%Object{} = actor) do
     %__MODULE__{
+      id: actor.id,
       data: actor.data,
       keys: nil,
       local: false,
@@ -235,5 +238,11 @@ defmodule ActivityPub.Actor do
       actor = format_local_actor(local_actor)
       {:ok, actor}
     end
+  end
+
+  def delete(%Actor{local: false} = actor) do
+    Repo.delete(%Object{
+      id: actor.id
+    })
   end
 end
