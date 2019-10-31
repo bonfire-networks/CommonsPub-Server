@@ -211,7 +211,7 @@ defmodule ActivityPubTest do
     test "it creates an update activity with the new user data" do
       actor = Faking.fake_actor!()
       {:ok, actor} = Actor.get_by_username(actor.preferred_username)
-      {:ok, actor} = Utils.ensure_keys_present(actor)
+      {:ok, actor} = Actor.ensure_keys_present(actor)
       actor_data = ActivityPubWeb.ActorView.render("actor.json", %{actor: actor})
 
       {:ok, update} =

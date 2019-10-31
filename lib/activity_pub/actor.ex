@@ -9,16 +9,22 @@ defmodule ActivityPub.Actor do
   """
   require Ecto.Query
 
+  alias ActivityPub.Actor
   alias ActivityPub.Adapter
   alias ActivityPub.Fetcher
+  alias ActivityPub.Keys
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
   alias ActivityPubWeb.Transmogrifier
 
+  @type t :: %Actor{}
+
+  defstruct [:data, :local, :keys, :ap_id]
+
   @doc """
   Updates an existing actor struct by its AP ID.
   """
-  @spec update_actor(String.t()) :: {:ok, Object.t()} | {:error, any()}
+  @spec update_actor(String.t()) :: {:ok, Actor.t()} | {:error, any()}
   def update_actor(actor_id) do
     # TODO: make better
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
@@ -100,7 +106,8 @@ defmodule ActivityPub.Actor do
 
   defp get_remote_actor(ap_id) do
     with {:ok, actor} <- Fetcher.fetch_object_from_id(ap_id),
-         false <- check_if_time_to_update(actor) do
+         false <- check_if_time_to_update(actor),
+         actor <- format_remote_actor(actor) do
       Adapter.maybe_create_remote_actor(actor)
       {:ok, actor}
     else
@@ -131,7 +138,7 @@ defmodule ActivityPub.Actor do
 
   Remote actors are also automatically updated every 24 hours.
   """
-  @spec get_by_ap_id(String.t()) :: {:ok, Map.t()} | {:error, any()}
+  @spec get_by_ap_id(String.t()) :: {:ok, Actor.t()} | {:error, any()}
   def get_by_ap_id(ap_id) do
     host = URI.parse(ap_id).host
 
@@ -149,7 +156,7 @@ defmodule ActivityPub.Actor do
 
   @doc false
   def set_public_key(%{data: data} = actor) do
-    {:ok, entity} = ActivityPub.Utils.ensure_keys_present(actor)
+    {:ok, entity} = Actor.ensure_keys_present(actor)
     {:ok, _, public_key} = ActivityPub.Keys.keys_from_pem(actor.keys)
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
@@ -164,10 +171,7 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
-  @doc """
-  Formats an actor struct from the host database to match AS2 actor format and AP database object format.
-  """
-  def format_local_actor(actor) do
+  defp format_local_actor(actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
 
@@ -185,10 +189,20 @@ defmodule ActivityPub.Actor do
       "image" => actor.latest_revision.revision.image
     }
 
-    %{
+    %__MODULE__{
       data: data,
       keys: actor.signing_key,
-      local: true
+      local: true,
+      ap_id: id
+    }
+  end
+
+  defp format_remote_actor(%Object{} = actor) do
+    %__MODULE__{
+      data: actor.data,
+      keys: nil,
+      local: false,
+      ap_id: actor.data["id"]
     }
   end
 
@@ -205,5 +219,21 @@ defmodule ActivityPub.Actor do
     |> Enum.concat()
     |> Enum.map(&get_by_ap_id!/1)
     |> Enum.filter(fn actor -> actor && !actor.local end)
+  end
+
+  @doc """
+  Checks if an actor struct has a non-nil keys field and generates a PEM if it doesn't.
+  """
+  def ensure_keys_present(actor) do
+    if actor.keys do
+      {:ok, actor}
+    else
+      # TODO: move MN specific calls elsewhere
+      {:ok, pem} = Keys.generate_rsa_pem()
+      {:ok, local_actor} = MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"])
+      {:ok, local_actor} = MoodleNet.Actors.update(local_actor, %{signing_key: pem})
+      actor = format_local_actor(local_actor)
+      {:ok, actor}
+    end
   end
 end
