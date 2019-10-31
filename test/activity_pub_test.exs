@@ -119,6 +119,17 @@ defmodule ActivityPubTest do
 
       assert Repo.get(Object, object.id).data["type"] == "Tombstone"
     end
+
+    test "it creates a delete activity for a local actor" do
+      actor = Faking.fake_actor!()
+      {:ok, actor} = Actor.get_by_username(actor.preferred_username)
+
+      {:ok, activity} = ActivityPub.delete(actor)
+
+      assert activity.data["type"] == "Delete"
+      assert activity.data["actor"] == actor.data["id"]
+      assert activity.data["object"] == actor.data["id"]
+    end
   end
 
   describe "like an object" do

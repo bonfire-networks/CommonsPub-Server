@@ -392,6 +392,12 @@ defmodule ActivityPub.Utils do
     end
   end
 
+  def actor?(%{data: %{"type" => type}} = _object)
+      when type in ["Person", "Application", "Service", "Organization", "Group"],
+      do: true
+
+  def actor?(_), do: false
+
   @doc """
   Prepares a struct to be inserted into the objects table
   """

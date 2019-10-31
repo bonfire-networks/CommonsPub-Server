@@ -13,6 +13,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
   alias ActivityPub.Utils
+  alias MoodleNet.Repo
   require Logger
 
   @doc """
@@ -216,7 +217,7 @@ defmodule ActivityPubWeb.Transmogrifier do
          actor_object <- Object.get_by_ap_id(actor_id) do
       actor_object
       |> Ecto.Changeset.change(data: object)
-      |> MoodleNet.Repo.update()
+      |> Repo.update()
 
       ActivityPub.update(%{
         local: false,
@@ -245,16 +246,28 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_incoming(
-        %{"type" => "Delete", "object" => object_id, "actor" => _actor, "id" => _id} = _data
+        %{"type" => "Delete", "object" => object_id, "actor" => actor, "id" => _id} = _data
       ) do
     object_id = Utils.get_ap_id(object_id)
 
-    with true <- can_delete_object?(object_id),
-         {:ok, object} <- get_obj_helper(object_id),
+    with {:ok, object} <- get_obj_helper(object_id),
+         {:actor, false} <- {:actor, Utils.actor?(object)},
+         true <- can_delete_object?(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
       {:ok, activity}
     else
-      _e -> :error
+      {:actor, true} ->
+        case Actor.get_by_ap_id(object_id) do
+          {:ok, %Object{data: %{"id" => ^actor}} = actor} ->
+            Repo.delete(actor)
+            ActivityPub.delete(actor, false)
+
+          {:error, _} ->
+            :error
+        end
+
+      _e ->
+        :error
     end
   end
 
