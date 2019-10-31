@@ -264,7 +264,26 @@ defmodule ActivityPub do
     end
   end
 
-  def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local \\ true) do
+  def delete(object, local \\ true)
+
+  def delete(%{data: %{"id" => id, "type" => type}} = actor, local)
+      when type in ["Person", "Application", "Service", "Organization", "Group"] do
+    to = [actor.data["followers"]]
+
+    with data <- %{
+           "type" => "Delete",
+           "actor" => id,
+           "object" => id,
+           "to" => to
+         },
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
+
+  def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local) do
     to = (object.data["to"] || []) ++ (object.data["cc"] || [])
 
     with {:ok, _object} <- Object.delete(object),

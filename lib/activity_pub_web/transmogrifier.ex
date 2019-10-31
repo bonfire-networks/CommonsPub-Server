@@ -258,8 +258,8 @@ defmodule ActivityPubWeb.Transmogrifier do
       {:actor, true} ->
         case Actor.get_by_ap_id(object_id) do
           {:ok, %Object{data: %{"id" => ^actor}} = actor} ->
-            # TODO: send delete activity to host database
             Repo.delete(actor)
+            ActivityPub.delete(actor, false)
 
           {:error, _} ->
             :error
