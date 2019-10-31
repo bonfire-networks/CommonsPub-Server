@@ -250,7 +250,7 @@ defmodule ActivityPubWeb.Transmogrifier do
     object_id = Utils.get_ap_id(object_id)
 
     with {:ok, object} <- get_obj_helper(object_id),
-         {:actor, false} <- actor?(object),
+         {:actor, false} <- {:actor, Utils.actor?(object)},
          true <- can_delete_object?(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
       {:ok, activity}
@@ -348,14 +348,6 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp get_obj_helper(id) do
     if object = Object.normalize(id, true), do: {:ok, object}, else: nil
-  end
-
-  defp actor?(object) do
-    if object.data["type"] in ["Person", "Application", "Service", "Organization", "Group"] do
-      {:actor, true}
-    else
-      {:actor, false}
-    end
   end
 
   @doc """
