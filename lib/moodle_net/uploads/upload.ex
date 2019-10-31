@@ -1,3 +1,6 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads.Upload do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [change_public: 1]
@@ -14,6 +17,7 @@ defmodule MoodleNet.Uploads.Upload do
     belongs_to(:parent, Pointer)
     belongs_to(:uploader, Actor)
     field(:path, :string)
+    field(:size, :integer)
     field(:media_type, :string)
     field(:metadata, :map)
     field(:is_public, :boolean, virtual: true)
@@ -21,8 +25,8 @@ defmodule MoodleNet.Uploads.Upload do
     timestamps()
   end
 
-  @create_cast ~w(path media_type metadata is_public)a
-  @create_required ~w(path media_type is_public)a
+  @create_cast ~w(path size media_type metadata is_public)a
+  @create_required ~w(path size media_type is_public)a
 
   def create_changeset(parent, uploader, attrs) do
     %__MODULE__{}

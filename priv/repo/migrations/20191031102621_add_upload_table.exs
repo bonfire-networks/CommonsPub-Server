@@ -1,3 +1,6 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.AddUploadTable do
   use Ecto.Migration
 
@@ -8,6 +11,7 @@ defmodule MoodleNet.Repo.Migrations.AddUploadTable do
       add :uploader_id, references("mn_actor", on_delete: :nilify_all)
       add :path, :string, null: false
       add :media_type, :string, null: false
+      add :size, :integer, null: false
       add :metadata, :jsonb
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz

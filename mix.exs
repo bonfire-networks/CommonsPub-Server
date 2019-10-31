@@ -66,6 +66,8 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
+      # File storage
+      {:belt, "~> 0.4.2"},
       # File format parsing
       {:format_parser, "~> 1.3.0"},
       # MIME type map
