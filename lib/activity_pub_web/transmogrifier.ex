@@ -13,6 +13,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
   alias ActivityPub.Utils
+  alias MoodleNet.Repo
   require Logger
 
   @doc """
@@ -211,10 +212,11 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with {:ok, %Object{local: false, data: %{"id" => ^actor_id}} = actor} <- Actor.get_by_ap_id(object["id"]) do
+    with {:ok, %Object{local: false, data: %{"id" => ^actor_id}} = actor} <-
+           Actor.get_by_ap_id(object["id"]) do
       actor
       |> Ecto.Changeset.change(data: object)
-      |> MoodleNet.Repo.update()
+      |> Repo.update()
 
       ActivityPub.update(%{
         local: false,
@@ -243,16 +245,28 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_incoming(
-        %{"type" => "Delete", "object" => object_id, "actor" => _actor, "id" => _id} = _data
+        %{"type" => "Delete", "object" => object_id, "actor" => actor, "id" => _id} = _data
       ) do
     object_id = Utils.get_ap_id(object_id)
 
-    with true <- can_delete_object?(object_id),
-         {:ok, object} <- get_obj_helper(object_id),
+    with {:ok, object} <- get_obj_helper(object_id),
+         {:actor, false} <- actor?(object),
+         true <- can_delete_object?(object_id),
          {:ok, activity} <- ActivityPub.delete(object, false) do
       {:ok, activity}
     else
-      _e -> :error
+      {:actor, true} ->
+        case Actor.get_by_ap_id(object_id) do
+          {:ok, %Object{data: %{"id" => ^actor}} = actor} ->
+            # TODO: send delete activity to host database
+            Repo.delete(actor)
+
+          {:error, _} ->
+            :error
+        end
+
+      _e ->
+        :error
     end
   end
 
@@ -334,6 +348,14 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp get_obj_helper(id) do
     if object = Object.normalize(id, true), do: {:ok, object}, else: nil
+  end
+
+  defp actor?(object) do
+    if object.data["type"] in ["Person", "Application", "Service", "Organization", "Group"] do
+      {:actor, true}
+    else
+      {:actor, false}
+    end
   end
 
   @doc """

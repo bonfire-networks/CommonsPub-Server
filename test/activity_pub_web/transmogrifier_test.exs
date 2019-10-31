@@ -73,6 +73,19 @@ defmodule ActivityPubWeb.TransmogrifierTest do
       :error = Transmogrifier.handle_incoming(data)
     end
 
+    test "it works for incoming user deletes" do
+      actor = insert(:actor, %{data: %{"id" => "http://mastodon.example.org/users/admin"}})
+      assert Object.get_by_ap_id("http://mastodon.example.org/users/admin")
+
+      data =
+        File.read!("test/fixtures/mastodon-delete-user.json")
+        |> Poison.decode!()
+
+      {:ok, _} = Transmogrifier.handle_incoming(data)
+
+      refute Object.get_by_ap_id("http://mastodon.example.org/users/admin")
+    end
+
     test "it returns an error for incoming unlikes wihout a like activity" do
       data =
         File.read!("test/fixtures/mastodon-undo-like.json")
