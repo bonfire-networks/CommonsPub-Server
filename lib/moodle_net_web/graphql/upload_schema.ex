@@ -13,14 +13,14 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     # TODO: return icon
     @desc "Upload an avatar (icon in ActivityPub). Returns the full image."
     field :upload_icon, type: :string do
-      arg(:local_id, non_null(:integer))
+      arg(:id, non_null(:id))
       arg(:image, non_null(:upload))
       resolve(&UploadResolver.upload_icon/2)
     end
 
     @desc "Upload a background image (image in ActivityPub)"
     field :upload_image, type: :string do
-      arg(:local_id, non_null(:integer))
+      arg(:local_id, non_null(:id))
       arg(:image, non_null(:upload))
       resolve(&UploadResolver.upload_image/2)
     end
@@ -28,6 +28,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   @desc "An image that can optionally contain a preview."
   object :icon do
+    field(:id, non_null(:id))
     field(:url, non_null(:string))
     field(:media_type, :string)
     field(:width, :integer)
@@ -37,6 +38,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   @desc "A preview of an image."
   object :preview do
+    field(:id, non_null(:id))
     field(:url, non_null(:string))
     field(:media_type, :string)
     field(:width, :integer)
