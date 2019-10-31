@@ -90,6 +90,14 @@ defmodule HttpRequestMock do
     }}
   end
 
+  def get("http://mastodon.example.org/users/admin", _, _, Accept: "application/activity+json") do
+    {:ok,
+     %Tesla.Env{
+       status: 200,
+       body: File.read!("test/fixtures/admin@mastdon.example.org.json")
+     }}
+  end
+
   def get(url, query, body, headers) do
     {:error,
      "Not implemented the mock response for get #{inspect(url)}, #{query}, #{inspect(body)}, #{
