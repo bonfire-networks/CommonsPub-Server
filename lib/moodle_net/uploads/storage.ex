@@ -29,4 +29,23 @@ defmodule MoodleNet.Uploads.Storage do
       [provider, config] when is_atom(provider) -> apply(provider, :new, config)
     end
   end
+
+  defp get_metadata(%{path: path}) do
+    with {:ok, binary} <- File.read(path) do
+      case FormatParser.parse(binary) do
+        info when is_map(info) ->
+          {:ok, Map.take(info, [:format, :width_px, :height_px])}
+
+        other ->
+          other
+      end
+    end
+  end
+
+  defp format_to_media_type(format) do
+    # HACK: format_parser.ex uses a weird format, returning what seems to mostly
+    # be an atom of the file type. E.g. `test-image.png` => `:png`.
+    maybe_ext = to_string(format)
+    MIME.type(maybe_ext)
+  end
 end
