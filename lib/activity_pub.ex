@@ -222,6 +222,24 @@ defmodule ActivityPub do
     end
   end
 
+  def update(%{to: to, cc: cc, actor: actor, object: object} = params) do
+    # only accept false as false value
+    local = !(params[:local] == false)
+
+    with data <- %{
+           "to" => to,
+           "cc" => cc,
+           "type" => "Update",
+           "actor" => actor,
+           "object" => object
+         },
+         {:ok, activity} <- insert(data, local),
+         :ok <- Utils.maybe_federate(activity),
+         :ok <- Adapter.maybe_handle_activity(activity) do
+      {:ok, activity}
+    end
+  end
+
   def block(blocker, blocked, activity_id \\ nil, local \\ true) do
     follow_activity = Utils.fetch_latest_follow(blocker, blocked)
     if follow_activity, do: unfollow(blocker, blocked, nil, local)

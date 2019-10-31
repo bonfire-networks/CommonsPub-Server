@@ -11,22 +11,23 @@ defmodule ActivityPub.Actor do
 
   alias ActivityPub.Adapter
   alias ActivityPub.Fetcher
-  alias ActivityPub.Object
   alias ActivityPub.WebFinger
-
-  alias Ecto.Changeset
-  alias MoodleNet.Repo
+  alias ActivityPub.Object
+  alias ActivityPubWeb.Transmogrifier
 
   @doc """
   Updates an existing actor struct by its AP ID.
   """
+  @spec update_actor(String.t()) :: {:ok, Object.t()} | {:error, any()}
   def update_actor(actor_id) do
     # TODO: make better
-    with {:ok, %Object{local: false} = actor} <- Fetcher.fetch_object_from_id(actor_id),
-         {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id) do
-      actor
-      |> Changeset.change(data: data)
-      |> Repo.update()
+    with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
+         # Create fake activity and handle it through transmogrifier
+         # to easily pass data to the host database.
+         activity <- %{"type" => "Update", "actor" => actor_id, "object" => data},
+         {:ok, _activity} <- Transmogrifier.handle_incoming(activity) do
+      # Return actor
+      get_by_ap_id(actor_id)
     end
   end
 
@@ -78,7 +79,7 @@ defmodule ActivityPub.Actor do
     else
       _e ->
         with [_nick, _domain] <- String.split(username, "@"),
-        {:ok, actor} <- fetch_by_username(username) do
+             {:ok, actor} <- fetch_by_username(username) do
           {:ok, actor}
         else
           _e -> {:error, "not found " <> username}
