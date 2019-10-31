@@ -210,7 +210,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         %{"type" => "Update", "object" => %{"type" => object_type} = object, "actor" => actor_id} =
           data
       )
-      when object_type in ["Person", "Application", "Service", "Organization"] do
+      when object_type in ["Person", "Application", "Service", "Organization", "Group"] do
     with {:ok, %Object{local: false, data: %{"id" => ^actor_id}} = actor} <- Actor.get_by_ap_id(object["id"]) do
       actor
       |> Ecto.Changeset.change(data: object)
