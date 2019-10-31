@@ -207,6 +207,29 @@ defmodule ActivityPubTest do
     end
   end
 
+  describe "update" do
+    test "it creates an update activity with the new user data" do
+      actor = Faking.fake_actor!()
+      {:ok, actor} = Actor.get_by_username(actor.preferred_username)
+      {:ok, actor} = Utils.ensure_keys_present(actor)
+      actor_data = ActivityPubWeb.ActorView.render("actor.json", %{actor: actor})
+
+      {:ok, update} =
+        ActivityPub.update(%{
+          actor: actor_data["id"],
+          to: [actor.data["followers"]],
+          cc: [],
+          object: actor_data
+        })
+
+      assert update.data["actor"] == actor.data["id"]
+      assert update.data["to"] == [actor.data["followers"]]
+      assert embedded_object = update.data["object"]
+      assert embedded_object["id"] == actor_data["id"]
+      assert embedded_object["type"] == actor_data["type"]
+    end
+  end
+
   test "it can create a Flag activity" do
     reporter = insert(:actor)
     target_account = insert(:actor)

@@ -132,10 +132,12 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     test "it works for incoming announces" do
       announce_actor = insert(:actor)
       note = insert(:note)
-      data = File.read!("test/fixtures/mastodon-announce.json")
-      |> Poison.decode!()
-      |> Map.put("actor", announce_actor.data["id"])
-      |> Map.put("object", note.data["id"])
+
+      data =
+        File.read!("test/fixtures/mastodon-announce.json")
+        |> Poison.decode!()
+        |> Map.put("actor", announce_actor.data["id"])
+        |> Map.put("object", note.data["id"])
 
       {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(data)
 
@@ -226,6 +228,36 @@ defmodule ActivityPubWeb.TransmogrifierTest do
       assert activity.data["content"] == "blocked AND reported!!!"
       assert activity.data["actor"] == other_actor.data["id"]
       assert activity.data["cc"] == [actor.data["id"]]
+    end
+
+    test "it works for incoming update activities" do
+      data = File.read!("test/fixtures/mastodon-post-activity.json") |> Poison.decode!()
+
+      {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(data)
+      update_data = File.read!("test/fixtures/mastodon-update.json") |> Poison.decode!()
+
+      object =
+        update_data["object"]
+        |> Map.put("actor", data["actor"])
+        |> Map.put("id", data["actor"])
+
+      update_data =
+        update_data
+        |> Map.put("actor", data["actor"])
+        |> Map.put("object", object)
+
+      {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(update_data)
+
+      {:ok, actor} = Actor.get_by_ap_id(data["actor"])
+      assert actor.data["name"] == "gargle"
+
+      assert actor.data["icon"]["url"] ==
+               "https://cd.niu.moe/accounts/avatars/000/033/323/original/fd7f8ae0b3ffedc9.jpeg"
+
+      assert actor.data["image"]["url"] ==
+               "https://cd.niu.moe/accounts/headers/000/033/323/original/850b3448fa5fd477.png"
+
+      assert actor.data["summary"] == "<p>Some bio</p>"
     end
   end
 end

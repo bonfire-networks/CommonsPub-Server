@@ -205,6 +205,31 @@ defmodule ActivityPubWeb.Transmogrifier do
     end
   end
 
+  # This feels bad
+  def handle_incoming(
+        %{"type" => "Update", "object" => %{"type" => object_type} = object, "actor" => actor_id} =
+          data
+      )
+      when object_type in ["Person", "Application", "Service", "Organization"] do
+    with {:ok, %Object{local: false, data: %{"id" => ^actor_id}} = actor} <- Actor.get_by_ap_id(object["id"]) do
+      actor
+      |> Ecto.Changeset.change(data: object)
+      |> MoodleNet.Repo.update()
+
+      ActivityPub.update(%{
+        local: false,
+        to: data["to"] || [],
+        cc: data["cc"] || [],
+        object: object,
+        actor: actor_id
+      })
+    else
+      e ->
+        Logger.error(e)
+        :error
+    end
+  end
+
   def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = _data
       ) do
