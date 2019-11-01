@@ -23,7 +23,7 @@ defmodule ActivityPubWeb.Federator do
     Logger.debug(fn -> "Running publish for #{activity.data["id"]}" end)
 
     with {:ok, actor} <- Actor.get_by_ap_id(activity.data["actor"]),
-         {:ok, actor} <- Utils.ensure_keys_present(actor) do
+         {:ok, actor} <- Actor.ensure_keys_present(actor) do
       Publisher.publish(actor, activity)
     end
   end

@@ -212,9 +212,11 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with {:ok, %Object{local: false, data: %{"id" => ^actor_id}} = actor} <-
-           Actor.get_by_ap_id(object["id"]) do
-      actor
+    with {:ok, %Actor{local: false, data: %{"id" => ^actor_id}}} <-
+           Actor.get_by_ap_id(object["id"]),
+         # TODO: don't fetch the same object twice
+         actor_object <- Object.get_by_ap_id(actor_id) do
+      actor_object
       |> Ecto.Changeset.change(data: object)
       |> Repo.update()
 
@@ -257,8 +259,8 @@ defmodule ActivityPubWeb.Transmogrifier do
     else
       {:actor, true} ->
         case Actor.get_by_ap_id(object_id) do
-          {:ok, %Object{data: %{"id" => ^actor}} = actor} ->
-            Repo.delete(actor)
+          {:ok, %Actor{data: %{"id" => ^actor}} = actor} ->
+            Actor.delete(actor)
             ActivityPub.delete(actor, false)
 
           {:error, _} ->
