@@ -8,7 +8,6 @@ defmodule ActivityPub.Signature do
 
   alias ActivityPub.Actor
   alias ActivityPub.Keys
-  alias ActivityPub.Utils
 
   def key_id_to_actor_id(key_id) do
     uri =
@@ -49,7 +48,7 @@ defmodule ActivityPub.Signature do
   end
 
   def sign(actor, headers) do
-    with {:ok, actor} <- Utils.ensure_keys_present(actor),
+    with {:ok, actor} <- Actor.ensure_keys_present(actor),
          keys <- actor.keys,
          {:ok, private_key, _} <- Keys.keys_from_pem(keys) do
       HTTPSignatures.sign(private_key, actor.data["id"] <> "#main-key", headers)

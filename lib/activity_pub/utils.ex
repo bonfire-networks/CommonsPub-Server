@@ -3,7 +3,6 @@ defmodule ActivityPub.Utils do
   Misc functions used for federation
   """
   alias ActivityPub.Actor
-  alias ActivityPub.Keys
   alias ActivityPub.Object
   alias Ecto.UUID
   alias MoodleNet.Repo
@@ -359,22 +358,6 @@ defmodule ActivityPub.Utils do
   end
 
   @doc """
-  Checks if an actor struct has a non-nil keys field and generates a PEM if it doesn't.
-  """
-  def ensure_keys_present(actor) do
-    if actor.keys do
-      {:ok, actor}
-    else
-      # TODO: move MN specific calls elsewhere
-      {:ok, pem} = Keys.generate_rsa_pem()
-      {:ok, local_actor} = MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"])
-      {:ok, local_actor} = MoodleNet.Actors.update(local_actor, %{signing_key: pem})
-      actor = Actor.format_local_actor(local_actor)
-      {:ok, actor}
-    end
-  end
-
-  @doc """
   Inserts a full object if it is contained in an activity.
   """
   def insert_full_object(%{"object" => %{"type" => type} = object_data} = map)
@@ -408,6 +391,12 @@ defmodule ActivityPub.Utils do
         false
     end
   end
+
+  def actor?(%{data: %{"type" => type}} = _object)
+      when type in ["Person", "Application", "Service", "Organization", "Group"],
+      do: true
+
+  def actor?(_), do: false
 
   @doc """
   Prepares a struct to be inserted into the objects table

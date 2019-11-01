@@ -8,7 +8,7 @@ defmodule ActivityPubWeb.ActorView do
   alias ActivityPub.Utils
 
   def render("actor.json", %{actor: actor}) do
-    {:ok, actor} = ActivityPub.Utils.ensure_keys_present(actor)
+    {:ok, actor} = ActivityPub.Actor.ensure_keys_present(actor)
     {:ok, _, public_key} = ActivityPub.Keys.keys_from_pem(actor.keys)
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
