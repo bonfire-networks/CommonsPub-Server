@@ -20,7 +20,7 @@ defmodule ActivityPub.Actor do
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -195,17 +195,21 @@ defmodule ActivityPub.Actor do
       data: data,
       keys: actor.signing_key,
       local: true,
-      ap_id: id
+      ap_id: id,
+      username: actor.preferred_username
     }
   end
 
   defp format_remote_actor(%Object{} = actor) do
+    username = actor.data["preferredUsername"] <> "@" <> URI.parse(actor.data["id"]).host
+
     %__MODULE__{
       id: actor.id,
       data: actor.data,
       keys: nil,
       local: false,
-      ap_id: actor.data["id"]
+      ap_id: actor.data["id"],
+      username: username
     }
   end
 
