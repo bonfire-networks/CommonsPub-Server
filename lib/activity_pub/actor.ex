@@ -176,8 +176,14 @@ defmodule ActivityPub.Actor do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
 
+    type = case actor do
+      %MoodleNet.Actors.Actor{} -> "Person"
+      %MoodleNet.Communities.Community{} -> "MN:Community"
+      %MoodleNet.Collections.Collection{} -> "MN:Collection"
+    end
+
     data = %{
-      "type" => "Person",
+      "type" => type,
       "id" => id,
       "inbox" => "#{id}/inbox",
       "outbox" => "#{id}/outbox",
