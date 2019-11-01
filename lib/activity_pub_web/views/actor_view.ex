@@ -30,5 +30,7 @@ defmodule ActivityPubWeb.ActorView do
       }
     })
     |> Map.merge(Utils.make_json_ld_header())
+    |> Enum.filter(fn {_k, v} -> v != nil end)
+    |> Enum.into(%{})
   end
 end
