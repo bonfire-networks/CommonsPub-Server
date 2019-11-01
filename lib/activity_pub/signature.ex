@@ -8,7 +8,6 @@ defmodule ActivityPub.Signature do
 
   alias ActivityPub.Actor
   alias ActivityPub.Keys
-  alias ActivityPub.Utils
 
   def key_id_to_actor_id(key_id) do
     uri =
