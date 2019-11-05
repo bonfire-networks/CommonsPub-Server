@@ -2,9 +2,10 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads.Storage do
+  @type file_info :: %{info: %Belt.FileInfo{}, metadata: map}
   @type file_id :: binary
 
-  @spec store(file :: any) :: {:ok, %Belt.FileInfo{}} | {:error, term}
+  @spec store(file :: any) :: {:ok, file_info()} | {:error, term}
   def store(file) do
     # TODO: handle different types of files
     # TODO: extract metadata
@@ -32,13 +33,7 @@ defmodule MoodleNet.Uploads.Storage do
 
   defp get_metadata(%{path: path}) do
     with {:ok, binary} <- File.read(path) do
-      case FormatParser.parse(binary) do
-        info when is_map(info) ->
-          {:ok, Map.take(info, [:format, :width_px, :height_px])}
-
-        other ->
-          other
-      end
+      FormatParser.parse(binary)
     end
   end
 

@@ -31,8 +31,9 @@ defmodule MoodleNet.Uploads do
     with {:ok, file_info} <- Storage.store(file) do
       attrs =
         attrs
-        |> Map.put(:path, file_info.identifier)
-        |> Map.put(:size, file_info.size)
+        |> Map.put(:path, file_info.info.identifier)
+        |> Map.put(:size, file_info.info.size)
+        |> Map.put(:metadata, file_info.metadata)
 
       # FIXME: rollback file store if insert fails
       Repo.insert(Upload.create_changeset(parent, uploader, attrs))
