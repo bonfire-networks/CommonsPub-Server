@@ -176,11 +176,12 @@ defmodule ActivityPub.Actor do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
 
-    type = case actor do
-      %MoodleNet.Actors.Actor{} -> "Person"
-      %MoodleNet.Communities.Community{} -> "MN:Community"
-      %MoodleNet.Collections.Collection{} -> "MN:Collection"
-    end
+    type =
+      case actor do
+        %MoodleNet.Actors.Actor{} -> "Person"
+        %MoodleNet.Communities.Community{} -> "MN:Community"
+        %MoodleNet.Collections.Collection{} -> "MN:Collection"
+      end
 
     data = %{
       "type" => type,
@@ -196,6 +197,18 @@ defmodule ActivityPub.Actor do
       "image" => actor.latest_revision.revision.image
     }
 
+    data =
+      case data["type"] do
+        "MN:Community" ->
+          Map.put(data, "collections", get_and_format_collections_for_actor(actor))
+
+        "MN:Collection" ->
+          Map.put(data, "resource", get_and_format_resources_for_actor(actor))
+
+        _ ->
+          data
+      end
+
     %__MODULE__{
       id: actor.id,
       data: data,
@@ -208,10 +221,22 @@ defmodule ActivityPub.Actor do
 
   defp format_remote_actor(%Object{} = actor) do
     username = actor.data["preferredUsername"] <> "@" <> URI.parse(actor.data["id"]).host
+    data = actor.data
+
+    data =
+      cond do
+        Map.has_key?(data, "collections") ->
+          Map.put(data, "type", "MN:Community")
+
+        Map.has_key?(data, "resources") ->
+          Map.put(data, "type", "MN:Collection")
+
+        true -> data
+      end
 
     %__MODULE__{
       id: actor.id,
-      data: actor.data,
+      data: data,
       keys: nil,
       local: false,
       ap_id: actor.data["id"],
@@ -242,8 +267,8 @@ defmodule ActivityPub.Actor do
       {:ok, actor}
     else
       with {:ok, pem} <- Keys.generate_rsa_pem(),
-      {:ok, local_actor} <- Adapter.update_local_actor(actor, %{signing_key: pem}),
-      actor <- format_local_actor(local_actor) do
+           {:ok, local_actor} <- Adapter.update_local_actor(actor, %{signing_key: pem}),
+           actor <- format_local_actor(local_actor) do
         {:ok, actor}
       else
         {:error, e} -> {:error, e}
@@ -255,5 +280,15 @@ defmodule ActivityPub.Actor do
     Repo.delete(%Object{
       id: actor.id
     })
+  end
+
+  # TODO
+  def get_and_format_collections_for_actor(_actor) do
+    []
+  end
+
+  # TODO
+  def get_and_format_resources_for_actor(_actor) do
+    []
   end
 end
