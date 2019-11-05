@@ -241,12 +241,13 @@ defmodule ActivityPub.Actor do
     if actor.keys do
       {:ok, actor}
     else
-      # TODO: move MN specific calls elsewhere
-      {:ok, pem} = Keys.generate_rsa_pem()
-      {:ok, local_actor} = MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"])
-      {:ok, local_actor} = MoodleNet.Actors.update(local_actor, %{signing_key: pem})
-      actor = format_local_actor(local_actor)
-      {:ok, actor}
+      with {:ok, pem} <- Keys.generate_rsa_pem(),
+      {:ok, local_actor} <- Adapter.update_local_actor(actor, %{signing_key: pem}),
+      actor <- format_local_actor(local_actor) do
+        {:ok, actor}
+      else
+        {:error, e} -> {:error, e}
+      end
     end
   end
 

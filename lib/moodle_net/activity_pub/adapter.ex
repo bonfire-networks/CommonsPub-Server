@@ -24,6 +24,15 @@ defmodule MoodleNet.ActivityPub.Adapter do
     Actors.create(create_attrs)
   end
 
+  def update_local_actor(actor, params) do
+    with {:ok, local_actor} <- MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
+         {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params) do
+      {:ok, local_actor}
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   def maybe_create_remote_actor(actor) do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
