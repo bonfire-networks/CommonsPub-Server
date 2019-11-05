@@ -15,11 +15,13 @@ defmodule ActivityPub do
   alias ActivityPub.Adapter
   alias ActivityPub.Utils
   alias ActivityPub.Object
+  alias ActivityPub.MRF
   alias MoodleNet.Repo
 
   @doc false
   def insert(map, local) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
+         {:ok, map} <- MRF.filter(map),
          {:ok, map, object} <- Utils.insert_full_object(map) do
       {:ok, activity} =
         Repo.insert(%Object{
@@ -37,6 +39,8 @@ defmodule ActivityPub do
         end
 
       {:ok, activity}
+      else
+        error -> {:error, error}
     end
   end
 
