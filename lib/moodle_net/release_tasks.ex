@@ -54,9 +54,9 @@ defmodule MoodleNet.ReleaseTasks do
     Ecto.Migrator.run(repo, migrations_path, :up, all: true)
   end
 
-  def auto_init_migrate() do
+  def startup_migrations() do
     start_repos()
-    create_repos()
+    # create_repos()
     migrate_repos()
     stop_repos()
   end

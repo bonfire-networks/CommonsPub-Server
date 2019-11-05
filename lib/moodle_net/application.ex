@@ -14,7 +14,7 @@ defmodule MoodleNet.Application do
 
   def start(_type, _args) do
 
-    MoodleNet.ReleaseTasks.auto_init_migrate() # start repos, create DB, run migrations, stop repos
+    MoodleNet.ReleaseTasks.startup_migrations() # start repos, run migrations, stop repos
 
     {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
