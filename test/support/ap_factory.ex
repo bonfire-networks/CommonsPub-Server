@@ -1,6 +1,12 @@
 defmodule ActivityPub.Factory do
   use ExMachina.Ecto, repo: MoodleNet.Repo
 
+  def actor(attrs \\ %{}) do
+    actor = insert(:actor, attrs)
+    {:ok, actor} = ActivityPub.Actor.get_by_ap_id(actor.data["id"])
+    actor
+  end
+
   def actor_factory(attrs \\ %{}) do
     data = %{
       "name" => sequence(:name, &"Test actor #{&1}"),
