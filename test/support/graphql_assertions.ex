@@ -35,4 +35,5 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert message == "not found"
     assert_location(loc)
   end
+
 end

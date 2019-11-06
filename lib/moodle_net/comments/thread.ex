@@ -16,19 +16,24 @@ defmodule MoodleNet.Comments.Thread do
     timestamps()
   end
 
-  @create_cast ~w(is_public)a
+  @create_cast ~w()a
   @create_required @create_cast
 
-  def create_changeset(%Pointer{} = parent, %Actor{} = creator, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, %Pointer{} = parent, %Actor{} = creator, attrs) do
+    Meta.assert_points_to!(pointer, __MODULE__)
     %Thread{}
     |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.change(
+      id: id,
+      creator_id: creator.id,
+      parent_id: parent.id,
+      is_public: true
+    )
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:parent, parent)
     |> change_public()
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast ~w()a
 
   def update_changeset(%Thread{} = thread, attrs) do
     thread

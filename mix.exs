@@ -51,8 +51,8 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.4"},
-      {:absinthe_plug, "~> 1.4"},
+      {:absinthe, "~> 1.5.0-beta.2"},
+      {:absinthe_plug, "~> 1.5.0-alpha.0"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.1"},

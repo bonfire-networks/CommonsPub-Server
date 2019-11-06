@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities.Community do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
+  import MoodleNet.Common.Changeset,
+    only: [meta_pointer_constraint: 1, change_public: 1, validate_language_code: 2]
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Flag
@@ -15,32 +16,34 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_community" do
-    belongs_to(:creator, Actor)
-    belongs_to(:primary_language, Language, type: :string)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
-    has_many(:collections, Collection)
-    has_many(:flags, Flag)
+    belongs_to :creator, Actor
+    field :actor, :any, virtual: true
+    field :is_public, :boolean, virtual: true
+    field :published_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
+    has_many :collections, Collection
+    has_many :flags, Flag
     timestamps()
   end
 
-  @create_cast ~w(is_public)a
+  @create_cast ~w()a
   @create_required @create_cast
 
-  def create_changeset(%Pointer{id: id} = pointer, creator, language, fields) do
+  def create_changeset(%Pointer{id: id} = pointer, %Actor{}=creator, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)
-
-    %Community{id: id}
+    %Community{}
     |> Changeset.cast(fields, @create_cast)
+    |> Changeset.change(
+      id: id,
+      is_public: true,        # communities are currently all public
+      creator_id: creator.id, # please actually be a user or remote actor
+    )
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:primary_language, language)
     |> change_public()
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast ~w()a
   @update_required ~w()a
 
   def update_changeset(%Community{} = community, fields) do

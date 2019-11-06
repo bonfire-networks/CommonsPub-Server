@@ -51,4 +51,6 @@ defmodule MoodleNet.GraphQL do
     end
   end
 
+  def not_permitted(), do: {:error, NotPermittedError.new()}
+
 end

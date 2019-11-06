@@ -85,4 +85,5 @@ defmodule MoodleNet.Users.User do
     do: Changeset.change(ch, password_hash: Argon2.hash_pwd_salt(pass))
 
   defp hash_password(changeset), do: changeset
+
 end

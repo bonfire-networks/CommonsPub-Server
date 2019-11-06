@@ -17,14 +17,14 @@ defmodule MoodleNet.OAuthTest do
   }
   @moduletag :skip
 
-  defp strip_user(user), do: Map.drop(user, [:actor, :email_confirm_tokens])
+  defp strip(user), do: Map.drop(user, [:actor, :email_confirm_tokens, :auth, :user])
 
   describe "MoodleNet.OAuth.fetch_auth/1" do
     test "works" do
       user = fake_user!(%{}, confirm_email: true)
       token = Repo.preload(fake_token!(user), :auth)
       assert {:ok, auth} = OAuth.fetch_auth(token.auth_id)
-      assert auth == token.auth
+      assert strip(auth) == strip(token.auth)
     end
   end
 
@@ -34,7 +34,7 @@ defmodule MoodleNet.OAuthTest do
       user = fake_user!(%{}, confirm_email: true)
       token = Repo.preload(fake_token!(user), :auth)
       assert {:ok, auth} = OAuth.fetch_auth_by(user_id: user.id)
-      assert auth == token.auth
+      assert strip(auth) == strip(token.auth)
     end
   end
 
@@ -45,8 +45,8 @@ defmodule MoodleNet.OAuthTest do
       token = fake_token!(user)
       assert token.user_id == user.id
       assert {:ok, {token2, user2}} = OAuth.fetch_token_and_user(token.id)
-      assert token == token2
-      assert strip_user(user) == strip_user(user2)
+      assert strip(token) == strip(token2)
+      assert strip(user) == strip(user2)
     end
 
     test "fails with an invalid token" do

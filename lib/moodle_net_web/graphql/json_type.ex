@@ -1,9 +1,6 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/>, CommonsPub <https://commonspub.org/> and
-# Absinthe wiki <https://github.com/absinthe-graphql/absinthe/wiki/Scalar-Recipes>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNetWeb.Schema.Types.Custom.JSON do
   @moduledoc """
   The Json scalar type allows arbitrary JSON values to be passed in and out.
