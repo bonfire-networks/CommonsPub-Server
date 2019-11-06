@@ -1,9 +1,8 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule MoodleNetWeb.GraphQL.ActivitySchema do
+defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   @moduledoc """
   GraphQL activity fields, associations, queries and mutations.
   """
@@ -11,17 +10,22 @@ defmodule MoodleNetWeb.GraphQL.ActivitySchema do
 
   require ActivityPub.Guards, as: APG
   alias ActivityPub.SQL.Query
+  alias MoodleNetWeb.GraphQL.ActivitiesResolver
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
 
   object :activity do
-    field(:id, :string)
-    field(:local_id, :integer)
-    field(:published, :string)
-    field(:type, non_null(list_of(non_null(:string))))
-    field(:activity_type, :string)
+    field :id, :string
+    field :published, :string
+    field :type, non_null(list_of(non_null(:string)))
+    field :activity_type, :string
 
-    field(:user, :user, do: resolve(Resolver.with_assoc(:actor, single: true)))
-    field(:object, :activity_object, do: resolve(Resolver.with_assoc(:object, single: true, preload_assoc_individually: true)))
+    field :user, :user do
+      resolve &ActivitiesResolver.user/3
+    end
+
+    field :object, :activity_object do
+      resolve &ActivitiesResolver.object/3
+    end
   end
 
   union :activity_object do

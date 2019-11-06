@@ -1,8 +1,6 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc """
 
@@ -68,50 +66,63 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   use Absinthe.Schema
 
+  alias MoodleNetWeb.GraphQL.Types.{
+    FeedItem,
+  }
   alias MoodleNetWeb.GraphQL.{
+    ActivitiesSchema,
+    CommunitiesSchema,
+    LocalisationSchema,
+    UsersSchema,
+    CommonSchema,
+
+    CommentsSchema,
+    CollectionsSchema,
+    ResourcesSchema,
+
     MoodleNetSchema,
     MiscSchema,
-    CommonSchema,
-    UsersSchema,
-    CommunitySchema,
-    CollectionSchema,
-    ResourceSchema,
-    CommentSchema,
-    ActivitySchema
   }
 
-  import_types(UsersSchema)
-  import_types(CommentSchema)
-  import_types(CommunitySchema)
-  import_types(CollectionSchema)
-  import_types(ResourceSchema)
-  import_types(ActivitySchema)
-  import_types(MiscSchema)
-  import_types(CommonSchema)
+  import_types ActivitiesSchema
+  import_types CommunitiesSchema
+  import_types LocalisationSchema
+  import_types UsersSchema
+  import_types CommonSchema
+
+  import_types CommentsSchema
+  import_types CollectionsSchema
+  import_types ResourcesSchema
+  
+  import_types MiscSchema
 
   query do
-    import_fields(:users_queries)
-    import_fields(:comment_queries)
-    import_fields(:community_queries)
-    import_fields(:collection_queries)
-    import_fields(:resource_queries)
+    import_fields :communities_queries
+    import_fields :localisation_queries
+    import_fields :users_queries
 
-    @desc "Get local activity list"
-    field :local_activities, type: non_null(:generic_activity_page) do
-      arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
-      resolve(&ActivitySchema.local_activity_list/2)
-    end
+    import_fields :comments_queries
+    import_fields :collection_queries
+    import_fields :resource_queries
+
+    # @desc "Get local activity list"
+    # field :instance_feed, type: :instance_feed_page do
+    #   arg :limit, :integer
+    #   arg :before, :integer
+    #   arg :after, :integer
+    #   resolve &InstanceSchema.feed/2
+    # end
 
   end
 
   mutation do
-    import_fields(:users_mutations)
-    import_fields(:comment_mutations)
-    import_fields(:community_mutations)
-    import_fields(:collection_mutations)
-    import_fields(:resource_mutations)
+    import_fields :common_mutations
+    import_fields :communities_mutations
+    import_fields :users_mutations
+
+    import_fields :comments_mutations
+    import_fields :collection_mutations
+    import_fields :resource_mutations
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, type: :web_metadata do

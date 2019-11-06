@@ -1,91 +1,54 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
-defmodule MoodleNetWeb.GraphQL.CollectionSchema do
+defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   @moduledoc """
   GraphQL collection fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
 
   alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
-  alias MoodleNetWeb.GraphQL.CollectionResolver
+  alias MoodleNetWeb.GraphQL.CollectionsResolver
 
   object :collection_queries do
 
     @desc "Get list of collections"
     field :collections, :collection_page do
-      arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
-      resolve(&CollectionResolver.list/2)
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &CollectionsResolver.list/2
     end
 
     @desc "Get a collection"
     field :collection, :collection do
-      arg(:local_id, non_null(:integer))
-      resolve(Resolver.resolve_by_id_and_type("MoodleNet:Collection"))
+      arg :collection_id, non_null(:string)
+      resolve &CollectionResolver.fetch/2
     end
   end
 
   object :collection_mutations do
+
     @desc "Create a collection"
     field :create_collection, type: :collection do
-      arg(:community_local_id, non_null(:integer))
-      arg(:collection, non_null(:collection_input))
-      resolve(&CollectionResolver.create/2)
+      arg :community_id, non_null(:string)
+      arg :collection, non_null(:collection_input)
+      resolve &CollectionsResolver.create/2
     end
 
     @desc "Update a collection"
     field :update_collection, type: :collection do
-      arg(:collection_local_id, non_null(:integer))
-      arg(:collection, non_null(:collection_input))
-      resolve(&CollectionResolver.update/2)
+      arg :collection_id, non_null(:integer)
+      arg :collection, non_null(:collection_input)
+      resolve &CollectionsResolver.update/2
     end
 
     @desc "Delete a collection"
     field :delete_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.delete/2)
+      arg :local_id, non_null(:integer)
+      resolve &CollectionsResolver.delete/2
     end
 
-    @desc "Follow a collection"
-    field :follow_collection, type: :boolean do
-      arg(:collection_local_id, non_null(:integer))
-      resolve(&CollectionResolver.follow/2)
-    end
-
-    @desc "Undo follow a collection"
-    field :undo_follow_collection, type: :boolean do
-      arg(:collection_local_id, non_null(:integer))
-      resolve(&CollectionResolver.undo_follow/2)
-    end
-
-    @desc "Like a collection"
-    field :like_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.like/2)
-    end
-
-    @desc "Undo a previous like to a collection"
-    field :undo_like_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.undo_like/2)
-    end
-
-    @desc "Flag a collection"
-    field :flag_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
-      arg(:reason, non_null(:string))
-      resolve(&CollectionResolver.flag/2)
-    end
-
-    @desc "Undo a previous flag of a collection"
-    field :undo_flag_collection, type: :boolean do
-      arg(:local_id, non_null(:integer))
-      resolve(&CollectionResolver.undo_flag/2)
-    end
   end
 
 
@@ -110,44 +73,44 @@ defmodule MoodleNetWeb.GraphQL.CollectionSchema do
     field(:community, :community, do: resolve(Resolver.with_assoc(:context, single: true)))
 
     field :followers, :collection_followers_connection do
-      arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
-      resolve(Resolver.with_connection(:collection_follower))
+      arg :limit, :integer
+      arg :before, :string
+      arg :after,  :string
+      resolve &CommonResolver.followers/3
     end
 
     field :resources, :collection_resources_connection do
       arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
+      arg(:before, :string)
+      arg(:after, :string)
       resolve(Resolver.with_connection(:collection_resource))
     end
 
     field :threads, :collection_threads_connection do
       arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
+      arg(:before, :string)
+      arg(:after, :string)
       resolve(Resolver.with_connection(:collection_thread))
     end
 
     field :likers, :collection_likers_connection do
       arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
+      arg(:before, :string)
+      arg(:after, :string)
       resolve(Resolver.with_connection(:collection_liker))
     end
 
     field :flags, :collection_flags_connection do
       arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
+      arg(:before, :string)
+      arg(:after, :string)
       resolve(Resolver.with_connection(:collection_flags))
     end
 
     field :inbox, :collection_inbox_connection do
       arg(:limit, :integer)
-      arg(:before, :integer)
-      arg(:after, :integer)
+      arg(:before, :string)
+      arg(:after, :string)
       resolve(Resolver.with_connection(:collection_inbox))
     end
 

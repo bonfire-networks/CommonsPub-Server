@@ -5,14 +5,18 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
-  # import MoodleNetWeb.GraphQL.MoodleNetSchema
-  import MoodleNet.GraphQL.Schema
-  require ActivityPub.Guards, as: APG
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
   alias MoodleNet.{Accounts, Actors, GraphQL, OAuth, Repo, Users}
-  alias MoodleNet.Common.NotPermittedError
+  alias MoodleNet.Common.{
+    AlreadyFlaggedError,
+    AlreadyFollowingError,
+    NotFlaggableError,
+    NotFoundError,
+    NotPermittedError,
+  }
+  alias MoodleNet.Meta.Table
   alias MoodleNet.OAuth.Token
 
   def check_username_available(%{username: username}, _info),
@@ -21,18 +25,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def me(_, info) do
     with {:ok, current_user} <- GraphQL.current_user(info),
          {:ok, actor} <- Users.fetch_actor(current_user) do
-      # FIXME
-      actor = GraphQL.response(actor, info, ~w(user)a)
-      {:ok, %{email: current_user.email, user: actor}}
+      user = GraphQL.response(actor, info, ~w(user)a)
+      {:ok, %{email: current_user.email, user: user}}
     end
     |> GraphQL.response(info)
   end
 
-  def user(%{id: id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user(info) do
-      Actors.fetch(id)
-    end
-    |> GraphQL.response(info)
+  def user(%{user_id: id}, info) do
+    actor = Actors.fetch(id)
+    GraphQL.response(actor, info)
   end
 
   def create(%{user: attrs}, info) do
@@ -89,9 +90,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def reset_password_request(%{email: email}, info) do
-    with {:ok, user} <- Users.fetch_by_email(email),
+    with :ok <- GraphQL.guest_only(info),
+	 {:ok, user} <- Users.fetch_by_email(email),
          {:ok, token} <- Users.request_password_reset(user) do
-      {:ok, token.id}
+      {:ok, true}
     else
       err -> GraphQL.response(err, info)
     end
@@ -110,7 +112,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       with {:ok, user} <- Users.claim_email_confirm_token(token),
            {:ok, auth} <- OAuth.create_auth(user),
            {:ok, auth_token} <- OAuth.claim_token(auth) do
-        {:ok, auth_token.id}
+        {:ok, true}
       else
         err -> GraphQL.response(err, info)
       end
@@ -119,4 +121,5 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def inbox(_params, _info) do
   end
+
 end
