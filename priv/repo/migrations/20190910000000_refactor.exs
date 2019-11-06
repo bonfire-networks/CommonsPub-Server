@@ -4,7 +4,7 @@
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
 
-  @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_comment mn_like mn_flag)
+  @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_thread mn_comment mn_like mn_flag)
   @revised [
     {"mn_actor", "actor_id"},
     {"mn_resource", "resource_id"},
@@ -100,14 +100,16 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :alias_id, references("mn_meta_pointer", on_delete: :delete_all) # user or collection etc.
       add :peer_id, references("mn_peer", on_delete: :delete_all) # null for local
-      add :preferred_username, :text
+      add :preferred_username, :text # null just in case, expected to be filled
+      add :primary_language_id, references("mn_language", on_delete: :nilify_all, type: :string, size: 2)
       add :published_at, :timestamptz # null just in case, expected to be filled
       add :deleted_at, :timestamptz
-      add :signing_key, :text # string type too short for the data stored
+      add :signing_key, :text
       timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_actor, :peer_id, where: "deleted_at is null")
+    create index(:mn_actor, :primary_language_id, where: "deleted_at is null")
     create unique_index(:mn_actor, :alias_id,  where: "deleted_at is null")
     create unique_index(
       :mn_actor, [:preferred_username, :peer_id],
@@ -129,7 +131,6 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :image, :text
       add :location, :text
       add :website, :text
-      add :primary_language, :text
       timestamps(updated_at: false, type: :utc_datetime_usec)
     end
 
@@ -177,14 +178,12 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_community, primary_key: false) do
       add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       timestamps(type: :utc_datetime_usec)
     end
 
     create index(:mn_community, :creator_id, where: "deleted_at is null")
-    create index(:mn_community, :primary_language_id, where: "deleted_at is null")
 
     # a collection is a group actor that is home to resources
     create table(:mn_collection, primary_key: false) do
@@ -232,7 +231,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create index(:mn_resource_revision, [:resource_id, "inserted_at desc"])
 
-    create table(:mn_thread) do
+    create table(:mn_thread, primary_key: false) do
+      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
       add :parent_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
