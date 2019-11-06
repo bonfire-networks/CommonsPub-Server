@@ -63,26 +63,26 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :primary_language, :language
     field :url, :string
 
-    field:creator, :user do
-      resolve Resolver.with_assoc(:attributed_to, single: true)
+    field :creator, :user do
+      resolve &ResourcesResolver.creator/3
     end
 
     field :collection, :collection do
-      resolve Resolver.with_assoc(:context, single: true)
+      resolve &ResourcesResolver.collection/3
     end
 
     field :likers, non_null(:resource_likers_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve Resolver.with_connection(:resource_liker)
+      resolve &ResourcesResolver.likers/3
     end
 
     field :flags, non_null(:resource_flags_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve Resolver.with_connection(:resource_flags)
+      resolve &ResourcesResolver.flags/3
     end
 
     field :published, :string
