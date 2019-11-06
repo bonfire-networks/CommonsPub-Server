@@ -40,12 +40,13 @@ defmodule MoodleNet.Resources.Resource do
       id: id,
       collection_id: collection.id,
       creator_id: creator.id,
+      is_public: true
     )
     |> change_public()
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast ~w()a
 
   @spec update_changeset(%Resource{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the resource with the given attributes."

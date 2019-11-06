@@ -22,18 +22,22 @@ defmodule MoodleNet.Comments.Comment do
     timestamps()
   end
 
-  @create_cast ~w(is_public)a
+  @create_cast ~w()a
   @create_required @create_cast
 
   @spec create_changeset(Pointer.t(), Actor.t(), Thread.t(), map) :: Changeset.t()
   def create_changeset(%Pointer{id: id} = pointer, creator, thread, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
-    %Comment{id: id}
+    %Comment{}
     |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.change(
+      id: id,
+      creator_id: creator.id,
+      thread_id: thread.id,
+      is_public: true
+    )
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:thread, thread)
     |> change_public()
     |> meta_pointer_constraint()
   end

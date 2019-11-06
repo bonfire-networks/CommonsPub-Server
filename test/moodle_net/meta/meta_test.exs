@@ -15,7 +15,7 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Comments.Comment
+  alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{
     Flag,
     Like,
@@ -24,7 +24,7 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
 
-  @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Flag, Like]
+  @known_schemas [Peer, Actor, User, Community, Collection, Resource, Comment, Thread, Flag, Like]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
   @expected_table_names Enum.sort(@known_tables)
@@ -271,8 +271,8 @@ defmodule MoodleNet.MetaTest do
 	pointed9 = Map.drop(pointer9.pointed, [:actor, :email_confirm_tokens])
 	user4 = Map.drop(user2, [:actor, :email_confirm_tokens])
 	assert pointed9 == user4
-	pointed10 = Map.drop(pointer10.pointed, [:current, :is_public, :latest_revision])
-	actor2 = Map.drop(actor, [:current, :is_public, :latest_revision])
+	pointed10 = Map.drop(pointer10.pointed, [:current, :is_public, :latest_revision, :primary_language])
+	actor2 = Map.drop(actor, [:current, :is_public, :latest_revision, :primary_language])
 	assert actor2 == pointed10
       end
     end

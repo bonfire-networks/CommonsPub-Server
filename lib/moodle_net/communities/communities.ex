@@ -53,27 +53,13 @@ defmodule MoodleNet.Communities do
   # TODO: update actor
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
   def update(%Community{} = community, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      community
-      |> Community.update_changeset(attrs)
-      |> Repo.update()
-    end)
-  end
-
-  def follow(%User{} = user, %Community{} = community) do
-    with {:ok, actor} <- Users.fetch_actor(user) do
-      case Common.find_follow(actor, community) do
-	{:ok, follow} -> {:error, AlreadyFollowingError.new(community.id)}
-	_ ->
-	  with {:ok, _} <- Common.follow(actor, community) do
-	    {:ok, true}
-	  end
+    Repo.transact_with fn ->
+      with {:ok, actor} <- fetch_actor(community),
+           {:ok, community} <- Repo.update(Community.update_changeset(community, attrs)),
+           {:ok, actor} <- Actors.update(actor, attrs) do
+	{:ok, %{community | actor: actor}}
       end
     end
-  end
-
-  def unfollow(%Actor{} = actor, %Community{} = community) do
-
   end
 
   def soft_delete(%Community{} = community) do

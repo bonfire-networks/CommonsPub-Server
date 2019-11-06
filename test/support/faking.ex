@@ -84,13 +84,13 @@ defmodule MoodleNet.Test.Faking do
     resource
   end
 
-  def fake_thread!(actor, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Comments.create_thread(parent, actor, Fake.thread(overrides))
+  def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
+    {:ok, thread} = Comments.create_thread(parent, user.actor, Fake.thread(overrides))
     thread
   end
 
-  def fake_comment!(actor, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create_comment(thread, actor, Fake.comment(overrides))
+  def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
+    {:ok, comment} = Comments.create_comment(thread, user.actor, Fake.comment(overrides))
     comment
   end
 
