@@ -12,15 +12,30 @@ defmodule ActivityPub do
 
   Legacy: Delegates some functions to related ActivityPub submodules
   """
+  alias ActivityPub.Actor
   alias ActivityPub.Adapter
   alias ActivityPub.Utils
   alias ActivityPub.Object
   alias ActivityPub.MRF
   alias MoodleNet.Repo
 
+  defp check_actor_is_active(actor) do
+    if not is_nil(actor) do
+      with {:ok, actor} <- Actor.get_by_ap_id(actor),
+           false <- actor.deactivated do
+        :ok
+      else
+        _e -> :reject
+      end
+    else
+      :ok
+    end
+  end
+
   @doc false
   def insert(map, local) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
+         :ok <- check_actor_is_active(map["actor"]),
          {:ok, map} <- MRF.filter(map),
          {:ok, map, object} <- Utils.insert_full_object(map) do
       {:ok, activity} =

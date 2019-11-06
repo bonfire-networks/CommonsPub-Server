@@ -19,7 +19,7 @@ defmodule ActivityPub.Actor do
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id, :username]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -192,7 +192,8 @@ defmodule ActivityPub.Actor do
       keys: actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username
+      username: actor.preferred_username,
+      deactivated: false
     }
   end
 
@@ -205,7 +206,8 @@ defmodule ActivityPub.Actor do
       keys: nil,
       local: false,
       ap_id: actor.data["id"],
-      username: username
+      username: username,
+      deactivated: deactivated?(actor)
     }
   end
 
@@ -251,5 +253,17 @@ defmodule ActivityPub.Actor do
     |> Object.get_by_ap_id()
     |> Ecto.Changeset.change(%{data: data})
     |> MoodleNet.Repo.update()
+  end
+
+  defp deactivated?(%Object{} = actor) do
+    actor.data["deactivated"] == true
+  end
+
+  def toggle_active(%Actor{local: false} = actor) do
+    new_data =
+      actor.data
+      |> Map.put("deactivated", !actor.deactivated)
+
+    update_actor_data_by_ap_id(actor.ap_id, new_data)
   end
 end
