@@ -38,6 +38,10 @@ defmodule ActivityPub.Signature do
   def refetch_public_key(conn) do
     with %{"keyId" => kid} <- HTTPSignatures.signature_for_conn(conn),
          actor_id <- key_id_to_actor_id(kid),
+         # Ensure the actor is in the database before updating
+         # This might potentially update the actor twice in a row
+         # TODO: Fix that
+         {:ok, _actor} <- Actor.get_by_ap_id(actor_id),
          {:ok, _actor} <- Actor.update_actor(actor_id),
          {:ok, public_key} <- Actor.get_public_key_for_ap_id(actor_id) do
       {:ok, public_key}

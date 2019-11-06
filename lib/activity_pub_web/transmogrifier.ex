@@ -13,7 +13,6 @@ defmodule ActivityPubWeb.Transmogrifier do
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
   alias ActivityPub.Utils
-  alias MoodleNet.Repo
   require Logger
 
   @doc """
@@ -212,14 +211,7 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with {:ok, %Actor{local: false, data: %{"id" => ^actor_id}}} <-
-           Actor.get_by_ap_id(object["id"]),
-         # TODO: don't fetch the same object twice
-         actor_object <- Object.get_by_ap_id(actor_id) do
-      actor_object
-      |> Ecto.Changeset.change(data: object)
-      |> Repo.update()
-
+    with {:ok, _actor_object} <- Actor.update_actor_data_by_ap_id(actor_id, object) do
       ActivityPub.update(%{
         local: false,
         to: data["to"] || [],

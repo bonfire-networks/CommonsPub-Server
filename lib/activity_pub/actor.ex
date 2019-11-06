@@ -15,7 +15,6 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Keys
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
-  alias ActivityPubWeb.Transmogrifier
   alias MoodleNet.Repo
 
   @type t :: %Actor{}
@@ -29,11 +28,8 @@ defmodule ActivityPub.Actor do
   def update_actor(actor_id) do
     # TODO: make better
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         # Create fake activity and handle it through transmogrifier
-         # to easily pass data to the host database.
-         activity <- %{"type" => "Update", "actor" => actor_id, "object" => data},
-         {:ok, _activity} <- Transmogrifier.handle_incoming(activity) do
-      # Return actor
+         update_actor_data_by_ap_id(actor_id, data) do
+      # Return Actor
       get_by_ap_id(actor_id)
     end
   end
@@ -248,5 +244,12 @@ defmodule ActivityPub.Actor do
     Repo.delete(%Object{
       id: actor.id
     })
+  end
+
+  def update_actor_data_by_ap_id(ap_id, data) do
+    ap_id
+    |> Object.get_by_ap_id()
+    |> Ecto.Changeset.change(%{data: data})
+    |> MoodleNet.Repo.update()
   end
 end
