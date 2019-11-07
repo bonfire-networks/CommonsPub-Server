@@ -255,6 +255,7 @@ defmodule ActivityPub.Actor do
 
     [to, cc]
     |> Enum.concat()
+    |> List.delete("https://www.w3.org/ns/activitystreams#Public")
     |> Enum.map(&get_by_ap_id!/1)
     |> Enum.filter(fn actor -> actor && !actor.local end)
   end

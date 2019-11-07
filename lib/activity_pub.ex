@@ -12,10 +12,37 @@ defmodule ActivityPub do
 
   Legacy: Delegates some functions to related ActivityPub submodules
   """
+  alias ActivityPub.Actor
   alias ActivityPub.Adapter
   alias ActivityPub.Utils
   alias ActivityPub.Object
   alias MoodleNet.Repo
+
+  def maybe_forward_activity(%{data: %{"type" => "Create", "to" => to, "object" => object}} = activity) do
+    groups =
+      to
+      |> List.delete("https://www.w3.org/ns/activitystreams#Public")
+      |> Enum.map(&Actor.get_by_ap_id!/1)
+      |> Enum.filter(fn actor ->
+        actor.data["type"] == "MN:Collection" or actor.data["type"] == "MN:Community"
+      end)
+
+    groups
+    |> Enum.map(fn group ->
+      ActivityPub.create(%{
+        to: ["https://www.w3.org/ns/activitystreams#Public"],
+        object: object,
+        actor: group,
+        context: activity.data["context"],
+        additional: %{
+          "cc" => [group.data["followers"]],
+          "attributedTo" => activity.data["actor"]
+        }
+      })
+    end)
+  end
+
+  def maybe_forward_activity(_), do: :ok
 
   @doc false
   def insert(map, local) when is_map(map) and is_boolean(local) do

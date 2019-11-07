@@ -271,4 +271,17 @@ defmodule ActivityPubTest do
              }
            } = activity
   end
+
+  describe "activity forwarding" do
+    test "works" do
+      group_actor = actor(%{data: %{"collections" => []}})
+      activity = insert(:note_activity, %{data_attrs: %{"to" => [group_actor.ap_id, "https://www.w3.org/ns/activitystreams#Public"]}})
+
+      [{:ok, forwarded_activity}] = ActivityPub.maybe_forward_activity(activity)
+
+      assert forwarded_activity.data["actor"] == group_actor.ap_id
+      assert forwarded_activity.data["attributedTo"] == activity.data["actor"]
+      assert forwarded_activity.data["object"] == activity.data["object"]
+    end
+  end
 end
