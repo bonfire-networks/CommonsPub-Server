@@ -252,8 +252,8 @@ defmodule ActivityPubWeb.Transmogrifier do
       {:actor, true} ->
         case Actor.get_by_ap_id(object_id) do
           {:ok, %Actor{data: %{"id" => ^actor}} = actor} ->
-            Actor.delete(actor)
             ActivityPub.delete(actor, false)
+            Actor.delete(actor)
 
           {:error, _} ->
             :error
