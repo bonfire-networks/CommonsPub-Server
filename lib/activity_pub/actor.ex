@@ -74,7 +74,7 @@ defmodule ActivityPub.Actor do
   end
 
   @doc """
-  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld' format.
+  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld` format.
   """
   def get_or_fetch_by_username(username) do
     with {:ok, actor} <- get_by_username(username) do
