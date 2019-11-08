@@ -33,7 +33,8 @@ defmodule MoodleNet.Mixfile do
        :runtime_tools,
        :comeonin,
        :hackney,
-       :mime
+       :mime,
+       :belt,
      ]
     ]
   end
@@ -67,7 +68,7 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
       # File storage
-      {:belt, "~> 0.4.2"},
+      {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
       {:format_parser, "~> 1.3.0"},
       # MIME type map

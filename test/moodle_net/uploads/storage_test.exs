@@ -7,16 +7,26 @@ defmodule MoodleNet.Uploads.StorageTest do
   alias MoodleNet.Uploads.Storage
 
   describe "store" do
-    test "stores a file" do
-      assert {:ok, file_info} = Storage.store(%{file: "test/fixtures/images/150.png"})
+    test "stores a file using a path" do
+      assert {:ok, file_info} = Storage.store("test/fixtures/images/150.png")
+    end
+
+    test "stores a file using a plug upload" do
+      assert {:ok, file_info} =
+               Storage.store(%{path: "test/fixtures/images/150.png", filename: "150.png"})
+    end
+
+    test "fails to store a missing file" do
+      assert {:error, :enoent} = Storage.store("missing.png")
+    end
+
+    test "fails to store a file with a blocked extension" do
     end
   end
 
   describe "remote_url" do
-    
   end
 
   describe "delete" do
-    
   end
 end
