@@ -12,7 +12,7 @@ defmodule MoodleNet.Uploads.Storage do
     with {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
          {:ok, metadata} <- get_metadata(file) do
       media_type = format_to_media_type(metadata.format)
-      {:ok, %{info: file_info, media_type: media_type, metadata: metadata}}
+      {:ok, %{id: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
     end
   end
 
