@@ -57,7 +57,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Confirm email. Returns a login token."
-    field :confirm_email, type: :string do
+    field :confirm_email, type: :auth_payload do
       arg :token, non_null(:string)
       resolve &UsersResolver.confirm_email/2
     end
