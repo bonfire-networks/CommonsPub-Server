@@ -10,6 +10,12 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :users_queries do
 
+    @desc "Check if a user exists with a username"
+    field :username_available, type: :boolean do
+      arg :username, non_null(:string)
+      resolve &UsersResolver.check_username_available/2
+    end
+
     @desc "Get my user"
     field :me, type: :me do
       resolve &UsersResolver.me/2
@@ -21,19 +27,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.user/2
     end
 
-    @desc "Check if a user exists with a username"
-    field :username_available, type: :boolean do
-      arg :username, non_null(:string)
-      resolve &UsersResolver.check_username_available/2
-    end
-
-    # TODO
-    field :user_inbox, type: :boolean do
-      arg :limit, :integer
-      arg :before, :integer
-      arg :after, :integer
-      resolve &UsersResolver.inbox/2
-    end
   end
 
   object :users_mutations do
@@ -48,11 +41,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :update_profile, type: :me do
       arg :profile, non_null(:update_profile_input)
       resolve &UsersResolver.update_profile/2
-    end
-
-    @desc "Delete a user"
-    field :delete_user, type: :boolean do
-      resolve &UsersResolver.delete/2
     end
 
     @desc "Reset password request"

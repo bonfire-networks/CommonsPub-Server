@@ -9,12 +9,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
   alias MoodleNetWeb.GraphQL.InstanceResolver
 
   object :instance_queries do
-
     @desc "A logical object for the local instance"
     field :instance, :instance do
       resolve &InstanceResolver.instance/2
     end
-
   end
 
   object :instance do
@@ -23,8 +21,12 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     A list of public activity on the local instance, most recent first
     """
     field :outbox, :generic_activity_page do
-      resolve &InstanceResolver/out
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &InstanceResolver.out/3
     end
 
   end
+
 end

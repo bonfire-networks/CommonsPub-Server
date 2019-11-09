@@ -18,13 +18,13 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Get a thread"
     field :thread, :thread do
       arg :thread_id, non_null(:string)
-      resolve &CommentsResolver.fetch_thread/2
+      resolve &CommentsResolver.fetch/2
     end
 
     @desc "Get a comment"
     field :comment, :comment do
       arg :comment_id, non_null(:string)
-      resolve &CommentsResolver.fetch_comment/2
+      resolve &CommentsResolver.fetch/2
     end
 
   end

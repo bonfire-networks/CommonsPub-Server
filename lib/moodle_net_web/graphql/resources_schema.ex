@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "Delete a resource"
     field :delete_resource, type: :boolean do
       arg :resource_id, non_null(:string)
-      resolve &ResourcesResolver.delete/2
+      resolve &CommonResolver.delete/2
     end
 
     @desc "Copy a resource"

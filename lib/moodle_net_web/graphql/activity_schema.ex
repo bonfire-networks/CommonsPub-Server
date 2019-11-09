@@ -6,9 +6,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   GraphQL activity fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-
   alias MoodleNetWeb.GraphQL.ActivitiesResolver
-  alias MoodleNetWeb.GraphQL.MoodleNetSchema, as: Resolver
 
   @desc "An event that appears in a feed"
   object :activity do

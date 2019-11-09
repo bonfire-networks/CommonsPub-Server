@@ -95,7 +95,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The user who created the collection"
     field :creator, :user do
-      resolve &CollectionsResolver.creator/3
+      resolve &CommonResolver.creator/3
     end
 
     @desc "The community the collection belongs to"
