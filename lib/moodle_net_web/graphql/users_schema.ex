@@ -73,6 +73,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :delete_session, type: :boolean do
       resolve &UsersResolver.delete_session/2
     end
+
+    @desc "Deletes my account!"
+    field :delete_self, type: :boolean do
+      arg :i_am_sure, non_null(:boolean)
+      resolve UsersResolver.delete/2
+    end
+
   end
 
   @desc """
