@@ -130,6 +130,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :created_at, :string
     @desc "When the user last updated their profile"
     field :updated_at, :string
+
     @desc "The last time the user did anything"
     field :last_activity, :string do
       resolve &UsersResolver.last_activity/3
@@ -167,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Comments the user has made, most recently created first"
-    field :comments, :user_created_comments_connection do
+    field :comments, :user_comments_connection do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -225,9 +226,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :node, :follow
   end
 
-  object :user_created_comments_connection do
+  object :user_comments_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_created_comments_edge)
+    field :edges, list_of(:user_comments_edge)
     field :total_count, non_null(:integer)
   end
 
@@ -243,12 +244,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :user_activities_edge do
-    field :cursor, non_null(:string)
-    field :node, :activity
-  end
-
-  object :user_created_comments_edge do
+  object :user_comments_edge do
     field :cursor, non_null(:string)
     field :node, :comment
   end
