@@ -2,9 +2,6 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommentsSchema do
-  @moduledoc """
-  GraphQL comment fields, associations, queries and mutations.
-  """
   use Absinthe.Schema.Notation
 
   require ActivityPub.Guards, as: APG
@@ -72,7 +69,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "When the thread was last updated"
     field :updated_at, :string
     @desc "The last time the thread or a comment on it was created or updated"
-    field :last_activity, :string
+    field :last_activity, :string do
+      resolve &CommentsResolver.last_activity/3
+    end
 
     @desc "The current user's follow of the community, if any"
     field :my_follow, :follow do
@@ -128,11 +127,22 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "An instance-local UUID identifying the thread"
     field :id, :string
 
+    @desc "The id of the comment this one was a reply to"
+    field :in_reply_to_id, :string
     @desc "The comment text"
     field :content, :string
 
-    @desc "The id of the comment this one was a reply to"
-    field :in_reply_to_id, :string
+    @desc "Whether the comment is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the comment is publically visible"
+    field :is_public, :boolean
+    @desc "Whether an comment admin has hidden the thread"
+    field :is_hidden, :boolean
+
+    @desc "When the comment was created"
+    field :created_at, :string
+    @desc "When the comment was last updated"
+    field :updated_at, :string
 
     @desc "The current user's like of this comment, if any"
     field :my_like, :like do
@@ -145,11 +155,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likers, :comment_likers_connection do
+    field :likes, :comment_likes_connection do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likers/3
+      resolve &CommonResolver.likes/3
     end
 
     @desc "Flags users have made about the comment, most recently created first"
@@ -173,13 +183,13 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
   end
 
-  object :comment_likers_connection do
+  object :comment_likes_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:comment_likers_edge)
+    field :edges, list_of(:comment_likes_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :comment_likers_edge do
+  object :comment_likes_edge do
     field :cursor, non_null(:string)
     field :node, :like
   end
