@@ -6,15 +6,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   GraphQL user fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-
-  import MoodleNetWeb.GraphQL.MoodleNetSchema
-  alias MoodleNetWeb.GraphQL.UsersResolver
+  alias MoodleNetWeb.GraphQL.{CommonResolver,UsersResolver}
 
   object :users_queries do
 
     @desc "Get my user"
     field :me, type: :me do
-      resolve(&UsersResolver.me/2)
+      resolve &UsersResolver.me/2
     end
 
     @desc "Get an user"
@@ -41,7 +39,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   object :users_mutations do
 
     @desc "Create a user"
-    field :create_user, type: :auth_payload do
+    field :create_user, type: :me do
       arg :user, non_null(:registration_input)
       resolve &UsersResolver.create/2
     end
@@ -70,75 +68,145 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.reset_password/2
     end
 
-    @desc "Confirm email"
-    field :confirm_email, type: :boolean do
+    @desc "Confirm email. Returns a login token."
+    field :confirm_email, type: :string do
       arg :token, non_null(:string)
       resolve &UsersResolver.confirm_email/2
     end
 
-    @desc "Login"
+    @desc "Log in"
     field :create_session, type: :auth_payload do
       arg :email, non_null(:string)
       arg :password, non_null(:string)
       resolve &UsersResolver.create_session/2
     end
 
-    @desc "Logout"
+    @desc "Log out"
     field :delete_session, type: :boolean do
       resolve &UsersResolver.delete_session/2
     end
-
   end
 
-  object :auth_payload do
-    field :token, :string
-    field :me, :me
-  end
-
+  @desc """
+  The current user. Contains more information than just the `user` type
+  """
   object :me do
+    @desc "The public info"
     field :user, :user
+    @desc "The user's email"
     field :email, :string
+    @desc "Would the user like to receive digest emails of updates?"
+    field :wants_email_digest, :bool
+    @desc "Does the user want notifications? Which don't work yet."
+    field :wants_notifications, :bool
+    @desc "Has the user confirmed their account?"
+    field :is_confirmed, :bool
+    @desc "Is the user a witch or wizard?"
+    field :is_instance_admin, :bool
   end
 
+  @desc "User profile information"
   object :user do
+    @desc "An instance-local UUID identifying the user"
     field :id, :id
-    field :local, :boolean
+    @desc "A url for the user, may be to a remote instance"
+    field :canonical_url, :string
+    @desc "An instance-unique identifier shared with communities and collections"
     field :preferred_username, :string
-    field :name, :string
-    field :summary, :string
-    field :location, :string
-    field :website, :string
-    field :icon, :string
-    field :image, :string
-    field :primary_language, :language
 
+    @desc "A name field"
+    field :name, :string
+    @desc "Possibly biographical information"
+    field :summary, :string
+    @desc "An avatar url"
+    field :icon, :string
+    @desc "A header background image url"
+    field :image, :string
+    @desc "Free text"
+    field :location, :string
+    @desc "A valid URL"
+    field :website, :string
+
+    @desc "Whether the user is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the user has a public profile"
+    field :is_public, :boolean
+    @desc "Whether an instance admin has disabled the user's account"
+    field :is_disabled, :boolean
+
+    @desc "When the user signed up"
+    field :created_at, :string
+    @desc "When the user last updated their profile"
+    field :updated_at, :string
+    @desc "The last time the user did anything"
+    field :last_activity, :string
+
+    @desc "The language the user wishes to use moodlenet in"
+    field :primary_language, :language do
+      resolve &CommonResolver.primary_language/3
+    end
+
+    @desc "The current user's follow of this user, if any"
+    field :my_follow, :follow do
+      resolve &CommonResolver.my_follow/3
+    end
+
+    @desc "The current user's like of this user, if any"
+    field :my_like, like do
+      resolve &CommonResolver.my_like/3
+    end
+
+    @desc "The communities a user has joined, most recently joined first"
     field :joined_communities, :user_joined_communities_connection do
       arg :limit, :integer
-      arg :before, :integer
-      arg :after, :integer
-      resolve(with_connection(:joined_communities))
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.joined_communities/3
     end
 
+    @desc "The collections a user is following, most recently followed first"
     field :following_collections, :user_following_collections_connection do
       arg :limit, :integer
-      arg :before, :integer
-      arg :after, :integer
-      resolve(with_connection(:following_collection))
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.following_collections/3
     end
 
+    @desc "Comments the user has made, most recently created first"
     field :comments, :user_created_comments_connection do
       arg :limit, :integer
-      arg :before, :integer
-      arg :after, :integer
-      resolve(with_connection(:user_comment))
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.comments/3
     end
 
-    field :wall, :user_outbox_connection do
+    @desc "Activities of the user, most recently created first"
+    field :outbox, :user_outbox_connection do
       arg :limit, :integer
-      arg :before, :integer
-      arg :after, :integer
-      resolve(with_connection(:user_outbox))
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.outbox/3
     end
+
+    @desc """
+    Activities of others the user is following, most recently created
+    first. Only available to the current user under `me`
+    """
+    field :inbox, :user_inbox_connection do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.inbox/3
+    end
+
+    @desc "Tags users have applied to the resource, most recently created first"
+    field :tags, non_null(:resource_flags_connection) do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &CommonResolver.tags/3
+    end
+
   end
 
   object :user_joined_communities_connection do
@@ -148,7 +216,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user_joined_communities_edge do
-    field :cursor, non_null(:integer)
+    field :cursor, non_null(:string)
     field :node, :community
   end
 
@@ -159,7 +227,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user_following_collections_edge do
-    field :cursor, non_null(:integer)
+    field :cursor, non_null(:string)
     field :node, :collection
   end
 
@@ -182,13 +250,12 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user_activities_edge do
-    field :cursor, non_null(:integer)
+    field :cursor, non_null(:string)
     field :node, :activity
   end
 
-
   object :user_created_comments_edge do
-    field :cursor, non_null(:integer)
+    field :cursor, non_null(:string)
     field :node, :comment
   end
 
@@ -198,12 +265,12 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :preferred_username, non_null(:string)
     field :name, :string
     field :summary, :string
-    field :location, :string
-    field :website, :string
     field :icon, :string
     field :image, :string
+    field :location, :string
+    field :website, :string
     field :primary_language_id, :string
-    field :is_public, non_null(:boolean)
+    # field :is_public, non_null(:boolean)
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
   end
@@ -212,11 +279,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :preferred_username, :string
     field :name, :string
     field :summary, :string
-    field :primary_language_id, :string
-    field :location, :string
-    field :website, :string
     field :icon, :string
     field :image, :string
+    field :location, :string
+    field :website, :string
+    field :primary_language_id, :string
+    field :wants_email_digest, :boolean
+    field :wants_notifications, :boolean
   end
 
   input_object :login_input do

@@ -22,12 +22,14 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   end
 
   object :language do
+    @desc "2-letter ISO code"
     field :id, :string
     field :english_name, :string
     field :local_name, :string
   end
 
   object :country do
+    @desc "2-letter ISO code"
     field :id, :string
     field :english_name, :string
     field :local_name, :string
