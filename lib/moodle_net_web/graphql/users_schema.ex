@@ -223,7 +223,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :user_following_collections_edge do
     field :cursor, non_null(:string)
-    field :node, :collection
+    field :node, :follow
   end
 
   object :user_created_comments_connection do

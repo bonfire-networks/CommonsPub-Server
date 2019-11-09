@@ -26,6 +26,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :community_id, non_null(:string)
       resolve &CommunitiesResolver.fetch/2
     end
+
   end
 
   object :communities_mutations do

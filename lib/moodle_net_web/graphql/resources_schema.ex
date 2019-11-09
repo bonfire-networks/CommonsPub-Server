@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   alias MoodleNetWeb.GraphQL.ResourcesResolver
 
-  object :resource_queries do
+  object :resources_queries do
 
     @desc "Get a resource"
     field :resource, :resource do
@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   end
 
-  object :resource_mutations do
+  object :resources_mutations do
 
     @desc "Create a resource"
     field :create_resource, type: :resource do
@@ -104,11 +104,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likers, non_null(:resource_likers_connection) do
+    field :likes, non_null(:resource_likes_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likers/3
+      resolve &CommonResolver.likes/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"
@@ -147,15 +147,15 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   end
 
-  object :resource_likers_connection do
+  object :resource_likes_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:resource_likers_edge)
+    field :edges, list_of(:resource_likes_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :resource_likers_edge do
+  object :resource_likes_edge do
     field :cursor, non_null(:string)
-    field :node, :user
+    field :node, :like
   end
 
   object :resource_flags_connection do
@@ -166,7 +166,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   object :resource_flags_edge do
     field :cursor, non_null(:string)
-    field :node, :user
+    field :node, :flag
   end
 
   input_object :resource_input do
@@ -174,15 +174,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :content, :string
     field :summary, :string
     field :icon, :string
-    field :primary_language, :string
+    field :languages, list_of(:string)
     field :url, :string
-    field :public_access, :boolean
-    field :is_accessible_for_free, :boolean
     field :license, :string
-    field :learning_resource_type, :string
-    field :educational_use, list_of(non_null(:string))
-    field :time_required, :integer
-    field :typical_age_range, :string
   end
 
 end

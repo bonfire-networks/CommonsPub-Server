@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CollectionsResolver, CommonResolver}
 
-  object :collection_queries do
+  object :collections_queries do
 
     @desc "Get list of collections, most recent activity first"
     field :collections, :collection_page do
@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
   end
 
-  object :collection_mutations do
+  object :collections_mutations do
 
     @desc "Create a collection"
     field :create_collection, type: :collection do
@@ -131,11 +131,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Users who like the collection, most recently liked first"
-    field :likers, :collection_likers_connection do
+    field :likes, :collection_likes_connection do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likers/3
+      resolve &CommonResolver.likes/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
@@ -170,7 +170,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
   object :collection_followers_edge do
     field :cursor, non_null(:string)
-    field :node, :user
+    field :node, :follow
   end
 
   object :collection_resources_connection do
@@ -195,13 +195,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :node, :comment
   end
 
-  object :collection_likers_connection do
+  object :collection_likes_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_likers_edge)
+    field :edges, list_of(:collection_likes_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :collection_likers_edge do
+  object :collection_likes_edge do
     field :cursor, non_null(:string)
     field :node, :user
   end

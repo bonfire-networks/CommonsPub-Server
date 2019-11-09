@@ -66,63 +66,46 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   use Absinthe.Schema
 
-  alias MoodleNetWeb.GraphQL.Types.{
-    FeedItem,
-  }
   alias MoodleNetWeb.GraphQL.{
     ActivitiesSchema,
+    CollectionsSchema,
+    CommentsSchema,
+    CommonSchema,
     CommunitiesSchema,
     LocalisationSchema,
-    UsersSchema,
-    CommonSchema,
-
-    CommentsSchema,
-    CollectionsSchema,
-    ResourcesSchema,
-
-    MoodleNetSchema,
     MiscSchema,
+    ResourcesSchema,
+    UsersSchema,
   }
 
   import_types ActivitiesSchema
-  import_types CommunitiesSchema
-  import_types LocalisationSchema
-  import_types UsersSchema
-  import_types CommonSchema
-
-  import_types CommentsSchema
   import_types CollectionsSchema
-  import_types ResourcesSchema
-  
+  import_types CommentsSchema
+  import_types CommonSchema
+  import_types CommunitiesSchema
+  import_types InstanceSchema
+  import_types LocalisationSchema
   import_types MiscSchema
+  import_types ResourcesSchema
+  import_types UsersSchema
 
   query do
-    import_fields :communities_queries
-    import_fields :localisation_queries
-    import_fields :users_queries
-
+    import_fields :collections_queries
     import_fields :comments_queries
-    import_fields :collection_queries
-    import_fields :resource_queries
-
-    # @desc "Get local activity list"
-    # field :instance_feed, type: :instance_feed_page do
-    #   arg :limit, :integer
-    #   arg :before, :integer
-    #   arg :after, :integer
-    #   resolve &InstanceSchema.feed/2
-    # end
-
+    import_fields :communities_queries
+    import_fields :instance_queries
+    import_fields :localisation_queries
+    import_fields :resources_queries
+    import_fields :users_queries
   end
 
   mutation do
+    import_fields :collections_mutations
+    import_fields :comments_mutations
     import_fields :common_mutations
     import_fields :communities_mutations
+    import_fields :resources_mutations
     import_fields :users_mutations
-
-    import_fields :comments_mutations
-    import_fields :collection_mutations
-    import_fields :resource_mutations
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, type: :web_metadata do
