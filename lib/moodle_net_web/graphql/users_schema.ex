@@ -2,9 +2,6 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.UsersSchema do
-  @moduledoc """
-  GraphQL user fields, associations, queries and mutations.
-  """
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver,UsersResolver}
 
@@ -134,11 +131,8 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "When the user last updated their profile"
     field :updated_at, :string
     @desc "The last time the user did anything"
-    field :last_activity, :string
-
-    @desc "The language the user wishes to use moodlenet in"
-    field :primary_language, :language do
-      resolve &CommonResolver.primary_language/3
+    field :last_activity, :string do
+      resolve &UsersResolver.last_activity/3
     end
 
     @desc "The current user's follow of this user, if any"
@@ -151,8 +145,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &CommonResolver.my_like/3
     end
 
+    @desc "The language the user wishes to use moodlenet in"
+    field :primary_language, :language do
+      resolve &CommonResolver.primary_language/3
+    end
+
     @desc "The communities a user has joined, most recently joined first"
-    field :joined_communities, :user_joined_communities_connection do
+    field :followed_communities, :user_followed_communities_connection do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -160,11 +159,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The collections a user is following, most recently followed first"
-    field :following_collections, :user_following_collections_connection do
+    field :followed_collections, :user_followed_collections_connection do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.following_collections/3
+      resolve &UsersResolver.followed_collections/3
     end
 
     @desc "Comments the user has made, most recently created first"
@@ -204,24 +203,24 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   end
 
-  object :user_joined_communities_connection do
+  object :user_followed_communities_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_joined_communities_edge)
+    field :edges, list_of(:user_followed_communities_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :user_joined_communities_edge do
+  object :user_followed_communities_edge do
     field :cursor, non_null(:string)
-    field :node, :community
+    field :node, :follow
   end
 
-  object :user_following_collections_connection do
+  object :user_followed_collections_connection do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_following_collections_edge)
+    field :edges, list_of(:user_followed_collections_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :user_following_collections_edge do
+  object :user_followed_collections_edge do
     field :cursor, non_null(:string)
     field :node, :follow
   end

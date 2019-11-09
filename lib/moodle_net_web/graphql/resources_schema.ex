@@ -120,7 +120,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, non_null(:resource_flags_connection) do
+    field :tags, non_null(:resource_tags_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -167,6 +167,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resource_flags_edge do
     field :cursor, non_null(:string)
     field :node, :flag
+  end
+
+  object :resource_tags_connection do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:resource_tags_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :resource_tags_edge do
+    field :cursor, non_null(:string)
+    field :node, :tagged
   end
 
   input_object :resource_input do

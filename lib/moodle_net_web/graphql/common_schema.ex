@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   end
 
   union :liked do
-    description "The thing a flag is about"
+    description "Something which can be liked"
     types [:collection, :comment, :resource, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -208,11 +208,21 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   object :tag_tagged_edge do
     field :cursor, non_null(:string)
-    field :node, :tagged
+    field :node, :tagging
+  end
+
+  @desc "One of these is created when a user tags something"
+  object :tagging do
+    field :tagger, :user do
+      resolve &CommonSchema.tagging_tagger/3
+    end
+    field :tagged, :tagged do
+      resolve &CommonSchema.tagging_tagged/3
+    end
   end
 
   union :tagged do
-    description "The thing a tag is applied to"
+    description "Something which can be tagged"
     types [:collection, :comment, :community, :resource, :thread, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
