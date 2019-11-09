@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   end
 
   union :followed do
-    description "The thing a follow is about"
+    description "A thing that can be followed"
     types [:collection, :community, :thread, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "The reason for flagging"
     field :reason, :string
     @desc "Is the flag considered dealt with by the instance moderator?"
-    field :is_solved, :string
+    field :is_resolved, :string
 
     @desc "Whether the flag is local to the instance"
     field :is_local, :boolean
@@ -87,7 +87,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   end
 
   union :flagged do
-    description "The thing a flag is about"
+    description "A thing that can be flagged"
     types [:collection, :comment, :community, :resource, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   end
 
   union :liked do
-    description "Something which can be liked"
+    description "A thing which can be liked"
     types [:collection, :comment, :resource, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -143,13 +143,18 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "The name of the tag category"
     field :name, :string
 
-    @desc "When the category was created"
+    @desc "Whether the like is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the like is public"
+    field :is_public, :boolean
+
+    @desc "When the like was created"
     field :created_at, :string
 
-    @desc "The current user's follow of the category, if any"
-    field :my_follow, :follow do
-      resolve &CommonResolver.my_follow/3
-    end
+    # @desc "The current user's follow of the category, if any"
+    # field :my_follow, :follow do
+    #   resolve &CommonResolver.my_follow/3
+    # end
 
     @desc "The tags in the category, most recently created first"
     field :tags, :category_tags_connection do
@@ -176,11 +181,17 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :tag do
     @desc "An instance-local UUID identifying the tag"
     field :id, :string
-
     @desc "The name of the tag"
     field :name, :string
-
     @desc "When the flag was created"
+    field :created_at, :string
+
+    @desc "Whether the like is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the like is public"
+    field :is_public, :boolean
+
+    @desc "When the like was created"
     field :created_at, :string
 
     @desc "The current user's follow of the tag, if any"
@@ -213,16 +224,35 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   @desc "One of these is created when a user tags something"
   object :tagging do
+    @desc "An instance-local UUID identifying the tagging"
+    field :id, :string
+
+    @desc "Whether the like is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the like is public"
+    field :is_public, :boolean
+
+    @desc "When the like was created"
+    field :created_at, :string
+
+    @desc "The user who tagged"
     field :tagger, :user do
       resolve &CommonSchema.tagging_tagger/3
     end
+
+    @desc "The tag being used"
+    field :tag, :tag do
+      resolve &CommonSchema.tagging_tag/3
+    end
+
+    @desc "The tagged object"
     field :tagged, :tagged do
       resolve &CommonSchema.tagging_tagged/3
     end
   end
 
   union :tagged do
-    description "Something which can be tagged"
+    description "A thing which can be tagged"
     types [:collection, :comment, :community, :resource, :thread, :user]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -255,7 +285,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       resolve &CommonResolver.like/2
     end
 
-    @desc "Delete a thing, anything"
+    @desc "Delete more or less anything"
     field :delete, type: :boolean do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.delete/2
