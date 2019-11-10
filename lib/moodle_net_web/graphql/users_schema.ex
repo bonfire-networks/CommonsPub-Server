@@ -110,14 +110,14 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :name, :string
     @desc "Possibly biographical information"
     field :summary, :string
-    @desc "An avatar url"
-    field :icon, :string
-    @desc "A header background image url"
-    field :image, :string
     @desc "Free text"
     field :location, :string
     @desc "A valid URL"
     field :website, :string
+    @desc "An avatar url"
+    field :icon, :string
+    @desc "A header background image url"
+    field :image, :string
 
     @desc "Whether the user is local to the instance"
     field :is_local, :boolean
@@ -152,7 +152,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :followed_communities, :user_followed_communities_connection do
+    field :followed_communities, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -160,7 +160,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The collections a user is following, most recently followed first"
-    field :followed_collections, :user_followed_collections_connection do
+    field :followed_collections, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -168,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Comments the user has made, most recently created first"
-    field :comments, :user_comments_connection do
+    field :comments, :comments_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -176,7 +176,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Activities of the user, most recently created first"
-    field :outbox, :user_outbox_connection do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -187,66 +187,21 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     Activities of others the user is following, most recently created
     first. Only available to the current user under `me`
     """
-    field :inbox, :user_inbox_connection do
+    field :inbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
       resolve &UsersResolver.inbox/3
     end
 
-    @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, non_null(:resource_flags_connection) do
+    @desc "Taggings the user has created"
+    field :tagged, :taggings_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.tags/3
+      resolve &CommonResolver.tagged/3
     end
 
-  end
-
-  object :user_followed_communities_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_followed_communities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :user_followed_communities_edge do
-    field :cursor, non_null(:string)
-    field :node, :follow
-  end
-
-  object :user_followed_collections_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_followed_collections_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :user_followed_collections_edge do
-    field :cursor, non_null(:string)
-    field :node, :follow
-  end
-
-  object :user_comments_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_comments_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :user_inbox_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_activities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :user_outbox_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:user_activities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :user_comments_edge do
-    field :cursor, non_null(:string)
-    field :node, :comment
   end
 
   input_object :registration_input do
@@ -260,7 +215,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :location, :string
     field :website, :string
     field :primary_language_id, :string
-    # field :is_public, non_null(:boolean)
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
   end

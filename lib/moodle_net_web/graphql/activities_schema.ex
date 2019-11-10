@@ -15,9 +15,9 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     @desc "The verb describing the activity"
     field :verb, :activity_verb,
 
-    @desc "Whether the like is local to the instance"
+    @desc "Whether the activity is local to the instance"
     field :is_local, :boolean
-    @desc "Whether the like is public"
+    @desc "Whether the activity is public"
     field :is_public, :boolean
 
     @desc "When the activity was created"
@@ -28,8 +28,8 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
       resolve &ActivitiesResolver.user/3
     end
 
-    @desc "What the the user verbed"
-    field :noun, :activity_object do
+    @desc "The object of the user's verbing"
+    field :noun, :activity_noun do
       resolve &ActivitiesResolver.noun/3
     end
   end
@@ -48,10 +48,21 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     end)
   end
 
-  object :generic_activity_page do
-    field(:page_info, non_null(:page_info))
-    field(:nodes, list_of(:activity))
-    field(:total_count, non_null(:integer))
+  object :activities_nodes do
+    field :page_info, non_null(:page_info)
+    field :nodes, list_of(:activity)
+    field :total_count, non_null(:integer)
+  end
+
+  object :activities_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:activity)
+    field :total_count, non_null(:integer)
+  end
+
+  object :activities_edge do
+    field :cursor, non_null(:string)
+    field :node, :activity
   end
 
 end

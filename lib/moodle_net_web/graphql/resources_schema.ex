@@ -22,27 +22,27 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resources_mutations do
 
     @desc "Create a resource"
-    field :create_resource, type: :resource do
+    field :create_resource, :resource do
       arg :collection_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.create/2
     end
 
     @desc "Update a resource"
-    field :update_resource, type: :resource do
+    field :update_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.update/2
     end
 
     @desc "Delete a resource"
-    field :delete_resource, type: :boolean do
+    field :delete_resource :boolean do
       arg :resource_id, non_null(:string)
       resolve &CommonResolver.delete/2
     end
 
     @desc "Copy a resource"
-    field :copy_resource, type: non_null(:resource) do
+    field :copy_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :collection_id, non_null(:string)
       resolve &ResourcesResolver.copy/2
@@ -62,6 +62,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :icon, :string
     @desc "A link to an external resource"
     field :url, :string
+    @desc "What license is it available under?"
+    field :license, :string
+
 
     @desc "When the collection was created"
     field :created_at, :string
@@ -72,6 +75,20 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     was created or updated
     """
     field :last_activity, :string
+    # @desc "approx reading time in minutes"
+    # field :time_required, :integer
+    # @desc "free text"
+    # field :typical_age_range, :string
+    # @desc "??? Something about link aliasing"
+    # field :same_as, :string
+    # @desc "Can you use this without an institutional email or such"
+    # field :public_access, :boolean
+    # @desc "Can you use it without paying?"
+    # field :free_access, :boolean
+    # @desc "???"
+    # field :learning_resource_type, :string
+    # @desc "???"
+    # field :educational_use, list_of(non_null(:string))
 
     @desc "Whether the user is local to the instance"
     field :is_local, :boolean
@@ -96,15 +113,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Languages the resources is available in"
-    field :languages, non_null(:resource_languages_connection) do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+    field :primary_language, :language do
       resolve &ResourceResolver.languages/3
     end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likes, non_null(:resource_likes_connection) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -112,7 +126,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, non_null(:resource_flags_connection) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -120,74 +134,39 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, non_null(:resource_tags_connection) do
+    field :tags, :taggings_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
       resolve &CommonResolver.tags/3
     end
 
-    @desc "What license is it available under?"
-    field :license, :string
-
-    # @desc "approx reading time in minutes"
-    # field :time_required, :integer
-    # @desc "free text"
-    # field :typical_age_range, :string
-    # @desc "??? Something about link aliasing"
-    # field :same_as, :string
-    # @desc "Can you use this without an institutional email or such"
-    # field :public_access, :boolean
-    # @desc "Can you use it without paying?"
-    # field :free_access, :boolean
-    # @desc "???"
-    # field :learning_resource_type, :string
-    # @desc "???"
-    # field :educational_use, list_of(non_null(:string))
-
-  end
-
-  object :resource_likes_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:resource_likes_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :resource_likes_edge do
-    field :cursor, non_null(:string)
-    field :node, :like
-  end
-
-  object :resource_flags_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:resource_flags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :resource_flags_edge do
-    field :cursor, non_null(:string)
-    field :node, :flag
-  end
-
-  object :resource_tags_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:resource_tags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :resource_tags_edge do
-    field :cursor, non_null(:string)
-    field :node, :tagged
   end
 
   input_object :resource_input do
     field :name, :string
-    field :content, :string
     field :summary, :string
     field :icon, :string
-    field :languages, list_of(:string)
+    field :primary_language_id, :string
     field :url, :string
     field :license, :string
+  end
+
+  object :resources_nodes do
+    field :page_info, non_null(:page_info)
+    field :nodes, list_of(:resource)
+    field :total_count, non_null(:integer)
+  end
+
+  object :resources_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:resources_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :resources_edge do
+    field :cursor, non_null(:string)
+    field :node, :resource
   end
 
 end

@@ -48,6 +48,17 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
+  object :follow_edges do
+    field :page_info, non_null(:page_info)
+    field :nodes, list_of(:follow_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :follow_edge do
+    field :cursor, non_null(:string)
+    field :node, :follow
+  end
+
   @desc "A report about objectionable content"
   object :flag do
     @desc "An instance-local UUID identifying the user"
@@ -98,6 +109,23 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
   
+  object :flag_nodes do
+    field :page_info, non_null(:page_info)
+    field :nodes, list_of(:flag)
+    field :total_count, non_null(:integer)
+  end
+
+  object :flag_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:flag_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :flag_edge do
+    field :cursor, non_null(:string)
+    field :node, :flag
+  end
+
   @desc "A record that a user likes a thing"
   object :like do
     @desc "An instance-local UUID identifying the like"
@@ -135,6 +163,17 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
+  object :like_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:like_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :like_edge do
+    field :cursor, non_null(:string)
+    field :node, :like
+  end
+
   @desc "A category is a grouping mechanism for tags"
   object :category do
     @desc "An instance-local UUID identifying the category"
@@ -166,15 +205,15 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   end
 
-  object :category_tags_connection do
+  object :category_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:category_tags_edge)
+    field :edges, list_of(:category_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :category_tags_edge do
+  object :category_edge do
     field :cursor, non_null(:string)
-    field :node, :tag
+    field :node, :category
   end
 
   @desc "A tag is a general mechanism for semantic grouping"
@@ -204,22 +243,28 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       resolve &CommonResolver.tag_category/3
     end
 
-    @desc "Things users have tagged with this tag, most recent tagging first"
-    field :tagged, :tag_tagged_connection do
+    @desc "Taggings from users, most recent first"
+    field :tagged, :taggings_edges do
       resolve &CommonResolver.tag_tagged/3
     end
     
   end
 
-  object :tag_tagged_connection do
+  object :tags_nodes do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:tag_tagged_edge)
+    field :nodes, list_of(:tag)
     field :total_count, non_null(:integer)
   end
 
-  object :tag_tagged_edge do
+  object :tags_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:tags_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :tags_edge do
     field :cursor, non_null(:string)
-    field :node, :tagging
+    field :node, :tag
   end
 
   @desc "One of these is created when a user tags something"
@@ -262,6 +307,17 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       %Thread{},     _ -> :thread
       %User{},       _ -> :user
     end
+  end
+
+  object :taggings_edges do
+    field :page_info, non_null(:page_info)
+    field :edges, list_of(:taggings_edge)
+    field :total_count, non_null(:integer)
+  end
+
+  object :taggings_edge do
+    field :cursor, non_null(:string)
+    field :node, :tagging
   end
 
   object :common_mutations do

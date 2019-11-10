@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   object :comments_mutations do
 
     @desc "Create a new thread"
-    field :create_thread, type: :thread do
+    field :create_thread, type: :comment do
       arg :context_id, non_null(:string)
       arg :comment, non_null(:comment_input)
       resolve &CommentsResolver.create_thread/2
@@ -84,7 +84,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Comments in the thread, most recently created first"
-    field :comments, :thread_comments_connection do
+    field :comments, :comments_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -92,7 +92,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, :thread_followers_connection do
+    field :followers, :followers_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -101,26 +101,32 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
   end
     
-  object :thread_comments_connection do
+  union :thread_context do
+    description "The thing the comment is about"
+    types [:collection, :community, :flag, :resource]
+    resolve_type fn
+      %Collection{}, _ -> :collection
+      %Community{},  _ -> :community
+      %Flag{},       _ -> :flag
+      %Resource{},   _ -> :resource
+    end
+  end
+
+  object :threads_nodes do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:thread_comments_edge)
+    field :nodes, list_of(:thread)
     field :total_count, non_null(:integer)
   end
 
-  object :thread_comments_edge do
-    field :cursor, non_null(:string)
-    field :node, :comment
-  end
-
-  object :thread_followers_connection do
+  object :threads_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:thread_followers_edge)
+    field :edges, list_of(:threads_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :thread_followers_edge do
+  object :threads_edge do
     field :cursor, non_null(:string)
-    field :node, :follow
+    field :node, :thread
   end
 
   object :comment do
@@ -154,8 +160,13 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
       resolve &CommonResolver.creator/3
     end
 
+    @desc "The thread this comment is part of"
+    field :thread, :thread do
+      resolve &CommonResolver.thread/3
+    end
+
     @desc "Users who like the comment, most recently liked first"
-    field :likes, :comment_likes_connection do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -163,7 +174,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Flags users have made about the comment, most recently created first"
-    field :flags, :comment_flags_connection do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -172,37 +183,21 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
   end
 
-  union :thread_context do
-    description "The thing the comment is about"
-    types [:collection, :community, :flag, :resource]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Community{},  _ -> :community
-      %Flag{},       _ -> :flag
-      %Resource{},   _ -> :resource
-    end
-  end
-
-  object :comment_likes_connection do
+  object :comments_nodes do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:comment_likes_edge)
+    field :nodes, list_of(:comment)
     field :total_count, non_null(:integer)
   end
 
-  object :comment_likes_edge do
-    field :cursor, non_null(:string)
-    field :node, :like
-  end
-
-  object :comment_flags_connection do
+  object :comments_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:comment_flags_edge)
+    field :edges, list_of(:comments_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :comment_flags_edge do
+  object :comments_edge do
     field :cursor, non_null(:string)
-    field :node, :flag
+    field :node, :comment
   end
 
   input_object :comment_input do

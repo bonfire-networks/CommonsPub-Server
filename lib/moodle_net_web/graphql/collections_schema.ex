@@ -104,26 +104,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end 
 
     @desc "The resources in the collection, most recently created last"
-    field :resources, :collection_resources_connection do
+    field :resources, :resources_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
       resolve &CollectionsResolver.resources/3
     end
 
-    @desc """
-    The threads created on the collection, most recently created
-    first.  Does not include threads created on resources.
-    """
-    field :threads, :collection_threads_connection do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommonResolver.threads/3
-    end
-
     @desc "Users following the collection, most recently followed first"
-    field :followers, :collection_followers_connection do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -131,7 +120,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Users who like the collection, most recently liked first"
-    field :likes, :collection_likes_connection do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -139,7 +128,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Flags users have made about the collection, most recently created first"
-    field :flags, :collection_flags_connection do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -147,97 +136,49 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, non_null(:resource_tags_connection) do
+    field :tags, :taggings_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
       resolve &CommonResolver.tags/3
     end
 
+    @desc """
+    The threads created on the collection, most recently created
+    first. Does not include threads created on resources.
+    """
+    field :threads, :threads_edges do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &CommonResolver.threads/3
+    end
+
+    @desc "Activities on the collection, most recent first"
+    field :outbox, :activities_edges do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &CommonResolver.outbox/3
+    end
+
   end
 
-  object :collection_page do
+  object :collections_nodes do
     field :page_info, non_null(:page_info)
     field :nodes, list_of(:collection)
     field :total_count, non_null(:integer)
   end
 
-  object :collection_followers_connection do
+  object :collections_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_followers_edge)
+    field :edges, list_of(:collections_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :collection_followers_edge do
+  object :collections_edge do
     field :cursor, non_null(:string)
-    field :node, :follow
-  end
-
-  object :collection_resources_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_resources_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_resources_edge do
-    field :cursor, non_null(:string)
-    field :node, :resource
-  end
-
-  object :collection_threads_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_threads_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_threads_edge do
-    field :cursor, non_null(:string)
-    field :node, :comment
-  end
-
-  object :collection_likes_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_likes_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_likes_edge do
-    field :cursor, non_null(:string)
-    field :node, :user
-  end
-
-  object :collection_flags_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_flags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_flags_edge do
-    field :cursor, non_null(:string)
-    field :node, :user
-    field :reason, :string
-  end
-
-  object :collection_tags_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_tags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_tags_edge do
-    field :cursor, non_null(:string)
-    field :node, :tag
-  end
-
-  object :collection_outbox_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collection_activities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :collection_activities_edge do
-    field :cursor, non_null(:string)
-    field :node, :activity
+    field :node, :collection
   end
 
   input_object :collection_input do

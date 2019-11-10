@@ -1,32 +1,32 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.InstanceSchema do
+defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
   @moduledoc """
   GraphQL activity fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.InstanceResolver
+  alias MoodleNetWeb.GraphQL.MoodleverseResolver
 
-  object :instance_queries do
+  object :moodleverse_queries do
 
     @desc "A logical object for the local instance"
-    field :instance, :instance do
-      resolve &InstanceResolver.fetch/2
+    field :moodleverse, :moodleverse do
+      resolve &MoodleverseResolver.fetch/2
     end
 
   end
 
-  object :instance do
+  object :moodleverse do
 
     @desc """
-    A list of public activity on the local instance, most recent first
+    A list of public activity from all federated instances
     """
     field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &InstanceResolver.outbox/3
+      resolve &MoodleverseResolver.outbox/3
     end
 
   end

@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     CommunitiesSchema,
     LocalisationSchema,
     MiscSchema,
+    MoodleverseSchema,
     ResourcesSchema,
     UsersSchema,
   }
@@ -24,6 +25,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types InstanceSchema
   import_types LocalisationSchema
   import_types MiscSchema
+  import_types MoodleverseSchema
   import_types ResourcesSchema
   import_types UsersSchema
 
@@ -33,6 +35,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :communities_queries
     import_fields :instance_queries
     import_fields :localisation_queries
+    import_fields :moodleverse_queries
     import_fields :resources_queries
     import_fields :users_queries
   end
@@ -47,14 +50,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, type: :web_metadata do
-      arg(:url, non_null(:string))
-      resolve(&MiscSchema.fetch_web_metadata/2)
+      arg :url, non_null(:string)
+      resolve &MiscSchema.fetch_web_metadata/2
     end
 
     @desc "Fetch an AS2 object from URL"
     field :fetch_object, type: :fetched_object do
-      arg(:url, non_null(:string))
-      resolve(&MiscSchema.fetch_object/2)
+      arg :url, non_null(:string)
+      resolve &MiscSchema.fetch_object/2
     end
   end
 

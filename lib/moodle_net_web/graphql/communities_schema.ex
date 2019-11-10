@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_queries do
 
     @desc "Get list of communities, most followed first"
-    field :communities, :community_page do
+    field :communities, :communities_nodes do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -32,13 +32,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_mutations do
 
     @desc "Create a community"
-    field :create_community, type: :community do
+    field :create_community, :community do
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.create/2
     end
 
     @desc "Update a community"
-    field :update_community, type: :community do
+    field :update_community, :community do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.update/2
@@ -96,7 +96,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, :community_collections_connection do
+    field :collections, :collections_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, :community_threads_connection do
+    field :threads, :threads_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -116,7 +116,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, :community_followers_connection do
+    field :followers, :followers_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -124,7 +124,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities for community moderators. Not available to plebs."
-    field :inbox, :community_activities_connection do
+    field :inbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -132,7 +132,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, :community_activities_connection do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -141,54 +141,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
   end
 
-  object :community_page do
+  object :communities_nodes do
     field :page_info, non_null(:page_info)
     field :nodes, list_of(:community)
     field :total_count, non_null(:integer)
   end
 
-  object :community_collections_connection do
+  object :communities_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:community_collections_edge)
+    field :edges, list_of(:community)
     field :total_count, non_null(:integer)
   end
 
-  object :community_collections_edge do
+  object :communities_edge do
     field :cursor, non_null(:string)
-    field :node, :collection
-  end
-
-  object :community_threads_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:community_threads_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :community_threads_edge do
-    field :cursor, non_null(:string)
-    field :node, :thread
-  end
-
-  object :community_followers_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:community_followers_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :community_followers_edge do
-    field :cursor, non_null(:string)
-    field :node, :follow
-  end
-
-  object :community_activities_connection do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:community_activities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :community_activities_edge do
-    field :cursor, non_null(:string)
-    field :node, :activity
+    field :node, :community
   end
 
   input_object :community_input do
