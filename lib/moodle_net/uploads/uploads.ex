@@ -38,10 +38,11 @@ defmodule MoodleNet.Uploads do
         |> Map.put(:size, file_info.info.size)
         |> Map.put(:metadata, file_info.metadata)
 
-      result = Repo.transact_with(fn ->
-        pointer = Meta.find!(parent.id)
-        Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
-      end)
+      result =
+        Repo.transact_with(fn ->
+          pointer = Meta.find!(parent.id)
+          Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+        end)
 
       # rollback file changes on failure
       with {:error, _} <- result do
@@ -72,10 +73,11 @@ defmodule MoodleNet.Uploads do
   """
   @spec hard_delete(Upload.t()) :: :ok | {:error, Changeset.t()}
   def hard_delete(%Upload{} = upload) do
-    # TODO: handle return file errors
-    Repo.transact_with(fn ->
+    result = Repo.transaction(fn ->
       with {:ok, upload} <- Repo.delete(upload),
-           do: Storage.delete(upload.path)
+          do: Storage.delete(upload.path)
     end)
+
+    with {:ok, _} <- result, do: :ok
   end
 end
