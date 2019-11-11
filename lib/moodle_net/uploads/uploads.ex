@@ -38,11 +38,17 @@ defmodule MoodleNet.Uploads do
         |> Map.put(:size, file_info.info.size)
         |> Map.put(:metadata, file_info.metadata)
 
-      Repo.transact_with(fn ->
+      result = Repo.transact_with(fn ->
         pointer = Meta.find!(parent.id)
-        # FIXME: rollback file store if insert fails
         Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
       end)
+
+      # rollback file changes on failure
+      with {:error, _} <- result do
+        Storage.delete(file_info.id)
+      end
+
+      result
     end
   end
 
