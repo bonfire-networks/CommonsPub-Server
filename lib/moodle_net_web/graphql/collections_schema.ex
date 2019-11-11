@@ -64,7 +64,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     field(:preferred_username, :string)
 
-    field(:icon, :icon)
+    field(:icon, :upload)
 
     field(:primary_language, :string)
 

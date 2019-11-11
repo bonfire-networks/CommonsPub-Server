@@ -109,7 +109,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field(:website, :string)
     field(:image, :string)
     field(:primary_language, :string)
-    field(:icon, :icon)
+    field(:icon, :upload)
 
     field :joined_communities, :user_joined_communities_connection do
       arg :limit, :integer

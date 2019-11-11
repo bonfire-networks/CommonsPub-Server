@@ -30,6 +30,12 @@ defmodule MoodleNet.Uploads.Storage do
     upload_provider() |> Belt.delete(file_id)
   end
 
+  @scope :test
+  @spec delete_all() :: :ok | {:error, term}
+  def delete_all do
+    upload_provider() |> Belt.delete_all()
+  end
+
   defp upload_provider do
     provider_config = Application.fetch_env!(:moodle_net, __MODULE__) |> Keyword.fetch!(:provider)
 

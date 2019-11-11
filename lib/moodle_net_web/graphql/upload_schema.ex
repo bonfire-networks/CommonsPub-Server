@@ -12,36 +12,20 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   object :upload_mutations do
     # TODO: return icon
     @desc "Upload an avatar (icon in ActivityPub). Returns the full image."
-    field :upload_icon, type: :string do
-      arg(:id, non_null(:id))
-      arg(:image, non_null(:upload))
-      resolve(&UploadResolver.upload_icon/2)
-    end
-
-    @desc "Upload a background image (image in ActivityPub)"
-    field :upload_image, type: :string do
-      arg(:local_id, non_null(:id))
-      arg(:image, non_null(:upload))
-      resolve(&UploadResolver.upload_image/2)
+    field :upload, type: :string do
+      arg(:context_id, non_null(:id))
+      arg(:upload, non_null(:upload))
+      resolve(&UploadResolver.upload/2)
     end
   end
 
-  @desc "An image that can optionally contain a preview."
-  object :icon do
-    field(:id, non_null(:id))
-    field(:url, non_null(:string))
-    field(:media_type, :string)
-    field(:width, :integer)
-    field(:height, :integer)
-    field(:preview, :preview)
-  end
-
-  @desc "A preview of an image."
-  object :preview do
-    field(:id, non_null(:id))
-    field(:url, non_null(:string))
-    field(:media_type, :string)
-    field(:width, :integer)
-    field(:height, :integer)
-  end
+  # @desc "An image that can optionally contain a preview."
+  # object :upload do
+  #   field(:id, non_null(:id))
+  #   field(:url, non_null(:string))
+  #   field(:media_type, :string)
+  #   field(:width, :integer)
+  #   field(:height, :integer)
+  #   field(:preview, :preview)
+  # end
 end
