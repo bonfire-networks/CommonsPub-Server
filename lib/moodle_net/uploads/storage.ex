@@ -9,10 +9,14 @@ defmodule MoodleNet.Uploads.Storage do
   @spec store(file :: file_source()) :: {:ok, file_info()} | {:error, term}
   def store(file, opts \\ []) do
     opts = [overwrite: true] ++ opts
-    with {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
+
+    with {:ok, file} <- allow_extension(file, opts),
+         {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
          {:ok, metadata} <- get_metadata(file) do
       media_type = format_to_media_type(metadata.format)
-      {:ok, %{id: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
+
+      {:ok,
+       %{id: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
     end
   end
 
@@ -38,12 +42,32 @@ defmodule MoodleNet.Uploads.Storage do
     provider
   end
 
-  defp get_metadata(path) when is_binary(path) do
-    get_metadata(%{path: path})
+  defp get_metadata(%{path: path}) do
+    with {:ok, binary} <- File.read(path) do
+      case FormatParser.parse(binary) do
+        {:error, "Unknown"} -> {:error, :unsupported_format}
+        info when is_map(info) -> {:ok, Map.from_struct(info)}
+        other -> other
+      end
+    end
   end
 
-  defp get_metadata(%{path: path}) do
-    with {:ok, binary} <- File.read(path), do: {:ok, FormatParser.parse(binary)}
+  defp allow_extension(path, opts) when is_binary(path) do
+    allow_extension(%{path: path, filename: Path.basename(path)}, opts)
+  end
+
+  defp allow_extension(%{path: path} = file, opts) do
+    case Keyword.get(opts, :extensions, :all) do
+      :all ->
+        {:ok, file}
+
+      allowed ->
+        if MoodleNet.File.has_extension?(path, allowed) do
+          {:ok, file}
+        else
+          {:error, :extension_denied}
+        end
+    end
   end
 
   defp format_to_media_type(format) do

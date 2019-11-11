@@ -16,7 +16,9 @@ defmodule MoodleNet.File do
   """
   @spec has_extension?(binary, [binary]) :: boolean
   def has_extension?(filepath, allowed_exts) do
-    Enum.member?(allowed_exts, extension(filepath))
+    allowed_exts
+    |> Enum.map(fn ext -> ".#{ext}" end)
+    |> Enum.member?(extension(filepath))
   end
 
   @doc """

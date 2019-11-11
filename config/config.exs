@@ -110,5 +110,3 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
-config :moodle_net, MoodleNet.Uploads.Storage,
-  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads"]]]

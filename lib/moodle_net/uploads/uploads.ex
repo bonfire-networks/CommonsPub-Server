@@ -5,7 +5,10 @@ defmodule MoodleNet.Uploads do
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Uploads.{Upload, Storage}
-  alias MoodleNet.Repo
+  alias MoodleNet.{Repo, Meta}
+
+  # TODO: move to config
+  @extensions_allow ~w(pdf rtf ogg mp3 flac wav flv gif jpg jpeg png)
 
   @doc """
   Attempt to retrieve an upload by its ID.
@@ -27,16 +30,19 @@ defmodule MoodleNet.Uploads do
   @spec upload(parent :: any, uploader :: Actor.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
   def upload(parent, uploader, file, attrs) do
-    # TODO: extract metadata, pass to attrs
-    with {:ok, file_info} <- Storage.store(file) do
+    with {:ok, file_info} <- Storage.store(file, extensions: @extensions_allow) do
       attrs =
         attrs
-        |> Map.put(:path, file_info.info.identifier)
+        |> Map.put(:path, file_info.id)
+        |> Map.put(:media_type, file_info.media_type)
         |> Map.put(:size, file_info.info.size)
         |> Map.put(:metadata, file_info.metadata)
 
-      # FIXME: rollback file store if insert fails
-      Repo.insert(Upload.create_changeset(parent, uploader, attrs))
+      Repo.transact_with(fn ->
+        pointer = Meta.find!(parent.id)
+        # FIXME: rollback file store if insert fails
+        Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+      end)
     end
   end
 
