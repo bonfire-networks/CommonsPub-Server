@@ -1,5 +1,6 @@
 defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Actors
+  alias MoodleNet.Repo
 
   @behaviour ActivityPub.Adapter
 
@@ -12,20 +13,35 @@ defmodule MoodleNet.ActivityPub.Adapter do
   defp maybe_fix_image_object(_), do: nil
 
   def create_remote_actor(actor, username) do
+    uri = URI.parse(actor["id"])
+    ap_base = uri.scheme <> "://" <> uri.host
+
+    peer =
+      case Repo.get_by(MoodleNet.Peers.Peer, ap_url_base: ap_base) do
+        nil ->
+          {:ok, peer} = MoodleNet.Peers.create(%{ap_url_base: ap_base})
+          peer
+
+        peer ->
+          peer
+      end
+
     create_attrs = %{
       preferred_username: username,
       name: actor["name"],
       summary: actor["summary"],
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
-      is_public: true
+      is_public: true,
+      peer: peer.id
     }
 
     Actors.create(create_attrs)
   end
 
   def update_local_actor(actor, params) do
-    with {:ok, local_actor} <- MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
+    with {:ok, local_actor} <-
+           MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
          {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params) do
       {:ok, local_actor}
     else
