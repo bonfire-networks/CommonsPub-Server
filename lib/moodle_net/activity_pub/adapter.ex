@@ -1,6 +1,7 @@
 defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Actors
   alias MoodleNet.Repo
+  require Logger
 
   @behaviour ActivityPub.Adapter
 
@@ -71,14 +72,26 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
-  def handle_activity(activity) do
-    activity
-    |> Map.from_struct()
-    |> run()
+  # FIXME: should go through a job queue
+  def handle_activity(%{data: %{"type" => "Follow"}} = activity) do
+    # FIXME: way too many queries
+    with {:ok, ap_follower} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
+         {:ok, ap_followed} <- ActivityPub.Actor.get_by_ap_id(activity.data["object"]),
+         {:ok, follower} <- Actors.fetch_by_username(ap_follower.username),
+         {:ok, followed} <- Actors.fetch_by_username(ap_followed.username) do
+      MoodleNet.Common.follow(follower, followed, %{is_public: true, is_muted: false})
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
   end
 
-  @spec run(Map.t()) :: :ok | {:error, any()}
-  def run(_map) do
+  def handle_activity(%{data: %{"type" => "Undo", "object" => %{"type" => "Follow"}}}) do
+    # TODO: need a context function to fetch an exisisting follow for this
+  end
+
+  def handle_activity(activity) do
+    Logger.info("Unhandled activity type: #{activity.data["type"]}")
     :ok
   end
 end

@@ -24,7 +24,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
              "cc" => cc
            }
          } do
-      #FIXME: pointer_id isn't getting inserted for whatever reason
+      # FIXME: pointer_id isn't getting inserted for whatever reason
       ActivityPub.create(params, comment.id)
     else
       _e -> :error
@@ -37,13 +37,13 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
     with {:ok, follower} <- Actor.get_by_username(follow.follower.preferred_username),
-    {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
-    {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
+         {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
         MoodleNet.Common.unfollow(follow)
         {:error, "account is private"}
       else
-        #FIXME: insert pointer in AP database?
+        # FIXME: insert pointer in AP database?
         ActivityPub.follow(follower, followed)
       end
     else
@@ -53,16 +53,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   def unfollow(follow) do
     with {:ok, follower} <- Actor.get_by_username(follow.follower.preferred_username),
-    {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
-    {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
+         {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
       ActivityPub.unfollow(follower, followed)
     else
       _e -> :error
     end
-  end
-
-  @spec run(Map.t()) :: :ok | {:error, any()}
-  def run(_map) do
-    :ok
   end
 end
