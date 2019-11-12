@@ -36,7 +36,12 @@ defmodule MoodleNet.ActivityPub.Adapter do
       peer: peer.id
     }
 
-    Actors.create(create_attrs)
+    {:ok, created_actor} = Actors.create(create_attrs)
+
+    object = ActivityPub.Object.get_by_ap_id(actor["id"])
+
+    ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
+    {:ok, created_actor}
   end
 
   def update_local_actor(actor, params) do
