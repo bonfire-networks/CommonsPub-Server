@@ -11,9 +11,7 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccess do
   alias Ecto.Changeset
   import MoodleNet.Common.Changeset, only: [validate_email_domain: 2]
 
-  @type t :: %__MODULE__{}
-
-  standalone_schema "mn_whitelist_register_email_domain" do
+  standalone_schema "mn_access_register_email_domain" do
     field(:domain, :string)
     timestamps()
   end

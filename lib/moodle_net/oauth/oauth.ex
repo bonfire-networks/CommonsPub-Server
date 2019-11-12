@@ -50,13 +50,13 @@ defmodule MoodleNet.OAuth do
       select: {t, u}
   end
 
-  @doc "Creates an authorization for a user"
-  @spec create_auth(%User{}) :: {:ok, %Authorization{}} | {:error, UserEmailNotConfirmedError.t | Changeset.t}
+  # @doc "Creates an authorization for a user"
+  # @spec create_auth(%User{}) :: {:ok, %Authorization{}} | {:error, UserEmailNotConfirmedError.t | Changeset.t}
   # def create_auth(%User{confirmed_at: nil}=user),
   #   do: {:error, UserEmailNotConfirmedError.new(user)}
 
-  def create_auth(%User{id: id}=user),
-    do: Repo.insert(Authorization.create_changeset(id))
+  # def create_auth(%User{id: id}=user),
+  #   do: Repo.insert(Authorization.create_changeset(id))
 
   @doc """
   Creates a token for a user, without requiring an Authorization
