@@ -239,7 +239,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:mn_resource, primary_key: false) do
       add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
       add :canonical_url, :text
-      add :creator_id, references("mn_actor", on_delete: :nilify_all)
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
       add :name, :string

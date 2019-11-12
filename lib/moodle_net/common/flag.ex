@@ -15,12 +15,16 @@ defmodule MoodleNet.Common.Flag do
   alias Ecto.Changeset
 
   meta_schema "mn_flag" do
+    belongs_to :flagger, User
     belongs_to :flagged, Pointer
-    belongs_to :flagger, Actor
     belongs_to :community, Community
-    field :deleted_at, :utc_datetime_usec
+    field :canonical_url, :string
     field :message, :string
-    timestamps()
+    field :is_local, :boolean
+    field :resolved_at, :utc_datetime_usec
+    field :is_resolved, :boolean, virtual: true
+    field :deleted_at, :utc_datetime_usec
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w(message)a

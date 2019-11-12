@@ -16,8 +16,10 @@ defmodule MoodleNet.Common.Like do
   alias Ecto.Changeset
 
   meta_schema "mn_like" do
+    belongs_to :liker, User
     belongs_to :liked, Pointer
-    belongs_to :liker, Actor
+    field :canonical_url, :string
+    field :is_local, :boolean
     field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec

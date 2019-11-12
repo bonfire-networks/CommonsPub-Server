@@ -7,13 +7,14 @@ defmodule MoodleNet.Comments.Thread do
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
-  standalone_schema "mn_thread" do
-    belongs_to(:creator, Actor)
-    belongs_to(:parent, Pointer)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+  meta_schema "mn_thread" do
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
+    field(:canonical_url, :string)
+    field(:locked_at, :utc_datetime_usec)
+    field(:hidden_at, :utc_datetime_usec)
+    field(:is_local, :boolean)
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w()a

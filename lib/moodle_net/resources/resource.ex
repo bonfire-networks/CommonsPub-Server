@@ -13,13 +13,21 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Resources.Resource
 
   meta_schema "mn_resource" do
-    belongs_to(:creator, Actor)
+    belongs_to(:creator, User)
     belongs_to(:collection, Collection)
     belongs_to(:primary_language, Language, type: :binary)
+    field(:canonical_url, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:url, :string)
+    field(:license, :string)
+    field(:icon, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    field(:is_disabled, :boolean, virtual: true)
+    field(:disabled_at, :utc_datetime_usec)
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w(primary_language_id)a

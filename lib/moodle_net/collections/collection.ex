@@ -14,18 +14,20 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Resources.Resource
 
   meta_schema "mn_collection" do
-    belongs_to :creator, Actor
-    belongs_to :primary_language, Language, type: :binary
+    belongs_to :actor, Actor
+    belongs_to :creator, User
     belongs_to :community, Community
+    belongs_to :primary_language, Language, type: :binary
     has_many :resources, Resource
     field :name, :string
-    field :content, :string
     field :summary, :string
     field :icon, :string
     field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
+    field :is_disabled, :boolean, virtual: true
+    field :disabled_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w(name content summary icon primary_language_id)a
