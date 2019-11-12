@@ -100,7 +100,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   query do
     import_fields :communities_queries
     import_fields :localisation_queries
-    import_fields :users_queries
+    import_fields :user_queries
 
     import_fields :comments_queries
     import_fields :collection_queries
@@ -118,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   mutation do
     import_fields :common_mutations
     import_fields :communities_mutations
-    import_fields :users_mutations
+    import_fields :user_mutations
 
     import_fields :comments_mutations
     import_fields :collection_mutations
