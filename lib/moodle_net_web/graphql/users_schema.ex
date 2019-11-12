@@ -10,8 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   import MoodleNetWeb.GraphQL.MoodleNetSchema
   alias MoodleNetWeb.GraphQL.UsersResolver
 
-  object :users_queries do
-
+  object :user_queries do
     @desc "Get my user"
     field :me, type: :me do
       resolve(&UsersResolver.me/2)
@@ -38,7 +37,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :users_mutations do
+  object :user_mutations do
 
     @desc "Create a user"
     field :create_user, type: :auth_payload do
@@ -101,16 +100,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :user do
-    field :id, :id
-    field :local, :boolean
-    field :preferred_username, :string
-    field :name, :string
-    field :summary, :string
-    field :location, :string
-    field :website, :string
-    field :icon, :string
-    field :image, :string
-    field :primary_language, :language
+    field(:id, :id)
+    field(:local, :boolean)
+    field(:preferred_username, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:location, :string)
+    field(:website, :string)
+    field(:image, :string)
+    field(:primary_language, :string)
+    field(:icon, :upload)
 
     field :joined_communities, :user_joined_communities_connection do
       arg :limit, :integer

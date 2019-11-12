@@ -108,5 +108,4 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
     |> preload_aspect_cond([:actor_aspect], fields)
     |> prepare_common_fields()
   end
-  
 end

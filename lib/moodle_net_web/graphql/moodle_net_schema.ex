@@ -169,13 +169,38 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
 
   defp to_icon([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
-      URLBuilder.encode(url)
+      # FIXME: don't preload here
+      preview = Query.new() |> Query.belongs_to(:preview, entity) |> Query.one()
+      %{
+        url: URLBuilder.encode(url),
+        media_type: entity[:media_type],
+        # NOTE: the mixing of strings and keys is intentional
+        width: entity["width"],
+        height: entity["height"],
+        preview: to_preview([preview])
+      }
     else
       _ -> nil
     end
   end
 
   defp to_icon(_), do: nil
+
+  defp to_preview([entity | _]) when APG.is_entity(entity) do
+    with [url | _] <- entity[:url] do
+      %{
+        url: URLBuilder.encode(url),
+        media_type: entity[:media_type],
+        # NOTE: the mixing of strings and keys is intentional
+        width: entity["width"],
+        height: entity["height"]
+      }
+    else
+      _ -> nil
+    end
+  end
+
+  defp to_preview(_), do: nil
 
   defp to_image([entity | _]) when APG.is_entity(entity) do
     with [url | _] <- entity[:url] do
@@ -312,7 +337,6 @@ defmodule MoodleNetWeb.GraphQL.MoodleNetSchema do
   defp calculate_connection_page_info(entities, args, fields) when is_list(entities) do
     if "pageInfo" in fields do
       page_info = MoodleNet.page_info(entities, args)
-
       %{
         start_cursor: page_info.newer,
         end_cursor: page_info.older
