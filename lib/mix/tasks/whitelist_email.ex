@@ -20,10 +20,10 @@ defmodule Mix.Tasks.MoodleNet.WhitelistEmail do
   def run([email | _]) when is_binary(email) do
     Mix.Task.run("app.start")
 
-    if MoodleNet.Accounts.is_email_in_whitelist?(email) do
+    if MoodleNet.Whitelists.is_register_whitelisted?(email) do
       Mix.shell.info("#{email} already present in whitelist.")
     else
-      {:ok, _} = MoodleNet.Accounts.add_email_to_whitelist(email)
+      {:ok, _} = MoodleNet.Whitelists.create_register_email(email)
       Mix.shell.info("#{email} added to whitelist.")
     end
   end
