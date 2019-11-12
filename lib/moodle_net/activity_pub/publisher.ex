@@ -34,12 +34,18 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## FIXME: this is currently implemented in a spec non-conforming way, AP follows are supposed to be handshakes
   ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
+  ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
     with {:ok, follower} <- Actor.get_by_username(follow.follower.preferred_username),
     {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
     {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
-      #FIXME: insert pointer in AP database?
-      ActivityPub.follow(follower, followed)
+      if followed.data["manuallyApprovesFollowers"] do
+        MoodleNet.Common.unfollow(follow)
+        {:error, "account is private"}
+      else
+        #FIXME: insert pointer in AP database?
+        ActivityPub.follow(follower, followed)
+      end
     else
       _e -> :error
     end

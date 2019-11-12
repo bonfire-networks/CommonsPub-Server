@@ -23,7 +23,9 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       ap_followed = actor()
       {:ok, followed} = MoodleNet.Actors.fetch_by_username(ap_followed.username)
 
-      {:ok, follow} = MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true})
+      {:ok, follow} =
+        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true})
+
       assert {:ok, activity} = Publisher.follow(follow)
       assert activity.data["to"] == [ap_followed.ap_id]
     end
@@ -32,12 +34,26 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       follower = fake_actor!()
       ap_followed = actor()
       {:ok, followed} = MoodleNet.Actors.fetch_by_username(ap_followed.username)
-      {:ok, follow} = MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true})
+
+      {:ok, follow} =
+        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true})
+
       {:ok, follow_activity} = Publisher.follow(follow)
       {:ok, unfollow} = MoodleNet.Common.unfollow(follow)
 
       assert {:ok, unfollow_activity} = Publisher.unfollow(unfollow)
       assert unfollow_activity.data["object"]["id"] == follow_activity.data["id"]
+    end
+
+    test "it errors when remote account manually approves followers" do
+      follower = fake_actor!()
+      ap_followed = actor(%{data: %{"manuallyApprovesFollowers" => true}})
+      {:ok, followed} = MoodleNet.Actors.fetch_by_username(ap_followed.username)
+
+      {:ok, follow} =
+        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true})
+
+      assert {:error, "account is private"} = Publisher.follow(follow)
     end
   end
 end
