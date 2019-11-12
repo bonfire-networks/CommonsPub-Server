@@ -16,14 +16,20 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_community" do
-    belongs_to :creator, Actor
-    field :actor, :any, virtual: true
+    belongs_to :actor, Actor
+    belongs_to :creator, User
+    field(:name, :string)
+    field(:summary, :string)
+    field(:icon, :string)
+    field(:image, :string)
+    field :is_disabled, :boolean, virtual: true
+    field :disabled_at, :utc_datetime_usec
     field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
     has_many :collections, Collection
     has_many :flags, Flag
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w()a

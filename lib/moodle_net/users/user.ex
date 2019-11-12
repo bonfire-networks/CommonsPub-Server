@@ -14,23 +14,27 @@ defmodule MoodleNet.Users.User do
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_user" do
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    field :confirmed_at, :utc_datetime_usec
+    belongs_to :actor, Actor
+    belongs_to :local_user, LocalUser
+    belongs_to :primary_language, Language
+    field :name, :string
+    field :summary, :string
+    field :location, :string
+    field :website, :string
+    field :icon, :string
+    field :image, :string
+    field :is_public, :boolean, virtual: true
+    field :published_at, :utc_datetime_usec
+    field :disabled_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
-    field :wants_email_digest, :boolean
-    field :wants_notifications, :boolean
-    field :is_instance_admin, :boolean, default: false
-    field :actor, :any, virtual: true
     has_many :email_confirm_tokens, EmailConfirmToken
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(email password wants_email_digest wants_notifications)a
-  @register_required_attrs ~w(email password wants_email_digest wants_notifications)a
+  @register_cast_attrs ~w(name summary location website icon image is_public)a
+  @register_required_attrs @register_cast_attrs
 
   @doc "Create a changeset for registration"
   def register_changeset(%Pointer{id: id} = pointer, attrs) do

@@ -17,14 +17,12 @@ defmodule MoodleNet.Actors.Actor do
 
   standalone_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer
-    belongs_to :user, User
-    belongs_to :community, Community
-    belongs_to :collection, Collection
-    has_one :follower_count, ActorFollowerCount
-    has_one :following_count, ActorFollowingCount
+    # has_one :follower_count, ActorFollowerCount
+    # has_one :following_count, ActorFollowingCount
     field :preferred_username, :string
+    field :canonical_url, :text
     field :signing_key, :string
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast [

@@ -87,7 +87,7 @@ defmodule MoodleNet.UsersTest do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
         assert {:error, %NoAccessError{}} ==
-	  Users.register(attrs, public_registration: false)
+	        Users.WhitelistsTestregister(attrs, public_registration: false)
       end)
     end
   end

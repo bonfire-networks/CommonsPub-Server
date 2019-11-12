@@ -17,18 +17,17 @@ defmodule MoodleNet.Users.LocalUser do
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
     field :is_instance_admin, :boolean, default: false
+    field :is_confirmed, :boolean, virtual: true
     field :confirmed_at, :utc_datetime_usec
-    field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
-    field :disabled_at, :utc_datetime_usec
     has_one :user, User
     has_many :email_confirm_tokens, EmailConfirmToken
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+  @register_cast_attrs ~w(email password wants_email_digest wants_notifications is_public)a
   @register_required_attrs ~w(email password is_public)a
 
   @doc "Create a changeset for registration"
@@ -50,7 +49,7 @@ defmodule MoodleNet.Users.LocalUser do
     Changeset.change(user, confirmed_at: nil)
   end
 
-  @update_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+  @update_cast_attrs ~w(email password wants_email_digest wants_notifications is_public)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%LocalUser{} = user, attrs) do
@@ -60,7 +59,7 @@ defmodule MoodleNet.Users.LocalUser do
   end
   
   @instance_admin_update_cast_attrs [
-    :is_instance_admin, :is_confirmed, :is_public, :is_deleted, :is_disabled,
+    :is_instance_admin, :is_confirmed, :is_public, :is_disabled,
   ]
 
   def instance_admin_update_changeset(%LocalUser{} = user, attrs) do

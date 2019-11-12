@@ -7,7 +7,7 @@ defmodule MoodleNet.Peers do
   protocols, currently:
 
   * ActivityPub
-  
+
   A `MoodleNet.Peers.Peer` is created from a MoodleNet.Meta.Pointer`
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
@@ -28,37 +28,36 @@ defmodule MoodleNet.Peers do
   @spec create(map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
   @doc "Create a Peer from the provided attributes"
   def create(attrs) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       pointer = Meta.point_to!(Peer)
       Repo.insert(Peer.create_changeset(pointer, attrs))
-    end
+    end)
   end
 
   # Updating
-  
+
   @spec update(Peer.t(), map()) :: {:ok, Peer.t()} | {:error, Changeset.t()}
   @doc "Update the provided Peer with the provided attributes"
-  def update(%Peer{}=peer, fields),
+  def update(%Peer{} = peer, fields),
     do: Repo.update(Peer.update_changeset(peer, fields))
 
   # Soft deletion
-  
+
   @spec soft_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
   @doc "Marks a Peer as deleted in the database"
-  def soft_delete(%Peer{}=peer), do: Common.soft_delete(peer)
+  def soft_delete(%Peer{} = peer), do: Common.soft_delete(peer)
 
   @spec soft_delete!(Peer.t()) :: Peer.t()
   @doc "Marks a Peer as deleted in the database or throws a DeletionError"
-  def soft_delete!(%Peer{}=peer), do: Common.soft_delete!(peer)
+  def soft_delete!(%Peer{} = peer), do: Common.soft_delete!(peer)
 
   # Hard deletion - todo chase links
-  
+
   @spec hard_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
   @doc "Deletes a Peer from the database"
-  def hard_delete(%Peer{}=peer), do: Common.hard_delete(peer)
+  def hard_delete(%Peer{} = peer), do: Common.hard_delete(peer)
 
   @spec hard_delete!(Peer.t()) :: Peer.t()
   @doc "Deletes an entry from the database, or throws a DeletionError"
-  def hard_delete!(%Peer{}=peer), do: Common.hard_delete!(peer)
-
+  def hard_delete!(%Peer{} = peer), do: Common.hard_delete!(peer)
 end

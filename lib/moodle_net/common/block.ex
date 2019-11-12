@@ -14,8 +14,9 @@ defmodule MoodleNet.Common.Block do
   @type t :: %__MODULE__{}
 
   standalone_schema "mn_block" do
-    belongs_to(:blocker, Actor)
+    belongs_to(:blocker, User)
     belongs_to(:blocked, Pointer)
+    field(:canonical_url, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_muted, :boolean, virtual: true)
@@ -23,7 +24,7 @@ defmodule MoodleNet.Common.Block do
     field(:is_blocked, :boolean, virtual: true)
     field(:blocked_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w(is_public is_muted is_blocked)a

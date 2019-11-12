@@ -12,8 +12,6 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   alias Ecto.Changeset
   import MoodleNet.Common.Changeset, only: [validate_email: 2]
 
-  @type t :: %__MODULE__{}
-
   standalone_schema "mn_access_register_email" do
     field(:email, :string, primary_key: true)
     timestamps()
@@ -23,7 +21,7 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   @required @cast
 
   @doc "A changeset for both creation and update purposes"
-  def changeset(entry \\ t(), fields)
+  def changeset(entry \\ %__MODULE__{}, fields)
   def changeset(%__MODULE__{}=entry, fields) do
     entry
     |> Changeset.cast(fields, @cast)
