@@ -82,14 +82,13 @@ defmodule MoodleNet.Communities do
     |> Repo.insert()
   end
 
-  # TODO: update actor
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
   def update(%Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with fn ->
       with {:ok, actor} <- fetch_actor(community),
            {:ok, community} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs) do
-  	{:ok, %{community | actor: actor}}
+        {:ok, %{community | actor: actor}}
       end
     end
   end
