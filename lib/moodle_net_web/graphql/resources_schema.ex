@@ -7,14 +7,20 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   """
   use Absinthe.Schema.Notation
 
-  alias MoodleNetWeb.GraphQL.ResourcesResolver
+  alias MoodleNetWeb.GraphQL.{
+    CommonResolver,
+    CollectionsResolver,
+    LocalisationResolver,
+    ResourcesResolver,
+    UsersResolver,
+  }
 
   object :resources_queries do
 
     @desc "Get a resource"
     field :resource, :resource do
       arg :resource_id, non_null(:string)
-      resolve &ResourcesResolver.fetch/2
+      resolve &ResourcesResolver.resource/2
     end
 
   end
@@ -25,27 +31,21 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :create_resource, :resource do
       arg :collection_id, non_null(:string)
       arg :resource, non_null(:resource_input)
-      resolve &ResourcesResolver.create/2
+      resolve &ResourcesResolver.create_resource/2
     end
 
     @desc "Update a resource"
     field :update_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :resource, non_null(:resource_input)
-      resolve &ResourcesResolver.update/2
-    end
-
-    @desc "Delete a resource"
-    field :delete_resource :boolean do
-      arg :resource_id, non_null(:string)
-      resolve &CommonResolver.delete/2
+      resolve &ResourcesResolver.update_resource/2
     end
 
     @desc "Copy a resource"
     field :copy_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :collection_id, non_null(:string)
-      resolve &ResourcesResolver.copy/2
+      resolve &ResourcesResolver.copy_resource/2
     end
 
   end
@@ -53,6 +53,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resource do
     @desc "An instance-local UUID identifying the user"
     field :id, :string
+    @desc "A url for the user, may be to a remote instance"
+    field :canonical_url, :string
 
     @desc "A name field"
     field :name, :string
@@ -64,17 +66,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :url, :string
     @desc "What license is it available under?"
     field :license, :string
-
-
-    @desc "When the collection was created"
-    field :created_at, :string
-    @desc "When the collection was last updated"
-    field :updated_at, :string
-    @desc """
-    When the resource was last updated or a thread or a comment on it
-    was created or updated
-    """
-    field :last_activity, :string
     # @desc "approx reading time in minutes"
     # field :time_required, :integer
     # @desc "free text"
@@ -90,12 +81,24 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # @desc "???"
     # field :educational_use, list_of(non_null(:string))
 
-    @desc "Whether the user is local to the instance"
+    @desc "Whether the resource is local to the instance"
     field :is_local, :boolean
-    @desc "Whether the user has a public profile"
+    @desc "Whether the community is public"
     field :is_public, :boolean
     @desc "Whether an instance admin has hidden the resource"
     field :is_hidden, :boolean
+
+    @desc "When the collection was created"
+    field :created_at, :string
+    @desc "When the collection was last updated"
+    field :updated_at, :string
+    @desc """
+    When the resource was last updated or a thread or a comment on it
+    was created or updated
+    """
+    field :last_activity, :string do
+      resolve &ResourcesResolver.last_activity/3
+    end
 
     @desc "The current user's like of the resource, if any"
     field :my_like, :like do
@@ -104,17 +107,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "The user who created the resource"
     field :creator, :user do
-      resolve &CommonResolver.creator/3
+      resolve &UsersResolver.creator/3
     end
 
     @desc "The collection this resource is a part of"
     field :collection, :collection do
-      resolve &ResourcesResolver.collection/3
+      resolve &CollectionsResolver.collection/3
     end
 
     @desc "Languages the resources is available in"
     field :primary_language, :language do
-      resolve &ResourceResolver.languages/3
+      resolve &LocalisationResolver.primary_language/3
     end
 
     @desc "Users who like the resource, most recently liked first"

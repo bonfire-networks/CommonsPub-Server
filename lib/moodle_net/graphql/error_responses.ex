@@ -11,6 +11,32 @@ alias MoodleNet.Common.{
   NotLoggedInError,
   NotPermittedError,
 }
+  # def changeset_error(%Ecto.Changeset{} = changeset) do
+  #   errors =
+  #     Enum.map(changeset.errors, fn {field, {msg, opts}} ->
+  #       message = changeset_error_msg(msg, opts)
+
+  #       extra =
+  #         Map.new(opts)
+  #         |> Map.put(:field, field)
+
+  #       %{
+  #         code: :validation,
+  #         message: message,
+  #         extra: extra
+  #       }
+  #     end)
+
+  #   {:error, errors}
+  # end
+
+  # defp changeset_error_msg(msg, opts) do
+  #   if count = opts[:count] do
+  #     Gettext.dngettext(MoodleNetWeb.Gettext, "errors", msg, msg, count, opts)
+  #   else
+  #     Gettext.dgettext(MoodleNetWeb.Gettext, "errors", msg, opts)
+  #   end
+  # end
 
 defimpl Response, for: AlreadyFlaggedError do
   def to_response(_self, _info, _path) do

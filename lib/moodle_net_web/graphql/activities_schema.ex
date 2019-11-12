@@ -3,7 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.ActivitiesResolver
+  alias MoodleNetWeb.GraphQL.{
+    ActivitiesResolver,
+    CollectionsResolver,
+  }
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Comments.Comment
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Users.User
 
   @desc "An event that appears in a feed"
   object :activity do
@@ -13,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     field :canonical_url, :string
 
     @desc "The verb describing the activity"
-    field :verb, :activity_verb,
+    field :verb, :activity_verb
 
     @desc "Whether the activity is local to the instance"
     field :is_local, :boolean
@@ -25,19 +33,19 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
     @desc "The user who performed the activity"
     field :user, :user do
-      resolve &ActivitiesResolver.user/3
+      resolve &UsersResolver.user/3
     end
 
     @desc "The object of the user's verbing"
-    field :noun, :activity_noun do
-      resolve &ActivitiesResolver.noun/3
+    field :context, :activity_context do
+      resolve &ActivitiesResolver.context/3
     end
   end
 
   @desc "Something a user does, in past tense"
   enum :activity_verb, values: ["created", "updated"]
 
-  union :activity_noun do
+  union :activity_context do
     description("Activity object")
     types([:community, :collection, :resource, :comment])
     resolve_type(fn

@@ -19,15 +19,15 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
 
   object :moodleverse do
 
-    @desc """
-    A list of public activity from all federated instances
-    """
-    field :outbox, :activities_edges do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &MoodleverseResolver.outbox/3
-    end
+    # @desc """
+    # A list of public activity from all federated instances
+    # """
+    # field :outbox, :activities_edges do
+    #   arg :limit, :integer
+    #   arg :before, :string
+    #   arg :after, :string
+    #   resolve &MoodleverseResolver.outbox/3
+    # end
 
   end
 

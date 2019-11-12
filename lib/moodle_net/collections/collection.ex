@@ -14,20 +14,24 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Resources.Resource
 
   meta_schema "mn_collection" do
-    belongs_to(:creator, Actor)
-    belongs_to(:primary_language, Language, type: :binary)
-    belongs_to(:community, Community)
-    has_many(:resources, Resource)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
+    belongs_to :creator, Actor
+    belongs_to :primary_language, Language, type: :binary
+    belongs_to :community, Community
+    has_many :resources, Resource
+    field :name, :string
+    field :content, :string
+    field :summary, :string
+    field :icon, :string
+    field :is_public, :boolean, virtual: true
+    field :published_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
     timestamps()
   end
 
-  @create_cast ~w(primary_language_id)a
-  @create_required @create_cast
+  @create_cast ~w(name content summary icon primary_language_id)a
+  @create_required ~w(primary_language_id)a
 
-  @update_cast ~w()a
+  @update_cast @create_cast
   @update_required ~w()a
 
   def create_changeset(%Pointer{id: id} = pointer, community, creator, attrs) do

@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Users.User do
+defmodule MoodleNet.Users.RemoteUser do
   @moduledoc """
   User model
   """
@@ -13,17 +13,14 @@ defmodule MoodleNet.Users.User do
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
-  meta_schema "mn_user" do
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    field :confirmed_at, :utc_datetime_usec
-    field :deleted_at, :utc_datetime_usec
+  meta_schema "mn_remote_user" do
+
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
     field :is_instance_admin, :boolean, default: false
     field :actor, :any, virtual: true
     has_many :email_confirm_tokens, EmailConfirmToken
+    has_one :user, User
     timestamps()
   end
 

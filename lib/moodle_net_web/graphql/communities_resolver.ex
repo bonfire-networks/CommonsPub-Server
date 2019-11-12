@@ -5,97 +5,113 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  import MoodleNet.GraphQL.Schema
+  import Ecto.Query
   alias Absinthe.Resolution
-  alias MoodleNetWeb.GraphQL
-  alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, Actors, Communities, GraphQL, Repo, Users}
-  alias MoodleNet.Common.NotPermittedError
-  alias MoodleNet.OAuth.Token
+  alias MoodleNet.Fake
+  alias MoodleNet.{Accounts, Actors, Common, Collections, Communities, Fake, GraphQL, Repo, Users}
+  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
 
-  alias MoodleNetWeb.GraphQL.Errors
-
-  def list(args, info) do
-    # to_page(:community, args, info)
-  end
-
-  def fetch(%{community_id: id}, info) do
-    with {:ok, actor} <- Actors.fetch_by_alias(id) do
-      {:ok, %{actor | id: id}}
-    end
+  def community(%{community_id: id}, info) do
+    # with {:ok, {community, actor}} <- Repo.single(fetch_q(id)) do
+    #   {:ok, %{community | actor: Actors.preload(actor)}}
+    # end
+    {:ok, Fake.community()}
     |> GraphQL.response(info)
   end
 
-  def create(%{community: attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, actor} <- Users.fetch_actor(user) do
-      Communities.create(user, actor, attrs)
-    end
+  def community(%Collection{}=collection, _, info) do
+    # with {:ok, {community, actor}} <- Repo.single(fetch_q(id)) do
+    #   {:ok, %{community | actor: Actors.preload(actor)}}
+    # end
+    # |> GraphQL.response(info)
+    {:ok, Fake.community()}
     |> GraphQL.response(info)
   end
 
-  def update(%{community: changes, community_id: id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, actor} <- Users.fetch_actor(user),
-           {:ok, community} <- Communities.fetch(id) do
-        if community.creator_id == actor.id do
-          Communities.update(community, changes)
-        else
-          GraphQL.not_permitted()
-	end
-      end
-    end)
+  def communities(_args, info) do
+    # Repo.transact_with(fn ->
+    #   count = Communities.count_for_list()
+    #   comms = Communities.list()
+    #   {:ok, GraphQL.node_list(comms, count)}
+    # end)
+    count = Fake.pos_integer()
+    comms = Fake.long_list(&Fake.collection/0)
+    {:ok, GraphQL.node_list(comms, count)}
     |> GraphQL.response(info)
   end
 
-  def delete(%{community_id: id}, info) do
-    Repo.transact_with fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, actor} <- Users.fetch_actor(user),
-           {:ok, community} <- Communities.fetch(id) do
-        if community.creator_id == actor.id do
-          case Communities.soft_delete(community) do
-            {:ok, _} -> {:ok, true}
-            error -> GraphQL.response(error, info)
-          end
-        else
-          GraphQL.response(GraphQL.not_permitted(), info)
-        end
-      else
-        other -> GraphQL.response(other, info)
-      end
-    end
-  end
+  # defp fetch_q(id) do
+  #   from c in Community,
+  #     join: a in Actor, on: c.id == a.alias_id,
+  #     where: a.id == ^id,
+  #     where: is_nil(c.deleted_at),
+  #     where: is_nil(a.deleted_at),
+  #     where: not is_nil(c.published_at),
+  #     where: not is_nil(a.published_at),
+  #     select: {c, a}
+  # end
 
-  def follow(%{community_id: id}, info) do
-    with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, actor} <- Users.fetch_actor(user),
-         {:ok, community} <- Communities.fetch(id) do
-      Common.follow(actor, community)
-    end
+  def create_community(%{community: attrs}, info) do
+    # with {:ok, user} <- GraphQL.current_user(info),
+    #      {:ok, actor} <- Users.fetch_actor(user) do
+    #   Communities.create(user, actor, attrs)
+    # end
+    # |> GraphQL.response(info)
+    {:ok, Fake.community()}
     |> GraphQL.response(info)
   end
 
-  def unfollow(%{community_id: id}, info) do
-    with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, actor} <- Users.fetch_actor(user),
-         {:ok, community} <- Communities.fetch(id),
-         {:ok, follow} <- Common.find_follow(actor, community) do
-      Common.unfollow(follow)
-    end
+  def update_community(%{community: changes, community_id: id}, info) do
+    # Repo.transact_with(fn ->
+    #   with {:ok, user} <- GraphQL.current_user(info),
+    #        {:ok, actor} <- Users.fetch_actor(user),
+    #        {:ok, community} <- Communities.fetch(id) do
+    #     if community.creator_id == actor.id do
+    #       Communities.update(community, changes)
+    #     else
+    #       GraphQL.not_permitted()
+    # 	end
+    #   end
+    # end)
+    # |> GraphQL.response(info)
+    {:ok, Fake.community()}
     |> GraphQL.response(info)
   end
 
-  def creator(community, _, _) do
+  # def delete(%{community_id: id}, info) do
+  #   Repo.transact_with(fn ->
+  #     with {:ok, user} <- GraphQL.current_user(info),
+  #          {:ok, actor} <- Users.fetch_actor(user),
+  #          {:ok, community} <- Communities.fetch(id) do
+  #       if community.creator_id == actor.id do
+  # 	  with {:ok, _} <- Communities.soft_delete(community), do: {:ok, true}
+  #       else
+  #         GraphQL.not_permitted()
+  #       end
+  #     end
+  #   end)
+  #   |> GraphQL.response(info)
+  # end
+
+  def inbox(community, _, info) do
+    activities = Fake.long_list(&Fake.activity/0)
+    count = Fake.pos_integer()
+    {:ok, GraphQL.edge_list(activities, count)}
+    |> GraphQL.response(info)    
   end
-  def collections(community, _, _) do
+
+  def outbox(community, _, info) do
+    activities = Fake.long_list(&Fake.activity/0)
+    count = Fake.pos_integer()
+    {:ok, GraphQL.edge_list(activities, count)}
+    |> GraphQL.response(info)
   end
-  def threads(community, _, _) do
-  end
-  def inbox(community, _, _) do
-  end
-  def outbox(community, _, _) do
+
+  def last_activity(_, _, info) do
+    {:ok, Fake.past_datetime()}
+    |> GraphQL.response(info)
   end
 
 end

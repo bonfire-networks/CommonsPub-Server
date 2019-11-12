@@ -3,25 +3,27 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   use Absinthe.Schema.Notation
-
-  require ActivityPub.Guards, as: APG
-
-  alias MoodleNetWeb.GraphQL.CommentsResolver
+  alias MoodleNetWeb.GraphQL.{
+    CommentsResolver,
+    CommonResolver,
+  }
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Common.Flag
+  alias MoodleNet.Resources.Resource
 
   object :comments_queries do
 
     @desc "Get a thread"
     field :thread, :thread do
       arg :thread_id, non_null(:string)
-      resolve &CommentsResolver.fetch/2
+      resolve &CommentsResolver.thread/2
     end
 
     @desc "Get a comment"
     field :comment, :comment do
       arg :comment_id, non_null(:string)
-      resolve &CommentsResolver.fetch/2
+      resolve &CommentsResolver.comment/2
     end
 
   end
@@ -56,6 +58,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   object :thread do
     @desc "An instance-local UUID identifying the thread"
     field :id, :string
+    @desc "A url for the user, may be to a remote instance"
+    field :canonical_url, :string
 
     @desc "Whether the thread is local to the instance"
     field :is_local, :boolean
@@ -80,7 +84,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The object the thread is attached to"
     field :context, :thread_context do
-      resolve &CommentsResolver.thread_context/3
+      resolve &CommentsResolver.context/3
     end
 
     @desc "Comments in the thread, most recently created first"
@@ -88,11 +92,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
-      resolve &CommentsResolver.thread_comments/3
+      resolve &CommentsResolver.comments/3
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, :followers_edges do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -132,6 +136,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   object :comment do
     @desc "An instance-local UUID identifying the thread"
     field :id, :string
+    @desc "A url for the user, may be to a remote instance"
+    field :canonical_url, :string
 
     @desc "The id of the comment this one was a reply to"
     field :in_reply_to_id, :string
@@ -162,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The thread this comment is part of"
     field :thread, :thread do
-      resolve &CommonResolver.thread/3
+      resolve &CommentsResolver.fetch/3
     end
 
     @desc "Users who like the comment, most recently liked first"

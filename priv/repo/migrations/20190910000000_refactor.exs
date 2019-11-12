@@ -3,20 +3,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.BigRefactor do
   use Ecto.Migration
+  alias MoodleNet.Repo
+  import Ecto.Query
 
-  @meta_tables ~w(mn_peer mn_actor mn_user mn_community mn_collection mn_resource mn_thread mn_comment mn_like mn_flag)
-  @revised [
-    {"mn_actor", "actor_id"},
-    {"mn_resource", "resource_id"},
-    {"mn_comment", "comment_id"},
-  ]
+  @meta_tables [] ++
+    ~w(mn_country mn_language mn_peer mn_user mn_community mn_collection mn_resource) ++
+    ~w(mn_thread mn_comment) ++
+    ~w(mn_tag_category mn_tag mn_tagging mn_like mn_flag mn_block)
 
   @languages [
-    {"en", "English", "English"}
+    {"en", "eng", "English", "English"}
   ]
-
+  @tag_categories ["Hashtag", "K-12 Classification"]
+    
   @countries [
-    {"nl", "Netherlands", "Nederland"}
+    {"nl", "nld", "Netherlands", "Nederland"}
   ]
   def up do
 
@@ -25,95 +26,102 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     """
     ### localisation system
 
-    # countries
-    # only updated during migrations!
-    create table(:mn_country, primary_key: false) do
-      add :id, :string, size: 2, null: false, primary_key: true
-      add :english_name, :text, null: false
-      add :local_name, :text, null: false
-      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
-    end
-
-    # languages
-    # only updated during migrations!
-    create table(:mn_language, primary_key: false) do
-      add :id, :string, size: 2, null: false, primary_key: true
-      add :english_name, :text, null: false
-      add :local_name, :text, null: false
-      add :inserted_at, :timestamptz, default: fragment("(now() at time zone 'UTC')")
-    end
-
-    # whitelists
-
-    create table(:mn_whitelist_register_email_domain) do
-      add :domain, :text, null: false
-      timestamps(type: :utc_datetime_usec)
-    end
-
-    create unique_index(:mn_whitelist_register_email_domain, :domain)
-
-    create table(:mn_whitelist_register_email) do
-      add :email, :text, null: false
-      timestamps(type: :utc_datetime_usec)
-    end
-
-    create unique_index(:mn_whitelist_register_email, :email)
-
     ### meta system
 
     # database tables participating in the 'meta' abstraction
     # only updated during migrations!
-    create table(:mn_meta_table, primary_key: false) do
-      add :id, :smallserial, primary_key: true
+    create table(:mn_table) do
       add :table, :text, null: false
-      add :inserted_at, :timestamptz, null: false, default: fragment("(now() at time zone 'UTC')")
+      add :created_at, :timestamptz, null: false,
+	default: fragment("(now() at time zone 'UTC')")
     end
 
-    create unique_index(:mn_meta_table, :table)
+    create unique_index(:mn_table, :table)
 
     # a pointer to an entry in any table participating in the meta abstraction
-    create table(:mn_meta_pointer) do
-      add :table_id, references("mn_meta_table", type: :int2, on_delete: :restrict), null: false
+    create table(:mn_pointer) do
+      add :table_id, references("mn_table", on_delete: :restrict), null: false
     end
 
-    create index(:mn_meta_pointer, :table_id)
+    create index(:mn_pointer, :table_id)
+
+    # countries
+    
+    create table(:mn_country, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :iso_code2, :string, size: 2
+      add :iso_code3, :string, size: 3
+      add :english_name, :text, null: false
+      add :local_name, :text, null: false
+      add :deleted_at, :timestamptz
+      add :published_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create unique_index(:mn_country, :iso_code2)
+    create unique_index(:mn_country, :iso_code3)
+
+    # languages
+
+    create table(:mn_language, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :iso_code2, :string, size: 2
+      add :iso_code3, :string, size: 3
+      add :english_name, :text, null: false
+      add :local_name, :text, null: false
+      add :deleted_at, :timestamptz
+      add :published_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create unique_index(:mn_language, :iso_code2)
+    create unique_index(:mn_language, :iso_code3)
+
+    # access control
+
+    create table(:mn_access_register_email_domain, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :domain, :text, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create unique_index(:mn_access_register_email_domain, :domain)
+
+    create table(:mn_access_register_email, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :email, :text, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create unique_index(:mn_access_register_email, :email)
 
     ### activitypub system
 
     # an activitypub-compatible peer instance
     create table(:mn_peer, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
       add :ap_url_base, :text, null: false
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :disabled_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_peer, :ap_url_base, where: "deleted_at is null")
 
     ### actor system
 
-    # an actor is either a user or a group actor. it has several
-    # defining qualities:
-    #  * it authors and owns content
-    #  * it has an instance-unique preferred username
-    create table(:mn_actor, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :alias_id, references("mn_meta_pointer", on_delete: :delete_all) # user or collection etc.
+    # basically a reservation table for unique ids plus activitypub stuff
+    # currently linked to a user, community or collection
+    create table(:mn_actor) do
       add :peer_id, references("mn_peer", on_delete: :delete_all) # null for local
-      add :preferred_username, :text # null just in case, expected to be filled
-      add :primary_language_id, references("mn_language", on_delete: :nilify_all, type: :string, size: 2)
-      add :published_at, :timestamptz # null just in case, expected to be filled
-      add :deleted_at, :timestamptz
+      add :preferred_username, :text, null: false
+      add :canonical_url, :text
       add :signing_key, :text
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_actor, :peer_id, where: "deleted_at is null")
-    create index(:mn_actor, :primary_language_id, where: "deleted_at is null")
-    create unique_index(:mn_actor, :alias_id,  where: "deleted_at is null")
     create unique_index(
       :mn_actor, [:preferred_username, :peer_id],
-      where: "deleted_at is null",
       name: :mn_actor_preferred_username_peer_id_index
     )
     create unique_index(
@@ -122,391 +130,805 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       name: :mn_actor_peer_id_null_index
     )
 
-    # most content of the actor is revision-tracked
-    create table(:mn_actor_revision) do
-      add :actor_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :name, :text
-      add :summary, :text
-      add :icon, :text
-      add :image, :text
-      add :location, :text
-      add :website, :text
-      timestamps(updated_at: false, type: :utc_datetime_usec)
-    end
-
-    create index(:mn_actor_revision, [:actor_id, "inserted_at desc"])
-
-
     ### user system
 
     # a user that signed up on our instance
-    create table(:mn_user, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+
+    create table(:mn_local_user) do
       add :email, :text, null: false
       add :password_hash, :text, null: false
       add :confirmed_at, :timestamptz
+      add :deleted_at, :timestamptz
       add :wants_email_digest, :boolean, null: false, default: false
       add :wants_notifications, :boolean, null: false, default: false
-      add :is_local_admin, :boolean, null: false, default: false
-      add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :is_instance_admin, :boolean, null: false, default: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create unique_index(:mn_user, :email, where: "deleted_at is null")
+    create unique_index(:mn_local_user, :email, where: "deleted_at is null")
+
+    # any user, including remote ones
+
+    create table(:mn_user, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :actor_id, references("mn_actor", on_delete: :delete_all)
+      add :local_user_id, references("mn_local_user", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :name, :text
+      add :summary, :text
+      add :location, :text
+      add :website, :text
+      add :icon, :text
+      add :image, :text
+      add :published_at, :timestamptz
+      add :deleted_at, :timestamptz
+      add :disabled_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create unique_index(:mn_user, :actor_id)
+    create unique_index(:mn_user, :local_user_id)
+    create unique_index(:mn_user, :primary_language_id)
 
     # a storage for time-limited email confirmation tokens
-    create table(:mn_user_email_confirm_token) do
-      add :user_id, references("mn_user", on_delete: :delete_all), null: false
+    create table(:mn_local_user_email_confirm_token) do
+      add :local_user_id, references("mn_local_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :confirmed_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_user_email_confirm_token, :user_id, where: "confirmed_at is null")
+    create index(:mn_local_user_email_confirm_token, :local_user_id)
 
-    create table(:mn_user_reset_password_token) do
-      add :user_id, references("mn_user", on_delete: :delete_all), null: false
+    create table(:mn_local_user_reset_password_token) do
+      add :local_user_id, references("mn_local_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :reset_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_user_reset_password_token, :user_id, where: "reset_at is null")
+    create index(:mn_local_user_reset_password_token, :local_user_id)
     
     # a community is a group actor that is home to collections,
     # threads and members
     create table(:mn_community, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :creator_id, references("mn_actor", on_delete: :nilify_all)
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :actor_id, references(:mn_actor, on_delete: :delete_all)
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :name, :text
+      add :summary, :text
+      add :icon, :text
+      add :image, :text
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :disabled_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_community, :creator_id, where: "deleted_at is null")
+    create index(:mn_community, :created_at)
+    create index(:mn_community, :updated_at)
+    create index(:mn_community, :creator_id)
+    create index(:mn_community, :actor_id)
+    create index(:mn_community, :primary_language_id)
 
     # a collection is a group actor that is home to resources
     create table(:mn_collection, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :community_id, references("mn_community", on_delete: :delete_all), null: false
-      add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :actor_id, references("mn_actor", on_delete: :delete_all)
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
+      add :community_id, references("mn_community", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :name, :text
+      add :summary, :text
+      add :icon, :text
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :disabled_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_collection, :creator_id, where: "deleted_at is null")
-    create index(:mn_collection, :primary_language_id, where: "deleted_at is null")
+    create index(:mn_collection, :created_at)
+    create index(:mn_collection, :updated_at)
+    create index(:mn_collection, :actor_id)
+    create index(:mn_collection, :creator_id)
+    create index(:mn_collection, :community_id)
+    create index(:mn_collection, :primary_language_id)
 
     # a resource is an item in a collection, a link somewhere or some text
     create table(:mn_resource, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
       add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :collection_id, references("mn_collection", on_delete: :delete_all), null: false
-      add :primary_language_id, references("mn_language", type: :string, size: 2, on_delete: :nilify_all)
+      add :collection_id, references("mn_collection", on_delete: :nilify_all)
+      add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :name, :string
+      add :summary, :string
+      add :url, :string
+      add :license, :string
+      add :icon, :string
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :disabled_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_resource, :creator_id, where: "deleted_at is null")
-    create index(:mn_resource, :collection_id, where: "deleted_at is null")
-    create index(:mn_resource, :primary_language_id, where: "deleted_at is null")
+    create index(:mn_resource, :created_at)
+    create index(:mn_resource, :updated_at)
+    create unique_index(:mn_resource, :canonical_url)
+    create index(:mn_resource, :creator_id)
+    create index(:mn_resource, :collection_id)
+    create index(:mn_resource, :primary_language_id)
 
-    create table(:mn_resource_revision) do
-      add :resource_id, references("mn_resource", on_delete: :delete_all), null: false
-      add :content, :text
-      add :url, :string
-      add :same_as, :string
-      add :free_access, :boolean
-      add :public_access, :boolean
-      add :license, :string
-      add :learning_resource_type, :string
-      add :educational_use, {:array, :string}
-      add :time_required, :integer
-      add :typical_age_range, :string
-      timestamps(updated_at: false, type: :utc_datetime_usec)
-    end
-
-    create index(:mn_resource_revision, [:resource_id, "inserted_at desc"])
+    ### comment system
 
     create table(:mn_thread, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :creator_id, references("mn_actor", on_delete: :nilify_all)
-      add :parent_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
+      add :context_id, references("mn_pointer", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :locked_at, :timestamptz
+      add :hidden_at, :timestamptz
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_thread, :parent_id, where: "deleted_at is null")
+    create index(:mn_thread, :created_at)
+    create index(:mn_thread, :updated_at)
+    create unique_index(:mn_thread, :canonical_url)
+    create index(:mn_thread, :creator_id)
+    create index(:mn_thread, :context_id)
 
     create table(:mn_comment, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :creator_id, references("mn_actor", on_delete: :nilify_all)
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :thread_id, references("mn_thread", on_delete: :delete_all), null: false
       add :reply_to_id, references("mn_comment", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
-    end
-
-    create index(:mn_comment, :thread_id, where: "deleted_at is null")
-
-    create table(:mn_comment_revision) do
-      add :comment_id, references("mn_comment", on_delete: :delete_all), null: false
+      add :hidden_at, :timestamptz
       add :content, :text
-      timestamps(updated_at: false, type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_comment_revision, [:comment_id, "inserted_at desc"])
+    create index(:mn_comment, :created_at)
+    create index(:mn_comment, :updated_at)
+    create unique_index(:mn_comment, :canonical_url)
+    create index(:mn_comment, :creator_id)
+    create index(:mn_comment, :thread_id)
 
-    create table(:mn_follow) do
-      add :follower_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :followed_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+    create table(:mn_follow, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :follower_id, references("mn_user", on_delete: :nilify_all)
+      add :followed_id, references("mn_pointer", on_delete: :nilify_all)
       add :muted_at, :timestamptz
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
-
+    
+    create index(:mn_follow, :created_at)
+    create index(:mn_follow, :updated_at)
+    create unique_index(:mn_follow, :canonical_url)
     create unique_index(:mn_follow,[:follower_id, :followed_id], where: "deleted_at is null")
-    create index(:mn_follow, :followed_id, where: "deleted_at is null")
+    create index(:mn_follow, :followed_id)
 
-    create table(:mn_like) do
-      add :liker_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :liked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+    create table(:mn_like, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :liker_id, references("mn_user", on_delete: :nilify_all)
+      add :liked_id, references("mn_pointer", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
+    create index(:mn_like, :created_at)
+    create index(:mn_like, :updated_at)
+    create unique_index(:mn_like, :canonical_url)
     create unique_index(:mn_like, [:liker_id, :liked_id], where: "deleted_at is null")
     create index(:mn_like, :liked_id, where: "deleted_at is null")
 
     # a flagged piece of content. may be a user, community,
     # collection, resource, thread, comment
     create table(:mn_flag, primary_key: false) do
-      add :id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      add :flagger_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :flagged_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :flagger_id, references("mn_user", on_delete: :nilify_all)
+      add :flagged_id, references("mn_pointer", on_delete: :nilify_all)
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :message, :text, null: false
+      add :resolved_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_flag, :flagger_id, where: "deleted_at is null")
+    create index(:mn_flag, :created_at)
+    create index(:mn_flag, :updated_at)
+    create unique_index(:mn_flag, :canonical_url)
+    create unique_index(:mn_flag, [:flagger_id, :flagged_id], where: "deleted_at is null")
     create index(:mn_flag, :flagged_id, where: "deleted_at is null")
+    create index(:mn_flag, :community_id)
 
     ### blocking system
 
     # desc: one thing missing is silence/block/ban of user/group/instance,
     #       by users, community moderators, or admins
 
-    create table(:mn_block) do
-      add :blocker_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :blocked_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+    create table(:mn_block, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :blocker_id, references("mn_user", on_delete: :delete_all), null: false
+      add :blocked_id, references("mn_pointer", on_delete: :delete_all), null: false
       add :published_at, :timestamptz
       add :muted_at, :timestamptz
       add :blocked_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_block, :blocked_id, where: "deleted_at is null")
+    create index(:mn_block, :created_at)
+    create index(:mn_block, :updated_at)
+    create unique_index(:mn_block, :canonical_url)
     create unique_index(:mn_block, [:blocker_id, :blocked_id], where: "deleted_at is null")
+    create index(:mn_block, :blocked_id, where: "deleted_at is null")
 
     ### tagging
 
-    create table(:mn_tag) do
-      add :tagger_id, references("mn_actor", on_delete: :delete_all), null: false
-      add :tagged_id, references("mn_meta_pointer", on_delete: :delete_all), null: false
+    create table(:mn_tag_category, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :name, :text
+      add :published_at, :timestamptz
+      add :deleted_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_tag_category, :created_at)
+    create index(:mn_tag_category, :updated_at)
+    create unique_index(:mn_tag_category, :canonical_url)
+    create unique_index(:mn_tag_category, :name, where: "deleted_at is null")
+
+    create table(:mn_tag, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
       add :name, :text, null: false
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_tag, :tagged_id, where: "deleted_at is null")
-    create unique_index(:mn_tag, [:tagger_id, :tagged_id], where: "deleted_at is null")
+    create index(:mn_tag, :created_at)
+    create index(:mn_tag, :updated_at)
+    create unique_index(:mn_tag, :canonical_url)
+    create unique_index(:mn_tag, :name, where: "deleted_at is null")
 
-    #
-
-    create table(:mn_worker_task) do
+    create table(:mn_tagging, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :tag_id, references("mn_tag", on_delete: :nilify_all)
+      add :tagger_id, references("mn_user", on_delete: :nilify_all)
+      add :tagged_id, references("mn_pointer", on_delete: :nilify_all)
+      add :published_at, :timestamptz
       add :deleted_at, :timestamptz
-      add :type, :varchar
-      add :data, :jsonb
-      timestamps(type: :utc_datetime_usec)
+      add :is_local, :boolean, null: false
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create index(:mn_worker_task, :updated_at, where: "deleted_at is null")
+    create index(:mn_tagging, :created_at)
+    create index(:mn_tagging, :updated_at)
+    create unique_index(:mn_tagging, :canonical_url)
+    create unique_index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id], where: "deleted_at is null")
+    create index(:mn_tagging, :tagger_id, where: "deleted_at is null")
+    create index(:mn_tagging, :tagged_id, where: "deleted_at is null")
 
-    create table(:mn_worker_performance) do
-      add :task_id, references("mn_worker_task", on_delete: :delete_all)
-      timestamps(updated_at: false, type: :utc_datetime_usec)
+    create table(:mn_activity, primary_key: false) do
+      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+      add :canonical_url, :text
+      add :user_id, references("mn_user", on_delete: :nilify_all)
+      add :context_id, references("mn_pointer", on_delete: :nilify_all)
+      add :verb, :text, null: false
+      add :is_local, :boolean, null: false
+      add :deleted_at, :timestamptz
+      add :published_at, :timestamptz
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create table(:mn_actor_feed, primary_key: false) do
-      add :actor_id, references("mn_actor", on_delete: :delete_all), primary_key: true
-      add :pointer_id, references("mn_meta_pointer", on_delete: :delete_all), primary_key: true
-      timestamps(updated_at: false, type: :utc_datetime_usec)
+    create unique_index(:mn_activity, :canonical_url)
+    create index(:mn_activity, :user_id)
+    create index(:mn_activity, :context_id)
+    create index(:mn_activity, :created_at)
+    create index(:mn_activity, :updated_at)
+    create index(:mn_activity, :published_at)
+
+    create table(:mn_user_inbox) do
+      add :user_id, references("mn_user", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_actor_feed, :actor_id)
-    create index(:mn_actor_feed, :pointer_id)
-    create index(:mn_actor_feed, :inserted_at)
+    create index(:mn_user_inbox, :created_at)
+    create index(:mn_user_inbox, :user_id)
+    create index(:mn_user_inbox, :activity_id)
 
-    create table(:mn_community_role) do
-      add :name, :text, null: false
-      # administration
-      add :can_grant_role, :boolean, null: false
-      add :can_revoke_role, :boolean, null: false
-      # moderation
-      add :can_list_flag, :boolean, null: false
-      add :can_delete_flag, :boolean, null: false
-      add :can_ban, :boolean, null: false
-      # community
-      add :can_edit_community, :boolean, null: false
-      # collections
-      add :can_create_collection, :boolean, null: false
-      add :can_edit_collection, :boolean, null: false
-      add :can_delete_collection, :boolean, null: false
-      # resources
-      add :can_create_resource, :boolean, null: false
-      add :can_edit_resource, :boolean, null: false
-      add :can_delete_resource, :boolean, null: false
-      # comments / threads
-      add :can_edit_comment, :boolean, null: false
-      add :can_delete_comment, :boolean, null: false
-      timestamps(type: :utc_datetime_usec)
+    create table(:mn_user_outbox) do
+      add :user_id, references("mn_user", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
+
+
+    create index(:mn_user_outbox, :created_at)
+    create index(:mn_user_outbox, :user_id)
+    create index(:mn_user_outbox, :activity_id)
+
+    create table(:mn_community_inbox) do
+      add :community_id, references("mn_community", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_community_inbox, :created_at)
+    create index(:mn_community_inbox, :community_id)
+    create index(:mn_community_inbox, :activity_id)
+
+    create table(:mn_community_outbox) do
+      add :community_id, references("mn_community", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_community_outbox, :created_at)
+    create index(:mn_community_outbox, :community_id)
+    create index(:mn_community_outbox, :activity_id)
+
+    create table(:mn_collection_inbox) do
+      add :collection_id, references("mn_collection", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_collection_inbox, :created_at)
+    create index(:mn_collection_inbox, :collection_id)
+    create index(:mn_collection_inbox, :activity_id)
+
+    create table(:mn_collection_outbox) do
+      add :collection_id, references("mn_collection", on_delete: :nilify_all)
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_collection_outbox, :created_at)
+    create index(:mn_collection_outbox, :collection_id)
+    create index(:mn_collection_outbox, :activity_id)
+
+    create table(:mn_instance_inbox) do
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_instance_inbox, :created_at)
+    create index(:mn_instance_inbox, :activity_id)
+
+    create table(:mn_instance_outbox) do
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_instance_outbox, :created_at)
+    create index(:mn_instance_outbox, :activity_id)
+
+    create table(:mn_moodleverse_inbox) do
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_moodleverse_inbox, :created_at)
+    create index(:mn_moodleverse_inbox, :activity_id)
+
+    create table(:mn_moodleverse_outbox) do
+      add :activity_id, references("mn_activity", on_delete: :nilify_all)
+      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
+    end
+
+    create index(:mn_moodleverse_outbox, :created_at)
+    create index(:mn_moodleverse_outbox, :activity_id)
 
     create table(:oauth_authorizations) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :claimed_at, :timestamptz
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-    create table(:oauth_tokens) do
-      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
+    create table(:access_tokens) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
-      add :refresh_token, :uuid, null: false, default: fragment("uuid_generate_v4()")
+      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
+      add :refresh_token, :uuid
       add :expires_at, :timestamptz, null: false
-      timestamps(type: :utc_datetime_usec)
+      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
 
-   # now we are going to do things with what we've already created.
+    # now we are going to do things with what we've already created.
     # ecto naturally wants to delay running any of this because we
     # might be running in mysql which doesn't have DDL transactions
     # as we happen to know we're not, carry on...
     flush()
 
-    langs =
-      @languages
-      |> Enum.map(fn {code, name, name2} -> "('#{code}', '#{name}', '#{name2}')" end)
-      |> Enum.join(", ")
-    :ok = execute """
-    insert into mn_language (\"id\", \"english_name\", \"local_name\") values #{langs}
-    """
-
-    countries =
-      @countries
-      |> Enum.map(fn {code, name, name2} -> "('#{code}', '#{name}', '#{name2}')" end)
-      |> Enum.join(", ")
-    :ok = execute """
-    insert into mn_country (\"id\", \"english_name\", \"local_name\") values #{countries}
-    """
-
-    # insert records of the tables participating in the meta abstraction
+    now = DateTime.utc_now()
+    tables = Enum.map(@meta_tables, fn name ->
+      %{"id" => Ecto.UUID.bingenerate(),
+	"table" => name,
+        "created_at" => now}
+    end)
+    Repo.insert_all("mn_table", tables)
     tables =
-      @meta_tables
-      |> Enum.map(fn x -> "('#{x}')" end)
-      |> Enum.join(", ")
-    :ok = execute "insert into mn_meta_table (\"table\") values #{tables}"
-
-    # create a view showing the latest performance of tasks by workers
-    :ok = execute """
-    create view mn_worker_performance_latest as
-    (select
-       distinct on (task_id)
-       task_id, id
-     from mn_worker_performance
-     order by task_id, id
+      Repo.all(from m in "mn_table", select: {m.id, m.table})
+      |> Enum.reduce(%{}, fn {id, table}, acc ->
+        Map.put(acc, table, id)
+      end)
+    
+    lang_pointers = Enum.map(@languages, fn _ -> Ecto.UUID.bingenerate() end)
+    {_, _} = Repo.insert_all(
+      "mn_pointer",
+      Enum.map(lang_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_language"]} end)
     )
+    langs =
+      Enum.zip(lang_pointers, @languages)
+      |> Enum.map(fn {ptr, {code2, code3, name, name2}} ->
+        %{"id" => ptr,
+          "iso_code2" => code2,
+          "iso_code3" => code3,
+          "english_name" => name,
+          "local_name" => name2,
+          "created_at" => now,
+          "updated_at" => now}
+      end)
+    Repo.insert_all("mn_language", langs)
+
+    country_pointers = Enum.map(@countries, fn _ -> Ecto.UUID.bingenerate() end)
+    {_, _} = Repo.insert_all(
+      "mn_pointer",
+      Enum.map(country_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_country"]} end)
+    )
+    countries =
+      Enum.zip(country_pointers, @countries)
+      |> Enum.map(fn {pointer, {code2, code3, name, name2}} ->
+        %{"id" => pointer,
+          "iso_code2" => code2,
+          "iso_code3" => code3,
+          "english_name" => name,
+          "local_name" => name2,
+          "created_at" => now,
+          "updated_at" => now}
+        end)
+    Repo.insert_all("mn_country", countries)
+
+    cats_pointers = Enum.map(@tag_categories, fn _ -> Ecto.UUID.bingenerate() end)
+    {_, _} = Repo.insert_all(
+      "mn_pointer",
+      Enum.map(cats_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_tag_category"]} end)
+    )
+    cats =
+      Enum.zip(cats_pointers, @tag_categories)
+      |> Enum.map(fn {pointer, cat} ->
+        %{"id" => pointer,
+          "name" => cat,
+          "created_at" => now,
+          "updated_at" => now,
+          "published_at" => now}
+      end)
+    Repo.insert_all("mn_tag_category", cats)
+
+    ### last activity views
+
+    # user
+
+    :ok = execute """
+    create view mn_user_last_activity as
+    select
+      distinct on (user_id)
+      user_id, created_at
+    from mn_user_outbox
+    order by user_id, created_at desc
     """
 
-    # create views showing the latest revision of revised tables
+    # community
 
-    for {table, column} <- @revised do
-      :ok = execute """
-      create view #{table}_latest_revision as
-      (select
-       distinct on (#{column})
-       #{column}, id as revision_id,inserted_at
-       from #{table}_revision
-       order by #{column}, inserted_at, id)
-      """
-    end
+    :ok = execute """
+    create view mn_community_last_activity as
+    select
+      distinct on (community_id)
+      community_id, created_at
+    from mn_community_outbox
+    order by community_id, created_at desc
+    """
 
-    # create triggers that cascade deletes on meta tables to pointers
+    # collection
 
-    ### pointer cascade triggers to clean up dangling pointers
-    # :ok = execute """
-    # create function cascade_pointer_delete() returns trigger as $cascade_pointer_delete$
-    #   begin
-    #     delete from mn_pointer where id = old.id;
-    #     return null;
-    #   end;
-    # $cascade_pointer_delete$ language plpgsql
-    # """
+    :ok = execute """
+    create view mn_collection_last_activity as
+    select
+      distinct on (collection_id)
+      collection_id, created_at
+    from mn_collection_outbox
+    order by collection_id, created_at desc
+    """
 
-    # for table <-  @meta_tables do
-    #   :ok = execute """
-    #   create trigger #{table}_cascade_pointer_delete
-    #   after delete on #{table}
-    #   for each row
-    #   execute procedure cascade_pointer_delete()
-    #   """
-    # end
+    # thread
+
+    :ok = execute """
+    create view mn_thread_last_activity as
+    select distinct on (thread_id)
+      thread_id, updated_at
+    from mn_comment
+    order by thread_id, updated_at desc
+    """
+
+    ### follower counts
+
+    # user
+
+    :ok = execute """
+    create view mn_user_follower_count as
+    select mn_user.id as user_id,
+           coalesce(count(mn_follow.follower_id), 0) as count
+    from mn_user left join mn_follow on mn_user.id = mn_follow.followed_id
+    where mn_follow.deleted_at is null
+    group by mn_user.id
+    """
+
+    # community
+
+    :ok = execute """
+    create view mn_community_follower_count as
+    select mn_community.id as community_id,
+           coalesce(count(mn_follow.follower_id), 0) as count
+    from mn_community left join mn_follow on mn_community.id = mn_follow.followed_id
+    where mn_follow.deleted_at is null
+    group by mn_community.id
+    """
+
+    # collection
+
+    :ok = execute """
+    create view mn_collection_follower_count as
+    select mn_collection.id as collection_id,
+           coalesce(count(mn_follow.follower_id), 0) as count
+    from mn_collection left join mn_follow on mn_collection.id = mn_follow.followed_id
+    where mn_follow.deleted_at is null
+    group by mn_collection.id
+    """
+
+    # thread
+    
+    :ok = execute """
+    create view mn_thread_follower_count as
+    select mn_thread.id as thread_id,
+           coalesce(count(mn_follow.follower_id), 0) as count
+    from mn_thread left join mn_follow on mn_thread.id = mn_follow.followed_id
+    where mn_follow.deleted_at is null
+    group by mn_thread.id
+    """
+
+    ### following counts
+
+    # user
+
+    :ok = execute """
+    create view mn_user_following_count as
+    select mn_user.id as user_id,
+           coalesce(count(mn_follow.followed_id), 0) as count
+    from mn_user left join mn_follow on mn_user.id = mn_follow.follower_id
+    where mn_follow.deleted_at is null
+    group by mn_user.id
+    """
+
   end
 
   def down do
 
-    # todo: drop indices
-    # for table <- @meta_tables do
-    #   :ok = execute "drop trigger #{table}_cascade_pointer_delete"
-    # end
-    # :ok = execute "drop function cascade_pointer_delete()"
-    # for {table, _} <- @revised do
-    #   :ok = execute "drop view #{table}_latest_revision"
-    # end
+    :ok = execute "drop view mn_user_following_count"
+    :ok = execute "drop view mn_thread_follower_count"
+    :ok = execute "drop view mn_collection_follower_count"
+    :ok = execute "drop view mn_community_follower_count"
+    :ok = execute "drop view mn_user_follower_count"
+    flush()
+    drop table(:oauth_authorizations)
+    drop table(:oauth_tokens)
 
-    :ok = execute "drop view mn_worker_performance_latest"
-    drop table(:mn_actor_feed)
-    drop table(:mn_worker_performance)
-    drop table(:mn_worker_task)
-    drop table(:mn_community_role)
+    drop index(:mn_moodleverse_inbox, :created_at)
+    drop index(:mn_moodleverse_inbox, :activity_id)
+    drop table(:mn_moodleverse_inbox)
+
+    drop index(:mn_moodleverse_outbox, :created_at)
+    drop index(:mn_moodleverse_outbox, :activity_id)
+    drop table(:mn_moodleverse_outbox)
+
+    drop table(:mn_instance_inbox)
+    drop index(:mn_instance_inbox, :created_at)
+    drop index(:mn_instance_inbox, :activity_id)
+
+    drop table(:mn_instance_outbox)
+    drop index(:mn_instance_outbox, :created_at)
+    drop index(:mn_instance_outbox, :activity_id)
+
+    drop index(:mn_collection_outbox, :created_at)
+    drop index(:mn_collection_outbox, :collection_id)
+    drop index(:mn_collection_outbox, :activity_id)
+    drop table(:mn_collection_outbox)
+
+    drop index(:mn_collection_inbox, :created_at)
+    drop index(:mn_collection_inbox, :collection_id)
+    drop index(:mn_collection_inbox, :activity_id)
+    drop table(:mn_collection_inbox)
+
+    drop index(:mn_community_inbox, :created_at)
+    drop index(:mn_community_inbox, :community_id)
+    drop index(:mn_community_inbox, :activity_id)
+    drop table(:mn_community_inbox)
+
+    drop index(:mn_community_outbox, :created_at)
+    drop index(:mn_community_outbox, :community_id)
+    drop index(:mn_community_outbox, :activity_id)
+    drop table(:mn_community_outbox)
+
+    drop index(:mn_user_inbox, :created_at)
+    drop index(:mn_user_inbox, :user_id)
+    drop index(:mn_user_inbox, :activity_id)
+    drop table(:mn_user_inbox)
+
+    drop index(:mn_user_outbox, :created_at)
+    drop index(:mn_user_outbox, :user_id)
+    drop index(:mn_user_outbox, :activity_id)
+    drop table(:mn_user_outbox)
+
+    drop index(:mn_activity, :canonical_url)
+    drop index(:mn_activity, :user_id)
+    drop index(:mn_activity, :context_id)
+    drop index(:mn_activity, :created_at)
+    drop index(:mn_activity, :updated_at)
+    drop index(:mn_activity, :published_at)
+    drop table(:mn_activity)
+    
+    drop index(:mn_tagging, :created_at)
+    drop index(:mn_tagging, :updated_at)
+    drop index(:mn_tagging, :canonical_url)
+    drop index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id])
+    drop index(:mn_tagging, :tagger_id)
+    drop index(:mn_tagging, :tagged_id)
+    drop table(:mn_tagging)
+
+    drop index(:mn_tag, :created_at)
+    drop index(:mn_tag, :updated_at)
+    drop index(:mn_tag, :canonical_url)
+    drop index(:mn_tag, :name)
+    drop table(:mn_tag)
+
+    drop index(:mn_tag_category, :created_at)
+    drop index(:mn_tag_category, :updated_at)
+    drop index(:mn_tag_category, :canonical_url)
+    drop index(:mn_tag_category, :name)
+    drop table(:mn_tag_category)
+
+    drop index(:mn_block, :created_at)
+    drop index(:mn_block, :updated_at)
+    drop index(:mn_block, :canonical_url)
+    drop index(:mn_block, [:blocker_id, :blocked_id])
+    drop index(:mn_block, :blocked_id)
     drop table(:mn_block)
+
+    drop index(:mn_follow, :created_at)
+    drop index(:mn_follow, :updated_at)
+    drop index(:mn_follow, :canonical_url)
+    drop index(:mn_follow,[:follower_id, :followed_id])
+    drop index(:mn_follow, :followed_id)
     drop table(:mn_follow)
+
+    drop index(:mn_like, :created_at)
+    drop index(:mn_like, :updated_at)
+    drop index(:mn_like, :canonical_url)
+    drop index(:mn_like, [:liker_id, :liked_id])
+    drop index(:mn_like, :liked_id)
     drop table(:mn_like)
+
+    drop index(:mn_flag, :created_at)
+    drop index(:mn_flag, :updated_at)
+    drop index(:mn_flag, :canonical_url)
+    drop index(:mn_flag, [:flagger_id, :flagged_id])
+    drop index(:mn_flag, :flagged_id)
+    drop index(:mn_flag, :community_id)
     drop table(:mn_flag)
+
+    drop index(:mn_comment, :created_at)
+    drop index(:mn_comment, :updated_at)
+    drop index(:mn_comment, :canonical_url)
+    drop index(:mn_comment, :creator_id)
+    drop index(:mn_comment, :thread_id)
     drop table(:mn_comment)
+
+    drop index(:mn_thread, :created_at)
+    drop index(:mn_thread, :updated_at)
+    drop index(:mn_thread, :canonical_url)
+    drop index(:mn_thread, :creator_id)
+    drop index(:mn_thread, :context_id)
     drop table(:mn_thread)
-    drop table(:mn_resource_revision)
+
+    drop index(:mn_resource, :created_at)
+    drop index(:mn_resource, :updated_at)
+    drop index(:mn_resource, :canonical_url)
+    drop index(:mn_resource, :creator_id)
+    drop index(:mn_resource, :collection_id)
+    drop index(:mn_resource, :primary_language_id)
     drop table(:mn_resource)
+
+    drop index(:mn_collection, :created_at)
+    drop index(:mn_collection, :updated_at)
+    drop index(:mn_collection, :actor_id)
+    drop index(:mn_collection, :creator_id)
+    drop index(:mn_collection, :community_id)
+    drop index(:mn_collection, :primary_language_id)
     drop table(:mn_collection)
+
+    drop index(:mn_community, :created_at)
+    drop index(:mn_community, :updated_at)
+    drop index(:mn_community, :creator_id)
+    drop index(:mn_community, :actor_id)
+    drop index(:mn_community, :primary_language_id)
     drop table(:mn_community)
-    drop table(:mn_user_email_confirm_token)
+
+    drop index(:mn_user, :actor_id)
+    drop index(:mn_user, :local_user_id)
+    drop index(:mn_user, :primary_language_id)
     drop table(:mn_user)
-    drop table(:mn_actor_revision)
+
+    drop index(:mn_local_user_email_confirm_token, :local_user_id)
+    drop table(:mn_local_user_email_confirm_token)
+
+    drop index(:mn_local_user_reset_password_token, :local_user_id)
+    drop table(:mn_local_user_reset_password_token)
+    
+    drop index(:mn_local_user, :email)
+    drop table(:mn_local_user, :email)
+
+    drop index(:mn_actor, [:preferred_username, :peer_id], name: :mn_actor_preferred_username_peer_id_index)
+    drop index(:mn_actor, [:preferred_username], name: :mn_actor_peer_id_null_index)
+    drop index(:mn_actor, :peer_id)
+    drop index(:mn_actor, :canonical_url)
     drop table(:mn_actor)
-    drop table(:mn_meta_pointer)
-    drop table(:mn_meta_table)
-    drop table(:mn_country)
+
+    drop index(:mn_peer, :ap_url_base)
+    drop index(:mn_peer, :ap_url_base)
+    drop table(:mn_peer)
+
+    drop index(:mn_access_register_email, :email)
+    drop table(:mn_access_register_email)
+
+    drop index(:mn_access_register_email_domain, :domain)
+    drop table(:mn_access_register_email_domain)
+
+    drop index(:mn_language, :iso_code2)
+    drop index(:mn_language, :iso_code3)
     drop table(:mn_language)
+
+    drop index(:mn_country, :iso_code2)
+    drop index(:mn_country, :iso_code3)
+    drop table(:mn_country)
+
+    drop index(:mn_pointer, :table_id)
+    drop table(:mn_pointer)
+
+    drop index(:mn_table, :table)
+    drop table(:mn_table)
   end
 
 end

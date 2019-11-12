@@ -6,22 +6,26 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   GraphQL collection fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CollectionsResolver, CommonResolver}
+  alias MoodleNetWeb.GraphQL.{
+    CollectionsResolver,
+    CommonResolver,
+    LocalisationResolver,
+  }
 
   object :collections_queries do
 
     @desc "Get list of collections, most recent activity first"
-    field :collections, :collection_page do
+    field :collections, :collections_nodes do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CollectionsResolver.list/2
+      resolve &CollectionsResolver.collections/2
     end
 
     @desc "Get a collection"
     field :collection, :collection do
       arg :collection_id, non_null(:string)
-      resolve &CollectionsResolver.fetch/2
+      resolve &CollectionsResolver.collection/2
     end
   end
 
@@ -31,14 +35,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :create_collection, type: :collection do
       arg :community_id, non_null(:string)
       arg :collection, non_null(:collection_input)
-      resolve &CollectionsResolver.create/2
+      resolve &CollectionsResolver.create_collection/2
     end
 
     @desc "Update a collection"
     field :update_collection, type: :collection do
       arg :collection_id, non_null(:integer)
       arg :collection, non_null(:collection_input)
-      resolve &CollectionsResolver.update/2
+      resolve &CollectionsResolver.update_collection/2
     end
 
   end
@@ -76,7 +80,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     When the collection or a resource in it was last updated or a
     thread or a comment was created or updated
     """
-    field :last_activity, :string
+    field :last_activity, :string do
+      resolve &CollectionsResolver.last_activity/3
+    end
 
     @desc "The current user's like of this collection, if any"
     field :my_like, :like do
@@ -90,17 +96,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The primary language the community speaks"
     field :primary_language, :language do
-      resolve &CommonResolver.primary_language/3
+      resolve &LocalisationResolver.primary_language/3
     end
 
     @desc "The user who created the collection"
     field :creator, :user do
-      resolve &CommonResolver.creator/3
+      resolve &UsersResolver.creator/3
     end
 
     @desc "The community the collection belongs to"
     field :community, :community do
-      resolve &CollectionsResolver.community/3
+      resolve &CommunitiesResolver.community/3
     end 
 
     @desc "The resources in the collection, most recently created last"
@@ -108,10 +114,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CollectionsResolver.resources/3
+      resolve &ResourcesResolver.resources/3
     end
 
-    @desc "Users following the collection, most recently followed first"
+    @desc "Subscriptions users have to the collection"
     field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
@@ -119,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CommonResolver.followers/3
     end
 
-    @desc "Users who like the collection, most recently liked first"
+    @desc "Likes users have given the collection"
     field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
@@ -151,7 +157,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.threads/3
+      resolve &CommentsResolver.threads/3
     end
 
     @desc "Activities on the collection, most recent first"
@@ -159,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.outbox/3
+      resolve &CollectionsResolver.outbox/3
     end
 
   end

@@ -14,4 +14,9 @@ defmodule MoodleNetWeb.GraphQL.LocalisationResolver do
     GraphQL.response({:ok, Localisation.countries()}, info)
   end
 
+  def primary_language(parent, _, info) do
+    {:ok, Localisation.language!("en")}
+    |> GraphQL.response(info)
+  end
+
 end

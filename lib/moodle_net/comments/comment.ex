@@ -13,9 +13,6 @@ defmodule MoodleNet.Comments.Comment do
     belongs_to(:thread, Thread)
     # TODO: figure out if this is has_one or belongs_to
     belongs_to(:reply_to, Comment)
-    has_many(:revisions, CommentRevision)
-    has_one(:latest_revision, CommentLatestRevision)
-    has_one(:current, through: [:latest_revision, :revision])
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)

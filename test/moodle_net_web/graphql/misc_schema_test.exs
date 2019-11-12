@@ -2,9 +2,9 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.MiscTest do
-  use MoodleNetWeb.ConnCase, async: true
+  # use MoodleNetWeb.ConnCase, async: true
 
-  import Tesla.Mock
+  # import Tesla.Mock
 
   # @moduletag format: :json
 

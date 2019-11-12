@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.UsersTest do
+defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   use MoodleNetWeb.ConnCase, async: true
   alias MoodleNet.Test.Fake
   import MoodleNetWeb.Test.GraphQLAssertions
@@ -9,6 +9,373 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   # import MoodleNetWeb.Test.ConnHelpers
   # alias MoodleNet.Test.Fake
   # alias MoodleNet.{Actors, OAuth, Users, Whitelists}
+
+  @user_basics """
+  id canonicalUrl preferredUsername
+  name summary location website icon image
+  isLocal isPublic isDisabled createdAt updatedAt __typename
+  """
+  @me_basics """
+  email wantsEmailDigest wantsNotifications isConfirmed isInstanceAdmin __typename
+  """
+  @thread_basics  """
+  id canonicalUrl
+  isLocal isPublic isHidden createdAt updatedAt __typename
+  """
+  @comment_basics """
+  id canonicalUrl inReplyToId content
+  isLocal isPublic isHidden createdAt updatedAt __typename
+  """
+  @community_basics """
+  id canonicalUrl preferredUsername
+  name summary icon image
+  isLocal isPublic isDisabled createdAt updatedAt __typename
+  """
+  @collection_basics """
+  id canonicalUrl preferredUsername
+  name summary icon
+  isLocal isPublic isDisabled createdAt updatedAt __typename
+  """
+  @resource_basics """
+  id canonicalUrl preferredUsername
+  name summary icon
+  isLocal isPublic isDisabled createdAt updatedAt __typename
+  """
+  @flag_basics """
+  id canonicalUrl message isResolved
+  isLocal isPublic createdAt updatedAt __typename
+  """
+  @like_basics """
+  id canonicalUrl
+  isLocal isPublic createdAt __typename
+  """
+  @follow_basics """
+  id canonicalUrl
+  isLocal isPublic createdAt __typename
+  """
+  @category_basics """
+  id canonicalUrl name
+  isLocal isPublic createdAt __typename
+  """
+  @tag_basics """
+  id canonicalUrl name
+  isLocal isPublic createdAt __typename
+  """
+  @tagging_basics """
+  id canonicalUrl
+  isLocal isPublic createdAt __typename
+  """
+  @activity_basics """
+  id canonicalUrl verb
+  isLocal isPublic createdAt __typename
+  """
+
+  @username_available_q """
+  query Test($username: String!) {
+    usernameAvailable(username: $username)
+  }
+  """
+  @me_q """
+  query Test {
+    me {
+      user { #{@user_basics} }
+      #{@me_basics}
+    }
+  }
+  """
+  @create_q """
+  mutation Test($user: RegistrationInput!) {
+    createUser(user: $user) {
+      user { #{@user_basics} }
+      #{@me_basics}
+    }
+  }
+  """
+  @update_q """
+  mutation Test($profile: UpdateProfileInput!) {
+    updateProfile(profile: $profile) {
+      user { #{@user_basics} }
+      #{@me_basics}
+    }
+  }
+  """
+  @reset_request_q """
+  mutation Test($email: String!) {
+    resetPasswordRequest(email: $email)
+  }
+  """
+  @reset_q """
+  mutation Test($token: String!, $password: String!) {
+    resetPassword(token: $token, password: $password) {
+      __typename
+      token
+      me {
+        user { #{@user_basics} }
+        #{@me_basics}
+      }
+    }
+  }
+  """
+  @confirm_q """
+  mutation Test($token: String!) {
+    confirmEmail(token: $token) {
+      __typename
+      token
+      me {
+        user { #{@user_basics} }
+        #{@me_basics}
+      }
+    }
+  }
+  """
+  @login_q """
+  mutation Test($email: String!, $password: String!) {
+    createSession(email: $email, password: $password) {
+      __typename
+      token
+      me {
+        user { #{@user_basics} }
+        #{@me_basics}
+      }
+    }
+  }
+  """
+  @logout_q """
+  mutation Test {
+    deleteSession
+  }
+  """
+  @delete_q """
+  mutation Test {
+    deleteSelf(iAmSure: true)
+  }
+  """
+  describe "activities.user" do
+  end
+
+  describe "me" do
+    test "works" do
+      vars = %{}
+      query = %{query: @me_q, variables: vars, operationName: "Test"}
+      assert %{"me" => me} = gql_post_data(json_conn(), query)
+      assert_me(me)
+    end
+  end
+  describe "username_available" do
+    test "works" do
+      vars = %{"username" => ""}
+      query = %{query: @username_available_q, variables: vars, operationName: "Test"}
+      assert %{"usernameAvailable" => av} = gql_post_data(json_conn(), query)
+      assert is_boolean(av)
+    end
+  end
+  describe "create_user" do
+    test "works" do
+      vars = %{"user" => Fake.registration_input()}
+      query = %{query: @create_q, variables: vars, operationName: "Test"}
+      assert %{"createUser" => me} = gql_post_data(json_conn(), query)
+      assert_me(me)
+    end
+  end
+  describe "update_profile" do
+    test "works" do
+      vars = %{"profile" => Fake.profile_update_input()}
+      query = %{query: @update_q, variables: vars, operationName: "Test"}
+      assert %{"updateProfile" => me} = gql_post_data(json_conn(), query)
+      assert_me(me)
+    end
+  end
+  describe "reset_request" do
+    test "works" do
+      vars = %{"email" => ""}
+      query = %{query: @reset_request_q, variables: vars, operationName: "Test"}
+      assert %{"resetPasswordRequest" => true} = gql_post_data(json_conn(), query)
+    end
+  end
+  describe "reset" do
+    test "works" do
+      vars = %{"token" => "", "password" => ""}
+      query = %{query: @reset_q, variables: vars, operationName: "Test"}
+      assert %{"resetPassword" => auth} = gql_post_data(json_conn(), query)
+      assert_auth_payload(auth)
+    end
+  end
+  describe "confirm" do
+    test "works" do
+      vars = %{"token" => ""}
+      query = %{query: @confirm_q, variables: vars, operationName: "Test"}
+      assert %{"confirmEmail" => auth} = gql_post_data(json_conn(), query)
+      assert_auth_payload(auth)
+    end
+  end
+  describe "login" do
+    test "works" do
+      vars = %{"email" => "", "password" => ""}
+      query = %{query: @login_q, variables: vars, operationName: "Test"}
+      assert %{"createSession" => auth} = gql_post_data(json_conn(), query)
+      assert_auth_payload(auth)
+    end
+  end
+  describe "logout" do
+    test "works" do
+      vars = %{}
+      query = %{query: @logout_q, variables: vars, operationName: "Test"}
+      assert %{"deleteSession" => true} = gql_post_data(json_conn(), query)
+    end
+  end
+  describe "delete" do
+    test "works" do
+      vars = %{"iAmSure" => true}
+      query = %{query: @delete_q, variables: vars, operationName: "Test"}
+      assert %{"deleteSelf" => true} = gql_post_data(json_conn(), query)
+    end
+  end
+
+  describe "my_follow" do
+
+    test "collection" do
+      q = """
+      query Test {
+        collection(collectionId: "") {
+          myFollow {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+      assert %{"myFollow" => follow} = coll
+      assert_follow(follow)
+    end
+
+    test "community" do
+      q = """
+      query Test {
+        community(communityId: "") {
+          myFollow {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"community" => comm} = gql_post_data(json_conn(), query)
+      assert %{"myFollow" => follow} = comm
+      assert_follow(follow)
+    end
+
+    test "thread" do
+      q = """
+      query Test {
+        thread(threadId: "") {
+          myFollow {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+      assert %{"myFollow" => follow} = thread
+      assert_follow(follow)
+    end
+
+    test "user" do
+      q = """
+      query Test {
+        user(userId: "") {
+          myFollow {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+          #{@user_basics}
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"user" => user} = gql_post_data(json_conn(), query)
+      assert %{"myFollow" => follow} = user
+      assert_user(user)
+      assert_follow(follow)
+    end
+
+  end
+
+  describe "my_like" do
+
+    test "user" do
+      q = """
+      query Test {
+        user(userId: "") {
+          myLike {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+          #{@user_basics}
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"user" => user} = gql_post_data(json_conn(), query)
+      assert %{"myLike" => like} = user
+      assert_user(user)
+      assert_like(like)
+    end
+
+    test "collection" do
+      q = """
+      query Test {
+        collection(collectionId: "") {
+          myLike {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+          #{@collection_basics}
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"collection" => collection} = gql_post_data(json_conn(), query)
+      assert %{"myLike" => like} = collection
+      assert_collection(collection)
+      assert_like(like)
+    end
+
+    test "resource" do
+      q = """
+      query Test {
+        resource(resourceId: "") {
+          myLike {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+          #{@resource_basics}
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"resource" => resource} = gql_post_data(json_conn(), query)
+      assert %{"myLike" => like} = resource
+      assert_resource(resource)
+      assert_like(like)
+    end
+
+    test "comment" do
+      q = """
+      query Test {
+        comment(commentId: "") {
+          myLike {
+            id canonicalUrl isLocal isPublic createdAt __typename
+          }
+          #{@comment_basics}
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+      assert %{"myLike" => like} = comment
+      assert_comment(comment)
+      assert_like(like)
+    end
+
+  end
 
   # @user_basic_fields "id local preferredUsername name summary location website icon image"
   # @primary_language "primaryLanguage { id }"

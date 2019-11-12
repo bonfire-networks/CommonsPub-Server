@@ -3,6 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Comments.{Comment,Thread}
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Users.User
   alias MoodleNetWeb.GraphQL.CommonResolver
 
   @desc "Cursors for pagination"
@@ -28,16 +33,16 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who followed"
     field :follower, :user do
-      resolve &CommonResolver.follow_follower/3
+      resolve &UsersResolver.user/3
     end
 
     @desc "The thing that is being followed"
-    field :followed, :followed do
-      resolve &CommonResolver.follow_followed/3
+    field :followed, :follow_context do
+      resolve &CommonResolver.followed/3
     end
   end
 
-  union :followed do
+  union :follow_context do
     description "A thing that can be followed"
     types [:collection, :community, :thread, :user]
     resolve_type fn
@@ -48,13 +53,13 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :follow_edges do
+  object :follows_edges do
     field :page_info, non_null(:page_info)
-    field :nodes, list_of(:follow_edge)
+    field :nodes, list_of(:follows_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :follow_edge do
+  object :follows_edge do
     field :cursor, non_null(:string)
     field :node, :follow
   end
@@ -67,9 +72,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :canonical_url, :string
 
     @desc "The reason for flagging"
-    field :reason, :string
+    field :message, :string
     @desc "Is the flag considered dealt with by the instance moderator?"
-    field :is_resolved, :string
+    field :is_resolved, :boolean
 
     @desc "Whether the flag is local to the instance"
     field :is_local, :boolean
@@ -87,7 +92,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
 
     @desc "The thing that is being flagged"
-    field :flagged, :flagged do
+    field :flagged, :flag_context do
       resolve &CommonResolver.flag_flagged/3
     end
 
@@ -97,7 +102,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     # end
   end
 
-  union :flagged do
+  union :flag_context do
     description "A thing that can be flagged"
     types [:collection, :comment, :community, :resource, :user]
     resolve_type fn
@@ -109,19 +114,19 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
   
-  object :flag_nodes do
+  object :flags_nodes do
     field :page_info, non_null(:page_info)
     field :nodes, list_of(:flag)
     field :total_count, non_null(:integer)
   end
 
-  object :flag_edges do
+  object :flags_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:flag_edge)
+    field :edges, list_of(:flags_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :flag_edge do
+  object :flags_edge do
     field :cursor, non_null(:string)
     field :node, :flag
   end
@@ -143,16 +148,16 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who liked"
     field :liker, :user do
-      resolve &CommonResolver.like_liker/3
+      resolve &UsersResolver.user/3
     end
 
     @desc "The thing that is liked"
-    field :liked, :liked do
-      resolve &CommonResolver.like_liked/3
+    field :liked, :like_context do
+      resolve &CommonResolver.context/3
     end
   end
 
-  union :liked do
+  union :like_context do
     description "A thing which can be liked"
     types [:collection, :comment, :resource, :user]
     resolve_type fn
@@ -163,13 +168,13 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :like_edges do
+  object :likes_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:like_edge)
+    field :edges, list_of(:likes_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :like_edge do
+  object :likes_edge do
     field :cursor, non_null(:string)
     field :node, :like
   end
@@ -196,7 +201,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     # end
 
     @desc "The tags in the category, most recently created first"
-    field :tags, :category_tags_connection do
+    field :tags, :tags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -205,13 +210,13 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   end
 
-  object :category_edges do
+  object :categories_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:category_edge)
+    field :edges, list_of(:categories_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :category_edge do
+  object :categories_edge do
     field :cursor, non_null(:string)
     field :node, :category
   end
@@ -222,8 +227,6 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :id, :string
     @desc "The name of the tag"
     field :name, :string
-    @desc "When the flag was created"
-    field :created_at, :string
 
     @desc "Whether the like is local to the instance"
     field :is_local, :boolean
@@ -282,21 +285,21 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who tagged"
     field :tagger, :user do
-      resolve &CommonSchema.tagging_tagger/3
+      resolve &UsersResolver.user/3
     end
 
     @desc "The tag being used"
     field :tag, :tag do
-      resolve &CommonSchema.tagging_tag/3
+      resolve &CommonResolver.tag/3
     end
 
     @desc "The tagged object"
-    field :tagged, :tagged do
-      resolve &CommonSchema.tagging_tagged/3
+    field :tagged, :tagging_context do
+      resolve &CommonResolver.tagged/3
     end
   end
 
-  union :tagged do
+  union :tagging_context do
     description "A thing which can be tagged"
     types [:collection, :comment, :community, :resource, :thread, :user]
     resolve_type fn
@@ -323,26 +326,33 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :common_mutations do
 
     @desc "Flag a user, community, collection, resource or comment, returning a flag id"
-    field :flag, type: :string do
+    field :flag, type: :flag do
       arg :context_id, non_null(:string)
-      arg :reason, non_null(:string)
-      resolve &CommonResolver.flag/2
+      arg :message, non_null(:string)
+      resolve &CommonResolver.create_flag/2
     end
 
     @desc "Follow a community, collection or thread returning a follow id"
-    field :follow, type: :string do
+    field :follow, :follow do
       arg :context_id, non_null(:string)
-      resolve &CommonResolver.follow/2
+      resolve &CommonResolver.create_follow/2
     end
 
     @desc "Like a comment, collection, or resource returning a like id"
-    field :like, type: :string do
+    field :like, :like do
       arg :context_id, non_null(:string)
-      resolve &CommonResolver.like/2
+      resolve &CommonResolver.create_like/2
     end
 
+    # @desc "Tag something, returning a tagging id"
+    # field :tag, :tagging do
+    #   arg :context_id, non_null(:string)
+    #   arg :tag_id, non_null(:string)
+    #   resolve &CommonResolver.create_tagging/2
+    # end
+
     @desc "Delete more or less anything"
-    field :delete, type: :boolean do
+    field :delete, :boolean do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.delete/2
     end

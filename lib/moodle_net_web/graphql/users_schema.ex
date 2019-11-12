@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "Check if a user exists with a username"
     field :username_available, type: :boolean do
       arg :username, non_null(:string)
-      resolve &UsersResolver.check_username_available/2
+      resolve &UsersResolver.username_available/2
     end
 
     @desc "Get my user"
@@ -26,55 +26,60 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   end
 
+  object :auth_payload do
+    field :token, :string
+    field :me, :me
+  end
+
   object :users_mutations do
 
     @desc "Create a user"
-    field :create_user, type: :me do
+    field :create_user, :me do
       arg :user, non_null(:registration_input)
-      resolve &UsersResolver.create/2
+      resolve &UsersResolver.create_user/2
     end
 
     @desc "Update a profile"
-    field :update_profile, type: :me do
+    field :update_profile, :me do
       arg :profile, non_null(:update_profile_input)
       resolve &UsersResolver.update_profile/2
     end
 
     @desc "Reset password request"
-    field :reset_password_request, type: :boolean do
+    field :reset_password_request, :boolean do
       arg :email, non_null(:string)
       resolve &UsersResolver.reset_password_request/2
     end
 
     @desc "Reset password"
-    field :reset_password, type: :boolean do
+    field :reset_password, :auth_payload do
       arg :token, non_null(:string)
       arg :password, non_null(:string)
       resolve &UsersResolver.reset_password/2
     end
 
     @desc "Confirm email. Returns a login token."
-    field :confirm_email, type: :auth_payload do
+    field :confirm_email, :auth_payload do
       arg :token, non_null(:string)
       resolve &UsersResolver.confirm_email/2
     end
 
     @desc "Log in"
-    field :create_session, type: :auth_payload do
+    field :create_session, :auth_payload do
       arg :email, non_null(:string)
       arg :password, non_null(:string)
       resolve &UsersResolver.create_session/2
     end
 
     @desc "Log out"
-    field :delete_session, type: :boolean do
+    field :delete_session, :boolean do
       resolve &UsersResolver.delete_session/2
     end
 
     @desc "Deletes my account!"
-    field :delete_self, type: :boolean do
+    field :delete_self, :boolean do
       arg :i_am_sure, non_null(:boolean)
-      resolve UsersResolver.delete/2
+      resolve &UsersResolver.delete/2
     end
 
   end
@@ -88,13 +93,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "The user's email"
     field :email, :string
     @desc "Would the user like to receive digest emails of updates?"
-    field :wants_email_digest, :bool
+    field :wants_email_digest, :boolean
     @desc "Does the user want notifications? Which don't work yet."
-    field :wants_notifications, :bool
+    field :wants_notifications, :boolean
     @desc "Has the user confirmed their account?"
-    field :is_confirmed, :bool
+    field :is_confirmed, :boolean
     @desc "Is the user a witch or wizard?"
-    field :is_instance_admin, :bool
+    field :is_instance_admin, :boolean
   end
 
   @desc "User profile information"
@@ -130,7 +135,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :created_at, :string
     @desc "When the user last updated their profile"
     field :updated_at, :string
-
     @desc "The last time the user did anything"
     field :last_activity, :string do
       resolve &UsersResolver.last_activity/3
@@ -142,13 +146,13 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The current user's like of this user, if any"
-    field :my_like, like do
+    field :my_like, :like do
       resolve &CommonResolver.my_like/3
     end
 
     @desc "The language the user wishes to use moodlenet in"
     field :primary_language, :language do
-      resolve &CommonResolver.primary_language/3
+      resolve &LocalisationResolver.primary_language/3
     end
 
     @desc "The communities a user has joined, most recently joined first"
@@ -156,7 +160,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.joined_communities/3
+      resolve &UsersResolver.followed_communities/3
     end
 
     @desc "The collections a user is following, most recently followed first"
@@ -167,12 +171,20 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.followed_collections/3
     end
 
+    @desc "The collections a user is following, most recently followed first"
+    field :likes, :likes_edges do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &CommonResolver.likes/3
+    end
+
     @desc "Comments the user has made, most recently created first"
     field :comments, :comments_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.comments/3
+      resolve &CommentsResolver.comments/3
     end
 
     @desc "Activities of the user, most recently created first"
@@ -210,23 +222,22 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :preferred_username, non_null(:string)
     field :name, :string
     field :summary, :string
-    field :icon, :string
-    field :image, :string
     field :location, :string
     field :website, :string
+    field :icon, :string
+    field :image, :string
     field :primary_language_id, :string
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
   end
 
   input_object :update_profile_input do
-    field :preferred_username, :string
     field :name, :string
     field :summary, :string
-    field :icon, :string
-    field :image, :string
     field :location, :string
     field :website, :string
+    field :icon, :string
+    field :image, :string
     field :primary_language_id, :string
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean

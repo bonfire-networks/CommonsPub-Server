@@ -25,7 +25,7 @@ defmodule MoodleNet.Common.Schema do
     quote do
       @primary_key {:id, UUID, autogenerate: true}
       @foreign_key_type UUID
-      @timestamps_opts [type: :utc_datetime_usec]
+      @timestamps_opts [type: :utc_datetime_usec, inserted_at: :created_at]
       schema(unquote(table), unquote(body))
     end
   end
@@ -40,7 +40,7 @@ defmodule MoodleNet.Common.Schema do
     quote do
       @primary_key {:id, UUID, autogenerate: false}
       @foreign_key_type UUID
-      @timestamps_opts [type: :utc_datetime_usec]
+      @timestamps_opts [type: :utc_datetime_usec, inserted_at: :created_at]
       schema(unquote(table), unquote(body))
     end
   end
@@ -55,7 +55,7 @@ defmodule MoodleNet.Common.Schema do
     quote do
       @primary_key false
       @foreign_key_type :binary_id
-      @timestamps_opts [type: :utc_datetime_usec]
+      @timestamps_opts [type: :utc_datetime_usec, inserted_at: :created_at]
       schema(unquote(view), unquote(body))
     end
   end

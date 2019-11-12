@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     CommentsSchema,
     CommonSchema,
     CommunitiesSchema,
+    InstanceSchema,
     LocalisationSchema,
     MiscSchema,
     MoodleverseSchema,
@@ -48,17 +49,17 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :resources_mutations
     import_fields :users_mutations
 
-    @desc "Fetch metadata from webpage"
-    field :fetch_web_metadata, type: :web_metadata do
-      arg :url, non_null(:string)
-      resolve &MiscSchema.fetch_web_metadata/2
-    end
+    # @desc "Fetch metadata from webpage"
+    # field :fetch_web_metadata, type: :web_metadata do
+    #   arg :url, non_null(:string)
+    #   resolve &MiscSchema.fetch_web_metadata/2
+    # end
 
-    @desc "Fetch an AS2 object from URL"
-    field :fetch_object, type: :fetched_object do
-      arg :url, non_null(:string)
-      resolve &MiscSchema.fetch_object/2
-    end
+    # @desc "Fetch an AS2 object from URL"
+    # field :fetch_object, type: :fetched_object do
+    #   arg :url, non_null(:string)
+    #   resolve &MiscSchema.fetch_object/2
+    # end
   end
 
 end

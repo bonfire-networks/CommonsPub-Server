@@ -185,7 +185,6 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy("email", &email/0)
     |> Map.put_new_lazy("password", &password/0)
-    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
@@ -193,12 +192,23 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("website", &website/0)
     |> Map.put_new_lazy("icon", &icon/0)
     |> Map.put_new_lazy("image", &image/0)
-    |> Map.put_new_lazy("isPublic", &truth/0)
+    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
   end
 
-  def profile_update_input(base \\ %{}), do: actor_revision(base)
+  def profile_update_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("location", &location/0)
+    |> Map.put_new_lazy("website", &website/0)
+    |> Map.put_new_lazy("icon", &icon/0)
+    |> Map.put_new_lazy("image", &image/0)
+    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
+    |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
+    |> Map.put_new_lazy("wantsNotifications", &bool/0)
+  end
 
   def community(base \\ %{}) do
     base

@@ -9,7 +9,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
   alias MoodleNet.Resources.Resource
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNetWeb.GraphQL.{
+    CommonResolver,
+    CommunitiesResolver,
+    LocalisationResolver,
+  }
 
   object :communities_queries do
 
@@ -18,13 +22,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommunitiesResolver.list/2
+      resolve &CommunitiesResolver.communities/2
     end
 
     @desc "Get a community"
     field :community, :community do
       arg :community_id, non_null(:string)
-      resolve &CommunitiesResolver.fetch/2
+      resolve &CommunitiesResolver.community/2
     end
 
   end
@@ -34,14 +38,14 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Create a community"
     field :create_community, :community do
       arg :community, non_null(:community_input)
-      resolve &CommunitiesResolver.create/2
+      resolve &CommunitiesResolver.create_community/2
     end
 
     @desc "Update a community"
     field :update_community, :community do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_input)
-      resolve &CommunitiesResolver.update/2
+      resolve &CommunitiesResolver.update_community/2
     end
 
   end
@@ -63,6 +67,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "A header background image url"
     field :image, :string
 
+    @desc "Whether the community is local to the instance"
+    field :is_local, :boolean
+    @desc "Whether the community has a public profile"
+    field :is_public, :boolean
+    @desc "Whether an instance admin has disabled the community"
+    field :is_disabled, :boolean
+
     @desc "When the community was created"
     field :created_at, :string
     @desc "When the community was last updated"
@@ -71,14 +82,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     When the community or a resource or collection in it was last
     updated or a thread or a comment was created or updated
     """
-    field :last_activity, :string
-
-    @desc "Whether the community is local to the instance"
-    field :is_local, :boolean
-    @desc "Whether the community has a public profile"
-    field :is_public, :boolean
-    @desc "Whether an instance admin has disabled the community"
-    field :is_disabled, :boolean
+    field :last_activity, :string do
+      resolve &CommunitiesResolver.last_activity/3
+    end
 
     @desc "The current user's follow of the community, if any"
     field :my_follow, :follow do
@@ -87,7 +93,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
  
     @desc "The primary language the community speaks"
     field :primary_language, :language do
-      resolve &CommonResolver.primary_language/3
+      resolve &LocalisationResolver.primary_language/3
     end
 
     @desc "The user who created the community"
@@ -100,7 +106,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommunitiesResolver.collections/3
+      resolve &CollectionsResolver.collections/3
     end
 
     @desc """
@@ -112,11 +118,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.threads/3
+      resolve &CommentsResolver.threads/3
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, :followers_edges do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
