@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.{Common,Whitelists}
+  alias MoodleNet.{Common,Access}
   # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import MoodleNetWeb.Test.GraphQLAssertions
   # import MoodleNet.Test.Faking

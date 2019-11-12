@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   # import MoodleNet.Test.Faking
   # import MoodleNetWeb.Test.ConnHelpers
   # alias MoodleNet.Test.Fake
-  # alias MoodleNet.{Actors, OAuth, Users, Whitelists}
+  # alias MoodleNet.{Actors, OAuth, Users, Access}
 
   @user_basics """
   id canonicalUrl preferredUsername
@@ -487,7 +487,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   # describe "UsersResolver.create_user" do
   #   test "Works for a guest with good inputs" do
   #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+  #     assert {:ok, _} = Access.create_register_email(reg["email"])
 
   #     query = """
   #     mutation Test($user: RegistrationInput) {
@@ -503,7 +503,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
 
   #   test "Does not work for a logged in user" do
   #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+  #     assert {:ok, _} = Access.create_register_email(reg["email"])
 
   #     query = """
   #       mutation Test($user: RegistrationInput) {
@@ -524,7 +524,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   #   test "Does not work for a taken preferred username" do
   #     user = fake_user!()
   #     reg = Fake.registration_input(%{"preferredUsername" => user.actor.preferred_username})
-  #     assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+  #     assert {:ok, _} = Access.create_register_email(reg["email"])
 
   #     query = """
   #       mutation Test($user: RegistrationInput) {
@@ -543,7 +543,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   #   test "Does not work for a taken email" do
   #     user = fake_user!()
   #     reg = Fake.registration_input(%{"email" => user.email})
-  #     assert {:ok, _} = Whitelists.create_register_email(reg["email"])
+  #     assert {:ok, _} = Access.create_register_email(reg["email"])
 
   #     query = """
   #       mutation Test($user: RegistrationInput) {
