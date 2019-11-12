@@ -50,10 +50,10 @@ defmodule MoodleNet.OAuth do
       select: {t, u}
   end
 
-  @doc "Creates an authorization for a user"
-  @spec create_auth(%User{}) :: {:ok, %Authorization{}} | {:error, UserEmailNotConfirmedError.t | Changeset.t}
-  def create_auth(%User{confirmed_at: nil}=user),
-    do: {:error, UserEmailNotConfirmedError.new(user)}
+  # @doc "Creates an authorization for a user"
+  # @spec create_auth(%User{}) :: {:ok, %Authorization{}} | {:error, UserEmailNotConfirmedError.t | Changeset.t}
+  # def create_auth(%User{confirmed_at: nil}=user),
+  #   do: {:error, UserEmailNotConfirmedError.new(user)}
 
   def create_auth(%User{id: id}=user),
     do: Repo.insert(Authorization.create_changeset(id))
@@ -98,8 +98,8 @@ defmodule MoodleNet.OAuth do
   """
   def ensure_valid(auth_or_token, now \\ DateTime.utc_now())
 
-  def ensure_valid(%User{confirmed_at: nil}=user, %DateTime{}),
-    do: {:error, UserEmailNotConfirmedError.new(user)}
+  # def ensure_valid(%User{confirmed_at: nil}=user, %DateTime{}),
+  #   do: {:error, UserEmailNotConfirmedError.new(user)}
 
   def ensure_valid(%User{}, %DateTime{}), do: :ok
 
