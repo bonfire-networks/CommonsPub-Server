@@ -33,7 +33,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
       is_public: true,
-      peer: peer.id
+      peer_id: peer.id
     }
 
     {:ok, created_actor} = Actors.create(create_attrs)

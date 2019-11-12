@@ -20,7 +20,7 @@ defmodule ActivityPub.Actor do
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id, :username]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username, :mn_pointer_id]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -172,7 +172,7 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
-  defp format_local_actor(actor) do
+  defp format_local_actor(%{peer_id: nil} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
 
@@ -215,12 +215,20 @@ defmodule ActivityPub.Actor do
       keys: actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username
+      username: actor.preferred_username,
+      mn_pointer_id: actor.id
     }
+  end
+
+  # Remote actor coming from MN local database
+  defp format_local_actor(actor) do
+    actor_object = Object.get_by_pointer_id(actor.id)
+    format_remote_actor(actor_object)
   end
 
   defp format_remote_actor(%Object{} = actor) do
     username = actor.data["preferredUsername"] <> "@" <> URI.parse(actor.data["id"]).host
+    pointer_id = Map.get(actor, :mn_pointer_id)
     data = actor.data
 
     data =
@@ -231,7 +239,8 @@ defmodule ActivityPub.Actor do
         Map.has_key?(data, "resources") ->
           Map.put(data, "type", "MN:Collection")
 
-        true -> data
+        true ->
+          data
       end
 
     %__MODULE__{
@@ -240,7 +249,8 @@ defmodule ActivityPub.Actor do
       keys: nil,
       local: false,
       ap_id: actor.data["id"],
-      username: username
+      username: username,
+      mn_pointer_id: pointer_id
     }
   end
 
