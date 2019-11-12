@@ -45,9 +45,9 @@ defmodule ActivityPub do
   def maybe_forward_activity(_), do: :ok
 
   @doc false
-  def insert(map, local) when is_map(map) and is_boolean(local) do
+  def insert(map, local, pointer \\ nil) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
-         {:ok, map, object} <- Utils.insert_full_object(map) do
+         {:ok, map, object} <- Utils.insert_full_object(map, pointer) do
       {:ok, activity} =
         Repo.insert(%Object{
           data: map,
@@ -77,7 +77,7 @@ defmodule ActivityPub do
   `context` must be a string. Use `ActivityPub.Utils.generate_context_id/0` to generate a default context.</br>
   `object` must be a map.
   """
-  def create(%{to: to, actor: actor, context: context, object: object} = params) do
+  def create(%{to: to, actor: actor, context: context, object: object} = params, pointer \\ nil) do
     additional = params[:additional] || %{}
     # only accept false as false value
     local = !(params[:local] == false)
@@ -88,7 +88,7 @@ defmodule ActivityPub do
              %{to: to, actor: actor, published: published, context: context, object: object},
              additional
            ),
-         {:ok, activity} <- insert(create_data, local),
+         {:ok, activity} <- insert(create_data, local, pointer),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}
