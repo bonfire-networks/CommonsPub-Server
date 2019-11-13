@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   # alias MoodleNet.Test.Fake
   # alias MoodleNet.{Actors, OAuth, Users, Access}
 
+  @page_basics "totalCount pageInfo { startCursor endCursor __typename }"
   @user_basics """
   id canonicalUrl preferredUsername
   name summary location website icon image
@@ -37,8 +38,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   isLocal isPublic isDisabled createdAt updatedAt __typename
   """
   @resource_basics """
-  id canonicalUrl preferredUsername
-  name summary icon
+  id canonicalUrl
+  name summary icon url license
   isLocal isPublic isDisabled createdAt updatedAt __typename
   """
   @flag_basics """
@@ -53,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   id canonicalUrl
   isLocal isPublic createdAt __typename
   """
-  @category_basics """
+  @tag_category_basics """
   id canonicalUrl name
   isLocal isPublic createdAt __typename
   """
@@ -69,691 +70,1948 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   id canonicalUrl verb
   isLocal isPublic createdAt __typename
   """
+  @language_basics """
+  id isoCode2 isoCode3 englishName localName createdAt updatedAt __typename
+  """
+  @country_basics """
+  id isoCode2 isoCode3 englishName localName createdAt updatedAt __typename
+  """
+  # activity schema
 
-  @username_available_q """
-  query Test($username: String!) {
-    usernameAvailable(username: $username)
-  }
-  """
-  @me_q """
-  query Test {
-    me {
-      user { #{@user_basics} }
-      #{@me_basics}
+  test "activity" do
+    q = """
+    query Test {
+      activity(activityId: "") { #{@activity_basics} }
     }
-  }
-  """
-  @create_q """
-  mutation Test($user: RegistrationInput!) {
-    createUser(user: $user) {
-      user { #{@user_basics} }
-      #{@me_basics}
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"activity" => act} = gql_post_data(json_conn(), query)
+    assert_activity(act)
+  end
+
+  test "activity.user" do
+    q = """
+    query Test {
+      activity(activityId: "") {
+        #{@activity_basics}
+        user { #{@user_basics} }
+      }
     }
-  }
-  """
-  @update_q """
-  mutation Test($profile: UpdateProfileInput!) {
-    updateProfile(profile: $profile) {
-      user { #{@user_basics} }
-      #{@me_basics}
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"activity" => act} = gql_post_data(json_conn(), query)
+    assert %{"user" => user} = act
+    assert_activity(act)
+    assert_user(user)
+  end
+
+  test "activity.context" do
+    for _ <- 1..30 do
+      q = """
+      query Test {
+        activity(activityId: "") {
+          #{@activity_basics}
+          context {
+            ... on Collection { #{@collection_basics} }
+            ... on Comment { #{@comment_basics} }
+            ... on Community { #{@community_basics} }
+            ... on Resource { #{@resource_basics} }
+          }
+        }
+      }
+      """
+      query = %{query: q, operation_name: "Test"}
+      assert %{"activity" => act} = gql_post_data(json_conn(), query)
+      assert %{"context" => context} = act
+      assert_activity(act)
+      assert_activity_context(context)
+    end
+  end
+
+  # admin schema
+
+  test "resolve_flag" do
+    q = """
+    mutation Test {
+      resolveFlag(flagId: "")
     }
-  }
-  """
-  @reset_request_q """
-  mutation Test($email: String!) {
-    resetPasswordRequest(email: $email)
-  }
-  """
-  @reset_q """
-  mutation Test($token: String!, $password: String!) {
-    resetPassword(token: $token, password: $password) {
-      __typename
-      token
+    """
+    assert %{"resolveFlag" => true} =
+      gql_post_data(json_conn(), %{query: q, operation_name: "Test"})
+  end
+
+  # collections schema
+
+  test "collections" do
+    q = """
+    query Test {
+      collections {
+        #{@page_basics}
+        nodes { #{@collection_basics} }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collections" => page} = gql_post_data(json_conn(), query)
+    colls = assert_node_list(page)
+    for c <- colls, do: assert_collection(c)
+  end
+
+  test "collection" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+  end
+
+  test "create_collection" do
+    vars = %{"collection" => Fake.collection_input()}
+    q = """
+    mutation Test($collection: CollectionInput!) {
+      createCollection(collection: $collection, communityId: "") {
+        #{@collection_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test", variables: vars}
+    assert %{"createCollection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+  end
+
+  test "update_collection" do
+    vars = %{"collection" => Fake.collection_input()}
+    q = """
+    mutation Test($collection: CollectionInput!) {
+      updateCollection(collection: $collection, collectionId: "") {
+        #{@collection_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test", variables: vars}
+    assert %{"updateCollection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+  end
+
+  test "collection.last_activity" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        lastActivity
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert %{"lastActivity" => act} = coll
+    assert_collection(coll)
+    assert is_binary(act)
+  end
+
+  test "collection.my_like" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        myLike { #{@like_basics} }
+        #{@collection_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"collection" => collection} = gql_post_data(json_conn(), query)
+    assert %{"myLike" => like} = collection
+    assert_collection(collection)
+    assert_like(like)
+  end
+
+  test "collection.my_follow" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        myFollow { #{@follow_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert %{"myFollow" => follow} = coll
+    assert_follow(follow)
+  end
+
+  test "collection.primary_language" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        primaryLanguage { #{@language_basics} }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert %{"primaryLanguage" => lang} = coll
+    assert_collection(coll)
+    assert_language(lang)
+  end
+
+  test "collection.creator" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        creator { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = coll
+    assert_collection(coll)
+    assert_user(user)
+  end
+
+  test "collection.community" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        community { #{@community_basics} }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert %{"community" => comm} = coll
+    assert_collection(coll)
+    assert_community(comm)
+  end
+
+  test "collection.resources" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        resources {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@resource_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"resources" => res} = coll
+    for node <- assert_edge_list(res) do
+      assert_resource(node)
+    end
+  end
+
+  test "collection.followers" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        followers {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@follow_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"followers" => foll} = coll
+    for node <- assert_edge_list(foll) do
+      assert_follow(node)
+    end
+  end
+
+  test "collection.likes" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        likes {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@like_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"likes" => likes} = coll
+    for node <- assert_edge_list(likes) do
+      assert_like(node)
+    end
+  end
+
+  test "collection.flags" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        flags {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@flag_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"flags" => flags} = coll
+    for node <- assert_edge_list(flags) do
+      assert_flag(node)
+    end
+  end
+ 
+  # test "collection.tags" do
+  #   q = """
+  #   query Test {
+  #     collection(collectionId: "") {
+  #       #{@collection_basics}
+  #       tags {
+  #         #{@page_basics}
+  #         edges {
+  #           cursor
+  #           node { #{@tagging_basics} }
+  #         }
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operation_name: "Test"}
+  #   assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+  #   assert_collection(coll)
+  #   assert %{"tags" => tags} = coll
+  #   for node <- assert_edge_list(tags) do
+  #     assert_tagging(node)
+  #   end
+  # end
+
+  test "collection.threads" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        threads {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@thread_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"threads" => threads} = coll
+    for node <- assert_edge_list(threads) do
+      assert_thread(node)
+    end
+  end
+
+  test "collection.outbox" do
+    q = """
+    query Test {
+      collection(collectionId: "") {
+        #{@collection_basics}
+        outbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+    assert_collection(coll)
+    assert %{"outbox" => outbox} = coll
+    for node <- assert_edge_list(outbox) do
+      assert_activity(node)
+    end
+  end
+
+  # comments schema
+
+  test "thread" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        #{@thread_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert_thread(thread)
+  end
+
+  test "comment" do
+    q = """
+    query Test {
+      comment(commentId: "") { #{@comment_basics} }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert_comment(comment)
+  end
+
+  test "create_thread" do
+    vars = %{"comment" => Fake.comment_input()}
+    q = """
+    mutation Test($comment: CommentInput!) {
+      createThread(comment: $comment, contextId: "") {
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test", variables: vars}
+    assert %{"createThread" => comment} = gql_post_data(json_conn(), query)
+    assert_comment(comment)
+  end
+
+  test "create_reply" do
+    vars = %{"comment" => Fake.comment_input()}
+    q = """
+    mutation Test($comment: CommentInput!) {
+      createReply(threadId: "", inReplyToId: "", comment: $comment) {
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test", variables: vars}
+    assert %{"createReply" => comment} = gql_post_data(json_conn(), query)
+    assert_comment(comment)
+  end
+
+  test "editComment" do # comment
+    vars = %{"comment" => Fake.comment_input()}
+    q = """
+    mutation Test($comment: CommentInput!) {
+      editComment(commentId: "", comment: $comment) {
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test", variables: vars}
+    assert %{"editComment" => comment} = gql_post_data(json_conn(), query)
+    assert_comment(comment)
+  end
+
+  test "thread.last_activity" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        #{@thread_basics}
+        lastActivity
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert %{"lastActivity" => act} = thread
+    assert_thread(thread)
+    assert is_binary(act)
+  end
+
+  test "thread.my_follow" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        myFollow { #{@follow_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert %{"myFollow" => follow} = thread
+    assert_follow(follow)
+  end
+
+  test "thread.context" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        #{@thread_basics}
+        context {
+          __typename
+          ... on Collection { #{@collection_basics} }
+          ... on Community  { #{@community_basics} }
+          ... on Flag       { #{@flag_basics} }
+          ... on Resource   { #{@resource_basics} }
+        }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert %{"context" => context} = thread
+    assert_thread(thread)
+    assert_thread_context(context)
+  end
+
+  test "thread.comments" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        comments {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@comment_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert %{"comments" => comments} = thread
+    for comment <- assert_edge_list(comments), do: assert_comment(comment)
+  end
+
+  test "thread.followers" do
+    q = """
+    query Test {
+      thread(threadId: "") {
+        followers {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@follow_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"thread" => thread} = gql_post_data(json_conn(), query)
+    assert %{"followers" => follows} = thread
+    for follow <- assert_edge_list(follows), do: assert_follow(follow)
+  end
+
+  test "comment.my_like" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        myLike { #{@like_basics} }
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"myLike" => like} = comment
+    assert_comment(comment)
+    assert_like(like)
+  end
+
+  test "comment.creator" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        creator { #{@user_basics} }
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = comment
+    assert_comment(comment)
+    assert_user(user)
+  end
+
+  test "comment.thread" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        thread { #{@thread_basics} }
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"thread" => thread} = comment
+    assert_comment(comment)
+    assert_thread(thread)
+  end
+
+  test "comment.likes" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        #{@comment_basics}
+        likes {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@like_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"likes" => likes} = comment
+    assert_comment(comment)
+    for like <- assert_edge_list(likes), do: assert_like(like)
+  end
+
+  test "comment.flags" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        #{@comment_basics}
+        flags {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@flag_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"flags" => flags} = comment
+    assert_comment(comment)
+    for flag <- assert_edge_list(flags), do: assert_flag(flag)
+  end
+
+  # common schema
+
+  test "create_follow" do
+    q = """
+    mutation Test {
+      createFollow(contextId: "") {
+        #{@follow_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"createFollow" => follow} = gql_post_data(json_conn(), query)
+    assert_follow(follow)
+  end
+
+  test "create_flag" do
+    q = """
+    mutation Test {
+      createFlag(contextId: "", message: "") {
+        #{@flag_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"createFlag" => flag} = gql_post_data(json_conn(), query)
+    assert_flag(flag)
+  end
+
+  test "create_like" do
+    q = """
+    mutation Test {
+      createLike(contextId: "") {
+        #{@like_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"createLike" => like} = gql_post_data(json_conn(), query)
+    assert_like(like)
+  end
+
+  # @tag :skip
+  # test "tag_category" do
+  #   q = """
+  #   query Test {
+  #     tagCategory(tagCategoryId: "") { #{@tag_category_basics} }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagCategory" => cat} = gql_post_data(json_conn(), query)
+  #   assert_tag_category(cat)
+  # end
+
+  # @tag :skip
+  # test "tag" do
+  #   q = """
+  #   query Test {
+  #     tagCategory(tagCategoryId: "") { #{@tag_category_basics} }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tag" => tag} = gql_post_data(json_conn(), query)
+  #   assert_tag(tag)
+  # end
+
+  test "follow" do
+    q = """
+    query Test {
+      follow(followId: "") {
+        #{@follow_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"follow" => follow} = gql_post_data(json_conn(), query)
+    assert_follow(follow)
+  end
+
+  test "follow.context" do
+    for _ <- 1..30 do
+      q = """
+      query Test {
+        follow(followId: "") {
+          #{@follow_basics}
+          context {
+            __typename
+            ... on Collection { #{@collection_basics} }
+            ... on Community  { #{@community_basics} }
+            ... on Thread     { #{@thread_basics} }
+            ... on User       { #{@user_basics} }
+          }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"follow" => follow} = gql_post_data(json_conn(), query)
+      assert_follow(follow)
+      assert %{"context" => context} = follow
+      assert_follow_context(context)
+    end
+  end
+
+  test "flag" do
+    q = """
+    query Test {
+      flag(flagId: "") {
+        #{@flag_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"flag" => flag} = gql_post_data(json_conn(), query)
+    assert_flag(flag)
+  end
+
+  test "flag.creator" do
+    q = """
+    query Test {
+      flag(flagId: "") {
+        #{@flag_basics}
+        creator { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"flag" => flag} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = flag
+    assert_flag(flag)
+    assert_user(user)
+  end
+
+  test "flag.context" do
+    for _ <- 1..30 do
+      q = """
+      query Test {
+        flag(flagId: "") {
+          #{@flag_basics}
+          context {
+            __typename
+            ... on Collection { #{@collection_basics} }
+            ... on Comment    { #{@comment_basics} }
+            ... on Community  { #{@community_basics} }
+            ... on Resource   { #{@resource_basics} }
+            ... on User       { #{@user_basics} }
+          }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"flag" => flag} = gql_post_data(json_conn(), query)
+      assert %{"context" => context} = flag
+      assert_flag(flag)
+      assert_flag_context(context)
+    end
+  end
+
+  test "like" do
+    q = """
+    query Test {
+      like(likeId: "") { #{@like_basics} }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"like" => like} = gql_post_data(json_conn(), query)
+    assert_like(like)
+  end
+
+  test "like.creator" do
+    q = """
+    query Test {
+      like(likeId: "") {
+        #{@like_basics}
+        creator { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"like" => like} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = like
+    assert_like(like)
+    assert_user(user)
+  end
+
+  test "like.context" do
+    q = """
+    query Test {
+      like(likeId: "") {
+        #{@like_basics}
+        context {
+          __typename
+          ... on Collection { #{@collection_basics} }
+          ... on Comment    { #{@comment_basics} }
+          ... on Resource   { #{@resource_basics} }
+          ... on User       { #{@user_basics} }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"like" => like} = gql_post_data(json_conn(), query)
+    assert %{"context" => context} = like
+    assert_like(like)
+    assert_like_context(context)
+  end
+  
+  # @tag :skip
+  # test "tagging" do
+  #   q = """
+  #   query Test {
+  #     tagging(taggingId: "") {
+  #       #{@tagging_basics}
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagging" => tagging} = gql_post_data(json_conn(), query)
+  #   assert_tagging(tagging)
+  # end
+
+  # @tag :skip
+  # test "category.tags" do
+  #   q = """
+  #   query Test {
+  #     tagCategory(tagCategoryId: "") {
+  #       #{@tag_category_basics}
+  #       tags { ... }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagCategory" => cat} = gql_post_data(json_conn(), query)
+  #   assert %{"tags" => tags} = cat
+  #   assert_tag_category(cat)
+  # end
+
+  # test "tag.category" do
+  #   q = """
+  #   query Test {
+  #     tag(tagId: "") {
+  #       #{@tag_basics}
+  #       category { #{@tag_category_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tag" => tag} = gql_post_data(json_conn(), query)
+  #   assert %{"category" => cat} = tag
+  #   assert_tag(tag)
+  #   assert_tag_category(cat)
+  # end
+  # @tag :skip
+  # test "tag.tagged" do
+  #   q = """
+  #   query Test {
+  #     tag(tagId: "") {
+  #       #{@tag_basics}
+  #       tagged { ... }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tag" => tag} = gql_post_data(json_conn(), query)
+  #   assert %{"tagged" => tagged} = tag
+  #   assert_tag(tag)
+  # end
+
+  # test "tagging.tagger" do
+  #   q = """
+  #   query Test {
+  #     tagging(taggingId: "") {
+  #       #{@tagging_basics}
+  #       tagger { #{@user_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagging" => tagging} = gql_post_data(json_conn(), query)
+  #   assert %{"tagger" => user} = tagging
+  #   assert_tagging(tagging)
+  #   assert_user(user)
+  # end
+
+  # test "tagging.tag" do
+  #   q = """
+  #   query Test {
+  #     tagging(taggingId: "") {
+  #       #{@tagging_basics}
+  #       tag { #{@tag_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagging" => tagging} = gql_post_data(json_conn(), query)
+  #   assert %{"tag" => tag} = tagging
+  #   assert_tagging(tagging)
+  #   assert_tag(tag)
+  # end
+
+  # @tag :skip
+  # test "tagging.tagged" do
+  #   q = """
+  #   query Test {
+  #     tagging(taggingId: "") {
+  #       #{@tagging_basics}
+  #       tagged { ... } }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"tagging" => tagging} = gql_post_data(json_conn(), query)
+  #   assert %{"tagged" => tagged} = tagging
+  #   assert_tagging(tagging)
+  # end
+
+  # communities schema
+  test "communities" do
+    q = """
+    query Test {
+      communities {
+        #{@page_basics}
+        nodes {
+          #{@community_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"communities" => comm} = gql_post_data(json_conn(), query)
+    for c <- assert_node_list(comm), do: assert_community(c)
+  end
+
+  test "community" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert_community(comm)
+  end
+
+  test "create_community" do
+    vars = %{"community" => Fake.community_input()}
+    q = """
+    mutation Test($community: CommunityInput!) {
+      createCommunity(community: $community) {
+        #{@community_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test", variables: vars}
+    assert %{"createCommunity" => comm} = gql_post_data(json_conn(), query)
+    assert_community(comm)
+  end
+
+  test "update_community" do
+    vars = %{"community" => Fake.community_input()}
+    q = """
+    mutation Test($community: CommunityInput!) {
+      updateCommunity(communityId: "", community: $community) {
+        #{@community_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test", variables: vars}
+    assert %{"updateCommunity" => comm} = gql_post_data(json_conn(), query)
+    assert_community(comm)
+  end
+
+  test "community.last_activity" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        lastActivity
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"lastActivity" => act} = comm
+    assert is_binary(act)
+  end
+
+  test "community.my_follow" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        myFollow { #{@follow_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"myFollow" => follow} = comm
+    assert_follow(follow)
+  end
+
+  test "community.primary_language" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        primaryLanguage { #{@language_basics} }
+      }
+    }
+    """
+    query = %{query: q, operation_name: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"primaryLanguage" => lang} = comm
+    assert_community(comm)
+    assert_language(lang)
+  end
+
+  test "community.creator" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        creator { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = comm
+    assert_community(comm)
+    assert_user(user)
+  end
+
+  test "community.collections" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        collections {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@collection_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"collections" => colls} = comm
+    assert_community(comm)
+    for coll <- assert_edge_list(colls), do: assert_collection(coll)
+  end
+
+  test "community.threads" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        threads {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@thread_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"threads" => threads} = comm
+    assert_community(comm)
+    for thread <- assert_edge_list(threads), do: assert_thread(thread)
+  end
+
+  test "community.followers" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        followers {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@follow_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"followers" => follows} = comm
+    assert_community(comm)
+    for follow <- assert_edge_list(follows), do: assert_follow(follow)
+  end
+
+  test "community.inbox" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        inbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"inbox" => inbox} = comm
+    assert_community(comm)
+    for activity <- assert_edge_list(inbox), do: assert_activity(activity)
+  end
+
+  test "community.outbox" do
+    q = """
+    query Test {
+      community(communityId: "") {
+        #{@community_basics}
+        outbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"community" => comm} = gql_post_data(json_conn(), query)
+    assert %{"outbox" => outbox} = comm
+    assert_community(comm)
+    for activity <- assert_edge_list(outbox), do: assert_activity(activity)
+  end
+
+  # instance schema
+
+  test "instance" do
+    q = """
+    query Test {
+      instance { }
+    }
+    """
+  end
+
+  test "instance.outbox" do
+    q = """
+    query Test {
+      instance {
+        outbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"instance" => inst} = gql_post_data(json_conn(), query)
+    assert %{"outbox" => outbox} = inst
+    for activity <- assert_edge_list(outbox), do: assert_activity(activity)
+  end
+
+  # localisation schema
+  
+  test "language" do
+    q = """
+    query Test {
+      language(languageId: "") {
+        #{@language_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"language" => lang} = gql_post_data(json_conn(), query)
+    assert_language(lang)
+  end
+
+  test "languages" do
+    q = """
+    query Test {
+      languages {
+        #{@page_basics}
+        nodes {
+          #{@language_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"languages" => langs} = gql_post_data(json_conn(), query)
+    for lang <- assert_node_list(langs), do: assert_language(lang)
+  end
+
+  test "search_language" do
+    q = """
+    query Test {
+      searchLanguage(query: "") {
+        #{@page_basics}
+        nodes {
+          #{@language_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"searchLanguage" => langs} = gql_post_data(json_conn(), query)
+    for lang <- assert_node_list(langs), do: assert_language(lang)
+  end
+
+  test "country" do
+    q = """
+    query Test {
+      country(countryId: "") {
+        #{@country_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"country" => country} = gql_post_data(json_conn(), query)
+    assert_country(country)
+  end
+
+  test "countries" do
+    q = """
+    query Test {
+      countries {
+        #{@page_basics}
+        nodes {
+          #{@country_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"countries" => countries} = gql_post_data(json_conn(), query)
+    for country <- assert_node_list(countries), do: assert_country(country)
+  end
+
+  test "search_country" do
+    q = """
+    query Test {
+      searchCountry(query: "") {
+        #{@page_basics}
+        nodes {
+          #{@country_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"searchCountry" => countries} = gql_post_data(json_conn(), query)
+    for country <- assert_node_list(countries), do: assert_country(country)
+  end
+
+  # moodleverse schema
+
+  # test "moodleverse" do
+  #   q = """
+  #   query Test {
+  #     moodleverse { }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"moodleVerse" => %{}} = gql_post_data(json_conn(), query)
+  # end
+
+  # resources schema
+
+  test "resource" do
+    q = """
+    query Test {
+      resource(resourceId: "") { #{@resource_basics} }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+  end
+
+  test "create_resource" do
+    vars = %{"resource" => Fake.resource_input()}
+    q = """
+    mutation Test($resource: ResourceInput!) {
+      createResource(resource: $resource, collectionId: "") {
+        #{@resource_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test", variables: vars}
+    assert %{"createResource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+  end
+
+  test "update_resource" do
+    vars = %{"resource" => Fake.resource_input()}
+    q = """
+    mutation Test($resource: ResourceInput!) {
+      updateResource(resourceId: "", resource: $resource) {
+        #{@resource_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test", variables: vars}
+    assert %{"updateResource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+  end
+
+  test "copy_resource" do
+    q = """
+    mutation Test {
+      copyResource(resourceId: "", collectionId: "") {
+        #{@resource_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"copyResource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+  end
+
+  test "resource.last_activity" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        lastActivity
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+    assert %{"lastActivity" => act} = res
+    assert is_binary(act)
+  end
+
+  test "resource.my_like" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        myLike { #{@like_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert %{"myLike" => like} = res
+    assert_resource(res)
+    assert_like(like)
+  end
+
+  test "resource.creator" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+       creator { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert %{"creator" => user} = res
+    assert_resource(res)
+    assert_user(user)
+  end
+
+  test "resource.collection" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        collection { #{@collection_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert %{"collection" => coll} = res
+    assert_resource(res)
+    assert_collection(coll)
+  end
+
+  test "resource.primary_language" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        primaryLanguage { #{@language_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert %{"primaryLanguage" => lang} = res
+    assert_resource(res)
+    assert_language(lang)
+  end
+
+  test "resource.likes" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        likes {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@like_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert %{"likes" => likes} = res
+    assert_resource(res)
+    for like <- assert_edge_list(likes), do: assert_like(like)
+  end
+
+  test "resource.flags" do
+    q = """
+    query Test {
+      resource(resourceId: "") {
+        #{@resource_basics}
+        flags {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@flag_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"resource" => res} = gql_post_data(json_conn(), query)
+    assert_resource(res)
+    assert %{"flags" => flags} = res
+    for flag <- assert_edge_list(flags), do: assert_flag(flag)
+  end
+
+  # @tag :skip
+  # test "resource.tags" do
+  #   q = """
+  #   query Test {
+  #     resource(resourceId: "") {
+  #       #{@resource_basics}
+  #       tags {
+  #         #{@page_basics}
+  #         edges {
+  #           cursor
+  #           node { #{@tag_basics} }
+  #         }
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"resource" => res} = gql_post_data(json_conn(), query)
+  #   assert_resource(res)
+  #   assert %{"tags" => tags} = res
+  #   for tagging <- assert_edge_list(tags), do: assert_tagging(tagging)
+  # end
+
+  # users schema
+
+  test "username_available" do
+    q = """
+    query Test {
+      usernameAvailable(username: "")
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"usernameAvailable" => av} = gql_post_data(json_conn(), query)
+    assert is_boolean(av)
+  end
+
+  test "me" do
+    q = """
+    query Test {
       me {
+        #{@me_basics}
+        user { #{@user_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"me" => me} = gql_post_data(json_conn(), query)
+    assert_me(me)
+  end
+
+  test "user" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+  end
+  
+  test "create_user" do
+    vars = %{"user" => Fake.registration_input()}
+    q = """
+    mutation Test($user: RegistrationInput!) {
+      createUser(user: $user) {
         user { #{@user_basics} }
         #{@me_basics}
       }
     }
-  }
-  """
-  @confirm_q """
-  mutation Test($token: String!) {
-    confirmEmail(token: $token) {
-      __typename
-      token
-      me {
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"createUser" => me} = gql_post_data(json_conn(), query)
+    assert_me(me)
+  end
+
+  test "update_profile" do
+    vars = %{"profile" => Fake.profile_update_input()}
+    q = """
+    mutation Test($profile: UpdateProfileInput!) {
+      updateProfile(profile: $profile) {
         user { #{@user_basics} }
         #{@me_basics}
       }
     }
-  }
-  """
-  @login_q """
-  mutation Test($email: String!, $password: String!) {
-    createSession(email: $email, password: $password) {
-      __typename
-      token
-      me {
-        user { #{@user_basics} }
-        #{@me_basics}
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"updateProfile" => me} = gql_post_data(json_conn(), query)
+    assert_me(me)
+  end
+
+  test "reset_request" do
+    vars = %{"email" => ""}
+    q = """
+    mutation Test($email: String!) {
+      resetPasswordRequest(email: $email)
+    }
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"resetPasswordRequest" => true} = gql_post_data(json_conn(), query)
+  end
+
+  test "reset" do
+    vars = %{"token" => "", "password" => ""}
+    q = """
+    mutation Test($token: String!, $password: String!) {
+      resetPassword(token: $token, password: $password) {
+        __typename
+        token
+        me {
+          user { #{@user_basics} }
+          #{@me_basics}
+        }
       }
     }
-  }
-  """
-  @logout_q """
-  mutation Test {
-    deleteSession
-  }
-  """
-  @delete_q """
-  mutation Test {
-    deleteSelf(iAmSure: true)
-  }
-  """
-  describe "activities.user" do
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"resetPassword" => auth} = gql_post_data(json_conn(), query)
+    assert_auth_payload(auth)
   end
 
-  describe "me" do
-    test "works" do
-      vars = %{}
-      query = %{query: @me_q, variables: vars, operationName: "Test"}
-      assert %{"me" => me} = gql_post_data(json_conn(), query)
-      assert_me(me)
-    end
-  end
-  describe "username_available" do
-    test "works" do
-      vars = %{"username" => ""}
-      query = %{query: @username_available_q, variables: vars, operationName: "Test"}
-      assert %{"usernameAvailable" => av} = gql_post_data(json_conn(), query)
-      assert is_boolean(av)
-    end
-  end
-  describe "create_user" do
-    test "works" do
-      vars = %{"user" => Fake.registration_input()}
-      query = %{query: @create_q, variables: vars, operationName: "Test"}
-      assert %{"createUser" => me} = gql_post_data(json_conn(), query)
-      assert_me(me)
-    end
-  end
-  describe "update_profile" do
-    test "works" do
-      vars = %{"profile" => Fake.profile_update_input()}
-      query = %{query: @update_q, variables: vars, operationName: "Test"}
-      assert %{"updateProfile" => me} = gql_post_data(json_conn(), query)
-      assert_me(me)
-    end
-  end
-  describe "reset_request" do
-    test "works" do
-      vars = %{"email" => ""}
-      query = %{query: @reset_request_q, variables: vars, operationName: "Test"}
-      assert %{"resetPasswordRequest" => true} = gql_post_data(json_conn(), query)
-    end
-  end
-  describe "reset" do
-    test "works" do
-      vars = %{"token" => "", "password" => ""}
-      query = %{query: @reset_q, variables: vars, operationName: "Test"}
-      assert %{"resetPassword" => auth} = gql_post_data(json_conn(), query)
-      assert_auth_payload(auth)
-    end
-  end
-  describe "confirm" do
-    test "works" do
-      vars = %{"token" => ""}
-      query = %{query: @confirm_q, variables: vars, operationName: "Test"}
-      assert %{"confirmEmail" => auth} = gql_post_data(json_conn(), query)
-      assert_auth_payload(auth)
-    end
-  end
-  describe "login" do
-    test "works" do
-      vars = %{"email" => "", "password" => ""}
-      query = %{query: @login_q, variables: vars, operationName: "Test"}
-      assert %{"createSession" => auth} = gql_post_data(json_conn(), query)
-      assert_auth_payload(auth)
-    end
-  end
-  describe "logout" do
-    test "works" do
-      vars = %{}
-      query = %{query: @logout_q, variables: vars, operationName: "Test"}
-      assert %{"deleteSession" => true} = gql_post_data(json_conn(), query)
-    end
-  end
-  describe "delete" do
-    test "works" do
-      vars = %{"iAmSure" => true}
-      query = %{query: @delete_q, variables: vars, operationName: "Test"}
-      assert %{"deleteSelf" => true} = gql_post_data(json_conn(), query)
-    end
+  test "confirm" do
+    vars = %{"token" => ""}
+    q = """
+    mutation Test($token: String!) {
+      confirmEmail(token: $token) {
+        __typename
+        token
+        me {
+          user { #{@user_basics} }
+          #{@me_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"confirmEmail" => auth} = gql_post_data(json_conn(), query)
+    assert_auth_payload(auth)
   end
 
-  describe "my_follow" do
+  test "login" do
+    vars = %{"email" => "", "password" => ""}
+    q = """
+    mutation Test($email: String!, $password: String!) {
+      createSession(email: $email, password: $password) {
+        __typename
+        token
+        me {
+          user { #{@user_basics} }
+          #{@me_basics}
+        }
+      }
+    }
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"createSession" => auth} = gql_post_data(json_conn(), query)
+    assert_auth_payload(auth)
+  end
 
-    test "collection" do
-      q = """
-      query Test {
-        collection(collectionId: "") {
-          myFollow {
-            id canonicalUrl isLocal isPublic createdAt __typename
+  test "logout" do
+    vars = %{}
+    q = """
+    mutation Test {
+      deleteSession
+    }
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"deleteSession" => true} = gql_post_data(json_conn(), query)
+  end
+
+  test "delete" do
+    vars = %{"iAmSure" => true}
+    q = """
+    mutation Test {
+      deleteSelf(iAmSure: true)
+    }
+    """
+    query = %{query: q, variables: vars, operationName: "Test"}
+    assert %{"deleteSelf" => true} = gql_post_data(json_conn(), query)
+   end
+ 
+  test "user.last_activity" do
+    q = """
+    query Test {
+      user(userId: "") { #{@user_basics} lastActivity }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert %{"lastActivity" => activity} = user
+    assert_user(user)
+    assert is_binary(activity)
+  end
+
+  test "user.my_follow" do
+    q = """
+    query Test {
+      user(userId: "") {
+        myFollow { #{@follow_basics} }
+        #{@user_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert %{"myFollow" => follow} = user
+    assert_user(user)
+    assert_follow(follow)
+  end
+
+  test "user.my_like" do
+    q = """
+    query Test {
+      user(userId: "") {
+        myLike { #{@like_basics} }
+        #{@user_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert %{"myLike" => like} = user
+    assert_user(user)
+    assert_like(like)
+   end
+  
+  test "user.primary_language" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        primaryLanguage { #{@language_basics} }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"primaryLanguage" => lang} = user
+    assert_language(lang)
+  end
+
+  test "user.followed_communities" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        followedCommunities {
+          #{@page_basics}
+          edges {
+            cursor
+            node {
+              #{@follow_basics}
+              context {
+                ... on Community { #{@community_basics} }
+              }
+            }
           }
         }
       }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"collection" => coll} = gql_post_data(json_conn(), query)
-      assert %{"myFollow" => follow} = coll
-      assert_follow(follow)
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"followedCommunities" => follows} = user
+    for f <- assert_edge_list(follows) do
+      assert_follow(f)
+      assert %{"context" => context} = f
+      assert_community(context)
     end
-
-    test "community" do
-      q = """
-      query Test {
-        community(communityId: "") {
-          myFollow {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"community" => comm} = gql_post_data(json_conn(), query)
-      assert %{"myFollow" => follow} = comm
-      assert_follow(follow)
-    end
-
-    test "thread" do
-      q = """
-      query Test {
-        thread(threadId: "") {
-          myFollow {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"thread" => thread} = gql_post_data(json_conn(), query)
-      assert %{"myFollow" => follow} = thread
-      assert_follow(follow)
-    end
-
-    test "user" do
-      q = """
-      query Test {
-        user(userId: "") {
-          myFollow {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-          #{@user_basics}
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"user" => user} = gql_post_data(json_conn(), query)
-      assert %{"myFollow" => follow} = user
-      assert_user(user)
-      assert_follow(follow)
-    end
-
   end
 
-  describe "my_like" do
-
-    test "user" do
-      q = """
-      query Test {
-        user(userId: "") {
-          myLike {
-            id canonicalUrl isLocal isPublic createdAt __typename
+  test "user.followed_collections" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        followedCollections {
+          #{@page_basics}
+          edges {
+            cursor
+            node {
+              #{@follow_basics}
+              context {
+                ... on Collection { #{@collection_basics} }
+              }
+            }
           }
-          #{@user_basics}
         }
       }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"user" => user} = gql_post_data(json_conn(), query)
-      assert %{"myLike" => like} = user
-      assert_user(user)
-      assert_like(like)
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"followedCollections" => follows} = user
+    for f <- assert_edge_list(follows) do
+      assert_follow(f)
+      assert %{"context" => context} = f
+      assert_collection(context)
     end
-
-    test "collection" do
-      q = """
-      query Test {
-        collection(collectionId: "") {
-          myLike {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-          #{@collection_basics}
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"collection" => collection} = gql_post_data(json_conn(), query)
-      assert %{"myLike" => like} = collection
-      assert_collection(collection)
-      assert_like(like)
-    end
-
-    test "resource" do
-      q = """
-      query Test {
-        resource(resourceId: "") {
-          myLike {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-          #{@resource_basics}
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"resource" => resource} = gql_post_data(json_conn(), query)
-      assert %{"myLike" => like} = resource
-      assert_resource(resource)
-      assert_like(like)
-    end
-
-    test "comment" do
-      q = """
-      query Test {
-        comment(commentId: "") {
-          myLike {
-            id canonicalUrl isLocal isPublic createdAt __typename
-          }
-          #{@comment_basics}
-        }
-      }
-      """
-      query = %{query: q, operationName: "Test"}
-      assert %{"comment" => comment} = gql_post_data(json_conn(), query)
-      assert %{"myLike" => like} = comment
-      assert_comment(comment)
-      assert_like(like)
-    end
-
   end
 
-  # @user_basic_fields "id local preferredUsername name summary location website icon image"
-  # @primary_language "primaryLanguage { id }"
+  test "user.followed_users" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        followedUsers {
+          #{@page_basics}
+          edges {
+            cursor
+            node {
+              #{@follow_basics}
+              context {
+                ... on User { #{@user_basics} }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"followedUsers" => follows} = user
+    for f <- assert_edge_list(follows) do
+      assert_follow(f)
+      assert %{"context" => context} = f
+      assert_user(context)
+    end
+  end
 
-  # describe "UsersResolver.username_available" do
-  #   test "works for a guest" do
-  #     query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
+  test "user.likes" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        likes {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@like_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"likes" => likes} = user
+    for like <- assert_edge_list(likes), do: assert_like(like)
+  end
 
-  #     actor = fake_actor!()
-  #     query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
+  test "user.comments" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        comments {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@comment_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"comments" => comments} = user
+    for c <- assert_edge_list(comments), do: assert_comment(c)
+  end
 
-  #   test "works for a logged in user" do
-  #     user = fake_user!()
-  #     {:ok, actor} = Actors.fetch_by_alias(user.id)
-  #     conn = user_conn(user)
-  #     query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
-  #     assert true == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
+  test "user.outbox" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        outbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"outbox" => outbox} = user
+    for node <- assert_edge_list(outbox), do: assert_activity(node)
+  end
 
-  #     query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
-  #   end
-  # end
+  test "user.inbox" do
+    q = """
+    query Test {
+      user(userId: "") {
+        #{@user_basics}
+        inbox {
+          #{@page_basics}
+          edges {
+            cursor
+            node { #{@activity_basics} }
+          }
+        }
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"user" => user} = gql_post_data(json_conn(), query)
+    assert_user(user)
+    assert %{"inbox" => inbox} = user
+    for node <- assert_edge_list(inbox), do: assert_activity(node)
+  end
 
-  # describe "UsersResolver.me" do
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "{ me { email user { #{@user_basic_fields} #{@primary_language} } } }"
-
-  #     assert %{"email" => email, "user" => user2} =
-  #              Map.fetch!(gql_post_data(conn, %{query: query}), "me")
-  #     assert user.email == email
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]["id"]
-  #   end
-
-  #   test "Does not work for a guest" do
-  #     query = "{ me { email user { #{@user_basic_fields} }} }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
-  #   end
-  # end
-
-  # describe "UsersResolver.user" do
-
-  #   test "Works for a logged in user" do
-  #     user = fake_user!(%{is_public: true})
-  #     conn = user_conn(user)
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
-  #     user2 = Map.fetch!(gql_post_data(conn, %{query: query}), "user")
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]
-  #   end
-
-  #   test "Works for a guest" do
-  #     user = fake_user!()
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
-  #     user2 = Map.fetch!(gql_post_data(json_conn(), %{query: query}), "user")
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]
-  #   end
-
-  #   @tag :skip
-  #   @todo_when :post_moot
-  #   test "Does not work for a user that is not public" do
-  #     user = fake_user!(%{is_public: false})
-  #     conn = user_conn(user)
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} }}"
-  #     # TODO: ensure this is correct, we may want unauthorized
-  #     assert_not_found(gql_post_errors(conn, %{query: query}), ["user"])
-  #   end
-  # end
-
-  # describe "UsersResolver.create_user" do
-  #   test "Works for a guest with good inputs" do
-  #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
-
-  #     query = """
-  #     mutation Test($user: RegistrationInput) {
-  #       createUser(user:$user) {
-  #         me { email user { #{@user_basic_fields} } }
-  #       }
-  #     }
-  #     """
-
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     Map.fetch!(gql_post_data(json_conn(), query), "createUser")
-  #   end
-
-  #   test "Does not work for a logged in user" do
-  #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
-
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
-
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     assert_not_permitted(gql_post_errors(conn, query), ["createUser"])
-  #   end
-
-  #   @tag :skip
-  #   @todo :changeset_errors
-  #   test "Does not work for a taken preferred username" do
-  #     user = fake_user!()
-  #     reg = Fake.registration_input(%{"preferredUsername" => user.actor.preferred_username})
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
-
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
-
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
-  #   end
-
-  #   @tag :skip
-  #   @todo :changeset_errors
-  #   test "Does not work for a taken email" do
-  #     user = fake_user!()
-  #     reg = Fake.registration_input(%{"email" => user.email})
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
-
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
-
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
-  #   end
-  # end
-
-  # describe "UsersResolver.update_profile" do
-
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-
-  #     query = %{
-  #       query: """
-  #       mutation Test($profile: UpdateProfileInput!) {
-  #         updateProfile(profile: $profile) {
-  #           user { #{@user_basic_fields} }
-  #         }
-  #       }
-  #       """,
-  #       operationName: "Test",
-  #       variables: %{"profile" => Fake.profile_update_input()}
-  #     }
-
-  #     assert data = gql_post_data(conn, query)["updateProfile"]
-  #     assert MapSet.new(Map.keys(data["user"])) == MapSet.new(String.split(@user_basic_fields))
-  #   end
-
-  #   test "Does not work for a guest" do
-  #     query = %{
-  #       query: """
-  #       mutation Test($profile: UpdateProfileInput!) {
-  #         updateProfile(profile: $profile) {
-  #           user { #{@user_basic_fields} }
-  #         }
-  #       }
-  #       """,
-  #       operationName: "Test",
-  #       variables: %{"profile" => Fake.profile_update_input()}
-  #     }
-
-  #     assert_not_logged_in(gql_post_errors(query), ["updateProfile"])
-  #   end
-  # end
-
-  # describe "UsersResolver.delete_user" do
-
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "mutation { deleteUser }"
-  #     assert conn |> gql_post_data(%{query: query}) |> Map.get("deleteUser")
-  #     assert {:error, e} = Users.fetch(user.id)
-  #     assert {:error, e} = Actors.fetch(user.actor.id)
-  #   end
-
-  #   test "Does not work for a guest" do
-  #     query = "mutation { deleteUser }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteUser"])
-  #   end
-
-  # end
-
-  # describe "UsersResolver.reset_password_request" do
-
-  #   test "Works for a guest" do
-  #     user = fake_user!()
-  #     query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
-  #     assert true == gql_post_data(%{query: query}) |> Map.get("resetPasswordRequest")
-  #     # TODO: check that an email is sent
-  #   end
-
-  #   test "Does not work for a user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
-  #     assert_not_permitted(gql_post_errors(conn, %{query: query}), ["resetPasswordRequest"])
-  #     # TODO: check that an email is sent
-  #   end
-
-  #   test "Does not work for an invalid email" do
-  #     query = "mutation { resetPasswordRequest(email: \"#{Fake.email()}\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["resetPasswordRequest"])
-  #   end
-
-  # end
-
-  # describe "UsersResolver.reset_password" do
-  #   test "Works for a guest with a valid token" do
-  #     user = fake_user!()
-  #     assert {:ok, %{id: token}} = Users.request_password_reset(user)
-
-  #     query = "mutation { resetPassword(token: \"#{token}\", password: \"password\") }"
-  #     assert %{query: query} |> gql_post_data() |> Map.get("resetPassword")
-  #   end
-
-  #   test "Does not work for a user" do
-  #     query = "mutation { resetPassword(token: \"#{Fake.uuid()}\", password: \"password\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["resetPassword"])
-  #   end
-  # end
-
-  # describe "UsersResolver.confirm_email" do
-  #   test "Works for a guest with a valid token" do
-  #     user = fake_user!()
-  #     [token] = user.email_confirm_tokens
-  #     query = "mutation { confirmEmail(token: \"#{token.id}\") }"
-
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
-  #   end
-
-  #   test "Works with an authenticated user" do
-  #     user = fake_user!()
-  #     [token] = user.email_confirm_tokens
-  #     query = "mutation { confirmEmail(token: \"#{token.id}\") }"
-
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
-  #   end
-
-  #   test "Fails with an invalid token" do
-  #     query = "mutation { confirmEmail(token: \"#{Faker.UUID.v4()}\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["confirmEmail"])
-  #   end
-  # end
-
-  # describe "UsersResolver.create_session" do
-  #   test "Works with a valid email and password" do
-  #     user = fake_user!(%{password: "password"})
-
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{user.email}\", password: \"password\") {
-  #         token
-  #         me {
-  #           email
+  # @tag :skip
+  # test "user.tagged" do
+  #   q = """
+  #   query Test {
+  #     user(userId: "") {
+  #       #{@user_basics}
+  #       tagged {
+  #         #{@page_basics}
+  #         edges {
+  #           cursor
+  #           node { #{@tagging_basics} }
   #         }
   #       }
   #     }
-  #     """
-
-  #     assert resp = %{query: query} |> gql_post_data() |> Map.get("createSession")
-  #     assert is_binary(resp["token"])
-  #     assert resp["me"]["email"] == user.email
-  #   end
-
-  #   test "Does not work for a missing email" do
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{Fake.email()}\", password: \"#{Fake.password()}\") {
-  #         token
-  #       }
-  #     }
-  #     """
-
-  #     assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
-  #   end
-
-  #   test "Does not work with an invalid password" do
-  #     user = fake_user!()
-
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{user.email}\", password: \"invalid\") {
-  #         token
-  #       }
-  #     }
-  #     """
-
-  #     assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
-  #   end
-  # end
-
-  # describe "UsersResolver.delete_session" do
-  #   test "Works with a logged in user" do
-  #     user = fake_user!(%{password: "password"})
-  #     assert {:ok, _} = OAuth.create_token(user, "password")
-
-  #     conn = user_conn(user)
-  #     query = "mutation { deleteSession }"
-  #     assert conn |> gql_post_data(%{query: query}) |> Map.get("deleteSession")
-  #   end
-
-  #   test "Does not work for a guest" do
-  #     query = "mutation { deleteSession }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteSession"])
-  #   end
-  # end
-
-  # describe "UsersResolver.check_username_available" do
-
-  #   test "works for an available username" do
-  #     name = Fake.preferred_username()
-  #     query = "{ usernameAvailable(username: \"#{name}\") }"
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
-
-  #   test "works for an unavailable username" do
-  #     user = fake_user!()
-  #     query = "{ usernameAvailable(username: \"#{user.actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
-
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"user" => user} = gql_post_data(json_conn(), query)
+  #   assert_user(user)
   # end
 
 end

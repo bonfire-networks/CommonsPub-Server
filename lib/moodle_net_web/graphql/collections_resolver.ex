@@ -15,17 +15,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     #   page_info = Common.page_info(comms)
     #   {:ok, %{page_info: page_info, total_count: count, nodes: comms}}
     # end)
-    count = Fake.pos_integer()
-    comms = Fake.long_list(&Fake.collection/0)
-    {:ok, GraphQL.node_list(comms, count)}
+    {:ok, Fake.long_node_list(&Fake.collection/0)}
     |> GraphQL.response(info)
   end
 
   def collections(%Community{}=parent, _, info) do
-    count = Fake.pos_integer()
-    comms = Fake.long_list(&Fake.collection/0)
-    {:ok, GraphQL.edge_list(comms, count)}
+    {:ok, Fake.long_edge_list(&Fake.collection/0)}
     |> GraphQL.response(info)
+    # count = Fake.pos_integer()
+    # comms = Fake.long_list(&Fake.collection/0)
+    # {:ok, GraphQL.edge_list(comms, count)}
+    # |> GraphQL.response(info)
   end
 
   def collection(%{collection_id: id}, info) do
@@ -34,6 +34,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     # GraphQL.response(Collections.fetch(id), info)
   end
 
+  def collection(_,_,info) do
+    {:ok, Fake.collection()}
+    |> GraphQL.response(info)
+  end
   def create_collection(%{collection: attrs, community_id: community_id}, info) do
     # Repo.transact_with(fn ->
     #   with {:ok, user} <- GraphQL.current_user(info),
@@ -90,6 +94,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def last_activity(_, _, info) do
     {:ok, Fake.past_datetime()}
+    |> GraphQL.response(info)
+  end
+
+  def outbox(_,_,info) do
+    {:ok, Fake.long_edge_list(&Fake.activity/0)}
     |> GraphQL.response(info)
   end
 

@@ -8,9 +8,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
     CollectionsResolver,
+    CommentsResolver,
     CommunitiesResolver,
     CommonResolver,
     LocalisationResolver,
+    ResourcesResolver,
     UsersResolver,
   }
 
@@ -42,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "Update a collection"
     field :update_collection, type: :collection do
-      arg :collection_id, non_null(:integer)
+      arg :collection_id, non_null(:string)
       arg :collection, non_null(:collection_input)
       resolve &CollectionsResolver.update_collection/2
     end
@@ -143,13 +145,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CommonResolver.flags/3
     end
 
-    @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, :taggings_edges do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommonResolver.tags/3
-    end
+    # @desc "Tags users have applied to the resource, most recently created first"
+    # field :tags, :taggings_edges do
+    #   arg :limit, :integer
+    #   arg :before, :string
+    #   arg :after, :string
+    #   resolve &CommonResolver.taggings/3
+    # end
 
     @desc """
     The threads created on the collection, most recently created

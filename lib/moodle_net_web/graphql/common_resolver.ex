@@ -15,11 +15,46 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     NotFoundError,
     NotPermittedError,
   }
-  alias MoodleNet.Common.{Category,Tag}
+  alias MoodleNet.Common.{Flag,Follow,Like}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Meta.Table
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+
+  def flag(%{flag_id: id}, info) do
+    {:ok, Fake.flag()}
+    |> GraphQL.response(info)
+  end
+
+  def follow(%{follow_id: id}, info) do
+    {:ok, Fake.follow()}
+    |> GraphQL.response(info)
+  end
+
+  def like(%{like_id: id}, info) do
+    {:ok, Fake.like()}
+    |> GraphQL.response(info)
+  end
+  def tag(%{tag_id: id}, info) do
+    {:ok, Fake.tag()}
+    |> GraphQL.response(info)
+  end
+  def tag_category(%{tag_category_id: id}, info) do
+    {:ok, Fake.tag_category()}
+    |> GraphQL.response(info)
+  end
+  def tag_category(_, _, info) do
+    {:ok, Fake.tag_category()}
+    |> GraphQL.response(info)
+  end
+  def tagging(%{tagging_id: id}, info) do
+    {:ok, Fake.tagging()}
+    |> GraphQL.response(info)
+  end
+  def taggings(_, _, info) do
+    {:ok, Fake.long_edge_list(&Fake.tagging/0)}
+    |> GraphQL.response(info)
+  end
 
   def create_follow(%{context_id: id}, info) do
     # Repo.transact_with fn ->
@@ -133,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   # end
 
   defp flaggable_entity(pointer) do
-    %Table{table: table} = Meta.points_to!(pointer)
+    %Table{schema: table} = Meta.points_to!(pointer)
     case table do
       Resource -> Meta.follow(pointer)
       Comment -> Meta.follow(pointer)
@@ -146,14 +181,14 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   defp followable_entity(pointer) do
-    %Table{table: table} = Meta.points_to!(pointer)
+    %Table{schema: table} = Meta.points_to!(pointer)
     case table do
       Collection -> Meta.follow(pointer)
       Thread -> Meta.follow(pointer)
       Actor ->
         with {:ok, actor} <- Meta.follow(pointer),
              {:ok, pointer2} <- Meta.find(actor.alias_id) do
-          %Table{table: table2} = Meta.points_to!(pointer2)
+          %Table{schema: table2} = Meta.points_to!(pointer2)
           case table2 do
             Community -> {:ok, actor}
             _ ->
@@ -168,7 +203,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   defp likeable_entity(pointer) do
-    %Table{table: table} = Meta.points_to!(pointer)
+    %Table{schema: table} = Meta.points_to!(pointer)
   end
 
   # def followed(%Follow{}=follow,_,info)
@@ -177,15 +212,30 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, true}
   end
 
-  def tag(parent, _, info) do
+  def tag(_, _, info) do
     {:ok, Fake.tag()}
     |> GraphQL.response(info)
   end
 
-  def context(parent, _, info) do
-    {:ok, Fake.tagging_context()}
+  def context(%Follow{}=follow, _, info) do
+    case Map.get(follow, :context) do
+      nil -> {:ok, Fake.follow_context()}
+      context -> {:ok, context}
+    end
     |> GraphQL.response(info)
   end
+  def context(%Flag{}, _, info) do
+    {:ok, Fake.flag_context()}
+    |> GraphQL.response(info)
+  end
+  def context(%Like{}, _, info) do
+    {:ok, Fake.like_context()}
+    |> GraphQL.response(info)
+  end
+  # def context(%Tagging{}, _, info) do
+  #   {:ok, Fake.tagging_context()}
+  #   |> GraphQL.response(info)
+  # end
 
   def create_tagging(_, info) do
     {:ok, Fake.tagging()}
@@ -200,19 +250,19 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
   def followers(parent, _, info) do
-    {:ok, Fake.med_list(&Fake.follow/0)}
+    {:ok, Fake.long_edge_list(&Fake.follow/0)}
     |> GraphQL.response(info)
   end
   def likes(parent, _, info) do
-    {:ok, Fake.med_list(&Fake.like/0)}
+    {:ok, Fake.long_edge_list(&Fake.like/0)}
     |> GraphQL.response(info)
   end
   def flags(parent, _, info) do
-    {:ok, Fake.med_list(&Fake.flag/0)}
+    {:ok, Fake.long_edge_list(&Fake.flag/0)}
     |> GraphQL.response(info)
   end
   def tags(parent, _, info) do
-    {:ok, Fake.med_list(&Fake.tagging/0)}
+    {:ok, Fake.long_edge_list(&Fake.tagging/0)}
     |> GraphQL.response(info)
   end
 

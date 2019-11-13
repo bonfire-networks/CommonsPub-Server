@@ -39,6 +39,46 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_location(loc)
   end
 
+  def assert_node_list(list) do
+    assert %{"pageInfo" => page, "totalCount" => count} = list
+    assert is_integer(count)
+    assert %{"startCursor" => start, "endCursor" => ends} = page
+    assert is_binary(start)
+    assert is_binary(ends)
+    assert %{"nodes" => nodes} = list
+    assert is_list(nodes)
+    nodes
+  end
+
+  def assert_edge_list(list) do
+    assert %{"pageInfo" => page, "totalCount" => count} = list
+    assert is_integer(count)
+    assert %{"startCursor" => start, "endCursor" => ends} = page
+    assert is_binary(start)
+    assert is_binary(ends)
+    assert %{"edges" => edges} = list
+    assert is_list(edges)
+    Enum.map(edges, fn e ->
+      assert %{"cursor" => cursor, "node" => node} = e
+      assert is_binary(cursor)
+      node
+    end)
+  end
+
+  def assert_language(lang) do
+    assert %{"id" => id, "isoCode2" => c2, "isoCode3" => c3} = lang
+    assert is_binary(id)
+    assert is_binary(c2)
+    assert is_binary(c3)
+    assert %{"englishName" => name, "localName" => naam} = lang
+    assert is_binary(name)
+    assert is_binary(naam)
+    # assert %{"createdAt" => created, "updatedAt" => updated} = lang
+    # assert is_binary(created)
+    # assert is_binary(updated)
+  end
+  def assert_country(country), do: assert_language(country)
+
   def assert_auth_payload(ap) do
     assert %{"token" => token, "me" => me} = ap
     assert is_binary(token)
@@ -112,7 +152,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"icon" => icon} = coll
     assert is_binary(icon)
     assert %{"isLocal" => local, "isPublic" => public} = coll
-    assert %{"isHidden" => hidden} = coll
+    assert %{"isDisabled" => hidden} = coll
     assert is_boolean(local)
     assert is_boolean(public)
     assert is_boolean(hidden)
@@ -130,14 +170,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_binary(id)
     assert is_binary(name)
     assert is_binary(summary)
-    assert %{"icon" => icon, "image" => image} = resource
+    assert %{"icon" => icon} = resource
     assert is_binary(icon)
-    assert is_binary(image)
     assert %{"url" => url, "license" => license} = resource
     assert is_binary(url)
     assert is_binary(license)
     assert %{"isLocal" => local, "isPublic" => public} = resource
-    assert %{"isHidden" => hidden} = resource
+    assert %{"isDisabled" => hidden} = resource
     assert is_boolean(local)
     assert is_boolean(public)
     assert is_boolean(hidden)
@@ -168,7 +207,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_binary(url)
     assert %{"id" => id, "inReplyToId" => reply} = comment
     assert is_binary(id)
-    assert is_binary(reply)
+    assert is_binary(reply) or is_nil(reply)
     assert %{"content" => content} = comment
     assert is_binary(content)
     assert %{"isLocal" => local, "isPublic" => public} = comment
@@ -209,7 +248,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_binary(updated)
     assert %{"__typename" => "Flag"} = flag
   end
-  def assert_category(cat) do
+  def assert_tag_category(cat) do
     assert %{"id" => id, "canonicalUrl" => url} = cat
     assert is_binary(id)
     assert is_binary(url)
@@ -221,7 +260,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_boolean(public)
     assert %{"createdAt" => created} = cat
     assert is_binary(created)
-    assert %{"__typename" => "Category"} = cat
+    assert %{"__typename" => "TagCategory"} = cat
   end
   def assert_tag(tag) do
     assert %{"id" => id, "canonicalUrl" => url} = tag
@@ -259,61 +298,84 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_binary(created)
     assert %{"__typename" => "Follow"} = follow
   end
+  def assert_activity(activity) do
+    assert %{"id" => id, "canonicalUrl" => url} = activity
+    assert is_binary(id)
+    assert is_binary(url)
+    assert %{"verb" => verb} = activity
+    assert is_binary(verb)
+    assert %{"isLocal" => local, "isPublic" => public} = activity
+    assert is_boolean(local)
+    assert is_boolean(public)
+    assert %{"createdAt" => created} = activity
+    assert is_binary(created)
+    assert %{"__typename" => "Activity"} = activity
+  end
+
   def assert_flag_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "comment" -> assert_comment(thing)
-      "community" -> assert_community(thing)
-      "resource" -> assert_resource(thing)
-      "user" -> assert_user(thing)
+      "Collection" -> assert_collection(thing)
+      "Comment" -> assert_comment(thing)
+      "Community" -> assert_community(thing)
+      "Resource" -> assert_resource(thing)
+      "User" -> assert_user(thing)
     end
   end
   def assert_like_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "comment" -> assert_comment(thing)
-      "resource" -> assert_resource(thing)
-      "user" -> assert_user(thing)
+      "Collection" -> assert_collection(thing)
+      "Comment" -> assert_comment(thing)
+      "Resource" -> assert_resource(thing)
+      "User" -> assert_user(thing)
     end
   end
   def assert_follow_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "community" -> assert_community(thing)
-      "thread" -> assert_thread(thing)
-      "user" -> assert_user(thing)
+      "Collection" -> assert_collection(thing)
+      "Community" -> assert_community(thing)
+      "Thread" -> assert_thread(thing)
+      "User" -> assert_user(thing)
     end
   end
   def assert_like_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "comment" -> assert_comment(thing)
-      "resource" -> assert_resource(thing)
-      "user" -> assert_user(thing)
+      "Collection" -> assert_collection(thing)
+      "Comment" -> assert_comment(thing)
+      "Resource" -> assert_resource(thing)
+      "User" -> assert_user(thing)
     end
   end
   def assert_tagging_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "comment" -> assert_comment(thing)
-      "community" -> assert_community(thing)
-      "resource" -> assert_resource(thing)
-      "thread" -> assert_thread(thing)
-      "user" -> assert_user(thing)
+      "Collection" -> assert_collection(thing)
+      "Comment" -> assert_comment(thing)
+      "Community" -> assert_community(thing)
+      "Resource" -> assert_resource(thing)
+      "Thread" -> assert_thread(thing)
+      "User" -> assert_user(thing)
     end
   end
   def assert_activity_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
-      "collection" -> assert_collection(thing)
-      "comment" -> assert_comment(thing)
-      "community" -> assert_community(thing)
-      "resource" -> assert_resource(thing)
+      "Collection" -> assert_collection(thing)
+      "Comment" -> assert_comment(thing)
+      "Community" -> assert_community(thing)
+      "Resource" -> assert_resource(thing)
+    end
+  end
+  def assert_thread_context(thing) do
+    assert %{"__typename" => type} = thing
+    case type do
+      "Collection" -> assert_collection(thing)
+      "Community" -> assert_community(thing)
+      "Flag" -> assert_flag(thing)
+      "Resource" -> assert_resource(thing)
     end
   end
 

@@ -10,9 +10,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def outbox(_, args, info) do
-    count = Fake.pos_integer()
-    activities = Fake.long_list(&Fake.activity/0)
-    {:ok, GraphQL.node_list(activities, count)}
+    {:ok, Fake.long_edge_list(&Fake.activity/0)}
     |> GraphQL.response(info)
   end
 

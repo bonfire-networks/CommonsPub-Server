@@ -10,9 +10,12 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   alias MoodleNet.Comments.Comment
   alias MoodleNet.Resources.Resource
   alias MoodleNetWeb.GraphQL.{
+    CollectionsResolver,
     CommonResolver,
+    CommentsResolver,
     CommunitiesResolver,
     LocalisationResolver,
+    UsersResolver,
   }
 
   object :communities_queries do
@@ -98,7 +101,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "The user who created the community"
     field :creator, :user do
-      resolve &CommonResolver.creator/3
+      resolve &UsersResolver.creator/3
     end
 
     @desc "The communities a user has joined, most recently joined first"

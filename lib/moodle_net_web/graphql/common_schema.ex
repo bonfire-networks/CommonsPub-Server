@@ -26,18 +26,18 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       arg :like_id, non_null(:string)
       resolve &CommonResolver.like/2
     end
-    field :tag, :tag do
-      arg :tag_id, non_null(:string)
-      resolve &CommonResolver.tag/2
-    end
-    field :tag_category, :tag_category do
-      arg :tag_category_id, non_null(:string)
-      resolve &CommonResolver.tag_category/2
-    end
-    field :tagging, :tagging do
-      arg :tagging_id, non_null(:string)
-      resolve &CommonResolver.tagging/2
-    end
+    # field :tag, :tag do
+    #   arg :tag_id, non_null(:string)
+    #   resolve &CommonResolver.tag/2
+    # end
+    # field :tag_category, :tag_category do
+    #   arg :tag_category_id, non_null(:string)
+    #   resolve &CommonResolver.tag_category/2
+    # end
+    # field :tagging, :tagging do
+    #   arg :tagging_id, non_null(:string)
+    #   resolve &CommonResolver.tagging/2
+    # end
   end
 
   object :common_mutations do
@@ -98,13 +98,13 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :created_at, :string
 
     @desc "The user who followed"
-    field :follower, :user do
+    field :creator, :user do
       resolve &UsersResolver.user/3
     end
 
     @desc "The thing that is being followed"
-    field :followed, :follow_context do
-      resolve &CommonResolver.followed/3
+    field :context, :follow_context do
+      resolve &CommonResolver.context/3
     end
   end
 
@@ -121,7 +121,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   object :follows_edges do
     field :page_info, non_null(:page_info)
-    field :nodes, list_of(:follows_edge)
+    field :edges, list_of(:follows_edge)
     field :total_count, non_null(:integer)
   end
 
@@ -153,12 +153,12 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :updated_at, :string
 
     @desc "The user who flagged"
-    field :flagger, :user do
+    field :creator, :user do
       resolve &UsersResolver.creator/3
     end
 
     @desc "The thing that is being flagged"
-    field :flagged, :flag_context do
+    field :context, :flag_context do
       resolve &CommonResolver.context/3
     end
 
@@ -213,12 +213,12 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :created_at, :string
 
     @desc "The user who liked"
-    field :liker, :user do
+    field :creator, :user do
       resolve &UsersResolver.user/3
     end
 
     @desc "The thing that is liked"
-    field :liked, :like_context do
+    field :context, :like_context do
       resolve &CommonResolver.context/3
     end
   end
@@ -245,155 +245,49 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :node, :like
   end
 
-  @desc "A category is a grouping mechanism for tags"
-  object :tag_category do
-    @desc "An instance-local UUID identifying the category"
-    field :id, :string
-    @desc "A url for the category, may be to a remote instance"
-    field :canonical_url, :string
+  # @desc "A category is a grouping mechanism for tags"
+  # object :tag_category do
+  #   @desc "An instance-local UUID identifying the category"
+  #   field :id, :string
+  #   @desc "A url for the category, may be to a remote instance"
+  #   field :canonical_url, :string
 
-    @desc "The name of the tag category"
-    field :name, :string
+  #   @desc "The name of the tag category"
+  #   field :name, :string
 
-    @desc "Whether the like is local to the instance"
-    field :is_local, :boolean
-    @desc "Whether the like is public"
-    field :is_public, :boolean
+  #   @desc "Whether the like is local to the instance"
+  #   field :is_local, :boolean
+  #   @desc "Whether the like is public"
+  #   field :is_public, :boolean
 
-    @desc "When the like was created"
-    field :created_at, :string
+  #   @desc "When the like was created"
+  #   field :created_at, :string
 
-    # @desc "The current user's follow of the category, if any"
-    # field :my_follow, :follow do
-    #   resolve &CommonResolver.my_follow/3
-    # end
+  #   # @desc "The current user's follow of the category, if any"
+  #   # field :my_follow, :follow do
+  #   #   resolve &CommonResolver.my_follow/3
+  #   # end
 
-    @desc "The tags in the category, most recently created first"
-    field :tags, :tags_edges do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommonResolver.category_tags/3
-    end
+  #   @desc "The tags in the category, most recently created first"
+  #   field :tags, :tags_edges do
+  #     arg :limit, :integer
+  #     arg :before, :string
+  #     arg :after, :string
+  #     resolve &CommonResolver.category_tags/3
+  #   end
 
-  end
+  # end
 
-  object :tag_categories_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:tag_categories_edge)
-    field :total_count, non_null(:integer)
-  end
+  # object :tag_categories_edges do
+  #   field :page_info, non_null(:page_info)
+  #   field :edges, list_of(:tag_categories_edge)
+  #   field :total_count, non_null(:integer)
+  # end
 
-  object :tag_categories_edge do
-    field :cursor, non_null(:string)
-    field :node, :tag_category
-  end
+  # object :tag_categories_edge do
+  #   field :cursor, non_null(:string)
+  #   field :node, :tag_category
+  # end
 
-  @desc "A tag is a general mechanism for semantic grouping"
-  object :tag do
-    @desc "An instance-local UUID identifying the tag"
-    field :id, :string
-    @desc "A url for the tag, may be to a remote instance"
-    field :canonical_url, :string
-
-    @desc "The name of the tag"
-    field :name, :string
-
-    @desc "Whether the like is local to the instance"
-    field :is_local, :boolean
-    @desc "Whether the like is public"
-    field :is_public, :boolean
-
-    @desc "When the like was created"
-    field :created_at, :string
-
-    @desc "The current user's follow of the tag, if any"
-    field :my_follow, :follow do
-      resolve &CommonResolver.my_follow/3
-    end
-
-    @desc "The category the tag belongs to"
-    field :category, :tag_category do
-      resolve &CommonResolver.tag_category/3
-    end
-
-    @desc "Taggings from users, most recent first"
-    field :tagged, :taggings_edges do
-      resolve &CommonResolver.tag_tagged/3
-    end
-    
-  end
-
-  object :tags_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:tag)
-    field :total_count, non_null(:integer)
-  end
-
-  object :tags_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:tags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :tags_edge do
-    field :cursor, non_null(:string)
-    field :node, :tag
-  end
-
-  @desc "One of these is created when a user tags something"
-  object :tagging do
-    @desc "An instance-local UUID identifying the tagging"
-    field :id, :string
-    @desc "A url for the tagging, may be to a remote instance"
-    field :canonical_url, :string
-
-    @desc "Whether the like is local to the instance"
-    field :is_local, :boolean
-    @desc "Whether the like is public"
-    field :is_public, :boolean
-
-    @desc "When the like was created"
-    field :created_at, :string
-
-    @desc "The user who tagged"
-    field :tagger, :user do
-      resolve &UsersResolver.user/3
-    end
-
-    @desc "The tag being used"
-    field :tag, :tag do
-      resolve &CommonResolver.tag/3
-    end
-
-    @desc "The tagged object"
-    field :tagged, :tagging_context do
-      resolve &CommonResolver.tagged/3
-    end
-  end
-
-  union :tagging_context do
-    description "A thing which can be tagged"
-    types [:collection, :comment, :community, :resource, :thread, :user]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Comment{},    _ -> :comment
-      %Community{},  _ -> :community
-      %Resource{},   _ -> :resource
-      %Thread{},     _ -> :thread
-      %User{},       _ -> :user
-    end
-  end
-
-  object :taggings_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:taggings_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :taggings_edge do
-    field :cursor, non_null(:string)
-    field :node, :tagging
-  end
 
 end

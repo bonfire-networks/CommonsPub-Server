@@ -136,13 +136,13 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
       resolve &CommonResolver.flags/3
     end
 
-    @desc "Tags users have applied to the resource, most recently created first"
-    field :tags, :taggings_edges do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommonResolver.tags/3
-    end
+    # @desc "Tags users have applied to the resource, most recently created first"
+    # field :tags, :taggings_edges do
+    #   arg :limit, :integer
+    #   arg :before, :string
+    #   arg :after, :string
+    #   resolve &CommonResolver.tags/3
+    # end
 
   end
 

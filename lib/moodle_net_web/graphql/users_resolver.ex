@@ -36,6 +36,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     |> GraphQL.response(info)
     # GraphQL.response(Users.fetch(id), info)
   end
+  def user(_, _, info) do
+    {:ok, Fake.user()}
+    |> GraphQL.response(info)
+    # GraphQL.response(Users.fetch(id), info)
+  end
 
   # def user(%Activity{}=activity, _, info)
   # def user(%Like{}=like, _, info)
@@ -143,22 +148,31 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     # with {:ok, activities, count} <- Users.outbox(user) do
     #   {:ok, GraphQL.edge_list(activities, count)
     # end
-    activities = Fake.long_list(&Fake.activity/0)
-    count = Fake.pos_integer()
-    {:ok, GraphQL.edge_list(activities, count)}
+    {:ok, Fake.long_edge_list(&Fake.activity/0)}
     |> GraphQL.response(info)    
   end
 
   def followed_communities(_,_,info) do
-    follows = Fake.long_list(&Fake.follow/0)
-    count = Fake.pos_integer()
-    {:ok, GraphQL.edge_list(follows, count)}
+    {:ok, Fake.long_edge_list(&Fake.community_follow/0)}
     |> GraphQL.response(info)    
   end
   def followed_collections(_,_,info) do
-    follows = Fake.long_list(&Fake.follow/0)
-    count = Fake.pos_integer()
-    {:ok, GraphQL.edge_list(follows, count)}
+    {:ok, Fake.long_edge_list(&Fake.collection_follow/0)}
     |> GraphQL.response(info)    
   end
+  def followed_users(_,_,info) do
+    {:ok, Fake.long_edge_list(&Fake.user_follow/0)}
+    |> GraphQL.response(info)    
+  end
+
+  def creator(_,_,info) do
+    {:ok, Fake.user()}
+    |> GraphQL.response(info)
+  end
+
+  def last_activity(_,_,info) do
+    {:ok, Fake.past_datetime()}
+    |> GraphQL.response(info)
+  end
+    
 end

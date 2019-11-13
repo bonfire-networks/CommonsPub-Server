@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   alias MoodleNetWeb.GraphQL.{
     ActivitiesResolver,
     CollectionsResolver,
+    UsersResolver,
   }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
@@ -15,6 +16,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
   object :activities_queries do
     field :activity, :activity do
+      arg :activity_id, non_null(:string)
       resolve &ActivitiesResolver.activity/2
     end
   end
@@ -70,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
   object :activities_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:activity)
+    field :edges, list_of(:activities_edge)
     field :total_count, non_null(:integer)
   end
 
