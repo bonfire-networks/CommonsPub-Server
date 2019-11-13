@@ -8,7 +8,73 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.CommonResolver
+  alias MoodleNetWeb.GraphQL.{
+    CommonResolver,
+    UsersResolver,
+  }
+
+  object :common_queries do
+    field :flag, :flag do
+      arg :flag_id, non_null(:string)
+      resolve &CommonResolver.flag/2
+    end
+    field :follow, :follow do
+      arg :follow_id, non_null(:string)
+      resolve &CommonResolver.follow/2
+    end
+    field :like, :like do
+      arg :like_id, non_null(:string)
+      resolve &CommonResolver.like/2
+    end
+    field :tag, :tag do
+      arg :tag_id, non_null(:string)
+      resolve &CommonResolver.tag/2
+    end
+    field :tag_category, :tag_category do
+      arg :tag_category_id, non_null(:string)
+      resolve &CommonResolver.tag_category/2
+    end
+    field :tagging, :tagging do
+      arg :tagging_id, non_null(:string)
+      resolve &CommonResolver.tagging/2
+    end
+  end
+
+  object :common_mutations do
+
+    @desc "Flag a user, community, collection, resource or comment, returning a flag id"
+    field :create_flag, type: :flag do
+      arg :context_id, non_null(:string)
+      arg :message, non_null(:string)
+      resolve &CommonResolver.create_flag/2
+    end
+
+    @desc "Follow a community, collection or thread returning a follow id"
+    field :create_follow, :follow do
+      arg :context_id, non_null(:string)
+      resolve &CommonResolver.create_follow/2
+    end
+
+    @desc "Like a comment, collection, or resource returning a like id"
+    field :create_like, :like do
+      arg :context_id, non_null(:string)
+      resolve &CommonResolver.create_like/2
+    end
+
+    # @desc "Tag something, returning a tagging id"
+    # field :tag, :tagging do
+    #   arg :context_id, non_null(:string)
+    #   arg :tag_id, non_null(:string)
+    #   resolve &CommonResolver.create_tagging/2
+    # end
+
+    @desc "Delete more or less anything"
+    field :delete, :boolean do
+      arg :context_id, non_null(:string)
+      resolve &CommonResolver.delete/2
+    end
+
+  end
 
   @desc "Cursors for pagination"
   object :page_info do
@@ -88,12 +154,12 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who flagged"
     field :flagger, :user do
-      resolve &CommonResolver.flag_flagger/3
+      resolve &UsersResolver.creator/3
     end
 
     @desc "The thing that is being flagged"
     field :flagged, :flag_context do
-      resolve &CommonResolver.flag_flagged/3
+      resolve &CommonResolver.context/3
     end
 
     # @desc "An optional thread to discuss the flag"
@@ -180,9 +246,11 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   end
 
   @desc "A category is a grouping mechanism for tags"
-  object :category do
+  object :tag_category do
     @desc "An instance-local UUID identifying the category"
     field :id, :string
+    @desc "A url for the category, may be to a remote instance"
+    field :canonical_url, :string
 
     @desc "The name of the tag category"
     field :name, :string
@@ -210,21 +278,24 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   end
 
-  object :categories_edges do
+  object :tag_categories_edges do
     field :page_info, non_null(:page_info)
-    field :edges, list_of(:categories_edge)
+    field :edges, list_of(:tag_categories_edge)
     field :total_count, non_null(:integer)
   end
 
-  object :categories_edge do
+  object :tag_categories_edge do
     field :cursor, non_null(:string)
-    field :node, :category
+    field :node, :tag_category
   end
 
   @desc "A tag is a general mechanism for semantic grouping"
   object :tag do
     @desc "An instance-local UUID identifying the tag"
     field :id, :string
+    @desc "A url for the tag, may be to a remote instance"
+    field :canonical_url, :string
+
     @desc "The name of the tag"
     field :name, :string
 
@@ -242,7 +313,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
 
     @desc "The category the tag belongs to"
-    field :category, :category do
+    field :category, :tag_category do
       resolve &CommonResolver.tag_category/3
     end
 
@@ -274,6 +345,8 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :tagging do
     @desc "An instance-local UUID identifying the tagging"
     field :id, :string
+    @desc "A url for the tagging, may be to a remote instance"
+    field :canonical_url, :string
 
     @desc "Whether the like is local to the instance"
     field :is_local, :boolean
@@ -321,42 +394,6 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :taggings_edge do
     field :cursor, non_null(:string)
     field :node, :tagging
-  end
-
-  object :common_mutations do
-
-    @desc "Flag a user, community, collection, resource or comment, returning a flag id"
-    field :flag, type: :flag do
-      arg :context_id, non_null(:string)
-      arg :message, non_null(:string)
-      resolve &CommonResolver.create_flag/2
-    end
-
-    @desc "Follow a community, collection or thread returning a follow id"
-    field :follow, :follow do
-      arg :context_id, non_null(:string)
-      resolve &CommonResolver.create_follow/2
-    end
-
-    @desc "Like a comment, collection, or resource returning a like id"
-    field :like, :like do
-      arg :context_id, non_null(:string)
-      resolve &CommonResolver.create_like/2
-    end
-
-    # @desc "Tag something, returning a tagging id"
-    # field :tag, :tagging do
-    #   arg :context_id, non_null(:string)
-    #   arg :tag_id, non_null(:string)
-    #   resolve &CommonResolver.create_tagging/2
-    # end
-
-    @desc "Delete more or less anything"
-    field :delete, :boolean do
-      arg :context_id, non_null(:string)
-      resolve &CommonResolver.delete/2
-    end
-
   end
 
 end

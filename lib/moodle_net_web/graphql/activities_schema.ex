@@ -13,6 +13,12 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
+  object :activities_queries do
+    field :activity, :activity do
+      resolve &ActivitiesResolver.activity/2
+    end
+  end
+
   @desc "An event that appears in a feed"
   object :activity do
     @desc "An instance-local UUID identifying the activity"

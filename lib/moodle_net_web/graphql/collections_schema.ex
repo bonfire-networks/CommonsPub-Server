@@ -8,8 +8,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
     CollectionsResolver,
+    CommunitiesResolver,
     CommonResolver,
     LocalisationResolver,
+    UsersResolver,
   }
 
   object :collections_queries do
@@ -70,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Whether the collection is public"
     field :is_public, :boolean
     @desc "Whether an instance admin has hidden the collection"
-    field :is_hidden, :boolean
+    field :is_disabled, :boolean
 
     @desc "When the collection was created"
     field :created_at, :string

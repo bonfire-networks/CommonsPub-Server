@@ -86,7 +86,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "Whether the community is public"
     field :is_public, :boolean
     @desc "Whether an instance admin has hidden the resource"
-    field :is_hidden, :boolean
+    field :is_disabled, :boolean
 
     @desc "When the collection was created"
     field :created_at, :string

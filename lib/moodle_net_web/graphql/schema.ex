@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   use Absinthe.Schema
   alias MoodleNetWeb.GraphQL.{
     ActivitiesSchema,
+    AdminSchema,
     CollectionsSchema,
     CommentsSchema,
     CommonSchema,
@@ -19,6 +20,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   }
 
   import_types ActivitiesSchema
+  import_types AdminSchema
   import_types CollectionsSchema
   import_types CommentsSchema
   import_types CommonSchema
@@ -31,8 +33,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UsersSchema
 
   query do
+    import_fields :activities_queries
     import_fields :collections_queries
     import_fields :comments_queries
+    import_fields :common_queries
     import_fields :communities_queries
     import_fields :instance_queries
     import_fields :localisation_queries
@@ -42,6 +46,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
   mutation do
+    import_fields :admin_mutations
     import_fields :collections_mutations
     import_fields :comments_mutations
     import_fields :common_mutations

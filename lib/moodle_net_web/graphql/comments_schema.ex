@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   alias MoodleNetWeb.GraphQL.{
     CommentsResolver,
     CommonResolver,
+    UsersResolver,
   }
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
@@ -163,12 +164,12 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The user who created this comment"
     field :creator, :user do
-      resolve &CommonResolver.creator/3
+      resolve &UsersResolver.creator/3
     end
 
     @desc "The thread this comment is part of"
     field :thread, :thread do
-      resolve &CommentsResolver.fetch/3
+      resolve &CommentsResolver.thread/3
     end
 
     @desc "Users who like the comment, most recently liked first"

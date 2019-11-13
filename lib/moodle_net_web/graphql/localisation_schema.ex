@@ -29,10 +29,12 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
 
   object :language do
     field :id, :string
-    @desc "2-letter ISO code"
-    field :iso_code, :string
+    field :iso_code2, :string
+    field :iso_code3, :string
     field :english_name, :string
     field :local_name, :string
+    field :created_at, :string
+    field :updated_at, :string
   end
 
   object :languages_nodes do
@@ -54,10 +56,12 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
 
   object :country do
     field :id, :string
-    @desc "2-letter ISO code"
-    field :iso_code, :string
+    field :iso_code2, :string
+    field :iso_code3, :string
     field :english_name, :string
     field :local_name, :string
+    field :created_at, :string
+    field :updated_at, :string
   end
 
   object :countries_nodes do
