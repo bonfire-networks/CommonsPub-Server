@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   def upload_query(parent, file) do
     query = """
     mutation {
-      upload(contextId: \"#{parent.id}\", file: \"file\")
+      uploadFile(contextId: \"#{parent.id}\", file: \"file\")
     }
     """
 
