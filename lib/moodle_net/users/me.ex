@@ -6,5 +6,4 @@ defmodule MoodleNet.Users.Me do
   defstruct @enforce_keys
 
   def new(user), do: %__MODULE__{user: user}
-
 end

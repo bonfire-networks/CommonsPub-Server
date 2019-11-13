@@ -11,30 +11,29 @@ defmodule MoodleNet.Users.LocalUser do
   alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
 
   standalone_schema "mn_local_user" do
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_hash, :string
-    field :wants_email_digest, :boolean
-    field :wants_notifications, :boolean
-    field :is_instance_admin, :boolean, default: false
-    field :is_confirmed, :boolean, virtual: true
-    field :confirmed_at, :utc_datetime_usec
-    field :deleted_at, :utc_datetime_usec
-    has_one :user, User
-    has_many :email_confirm_tokens, EmailConfirmToken
+    field(:email, :string)
+    field(:password, :string, virtual: true)
+    field(:password_hash, :string)
+    field(:wants_email_digest, :boolean)
+    field(:wants_notifications, :boolean)
+    field(:is_instance_admin, :boolean, default: false)
+    field(:is_confirmed, :boolean, virtual: true)
+    field(:confirmed_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
+    has_one(:user, User)
+    has_many(:email_confirm_tokens, EmailConfirmToken)
     timestamps(inserted_at: :created_at)
   end
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(email password wants_email_digest wants_notifications is_public)a
-  @register_required_attrs ~w(email password is_public)a
+  @register_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+  @register_required_attrs ~w(email password)a
 
   @doc "Create a changeset for registration"
   def register_changeset(attrs) do
     %LocalUser{}
     |> Changeset.cast(attrs, @register_cast_attrs)
-    |> Changeset.change(is_public: true)
     |> Changeset.validate_required(@register_required_attrs)
     |> common_changeset()
   end
@@ -49,7 +48,7 @@ defmodule MoodleNet.Users.LocalUser do
     Changeset.change(user, confirmed_at: nil)
   end
 
-  @update_cast_attrs ~w(email password wants_email_digest wants_notifications is_public)a
+  @update_cast_attrs ~w(email password wants_email_digest wants_notifications)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%LocalUser{} = user, attrs) do
@@ -57,9 +56,11 @@ defmodule MoodleNet.Users.LocalUser do
     |> Changeset.cast(attrs, @update_cast_attrs)
     |> common_changeset()
   end
-  
+
   @instance_admin_update_cast_attrs [
-    :is_instance_admin, :is_confirmed, :is_public, :is_disabled,
+    :is_instance_admin,
+    :is_confirmed,
+    :is_disabled
   ]
 
   def instance_admin_update_changeset(%LocalUser{} = user, attrs) do
@@ -67,15 +68,14 @@ defmodule MoodleNet.Users.LocalUser do
     |> Changeset.cast(attrs, @instance_admin_update_cast_attrs)
     |> common_changeset()
   end
-  
 
-  def make_instance_admin_changeset(%User{}=user) do
+  def make_instance_admin_changeset(%User{} = user) do
     user
     |> Changeset.cast(%{}, [])
     |> Changeset.change(is_instance_admin: true)
   end
 
-  def unmake_instance_admin_changeset(%User{}=user) do
+  def unmake_instance_admin_changeset(%User{} = user) do
     user
     |> Changeset.cast(%{}, [])
     |> Changeset.change(is_instance_admin: false)
@@ -104,5 +104,4 @@ defmodule MoodleNet.Users.LocalUser do
     do: Changeset.change(ch, password_hash: Argon2.hash_pwd_salt(pass))
 
   defp hash_password(changeset), do: changeset
-
 end

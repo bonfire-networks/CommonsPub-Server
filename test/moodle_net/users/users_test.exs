@@ -7,93 +7,94 @@ defmodule MoodleNet.UsersTest do
   import MoodleNet.Test.Faking
   alias Ecto.Changeset
   alias MoodleNet.{Users, Access}
+
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
-    User,
+    User
   }
+
   alias MoodleNet.Access.NoAccessError
   alias MoodleNet.Test.Fake
 
   describe "register/1" do
-
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
-        attrs = Fake.actor(Fake.user())
+        attrs = Fake.user()
         assert {:ok, user} = Users.register(attrs, public_registration: true)
-	
-	assert user.actor.preferred_username == attrs.preferred_username
-	assert user.actor.alias_id == user.id
-        assert user.email == attrs.email
-        assert user.wants_email_digest == attrs.wants_email_digest
-        assert user.wants_notifications == attrs.wants_notifications
-	assert [token] = user.email_confirm_tokens
-	assert nil == token.confirmed_at
+
+        assert user.actor.preferred_username == attrs.preferred_username
+        assert user.local_user.email == attrs.email
+        assert user.local_user.wants_email_digest == attrs.wants_email_digest
+        assert user.local_user.wants_notifications == attrs.wants_notifications
+        assert [token] = user.email_confirm_tokens
+        assert nil == token.confirmed_at
       end)
     end
 
-    test "creates a user account with valid attrs when email whitelisted" do
+    test "creates a user account with valid attrs when email allowed" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-	assert {:ok, _} = Access.create_register_email(attrs.email)
+        assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
-	assert user.actor.preferred_username == attrs.preferred_username
-	assert user.actor.alias_id == user.id
-        assert user.email == attrs.email
-        assert user.wants_email_digest == attrs.wants_email_digest
-        assert user.wants_notifications == attrs.wants_notifications
-	assert [token] = user.email_confirm_tokens
-	assert nil == token.confirmed_at
+        assert user.name == attrs.name
+        assert user.actor.preferred_username == attrs.preferred_username
+        assert user.local_user.email == attrs.email
+        assert user.local_user.wants_email_digest == attrs.wants_email_digest
+        assert user.local_user.wants_notifications == attrs.wants_notifications
+        assert [token] = user.email_confirm_tokens
+        assert nil == token.confirmed_at
       end)
     end
 
-    test "creates a user account with valid attrs when domain whitelisted" do
+    test "creates a user account with valid attrs when domain is denied" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-	[_,domain] = String.split(attrs.email, "@", parts: 2)
-	assert {:ok, _} = Access.create_register_email_domain(domain)
+        [_, domain] = String.split(attrs.email, "@", parts: 2)
+        assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
-	assert user.actor.preferred_username == attrs.preferred_username
-	assert user.actor.alias_id == user.id
+        assert user.actor.preferred_username == attrs.preferred_username
+        assert user.actor.alias_id == user.id
         assert user.email == attrs.email
         assert user.wants_email_digest == attrs.wants_email_digest
         assert user.wants_notifications == attrs.wants_notifications
-	assert [token] = user.email_confirm_tokens
-	assert nil == token.confirmed_at
+        assert [token] = user.email_confirm_tokens
+        assert nil == token.confirmed_at
       end)
     end
 
     test "fails if the username is already taken" do
-      Repo.transaction fn ->
-	assert user = fake_user!()
+      Repo.transaction(fn ->
+        assert user = fake_user!()
+
         attrs =
           %{preferred_username: user.actor.preferred_username}
           |> Fake.user()
           |> Fake.actor()
-        assert {:error, %Changeset{} = error} =
-	  Users.register(attrs, public_registration: true)
-      end
+
+        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+      end)
     end
 
     test "fails if given invalid attributes" do
-      Repo.transaction fn ->
+      Repo.transaction(fn ->
         invalid_attrs = Map.delete(Fake.user(), :email)
         assert {:error, changeset} = Users.register(invalid_attrs, public_registration: true)
         assert Keyword.get(changeset.errors, :email)
-      end
+      end)
     end
 
-    test "fails if the user's email is not whitelisted - email whitelist" do
+    test "fails if the user's email is not denied - email allowed" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
+
         assert {:error, %NoAccessError{}} ==
-	        Users.WhitelistsTestregister(attrs, public_registration: false)
+                 Users.register(attrs, public_registration: false)
       end)
     end
   end
 
   describe "claim_confirm_email_token/2" do
-
     test "confirms a user's email" do
       assert user = fake_user!()
       assert [token] = user.email_confirm_tokens
@@ -105,8 +106,10 @@ defmodule MoodleNet.UsersTest do
       assert user = fake_user!()
       assert [token] = user.email_confirm_tokens
       assert then = DateTime.add(DateTime.utc_now(), 60 * 60 * 49, :second)
-      assert {:error, %TokenExpiredError{}=error} =
-	Users.claim_email_confirm_token(token.id, then)
+
+      assert {:error, %TokenExpiredError{} = error} =
+               Users.claim_email_confirm_token(token.id, then)
+
       assert error.token.id == token.id
       assert error.token.expires_at == token.expires_at
       assert error.token.inserted_at == token.inserted_at
@@ -117,37 +120,39 @@ defmodule MoodleNet.UsersTest do
       assert user = fake_user!()
       assert [token] = user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
-      assert {:error, %TokenAlreadyClaimedError{}=error} =
-	Users.claim_email_confirm_token(token.id)
+
+      assert {:error, %TokenAlreadyClaimedError{} = error} =
+               Users.claim_email_confirm_token(token.id)
+
       assert error.token.id == token.id
       assert error.token.expires_at == token.expires_at
       assert error.token.inserted_at == token.inserted_at
       assert error.token.user_id == user.id
     end
-
   end
+
   describe "confirm_email/1" do
     test "sets the confirmed date" do
       Repo.transaction(fn ->
-	assert user = fake_user!()
-	assert user.confirmed_at == nil
+        assert user = fake_user!()
+        assert user.confirmed_at == nil
         assert {:ok, user2} = Users.confirm_email(user)
-	assert %DateTime{} = user2.confirmed_at
-       end)
+        assert %DateTime{} = user2.confirmed_at
+      end)
     end
   end
 
   describe "unconfirm_email/1" do
     test "unsets the confirmed date" do
       Repo.transaction(fn ->
-	assert user = fake_user!()
-	assert user.confirmed_at == nil
+        assert user = fake_user!()
+        assert user.confirmed_at == nil
         assert {:ok, user2} = Users.confirm_email(user)
-	assert %DateTime{} = user2.confirmed_at
-	assert user.id == user2.id
-	assert {:ok, user3} = Users.unconfirm_email(user)
-	assert user3.confirmed_at == nil
-	assert timeless(user) == timeless(user3)
+        assert %DateTime{} = user2.confirmed_at
+        assert user.id == user2.id
+        assert {:ok, user3} = Users.unconfirm_email(user)
+        assert user3.confirmed_at == nil
+        assert timeless(user) == timeless(user3)
       end)
     end
   end

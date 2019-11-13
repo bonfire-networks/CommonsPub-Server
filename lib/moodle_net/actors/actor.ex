@@ -5,7 +5,7 @@ defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
-  alias MoodleNet.Actors.{Actor, ActorFollowerCount, ActorFollowingCount}
+  alias MoodleNet.Actors.{Actor, ActorFollowerCount}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Peers.Peer
@@ -16,7 +16,7 @@ defmodule MoodleNet.Actors.Actor do
 
   standalone_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer
-    # has_one :follower_count, ActorFollowerCount
+    has_one :follower_count, ActorFollowerCount
     # has_one :following_count, ActorFollowingCount
     field :preferred_username, :string
     field :canonical_url, :string
