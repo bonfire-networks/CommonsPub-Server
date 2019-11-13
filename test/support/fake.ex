@@ -152,6 +152,15 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
   end
 
+  def country(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
+  end
+
   def peer(base \\ %{}) do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
@@ -246,6 +255,7 @@ defmodule MoodleNet.Test.Fake do
 
   def collection_input(base \\ %{}) do
     base
+    |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
     |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
     |> Map.put_new_lazy("name", &name/0)
@@ -280,6 +290,7 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("educationalUse", &educational_use/0)
     # |> Map.put_new_lazy("timeRequired", &pos_integer/0)
     # |> Map.put_new_lazy("typicalAgeRange", &age_range/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
   end
 
   def thread(base \\ %{}) do
@@ -297,6 +308,7 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy("content", &paragraph/0)
   end
+
   def flag(base \\ %{}) do
     base
     |> Map.put_new_lazy(:message, &paragraph/0)
