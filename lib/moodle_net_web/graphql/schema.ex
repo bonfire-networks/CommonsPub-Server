@@ -52,7 +52,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :common_mutations
     import_fields :communities_mutations
     import_fields :resources_mutations
-    import_fields :users_mutations
+    import_fields :user_mutations
 
     # @desc "Fetch metadata from webpage"
     # field :fetch_web_metadata, type: :web_metadata do
