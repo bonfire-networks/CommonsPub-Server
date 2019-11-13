@@ -6,62 +6,67 @@ defmodule MoodleNet.Access do
   The access system allows MoodleNet to operate in a closed signup
   form where only accessed emails (or domains for emails) may sign up.
   """
-  
+
   alias Ecto.Changeset
-  alias MoodleNet.{Common, Repo}
+  alias MoodleNet.{Common, Repo, Meta}
   alias MoodleNet.Common.NotFoundError
+
   alias MoodleNet.Access.{
     NoAccessError,
     RegisterEmailAccess,
-    RegisterEmailDomainAccess,
+    RegisterEmailDomainAccess
   }
 
-  @type access :: RegisterEmailDomainAccess.t | RegisterEmailAccess.t
+  @type access :: RegisterEmailDomainAccess.t() | RegisterEmailAccess.t()
 
-  @spec create_register_email_domain(domain :: binary) :: \
-    {:ok, RegisterEmailDomainAccess.t} | {:error, Changeset.t}
+  @spec create_register_email_domain(domain :: binary) ::
+          {:ok, RegisterEmailDomainAccess.t()} | {:error, Changeset.t()}
   @doc "Permit registration with all emails at the provided domain"
   def create_register_email_domain(domain) do
-    %{domain: domain}
-    |> RegisterEmailDomainAccess.changeset()
-    |> Repo.insert()
+    Repo.transact_with(fn ->
+      Meta.point_to!(RegisterEmailDomainAccess)
+      |> RegisterEmailDomainAccess.create_changeset(%{domain: domain})
+      |> Repo.insert()
+    end)
   end
 
-  @spec create_register_email(email :: binary) :: \
-    {:ok, RegisterEmailAccess.t} | {:error, Changeset.t}
+  @spec create_register_email(email :: binary) ::
+          {:ok, RegisterEmailAccess.t()} | {:error, Changeset.t()}
   @doc "Permit registration with the provided email"
   def create_register_email(email) do
-    %{email: email}
-    |> RegisterEmailAccess.changeset()
-    |> Repo.insert()
+    Repo.transact_with(fn ->
+      Meta.point_to!(RegisterEmailAccess)
+      |> RegisterEmailAccess.create_changeset(%{email: email})
+      |> Repo.insert()
+    end)
   end
 
-  @spec list_register_emails() :: [RegisterEmailAccess.t]
+  @spec list_register_emails() :: [RegisterEmailAccess.t()]
   @doc "Retrieve all RegisterEmailAccess in the database"
   def list_register_emails(), do: Repo.all(RegisterEmailAccess)
 
-  @spec list_register_email_domains() :: [RegisterEmailDomainAccess.t]
+  @spec list_register_email_domains() :: [RegisterEmailDomainAccess.t()]
   @doc "Retrieve all RegisterEmailDomainAccess in the database"
   def list_register_email_domains(), do: Repo.all(RegisterEmailDomainAccess)
 
-  @spec hard_delete(access) :: {:ok, access} | {:error, Changeset.t}
+  @spec hard_delete(access) :: {:ok, access} | {:error, Changeset.t()}
   @doc "Removes a access entry from the database"
-  def hard_delete(%RegisterEmailDomainAccess{}=w), do: Common.hard_delete(w)
-  def hard_delete(%RegisterEmailAccess{}=w), do: Common.hard_delete(w)
+  def hard_delete(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete(w)
+  def hard_delete(%RegisterEmailAccess{} = w), do: Common.hard_delete(w)
 
   @spec hard_delete!(access) :: access
   @doc "Removes a access entry from the database or throws DeletionError"
-  def hard_delete!(%RegisterEmailDomainAccess{}=w), do: Common.hard_delete!(w)
-  def hard_delete!(%RegisterEmailAccess{}=w), do: Common.hard_delete!(w)
+  def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete!(w)
+  def hard_delete!(%RegisterEmailAccess{} = w), do: Common.hard_delete!(w)
 
-  @spec find_register_email(email :: binary()) :: \
-    {:ok, RegisterEmailAccess.t} | {:error, NotFoundError.t}
+  @spec find_register_email(email :: binary()) ::
+          {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
   @doc "Looks up a RegisterEmailAccess by email"
   def find_register_email(email),
     do: find_response(email, Repo.get_by(RegisterEmailAccess, email: email))
 
-  @spec find_register_email_domain(domain :: binary()) :: \
-    {:ok, RegisterEmailDomainAccess.t} | {:error, NotFoundError.t}
+  @spec find_register_email_domain(domain :: binary()) ::
+          {:ok, RegisterEmailDomainAccess.t()} | {:error, NotFoundError.t()}
   @doc "Looks up a RegisterEmailDomainAccess by domain"
   def find_register_email_domain(domain),
     do: find_response(domain, Repo.get_by(RegisterEmailDomainAccess, domain: domain))
@@ -75,7 +80,8 @@ defmodule MoodleNet.Access do
     with {:error, _} <- find_register_email(email),
          {:error, _} <- find_register_email_domain(email_domain(email)) do
       false
-    else {:ok, _} -> true
+    else
+      {:ok, _} -> true
     end
   end
 
@@ -87,8 +93,7 @@ defmodule MoodleNet.Access do
   end
 
   defp email_domain(email) do
-    [_,domain] = String.split(email, "@", parts: 2)
+    [_, domain] = String.split(email, "@", parts: 2)
     domain
   end
-
 end

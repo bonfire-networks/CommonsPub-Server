@@ -12,6 +12,18 @@ defmodule MoodleNet.Common.Tagging do
   @type t :: %__MODULE__{}
 
   standalone_schema "mn_tagging" do
+
+  meta_schema "mn_tagging" do
+    belongs_to(:tag, Tag)
+    belongs_to(:tagger, User)
+    belongs_to(:tagged, Pointer)
+    field(:canonical_url, :string)
+    field(:name, :string)
+    field(:is_local, :boolean)
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
+    timestamps(inserted_at: :created_at)
   end
 
   # @create_cast ~w(is_public name)a
