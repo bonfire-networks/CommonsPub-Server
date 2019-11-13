@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_public: 1, validate_language_code: 2]
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
   alias Ecto.Changeset
   alias MoodleNet.Actors.{Actor, ActorFollowerCount, ActorFollowingCount}
   alias MoodleNet.Collections.Collection
@@ -20,15 +19,12 @@ defmodule MoodleNet.Actors.Actor do
     # has_one :follower_count, ActorFollowerCount
     # has_one :following_count, ActorFollowingCount
     field :preferred_username, :string
-    field :canonical_url, :text
+    field :canonical_url, :string
     field :signing_key, :string
     timestamps(inserted_at: :created_at)
   end
 
-  @create_cast [
-    :peer_id, :preferred_username, :signing_key, :user_id,
-    :remote_user_id, :community_id, :collection_id,
-  ]
+  @create_cast ~w(peer_id preferred_username canonical_url signing_key)a
   @create_required ~w(preferred_username)a
 
   @spec create_changeset(map) :: Changeset.t
@@ -36,31 +32,25 @@ defmodule MoodleNet.Actors.Actor do
   def create_changeset(attrs) do
     %Actor{}
     |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.change(is_public: true)
     |> Changeset.validate_required(@create_required)
     |> Changeset.validate_format(:preferred_username, @username_regex)
-    |> Changeset.unique_constraint(:alias_id)
     |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
     )
-    |> validate_language_code(:primary_language_id)
     |> Changeset.unique_constraint(:preferred_username, # without peer (local)
       name: "mn_actor_peer_id_null_index"
     )
-    |> change_public()
+    |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(alias_id signing_key primary_language_id)a
+  @update_cast ~w(peer_id preferred_username signing_key canonical_url)a
 
   @spec update_changeset(%Actor{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the given actor from the given attrs"
   def update_changeset(%Actor{} = actor, attrs) do
     actor
     |> Changeset.cast(attrs, @update_cast)
-    |> Changeset.unique_constraint(:alias_id)
-    |> validate_language_code(:primary_language_id)
     |> meta_pointer_constraint()
-    |> change_public()
   end
 
   def soft_delete_changeset(%Actor{} = actor),

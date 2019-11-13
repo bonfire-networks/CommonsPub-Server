@@ -55,8 +55,8 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   defp get_now(opts), do: Keyword.get(opts, :now) || DateTime.utc_now()
 
-  defp ensure_confirmed(%User{confirmed_at: nil}=user),
-    do: {:error, UserEmailNotConfirmedError.new(user)}
+  # defp ensure_confirmed(%User{confirmed_at: nil}=user),
+  #   do: {:error, UserEmailNotConfirmedError.new(user)}
 
   defp ensure_confirmed(_), do: :ok
 

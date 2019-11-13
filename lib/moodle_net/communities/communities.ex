@@ -52,7 +52,7 @@ defmodule MoodleNet.Communities do
 
   defp fetch_q(id) do
     from c in Community,
-      inner_join: a in Actor, on: c.id == a.alias_id,
+      inner_join: a in Actor, on: c.actor_id == a.id,
       where: a.id == ^id,
       where: not is_nil(c.published_at),
       where: not is_nil(a.published_at),
@@ -65,16 +65,16 @@ defmodule MoodleNet.Communities do
   @spec fetch_private(id :: binary) :: {:ok, Community.t} | {:error, NotFoundError.t}
   def fetch_private(id) when is_binary(id), do: Repo.fetch(Community, id)
 
-  @spec create(User.t, Actor.t, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
-  def create(%User{id: id}, %Actor{alias_id: alias_id} = creator, %{} = attrs)
-  when id == alias_id do
-    Repo.transact_with fn ->
-      with {:ok, comm} <- insert_community(creator, attrs),
-           {:ok, actor} <- Actors.create_with_alias(comm.id, attrs) do
-  	{:ok, %{ comm | actor: actor }}
-      end
-    end
-  end
+  # @spec create(User.t, Actor.t, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
+  # def create(%User{id: id}, %Actor{alias_id: alias_id} = creator, %{} = attrs)
+  # when id == alias_id do
+  #   Repo.transact_with fn ->
+  #     with {:ok, comm} <- insert_community(creator, attrs),
+  #          {:ok, actor} <- Actors.create_with_alias(comm.id, attrs) do
+  # 	{:ok, %{ comm | actor: actor }}
+  #     end
+  #   end
+  # end
 
   defp insert_community(creator, attrs) do
     Meta.point_to!(Community)

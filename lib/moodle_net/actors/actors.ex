@@ -35,33 +35,10 @@ defmodule MoodleNet.Actors do
       where: is_nil(a.deleted_at)
   end
 
-  defp fetch_alias_q(id) do
-    from a in Actor,
-      where: a.alias_id == ^id,
-      where: not is_nil(a.published_at),
-      where: is_nil(a.deleted_at)
-  end
-
-
   @doc "Fetches an actor by ID, ignoring whether if it is public or not."
   @spec fetch_private(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_private(id) when is_binary(id) do
     with {:ok, actor} <- Repo.fetch(Actor, id) do
-      {:ok, preload(actor)}
-    end
-  end
-
-  # TODO: one query
-  @spec fetch_by_alias(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_by_alias(alias_id) when is_binary(alias_id) do
-    with {:ok, actor} <- Repo.single(fetch_alias_q(alias_id)) do
-      {:ok, preload(actor)}
-    end
-  end
-
-  @spec fetch_by_alias(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_by_alias_private(alias_id) when is_binary(alias_id) do
-    with {:ok, actor} <- Repo.fetch_by(Actor, %{alias_id: alias_id}) do
       {:ok, preload(actor)}
     end
   end
@@ -91,12 +68,8 @@ defmodule MoodleNet.Actors do
   end
 
   def preload(actor) do
-    actor
-    |> Actor.inflate()
-    |> preload_current_revision()
+    Actor.inflate(actor)
   end
-
-  defp preload_current_revision(actor), do: Repo.preload(actor, :current)
 
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()
@@ -113,22 +86,8 @@ defmodule MoodleNet.Actors do
     Repo.transact_with(fn ->
       actor_pointer = Meta.point_to!(Actor)
 
-      with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)),
-           {:ok, revision} <- Revision.insert(ActorRevision, actor, attrs) do
-        actor = Actor.inflate(actor)
-        latest_revision = ActorLatestRevision.forge(revision)
-        {:ok, %Actor{actor | latest_revision: latest_revision, current: revision}}
-      end
-    end)
-  end
-
-  @spec create_with_alias(alias_id :: binary, attrs :: map) ::
-          {:ok, Actor.t()} :: {:error, Changeset.t()}
-  def create_with_alias(alias_id, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- create(attrs),
-           {:ok, actor} <- Repo.update(Changeset.change(actor, alias_id: alias_id)) do
-        {:ok, Actor.inflate(actor)}
+      with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)) do
+        {:ok, preload(actor)}
       end
     end)
   end
@@ -136,25 +95,22 @@ defmodule MoodleNet.Actors do
   @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
   def update(%Actor{} = actor, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)),
-           {:ok, revision} <- Revision.insert(ActorRevision, actor, attrs) do
-        actor = Actor.inflate(actor)
-        latest_revision = ActorLatestRevision.forge(revision)
-        {:ok, %Actor{actor | latest_revision: latest_revision, current: revision}}
+      with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)) do
+        {:ok, preload(actor)}
       end
     end)
   end
 
   def soft_delete(%Actor{} = actor) do
     with {:ok, actor} <- Repo.update(Actor.soft_delete_changeset(actor)) do
-      {:ok, Actor.inflate(actor)}
+      {:ok, preload(actor)}
     end
   end
 
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor) do
     with {:ok, actor} <- Repo.delete(actor) do
-      {:ok, Actor.inflate(actor)}
+      {:ok, preload(actor)}
     end
   end
 end
