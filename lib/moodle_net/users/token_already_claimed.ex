@@ -5,7 +5,7 @@ defmodule MoodleNet.Users.TokenAlreadyClaimedError do
   @enforce_keys [:token]
   defstruct @enforce_keys
 
-  @type t :: %__MODULE__{ token: term }
+  @type t :: %__MODULE__{token: term}
 
   @doc "Create a new TokenAlreadyClaimedError with the given token"
   @spec new(term) :: t
