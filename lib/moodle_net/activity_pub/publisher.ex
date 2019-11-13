@@ -60,4 +60,25 @@ defmodule MoodleNet.ActivityPub.Publisher do
       _e -> :error
     end
   end
+
+  def block(block) do
+    with {:ok, blocker} <- Actor.get_by_username(block.blocker.preferred_username),
+         {:ok, blocked} <- MoodleNet.Meta.follow(block.blocked),
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.preferred_username) do
+      # FIXME: insert pointer in AP database?
+      ActivityPub.block(blocker, blocked)
+    else
+      _e -> :error
+    end
+  end
+
+  def unblock(block) do
+    with {:ok, blocker} <- Actor.get_by_username(block.blocker.preferred_username),
+         {:ok, blocked} <- MoodleNet.Meta.follow(block.blocked),
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.preferred_username) do
+      ActivityPub.unblock(blocker, blocked)
+    else
+      _e -> :error
+    end
+  end
 end

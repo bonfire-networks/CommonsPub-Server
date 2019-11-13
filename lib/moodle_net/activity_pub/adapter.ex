@@ -90,6 +90,23 @@ defmodule MoodleNet.ActivityPub.Adapter do
     # TODO: need a context function to fetch an exisisting follow for this
   end
 
+  def handle_activity(%{data: %{"type" => "Block"}} = activity) do
+    # FIXME: way too many queries
+    with {:ok, ap_blocker} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
+         {:ok, ap_blocked} <- ActivityPub.Actor.get_by_ap_id(activity.data["object"]),
+         {:ok, blocker} <- Actors.fetch_by_username(ap_blocker.username),
+         {:ok, blocked} <- Actors.fetch_by_username(ap_blocked.username) do
+      MoodleNet.Common.block(blocker, blocked, %{is_public: true, is_muted: false, is_blocked: true})
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def handle_activity(%{data: %{"type" => "Undo", "object" => %{"type" => "Block"}}}) do
+    # TODO: need a context function to fetch an exisisting block for this
+  end
+
   def handle_activity(activity) do
     Logger.info("Unhandled activity type: #{activity.data["type"]}")
     :ok

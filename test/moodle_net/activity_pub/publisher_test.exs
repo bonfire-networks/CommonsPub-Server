@@ -56,4 +56,41 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:error, "account is private"} = Publisher.follow(follow)
     end
   end
+
+  describe "blocks" do
+    test "it federates a block of a remote actor" do
+      blocker = fake_actor!()
+      ap_blocked = actor()
+      {:ok, blocked} = MoodleNet.Actors.fetch_by_username(ap_blocked.username)
+
+      {:ok, block} =
+        MoodleNet.Common.block(blocker, blocked, %{
+          is_muted: false,
+          is_public: true,
+          is_blocked: false
+        })
+
+      assert {:ok, activity} = Publisher.block(block)
+      assert activity.data["to"] == [ap_blocked.ap_id]
+    end
+
+    test "it federate an unblock of a remote actor" do
+      blocker = fake_actor!()
+      ap_blocked = actor()
+      {:ok, blocked} = MoodleNet.Actors.fetch_by_username(ap_blocked.username)
+
+      {:ok, block} =
+        MoodleNet.Common.block(blocker, blocked, %{
+          is_muted: false,
+          is_public: true,
+          is_blocked: false
+        })
+
+      {:ok, block_activity} = Publisher.block(block)
+      {:ok, unblock} = MoodleNet.Common.delete_block(block)
+
+      assert {:ok, unblock_activity} = Publisher.unblock(unblock)
+      assert unblock_activity.data["object"]["id"] == block_activity.data["id"]
+    end
+  end
 end
