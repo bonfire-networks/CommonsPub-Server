@@ -13,20 +13,13 @@ defmodule MoodleNet.Actors do
 
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.{Actors, Meta, Repo}
-  alias MoodleNet.Actors.{Actor, ActorRevision, ActorLatestRevision}
-  alias MoodleNet.Common.Revision
+  alias MoodleNet.Actors.Actor
   alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
   @doc "Fetches an actor by id"
   @spec fetch(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch(id) when is_binary(id) do
-    Repo.transact_with fn ->
-      with {:ok, actor} <- Repo.single(fetch_q(id)) do
-        {:ok, preload(actor)}
-      end
-    end
-  end
+  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
 
   defp fetch_q(id) do
     from a in Actor,
@@ -37,19 +30,12 @@ defmodule MoodleNet.Actors do
 
   @doc "Fetches an actor by ID, ignoring whether if it is public or not."
   @spec fetch_private(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_private(id) when is_binary(id) do
-    with {:ok, actor} <- Repo.fetch(Actor, id) do
-      {:ok, preload(actor)}
-    end
-  end
+  def fetch_private(id) when is_binary(id), do: Repo.fetch(Actor, id)
 
-  # TODO: one query
   @doc "Fetches an actor by username"
   @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_by_username(username) when is_binary(username) do
-    with {:ok, actor} <- Repo.single(fetch_by_username_q(username)) do
-      {:ok, preload(actor)}
-    end
+    Repo.single(fetch_by_username_q(username))
   end
 
   defp fetch_by_username_q(username) do
@@ -67,10 +53,6 @@ defmodule MoodleNet.Actors do
       where: is_nil(a.peer_id)
   end
 
-  def preload(actor) do
-    Actor.inflate(actor)
-  end
-
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()
   def is_username_available?(username) when is_binary(username) do
@@ -83,35 +65,15 @@ defmodule MoodleNet.Actors do
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      actor_pointer = Meta.point_to!(Actor)
-
-      with {:ok, actor} <- Repo.insert(Actor.create_changeset(actor_pointer, attrs)) do
-        {:ok, preload(actor)}
-      end
-    end)
+    Repo.insert(Actor.create_changeset(attrs))
   end
 
   @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
   def update(%Actor{} = actor, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Repo.update(Actor.update_changeset(actor, attrs)) do
-        {:ok, preload(actor)}
-      end
-    end)
-  end
-
-  def soft_delete(%Actor{} = actor) do
-    with {:ok, actor} <- Repo.update(Actor.soft_delete_changeset(actor)) do
-      {:ok, preload(actor)}
-    end
+    Repo.update(Actor.update_changeset(actor, attrs))
   end
 
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
-  def delete(%Actor{} = actor) do
-    with {:ok, actor} <- Repo.delete(actor) do
-      {:ok, preload(actor)}
-    end
-  end
+  def delete(%Actor{} = actor), do: Repo.delete(actor)
 
 end

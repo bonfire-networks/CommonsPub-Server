@@ -53,7 +53,4 @@ defmodule MoodleNet.Actors.Actor do
     |> meta_pointer_constraint()
   end
 
-  # def soft_delete_changeset(%Actor{} = actor),
-  #   do: MoodleNet.Common.Changeset.soft_delete_changeset(actor)
-
 end
