@@ -139,6 +139,7 @@ defmodule MoodleNet.Test.Fake do
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
   def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def canonical_url(), do: "#{Faker.Internet.slug()}@#{Faker.Internet.url()}"
 
   # models
 
@@ -154,23 +155,19 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
   end
 
-  def actor_revision(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:name, &name/0)
-    |> Map.put_new_lazy(:summary, &summary/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
-  end
+  # def actor_revision(base \\ %{}) do
+  #   base
+  #   |> Map.put_new_lazy(:name, &name/0)
+  #   |> Map.put_new_lazy(:summary, &summary/0)
+  #   |> Map.put_new_lazy(:icon, &icon/0)
+  #   |> Map.put_new_lazy(:image, &image/0)
+  # end
 
   def actor(base \\ %{}) do
     base
     |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
-    |> Map.put_new_lazy(:location, &location/0)
-    |> Map.put_new_lazy(:website, &website/0)
-    |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:signing_key, &signing_key/0)
-    |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.merge(actor_revision(base))
   end
 
   def user(base \\ %{}) do
