@@ -12,28 +12,18 @@ defmodule MoodleNet.Resources do
     Repo.fetch(Resource, id)
   end
 
-  # @spec create(Collection.t(), Actor.t(), attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}
-  # def create(collection, creator, attrs) when is_map(attrs) do
-  #   Repo.transact_with(fn ->
-  #     pointer = Meta.point_to!(Resource)
+  @spec create(Collection.t(), Actor.t(), attrs :: map) :: {:ok, %Resource{}} | {:error, Changeset.t()}
+  def create(collection, creator, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      Meta.point_to!(Resource)
+      |> Resource.create_changeset(collection, creator, attrs)
+      |> Repo.insert()
+    end)
+  end
 
-  #     changeset = Resource.create_changeset(pointer, collection, creator, attrs)
-  #     with {:ok, resource} <- Repo.insert(changeset),
-  #          {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-  #       latest_revision = ResourceLatestRevision.forge(revision)
-  #       {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
-  #     end
-  #   end)
-  # end
+  @spec update(%Resource{}, attrs :: map) :: {:ok, %Resource{}} | {:error, %Changeset{}}
+  def update(%Resource{} = resource, attrs) when is_map(attrs) do
+    Repo.update(Repo.update_changeset(resource, attrs))
+  end
 
-  # @spec update(%Resource{}, attrs :: map) :: {:ok, %Resource{}} | {:error, %Changeset{}}
-  # def update(%Resource{} = resource, attrs) when is_map(attrs) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, resource} <- Repo.update(Resource.update_changeset(resource, attrs)),
-  #          {:ok, revision} <- Revision.insert(ResourceRevision, resource, attrs) do
-  #       latest_revision = ResourceLatestRevision.forge(revision)
-  #       {:ok, %Resource{resource | latest_revision: latest_revision, current: revision}}
-  #     end
-  #   end)
-  # end
 end

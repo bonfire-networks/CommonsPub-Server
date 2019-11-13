@@ -50,16 +50,16 @@ defmodule MoodleNet.Communities do
   #   end
   # end
 
-  # defp fetch_q(id) do
-  #   from c in Community,
-  #     inner_join: a in Actor, on: c.id == a.alias_id,
-  #     where: a.id == ^id,
-  #     where: not is_nil(c.published_at),
-  #     where: not is_nil(a.published_at),
-  #     where: is_nil(c.deleted_at),
-  #     where: is_nil(a.deleted_at),
-  #     select: {c,a}
-  # end
+  defp fetch_q(id) do
+    from c in Community,
+      inner_join: a in Actor, on: c.actor_id == a.id,
+      where: a.id == ^id,
+      where: not is_nil(c.published_at),
+      where: not is_nil(a.published_at),
+      where: is_nil(c.deleted_at),
+      where: is_nil(a.deleted_at),
+      select: {c,a}
+  end
 
   # @doc "Fetches a community by ID, ignoring whether it is public or not."
   # @spec fetch_private(id :: binary) :: {:ok, Community.t} | {:error, NotFoundError.t}

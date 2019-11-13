@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Actors.Actor do
   use MoodleNet.Common.Schema
-  # import MoodleNet.Common.Changeset,
-  #   only: [meta_pointer_constraint: 1, change_public: 1, validate_language_code: 2]
-  # alias Ecto.Changeset
-  # alias MoodleNet.Actors.{Actor, ActorFollowerCount, ActorFollowingCount}
-  # alias MoodleNet.Collections.Collection
-  # alias MoodleNet.Communities.Community
-  # alias MoodleNet.Peers.Peer
-  # alias MoodleNet.Users.User
+  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1]
+  alias Ecto.Changeset
+  alias MoodleNet.Actors.{Actor, ActorFollowerCount, ActorFollowingCount}
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Peers.Peer
+  alias MoodleNet.Users.User
 
   # # TODO: match the agreed rules
   # @username_regex ~r([a-zA-Z0-9]+)
@@ -25,43 +24,34 @@ defmodule MoodleNet.Actors.Actor do
     timestamps(inserted_at: :created_at)
   end
 
-  # @create_cast [
-  #   :peer_id, :preferred_username, :signing_key, :user_id,
-  #   :community_id, :collection_id,
-  # ]
-  # @create_required ~w(preferred_username)a
+  @create_cast ~w(peer_id preferred_username canonical_url signing_key)a
+  @create_required ~w(preferred_username)a
 
-  # @spec create_changeset(map) :: Changeset.t
-  # @doc "Creates a changeset for insertion from the given pointer and attrs"
-  # def create_changeset(attrs) do
-  #   %Actor{}
-  #   |> Changeset.cast(attrs, @create_cast)
-  #   |> Changeset.change(is_public: true)
-  #   |> Changeset.validate_required(@create_required)
-  #   |> Changeset.validate_format(:preferred_username, @username_regex)
-  #   |> Changeset.unique_constraint(:alias_id)
-  #   |> Changeset.unique_constraint(:preferred_username, # with peer
-  #     name: "mn_actor_preferred_username_peer_id_index"
-  #   )
-  #   |> validate_language_code(:primary_language_id)
-  #   |> Changeset.unique_constraint(:preferred_username, # without peer (local)
-  #     name: "mn_actor_peer_id_null_index"
-  #   )
-  #   |> change_public()
-  # end
+  @spec create_changeset(map) :: Changeset.t
+  @doc "Creates a changeset for insertion from the given pointer and attrs"
+  def create_changeset(attrs) do
+    %Actor{}
+    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_format(:preferred_username, @username_regex)
+    |> Changeset.unique_constraint(:preferred_username, # with peer
+      name: "mn_actor_preferred_username_peer_id_index"
+    )
+    |> Changeset.unique_constraint(:preferred_username, # without peer (local)
+      name: "mn_actor_peer_id_null_index"
+    )
+    |> meta_pointer_constraint()
+  end
 
-  # @update_cast ~w(alias_id signing_key primary_language_id)a
+  @update_cast ~w(peer_id preferred_username signing_key canonical_url)a
 
-  # @spec update_changeset(%Actor{}, map) :: Changeset.t()
-  # @doc "Creates a changeset for updating the given actor from the given attrs"
-  # def update_changeset(%Actor{} = actor, attrs) do
-  #   actor
-  #   |> Changeset.cast(attrs, @update_cast)
-  #   |> Changeset.unique_constraint(:alias_id)
-  #   |> validate_language_code(:primary_language_id)
-  #   |> meta_pointer_constraint()
-  #   |> change_public()
-  # end
+  @spec update_changeset(%Actor{}, map) :: Changeset.t()
+  @doc "Creates a changeset for updating the given actor from the given attrs"
+  def update_changeset(%Actor{} = actor, attrs) do
+    actor
+    |> Changeset.cast(attrs, @update_cast)
+    |> meta_pointer_constraint()
+  end
 
   # def soft_delete_changeset(%Actor{} = actor),
   #   do: MoodleNet.Common.Changeset.soft_delete_changeset(actor)

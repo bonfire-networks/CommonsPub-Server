@@ -183,7 +183,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   # end
 
   defp flaggable_entity(pointer) do
-    %Table{schema: table} = Meta.points_to!(pointer)
+    %Table{table: table} = Meta.points_to!(pointer)
     case table do
       Resource -> Meta.follow(pointer)
       Comment -> Meta.follow(pointer)
@@ -196,14 +196,14 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   defp followable_entity(pointer) do
-    %Table{schema: table} = Meta.points_to!(pointer)
+    %Table{table: table} = Meta.points_to!(pointer)
     case table do
       Collection -> Meta.follow(pointer)
       Thread -> Meta.follow(pointer)
       Actor ->
         with {:ok, actor} <- Meta.follow(pointer),
              {:ok, pointer2} <- Meta.find(actor.alias_id) do
-          %Table{schema: table2} = Meta.points_to!(pointer2)
+          %Table{table: table2} = Meta.points_to!(pointer2)
           case table2 do
             Community -> {:ok, actor}
             _ ->
@@ -218,7 +218,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   defp likeable_entity(pointer) do
-    %Table{schema: table} = Meta.points_to!(pointer)
+    %Table{table: table} = Meta.points_to!(pointer)
   end
 
   # def followed(%Follow{}=follow,_,info)
@@ -227,12 +227,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, true}
   end
 
-  # def tag(_, _, info) do
-  #   {:ok, Fake.tag()}
-  #   |> GraphQL.response(info)
-  # end
-
-  def context(%Follow{}=follow, _, info) do
+ def context(%Follow{}=follow, _, info) do
     case Map.get(follow, :context) do
       nil -> {:ok, Fake.follow_context()}
       context -> {:ok, context}
