@@ -168,10 +168,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   end
 
   input_object :community_input do
-    field :primary_language_id, non_null(:string)
+    field :preferred_username, non_null(:string)
+    field :primary_language_id, :string
     field :name, non_null(:string)
     field :summary, non_null(:string)
-    field :preferred_username, non_null(:string)
     field :icon, :string
     field :image, :string
   end
