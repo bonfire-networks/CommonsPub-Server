@@ -12,8 +12,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       comment = fake_comment!(actor, thread)
 
       assert {:ok, activity} = Publisher.comment(comment)
-      # This breaks currently
-      # assert activity.mn_pointer_id == comment.id
+      assert activity.object.mn_pointer_id == comment.id
     end
   end
 

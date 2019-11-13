@@ -13,7 +13,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "to" => to,
            "cc" => cc,
            "actor" => actor.ap_id,
-           "attributedTo" => actor.ap_id
+           "attributedTo" => actor.ap_id,
+           "type" => "Note"
          },
          params <- %{
            actor: actor,

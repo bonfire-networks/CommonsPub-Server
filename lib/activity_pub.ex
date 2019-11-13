@@ -18,7 +18,9 @@ defmodule ActivityPub do
   alias ActivityPub.Object
   alias MoodleNet.Repo
 
-  def maybe_forward_activity(%{data: %{"type" => "Create", "to" => to, "object" => object}} = activity) do
+  def maybe_forward_activity(
+        %{data: %{"type" => "Create", "to" => to, "object" => object}} = activity
+      ) do
     groups =
       to
       |> List.delete("https://www.w3.org/ns/activitystreams#Public")
@@ -49,11 +51,20 @@ defmodule ActivityPub do
     with map <- Utils.lazy_put_activity_defaults(map),
          {:ok, map, object} <- Utils.insert_full_object(map, pointer) do
       {:ok, activity} =
-        Repo.insert(%Object{
-          data: map,
-          local: local,
-          public: Utils.public?(map)
-        })
+        if is_nil(object) do
+          Object.insert(%{
+            data: map,
+            local: local,
+            public: Utils.public?(map),
+            mn_pointer_id: pointer
+          })
+        else
+          Object.insert(%{
+            data: map,
+            local: local,
+            public: Utils.public?(map)
+          })
+        end
 
       # Splice in the child object if we have one.
       activity =
