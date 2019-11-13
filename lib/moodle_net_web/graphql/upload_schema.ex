@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   object :upload_mutations do
     # TODO: return icon
     @desc "Upload an avatar (icon in ActivityPub). Returns the full image."
-    field :upload, type: :string do
+    field :upload_file, type: :string do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
       resolve(&UploadResolver.upload/2)
