@@ -19,13 +19,13 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Users.User
 
-  def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
+  def fake_register_email_domain_access!(domain \\ Fake.domain())
   when is_binary(domain) do
     {:ok, wl} = Access.create_register_email_domain(domain)
     wl
   end
 
-  def fake_register_email_whitelist!(email \\ Fake.email())
+  def fake_register_email_access!(email \\ Fake.email())
   when is_binary(email) do
     {:ok, wl} = Access.create_register_email(email)
     wl

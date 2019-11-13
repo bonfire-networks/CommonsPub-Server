@@ -4,7 +4,7 @@
 defmodule MoodleNet.Common.Tagging do
   use MoodleNet.Common.Schema
 
-  meta_schema "mn_tag_category" do
+  meta_schema "mn_tagging" do
     belongs_to(:tag, Tag)
     belongs_to(:tagger, User)
     belongs_to(:tagged, Pointer)
