@@ -7,10 +7,20 @@ defmodule ActivityPubWeb.PublisherTest do
   alias ActivityPub.Actor
   alias ActivityPubWeb.Publisher
   import ActivityPub.Factory
+  import Tesla.Mock
   use MoodleNet.DataCase
 
+  setup do
+    mock fn
+      %{method: :post} -> %Tesla.Env{status: 200}
+    end
+
+    :ok
+  end
+
   test "it publishes an activity" do
-    note_actor = actor()
+    note_actor = MoodleNet.Test.Faking.fake_actor!()
+    {:ok, note_actor} = Actor.get_by_username(note_actor.preferred_username)
     recipient_actor = actor()
 
     note =
@@ -26,5 +36,6 @@ defmodule ActivityPubWeb.PublisherTest do
     {:ok, actor} = Actor.get_by_ap_id(activity.data["actor"])
 
     assert :ok == Publisher.publish(actor, activity)
+    assert %{success: 1, failure: 0} = Oban.drain_queue(:federator_outgoing)
   end
 end

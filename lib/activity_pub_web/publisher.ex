@@ -69,7 +69,7 @@ defmodule ActivityPubWeb.Publisher do
   end
 
   def publish_one(%{actor_username: username} = params) do
-    actor = Actor.get_by_username(username)
+    {:ok, actor} = Actor.get_by_username(username)
 
     params
     |> Map.delete(:actor_username)
