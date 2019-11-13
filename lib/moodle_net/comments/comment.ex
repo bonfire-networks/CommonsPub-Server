@@ -4,22 +4,22 @@ defmodule MoodleNet.Comments.Comment do
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Revision
-  alias MoodleNet.Comments.{Comment, CommentRevision, CommentLatestRevision, Thread}
+  alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   meta_schema "mn_comment" do
-    belongs_to(:creator, Actor)
+    belongs_to(:creator, User)
     belongs_to(:thread, Thread)
-    # TODO: figure out if this is has_one or belongs_to
     belongs_to(:reply_to, Comment)
-    has_many(:revisions, CommentRevision)
-    has_one(:latest_revision, CommentLatestRevision)
-    has_one(:current, through: [:latest_revision, :revision])
+    field(:canonical_url, :string)
+    field(:is_local, :boolean)
+    field(:is_hidden, :boolean, virtual: true)
+    field(:hidden_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w()a

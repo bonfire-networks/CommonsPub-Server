@@ -22,26 +22,37 @@ defmodule MoodleNet.Common do
 
   ### pagination
 
-  @doc "Optionally paginates a query according to a user's request"
-  def paginate(query, opts) do
-    with {:ok, query} <- paginate_offset(query, opts[:offset] || opts["offset"]),
-      do: paginate_limit(query, opts[:limit] || opts["limit"])
+  def paginate(query, opts), do: query
+
+  def page_info(results) when is_list(results) do
+    case results do
+      [] -> %{start_cursor: "", end_cursor: ""}
+      [x] -> %{start_cursor: x.id, end_cursor: x.id}
+      [x | xs] -> %{start_cursor: x.id, end_cursor: List.last(xs).id}
+    end
   end
 
-  defp paginate_offset(query, nil), do: {:ok, query}
+  # @doc "Optionally paginates a query according to a user's request"
+  # def paginate(query, opts) do
+  # end
 
-  defp paginate_offset(query, offset)
-  when is_integer(offset) and offset >= 0, do: {:ok, offset(query, ^offset)}
+  # defp paginate_before(query, nil), do: {:ok, query}
 
-  defp paginate_offset(_, offset)
+  # defp paginate_before(query, offset)
+  # when is_integer(offset) and offset >= 0, do: {:ok, offset(query, ^offset)}
 
-  defp paginate_limit(query, nil), do: {:ok, query}
 
-  defp paginate_limit(query, limit)
-  when is_integer(limit) and limit >= 0 and limit <= 100,
-    do: {:ok, limit(query, ^limit)}
+  # defp paginate_before_q(query) do
+  #   where(q, [
+  # end
 
-  defp paginate_limit(query, limit)
+  # defp paginate_limit(query, nil), do: {:ok, query}
+
+  # defp paginate_limit(query, limit)
+  # when is_integer(limit) and limit >= 0 and limit <= 100,
+  #   do: {:ok, limit(query, ^limit)}
+
+  # defp paginate_limit(query, limit)
 
   ### liking
 
@@ -119,8 +130,8 @@ defmodule MoodleNet.Common do
   def flag(%Actor{} = flagger, flagged, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-	_ -> insert_flag(flagger, flagged, fields)
+  	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+  	_ -> insert_flag(flagger, flagged, fields)
       end
     end
   end
@@ -128,8 +139,8 @@ defmodule MoodleNet.Common do
   def flag(%Actor{} = flagger, flagged, community, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-	_ -> insert_flag(flagger, flagged, community, fields)
+  	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+  	_ -> insert_flag(flagger, flagged, community, fields)
       end
     end
   end
@@ -213,8 +224,8 @@ defmodule MoodleNet.Common do
   def follow(%Actor{} = follower, followed, fields) do
     Repo.transact_with fn ->
       case find_follow(follower, followed) do
-	{:ok, _} -> {:error, AlreadyFollowingError.new(followed.id)}
-	_ -> insert_follow(follower, followed, fields)
+  	{:ok, _} -> {:error, AlreadyFollowingError.new(followed.id)}
+  	_ -> insert_follow(follower, followed, fields)
       end
     end
   end

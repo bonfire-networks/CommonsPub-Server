@@ -143,4 +143,15 @@ defmodule MoodleNet.Common.Changeset do
         changeset
     end
   end
+
+  def validate_exactly_one(changeset, [column|_]=columns, message) do
+    sum = Enum.reduce(column, 0, fn field, acc ->
+      if is_nil(Changeset.get_field(changeset, field)),
+        do: acc,
+        else: acc + 1
+    end)
+    if sum == 1,
+      do: changeset,
+      else: Changeset.put_error(changeset, column, message)
+  end
 end

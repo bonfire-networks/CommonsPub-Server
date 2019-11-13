@@ -13,14 +13,16 @@ defmodule MoodleNet.Common.Follow do
   @type t :: %__MODULE__{}
 
   standalone_schema "mn_follow" do
-    belongs_to(:follower, Actor)
+    belongs_to(:follower, User)
     belongs_to(:followed, Pointer)
+    field(:canonical_url, :string)
+    field(:is_local, :boolean)
     field(:is_muted, :boolean, virtual: true)
     field(:muted_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @create_cast ~w(is_muted is_public)a

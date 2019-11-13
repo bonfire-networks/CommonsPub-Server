@@ -6,7 +6,7 @@ defmodule MoodleNet.Users do
   A Context for dealing with Users.
   """
   import Ecto.Query, only: [from: 2]
-  alias MoodleNet.{Actors, Common, Meta, Repo, Whitelists}
+  alias MoodleNet.{Access, Actors, Common, Meta, Repo}
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Common.NotFoundError
 
@@ -95,7 +95,7 @@ defmodule MoodleNet.Users do
 
   defp check_register_whitelist(email, opts) do
     if should_check_register_whitelist?(opts),
-      do: Whitelists.check_register_whitelist(email),
+      do: Access.check_register_whitelist(email),
       else: :ok
   end
 
@@ -198,6 +198,14 @@ defmodule MoodleNet.Users do
         {:ok, %User{user | actor: actor}}
       end
     end
+  end
+
+  def make_instance_admin(%User{}=user) do
+    Repo.update(User.make_instance_admin_changeset(user))
+  end
+
+  def unmake_instance_admin(%User{}=user) do
+    Repo.update(User.unmake_instance_admin_changeset(user))
   end
 
   def preload_actor(%User{} = user, opts),

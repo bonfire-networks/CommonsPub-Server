@@ -2,1088 +2,212 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsTest do
-  use MoodleNetWeb.ConnCase, async: true
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNet.Test.Faking
-  import MoodleNetWeb.Test.ConnHelpers
-  alias MoodleNet.Test.Fake
-  alias MoodleNet.{Actors, Localisation, Collections}
-  import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
-  import ActivityPub.Entity, only: [local_id: 1]
+  # use MoodleNetWeb.ConnCase, async: true
+  # import MoodleNetWeb.Test.GraphQLAssertions
+  # import MoodleNet.Test.Faking
+  # import MoodleNetWeb.Test.ConnHelpers
+  # alias MoodleNet.Test.Fake
+  # alias MoodleNet.{Collections, Communities, Users}
 
-  describe "CollectionsResolver.list" do
-  end
-  describe "CollectionsResolver.fetch" do
-  end
-  describe "CollectionsResolver.create" do
-  end
-  describe "CollectionsResolver.update" do
-  end
-  describe "CollectionsResolver.delete" do
-  end
-  # @moduletag format: :json
-
-  # @tag :user
-  # test "list", %{conn: conn, actor: actor} do
-  #   query = """
-  #     {
-  #       collections {
-  #         pageInfo {
-  #           startCursor
-  #           endCursor
-  #         }
-  #         nodes {
-  #           id
-  #           resources {
-  #             totalCount
-  #           }
-  #         }
-  #         totalCount
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collections")
-
-  #   assert %{
-  #            "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
-  #            "nodes" => [],
-  #            "totalCount" => 0
-  #          } = ret
-
-  #   comm = Factory.community(actor)
-  #   %{id: a_id} = Factory.collection(actor, comm)
-  #   %{id: b_id} = Factory.collection(actor, comm)
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collections")
-
-  #   assert %{
-  #            "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
-  #            "nodes" => nodes,
-  #            "totalCount" => 2
-  #          } = ret
-
-  #   assert [%{"id" => ^b_id}, %{"id" => ^a_id}] = nodes
+  # defp assert_collection_eq(orig, returned) do
+  #   assert %{"id" => id, "name" => name, "content" => content} = returned
+  #   assert orig.id == id
+  #   assert orig.name == name
+  #   assert orig.content == content
+  #   assert %{"summary" => summary, "icon" => icon} = returned
+  #   assert orig.summary == summary
+  #   assert orig.icon == icon
+  #   assert %{"primaryLanguage" => primary_language} = returned
+  #   assert orig.primary_language_id == primary_language["id"]
   # end
-
-  # @tag :user
-  # test "create", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   query = """
-  #   mutation {
-  #     createCollection(
-  #       communityLocalId: #{local_id(community)},
-  #       collection: {
-  #         name: "collection_name"
-  #         summary: "collection_summary"
-  #         content:"collection_content"
-  #         preferredUsername: "collection_preferredUser"
-  #         primaryLanguage:"collection_language"
-  #         icon:"https://imag.es/collection"
-  #       }
-  #     ) {
-  #       id
-  #       localId
-  #       name
-  #       summary
-  #       content
-  #       preferredUsername
-  #       primaryLanguage
-  #       icon
-  #       published
-  #       updated
-  #       creator {
-  #         id
-  #         localId
-  #         joinedCommunities { totalCount }
-  #       }
-  #       community {
-  #         id
-  #         localId
-  #         name
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("createCollection")
-
-  #   assert collection["id"]
-  #   assert collection["localId"]
-  #   assert collection["published"]
-  #   assert collection["updated"]
-  #   assert collection["name"] == "collection_name"
-  #   assert collection["summary"] == "collection_summary"
-  #   assert collection["content"] == "collection_content"
-  #   assert collection["preferredUsername"] == "collection_preferredUser"
-  #   assert collection["primaryLanguage"] == "collection_language"
-  #   assert collection["icon"] == encode("https://imag.es/collection")
-  #   assert collection["community"] == %{
-  #     "id" => community.id,
-  #     "localId" => local_id(community),
-  #     "name" => community.name["und"]
-  #   }
-  #   assert collection["creator"] == %{
-  #     "id" => actor.id,
-  #     "localId" => local_id(actor),
-  #     "joinedCommunities" => %{"totalCount" => 1}
-  #   }
-  # end
-
-  # @tag :user
-  # test "follower list", %{conn: conn, actor: actor} do
-  #   %{id: other_actor_id} = other_actor = Factory.actor()
-  #   comm = Factory.community(actor)
-  #   coll = Factory.collection(actor, comm)
-  #   local_id = local_id(coll)
-  #   actor_id = actor.id
-
-  #   query = """
-  #     {
-  #       collection(localId: #{local_id}) {
-  #         followers {
-  #           pageInfo {
-  #             startCursor
-  #             endCursor
-  #           }
-  #           edges {
-  #             cursor
-  #             node {
-  #               id
-  #               preferredUsername
-  #             }
-  #           }
-  #           totalCount
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("followers")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => edges,
-  #     "totalCount" => 1
-  #   } = ret
-
-  #   assert [
-  #     %{
-  #       "cursor" => _,
-  #       "node" => %{
-  #         "id" => ^actor_id,
-  #       }
-  #     }
-  #   ] = edges
-
-  #   MoodleNet.follow_collection(other_actor, coll)
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("followers")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => edges,
-  #     "totalCount" => 2
-  #   } = ret
-
-  #   assert [
-  #     %{
-  #       "cursor" => cursor_b,
-  #       "node" => %{
-  #         "id" => ^other_actor_id,
-  #       }
-  #     },
-  #     %{
-  #       "cursor" => cursor_a,
-  #       "node" => %{
-  #         "id" => ^actor_id,
-  #       }
-  #     }
-  #   ] = edges
-
-  #   assert cursor_a
-  #   assert cursor_b
-  #   assert cursor_b > cursor_a
-  # end
-
-  # @tag :user
-  # test "follow_collection & undo", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   collection = Factory.collection(actor, community)
-  #   collection_id = local_id(collection)
-
-  #   query = """
-  #   {
-  #     collection(localId: #{collection_id}) {
-  #       id
-  #       localId
-  #       followed
-  #       followers {
-  #         totalCount
-  #         edges {
-  #           node {
-  #             id
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection_map =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-
-  #   assert collection_map["id"] == collection.id
-  #   assert collection_map["localId"] == local_id(collection)
-  #   assert collection_map["followed"] == true
-
-  #   assert %{
-  #            "totalCount" => 1,
-  #            "edges" => [
-  #              %{
-  #                "node" => user_map
-  #              }
-  #            ]
-  #          } = collection_map["followers"]
-
-  #   assert user_map["id"] == actor.id
-
-  #   query = """
-  #     mutation {
-  #       undoFollowCollection(
-  #         collectionLocalId: #{local_id(collection)}
-  #       )
-  #     }
-  #   """
-
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("undoFollowCollection")
-
-  #   assert [
-  #            %{
-  #              "code" => "not_found",
-  #              "message" => "Activity not found"
-  #            }
-  #          ] =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("errors")
-
-  #   query = """
-  #   {
-  #     collection(localId: #{collection_id}) {
-  #       id
-  #       localId
-  #       followed
-  #       followers {
-  #         totalCount
-  #         edges {
-  #           node {
-  #             id
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection_map =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-
-  #   assert collection_map["id"] == collection.id
-  #   assert collection_map["localId"] == local_id(collection)
-  #   assert collection_map["followed"] == false
-
-  #   assert %{
-  #            "totalCount" => 0,
-  #            "edges" => []
-  #          } = collection_map["followers"]
-
-  #   query = """
-  #     mutation {
-  #       followCollection(
-  #         collectionLocalId: #{local_id(collection)}
-  #       )
-  #     }
-  #   """
-
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("followCollection")
-
-  #   query = """
-  #   {
-  #     collection(localId: #{collection_id}) {
-  #       id
-  #       localId
-  #       followed
-  #       followers {
-  #         totalCount
-  #         edges {
-  #           node {
-  #             id
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection_map =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-
-  #   assert collection_map["id"] == collection.id
-  #   assert collection_map["localId"] == local_id(collection)
-  #   assert collection_map["followed"] == true
-
-  #   assert %{
-  #            "totalCount" => 1,
-  #            "edges" => [
-  #              %{
-  #                "node" => user_map
-  #              }
-  #            ]
-  #          } = collection_map["followers"]
-
-  #   assert user_map["id"] == actor.id
-  # end
-  # @tag :user
-  # test "resource list", %{conn: conn, actor: actor} do
-  #   comm = Factory.community(actor)
-  #   coll = Factory.collection(actor, comm)
-  #   local_id = local_id(coll)
-
-  #   query = """
-  #     {
-  #       collection(localId: #{local_id}) {
-  #         resources {
-  #           pageInfo {
-  #             startCursor
-  #             endCursor
-  #           }
-  #           edges {
-  #             cursor
-  #             node {
-  #               id
-  #               license
-  #             }
-  #           }
-  #           totalCount
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("resources")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => [],
-  #     "totalCount" => 0
-  #   } = ret
-
-  #   %{id: a_id} = Factory.resource(actor, coll)
-  #   %{id: b_id} = Factory.resource(actor, coll)
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("resources")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => edges,
-  #     "totalCount" => 2
-  #   } = ret
-
-  #   assert [
-  #     %{
-  #       "cursor" => cursor_b,
-  #       "node" => %{
-  #         "id" => ^b_id,
-  #       }
-  #     },
-  #     %{
-  #       "cursor" => cursor_a,
-  #       "node" => %{
-  #         "id" => ^a_id,
-  #       }
-  #     }
-  #   ] = edges
-
-  #   assert cursor_a
-  #   assert cursor_b
-  #   assert cursor_b > cursor_a
-  # end
-
-  # @tag :user
-  # test "thread list", %{conn: conn, actor: actor} do
-  #   comm = Factory.community(actor)
-  #   coll = Factory.collection(actor, comm)
-  #   local_id = local_id(coll)
-
-  #   query = """
-  #     {
-  #       collection(localId: #{local_id}) {
-  #         threads {
-  #           pageInfo {
-  #             startCursor
-  #             endCursor
-  #           }
-  #           edges {
-  #             cursor
-  #             node {
-  #               id
-  #               author {
-  #                 id
-  #               }
-  #             }
-  #           }
-  #           totalCount
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("threads")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => [],
-  #     "totalCount" => 0
-  #   } = ret
-
-  #   %{id: a_id} = Factory.comment(actor, coll)
-  #   %{id: b_id} = Factory.comment(actor, coll)
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("threads")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => edges,
-  #     "totalCount" => 2
-  #   } = ret
-
-  #   assert [
-  #     %{
-  #       "cursor" => cursor_b,
-  #       "node" => %{
-  #         "id" => ^b_id,
-  #       }
-  #     },
-  #     %{
-  #       "cursor" => cursor_a,
-  #       "node" => %{
-  #         "id" => ^a_id,
-  #       }
-  #     }
-  #   ] = edges
-
-  #   assert cursor_a
-  #   assert cursor_b
-  #   assert cursor_b > cursor_a
-  # end
-
-  # @tag :user
-  # test "like and unlike", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   collection = Factory.collection(actor, community)
-  #   collection_id = local_id(collection)
-
-  #   query = """
-  #     mutation {
-  #       undoLikeCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert [
-  #            %{
-  #              "code" => "not_found",
-  #              "message" => "Activity not found"
-  #            }
-  #          ] =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("errors")
-
-  #   query = """
-  #     mutation {
-  #       likeCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("likeCollection")
-
-  #   query = """
-  #   {
-  #     collection(localId: #{collection_id}) {
-  #       id
-  #       localId
-  #       likers {
-  #         totalCount
-  #         edges {
-  #           node {
-  #             id
-  #             localId
-  #             local
-  #             type
-  #             preferredUsername
-  #             name
-  #             summary
-  #             location
-  #             icon
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection_map =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-
-  #   assert collection_map["id"] == collection.id
-  #   assert collection_map["localId"] == local_id(collection)
-  #   assert %{
-  #     "totalCount" => 1,
-  #     "edges" => [%{"node" => user_map}]
-  #   } = collection_map["likers"]
-
-  #   assert user_map["id"] == actor.id
-  #   assert user_map["localId"] == local_id(actor)
-  #   assert user_map["local"] == ActivityPub.Entity.local?(actor)
-  #   assert user_map["type"] == actor.type
-  #   assert user_map["preferredUsername"] == actor.preferred_username
-  #   assert user_map["name"] == actor.name["und"]
-  #   assert user_map["summary"] == actor.summary["und"]
-  #   assert user_map["location"] == get_in(actor, [:location, Access.at(0), :content, "und"])
-  #   assert user_map["icon"] == encode(get_in(actor, [:icon, Access.at(0), :url, Access.at(0)]))
-
-  #   query = """
-  #     mutation {
-  #       undoLikeCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("undoLikeCollection")
-
-  #   query = """
-  #   {
-  #     collection(localId: #{collection_id}) {
-  #       id
-  #       localId
-  #       likers {
-  #         totalCount
-  #         edges {
-  #           node {
-  #             id
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  #   """
-
-  #   assert collection_map =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-
-  #   assert collection_map["id"] == collection.id
-  #   assert collection_map["localId"] == local_id(collection)
-  #   assert %{
-  #     "totalCount" => 0,
-  #     "edges" => []
-  #   } = collection_map["likers"]
-
-  #   query = """
-  #     mutation {
-  #       undoLikeCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert [
-  #            %{
-  #              "code" => "not_found",
-  #              "message" => "Activity not found"
-  #            }
-  #          ] =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("errors")
-  # end
-
-  # @tag :user
-  # test "liker list", %{conn: conn, actor: actor} do
-  #   %{id: actor_id} = actor
-  #   comm = Factory.community(actor)
-  #   coll = Factory.collection(actor, comm)
-  #   local_id = local_id(coll)
-
-  #   query = """
-  #     {
-  #       collection(localId: #{local_id}) {
-  #         likers {
-  #           pageInfo {
-  #             startCursor
-  #             endCursor
-  #           }
-  #           edges {
-  #             cursor
-  #             node {
-  #               id
-  #               joinedCommunities {
-  #                 totalCount
-  #               }
-  #             }
-  #           }
-  #           totalCount
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("likers")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => [],
-  #     "totalCount" => 0
-  #   } = ret
-
-  #   %{id: other_actor_id} = other_actor = Factory.actor()
-  #   {:ok, _} = MoodleNet.join_community(other_actor, comm)
-  #   {:ok, _} = Collections.like(other_actor, coll)
-
-  #   {:ok, _} = Collections.like(actor, coll)
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("likers")
-
-  #   assert %{
-  #     "pageInfo" => %{ "startCursor" => nil, "endCursor" => nil},
-  #     "edges" => edges,
-  #     "totalCount" => 2
-  #   } = ret
-
-  #   assert [
-  #     %{
-  #       "cursor" => cursor_b,
-  #       "node" => %{
-  #         "id" => ^actor_id,
-  #       }
-  #     },
-  #     %{
-  #       "cursor" => cursor_a,
-  #       "node" => %{
-  #         "id" => ^other_actor_id,
-  #       }
-  #     }
-  #   ] = edges
-
-  #   assert cursor_a
-  #   assert cursor_b
-  #   assert cursor_b > cursor_a
-  # end
-
-  # ######
   
-  # @tag :user
-  # test "flag and unflag", %{conn: conn, actor: actor} do
-  #   actor_id = local_id(actor)
-  #   reason = Faker.Pokemon.name()
-  #   community = Factory.community(actor)
-  #   collection = Factory.collection(actor, community)
-  #   collection_id = local_id(collection)
+  # @list_query """
+  # { collections { 
+  #     pageInfo { startCursor endCursor }
+  #     totalCount
+  #     nodes { id } } }
+  # """
 
-  #   query = """
-  #     mutation {
-  #       undoFlagCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
+  # describe "CollectionsResolver.list" do
 
-  #   assert [
-  #            %{
-  #              "code" => "not_found",
-  #              # "message" => "Activity not found"
-  #            }
-  #          ] =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("errors")
+  #   test "works for a guest" do
+  #     alice = fake_user!()
+  #     comm_1 = fake_community!(alice)
+  #     coll_1 = fake_collection!(alice, comm_1)
+  #     coll_2 = fake_collection!(alice, comm_1)
+  #     bob = fake_user!()
+  #     comm_2 = fake_community!(bob)
+  #     coll_3 = fake_collection!(bob, comm_2)
+  #     coll_4 = fake_collection!(bob, comm_2)
+  #     coll_5 = fake_collection!(bob, comm_2)
+  #     eve = fake_user!()
+  #     conn = user_conn(eve)
+  #     assert ret = Map.fetch!(gql_post_data(conn, %{query: @list_query}), "collections")
+  #     assert %{"pageInfo" => info, "nodes" => nodes, "totalCount" => count} = ret
+  #     assert is_list(nodes)
+  #     assert Enum.count(nodes) == 5
+  #     # TODO: test ids
+  #   end
 
-  #   query = """
-  #     mutation {
-  #       flagCollection(
-  #         localId: #{collection_id}
-  #         reason: "#{reason}"
-  #       )
-  #     }
-  #   """
+  #   test "does not return deleted items" do
+  #     alice = fake_user!()
+  #     comm_1 = fake_community!(alice)
+  #     coll_1 = fake_collection!(alice, comm_1)
+  #     coll_2 = fake_collection!(alice, comm_1)
+  #     assert {:ok, _} = Collections.soft_delete(coll_1)
+  #     eve = fake_user!()
+  #     conn = user_conn(eve)
+  #     assert ret = Map.fetch!(gql_post_data(conn, %{query: @list_query}), "collections")
+  #     assert %{"pageInfo" => info, "nodes" => nodes, "totalCount" => count} = ret
+  #     assert is_list(nodes)
+  #     assert Enum.count(nodes) == 1
+  #   end
 
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("flagCollection")
+  #   test "does not return items from a deleted community" do
+  #     alice = fake_user!()
+  #     comm_1 = fake_community!(alice)
+  #     coll_1 = fake_collection!(alice, comm_1)
+  #     comm_2 = fake_community!(alice)
+  #     coll_2 = fake_collection!(alice, comm_2)
+  #     assert {:ok, _} = Communities.soft_delete(comm_1)
+  #     eve = fake_user!()
+  #     conn = user_conn(eve)
+  #     assert ret = Map.fetch!(gql_post_data(conn, %{query: @list_query}), "collections")
+  #     assert %{"pageInfo" => info, "nodes" => nodes, "totalCount" => count} = ret
+  #     assert is_list(nodes)
+  #     assert Enum.count(nodes) == 1
+  #   end
 
-  #   assert [flag] = Collections.all_flags(actor)
-  #   assert flag.flagged_object_id == collection_id
-  #   assert flag.flagging_object_id == actor_id
-  #   assert flag.reason == reason
-  #   assert flag.open == true
+  #   # @tag :skip
+  #   # @for_moot false
+  #   # test "does not return private items" do
+  #   # end
 
-  #   query = """
-  #     mutation {
-  #       undoFlagCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert conn
-  #          |> post("/api/graphql", %{query: query})
-  #          |> json_response(200)
-  #          |> Map.fetch!("data")
-  #          |> Map.fetch!("undoFlagCollection")
-
-  #   assert [] == Collections.all_flags(actor)
-
-  #   query = """
-  #     mutation {
-  #       undoFlagCollection(
-  #         localId: #{collection_id}
-  #       )
-  #     }
-  #   """
-
-  #   assert [
-  #            %{
-  #              "code" => "not_found",
-  #              # "message" => "Activity not found"
-  #            }
-  #          ] =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("errors")
   # end
 
-  # @tag :user
-  # test "delete a collection", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   collection = Factory.collection(actor, community)
-  #   resource = Factory.resource(actor, collection)
-  #   comment = Factory.comment(actor, collection)
-  #   reply = Factory.reply(actor, comment)
+  # describe "CollectionsResolver.fetch" do
 
-  #   query = """
-  #   mutation {
-  #     deleteCollection(local_id: #{local_id(collection)})
-  #   }
-  #   """
+  #   setup do
+  #     alice = fake_user!()
+  #     community = fake_community!(alice)
+  #     collection = fake_collection!(alice, community)
+  #     {:ok, %{alice: alice, community: community, collection: collection}}
+  #   end
 
-  #   assert true ==
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("deleteCollection")
+  #   test "works for a guest", ctx do
+      
+  #     query = """
+  #     { collection(collectionId: "#{ctx.collection.id}") {
+  #         id name content summary icon primaryLanguage { id englishName }
+  #       } }
+  #     """
+  #     assert %{"collection" => ret} = gql_post_data(json_conn(), %{query: query})
+  #     assert_collection_eq(ctx.collection, ret)
+  #   end
 
-  #   assert ActivityPub.SQL.Query.get_by_id(community.id)
-  #   assert nil == ActivityPub.SQL.Query.get_by_id(collection.id)
-  #   assert nil == ActivityPub.SQL.Query.get_by_id(resource.id)
-  #   assert nil == ActivityPub.SQL.Query.get_by_id(comment.id)
-  #   assert nil == ActivityPub.SQL.Query.get_by_id(reply.id)
+  #   test "works for a user", ctx do
+  #     bob = fake_user!()
+  #     query = """
+  #     { collection(collectionId: "#{ctx.collection.id}") {
+  #         id name content summary icon primaryLanguage { id englishName }
+  #       } }
+  #     """
+  #     assert %{"collection" => ret} = gql_post_data(json_conn(), %{query: query})
+  #     assert_collection_eq(ctx.collection, ret)
+  #   end
+
+  #   test "works for the collection creator", ctx do
+      
+  #     query = """
+  #     { collection(collectionId: "#{ctx.collection.id}") {
+  #         id name content summary icon primaryLanguage { id englishName }
+  #       } }
+  #     """
+  #     assert %{"collection" => ret} = gql_post_data(json_conn(), %{query: query})
+  #     assert_collection_eq(ctx.collection, ret)
+  #   end
   # end
 
-  # @tag :user
-  # test "update collection", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   collection = Factory.collection(actor, community)
+  # describe "CollectionsResolver.create" do
 
-  #   query = """
-  #   mutation {
-  #     updateCollection(
-  #       collection_local_id: #{local_id(collection)},
-  #       collection: {
-  #         name: "collection_name"
-  #         summary: "collection_summary"
-  #         content:"collection_content"
-  #         preferredUsername: "collection_preferredUser"
-  #         primaryLanguage:"collection_language"
-  #         icon:"https://imag.es/collection"
-  #       }
-  #     ) {
-  #       id
-  #       localId
-  #       name
-  #       summary
-  #       content
-  #       preferredUsername
-  #       primaryLanguage
-  #       icon
-  #       published
-  #       updated
-  #     }
-  #   }
-  #   """
+  #   # setup do
+  #   #   alice = fake_user!()
+  #   #   community = fake_community!(alice)
+  #   #   input = Fake.collection()
+  #   #   query = """
+  #   #   mutation {
+  #   #     createCollection(communityId: "#{}", collection: $collection) {
+  #   #       id name content summary icon primaryLanguage { id englishName }
+  #   #     }
+  #   #   }
+  #   #   """
+  #   #   {:ok, %{alice: alice, community: community, input: input, query: query}}
+  #   # end
 
-  #   assert ret_collection =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("updateCollection")
+  #   # test "does not work for a guest", ctx do
+      
+  #   # end
+  #   # test "works for an instance admin", ctx do
 
-  #   assert ret_collection["id"] == collection.id
-  #   assert ret_collection["localId"]
-  #   assert ret_collection["published"]
-  #   assert ret_collection["updated"]
-  #   assert ret_collection["name"] == "collection_name"
-  #   assert ret_collection["summary"] == "collection_summary"
-  #   assert ret_collection["content"] == "collection_content"
-  #   assert ret_collection["preferredUsername"] == "collection_preferredUser"
-  #   assert ret_collection["primaryLanguage"] == "collection_language"
-  #   assert ret_collection["icon"] == encode("https://imag.es/collection")
+  #   # end
+  #   # test "works for the community owner", ctx do
 
-  #   query = """
-  #   {
-  #     collection(local_id: #{local_id(collection)}) {
-  #       id
-  #       localId
-  #       name
-  #       summary
-  #       content
-  #       preferredUsername
-  #       primaryLanguage
-  #       icon
-  #       published
-  #       updated
-  #     }
-  #   }
-  #   """
+  #   # end
+  #   # test "works for a community follower", ctx do
 
-  #   assert ret_collection_2 =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
+  #   # end
+  #   # test "does not work for a randomer", ctx do
+  #   # end
+  #   # test "works for the community owner", ctx do
 
-  #   assert ret_collection == ret_collection_2
+  #   # end
+
   # end
 
-  # @tag :user
-  # test "inbox connection", %{conn: conn, actor: actor} do
-  #   community = Factory.community(actor)
-  #   MoodleNet.update_community(actor, community, %{name: "Name"})
-
-  #   collection = Factory.collection(actor, community)
-  #   MoodleNet.update_collection(actor, collection, %{name: "Name"})
-  #   Collections.like(actor, collection)
-
-  #   resource = Factory.resource(actor, collection)
-  #   MoodleNet.update_resource(actor, resource, %{name: "Name"})
-  #   # Resources.like(actor, resource)
-
-  #   comment = Factory.comment(actor, collection)
-  #   reply = Factory.reply(actor, comment)
-  #   # Comments.like(actor, comment)
-  #   # Comments.like(actor, reply)
-
-  #   local_id = local_id(collection)
-
-  #   query = """
-  #     {
-  #       collection(localId: #{local_id}) {
-  #         inbox {
-  #           pageInfo {
-  #             startCursor
-  #             endCursor
-  #           }
-  #           edges {
-  #             cursor
-  #             node {
-  #               id
-  #               activity_type
-  #             }
-  #           }
-  #           totalCount
-  #         }
-  #       }
-  #     }
-  #   """
-
-  #   assert ret =
-  #            conn
-  #            |> post("/api/graphql", %{query: query})
-  #            |> json_response(200)
-  #            |> Map.fetch!("data")
-  #            |> Map.fetch!("collection")
-  #            |> Map.fetch!("inbox")
-
-  #   assert %{
-  #            "pageInfo" => %{"startCursor" => nil, "endCursor" => nil},
-  #            "edges" => edges,
-  #            # "totalCount" => 10
-  #          } = ret
-
-  #   # assert [
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "LikeComment"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "LikeComment"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "CreateComment"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "CreateComment"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "LikeResource"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "UpdateResource"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "CreateResource"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "LikeCollection"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "UpdateCollection"
-  #   #            }
-  #   #          },
-  #   #          %{
-  #   #            "node" => %{
-  #   #              "activity_type" => "FollowCollection"
-  #   #            }
-  #   #          }
-  #   #        ] = edges
+  # describe "CollectionsResolver.update" do
+    
   # end
+
+  # describe "CollectionsResolver.delete" do
+  #   setup do
+  #     alice = fake_user!()
+  #     bob = fake_user!()
+  #     community = fake_community!(alice)
+  #     collection = fake_collection!(bob, community)
+  #     query = """
+  #     mutation { deleteCollection(collectionId: "#{collection.id}") }
+  #     """
+  #     {:ok, %{alice: alice, bob: bob, community: community, collection: collection, query: query}}
+  #   end
+  #   test "does not work for a guest", ctx do
+  #     assert errs = gql_post_errors(json_conn(), %{query: ctx.query})
+  #     assert_not_logged_in(errs, ["deleteCollection"])
+  #   end
+
+  #   test "does not work for a regular user", ctx do
+  #     eve = fake_user!()
+  #     conn = user_conn(eve)
+  #     assert errs = gql_post_errors(conn, %{query: ctx.query})
+  #     assert_not_permitted(errs, ["deleteCollection"])
+  #   end
+
+  #   test "works for the collection creator", ctx do
+  #     conn = user_conn(ctx.bob)
+  #     assert %{"deleteCollection" => true} = gql_post_data(conn, %{query: ctx.query})
+  #   end
+
+  #   test "works for the community owner", ctx do
+  #     conn = user_conn(ctx.alice)
+  #     assert %{"deleteCollection" => true} = gql_post_data(conn, %{query: ctx.query})
+  #   end
+
+  #   test "works for an instance admin", ctx do
+  #     eve = fake_user!()
+  #     assert {:ok, eve} = Users.make_instance_admin(eve)
+  #     conn = user_conn(eve)
+  #     assert %{"deleteCollection" => true} = gql_post_data(conn, %{query: ctx.query})
+  #   end
+
+  # end
+
 end

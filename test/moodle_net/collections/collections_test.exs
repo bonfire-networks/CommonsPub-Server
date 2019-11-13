@@ -15,6 +15,9 @@ defmodule MoodleNet.CollectionsTest do
     {:ok, %{user: user, community: community, collection: collection}}
   end
 
+  describe "fetch" do
+    
+  end
   describe "create" do
     test "creates a new collection", context do
       attrs = Fake.collection()
@@ -52,8 +55,9 @@ defmodule MoodleNet.CollectionsTest do
 
     @tag :skip
     @for_moot true
-    test "doesn't work if it can't find a" do
+    test "doesn't work for a deleted thing" do
     end
+
   end
 
 end
