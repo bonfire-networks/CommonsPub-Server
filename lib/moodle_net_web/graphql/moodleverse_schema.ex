@@ -10,10 +10,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
 
   object :moodleverse_queries do
 
-    @desc "A logical object for the local instance"
-    field :moodleverse, :moodleverse do
-      resolve &MoodleverseResolver.fetch/2
-    end
+    # @desc "A logical object for the local instance"
+    # field :moodleverse, :moodleverse do
+    #   resolve &MoodleverseResolver.moodleverse/2
+    # end
 
   end
 

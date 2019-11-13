@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Accesss.RegisterEmailDomainAccess do
+defmodule MoodleNet.Access.RegisterEmailDomainAccess do
   @moduledoc """
   A simple standalone schema listing domains for which emails at those
   domains are permitted to register a MoodleNet account while public
@@ -22,7 +22,7 @@ defmodule MoodleNet.Accesss.RegisterEmailDomainAccess do
   @required @cast
   
   @doc "A changeset for both creation and update purposes"
-  def changeset(entry \\ t(), fields)
+  def changeset(entry \\ %__MODULE__{}, fields)
   def changeset(%__MODULE__{}=entry, fields) do
     entry
     |> Changeset.cast(fields, @cast)

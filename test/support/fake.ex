@@ -144,7 +144,9 @@ defmodule MoodleNet.Test.Fake do
 
   def language(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
     |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
   end
@@ -240,34 +242,39 @@ defmodule MoodleNet.Test.Fake do
   def collection_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
+    |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("icon", &icon/0)
   end
 
   def resource(base \\ %{}) do
     base
     # |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
-    |> Map.put_new_lazy(:content, &paragraph/0)
     |> Map.put_new_lazy(:url, &url/0)
-    |> Map.put_new_lazy(:free_access, &maybe_bool/0)
-    |> Map.put_new_lazy(:public_access, &maybe_bool/0)
     |> Map.put_new_lazy(:license, &license/0)
-    |> Map.put_new_lazy(:learning_resource_type, &learning_resource/0)
-    |> Map.put_new_lazy(:educational_use, &educational_use/0)
-    |> Map.put_new_lazy(:time_required, &pos_integer/0)
-    |> Map.put_new_lazy(:typical_age_range, &age_range/0)
+    # |> Map.put_new_lazy(:free_access, &maybe_bool/0)
+    # |> Map.put_new_lazy(:public_access, &maybe_bool/0)
+    # |> Map.put_new_lazy(:learning_resource_type, &learning_resource/0)
+    # |> Map.put_new_lazy(:educational_use, &educational_use/0)
+    # |> Map.put_new_lazy(:time_required, &pos_integer/0)
+    # |> Map.put_new_lazy(:typical_age_range, &age_range/0)
   end
 
   def resource_input(base \\ %{}) do
     base
-    |> Map.put_new_lazy("content", &paragraph/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("icon", &website/0)
     |> Map.put_new_lazy("url", &url/0)
-    |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
-    |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
     |> Map.put_new_lazy("license", &license/0)
-    |> Map.put_new_lazy("learningResourceType", &learning_resource/0)
-    |> Map.put_new_lazy("educationalUse", &educational_use/0)
-    |> Map.put_new_lazy("timeRequired", &pos_integer/0)
-    |> Map.put_new_lazy("typicalAgeRange", &age_range/0)
+    # |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
+    # |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
+    # |> Map.put_new_lazy("learningResourceType", &learning_resource/0)
+    # |> Map.put_new_lazy("educationalUse", &educational_use/0)
+    # |> Map.put_new_lazy("timeRequired", &pos_integer/0)
+    # |> Map.put_new_lazy("typicalAgeRange", &age_range/0)
   end
 
   def thread(base \\ %{}) do
@@ -281,6 +288,10 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:content, &paragraph/0)
   end
 
+  def comment_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("content", &paragraph/0)
+  end
   def flag(base \\ %{}) do
     base
     |> Map.put_new_lazy(:message, &paragraph/0)

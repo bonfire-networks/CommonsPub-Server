@@ -130,9 +130,8 @@ defmodule MoodleNet.Fake do
   def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
   @doc "A website address"
   def website(), do: Faker.Internet.url()
-  @doc "A language name (not really)"
-  def language(), do: Faker.Address.country()
-  def verb(), do: Faker.pick(["created", "updated"])
+  @doc "something that happens to an activity"
+  def verb(), do: Faker.Util.pick(["created", "updated"])
   # Unique data
 
   @doc "Generates a random unique uuid"
@@ -150,6 +149,60 @@ defmodule MoodleNet.Fake do
 
   # models
 
+  def page_info(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:start_cursor, &uuid/0)
+    |> Map.put_new_lazy(:end_cursor, &uuid/0)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.PageInfo)
+  end
+
+  def long_node_list(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:page_info, &page_info/0)
+    |> Map.put_new_lazy(:total_count, &pos_integer/0)
+    |> Map.put_new_lazy(:nodes, fn -> long_list(gen) end)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.NodeList)
+  end
+
+  def long_edge_list(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:page_info, &page_info/0)
+    |> Map.put_new_lazy(:total_count, &pos_integer/0)
+    |> Map.put_new_lazy(:edges, fn -> long_list(fn -> edge(gen) end) end)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.EdgeList)
+  end
+
+  def edge(base \\ %{}, gen) do
+    base
+    |> Map.put_new_lazy(:cursor, &uuid/0)
+    |> Map.put_new_lazy(:node, gen)
+    |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
+  end
+
+  def language(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:created_at, &past_datetime/0)
+    |> Map.put_new_lazy(:updated_at, &past_datetime/0)
+    |> Map.put(:__struct__, MoodleNet.Localisation.Language)
+  end
+
+  def country(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
+    |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
+    |> Map.put_new_lazy(:created_at, &past_datetime/0)
+    |> Map.put_new_lazy(:updated_at, &past_datetime/0)
+    |> Map.put(:__struct__, MoodleNet.Localisation.Country)
+  end
+  
   def auth_payload(base \\ %{}) do
     base
     |> Map.put_new_lazy(:token, &uuid/0)
@@ -234,7 +287,7 @@ defmodule MoodleNet.Fake do
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:is_hidden, &falsehood/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:created_at, &past_datetime/0)
     |> Map.put_new_lazy(:updated_at, &past_datetime/0)
     |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
@@ -309,6 +362,22 @@ defmodule MoodleNet.Fake do
     ]
   end
 
+  def community_follow(base \\ %{}) do
+    base
+    |> follow()
+    |> Map.put_new_lazy(:context, &community/0)
+  end
+  def collection_follow(base \\ %{}) do
+    base
+    |> follow()
+    |> Map.put_new_lazy(:context, &collection/0)
+  end
+  def user_follow(base \\ %{}) do
+    base
+    |> follow()
+    |> Map.put_new_lazy(:context, &user/0)
+  end
+
   def follow(base \\ %{}) do
     base
     |> Map.put_new_lazy(:id, &uuid/0)
@@ -338,7 +407,7 @@ defmodule MoodleNet.Fake do
   #   |> Map.put(:__struct__, Block)
   # end
 
-  def category(base \\ %{}) do
+  def tag_category(base \\ %{}) do
     base
     |> Map.put_new_lazy(:id, &uuid/0)
     |> Map.put_new_lazy(:canonical_url, &website/0)
@@ -398,6 +467,15 @@ defmodule MoodleNet.Fake do
       &collection/0,
       &comment/0,
       &community/0,
+      &resource/0,
+    ]
+  end
+
+  def thread_context() do
+    one_of [
+      &collection/0,
+      &community/0,
+      &flag/0,
       &resource/0,
     ]
   end

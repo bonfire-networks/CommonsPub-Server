@@ -17,6 +17,16 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
       resolve &LocalisationResolver.languages/2
     end
 
+    field :language, :language do
+      arg :language_id, non_null(:string)
+      resolve &LocalisationResolver.language/2
+    end
+
+    field :search_language, :languages_nodes do
+      arg :query, non_null(:string)
+      resolve &LocalisationResolver.search_language/2
+    end
+
     @desc "Get list of languages we know about"
     field :countries, :countries_nodes do
       arg :limit, :integer
@@ -25,6 +35,15 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
       resolve &LocalisationResolver.countries/2
     end
 
+    field :country, :country do
+      arg :country_id, non_null(:string)
+      resolve &LocalisationResolver.country/2
+    end
+
+    field :search_country, :countries_nodes do
+      arg :query, non_null(:string)
+      resolve &LocalisationResolver.search_country/2
+    end
   end
 
   object :language do

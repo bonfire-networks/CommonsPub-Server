@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
   @todo :for_moot
   def resources(collection,_, info) do
-    {:ok, Fake.med_list(&Fake.resource/0)}
+    {:ok, Fake.long_edge_list(&Fake.resource/0)}
     |> GraphQL.response(info)
   end
 

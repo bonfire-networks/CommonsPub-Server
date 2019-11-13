@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   end
 
   def comments(parent, _, info) do
-    {:ok, Fake.short_list(&Fake.comments/0)}
+    {:ok, Fake.long_edge_list(&Fake.comment/0)}
     |> GraphQL.response(info)
   end
 
@@ -19,14 +19,18 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     {:ok, Fake.thread()}
     |> GraphQL.response(info)
   end
+  def thread(_,_, info) do
+    {:ok, Fake.thread()}
+    |> GraphQL.response(info)
+  end
 
   def threads(parent, _, info) do
-    {:ok, Fake.short_list(&Fake.thread/0)}
+    {:ok, Fake.long_edge_list(&Fake.thread/0)}
     |> GraphQL.response(info)
   end
 
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
-    {:ok, Fake.thread()}
+    {:ok, Fake.comment()}
     |> GraphQL.response(info)
   end
 
@@ -40,8 +44,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     |> GraphQL.response(info)
   end
 
-  def thread_context(parent, _, info) do
-    {:ok, Fake.comment()}
+  def context(parent, _, info) do
+    {:ok, Fake.thread_context()}
     |> GraphQL.response(info)
   end
 

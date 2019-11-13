@@ -11,10 +11,9 @@ defmodule MoodleNet.Meta.Table do
   no changeset functions in here!
   """
 
-  use Ecto.Schema
+  use MoodleNet.Common.Schema
 
-  @timestamps_opts [type: :utc_datetime_usec]
-  schema "mn_meta_table" do
+  standalone_schema "mn_table" do
     field :table, :string
     field :schema, :any, virtual: true
     timestamps(updated_at: false)

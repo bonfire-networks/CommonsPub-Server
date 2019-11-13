@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
 
     @desc "A logical object for the local instance"
     field :instance, :instance do
-      resolve &InstanceResolver.fetch/2
+      resolve &InstanceResolver.instance/2
     end
 
   end

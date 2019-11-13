@@ -17,7 +17,7 @@ defmodule MoodleNet.Collections.Collection do
     belongs_to :actor, Actor
     belongs_to :creator, User
     belongs_to :community, Community
-    belongs_to :primary_language, Language, type: :binary
+    belongs_to :primary_language, Language
     has_many :resources, Resource
     field :name, :string
     field :summary, :string

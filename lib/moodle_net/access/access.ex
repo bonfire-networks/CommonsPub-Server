@@ -10,7 +10,7 @@ defmodule MoodleNet.Access do
   alias Ecto.Changeset
   alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Accesss.{
+  alias MoodleNet.Access.{
     NoAccessError,
     RegisterEmailDomainAccess,
     RegisterEmailAccess,

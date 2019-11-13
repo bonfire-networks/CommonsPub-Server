@@ -2,7 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 alias MoodleNet.GraphQL
-alias MoodleNet.GraphQL.Response
+alias MoodleNet.GraphQL.{Edge, EdgeList, NodeList, PageInfo, Response}
+alias MoodleNet.Activities.Activity
 alias MoodleNet.Collections.Collection
 alias MoodleNet.Comments.{Comment, Thread}
 alias MoodleNet.Common.{Flag, Follow, Like, Tag, Category, Tagging}
@@ -10,6 +11,14 @@ alias MoodleNet.Communities.Community
 alias MoodleNet.Localisation.{Country, Language}
 alias MoodleNet.Resources.Resource
 alias MoodleNet.Users.{AuthPayload, Me, User}
+
+# Activities
+
+defimpl Response, for: Activity do
+  def to_response(self, _info, _path) do
+    self
+  end
+end
 
 # Common
 
@@ -139,6 +148,21 @@ defimpl Response, for: Community do
   end
 end
 
+# GraphQL
+
+defimpl Response, for: Edge do
+  def to_response(self, _info, _path), do: self
+end
+defimpl Response, for: EdgeList do
+  def to_response(self, _info, _path), do: self
+end
+defimpl Response, for: NodeList do
+  def to_response(self, _info, _path), do: self
+end
+defimpl Response, for: PageInfo do
+  def to_response(self, _info, _path), do: self
+end
+
 # Localisation
 
 defimpl Response, for: Country do
@@ -195,6 +219,9 @@ end
 # Builtins
 
 defimpl Response, for: BitString do
+  def to_response(val,_,_), do: val
+end
+defimpl Response, for: DateTime do
   def to_response(val,_,_), do: val
 end
 defimpl Response, for: Integer do

@@ -3,19 +3,41 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LocalisationResolver do
   @moduledoc "GraphQL Language and Country queries"
-  alias MoodleNetWeb.GraphQL
-  import MoodleNet.Localisation
+  alias MoodleNet.{Fake, GraphQL}
+  alias MoodleNet.Localisation
 
   def languages(_, info) do
-    GraphQL.response({:ok, Localisation.languages()}, info)
+    {:ok, Fake.long_node_list(&Fake.language/0)}
+    |> GraphQL.response(info)
+  end
+
+  def language(%{language_id: id}, info) do
+    {:ok, Fake.language()}
+    |> GraphQL.response(info)
+  end
+
+  def search_language(%{query: id}, info) do
+    {:ok, Fake.long_node_list(&Fake.language/0)}
+    |> GraphQL.response(info)
   end
 
   def countries(_, info) do
-    GraphQL.response({:ok, Localisation.countries()}, info)
+    {:ok, Fake.long_node_list(&Fake.country/0)}
+    |> GraphQL.response(info)
+  end
+
+  def country(%{country_id: id}, info) do
+    {:ok, Fake.country()}
+    |> GraphQL.response(info)
+  end
+
+  def search_country(%{query: id}, info) do
+    {:ok, Fake.long_node_list(&Fake.country/0)}
+    |> GraphQL.response(info)
   end
 
   def primary_language(parent, _, info) do
-    {:ok, Localisation.language!("en")}
+    {:ok, Fake.language()}
     |> GraphQL.response(info)
   end
 

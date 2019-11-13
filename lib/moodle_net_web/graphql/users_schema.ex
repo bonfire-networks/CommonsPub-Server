@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
     CommonResolver,
+    CommentsResolver,
     LocalisationResolver,
     UsersResolver,
   }
@@ -159,7 +160,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &LocalisationResolver.primary_language/3
     end
 
-    @desc "The communities a user has joined, most recently joined first"
+    @desc "The communities a user is following, most recently followed first"
     field :followed_communities, :follows_edges do
       arg :limit, :integer
       arg :before, :string
@@ -173,6 +174,14 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       arg :before, :string
       arg :after, :string
       resolve &UsersResolver.followed_collections/3
+    end
+
+    @desc "The users a user is following, most recently followed first"
+    field :followed_users, :follows_edges do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.followed_users/3
     end
 
     @desc "The collections a user is following, most recently followed first"
@@ -210,15 +219,15 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.inbox/3
     end
 
-    @desc "Taggings the user has created"
-    field :tagged, :taggings_edges do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommonResolver.tagged/3
-    end
+  #   @desc "Taggings the user has created"
+  #   field :tagged, :taggings_edges do
+  #     arg :limit, :integer
+  #     arg :before, :string
+  #     arg :after, :string
+  #     resolve &CommonResolver.tagged/3
+  #   end
 
-  end
+ end
 
   input_object :registration_input do
     field :email, non_null(:string)

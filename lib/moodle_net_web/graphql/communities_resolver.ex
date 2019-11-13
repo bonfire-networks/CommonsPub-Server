@@ -36,9 +36,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     #   comms = Communities.list()
     #   {:ok, GraphQL.node_list(comms, count)}
     # end)
-    count = Fake.pos_integer()
-    comms = Fake.long_list(&Fake.collection/0)
-    {:ok, GraphQL.node_list(comms, count)}
+    # count = Fake.pos_integer()
+    # comms = Fake.long_list(&Fake.collection/0)
+    # {:ok, GraphQL.node_list(comms, count)}
+    {:ok, Fake.long_node_list(&Fake.community/0)}
     |> GraphQL.response(info)
   end
 

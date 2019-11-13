@@ -7,8 +7,8 @@ defmodule MoodleNet.Localisation.Country do
     field(:iso_code3, :string)
     field(:english_name, :string)
     field(:local_name, :string)
-    field(:deleted_at, :timestamptz)
-    field(:published_at, :timestamptz)
+    field(:deleted_at, :utc_datetime_usec)
+    field(:published_at, :utc_datetime_usec)
     timestamps(inserted_at: :created_at)
   end
 end
