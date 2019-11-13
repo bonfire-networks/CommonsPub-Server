@@ -345,7 +345,8 @@ defmodule ActivityPub do
           account: account,
           statuses: statuses,
           content: content
-        } = params
+        } = params,
+        pointer \\ nil
       ) do
     # only accept false as false value
     local = !(params[:local] == false)
@@ -369,7 +370,7 @@ defmodule ActivityPub do
       end
 
     with flag_data <- Utils.make_flag_data(params, additional),
-         {:ok, activity} <- insert(flag_data, local),
+         {:ok, activity} <- insert(flag_data, local, pointer),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}

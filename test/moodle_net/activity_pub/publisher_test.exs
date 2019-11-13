@@ -92,4 +92,28 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert unblock_activity.data["object"]["id"] == block_activity.data["id"]
     end
   end
+
+  describe "flags" do
+    test "it flags an actor" do
+      flagger = fake_actor!()
+      ap_flagged = actor()
+      {:ok, flagged} = MoodleNet.Actors.fetch_by_username(ap_flagged.username)
+      {:ok, flag} = MoodleNet.Common.flag(flagger, flagged, %{message: "blocked AND reported!!!"})
+      assert {:ok, activity} = Publisher.flag(flag)
+    end
+
+    test "if flags a comment" do
+      actor = fake_actor!()
+      commented_actor = fake_actor!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      # Comment needs to be published before the flag can be federated
+      Publisher.comment(comment)
+
+      {:ok, flag} =
+        MoodleNet.Common.flag(commented_actor, comment, %{message: "blocked AND reported!!!"})
+
+      assert {:ok, activity} = Publisher.flag(flag)
+    end
+  end
 end
