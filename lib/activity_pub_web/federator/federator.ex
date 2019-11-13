@@ -8,15 +8,22 @@ defmodule ActivityPubWeb.Federator do
   alias ActivityPub.Utils
   alias ActivityPubWeb.Federator.Publisher
   alias ActivityPubWeb.Transmogrifier
+  alias ActivityPub.Workers.PublisherWorker
+  alias ActivityPub.Workers.ReceiverWorker
 
   require Logger
 
   def incoming_ap_doc(params) do
-    PleromaJobQueue.enqueue(:federator_incoming, __MODULE__, [:incoming_ap_doc, params])
+    ReceiverWorker.enqueue("incoming_ap_doc", %{"params" => params})
   end
 
-  def publish(activity, priority \\ 1) do
-    PleromaJobQueue.enqueue(:federator_outgoing, __MODULE__, [:publish, activity], priority)
+  def publish(activity) do
+    PublisherWorker.enqueue("publish", %{"activity_id" => activity.id})
+  end
+
+  @spec perform(atom(), module(), any()) :: {:ok, any()} | {:error, any()}
+  def perform(:publish_one, module, params) do
+    apply(module, :publish_one, [params])
   end
 
   def perform(:publish, activity) do

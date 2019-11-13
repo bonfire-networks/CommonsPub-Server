@@ -422,14 +422,7 @@ defmodule ActivityPub.Utils do
   """
   def maybe_federate(%Object{local: true} = activity) do
     if MoodleNet.Config.get!([:instance, :federating]) do
-      priority =
-        case activity.data["type"] do
-          "Delete" -> 10
-          "Create" -> 1
-          _ -> 5
-        end
-
-      ActivityPubWeb.Federator.publish(activity, priority)
+      ActivityPubWeb.Federator.publish(activity)
     end
 
     :ok
