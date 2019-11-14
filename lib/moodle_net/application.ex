@@ -24,8 +24,8 @@ defmodule MoodleNet.Application do
     # and does not need it to start up
     children = [
       supervisor(Repo, []),
-      worker(LanguageService, []),
-      worker(CountryService, []),
+      # worker(LanguageService, []),
+      # worker(CountryService, []),
       worker(TableService, []),
       supervisor(Endpoint, []),
     ]
