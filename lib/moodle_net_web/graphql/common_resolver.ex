@@ -31,8 +31,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
 
-  def follow(_, _, info) do
-    {:ok, Fake.follow()}
+  def follow(parent, _, info) do
+    case Map.get(parent, :follow) do
+      nil -> {:ok, Fake.follow()}
+      other -> {:ok, other}
+    end
     |> GraphQL.response(info)
   end
 
@@ -40,26 +43,33 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, Fake.like()}
     |> GraphQL.response(info)
   end
-  def tag(%{tag_id: id}, info) do
-    {:ok, Fake.tag()}
+  def like(parent,_, info) do
+    case Map.get(parent, :like) do
+      nil -> {:ok, Fake.like()}
+      other -> {:ok, other}
+    end
     |> GraphQL.response(info)
   end
-  def tag_category(%{tag_category_id: id}, info) do
-    {:ok, Fake.tag_category()}
-    |> GraphQL.response(info)
-  end
-  def tag_category(_, _, info) do
-    {:ok, Fake.tag_category()}
-    |> GraphQL.response(info)
-  end
-  def tagging(%{tagging_id: id}, info) do
-    {:ok, Fake.tagging()}
-    |> GraphQL.response(info)
-  end
-  def taggings(_, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.tagging/0)}
-    |> GraphQL.response(info)
-  end
+  # def tag(%{tag_id: id}, info) do
+  #   {:ok, Fake.tag()}
+  #   |> GraphQL.response(info)
+  # end
+  # def tag_category(%{tag_category_id: id}, info) do
+  #   {:ok, Fake.tag_category()}
+  #   |> GraphQL.response(info)
+  # end
+  # def tag_category(_, _, info) do
+  #   {:ok, Fake.tag_category()}
+  #   |> GraphQL.response(info)
+  # end
+  # def tagging(%{tagging_id: id}, info) do
+  #   {:ok, Fake.tagging()}
+  #   |> GraphQL.response(info)
+  # end
+  # def taggings(_, _, info) do
+  #   {:ok, Fake.long_edge_list(&Fake.tagging/0)}
+  #   |> GraphQL.response(info)
+  # end
 
   def create_follow(%{context_id: id}, info) do
     # Repo.transact_with fn ->
@@ -217,10 +227,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, true}
   end
 
-  def tag(_, _, info) do
-    {:ok, Fake.tag()}
-    |> GraphQL.response(info)
-  end
+  # def tag(_, _, info) do
+  #   {:ok, Fake.tag()}
+  #   |> GraphQL.response(info)
+  # end
 
   def context(%Follow{}=follow, _, info) do
     case Map.get(follow, :context) do

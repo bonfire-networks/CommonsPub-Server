@@ -96,8 +96,10 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "Whether the follow is public"
     field :is_public, non_null(:boolean)
 
-    @desc "When the like was created"
+    @desc "When the follow was created"
     field :created_at, non_null(:string)
+    @desc "When the follow was last updated"
+    field :updated_at, non_null(:string)
 
     @desc "The user who followed"
     field :creator, non_null(:user) do
@@ -213,6 +215,8 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "When the like was created"
     field :created_at, non_null(:string)
+    @desc "When the like was last updated"
+    field :updated_at, non_null(:string)
 
     @desc "The user who liked"
     field :creator, non_null(:user) do
