@@ -17,7 +17,6 @@ defmodule MoodleNet.Users.LocalUser do
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
     field(:is_instance_admin, :boolean, default: false)
-    field(:is_confirmed, :boolean, virtual: true)
     field(:confirmed_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     has_one(:user, User)
@@ -39,23 +38,26 @@ defmodule MoodleNet.Users.LocalUser do
   end
 
   @doc "Create a changeset for confirming an email"
-  def confirm_email_changeset(%LocalUser{} = user) do
-    Changeset.change(user, confirmed_at: DateTime.utc_now())
+  def confirm_email_changeset(%LocalUser{} = local_user) do
+    Changeset.change(local_user, confirmed_at: DateTime.utc_now())
   end
 
   @doc "Create a changeset for unconfirming an email"
-  def unconfirm_email_changeset(%LocalUser{} = user) do
-    Changeset.change(user, confirmed_at: nil)
+  def unconfirm_email_changeset(%LocalUser{} = local_user) do
+    Changeset.change(local_user, confirmed_at: nil)
   end
 
   @update_cast_attrs ~w(email password wants_email_digest wants_notifications)a
 
   @doc "Update the attributes for a user"
-  def update_changeset(%LocalUser{} = user, attrs) do
-    user
+  def update_changeset(%LocalUser{} = local_user, attrs) do
+    local_user
     |> Changeset.cast(attrs, @update_cast_attrs)
     |> common_changeset()
   end
+
+  def soft_delete_changeset(%LocalUser{} = local_user),
+    do: MoodleNet.Common.Changeset.soft_delete_changeset(local_user)
 
   @instance_admin_update_cast_attrs [
     :is_instance_admin,
@@ -63,20 +65,20 @@ defmodule MoodleNet.Users.LocalUser do
     :is_disabled
   ]
 
-  def instance_admin_update_changeset(%LocalUser{} = user, attrs) do
-    user
+  def instance_admin_update_changeset(%LocalUser{} = local_user, attrs) do
+    local_user
     |> Changeset.cast(attrs, @instance_admin_update_cast_attrs)
     |> common_changeset()
   end
 
-  def make_instance_admin_changeset(%User{} = user) do
-    user
+  def make_instance_admin_changeset(%LocalUser{} = local_user) do
+    local_user
     |> Changeset.cast(%{}, [])
     |> Changeset.change(is_instance_admin: true)
   end
 
-  def unmake_instance_admin_changeset(%User{} = user) do
-    user
+  def unmake_instance_admin_changeset(%LocalUser{} = local_user) do
+    local_user
     |> Changeset.cast(%{}, [])
     |> Changeset.change(is_instance_admin: false)
   end

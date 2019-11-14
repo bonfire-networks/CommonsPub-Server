@@ -19,12 +19,12 @@ defmodule MoodleNet.Users.ResetPasswordToken do
     timestamps()
   end
 
-  def create_changeset(user, validity_period \\ @default_validity)
+  def create_changeset(local_user, validity_period \\ @default_validity)
 
-  def create_changeset(%LocalUser{} = user, validity) do
+  def create_changeset(%LocalUser{} = local_user, validity) do
     %__MODULE__{}
     |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(:local_user, user.id)
+    |> Changeset.put_change(:local_user_id, local_user.id)
     |> Changeset.put_change(:expires_at, expires_at(validity))
   end
 

@@ -32,7 +32,7 @@ defmodule MoodleNet.Mail.Email do
   end
 
   defp base_email(user) do
-    %{local_user: local_user} = Users.preload(user)
+    {:ok, local_user} = Users.fetch_local_user(user)
     new_email()
     |> to(local_user.email)
     # FIXME domain configuration

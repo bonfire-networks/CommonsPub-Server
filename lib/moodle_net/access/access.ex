@@ -89,7 +89,7 @@ defmodule MoodleNet.Access do
   def check_register_access(email) do
     if is_register_accessed?(email),
       do: :ok,
-      else: {:error, NotAccessedError.new()}
+      else: {:error, NoAccessError.new()}
   end
 
   defp email_domain(email) do

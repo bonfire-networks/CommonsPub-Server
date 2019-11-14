@@ -25,8 +25,12 @@ defmodule MoodleNet.Users do
   alias Ecto.Changeset
 
   @doc "Fetches a user by id"
-  @spec fetch(id :: binary) :: {:ok, %User{}} | {:error, NotFoundError.t()}
-  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
+  @spec fetch(id :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
+  def fetch(id) when is_binary(id) do
+    with {:ok, user} <- Repo.single(fetch_q(id)) do
+      {:ok, preload(user)}
+    end
+  end
 
   def fetch_q(id) do
     from(u in User,
@@ -35,19 +39,20 @@ defmodule MoodleNet.Users do
     )
   end
 
-  # TODO: one query
+  @spec fetch_by_username(username :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
   def fetch_by_username(username) when is_binary(username) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.fetch_by_username(username),
-           {:ok, user} <- Meta.follow(Meta.forge!(User, actor.alias_id)) do
-        {:ok, %User{user | actor: actor}}
+           {:ok, user} <- Repo.fetch_by(User, actor_id: actor.id) do
+        {:ok, preload_local_user(%User{user | actor: actor})}
       end
     end)
   end
 
+  @spec fetch_by_email(email :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
   def fetch_by_email(email) when is_binary(email) do
     with {:ok, local_user} <- Repo.single(fetch_by_email_q(email)) do
-      {:ok, %User{local_user: local_user}}
+      {:ok, preload_actor(%User{local_user: local_user})}
     end
   end
 
@@ -58,10 +63,20 @@ defmodule MoodleNet.Users do
     )
   end
 
+  @spec fetch_actor(User.t()) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_actor(%User{actor_id: id}), do: Actors.fetch(id)
-  def fetch_actor(%User{actor: actor}), do: {:ok, actor}
+  def fetch_actor(%User{actor: actor}), do: Actors.fetch(actor.id)
 
   def fetch_actor_private(%User{actor_id: id}), do: Actors.fetch_private(id)
+
+  @spec fetch_local_user(User.t()) :: {:ok, LocalUser.t()} | {:error, NotFoundError.t()}
+  def fetch_local_user(%User{local_user_id: id}) do
+    Repo.fetch(LocalUser, id)
+  end
+
+  def fetch_local_user(%User{local_user: local_user} = user) do
+    Repo.fetch(LocalUser, local_user.id)
+  end
 
   @doc """
   Registers a user:
@@ -76,20 +91,36 @@ defmodule MoodleNet.Users do
 
   `:public_registration` - boolean, default false. if false, accesss will be checked
   """
-  # @spec register(attrs :: map) :: {:ok, %User{}} | {:error, Changeset.t}
-  # @spec register(attrs :: map, opts :: Keyword.t) :: {:ok, %User{}} | {:error, Changeset.t}
+  @spec register(attrs :: map, opts :: Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def register(%{} = attrs, opts \\ []) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, local_user} <- insert_local_user(attrs),
            :ok <- check_register_access(local_user.email, opts),
-           {:ok, user} <- insert_user(actor, local_user, attrs),
+           pointer = Meta.point_to!(User),
+           {:ok, user} <-
+             Repo.insert(User.local_register_changeset(pointer, actor, local_user, attrs)),
            {:ok, token} <- create_email_confirm_token(local_user) do
         user
         |> Email.welcome(token)
         |> MailService.deliver_now()
 
         {:ok, %{user | email_confirm_tokens: [token], actor: actor, local_user: local_user}}
+      end
+    end)
+  end
+
+  @doc """
+  Register a remote-only user. The user will not have a :local_user relation, only an actor
+  will be created.
+  """
+  @spec register_remote(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def register_remote(attrs, opts \\ []) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           pointer = Meta.point_to!(User),
+           {:ok, user} <- Repo.insert(User.register_changeset(pointer, actor, attrs)) do
+        {:ok, %User{actor: actor}}
       end
     end)
   end
@@ -111,25 +142,21 @@ defmodule MoodleNet.Users do
     end
   end
 
-  defp insert_user(actor, local_user, %{} = attrs) do
-    Meta.point_to!(User)
-    |> User.local_register_changeset(actor, local_user, attrs)
-    |> Repo.insert()
-  end
-
   defp create_email_confirm_token(%LocalUser{} = local_user),
     do: Repo.insert(EmailConfirmToken.create_changeset(local_user))
 
   @doc "Uses an email confirmation token, returns ok/error tuple"
+  @spec claim_email_confirm_token(token :: any, DateTime.t()) ::
+          {:ok, User.t()} | {:error, Changeset.t()}
   def claim_email_confirm_token(token, now \\ DateTime.utc_now())
 
   def claim_email_confirm_token(token, %DateTime{} = now) when is_binary(token) do
     Repo.transact_with(fn ->
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
-           token = Repo.preload(token, :local_user),
-           {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)) do
-        confirm_email(token.local_user)
+           {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
+           {:ok, user} <- Repo.fetch_by(User, local_user_id: token.local_user_id) do
+        confirm_email(user)
       end
     end)
   end
@@ -142,17 +169,31 @@ defmodule MoodleNet.Users do
   Note: this is for the benefit of the test suite. In normal use you
   should use the email confirmation mechanism.
   """
-  def confirm_email(%LocalUser{} = local_user),
-    do: Repo.update(LocalUser.confirm_email_changeset(local_user))
-
-  def unconfirm_email(%LocalUser{} = local_user),
-    do: Repo.update(LocalUser.unconfirm_email_changeset(local_user))
-
-  def request_password_reset(%LocalUser{} = local_user) do
+  @spec confirm_email(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def confirm_email(%User{} = user) do
     Repo.transact_with(fn ->
-      with {:ok, token} <- Repo.insert(ResetPasswordToken.create_changeset(local_user)) do
-        %{user: user} = preload(local_user)
+      with {:ok, local_user} <- fetch_local_user(user),
+           {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(local_user)) do
+        {:ok, %User{user | local_user: local_user}}
+      end
+    end)
+  end
 
+  @spec unconfirm_email(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def unconfirm_email(%User{} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, local_user} <- fetch_local_user(user),
+           {:ok, local_user} <- Repo.update(LocalUser.unconfirm_email_changeset(local_user)) do
+        {:ok, %User{user | local_user: local_user}}
+      end
+    end)
+  end
+
+  @spec request_password_reset(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def request_password_reset(%User{} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, local_user} <- fetch_local_user(user),
+           {:ok, token} <- Repo.insert(ResetPasswordToken.create_changeset(local_user)) do
         user
         |> Email.reset_password_request(token)
         |> MailService.deliver_now()
@@ -162,6 +203,8 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  @spec claim_password_reset(token :: any, binary(), DateTime.t()) ::
+          {:ok, User.t()} | {:error, Changeset.t()}
   def claim_password_reset(token, password, now \\ DateTime.utc_now())
 
   def claim_password_reset(token, password, %DateTime{} = now)
@@ -172,7 +215,7 @@ defmodule MoodleNet.Users do
            {:ok, local_user} <- Repo.fetch(LocalUser, token.local_user_id),
            {:ok, user} <- Repo.fetch_by(User, local_user_id: local_user.id),
            {:ok, token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
-           {:ok, _} <- update(local_user, %{password: password}) do
+           {:ok, _} <- Repo.update(LocalUser.update_changeset(local_user, %{password: password})) do
         user
         |> Email.password_reset()
         |> MailService.deliver_now()
@@ -195,41 +238,61 @@ defmodule MoodleNet.Users do
     end
   end
 
+  @spec update(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- fetch_actor(user),
+           {:ok, local_user} <- fetch_local_user(user),
            {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(actor, attrs) do
-        {:ok, %User{user | actor: actor}}
+           {:ok, actor} <- Actors.update(actor, attrs),
+           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(local_user, attrs)) do
+        {:ok, %User{user | actor: actor, local_user: local_user}}
       end
     end)
   end
 
+  @spec soft_delete(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
-           {:ok, actor} <- fetch_actor(user),
-           {:ok, actor} <- Actors.soft_delete(actor) do
-        {:ok, %User{user | actor: actor}}
+           {:ok, local_user} <- fetch_local_user(user),
+           {:ok, local_user} <- Repo.update(LocalUser.soft_delete_changeset(local_user)) do
+        {:ok, %User{user | local_user: local_user}}
       end
     end)
   end
 
+  @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
-    Repo.update(User.make_instance_admin_changeset(user))
+    Repo.transact_with(fn ->
+      with {:ok, local_user} <- fetch_local_user(user),
+           {:ok, local_user} <- Repo.update(LocalUser.make_instance_admin_changeset(local_user)) do
+        {:ok, %User{user | local_user: local_user}}
+      end
+    end)
   end
 
+  @spec unmake_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unmake_instance_admin(%User{} = user) do
-    Repo.update(User.unmake_instance_admin_changeset(user))
+    Repo.transact_with(fn ->
+      with {:ok, local_user} <- fetch_local_user(user),
+           {:ok, local_user} <- Repo.update(LocalUser.unmake_instance_admin_changeset(local_user)) do
+        {:ok, %User{user | local_user: local_user}}
+      end
+    end)
   end
 
+  @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])
+
   def preload(%User{} = user, opts),
     do: Repo.preload(user, [:local_user, :actor], opts)
 
-  def preload(%LocalUser{} = local_user, opts),
-    do: Repo.preload(local_user, [:user])
-
-  def preload_actor(%User{} = user, opts),
+  @spec preload_actor(User.t(), Keyword.t()) :: User.t()
+  def preload_actor(%User{} = user, opts \\ []),
     do: Repo.preload(user, :actor, opts)
+
+  @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
+  def preload_local_user(%User{} = user, opts \\ []),
+    do: Repo.preload(user, :local_user, opts)
 end
