@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     |> GraphQL.response(info)
   end
 
-  def community(%Collection{}=collection, _, info) do
+  def community(_, _, info) do
     # with {:ok, {community, actor}} <- Repo.single(fetch_q(id)) do
     #   {:ok, %{community | actor: Actors.preload(actor)}}
     # end

@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_queries do
 
     @desc "Get list of communities, most followed first"
-    field :communities, :communities_nodes do
+    field :communities, non_null(:communities_nodes) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Get a community"
-    field :community, :community do
+    field :community, non_null(:community) do
       arg :community_id, non_null(:string)
       resolve &CommunitiesResolver.community/2
     end
@@ -39,13 +39,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_mutations do
 
     @desc "Create a community"
-    field :create_community, :community do
+    field :create_community, non_null(:community) do
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.create_community/2
     end
 
     @desc "Update a community"
-    field :update_community, :community do
+    field :update_community, non_null(:community) do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.update_community/2
@@ -55,14 +55,14 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
   object :community do
     @desc "An instance-local UUID identifying the user"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string
     @desc "An instance-unique identifier shared with users and collections"
-    field :preferred_username, :string
+    field :preferred_username, non_null(:string)
 
     @desc "A name field"
-    field :name, :string
+    field :name, non_null(:string)
     @desc "Possibly biographical information"
     field :summary, :string
     @desc "An avatar url"
@@ -71,21 +71,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :image, :string
 
     @desc "Whether the community is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean)
     @desc "Whether the community has a public profile"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean)
     @desc "Whether an instance admin has disabled the community"
-    field :is_disabled, :boolean
+    field :is_disabled, non_null(:boolean)
 
     @desc "When the community was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
     @desc "When the community was last updated"
-    field :updated_at, :string
+    field :updated_at, non_null(:string)
     @desc """
     When the community or a resource or collection in it was last
     updated or a thread or a comment was created or updated
     """
-    field :last_activity, :string do
+    field :last_activity, non_null(:string) do
       resolve &CommunitiesResolver.last_activity/3
     end
 
@@ -100,12 +100,12 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The user who created the community"
-    field :creator, :user do
+    field :creator, non_null(:user) do
       resolve &UsersResolver.creator/3
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, :collections_edges do
+    field :collections, non_null(:collections_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -117,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, :threads_edges do
+    field :threads, non_null(:threads_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, :follows_edges do
+    field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -133,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities for community moderators. Not available to plebs."
-    field :inbox, :activities_edges do
+    field :inbox, non_null(:activities_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -141,7 +141,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, :activities_edges do
+    field :outbox, non_null(:activities_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -151,29 +151,29 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   end
 
   object :communities_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:community)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:community))
     field :total_count, non_null(:integer)
   end
 
   object :communities_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:community)
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:community))
     field :total_count, non_null(:integer)
   end
 
   object :communities_edge do
     field :cursor, non_null(:string)
-    field :node, :community
+    field :node, non_null(:community)
   end
 
   input_object :community_input do
-    field :primary_language_id, non_null(:string)
-    field :name, non_null(:string)
-    field :summary, non_null(:string)
     field :preferred_username, non_null(:string)
+    field :name, non_null(:string)
+    field :summary, :string
     field :icon, :string
     field :image, :string
+    field :primary_language_id, :string
   end
 
 end

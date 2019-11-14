@@ -31,6 +31,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
 
+  def follow(_, _, info) do
+    {:ok, Fake.follow()}
+    |> GraphQL.response(info)
+  end
+
   def like(%{like_id: id}, info) do
     {:ok, Fake.like()}
     |> GraphQL.response(info)

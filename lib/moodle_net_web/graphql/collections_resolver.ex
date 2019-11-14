@@ -38,6 +38,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     {:ok, Fake.collection()}
     |> GraphQL.response(info)
   end
+
   def create_collection(%{collection: attrs, community_id: community_id}, info) do
     # Repo.transact_with(fn ->
     #   with {:ok, user} <- GraphQL.current_user(info),

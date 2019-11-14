@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   alias MoodleNet.Users.User
 
   object :activities_queries do
-    field :activity, :activity do
+    field :activity, non_null(:activity) do
       arg :activity_id, non_null(:string)
       resolve &ActivitiesResolver.activity/2
     end
@@ -24,28 +24,28 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   @desc "An event that appears in a feed"
   object :activity do
     @desc "An instance-local UUID identifying the activity"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the like, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "The verb describing the activity"
-    field :verb, :activity_verb
+    field :verb, non_null(:activity_verb)
 
     @desc "Whether the activity is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean)
     @desc "Whether the activity is public"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean)
 
     @desc "When the activity was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
 
     @desc "The user who performed the activity"
-    field :user, :user do
+    field :user, non_null(:user) do
       resolve &UsersResolver.user/3
     end
 
     @desc "The object of the user's verbing"
-    field :context, :activity_context do
+    field :context, non_null(:activity_context) do
       resolve &ActivitiesResolver.context/3
     end
   end
@@ -65,20 +65,20 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   end
 
   object :activities_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:activity)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:activity))
     field :total_count, non_null(:integer)
   end
 
   object :activities_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:activities_edge)
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:activities_edge))
     field :total_count, non_null(:integer)
   end
 
   object :activities_edge do
     field :cursor, non_null(:string)
-    field :node, :activity
+    field :node, non_null(:activity)
   end
 
 end

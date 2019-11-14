@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
   object :admin_queries do
 
     @desc "Admin is a virtual object for the administration panel"
-    field :admin, :admin do
+    field :admin, non_null(:admin) do
       resolve &AdminResolver.admin/2
     end
 
@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
   object :admin_mutations do
     
     @desc "Close a flag"
-    field :resolve_flag, type: :boolean do
+    field :resolve_flag, non_null(:flag) do
       arg :flag_id, non_null(:string)
       resolve &AdminResolver.resolve_flag/2
     end

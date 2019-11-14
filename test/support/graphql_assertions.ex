@@ -205,9 +205,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"id" => id, "canonicalUrl" => url} = comment
     assert is_binary(id)
     assert is_binary(url)
-    assert %{"id" => id, "inReplyToId" => reply} = comment
-    assert is_binary(id)
-    assert is_binary(reply) or is_nil(reply)
     assert %{"content" => content} = comment
     assert is_binary(content)
     assert %{"isLocal" => local, "isPublic" => public} = comment

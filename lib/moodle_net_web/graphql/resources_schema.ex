@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resources_queries do
 
     @desc "Get a resource"
-    field :resource, :resource do
+    field :resource, non_null(:resource) do
       arg :resource_id, non_null(:string)
       resolve &ResourcesResolver.resource/2
     end
@@ -28,21 +28,21 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resources_mutations do
 
     @desc "Create a resource"
-    field :create_resource, :resource do
+    field :create_resource, non_null(:resource) do
       arg :collection_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.create_resource/2
     end
 
     @desc "Update a resource"
-    field :update_resource, :resource do
+    field :update_resource, non_null(:resource) do
       arg :resource_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.update_resource/2
     end
 
     @desc "Copy a resource"
-    field :copy_resource, :resource do
+    field :copy_resource, non_null(:resource) do
       arg :resource_id, non_null(:string)
       arg :collection_id, non_null(:string)
       resolve &ResourcesResolver.copy_resource/2
@@ -52,14 +52,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   object :resource do
     @desc "An instance-local UUID identifying the user"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "A name field"
-    field :name, :string
+    field :name, non_null(:string)
     @desc "Possibly biographical information"
-    field :summary, :string
+    field :summary, non_null(:string)
     @desc "An avatar url"
     field :icon, :string
     @desc "A link to an external resource"
@@ -82,21 +82,21 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # field :educational_use, list_of(non_null(:string))
 
     @desc "Whether the resource is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean)
     @desc "Whether the community is public"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean)
     @desc "Whether an instance admin has hidden the resource"
-    field :is_disabled, :boolean
+    field :is_disabled, non_null(:boolean)
 
     @desc "When the collection was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
     @desc "When the collection was last updated"
-    field :updated_at, :string
+    field :updated_at, non_null(:string)
     @desc """
     When the resource was last updated or a thread or a comment on it
     was created or updated
     """
-    field :last_activity, :string do
+    field :last_activity, non_null(:string) do
       resolve &ResourcesResolver.last_activity/3
     end
 
@@ -106,12 +106,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "The user who created the resource"
-    field :creator, :user do
+    field :creator, non_null(:user) do
       resolve &UsersResolver.creator/3
     end
 
     @desc "The collection this resource is a part of"
-    field :collection, :collection do
+    field :collection, non_null(:collection) do
       resolve &CollectionsResolver.collection/3
     end
 
@@ -121,7 +121,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likes, :likes_edges do
+    field :likes, non_null(:likes_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -129,7 +129,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, non_null(:flags_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -147,17 +147,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   end
 
   input_object :resource_input do
-    field :name, :string
-    field :summary, :string
-    field :icon, :string
-    field :primary_language_id, :string
+    field :name, non_null(:string)
+    field :summary, non_null(:string)
+    field :icon, non_null(:string)
     field :url, :string
     field :license, :string
+    field :primary_language_id, :string
   end
 
   object :resources_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:resource)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:resource))
     field :total_count, non_null(:integer)
   end
 
@@ -169,7 +169,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   object :resources_edge do
     field :cursor, non_null(:string)
-    field :node, :resource
+    field :node, non_null(:resource)
   end
 
 end

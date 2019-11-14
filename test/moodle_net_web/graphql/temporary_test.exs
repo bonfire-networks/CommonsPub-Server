@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   isLocal isPublic isHidden createdAt updatedAt __typename
   """
   @comment_basics """
-  id canonicalUrl inReplyToId content
+  id canonicalUrl content
   isLocal isPublic isHidden createdAt updatedAt __typename
   """
   @community_basics """
@@ -48,24 +48,24 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   """
   @like_basics """
   id canonicalUrl
-  isLocal isPublic createdAt __typename
+  isLocal isPublic createdAt updatedAt __typename
   """
   @follow_basics """
   id canonicalUrl
-  isLocal isPublic createdAt __typename
+  isLocal isPublic createdAt updatedAt __typename
   """
-  @tag_category_basics """
-  id canonicalUrl name
-  isLocal isPublic createdAt __typename
-  """
-  @tag_basics """
-  id canonicalUrl name
-  isLocal isPublic createdAt __typename
-  """
-  @tagging_basics """
-  id canonicalUrl
-  isLocal isPublic createdAt __typename
-  """
+  # @tag_category_basics """
+  # id canonicalUrl name
+  # isLocal isPublic createdAt __typename
+  # """
+  # @tag_basics """
+  # id canonicalUrl name
+  # isLocal isPublic createdAt __typename
+  # """
+  # @tagging_basics """
+  # id canonicalUrl
+  # isLocal isPublic createdAt __typename
+  # """
   @activity_basics """
   id canonicalUrl verb
   isLocal isPublic createdAt __typename
@@ -133,11 +133,12 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   test "resolve_flag" do
     q = """
     mutation Test {
-      resolveFlag(flagId: "")
+      resolveFlag(flagId: "") { #{@flag_basics} }
     }
     """
-    assert %{"resolveFlag" => true} =
+    assert %{"resolveFlag" => flag} =
       gql_post_data(json_conn(), %{query: q, operation_name: "Test"})
+    assert_flag(flag)
   end
 
   # collections schema
@@ -620,6 +621,24 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert %{"followers" => follows} = thread
     for follow <- assert_edge_list(follows), do: assert_follow(follow)
   end
+
+  test "comment.in_reply_to" do
+    q = """
+    query Test {
+      comment(commentId: "") {
+        inReplyTo { #{@comment_basics} }
+        #{@comment_basics}
+      }
+    }
+    """
+    query = %{query: q, operationName: "Test"}
+    assert %{"comment" => comment} = gql_post_data(json_conn(), query)
+    assert %{"inReplyTo" => orig} = comment
+    assert_comment(comment)
+    assert_comment(orig)
+    
+  end
+
 
   test "comment.my_like" do
     q = """
@@ -1822,10 +1841,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on Community { #{@community_basics} }
-              }
+              follow { #{@follow_basics} }
+              community { #{@community_basics} }
             }
           }
         }
@@ -1835,11 +1852,10 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     query = %{query: q, operationName: "Test"}
     assert %{"user" => user} = gql_post_data(json_conn(), query)
     assert_user(user)
-    assert %{"followedCommunities" => follows} = user
-    for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_community(context)
+    assert %{"followedCommunities" => followeds} = user
+    for f <- assert_edge_list(followeds) do
+      assert_follow(f["follow"])
+      assert_community(f["community"])
     end
   end
 
@@ -1853,10 +1869,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on Collection { #{@collection_basics} }
-              }
+              follow { #{@follow_basics} }
+              collection { #{@collection_basics} }
             }
           }
         }
@@ -1866,11 +1880,10 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     query = %{query: q, operationName: "Test"}
     assert %{"user" => user} = gql_post_data(json_conn(), query)
     assert_user(user)
-    assert %{"followedCollections" => follows} = user
-    for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_collection(context)
+    assert %{"followedCollections" => followeds} = user
+    for f <- assert_edge_list(followeds) do
+      assert_follow(f["follow"])
+      assert_collection(f["collection"])
     end
   end
 
@@ -1884,10 +1897,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on User { #{@user_basics} }
-              }
+              follow { #{@follow_basics} }
+              user { #{@user_basics} }
             }
           }
         }
@@ -1897,11 +1908,10 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     query = %{query: q, operationName: "Test"}
     assert %{"user" => user} = gql_post_data(json_conn(), query)
     assert_user(user)
-    assert %{"followedUsers" => follows} = user
-    for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_user(context)
+    assert %{"followedUsers" => followeds} = user
+    for f <- assert_edge_list(followeds) do
+      assert_follow(f["follow"])
+      assert_user(f["user"])
     end
   end
 
