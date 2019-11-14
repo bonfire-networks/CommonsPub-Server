@@ -4,6 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
   alias MoodleNet.Activities.Activity
+  alias MoodleNet.Common.{Flag, Follow, Like}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Common.{Flag, Follow, Like}
   alias MoodleNet.Comments.{Comment,Thread}
@@ -72,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "Delete more or less anything"
     field :delete, non_null(:delete_context) do
-      arg :context_id, non_null(:string)
+     arg :context_id, non_null(:string)
       resolve &CommonResolver.delete/2
     end
 
@@ -118,6 +119,26 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     resolve_type fn
       %Collection{}, _ -> :collection
       %Community{},  _ -> :community
+      %Thread{},     _ -> :thread
+      %User{},       _ -> :user
+    end
+  end
+
+  union :delete_context do
+    description "A thing that can be deleted"
+    types [
+      :activity, :collection, :comment, :community, :country, :flag,
+      :follow, :language, :like, :resource, :thread, :user,
+    ]
+    resolve_type fn
+      %Activity{},   _ -> :activity
+      %Collection{}, _ -> :collection
+      %Comment{},    _ -> :comment
+      %Community{},  _ -> :community
+      %Flag{},       _ -> :flag
+      %Follow{},     _ -> :follow
+      %Like{},       _ -> :like
+      %Resource{},   _ -> :resource
       %Thread{},     _ -> :thread
       %User{},       _ -> :user
     end
