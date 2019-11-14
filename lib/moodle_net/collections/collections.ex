@@ -75,7 +75,7 @@ defmodule MoodleNet.Collections do
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
+      where: is_nil(comm.deleted_at)
     )
   end
 

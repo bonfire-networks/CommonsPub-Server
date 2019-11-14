@@ -80,7 +80,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
-    {:ok, resource} = Resources.create(collection, user.actor, Fake.resource(overrides))
+    {:ok, resource} = Resources.create(collection, user, Fake.resource(overrides))
     resource
   end
 

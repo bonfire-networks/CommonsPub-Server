@@ -72,7 +72,6 @@ defmodule MoodleNet.Test.Fake do
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
   @doc "Generate a random boolean that set to nil"
-  def maybe_bool(), do: Faker.Util.pick([true, false, nil])
   @doc "Generate a random signed integer"
   def integer(), do: Faker.random_between(@integer_min, @integer_max)
   @doc "Generate a random positive integer"
@@ -111,13 +110,6 @@ defmodule MoodleNet.Test.Fake do
   def signing_key(), do: nil
   @doc "A random license for content"
   def license(), do: Faker.Util.pick(["GPLv3", "BSDv3", "AGPL", "Creative Commons"])
-  @doc "A list of random education uses"
-  def educational_use(),
-    do: [Faker.Industry.industry(), Faker.Industry.sector(), Faker.Industry.sub_sector()]
-  @doc "Picks a learning resource type"
-  def learning_resource(), do: Faker.Util.pick(["video", "podcast", "article", "paper"])
-  @doc "Picks an age range, represented as a string"
-  def age_range(), do: "#{Faker.random_between(6, 15)}-#{Faker.random_between(16, 100)}"
   @doc "Returns a city and country"
   def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
   @doc "A website address"
@@ -273,15 +265,14 @@ defmodule MoodleNet.Test.Fake do
     base
     # |> Map.put_new_lazy(:is_public, &truth/0)
     # |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
-    |> Map.put_new_lazy(:content, &paragraph/0)
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:url, &url/0)
-    |> Map.put_new_lazy(:free_access, &maybe_bool/0)
-    |> Map.put_new_lazy(:public_access, &maybe_bool/0)
     |> Map.put_new_lazy(:license, &license/0)
-    |> Map.put_new_lazy(:learning_resource_type, &learning_resource/0)
-    |> Map.put_new_lazy(:educational_use, &educational_use/0)
-    |> Map.put_new_lazy(:time_required, &pos_integer/0)
-    |> Map.put_new_lazy(:typical_age_range, &age_range/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &bool/0)
   end
 
   def resource_input(base \\ %{}) do

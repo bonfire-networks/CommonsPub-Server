@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections.Collection do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1, change_disabled: 1]
+
+  import MoodleNet.Common.Changeset,
+    only: [meta_pointer_constraint: 1, change_public: 1, change_disabled: 1]
+
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community

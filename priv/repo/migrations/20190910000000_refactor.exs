@@ -244,7 +244,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
       add :name, :string
-      add :summary, :string
+      add :summary, :text
       add :url, :string
       add :license, :string
       add :icon, :string
