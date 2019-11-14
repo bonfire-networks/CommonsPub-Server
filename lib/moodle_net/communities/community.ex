@@ -15,7 +15,7 @@ defmodule MoodleNet.Communities.Community do
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Flag
-  alias MoodleNet.Communities.Community
+  alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Localisation.Language
@@ -38,6 +38,7 @@ defmodule MoodleNet.Communities.Community do
     field(:deleted_at, :utc_datetime_usec)
     has_many(:collections, Collection)
     has_many(:flags, Flag)
+    has_one(:follower_count, CommunityFollowerCount)
     timestamps(inserted_at: :created_at)
   end
 

@@ -20,9 +20,7 @@ defmodule MoodleNet.Communities do
   def count_for_list(), do: Repo.one(count_for_list_q())
 
   @doc "Lists public, non-deleted communities by follower count"
-  def list(opts \\ %{})
-
-  def list(%{} = opts) do
+  def list() do
     Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
       %{community | actor: %{actor | follower_count: count}}
     end)
@@ -35,11 +33,11 @@ defmodule MoodleNet.Communities do
     |> Query.count()
   end
 
-  def list_q() do
+  defp list_q() do
     from(c in Community,
       join: a in Actor,
-      on: a.alias_id == c.id,
-      left_join: fc in assoc(a, :follower_count),
+      on: a.id == c.actor_id,
+      left_join: fc in assoc(c, :follower_count),
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
       select: {c, a, fc},
@@ -50,27 +48,26 @@ defmodule MoodleNet.Communities do
 
   @doc "Fetches a public, non-deleted community by id"
   def fetch(id) when is_binary(id) do
-    with {:ok, {c, a}} <- Repo.single(fetch_q(id)) do
-      {:ok, %{c | actor: a}}
+    with {:ok, comm} <- Repo.single(fetch_q(id)) do
+      {:ok, preload(comm)}
     end
   end
 
   defp fetch_q(id) do
     from(c in Community,
-      inner_join: a in Actor,
-      on: c.actor_id == a.id,
-      where: a.id == ^id,
+      where: c.id == ^id,
       where: not is_nil(c.published_at),
-      where: not is_nil(a.published_at),
-      where: is_nil(c.deleted_at),
-      where: is_nil(a.deleted_at),
-      select: {c, a}
+      where: is_nil(c.deleted_at)
     )
   end
 
   @doc "Fetches a community by ID, ignoring whether it is public or not."
   @spec fetch_private(id :: binary) :: {:ok, Community.t()} | {:error, NotFoundError.t()}
-  def fetch_private(id) when is_binary(id), do: Repo.fetch(Community, id)
+  def fetch_private(id) when is_binary(id) do
+    with {:ok, comm} <- Repo.fetch(Community, id) do
+      {:ok, preload(comm)}
+    end
+  end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
@@ -100,6 +97,9 @@ defmodule MoodleNet.Communities do
   end
 
   def soft_delete(%Community{} = community), do: Common.soft_delete(community)
+
+  def preload(%Community{} = community, opts \\ []),
+    do: Repo.preload(community, [:actor, :creator], opts)
 
   def fetch_actor(%Community{actor_id: id, actor: %NotLoaded{}}), do: Actors.fetch(id)
   def fetch_actor(%Community{actor: actor}), do: {:ok, actor}
