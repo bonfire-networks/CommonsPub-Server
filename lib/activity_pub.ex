@@ -49,7 +49,7 @@ defmodule ActivityPub do
   @doc false
   def insert(map, local, pointer \\ nil) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
-         {:ok, map, object} <- Utils.insert_full_object(map, pointer) do
+         {:ok, map, object} <- Utils.insert_full_object(map, local, pointer) do
       {:ok, activity} =
         if is_nil(object) do
           Object.insert(%{

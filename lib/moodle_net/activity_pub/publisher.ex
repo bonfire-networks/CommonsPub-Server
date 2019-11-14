@@ -5,7 +5,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
     with {:ok, parent} <- MoodleNet.Meta.follow(comment.thread.parent),
-         parent_id <- Utils.get_parent_id(parent),
+         object_ap_id <- Utils.get_object_ap_id(parent),
          {:ok, actor} <- ActivityPub.Actor.get_by_username(comment.creator.preferred_username),
          {to, cc} <- Utils.determine_recipients(actor, parent),
          object <- %{
@@ -21,7 +21,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
            actor: actor,
            to: to,
            object: object,
-           context: parent_id,
+           context: object_ap_id,
            additional: %{
              "cc" => cc
            }
@@ -79,6 +79,26 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, blocked} <- MoodleNet.Meta.follow(block.blocked),
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.preferred_username) do
       ActivityPub.unblock(blocker, blocked)
+    else
+      _e -> :error
+    end
+  end
+
+  def like(like) do
+    with {:ok, liker} <- Actor.get_by_username(like.liker.preferred_username),
+         {:ok, liked} <- MoodleNet.Meta.follow(like.liked),
+         object <- Utils.get_object(liked) do
+      ActivityPub.like(liker, object)
+    else
+      _e -> :error
+    end
+  end
+
+  def unlike(like) do
+    with {:ok, liker} <- Actor.get_by_username(like.liker.preferred_username),
+         {:ok, liked} <- MoodleNet.Meta.follow(like.liked),
+         object <- Utils.get_object(liked) do
+      ActivityPub.unlike(liker, object)
     else
       _e -> :error
     end

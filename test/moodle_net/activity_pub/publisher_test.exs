@@ -13,6 +13,8 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
 
       assert {:ok, activity} = Publisher.comment(comment)
       assert activity.object.mn_pointer_id == comment.id
+      assert activity.local == true
+      assert activity.object.local == true
     end
 
     # This should work but context function for creating replies is missing and changeset
@@ -133,6 +135,36 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         MoodleNet.Common.flag(commented_actor, comment, %{message: "blocked AND reported!!!"})
 
       assert {:ok, activity} = Publisher.flag(flag)
+    end
+  end
+
+  describe "likes" do
+    test "it likes a comment" do
+      actor = fake_actor!()
+      commented_actor = fake_actor!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      # Comment needs to be published before it can be liked
+      Publisher.comment(comment)
+
+      {:ok, like} = MoodleNet.Common.like(commented_actor, comment, %{is_public: true})
+      assert {:ok, like_activity, object} = Publisher.like(like)
+      assert like_activity.data["object"] == object.data["id"]
+    end
+
+    test "it unlikes a comment" do
+      actor = fake_actor!()
+      commented_actor = fake_actor!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      # Comment needs to be published before it can be liked
+      Publisher.comment(comment)
+      {:ok, like} = MoodleNet.Common.like(commented_actor, comment, %{is_public: true})
+      Publisher.like(like)
+      # No context function for unliking
+      assert {:ok, unlike_activity, like_activity, object} = Publisher.unlike(like)
+      assert like_activity.data["object"] == object.data["id"]
+      assert unlike_activity.data["object"] == like_activity.data
     end
   end
 end
