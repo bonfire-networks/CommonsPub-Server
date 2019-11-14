@@ -124,26 +124,6 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  union :delete_context do
-    description "A thing that can be deleted"
-    types [
-      :activity, :collection, :comment, :community, :country, :flag,
-      :follow, :language, :like, :resource, :thread, :user,
-    ]
-    resolve_type fn
-      %Activity{},   _ -> :activity
-      %Collection{}, _ -> :collection
-      %Comment{},    _ -> :comment
-      %Community{},  _ -> :community
-      %Flag{},       _ -> :flag
-      %Follow{},     _ -> :follow
-      %Like{},       _ -> :like
-      %Resource{},   _ -> :resource
-      %Thread{},     _ -> :thread
-      %User{},       _ -> :user
-    end
-  end
-
   object :follows_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:follows_edge))

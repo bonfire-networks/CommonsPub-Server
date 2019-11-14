@@ -109,11 +109,6 @@ defmodule MoodleNet.UsersTest do
 
       assert {:error, %TokenExpiredError{} = error} =
                Users.claim_email_confirm_token(token.id, then)
-
-      assert error.token.id == token.id
-      assert error.token.expires_at == token.expires_at
-      assert error.token.created_at == token.created_at
-      assert error.token.local_user_id == user.local_user.id
     end
 
     test "will not claim twice" do
@@ -123,11 +118,6 @@ defmodule MoodleNet.UsersTest do
 
       assert {:error, %TokenAlreadyClaimedError{} = error} =
                Users.claim_email_confirm_token(token.id)
-
-      assert error.token.id == token.id
-      assert error.token.expires_at == token.expires_at
-      assert error.token.created_at == token.created_at
-      assert error.token.local_user_id == user.local_user_id
     end
   end
 

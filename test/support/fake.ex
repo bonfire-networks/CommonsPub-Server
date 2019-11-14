@@ -164,7 +164,7 @@ defmodule MoodleNet.Test.Fake do
   def peer(base \\ %{}) do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
-    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 
   def actor(base \\ %{}) do
@@ -192,8 +192,8 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
-    |> Map.put_new_lazy(:is_public, &bool/0)
-    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
     |> Map.merge(local_user(base))
   end

@@ -11,8 +11,6 @@ defmodule MoodleNet.Common.Tagging do
 
   @type t :: %__MODULE__{}
 
-  standalone_schema "mn_tagging" do
-
   meta_schema "mn_tagging" do
     belongs_to(:tag, Tag)
     belongs_to(:tagger, User)

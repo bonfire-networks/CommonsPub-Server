@@ -17,7 +17,9 @@ defmodule MoodleNet.Users.LocalUser do
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)
     field(:is_instance_admin, :boolean, default: false)
+    field(:is_confirmed, :boolean, virtual: true)
     field(:confirmed_at, :utc_datetime_usec)
+    field(:is_deleted, :boolean, virtual: true)
     field(:deleted_at, :utc_datetime_usec)
     has_one(:user, User)
     has_many(:email_confirm_tokens, EmailConfirmToken)
@@ -91,6 +93,13 @@ defmodule MoodleNet.Users.LocalUser do
     |> hash_password()
     |> lower_case_email()
     |> change_public()
+  end
+
+  def vivify_virtuals(%LocalUser{}=user) do
+    %{ user |
+       is_confirmed: not is_nil(user.confirmed_at),
+       is_deleted: not is_nil(user.deleted_at),
+    }
   end
 
   # internals

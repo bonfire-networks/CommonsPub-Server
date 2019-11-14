@@ -19,8 +19,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNet.Users.Me
 
   def username_available(%{username: username}, _info) do
-    {:ok, Fake.bool()}
-    # {:ok, Actors.is_username_available?(username)}
+    # {:ok, Fake.bool()}
+    {:ok, Actors.is_username_available?(username)}
   end
   def me(_, info) do
     {:ok, Fake.me()}

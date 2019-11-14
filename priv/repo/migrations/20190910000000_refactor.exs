@@ -544,17 +544,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_moodleverse_outbox, :created_at)
     create index(:mn_moodleverse_outbox, :activity_id)
 
-    create table(:oauth_authorizations) do
+    create table(:access_token) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
-      add :expires_at, :timestamptz, null: false
-      add :claimed_at, :timestamptz
-      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
-    end
-
-    create table(:access_tokens) do
-      add :user_id, references("mn_user", on_delete: :delete_all), null: false
-      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
-      add :refresh_token, :uuid
       add :expires_at, :timestamptz, null: false
       timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
@@ -744,8 +735,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     :ok = execute "drop view mn_community_follower_count"
     :ok = execute "drop view mn_user_follower_count"
     flush()
-    drop table(:oauth_authorizations)
-    drop table(:oauth_tokens)
+    drop table(:access_token)
 
     drop index(:mn_moodleverse_inbox, :created_at)
     drop index(:mn_moodleverse_inbox, :activity_id)

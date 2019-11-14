@@ -12,7 +12,7 @@ defmodule MoodleNet.Actors.Actor do
   alias MoodleNet.Users.User
 
   # # TODO: match the agreed rules
-  # @username_regex ~r([a-zA-Z0-9]+)
+  @username_regex ~r([a-zA-Z0-9]+)
 
   standalone_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer

@@ -7,7 +7,6 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   permitted to register a MoodleNet account while public signup is
   disabled.
   """
-
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [validate_email: 2, meta_pointer_constraint: 1]
   alias Ecto.Changeset

@@ -30,6 +30,7 @@ defmodule MoodleNet.Users.User do
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
+    field(:is_deleted, :boolean, virtual: true)
     field(:deleted_at, :utc_datetime_usec)
     has_many(:email_confirm_tokens, EmailConfirmToken)
     timestamps(inserted_at: :created_at)
@@ -72,6 +73,15 @@ defmodule MoodleNet.Users.User do
 
   def soft_delete_changeset(%User{} = user),
     do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
+
+  def vivify_virtuals(%User{}=user) do
+    %{ user |
+       is_public: not is_nil(user.published_at),
+       is_disabled: not is_nil(user.disabled_at),
+       is_deleted: not is_nil(user.deleted_at),
+    }
+  end	 
+       
 
   defp common_changeset(changeset) do
     changeset

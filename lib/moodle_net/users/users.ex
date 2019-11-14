@@ -105,7 +105,12 @@ defmodule MoodleNet.Users do
         |> Email.welcome(token)
         |> MailService.deliver_now()
 
-        {:ok, %{user | email_confirm_tokens: [token], actor: actor, local_user: local_user}}
+	local_user = LocalUser.vivify_virtuals(local_user)
+	user = User.vivify_virtuals(user)
+        {:ok, %{user |
+		email_confirm_tokens: [token],
+		actor: actor,
+		local_user: local_user}}
       end
     end)
   end
@@ -120,7 +125,7 @@ defmodule MoodleNet.Users do
       with {:ok, actor} <- Actors.create(attrs),
            pointer = Meta.point_to!(User),
            {:ok, user} <- Repo.insert(User.register_changeset(pointer, actor, attrs)) do
-        {:ok, %User{actor: actor}}
+        {:ok, User.vivify_virtuals(%{user | actor: actor})}
       end
     end)
   end
@@ -138,7 +143,7 @@ defmodule MoodleNet.Users do
 
   defp insert_local_user(attrs) do
     with {:ok, local_user} <- Repo.insert(LocalUser.register_changeset(attrs)) do
-      {:ok, %LocalUser{local_user | password: nil}}
+      {:ok, LocalUser.vivify_virtuals(%{local_user | password: nil})}
     end
   end
 
@@ -174,7 +179,9 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(local_user)) do
-        {:ok, %User{user | local_user: local_user}}
+	user = User.vivify_virtuals(user)
+	local_user = LocalUser.vivify_virtuals(local_user)
+        {:ok, %{user | local_user: local_user}}
       end
     end)
   end
@@ -184,7 +191,9 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.unconfirm_email_changeset(local_user)) do
-        {:ok, %User{user | local_user: local_user}}
+        user = User.vivify_virtuals(user)
+	local_user = LocalUser.vivify_virtuals(local_user)
+        {:ok, %{user | local_user: local_user}}
       end
     end)
   end
@@ -228,10 +237,10 @@ defmodule MoodleNet.Users do
   defp validate_token(token, claim_field, now) do
     cond do
       not is_nil(Map.fetch!(token, claim_field)) ->
-        {:error, TokenAlreadyClaimedError.new(token)}
+        {:error, TokenAlreadyClaimedError.new()}
 
       :gt == DateTime.compare(now, token.expires_at) ->
-        {:error, TokenExpiredError.new(token)}
+        {:error, TokenExpiredError.new()}
 
       true ->
         :ok
@@ -246,7 +255,7 @@ defmodule MoodleNet.Users do
            {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(local_user, attrs)) do
-        {:ok, %User{user | actor: actor, local_user: local_user}}
+        {:ok, User.vivify_virtuals(%{user | actor: actor, local_user: local_user})}
       end
     end)
   end
@@ -286,13 +295,17 @@ defmodule MoodleNet.Users do
   def preload(user, opts \\ [])
 
   def preload(%User{} = user, opts),
-    do: Repo.preload(user, [:local_user, :actor], opts)
+    do: Repo.preload(User.vivify_virtuals(user), [:local_user, :actor], opts)
 
   @spec preload_actor(User.t(), Keyword.t()) :: User.t()
   def preload_actor(%User{} = user, opts \\ []),
-    do: Repo.preload(user, :actor, opts)
+    do: Repo.preload(User.vivify_virtuals(user), :actor, opts)
 
   @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
-  def preload_local_user(%User{} = user, opts \\ []),
-    do: Repo.preload(user, :local_user, opts)
+  def preload_local_user(%User{} = user, opts \\ []) do
+    user = Repo.preload(user, :local_user, opts)
+    local_user = LocalUser.vivify_virtuals(user.local_user)
+    %{ user | local_user: local_user }
+  end
+
 end

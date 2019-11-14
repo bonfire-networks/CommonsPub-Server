@@ -5,35 +5,34 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   use MoodleNetWeb.ConnCase, async: true
   alias MoodleNet.Test.Fake
   import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNet.Test.Faking
+  import MoodleNetWeb.Test.GraphQLFields
+  import MoodleNet.Test.Faking
   # import MoodleNetWeb.Test.ConnHelpers
-  # alias MoodleNet.Test.Fake
   # alias MoodleNet.{Actors, OAuth, Users, Access}
 
   # @user_basic_fields "id local preferredUsername name summary location website icon image"
   # @primary_language "primaryLanguage { id }"
 
-  # describe "UsersResolver.username_available" do
-  #   test "works for a guest" do
-  #     query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
+  describe "UsersResolver.username_available" do
+    test "works for a guest" do
+      query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
+      assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
 
-  #     actor = fake_actor!()
-  #     query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
+      actor = fake_actor!()
+      query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
+      assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
+    end
 
-  #   test "works for a logged in user" do
-  #     user = fake_user!()
-  #     {:ok, actor} = Actors.fetch_by_alias(user.id)
-  #     conn = user_conn(user)
-  #     query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
-  #     assert true == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
+    test "works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
+      assert true == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
 
-  #     query = "{ usernameAvailable(username: \"#{actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
-  #   end
-  # end
+      query = "{ usernameAvailable(username: \"#{user.actor.preferred_username}\") }"
+      assert false == Map.fetch!(gql_post_data(conn, %{query: query}), "usernameAvailable")
+    end
+  end
 
   # describe "UsersResolver.me" do
   #   test "Works for a logged in user" do

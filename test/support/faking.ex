@@ -4,12 +4,12 @@
 defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
   alias MoodleNet.{
+    Access,
     Actors,
     Comments,
     Communities,
     Collections,
     Meta,
-    OAuth,
     Peers,
     Users,
     Localisation,
@@ -63,8 +63,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_token!(%User{}=user) do
-    {:ok, auth} = OAuth.create_auth(user)
-    {:ok, token} = OAuth.claim_token(auth)
+    {:ok, token} = Access.unsafe_put_token(user)
     token
   end
 
