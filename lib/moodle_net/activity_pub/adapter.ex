@@ -77,14 +77,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
     APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id})
   end
 
-  # FIXME: should go through a job queue
   def perform(:handle_activity, %{data: %{"type" => "Follow"}} = activity) do
     # FIXME: way too many queries
     with {:ok, ap_follower} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, ap_followed} <- ActivityPub.Actor.get_by_ap_id(activity.data["object"]),
          {:ok, follower} <- Actors.fetch_by_username(ap_follower.username),
-         {:ok, followed} <- Actors.fetch_by_username(ap_followed.username) do
-      MoodleNet.Common.follow(follower, followed, %{is_public: true, is_muted: false})
+         {:ok, followed} <- Actors.fetch_by_username(ap_followed.username),
+         {:ok, _} <-
+           MoodleNet.Common.follow(follower, followed, %{is_public: true, is_muted: false}) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -100,13 +100,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, ap_blocker} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, ap_blocked} <- ActivityPub.Actor.get_by_ap_id(activity.data["object"]),
          {:ok, blocker} <- Actors.fetch_by_username(ap_blocker.username),
-         {:ok, blocked} <- Actors.fetch_by_username(ap_blocked.username) do
-      MoodleNet.Common.block(blocker, blocked, %{
-        is_public: true,
-        is_muted: false,
-        is_blocked: true
-      })
-
+         {:ok, blocked} <- Actors.fetch_by_username(ap_blocked.username),
+         {:ok, _} <-
+           MoodleNet.Common.block(blocker, blocked, %{
+             is_public: true,
+             is_muted: false,
+             is_blocked: true
+           }) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -122,8 +122,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, actor} <- MoodleNet.Actors.fetch_by_username(ap_actor.username),
          %ActivityPub.Object{} = object <-
            ActivityPub.Object.get_by_ap_id(activity.data["object"]),
-         {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id) do
-      MoodleNet.Common.like(actor, liked, %{is_public: true})
+         {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id),
+         {:ok, _} <- MoodleNet.Common.like(actor, liked, %{is_public: true}) do
       :ok
     else
       {:error, e} -> {:error, e}
