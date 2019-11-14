@@ -29,10 +29,14 @@ defmodule ActivityPub.Adapter do
   @doc """
   Passes data to be handled by the host application
   """
-  @callback handle_activity(Object.t()) :: :ok | {:error, any()}
+  @callback handle_activity(Object.t()) :: :ok | {:ok, any()} | {:error, any()}
   defdelegate handle_activity(activity), to: @adapter
 
-  def maybe_handle_activity(%Object{local: false} = activity), do: handle_activity(activity)
+  # FIXME: implicity returning `:ok` here means we don't know if the worker fails which isn't great
+  def maybe_handle_activity(%Object{local: false} = activity) do
+    handle_activity(activity)
+    :ok
+  end
 
   def maybe_handle_activity(_), do: :ok
 end
