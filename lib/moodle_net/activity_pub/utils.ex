@@ -15,6 +15,15 @@ defmodule MoodleNet.ActivityPub.Utils do
     end
   end
 
+  def get_in_reply_to(comment) do
+    reply_id = Map.get(comment, :reply_to_id)
+    if reply_id do
+      ActivityPub.Object.get_by_pointer_id(reply_id)
+    else
+      nil
+    end
+  end
+
   def get_parent_id(parent) do
     case ActivityPub.Object.get_by_pointer_id(parent.id) do
       nil ->

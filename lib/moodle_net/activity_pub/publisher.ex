@@ -14,7 +14,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "cc" => cc,
            "actor" => actor.ap_id,
            "attributedTo" => actor.ap_id,
-           "type" => "Note"
+           "type" => "Note",
+           "inReplyTo" => Utils.get_in_reply_to(comment)
          },
          params <- %{
            actor: actor,
