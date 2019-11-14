@@ -8,7 +8,7 @@ defmodule MoodleNet.Users.User do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_synced_timestamp: 3]
+    only: [meta_pointer_constraint: 1, change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
@@ -76,6 +76,7 @@ defmodule MoodleNet.Users.User do
   defp common_changeset(changeset) do
     changeset
     |> change_synced_timestamp(:is_disabled, :disabled_at)
+    |> change_public()
     |> meta_pointer_constraint()
   end
 end

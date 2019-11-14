@@ -53,11 +53,11 @@ defmodule MoodleNet.UsersTest do
         [_, domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
+        assert user.name == attrs.name
         assert user.actor.preferred_username == attrs.preferred_username
-        assert user.actor.alias_id == user.id
-        assert user.email == attrs.email
-        assert user.wants_email_digest == attrs.wants_email_digest
-        assert user.wants_notifications == attrs.wants_notifications
+        assert user.local_user.email == attrs.email
+        assert user.local_user.wants_email_digest == attrs.wants_email_digest
+        assert user.local_user.wants_notifications == attrs.wants_notifications
         assert [token] = user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
@@ -99,7 +99,7 @@ defmodule MoodleNet.UsersTest do
       assert user = fake_user!()
       assert [token] = user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
-      assert user.confirmed_at
+      assert user.local_user.confirmed_at
     end
 
     test "will not confirm if the token is expired" do
@@ -112,8 +112,8 @@ defmodule MoodleNet.UsersTest do
 
       assert error.token.id == token.id
       assert error.token.expires_at == token.expires_at
-      assert error.token.inserted_at == token.inserted_at
-      assert error.token.user_id == user.id
+      assert error.token.created_at == token.created_at
+      assert error.token.local_user_id == user.local_user.id
     end
 
     test "will not claim twice" do
@@ -126,8 +126,8 @@ defmodule MoodleNet.UsersTest do
 
       assert error.token.id == token.id
       assert error.token.expires_at == token.expires_at
-      assert error.token.inserted_at == token.inserted_at
-      assert error.token.user_id == user.id
+      assert error.token.created_at == token.created_at
+      assert error.token.local_user_id == user.local_user_id
     end
   end
 
@@ -135,9 +135,9 @@ defmodule MoodleNet.UsersTest do
     test "sets the confirmed date" do
       Repo.transaction(fn ->
         assert user = fake_user!()
-        assert user.confirmed_at == nil
+        assert user.local_user.confirmed_at == nil
         assert {:ok, user2} = Users.confirm_email(user)
-        assert %DateTime{} = user2.confirmed_at
+        assert %DateTime{} = user2.local_user.confirmed_at
       end)
     end
   end
@@ -146,13 +146,13 @@ defmodule MoodleNet.UsersTest do
     test "unsets the confirmed date" do
       Repo.transaction(fn ->
         assert user = fake_user!()
-        assert user.confirmed_at == nil
+        assert user.local_user.confirmed_at == nil
+
         assert {:ok, user2} = Users.confirm_email(user)
-        assert %DateTime{} = user2.confirmed_at
-        assert user.id == user2.id
+        assert %DateTime{} = user2.local_user.confirmed_at
         assert {:ok, user3} = Users.unconfirm_email(user)
-        assert user3.confirmed_at == nil
-        assert timeless(user) == timeless(user3)
+        refute user3.local_user.confirmed_at
+        assert timeless(user.local_user) == timeless(user3.local_user)
       end)
     end
   end
@@ -161,7 +161,7 @@ defmodule MoodleNet.UsersTest do
     test "creates a reset password token for a valid user" do
       user = fake_user!()
       assert {:ok, token} = Users.request_password_reset(user)
-      assert token.user_id == user.id
+      assert token.local_user_id == user.local_user_id
       assert token.expires_at
       refute token.reset_at
     end
@@ -176,7 +176,19 @@ defmodule MoodleNet.UsersTest do
       assert token.reset_at
 
       assert {:ok, updated_user} = Users.fetch(user.id)
-      assert user.password_hash != updated_user.password_hash
+      assert updated_user.local_user.password_hash != user.local_user.password_hash
+    end
+  end
+
+  describe "update/2" do
+    test "updates attributes of user and relations" do
+      user = fake_user!()
+      attrs = Fake.user()
+      assert {:ok, user} = Users.update(user, attrs)
+      assert user.name == attrs.name
+      assert user.actor.preferred_username == attrs.preferred_username
+      assert user.local_user.email == attrs.email
+      assert user.local_user.wants_email_digest == attrs.wants_email_digest
     end
   end
 
@@ -185,8 +197,28 @@ defmodule MoodleNet.UsersTest do
       user = fake_user!()
       refute user.deleted_at
       assert {:ok, user} = Users.soft_delete(user)
+      assert user = Users.preload(user)
       assert user.deleted_at
-      assert user.actor.deleted_at
+      assert user.local_user.deleted_at
+    end
+  end
+
+  describe "make_instance_admin/1" do
+    test "changes the admin status of a user" do
+      user = fake_user!()
+      refute user.local_user.is_instance_admin
+      assert {:ok, user} = Users.make_instance_admin(user)
+      assert user.local_user.is_instance_admin
+    end
+  end
+
+  describe "unmake_instance_admin/1" do
+    test "removes admin status from a user" do
+      user = fake_user!()
+      assert {:ok, user} = Users.make_instance_admin(user)
+      assert user.local_user.is_instance_admin
+      assert {:ok, user} = Users.unmake_instance_admin(user)
+      refute user.local_user.is_instance_admin
     end
   end
 
