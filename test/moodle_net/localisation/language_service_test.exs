@@ -18,7 +18,7 @@ defmodule MoodleNet.Localisation.LanguageServiceTest do
     
     test "is fetching from good source data" do
       in_db = Repo.all(Language)
-      |> Enum.map(&(&1.id))
+      |> Enum.map(&(&1.iso_code2))
       |> Enum.sort()
       assert @expected_language_codes == in_db
     end

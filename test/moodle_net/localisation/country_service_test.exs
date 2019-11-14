@@ -9,6 +9,7 @@ defmodule MoodleNet.Localisation.CountryServiceTest do
     {"nl", "Netherlands", "Nederland"}
   ]
   @expected_country_codes Enum.sort(Enum.map(@countries, fn {x,_,_} -> x end))
+
   describe "MoodleNet.Localisation.CountryService" do
     
     setup do
@@ -18,7 +19,7 @@ defmodule MoodleNet.Localisation.CountryServiceTest do
     
     test "is fetching from good source data" do
       in_db = Repo.all(Country)
-      |> Enum.map(&(&1.id))
+      |> Enum.map(&(&1.iso_code2))
       |> Enum.sort()
       assert @expected_country_codes == in_db
     end
