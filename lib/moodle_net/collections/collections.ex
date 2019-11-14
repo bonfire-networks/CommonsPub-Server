@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
   alias MoodleNet.{Common, Meta, Repo}
+  alias MoodleNet.Actors
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Query
   alias MoodleNet.Collections.Collection
@@ -23,11 +24,13 @@ defmodule MoodleNet.Collections do
   end
 
   defp only_from_undeleted_communities(query) do
-    from q in query,
+    from(q in query,
       join: c in assoc(q, :community),
-      join: a in Actor, on: c.id == a.alias_id,
+      join: a in Actor,
+      on: c.id == a.alias_id,
       where: is_nil(c.deleted_at),
       where: is_nil(a.deleted_at)
+    )
   end
 
   defp count_for_list_q() do
@@ -47,14 +50,17 @@ defmodule MoodleNet.Collections do
   end
 
   defp list_in_community_q(id) do
-    from c in Collection,
-      join: c2 in Community, on: c.community_id == c2.id,
-      join: a in Actor, on: a.alias_id == c2.id,
+    from(c in Collection,
+      join: c2 in Community,
+      on: c.community_id == c2.id,
+      join: a in Actor,
+      on: a.alias_id == c2.id,
       where: a.id == ^id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
       where: is_nil(c2.deleted_at),
       where: is_nil(a.deleted_at)
+    )
   end
 
   defp count_for_list_in_community_q(id), do: Query.count(list_in_community_q(id))
@@ -62,28 +68,37 @@ defmodule MoodleNet.Collections do
   def fetch(id), do: Repo.single(fetch_q(id))
 
   defp fetch_q(id) do
-    from c in Collection,
-      join: c2 in Community, on: c.community_id == c2.id,
-      join: a in Actor, on: a.alias_id == c2.id,
+    from(c in Collection,
+      join: c2 in Community,
+      on: c.community_id == c2.id,
+      join: a in Actor,
+      on: a.alias_id == c2.id,
       where: c.id == ^id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
       where: is_nil(c2.deleted_at),
       where: is_nil(a.deleted_at)
+    )
   end
 
-
-  @spec create(Community.t(), Actor.t(), attrs :: map) :: \
-          {:ok, %Collection{}} | {:error, Changeset.t()}
+  @spec create(Community.t(), User.t(), attrs :: map) ::
+          {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(community, creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      Meta.point_to!(Collection)
-      |> Collection.create_changeset(community, creator, attrs)
-      |> Repo.insert()
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, coll} <- insert_collection(community, creator, actor, attrs) do
+        {:ok, %Collection{coll | actor: actor, creator: creator}}
+      end
     end)
   end
 
-  @spec update(%Collection{}, attrs :: map) :: {:ok, %Collection{}} | {:error, Changeset.t()}
+  defp insert_collection(community, creator, actor, attrs) do
+    Meta.point_to!(Collection)
+    |> Collection.create_changeset(community, creator, actor, attrs)
+    |> Repo.insert()
+  end
+
+  @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
       collection
@@ -92,7 +107,10 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  def soft_delete(%Collection{}=collection), do: Common.soft_delete(collection)
+  def soft_delete(%Collection{} = collection), do: Common.soft_delete(collection)
+
+  def preload(%Collection{} = collection, opts \\ []),
+    do: Repo.preload(collection, [:actor, :creator], opts)
 
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Actors.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}

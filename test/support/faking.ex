@@ -75,7 +75,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_collection!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, collection} = Collections.create(community, user.actor, Fake.collection(overrides))
+    {:ok, collection} = Collections.create(community, user, Fake.collection(overrides))
     collection
   end
 

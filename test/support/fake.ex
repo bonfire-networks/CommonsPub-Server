@@ -252,7 +252,12 @@ defmodule MoodleNet.Test.Fake do
   def collection(base \\ %{}) do
     base
     # |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
-    # |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.merge(actor(base))
   end
 
   def collection_input(base \\ %{}) do

@@ -18,22 +18,23 @@ defmodule MoodleNet.CollectionsTest do
   describe "fetch" do
     
   end
+
   describe "create" do
     test "creates a new collection", context do
       attrs = Fake.collection()
 
       assert {:ok, collection} =
-               Collections.create(context.community, context.user.actor, attrs)
+               Collections.create(context.community, context.user, attrs)
 
+      assert collection.name == attrs.name
       assert collection.community_id == context.community.id
-      # assert collection.is_public == attrs[:is_public]
+      assert collection.creator_id == context.user.id
+      assert collection.actor
     end
 
     test "fails if given invalid attributes", context do
       assert {:error, changeset} =
-               Collections.create(context.community, context.user.actor, %{})
-
-      # assert Keyword.get(changeset.errors, :is_public)
+               Collections.create(context.community, context.user, %{})
     end
   end
 
