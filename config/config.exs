@@ -71,7 +71,7 @@ config :moodle_net, :instance,
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,
-  rewrite_policy: ActivityPub.MRF.NoOpPolicy
+  rewrite_policy: []
 
 config :moodle_net, :mrf_simple,
   media_removal: [],
