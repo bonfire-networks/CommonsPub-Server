@@ -7,7 +7,8 @@
 /uploads
 /test/uploads
 /.elixir_ls
-/doc /assets/node_modules
+/doc 
+/assets/node_modules
 /priv/static
 .mix
 .hex
