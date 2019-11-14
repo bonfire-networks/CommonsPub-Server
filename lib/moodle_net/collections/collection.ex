@@ -7,7 +7,7 @@ defmodule MoodleNet.Collections.Collection do
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Collections.{Collection, CollectionFollowerCount}
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
@@ -21,6 +21,7 @@ defmodule MoodleNet.Collections.Collection do
     belongs_to(:creator, User)
     belongs_to(:community, Community)
     belongs_to(:primary_language, Language)
+    has_one(:follower_count, CollectionFollowerCount)
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)

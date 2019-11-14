@@ -22,7 +22,7 @@ defmodule MoodleNet.Communities do
   @doc "Lists public, non-deleted communities by follower count"
   def list() do
     Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
-      %{community | actor: %{actor | follower_count: count}}
+      %Community{community | actor: actor, follower_count: count}
     end)
   end
 
@@ -91,7 +91,7 @@ defmodule MoodleNet.Communities do
       with {:ok, actor} <- fetch_actor(community),
            {:ok, community} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs) do
-        {:ok, %{community | actor: actor}}
+        {:ok, %Community{community | actor: actor}}
       end
     end)
   end
