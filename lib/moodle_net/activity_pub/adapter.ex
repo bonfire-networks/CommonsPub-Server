@@ -117,6 +117,19 @@ defmodule MoodleNet.ActivityPub.Adapter do
     # TODO: need a context function to fetch an exisisting block for this
   end
 
+  def perform(:handle_activity, %{data: %{"type" => "Like"}} = activity) do
+    with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
+         {:ok, actor} <- MoodleNet.Actors.fetch_by_username(ap_actor.username),
+         %ActivityPub.Object{} = object <-
+           ActivityPub.Object.get_by_ap_id(activity.data["object"]),
+         {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id) do
+      MoodleNet.Common.like(actor, liked, %{is_public: true})
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
   def perform(:handle_activity, activity) do
     Logger.info("Unhandled activity type: #{activity.data["type"]}")
     :ok

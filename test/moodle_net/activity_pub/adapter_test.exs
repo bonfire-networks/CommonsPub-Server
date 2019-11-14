@@ -1,5 +1,6 @@
 defmodule MoodleNet.ActivityPub.AdapterTest do
   import ActivityPub.Factory
+  import MoodleNet.Test.Faking
   alias MoodleNet.ActivityPub.Adapter
 
   use MoodleNet.DataCase
@@ -24,6 +25,19 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       %ActivityPub.Object{} = object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
       %MoodleNet.Meta.Pointer{} = MoodleNet.Meta.find!(object.mn_pointer_id)
+    end
+  end
+
+  describe "handle activity" do
+    test "likes" do
+      actor = fake_actor!()
+      commented_actor = fake_actor!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      like_actor = actor()
+      {:ok, like_activity, _} = ActivityPub.like(like_actor, activity.object, nil, false)
+      assert :ok == Adapter.perform(:handle_activity, like_activity)
     end
   end
 end
