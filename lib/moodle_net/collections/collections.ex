@@ -66,16 +66,16 @@ defmodule MoodleNet.Collections do
   end
 
   defp list_in_community_q(id) do
-    from(c in Collection,
-      join: c2 in Community,
-      on: c.community_id == c2.id,
+    from(coll in Collection,
+      join: comm in Community,
+      on: coll.community_id == comm.id,
       join: a in Actor,
-      on: a.alias_id == c2.id,
-      where: c2.id == ^id,
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at),
-      where: is_nil(c2.deleted_at),
-      where: is_nil(a.deleted_at)
+      on: coll.actor_id == a.id,
+      where: comm.id == ^id,
+      where: not is_nil(coll.published_at),
+      where: is_nil(coll.deleted_at),
+      where: not is_nil(comm.published_at),
+      where: is_nil(comm.deleted_at),
     )
   end
 

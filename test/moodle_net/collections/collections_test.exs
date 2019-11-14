@@ -75,6 +75,22 @@ defmodule MoodleNet.CollectionsTest do
     end
   end
 
+  describe "list_in_community" do
+    test "returns a list of collections in a community", context do
+      collections = for _ <- 1..4 do
+        user = fake_user!()
+        fake_collection!(user, context.community)
+      end ++ [context.collection]
+
+      # create a one outside of the community
+      user = fake_user!()
+      fake_collection!(user, fake_community!(user))
+
+      fetched = Collections.list_in_community(context.community)
+      assert Enum.count(collections) == Enum.count(fetched)
+    end
+  end
+
   describe "fetch" do
     test "returns a collection by ID", context do
       assert {:ok, coll} = Collections.fetch(context.collection.id)
