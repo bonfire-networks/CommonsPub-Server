@@ -88,7 +88,11 @@ defmodule MoodleNet.Localisation.LanguageService do
   defp populate_languages(entries) do
     :ets.new(@table_name, [:named_table])
     all = {:ALL, entries} # to enable list queries
-    indexed = Enum.map(entries, &({&1.id, &1}))
+    indexed = Enum.flat_map(entries, fn lang ->
+      [ {lang.id, lang},
+	{lang.iso_code2, lang},
+	{lang.iso_code3, lang} ]
+    end)
     true = :ets.insert(@table_name, [all | indexed])
   end
 
