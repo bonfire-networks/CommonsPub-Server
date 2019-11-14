@@ -70,7 +70,7 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_community!(user, overrides \\ %{})
   def fake_community!(%User{}=user, %{}=overrides) do
-    {:ok, community} = Communities.create(user, user.actor, Fake.community(overrides))
+    {:ok, community} = Communities.create(user, Fake.community(overrides))
     community
   end
 
