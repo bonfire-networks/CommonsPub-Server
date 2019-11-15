@@ -213,13 +213,6 @@ defmodule MoodleNet.Common do
     Repo.single(follow_q(follower.id, followed.id))
   end
 
-  defp insert_follow(follower, followed, fields) do
-    Repo.transact_with fn ->
-      pointer = Meta.find!(followed.id)
-      Repo.insert(Follow.create_changeset(follower, pointer, fields))
-    end
-  end
-
   @spec follow(User.t, any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def follow(%User{} = follower, followed, fields) do
     Repo.transact_with fn ->
@@ -227,6 +220,15 @@ defmodule MoodleNet.Common do
   	{:ok, _} -> {:error, AlreadyFollowingError.new("user")}
   	_ -> insert_follow(follower, followed, fields)
       end
+    end
+  end
+
+  defp insert_follow(follower, followed, fields) do
+    Repo.transact_with fn ->
+      pointer = Meta.find!(followed.id)
+      Meta.point_to!(Follow)
+      |> Follow.create_changeset(follower, pointer, fields)
+      |> Repo.insert()
     end
   end
 

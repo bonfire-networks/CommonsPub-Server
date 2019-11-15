@@ -19,23 +19,16 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Comments.{Comment, Thread}
 
-  alias MoodleNet.Common.{
-    Block,
-    Flag,
-    Like,
-    Tag,
-    TagCategory,
-    Tagging,
-    NotInTransactionError
-  }
+  alias MoodleNet.Common.{Block, Flag, Follow, Like, NotInTransactionError}
 
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
   alias MoodleNet.Localisation.{Country, Language}
 
   @known_schemas [
-    Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Like,
-    Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess, Block,
+    Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Follow,
+    Like, Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess,
+    Block,
   ]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))

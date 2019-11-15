@@ -8,7 +8,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
   @meta_tables [] ++
     ~w(mn_country mn_language mn_peer mn_user mn_community mn_collection mn_resource) ++
-    ~w(mn_thread mn_comment mn_like mn_flag mn_block) ++
+    ~w(mn_thread mn_comment mn_like mn_flag mn_follow mn_block) ++
     ~w(mn_access_register_email mn_access_register_email_domain)
 
   @languages [

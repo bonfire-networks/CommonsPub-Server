@@ -200,50 +200,50 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
-  # describe "follow/3" do
-  #   test "creates a follow for any meta object", %{user: follower} do
-  #     followed = fake_meta!()
+  describe "follow/3" do
+    test "creates a follow for any meta object", %{user: follower} do
+      followed = fake_meta!()
 
-  #     assert {:ok, follow} =
-  #              Common.follow(follower, followed, %{is_public: true, is_muted: false})
+      attrs = Fake.follow(%{is_public: true, is_muted: false})
+      assert {:ok, follow} = Common.follow(follower, followed, attrs)
 
-  #     assert follow.follower_id == follower.id
-  #     assert follow.followed_id == followed.id
-  #     assert follow.published_at
-  #     refute follow.muted_at
-  #   end
+      assert follow.follower_id == follower.id
+      assert follow.followed_id == followed.id
+      assert follow.published_at
+      refute follow.muted_at
+    end
 
-  #   # test "can mute a follow", %{user: follower} do
-  #   #   followed = fake_meta!()
-  #   #   assert {:ok, follow} = Common.follow(follower, followed, Fake.block(%{is_muted: true}))
-  #   #   assert follow.muted_at
-  #   # end
+    # test "can mute a follow", %{user: follower} do
+    #   followed = fake_meta!()
+    #   assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_muted: true}))
+    #   assert follow.muted_at
+    # end
 
-  #   # test "fails to create a follow with missing attributes", %{user: follower} do
-  #   #   followed = fake_meta!()
-  #   #   assert {:error, _} = Common.follow(follower, followed, %{})
-  #   # end
-  # end
+    test "fails to create a follow with missing attributes", %{user: follower} do
+      followed = fake_meta!()
+      assert {:error, _} = Common.follow(follower, followed, %{})
+    end
+  end
 
-  # # describe "update_follow/2" do
-  # #   test "updates the attributes of an existing follow", %{user: follower} do
-  # #     followed = fake_meta!()
-  # #     assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_public: false}))
-  # #     assert {:ok, updated_follow} = Common.update_follow(follow, Fake.follow(%{is_public: true}))
-  # #     assert follow != updated_follow
-  # #   end
-  # # end
+  describe "update_follow/2" do
+    test "updates the attributes of an existing follow", %{user: follower} do
+      followed = fake_meta!()
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_public: false}))
+      assert {:ok, updated_follow} = Common.update_follow(follow, Fake.follow(%{is_public: true}))
+      assert follow != updated_follow
+    end
+  end
 
-  # describe "undo_follow/1" do
-  #   test "removes a follower from a followed object", %{user: follower} do
-  #     followed = fake_meta!()
-  #     assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
-  #     refute follow.deleted_at
+  describe "undo_follow/1" do
+    test "removes a follower from a followed object", %{user: follower} do
+      followed = fake_meta!()
+      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+      refute follow.deleted_at
 
-  #     assert {:ok, follow} = Common.undo_follow(follow)
-  #     assert follow.deleted_at
-  #   end
-  # end
+      assert {:ok, follow} = Common.undo_follow(follow)
+      assert follow.deleted_at
+    end
+  end
 
   # describe "block/3" do
   #   test "creates a block for any meta object", %{user: blocker} do

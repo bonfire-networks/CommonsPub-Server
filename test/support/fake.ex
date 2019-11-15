@@ -329,6 +329,8 @@ defmodule MoodleNet.Test.Fake do
 
   def follow(base \\ %{}) do
     base
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_muted, &falsehood/0)
   end
