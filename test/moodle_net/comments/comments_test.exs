@@ -12,9 +12,11 @@ defmodule MoodleNet.CommentsTest do
 
   setup do
     user = fake_user!()
-    parent = fake_actor!()
-    thread = fake_thread!(user, parent)
-    {:ok, %{user: user, parent: parent, thread: thread}}
+    comm = fake_community!(user)
+    coll = fake_collection!(user, comm)
+    resource = fake_resource!(user, coll)
+    thread = fake_thread!(user, resource)
+    {:ok, %{user: user, parent: resource, thread: thread}}
   end
 
   describe "fetch_thread" do
@@ -23,20 +25,19 @@ defmodule MoodleNet.CommentsTest do
     end
 
     test "returns not found if the thread is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} =
-	Comments.fetch_thread(Faker.UUID.v4())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Comments.fetch_thread(Faker.UUID.v4())
     end
   end
 
   describe "create_thread" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
       attrs = Fake.thread()
-      assert {:ok, thread} = Comments.create_thread(parent, creator.actor, attrs)
-      # assert thread.is_public == attrs.is_public
+      assert {:ok, thread} = Comments.create_thread(parent, creator, attrs)
+      assert thread.canonical_url == attrs[:canonical_url]
     end
 
     # test "fails to create a thread with invalid attributes", %{user: creator, parent: parent} do
-    #   assert {:error, changeset} = Comments.create_thread(parent, creator.actor, %{})
+    #   assert {:error, changeset} = Comments.create_thread(parent, creator, %{})
     #   assert Keyword.get(changeset.errors, :is_public)
     # end
   end
@@ -63,47 +64,30 @@ defmodule MoodleNet.CommentsTest do
   describe "create_comment" do
     test "creates a new comment with a thread parent", %{user: creator, thread: thread} do
       attrs = Fake.comment()
-      assert {:ok, comment} = Comments.create_comment(thread, creator.actor, attrs)
-      assert comment.is_public == attrs.is_public
-      assert comment.current.content == attrs.content
-    end
-
-    test "creates a revision for the comment", %{user: creator, thread: thread} do
-      comment = fake_comment!(creator, thread)
-      assert {:ok, comment} = Comments.fetch_comment(comment.id)
-      assert comment = Repo.preload(comment, [:revisions, :current])
-      assert [revision] = comment.revisions
-      assert revision == comment.current
+      assert {:ok, comment} = Comments.create_comment(thread, creator, attrs)
+      assert comment.canonical_url == attrs.canonical_url
+      assert comment.content == attrs.content
+      assert comment.is_hidden == attrs.is_hidden
+      assert comment.is_local == attrs.is_local
     end
 
     test "fails given invalid attributes", %{user: creator, thread: thread} do
-    #   assert {:error, changeset} = Comments.create_comment(thread, creator.actor, %{})
-    #   assert Keyword.get(changeset.errors, :is_public)
-      assert {:error, changeset} = Comments.create_comment(thread, creator.actor, %{is_public: false})
+      assert {:error, changeset} =
+               Comments.create_comment(thread, creator, %{is_public: false})
+
       assert Keyword.get(changeset.errors, :content)
     end
   end
 
   describe "update_comment" do
     test "updates a comment given valid attributes", %{user: creator, thread: thread} do
-      comment = fake_comment!(creator, thread, %{is_public: true})
-
-      assert {:ok, updated_comment} =
-               Comments.update_comment(comment, Fake.comment(%{is_public: false}))
-
-      assert updated_comment != comment
-      # refute updated_comment.is_public
-    end
-
-    test "creates a new revision for the update", %{user: creator, thread: thread} do
       comment = fake_comment!(creator, thread)
-      assert {:ok, updated_comment} = Comments.update_comment(comment, Fake.comment())
-      assert updated_comment.current != comment.current
 
-      assert updated_comment = Revision.preload(CommentRevision, updated_comment)
-      assert [latest_revision, oldest_revision] = updated_comment.revisions
-      assert latest_revision != oldest_revision
-      assert :gt = DateTime.compare(latest_revision.inserted_at, oldest_revision.inserted_at)
+      attrs = Fake.comment()
+      assert {:ok, updated_comment} = Comments.update_comment(comment, attrs)
+      assert updated_comment != comment
+      assert updated_comment.canonical_url == attrs.canonical_url
+      assert updated_comment.content == attrs.content
     end
   end
 end

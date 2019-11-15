@@ -81,15 +81,70 @@ defmodule MoodleNet.Test.Faking do
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
     {:ok, resource} = Resources.create(collection, user, Fake.resource(overrides))
     resource
-  end
+    endPress ? for neotree help
+    <ing/eummena/moodlenet/backend/
+.git/
+_build/
+assets/
+config/
+deps/
+lib/
+activity_pub/
+activity_pub_web/
+mix/
+moodle_net/
+access/
+activities/
+activity_pub/
+actors/
+collections/
+comments/
+comment.ex
+comments.ex
+thread.ex
+common/
+communities/
+graphql/
+localisation/
+mail/
+media_proxy/
+meta/
+peers/
+queue/
+resources/
+users/
+application.ex
+config.ex
+fake.ex
+metadata_scraper.ex
+publisher.ex
+release_tasks.ex
+repo.ex
+moodle_net_web/
+moolock/
+mooq/
+activity_pub.ex
+activity_pub_web.ex
+moodle_net.ex
+moodle_net_web.ex
+priv/
+rel/
+test/
+activity_pub/
+activity_pub_web/
+fixtures/
+moodle_net/
+access/
+actors/
+
 
   def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Comments.create_thread(parent, user.actor, Fake.thread(overrides))
+    {:ok, thread} = Comments.create_thread(parent, user, Fake.thread(overrides))
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create_comment(thread, user.actor, Fake.comment(overrides))
+    {:ok, comment} = Comments.create_comment(thread, user, Fake.comment(overrides))
     comment
   end
 

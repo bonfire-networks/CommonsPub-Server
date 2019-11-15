@@ -5,29 +5,33 @@ defmodule MoodleNet.Comments do
   alias MoodleNet.{Common, Meta}
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{Revision, NotFoundError}
+  alias MoodleNet.Users.User
   alias MoodleNet.Repo
 
   def fetch_thread(id), do: Repo.fetch(Thread, id)
   def fetch_comment(id), do: Repo.fetch(Comment, id)
 
-  def create_thread(parent, creator, attrs) do
+  def create_thread(context, %User{} = creator, attrs) do
     Repo.transact_with fn ->
-      parent = Meta.find!(parent.id)
-      pointer = Meta.point_to!(Thread)
-      Repo.insert(Thread.create_changeset(pointer, parent, creator, attrs))
+      context = Meta.find!(context.id)
+
+      Meta.point_to!(Thread)
+      |> Thread.create_changeset(context, creator, attrs)
+      |> Repo.insert()
     end
   end
 
-  def update_thread(thread, attrs) do
+  def update_thread(%Thread{} = thread, attrs) do
     Repo.transact_with fn ->
       Repo.update(Thread.update_changeset(thread, attrs))
     end
   end
 
-  def create_comment(thread, creator, attrs) when is_map(attrs) do
+  def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      pointer = Meta.point_to!(Comment)
-      Repo.insert(Comment.create_changeset(pointer, creator, thread, attrs))
+      Meta.point_to!(Comment)
+      |> Comment.create_changeset(creator, thread, attrs)
+      |> Repo.insert()
     end)
   end
 

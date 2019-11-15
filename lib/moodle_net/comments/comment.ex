@@ -13,19 +13,20 @@ defmodule MoodleNet.Comments.Comment do
     belongs_to(:thread, Thread)
     belongs_to(:reply_to, Comment)
     field(:canonical_url, :string)
+    field(:content, :string)
     field(:is_local, :boolean)
     field(:is_hidden, :boolean, virtual: true)
     field(:hidden_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
-  @create_cast ~w()a
+  @create_cast ~w(canonical_url content is_local is_hidden is_public)a
   @create_required @create_cast
 
-  @spec create_changeset(Pointer.t(), Actor.t(), Thread.t(), map) :: Changeset.t()
+  @spec create_changeset(Pointer.t(), User.t(), Thread.t(), map) :: Changeset.t()
   def create_changeset(%Pointer{id: id} = pointer, creator, thread, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
@@ -43,10 +44,10 @@ defmodule MoodleNet.Comments.Comment do
   end
 
   def reply_to_changeset(%Comment{} = comment, %Comment{} = reply_to) do
-    Changeset.put_assoc(comment, :reply_to, reply_to)
+    Changeset.change(comment, :reply_to_id, reply_to.id)
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast @create_cast
 
   @spec update_changeset(Comment.t(), map) :: Changeset.t()
   def update_changeset(%Comment{} = comment, attrs) do
