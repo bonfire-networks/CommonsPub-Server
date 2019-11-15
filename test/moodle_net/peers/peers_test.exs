@@ -11,7 +11,7 @@ defmodule MoodleNet.PeersTest do
         attrs = Fake.peer()
         assert {:ok, peer} = Peers.create(attrs)
         assert {:ok, peer2} = Peers.fetch(peer.id)
-        assert peer == peer2
+        assert Map.drop(peer, [:is_disabled]) == Map.drop(peer2, [:is_disabled])
       end)
     end
 
