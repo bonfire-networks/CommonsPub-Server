@@ -113,7 +113,7 @@ manual-db:
 	mix ecto.reset
 
 good-tests:
-	mix test test/moodle_net/{access,actors,collections,comments,communities} \
+	mix test test/moodle_net/{access,actors,collections,comments,common,communities} \
                  test/moodle_net/{localisation,meta,peers,resources,users} \
                  test/moodle_net_web/plugs/ \
                  test/moodle_net_web/graphql/{users,temporary}_test.exs \
