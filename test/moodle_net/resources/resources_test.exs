@@ -4,7 +4,8 @@
 defmodule MoodleNet.ResourcesTest do
   use MoodleNet.DataCase, async: true
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Resources, Repo}
+  alias MoodleNet.{Collections, Resources, Repo}
+  alias MoodleNet.Users.User
   alias MoodleNet.Test.Fake
 
   setup do
@@ -15,13 +16,73 @@ defmodule MoodleNet.ResourcesTest do
     {:ok, %{user: user, collection: collection, resource: resource}}
   end
 
+  describe "list" do
+    test "fetches a list of non-deleted, public resources", context do
+      all = for _ <- 1..4 do
+        user = fake_user!()
+        community = fake_community!(user)
+        collection = fake_collection!(user, community)
+        fake_resource!(user, collection)
+      end ++ [context.resource]
+      deleted = Enum.reduce(all, [], fn resource, acc ->
+        if Fake.bool() do
+          {:ok, resource} = Resources.soft_delete(resource)
+          [resource | acc]
+        else
+          acc
+        end
+      end)
+      fetched = Resources.list()
+
+      assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
+    end
+
+    test "ignores resources that have a deleted community", context do
+      assert {:ok, collection} = Collections.soft_delete(context.collection)
+
+      # one of the resources is in context
+      for _ <- 1..4 do
+        user = fake_user!()
+        fake_resource!(user, collection)
+      end
+
+      fetched = Resources.list()
+      assert Enum.empty?(fetched)
+    end
+  end
+
+  describe "list_in_collection" do
+    test "returns a list of non-deletd resources in a collection", context do
+      resources = for _ <- 1..4 do
+        user = fake_user!()
+        fake_resource!(user, context.collection)
+      end ++ [context.resource]
+
+      # outside of collection
+      user = fake_user!()
+      comm = fake_community!(user)
+      fake_resource!(user, fake_collection!(user, comm))
+
+      fetched = Resources.list_in_collection(context.collection)
+      assert Enum.count(resources) == Enum.count(fetched)
+    end
+  end
+
   describe "fetch" do
     test "fetches an existing resource", %{resource: resource} do
-      assert {:ok, _} = Resources.fetch(resource.id)
+      assert {:ok, resource} = Resources.fetch(resource.id)
+      assert resource.creator
     end
 
     test "returns not found if the resource is missing" do
       assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.fetch(Fake.uuid())
+    end
+  end
+
+  describe "fetch_creator" do
+    test "fetches the creator of a resource", context do
+      assert {:ok, %User{} = user} = Resources.fetch_creator(context.resource)
+      assert user.id == context.user.id
     end
   end
 
@@ -51,7 +112,7 @@ defmodule MoodleNet.ResourcesTest do
                    %{}
                  )
 
-        # assert Keyword.get(changeset.errors, :is_public)
+        assert Keyword.get(changeset.errors, :name)
       end)
     end
   end

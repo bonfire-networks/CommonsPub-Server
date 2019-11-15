@@ -30,7 +30,7 @@ defmodule MoodleNet.Resources.Resource do
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @create_required ~w(canonical_url name summary url license icon is_public is_disabled)a

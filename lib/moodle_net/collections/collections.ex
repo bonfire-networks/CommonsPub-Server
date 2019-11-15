@@ -2,8 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.{Common, Meta, Repo}
-  alias MoodleNet.Actors
+  alias MoodleNet.{Actors, Common, Meta, Users, Repo}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Query
   alias MoodleNet.Collections.Collection
@@ -34,6 +33,7 @@ defmodule MoodleNet.Collections do
     from(q in query,
       join: c in assoc(q, :community),
       on: q.community_id == c.id,
+      where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at)
     )
   end
@@ -133,7 +133,7 @@ defmodule MoodleNet.Collections do
   def fetch_actor(%Collection{actor_id: id, actor: %NotLoaded{}}), do: Actors.fetch(id)
   def fetch_actor(%Collection{actor: actor}), do: {:ok, actor}
 
-  def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Actors.fetch(id)
+  def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
 
 end

@@ -114,7 +114,7 @@ manual-db:
 
 good-tests:
 	mix test test/moodle_net/{access,actors,collections,communities} \
-                 test/moodle_net/{localisation,meta,resources,users} \
+                 test/moodle_net/{localisation,meta,peers,resources,users} \
                  test/moodle_net_web/plugs/ \
                  test/moodle_net_web/graphql/temporary_test.exs
 
