@@ -3,7 +3,6 @@ defmodule MoodleNet.Comments.Comment do
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.Revision
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer

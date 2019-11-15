@@ -5,7 +5,7 @@ defmodule MoodleNet.Comments do
   import Ecto.Query
   alias MoodleNet.{Common, Meta}
   alias MoodleNet.Comments.{Comment, Thread}
-  alias MoodleNet.Common.{Revision, NotFoundError}
+  alias MoodleNet.Common.{NotFoundError, Query}
   alias MoodleNet.Users.User
   alias MoodleNet.Repo
 
@@ -13,16 +13,76 @@ defmodule MoodleNet.Comments do
   # Threads
   #
 
+  @doc """
+  Return a list of all unhidden threads, along with their follower count.
+  """
+  @spec list_threads() :: [Thread.t()]
+  def list_threads do
+    Enum.map(Repo.all(list_threads_q()), fn {thread, count} ->
+      %Thread{thread | follower_count: count}
+    end)
+  end
+
+  @doc """
+  Return a list of all thread, regardless of hidden status.
+  """
+  @spec list_threads_private() :: [Thread.t()]
+  def list_threads_private do
+    Enum.map(Repo.all(list_threads_private_q()), fn {thread, count} ->
+      %Thread{thread | follower_count: count}
+    end)
+  end
+
+  def list_threads_private_q do
+    Thread
+    |> Query.order_by_recently_updated()
+    |> follower_count_q()
+  end
+
+  defp list_threads_q do
+    list_threads_private_q()
+    |> only_unhidden_threads_q()
+  end
+
+  defp only_unhidden_threads_q(query) do
+    from(q in query,
+      where: is_nil(q.hidden_at),
+      where: is_nil(q.deleted_at)
+    )
+  end
+
+  defp follower_count_q(query) do
+    from(q in query,
+      left_join: fc in assoc(q, :follower_count),
+      select: {q, fc},
+      limit: 100,
+      order_by: [desc: fc.count]
+    )
+  end
+
+  @doc """
+  Fetch an unhidden thread by ID.
+  """
   @spec fetch_thread(binary()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
   def fetch_thread(id), do: Repo.single(fetch_thread_q(id))
 
   defp fetch_thread_q(id) do
     from(t in Thread,
       where: t.id == ^id,
-      where: is_nil(t.hidden_at)
+      where: is_nil(t.hidden_at),
+      where: is_nil(t.deleted_at)
     )
   end
 
+  @doc """
+  Fetch a thread by ID, regardless of its hidden status.
+  """
+  @spec fetch_thread_private(binary()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
+  def fetch_thread_private(id), do: Repo.fetch(Thread, id)
+
+  @doc """
+  Create a new thread for any context that participates in the meta abstraction.
+  """
   @spec create_thread(context :: any, User.t(), map) ::
           {:ok, Thread.t()} | {:error, Changeset.t()}
   def create_thread(context, %User{} = creator, attrs) do
@@ -35,6 +95,9 @@ defmodule MoodleNet.Comments do
     end)
   end
 
+  @doc """
+  Update the attributes of a thread.
+  """
   @spec update_thread(Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def update_thread(%Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
@@ -49,8 +112,77 @@ defmodule MoodleNet.Comments do
   # Comments
   #
 
+  @doc """
+  Return a list of public, non-deleted, unhidden comments contained in a  thread.
+
+  Ignores all comments if the parent thread has been deleted.
+  """
+  @spec list_comments_in_thread(Thread.t()) :: [Comment.t()]
+  def list_comments_in_thread(%Thread{} = thread),
+    do: Repo.all(list_comments_in_thread_q(thread.id))
+
+  defp list_comments_in_thread_q(thread_id) do
+    from(c in Comment,
+      join: t in Thread,
+      on: c.thread_id == t.id,
+      where: t.id == ^thread_id,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.hidden_at),
+      where: is_nil(c.deleted_at),
+      # allow for threads that are hidden because they can't be fetched unless
+      # you use fetch_thread_private
+      where: is_nil(t.deleted_at)
+    )
+  end
+
+  @doc """
+  Return all public, non-deleted, unhidden comments for a user.
+
+  Will fetch comments regardless of whether the user has been deleted.
+  """
+  @spec list_comments_for_user(User.t()) :: [Comment.t()]
+  def list_comments_for_user(%User{} = user),
+    do: Repo.all(list_comments_for_user_q(user.id))
+
+  defp list_comments_for_user_q(user_id) do
+    from(c in Comment,
+      join: u in User,
+      on: c.creator_id == u.id,
+      where: u.id == ^user_id,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.hidden_at),
+      where: is_nil(c.deleted_at)
+    )
+  end
+
+  @doc """
+  Fetch a public, non-deleted, unhidden comment by ID.
+
+  Will ignore comments where the parent thread have been hidden or deleted.
+  """
   @spec fetch_comment(binary()) :: {:ok, Comment.t()} | {:error, NotFoundError.t()}
   def fetch_comment(id), do: Repo.fetch(Comment, id)
+
+  defp fetch_comment_q(id) do
+    from(c in Comment,
+      join: t in Thread,
+      on: c.thread_id == t.id,
+      where: c.id == ^id,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.hidden_at),
+      where: is_nil(c.deleted_at),
+      where: is_nil(t.hidden_at),
+      where: is_nil(t.deleted_at)
+    )
+  end
+
+  @doc """
+  Fetch a comment, regardless of its hidden, deleted or public status.
+
+  Will fetch a comment regardless of its parent thread's status.
+  """
+  @spec fetch_comment_private(binary()) :: {:ok, Comment.t()} | {:error, NotFoundError.t()}
+  def fetch_comment_private(id), do: Repo.fetch(Comment, id)
 
   @spec create_comment(Thread.t(), User.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do

@@ -2,7 +2,7 @@ defmodule MoodleNet.Comments.Thread do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
   alias Ecto.Changeset
-  alias MoodleNet.Comments.Thread
+  alias MoodleNet.Comments.{Thread, ThreadFollowerCount}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
@@ -16,6 +16,8 @@ defmodule MoodleNet.Comments.Thread do
     field(:is_hidden, :boolean, virtual: true)
     field(:hidden_at, :utc_datetime_usec)
     field(:is_local, :boolean)
+    field(:deleted_at, :utc_datetime_usec)
+    has_one(:follower_count, ThreadFollowerCount)
     timestamps()
   end
 
