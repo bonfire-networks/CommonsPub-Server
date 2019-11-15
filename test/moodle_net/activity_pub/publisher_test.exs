@@ -15,6 +15,8 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert activity.object.mn_pointer_id == comment.id
       assert activity.local == true
       assert activity.object.local == true
+      {:ok, actor} = ActivityPub.Actor.get_by_username(commented_actor.preferred_username)
+      assert activity.data["context"] == actor.ap_id
     end
 
     # This should work but context function for creating replies is missing and changeset

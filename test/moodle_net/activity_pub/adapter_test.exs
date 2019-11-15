@@ -29,6 +29,16 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
   end
 
   describe "handle activity" do
+    test "comment on a local actor" do
+      actor = actor()
+      commented_actor = fake_actor!()
+      {:ok, ap_commented_actor} = ActivityPub.Actor.get_by_username(commented_actor.preferred_username)
+      note = insert(:note, %{actor: actor, data: %{"context" => ap_commented_actor.data["id"]}})
+      note_activity = insert(:note_activity, %{note: note})
+
+      assert :ok = Adapter.perform(:handle_activity, note_activity)
+    end
+
     test "likes" do
       actor = fake_actor!()
       commented_actor = fake_actor!()

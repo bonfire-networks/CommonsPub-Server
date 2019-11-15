@@ -77,6 +77,42 @@ defmodule MoodleNet.ActivityPub.Adapter do
     APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id})
   end
 
+  def perform(
+        :handle_activity,
+        %{
+          data: %{
+            "type" => "Create",
+            "context" => context,
+            "actor" => actor,
+            "object" => object_id
+          }
+        } = _activity
+      ) do
+    object = ActivityPub.Object.get_by_ap_id(object_id)
+
+    if object.data["inReplyTo"] do
+      # comment is a reply, fetch it and use its thread...
+      # TODO: MN replies don't work yet
+    else
+      # comment is not a reply, create a new thread
+      with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
+           {:ok, pointer} <- MoodleNet.Meta.find(pointer_id),
+           {:ok, parent} <- MoodleNet.Meta.follow(pointer),
+           {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
+           {:ok, actor} <- MoodleNet.Actors.fetch_by_username(ap_actor.username),
+           {:ok, thread} <- MoodleNet.Comments.create_thread(parent, actor, %{is_public: true}),
+           {:ok, _} <-
+             MoodleNet.Comments.create_comment(thread, actor, %{
+               is_public: true,
+               content: object.data["content"]
+             }) do
+        :ok
+      else
+        {:error, e} -> {:error, e}
+      end
+    end
+  end
+
   def perform(:handle_activity, %{data: %{"type" => "Follow"}} = activity) do
     # FIXME: way too many queries
     with {:ok, ap_follower} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
