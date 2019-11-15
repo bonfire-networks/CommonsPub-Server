@@ -7,6 +7,9 @@ defmodule MoodleNet.CommentsTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Comments
+  alias MoodleNet.Comments.Thread
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Users.User
   alias MoodleNet.Test.Fake
 
   setup do
@@ -80,6 +83,20 @@ defmodule MoodleNet.CommentsTest do
     end
   end
 
+  describe "fetch_thread_creator" do
+    test "returns the creator of a thread", context do
+      assert {:ok, creator} = Comments.fetch_thread_creator(context.thread)
+      assert creator.id == context.user.id
+    end
+  end
+
+  describe "fetch_thread_context" do
+    test "returns the context of a thread", context do
+      assert {:ok, %Resource{} = resource} = Comments.fetch_thread_context(context.thread)
+      assert resource.id == context.parent.id
+    end
+  end
+
   describe "create_thread" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
       attrs = Fake.thread()
@@ -106,19 +123,179 @@ defmodule MoodleNet.CommentsTest do
 
   describe "soft_delete_thread" do
     test "changes the deleted date for a thread", %{thread: thread} do
+      refute thread.deleted_at
       assert {:ok, thread} = Comments.soft_delete_thread(thread)
       assert thread.deleted_at
     end
   end
 
+  describe "list_comments_in_thread" do
+    test "returns a list of comments in a thread", context do
+      all = for _ <- 1..5 do
+        user = fake_user!()
+        fake_comment!(user, context.thread, %{is_hidden: false, is_public: true})
+      end
+      fetched = Comments.list_comments_in_thread(context.thread)
+
+      assert Enum.count(all) == Enum.count(fetched)
+    end
+
+    test "excludes unpublished comments", context do
+      all = for _ <- 1..5 do
+        user = fake_user!()
+        fake_comment!(user, context.thread, %{is_hidden: false})
+      end
+      unpublished = Enum.reduce(all, [], fn comment, acc ->
+        if Fake.bool() do
+          {:ok, comment} = Comments.update_comment(comment, %{is_public: false})
+          [comment | acc]
+        else
+          acc
+        end
+      end)
+      fetched = Comments.list_comments_in_thread(context.thread)
+
+      assert Enum.count(all) - Enum.count(unpublished) == Enum.count(fetched)
+    end
+
+    test "excludes hidden comments", context do
+      all = for _ <- 1..5 do
+        user = fake_user!()
+        fake_comment!(user, context.thread)
+      end
+      hidden = Enum.filter(all, &(&1.hidden_at))
+      fetched = Comments.list_comments_in_thread(context.thread)
+
+      assert Enum.count(all) - Enum.count(hidden) == Enum.count(fetched)
+    end
+
+    test "excludes deleted comments", context do
+      all = for _ <- 1..5 do
+        user = fake_user!()
+        fake_comment!(user, context.thread, %{is_hidden: false})
+      end
+      deleted = Enum.reduce(all, [], fn comment, acc ->
+        if Fake.bool() do
+          {:ok, comment} = Comments.soft_delete_comment(comment)
+          [comment | acc]
+        else
+          acc
+        end
+      end)
+      fetched = Comments.list_comments_in_thread(context.thread)
+
+      assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
+    end
+
+    test "ignores comments with a deleted parent thread", context do
+      comment = fake_comment!(context.user, context.thread)
+      assert {:ok, thread} = Comments.soft_delete_thread(context.thread)
+      assert Enum.empty?(Comments.list_comments_in_thread(thread))
+    end
+  end
+
+  describe "list_comments_for_user" do
+    test "lists comments for a user", context do
+      all = for _ <- 1..5 do
+        fake_comment!(context.user, context.thread, %{is_hidden: false})
+      end
+      fetched = Comments.list_comments_for_user(context.user)
+      assert Enum.count(all) == Enum.count(fetched)
+    end
+
+    test "excludes unpublished comments", context do
+      all = for _ <- 1..5 do
+        fake_comment!(context.user, context.thread, %{is_hidden: false})
+      end
+      unpublished = Enum.reduce(all, [], fn comment, acc ->
+        if Fake.bool() do
+          {:ok, comment} = Comments.update_comment(comment, %{is_public: false})
+          [comment | acc]
+        else
+          acc
+        end
+      end)
+      fetched = Comments.list_comments_for_user(context.user)
+
+      assert Enum.count(all) - Enum.count(unpublished) == Enum.count(fetched)
+    end
+
+    test "excludes hidden comments", context do
+      all = for _ <- 1..5, do: fake_comment!(context.user, context.thread)
+      hidden = Enum.filter(all, &(&1.hidden_at))
+      fetched = Comments.list_comments_for_user(context.user)
+
+      assert Enum.count(all) - Enum.count(hidden) == Enum.count(fetched)
+    end
+
+    test "excludes deleted comments", context do
+      all = for _ <- 1..5 do
+        fake_comment!(context.user, context.thread, %{is_hidden: false})
+      end
+      deleted = Enum.reduce(all, [], fn comment, acc ->
+        if Fake.bool() do
+          {:ok, comment} = Comments.soft_delete_comment(comment)
+          [comment | acc]
+        else
+          acc
+        end
+      end)
+      fetched = Comments.list_comments_for_user(context.user)
+
+      assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
+    end
+  end
+
   describe "fetch_comment" do
-    test "fetches an existing comment", %{user: creator, thread: thread} do
-      comment = fake_comment!(creator, thread)
+    test "fetches a comment by ID", context do
+      thread = fake_thread!(context.user, context.parent, %{is_hidden: false})
+      comment = fake_comment!(context.user, thread, %{is_hidden: false})
       assert {:ok, _} = Comments.fetch_comment(comment.id)
     end
 
-    test "returns not found if the comment is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Comments.fetch_comment(Faker.UUID.v4())
+    test "returns not found if comment is hidden", context do
+      comment = fake_comment!(context.user, context.thread, %{is_hidden: true})
+      assert {:error, %NotFoundError{}} = Comments.fetch_comment(comment.id)
+    end
+
+    test "returns not found if the comment is unpublished", context do
+      comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
+      assert {:ok, comment} = Comments.update_comment(comment, %{is_public: false})
+      assert {:error, %NotFoundError{}} = Comments.fetch_comment(comment.id)
+    end
+
+    test "returns not found if the comment is deleted", context do
+      comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
+      assert {:ok, comment} = Comments.soft_delete_comment(comment)
+      assert {:error, %NotFoundError{}} = Comments.fetch_comment(comment.id)
+    end
+
+    test "returns not found if the parent thread is hidden", context do
+      thread = fake_thread!(context.user, context.parent, %{is_hidden: true})
+      comment = fake_comment!(context.user, thread, %{is_hidden: false})
+      assert {:error, %NotFoundError{}} = Comments.fetch_comment(comment.id)
+    end
+
+    test "returns not found if the parent thread is deleted", context do
+      comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
+      assert {:ok, _} = Comments.soft_delete_thread(context.thread)
+      assert {:error, %NotFoundError{}} = Comments.fetch_comment(comment.id)
+    end
+  end
+
+  describe "fetch_comment_creator" do
+    test "fetches the creator of a comment", context do
+      comment = fake_comment!(context.user, context.thread)
+      assert {:ok, %User{} = creator} = Comments.fetch_comment_creator(comment)
+      assert creator.id == context.user.id
+    end
+  end
+
+  describe "fetch_comment_thread" do
+    test "fetches the parent thread of a comment", context do
+      comment = fake_comment!(context.user, context.thread)
+      assert {:ok, %Thread{} = thread} = Comments.fetch_comment_thread(comment)
+      assert thread.id == context.thread.id
     end
   end
 
@@ -149,6 +326,15 @@ defmodule MoodleNet.CommentsTest do
       assert updated_comment != comment
       assert updated_comment.canonical_url == attrs.canonical_url
       assert updated_comment.content == attrs.content
+    end
+  end
+
+  describe "soft_delete_comment" do
+    test "changes the deletion date of the comment", context do
+      comment = fake_comment!(context.user, context.thread)
+      refute comment.deleted_at
+      assert {:ok, comment} = Comments.soft_delete_comment(comment)
+      assert comment.deleted_at
     end
   end
 end

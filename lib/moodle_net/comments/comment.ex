@@ -1,6 +1,9 @@
 defmodule MoodleNet.Comments.Comment do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
+
+  import MoodleNet.Common.Changeset,
+    only: [meta_pointer_constraint: 1, change_public: 1, change_synced_timestamp: 3]
+
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Comments.{Comment, Thread}
@@ -38,8 +41,7 @@ defmodule MoodleNet.Comments.Comment do
       is_public: true
     )
     |> Changeset.validate_required(@create_required)
-    |> change_public()
-    |> meta_pointer_constraint()
+    |> common_changeset()
   end
 
   def reply_to_changeset(%Comment{} = comment, %Comment{} = reply_to) do
@@ -52,7 +54,13 @@ defmodule MoodleNet.Comments.Comment do
   def update_changeset(%Comment{} = comment, attrs) do
     comment
     |> Changeset.cast(attrs, @update_cast)
+    |> common_changeset()
+  end
+
+  defp common_changeset(changeset) do
+    changeset
     |> change_public()
+    |> change_synced_timestamp(:is_hidden, :hidden_at)
     |> meta_pointer_constraint()
   end
 end

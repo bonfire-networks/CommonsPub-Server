@@ -3,11 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments do
   import Ecto.Query
-  alias MoodleNet.{Common, Meta}
+  alias MoodleNet.{Common, Meta, Users}
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{NotFoundError, Query}
   alias MoodleNet.Users.User
   alias MoodleNet.Repo
+  alias Ecto.Association.NotLoaded
 
   #
   # Threads
@@ -79,6 +80,25 @@ defmodule MoodleNet.Comments do
   """
   @spec fetch_thread_private(binary()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
   def fetch_thread_private(id), do: Repo.fetch(Thread, id)
+
+  @doc """
+  Fetch the creator of a thread.
+  """
+  @spec fetch_thread_creator(Thread.t()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
+  def fetch_thread_creator(%Thread{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
+  def fetch_thread_creator(%Thread{creator: creator}), do: {:ok, creator}
+
+  @doc """
+  Fetch the context of a thread, using its original type.
+  """
+  @spec fetch_thread_context(Thread.t()) :: {:ok, any} | {:error, NotFoundError.t()}
+  def fetch_thread_context(%Thread{context_id: id, context: %NotLoaded{}}) do
+    with {:ok, context} <- Meta.find(id) do
+      Meta.follow(context)
+    end
+  end
+
+  def fetch_thread_context(%Thread{context: context}), do: Meta.follow(context)
 
   @doc """
   Create a new thread for any context that participates in the meta abstraction.
@@ -161,7 +181,7 @@ defmodule MoodleNet.Comments do
   Will ignore comments where the parent thread have been hidden or deleted.
   """
   @spec fetch_comment(binary()) :: {:ok, Comment.t()} | {:error, NotFoundError.t()}
-  def fetch_comment(id), do: Repo.fetch(Comment, id)
+  def fetch_comment(id), do: Repo.single(fetch_comment_q(id))
 
   defp fetch_comment_q(id) do
     from(c in Comment,
@@ -176,13 +196,18 @@ defmodule MoodleNet.Comments do
     )
   end
 
-  @doc """
-  Fetch a comment, regardless of its hidden, deleted or public status.
+  @spec fetch_comment_thread(Comment.t()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
+  def fetch_comment_creator(%Comment{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
+  def fetch_comment_creator(%Comment{creator: creator}), do: {:ok, creator}
 
-  Will fetch a comment regardless of its parent thread's status.
-  """
-  @spec fetch_comment_private(binary()) :: {:ok, Comment.t()} | {:error, NotFoundError.t()}
-  def fetch_comment_private(id), do: Repo.fetch(Comment, id)
+  @spec fetch_comment_thread(Comment.t()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
+  def fetch_comment_thread(%Comment{thread_id: id, thread: %NotLoaded{}}), do: fetch_thread(id)
+  def fetch_comment_thread(%Comment{thread: thread}), do: {:ok, thread}
+
+  # @spec fetch_comment_thread(Comment.t()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
+  # def fetch_comment_reply_to(%Comment{reply_to_id: nil}), do: {:error, NotFoundError.new()}
+  # def fetch_comment_reply_to(%Comment{reply_to_id: id, reply_to: %NotLoaded{}}), do: fetch_comment(id)
+  # def fetch_comment_reply_to(%Comment{reply_to: reply_to}), do: {:ok, reply_to}
 
   @spec create_comment(Thread.t(), User.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do
