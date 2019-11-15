@@ -5,7 +5,7 @@ defmodule MoodleNet.CommentsTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
-  alias MoodleNet.Common.Revision
+  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Comments
   alias MoodleNet.Comments.CommentRevision
   alias MoodleNet.Test.Fake
@@ -21,11 +21,17 @@ defmodule MoodleNet.CommentsTest do
 
   describe "fetch_thread" do
     test "fetches an existing thread", %{thread: thread} do
+      assert {:ok, thread} = Comments.update_thread(thread, %{is_hidden: false})
       assert {:ok, _} = Comments.fetch_thread(thread.id)
     end
 
+    test "returns not found if the thread is hidden", %{thread: thread} do
+      assert {:ok, thread} = Comments.update_thread(thread, %{is_hidden: true})
+      assert {:error, %NotFoundError{}} = Comments.fetch_thread(thread.id)
+    end
+
     test "returns not found if the thread is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Comments.fetch_thread(Faker.UUID.v4())
+      assert {:error, %NotFoundError{}} = Comments.fetch_thread(Faker.UUID.v4())
     end
   end
 

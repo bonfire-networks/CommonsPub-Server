@@ -1,6 +1,6 @@
 defmodule MoodleNet.Comments.Thread do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_public: 1]
+  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
   alias Ecto.Changeset
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Meta
@@ -33,7 +33,7 @@ defmodule MoodleNet.Comments.Thread do
       context_id: context.id
     )
     |> Changeset.validate_required(@create_required)
-    |> change_public()
+    |> common_changeset()
   end
 
   @update_cast @create_cast
@@ -41,6 +41,12 @@ defmodule MoodleNet.Comments.Thread do
   def update_changeset(%Thread{} = thread, attrs) do
     thread
     |> Changeset.cast(attrs, @update_cast)
-    |> change_public()
+    |> common_changeset()
+  end
+
+  defp common_changeset(changeset) do
+    changeset
+    |> change_synced_timestamp(:is_hidden, :hidden_at)
+    |> change_synced_timestamp(:is_locked, :locked_at)
   end
 end
