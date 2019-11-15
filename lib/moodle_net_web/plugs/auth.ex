@@ -56,6 +56,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   defp get_now(opts), do: Keyword.get(opts, :now) || DateTime.utc_now()
 
+  @doc false
   def login(conn, user, token) do
     conn
     |> put_current_user(user, token)

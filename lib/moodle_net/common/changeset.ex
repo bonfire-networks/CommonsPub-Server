@@ -118,6 +118,11 @@ defmodule MoodleNet.Common.Changeset do
   def change_muted(%Changeset{} = changeset),
     do: change_synced_timestamp(changeset, :is_muted, :muted_at)
 
+  @spec change_disabled(Changeset.t()) :: Changeset.t()
+  @doc "Keeps disabled_at in accord with is_disabled"
+  def change_disabled(%Changeset{} = changeset),
+    do: change_synced_timestamp(changeset, :is_disabled, :disabled_at)
+
   @spec change_synced_timestamp(Changeset.t(), atom, atom) :: Changeset.t()
   @doc """
   If a changeset includes a change to `bool`, we ensure that the

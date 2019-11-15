@@ -43,6 +43,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, Fake.like()}
     |> GraphQL.response(info)
   end
+
   def like(parent,_, info) do
     case Map.get(parent, :like) do
       nil -> {:ok, Fake.like()}
@@ -244,6 +245,14 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     {:ok, Fake.flag_context()}
     |> GraphQL.response(info)
   end
+  def context(%Like{}, _, info) do
+    {:ok, Fake.like_context()}
+    |> GraphQL.response(info)
+  end
+  # def context(%Tagging{}, _, info) do
+  #   {:ok, Fake.tagging_context()}
+  #   |> GraphQL.response(info)
+  # end
 
   def context(%Like{}, _, info) do
     {:ok, Fake.like_context()}

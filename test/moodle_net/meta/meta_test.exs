@@ -33,9 +33,10 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Users.User
   alias MoodleNet.Localisation.{Country, Language}
 
-  @known_schemas [Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Like] ++
-    [Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess, Tag, TagCategory, Tagging] ++
-    [Block]
+  @known_schemas [
+    Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Like,
+    Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess, Block,
+  ]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
   @expected_table_names Enum.sort(@known_tables)

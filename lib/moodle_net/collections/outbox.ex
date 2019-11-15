@@ -7,6 +7,6 @@ defmodule MoodleNet.Collections.Outbox do
   meta_schema "mn_collection_outbox" do
     belongs_to(:collection, Collection)
     belongs_to(:activity, Activity)
-    timestamps(inserted_at: :created_at)
+    timestamps(updated_at: false)
   end
 end

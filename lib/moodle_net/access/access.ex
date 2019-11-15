@@ -58,16 +58,17 @@ defmodule MoodleNet.Access do
   def list_register_email_domains(), do: Repo.all(RegisterEmailDomainAccess)
 
   @spec hard_delete(access | token) :: {:ok, access} | {:error, Changeset.t()}
-  @doc "Removes a access entry from the database"
+  @doc "Removes an access entry or token from the database"
   def hard_delete(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete(w)
   def hard_delete(%RegisterEmailAccess{} = w), do: Common.hard_delete(w)
   def hard_delete(%Token{}=token), do: Common.hard_delete(token)
 
   @spec hard_delete!(access | token) :: access
-  @doc "Removes a access entry from the database or throws DeletionError"
+  @doc "Removes an access entry or token from the database or throws DeletionError"
   def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete!(w)
   def hard_delete!(%RegisterEmailAccess{} = w), do: Common.hard_delete!(w)
   def hard_delete(%Token{}=token), do: Common.hard_delete(token)
+
 
   @spec find_register_email(email :: binary()) ::
           {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
@@ -177,5 +178,4 @@ defmodule MoodleNet.Access do
     [_, domain] = String.split(email, "@", parts: 2)
     domain
   end
-
 end

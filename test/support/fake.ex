@@ -72,7 +72,6 @@ defmodule MoodleNet.Test.Fake do
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
   @doc "Generate a random boolean that set to nil"
-  def maybe_bool(), do: Faker.Util.pick([true, false, nil])
   @doc "Generate a random signed integer"
   def integer(), do: Faker.random_between(@integer_min, @integer_max)
   @doc "Generate a random positive integer"
@@ -97,7 +96,7 @@ defmodule MoodleNet.Test.Fake do
   def paragraph(), do: Faker.Lorem.paragraph()
   @doc "Generates random base64 text"
   def base64(), do: Faker.String.base64()
-  def primary_language(), do: "en"
+  # def primary_language(), do: "en"
 
   # Custom data
 
@@ -111,13 +110,6 @@ defmodule MoodleNet.Test.Fake do
   def signing_key(), do: nil
   @doc "A random license for content"
   def license(), do: Faker.Util.pick(["GPLv3", "BSDv3", "AGPL", "Creative Commons"])
-  @doc "A list of random education uses"
-  def educational_use(),
-    do: [Faker.Industry.industry(), Faker.Industry.sector(), Faker.Industry.sub_sector()]
-  @doc "Picks a learning resource type"
-  def learning_resource(), do: Faker.Util.pick(["video", "podcast", "article", "paper"])
-  @doc "Picks an age range, represented as a string"
-  def age_range(), do: "#{Faker.random_between(6, 15)}-#{Faker.random_between(16, 100)}"
   @doc "Returns a city and country"
   def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
   @doc "A website address"
@@ -209,7 +201,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("website", &website/0)
     |> Map.put_new_lazy("icon", &icon/0)
     |> Map.put_new_lazy("image", &image/0)
-    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
   end
@@ -222,26 +214,27 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("website", &website/0)
     |> Map.put_new_lazy("icon", &icon/0)
     |> Map.put_new_lazy("image", &image/0)
-    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
   end
 
   def community(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:preferred_username, &preferred_username/0)
-    |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
+    # |> Map.put_new_lazy(:primary_language_id, &uuid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.merge(actor(base))
   end
 
   def community_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
-    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)
@@ -250,15 +243,19 @@ defmodule MoodleNet.Test.Fake do
 
   def collection(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
-    # |> Map.put_new_lazy(:is_public, &truth/0)
+    # |> Map.put_new_lazy(:primary_language_id, &uuid/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.merge(actor(base))
   end
 
   def collection_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
-    |> Map.put_new_lazy("primaryLanguageId", &primary_language/0)
-    |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)
@@ -266,16 +263,20 @@ defmodule MoodleNet.Test.Fake do
 
   def resource(base \\ %{}) do
     base
-    # |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:summary, &summary/0)
+    |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:url, &url/0)
     |> Map.put_new_lazy(:license, &license/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+    |> Map.put_new_lazy(:is_disabled, &bool/0)
     # |> Map.put_new_lazy(:free_access, &maybe_bool/0)
     # |> Map.put_new_lazy(:public_access, &maybe_bool/0)
     # |> Map.put_new_lazy(:learning_resource_type, &learning_resource/0)
     # |> Map.put_new_lazy(:educational_use, &educational_use/0)
     # |> Map.put_new_lazy(:time_required, &pos_integer/0)
     # |> Map.put_new_lazy(:typical_age_range, &age_range/0)
+    # |> Map.put_new_lazy(:primary_language_id, &primary_language/0)
   end
 
   def resource_input(base \\ %{}) do
