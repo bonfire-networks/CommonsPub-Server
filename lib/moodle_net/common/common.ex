@@ -250,9 +250,9 @@ defmodule MoodleNet.Common do
   # def block(%User{} = blocker, blocked, fields) do
   #   Repo.transact_with(fn ->
   #     pointer = Meta.find!(blocked.id)
-
-  #     blocker
-  #     |> Block.create_changeset(pointer, fields)
+  # 
+  #     Meta.point_to!(Block)
+  #     |> Block.create_changeset(blocker, pointer, fields)
   #     |> Repo.insert()
   #   end)
   # end

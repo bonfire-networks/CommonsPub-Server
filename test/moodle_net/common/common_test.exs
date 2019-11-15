@@ -245,37 +245,37 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
-  # describe "block/3" do
-  #   test "creates a block for any meta object", %{user: blocker} do
-  #     blocked = fake_meta!()
+  describe "block/3" do
+    test "creates a block for any meta object", %{user: blocker} do
+      blocked = fake_meta!()
 
-  #     assert {:ok, block} =
-  #              Common.block(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
+      assert {:ok, block} =
+               Common.block(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
 
-  #     assert block.blocked_at
-  #     assert block.muted_at
-  #   end
-  # end
+      assert block.blocked_at
+      # assert block.muted_at
+    end
+  end
 
-  # describe "update_block/2" do
-  #   test "updates the attributes of an existing block", %{user: blocker} do
-  #     blocked = fake_meta!()
-  #     assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
-  #     assert {:ok, updated_block} = Common.update_block(block, Fake.block(%{is_blocked: true}))
-  #     assert block != updated_block
-  #   end
-  # end
+  describe "update_block/2" do
+    test "updates the attributes of an existing block", %{user: blocker} do
+      blocked = fake_meta!()
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      assert {:ok, updated_block} = Common.update_block(block, Fake.block(%{is_blocked: true}))
+      assert block != updated_block
+    end
+  end
 
-  # describe "delete_block/1" do
-  #   test "removes a block", %{user: blocker} do
-  #     blocked = fake_meta!()
-  #     assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
-  #     refute block.deleted_at
+  describe "delete_block/1" do
+    test "removes a block", %{user: blocker} do
+      blocked = fake_meta!()
+      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      refute block.deleted_at
 
-  #     assert {:ok, block} = Common.delete_block(block)
-  #     assert block.deleted_at
-  #   end
-  # end
+      assert {:ok, block} = Common.delete_block(block)
+      assert block.deleted_at
+    end
+  end
 
   # describe "tag/3" do
   #   test "creates a tag for any meta object", %{user: tagger} do

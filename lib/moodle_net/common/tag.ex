@@ -27,6 +27,7 @@ defmodule MoodleNet.Common.Tag do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
+    |> Changeset.change()
     |> Changeset.put_assoc(:tagger, tagger)
     |> Changeset.put_assoc(:tagged, tagged)
     |> change_public()

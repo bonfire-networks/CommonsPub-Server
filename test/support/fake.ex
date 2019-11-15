@@ -337,9 +337,11 @@ defmodule MoodleNet.Test.Fake do
 
   def block(base \\ %{}) do
     base
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_blocked, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_muted, &falsehood/0)
-    |> Map.put_new_lazy(:is_blocked, &falsehood/0)
   end
 
   def tag(base \\ %{}) do
