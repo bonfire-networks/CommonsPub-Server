@@ -5,7 +5,7 @@ defmodule MoodleNet.Comments do
   import Ecto.Query
   alias MoodleNet.{Common, Meta, Users}
   alias MoodleNet.Comments.{Comment, Thread}
-  alias MoodleNet.Common.{NotFoundError, Query}
+  alias MoodleNet.Common.{NotFoundError, NotPermittedError, Query}
   alias MoodleNet.Users.User
   alias MoodleNet.Repo
   alias Ecto.Association.NotLoaded
@@ -204,10 +204,10 @@ defmodule MoodleNet.Comments do
   def fetch_comment_thread(%Comment{thread_id: id, thread: %NotLoaded{}}), do: fetch_thread(id)
   def fetch_comment_thread(%Comment{thread: thread}), do: {:ok, thread}
 
-  # @spec fetch_comment_thread(Comment.t()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
-  # def fetch_comment_reply_to(%Comment{reply_to_id: nil}), do: {:error, NotFoundError.new()}
-  # def fetch_comment_reply_to(%Comment{reply_to_id: id, reply_to: %NotLoaded{}}), do: fetch_comment(id)
-  # def fetch_comment_reply_to(%Comment{reply_to: reply_to}), do: {:ok, reply_to}
+  @spec fetch_comment_thread(Comment.t()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
+  def fetch_comment_reply_to(%Comment{reply_to_id: nil} = comment), do: {:error, NotFoundError.new(comment)}
+  def fetch_comment_reply_to(%Comment{reply_to_id: id, reply_to: %NotLoaded{}}), do: fetch_comment(id)
+  def fetch_comment_reply_to(%Comment{reply_to: reply_to}), do: {:ok, reply_to}
 
   @spec create_comment(Thread.t(), User.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do
@@ -218,9 +218,26 @@ defmodule MoodleNet.Comments do
     end)
   end
 
-  # TODO: don't allow replies when locked
-  # def create_comment_reply() do
-  # end
+  @doc """
+  Create a comment in reply to another comment.
+
+  Will fail with `NotPermittedError` if the parent thread is locked.
+  """
+  @spec create_comment_reply(Thread.t(), User.t(), Comment.t(), map) ::
+          {:ok, Comment.t()} | {:error, Changeset.t()} | {:error, NotPermittedError.t()}
+  def create_comment_reply(%Thread{} = thread, %User{} = creator, %Comment{} = reply_to, attrs) do
+    # FIXME: check that the thread you're replying to is the same one
+    if thread.locked_at do
+      {:error, NotPermittedError.new()}
+    else
+      Repo.transact_with(fn ->
+        Meta.point_to!(Comment)
+        |> Comment.create_changeset(creator, thread, attrs)
+        |> Comment.reply_to_changeset(reply_to)
+        |> Repo.insert()
+      end)
+    end
+  end
 
   @spec update_comment(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def update_comment(%Comment{} = comment, attrs) do

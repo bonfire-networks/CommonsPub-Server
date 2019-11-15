@@ -44,8 +44,8 @@ defmodule MoodleNet.Comments.Comment do
     |> common_changeset()
   end
 
-  def reply_to_changeset(%Comment{} = comment, %Comment{} = reply_to) do
-    Changeset.change(comment, :reply_to_id, reply_to.id)
+  def reply_to_changeset(%Changeset{} = changeset, %Comment{} = reply_to) do
+    Changeset.put_change(changeset, :reply_to_id, reply_to.id)
   end
 
   @update_cast @create_cast

@@ -1,6 +1,9 @@
 defmodule MoodleNet.Comments.Thread do
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3, meta_pointer_constraint: 1]
+
+  import MoodleNet.Common.Changeset,
+    only: [change_synced_timestamp: 3, meta_pointer_constraint: 1]
+
   alias Ecto.Changeset
   alias MoodleNet.Comments.{Thread, ThreadFollowerCount}
   alias MoodleNet.Meta
