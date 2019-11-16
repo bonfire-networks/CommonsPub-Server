@@ -33,8 +33,8 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @create_required ~w(canonical_url name summary url license icon is_public is_disabled)a
-  @create_cast @create_required ++ ~w(primary_language_id)a
+  @required ~w(name summary url license icon)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled primary_language_id)a
 
   @spec create_changeset(Pointer.t(), Collection.t(), User.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given pointer and attributes."
@@ -42,8 +42,8 @@ defmodule MoodleNet.Resources.Resource do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Resource{}
-    |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
     |> Changeset.change(
       id: id,
       collection_id: collection.id,
@@ -53,13 +53,11 @@ defmodule MoodleNet.Resources.Resource do
     |> common_changeset()
   end
 
-  @update_cast ~w(canonical_url name summary url license icon is_public primary_language_id)a
-
   @spec update_changeset(%Resource{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the resource with the given attributes."
   def update_changeset(%Resource{} = resource, attrs) do
     resource
-    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 

@@ -25,22 +25,22 @@ defmodule MoodleNet.Comments.Comment do
     timestamps()
   end
 
-  @create_cast ~w(canonical_url content is_local is_hidden is_public)a
-  @create_required @create_cast
+  @required ~w(content is_local)a
+  @cast @required ++ ~w(canonical_url is_hidden is_public)a
 
   @spec create_changeset(Pointer.t(), User.t(), Thread.t(), map) :: Changeset.t()
   def create_changeset(%Pointer{id: id} = pointer, creator, thread, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Comment{}
-    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       id: id,
       creator_id: creator.id,
       thread_id: thread.id,
       is_public: true
     )
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
@@ -48,12 +48,10 @@ defmodule MoodleNet.Comments.Comment do
     Changeset.put_change(changeset, :reply_to_id, reply_to.id)
   end
 
-  @update_cast @create_cast
-
   @spec update_changeset(Comment.t(), map) :: Changeset.t()
   def update_changeset(%Comment{} = comment, attrs) do
     comment
-    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 

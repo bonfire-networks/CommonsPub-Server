@@ -24,15 +24,15 @@ defmodule MoodleNet.Actors.Actor do
     timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(peer_id preferred_username canonical_url signing_key)a
-  @create_required ~w(preferred_username)a
+  @required ~w(preferred_username)a
+  @cast @required ++ ~w(peer_id canonical_url signing_key)a
 
   @spec create_changeset(map) :: Changeset.t
   @doc "Creates a changeset for insertion from the given pointer and attrs"
   def create_changeset(attrs) do
     %Actor{}
-    |> Changeset.cast(attrs, @create_cast)
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
     |> Changeset.validate_format(:preferred_username, @username_regex)
     |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
@@ -43,13 +43,11 @@ defmodule MoodleNet.Actors.Actor do
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(peer_id preferred_username signing_key canonical_url)a
-
   @spec update_changeset(%Actor{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the given actor from the given attrs"
   def update_changeset(%Actor{} = actor, attrs) do
     actor
-    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.cast(attrs, @cast)
     |> meta_pointer_constraint()
   end
 

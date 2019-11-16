@@ -37,8 +37,8 @@ defmodule MoodleNet.Collections.Collection do
     timestamps()
   end
 
-  @create_required ~w(name summary icon is_public is_disabled)a
-  @create_cast @create_required ++ ~w(primary_language_id)a
+  @required ~w(name summary icon is_public is_disabled)a
+  @cast @required ++ ~w(primary_language_id)a
 
   def create_changeset(
         %Pointer{id: id} = pointer,
@@ -50,7 +50,8 @@ defmodule MoodleNet.Collections.Collection do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Collection{}
-    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
     |> Changeset.change(
       id: id,
       actor_id: actor.id,
@@ -58,17 +59,12 @@ defmodule MoodleNet.Collections.Collection do
       community_id: community.id,
       is_public: true
     )
-    |> Changeset.validate_required(@create_required)
     |> common_changeset()
   end
 
-  @update_cast @create_cast
-  @update_required ~w()a
-
   def update_changeset(%Collection{} = collection, attrs) do
     collection
-    |> Changeset.cast(attrs, @update_cast)
-    |> Changeset.validate_required(@update_required)
+    |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 

@@ -24,28 +24,26 @@ defmodule MoodleNet.Comments.Thread do
     timestamps()
   end
 
-  @create_cast ~w(canonical_url is_locked is_hidden is_local)a
-  @create_required @create_cast
+  @required ~w(is_local)a
+  @cast @required ++ ~w(canonical_url is_locked is_hidden)a
 
   def create_changeset(%Pointer{id: id} = pointer, %Pointer{} = context, %User{} = creator, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Thread{}
-    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       id: id,
       creator_id: creator.id,
       context_id: context.id
     )
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
-  @update_cast @create_cast
-
   def update_changeset(%Thread{} = thread, attrs) do
     thread
-    |> Changeset.cast(attrs, @update_cast)
+    |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
 

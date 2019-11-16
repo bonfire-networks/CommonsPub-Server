@@ -27,8 +27,8 @@ defmodule MoodleNet.Common.Follow do
     timestamps(inserted_at: :created_at)
   end
 
-  @cast ~w(canonical_url is_local is_muted is_public)a
-  @required @cast
+  @required ~w(is_local)a
+  @cast @required ++ ~w(canonical_url is_muted is_public)a
 
   def create_changeset(
         %Pointer{id: id} = pointer,

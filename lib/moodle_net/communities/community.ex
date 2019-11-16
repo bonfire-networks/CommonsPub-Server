@@ -42,14 +42,14 @@ defmodule MoodleNet.Communities.Community do
     timestamps(inserted_at: :created_at)
   end
 
-  @create_required ~w(name summary icon image is_disabled is_public)a
-  @create_cast @create_required ++ ~w(primary_language_id)a
+  @required ~w(name summary icon image)a
+  @cast @required ++ ~w(is_disabled is_public primary_language_id)a
 
   def create_changeset(%Pointer{id: id} = pointer, %User{} = creator, %Actor{} = actor, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Community{}
-    |> Changeset.cast(fields, @create_cast)
+    |> Changeset.cast(fields, @cast)
     |> Changeset.change(
       id: id,
       # communities are currently all public
@@ -57,7 +57,7 @@ defmodule MoodleNet.Communities.Community do
       actor_id: actor.id,
       creator_id: creator.id
     )
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
@@ -65,7 +65,7 @@ defmodule MoodleNet.Communities.Community do
 
   def update_changeset(%Community{} = community, fields) do
     community
-    |> Changeset.cast(fields, @update_cast)
+    |> Changeset.cast(fields, @cast)
     |> common_changeset()
   end
 

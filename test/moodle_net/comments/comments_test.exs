@@ -110,7 +110,6 @@ defmodule MoodleNet.CommentsTest do
 
     test "fails to create a thread with invalid attributes", %{user: creator, parent: parent} do
       assert {:error, changeset} = Comments.create_thread(parent, creator, %{})
-      assert Keyword.get(changeset.errors, :is_locked)
       assert Keyword.get(changeset.errors, :is_local)
     end
   end

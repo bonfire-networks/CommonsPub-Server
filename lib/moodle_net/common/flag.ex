@@ -30,8 +30,8 @@ defmodule MoodleNet.Common.Flag do
     timestamps()
   end
 
-  @cast ~w(canonical_url message is_local is_resolved)a
-  @required @cast
+  @required ~w(message is_local)a
+  @cast @required ++ ~w(canonical_url is_resolved)a
 
   def create_changeset(%Pointer{id: id}, %User{} = flagger, %Pointer{} = flagged, attrs) do
     %__MODULE__{}

@@ -26,8 +26,8 @@ defmodule MoodleNet.Common.Like do
     timestamps()
   end
 
-  @cast ~w(canonical_url is_local is_public)a
-  @required @cast
+  @required ~w(is_local)a
+  @cast @required ++ ~w(canonical_url is_public)a
 
   def create_changeset(%Pointer{id: id}, %User{} = liker, %Pointer{} = liked, %{}=fields) do
     %Like{id: id}
