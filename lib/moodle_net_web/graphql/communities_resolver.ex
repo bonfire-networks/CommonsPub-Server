@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   Performs the GraphQL Community queries.
   """
   import Ecto.Query
-  alias Absinthe.Resolution
+  alias Absinthe.Relay
   alias MoodleNet.Fake
   alias MoodleNet.{Accounts, Actors, Common, Collections, Communities, Fake, GraphQL, Repo, Users}
   alias MoodleNet.Actors.Actor
@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     |> GraphQL.response(info)
   end
 
-  def community(%Collection{}=collection, _, info) do
+  def community(_, _, info) do
     # with {:ok, {community, actor}} <- Repo.single(fetch_q(id)) do
     #   {:ok, %{community | actor: Actors.preload(actor)}}
     # end
@@ -30,7 +30,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     |> GraphQL.response(info)
   end
 
-  def communities(_args, info) do
+  def communities(args, info) do
+    
     # Repo.transact_with(fn ->
     #   count = Communities.count_for_list()
     #   comms = Communities.list()

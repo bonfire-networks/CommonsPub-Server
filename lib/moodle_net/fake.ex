@@ -350,6 +350,7 @@ defmodule MoodleNet.Fake do
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:created_at, &past_datetime/0)
+    |> Map.put_new_lazy(:updated_at, &past_datetime/0)
     |> Map.put(:__struct__, MoodleNet.Common.Like)
   end
 

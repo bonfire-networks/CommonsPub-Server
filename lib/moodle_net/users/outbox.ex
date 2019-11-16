@@ -7,6 +7,6 @@ defmodule MoodleNet.Users.Outbox do
   meta_schema "mn_user_outbox" do
     belongs_to(:user, User)
     belongs_to(:activity, Activity)
-    timestamps(inserted_at: :created_at)
+    timestamps(updated_at: false)
   end
 end

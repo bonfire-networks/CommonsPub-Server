@@ -52,7 +52,7 @@ defmodule MoodleNet.Localisation.CountryService do
   defp lookup_result(_, [{_,v}]), do: {:ok, v}
 
   @spec lookup!(iso2_code :: binary) :: Country.t
-  @doc "Look up a Country by iso2 code, throw CountryNotFoundError if not found"
+  @doc "Look up a Country by id code, throw CountryNotFoundError if not found"
   def lookup!(key) do
     case lookup(key) do
       {:ok, v} -> v
@@ -60,14 +60,14 @@ defmodule MoodleNet.Localisation.CountryService do
     end
   end
 
-  @spec lookup_id(iso2_code :: binary) :: {:ok, binary} | {:error, CountryNotFoundError.t}
-  @doc "Look up a country id by iso2 code"
+  @spec lookup_id(id :: binary) :: {:ok, binary} | {:error, CountryNotFoundError.t}
+  @doc "Look up a country id by id code"
   def lookup_id(key) do
     with {:ok, val} <- lookup(key), do: {:ok, val.id}
   end
 
-  @spec lookup_id!(iso2_code :: binary) :: binary
-  @doc "Look up a country id by iso2 code, throw CountryNotFoundError if not found"
+  @spec lookup_id!(id :: binary) :: binary
+  @doc "Look up a country id by id code, throw CountryNotFoundError if not found"
   def lookup_id!(key) do
     case lookup_id(key) do
       {:ok, v} -> v
@@ -88,7 +88,11 @@ defmodule MoodleNet.Localisation.CountryService do
   defp populate_countries(entries) do
     :ets.new(@table_name, [:named_table])
     all = {:ALL, entries} # to enable list queries
-    indexed = Enum.map(entries, &({&1.id, &1}))
+    indexed = Enum.flat_map(entries, fn country ->
+      [ {country.id, country},
+	{country.iso_code2, country},
+	{country.iso_code3, country} ]
+    end)
     true = :ets.insert(@table_name, [all | indexed])
   end
 

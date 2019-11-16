@@ -27,18 +27,15 @@ defmodule MoodleNet.Peers.Peer do
     timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(ap_url_base is_disabled)a
-  @create_required @create_cast
-
-  @update_cast ~w(ap_url_base is_disabled)a
-  @update_required ~w()a
+  @required ~w(ap_url_base)a
+  @cast @required ++ ~w(is_disabled)a
 
   def create_changeset(%Pointer{id: id} = pointer, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
     %Peer{id: id}
-    |> Changeset.cast(fields, @create_cast)
-    |> Changeset.validate_required(@create_required)
+    |> Changeset.cast(fields, @cast)
+    |> Changeset.validate_required(@required)
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> validate_http_url(:ap_url_base)
     |> meta_pointer_constraint()
@@ -46,8 +43,7 @@ defmodule MoodleNet.Peers.Peer do
 
   def update_changeset(%Peer{} = peer, fields) do
     peer
-    |> Changeset.cast(fields, @update_cast)
-    |> Changeset.validate_required(@update_required)
+    |> Changeset.cast(fields, @cast)
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> meta_pointer_constraint()
   end

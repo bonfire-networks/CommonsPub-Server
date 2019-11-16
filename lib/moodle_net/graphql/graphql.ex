@@ -5,7 +5,7 @@ defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
   alias MoodleNet.Common
-  alias MoodleNet.Common.{
+  alias MoodleNet.Access.{
     NotLoggedInError,
     NotPermittedError,
   }

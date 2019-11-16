@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   require Phoenix.ConnTest
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
-  alias MoodleNet.OAuth.Token
+  alias MoodleNet.Access.Token
   alias MoodleNet.Users.User
   
   @endpoint MoodleNetWeb.Endpoint

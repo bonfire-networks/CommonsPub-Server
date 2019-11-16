@@ -113,7 +113,10 @@ manual-db:
 	mix ecto.reset
 
 good-tests:
-	mix test test/moodle_net test/moodle_net_web/{plugs,views,graphql/users_test.exs}
+	mix test test/moodle_net/{access,activities,actors,collections,comments,common} \
+                 test/moodle_net/{communities,localisation,meta,peers,resources,users} \
+                 test/moodle_net_web/plugs/ \
+                 test/moodle_net_web/graphql/{users,temporary}_test.exs \
 
 run: ## Run the app in Docker
 	docker run\

@@ -10,6 +10,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     |> GraphQL.response(info)
   end
 
+  def comment(parent, _, info) do
+    {:ok, Fake.comment()}
+    |> GraphQL.response(info)
+  end
+
   def comments(parent, _, info) do
     {:ok, Fake.long_edge_list(&Fake.comment/0)}
     |> GraphQL.response(info)

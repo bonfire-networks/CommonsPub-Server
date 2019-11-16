@@ -6,16 +6,15 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
 
   import MoodleNet.Test.Faking
   alias Plug.Conn
-  alias MoodleNet.OAuth.{
+  alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     TokenExpiredError,
     TokenNotFoundError,
   }
   alias MoodleNetWeb.Plugs.Auth
 
-  @moduletag :skip
-
-  defp strip_user(user), do: Map.drop(user, [:actor, :email_confirm_tokens])
+  defp strip_token(token), do: Map.drop(token, [:user])
+  defp strip_user(user), do: Map.drop(user, [:email_confirm_tokens])
 
   test "works with a current user" do
     user = fake_user!(%{}, confirm_email: true)
@@ -32,7 +31,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
       |> Auth.call([])
     assert conn.halted == false
     assert strip_user(conn.assigns.current_user) == strip_user(user)
-    assert conn.assigns.auth_token == token
+    assert strip_token(conn.assigns.auth_token) == strip_token(token)
   end
 
   test "works with session token" do
@@ -44,7 +43,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
       |> Auth.call([])
     assert conn.halted == false
     assert strip_user(conn.assigns.current_user) == strip_user(user)
-    assert conn.assigns.auth_token == token
+    assert strip_token(conn.assigns.auth_token) == strip_token(token)
     assert conn.assigns[:auth_error] == nil
   end
 
@@ -77,13 +76,13 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == MalformedAuthorizationHeaderError.new("abcdef")
+    assert conn.assigns.auth_error == MalformedAuthorizationHeaderError.new()
   end
 
   test "validates token has not expired" do
     user = fake_user!(%{}, confirm_email: true)
     token = fake_token!(user)
-    then = DateTime.add(DateTime.utc_now(), 60 * 11)
+    then = DateTime.add(DateTime.utc_now(), 3600 * 24 * 15)
     assert conn =
       plugged()
       |> with_authorization(token)
@@ -91,7 +90,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
-    assert conn.assigns.auth_error == TokenExpiredError.new(token)
+    assert conn.assigns.auth_error == TokenExpiredError.new()
   end
 
 end

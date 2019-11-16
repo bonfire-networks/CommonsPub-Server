@@ -25,7 +25,7 @@ defmodule MoodleNet.Repo do
   """
   def single(q) do
     case one(q) do
-      nil -> {:error, NotFoundError.new(q)}
+      nil -> {:error, NotFoundError.new()}
       other -> {:ok, other}
     end
   end
@@ -34,7 +34,7 @@ defmodule MoodleNet.Repo do
   @spec fetch(atom, integer | binary) :: {:ok, atom} | {:error, NotFoundError.t()}
   def fetch(queryable, id) do
     case get(queryable, id) do
-      nil -> {:error, NotFoundError.new(id)}
+      nil -> {:error, NotFoundError.new()}
       thing -> {:ok, thing}
     end
   end
@@ -42,7 +42,7 @@ defmodule MoodleNet.Repo do
   @doc "Like Repo.get_by, but returns an ok/error tuple"
   def fetch_by(queryable, term) do
     case get_by(queryable, term) do
-      nil -> {:error, NotFoundError.new(term)}
+      nil -> {:error, NotFoundError.new()}
       thing -> {:ok, thing}
     end
   end

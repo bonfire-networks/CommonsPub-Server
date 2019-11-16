@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert [err] = errs
     assert %{"code" => code, "message" => message} = err
     assert %{"path" => path2, "locations" => [loc]} = err
-    assert code == "unauthorized"
+    assert code == "needs_login"
     assert message == "You need to log in first."
     assert path == path2
     assert_location(loc)
@@ -205,9 +205,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"id" => id, "canonicalUrl" => url} = comment
     assert is_binary(id)
     assert is_binary(url)
-    assert %{"id" => id, "inReplyToId" => reply} = comment
-    assert is_binary(id)
-    assert is_binary(reply) or is_nil(reply)
     assert %{"content" => content} = comment
     assert is_binary(content)
     assert %{"isLocal" => local, "isPublic" => public} = comment

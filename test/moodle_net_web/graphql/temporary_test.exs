@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   isLocal isPublic isHidden createdAt updatedAt __typename
   """
   @comment_basics """
-  id canonicalUrl inReplyToId content
+  id canonicalUrl content
   isLocal isPublic isHidden createdAt updatedAt __typename
   """
   @community_basics """
@@ -48,24 +48,24 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   """
   @like_basics """
   id canonicalUrl
-  isLocal isPublic createdAt __typename
+  isLocal isPublic createdAt updatedAt __typename
   """
   @follow_basics """
   id canonicalUrl
-  isLocal isPublic createdAt __typename
+  isLocal isPublic createdAt updatedAt __typename
   """
-  @tag_category_basics """
-  id canonicalUrl name
-  isLocal isPublic createdAt __typename
-  """
-  @tag_basics """
-  id canonicalUrl name
-  isLocal isPublic createdAt __typename
-  """
-  @tagging_basics """
-  id canonicalUrl
-  isLocal isPublic createdAt __typename
-  """
+  # @tag_category_basics """
+  # id canonicalUrl name
+  # isLocal isPublic createdAt __typename
+  # """
+  # @tag_basics """
+  # id canonicalUrl name
+  # isLocal isPublic createdAt __typename
+  # """
+  # @tagging_basics """
+  # id canonicalUrl
+  # isLocal isPublic createdAt __typename
+  # """
   @activity_basics """
   id canonicalUrl verb
   isLocal isPublic createdAt __typename
@@ -133,11 +133,12 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
   test "resolve_flag" do
     q = """
     mutation Test {
-      resolveFlag(flagId: "")
+      resolveFlag(flagId: "") { #{@flag_basics} }
     }
     """
-    assert %{"resolveFlag" => true} =
+    assert %{"resolveFlag" => flag} =
       gql_post_data(json_conn(), %{query: q, operation_name: "Test"})
+    assert_flag(flag)
   end
 
   # collections schema
@@ -245,21 +246,21 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_follow(follow)
   end
 
-  test "collection.primary_language" do
-    q = """
-    query Test {
-      collection(collectionId: "") {
-        #{@collection_basics}
-        primaryLanguage { #{@language_basics} }
-      }
-    }
-    """
-    query = %{query: q, operation_name: "Test"}
-    assert %{"collection" => coll} = gql_post_data(json_conn(), query)
-    assert %{"primaryLanguage" => lang} = coll
-    assert_collection(coll)
-    assert_language(lang)
-  end
+  # test "collection.primary_language" do
+  #   q = """
+  #   query Test {
+  #     collection(collectionId: "") {
+  #       #{@collection_basics}
+  #       primaryLanguage { #{@language_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operation_name: "Test"}
+  #   assert %{"collection" => coll} = gql_post_data(json_conn(), query)
+  #   assert %{"primaryLanguage" => lang} = coll
+  #   assert_collection(coll)
+  #   assert_language(lang)
+  # end
 
   test "collection.creator" do
     q = """
@@ -1114,21 +1115,21 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_follow(follow)
   end
 
-  test "community.primary_language" do
-    q = """
-    query Test {
-      community(communityId: "") {
-        #{@community_basics}
-        primaryLanguage { #{@language_basics} }
-      }
-    }
-    """
-    query = %{query: q, operation_name: "Test"}
-    assert %{"community" => comm} = gql_post_data(json_conn(), query)
-    assert %{"primaryLanguage" => lang} = comm
-    assert_community(comm)
-    assert_language(lang)
-  end
+  # test "community.primary_language" do
+  #   q = """
+  #   query Test {
+  #     community(communityId: "") {
+  #       #{@community_basics}
+  #       primaryLanguage { #{@language_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operation_name: "Test"}
+  #   assert %{"community" => comm} = gql_post_data(json_conn(), query)
+  #   assert %{"primaryLanguage" => lang} = comm
+  #   assert_community(comm)
+  #   assert_language(lang)
+  # end
 
   test "community.creator" do
     q = """
@@ -1258,13 +1259,13 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
 
   # instance schema
 
-  test "instance" do
-    q = """
-    query Test {
-      instance { }
-    }
-    """
-  end
+  # test "instance" do
+  #   q = """
+  #   query Test {
+  #     instance { }
+  #   }
+  #   """
+  # end
 
   test "instance.outbox" do
     q = """
@@ -1288,95 +1289,95 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
 
   # localisation schema
   
-  test "language" do
-    q = """
-    query Test {
-      language(languageId: "") {
-        #{@language_basics}
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"language" => lang} = gql_post_data(json_conn(), query)
-    assert_language(lang)
-  end
+  # test "language" do
+  #   q = """
+  #   query Test {
+  #     language(languageId: "") {
+  #       #{@language_basics}
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"language" => lang} = gql_post_data(json_conn(), query)
+  #   assert_language(lang)
+  # end
 
-  test "languages" do
-    q = """
-    query Test {
-      languages {
-        #{@page_basics}
-        nodes {
-          #{@language_basics}
-        }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"languages" => langs} = gql_post_data(json_conn(), query)
-    for lang <- assert_node_list(langs), do: assert_language(lang)
-  end
+  # test "languages" do
+  #   q = """
+  #   query Test {
+  #     languages {
+  #       #{@page_basics}
+  #       nodes {
+  #         #{@language_basics}
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"languages" => langs} = gql_post_data(json_conn(), query)
+  #   for lang <- assert_node_list(langs), do: assert_language(lang)
+  # end
 
-  test "search_language" do
-    q = """
-    query Test {
-      searchLanguage(query: "") {
-        #{@page_basics}
-        nodes {
-          #{@language_basics}
-        }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"searchLanguage" => langs} = gql_post_data(json_conn(), query)
-    for lang <- assert_node_list(langs), do: assert_language(lang)
-  end
+  # test "search_language" do
+  #   q = """
+  #   query Test {
+  #     searchLanguage(query: "") {
+  #       #{@page_basics}
+  #       nodes {
+  #         #{@language_basics}
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"searchLanguage" => langs} = gql_post_data(json_conn(), query)
+  #   for lang <- assert_node_list(langs), do: assert_language(lang)
+  # end
 
-  test "country" do
-    q = """
-    query Test {
-      country(countryId: "") {
-        #{@country_basics}
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"country" => country} = gql_post_data(json_conn(), query)
-    assert_country(country)
-  end
+  # test "country" do
+  #   q = """
+  #   query Test {
+  #     country(countryId: "") {
+  #       #{@country_basics}
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"country" => country} = gql_post_data(json_conn(), query)
+  #   assert_country(country)
+  # end
 
-  test "countries" do
-    q = """
-    query Test {
-      countries {
-        #{@page_basics}
-        nodes {
-          #{@country_basics}
-        }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"countries" => countries} = gql_post_data(json_conn(), query)
-    for country <- assert_node_list(countries), do: assert_country(country)
-  end
+  # test "countries" do
+  #   q = """
+  #   query Test {
+  #     countries {
+  #       #{@page_basics}
+  #       nodes {
+  #         #{@country_basics}
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"countries" => countries} = gql_post_data(json_conn(), query)
+  #   for country <- assert_node_list(countries), do: assert_country(country)
+  # end
 
-  test "search_country" do
-    q = """
-    query Test {
-      searchCountry(query: "") {
-        #{@page_basics}
-        nodes {
-          #{@country_basics}
-        }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"searchCountry" => countries} = gql_post_data(json_conn(), query)
-    for country <- assert_node_list(countries), do: assert_country(country)
-  end
+  # test "search_country" do
+  #   q = """
+  #   query Test {
+  #     searchCountry(query: "") {
+  #       #{@page_basics}
+  #       nodes {
+  #         #{@country_basics}
+  #       }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"searchCountry" => countries} = gql_post_data(json_conn(), query)
+  #   for country <- assert_node_list(countries), do: assert_country(country)
+  # end
 
   # moodleverse schema
 
@@ -1508,21 +1509,21 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_collection(coll)
   end
 
-  test "resource.primary_language" do
-    q = """
-    query Test {
-      resource(resourceId: "") {
-        #{@resource_basics}
-        primaryLanguage { #{@language_basics} }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"resource" => res} = gql_post_data(json_conn(), query)
-    assert %{"primaryLanguage" => lang} = res
-    assert_resource(res)
-    assert_language(lang)
-  end
+  # test "resource.primary_language" do
+  #   q = """
+  #   query Test {
+  #     resource(resourceId: "") {
+  #       #{@resource_basics}
+  #       primaryLanguage { #{@language_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"resource" => res} = gql_post_data(json_conn(), query)
+  #   assert %{"primaryLanguage" => lang} = res
+  #   assert_resource(res)
+  #   assert_language(lang)
+  # end
 
   test "resource.likes" do
     q = """
@@ -1604,19 +1605,19 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert is_boolean(av)
   end
 
-  test "me" do
-    q = """
-    query Test {
-      me {
-        #{@me_basics}
-        user { #{@user_basics} }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"me" => me} = gql_post_data(json_conn(), query)
-    assert_me(me)
-  end
+  # test "me" do
+  #   q = """
+  #   query Test {
+  #     me {
+  #       #{@me_basics}
+  #       user { #{@user_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"me" => me} = gql_post_data(json_conn(), query)
+  #   assert_me(me)
+  # end
 
   test "user" do
     q = """
@@ -1796,21 +1797,21 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_like(like)
    end
   
-  test "user.primary_language" do
-    q = """
-    query Test {
-      user(userId: "") {
-        #{@user_basics}
-        primaryLanguage { #{@language_basics} }
-      }
-    }
-    """
-    query = %{query: q, operationName: "Test"}
-    assert %{"user" => user} = gql_post_data(json_conn(), query)
-    assert_user(user)
-    assert %{"primaryLanguage" => lang} = user
-    assert_language(lang)
-  end
+  # test "user.primary_language" do
+  #   q = """
+  #   query Test {
+  #     user(userId: "") {
+  #       #{@user_basics}
+  #       primaryLanguage { #{@language_basics} }
+  #     }
+  #   }
+  #   """
+  #   query = %{query: q, operationName: "Test"}
+  #   assert %{"user" => user} = gql_post_data(json_conn(), query)
+  #   assert_user(user)
+  #   assert %{"primaryLanguage" => lang} = user
+  #   assert_language(lang)
+  # end
 
   test "user.followed_communities" do
     q = """
@@ -1822,10 +1823,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on Community { #{@community_basics} }
-              }
+              follow { #{@follow_basics} }
+	      community { #{@community_basics} }
             }
           }
         }
@@ -1837,9 +1836,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_user(user)
     assert %{"followedCommunities" => follows} = user
     for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_community(context)
+      assert_follow(f["follow"])
+      assert_community(f["community"])
     end
   end
 
@@ -1853,10 +1851,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on Collection { #{@collection_basics} }
-              }
+              follow { #{@follow_basics} }
+              collection { #{@collection_basics} }
             }
           }
         }
@@ -1868,9 +1864,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_user(user)
     assert %{"followedCollections" => follows} = user
     for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_collection(context)
+      assert_follow(f["follow"])
+      assert_collection(f["collection"])
     end
   end
 
@@ -1884,10 +1879,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
           edges {
             cursor
             node {
-              #{@follow_basics}
-              context {
-                ... on User { #{@user_basics} }
-              }
+              follow { #{@follow_basics} }
+              user { #{@user_basics} }
             }
           }
         }
@@ -1899,9 +1892,8 @@ defmodule MoodleNetWeb.GraphQL.TemporaryTest do
     assert_user(user)
     assert %{"followedUsers" => follows} = user
     for f <- assert_edge_list(follows) do
-      assert_follow(f)
-      assert %{"context" => context} = f
-      assert_user(context)
+      assert_follow(f["follow"])
+      assert_user(f["user"])
     end
   end
 
