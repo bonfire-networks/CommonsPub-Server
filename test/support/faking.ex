@@ -5,6 +5,7 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Test.Fake
   alias MoodleNet.{
     Access,
+    Activities,
     Actors,
     Comments,
     Communities,
@@ -40,6 +41,11 @@ defmodule MoodleNet.Test.Faking do
   def fake_peer!(overrides \\ %{}) when is_map(overrides) do
     {:ok, peer} = Peers.create(Fake.peer(overrides))
     peer
+  end
+
+  def fake_activity!(user, context, overrides \\ %{}) do
+    {:ok, activity} = Activities.create(context, user, Fake.activity(overrides))
+    activity
   end
 
   def fake_actor!(overrides \\ %{}) when is_map(overrides) do

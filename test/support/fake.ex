@@ -116,6 +116,8 @@ defmodule MoodleNet.Test.Fake do
   def website(), do: Faker.Internet.url()
   @doc "A language name (not really)"
   def language(), do: Faker.Address.country()
+  @doc "A verb to be used for an activity."
+  def verb(), do: Faker.Util.pick(["create", "update", "delete"])
 
   # Unique data
 
@@ -157,6 +159,14 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+  end
+
+  def activity(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:verb, &verb/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
   end
 
   def actor(base \\ %{}) do
