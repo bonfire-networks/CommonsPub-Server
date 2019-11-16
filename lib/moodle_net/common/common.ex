@@ -4,7 +4,6 @@
 defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -17,9 +16,9 @@ defmodule MoodleNet.Common do
     Tag,
   }
   alias MoodleNet.Communities.Community
-  import Ecto.Query
   alias MoodleNet.Common.Changeset
   alias MoodleNet.Users.User
+  import Ecto.Query
 
   ### pagination
 
@@ -94,9 +93,9 @@ defmodule MoodleNet.Common do
   end
 
   @doc """
-  Return a list of likes for an actor.
+  Return a list of likes for a user.
   """
-  def likes_by(%User{}=actor), do: Repo.all(likes_by_query(actor))
+  def likes_by(%User{}=user), do: Repo.all(likes_by_query(user))
 
   @doc """
   Return a list of likes for any object participating in the meta abstraction.
@@ -131,8 +130,8 @@ defmodule MoodleNet.Common do
   def flag(%User{} = flagger, flagged, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-  	{:ok, _} -> {:error, AlreadyFlaggedError.new("user")}
-  	_ -> insert_flag(flagger, flagged, fields)
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ -> insert_flag(flagger, flagged, fields)
       end
     end
   end
@@ -140,8 +139,8 @@ defmodule MoodleNet.Common do
   def flag(%User{} = flagger, flagged, community, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-  	{:ok, _} -> {:error, AlreadyFlaggedError.new("user")}
-  	_ -> insert_flag(flagger, flagged, community, fields)
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ -> insert_flag(flagger, flagged, community, fields)
       end
     end
   end
@@ -169,9 +168,9 @@ defmodule MoodleNet.Common do
   end
 
   @doc """
-  Return a list of open flags for an actor.
+  Return a list of open flags for an user.
   """
-  def flags_by(%User{} = actor), do: Repo.all(flags_by_query(actor))
+  def flags_by(%User{} = user), do: Repo.all(flags_by_query(user))
 
   @doc """
   Return a list of open flags for any object participating in the meta abstraction.

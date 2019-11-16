@@ -12,7 +12,7 @@ defmodule MoodleNet.Common.Like do
   import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
   alias MoodleNet.Common.Like
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Users.User
   alias Ecto.Changeset
 
   meta_schema "mn_like" do
@@ -26,10 +26,10 @@ defmodule MoodleNet.Common.Like do
     timestamps()
   end
 
-  @cast ~w()a
+  @cast ~w(canonical_url is_local is_public)a
   @required @cast
 
-  def create_changeset(%Pointer{id: id}, %Actor{} = liker, %Pointer{} = liked, %{}=fields) do
+  def create_changeset(%Pointer{id: id}, %User{} = liker, %Pointer{} = liked, %{}=fields) do
     %Like{id: id}
     |> Changeset.cast(fields, @cast)
     |> Changeset.change(
@@ -41,14 +41,18 @@ defmodule MoodleNet.Common.Like do
     |> Changeset.validate_required(@required)
     |> Changeset.foreign_key_constraint(:liked_id)
     |> Changeset.foreign_key_constraint(:liker_id)
-    |> meta_pointer_constraint()
-    |> change_public()
+    |> common_changeset()
   end
 
   def update_changeset(%Like{}=like, %{}=fields) do
     like
     |> Changeset.cast(fields, @cast)
-    |> meta_pointer_constraint()
+    |> common_changeset()
+  end
+
+  defp common_changeset(changeset) do
+    changeset
     |> change_public()
+    |> meta_pointer_constraint()
   end
 end

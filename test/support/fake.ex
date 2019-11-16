@@ -312,9 +312,19 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("content", &paragraph/0)
   end
 
+  def like(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_public, &truth/0)
+  end
+
   def flag(base \\ %{}) do
     base
+    |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:message, &paragraph/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_resolved, &bool/0)
   end
 
   def follow(base \\ %{}) do
