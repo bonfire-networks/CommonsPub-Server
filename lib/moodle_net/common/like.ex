@@ -16,23 +16,29 @@ defmodule MoodleNet.Common.Like do
   alias Ecto.Changeset
 
   meta_schema "mn_like" do
+    belongs_to :liker, User
     belongs_to :liked, Pointer
-    belongs_to :liker, Actor
+    field :canonical_url, :string
+    field :is_local, :boolean
     field :is_public, :boolean, virtual: true
     field :published_at, :utc_datetime_usec
     field :deleted_at, :utc_datetime_usec
     timestamps()
   end
 
-  @cast ~w(is_public)a
+  @cast ~w()a
   @required @cast
 
   def create_changeset(%Pointer{id: id}, %Actor{} = liker, %Pointer{} = liked, %{}=fields) do
     %Like{id: id}
     |> Changeset.cast(fields, @cast)
+    |> Changeset.change(
+      id: id,
+      liker_id: liker.id,
+      liked_id: liked.id,
+      is_public: true
+    )
     |> Changeset.validate_required(@required)
-    |> Changeset.put_assoc(:liker, liker)
-    |> Changeset.put_assoc(:liked, liked)
     |> Changeset.foreign_key_constraint(:liked_id)
     |> Changeset.foreign_key_constraint(:liker_id)
     |> meta_pointer_constraint()

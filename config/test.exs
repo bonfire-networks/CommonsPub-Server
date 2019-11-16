@@ -53,3 +53,6 @@ config :moodle_net, MoodleNet.OAuth,
 
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
+
+config :moodle_net, MoodleNet.Uploads.Storage,
+  provider: [Belt.Provider.Filesystem, [[directory: "test_uploads", base_url: "http://localhost:4000/uploads"]]]

@@ -1,15 +1,9 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
-# Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments do
   alias MoodleNet.{Common, Meta}
-  alias MoodleNet.Comments.{
-    Comment,
-    CommentRevision,
-    CommentLatestRevision,
-    Thread
-  }
+  alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{Revision, NotFoundError}
   alias MoodleNet.Repo
 
@@ -17,38 +11,27 @@ defmodule MoodleNet.Comments do
   def fetch_comment(id), do: Repo.fetch(Comment, id)
 
   def create_thread(parent, creator, attrs) do
-    Repo.transact_with(fn ->
-      pointer = Meta.find!(parent.id)
-      Repo.insert(Thread.create_changeset(pointer, creator, attrs))
-    end)
+    Repo.transact_with fn ->
+      parent = Meta.find!(parent.id)
+      pointer = Meta.point_to!(Thread)
+      Repo.insert(Thread.create_changeset(pointer, parent, creator, attrs))
+    end
   end
 
   def update_thread(thread, attrs) do
-    Repo.transact_with(fn ->
+    Repo.transact_with fn ->
       Repo.update(Thread.update_changeset(thread, attrs))
-    end)
+    end
   end
 
   def create_comment(thread, creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       pointer = Meta.point_to!(Comment)
-
-      changeset = Comment.create_changeset(pointer, creator, thread, attrs)
-      with {:ok, comment} <- Repo.insert(changeset),
-           {:ok, revision} <- Revision.insert(CommentRevision, comment, attrs) do
-        latest_revision = CommentLatestRevision.forge(revision)
-        {:ok, %Comment{comment | latest_revision: latest_revision, current: revision}}
-      end
+      Repo.insert(Comment.create_changeset(pointer, creator, thread, attrs))
     end)
   end
 
   def update_comment(%Comment{} = comment, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, comment} <- Repo.update(Comment.update_changeset(comment, attrs)),
-           {:ok, revision} <- Revision.insert(CommentRevision, comment, attrs) do
-        latest_revision = CommentLatestRevision.forge(revision)
-        {:ok, %Comment{comment | latest_revision: latest_revision, current: revision}}
-      end
-    end)
+    Repo.update(Comment.update_changeset(comment, attrs))
   end
 end

@@ -14,19 +14,20 @@ defmodule MoodleNet.Test.Faking do
     Users,
     Localisation,
     Resources,
-    Whitelists,
+    Access,
   }
+  alias MoodleNet.Actors.Actor
   alias MoodleNet.Users.User
 
   def fake_register_email_domain_whitelist!(domain \\ Fake.domain())
   when is_binary(domain) do
-    {:ok, wl} = Whitelists.create_register_email_domain(domain)
+    {:ok, wl} = Access.create_register_email_domain(domain)
     wl
   end
 
   def fake_register_email_whitelist!(email \\ Fake.email())
   when is_binary(email) do
-    {:ok, wl} = Whitelists.create_register_email(email)
+    {:ok, wl} = Access.create_register_email(email)
     wl
   end
 
@@ -67,28 +68,30 @@ defmodule MoodleNet.Test.Faking do
     token
   end
 
-  def fake_community!(actor, language, overrides \\ %{}) when is_map(overrides) do
-    {:ok, community} = Communities.create(actor, language, Fake.community(overrides))
+  def fake_community!(user, overrides \\ %{})
+  def fake_community!(%User{}=user, %{}=overrides) do
+    {:ok, community} = Communities.create(user, user.actor, Fake.community(overrides))
     community
   end
 
-  def fake_collection!(actor, community, language, overrides \\ %{}) when is_map(overrides) do
-    {:ok, collection} = Collections.create(community, actor, language, Fake.collection(overrides))
+  def fake_collection!(user, community, overrides \\ %{}) when is_map(overrides) do
+    {:ok, collection} = Collections.create(community, user.actor, Fake.collection(overrides))
     collection
   end
 
-  def fake_resource!(actor, collection, language, overrides \\ %{}) when is_map(overrides) do
-    {:ok, resource} = Resources.create(collection, actor, language, Fake.resource(overrides))
+  def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
+    {:ok, resource} = Resources.create(collection, user.actor, Fake.resource(overrides))
     resource
   end
 
-  def fake_thread!(actor, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Comments.create_thread(parent, actor, Fake.thread(overrides))
+  def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
+    {:ok, thread} = Comments.create_thread(parent, user.actor, Fake.thread(overrides))
     thread
   end
 
-  def fake_comment!(actor, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create_comment(thread, actor, Fake.comment(overrides))
+  def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
+    {:ok, comment} = Comments.create_comment(thread, user.actor, Fake.comment(overrides))
     comment
   end
+
 end

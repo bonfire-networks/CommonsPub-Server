@@ -7,28 +7,34 @@ defmodule MoodleNet.Comments.Thread do
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
-  standalone_schema "mn_thread" do
-    belongs_to(:creator, Actor)
-    belongs_to(:parent, Pointer)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+  meta_schema "mn_thread" do
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
+    field(:canonical_url, :string)
+    field(:locked_at, :utc_datetime_usec)
+    field(:hidden_at, :utc_datetime_usec)
+    field(:is_local, :boolean)
+    timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(is_public)a
+  @create_cast ~w()a
   @create_required @create_cast
 
-  def create_changeset(%Pointer{} = parent, %Actor{} = creator, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, %Pointer{} = parent, %Actor{} = creator, attrs) do
+    Meta.assert_points_to!(pointer, __MODULE__)
     %Thread{}
     |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.change(
+      id: id,
+      creator_id: creator.id,
+      parent_id: parent.id,
+      is_public: true
+    )
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:parent, parent)
     |> change_public()
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast ~w()a
 
   def update_changeset(%Thread{} = thread, attrs) do
     thread

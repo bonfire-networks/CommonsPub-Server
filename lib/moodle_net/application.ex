@@ -14,6 +14,8 @@ defmodule MoodleNet.Application do
 
   def start(_type, _args) do
 
+    MoodleNet.ReleaseTasks.startup_migrations() # start repos, run migrations, stop repos
+
     {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
 
     # TODO: better supervision tree. LS, CS and TS only need repo on

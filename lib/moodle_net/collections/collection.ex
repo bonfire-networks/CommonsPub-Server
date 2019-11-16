@@ -14,31 +14,40 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Resources.Resource
 
   meta_schema "mn_collection" do
-    belongs_to(:creator, Actor)
-    belongs_to(:primary_language, Language, type: :binary)
-    belongs_to(:community, Community)
-    has_many(:resources, Resource)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    belongs_to :actor, Actor
+    belongs_to :creator, User
+    belongs_to :community, Community
+    belongs_to :primary_language, Language
+    has_many :resources, Resource
+    field :name, :string
+    field :summary, :string
+    field :icon, :string
+    field :is_public, :boolean, virtual: true
+    field :published_at, :utc_datetime_usec
+    field :is_disabled, :boolean, virtual: true
+    field :disabled_at, :utc_datetime_usec
+    field :deleted_at, :utc_datetime_usec
+    timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(is_public)a
-  @create_required @create_cast
+  @create_cast ~w(name content summary icon primary_language_id)a
+  @create_required ~w(primary_language_id)a
 
-  @update_cast ~w(is_public)a
+  @update_cast @create_cast
   @update_required ~w()a
 
-  def create_changeset(%Pointer{id: id} = pointer, community, creator, language, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, community, creator, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
-    %Collection{id: id}
+    %Collection{}
     |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.change(
+      id: id,
+      creator_id: creator.id,
+      community_id: community.id,
+      is_public: true
+    )
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:primary_language, language)
-    |> Changeset.put_assoc(:community, community)
     |> change_public()
     |> meta_pointer_constraint()
   end

@@ -19,7 +19,7 @@ defmodule MoodleNet.Mixfile do
       docs: [
         main: "readme", # The first page to display from the docs
         logo: "assets/static/images/moodlenet-logo.png",
-        extras: ["README.md", "HACKING.md", "DEPLOY.md"] # extra pages to include
+        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"] # extra pages to include
       ]
     ]
   end
@@ -32,7 +32,9 @@ defmodule MoodleNet.Mixfile do
        :logger,
        :runtime_tools,
        :comeonin,
-       :hackney
+       :hackney,
+       :mime,
+       :belt,
      ]
     ]
   end
@@ -51,8 +53,8 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.4"},
-      {:absinthe_plug, "~> 1.4"},
+      {:absinthe, "~> 1.5.0-beta.2"},
+      {:absinthe_plug, "~> 1.5.0-alpha.0"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.1"},
@@ -65,6 +67,12 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
+      # File storage
+      {:belt, git: "https://gitlab.com/kalouantonis/belt"},
+      # File format parsing
+      {:format_parser, "~> 1.3.0"},
+      # MIME type map
+      {:mime, "~> 1.2"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},

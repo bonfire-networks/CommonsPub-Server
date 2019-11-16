@@ -10,40 +10,48 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Resources.{Resource, ResourceRevision, ResourceLatestRevision}
+  alias MoodleNet.Resources.Resource
 
   meta_schema "mn_resource" do
-    belongs_to(:creator, Actor)
+    belongs_to(:creator, User)
     belongs_to(:collection, Collection)
     belongs_to(:primary_language, Language, type: :binary)
-    has_many(:revisions, ResourceRevision)
-    has_one(:latest_revision, ResourceLatestRevision)
-    has_one(:current, through: [:latest_revision, :revision])
+    field(:canonical_url, :string)
+    field(:name, :string)
+    field(:summary, :string)
+    field(:url, :string)
+    field(:license, :string)
+    field(:icon, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    field(:is_disabled, :boolean, virtual: true)
+    field(:disabled_at, :utc_datetime_usec)
+    timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(is_public)a
+  @create_cast ~w(primary_language_id)a
   @create_required @create_cast
 
-  @spec create_changeset(Pointer.t(), Collection.t(), Actor.t(), Language.t(), map) :: Changeset.t()
+  @spec create_changeset(Pointer.t(), Collection.t(), Actor.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given pointer and attributes."
-  def create_changeset(%Pointer{id: id} = pointer, collection, creator, language, attrs) do
+  def create_changeset(%Pointer{id: id} = pointer, collection, creator, attrs) do
     Meta.assert_points_to!(pointer, __MODULE__)
 
-    %Resource{id: id}
+    %Resource{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:collection, collection)
-    |> Changeset.put_assoc(:creator, creator)
-    |> Changeset.put_assoc(:primary_language, language)
+    |> Changeset.change(
+      id: id,
+      collection_id: collection.id,
+      creator_id: creator.id,
+      is_public: true
+    )
     |> change_public()
     |> meta_pointer_constraint()
   end
 
-  @update_cast ~w(is_public)a
+  @update_cast ~w()a
 
   @spec update_changeset(%Resource{}, map) :: Changeset.t()
   @doc "Creates a changeset for updating the resource with the given attributes."

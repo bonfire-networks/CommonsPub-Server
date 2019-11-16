@@ -3,9 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users do
   @doc """
-  A "Context" for dealing with users, both local and remote
+  A Context for dealing with Users.
   """
-  alias MoodleNet.{Actors, Common, Meta, Repo, Whitelists}
+  import Ecto.Query, only: [from: 2]
+  alias MoodleNet.{Access, Actors, Common, Meta, Repo}
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Common.NotFoundError
 
@@ -24,7 +25,13 @@ defmodule MoodleNet.Users do
 
   @doc "Fetches a user by id"
   @spec fetch(id :: binary) :: {:ok, %User{}} | {:error, NotFoundError.t()}
-  def fetch(id) when is_binary(id), do: Repo.fetch(User, id)
+  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
+
+  def fetch_q(id) do
+    from u in User,
+      where: u.id == ^id,
+      where: is_nil(u.deleted_at)
+  end
 
   # TODO: one query
   def fetch_by_username(username) when is_binary(username) do
@@ -37,10 +44,19 @@ defmodule MoodleNet.Users do
   end
 
   def fetch_by_email(email) when is_binary(email) do
-    Repo.fetch_by(User, email: email)
+    Repo.single(fetch_by_email_q(email))
   end
 
-  def fetch_actor(%User{id: id}), do: Actors.fetch_by_alias(id)
+  defp fetch_by_email_q(email) do
+    from u in User,
+      where: u.email == ^email,
+      where: is_nil(u.deleted_at)
+  end
+
+  def fetch_actor(%User{id: id, actor: nil}), do: Actors.fetch_by_alias(id)
+  def fetch_actor(%User{actor: actor}), do: {:ok, actor}
+
+  def fetch_actor_private(%User{id: id}), do: Actors.fetch_by_alias_private(id)
 
   @doc """
   Registers a user:
@@ -79,7 +95,7 @@ defmodule MoodleNet.Users do
 
   defp check_register_whitelist(email, opts) do
     if should_check_register_whitelist?(opts),
-      do: Whitelists.check_register_whitelist(email),
+      do: Access.check_register_whitelist(email),
       else: :ok
   end
 
@@ -175,13 +191,21 @@ defmodule MoodleNet.Users do
   end
 
   def soft_delete(%User{} = user) do
-    Repo.transact_with(fn ->
+    Repo.transact_with fn ->
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
            {:ok, actor} <- fetch_actor(user),
            {:ok, actor} <- Actors.soft_delete(actor) do
         {:ok, %User{user | actor: actor}}
       end
-    end)
+    end
+  end
+
+  def make_instance_admin(%User{}=user) do
+    Repo.update(User.make_instance_admin_changeset(user))
+  end
+
+  def unmake_instance_admin(%User{}=user) do
+    Repo.update(User.unmake_instance_admin_changeset(user))
   end
 
   def preload_actor(%User{} = user, opts),

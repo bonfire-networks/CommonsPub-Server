@@ -13,12 +13,10 @@ defmodule MoodleNet.ActorsTest do
   def assert_actor_equal(actor, attrs) do
     assert actor.preferred_username == attrs[:preferred_username]
     assert actor.signing_key == attrs[:signing_key]
-  end
-
-  def assert_revision_equal(revision, attrs) do
-    assert revision.name == attrs[:name]
-    assert revision.summary == attrs[:summary]
-    assert revision.icon == attrs[:icon]
+    assert actor.user_id == attrs[:user_id]
+    assert actor.remote_user_id == attrs[:remote_user_id]
+    assert actor.community_id == attrs[:community_id]
+    assert actor.collection_id == attrs[:collection_id]
   end
 
   describe "create" do

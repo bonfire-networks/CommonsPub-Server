@@ -91,3 +91,5 @@ config :moodle_net, MoodleNet.OAuth,
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
 
+config :moodle_net, MoodleNet.Uploads.Storage,
+  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads"]]]

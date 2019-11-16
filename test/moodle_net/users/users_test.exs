@@ -6,13 +6,13 @@ defmodule MoodleNet.UsersTest do
 
   import MoodleNet.Test.Faking
   alias Ecto.Changeset
-  alias MoodleNet.{Users, Whitelists}
+  alias MoodleNet.{Users, Access}
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
     User,
   }
-  alias MoodleNet.Whitelists.NotWhitelistedError
+  alias MoodleNet.Access.NoAccessError
   alias MoodleNet.Test.Fake
 
   describe "register/1" do
@@ -35,7 +35,7 @@ defmodule MoodleNet.UsersTest do
     test "creates a user account with valid attrs when email whitelisted" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-	assert {:ok, _} = Whitelists.create_register_email(attrs.email)
+	assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
 	assert user.actor.preferred_username == attrs.preferred_username
 	assert user.actor.alias_id == user.id
@@ -51,7 +51,7 @@ defmodule MoodleNet.UsersTest do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
 	[_,domain] = String.split(attrs.email, "@", parts: 2)
-	assert {:ok, _} = Whitelists.create_register_email_domain(domain)
+	assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
 	assert user.actor.preferred_username == attrs.preferred_username
 	assert user.actor.alias_id == user.id
@@ -86,8 +86,8 @@ defmodule MoodleNet.UsersTest do
     test "fails if the user's email is not whitelisted - email whitelist" do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
-        assert {:error, %NotWhitelistedError{}} ==
-	  Users.register(attrs, public_registration: false)
+        assert {:error, %NoAccessError{}} ==
+	        Users.WhitelistsTestregister(attrs, public_registration: false)
       end)
     end
   end

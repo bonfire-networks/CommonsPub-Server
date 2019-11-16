@@ -15,12 +15,11 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Keys
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
-  alias ActivityPubWeb.Transmogrifier
   alias MoodleNet.Repo
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id, :username]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -29,11 +28,8 @@ defmodule ActivityPub.Actor do
   def update_actor(actor_id) do
     # TODO: make better
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         # Create fake activity and handle it through transmogrifier
-         # to easily pass data to the host database.
-         activity <- %{"type" => "Update", "actor" => actor_id, "object" => data},
-         {:ok, _activity} <- Transmogrifier.handle_incoming(activity) do
-      # Return actor
+         update_actor_data_by_ap_id(actor_id, data) do
+      # Return Actor
       get_by_ap_id(actor_id)
     end
   end
@@ -78,7 +74,7 @@ defmodule ActivityPub.Actor do
   end
 
   @doc """
-  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld' format.
+  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld` format.
   """
   def get_or_fetch_by_username(username) do
     with {:ok, actor} <- get_by_username(username) do
@@ -215,7 +211,8 @@ defmodule ActivityPub.Actor do
       keys: actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username
+      username: actor.preferred_username,
+      deactivated: false
     }
   end
 
@@ -240,7 +237,8 @@ defmodule ActivityPub.Actor do
       keys: nil,
       local: false,
       ap_id: actor.data["id"],
-      username: username
+      username: username,
+      deactivated: deactivated?(actor)
     }
   end
 
@@ -291,5 +289,24 @@ defmodule ActivityPub.Actor do
   # TODO
   def get_and_format_resources_for_actor(_actor) do
     []
+  end
+
+  def update_actor_data_by_ap_id(ap_id, data) do
+    ap_id
+    |> Object.get_by_ap_id()
+    |> Ecto.Changeset.change(%{data: data})
+    |> MoodleNet.Repo.update()
+  end
+
+  defp deactivated?(%Object{} = actor) do
+    actor.data["deactivated"] == true
+  end
+
+  def toggle_active(%Actor{local: false} = actor) do
+    new_data =
+      actor.data
+      |> Map.put("deactivated", !actor.deactivated)
+
+    update_actor_data_by_ap_id(actor.ap_id, new_data)
   end
 end

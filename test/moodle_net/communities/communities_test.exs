@@ -8,37 +8,70 @@ defmodule MoodleNet.CommunitiesTest do
   alias MoodleNet.Test.Fake
   alias MoodleNet.{Communities, Localisation}
 
-  defp english(), do: Localisation.language!("en")
-
   describe "Communities.create/3" do
     test "creates a community valid attributes" do
-      assert actor = fake_actor!()
-      assert language = english()
+      assert user = fake_user!()
       attrs = Fake.community()
-      assert {:ok, community} = Communities.create(actor, language, attrs)
-      assert community.creator_id == actor.id
-      assert community.primary_language_id == language.id
+      assert {:ok, community} = Communities.create(user, user.actor, attrs)
+      assert community.creator_id == user.actor.id
+      assert community.actor.primary_language_id == "en"
       assert community.is_public == attrs[:is_public]
     end
 
     test "fails if given invalid attributes" do
-      actor = fake_actor!()
-      language = fake_language!()
-      assert {:error, changeset} = Communities.create(actor, language, %{})
-      assert Keyword.get(changeset.errors, :is_public)
+      user = fake_user!()
+      assert {:error, changeset} = Communities.create(user, user.actor, %{})
     end
   end
 
   describe "Communities.update/2" do
 
-    test "updates a community with valid attributes" do
-      assert actor = fake_actor!()
-      assert language = english()
-      assert community = fake_community!(actor, language, %{is_public: true})
-      assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
-      assert updated_community.id == community.id
-      refute updated_community.is_public
+    @tag :skip
+    @for_moot true
+    test "works for the creator of the community" do
+      # assert user = fake_user!()
+      # assert community = fake_community!(user)
+      # assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
+      # assert updated_community.id == community.id
+      # refute updated_community.is_public
+    end
+
+    @tag :skip
+    @for_moot true
+    test "works for an instance admin" do
+      # assert user = fake_user!()
+      # assert community = fake_community!(user)
+      # assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
+      # assert updated_community.id == community.id
+      # refute updated_community.is_public
     end
 
   end
+
+  describe "Communities.soft_delete/2" do
+    @tag :skip
+    @for_moot true
+    test "works" do
+    end
+
+    @tag :skip
+    @for_moot true
+    test "does not work if not found" do
+    end
+  end
+
+  describe "Communities.fetch_actor" do
+
+    @tag :skip
+    @for_moot true
+    test "works when an actor is already preloaded" do
+    end
+
+    @tag :skip
+    @for_moot true
+    test "works when an actor is not preloaded" do
+    end
+
+  end
+
 end

@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Publisher do
-
   alias ActivityPub.Actor
   alias ActivityPub.HTTP
   alias ActivityPub.Instances
@@ -70,7 +69,7 @@ defmodule ActivityPubWeb.Publisher do
 
   defp recipients(actor, activity) do
     {:ok, followers} =
-      if actor.data["followers"] in (activity.data["to"] || []) ++ (activity.data["cc"] || []) do
+      if actor.data["followers"] in ((activity.data["to"] || []) ++ (activity.data["cc"] || [])) do
         Actor.get_external_followers(actor)
       else
         {:ok, []}
@@ -81,6 +80,14 @@ defmodule ActivityPubWeb.Publisher do
 
   defp maybe_use_sharedinbox(%{data: data}),
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
+
+  defp maybe_federate_to_mothership(recipients) do
+    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" do
+      recipients ++ ["https://mothership.moodle.net/pub/shared_inbox"]
+    else
+      recipients
+    end
+  end
 
   @doc """
   Determine a user inbox to use based on heuristics.  These heuristics
@@ -126,15 +133,16 @@ defmodule ActivityPubWeb.Publisher do
       determine_inbox(activity, actor)
     end)
     |> Enum.uniq()
+    |> maybe_federate_to_mothership()
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
-    ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
-      inbox: inbox,
-      json: json,
-      actor: actor,
-      id: activity.data["id"],
-      unreachable_since: unreachable_since
-    })
+      ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
+        inbox: inbox,
+        json: json,
+        actor: actor,
+        id: activity.data["id"],
+        unreachable_since: unreachable_since
+      })
     end)
   end
 
