@@ -34,6 +34,15 @@ defmodule MoodleNet.Localisation.LanguageService do
   def start_link(),
     do: GenServer.start_link(__MODULE__, [name: @service_name])
 
+  @doc "Lists all languages we know"
+  @spec list_all() :: [ Language.t ]
+  def list_all() do
+    case :ets.lookup(@table_name, :ALL) do
+      [{_,r}] -> r
+      _ -> []
+    end
+  end
+
   @spec lookup(iso2_code :: binary()) :: {:ok, Language.t} | {:error, LanguageNotFoundError.t}
   @doc "Look up a Language by iso2 code"
   def lookup(key) when is_binary(key),
@@ -78,8 +87,19 @@ defmodule MoodleNet.Localisation.LanguageService do
 
   defp populate_languages(entries) do
     :ets.new(@table_name, [:named_table])
-    indexed = Enum.map(entries, &({&1.id, &1}))
-    true = :ets.insert(@table_name, indexed)
+    all = {:ALL, entries} # to enable list queries
+    indexed = Enum.flat_map(entries, fn lang ->
+      [ {lang.id, lang},
+	{lang.iso_code2, lang},
+	{lang.iso_code3, lang} ]
+    end)
+    true = :ets.insert(@table_name, [all | indexed])
+  end
+
+  import Ecto.Query, only: [from: 2]
+
+  defp q() do
+    from l in Language, order_by: [asc: l.id]
   end
 
 end

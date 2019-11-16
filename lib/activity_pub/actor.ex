@@ -15,12 +15,11 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Keys
   alias ActivityPub.WebFinger
   alias ActivityPub.Object
-  alias ActivityPubWeb.Transmogrifier
   alias MoodleNet.Repo
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id, :username, :mn_pointer_id]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated, :mn_pointer_id]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -29,11 +28,8 @@ defmodule ActivityPub.Actor do
   def update_actor(actor_id) do
     # TODO: make better
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         # Create fake activity and handle it through transmogrifier
-         # to easily pass data to the host database.
-         activity <- %{"type" => "Update", "actor" => actor_id, "object" => data},
-         {:ok, _activity} <- Transmogrifier.handle_incoming(activity) do
-      # Return actor
+         update_actor_data_by_ap_id(actor_id, data) do
+      # Return Actor
       get_by_ap_id(actor_id)
     end
   end
@@ -78,7 +74,7 @@ defmodule ActivityPub.Actor do
   end
 
   @doc """
-  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld' format.
+  Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld` format.
   """
   def get_or_fetch_by_username(username) do
     with {:ok, actor} <- get_by_username(username) do
@@ -174,11 +170,11 @@ defmodule ActivityPub.Actor do
 
   defp format_local_actor(%{peer_id: nil} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
+    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
 
     type =
       case actor do
-        %MoodleNet.Actors.Actor{} -> "Person"
+        %MoodleNet.Users.User{} -> "Person"
         %MoodleNet.Communities.Community{} -> "MN:Community"
         %MoodleNet.Collections.Collection{} -> "MN:Collection"
       end
@@ -190,11 +186,11 @@ defmodule ActivityPub.Actor do
       "outbox" => "#{id}/outbox",
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
-      "preferredUsername" => actor.preferred_username,
-      "name" => actor.latest_revision.revision.name,
-      "summary" => actor.latest_revision.revision.summary,
-      "icon" => actor.latest_revision.revision.icon,
-      "image" => actor.latest_revision.revision.image
+      "preferredUsername" => actor.actor.preferred_username,
+      "name" => actor.name,
+      "summary" => actor.summary,
+      "icon" => actor.icon,
+      "image" => actor.image
     }
 
     data =
@@ -212,11 +208,12 @@ defmodule ActivityPub.Actor do
     %__MODULE__{
       id: actor.id,
       data: data,
-      keys: actor.signing_key,
+      keys: actor.actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username,
-      mn_pointer_id: actor.id
+      mn_pointer_id: actor.id,
+      username: actor.actor.preferred_username,
+      deactivated: false
     }
   end
 
@@ -250,7 +247,8 @@ defmodule ActivityPub.Actor do
       local: false,
       ap_id: actor.data["id"],
       username: username,
-      mn_pointer_id: pointer_id
+      mn_pointer_id: pointer_id,
+      deactivated: deactivated?(actor)
     }
   end
 
@@ -301,5 +299,24 @@ defmodule ActivityPub.Actor do
   # TODO
   def get_and_format_resources_for_actor(_actor) do
     []
+  end
+
+  def update_actor_data_by_ap_id(ap_id, data) do
+    ap_id
+    |> Object.get_by_ap_id()
+    |> Ecto.Changeset.change(%{data: data})
+    |> MoodleNet.Repo.update()
+  end
+
+  defp deactivated?(%Object{} = actor) do
+    actor.data["deactivated"] == true
+  end
+
+  def toggle_active(%Actor{local: false} = actor) do
+    new_data =
+      actor.data
+      |> Map.put("deactivated", !actor.deactivated)
+
+    update_actor_data_by_ap_id(actor.ap_id, new_data)
   end
 end

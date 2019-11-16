@@ -28,46 +28,41 @@ defmodule MoodleNetWeb.Plugs.Auth do
       * `auth_token`, a Token
   """
   alias Plug.Conn
-  alias MoodleNet.{OAuth,Users}
-  alias MoodleNet.OAuth.{
+  alias MoodleNet.{Access,Users}
+  alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     Token,
-    TokenExpiredError,
     TokenNotFoundError,
-    UserEmailNotConfirmedError,
   }
   alias MoodleNet.Users.User
 
   def init(opts), do: opts
 
-  def call(%{assigns: %{current_user: %User{}}} = conn, _), do: conn
+  # def call(%{assigns: %{current_user: %User{}}} = conn, _), do: conn
 
   def call(conn, opts) do
-    with {:ok, token} <- get_token(conn),
-         {:ok, {token, user}} <- OAuth.fetch_token_and_user(token),
-         :ok <- OAuth.ensure_valid(token, get_now(opts)),
-         :ok <- ensure_confirmed(user) do
-      put_current_user(conn, user, token)
-    else
-      {:error, error} -> Conn.assign(conn, :auth_error, error)
+    case Map.get(conn.assigns, :current_user) do
+      nil ->
+        with {:ok, token} <- get_token(conn),
+             {:ok, token} <- Access.fetch_token_and_user(token),
+             :ok <- Access.verify_token(token, get_now(opts)) do
+          put_current_user(conn, token.user, token)
+        else
+          {:error, error} -> Conn.assign(conn, :auth_error, error)
+        end
+      _ -> conn
     end
   end
 
   defp get_now(opts), do: Keyword.get(opts, :now) || DateTime.utc_now()
 
-  defp ensure_confirmed(%User{confirmed_at: nil}=user),
-    do: {:error, UserEmailNotConfirmedError.new(user)}
-
-  defp ensure_confirmed(_), do: :ok
-
+  @doc false
   def login(conn, user, token) do
     conn
     |> put_current_user(user, token)
     |> Conn.put_session(:auth_token, token)
     |> Conn.configure_session(renew: true)
   end
-
-  def logout(conn), do: Conn.configure_session(conn, drop: true)
 
   # @specp get_token(Conn.t) :: {:ok, binary} | {:error, term}
   defp get_token(conn) do
@@ -80,7 +75,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
   defp get_token_by_header(conn) do
     case Conn.get_req_header(conn, "authorization") do
       ["Bearer " <> token | _] -> {:ok, token} # take the first one if there are multiple
-      [token] -> {:error, MalformedAuthorizationHeaderError.new(token)}
+      [token] -> {:error, MalformedAuthorizationHeaderError.new()}
       _ -> {:error, TokenNotFoundError.new()}
     end
   end

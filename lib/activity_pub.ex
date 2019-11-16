@@ -16,6 +16,7 @@ defmodule ActivityPub do
   alias ActivityPub.Adapter
   alias ActivityPub.Utils
   alias ActivityPub.Object
+  alias ActivityPub.MRF
   alias MoodleNet.Repo
 
   def maybe_forward_activity(
@@ -46,9 +47,24 @@ defmodule ActivityPub do
 
   def maybe_forward_activity(_), do: :ok
 
+  defp check_actor_is_active(actor) do
+    if not is_nil(actor) do
+      with {:ok, actor} <- Actor.get_by_ap_id(actor),
+           false <- actor.deactivated do
+        :ok
+      else
+        _e -> :reject
+      end
+    else
+      :ok
+    end
+  end
+
   @doc false
   def insert(map, local, pointer \\ nil) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
+         :ok <- check_actor_is_active(map["actor"]),
+         {:ok, map} <- MRF.filter(map),
          {:ok, map, object} <- Utils.insert_full_object(map, local, pointer) do
       {:ok, activity} =
         if is_nil(object) do
@@ -75,6 +91,8 @@ defmodule ActivityPub do
         end
 
       {:ok, activity}
+      else
+        error -> {:error, error}
     end
   end
 

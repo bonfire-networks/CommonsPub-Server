@@ -12,9 +12,13 @@ defmodule MoodleNet.ReleaseTasks do
   def create_db() do
     start_apps()
 
-    Enum.each(@repos, &create_repo/1)
+    create_repos()
 
     stop_services()
+  end
+
+  def create_repos() do
+    Enum.each(@repos, &create_repo/1)
   end
 
   defp create_repo(repo) do
@@ -33,16 +37,28 @@ defmodule MoodleNet.ReleaseTasks do
   def migrate_db() do
     start_apps()
     start_repos()
-    Enum.each(@repos, &migrate_repo/1)
+
+    migrate_repos()
 
     stop_services()
   end
 
+  def migrate_repos() do
+    Enum.each(@repos, &migrate_repo/1)
+  end
+
   defp migrate_repo(repo) do
     app = Keyword.get(repo.config, :otp_app)
-    IO.puts("Running migrations for #{app}")
     migrations_path = priv_path_for(repo, "migrations")
+    IO.puts("Running migrations for #{app} from path #{migrations_path}")
     Ecto.Migrator.run(repo, migrations_path, :up, all: true)
+  end
+
+  def startup_migrations() do
+    start_repos()
+    # create_repos()
+    migrate_repos()
+    stop_repos()
   end
 
   def rollback_db() do
@@ -110,12 +126,19 @@ defmodule MoodleNet.ReleaseTasks do
     Enum.each(@start_apps, &Application.ensure_all_started/1)
   end
 
-  defp start_repos() do
+  def start_repos() do
     # Start the Repo(s) for app
     Logger.debug("Starting repos..")
 
     # Switch pool_size to 2 for ecto > 3.0
     Enum.each(@repos, & &1.start_link(pool_size: 2))
+  end
+
+  def stop_repos() do
+    # Stop the Repo(s) for app
+    Logger.debug("Stopping repos..")
+
+    Enum.each(@repos, & &1.stop())
   end
 
   defp stop_services() do

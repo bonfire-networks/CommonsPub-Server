@@ -29,13 +29,22 @@ defmodule MoodleNet.Localisation.CountryService do
 
   # public api
 
-  @spec start_link() :: GenServer.on_start()
   @doc "Starts up the service registering it locally under this module's name"
+  @spec start_link() :: GenServer.on_start()
   def start_link(),
     do: GenServer.start_link(__MODULE__, [name: @service_name])
 
-  @spec lookup(iso2_code :: binary()) :: {:ok, Country.t} | {:error, CountryNotFoundError.t}
+  @doc "Lists all countries we know."
+  @spec list_all() :: [ Country.t ]
+  def list_all() do
+    case :ets.lookup(@table_name, :ALL) do
+      [{_,r}] -> r
+      _ -> []
+    end
+  end
+
   @doc "Look up a Country by iso2 code"
+  @spec lookup(iso2_code :: binary()) :: {:ok, Country.t} | {:error, CountryNotFoundError.t}
   def lookup(key) when is_binary(key),
     do: lookup_result(key, :ets.lookup(@table_name, key))
 	  
@@ -43,7 +52,7 @@ defmodule MoodleNet.Localisation.CountryService do
   defp lookup_result(_, [{_,v}]), do: {:ok, v}
 
   @spec lookup!(iso2_code :: binary) :: Country.t
-  @doc "Look up a Country by iso2 code, throw CountryNotFoundError if not found"
+  @doc "Look up a Country by id code, throw CountryNotFoundError if not found"
   def lookup!(key) do
     case lookup(key) do
       {:ok, v} -> v
@@ -51,14 +60,14 @@ defmodule MoodleNet.Localisation.CountryService do
     end
   end
 
-  @spec lookup_id(iso2_code :: binary) :: {:ok, binary} | {:error, CountryNotFoundError.t}
-  @doc "Look up a country id by iso2 code"
+  @spec lookup_id(id :: binary) :: {:ok, binary} | {:error, CountryNotFoundError.t}
+  @doc "Look up a country id by id code"
   def lookup_id(key) do
     with {:ok, val} <- lookup(key), do: {:ok, val.id}
   end
 
-  @spec lookup_id!(iso2_code :: binary) :: binary
-  @doc "Look up a country id by iso2 code, throw CountryNotFoundError if not found"
+  @spec lookup_id!(id :: binary) :: binary
+  @doc "Look up a country id by id code, throw CountryNotFoundError if not found"
   def lookup_id!(key) do
     case lookup_id(key) do
       {:ok, v} -> v
@@ -70,7 +79,7 @@ defmodule MoodleNet.Localisation.CountryService do
 
   @doc false
   def init(_) do
-    Country
+    q()
     |> Repo.all(telemetry_event: @init_query_name)
     |> populate_countries()
     {:ok, []}
@@ -78,8 +87,19 @@ defmodule MoodleNet.Localisation.CountryService do
 
   defp populate_countries(entries) do
     :ets.new(@table_name, [:named_table])
-    indexed = Enum.map(entries, &({&1.id, &1}))
-    true = :ets.insert(@table_name, indexed)
+    all = {:ALL, entries} # to enable list queries
+    indexed = Enum.flat_map(entries, fn country ->
+      [ {country.id, country},
+	{country.iso_code2, country},
+	{country.iso_code3, country} ]
+    end)
+    true = :ets.insert(@table_name, [all | indexed])
+  end
+
+  import Ecto.Query, only: [from: 2]
+
+  defp q() do
+    from c in Country, order_by: [asc: c.id]
   end
 
 end

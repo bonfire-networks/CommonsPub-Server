@@ -5,7 +5,28 @@ defmodule MoodleNet.Common.Changeset do
   @moduledoc "Helper functions for changesets"
 
   alias Ecto.Changeset
+  alias MoodleNet.Localisation
   alias MoodleNet.Mail.Checker
+
+  @doc "Validates a country code is one of the ones we know about"
+  def validate_country_code(changeset, field) do
+    Changeset.validate_change changeset, field, fn _, code ->
+      case Localisation.country(code) do
+	{:ok, _} -> []
+	_ -> [{field, "must be a recognised country code"}]
+      end
+    end
+  end
+
+  @doc "Validates a language code is one of the ones we know about"
+  def validate_language_code(changeset, field) do
+    Changeset.validate_change changeset, field, fn _, code ->
+      case Localisation.language(code) do
+	{:ok, _} -> []
+	_ -> [{field, "must be a recognised language code"}]
+      end
+    end
+  end
 
   @spec validate_http_url(Changeset.t(), atom) :: Changeset.t()
   @doc "Validates that a URL uses HTTP(S) and has a correct format."
@@ -97,6 +118,11 @@ defmodule MoodleNet.Common.Changeset do
   def change_muted(%Changeset{} = changeset),
     do: change_synced_timestamp(changeset, :is_muted, :muted_at)
 
+  @spec change_disabled(Changeset.t()) :: Changeset.t()
+  @doc "Keeps disabled_at in accord with is_disabled"
+  def change_disabled(%Changeset{} = changeset),
+    do: change_synced_timestamp(changeset, :is_disabled, :disabled_at)
+
   @spec change_synced_timestamp(Changeset.t(), atom, atom) :: Changeset.t()
   @doc """
   If a changeset includes a change to `bool`, we ensure that the
@@ -121,5 +147,16 @@ defmodule MoodleNet.Common.Changeset do
       _ ->
         changeset
     end
+  end
+
+  def validate_exactly_one(changeset, [column|_]=columns, message) do
+    sum = Enum.reduce(column, 0, fn field, acc ->
+      if is_nil(Changeset.get_field(changeset, field)),
+        do: acc,
+        else: acc + 1
+    end)
+    if sum == 1,
+      do: changeset,
+      else: Changeset.put_error(changeset, column, message)
   end
 end

@@ -1,7 +1,11 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias MoodleNet.Common.{
+  alias MoodleNet.Common
+  alias MoodleNet.Access.{
     NotLoggedInError,
     NotPermittedError,
   }
@@ -50,5 +54,19 @@ defmodule MoodleNet.GraphQL do
       node -> reproject(node.selections, keys)
     end
   end
+
+  def node_list(nodes, count) do
+    page_info = Common.page_info(nodes)
+    %{page_info: page_info, total_count: count, nodes: nodes}
+  end
+  def edge_list(items, count) do
+    page_info = Common.page_info(items)
+    edges = Enum.map(items, &edge/1)
+    %{page_info: page_info, total_count: count, edges: edges}
+  end
+
+  defp edge(%{id: id}=node), do: %{cursor: id, node: node}
+
+  def not_permitted(), do: {:error, NotPermittedError.new()}
 
 end

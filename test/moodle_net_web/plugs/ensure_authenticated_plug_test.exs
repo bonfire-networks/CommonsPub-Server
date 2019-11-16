@@ -14,7 +14,6 @@ defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlugTest do
     end
 
     test "it halts if no user is assigned" do
-      conn = plugged()
       assert conn = EnsureAuthenticatedPlug.call(plugged(), %{})
       assert conn.halted == true
       assert conn.status == 403

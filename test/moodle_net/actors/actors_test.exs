@@ -6,19 +6,12 @@ defmodule MoodleNet.ActorsTest do
 
   import MoodleNet.Test.Faking
   alias MoodleNet.{Actors, Repo}
-  alias MoodleNet.Actors.ActorRevision
-  alias MoodleNet.Common.Revision
   alias MoodleNet.Test.Fake
 
   def assert_actor_equal(actor, attrs) do
+    assert actor.canonical_url == attrs[:canonical_url]
     assert actor.preferred_username == attrs[:preferred_username]
     assert actor.signing_key == attrs[:signing_key]
-  end
-
-  def assert_revision_equal(revision, attrs) do
-    assert revision.name == attrs[:name]
-    assert revision.summary == attrs[:summary]
-    assert revision.icon == attrs[:icon]
   end
 
   describe "create" do
@@ -27,11 +20,6 @@ defmodule MoodleNet.ActorsTest do
         attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(attrs)
         assert_actor_equal(actor, attrs)
-
-        assert actor = Repo.preload(actor, [:revisions, :current])
-        assert [actor_revision] = actor.revisions
-        assert_revision_equal(actor_revision, attrs)
-	      assert_revision_equal(actor.current, attrs)
       end)
     end
 
@@ -42,19 +30,23 @@ defmodule MoodleNet.ActorsTest do
         assert Keyword.get(changeset.errors, :preferred_username)
       end)
     end
-  end
 
-  describe "create_with_alias" do
-    test "creates a new actor with an alias set" do
+    test "returns an error if the username is duplicated" do
       Repo.transaction(fn ->
-        assert {:ok, actor_alias} = Actors.create(Fake.actor())
-        assert {:ok, _} = Actors.create_with_alias(actor_alias.id, Fake.actor())
+        actor = fake_actor!()
+
+        assert {:error, changeset} =
+                 %{preferred_username: actor.preferred_username}
+                 |> Fake.actor()
+                 |> Actors.create()
+
+        assert Keyword.get(changeset.errors, :preferred_username)
       end)
     end
   end
 
   describe "update" do
-    test "updates an existing actor with valid attributes and adds revision" do
+    test "updates an existing actor with valid attributes" do
       Repo.transaction(fn ->
         original_attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(original_attrs)
@@ -66,21 +58,7 @@ defmodule MoodleNet.ActorsTest do
 
         assert {:ok, actor} = Actors.update(actor, updated_attrs)
         assert_actor_equal(actor, updated_attrs)
-
-        assert actor = Revision.preload(ActorRevision, actor)
-        assert [latest_revision, oldest_revision] = actor.revisions
-        assert_revision_equal(latest_revision, updated_attrs)
-        assert_revision_equal(oldest_revision, original_attrs)
       end)
-    end
-  end
-
-  describe "soft_delete" do
-    test "updates the deletion timestamp" do
-      actor = fake_actor!()
-      refute actor.deleted_at
-      assert {:ok, actor} = Actors.soft_delete(actor)
-      assert actor.deleted_at
     end
   end
 end

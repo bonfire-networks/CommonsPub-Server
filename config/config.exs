@@ -70,7 +70,16 @@ config :moodle_net, :instance,
   description: "An instance of MoodleNet, a federated server for educators",
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
-  federating: true
+  federating: true,
+  rewrite_policy: []
+
+config :moodle_net, :mrf_simple,
+  media_removal: [],
+  media_nsfw: [],
+  report_removal: [],
+  accept: [],
+  avatar_removal: [],
+  banner_removal: []
 
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
@@ -108,3 +117,4 @@ config :moodle_net, MoodleNet.Users,
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
+

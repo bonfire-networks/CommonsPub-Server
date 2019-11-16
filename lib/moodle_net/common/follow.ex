@@ -4,44 +4,63 @@
 defmodule MoodleNet.Common.Follow do
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [change_public: 1, change_muted: 1]
+  import MoodleNet.Common.Changeset,
+    only: [change_public: 1, change_muted: 1, meta_pointer_constraint: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Users.User
+  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   @type t :: %__MODULE__{}
 
-  standalone_schema "mn_follow" do
-    belongs_to(:follower, Actor)
+  meta_schema "mn_follow" do
+    belongs_to(:follower, User)
     belongs_to(:followed, Pointer)
+    field(:canonical_url, :string)
+    field(:is_local, :boolean)
     field(:is_muted, :boolean, virtual: true)
     field(:muted_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(is_muted is_public)a
-  @create_required @create_cast
+  @required ~w(is_local)a
+  @cast @required ++ ~w(canonical_url is_muted is_public)a
 
-  def create_changeset(%Actor{} = follower, %Pointer{} = followed, fields) do
+  def create_changeset(
+        %Pointer{id: id} = pointer,
+        %User{} = follower,
+        %Pointer{} = followed,
+        fields
+      ) do
+    Meta.assert_points_to!(pointer, __MODULE__)
+
     %__MODULE__{}
-    |> Changeset.cast(fields, @create_cast)
-    |> Changeset.validate_required(@create_required)
-    |> Changeset.put_assoc(:follower, follower)
-    |> Changeset.put_assoc(:followed, followed)
-    |> change_public()
-    |> change_muted()
+    |> Changeset.cast(fields, @cast)
+    |> Changeset.change(
+      id: id,
+      is_muted: false,
+      is_public: true,
+      follower_id: follower.id,
+      followed_id: followed.id
+    )
+    |> Changeset.validate_required(@required)
+    |> common_changeset()
   end
-
-  @update_cast ~w(is_muted is_public)a
 
   def update_changeset(%__MODULE__{} = follow, fields) do
     follow
-    |> Changeset.cast(fields, @update_cast)
+    |> Changeset.cast(fields, @cast)
+    |> common_changeset()
+  end
+
+  defp common_changeset(changeset) do
+    changeset
     |> change_public()
     |> change_muted()
+    |> meta_pointer_constraint()
   end
 end

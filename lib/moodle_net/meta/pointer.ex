@@ -15,13 +15,13 @@ defmodule MoodleNet.Meta.Pointer do
   alias Ecto.Changeset
   alias MoodleNet.Meta.{Pointer, Table}
 
-  standalone_schema "mn_meta_pointer" do
-    belongs_to :table, Table, type: :integer
+  standalone_schema "mn_pointer" do
+    belongs_to :table, Table
     field :pointed, :any, virtual: true
   end
 
-  @spec changeset(integer()) :: Changeset.t()
-  def changeset(table_id) when is_integer(table_id) do
+  @spec changeset(binary()) :: Changeset.t()
+  def changeset(table_id) when is_binary(table_id) do
     %Pointer{}
     |> Changeset.change(table_id: table_id)
     |> Changeset.foreign_key_constraint(:table_id)

@@ -95,8 +95,8 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming likes" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       delete_actor = insert(:actor)
 
@@ -115,8 +115,8 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming unlikes with an existing like activity" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       delete_actor = insert(:actor)
 
@@ -165,8 +165,8 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming announces with an existing activity" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       announce_actor = insert(:actor)
 
@@ -188,8 +188,8 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming unannounces with an existing notice" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       announce_actor = insert(:actor)
 

@@ -9,22 +9,20 @@ defmodule MoodleNet.Mail.Email do
   """
   import MoodleNetWeb.Gettext
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
-  alias MoodleNet.Actors
+  alias MoodleNet.Users
 
   def welcome(user, token) do
     url = email_confirmation_url(user.id, token.id)
-    {:ok, actor} = Actors.fetch_by_alias(user.id)
     base_email(user)
     |> subject(gettext("Welcome to MoodleNet"))
-    |> render(:welcome, actor: actor.current, url: url)
+    |> render(:welcome, user: user, url: url)
   end
 
   def reset_password_request(user, token) do
     url = reset_password_url(token.id)
-    {:ok, actor} = Actors.fetch_by_alias(user.id)
     base_email(user)
     |> subject(gettext("Did you forget your MoodleNet password?"))
-    |> render(:reset_password_request, actor: actor.current, url: url)
+    |> render(:reset_password_request, user: user, url: url)
   end
 
   def password_reset(user) do
@@ -34,8 +32,9 @@ defmodule MoodleNet.Mail.Email do
   end
 
   defp base_email(user) do
+    {:ok, local_user} = Users.fetch_local_user(user)
     new_email()
-    |> to(user.email)
+    |> to(local_user.email)
     # FIXME domain configuration
     |> from("no-reply@moodle.net")
     |> put_layout({MoodleNetWeb.LayoutView, :email})

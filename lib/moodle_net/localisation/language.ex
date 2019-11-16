@@ -2,11 +2,13 @@ defmodule MoodleNet.Localisation.Language do
   @moduledoc "A language keyed by iso-2 code"
   use MoodleNet.Common.Schema
 
-  @primary_key {:id, :string, autogenerate: false}
-  @timestamps_opts [type: :utc_datetime_usec]
-  schema "mn_language" do
-    field :english_name, :string
-    field :local_name, :string
-    timestamps(updated_at: false)
+  meta_schema "mn_language" do
+    field(:iso_code2, :string)
+    field(:iso_code3, :string)
+    field(:english_name, :string)
+    field(:local_name, :string)
+    field(:deleted_at, :utc_datetime_usec)
+    field(:published_at, :utc_datetime_usec)
+    timestamps(inserted_at: :created_at)
   end
 end

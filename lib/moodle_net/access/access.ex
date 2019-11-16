@@ -1,0 +1,181 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
+defmodule MoodleNet.Access do
+  @moduledoc """
+  The access system in general is related to authentication:
+  * Creation and querying of session tokens
+  * In closed-signup mode, maintains permitlists of emails and domains
+  """
+
+  alias Ecto.{Changeset, UUID}
+  alias MoodleNet.{Common, Repo, Meta, Users}
+  alias MoodleNet.Common.NotFoundError
+  alias MoodleNet.Access.{
+    InvalidCredentialError,
+    NoAccessError,
+    RegisterEmailAccess,
+    RegisterEmailDomainAccess,
+    Token,
+    TokenExpiredError,
+    TokenNotFoundError,
+    UserDisabledError,
+    UserEmailNotConfirmedError,
+  }
+  alias MoodleNet.Users.{LocalUser, User}
+
+  @type access :: RegisterEmailDomainAccess.t | RegisterEmailAccess.t
+  @type token  :: Token.t
+
+  @spec create_register_email_domain(domain :: binary) ::
+          {:ok, RegisterEmailDomainAccess.t()} | {:error, Changeset.t()}
+  @doc "Permit registration with all emails at the provided domain"
+  def create_register_email_domain(domain) do
+    Repo.transact_with(fn ->
+      Meta.point_to!(RegisterEmailDomainAccess)
+      |> RegisterEmailDomainAccess.create_changeset(%{domain: domain})
+      |> Repo.insert()
+    end)
+  end
+
+  @spec create_register_email(email :: binary) ::
+          {:ok, RegisterEmailAccess.t()} | {:error, Changeset.t()}
+  @doc "Permit registration with the provided email"
+  def create_register_email(email) do
+    Repo.transact_with(fn ->
+      Meta.point_to!(RegisterEmailAccess)
+      |> RegisterEmailAccess.create_changeset(%{email: email})
+      |> Repo.insert()
+    end)
+  end
+
+  @spec list_register_emails() :: [RegisterEmailAccess.t()]
+  @doc "Retrieve all RegisterEmailAccess in the database"
+  def list_register_emails(), do: Repo.all(RegisterEmailAccess)
+
+  @spec list_register_email_domains() :: [RegisterEmailDomainAccess.t()]
+  @doc "Retrieve all RegisterEmailDomainAccess in the database"
+  def list_register_email_domains(), do: Repo.all(RegisterEmailDomainAccess)
+
+  @spec hard_delete(access | token) :: {:ok, access} | {:error, Changeset.t()}
+  @doc "Removes an access entry or token from the database"
+  def hard_delete(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete(w)
+  def hard_delete(%RegisterEmailAccess{} = w), do: Common.hard_delete(w)
+  def hard_delete(%Token{}=token), do: Common.hard_delete(token)
+
+  @spec hard_delete!(access | token) :: access
+  @doc "Removes an access entry or token from the database or throws DeletionError"
+  def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete!(w)
+  def hard_delete!(%RegisterEmailAccess{} = w), do: Common.hard_delete!(w)
+  def hard_delete(%Token{}=token), do: Common.hard_delete(token)
+
+
+  @spec find_register_email(email :: binary()) ::
+          {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
+  @doc "Looks up a RegisterEmailAccess by email"
+  def find_register_email(email),
+    do: find_response(email, Repo.get_by(RegisterEmailAccess, email: email))
+
+  @spec find_register_email_domain(domain :: binary()) ::
+          {:ok, RegisterEmailDomainAccess.t()} | {:error, NotFoundError.t()}
+  @doc "Looks up a RegisterEmailDomainAccess by domain"
+  def find_register_email_domain(domain),
+    do: find_response(domain, Repo.get_by(RegisterEmailDomainAccess, domain: domain))
+
+  defp find_response(key, nil), do: {:error, NotFoundError.new()}
+  defp find_response(_, val), do: {:ok, val}
+
+  @spec is_register_accessed?(email :: binary()) :: boolean()
+  @doc "true if the user's email or the domain of the user's email is accessed"
+  def is_register_accessed?(email) do
+    with {:error, _} <- find_register_email(email),
+         {:error, _} <- find_register_email_domain(email_domain(email)) do
+      false
+    else
+      {:ok, _} -> true
+    end
+  end
+
+  @doc ":ok if the user's email is accessed, else error tuple"
+  def check_register_access(email) do
+    if is_register_accessed?(email),
+      do: :ok,
+      else: {:error, NoAccessError.new()}
+  end
+
+  def fetch_token(%User{id: user_id}),
+    do: Repo.fetch_by(Token, user_id: user_id)
+
+  @doc """
+  Fetches a token along with the user it is linked to.
+
+  Note: does not validate the validity of the token, you must do that afterwards.
+  """
+  @spec fetch_token_and_user(token :: binary) :: {:ok, %Token{}} | {:error, TokenNotFoundError.t}
+  def fetch_token_and_user(token) when is_binary(token) do
+    case UUID.cast(token) do
+      {:ok, token} ->
+	with {:ok, token} <- Repo.single(fetch_token_and_user_query(token)) do
+	  local_user = LocalUser.vivify_virtuals(token.user.local_user)
+	  user = User.vivify_virtuals(Users.preload_actor(token.user))
+	  {:ok, %{token | user: %{ user | local_user: local_user } } }
+	end
+      :error -> {:error, TokenNotFoundError.new()}
+    end
+  end
+
+  defp fetch_token_and_user_query(token) do
+    import Ecto.Query, only: [from: 2]
+    from t in Token,
+      where: t.id == ^token,
+      preload: [user: :local_user]
+  end
+
+  @type token_create_error :: %InvalidCredentialError{} | %UserDisabledError{} | %UserEmailNotConfirmedError{} | Changeset.t{}
+  @doc """
+  Creates a token for a user if the conditions are met:
+  * The password is correct
+  * The user is not disabled
+  * The user has confirmed their email address
+
+  In all of these cases, a password check will be performed.
+  """
+  @spec create_token(User.t, binary) :: {:ok, Token.t} | {:error, token_create_error}
+
+  def create_token(%User{local_user: %LocalUser{}} = user, password) do
+    if Argon2.verify_pass(password, user.password_hash) do
+      with :ok <- verify_user(user) do
+	Repo.insert(Token.create_changeset(user))
+      end
+    else
+      {:error, InvalidCredentialError.new()}
+    end
+  end
+
+  # not really unsafe but don't use me outside of tests
+  @doc false
+  def unsafe_put_token(%User{}=user), do: Repo.insert(Token.create_changeset(user))
+
+  @doc false
+  def verify_user(%User{disabled_at: dis}=user)
+  when not is_nil(dis), do: {:error, UserDisabledError.new()}
+
+  def verify_user(%User{local_user: %LocalUser{confirmed_at: confirmed}}=user)
+  when is_nil(confirmed), do: {:error, UserEmailNotConfirmedError.new()}
+
+  def verify_user(%User{local_user: %LocalUser{}}), do: :ok
+
+  @doc "Ensures that a token is valid (not expired)"
+  def verify_token(token, now \\ DateTime.utc_now())
+
+  def verify_token(%Token{}=token, %DateTime{}=now) do
+    if :gt == DateTime.compare(token.expires_at, now),
+      do: :ok,
+      else: {:error, TokenExpiredError.new()}
+  end
+
+  defp email_domain(email) do
+    [_, domain] = String.split(email, "@", parts: 2)
+    domain
+  end
+end
