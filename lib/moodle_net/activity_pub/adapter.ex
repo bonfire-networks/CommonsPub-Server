@@ -7,7 +7,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    MoodleNet.Users.fetch_by_username(username)
+    MoodleNet.Users.fetch_any_by_username(username)
+  end
+
+  def get_actor_by_id(id) do
+    MoodleNet.Users.fetch(id)
   end
 
   defp maybe_fix_image_object(url) when is_binary(url), do: url
@@ -30,15 +34,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
     create_attrs = %{
       preferred_username: username,
-      name: actor["name"],
+      name: (actor["name"] || actor["preferredUsername"]),
       summary: actor["summary"],
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
       is_public: true,
+      is_disabled: false,
       peer_id: peer.id
     }
 
-    {:ok, created_actor} = Actors.create(create_attrs)
+    {:ok, created_actor} = MoodleNet.Users.register_remote(create_attrs)
 
     object = ActivityPub.Object.get_by_ap_id(actor["id"])
 
@@ -60,7 +65,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
 
-    case Actors.fetch_by_username(username) do
+    case Repo.fetch_by(MoodleNet.Actors.Actor, %{preferred_username: username}) do
       {:error, _} ->
         with {:ok, _actor} <- create_remote_actor(actor.data, username) do
           :ok
@@ -99,12 +104,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
            {:ok, pointer} <- MoodleNet.Meta.find(pointer_id),
            {:ok, parent} <- MoodleNet.Meta.follow(pointer),
            {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
-           {:ok, actor} <- MoodleNet.Actors.fetch_by_username(ap_actor.username),
-           {:ok, thread} <- MoodleNet.Comments.create_thread(parent, actor, %{is_public: true}),
+           {:ok, actor} <- get_actor_by_username(ap_actor.username),
+           {:ok, thread} <- MoodleNet.Comments.create_thread(parent, actor, %{is_public: true, is_local: false}),
            {:ok, _} <-
              MoodleNet.Comments.create_comment(thread, actor, %{
                is_public: true,
-               content: object.data["content"]
+               content: object.data["content"],
+               is_local: false
              }) do
         :ok
       else
@@ -155,11 +161,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def perform(:handle_activity, %{data: %{"type" => "Like"}} = activity) do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
-         {:ok, actor} <- MoodleNet.Actors.fetch_by_username(ap_actor.username),
+         {:ok, actor} <- get_actor_by_username(ap_actor.username),
          %ActivityPub.Object{} = object <-
            ActivityPub.Object.get_by_ap_id(activity.data["object"]),
          {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id),
-         {:ok, _} <- MoodleNet.Common.like(actor, liked, %{is_public: true}) do
+         {:ok, _} <- MoodleNet.Common.like(actor, liked, %{is_public: true, is_local: false}) do
       :ok
     else
       {:error, e} -> {:error, e}

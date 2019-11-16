@@ -29,7 +29,7 @@ defmodule MoodleNet.Common.Block do
   end
 
   @create_cast ~w(canonical_url is_local is_public is_blocked)a
-  @required_cast @create_cast
+  @required_cast ~w(is_local is_public is_blocked)a
 
   def create_changeset(%Pointer{id: id} = pointer, %User{} = blocker, %Pointer{} = blocked, fields) do
     %__MODULE__{}

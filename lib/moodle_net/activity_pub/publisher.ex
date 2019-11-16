@@ -1,15 +1,18 @@
 defmodule MoodleNet.ActivityPub.Publisher do
   alias ActivityPub.Actor
+  alias MoodleNet.Repo
   alias MoodleNet.ActivityPub.Utils
 
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
-    with {:ok, parent} <- MoodleNet.Meta.follow(comment.thread.parent),
-         object_ap_id <- Utils.get_object_ap_id(parent),
-         {:ok, actor} <- ActivityPub.Actor.get_by_username(comment.creator.preferred_username),
-         {to, cc} <- Utils.determine_recipients(actor, parent),
+    comment = Repo.preload(comment, thread: :context)
+
+    with {:ok, context} <- MoodleNet.Meta.follow(comment.thread.context),
+         object_ap_id <- Utils.get_object_ap_id(context),
+         {:ok, actor} <- ActivityPub.Actor.get_by_local_id(comment.creator_id),
+         {to, cc} <- Utils.determine_recipients(actor, context),
          object <- %{
-           "content" => comment.current.content,
+           "content" => comment.content,
            "to" => to,
            "cc" => cc,
            "actor" => actor.ap_id,
@@ -39,14 +42,17 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
-    with {:ok, follower} <- Actor.get_by_username(follow.follower.preferred_username),
+    follow = Repo.preload(follow, follower: :actor, followed: [])
+
+    with {:ok, follower} <- Actor.get_by_username(follow.follower.actor.preferred_username),
          {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
-         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
+         followed <- Repo.preload(followed, :actor),
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
-        MoodleNet.Common.unfollow(follow)
+        MoodleNet.Common.undo_follow(follow)
         {:error, "account is private"}
       else
-        # FIXME: insert pointer in AP database?
+        # FIXME: insert pointer in AP database, insert cannonical URL in MN database
         ActivityPub.follow(follower, followed)
       end
     else
@@ -55,9 +61,12 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def unfollow(follow) do
-    with {:ok, follower} <- Actor.get_by_username(follow.follower.preferred_username),
+    follow = Repo.preload(follow, follower: :actor, followed: [])
+
+    with {:ok, follower} <- Actor.get_by_username(follow.follower.actor.preferred_username),
          {:ok, followed} <- MoodleNet.Meta.follow(follow.followed),
-         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.preferred_username) do
+         followed <- Repo.preload(followed, :actor),
+         {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       ActivityPub.unfollow(follower, followed)
     else
       _e -> :error
@@ -65,10 +74,13 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def block(block) do
-    with {:ok, blocker} <- Actor.get_by_username(block.blocker.preferred_username),
+    block = Repo.preload(block, blocker: :actor, blocked: [])
+
+    with {:ok, blocker} <- Actor.get_by_username(block.blocker.actor.preferred_username),
          {:ok, blocked} <- MoodleNet.Meta.follow(block.blocked),
-         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.preferred_username) do
-      # FIXME: insert pointer in AP database?
+         blocked <- Repo.preload(blocked, :actor),
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
+      # FIXME: insert pointer in AP database, insert cannonical URL in MN database
       ActivityPub.block(blocker, blocked)
     else
       _e -> :error
@@ -76,9 +88,12 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def unblock(block) do
-    with {:ok, blocker} <- Actor.get_by_username(block.blocker.preferred_username),
+    block = Repo.preload(block, blocker: :actor, blocked: [])
+
+    with {:ok, blocker} <- Actor.get_by_username(block.blocker.actor.preferred_username),
          {:ok, blocked} <- MoodleNet.Meta.follow(block.blocked),
-         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.preferred_username) do
+         blocked <- Repo.preload(blocked, :actor),
+         {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
       ActivityPub.unblock(blocker, blocked)
     else
       _e -> :error
@@ -86,7 +101,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def like(like) do
-    with {:ok, liker} <- Actor.get_by_username(like.liker.preferred_username),
+    like = Repo.preload(like, :liked)
+
+    with {:ok, liker} <- Actor.get_by_local_id(like.liker_id),
          {:ok, liked} <- MoodleNet.Meta.follow(like.liked),
          object <- Utils.get_object(liked) do
       ActivityPub.like(liker, object)
@@ -96,7 +113,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def unlike(like) do
-    with {:ok, liker} <- Actor.get_by_username(like.liker.preferred_username),
+    like = Repo.preload(like, :liked)
+
+    with {:ok, liker} <- Actor.get_by_local_id(like.liker_id),
          {:ok, liked} <- MoodleNet.Meta.follow(like.liked),
          object <- Utils.get_object(liked) do
       ActivityPub.unlike(liker, object)
@@ -106,16 +125,18 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def flag(flag) do
-    with {:ok, flagger} <- Actor.get_by_username(flag.flagger.preferred_username),
+    flag = Repo.preload(flag, flagger: :actor, flagged: [])
+
+    with {:ok, flagger} <- Actor.get_by_username(flag.flagger.actor.preferred_username),
          {:ok, flagged} <- MoodleNet.Meta.follow(flag.flagged) do
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
           %MoodleNet.Comments.Comment{} ->
-            flagged = MoodleNet.Repo.preload(flagged, :creator)
+            flagged = Repo.preload(flagged, creator: :actor)
 
             {:ok, account} =
-              ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.preferred_username)
+              ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
 
             %{
               statuses: [ActivityPub.Object.get_by_pointer_id(flagged.id)],
@@ -123,8 +144,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
             }
 
           _ ->
+            flagged = Repo.preload(flagged, :actor)
             {:ok, account} =
-              ActivityPub.Actor.get_or_fetch_by_username(flagged.preferred_username)
+              ActivityPub.Actor.get_or_fetch_by_username(flagged.actor.preferred_username)
 
             %{
               statuses: nil,

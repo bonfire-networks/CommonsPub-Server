@@ -20,6 +20,9 @@ defmodule ActivityPub.Adapter do
   @callback get_actor_by_username(String.t()) :: {:ok, any()} | {:error, any()}
   defdelegate get_actor_by_username(username), to: @adapter
 
+  @callback get_actor_by_id(String.t()) :: {:ok, any()} | {:error, any()}
+  defdelegate get_actor_by_id(username), to: @adapter
+
   @callback maybe_create_remote_actor(Actor.t()) :: :ok
   defdelegate maybe_create_remote_actor(actor), to: @adapter
 

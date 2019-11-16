@@ -49,6 +49,16 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  @spec fetch_any_by_username(username :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
+  def fetch_any_by_username(username) when is_binary(username) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.fetch_any_by_username(username),
+           {:ok, user} <- Repo.fetch_by(User, actor_id: actor.id) do
+        {:ok, preload_actor(%User{user | actor: actor})}
+      end
+    end)
+  end
+
   @spec fetch_by_email(email :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
   def fetch_by_email(email) when is_binary(email) do
     with {:ok, local_user} <- Repo.single(fetch_by_email_q(email)) do

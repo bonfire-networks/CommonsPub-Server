@@ -128,6 +128,15 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_by_local_id(id) do
+    with {:ok, actor} <- Adapter.get_actor_by_id(id),
+         actor <- format_local_actor(actor) do
+      {:ok, actor}
+    else
+      _e -> {:error, "not found"}
+    end
+  end
+
   @doc """
   Fetches an actor given its AP ID.
 
@@ -168,7 +177,7 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
-  defp format_local_actor(%{peer_id: nil} = actor) do
+  defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
 

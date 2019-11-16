@@ -19,8 +19,8 @@ defmodule ActivityPubWeb.PublisherTest do
   end
 
   test "it publishes an activity" do
-    note_actor = MoodleNet.Test.Faking.fake_actor!()
-    {:ok, note_actor} = Actor.get_by_username(note_actor.preferred_username)
+    note_actor = MoodleNet.Test.Faking.fake_user!()
+    {:ok, note_actor} = Actor.get_by_username(note_actor.actor.preferred_username)
     recipient_actor = actor()
 
     note =

@@ -12,7 +12,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       username = actor.data["preferredUsername"] <> "@" <> host
 
       {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
-      assert created_actor.preferred_username == username
+      assert created_actor.actor.preferred_username == username
     end
 
     test "pointer insertion into AP table works" do
@@ -31,8 +31,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
   describe "handle activity" do
     test "comment on a local actor" do
       actor = actor()
-      commented_actor = fake_actor!()
-      {:ok, ap_commented_actor} = ActivityPub.Actor.get_by_username(commented_actor.preferred_username)
+      commented_actor = fake_user!()
+      {:ok, ap_commented_actor} = ActivityPub.Actor.get_by_local_id(commented_actor.id)
       note = insert(:note, %{actor: actor, data: %{"context" => ap_commented_actor.data["id"]}})
       note_activity = insert(:note_activity, %{note: note})
 
@@ -40,8 +40,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     end
 
     test "likes" do
-      actor = fake_actor!()
-      commented_actor = fake_actor!()
+      actor = fake_user!()
+      commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)
       comment = fake_comment!(actor, thread)
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
