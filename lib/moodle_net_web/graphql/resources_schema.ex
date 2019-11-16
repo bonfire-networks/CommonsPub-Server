@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resources_queries do
 
     @desc "Get a resource"
-    field :resource, non_null(:resource) do
+    field :resource, :resource do
       arg :resource_id, non_null(:string)
       resolve &ResourcesResolver.resource/2
     end
@@ -28,21 +28,21 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   object :resources_mutations do
 
     @desc "Create a resource"
-    field :create_resource, non_null(:resource) do
+    field :create_resource, :resource do
       arg :collection_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.create_resource/2
     end
 
     @desc "Update a resource"
-    field :update_resource, non_null(:resource) do
+    field :update_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :resource, non_null(:resource_input)
       resolve &ResourcesResolver.update_resource/2
     end
 
     @desc "Copy a resource"
-    field :copy_resource, non_null(:resource) do
+    field :copy_resource, :resource do
       arg :resource_id, non_null(:string)
       arg :collection_id, non_null(:string)
       resolve &ResourcesResolver.copy_resource/2
@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "A name field"
     field :name, non_null(:string)
     @desc "Possibly biographical information"
-    field :summary, non_null(:string)
+    field :summary, :string
     @desc "An avatar url"
     field :icon, :string
     @desc "A link to an external resource"
@@ -115,13 +115,13 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
       resolve &CollectionsResolver.collection/3
     end
 
-    @desc "Languages the resources is available in"
-    field :primary_language, :language do
-      resolve &LocalisationResolver.primary_language/3
-    end
+    # @desc "Languages the resources is available in"
+    # field :primary_language, :language do
+    #   resolve &LocalisationResolver.primary_language/3
+    # end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likes, non_null(:likes_edges) do
+    field :likes, non_null(:likes_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -129,7 +129,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, non_null(:flags_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -137,7 +137,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
-    # field :tags, :taggings_edges do
+    # field :tags, :taggings_connection do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
@@ -148,11 +148,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   input_object :resource_input do
     field :name, non_null(:string)
-    field :summary, non_null(:string)
-    field :icon, non_null(:string)
+    field :summary, :string
+    field :icon, :string
     field :url, :string
     field :license, :string
-    field :primary_language_id, :string
+    # field :primary_language_id, :string
   end
 
   object :resources_nodes do
@@ -161,9 +161,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :resources_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:resources_edge)
+  object :resources_connection do
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:resources_edge))
     field :total_count, non_null(:integer)
   end
 

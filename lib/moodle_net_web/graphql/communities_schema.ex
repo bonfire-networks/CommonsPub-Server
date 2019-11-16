@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Get a community"
-    field :community, non_null(:community) do
+    field :community, :community do
       arg :community_id, non_null(:string)
       resolve &CommunitiesResolver.community/2
     end
@@ -39,13 +39,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_mutations do
 
     @desc "Create a community"
-    field :create_community, non_null(:community) do
+    field :create_community, :community do
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.create_community/2
     end
 
     @desc "Update a community"
-    field :update_community, non_null(:community) do
+    field :update_community, :community do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_input)
       resolve &CommunitiesResolver.update_community/2
@@ -94,10 +94,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &CommonResolver.my_follow/3
     end
  
-    @desc "The primary language the community speaks"
-    field :primary_language, :language do
-      resolve &LocalisationResolver.primary_language/3
-    end
+    # @desc "The primary language the community speaks"
+    # field :primary_language, :language do
+    #   resolve &LocalisationResolver.primary_language/3
+    # end
 
     @desc "The user who created the community"
     field :creator, non_null(:user) do
@@ -105,7 +105,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, non_null(:collections_edges) do
+    field :collections, non_null(:collections_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -117,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, non_null(:threads_edges) do
+    field :threads, non_null(:threads_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, non_null(:follows_edges) do
+    field :followers, non_null(:follows_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -133,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities for community moderators. Not available to plebs."
-    field :inbox, non_null(:activities_edges) do
+    field :inbox, non_null(:activities_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -141,7 +141,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, non_null(:activities_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -156,7 +156,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :communities_edges do
+  object :communities_connection do
     field :page_info, :page_info
     field :edges, non_null(list_of(:community))
     field :total_count, non_null(:integer)
@@ -173,7 +173,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :summary, :string
     field :icon, :string
     field :image, :string
-    field :primary_language_id, :string
+    # field :primary_language_id, :string
   end
 
 end

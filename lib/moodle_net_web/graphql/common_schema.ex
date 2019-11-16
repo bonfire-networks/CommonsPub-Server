@@ -17,15 +17,15 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   }
 
   object :common_queries do
-    field :flag, non_null(:flag) do
+    field :flag, :flag do
       arg :flag_id, non_null(:string)
       resolve &CommonResolver.flag/2
     end
-    field :follow, non_null(:follow) do
+    field :follow, :follow do
       arg :follow_id, non_null(:string)
       resolve &CommonResolver.follow/2
     end
-    field :like, non_null(:like) do
+    field :like, :like do
       arg :like_id, non_null(:string)
       resolve &CommonResolver.like/2
     end
@@ -46,20 +46,20 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :common_mutations do
 
     @desc "Flag a user, community, collection, resource or comment, returning a flag id"
-    field :create_flag, non_null(:flag) do
+    field :create_flag, :flag do
       arg :context_id, non_null(:string)
       arg :message, non_null(:string)
       resolve &CommonResolver.create_flag/2
     end
 
     @desc "Follow a community, collection or thread returning a follow id"
-    field :create_follow, non_null(:follow) do
+    field :create_follow, :follow do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.create_follow/2
     end
 
     @desc "Like a comment, collection, or resource returning a like id"
-    field :create_like, non_null(:like) do
+    field :create_like, :like do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.create_like/2
     end
@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     # end
 
     @desc "Delete more or less anything"
-    field :delete, non_null(:delete_context) do
+    field :delete, :delete_context do
      arg :context_id, non_null(:string)
       resolve &CommonResolver.delete/2
     end
@@ -127,8 +127,8 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   union :delete_context do
     description "A thing that can be deleted"
     types [
-      :activity, :collection, :comment, :community, :country, :flag,
-      :follow, :language, :like, :resource, :thread, :user,
+      :activity, :collection, :comment, :community, :flag,
+      :follow, :like, :resource, :thread, :user,
     ]
     resolve_type fn
       %Activity{},   _ -> :activity
@@ -144,7 +144,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :follows_edges do
+  object :follows_connection do
     field :page_info, :page_info
     field :edges, non_null(list_of(:follows_edge))
     field :total_count, non_null(:integer)
@@ -211,7 +211,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :flags_edges do
+  object :flags_connection do
     field :page_info, :page_info
     field :edges, non_null(list_of(:flags_edge))
     field :total_count, non_null(:integer)
@@ -261,7 +261,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :likes_edges do
+  object :likes_connection do
     field :page_info, :page_info
     field :edges, non_null(list_of(:likes_edge))
     field :total_count, non_null(:integer)
@@ -296,7 +296,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   # end
 
   #   @desc "The tags in the category, most recently created first"
-  #   field :tags, :tags_edges do
+  #   field :tags, :tags_connection do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -305,7 +305,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   # end
 
-  # object :tag_categories_edges do
+  # object :tag_categories_connection do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:tag_categories_edge)
   #   field :total_count, non_null(:integer)
@@ -341,7 +341,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   # end
 
   #   @desc "The tags in the category, most recently created first"
-  #   field :tags, :tags_edges do
+  #   field :tags, :tags_connection do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -350,7 +350,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   # end
 
-  # object :tag_categories_edges do
+  # object :tag_categories_connection do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:tag_categories_edge)
   #   field :total_count, non_null(:integer)

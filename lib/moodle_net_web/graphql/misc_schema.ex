@@ -9,8 +9,6 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
 
   alias ActivityPub.Fetcher
 
-  import_types(MoodleNetWeb.Schema.Types.Custom.JSON)
-
   object :web_metadata do
     field(:title, :string)
     field(:summary, :string)

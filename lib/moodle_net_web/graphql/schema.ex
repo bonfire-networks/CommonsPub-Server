@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     CommentsSchema,
     CommonSchema,
     CommunitiesSchema,
+    JSON,
     InstanceSchema,
     LocalisationSchema,
     MiscSchema,
@@ -18,6 +19,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     ResourcesSchema,
     UsersSchema,
   }
+  alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
+
+  def middleware(middleware, _field, _object) do
+    middleware ++ [CollapseErrors]
+  end
 
   import_types ActivitiesSchema
   import_types AdminSchema
@@ -26,7 +32,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types CommonSchema
   import_types CommunitiesSchema
   import_types InstanceSchema
-  import_types LocalisationSchema
+  import_types JSON
+  # import_types LocalisationSchema
   import_types MiscSchema
   import_types MoodleverseSchema
   import_types ResourcesSchema
@@ -39,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :common_queries
     import_fields :communities_queries
     import_fields :instance_queries
-    import_fields :localisation_queries
+    # import_fields :localisation_queries
     import_fields :moodleverse_queries
     import_fields :resources_queries
     import_fields :users_queries

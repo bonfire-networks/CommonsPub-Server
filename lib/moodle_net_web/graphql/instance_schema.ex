@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     @desc """
     A list of public activity on the local instance, most recent first
     """
-    field :outbox, :activities_edges do
+    field :outbox, non_null(:activities_connection) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
