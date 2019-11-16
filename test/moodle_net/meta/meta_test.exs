@@ -259,11 +259,11 @@ defmodule MoodleNet.MetaTest do
         assert pointer8.id == pointer4.id
         assert Map.drop(pointer5.pointed, [:is_disabled]) == Map.drop(peer, [:is_disabled])
         assert Map.drop(pointer6.pointed, [:is_disabled]) == Map.drop(peer2, [:is_disabled])
-        pointed7 = Map.drop(pointer7.pointed, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted])
-        user3 = Map.drop(user, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted])
+        pointed7 = Map.drop(pointer7.pointed, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted, :canonical_url, :is_local, :preferred_username])
+        user3 = Map.drop(user, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted, :canonical_url, :is_local, :preferred_username])
         assert pointed7 == user3
-        pointed8 = Map.drop(pointer8.pointed, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted])
-        user4 = Map.drop(user2, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted])
+        pointed8 = Map.drop(pointer8.pointed, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted, :canonical_url, :is_local, :preferred_username])
+        user4 = Map.drop(user2, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted, :canonical_url, :is_local, :preferred_username])
         assert pointed8 == user4
       end)
     end

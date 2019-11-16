@@ -35,12 +35,12 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "UsersResolver.me" do
-    test "Works for a logged in user" do
+    test "works for a logged in user" do
       user = fake_user!()
       conn = user_conn(user)
       query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
-      assert %{"me" => me} = gql_post_data(conn, %{query: query})
-      IO.inspect(me: me)
+      assert data = gql_post_data(conn, %{query: query})
+      assert %{"me" => me} = data
       assert %{"email" => email, "user" => user2} = me
       assert user.local_user.email == email
       assert %{"wantsEmailDigest" => wants_digest} =  me
@@ -59,13 +59,13 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"icon" => icon, "image" => image} = user2
       assert user.icon == icon
       assert user.image == image
-      # assert user.actor.current.primary_language == user2["primaryLanguage"]["id"]
+      # assert user.primary_language == user2["primaryLanguage"]["id"]
     end
 
-    # test "Does not work for a guest" do
-    #   query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
-    #   assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
-    # end
+    test "does not work for a guest" do
+      query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+    end
   end
 
   # describe "UsersResolver.user" do

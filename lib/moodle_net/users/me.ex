@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users.Me do
   @enforce_keys [
-    :email, :wants_email_digest, :wants_notifications,
-    :is_instance_admin, :is_confirmed, :user,
+    :user, :email, :wants_email_digest, :wants_notifications,
+    :is_confirmed, :is_instance_admin,
   ]
   defstruct @enforce_keys
 
@@ -14,8 +14,8 @@ defmodule MoodleNet.Users.Me do
       email: user.local_user.email,
       wants_email_digest: user.local_user.wants_email_digest,
       wants_notifications: user.local_user.wants_notifications,
-      is_instance_admin: user.local_user.is_instance_admin,
       is_confirmed: user.local_user.is_confirmed,
+      is_instance_admin: user.local_user.is_instance_admin,
     }
   end
 

@@ -52,7 +52,9 @@ defmodule MoodleNet.Users do
   @spec fetch_by_email(email :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
   def fetch_by_email(email) when is_binary(email) do
     with {:ok, local_user} <- Repo.single(fetch_by_email_q(email)) do
-      {:ok, preload_actor(%User{local_user: local_user})}
+      user = Repo.preload(local_user, :user).user
+      user = preload_actor(%{user | local_user: local_user})
+      {:ok, user}
     end
   end
 
@@ -105,12 +107,10 @@ defmodule MoodleNet.Users do
         |> Email.welcome(token)
         |> MailService.deliver_now()
 
-	local_user = LocalUser.vivify_virtuals(local_user)
-	user = User.vivify_virtuals(user)
-        {:ok, %{user |
-		email_confirm_tokens: [token],
-		actor: actor,
-		local_user: local_user}}
+	user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
+	|> User.vivify_virtuals()
+
+        {:ok, user}
       end
     end)
   end
@@ -143,7 +143,7 @@ defmodule MoodleNet.Users do
 
   defp insert_local_user(attrs) do
     with {:ok, local_user} <- Repo.insert(LocalUser.register_changeset(attrs)) do
-      {:ok, LocalUser.vivify_virtuals(%{local_user | password: nil})}
+      {:ok, %{local_user | password: nil}}
     end
   end
 
@@ -179,9 +179,8 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(local_user)) do
-	user = User.vivify_virtuals(user)
-	local_user = LocalUser.vivify_virtuals(local_user)
-        {:ok, %{user | local_user: local_user}}
+        user = preload_actor(%{ user | local_user: local_user})
+        {:ok, user}
       end
     end)
   end
@@ -191,9 +190,9 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.unconfirm_email_changeset(local_user)) do
-        user = User.vivify_virtuals(user)
-	local_user = LocalUser.vivify_virtuals(local_user)
-        {:ok, %{user | local_user: local_user}}
+        user = preload_actor(%{ user | local_user: local_user })
+        {:ok, user}
+
       end
     end)
   end
@@ -255,7 +254,8 @@ defmodule MoodleNet.Users do
            {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(local_user, attrs)) do
-        {:ok, User.vivify_virtuals(%{user | actor: actor, local_user: local_user})}
+        user = User.vivify_virtuals(%{ user | local_user: local_user, actor: actor })
+        {:ok, user}
       end
     end)
   end
@@ -266,7 +266,8 @@ defmodule MoodleNet.Users do
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
            {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.soft_delete_changeset(local_user)) do
-        {:ok, %User{user | local_user: local_user}}
+        user = preload_actor(%{ user | local_user: local_user})
+        {:ok, user}
       end
     end)
   end
@@ -276,7 +277,8 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.make_instance_admin_changeset(local_user)) do
-        {:ok, %User{user | local_user: local_user}}
+        user = preload_actor(%{ user | local_user: local_user})
+        {:ok, user}
       end
     end)
   end
@@ -286,7 +288,8 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, local_user} <- fetch_local_user(user),
            {:ok, local_user} <- Repo.update(LocalUser.unmake_instance_admin_changeset(local_user)) do
-        {:ok, %User{user | local_user: local_user}}
+        user = preload_actor(%{ user | local_user: local_user})
+        {:ok, user}
       end
     end)
   end
@@ -294,18 +297,24 @@ defmodule MoodleNet.Users do
   @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])
 
-  def preload(%User{} = user, opts),
-    do: Repo.preload(User.vivify_virtuals(user), [:local_user, :actor], opts)
+  def preload(%User{} = user, opts) do
+    user
+    |> Repo.preload([:local_user, :actor], opts)
+    |> User.vivify_virtuals()
+  end
 
   @spec preload_actor(User.t(), Keyword.t()) :: User.t()
-  def preload_actor(%User{} = user, opts \\ []),
-    do: Repo.preload(User.vivify_virtuals(user), :actor, opts)
+  def preload_actor(%User{} = user, opts \\ []) do
+    user
+    |> Repo.preload(:actor, opts)
+    |> User.vivify_virtuals()
+  end
 
   @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
   def preload_local_user(%User{} = user, opts \\ []) do
-    user = Repo.preload(user, :local_user, opts)
-    local_user = LocalUser.vivify_virtuals(user.local_user)
-    %{ user | local_user: local_user }
+    user
+    |> Repo.preload(:local_user, opts)
+    |> User.vivify_virtuals()
   end
 
 end

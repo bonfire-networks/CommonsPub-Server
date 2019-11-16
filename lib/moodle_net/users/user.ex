@@ -20,12 +20,15 @@ defmodule MoodleNet.Users.User do
     belongs_to(:actor, Actor)
     belongs_to(:local_user, LocalUser)
     belongs_to(:primary_language, Language)
+    field(:canonical_url, :string, virtual: true)
+    field(:preferred_username, :string, virtual: true)
     field(:name, :string)
     field(:summary, :string)
     field(:location, :string)
     field(:website, :string)
     field(:icon, :string)
     field(:image, :string)
+    field(:is_local, :boolean, virtual: true)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -74,14 +77,22 @@ defmodule MoodleNet.Users.User do
   def soft_delete_changeset(%User{} = user),
     do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
 
-  def vivify_virtuals(%User{}=user) do
+  def vivify_virtuals(%User{actor: %Actor{}}=user) do
     %{ user |
+       canonical_url: user.actor.canonical_url,
+       preferred_username: user.actor.preferred_username,
        is_public: not is_nil(user.published_at),
        is_disabled: not is_nil(user.disabled_at),
        is_deleted: not is_nil(user.deleted_at),
+       is_local: is_nil(user.actor.peer_id),
     }
-  end	 
-       
+    |> vivify_local_user()
+  end
+
+  defp vivify_local_user(%User{local_user: %LocalUser{}}=user) do
+    %{user | local_user: LocalUser.vivify_virtuals(user.local_user) }
+  end
+  defp vivify_local_user(%User{}=user), do: user
 
   defp common_changeset(changeset) do
     changeset
