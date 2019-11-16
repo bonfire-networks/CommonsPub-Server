@@ -6,7 +6,6 @@ defmodule MoodleNet.CommonTest do
   require Ecto.Query
   import MoodleNet.Test.Faking
   alias MoodleNet.Common
-  alias MoodleNet.Repo
   alias MoodleNet.Test.Fake
 
   setup do
@@ -95,7 +94,7 @@ defmodule MoodleNet.CommonTest do
   end
 
   describe "likes_of/1" do
-    test "returns a list of likes by users for any meta object", context do
+    test "returns a list of likes by users for any meta object" do
       thing = fake_community!(fake_user!())
       users = for _ <- 1..3, do: fake_user!()
 

@@ -14,6 +14,7 @@ defmodule MoodleNet.MetaTest do
   }
 
   alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
+  alias MoodleNet.Activities.Activity
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
@@ -28,7 +29,7 @@ defmodule MoodleNet.MetaTest do
   @known_schemas [
     Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Follow,
     Like, Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess,
-    Block,
+    Block, Activity,
   ]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))

@@ -9,7 +9,17 @@ defmodule MoodleNet.AccessTest do
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Test.Fake
   alias MoodleNet.Access
-  alias MoodleNet.Access.{RegisterEmailDomainAccess, RegisterEmailAccess}
+  alias MoodleNet.Access.{
+    Token,
+    TokenExpiredError,
+    TokenNotFoundError,
+    UserDisabledError,
+    UserEmailNotConfirmedError,
+    RegisterEmailDomainAccess,
+    RegisterEmailAccess,
+  }
+
+  defp strip(user), do: Map.drop(user, [:actor, :email_confirm_tokens, :auth, :user])
 
   describe "MoodleNet.Access.create_register_email_domain/1" do
     test "can be found with find_register_email_domain after success" do
@@ -102,7 +112,7 @@ defmodule MoodleNet.AccessTest do
     end
   end
 
-  describe "MoodleNet.Access.hard_delete/1" do
+  describe "MoodleNet.Access.hard_delete!/1" do
     test "raises :function_clause when given input of the wrong type" do
       Repo.transaction(fn ->
         assert :function_clause = catch_error(Access.hard_delete(Fake.uuid()))
@@ -118,24 +128,6 @@ defmodule MoodleNet.AccessTest do
     #   end)
     # end
 
-    test "can successfully delete a RegisterEmailDomainAccess" do
-      Repo.transaction(fn ->
-        wl = fake_register_email_domain_access!()
-        assert {:ok, deleted(wl)} == Access.hard_delete(wl)
-        assert {:error, %NotFoundError{} = e} = Access.find_register_email_domain(wl.domain)
-      end)
-    end
-
-    test "can successfully delete a RegisterEmailAccess" do
-      Repo.transaction(fn ->
-        wl = fake_register_email_access!()
-        assert {:ok, deleted(wl)} == Access.hard_delete(wl)
-        assert {:error, %NotFoundError{} = e} = Access.find_register_email(wl.email)
-      end)
-    end
-  end
-
-  describe "MoodleNet.Access.hard_delete!/1" do
     test "can successfully delete a RegisterEmailDomainAccess" do
       Repo.transaction(fn ->
         wl = fake_register_email_domain_access!()
@@ -158,6 +150,74 @@ defmodule MoodleNet.AccessTest do
         assert {:ok, deleted(wl)} == Access.hard_delete(wl)
         assert e = catch_throw(Access.hard_delete!(wl))
       end)
+    end
+
+    test "ok for a valid token" do
+      user = fake_user!(%{}, confirm_email: true)
+      token = fake_token!(user)
+      assert :ok == Access.verify_token(token)
+    end
+
+    test "errors for an expired token" do
+      user = fake_user!(%{}, confirm_email: true)
+      token = fake_token!(user)
+      then = DateTime.add(token.created_at, 3600 * 24 * 15, :second)
+      assert {:error, %TokenExpiredError{}} =
+        Access.verify_token(token, then)
+    end
+  end
+
+  describe "MoodleNet.Access.fetch_token_and_user/1" do
+
+    test "works" do
+      user = fake_user!(%{}, confirm_email: true)
+      token = fake_token!(user)
+      assert token.user_id == user.id
+      assert {:ok, token2} = Access.fetch_token_and_user(token.id)
+      assert strip(token) == strip(token2)
+      assert strip(user) == strip(token2.user)
+    end
+
+    test "fails with an invalid token" do
+      user = fake_user!(%{}, confirm_email: true)
+      token = fake_token!(user)
+      assert token.user_id == user.id
+      assert {:error, error} = Access.fetch_token_and_user(token.id <> token.id)
+      assert %TokenNotFoundError{} = error
+    end
+
+  end
+
+  describe "MoodleNet.Access.hard_delete/1" do
+
+    test "works with a Token" do
+      user = fake_user!(%{}, confirm_email: true)
+      token = fake_token!(user)
+      {:ok, token2} = Access.hard_delete(token)
+      assert deleted(token) == token2
+      assert {:error, %NotFoundError{}} = Access.fetch_token_and_user(token.id)
+    end
+
+    # test "works with an Authorization" do
+    #   user = fake_user!(%{}, confirm_email: true)
+    #   assert {:ok, auth} = OAuth.create_auth(user)
+    #   assert {:ok, auth2} = OAuth.hard_delete(auth)
+    #   assert {:error, %NotFoundError{key: auth.id}} == OAuth.fetch_auth(auth.id)
+    # end
+
+  end
+
+  describe "MoodleNet.OAuth.verify_user" do
+
+    test "ok for a valid user" do
+      user = fake_user!(%{}, confirm_email: true)
+      assert :ok == Access.verify_user(user)
+    end
+
+    test "errors for a user without a confirmed email" do
+      user = fake_user!(%{}, confirm_email: false)
+      assert {:error, %UserEmailNotConfirmedError{}} =
+        Access.verify_user(user)
     end
   end
 end
