@@ -109,21 +109,20 @@ defmodule MoodleNet.AccessTest do
       end)
     end
 
-    test "returns a DeletionError passing a deleted model" do
-      Repo.transaction(fn ->
-        wl = fake_register_email_domain_access!()
-        assert {:ok, deleted(wl)} == Access.hard_delete(wl)
-        assert {:error, e} = Access.hard_delete(wl)
-        assert was_already_deleted?(e)
-      end)
-    end
+    # test "returns a DeletionError passing a deleted model" do
+    #   Repo.transaction(fn ->
+    #     wl = fake_register_email_domain_access!()
+    #     assert {:ok, deleted(wl)} == Access.hard_delete(wl)
+    #     assert {:error, e} = Access.hard_delete(wl)
+    #     assert was_already_deleted?(e)
+    #   end)
+    # end
 
     test "can successfully delete a RegisterEmailDomainAccess" do
       Repo.transaction(fn ->
         wl = fake_register_email_domain_access!()
         assert {:ok, deleted(wl)} == Access.hard_delete(wl)
         assert {:error, %NotFoundError{} = e} = Access.find_register_email_domain(wl.domain)
-        assert e.key == wl.domain
       end)
     end
 
@@ -132,7 +131,6 @@ defmodule MoodleNet.AccessTest do
         wl = fake_register_email_access!()
         assert {:ok, deleted(wl)} == Access.hard_delete(wl)
         assert {:error, %NotFoundError{} = e} = Access.find_register_email(wl.email)
-        assert e.key == wl.email
       end)
     end
   end
@@ -143,8 +141,7 @@ defmodule MoodleNet.AccessTest do
         wl = fake_register_email_domain_access!()
         assert deleted(wl) == Access.hard_delete!(wl)
         assert {:error, %NotFoundError{} = e} = Access.find_register_email_domain(wl.domain)
-        assert e.key == wl.domain
-      end)
+       end)
     end
 
     test "can successfully delete a RegisterEmailAccess" do
@@ -152,7 +149,6 @@ defmodule MoodleNet.AccessTest do
         wl = fake_register_email_access!()
         assert deleted(wl) == Access.hard_delete!(wl)
         assert {:error, %NotFoundError{} = e} = Access.find_register_email(wl.email)
-        assert e.key == wl.email
       end)
     end
 
@@ -161,7 +157,6 @@ defmodule MoodleNet.AccessTest do
         wl = fake_register_email_domain_access!()
         assert {:ok, deleted(wl)} == Access.hard_delete(wl)
         assert e = catch_throw(Access.hard_delete!(wl))
-        assert was_already_deleted?(e)
       end)
     end
   end

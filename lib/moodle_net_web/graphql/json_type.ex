@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.Schema.Types.Custom.JSON do
+defmodule MoodleNetWeb.GraphQL.JSON do
   @moduledoc """
   The Json scalar type allows arbitrary JSON values to be passed in and out.
   Requires `{ :jason, "~> 1.1" }` package: https://github.com/michalmuskala/jason

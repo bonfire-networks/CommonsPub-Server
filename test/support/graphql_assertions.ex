@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert [err] = errs
     assert %{"code" => code, "message" => message} = err
     assert %{"path" => path2, "locations" => [loc]} = err
-    assert code == "unauthorized"
+    assert code == "needs_login"
     assert message == "You need to log in first."
     assert path == path2
     assert_location(loc)

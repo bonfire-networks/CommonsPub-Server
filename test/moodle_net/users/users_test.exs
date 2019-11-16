@@ -11,7 +11,7 @@ defmodule MoodleNet.UsersTest do
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
-    User
+    User,
   }
 
   alias MoodleNet.Access.NoAccessError
@@ -88,7 +88,7 @@ defmodule MoodleNet.UsersTest do
       Repo.transaction(fn ->
         attrs = Fake.actor(Fake.user())
 
-        assert {:error, %NoAccessError{}} ==
+        assert {:error, %NoAccessError{}} =
                  Users.register(attrs, public_registration: false)
       end)
     end

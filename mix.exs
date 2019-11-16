@@ -1,3 +1,6 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mixfile do
   use Mix.Project
 
@@ -51,6 +54,8 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
+      {:dataloader, "~> 1.0.0"},
+      {:absinthe_relay, "1.5.0-beta.0"},
       {:absinthe, "~> 1.5.0-beta.2"},
       {:absinthe_plug, "~> 1.5.0-alpha.0"},
       # webserver

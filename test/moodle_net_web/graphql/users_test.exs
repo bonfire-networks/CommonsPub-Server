@@ -34,35 +34,39 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     end
   end
 
-  # describe "UsersResolver.me" do
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "{ me { email user { #{@user_basic_fields} #{@primary_language} } } }"
+  describe "UsersResolver.me" do
+    test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
+      assert %{"me" => me} = gql_post_data(conn, %{query: query})
+      IO.inspect(me: me)
+      assert %{"email" => email, "user" => user2} = me
+      assert user.local_user.email == email
+      assert %{"wantsEmailDigest" => wants_digest} =  me
+      assert user.local_user.wants_email_digest == wants_digest
+      assert %{"wantsNotifications" => wants_notifications} =  me
+      assert user.local_user.wants_notifications == wants_notifications
+      assert %{"id" => id, "preferredUsername" => preferred_username} = user2
+      assert user.id == id
+      assert user.actor.preferred_username == preferred_username
+      assert %{"name" => name, "summary" => summary} = user2
+      assert user.name == name
+      assert user.summary == summary
+      assert %{"location" => location, "website" => website} = user2
+      assert user.location == user2["location"]
+      assert user.website == user2["website"]
+      assert %{"icon" => icon, "image" => image} = user2
+      assert user.icon == icon
+      assert user.image == image
+      # assert user.actor.current.primary_language == user2["primaryLanguage"]["id"]
+    end
 
-  #     assert %{"email" => email, "user" => user2} =
-  #              Map.fetch!(gql_post_data(conn, %{query: query}), "me")
-  #     assert user.email == email
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]["id"]
-  #   end
-
-  #   test "Does not work for a guest" do
-  #     query = "{ me { email user { #{@user_basic_fields} }} }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
-  #   end
-  # end
+    # test "Does not work for a guest" do
+    #   query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
+    #   assert_not_logged_in(gql_post_errors(%{query: query}), ["me"])
+    # end
+  end
 
   # describe "UsersResolver.user" do
 

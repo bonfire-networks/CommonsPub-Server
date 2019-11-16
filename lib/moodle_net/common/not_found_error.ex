@@ -11,8 +11,6 @@ defmodule MoodleNet.Common.NotFoundError do
     status: integer,
   }
 
-  @type t :: %__MODULE__{ key: term }
-
   @doc "Create a new NotFoundError"
   @spec new() :: t
   def new() do
@@ -22,4 +20,5 @@ defmodule MoodleNet.Common.NotFoundError do
       status: 404,
     }
   end
+
 end

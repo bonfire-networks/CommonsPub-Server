@@ -9,10 +9,10 @@ defmodule MoodleNet.Common.DeletionError do
 
   @type t :: %__MODULE__{ changeset: Changeset.t() }
 
-  @spec new(term()) :: t()
-  @doc "Create a new DeletionError with the given changeset"
+  @spec new(term()) :: [t()]
+  @doc "Create a new DeletionError"
   def new(changeset) do
-    %__MODULE__{changeset: changeset}
+    []
   end
   
 end

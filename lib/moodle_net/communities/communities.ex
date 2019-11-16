@@ -33,7 +33,7 @@ defmodule MoodleNet.Communities do
   #   |> Query.count()
   # end
 
-  defp list_q() do
+  def list_q() do
     from(c in Community,
       join: a in Actor,
       on: a.id == c.actor_id,

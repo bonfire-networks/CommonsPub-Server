@@ -45,7 +45,7 @@ defmodule MoodleNet.OAuthTest do
       token = fake_token!(user)
       {:ok, token2} = Access.hard_delete(token)
       assert deleted(token) == token2
-      assert {:error, %NotFoundError{}} = Access.fetch_token_and_user(token.id)
+      assert {:error, [%NotFoundError{}] = Access.fetch_token_and_user(token.id)
     end
 
     # test "works with an Authorization" do
