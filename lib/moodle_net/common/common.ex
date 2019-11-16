@@ -16,7 +16,7 @@ defmodule MoodleNet.Common do
     Tag,
   }
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Common.Changeset
+  alias MoodleNet.Common.{Changeset, NotFoundError}
   alias MoodleNet.Users.User
   import Ecto.Query
 
@@ -202,15 +202,34 @@ defmodule MoodleNet.Common do
 
   ## Following
 
+  @spec list_follows(User.t()) :: [Follow.t()]
+  def list_follows(%User{id: id}) do
+    query = from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: f.follower_id == ^id
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  @spec list_by_followed(%{id: binary}) :: [Follow.t()]
+  def list_by_followed(%{id: id} = followed) do
+    query = from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: f.followed_id == ^id
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  @spec find_follow(User.t(), %{id: binary}) :: {:ok, Follow.t()} | {:error, NotFoundError.t()}
+  def find_follow(%User{} = follower, followed) do
+    Repo.single(follow_q(follower.id, followed.id))
+  end
+
   defp follow_q(follower_id, followed_id) do
     from f in Follow,
       where: is_nil(f.deleted_at),
       where: f.follower_id == ^follower_id,
       where: f.followed_id == ^followed_id
-  end
-
-  def find_follow(%User{} = follower, followed) do
-    Repo.single(follow_q(follower.id, followed.id))
   end
 
   @spec follow(User.t, any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
@@ -243,6 +262,10 @@ defmodule MoodleNet.Common do
 
   @spec undo_follow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def undo_follow(%Follow{} = follow), do: soft_delete(follow)
+
+  @spec preload_follow(Follow.t(), Keyword.t()) :: Follow.t()
+  def preload_follow(%Follow{} = follow, opts \\ []),
+    do: Repo.preload(follow, [:followed, :follower], opts)
 
   ## Blocking
 

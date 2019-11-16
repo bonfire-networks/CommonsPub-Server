@@ -200,6 +200,38 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
+  describe "list_follows/1" do
+    test "returns a list of follows for a user", %{user: follower} do
+      follows = for _ <- 1..5 do
+        followed = fake_meta!()
+        assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+        follow
+      end
+      fetched = Common.list_follows(follower)
+
+      assert Enum.count(fetched) == Enum.count(follows)
+    end
+  end
+
+  describe "list_by_followed/1" do
+    test "returns a list of follows for an item" do
+      followed = fake_meta!()
+      follows = for _ <- 1..5 do
+        follower = fake_user!()
+        assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+        follow
+      end
+      fetched = Common.list_by_followed(followed)
+
+      assert Enum.count(fetched) == Enum.count(follows)
+
+      for follow <- fetched do
+        assert follow.followed
+        assert follow.follower
+      end
+    end
+  end
+
   describe "follow/3" do
     test "creates a follow for any meta object", %{user: follower} do
       followed = fake_meta!()
