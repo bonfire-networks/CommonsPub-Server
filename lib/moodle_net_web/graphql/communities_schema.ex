@@ -105,7 +105,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, non_null(:collections_connection) do
+    field :collections, non_null(:collections_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -117,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, non_null(:threads_connection) do
+    field :threads, non_null(:threads_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, non_null(:follows_connection) do
+    field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -133,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities for community moderators. Not available to plebs."
-    field :inbox, non_null(:activities_connection) do
+    field :inbox, non_null(:activities_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -141,7 +141,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, non_null(:activities_connection) do
+    field :outbox, non_null(:activities_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -156,7 +156,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :communities_connection do
+  object :communities_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:community))
     field :total_count, non_null(:integer)

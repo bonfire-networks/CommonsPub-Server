@@ -144,7 +144,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :follows_connection do
+  object :follows_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:follows_edge))
     field :total_count, non_null(:integer)
@@ -211,7 +211,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :flags_connection do
+  object :flags_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:flags_edge))
     field :total_count, non_null(:integer)
@@ -261,7 +261,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
-  object :likes_connection do
+  object :likes_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:likes_edge))
     field :total_count, non_null(:integer)
@@ -296,7 +296,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   # end
 
   #   @desc "The tags in the category, most recently created first"
-  #   field :tags, :tags_connection do
+  #   field :tags, :tags_edges do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -305,7 +305,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   # end
 
-  # object :tag_categories_connection do
+  # object :tag_categories_edges do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:tag_categories_edge)
   #   field :total_count, non_null(:integer)
@@ -341,7 +341,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   # end
 
   #   @desc "The tags in the category, most recently created first"
-  #   field :tags, :tags_connection do
+  #   field :tags, :tags_edges do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -350,7 +350,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   # end
 
-  # object :tag_categories_connection do
+  # object :tag_categories_edges do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:tag_categories_edge)
   #   field :total_count, non_null(:integer)

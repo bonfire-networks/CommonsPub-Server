@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :total_count, non_null(:integer)
   # end
 
-  # object :languages_connection do
+  # object :languages_edges do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:languages_edge)
   #   field :total_count, non_null(:integer)
@@ -89,7 +89,7 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :total_count, non_null(:integer)
   # end
 
-  # object :countries_connection do
+  # object :countries_edges do
   #   field :page_info, non_null(:page_info)
   #   field :edges, list_of(:countries_edge)
   #   field :total_count, non_null(:integer)

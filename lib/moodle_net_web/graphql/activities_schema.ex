@@ -21,6 +21,11 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     end
   end
 
+
+
+
+
+
   @desc "An event that appears in a feed"
   object :activity do
     @desc "An instance-local UUID identifying the activity"
@@ -70,7 +75,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :activities_connection do
+  object :activities_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:activities_edge))
     field :total_count, non_null(:integer)

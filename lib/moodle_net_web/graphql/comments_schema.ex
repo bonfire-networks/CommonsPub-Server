@@ -89,7 +89,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Comments in the thread, most recently created first"
-    field :comments, non_null(:comments_connection) do
+    field :comments, non_null(:comments_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -97,7 +97,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, non_null(:follows_connection) do
+    field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -123,7 +123,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :threads_connection do
+  object :threads_edges do
     field :page_info, :page_info
     field :edges, list_of(:threads_edge)
     field :total_count, non_null(:integer)
@@ -175,7 +175,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likes, non_null(:likes_connection) do
+    field :likes, non_null(:likes_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -183,7 +183,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Flags users have made about the comment, most recently created first"
-    field :flags, non_null(:flags_connection) do
+    field :flags, non_null(:flags_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -198,7 +198,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     field :total_count, non_null(:integer)
   end
 
-  object :comments_connection do
+  object :comments_edges do
     field :page_info, :page_info
     field :edges, non_null(list_of(:comments_edge))
     field :total_count, non_null(:integer)
