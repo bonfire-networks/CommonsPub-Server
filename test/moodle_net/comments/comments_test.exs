@@ -5,7 +5,8 @@ defmodule MoodleNet.CommentsTest do
   use MoodleNet.DataCase, async: true
 
   import MoodleNet.Test.Faking
-  alias MoodleNet.Common.{NotFoundError, NotPermittedError}
+  alias MoodleNet.Access.NotPermittedError
+  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Comments
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Resources.Resource

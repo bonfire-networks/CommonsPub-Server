@@ -4,8 +4,9 @@
 defmodule MoodleNet.Comments do
   import Ecto.Query
   alias MoodleNet.{Common, Meta, Users}
+  alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Comments.{Comment, Thread}
-  alias MoodleNet.Common.{NotFoundError, NotPermittedError, Query}
+  alias MoodleNet.Common.{NotFoundError, Query}
   alias MoodleNet.Users.User
   alias MoodleNet.Repo
   alias Ecto.Association.NotLoaded
@@ -205,7 +206,7 @@ defmodule MoodleNet.Comments do
   def fetch_comment_thread(%Comment{thread: thread}), do: {:ok, thread}
 
   @spec fetch_comment_thread(Comment.t()) :: {:ok, Thread.t()} | {:error, NotFoundError.t()}
-  def fetch_comment_reply_to(%Comment{reply_to_id: nil} = comment), do: {:error, NotFoundError.new(comment)}
+  def fetch_comment_reply_to(%Comment{reply_to_id: nil} = comment), do: {:error, NotFoundError.new()}
   def fetch_comment_reply_to(%Comment{reply_to_id: id, reply_to: %NotLoaded{}}), do: fetch_comment(id)
   def fetch_comment_reply_to(%Comment{reply_to: reply_to}), do: {:ok, reply_to}
 
@@ -228,7 +229,7 @@ defmodule MoodleNet.Comments do
   def create_comment_reply(%Thread{} = thread, %User{} = creator, %Comment{} = reply_to, attrs) do
     # FIXME: check that the thread you're replying to is the same one
     if thread.locked_at do
-      {:error, NotPermittedError.new()}
+      {:error, NotPermittedError.new("create")}
     else
       Repo.transact_with(fn ->
         Meta.point_to!(Comment)
