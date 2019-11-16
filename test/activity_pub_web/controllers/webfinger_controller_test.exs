@@ -8,14 +8,14 @@ defmodule ActivityPubWeb.WebFingerControllerTest do
   import MoodleNet.Test.Faking
 
   test "webfinger" do
-    actor = fake_actor!()
+    actor = fake_user!()
 
     response =
       build_conn()
       |> put_req_header("accept", "application/jrd+json")
-      |> get("/.well-known/webfinger?resource=acct:#{actor.preferred_username}@localhost")
+      |> get("/.well-known/webfinger?resource=acct:#{actor.actor.preferred_username}@localhost")
 
-      assert json_response(response, 200)["subject"] == "acct:#{actor.preferred_username}@localhost"
+      assert json_response(response, 200)["subject"] == "acct:#{actor.actor.preferred_username}@localhost"
   end
 
   test "it returns 404 when user isn't found (JSON)" do

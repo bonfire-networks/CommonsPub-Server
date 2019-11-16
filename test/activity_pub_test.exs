@@ -121,8 +121,8 @@ defmodule ActivityPubTest do
     end
 
     test "it creates a delete activity for a local actor" do
-      actor = Faking.fake_actor!()
-      {:ok, actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, actor} = Actor.get_by_username(actor.actor.preferred_username)
 
       {:ok, activity} = ActivityPub.delete(actor)
 
@@ -134,8 +134,8 @@ defmodule ActivityPubTest do
 
   describe "like an object" do
     test "adds a like activity to the db" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       assert object = Object.normalize(note_activity)
 
@@ -158,8 +158,8 @@ defmodule ActivityPubTest do
 
   describe "unliking" do
     test "unliking a previously liked object" do
-      actor = Faking.fake_actor!()
-      {:ok, note_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, note_actor} = Actor.get_by_username(actor.actor.preferred_username)
       note_activity = insert(:note_activity, %{actor: note_actor})
       object = Object.normalize(note_activity)
       actor = insert(:actor)
@@ -220,8 +220,8 @@ defmodule ActivityPubTest do
 
   describe "update" do
     test "it creates an update activity with the new user data" do
-      actor = Faking.fake_actor!()
-      {:ok, actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, actor} = Actor.get_by_username(actor.actor.preferred_username)
       {:ok, actor} = Actor.ensure_keys_present(actor)
       actor_data = ActivityPubWeb.ActorView.render("actor.json", %{actor: actor})
 

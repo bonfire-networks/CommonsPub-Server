@@ -4,7 +4,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    Actors.fetch_by_username(username)
+    MoodleNet.Users.fetch_by_username(username)
   end
 
   defp maybe_fix_image_object(url) when is_binary(url), do: url
@@ -26,7 +26,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <- MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
-         {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params) do
+         {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
+         {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
     else
       {:error, e} -> {:error, e}

@@ -170,11 +170,11 @@ defmodule ActivityPub.Actor do
 
   defp format_local_actor(actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
+    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
 
     type =
       case actor do
-        %MoodleNet.Actors.Actor{} -> "Person"
+        %MoodleNet.Users.User{} -> "Person"
         %MoodleNet.Communities.Community{} -> "MN:Community"
         %MoodleNet.Collections.Collection{} -> "MN:Collection"
       end
@@ -186,11 +186,11 @@ defmodule ActivityPub.Actor do
       "outbox" => "#{id}/outbox",
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
-      "preferredUsername" => actor.preferred_username,
-      "name" => actor.latest_revision.revision.name,
-      "summary" => actor.latest_revision.revision.summary,
-      "icon" => actor.latest_revision.revision.icon,
-      "image" => actor.latest_revision.revision.image
+      "preferredUsername" => actor.actor.preferred_username,
+      "name" => actor.name,
+      "summary" => actor.summary,
+      "icon" => actor.icon,
+      "image" => actor.image
     }
 
     data =
@@ -208,10 +208,10 @@ defmodule ActivityPub.Actor do
     %__MODULE__{
       id: actor.id,
       data: data,
-      keys: actor.signing_key,
+      keys: actor.actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username,
+      username: actor.actor.preferred_username,
       deactivated: false
     }
   end
@@ -228,7 +228,8 @@ defmodule ActivityPub.Actor do
         Map.has_key?(data, "resources") ->
           Map.put(data, "type", "MN:Collection")
 
-        true -> data
+        true ->
+          data
       end
 
     %__MODULE__{

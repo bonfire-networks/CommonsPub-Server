@@ -17,9 +17,9 @@ defmodule ActivityPub.ActorTest do
   end
 
   test "get_by_username/1" do
-    actor = Faking.fake_actor!()
+    actor = Faking.fake_user!()
 
-    username = actor.preferred_username
+    username = actor.actor.preferred_username
 
     {:ok, fetched_actor} = ActivityPub.Actor.get_by_username(username)
 
