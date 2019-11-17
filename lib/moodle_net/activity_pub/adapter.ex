@@ -133,7 +133,6 @@ defmodule MoodleNet.ActivityPub.Adapter do
           data: %{
             "type" => "Create",
             "context" => context,
-            "actor" => actor,
             "object" => object_id
           }
         } = _activity
@@ -148,7 +147,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
            {:ok, pointer} <- MoodleNet.Meta.find(pointer_id),
            {:ok, parent} <- MoodleNet.Meta.follow(pointer),
-           {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
+           {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(object.data["actor"]),
            {:ok, actor} <- get_actor_by_username(ap_actor.username),
            {:ok, thread} <-
              MoodleNet.Comments.create_thread(parent, actor, %{is_public: true, is_local: false}),
