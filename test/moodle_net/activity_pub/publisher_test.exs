@@ -57,6 +57,27 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     end
   end
 
+  describe "creating actors" do
+    test "it federates a create activity for a community" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+
+      assert {:ok, activity} = Publisher.create_community(community)
+      assert activity.data["object"]["type"] == "Group"
+      assert activity.data["object"]["id"]
+    end
+
+    test "it federate a create activity for a collection" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+
+      assert {:ok, activity} = Publisher.create_collection(collection)
+      assert activity.data["object"]["type"] == "Group"
+      assert activity.data["object"]["id"]
+    end
+  end
+
   describe "follows" do
     test "it federates a follow of a remote actor" do
       follower = fake_user!()

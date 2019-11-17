@@ -119,6 +119,10 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(%{"id" => id}) when not (is_binary(id) and length(id) > 8),
     do: :error
 
+  # Incoming actor create, just fetch from source
+  def handle_incoming(%{"type" => "Create", "object" => %{"type" => "Group", "id" => ap_id}}),
+    do: Actor.get_by_ap_id(ap_id)
+
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
     {:ok, actor} = Actor.get_by_ap_id(data["actor"])

@@ -68,6 +68,45 @@ defmodule MoodleNet.ActivityPub.Publisher do
     end
   end
 
+  def create_community(community) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(community.creator_id),
+         {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(community.id),
+         community_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
+         params <- %{
+          actor: actor,
+          to: [@public_uri],
+          object: community_object,
+          context: ActivityPub.Utils.generate_context_id(),
+          additional: %{
+            "cc" => [actor.data["followers"]]
+          }
+        } do
+     ActivityPub.create(params)
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def create_collection(collection) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(collection.creator_id),
+         {:ok, ap_collection} <- ActivityPub.Actor.get_by_local_id(collection.id),
+         collection_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
+         {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(collection.community_id),
+         params <- %{
+          actor: actor,
+          to: [@public_uri],
+          object: collection_object,
+          context: ActivityPub.Utils.generate_context_id(),
+          additional: %{
+            "cc" => [actor.data["followers"], ap_community.data["followers"]]
+          }
+        } do
+     ActivityPub.create(params)
+    else
+      _e -> :error
+    end
+  end
+
   ## FIXME: this is currently implemented in a spec non-conforming way, AP follows are supposed to be handshakes
   ## that are only reflected in the host database upon receiving an Accept activity in response. in this case
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
