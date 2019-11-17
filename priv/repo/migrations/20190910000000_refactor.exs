@@ -450,97 +450,86 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_activity, :updated_at)
     create index(:mn_activity, :published_at)
 
-    create table(:mn_user_inbox) do
+    create table(:mn_user_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :user_id, references("mn_user", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_user_inbox, :created_at)
     create index(:mn_user_inbox, :user_id)
     create index(:mn_user_inbox, :activity_id)
 
-    create table(:mn_user_outbox) do
+    create table(:mn_user_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :user_id, references("mn_user", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-
-    create index(:mn_user_outbox, :created_at)
     create index(:mn_user_outbox, :user_id)
     create index(:mn_user_outbox, :activity_id)
 
-    create table(:mn_community_inbox) do
+    create table(:mn_community_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_community_inbox, :created_at)
     create index(:mn_community_inbox, :community_id)
     create index(:mn_community_inbox, :activity_id)
 
-    create table(:mn_community_outbox) do
+    create table(:mn_community_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_community_outbox, :created_at)
     create index(:mn_community_outbox, :community_id)
     create index(:mn_community_outbox, :activity_id)
 
-    create table(:mn_collection_inbox) do
+    create table(:mn_collection_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_collection_inbox, :created_at)
     create index(:mn_collection_inbox, :collection_id)
     create index(:mn_collection_inbox, :activity_id)
 
-    create table(:mn_collection_outbox) do
+    create table(:mn_collection_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_collection_outbox, :created_at)
     create index(:mn_collection_outbox, :collection_id)
     create index(:mn_collection_outbox, :activity_id)
 
-    create table(:mn_instance_inbox) do
+    create table(:mn_instance_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_instance_inbox, :created_at)
     create index(:mn_instance_inbox, :activity_id)
 
-    create table(:mn_instance_outbox) do
+    create table(:mn_instance_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_instance_outbox, :created_at)
     create index(:mn_instance_outbox, :activity_id)
 
-    create table(:mn_moodleverse_inbox) do
+    create table(:mn_moodleverse_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_moodleverse_inbox, :created_at)
     create index(:mn_moodleverse_inbox, :activity_id)
 
-    create table(:mn_moodleverse_outbox) do
+    create table(:mn_moodleverse_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_moodleverse_outbox, :created_at)
     create index(:mn_moodleverse_outbox, :activity_id)
 
     create table(:access_token) do
