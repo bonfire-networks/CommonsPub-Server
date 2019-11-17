@@ -21,6 +21,7 @@ defmodule ActivityPubWeb.ActivityPubController do
   alias ActivityPubWeb.ActorView
   alias ActivityPubWeb.Federator
   alias ActivityPubWeb.ObjectView
+  alias ActivityPubWeb.RedirectController
 
   def object(conn, %{"uuid" => uuid}) do
     with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
@@ -30,18 +31,22 @@ defmodule ActivityPubWeb.ActivityPubController do
       |> put_resp_header("content-type", "application/activity+json")
       |> json(ObjectView.render("object.json", %{object: object}))
     else
-      _->
+      _ ->
         {:error, :not_found}
     end
   end
 
   def actor(conn, %{"username" => username}) do
-    with {:ok, actor} <- Actor.get_by_username(username) do
-      conn
-      |> put_resp_header("content-type", "application/activity+json")
-      |> json(ActorView.render("actor.json", %{actor: actor}))
+    if get_format(conn) == "html" do
+      RedirectController.actor(conn, %{"username" => username})
     else
-      {:error, _e} -> {:error, :not_found}
+      with {:ok, actor} <- Actor.get_by_username(username) do
+        conn
+        |> put_resp_header("content-type", "application/activity+json")
+        |> json(ActorView.render("actor.json", %{actor: actor}))
+      else
+        {:error, _e} -> {:error, :not_found}
+      end
     end
   end
 
