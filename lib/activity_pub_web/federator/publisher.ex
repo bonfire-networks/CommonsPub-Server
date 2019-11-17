@@ -5,6 +5,7 @@
 
 defmodule ActivityPubWeb.Federator.Publisher do
   require Logger
+  alias ActivityPub.Workers.PublisherWorker
 
   @moduledoc """
   Defines the contract used by federation implementations to publish messages to
@@ -26,23 +27,11 @@ defmodule ActivityPubWeb.Federator.Publisher do
   Enqueue publishing a single activity.
   """
   @spec enqueue_one(module(), Map.t()) :: :ok
-  def enqueue_one(module, %{} = params),
-    do: PleromaJobQueue.enqueue(:federator_outgoing, __MODULE__, [:publish_one, module, params])
-
-  @spec perform(atom(), module(), any()) :: {:ok, any()} | {:error, any()}
-  def perform(:publish_one, module, params) do
-    case apply(module, :publish_one, [params]) do
-      {:ok, _} ->
-        :ok
-
-      {:error, e} ->
-        {:erorr, e}
-    end
-  end
-
-  def perform(type, _, _) do
-    Logger.debug("Unknown task: #{type}")
-    {:error, "Don't know what to do with this"}
+  def enqueue_one(module, %{} = params) do
+    PublisherWorker.enqueue(
+      "publish_one",
+      %{"module" => to_string(module), "params" => params}
+    )
   end
 
   @doc """

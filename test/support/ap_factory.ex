@@ -7,6 +7,44 @@ defmodule ActivityPub.Factory do
     actor
   end
 
+  def community() do
+    actor = insert(:actor)
+    {:ok, actor} = ActivityPub.Actor.get_by_ap_id(actor.data["id"])
+
+    community =
+      insert(:actor, %{
+        data: %{"type" => "MN:Community", "attributedTo" => actor.ap_id, "collections" => []}
+      })
+
+    {:ok, community} = ActivityPub.Actor.get_by_ap_id(community.data["id"])
+    community
+  end
+
+  def collection() do
+    actor = insert(:actor)
+    {:ok, actor} = ActivityPub.Actor.get_by_ap_id(actor.data["id"])
+
+    community =
+      insert(:actor, %{
+        data: %{"type" => "MN:Community", "attributedTo" => actor.ap_id, "collections" => []}
+      })
+
+    {:ok, community} = ActivityPub.Actor.get_by_ap_id(community.data["id"])
+
+    collection =
+      insert(:actor, %{
+        data: %{
+          "type" => "MN:Community",
+          "attributedTo" => actor.ap_id,
+          "context" => community.ap_id,
+          "resources" => []
+        }
+      })
+
+    {:ok, collection} = ActivityPub.Actor.get_by_ap_id(collection.data["id"])
+    collection
+  end
+
   def actor_factory(attrs \\ %{}) do
     data = %{
       "name" => sequence(:name, &"Test actor #{&1}"),

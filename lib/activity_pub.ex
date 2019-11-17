@@ -19,6 +19,34 @@ defmodule ActivityPub do
   alias ActivityPub.MRF
   alias MoodleNet.Repo
 
+  def maybe_forward_activity(
+        %{data: %{"type" => "Create", "to" => to, "object" => object}} = activity
+      ) do
+    groups =
+      to
+      |> List.delete("https://www.w3.org/ns/activitystreams#Public")
+      |> Enum.map(&Actor.get_by_ap_id!/1)
+      |> Enum.filter(fn actor ->
+        actor.data["type"] == "MN:Collection" or actor.data["type"] == "MN:Community"
+      end)
+
+    groups
+    |> Enum.map(fn group ->
+      ActivityPub.create(%{
+        to: ["https://www.w3.org/ns/activitystreams#Public"],
+        object: object,
+        actor: group,
+        context: activity.data["context"],
+        additional: %{
+          "cc" => [group.data["followers"]],
+          "attributedTo" => activity.data["actor"]
+        }
+      })
+    end)
+  end
+
+  def maybe_forward_activity(_), do: :ok
+
   defp check_actor_is_active(actor) do
     if not is_nil(actor) do
       with {:ok, actor} <- Actor.get_by_ap_id(actor),
@@ -33,17 +61,26 @@ defmodule ActivityPub do
   end
 
   @doc false
-  def insert(map, local) when is_map(map) and is_boolean(local) do
+  def insert(map, local, pointer \\ nil) when is_map(map) and is_boolean(local) do
     with map <- Utils.lazy_put_activity_defaults(map),
          :ok <- check_actor_is_active(map["actor"]),
          {:ok, map} <- MRF.filter(map),
-         {:ok, map, object} <- Utils.insert_full_object(map) do
+         {:ok, map, object} <- Utils.insert_full_object(map, local, pointer) do
       {:ok, activity} =
-        Repo.insert(%Object{
-          data: map,
-          local: local,
-          public: Utils.public?(map)
-        })
+        if is_nil(object) do
+          Object.insert(%{
+            data: map,
+            local: local,
+            public: Utils.public?(map),
+            mn_pointer_id: pointer
+          })
+        else
+          Object.insert(%{
+            data: map,
+            local: local,
+            public: Utils.public?(map)
+          })
+        end
 
       # Splice in the child object if we have one.
       activity =
@@ -69,7 +106,7 @@ defmodule ActivityPub do
   `context` must be a string. Use `ActivityPub.Utils.generate_context_id/0` to generate a default context.</br>
   `object` must be a map.
   """
-  def create(%{to: to, actor: actor, context: context, object: object} = params) do
+  def create(%{to: to, actor: actor, context: context, object: object} = params, pointer \\ nil) do
     additional = params[:additional] || %{}
     # only accept false as false value
     local = !(params[:local] == false)
@@ -80,7 +117,7 @@ defmodule ActivityPub do
              %{to: to, actor: actor, published: published, context: context, object: object},
              additional
            ),
-         {:ok, activity} <- insert(create_data, local),
+         {:ok, activity} <- insert(create_data, local, pointer),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}
@@ -326,7 +363,8 @@ defmodule ActivityPub do
           account: account,
           statuses: statuses,
           content: content
-        } = params
+        } = params,
+        pointer \\ nil
       ) do
     # only accept false as false value
     local = !(params[:local] == false)
@@ -350,7 +388,7 @@ defmodule ActivityPub do
       end
 
     with flag_data <- Utils.make_flag_data(params, additional),
-         {:ok, activity} <- insert(flag_data, local),
+         {:ok, activity} <- insert(flag_data, local, pointer),
          :ok <- Utils.maybe_federate(activity),
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}

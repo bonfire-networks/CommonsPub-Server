@@ -47,6 +47,10 @@ defmodule ActivityPub.Utils do
         "https://www.w3.org/ns/activitystreams",
         "https://litepub.social/litepub/context.jsonld",
         %{
+          "collections" => "mn:collections",
+          "resources" => "mn:resources"
+        },
+        %{
           "@language" => "und"
         }
       ]
@@ -360,9 +364,10 @@ defmodule ActivityPub.Utils do
   @doc """
   Inserts a full object if it is contained in an activity.
   """
-  def insert_full_object(%{"object" => %{"type" => type} = object_data} = map)
+  def insert_full_object(map, local \\ false, pointer \\ nil)
+  def insert_full_object(%{"object" => %{"type" => type} = object_data} = map, local, pointer)
       when is_map(object_data) and type in @supported_object_types do
-    with {:ok, data} <- prepare_data(object_data),
+    with {:ok, data} <- prepare_data(object_data, local, pointer),
          {:ok, object} <- Object.insert(data) do
       map =
         map
@@ -372,7 +377,7 @@ defmodule ActivityPub.Utils do
     end
   end
 
-  def insert_full_object(map), do: {:ok, map, nil}
+  def insert_full_object(map, _local, _pointer), do: {:ok, map, nil}
 
   @doc """
   Determines if an object or an activity is public.
@@ -401,12 +406,13 @@ defmodule ActivityPub.Utils do
   @doc """
   Prepares a struct to be inserted into the objects table
   """
-  def prepare_data(data) do
+  def prepare_data(data, local \\ false, pointer \\ nil) do
     data =
       %{}
       |> Map.put(:data, data)
-      |> Map.put(:local, false)
+      |> Map.put(:local, local)
       |> Map.put(:public, public?(data))
+      |> Map.put(:mn_pointer_id, pointer)
 
     {:ok, data}
   end
@@ -416,14 +422,7 @@ defmodule ActivityPub.Utils do
   """
   def maybe_federate(%Object{local: true} = activity) do
     if MoodleNet.Config.get!([:instance, :federating]) do
-      priority =
-        case activity.data["type"] do
-          "Delete" -> 10
-          "Create" -> 1
-          _ -> 5
-        end
-
-      ActivityPubWeb.Federator.publish(activity, priority)
+      ActivityPubWeb.Federator.publish(activity)
     end
 
     :ok

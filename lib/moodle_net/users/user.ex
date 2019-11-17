@@ -42,7 +42,7 @@ defmodule MoodleNet.Users.User do
   @email_regexp ~r/.+\@.+\..+/
 
   @register_cast_attrs ~w(name summary location website icon image is_public is_disabled)a
-  @register_required_attrs @register_cast_attrs
+  @register_required_attrs ~w(name is_public is_disabled)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Pointer{id: id} = pointer, %Actor{} = actor, attrs) do

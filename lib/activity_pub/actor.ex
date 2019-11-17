@@ -19,7 +19,7 @@ defmodule ActivityPub.Actor do
 
   @type t :: %Actor{}
 
-  defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated]
+  defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated, :mn_pointer_id]
 
   @doc """
   Updates an existing actor struct by its AP ID.
@@ -128,6 +128,15 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_by_local_id(id) do
+    with {:ok, actor} <- Adapter.get_actor_by_id(id),
+         actor <- format_local_actor(actor) do
+      {:ok, actor}
+    else
+      _e -> {:error, "not found"}
+    end
+  end
+
   @doc """
   Fetches an actor given its AP ID.
 
@@ -168,45 +177,91 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
-  defp format_local_actor(actor) do
+  defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
-    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.preferred_username}"
+    id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
+
+    type =
+      case actor do
+        %MoodleNet.Users.User{} -> "Person"
+        %MoodleNet.Communities.Community{} -> "MN:Community"
+        %MoodleNet.Collections.Collection{} -> "MN:Collection"
+      end
 
     data = %{
-      "type" => "Person",
+      "type" => type,
       "id" => id,
       "inbox" => "#{id}/inbox",
       "outbox" => "#{id}/outbox",
       "followers" => "#{id}/followers",
       "following" => "#{id}/following",
-      "preferredUsername" => actor.preferred_username,
-      "name" => actor.latest_revision.revision.name,
-      "summary" => actor.latest_revision.revision.summary,
-      "icon" => actor.latest_revision.revision.icon,
-      "image" => actor.latest_revision.revision.image
+      "preferredUsername" => actor.actor.preferred_username,
+      "name" => actor.name,
+      "summary" => Map.get(actor, :summary),
+      "icon" => Map.get(actor, :icon),
+      "image" => Map.get(actor, :image)
     }
+
+    data =
+      case data["type"] do
+        "MN:Community" ->
+          data
+          |> Map.put("collections", get_and_format_collections_for_actor(actor))
+          |> Map.put("attributedTo", get_creator_ap_id(actor))
+
+        "MN:Collection" ->
+          data
+          |> Map.put("resource", get_and_format_resources_for_actor(actor))
+          |> Map.put("attributedTo", get_creator_ap_id(actor))
+          |> Map.put("context", get_community_ap_id(actor))
+
+        _ ->
+          data
+      end
 
     %__MODULE__{
       id: actor.id,
       data: data,
-      keys: actor.signing_key,
+      keys: actor.actor.signing_key,
       local: true,
       ap_id: id,
-      username: actor.preferred_username,
+      mn_pointer_id: actor.id,
+      username: actor.actor.preferred_username,
       deactivated: false
     }
   end
 
+  # Remote actor coming from MN local database
+  defp format_local_actor(actor) do
+    actor_object = Object.get_by_pointer_id(actor.id)
+    format_remote_actor(actor_object)
+  end
+
   defp format_remote_actor(%Object{} = actor) do
     username = actor.data["preferredUsername"] <> "@" <> URI.parse(actor.data["id"]).host
+    pointer_id = Map.get(actor, :mn_pointer_id)
+    data = actor.data
+
+    data =
+      cond do
+        Map.has_key?(data, "collections") ->
+          Map.put(data, "type", "MN:Community")
+
+        Map.has_key?(data, "resources") ->
+          Map.put(data, "type", "MN:Collection")
+
+        true ->
+          data
+      end
 
     %__MODULE__{
       id: actor.id,
-      data: actor.data,
+      data: data,
       keys: nil,
       local: false,
       ap_id: actor.data["id"],
       username: username,
+      mn_pointer_id: pointer_id,
       deactivated: deactivated?(actor)
     }
   end
@@ -222,6 +277,7 @@ defmodule ActivityPub.Actor do
 
     [to, cc]
     |> Enum.concat()
+    |> List.delete("https://www.w3.org/ns/activitystreams#Public")
     |> Enum.map(&get_by_ap_id!/1)
     |> Enum.filter(fn actor -> actor && !actor.local end)
   end
@@ -233,12 +289,13 @@ defmodule ActivityPub.Actor do
     if actor.keys do
       {:ok, actor}
     else
-      # TODO: move MN specific calls elsewhere
-      {:ok, pem} = Keys.generate_rsa_pem()
-      {:ok, local_actor} = MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"])
-      {:ok, local_actor} = MoodleNet.Actors.update(local_actor, %{signing_key: pem})
-      actor = format_local_actor(local_actor)
-      {:ok, actor}
+      with {:ok, pem} <- Keys.generate_rsa_pem(),
+           {:ok, local_actor} <- Adapter.update_local_actor(actor, %{signing_key: pem}),
+           actor <- format_local_actor(local_actor) do
+        {:ok, actor}
+      else
+        {:error, e} -> {:error, e}
+      end
     end
   end
 
@@ -246,6 +303,16 @@ defmodule ActivityPub.Actor do
     Repo.delete(%Object{
       id: actor.id
     })
+  end
+
+  # TODO
+  def get_and_format_collections_for_actor(_actor) do
+    []
+  end
+
+  # TODO
+  def get_and_format_resources_for_actor(_actor) do
+    []
   end
 
   def update_actor_data_by_ap_id(ap_id, data) do
@@ -265,5 +332,21 @@ defmodule ActivityPub.Actor do
       |> Map.put("deactivated", !actor.deactivated)
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
+  end
+
+  def get_creator_ap_id(actor) do
+    with {:ok, actor} <- get_by_local_id(actor.creator_id) do
+      actor.ap_id
+    else
+      {:error, nil} -> nil
+    end
+  end
+
+  def get_community_ap_id(actor) do
+    with {:ok, actor} <- get_by_local_id(actor.community_id) do
+      actor.ap_id
+    else
+      {:error, nil} -> nil
+    end
   end
 end

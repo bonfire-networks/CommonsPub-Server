@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.Publisher do
-
   alias ActivityPub.Actor
   alias ActivityPub.HTTP
   alias ActivityPub.Instances
@@ -27,7 +26,7 @@ defmodule ActivityPubWeb.Publisher do
   * `actor`: the actor which is signing the message
   * `id`: the ActivityStreams URI of the message
   """
-  def publish_one(%{inbox: inbox, json: json, actor: actor, id: id} = params) do
+  def publish_one(%{inbox: inbox, json: json, actor: %Actor{} = actor, id: id} = params) do
     Logger.info("Federating #{id} to #{inbox}")
     host = URI.parse(inbox).host
 
@@ -68,9 +67,18 @@ defmodule ActivityPubWeb.Publisher do
     end
   end
 
+  def publish_one(%{actor_username: username} = params) do
+    {:ok, actor} = Actor.get_by_username(username)
+
+    params
+    |> Map.delete(:actor_username)
+    |> Map.put(:actor, actor)
+    |> publish_one()
+  end
+
   defp recipients(actor, activity) do
     {:ok, followers} =
-      if actor.data["followers"] in (activity.data["to"] || []) ++ (activity.data["cc"] || []) do
+      if actor.data["followers"] in ((activity.data["to"] || []) ++ (activity.data["cc"] || [])) do
         Actor.get_external_followers(actor)
       else
         {:ok, []}
@@ -81,6 +89,14 @@ defmodule ActivityPubWeb.Publisher do
 
   defp maybe_use_sharedinbox(%{data: data}),
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
+
+  defp maybe_federate_to_mothership(recipients) do
+    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" do
+      recipients ++ ["https://mothership.moodle.net/pub/shared_inbox"]
+    else
+      recipients
+    end
+  end
 
   @doc """
   Determine a user inbox to use based on heuristics.  These heuristics
@@ -119,18 +135,20 @@ defmodule ActivityPubWeb.Publisher do
   def publish(actor, activity) do
     {:ok, data} = Transmogrifier.prepare_outgoing(activity.data)
     json = Jason.encode!(data)
+    ActivityPub.maybe_forward_activity(activity)
 
     recipients(actor, activity)
     |> Enum.map(fn actor ->
       determine_inbox(activity, actor)
     end)
     |> Enum.uniq()
+    |> maybe_federate_to_mothership()
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
     ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
       inbox: inbox,
       json: json,
-      actor: actor,
+      actor_username: actor.username,
       id: activity.data["id"],
       unreachable_since: unreachable_since
     })

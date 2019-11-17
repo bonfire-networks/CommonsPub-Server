@@ -8,6 +8,7 @@ defmodule ActivityPub.Adapter do
   Contract for ActivityPub module adapters
   """
 
+  alias ActivityPub.Actor
   alias ActivityPub.Object
   alias MoodleNet.Config
 
@@ -19,16 +20,26 @@ defmodule ActivityPub.Adapter do
   @callback get_actor_by_username(String.t()) :: {:ok, any()} | {:error, any()}
   defdelegate get_actor_by_username(username), to: @adapter
 
-  @callback maybe_create_remote_actor(Object.t()) :: :ok
+  @callback get_actor_by_id(String.t()) :: {:ok, any()} | {:error, any()}
+  defdelegate get_actor_by_id(username), to: @adapter
+
+  @callback maybe_create_remote_actor(Actor.t()) :: :ok
   defdelegate maybe_create_remote_actor(actor), to: @adapter
+
+  @callback update_local_actor(Actor.t(), Map.t()) :: {:ok, any()} | {:error, any()}
+  defdelegate update_local_actor(actor, params), to: @adapter
 
   @doc """
   Passes data to be handled by the host application
   """
-  @callback handle_activity(Object.t()) :: :ok | {:error, any()}
+  @callback handle_activity(Object.t()) :: :ok | {:ok, any()} | {:error, any()}
   defdelegate handle_activity(activity), to: @adapter
 
-  def maybe_handle_activity(%Object{local: false} = activity), do: handle_activity(activity)
+  # FIXME: implicity returning `:ok` here means we don't know if the worker fails which isn't great
+  def maybe_handle_activity(%Object{local: false} = activity) do
+    handle_activity(activity)
+    :ok
+  end
 
   def maybe_handle_activity(_), do: :ok
 end

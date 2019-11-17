@@ -37,8 +37,8 @@ defmodule MoodleNet.Collections.Collection do
     timestamps()
   end
 
-  @required ~w(name summary icon is_public is_disabled)a
-  @cast @required ++ ~w(primary_language_id)a
+  @required ~w(name is_public is_disabled)a
+  @cast @required ++ ~w(primary_language_id summary icon)a
 
   def create_changeset(
         %Pointer{id: id} = pointer,

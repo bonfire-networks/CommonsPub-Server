@@ -97,6 +97,15 @@ defmodule MoodleNet.Collections do
     )
   end
 
+  def fetch_by_username(username) when is_binary(username) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.fetch_any_by_username(username),
+           {:ok, coll} <- Repo.fetch_by(Collection, actor_id: actor.id) do
+        {:ok, coll}
+      end
+    end)
+  end
+
   @spec create(Community.t(), User.t(), attrs :: map) ::
           {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do

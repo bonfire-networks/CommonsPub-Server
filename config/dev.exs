@@ -80,7 +80,7 @@ config :moodle_net, :ap_base_path,
   System.get_env("AP_BASE_PATH", "/pub")
 
 config :moodle_net, :frontend_base_url,
-  System.get_env("FRONTEND_BASE_URL", "http://localhost:3000/")
+  System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
@@ -91,3 +91,5 @@ config :moodle_net, MoodleNet.OAuth,
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
 
+config :moodle_net, MoodleNet.Uploads.Storage,
+  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads"]]]

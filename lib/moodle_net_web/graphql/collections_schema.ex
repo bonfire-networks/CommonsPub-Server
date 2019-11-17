@@ -53,7 +53,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
   @desc """
   A collection is the home of resources and discussion threads within a community
-  """ 
+  """
   object :collection do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
@@ -111,7 +111,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "The community the collection belongs to"
     field :community, non_null(:community) do
       resolve &CommunitiesResolver.community/3
-    end 
+    end
 
     @desc "The resources in the collection, most recently created last"
     field :resources, non_null(:resources_edges) do

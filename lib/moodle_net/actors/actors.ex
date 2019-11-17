@@ -25,16 +25,27 @@ defmodule MoodleNet.Actors do
   @spec fetch_private(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_private(id) when is_binary(id), do: Repo.fetch(Actor, id)
 
-  @doc "Fetches an actor by username"
+  @doc "Fetches n local actor by username"
   @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_by_username(username) when is_binary(username) do
     Repo.single(fetch_by_username_q(username))
+  end
+
+  @doc "Fetches a remote or a local actor by username"
+  @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
+  def fetch_any_by_username(username) when is_binary(username) do
+    Repo.single(fetch_any_by_username_q(username))
   end
 
   defp fetch_by_username_q(username) do
     from a in Actor,
       where: a.preferred_username == ^username,
       where: is_nil(a.peer_id)
+  end
+
+  defp fetch_any_by_username_q(username) do
+    from a in Actor,
+    where: a.preferred_username == ^username
   end
 
   # a username remains taken forever and regardless of publicity

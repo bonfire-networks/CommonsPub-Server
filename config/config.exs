@@ -71,7 +71,7 @@ config :moodle_net, :instance,
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,
-  rewrite_policy: ActivityPub.MRF.NoOpPolicy
+  rewrite_policy: []
 
 config :moodle_net, :mrf_simple,
   media_removal: [],
@@ -95,9 +95,17 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
-config :pleroma_job_queue, :queues,
-federator_incoming: 50,
-federator_outgoing: 50
+config :moodle_net, Oban,
+  repo: MoodleNet.Repo,
+  prune: {:maxlen, 100_000},
+  queues: [federator_incoming: 50, federator_outgoing: 50]
+
+config :moodle_net, :workers,
+  retries: [
+    federator_incoming: 5,
+    federator_outgoing: 5
+  ]
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
@@ -109,3 +117,4 @@ config :moodle_net, MoodleNet.Users,
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
+

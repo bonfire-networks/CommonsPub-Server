@@ -35,7 +35,9 @@ defmodule MoodleNet.Mixfile do
        :logger,
        :runtime_tools,
        :comeonin,
-       :hackney
+       :hackney,
+       :mime,
+       :belt,
      ]
     ]
   end
@@ -69,6 +71,12 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.6.0"},
       {:phoenix_ecto, "~> 4.0"},
+      # File storage
+      {:belt, git: "https://gitlab.com/kalouantonis/belt"},
+      # File format parsing
+      {:format_parser, "~> 1.3.0"},
+      # MIME type map
+      {:mime, "~> 1.2"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
@@ -92,7 +100,7 @@ defmodule MoodleNet.Mixfile do
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
-      {:pleroma_job_queue, "~> 0.3"}, # job queue
+      {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       # dev/test only
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet

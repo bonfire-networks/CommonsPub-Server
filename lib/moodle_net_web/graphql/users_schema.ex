@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :me, non_null(:me)
   end
 
-  object :users_mutations do
+  object :user_mutations do
 
     @desc "Create a user"
     field :create_user, :me do

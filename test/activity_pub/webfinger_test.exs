@@ -19,17 +19,17 @@ defmodule ActivityPub.WebFingerTest do
 
   describe "incoming webfinger request" do
     test "works for fqns" do
-      actor = Faking.fake_actor!()
+      actor = Faking.fake_user!()
 
       {:ok, result} =
-        WebFinger.webfinger("#{actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}")
+        WebFinger.webfinger("#{actor.actor.preferred_username}@#{MoodleNetWeb.Endpoint.host()}")
 
       assert is_map(result)
     end
 
     test "works for ap_ids" do
-      actor = Faking.fake_actor!()
-      {:ok, ap_actor} = Actor.get_by_username(actor.preferred_username)
+      actor = Faking.fake_user!()
+      {:ok, ap_actor} = Actor.get_by_username(actor.actor.preferred_username)
 
       {:ok, result} = WebFinger.webfinger(ap_actor.data["id"])
       assert is_map(result)

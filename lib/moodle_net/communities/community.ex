@@ -42,8 +42,8 @@ defmodule MoodleNet.Communities.Community do
     timestamps(inserted_at: :created_at)
   end
 
-  @required ~w(name summary icon image)a
-  @cast @required ++ ~w(is_disabled is_public primary_language_id)a
+  @required ~w(name)a
+  @cast @required ++ ~w(is_disabled is_public primary_language_id summary icon image)a
 
   def create_changeset(%Pointer{id: id} = pointer, %User{} = creator, %Actor{} = actor, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)

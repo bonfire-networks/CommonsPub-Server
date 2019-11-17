@@ -61,6 +61,15 @@ defmodule MoodleNet.Communities do
     )
   end
 
+  def fetch_by_username(username) when is_binary(username) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.fetch_any_by_username(username),
+           {:ok, comm} <- Repo.fetch_by(Community, actor_id: actor.id) do
+        {:ok, preload(comm)}
+      end
+    end)
+  end
+
   @doc "Fetches a community by ID, ignoring whether it is public or not."
   @spec fetch_private(id :: binary) :: {:ok, Community.t()} | {:error, NotFoundError.t()}
   def fetch_private(id) when is_binary(id) do

@@ -47,16 +47,16 @@ defmodule ActivityPub.ActivityPubControllerTest do
 
   describe "actor" do
     test "works for actors" do
-      actor = fake_actor!()
+      actor = fake_user!()
 
       resp =
         build_conn()
         |> put_req_header("accept", "application/json")
-        |> get("pub/actors/#{actor.preferred_username}")
+        |> get("pub/actors/#{actor.actor.preferred_username}")
         |> json_response(200)
 
       assert resp["@context"]
-      assert resp["preferredUsername"] == actor.preferred_username
+      assert resp["preferredUsername"] == actor.actor.preferred_username
       assert resp["url"] == resp["id"]
     end
   end
