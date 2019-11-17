@@ -24,15 +24,19 @@ defmodule ActivityPubWeb.ActivityPubController do
   alias ActivityPubWeb.RedirectController
 
   def object(conn, %{"uuid" => uuid}) do
-    with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
-         %Object{} = object <- Object.get_by_ap_id(ap_id),
-         true <- object.public do
-      conn
-      |> put_resp_header("content-type", "application/activity+json")
-      |> json(ObjectView.render("object.json", %{object: object}))
+    if get_format(conn) == "html" do
+      RedirectController.object(conn, %{"uuid" => uuid})
     else
-      _ ->
-        {:error, :not_found}
+      with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
+           %Object{} = object <- Object.get_by_ap_id(ap_id),
+           true <- object.public do
+        conn
+        |> put_resp_header("content-type", "application/activity+json")
+        |> json(ObjectView.render("object.json", %{object: object}))
+      else
+        _ ->
+          {:error, :not_found}
+      end
     end
   end
 
