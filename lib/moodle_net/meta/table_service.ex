@@ -81,7 +81,7 @@ defmodule MoodleNet.Meta.TableService do
   end
 
   @spec lookup_schema!(table_id()) :: atom()
-  @doc "Look up up a schema module by id, name or schema, throw TableNotFoundError if not found"
+  @doc "Look up a schema module by id, name or schema, throw TableNotFoundError if not found"
   def lookup_schema!(key) do
     case lookup_schema(key) do
       {:ok, v} -> v
