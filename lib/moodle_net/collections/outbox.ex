@@ -6,13 +6,14 @@ defmodule MoodleNet.Collections.Outbox do
   alias Mootils.Cursor
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
+  alias Ecto.Changeset
 
   cursor_schema "mn_collection_outbox" do
     belongs_to(:collection, Collection)
     belongs_to(:activity, Activity)
   end
 
-  def create_changeset(%Collection{} = c, %Activity{} = a) do
+  def changeset(%Collection{} = c, %Activity{} = a) do
     changes = [
       id: Cursor.generate_bose64(),
       collection_id: c.id,

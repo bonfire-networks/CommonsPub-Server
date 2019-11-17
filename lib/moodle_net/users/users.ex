@@ -326,5 +326,4 @@ defmodule MoodleNet.Users do
     |> Repo.preload(:local_user, opts)
     |> User.vivify_virtuals()
   end
-
 end

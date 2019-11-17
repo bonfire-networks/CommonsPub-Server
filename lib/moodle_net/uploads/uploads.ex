@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads do
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Uploads.{Upload, Storage}
   alias MoodleNet.{Repo, Meta}
+  alias MoodleNet.Users.User
 
   # TODO: move to config
   @extensions_allow ~w(pdf rtf ogg mp3 flac wav flv gif jpg jpeg png)
@@ -27,9 +27,9 @@ defmodule MoodleNet.Uploads do
   participates in the meta abstraction, providing the actor responsible for
   the upload.
   """
-  @spec upload(parent :: any, uploader :: Actor.t(), file :: any, attrs :: map) ::
+  @spec upload(parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
-  def upload(parent, uploader, file, attrs) do
+  def upload(parent, %User{} = uploader, file, attrs) do
     with {:ok, file_info} <- Storage.store(file, extensions: @extensions_allow) do
       attrs =
         attrs
