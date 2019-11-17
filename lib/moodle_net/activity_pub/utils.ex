@@ -19,7 +19,8 @@ defmodule MoodleNet.ActivityPub.Utils do
     reply_id = Map.get(comment, :reply_to_id)
 
     if reply_id do
-      ActivityPub.Object.get_by_pointer_id(reply_id)
+      object = ActivityPub.Object.get_by_pointer_id(reply_id)
+      object.data["id"]
     else
       nil
     end

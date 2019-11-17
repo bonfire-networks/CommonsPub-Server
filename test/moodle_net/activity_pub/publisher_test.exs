@@ -19,21 +19,15 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert activity.data["context"] == actor.ap_id
     end
 
-    # This should work but context function for creating replies is missing and changeset
-    # function returns an error.
-    @tag :skip
     test "it federates a reply to a comment" do
       actor = fake_user!()
       commented_actor = fake_user!()
-      thread = fake_thread!(actor, commented_actor)
+      {:ok, thread} = MoodleNet.Comments.create_thread(commented_actor, actor, %{is_local: true})
       comment = fake_comment!(actor, thread)
       # Publish the comment first so we can reply to it
       Publisher.comment(comment)
-      reply = fake_comment!(commented_actor, thread)
-      changeset = MoodleNet.Comments.Comment.reply_to_changeset(reply, comment)
-      {:ok, reply} = MoodleNet.Repo.update(changeset)
+      {:ok, reply} = MoodleNet.Comments.create_comment_reply(thread, actor, comment, %{content: "test", is_local: true})
 
-      IO.inspect(reply)
       assert {:ok, activity} = Publisher.comment(reply)
       assert activity.object.data["inReplyTo"]
     end
