@@ -274,7 +274,7 @@ defmodule ActivityPubTest do
 
   describe "activity forwarding" do
     test "works" do
-      group_actor = actor(%{data: %{"collections" => []}})
+      group_actor = community()
       activity = insert(:note_activity, %{data_attrs: %{"to" => [group_actor.ap_id, "https://www.w3.org/ns/activitystreams#Public"]}})
 
       [{:ok, forwarded_activity}] = ActivityPub.maybe_forward_activity(activity)

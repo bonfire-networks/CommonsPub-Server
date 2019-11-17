@@ -48,6 +48,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   defp maybe_fix_image_object(%{"url" => url}), do: url
   defp maybe_fix_image_object(_), do: nil
 
+  # TODO: Add error handling lol
   def create_remote_actor(actor, username) do
     uri = URI.parse(actor["id"])
     ap_base = uri.scheme <> "://" <> uri.host
@@ -70,10 +71,23 @@ defmodule MoodleNet.ActivityPub.Adapter do
       image: maybe_fix_image_object(actor["image"]),
       is_public: true,
       is_disabled: false,
-      peer_id: peer.id
+      peer_id: peer.id,
+      cannonical_url: actor["id"]
     }
 
-    {:ok, created_actor} = MoodleNet.Users.register_remote(create_attrs)
+    {:ok, created_actor} = case actor["type"] do
+      "Person" -> MoodleNet.Users.register_remote(create_attrs)
+      "MN:Community" ->
+        {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
+        {:ok, creator} = get_actor_by_username(ap_creator.username)
+        MoodleNet.Communities.create(creator, create_attrs)
+      "MN:Collection" ->
+        {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
+        {:ok, creator} = get_actor_by_username(ap_creator.username)
+        {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
+        {:ok, community} = get_actor_by_username(ap_community.username)
+        MoodleNet.Collections.create(community, creator, create_attrs)
+    end
 
     object = ActivityPub.Object.get_by_ap_id(actor["id"])
 

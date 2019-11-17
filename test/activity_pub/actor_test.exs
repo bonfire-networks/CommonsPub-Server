@@ -33,15 +33,15 @@ defmodule ActivityPub.ActorTest do
   end
 
   describe "format remote actor/1" do
-    test "it rewrites community actor type heuristically" do
-      actor = insert(:actor, %{data: %{"collections" => []}})
+    test "it creates local community actor" do
+      actor = community()
 
       {:ok, actor} = Actor.get_by_ap_id(actor.data["id"])
       assert actor.data["type"] == "MN:Community"
     end
 
-    test "it rewrites collection actor type heuristically" do
-      actor = insert(:actor, %{data: %{"resources" => []}})
+    test "it creates local collection actor" do
+      actor = collection()
 
       {:ok, actor} = Actor.get_by_ap_id(actor.data["id"])
       assert actor.data["type"] == "MN:Collection"
