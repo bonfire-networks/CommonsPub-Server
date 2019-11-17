@@ -617,9 +617,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_user_last_activity as
     select
       distinct on (user_id)
-      user_id, created_at
+      id, user_id
     from mn_user_outbox
-    order by user_id, created_at desc
+    order by user_id, id desc
     """
 
     # community
@@ -628,9 +628,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_community_last_activity as
     select
       distinct on (community_id)
-      community_id, created_at
+      id, community_id
     from mn_community_outbox
-    order by community_id, created_at desc
+    order by community_id, id desc
     """
 
     # collection
@@ -639,9 +639,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_collection_last_activity as
     select
       distinct on (collection_id)
-      collection_id, created_at
+      id, collection_id
     from mn_collection_outbox
-    order by collection_id, created_at desc
+    order by collection_id, id desc
     """
 
     # thread
