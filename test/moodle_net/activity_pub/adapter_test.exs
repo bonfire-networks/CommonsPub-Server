@@ -5,6 +5,64 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
   use MoodleNet.DataCase
 
+  describe "fetching local actors by id" do
+    test "users" do
+      user = fake_user!()
+      {:ok, actor} = ActivityPub.Actor.get_by_local_id(user.id)
+      assert actor.data["type"] == "Person"
+      assert actor.username == user.actor.preferred_username
+    end
+
+    test "communities" do
+      user = fake_user!()
+      community = fake_community!(user)
+      {:ok, actor} = ActivityPub.Actor.get_by_local_id(community.id)
+      assert actor.data["type"] == "MN:Community"
+      assert actor.username == community.actor.preferred_username
+      assert actor.data["attributedTo"]
+    end
+
+    test "collections" do
+      user = fake_user!()
+      community = fake_community!(user)
+      collection = fake_collection!(user, community)
+      {:ok, actor} = ActivityPub.Actor.get_by_local_id(collection.id)
+      assert actor.data["type"] == "MN:Collection"
+      assert actor.username == collection.actor.preferred_username
+      assert actor.data["attributedTo"]
+      assert actor.data["context"]
+    end
+  end
+
+  describe "fetching local actors by username" do
+    test "users" do
+      user = fake_user!()
+      {:ok, actor} = ActivityPub.Actor.get_by_username(user.actor.preferred_username)
+      assert actor.data["type"] == "Person"
+      assert actor.username == user.actor.preferred_username
+    end
+
+    test "communities" do
+      user = fake_user!()
+      community = fake_community!(user)
+      {:ok, actor} = ActivityPub.Actor.get_by_username(community.actor.preferred_username)
+      assert actor.data["type"] == "MN:Community"
+      assert actor.username == community.actor.preferred_username
+      assert actor.data["attributedTo"]
+    end
+
+    test "collections" do
+      user = fake_user!()
+      community = fake_community!(user)
+      collection = fake_collection!(user, community)
+      {:ok, actor} = ActivityPub.Actor.get_by_username(collection.actor.preferred_username)
+      assert actor.data["type"] == "MN:Collection"
+      assert actor.username == collection.actor.preferred_username
+      assert actor.data["attributedTo"]
+      assert actor.data["context"]
+    end
+  end
+
   describe "creating remote actors" do
     test "creating actors work" do
       actor = insert(:actor)

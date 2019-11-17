@@ -197,18 +197,23 @@ defmodule ActivityPub.Actor do
       "following" => "#{id}/following",
       "preferredUsername" => actor.actor.preferred_username,
       "name" => actor.name,
-      "summary" => actor.summary,
-      "icon" => actor.icon,
-      "image" => actor.image
+      "summary" => Map.get(actor, :summary),
+      "icon" => Map.get(actor, :icon),
+      "image" => Map.get(actor, :image)
     }
 
     data =
       case data["type"] do
         "MN:Community" ->
-          Map.put(data, "collections", get_and_format_collections_for_actor(actor))
+          data
+          |> Map.put("collections", get_and_format_collections_for_actor(actor))
+          |> Map.put("attributedTo", get_creator_ap_id(actor))
 
         "MN:Collection" ->
-          Map.put(data, "resource", get_and_format_resources_for_actor(actor))
+          data
+          |> Map.put("resource", get_and_format_resources_for_actor(actor))
+          |> Map.put("attributedTo", get_creator_ap_id(actor))
+          |> Map.put("context", get_community_ap_id(actor))
 
         _ ->
           data
@@ -327,5 +332,21 @@ defmodule ActivityPub.Actor do
       |> Map.put("deactivated", !actor.deactivated)
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
+  end
+
+  def get_creator_ap_id(actor) do
+    with {:ok, actor} <- get_by_local_id(actor.creator_id) do
+      actor.ap_id
+    else
+      {:error, nil} -> nil
+    end
+  end
+
+  def get_community_ap_id(actor) do
+    with {:ok, actor} <- get_by_local_id(actor.community_id) do
+      actor.ap_id
+    else
+      {:error, nil} -> nil
+    end
   end
 end

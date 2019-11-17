@@ -7,11 +7,41 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    MoodleNet.Users.fetch_any_by_username(username)
+    with {:ok, actor} <- MoodleNet.Users.fetch_any_by_username(username) do
+      {:ok, actor}
+    else
+      {:error, _e} ->
+        with {:ok, actor} <- MoodleNet.Communities.fetch_by_username(username) do
+          {:ok, actor}
+        else
+          {:error, _e} ->
+            with {:ok, actor} <- MoodleNet.Collections.fetch_by_username(username) do
+              actor = Repo.preload(actor, [:community, :actor, :creator])
+              {:ok, actor}
+            else
+              _e -> {:error, "not found"}
+            end
+        end
+    end
   end
 
   def get_actor_by_id(id) do
-    MoodleNet.Users.fetch(id)
+    with {:ok, actor} <- MoodleNet.Users.fetch(id) do
+      {:ok, actor}
+    else
+      {:error, _e} ->
+        with {:ok, actor} <- MoodleNet.Communities.fetch(id) do
+          {:ok, actor}
+        else
+          {:error, _e} ->
+            with {:ok, actor} <- MoodleNet.Collections.fetch(id) do
+              actor = Repo.preload(actor, [:community, :actor, :creator])
+              {:ok, actor}
+            else
+              _e -> {:error, "not found"}
+            end
+        end
+    end
   end
 
   defp maybe_fix_image_object(url) when is_binary(url), do: url
@@ -34,7 +64,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
     create_attrs = %{
       preferred_username: username,
-      name: (actor["name"] || actor["preferredUsername"]),
+      name: actor["name"] || actor["preferredUsername"],
       summary: actor["summary"],
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
@@ -52,7 +82,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def update_local_actor(actor, params) do
-    with {:ok, local_actor} <- MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
+    with {:ok, local_actor} <-
+           MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
          {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
@@ -105,7 +136,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            {:ok, parent} <- MoodleNet.Meta.follow(pointer),
            {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
            {:ok, actor} <- get_actor_by_username(ap_actor.username),
-           {:ok, thread} <- MoodleNet.Comments.create_thread(parent, actor, %{is_public: true, is_local: false}),
+           {:ok, thread} <-
+             MoodleNet.Comments.create_thread(parent, actor, %{is_public: true, is_local: false}),
            {:ok, _} <-
              MoodleNet.Comments.create_comment(thread, actor, %{
                is_public: true,
