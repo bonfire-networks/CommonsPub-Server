@@ -3,6 +3,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   alias MoodleNet.Repo
   alias MoodleNet.ActivityPub.Utils
 
+  @public_uri "https://www.w3.org/ns/activitystreams#Public"
+
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
     comment = Repo.preload(comment, thread: :context)
@@ -32,6 +34,35 @@ defmodule MoodleNet.ActivityPub.Publisher do
          } do
       # FIXME: pointer_id isn't getting inserted for whatever reason
       ActivityPub.create(params, comment.id)
+    else
+      _e -> :error
+    end
+  end
+
+  def create_resource(resource) do
+    with {:ok, collection} <- ActivityPub.Actor.get_by_local_id(resource.collection_id),
+         {:ok, actor} <- ActivityPub.Actor.get_by_local_id(resource.creator_id),
+         object <- %{
+           "name" => resource.name,
+           "url" => resource.url,
+           "icon" => Map.get(resource, :icon),
+           "actor" => actor.ap_id,
+           "attributedTo" => actor.ap_id,
+           "context" => collection.ap_id,
+           "summary" => Map.get(resource, :summary),
+           "type" => "Document",
+           "tag" => resource.license
+         },
+         params <- %{
+           actor: actor,
+           to: [@public_uri],
+           object: object,
+           context: collection.ap_id,
+           additional: %{
+             "cc" => [collection.data["followers"], actor.data["followers"]]
+           }
+         } do
+      ActivityPub.create(params, resource.id)
     else
       _e -> :error
     end
@@ -145,6 +176,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
           _ ->
             flagged = Repo.preload(flagged, :actor)
+
             {:ok, account} =
               ActivityPub.Actor.get_or_fetch_by_username(flagged.actor.preferred_username)
 

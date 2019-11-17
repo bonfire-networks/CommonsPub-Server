@@ -127,7 +127,7 @@ defmodule ActivityPubWeb.Transmogrifier do
       to: data["to"],
       object: object,
       actor: actor,
-      context: object["conversation"],
+      context: object["context"] || object["conversation"],
       local: false,
       published: data["published"],
       additional:

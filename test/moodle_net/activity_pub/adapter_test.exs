@@ -97,6 +97,36 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert :ok = Adapter.perform(:handle_activity, note_activity)
     end
 
+    test "resource" do
+      actor = actor()
+      collection = collection()
+
+      object = %{
+        "name" => "resource",
+        "url" => "https://resource.com",
+        "actor" => actor.ap_id,
+        "attributedTo" => actor.ap_id,
+        "context" => collection.ap_id,
+        "type" => "Document",
+        "tag" => "GPL-v3",
+        "summary" => "this is a resource",
+        "icon" => "https://icon.store/picture.png"
+      }
+
+      params = %{
+        actor: actor,
+        to: ["https://www.w3.org/ns/activitystreams#Public"],
+        object: object,
+        context: collection.ap_id,
+        additional: %{
+          "cc" => [collection.data["followers"], actor.data["followers"]]
+        }
+      }
+
+      {:ok, activity} = ActivityPub.create(params)
+      assert :ok = Adapter.perform(:handle_activity, activity)
+    end
+
     test "likes" do
       actor = fake_user!()
       commented_actor = fake_user!()

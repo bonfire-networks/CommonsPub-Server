@@ -39,6 +39,24 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     end
   end
 
+  describe "creating resources" do
+    test "it federates a resource" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+
+      assert {:ok, activity} = Publisher.create_resource(resource)
+      assert activity.object.mn_pointer_id == resource.id
+      assert activity.local == true
+      assert activity.object.local == true
+      {:ok, collection} = ActivityPub.Actor.get_by_local_id(collection.id)
+      {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
+      assert activity.data["context"] == collection.ap_id
+      assert activity.data["actor"] == actor.ap_id
+    end
+  end
+
   describe "follows" do
     test "it federates a follow of a remote actor" do
       follower = fake_user!()

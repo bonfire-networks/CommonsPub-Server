@@ -10,7 +10,7 @@ defmodule ActivityPub.Utils do
   import Ecto.Query
 
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
-  @supported_object_types ["Article", "Note", "Video", "Page", "Question", "Answer"]
+  @supported_object_types ["Article", "Note", "Video", "Page", "Question", "Answer", "Document"]
 
   def get_ap_id(%{"id" => id} = _), do: id
   def get_ap_id(id), do: id
