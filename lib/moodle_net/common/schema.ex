@@ -68,7 +68,7 @@ defmodule MoodleNet.Common.Schema do
   """
   defmacro cursor_schema(table, body) do
     quote do
-      @primary_key {:id, :binary_id, autogenerate: false}
+      @primary_key {:id, :binary, autogenerate: false}
       @foreign_key_type :binary_id
       schema(unquote(table), unquote(body))
     end

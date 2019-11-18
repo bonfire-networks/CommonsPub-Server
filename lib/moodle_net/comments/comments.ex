@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments do
   import Ecto.Query
-  alias MoodleNet.{Common, Meta, Users}
+  alias MoodleNet.{Common, Meta, Users, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{NotFoundError, Query}
   alias MoodleNet.Users.User
-  alias MoodleNet.Repo
+  alias MoodleNet.Workers.ActivityWorker
   alias Ecto.Association.NotLoaded
 
   #
@@ -108,12 +108,19 @@ defmodule MoodleNet.Comments do
           {:ok, Thread.t()} | {:error, Changeset.t()}
   def create_thread(context, %User{} = creator, attrs) do
     Repo.transact_with(fn ->
-      context = Meta.find!(context.id)
-
-      Meta.point_to!(Thread)
-      |> Thread.create_changeset(context, creator, attrs)
-      |> Repo.insert()
+      with {:ok, thread} <- insert_thread(context, creator, attrs),
+           {:ok, _} <- publish_thread(thread, "create") do
+        {:ok, thread}
+      end
     end)
+  end
+
+  defp insert_thread(context, creator, attrs) do
+    context = Meta.find!(context.id)
+
+    Meta.point_to!(Thread)
+    |> Thread.create_changeset(context, creator, attrs)
+    |> Repo.insert()
   end
 
   @doc """
@@ -127,7 +134,24 @@ defmodule MoodleNet.Comments do
   end
 
   @spec soft_delete_thread(Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete_thread(%Thread{} = thread), do: Common.soft_delete(thread)
+  def soft_delete_thread(%Thread{} = thread) do
+    Repo.transact_with(fn ->
+      with {:ok, thread} <- Common.soft_delete(thread),
+           {:ok, _} <- publish_thread(thread, "delete") do
+        {:ok, thread}
+      end
+    end)
+  end
+
+  defp publish_thread(%Thread{} = thread, verb) do
+    %{
+      "verb" => verb,
+      "user_id" => thread.creator_id,
+      "context_id" => thread.id,
+    }
+    |> ActivityWorker.new()
+    |> Oban.insert()
+  end
 
   #
   # Comments
@@ -213,9 +237,10 @@ defmodule MoodleNet.Comments do
   @spec create_comment(Thread.t(), User.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      Meta.point_to!(Comment)
-      |> Comment.create_changeset(creator, thread, attrs)
-      |> Repo.insert()
+      with {:ok, comment} <- insert_comment(thread, creator, attrs),
+           {:ok, _} <- publish_comment(comment, "create") do
+        {:ok, comment}
+      end
     end)
   end
 
@@ -232,12 +257,25 @@ defmodule MoodleNet.Comments do
       {:error, NotPermittedError.new("create")}
     else
       Repo.transact_with(fn ->
-        Meta.point_to!(Comment)
-        |> Comment.create_changeset(creator, thread, attrs)
-        |> Comment.reply_to_changeset(reply_to)
-        |> Repo.insert()
+        with {:ok, comment} <- insert_comment(thread, creator, reply_to, attrs),
+             {:ok, _} <- publish_comment(comment, "create") do
+          {:ok, comment}
+        end
       end)
     end
+  end
+
+  defp insert_comment(thread, creator, attrs) do
+    Meta.point_to!(Comment)
+    |> Comment.create_changeset(creator, thread, attrs)
+    |> Repo.insert()
+  end
+
+  defp insert_comment(thread, creator, reply_to, attrs) do
+    Meta.point_to!(Comment)
+    |> Comment.create_changeset(creator, thread, attrs)
+    |> Comment.reply_to_changeset(reply_to)
+    |> Repo.insert()
   end
 
   @spec update_comment(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
@@ -246,5 +284,22 @@ defmodule MoodleNet.Comments do
   end
 
   @spec soft_delete_comment(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete_comment(%Comment{} = comment), do: Common.soft_delete(comment)
+  def soft_delete_comment(%Comment{} = comment) do
+    Repo.transact_with(fn ->
+      with {:ok, comment} <- Common.soft_delete(comment),
+           {:ok, _} <- publish_comment(comment, "delete") do
+        {:ok, comment}
+      end
+    end)
+  end
+
+  defp publish_comment(%Comment{} = comment, verb) do
+    %{
+      "verb" => verb,
+      "context_id" => comment.id,
+      "user_id" => comment.creator_id,
+    }
+    |> ActivityWorker.new()
+    |> Oban.insert()
+  end
 end

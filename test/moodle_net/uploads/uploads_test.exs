@@ -12,10 +12,9 @@ defmodule MoodleNet.UploadsTest do
   @image_file %{path: "test/fixtures/images/150.png", filename: "150.png"}
 
   def fake_upload(file, attrs) do
-    actor = fake_actor!()
-    language = fake_language!()
-    community = fake_community!(actor, language)
-    Uploads.upload(community, actor, file, attrs)
+    user = fake_user!()
+    community = fake_community!(user)
+    Uploads.upload(community, user, file, attrs)
   end
 
   describe "fetch" do

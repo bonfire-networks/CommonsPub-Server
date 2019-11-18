@@ -2,8 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common do
-
   alias MoodleNet.{Meta, Repo}
+
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -13,12 +13,14 @@ defmodule MoodleNet.Common do
     Flag,
     Follow,
     Like,
-    Tag,
+    Tag
   }
+
   alias MoodleNet.Communities.Community
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.{Changeset, NotFoundError}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.ActivityWorker
   import Ecto.Query
 
   ### pagination
@@ -42,7 +44,6 @@ defmodule MoodleNet.Common do
   # defp paginate_before(query, offset)
   # when is_integer(offset) and offset >= 0, do: {:ok, offset(query, ^offset)}
 
-
   # defp paginate_before_q(query) do
   #   where(q, [
   # end
@@ -57,38 +58,53 @@ defmodule MoodleNet.Common do
 
   ### liking
 
-  def find_like(%User{}=liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
+  def find_like(%User{} = liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
 
   defp find_like_q(liker_id, liked_id) do
-    from l in Like,
+    from(l in Like,
       where: l.liker_id == ^liker_id,
       where: l.liked_id == ^liked_id,
       where: is_nil(l.deleted_at)
+    )
   end
 
-  def insert_like(%User{}=liker, liked, fields) do
-    Repo.transact_with fn ->
+  def insert_like(%User{} = liker, liked, fields) do
+    Repo.transact_with(fn ->
       pointer = Meta.find!(liked.id)
 
       Meta.point_to!(Like)
       |> Like.create_changeset(liker, pointer, fields)
       |> Repo.insert()
-    end
+    end)
+  end
+
+  defp publish_like(%Like{} = like, verb) do
+    %{
+      "verb" => verb,
+      "user_id" => like.liker_id,
+      "context_id" => like.id,
+    }
+    |> ActivityWorker.new()
+    |> Oban.insert()
   end
 
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
-  def like(%User{}=liker, liked, fields) do
-    Repo.transact_with fn ->
+  def like(%User{} = liker, liked, fields) do
+    Repo.transact_with(fn ->
       case find_like(liker, liked) do
         {:ok, _} -> {:error, AlreadyLikedError.new("user")}
-        _ -> insert_like(liker, liked, fields)
+        _ ->
+          with {:ok, like} <- insert_like(liker, liked, fields),
+               {:ok, _} <- publish_like(like, "create") do
+            {:ok, like}
+          end
       end
-    end
+    end)
   end
 
-  def update_like(%Like{}=like, fields) do
+  def update_like(%Like{} = like, fields) do
     Like.update_changeset(like, fields)
     |> Repo.update()
   end
@@ -96,24 +112,29 @@ defmodule MoodleNet.Common do
   @doc """
   Return a list of likes for a user.
   """
-  def likes_by(%User{}=user), do: Repo.all(likes_by_query(user))
+  def likes_by(%User{} = user), do: Repo.all(likes_by_query(user))
 
   @doc """
   Return a list of likes for any object participating in the meta abstraction.
   """
-  def likes_of(%{id: _id}=thing), do: Repo.all(likes_of_query(thing))
+  def likes_of(%{id: _id} = thing), do: Repo.all(likes_of_query(thing))
 
   defp likes_by_query(%User{id: id}) do
-    from l in Like,
+    from(l in Like,
       where: is_nil(l.deleted_at),
       where: l.liker_id == ^id
+    )
   end
 
   defp likes_of_query(%{id: id}) do
-    from l in Like,
+    from(l in Like,
       where: is_nil(l.deleted_at),
       where: l.liked_id == ^id
+    )
   end
+
+  def preload_like(%Like{} = like, opts \\ []),
+    do: Repo.preload(like, [:liked, :liker], opts)
 
   ## Flagging
 
@@ -122,50 +143,53 @@ defmodule MoodleNet.Common do
   end
 
   defp find_flag_q(flagger_id, flagged_id) do
-    from f in Flag,
+    from(f in Flag,
       where: f.flagger_id == ^flagger_id,
       where: f.flagged_id == ^flagged_id,
       where: is_nil(f.deleted_at)
+    )
   end
 
   def flag(%User{} = flagger, flagged, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       case find_flag(flagger, flagged) do
         {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
         _ -> insert_flag(flagger, flagged, fields)
       end
-    end
+    end)
   end
 
   def flag(%User{} = flagger, flagged, community, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       case find_flag(flagger, flagged) do
         {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
         _ -> insert_flag(flagger, flagged, community, fields)
       end
-    end
+    end)
   end
 
   defp insert_flag(flagger, flagged, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       pointer = Meta.find!(flagged.id)
+
       Meta.point_to!(Flag)
       |> Flag.create_changeset(flagger, pointer, fields)
       |> Repo.insert()
-    end
+    end)
   end
 
   defp insert_flag(flagger, flagged, community, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       pointer = Meta.find!(flagged.id)
+
       Meta.point_to!(Flag)
       |> Flag.create_changeset(flagger, community, pointer, fields)
       |> Repo.insert()
-    end
+    end)
   end
 
   def resolve_flag(%Flag{} = flag) do
-    Repo.transact_with fn -> soft_delete(flag) end
+    Repo.transact_with(fn -> soft_delete(flag) end)
   end
 
   @doc """
@@ -182,41 +206,49 @@ defmodule MoodleNet.Common do
   Return open flags for a community.
   """
   def flags_of_community(%Community{id: id}) do
-    query = from f in Flag,
-      where: is_nil(f.deleted_at),
-      where: f.community_id == ^id
+    query =
+      from(f in Flag,
+        where: is_nil(f.deleted_at),
+        where: f.community_id == ^id
+      )
 
     Repo.all(query)
   end
 
   defp flags_by_query(%User{id: id}) do
-    from f in Flag,
+    from(f in Flag,
       where: is_nil(f.deleted_at),
       where: f.flagger_id == ^id
+    )
   end
 
   defp flags_of_query(%{id: id}) do
-    from f in Flag,
+    from(f in Flag,
       where: is_nil(f.deleted_at),
       where: f.flagged_id == ^id
+    )
   end
 
   ## Following
 
   @spec list_follows(User.t()) :: [Follow.t()]
   def list_follows(%User{id: id}) do
-    query = from f in Follow,
-      where: is_nil(f.deleted_at),
-      where: f.follower_id == ^id
+    query =
+      from(f in Follow,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id
+      )
 
     Enum.map(Repo.all(query), &preload_follow/1)
   end
 
   @spec list_by_followed(%{id: binary}) :: [Follow.t()]
   def list_by_followed(%{id: id} = followed) do
-    query = from f in Follow,
-      where: is_nil(f.deleted_at),
-      where: f.followed_id == ^id
+    query =
+      from(f in Follow,
+        where: is_nil(f.deleted_at),
+        where: f.followed_id == ^id
+      )
 
     Enum.map(Repo.all(query), &preload_follow/1)
   end
@@ -227,29 +259,47 @@ defmodule MoodleNet.Common do
   end
 
   defp follow_q(follower_id, followed_id) do
-    from f in Follow,
+    from(f in Follow,
       where: is_nil(f.deleted_at),
       where: f.follower_id == ^follower_id,
       where: f.followed_id == ^followed_id
+    )
   end
 
-  @spec follow(User.t, any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  @spec follow(User.t(), any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def follow(%User{} = follower, followed, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       case find_follow(follower, followed) do
-        {:ok, _} -> {:error, AlreadyFollowingError.new("user")}
-        _ -> insert_follow(follower, followed, fields)
+        {:ok, _} ->
+          {:error, AlreadyFollowingError.new("user")}
+
+        _ ->
+          with {:ok, follow} <- insert_follow(follower, followed, fields),
+               {:ok, _} <- publish_follow(follow, "create") do
+            {:ok, follow}
+          end
       end
-    end
+    end)
   end
 
   defp insert_follow(follower, followed, fields) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       pointer = Meta.find!(followed.id)
+
       Meta.point_to!(Follow)
       |> Follow.create_changeset(follower, pointer, fields)
       |> Repo.insert()
-    end
+    end)
+  end
+
+  defp publish_follow(%Follow{} = follow, verb) do
+    %{
+      "verb" => verb,
+      "user_id" => follow.follower_id,
+      "context_id" => follow.id,
+    }
+    |> ActivityWorker.new()
+    |> Oban.insert()
   end
 
   @spec update_follow(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
@@ -262,7 +312,14 @@ defmodule MoodleNet.Common do
   end
 
   @spec undo_follow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def undo_follow(%Follow{} = follow), do: soft_delete(follow)
+  def undo_follow(%Follow{} = follow) do
+    Repo.transact_with(fn ->
+      with {:ok, follow} <- soft_delete(follow),
+           {:ok, _} <- publish_follow(follow, "delete") do
+        {:ok, follow}
+      end
+    end)
+  end
 
   @spec preload_follow(Follow.t(), Keyword.t()) :: Follow.t()
   def preload_follow(%Follow{} = follow, opts \\ []),
@@ -301,7 +358,7 @@ defmodule MoodleNet.Common do
     end)
   end
 
-  @spec delete_block(Block.t()) :: {:ok, Block.t} | {:error, Changeset.t()}
+  @spec delete_block(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete_block(%Block{} = block), do: soft_delete(block)
 
   ## Tagging
@@ -348,7 +405,8 @@ defmodule MoodleNet.Common do
     |> Repo.delete(
       stale_error_field: :id,
       stale_error_message: "has already been deleted"
-    ) |> deletion_result()
+    )
+    |> deletion_result()
   end
 
   @spec hard_delete!(any()) :: any()
@@ -360,6 +418,5 @@ defmodule MoodleNet.Common do
   def deletion_result(other), do: other
 
   def deletion_result!({:ok, val}), do: val
-  def deletion_result!({:error, e}), do: throw e
-
+  def deletion_result!({:error, e}), do: throw(e)
 end

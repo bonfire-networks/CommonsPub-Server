@@ -319,5 +319,4 @@ defmodule MoodleNet.Users do
   def preload_local_user(%User{} = user, opts \\ []) do
     Repo.preload(user, :local_user, opts)
   end
-
 end

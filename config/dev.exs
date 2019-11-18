@@ -84,6 +84,9 @@ config :moodle_net, :frontend_base_url,
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
+config :moodle_net, MoodleNet.Mail.MailService,
+  adapter: Bamboo.LocalAdapter
+
 config :moodle_net, MoodleNet.OAuth,
   client_name: "MoodleNet",
   client_id: "MoodleNET",
