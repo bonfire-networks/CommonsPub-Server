@@ -269,6 +269,17 @@ defmodule MoodleNet.Common do
     do: Repo.preload(follow, [:followed, :follower], opts)
 
   ## Blocking
+  @spec find_block(User.t(), %{id: binary}) :: {:ok, Block.t()} | {:error, NotFoundError.t()}
+  def find_block(%User{} = blocker, blocked) do
+    Repo.single(block_q(blocker.id, blocked.id))
+  end
+
+  defp block_q(blocker_id, blocked_id) do
+    from b in Block,
+      where: is_nil(b.deleted_at),
+      where: b.blocker_id == ^blocker_id,
+      where: b.blocked_id == ^blocked_id
+  end
 
   @spec block(User.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def block(%User{} = blocker, blocked, fields) do

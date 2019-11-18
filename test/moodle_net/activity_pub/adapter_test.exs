@@ -97,6 +97,36 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert :ok = Adapter.perform(:handle_activity, note_activity)
     end
 
+    test "reply to a comment" do
+      actor = fake_user!()
+      community = fake_user!() |> fake_community!()
+      {:ok, thread} = MoodleNet.Comments.create_thread(community, actor, %{is_local: true})
+
+      {:ok, comment} =
+        MoodleNet.Comments.create_comment(thread, actor, %{is_local: true, content: "hi"})
+
+      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      reply_actor = actor()
+
+      object = %{
+        "inReplyTo" => activity.object.data["id"],
+        "type" => "Note",
+        "actor" => reply_actor.ap_id,
+        "content" => "hi"
+      }
+
+      params = %{
+        actor: reply_actor,
+        to: ["https://www.w3.org/ns/activitystreams#Public"],
+        object: object,
+        context: ActivityPub.Utils.generate_context_id(),
+        local: false
+      }
+
+      {:ok, _activity} = ActivityPub.create(params)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+    end
+
     test "resource" do
       actor = actor()
       collection = collection()
@@ -120,11 +150,61 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
         context: collection.ap_id,
         additional: %{
           "cc" => [collection.data["followers"], actor.data["followers"]]
-        }
+        },
+        local: false
       }
 
       {:ok, activity} = ActivityPub.create(params)
-      assert :ok = Adapter.perform(:handle_activity, activity)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+
+      assert {:ok, _} =
+               MoodleNet.Repo.fetch_by(MoodleNet.Resources.Resource, %{
+                 canonical_url: activity.object.data["id"]
+               })
+    end
+
+    test "follows" do
+      follower = actor()
+      followed = fake_user!() |> fake_community!()
+      {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
+      {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
+      assert {:ok, _} = MoodleNet.Common.find_follow(follower, followed)
+    end
+
+    test "unfollows" do
+      follower = actor()
+      followed = fake_user!() |> fake_community!()
+      {:ok, ap_followed} = ActivityPub.Actor.get_by_local_id(followed.id)
+      {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
+      assert {:error, _} = MoodleNet.Common.find_follow(follower, followed)
+    end
+
+    test "blocks" do
+      blocker = actor()
+      blocked = fake_user!() |> fake_community!()
+      {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
+      {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
+      assert {:ok, _} = MoodleNet.Common.find_block(blocker, blocked)
+    end
+
+    test "unblocks" do
+      blocker = actor()
+      blocked = fake_user!() |> fake_community!()
+      {:ok, ap_blocked} = ActivityPub.Actor.get_by_local_id(blocked.id)
+      {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, _} = ActivityPub.unblock(blocker, ap_blocked, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
+      assert {:error, _} = MoodleNet.Common.find_block(blocker, blocked)
     end
 
     test "likes" do
@@ -134,8 +214,10 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       comment = fake_comment!(actor, thread)
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
       like_actor = actor()
-      {:ok, like_activity, _} = ActivityPub.like(like_actor, activity.object, nil, false)
-      assert :ok == Adapter.perform(:handle_activity, like_activity)
+      {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, like_actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
+      assert {:ok, _} = MoodleNet.Common.find_like(like_actor, comment)
     end
   end
 end
