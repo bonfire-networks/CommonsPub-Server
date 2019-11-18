@@ -45,7 +45,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Update a collection"
     field :update_collection, :collection do
       arg :collection_id, non_null(:string)
-      arg :collection, non_null(:collection_input)
+      arg :collection, non_null(:collection_update_input)
       resolve &CollectionsResolver.update_collection/2
     end
 
@@ -58,9 +58,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
     @desc "A url for the collection, may be to a remote instance"
-    field :canonical_url, :string
+    field :canonical_url, :string do
+      resolve &CollectionsResolver.canonical_url/3
+    end
+    
     @desc "An instance-unique identifier shared with users and communities"
-    field :preferred_username, non_null(:string)
+    field :preferred_username, non_null(:string) do
+      resolve &CollectionsResolver.preferred_username/3
+    end
 
     @desc "A name field"
     field :name, non_null(:string)
@@ -70,11 +75,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :icon, :string
 
     @desc "Whether the collection is local to the instance"
-    field :is_local, non_null(:boolean)
+    field :is_local, non_null(:boolean) do
+      resolve &CollectionsResolver.is_local/3
+    end
     @desc "Whether the collection is public"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CollectionsResolver.is_public/3
+    end
     @desc "Whether an instance admin has hidden the collection"
-    field :is_disabled, non_null(:boolean)
+    field :is_disabled, non_null(:boolean) do
+      resolve &CollectionsResolver.is_disabled/3
+    end
 
     @desc "When the collection was created"
     field :created_at, non_null(:string)
@@ -192,6 +203,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   end
 
   input_object :collection_input do
+    field :preferred_username, non_null(:string)
+    field :name, non_null(:string)
+    field :summary, :string
+    field :icon, :string
+    # field :primary_language_id, :string
+  end
+
+  input_object :collection_update_input do
     field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string

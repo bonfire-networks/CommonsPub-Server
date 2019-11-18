@@ -28,7 +28,7 @@ defmodule MoodleNet.Users.LocalUser do
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(email password wants_email_digest wants_notifications)a
+  @register_cast_attrs ~w(email password wants_email_digest wants_notifications is_instance_admin)a
   @register_required_attrs ~w(email password)a
 
   @doc "Create a changeset for registration"
@@ -64,7 +64,6 @@ defmodule MoodleNet.Users.LocalUser do
   @instance_admin_update_cast_attrs [
     :is_instance_admin,
     :is_confirmed,
-    :is_disabled
   ]
 
   def instance_admin_update_changeset(%LocalUser{} = local_user, attrs) do

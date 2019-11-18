@@ -62,7 +62,7 @@ defmodule MoodleNet.Collections do
   end
 
   def list_in_community(%Community{id: id}) do
-    Repo.all(list_in_community_q(id))
+    preload(Repo.all(list_in_community_q(id)))
   end
 
   defp list_in_community_q(id) do
@@ -81,7 +81,11 @@ defmodule MoodleNet.Collections do
 
   defp count_for_list_in_community_q(id), do: Query.count(list_in_community_q(id))
 
-  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
+  def fetch(id) when is_binary(id) do
+    with {:ok, coll} <- Repo.single(fetch_q(id)) do
+      {:ok, preload(coll)}
+    end
+  end
 
   defp fetch_q(id) do
     from(coll in Collection,
@@ -112,7 +116,7 @@ defmodule MoodleNet.Collections do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll} <- insert_collection(community, creator, actor, attrs) do
-        {:ok, %Collection{coll | actor: actor, creator: creator}}
+        {:ok, %{coll | actor: actor, creator: creator}}
       end
     end)
   end
@@ -126,10 +130,11 @@ defmodule MoodleNet.Collections do
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- fetch_actor(collection),
-           {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
+      collection = preload(collection)
+      actor = collection.actor
+      with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs) do
-        {:ok, %Collection{collection | actor: actor}}
+        {:ok, %{ collection | actor: actor }}
       end
     end)
   end
@@ -137,10 +142,7 @@ defmodule MoodleNet.Collections do
   def soft_delete(%Collection{} = collection), do: Common.soft_delete(collection)
 
   def preload(%Collection{} = collection, opts \\ []),
-    do: Repo.preload(collection, [:actor, :creator], opts)
-
-  def fetch_actor(%Collection{actor_id: id, actor: %NotLoaded{}}), do: Actors.fetch(id)
-  def fetch_actor(%Collection{actor: actor}), do: {:ok, actor}
+    do: Repo.preload(collection, :actor, opts)
 
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}

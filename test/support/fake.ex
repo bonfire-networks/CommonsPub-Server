@@ -182,8 +182,8 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:password, &password/0)
     |> Map.put_new_lazy(:wants_email_digest, &bool/0)
     |> Map.put_new_lazy(:wants_notifications, &bool/0)
-    |> Map.put_new_lazy(:is_instance_admin, &bool/0)
-    |> Map.put_new_lazy(:is_confirmed, &bool/0)
+    |> Map.put_new_lazy(:is_instance_admin, &falsehood/0)
+    |> Map.put_new_lazy(:is_confirmed, &falsehood/0)
   end
 
   def user(base \\ %{}) do
@@ -194,6 +194,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
+    |> Map.put_new_lazy(:is_local, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
@@ -237,13 +238,22 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
   end
 
-  def community_input(base \\ %{}) do
+  def community_create_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("icon", &icon/0)
+    |> Map.put_new_lazy("image", &image/0)
+  end
+
+  def community_update_input(base \\ %{}) do
+    base
     # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
@@ -258,13 +268,21 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
   end
 
   def collection_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    |> Map.put_new_lazy("name", &name/0)
+    |> Map.put_new_lazy("summary", &summary/0)
+    |> Map.put_new_lazy("icon", &icon/0)
+  end
+
+  def collection_update_input(base \\ %{}) do
+    base
     # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
@@ -280,7 +298,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:url, &url/0)
     |> Map.put_new_lazy(:license, &license/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:is_disabled, &bool/0)
+    |> Map.put_new_lazy(:is_hidden, &falsehood/0)
   end
 
   def resource_input(base \\ %{}) do
@@ -303,8 +321,8 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:is_local, &bool/0)
-    |> Map.put_new_lazy(:is_locked, &bool/0)
-    |> Map.put_new_lazy(:is_hidden, &bool/0)
+    |> Map.put_new_lazy(:is_locked, &falsehood/0)
+    |> Map.put_new_lazy(:is_hidden, &falsehood/0)
   end
 
   def comment(base \\ %{}) do
@@ -313,7 +331,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:content, &paragraph/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_local, &bool/0)
-    |> Map.put_new_lazy(:is_hidden, &bool/0)
+    |> Map.put_new_lazy(:is_hidden, &falsehood/0)
     |> Map.put_new_lazy(:content, &paragraph/0)
   end
 
@@ -334,7 +352,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:message, &paragraph/0)
     |> Map.put_new_lazy(:is_local, &bool/0)
-    |> Map.put_new_lazy(:is_resolved, &bool/0)
+    |> Map.put_new_lazy(:is_resolved, &falsehood/0)
   end
 
   def follow(base \\ %{}) do
@@ -354,11 +372,11 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_muted, &falsehood/0)
   end
 
-  def tag(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:is_public, &truth/0)
-    |> Map.put_new_lazy(:name, &name/0)
-  end
+  # def tag(base \\ %{}) do
+  #   base
+  #   |> Map.put_new_lazy(:is_public, &truth/0)
+  #   |> Map.put_new_lazy(:name, &name/0)
+  # end
 
   # def community_role(base \\ %{}) do
   #   base

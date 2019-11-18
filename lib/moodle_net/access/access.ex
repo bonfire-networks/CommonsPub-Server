@@ -143,7 +143,7 @@ defmodule MoodleNet.Access do
   @spec create_token(User.t, binary) :: {:ok, Token.t} | {:error, token_create_error}
 
   def create_token(%User{local_user: %LocalUser{}} = user, password) do
-    if Argon2.verify_pass(password, user.password_hash) do
+    if Argon2.verify_pass(password, user.local_user.password_hash) do
       with :ok <- verify_user(user) do
 	Repo.insert(Token.create_changeset(user))
       end

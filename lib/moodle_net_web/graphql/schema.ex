@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   alias MoodleNetWeb.GraphQL.Middleware.{Debug,CollapseErrors}
 
   def middleware(middleware, _field, _object) do
-    # [{Debug, :start}] ++
+#    [{Debug, :start}] ++
     middleware ++ [CollapseErrors]
   end
 

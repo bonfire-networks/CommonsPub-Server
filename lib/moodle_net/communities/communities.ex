@@ -22,7 +22,7 @@ defmodule MoodleNet.Communities do
   @doc "Lists public, non-deleted communities by follower count"
   def list() do
     Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
-      %Community{community | actor: actor, follower_count: count}
+      Community.vivify_virtuals(%{community | actor: actor, follower_count: count})
     end)
   end
 
@@ -49,7 +49,7 @@ defmodule MoodleNet.Communities do
   @doc "Fetches a public, non-deleted community by id"
   def fetch(id) when is_binary(id) do
     with {:ok, comm} <- Repo.single(fetch_q(id)) do
-      {:ok, preload(comm)}
+      {:ok, preload_actor(comm)}
     end
   end
 
@@ -57,17 +57,26 @@ defmodule MoodleNet.Communities do
     from(c in Community,
       where: c.id == ^id,
       where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at)
+      where: is_nil(c.deleted_at),
+      where: is_nil(c.disabled_at)
     )
   end
 
   def fetch_by_username(username) when is_binary(username) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.fetch_any_by_username(username),
-           {:ok, comm} <- Repo.fetch_by(Community, actor_id: actor.id) do
-        {:ok, preload(comm)}
+      with {:ok, comm} <- Repo.single(fetch_by_username_q(username)) do
+	{:ok, preload(comm)}
       end
     end)
+  end
+
+  defp fetch_by_username_q(username) when is_binary(username) do
+    from c in Community,
+      join: a in assoc(c, :actor),
+      where: a.preferred_username == ^username,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.deleted_at),
+      where: is_nil(c.disabled_at)
   end
 
   @doc "Fetches a community by ID, ignoring whether it is public or not."
@@ -83,7 +92,8 @@ defmodule MoodleNet.Communities do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm} <- insert_community(creator, actor, attrs) do
-        {:ok, %Community{comm | actor: actor, creator: creator}}
+	comm = Community.vivify_virtuals(%{comm | actor: actor, creator: creator})
+        {:ok, comm}
       end
     end)
   end
@@ -97,21 +107,33 @@ defmodule MoodleNet.Communities do
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- fetch_actor(community),
-           {:ok, community} <- Repo.update(Community.update_changeset(community, attrs)),
-           {:ok, actor} <- Actors.update(actor, attrs) do
-        {:ok, %Community{community | actor: actor}}
+      community = preload_actor(community)
+      with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
+           {:ok, actor} <- Actors.update(community.actor, attrs) do
+        community = Community.vivify_virtuals(%{ comm | actor: actor})
+        {:ok, community}
       end
     end)
   end
 
   def soft_delete(%Community{} = community), do: Common.soft_delete(community)
 
-  def preload(%Community{} = community, opts \\ []),
-    do: Repo.preload(community, [:actor, :creator], opts)
+  def preload(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload([:actor, :creator], opts)
+    |> Community.vivify_virtuals()
+  end
 
-  def fetch_actor(%Community{actor_id: id, actor: %NotLoaded{}}), do: Actors.fetch(id)
-  def fetch_actor(%Community{actor: actor}), do: {:ok, actor}
+  def preload_actor(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload(:actor, opts)
+    |> Community.vivify_virtuals()
+  end
+  def preload_creator(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload(:creator, opts)
+    |> Community.vivify_virtuals()
+  end
 
   def fetch_creator(%Community{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Community{creator: creator}), do: {:ok, creator}

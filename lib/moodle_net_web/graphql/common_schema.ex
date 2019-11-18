@@ -85,45 +85,6 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     field :end_cursor, non_null(:string)
   end
 
-  @desc "A record that a user follows something"
-  object :follow do
-    @desc "An instance-local UUID identifying the user"
-    field :id, non_null(:string)
-    @desc "A url for the flag, may be to a remote instance"
-    field :canonical_url, :string
-
-    @desc "Whether the follow is local to the instance"
-    field :is_local, non_null(:boolean)
-    @desc "Whether the follow is public"
-    field :is_public, non_null(:boolean)
-
-    @desc "When the follow was created"
-    field :created_at, non_null(:string)
-    @desc "When the follow was last updated"
-    field :updated_at, non_null(:string)
-
-    @desc "The user who followed"
-    field :creator, non_null(:user) do
-      resolve &UsersResolver.user/3
-    end
-
-    @desc "The thing that is being followed"
-    field :context, non_null(:follow_context) do
-      resolve &CommonResolver.context/3
-    end
-  end
-
-  union :follow_context do
-    description "A thing that can be followed"
-    types [:collection, :community, :thread, :user]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Community{},  _ -> :community
-      %Thread{},     _ -> :thread
-      %User{},       _ -> :user
-    end
-  end
-
   union :delete_context do
     description "A thing that can be deleted"
     types [
@@ -142,17 +103,6 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       %Thread{},     _ -> :thread
       %User{},       _ -> :user
     end
-  end
-
-  object :follows_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:follows_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :follows_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:follow)
   end
 
   @desc "A report about objectionable content"
@@ -220,6 +170,56 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :flags_edge do
     field :cursor, non_null(:string)
     field :node, non_null(:flag)
+  end
+
+  @desc "A record that a user follows something"
+  object :follow do
+    @desc "An instance-local UUID identifying the user"
+    field :id, non_null(:string)
+    @desc "A url for the flag, may be to a remote instance"
+    field :canonical_url, :string
+
+    @desc "Whether the follow is local to the instance"
+    field :is_local, non_null(:boolean)
+    @desc "Whether the follow is public"
+    field :is_public, non_null(:boolean)
+
+    @desc "When the follow was created"
+    field :created_at, non_null(:string)
+    @desc "When the follow was last updated"
+    field :updated_at, non_null(:string)
+
+    @desc "The user who followed"
+    field :creator, non_null(:user) do
+      resolve &UsersResolver.user/3
+    end
+
+    @desc "The thing that is being followed"
+    field :context, non_null(:follow_context) do
+      resolve &CommonResolver.context/3
+    end
+  end
+
+  union :follow_context do
+    description "A thing that can be followed"
+    types [:collection, :community, :thread, :user]
+    resolve_type fn
+      %Collection{}, _ -> :collection
+      %Community{},  _ -> :community
+      %Thread{},     _ -> :thread
+      %User{},       _ -> :user
+    end
+  end
+
+  object :follows_edges do
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:follows_edge))
+    field :total_count, non_null(:integer)
+  end
+
+  object :follows_edge do
+    field :cursor, non_null(:string)
+    field :node, non_null(:follow)
   end
 
   @desc "A record that a user likes a thing"

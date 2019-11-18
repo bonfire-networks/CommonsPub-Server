@@ -19,6 +19,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
 
   object :instance do
 
+    field :hostname, non_null(:string)
+    # field :name, :string
+    field :description, :string
+    
     @desc """
     A list of public activity on the local instance, most recent first
     """

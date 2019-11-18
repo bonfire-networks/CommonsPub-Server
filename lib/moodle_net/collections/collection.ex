@@ -23,7 +23,7 @@ defmodule MoodleNet.Collections.Collection do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
     belongs_to(:community, Community)
-    belongs_to(:primary_language, Language)
+    # belongs_to(:primary_language, Language)
     has_one(:follower_count, CollectionFollowerCount)
     has_many(:resources, Resource)
     field(:name, :string)
@@ -31,14 +31,14 @@ defmodule MoodleNet.Collections.Collection do
     field(:icon, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
-    field(:is_disabled, :boolean, virtual: true)
+    field(:is_disabled, :boolean, virtual: true, default: false)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     timestamps()
   end
 
-  @required ~w(name is_public is_disabled)a
-  @cast @required ++ ~w(primary_language_id summary icon)a
+  @required ~w(name is_public)a
+  @cast @required ++ ~w(summary icon is_disabled)a
 
   def create_changeset(
         %Pointer{id: id} = pointer,

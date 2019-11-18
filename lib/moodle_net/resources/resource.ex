@@ -18,13 +18,14 @@ defmodule MoodleNet.Resources.Resource do
   meta_schema "mn_resource" do
     belongs_to(:creator, User)
     belongs_to(:collection, Collection)
-    belongs_to(:primary_language, Language, type: :binary)
+    # belongs_to(:primary_language, Language, type: :binary)
     field(:canonical_url, :string)
     field(:name, :string)
     field(:summary, :string)
     field(:url, :string)
     field(:license, :string)
     field(:icon, :string)
+    field(:is_local, :boolean, virtual: true)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -34,7 +35,7 @@ defmodule MoodleNet.Resources.Resource do
   end
 
   @required ~w(name summary url license icon)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled primary_language_id)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled)a
 
   @spec create_changeset(Pointer.t(), Collection.t(), User.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given pointer and attributes."
@@ -68,4 +69,5 @@ defmodule MoodleNet.Resources.Resource do
     |> validate_http_url(:url)
     |> meta_pointer_constraint()
   end
+
 end

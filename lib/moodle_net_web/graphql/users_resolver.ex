@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Accounts, Actors, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Fake, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -27,16 +27,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def user(%{user_id: id}, info) do
-    {:ok, Fake.user()}
-    |> GraphQL.response(info)
-    # GraphQL.response(Users.fetch(id), info)
-  end
-  def user(_, _, info) do
-    {:ok, Fake.user()}
-    |> GraphQL.response(info)
-    # GraphQL.response(Users.fetch(id), info)
-  end
+  def me(%{token: _, me: me}, _, _), do: {:ok, me}
+
+  def user(%{user_id: id}, info), do: Users.fetch(id)
+  # def user(%{preferred_username: name}, info), do: Users.fetch_by_username(name)
+
+  def user(%Me{}=me, _, info), do: {:ok, me.user}
 
   # def user(%Activity{}=activity, _, info)
   # def user(%Like{}=like, _, info)
@@ -46,83 +42,87 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   # def user(%Tagging{}=tagging, _, info)
 
   def create_user(%{user: attrs}, info) do
-    # with :ok <- GraphQL.guest_only(info),
-    #      {:ok, user} <- Users.register(attrs) do
-    #   {:ok, Me.new(user)}
-    # end
-    {:ok, Fake.me()}
-    |> GraphQL.response(info)
+    extra = %{is_public: true}
+    with :ok <- GraphQL.guest_only(info),
+         {:ok, user} <- Users.register(Map.merge(attrs, extra)) do
+      {:ok, Me.new(user)}
+    end
   end
 
   def update_profile(%{profile: attrs}, info) do
-    # with {:ok, user} <- GraphQL.current_user(info),
-    #      {:ok, user} <- Users.update(user, attrs) do
-    #   {:ok, Me.new(user)}
-    # end
-    {:ok, Fake.me()}
-    |> GraphQL.response(info)
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, user} <- Users.update(user, attrs) do
+      {:ok, Me.new(user)}
+    end
   end
 
   def delete(%{i_am_sure: true}, info) do
-    # with {:ok, user} <- GraphQL.current_user(info),
-    #      {:ok, _} <- Users.delete(user) do
-    #   {:ok, true}
-    # end
-    {:ok, true}
-    |> GraphQL.response(info)
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, _} <- Users.soft_delete(user) do
+      {:ok, true}
+    end
+  end
+  def delete(%{i_am_sure: false}, info) do
+    {:error, "Now is not the time to have second thoughts."}
   end
 
   def create_session(%{email: email, password: password}, info) do
-    # with {:ok, user} <- Users.fetch_by_email(email),
-    #      {:ok, token} <- OAuth.create_token(user, password) do
-    #   {:ok, %{token: token.id, me: Me.new(user)}}
-    # else
-    #   _ -> GraphQL.not_permitted()
-# end
-    {:ok, Fake.auth_payload()}
-    |> GraphQL.response(info)
+    case Users.fetch_by_email(email) do
+      {:ok, user} ->
+        with {:ok, token} <- Access.create_token(user, password) do
+          {:ok, %{token: token.id, me: Me.new(user)}}
+        end
+      _ ->
+	Argon2.no_user_verify([])
+	GraphQL.invalid_credential()
+    end
   end
 
   def delete_session(_, info) do
-    # with {:ok, user} <- GraphQL.current_user(info),
-    #      {:ok, token} <- OAuth.fetch_session_token(user),
-    #      {:ok, token} <- OAuth.hard_delete(token) do
-    #   {:ok, true}
-    # end
-    {:ok, true}
-    |> GraphQL.response(info)
+    with {:ok, user} <- GraphQL.current_user(info),
+         {:ok, token} <- Access.fetch_token(user),
+         {:ok, token} <- Access.hard_delete(token) do
+      {:ok, true}
+    end
   end
 
   def reset_password_request(%{email: email}, info) do
-    # with :ok <- GraphQL.guest_only(info),
-    # 	 {:ok, user} <- Users.fetch_by_email(email),
-    #      {:ok, token} <- Users.request_password_reset(user) do
-    #   {:ok, true}
-    # end
-    {:ok, true}
-    |> GraphQL.response(info)
-  end
+    with :ok <- GraphQL.guest_only(info),
+    	 {:ok, user} <- Users.fetch_by_email(email),
+         {:ok, token} <- Users.request_password_reset(user) do
+      {:ok, true}
+    end
+ end
 
   def reset_password(%{token: token, password: password}, info) do
-    # with :ok <- GraphQL.guest_only(info),
-    # 	 {:ok, _} <- Users.claim_password_reset(token, password) do
-    #   {:ok, true}
-    # end
-    {:ok, Fake.auth_payload()}
-    |> GraphQL.response(info)
+    with :ok <- GraphQL.guest_only(info),
+    	 {:ok, user} <- Users.claim_password_reset(token, password),
+         {:ok, token} <- Access.unsafe_put_token(user) do
+      {:ok, %{token: token.id, me: Me.new(user)}}
+    end
   end
 
   def confirm_email(%{token: token}, info) do
-    # Repo.transact_with(fn ->
-    #   with {:ok, user} <- Users.claim_email_confirm_token(token),
-    #        {:ok, auth} <- OAuth.create_auth(user),
-    #        {:ok, token} <- OAuth.claim_token(auth) do
-    #     {:ok, %{token: token.id, me: Me.new(user)}}
-    #   end
-    # end)
-    {:ok, Fake.auth_payload()}
-    |> GraphQL.response(info)
+    Repo.transact_with(fn ->
+      with {:ok, user} <- Users.claim_email_confirm_token(token),
+           {:ok, token} <- Access.unsafe_put_token(user) do
+        {:ok, %{token: token.id, me: Me.new(user)}}
+      end
+    end)
   end
+
+  def email(me, _, _), do: {:ok, me.user.local_user.email}
+  def wants_email_digest(me, _, _), do: {:ok, me.user.local_user.wants_email_digest}
+  def wants_notifications(me, _, _), do: {:ok, me.user.local_user.wants_notifications}
+  def is_confirmed(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
+  def is_instance_admin(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
+
+  def canonical_url(user, _, _), do: {:ok, user.actor.canonical_url}
+  def preferred_username(user, _, _), do: {:ok, user.actor.preferred_username}
+  def is_local(user, _, _), do: {:ok, is_nil(user.actor.peer_id)}
+  def is_public(user, _, _), do: {:ok, not is_nil(user.published_at)}
+  def is_disabled(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
+  def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
   def inbox(user, params, info) do
     # with {:ok, current_user} <- GraphQL.current_user(info) do
@@ -134,41 +134,29 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     # 	GraphQL.not_permitted()
     #   end
     # end
-    activities = Fake.long_list(&Fake.activity/0)
-    count = Fake.pos_integer()
-    {:ok, GraphQL.edge_list(activities, count)}
-    |> GraphQL.response(info)    
   end
 
   def outbox(user, params, info) do
     # with {:ok, activities, count} <- Users.outbox(user) do
     #   {:ok, GraphQL.edge_list(activities, count)
     # end
-    {:ok, Fake.long_edge_list(&Fake.activity/0)}
-    |> GraphQL.response(info)    
   end
 
   def followed_communities(_,_,info) do
-    {:ok, Fake.long_edge_list(&Fake.community_follow/0)}
-    |> GraphQL.response(info)    
   end
   def followed_collections(_,_,info) do
-    {:ok, Fake.long_edge_list(&Fake.collection_follow/0)}
-    |> GraphQL.response(info)    
   end
   def followed_users(_,_,info) do
-    {:ok, Fake.long_edge_list(&Fake.user_follow/0)}
-    |> GraphQL.response(info)    
   end
 
-  def creator(_,_,info) do
-    {:ok, Fake.user()}
-    |> GraphQL.response(info)
+  def creator(parent,_,info) do
+    Users.fetch(parent.creator_id)
   end
 
-  def last_activity(_,_,info) do
-    {:ok, Fake.past_datetime()}
-    |> GraphQL.response(info)
+  def last_activity(parent,_,info) do
+    # case Repo.preload(parent, :last_activity).last_activity do
+    # end
+    
   end
     
 end

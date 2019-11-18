@@ -2,25 +2,280 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsTest do
-  # use MoodleNetWeb.ConnCase, async: true
-  # import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNet.Test.Faking
-  # import MoodleNetWeb.Test.ConnHelpers
-  # alias MoodleNet.Test.Fake
-  # alias MoodleNet.{Collections, Communities, Users}
+  use MoodleNetWeb.ConnCase, async: true
+  alias MoodleNet.Test.Fake
+  import MoodleNetWeb.Test.GraphQLAssertions
+  import MoodleNetWeb.Test.GraphQLFields
+  import MoodleNet.Test.Faking
+  alias MoodleNet.{Access, Users}
 
-  # defp assert_collection_eq(orig, returned) do
-  #   assert %{"id" => id, "name" => name, "content" => content} = returned
-  #   assert orig.id == id
-  #   assert orig.name == name
-  #   assert orig.content == content
-  #   assert %{"summary" => summary, "icon" => icon} = returned
-  #   assert orig.summary == summary
-  #   assert orig.icon == icon
-  #   assert %{"primaryLanguage" => primary_language} = returned
-  #   assert orig.primary_language_id == primary_language["id"]
-  # end
-  
+  describe "collections" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection" do
+    test "works for the owner" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      conn = user_conn(user)
+      q = """
+      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
+      """
+      query = %{query: q}
+      assert %{"collection" => coll2} = gql_post_data(conn, query)
+      assert_collection(coll, coll2)
+    end
+    test "works for a random" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      user2 = fake_user!()
+      conn = user_conn(user2)
+      q = """
+      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
+      """
+      query = %{query: q}
+      assert %{"collection" => coll2} = gql_post_data(query)
+      assert_collection(coll, coll2)
+    end
+    test "works for a guest" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
+      """
+      query = %{query: q}
+      assert %{"collection" => coll2} = gql_post_data(query)
+      assert_collection(coll, coll2)
+    end
+  end
+
+  describe "createCollection" do
+
+    test "works for a user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      conn = user_conn(alice)
+      comm = fake_community!(bob)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        createCollection(communityId: "#{comm.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert %{"createCollection" => coll} = gql_post_data(conn, query)
+      coll = assert_collection(coll)
+      assert coll.name == ci["name"]
+      assert coll.summary == ci["summary"]
+      assert coll.icon == ci["icon"]
+    end
+
+    test "does not work for a guest" do
+      bob = fake_user!()
+      comm = fake_community!(bob)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        createCollection(communityId: "#{comm.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert err = gql_post_errors(query)
+    end
+
+  end
+  describe "updateCollection" do
+    test "works for the collection owner" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      conn = user_conn(bob)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        updateCollection(collectionId: "#{coll.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert %{"updateCollection" => coll2} = gql_post_data(conn, query)
+      coll2 = assert_collection(coll2)
+      assert coll2.name == ci["name"]
+      assert coll2.summary == ci["summary"]
+      assert coll2.icon == ci["icon"]
+      # assert err = gql_post_errors(query)
+    end
+    test "works for the community owner" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      conn = user_conn(alice)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        updateCollection(collectionId: "#{coll.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert %{"updateCollection" => coll2} = gql_post_data(conn, query)
+      coll2 = assert_collection(coll2)
+      assert coll2.name == ci["name"]
+      assert coll2.summary == ci["summary"]
+      assert coll2.icon == ci["icon"]
+      # assert err = gql_post_errors(query)
+    end
+    test "works for an instance admin" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      conn = user_conn(eve)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        updateCollection(collectionId: "#{coll.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert %{"updateCollection" => coll2} = gql_post_data(conn, query)
+      coll2 = assert_collection(coll2)
+      assert coll2.name == ci["name"]
+      assert coll2.summary == ci["summary"]
+      assert coll2.icon == ci["icon"]
+      # assert err = gql_post_errors(query)
+    end
+    test "does not work for a random" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      conn = user_conn(eve)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        updateCollection(collectionId: "#{coll.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert err = gql_post_errors(conn, query)
+    end
+    test "does not work for a guest" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      ci = Fake.collection_input()
+      q = """
+      mutation Test($collection: CollectionInput!) {
+        updateCollection(collectionId: "#{coll.id}", collection: $collection) {
+          #{collection_basics()}
+        }
+      }
+      """
+      vars = %{"collection" => ci}
+      query = %{query: q, operation: "Test", variables: vars}
+      assert err = gql_post_errors(query)
+    end
+  end
+
+  describe "delete (via common)" do
+    @tag :skip
+    test "works for creator" do
+    end
+    @tag :skip
+    test "works for community owner" do
+    end
+    @tag :skip
+    test "works for admin" do
+    end
+    @tag :skip
+    test "doesn't work for random" do
+    end
+    @tag :skip
+    test "doesn't work for guest" do
+    end
+  end
+  describe "collection.lastActivity" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.myLike" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.myFollow" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.creator" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.community" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.resources" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.followers" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.likes" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.flags" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.threads" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "collection.outbox" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
   # @list_query """
   # { collections { 
   #     pageInfo { startCursor endCursor }

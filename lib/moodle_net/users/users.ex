@@ -19,7 +19,7 @@ defmodule MoodleNet.Users do
     TokenAlreadyClaimedError,
     TokenExpiredError,
     User,
-    UserFlag
+    UserFlag,
   }
 
   alias Ecto.Changeset
@@ -118,8 +118,6 @@ defmodule MoodleNet.Users do
         |> MailService.deliver_now()
 
 	user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
-	|> User.vivify_virtuals()
-
         {:ok, user}
       end
     end)
@@ -135,7 +133,7 @@ defmodule MoodleNet.Users do
       with {:ok, actor} <- Actors.create(attrs),
            pointer = Meta.point_to!(User),
            {:ok, user} <- Repo.insert(User.register_changeset(pointer, actor, attrs)) do
-        {:ok, User.vivify_virtuals(%{user | actor: actor})}
+        {:ok, %{user | actor: actor}}
       end
     end)
   end
@@ -238,7 +236,8 @@ defmodule MoodleNet.Users do
         |> Email.password_reset()
         |> MailService.deliver_now()
 
-        {:ok, token}
+	user = preload_actor(%{ user | local_user: local_user })
+	{:ok, user}
       end
     end)
   end
@@ -264,7 +263,7 @@ defmodule MoodleNet.Users do
            {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(local_user, attrs)) do
-        user = User.vivify_virtuals(%{ user | local_user: local_user, actor: actor })
+        user = %{ user | local_user: local_user, actor: actor }
         {:ok, user}
       end
     end)
@@ -308,23 +307,17 @@ defmodule MoodleNet.Users do
   def preload(user, opts \\ [])
 
   def preload(%User{} = user, opts) do
-    user
-    |> Repo.preload([:local_user, :actor], opts)
-    |> User.vivify_virtuals()
+    Repo.preload(user, [:local_user, :actor], opts)
   end
 
   @spec preload_actor(User.t(), Keyword.t()) :: User.t()
   def preload_actor(%User{} = user, opts \\ []) do
-    user
-    |> Repo.preload(:actor, opts)
-    |> User.vivify_virtuals()
+    Repo.preload(user, :actor, opts)
   end
 
   @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
   def preload_local_user(%User{} = user, opts \\ []) do
-    user
-    |> Repo.preload(:local_user, opts)
-    |> User.vivify_virtuals()
+    Repo.preload(user, :local_user, opts)
   end
 
 end

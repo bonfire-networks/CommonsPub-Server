@@ -7,13 +7,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  # import MoodleNetWeb.Test.ConnHelpers
-  # alias MoodleNet.{Actors, OAuth, Users, Access}
+  alias MoodleNet.{Access, Users}
 
-  # @user_basic_fields "id local preferredUsername name summary location website icon image"
-  # @primary_language "primaryLanguage { id }"
-
-  describe "UsersResolver.username_available" do
+  describe "usernameAvailable" do
     test "works for a guest" do
       query = "{ usernameAvailable(username: \"#{Fake.preferred_username()}\") }"
       assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
@@ -34,31 +30,13 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     end
   end
 
-  describe "UsersResolver.me" do
+  describe "me" do
     test "works for a logged in user" do
       user = fake_user!()
       conn = user_conn(user)
       query = "{ me { #{me_basics()} user { #{user_basics()} } } }"
-      assert data = gql_post_data(conn, %{query: query})
-      assert %{"me" => me} = data
-      assert %{"email" => email, "user" => user2} = me
-      assert user.local_user.email == email
-      assert %{"wantsEmailDigest" => wants_digest} =  me
-      assert user.local_user.wants_email_digest == wants_digest
-      assert %{"wantsNotifications" => wants_notifications} =  me
-      assert user.local_user.wants_notifications == wants_notifications
-      assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-      assert user.id == id
-      assert user.actor.preferred_username == preferred_username
-      assert %{"name" => name, "summary" => summary} = user2
-      assert user.name == name
-      assert user.summary == summary
-      assert %{"location" => location, "website" => website} = user2
-      assert user.location == user2["location"]
-      assert user.website == user2["website"]
-      assert %{"icon" => icon, "image" => image} = user2
-      assert user.icon == icon
-      assert user.image == image
+      assert %{"me" => me} = gql_post_data(conn, %{query: query})
+      assert_me(me)
       # assert user.primary_language == user2["primaryLanguage"]["id"]
     end
 
@@ -68,328 +46,471 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     end
   end
 
-  # describe "UsersResolver.user" do
+  describe "user" do
 
-  #   test "Works for a logged in user" do
-  #     user = fake_user!(%{is_public: true})
-  #     conn = user_conn(user)
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
-  #     user2 = Map.fetch!(gql_post_data(conn, %{query: query}), "user")
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]
-  #   end
+    test "Works for a logged in user" do
+      user = fake_user!(%{is_public: true})
+      conn = user_conn(user)
+      query = "{ user(userId: \"#{user.id}\") { #{user_basics()} } }"
+      assert %{"user" => user2} = gql_post_data(conn, %{query: query})
+      assert_user(user, user2)
+      # assert user.primary_language == user2["primaryLanguage"]
+    end
 
-  #   test "Works for a guest" do
-  #     user = fake_user!()
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} } }"
-  #     user2 = Map.fetch!(gql_post_data(json_conn(), %{query: query}), "user")
-  #     assert %{"id" => id, "preferredUsername" => preferred_username} = user2
-  #     assert user.actor.id == id
-  #     assert user.actor.preferred_username == preferred_username
-  #     assert %{"name" => name, "summary" => summary} = user2
-  #     assert user.actor.current.name == name
-  #     assert user.actor.current.summary == summary
-  #     # assert %{"location" => location, "website" => website} = user2
-  #     # assert user.actor.current.location == user2["location"]
-  #     # assert user.actor.current.website == user2["website"]
-  #     assert %{"icon" => icon, "image" => image} = user2
-  #     assert user.actor.current.icon == icon
-  #     assert user.actor.current.image == image
-  #     # assert user.actor.current.primary_language == user2["primaryLanguage"]
-  #   end
-
+    test "Works for a guest" do
+      user = fake_user!()
+      query = "{ user(userId: \"#{user.id}\") { #{user_basics()} } }"
+      assert %{"user" => user2} = gql_post_data(json_conn(), %{query: query})
+      user2 = assert_user(user2)
+      assert user.id == user2.id
+      assert user.actor.preferred_username == user2.preferred_username
+      assert user.name == user2.name
+      assert user.summary == user2.summary
+      assert user.location == user2.location
+      assert user.website == user2.website
+      assert user.icon == user2.icon
+      assert user.image == user2.image
+      assert user.created_at == user2.created_at
+      assert user.updated_at == user2.updated_at
+      assert user2.is_public == true
+      assert user2.is_disabled == false
+      assert user2.is_local == true
+      # assert user.primary_language == user2["primaryLanguage"]
+    end
   #   @tag :skip
   #   @todo_when :post_moot
   #   test "Does not work for a user that is not public" do
   #     user = fake_user!(%{is_public: false})
   #     conn = user_conn(user)
-  #     query = "{ user(userId: \"#{user.actor.id}\") { #{@user_basic_fields} }}"
+  #     query = "{ user(userId: \"#{user.id}\") { #{user_basics()} }}"
   #     # TODO: ensure this is correct, we may want unauthorized
   #     assert_not_found(gql_post_errors(conn, %{query: query}), ["user"])
   #   end
-  # end
 
-  # describe "UsersResolver.create_user" do
-  #   test "Works for a guest with good inputs" do
-  #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
+  end
 
-  #     query = """
-  #     mutation Test($user: RegistrationInput) {
-  #       createUser(user:$user) {
-  #         me { email user { #{@user_basic_fields} } }
-  #       }
-  #     }
-  #     """
+  describe "createUser" do
+    test "Works for a guest with good inputs" do
+      reg = Fake.registration_input()
+      assert {:ok, _} = Access.create_register_email(reg["email"])
 
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     Map.fetch!(gql_post_data(json_conn(), query), "createUser")
-  #   end
+      query = """
+      mutation Test($user: RegistrationInput) {
+        createUser(user:$user) { #{me_basics()} user { #{user_basics()} } }
+      }
+      """
 
-  #   test "Does not work for a logged in user" do
-  #     reg = Fake.registration_input()
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
+      query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
+      assert %{"createUser" => create_user} = gql_post_data(json_conn(), query)
+      me = assert_me(create_user)
+      assert reg["email"] == me.email
+      assert reg["wantsEmailDigest"] == me.wants_email_digest
+      assert reg["wantsNotifications"] == me.wants_notifications
+      assert reg["preferredUsername"] == me.user.preferred_username
+      assert reg["name"] == me.user.name
+      assert reg["summary"] == me.user.summary
+      assert reg["location"] == me.user.location
+      assert reg["website"] == me.user.website
+      assert reg["icon"] == me.user.icon
+      assert reg["image"] == me.user.image
+      assert me.user.is_local == true
+      assert me.user.is_public == true
+      assert me.user.is_disabled == false
+      assert me.is_confirmed == false
+      assert me.is_instance_admin == false
+    end
 
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
+    test "Does not work for a logged in user" do
+      reg = Fake.registration_input()
+      assert {:ok, _} = Access.create_register_email(reg["email"])
 
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     assert_not_permitted(gql_post_errors(conn, query), ["createUser"])
-  #   end
+      query = """
+        mutation Test($user: RegistrationInput) {
+          createUser(user:$user) { #{me_basics()} user { #{user_basics()} }  }
+        }
+      """
 
-  #   @tag :skip
-  #   @todo :changeset_errors
-  #   test "Does not work for a taken preferred username" do
-  #     user = fake_user!()
-  #     reg = Fake.registration_input(%{"preferredUsername" => user.actor.preferred_username})
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
+      query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
+      user = fake_user!()
+      conn = user_conn(user)
+      assert_not_permitted(gql_post_errors(conn, query), ["createUser"])
+    end
 
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
+    @tag :skip
+    @todo :changeset_errors
+    test "Does not work for a taken preferred username" do
+      user = fake_user!()
+      reg = Fake.registration_input(%{"preferredUsername" => user.actor.preferred_username})
+      assert {:ok, _} = Access.create_register_email(reg["email"])
 
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
-  #   end
+      query = """
+        mutation Test($user: RegistrationInput) {
+          createUser(user:$user) {
+            me { #{me_basics()} user { #{user_basics()} }  }
+          }
+        }
+      """
 
-  #   @tag :skip
-  #   @todo :changeset_errors
-  #   test "Does not work for a taken email" do
-  #     user = fake_user!()
-  #     reg = Fake.registration_input(%{"email" => user.email})
-  #     assert {:ok, _} = Access.create_register_email(reg["email"])
+      query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
+      assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
+    end
 
-  #     query = """
-  #       mutation Test($user: RegistrationInput) {
-  #         createUser(user:$user) {
-  #           me { email user { #{@user_basic_fields} } }
-  #         }
-  #       }
-  #     """
+    @tag :skip
+    @todo :changeset_errors
+    test "Does not work for a taken email" do
+      user = fake_user!()
+      reg = Fake.registration_input(%{"email" => user.local_user.email})
+      assert {:ok, _} = Access.create_register_email(reg["email"])
 
-  #     query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
-  #     assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
-  #   end
-  # end
+      query = """
+        mutation Test($user: RegistrationInput) {
+          createUser(user:$user) {
+            me { email user { #{user_basics()} } }
+          }
+        }
+      """
 
-  # describe "UsersResolver.update_profile" do
+      query = %{operationName: "Test", query: query, variables: %{"user" => reg}}
+      assert err = Map.fetch!(gql_post_errors(json_conn(), query), ["createUser"])
+    end
 
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
+  end
 
-  #     query = %{
-  #       query: """
-  #       mutation Test($profile: UpdateProfileInput!) {
-  #         updateProfile(profile: $profile) {
-  #           user { #{@user_basic_fields} }
-  #         }
-  #       }
-  #       """,
-  #       operationName: "Test",
-  #       variables: %{"profile" => Fake.profile_update_input()}
-  #     }
+  describe "updateProfile" do
 
-  #     assert data = gql_post_data(conn, query)["updateProfile"]
-  #     assert MapSet.new(Map.keys(data["user"])) == MapSet.new(String.split(@user_basic_fields))
-  #   end
+    test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      profile = Fake.profile_update_input()
+      q = """
+      mutation Test($profile: UpdateProfileInput!) {
+        updateProfile(profile: $profile) {
+          #{me_basics()} user { #{user_basics()} }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test", variables: %{"profile" => profile}}
+      assert %{"updateProfile" => me} = gql_post_data(conn, query)
+      me = assert_me(me)
+      assert profile["wantsEmailDigest"] == me.wants_email_digest
+      assert profile["wantsNotifications"] == me.wants_notifications
+      assert profile["name"] == me.user.name
+      assert profile["summary"] == me.user.summary
+      assert profile["location"] == me.user.location
+      assert profile["website"] == me.user.website
+      assert profile["icon"] == me.user.icon
+      assert profile["image"] == me.user.image
+      assert me.user.is_local == true
+      assert me.user.is_public == true
+      assert me.user.is_disabled == false
+      assert me.is_confirmed == false
+      assert me.is_instance_admin == false
+    end
 
-  #   test "Does not work for a guest" do
-  #     query = %{
-  #       query: """
-  #       mutation Test($profile: UpdateProfileInput!) {
-  #         updateProfile(profile: $profile) {
-  #           user { #{@user_basic_fields} }
-  #         }
-  #       }
-  #       """,
-  #       operationName: "Test",
-  #       variables: %{"profile" => Fake.profile_update_input()}
-  #     }
+    test "Does not work for a guest" do
+      query = %{
+        query: """
+        mutation Test($profile: UpdateProfileInput!) {
+          updateProfile(profile: $profile) {
+            user { #{user_basics()} }
+          }
+        }
+        """,
+        operationName: "Test",
+        variables: %{"profile" => Fake.profile_update_input()}
+      }
 
-  #     assert_not_logged_in(gql_post_errors(query), ["updateProfile"])
-  #   end
-  # end
+      assert_not_logged_in(gql_post_errors(query), ["updateProfile"])
+    end
+  end
 
-  # describe "UsersResolver.delete_user" do
+  describe "deleteSelf" do
 
-  #   test "Works for a logged in user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "mutation { deleteUser }"
-  #     assert conn |> gql_post_data(%{query: query}) |> Map.get("deleteUser")
-  #     assert {:error, e} = Users.fetch(user.id)
-  #     assert {:error, e} = Actors.fetch(user.actor.id)
-  #   end
+    test "Works for a logged in user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "mutation { deleteSelf(iAmSure: true) }"
+      assert %{"deleteSelf" => true} == gql_post_data(conn, %{query: query})
+      assert {:error, e} = Users.fetch(user.id)
+    end
 
-  #   test "Does not work for a guest" do
-  #     query = "mutation { deleteUser }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteUser"])
-  #   end
+    test "Does not work if you are unsure" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = "mutation { deleteSelf(iAmSure: false) }"
+      assert err = gql_post_errors(conn, %{query: query})
+    end
 
-  # end
+    test "Does not work for a guest" do
+      query = "mutation { deleteSelf(iAmSure: true) }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteSelf"])
+    end
 
-  # describe "UsersResolver.reset_password_request" do
+  end
 
-  #   test "Works for a guest" do
-  #     user = fake_user!()
-  #     query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
-  #     assert true == gql_post_data(%{query: query}) |> Map.get("resetPasswordRequest")
-  #     # TODO: check that an email is sent
-  #   end
+  describe "resetPasswordRequest" do
 
-  #   test "Does not work for a user" do
-  #     user = fake_user!()
-  #     conn = user_conn(user)
-  #     query = "mutation { resetPasswordRequest(email: \"#{user.email}\") }"
-  #     assert_not_permitted(gql_post_errors(conn, %{query: query}), ["resetPasswordRequest"])
-  #     # TODO: check that an email is sent
-  #   end
+    test "Works for a guest" do
+      user = fake_user!()
+      q = """
+      mutation Test { resetPasswordRequest(email: "#{user.local_user.email}") }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"resetPasswordRequest" => true} == gql_post_data(query)
+      # TODO: check that an email is sent
+    end
 
-  #   test "Does not work for an invalid email" do
-  #     query = "mutation { resetPasswordRequest(email: \"#{Fake.email()}\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["resetPasswordRequest"])
-  #   end
+    test "Does not work for a user" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = """
+      mutation { resetPasswordRequest(email: "#{user.local_user.email}") }
+      """
+      assert_not_permitted(gql_post_errors(conn, %{query: query}), ["resetPasswordRequest"])
+      # TODO: check that an email is sent
+    end
 
-  # end
+    test "Does not work for an invalid email" do
+      query = "mutation { resetPasswordRequest(email: \"#{Fake.email()}\") }"
+      assert_not_found(gql_post_errors(%{query: query}), ["resetPasswordRequest"])
+    end
 
-  # describe "UsersResolver.reset_password" do
-  #   test "Works for a guest with a valid token" do
-  #     user = fake_user!()
-  #     assert {:ok, %{id: token}} = Users.request_password_reset(user)
+  end
 
-  #     query = "mutation { resetPassword(token: \"#{token}\", password: \"password\") }"
-  #     assert %{query: query} |> gql_post_data() |> Map.get("resetPassword")
-  #   end
+  describe "UsersResolver.reset_password" do
+    test "Works for a guest with a valid token" do
+      user = fake_user!()
+      assert {:ok, %{id: token}} = Users.request_password_reset(user)
+      q = """
+      mutation Test {
+        resetPassword(token: "#{token}", password: "password") {
+          token me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"resetPassword" => auth} = gql_post_data(query)
+      assert %{"token" => token, "me" => me} = auth
+      assert is_binary(token)
+      assert_me(user, me)
+    end
 
-  #   test "Does not work for a user" do
-  #     query = "mutation { resetPassword(token: \"#{Fake.uuid()}\", password: \"password\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["resetPassword"])
-  #   end
-  # end
+    test "Does not work with a used token" do
+      user = fake_user!()
+      assert {:ok, %{id: token}} = Users.request_password_reset(user)
+      q = """
+      mutation Test {
+        resetPassword(token: "#{token}", password: "password") {
+          token me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert %{"resetPassword" => auth} = gql_post_data(query)
+      assert %{"token" => token, "me" => me} = auth
+      assert is_binary(token)
+      assert_me(user, me)
+      assert err = gql_post_errors(query)
+    end
+    
+    test "Does not work for a user" do
+      q = """
+      mutation Test {
+        resetPassword(token: "#{Fake.uuid()}", password: "password") {
+          token me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
+      query = %{query: q, operationName: "Test"}
+      assert_not_found(gql_post_errors(query), ["resetPassword"])
+    end
+  end
 
-  # describe "UsersResolver.confirm_email" do
-  #   test "Works for a guest with a valid token" do
-  #     user = fake_user!()
-  #     [token] = user.email_confirm_tokens
-  #     query = "mutation { confirmEmail(token: \"#{token.id}\") }"
+  describe "UsersResolver.confirm_email" do
+    test "Works for a guest with a valid token" do
+      user = fake_user!()
+      [token] = user.email_confirm_tokens
+      query = """
+      mutation {
+        confirmEmail(token: "#{token.id}") {
+          token me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
+      assert %{"confirmEmail" => auth} = gql_post_data(%{query: query})
+      assert %{"token" => token, "me" => me} = auth
+      assert is_binary(token)
+      assert_me(user, me)
+    end
 
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
-  #   end
+    test "Works with an authenticated user" do
+      user = fake_user!()
+      [token] = user.email_confirm_tokens
+      query = """
+      mutation {
+        confirmEmail(token: "#{token.id}") {
+        token me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
+      assert %{"confirmEmail" => auth} = gql_post_data(%{query: query})
+      assert %{"token" => token, "me" => me} = auth
+      assert is_binary(token)
+      assert_me(user, me)
+    end
 
-  #   test "Works with an authenticated user" do
-  #     user = fake_user!()
-  #     [token] = user.email_confirm_tokens
-  #     query = "mutation { confirmEmail(token: \"#{token.id}\") }"
+    test "Fails with an invalid token" do
+      query = "mutation { confirmEmail(token: \"#{Faker.UUID.v4()}\") { token } }"
+      assert_not_found(gql_post_errors(%{query: query}), ["confirmEmail"])
+    end
+  end
 
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "confirmEmail")
-  #   end
+  describe "UsersResolver.create_session" do
 
-  #   test "Fails with an invalid token" do
-  #     query = "mutation { confirmEmail(token: \"#{Faker.UUID.v4()}\") }"
-  #     assert_not_found(gql_post_errors(%{query: query}), ["confirmEmail"])
-  #   end
-  # end
+    test "Works with a valid email and password" do
+      user = fake_user!(%{password: "password"},confirm_email: true)
 
-  # describe "UsersResolver.create_session" do
-  #   test "Works with a valid email and password" do
-  #     user = fake_user!(%{password: "password"})
+      query = """
+      mutation {
+        createSession(email: \"#{user.local_user.email}\", password: \"password\") {
+          token
+          me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
 
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{user.email}\", password: \"password\") {
-  #         token
-  #         me {
-  #           email
-  #         }
-  #       }
-  #     }
-  #     """
+      assert %{"createSession" => auth} = gql_post_data(%{query: query})
+      assert %{"token" => token, "me" => me} = auth
+      assert is_binary(token)
+      assert_me(user, me)
+    end
 
-  #     assert resp = %{query: query} |> gql_post_data() |> Map.get("createSession")
-  #     assert is_binary(resp["token"])
-  #     assert resp["me"]["email"] == user.email
-  #   end
+    test "Does not work with an unconfirmed email" do
+      user = fake_user!(%{password: "password"})
 
-  #   test "Does not work for a missing email" do
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{Fake.email()}\", password: \"#{Fake.password()}\") {
-  #         token
-  #       }
-  #     }
-  #     """
+      query = """
+      mutation {
+        createSession(email: \"#{user.local_user.email}\", password: \"password\") {
+          token
+          me { #{me_basics()} user { #{user_basics()} } }
+        }
+      }
+      """
 
-  #     assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
-  #   end
+      assert err = gql_post_errors(%{query: query})
+    end
 
-  #   test "Does not work with an invalid password" do
-  #     user = fake_user!()
+    test "Does not work for a missing email" do
+      query = """
+      mutation {
+        createSession(email: "#{Fake.email()}", password: "#{Fake.password()}") {
+          token
+        }
+      }
+      """
 
-  #     query = """
-  #     mutation {
-  #       createSession(email: \"#{user.email}\", password: \"invalid\") {
-  #         token
-  #       }
-  #     }
-  #     """
+      assert_invalid_credential(gql_post_errors(%{query: query}), ["createSession"])
+    end
 
-  #     assert_not_permitted(gql_post_errors(%{query: query}), ["createSession"])
-  #   end
-  # end
+    test "Does not work with an invalid password" do
+      user = fake_user!()
 
-  # describe "UsersResolver.delete_session" do
-  #   test "Works with a logged in user" do
-  #     user = fake_user!(%{password: "password"})
-  #     assert {:ok, _} = OAuth.create_token(user, "password")
+      query = """
+      mutation {
+        createSession(email: "#{user.local_user.email}", password: "invalid") {
+          token
+        }
+      }
+      """
 
-  #     conn = user_conn(user)
-  #     query = "mutation { deleteSession }"
-  #     assert conn |> gql_post_data(%{query: query}) |> Map.get("deleteSession")
-  #   end
+      assert_invalid_credential(gql_post_errors(%{query: query}), ["createSession"])
+    end
+  end
 
-  #   test "Does not work for a guest" do
-  #     query = "mutation { deleteSession }"
-  #     assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteSession"])
-  #   end
-  # end
+  describe "UsersResolver.delete_session" do
+    test "Works with a logged in user" do
+      user = fake_user!(%{password: "password"}, confirm_email: true)
+      assert {:ok, _} = Access.create_token(user, "password")
 
-  # describe "UsersResolver.check_username_available" do
+      conn = user_conn(user)
+      query = "mutation { deleteSession }"
+      assert %{"deleteSession" => true} = gql_post_data(conn, %{query: query})
+    end
 
-  #   test "works for an available username" do
-  #     name = Fake.preferred_username()
-  #     query = "{ usernameAvailable(username: \"#{name}\") }"
-  #     assert true == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
+    test "Does not work for a guest" do
+      query = "mutation { deleteSession }"
+      assert_not_logged_in(gql_post_errors(%{query: query}), ["deleteSession"])
+    end
+  end
+  
+  describe "delete (via common)" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
 
-  #   test "works for an unavailable username" do
-  #     user = fake_user!()
-  #     query = "{ usernameAvailable(username: \"#{user.actor.preferred_username}\") }"
-  #     assert false == Map.fetch!(gql_post_data(%{query: query}), "usernameAvailable")
-  #   end
+  describe "lastActivity" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
 
-  # end
+  describe "myFollow" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "myLike" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "followedCommunities" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "followedCollections" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "followedUsers" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "likes" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comments" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "inbox" do
+    @tag :skip
+    test "Works for self" do
+    end
+    test "Does not work for other" do
+    end
+    test "Does not work for guest" do
+    end
+  end
+
+  describe "outbox" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
 
 end

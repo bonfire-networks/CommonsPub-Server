@@ -47,7 +47,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Update a community"
     field :update_community, :community do
       arg :community_id, non_null(:string)
-      arg :community, non_null(:community_input)
+      arg :community, non_null(:community_update_input)
       resolve &CommunitiesResolver.update_community/2
     end
 
@@ -132,13 +132,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &CommonResolver.followers/3
     end
 
-    @desc "Activities for community moderators. Not available to plebs."
-    field :inbox, non_null(:activities_edges) do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommunitiesResolver.inbox/3
-    end
+    # @desc "Activities for community moderators. Not available to plebs."
+    # field :inbox, non_null(:activities_edges) do
+    #   arg :limit, :integer
+    #   arg :before, :string
+    #   arg :after, :string
+    #   resolve &CommunitiesResolver.inbox/3
+    # end
 
     @desc "Activities in the community, most recently created first"
     field :outbox, non_null(:activities_edges) do
@@ -169,6 +169,14 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
   input_object :community_input do
     field :preferred_username, non_null(:string)
+    field :name, non_null(:string)
+    field :summary, :string
+    field :icon, :string
+    field :image, :string
+    # field :primary_language_id, :string
+  end
+
+  input_object :community_update_input do
     field :name, non_null(:string)
     field :summary, :string
     field :icon, :string

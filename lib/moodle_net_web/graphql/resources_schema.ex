@@ -83,22 +83,26 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "Whether the resource is local to the instance"
     field :is_local, non_null(:boolean)
-    @desc "Whether the community is public"
-    field :is_public, non_null(:boolean)
+    @desc "Whether the resource is public"
+    field :is_public, non_null(:boolean) do
+      resolve &ResourcesResolver.is_public/3
+    end
     @desc "Whether an instance admin has hidden the resource"
-    field :is_disabled, non_null(:boolean)
+    field :is_disabled, non_null(:boolean) do
+      resolve &ResourcesResolver.is_disabled/3
+    end
 
     @desc "When the collection was created"
     field :created_at, non_null(:string)
     @desc "When the collection was last updated"
     field :updated_at, non_null(:string)
-    @desc """
-    When the resource was last updated or a thread or a comment on it
-    was created or updated
-    """
-    field :last_activity, non_null(:string) do
-      resolve &ResourcesResolver.last_activity/3
-    end
+    # @desc """
+    # When the resource was last updated or a thread or a comment on it
+    # was created or updated
+    # """
+    # field :last_activity, non_null(:string) do
+    #   resolve &ResourcesResolver.last_activity/3
+    # end
 
     @desc "The current user's like of the resource, if any"
     field :my_like, :like do

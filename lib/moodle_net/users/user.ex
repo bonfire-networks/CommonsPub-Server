@@ -19,7 +19,7 @@ defmodule MoodleNet.Users.User do
   meta_schema "mn_user" do
     belongs_to(:actor, Actor)
     belongs_to(:local_user, LocalUser)
-    belongs_to(:primary_language, Language)
+    # belongs_to(:primary_language, Language)
     field(:canonical_url, :string, virtual: true)
     field(:preferred_username, :string, virtual: true)
     field(:name, :string)
@@ -28,12 +28,10 @@ defmodule MoodleNet.Users.User do
     field(:website, :string)
     field(:icon, :string)
     field(:image, :string)
-    field(:is_local, :boolean, virtual: true)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
-    field(:is_deleted, :boolean, virtual: true)
     field(:deleted_at, :utc_datetime_usec)
     has_many(:email_confirm_tokens, EmailConfirmToken)
     timestamps(inserted_at: :created_at)
@@ -42,7 +40,7 @@ defmodule MoodleNet.Users.User do
   @email_regexp ~r/.+\@.+\..+/
 
   @register_cast_attrs ~w(name summary location website icon image is_public is_disabled)a
-  @register_required_attrs ~w(name is_public is_disabled)a
+  @register_required_attrs ~w(name)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Pointer{id: id} = pointer, %Actor{} = actor, attrs) do
@@ -76,23 +74,6 @@ defmodule MoodleNet.Users.User do
 
   def soft_delete_changeset(%User{} = user),
     do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
-
-  def vivify_virtuals(%User{actor: %Actor{}}=user) do
-    %{ user |
-       canonical_url: user.actor.canonical_url,
-       preferred_username: user.actor.preferred_username,
-       is_public: not is_nil(user.published_at),
-       is_disabled: not is_nil(user.disabled_at),
-       is_deleted: not is_nil(user.deleted_at),
-       is_local: is_nil(user.actor.peer_id),
-    }
-    |> vivify_local_user()
-  end
-
-  defp vivify_local_user(%User{local_user: %LocalUser{}}=user) do
-    %{user | local_user: LocalUser.vivify_virtuals(user.local_user) }
-  end
-  defp vivify_local_user(%User{}=user), do: user
 
   defp common_changeset(changeset) do
     changeset

@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.me/2
     end
 
-    @desc "Get an user"
+    @desc "Get a user"
     field :user, :user do
       arg :user_id, non_null(:string)
       resolve &UsersResolver.user/2
@@ -35,7 +35,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :auth_payload do
     field :token, non_null(:string)
-    field :me, non_null(:me)
+    field :me, non_null(:me) do
+      resolve &UsersResolver.me/3
+    end
   end
 
   object :user_mutations do
@@ -96,17 +98,29 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   """
   object :me do
     @desc "The public info"
-    field :user, non_null(:user)
+    field :user, non_null(:user) do
+      resolve &UsersResolver.user/3
+    end
     @desc "The user's email"
-    field :email, non_null(:string)
+    field :email, non_null(:string) do
+      resolve &UsersResolver.email/3
+    end
     @desc "Would the user like to receive digest emails of updates?"
-    field :wants_email_digest, non_null(:boolean)
+    field :wants_email_digest, non_null(:boolean) do
+      resolve &UsersResolver.wants_email_digest/3
+    end
     @desc "Does the user want notifications? Which don't work yet."
-    field :wants_notifications, non_null(:boolean)
+    field :wants_notifications, non_null(:boolean) do
+      resolve &UsersResolver.wants_notifications/3
+    end
     @desc "Has the user confirmed their account?"
-    field :is_confirmed, non_null(:boolean)
+    field :is_confirmed, non_null(:boolean) do
+      resolve &UsersResolver.is_confirmed/3
+    end
     @desc "Is the user a witch or wizard?"
-    field :is_instance_admin, non_null(:boolean)
+    field :is_instance_admin, non_null(:boolean) do
+      resolve &UsersResolver.is_instance_admin/3
+    end
   end
 
   @desc "User profile information"
@@ -114,12 +128,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:id)
     @desc "A url for the user, may be to a remote instance"
-    field :canonical_url, :string
+    field :canonical_url, :string do
+      resolve &UsersResolver.canonical_url/3
+    end
     @desc "An instance-unique identifier shared with communities and collections"
-    field :preferred_username, non_null(:string)
+    field :preferred_username, non_null(:string) do
+      resolve &UsersResolver.preferred_username/3
+    end
 
     @desc "A name field"
-    field :name, non_null(:string)
+    field :name, :string
     @desc "Possibly biographical information"
     field :summary, :string
     @desc "Free text"
@@ -132,18 +150,24 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :image, :string
 
     @desc "Whether the user is local to the instance"
-    field :is_local, non_null(:boolean)
+    field :is_local, non_null(:boolean) do
+      resolve &UsersResolver.is_local/3
+    end
     @desc "Whether the user has a public profile"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &UsersResolver.is_public/3
+    end
     @desc "Whether an instance admin has disabled the user's account"
-    field :is_disabled, non_null(:boolean)
+    field :is_disabled, non_null(:boolean) do
+      resolve &UsersResolver.is_disabled/3
+    end
 
     @desc "When the user signed up"
     field :created_at, non_null(:string)
     @desc "When the user last updated their profile"
     field :updated_at, non_null(:string)
     @desc "The last time the user did anything"
-    field :last_activity, non_null(:string) do
+    field :last_activity, :string do
       resolve &UsersResolver.last_activity/3
     end
 

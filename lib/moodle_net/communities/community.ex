@@ -18,7 +18,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Localisation.Language
+  # alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
@@ -26,7 +26,9 @@ defmodule MoodleNet.Communities.Community do
   meta_schema "mn_community" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:primary_language, Language)
+    field(:canonical_url, :string, virtual: true)
+    field(:preferred_username, :string, virtual: true)
+    # belongs_to(:primary_language, Language)
     field(:name, :string)
     field(:summary, :string)
     field(:icon, :string)
@@ -35,15 +37,17 @@ defmodule MoodleNet.Communities.Community do
     field(:disabled_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
+    field(:is_deleted, :boolean, virtual: true)
     field(:deleted_at, :utc_datetime_usec)
+    field(:is_local, :boolean, virtual: true)
     has_many(:collections, Collection)
     has_many(:flags, Flag)
     has_one(:follower_count, CommunityFollowerCount)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @required ~w(name)a
-  @cast @required ++ ~w(is_disabled is_public primary_language_id summary icon image)a
+  @cast @required ++ ~w(is_disabled is_public summary icon image)a
 
   def create_changeset(%Pointer{id: id} = pointer, %User{} = creator, %Actor{} = actor, fields) do
     Meta.assert_points_to!(pointer, __MODULE__)
@@ -69,11 +73,22 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
+  def vivify_virtuals(%Community{actor: %Actor{}}=comm) do
+    %{ comm |
+       canonical_url: comm.actor.canonical_url,
+       preferred_username: comm.actor.preferred_username,
+       is_public: not is_nil(comm.published_at),
+       is_disabled: not is_nil(comm.disabled_at),
+       is_deleted: not is_nil(comm.deleted_at),
+       is_local: is_nil(comm.actor.peer_id),
+    }
+  end
+
   defp common_changeset(changeset) do
     changeset
     |> change_public()
     |> change_disabled()
-    |> validate_language_code(:primary_language)
+    # |> validate_language_code(:primary_language)
     |> meta_pointer_constraint()
   end
 end

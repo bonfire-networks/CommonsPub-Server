@@ -12,8 +12,9 @@ defmodule MoodleNet.Access.NotPermittedError do
   }
 
   @doc "Create a new NotPermittedError"
+  @spec new() :: t
   @spec new(verb :: binary) :: t
-  def new(verb) when is_binary(verb) do
+  def new(verb \\ "do") when is_binary(verb) do
     %__MODULE__{
       message: "You do not have permission to #{verb} this.",
       code: "unauthorized",

@@ -47,11 +47,20 @@ defmodule MoodleNet.Resources do
 
   @spec fetch(binary()) :: {:ok, Resource.t()} | {:error, NotFoundError.t()}
   def fetch(id) do
-    Repo.transact_with(fn ->
-      with {:ok, resource} <- Repo.fetch(Resource, id) do
-        {:ok, preload(resource)}
-      end
-    end)
+    with {:ok, {resource, peer_id}} <- Repo.single(fetch_q(id)) do
+      {:ok, Map.put(resource, :is_local, is_nil(peer_id))}
+    end
+  end
+
+  def fetch_q(id) do
+    from r in Resource,
+      join: c in assoc(r, :collection),
+      join: a in assoc(c, :actor),
+      where: not is_nil(r.published_at),
+      where: not is_nil(c.published_at),
+      where: is_nil(r.deleted_at),
+      where: is_nil(c.deleted_at),
+      select: {r, a.peer_id}
   end
 
   @spec fetch_creator(Resource.t()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
@@ -82,8 +91,4 @@ defmodule MoodleNet.Resources do
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%Resource{} = resource), do: Common.soft_delete(resource)
 
-  @spec preload(Resource.t()) :: Resource.t()
-  def preload(%Resource{} = resource, opts \\ []) do
-    Repo.preload(resource, [:creator], opts)
-  end
 end
