@@ -59,11 +59,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
          },
          params <- %{
            actor: actor,
-           to: [@public_uri],
+           to: [@public_uri, collection.ap_id],
            object: object,
            context: collection.ap_id,
            additional: %{
-             "cc" => [collection.data["followers"], actor.data["followers"]]
+             "cc" => [actor.data["followers"]]
            }
          } do
       ActivityPub.create(params, resource.id)
@@ -98,11 +98,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(collection.community_id),
          params <- %{
           actor: actor,
-          to: [@public_uri],
+          to: [@public_uri, ap_community.ap_id],
           object: collection_object,
           context: ActivityPub.Utils.generate_context_id(),
           additional: %{
-            "cc" => [actor.data["followers"], ap_community.data["followers"]]
+            "cc" => [actor.data["followers"]]
           }
         } do
      ActivityPub.create(params)
