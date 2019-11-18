@@ -6,13 +6,14 @@ defmodule MoodleNet.Communities.Inbox do
   alias Mootils.Cursor
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Communities.Community
+  alias Ecto.Changeset
 
   cursor_schema "mn_community_inbox" do
     belongs_to(:community, Community)
     belongs_to(:activity, Activity)
   end
 
-  def create_changeset(%Community{} = c, %Activity{} = a) do
+  def changeset(%Community{} = c, %Activity{} = a) do
     changes = [
       id: Cursor.generate_bose64(),
       community_id: c.id,

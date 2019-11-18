@@ -3,16 +3,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users.Inbox do
   use MoodleNet.Common.Schema
+
   alias Mootils.Cursor
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Users.User
+  alias Ecto.Changeset
 
   cursor_schema "mn_user_inbox" do
     belongs_to(:user, User)
     belongs_to(:activity, Activity)
   end
 
-  def create_changeset(%User{} = u, %Activity{} = a) do
+  def changeset(%User{} = u, %Activity{} = a) do
     changes = [
       id: Cursor.generate_bose64(),
       user_id: u.id,
