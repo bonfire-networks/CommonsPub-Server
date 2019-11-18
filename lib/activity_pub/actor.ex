@@ -156,8 +156,11 @@ defmodule ActivityPub.Actor do
   end
 
   def get_by_ap_id!(ap_id) do
-    {:ok, actor} = get_by_ap_id(ap_id)
-    actor
+    with {:ok, actor} <- get_by_ap_id(ap_id) do
+      actor
+    else
+      {:error, _e} -> nil
+    end
   end
 
   @doc false
@@ -266,9 +269,23 @@ defmodule ActivityPub.Actor do
     }
   end
 
-  # TODO: write
-  def get_external_followers(_actor) do
-    []
+  defp get_actor_from_follow(follow) do
+    with {:ok, actor} <- get_by_local_id(follow.follower_id) do
+      actor
+    else
+      {:error, _} -> nil
+    end
+  end
+
+  def get_external_followers(actor) do
+    {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
+    follows = MoodleNet.Common.list_by_followed(actor)
+
+    followers =
+      follows
+      |> Enum.map(&get_actor_from_follow/1)
+      |> Enum.filter(fn actor -> actor && !actor.local end)
+    {:ok, followers}
   end
 
   # TODO: add bcc

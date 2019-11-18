@@ -26,6 +26,20 @@ defmodule ActivityPub.ActorTest do
     assert fetched_actor.data["preferredUsername"] == username
   end
 
+  test "external_followers/1" do
+    community = Faking.fake_user!() |> Faking.fake_community!()
+    actor_1 = actor()
+    actor_2 = actor()
+    {:ok, ap_community} = Actor.get_by_local_id(community.id)
+
+    ActivityPub.follow(actor_1, ap_community, nil, false)
+    ActivityPub.follow(actor_2, ap_community, nil, false)
+    Oban.drain_queue(:ap_incoming)
+
+    {:ok, actors} = Actor.get_external_followers(ap_community)
+    assert length(actors) == 2
+  end
+
   test "fetch_by_username/1" do
     {:ok, actor} = Actor.fetch_by_username("karen@kawen.space")
 
