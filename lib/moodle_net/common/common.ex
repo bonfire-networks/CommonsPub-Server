@@ -78,6 +78,16 @@ defmodule MoodleNet.Common do
     end)
   end
 
+  defp publish_like(%Like{} = like, verb) do
+    %{
+      "verb" => verb,
+      "user_id" => like.liker_id,
+      "context_id" => like.id,
+    }
+    |> ActivityWorker.new()
+    |> Oban.insert()
+  end
+
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
@@ -85,7 +95,11 @@ defmodule MoodleNet.Common do
     Repo.transact_with(fn ->
       case find_like(liker, liked) do
         {:ok, _} -> {:error, AlreadyLikedError.new("user")}
-        _ -> insert_like(liker, liked, fields)
+        _ ->
+          with {:ok, like} <- insert_like(liker, liked, fields),
+               {:ok, _} <- publish_like(like, "create") do
+            {:ok, like}
+          end
       end
     end)
   end
@@ -283,7 +297,6 @@ defmodule MoodleNet.Common do
       "verb" => verb,
       "user_id" => follow.follower_id,
       "context_id" => follow.id,
-      "outbox" => MoodleNet.Users.Outbox
     }
     |> ActivityWorker.new()
     |> Oban.insert()
@@ -300,10 +313,12 @@ defmodule MoodleNet.Common do
 
   @spec undo_follow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def undo_follow(%Follow{} = follow) do
-    with {:ok, follow} <- soft_delete(follow),
-         {:ok, _} <- publish_follow(follow, "delete") do
-      {:ok, follow}
-    end
+    Repo.transact_with(fn ->
+      with {:ok, follow} <- soft_delete(follow),
+           {:ok, _} <- publish_follow(follow, "delete") do
+        {:ok, follow}
+      end
+    end)
   end
 
   @spec preload_follow(Follow.t(), Keyword.t()) :: Follow.t()

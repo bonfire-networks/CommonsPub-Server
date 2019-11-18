@@ -51,7 +51,13 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
   defp fetch_target!(%Comment{} = comment) do
     {:ok, thread} = Comments.fetch_comment_thread(comment)
+    # TODO: include reply_to comment
     thread
+  end
+
+  defp fetch_target!(%Thread{} = thread) do
+    {:ok, context} = Comments.fetch_thread_context(thread)
+    context
   end
 
   defp insert_outbox!(%User{} = user, activity) do
@@ -59,26 +65,19 @@ defmodule MoodleNet.Workers.ActivityWorker do
   end
 
   defp insert_outbox!(%Community{} = community, activity) do
-    Repo.transaction(fn ->
-      {:ok, user} = Activities.fetch_user(activity)
-      {:ok, _} = Repo.insert(Communities.Outbox.changeset(community, activity))
+    {:ok, _} = Repo.insert(Communities.Outbox.changeset(community, activity))
 
-      if user.id != community.creator_id do
-        insert_outbox!(Communities.fetch_creator(community), activity)
-      end
-    end)
+    # if user.id != community.creator_id do
+    #   {:ok, creator} = Communities.fetch_creator(community)
+    #   insert_outbox!(creator, activity)
+    # end
   end
 
   defp insert_outbox!(%Collection{} = collection, activity) do
-    {:ok, user} = Activities.fetch_user(activity)
     {:ok, _} = Repo.insert(Collections.Outbox.changeset(collection, activity))
 
     {:ok, comm} = Communities.fetch(collection.community_id)
     insert_outbox!(comm, activity)
-
-    if user.id != collection.creator_id do
-      insert_outbox!(Collections.fetch_creator(collection), activity)
-    end
   end
 
   defp insert_outbox!(%{__struct__: type}, _activity) do
@@ -116,6 +115,10 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
     {:ok, context} = Comments.fetch_thread_context(thread)
     insert_inbox!(context, activity)
+  end
+
+  defp insert_inbox!(%Comment{} = comment, activity) do
+    insert_follower_inbox!(comment, activity)
   end
 
   defp insert_follower_inbox!(target, activity) do
