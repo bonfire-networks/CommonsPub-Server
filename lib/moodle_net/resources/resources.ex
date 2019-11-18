@@ -45,6 +45,21 @@ defmodule MoodleNet.Resources do
     )
   end
 
+  @spec count_for_list_in_collection(Collection.t()) :: [Resource.t()]
+  def count_for_list_in_collection(%Collection{id: id}),
+    do: Repo.one(count_for_list_in_collection_q(id))
+
+  defp count_for_list_in_collection_q(id) do
+    from(res in Resource,
+      join: coll in Collection,
+      on: res.collection_id == coll.id,
+      where: coll.id == ^id,
+      where: not is_nil(coll.published_at),
+      where: is_nil(coll.deleted_at),
+      select: count(res)
+    )
+  end
+
   @spec fetch(binary()) :: {:ok, Resource.t()} | {:error, NotFoundError.t()}
   def fetch(id) do
     with {:ok, {resource, peer_id}} <- Repo.single(fetch_q(id)) do

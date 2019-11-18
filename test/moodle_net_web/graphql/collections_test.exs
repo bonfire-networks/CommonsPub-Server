@@ -10,11 +10,31 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
   alias MoodleNet.{Access, Users}
 
   describe "collections" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm_1 = fake_community!(alice)
+      coll_1 = fake_collection!(alice, comm_1)
+      coll_2 = fake_collection!(alice, comm_1)
+      bob = fake_user!()
+      comm_2 = fake_community!(bob)
+      coll_3 = fake_collection!(bob, comm_2)
+      coll_4 = fake_collection!(bob, comm_2)
+      coll_5 = fake_collection!(bob, comm_2)
+      q = """
+      { collections { pageInfo { startCursor endCursor } totalCount nodes { #{collection_basics()} } } }
+      """
+      assert %{"collections" => colls} = gql_post_data(%{query: q})
+      node_list = assert_node_list(colls)
+      assert Enum.count(node_list.nodes) == 5
+      for node <- node_list.nodes do
+	assert_collection(node)
+      end
     end
+
   end
   describe "collection" do
+
     test "works for the owner" do
       user = fake_user!()
       comm = fake_community!(user)
@@ -27,6 +47,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, query)
       assert_collection(coll, coll2)
     end
+
     test "works for a random" do
       user = fake_user!()
       comm = fake_community!(user)
@@ -40,6 +61,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(query)
       assert_collection(coll, coll2)
     end
+
     test "works for a guest" do
       user = fake_user!()
       comm = fake_community!(user)
@@ -220,6 +242,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
     test "doesn't work for guest" do
     end
   end
+
   describe "collection.lastActivity" do
     @tag :skip
     test "placeholder" do
@@ -241,14 +264,51 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
     end
   end
   describe "collection.community" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} community { #{community_basics()} }
+        }
+      }
+      """
+      
     end
+
   end
+
   describe "collection.resources" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} resources {
+            #{page_basics()}
+            edges { cursor node { #{resource_basics()} } }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"resources" => res} = coll2
+      edge_list = assert_edge_list(res, &(&1.created_at))
+      assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+	res = assert_resource(edge.node)
+	assert {:ok, cursor, 0} = DateTime.from_iso8601(edge.cursor)
+	assert cursor == res.created_at
+      end
+      
     end
+
   end
   describe "collection.followers" do
     @tag :skip

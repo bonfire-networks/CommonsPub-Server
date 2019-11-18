@@ -2,30 +2,37 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
-  alias MoodleNet.{Collections, Common, Communities, GraphQL, Repo, Users}
+  alias MoodleNet.{
+    Collections,
+    Common,
+    Communities,
+    GraphQL,
+    Repo,
+    Resources,
+    Users,
+  }
   alias MoodleNet.Fake
-  alias MoodleNet.Collection.Collection
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Users.User
 
   def collections(_args, info) do
-    # Repo.transact_with(fn ->
-    #   count = Collections.count_for_list()
-    #   comms = Collections.list()
-    #   page_info = Common.page_info(comms)
-    #   {:ok, %{page_info: page_info, total_count: count, nodes: comms}}
-    # end)
-    {:ok, Fake.long_node_list(&Fake.collection/0)}
-    |> GraphQL.response(info)
+    Repo.transact_with(fn ->
+      count = Collections.count_for_list()
+      colls = Collections.list()
+      {:ok, GraphQL.node_list(colls, count)}
+    end)
   end
 
-  def collections(%Community{}=parent, _, info) do
+  def collections(%Community{}=community, _, info) do
     {:ok, Fake.long_edge_list(&Fake.collection/0)}
     |> GraphQL.response(info)
-    # count = Fake.pos_integer()
-    # comms = Fake.long_list(&Fake.collection/0)
-    # {:ok, GraphQL.edge_list(comms, count)}
-    # |> GraphQL.response(info)
+    Repo.transact_with(fn ->
+      count = Collections.count_for_list_in_community(community)
+      comms = Collections.list_in_community(community)
+      page_info = Common.page_info(comms)
+      {:ok, %{page_info: page_info, total_count: count, nodes: comms}}
+    end)
   end
 
   def collection(%{collection_id: id}, info), do: Collections.fetch(id)
@@ -94,6 +101,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   #   {:ok, true}
   #   |> GraphQL.response(info)
   # end
+
+  def resources(%Collection{}=coll, _, info) do
+    Repo.transact_with(fn ->
+      count = Resources.count_for_list_in_collection(coll)
+      comms = Resources.list_in_collection(coll)
+      {:ok, GraphQL.edge_list(comms, count, &(&1.created_at))}
+    end)
+  end
 
   def last_activity(_, _, info) do
     {:ok, Fake.past_datetime()}

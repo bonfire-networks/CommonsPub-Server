@@ -82,7 +82,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # field :educational_use, list_of(non_null(:string))
 
     @desc "Whether the resource is local to the instance"
-    field :is_local, non_null(:boolean)
+    field :is_local, non_null(:boolean) do
+      resolve &ResourcesResolver.is_local/3
+    end
     @desc "Whether the resource is public"
     field :is_public, non_null(:boolean) do
       resolve &ResourcesResolver.is_public/3
@@ -116,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "The collection this resource is a part of"
     field :collection, non_null(:collection) do
-      resolve &CollectionsResolver.collection/3
+      resolve &ResourcesResolver.collection/3
     end
 
     # @desc "Languages the resources is available in"

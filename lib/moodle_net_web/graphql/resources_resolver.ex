@@ -11,14 +11,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.Resources.Resource
 
   def resource(%{resource_id: id}, info), do: Resources.fetch(id)
-
+  def is_local(%Resource{}=res, _, _), do: {:ok, true}
   def is_public(%Resource{}=res, _, _), do: {:ok, not is_nil(res.published_at)}
   def is_disabled(%Resource{}=res, _, _), do: {:ok, not is_nil(res.disabled_at)}
-
-  def resources(collection,_, info) do
-    {:ok, Fake.long_edge_list(&Fake.resource/0)}
-    |> GraphQL.response(info)
-  end
 
   def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do

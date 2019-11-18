@@ -67,7 +67,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     %{page_info: page_info, nodes: nodes}
   end
 
-  def assert_edge_list(list) do
+  
+
+  def assert_edge_list(list, cursor_fn \\ &(&1.id)) do
     assert %{"pageInfo" => page, "totalCount" => count} = list
     assert is_integer(count)
     assert %{"startCursor" => start, "endCursor" => ends} = page
@@ -78,7 +80,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     edges = Enum.map(edges, fn e ->
       assert %{"cursor" => cursor, "node" => node} = e
       assert is_binary(cursor)
-      node
+      Map.merge(e, %{cursor: cursor, node: node})
     end)
     page_info = %{start_cursor: start, end_cursor: ends}
     %{page_info: page_info, total_count: count, edges: edges}
@@ -311,6 +313,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert not is_nil(coll.disabled_at) == coll2.is_disabled
     assert coll.created_at == coll2.created_at
     assert coll.updated_at == coll2.updated_at
+    coll2
   end
 
   def assert_resource(resource) do

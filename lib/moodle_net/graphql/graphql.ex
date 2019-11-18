@@ -55,14 +55,13 @@ defmodule MoodleNet.GraphQL do
     page_info = Common.page_info(nodes)
     %{page_info: page_info, total_count: count, nodes: nodes}
   end
-  def edge_list(items, count) do
+  def edge_list(items, count, cursor_fn \\ &(&1.id)) do
     page_info = Common.page_info(items)
-    edges = Enum.map(items, &edge/1)
+    edges = Enum.map(items, &edge(&1, cursor_fn))
     %{page_info: page_info, total_count: count, edges: edges}
   end
 
-  defp edge(%{id: id}=node), do: %{cursor: id, node: node}
-
+  defp edge(node, cursor_fn), do: %{cursor: cursor_fn.(node), node: node}
 
   alias MoodleNet.Access.{
     InvalidCredentialError,

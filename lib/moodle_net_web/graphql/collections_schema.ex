@@ -129,7 +129,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &ResourcesResolver.resources/3
+      resolve &CollectionsResolver.resources/3
     end
 
     @desc "Subscriptions users have to the collection"
