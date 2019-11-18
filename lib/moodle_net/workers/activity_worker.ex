@@ -3,15 +3,15 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
   require Logger
 
+  alias MoodleNet.{Common, Meta, Repo, Users, Comments}
   alias MoodleNet.Activities
   alias MoodleNet.Communities
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Users
   alias MoodleNet.Users.User
-  alias MoodleNet.{Common, Meta, Repo}
-  alias MoodleNet.Common.Follow
+  alias MoodleNet.Common.{Follow, Like}
+  alias MoodleNet.Comments.{Comment, Thread}
 
   @impl Worker
   def perform(
@@ -19,14 +19,13 @@ defmodule MoodleNet.Workers.ActivityWorker do
           "verb" => verb,
           "user_id" => user_id,
           "context_id" => context_id,
-          "target_id" => target_id
         },
         _job
       ) do
     Repo.transaction(fn ->
       {:ok, user} = Users.fetch(user_id)
       context = context_id |> Meta.find!() |> Meta.follow!()
-      target = target_id |> Meta.find!() |> Meta.follow!()
+      target = fetch_target!(context)
 
       {:ok, activity} = Activities.create(context, user, %{"verb" => verb, "is_local" => true})
       # active user is always notified
@@ -38,6 +37,21 @@ defmodule MoodleNet.Workers.ActivityWorker do
       insert_inbox!(user, activity)
       insert_inbox!(target, activity)
     end)
+  end
+
+  defp fetch_target!(%Follow{} = follow) do
+    %Follow{followed: followed} = Common.preload_follow(follow)
+    Meta.follow!(followed)
+  end
+
+  defp fetch_target!(%Like{} = like) do
+    %Like{liked: liked} = Common.preload_like(like)
+    Meta.follow!(liked)
+  end
+
+  defp fetch_target!(%Comment{} = comment) do
+    {:ok, thread} = Comments.fetch_comment_thread(comment)
+    thread
   end
 
   defp insert_outbox!(%User{} = user, activity) do
@@ -95,6 +109,13 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
     {:ok, community} = Communities.fetch(collection.community_id)
     insert_inbox!(community, activity)
+  end
+
+  defp insert_inbox!(%Thread{} = thread, activity) do
+    insert_follower_inbox!(thread, activity)
+
+    {:ok, context} = Comments.fetch_thread_context(thread)
+    insert_inbox!(context, activity)
   end
 
   defp insert_follower_inbox!(target, activity) do

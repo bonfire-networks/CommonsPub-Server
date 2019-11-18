@@ -119,6 +119,9 @@ defmodule MoodleNet.Common do
     )
   end
 
+  def preload_like(%Like{} = like, opts \\ []),
+    do: Repo.preload(like, [:liked, :liker], opts)
+
   ## Flagging
 
   def find_flag(%User{} = flagger, flagged) do
@@ -280,7 +283,6 @@ defmodule MoodleNet.Common do
       "verb" => verb,
       "user_id" => follow.follower_id,
       "context_id" => follow.id,
-      "target_id" => follow.followed_id,
       "outbox" => MoodleNet.Users.Outbox
     }
     |> ActivityWorker.new()
