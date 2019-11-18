@@ -25,7 +25,7 @@ mail_domain = System.get_env("MAIL_DOMAIN")
 mail_key = System.get_env("MAIL_KEY")
 
 if not is_nil(mail_key) do
-  config :moodle_net, MoodleNet.Mailer,
+  config :moodle_net, MoodleNet.Mail.MailService,
     adapter: Bamboo.MailgunAdapter,
     domain: mail_domain,
     api_key: mail_key
