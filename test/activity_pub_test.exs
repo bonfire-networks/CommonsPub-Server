@@ -32,6 +32,23 @@ defmodule ActivityPubTest do
       assert actor.data["id"] == activity.data["actor"]
       assert activity.data["object"] == activity.object.data["id"]
     end
+
+    test "it doesn't insert an object with the same ID twice" do
+      actor = actor()
+      context = "blabla"
+      object = %{"id" => "some_id", "content" => "content", "type" => "Note"}
+      to = ["https://testing.kawen.dance/users/karen"]
+
+      params = %{
+        actor: actor,
+        context: context,
+        object: object,
+        to: to
+      }
+
+      {:ok, _} = ActivityPub.create(params)
+      assert {:error, _} = ActivityPub.create(params)
+    end
   end
 
   describe "following / unfollowing" do
@@ -275,7 +292,13 @@ defmodule ActivityPubTest do
   describe "activity forwarding" do
     test "works" do
       group_actor = community()
-      activity = insert(:note_activity, %{data_attrs: %{"to" => [group_actor.ap_id, "https://www.w3.org/ns/activitystreams#Public"]}})
+
+      activity =
+        insert(:note_activity, %{
+          data_attrs: %{
+            "to" => [group_actor.ap_id, "https://www.w3.org/ns/activitystreams#Public"]
+          }
+        })
 
       [{:ok, forwarded_activity}] = ActivityPub.maybe_forward_activity(activity)
 

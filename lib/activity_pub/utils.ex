@@ -367,7 +367,8 @@ defmodule ActivityPub.Utils do
   def insert_full_object(map, local \\ false, pointer \\ nil)
   def insert_full_object(%{"object" => %{"type" => type} = object_data} = map, local, pointer)
       when is_map(object_data) and type in @supported_object_types do
-    with {:ok, data} <- prepare_data(object_data, local, pointer),
+    with nil <- Object.normalize(object_data, false),
+         {:ok, data} <- prepare_data(object_data, local, pointer),
          {:ok, object} <- Object.insert(data) do
       map =
         map
