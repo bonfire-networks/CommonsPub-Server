@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collections_queries do
 
     @desc "Get list of collections, most recent activity first"
-    field :collections, :collections_nodes do
+    field :collections, non_null(:collections_nodes) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -36,16 +36,16 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collections_mutations do
 
     @desc "Create a collection"
-    field :create_collection, type: :collection do
+    field :create_collection, :collection do
       arg :community_id, non_null(:string)
       arg :collection, non_null(:collection_input)
       resolve &CollectionsResolver.create_collection/2
     end
 
     @desc "Update a collection"
-    field :update_collection, type: :collection do
+    field :update_collection, :collection do
       arg :collection_id, non_null(:string)
-      arg :collection, non_null(:collection_input)
+      arg :collection, non_null(:collection_update_input)
       resolve &CollectionsResolver.update_collection/2
     end
 
@@ -56,35 +56,46 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   """
   object :collection do
     @desc "An instance-local UUID identifying the user"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the collection, may be to a remote instance"
-    field :canonical_url, :string
+    field :canonical_url, :string do
+      resolve &CollectionsResolver.canonical_url/3
+    end
+    
     @desc "An instance-unique identifier shared with users and communities"
-    field :preferred_username, :string
+    field :preferred_username, non_null(:string) do
+      resolve &CollectionsResolver.preferred_username/3
+    end
 
     @desc "A name field"
-    field :name, :string
+    field :name, non_null(:string)
     @desc "Possibly biographical information"
     field :summary, :string
     @desc "An avatar url"
     field :icon, :string
 
     @desc "Whether the collection is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean) do
+      resolve &CollectionsResolver.is_local/3
+    end
     @desc "Whether the collection is public"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean) do
+      resolve &CollectionsResolver.is_public/3
+    end
     @desc "Whether an instance admin has hidden the collection"
-    field :is_disabled, :boolean
+    field :is_disabled, non_null(:boolean) do
+      resolve &CollectionsResolver.is_disabled/3
+    end
 
     @desc "When the collection was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
     @desc "When the collection was last updated"
-    field :updated_at, :string
+    field :updated_at, non_null(:string)
     @desc """
     When the collection or a resource in it was last updated or a
     thread or a comment was created or updated
     """
-    field :last_activity, :string do
+    field :last_activity, non_null(:string) do
       resolve &CollectionsResolver.last_activity/3
     end
 
@@ -98,23 +109,23 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CommonResolver.my_follow/3
     end
 
-    @desc "The primary language the community speaks"
-    field :primary_language, :language do
-      resolve &LocalisationResolver.primary_language/3
-    end
+    # @desc "The primary language the community speaks"
+    # field :primary_language, :language do
+    #   resolve &LocalisationResolver.primary_language/3
+    # end
 
     @desc "The user who created the collection"
-    field :creator, :user do
+    field :creator, non_null(:user) do
       resolve &UsersResolver.creator/3
     end
 
     @desc "The community the collection belongs to"
-    field :community, :community do
+    field :community, non_null(:community) do
       resolve &CommunitiesResolver.community/3
     end
 
     @desc "The resources in the collection, most recently created last"
-    field :resources, :resources_edges do
+    field :resources, non_null(:resources_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -122,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, :follows_edges do
+    field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -130,7 +141,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Likes users have given the collection"
-    field :likes, :likes_edges do
+    field :likes, non_null(:likes_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -138,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Flags users have made about the collection, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, non_null(:flags_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -157,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     The threads created on the collection, most recently created
     first. Does not include threads created on resources.
     """
-    field :threads, :threads_edges do
+    field :threads, non_null(:threads_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -165,7 +176,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Activities on the collection, most recent first"
-    field :outbox, :activities_edges do
+    field :outbox, non_null(:activities_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -175,28 +186,36 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   end
 
   object :collections_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:collection)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:collection))
     field :total_count, non_null(:integer)
   end
 
   object :collections_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:collections_edge)
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:collections_edge))
     field :total_count, non_null(:integer)
   end
 
   object :collections_edge do
     field :cursor, non_null(:string)
-    field :node, :collection
+    field :node, non_null(:collection)
   end
 
   input_object :collection_input do
-    field :name, non_null(:string)
-    field :summary, non_null(:string)
     field :preferred_username, non_null(:string)
+    field :name, non_null(:string)
+    field :summary, :string
     field :icon, :string
-    field :primary_language_id, :string
+    # field :primary_language_id, :string
+  end
+
+  input_object :collection_update_input do
+    field :preferred_username, non_null(:string)
+    field :name, non_null(:string)
+    field :summary, :string
+    field :icon, :string
+    # field :primary_language_id, :string
   end
 
 end

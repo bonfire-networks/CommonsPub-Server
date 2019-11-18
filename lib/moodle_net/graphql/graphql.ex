@@ -5,10 +5,6 @@ defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
   alias MoodleNet.Common
-  alias MoodleNet.Common.{
-    NotLoggedInError,
-    NotPermittedError,
-  }
 
   defprotocol Response do
     def to_response(self, info, path)
@@ -35,7 +31,7 @@ defmodule MoodleNet.GraphQL do
 
   def current_user(%Resolution{}=info) do
     case info.context.current_user do
-      nil -> {:error, NotLoggedInError.new()}
+      nil -> not_logged_in()
       user -> {:ok, user}
     end
   end
@@ -43,7 +39,7 @@ defmodule MoodleNet.GraphQL do
   def guest_only(%Resolution{}=info) do
     case info.context.current_user do
       nil -> :ok
-      user -> {:error, NotPermittedError.new()}
+      user -> not_permitted()
     end
   end
 
@@ -67,6 +63,21 @@ defmodule MoodleNet.GraphQL do
 
   defp edge(%{id: id}=node), do: %{cursor: id, node: node}
 
-  def not_permitted(), do: {:error, NotPermittedError.new()}
 
+  alias MoodleNet.Access.{
+    InvalidCredentialError,
+    NotLoggedInError,
+    NotPermittedError,
+  }
+  alias MoodleNet.Common.{
+    NotFoundError,
+  }
+
+  def invalid_credential(), do: {:error, InvalidCredentialError.new()}
+
+  def not_logged_in(), do: {:error, NotLoggedInError.new()}
+
+  def not_permitted(verb \\ "do"), do: {:error, NotPermittedError.new(verb)}
+
+  def not_found(), do: {:error, NotFoundError.new()}
 end

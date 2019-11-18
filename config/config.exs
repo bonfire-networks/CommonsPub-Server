@@ -95,9 +95,17 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
-config :pleroma_job_queue, :queues,
-federator_incoming: 50,
-federator_outgoing: 50
+config :moodle_net, Oban,
+  repo: MoodleNet.Repo,
+  prune: {:maxlen, 100_000},
+  queues: [federator_incoming: 50, federator_outgoing: 50]
+
+config :moodle_net, :workers,
+  retries: [
+    federator_incoming: 5,
+    federator_outgoing: 5
+  ]
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

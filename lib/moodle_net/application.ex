@@ -28,6 +28,7 @@ defmodule MoodleNet.Application do
       worker(CountryService, []),
       worker(TableService, []),
       supervisor(Endpoint, []),
+      {Oban, Application.get_env(:moodle_net, Oban)}
     ]
 
     opts = [strategy: :one_for_one, name: MoodleNet.Supervisor]

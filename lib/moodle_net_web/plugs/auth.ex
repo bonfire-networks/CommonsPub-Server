@@ -28,13 +28,11 @@ defmodule MoodleNetWeb.Plugs.Auth do
       * `auth_token`, a Token
   """
   alias Plug.Conn
-  alias MoodleNet.{OAuth,Users}
-  alias MoodleNet.OAuth.{
+  alias MoodleNet.{Access,Users}
+  alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     Token,
-    TokenExpiredError,
     TokenNotFoundError,
-    UserEmailNotConfirmedError,
   }
   alias MoodleNet.Users.User
 
@@ -42,55 +40,51 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   # def call(%{assigns: %{current_user: %User{}}} = conn, _), do: conn
 
-  def call(conn, _opts) do
-    conn
-    # with {:ok, token} <- get_token(conn),
-    #      {:ok, {token, user}} <- OAuth.fetch_token_and_user(token),
-    #      :ok <- OAuth.ensure_valid(token, get_now(opts)),
-    #      :ok <- ensure_confirmed(user) do
-    #   put_current_user(conn, user, token)
-    # else
-    #   {:error, error} -> Conn.assign(conn, :auth_error, error)
-    # end
+  def call(conn, opts) do
+    case Map.get(conn.assigns, :current_user) do
+      nil ->
+        with {:ok, token} <- get_token(conn),
+             {:ok, token} <- Access.fetch_token_and_user(token),
+             :ok <- Access.verify_token(token, get_now(opts)) do
+          put_current_user(conn, token.user, token)
+        else
+          {:error, error} -> Conn.assign(conn, :auth_error, error)
+        end
+      _ -> conn
+    end
   end
 
   defp get_now(opts), do: Keyword.get(opts, :now) || DateTime.utc_now()
 
-  # defp ensure_confirmed(%User{confirmed_at: nil}=user),
-  #   do: {:error, UserEmailNotConfirmedError.new(user)}
+  @doc false
+  def login(conn, user, token) do
+    conn
+    |> put_current_user(user, token)
+    |> Conn.put_session(:auth_token, token)
+    |> Conn.configure_session(renew: true)
+  end
 
-  # defp ensure_confirmed(_), do: :ok
+  # @specp get_token(Conn.t) :: {:ok, binary} | {:error, term}
+  defp get_token(conn) do
+    case Conn.get_session(conn, :auth_token) do
+      nil -> get_token_by_header(conn)
+      token -> {:ok, token}
+    end
+  end
 
-  # def login(conn, user, token) do
-  #   conn
-  #   |> put_current_user(user, token)
-  #   |> Conn.put_session(:auth_token, token)
-  #   |> Conn.configure_session(renew: true)
-  # end
+  defp get_token_by_header(conn) do
+    case Conn.get_req_header(conn, "authorization") do
+      ["Bearer " <> token | _] -> {:ok, token} # take the first one if there are multiple
+      [token] -> {:error, MalformedAuthorizationHeaderError.new()}
+      _ -> {:error, TokenNotFoundError.new()}
+    end
+  end
 
-  # def logout(conn), do: Conn.configure_session(conn, drop: true)
-
-  # # @specp get_token(Conn.t) :: {:ok, binary} | {:error, term}
-  # defp get_token(conn) do
-  #   case Conn.get_session(conn, :auth_token) do
-  #     nil -> get_token_by_header(conn)
-  #     token -> {:ok, token}
-  #   end
-  # end
-
-  # defp get_token_by_header(conn) do
-  #   case Conn.get_req_header(conn, "authorization") do
-  #     ["Bearer " <> token | _] -> {:ok, token} # take the first one if there are multiple
-  #     [token] -> {:error, MalformedAuthorizationHeaderError.new(token)}
-  #     _ -> {:error, TokenNotFoundError.new()}
-  #   end
-  # end
-
-  # defp put_current_user(conn, %User{}=user, %Token{}=token) do
-  #   conn
-  #   |> Conn.assign(:current_user, user)
-  #   |> Conn.assign(:auth_token, token)
-  # end
+  defp put_current_user(conn, %User{}=user, %Token{}=token) do
+    conn
+    |> Conn.assign(:current_user, user)
+    |> Conn.assign(:auth_token, token)
+  end
 
 end
 

@@ -8,8 +8,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
   @meta_tables [] ++
     ~w(mn_country mn_language mn_peer mn_user mn_community mn_collection mn_resource) ++
-    ~w(mn_thread mn_comment) ++
-    ~w(mn_tag_category mn_tag mn_tagging mn_like mn_flag mn_block)
+    ~w(mn_activity mn_thread mn_comment mn_like mn_flag mn_follow mn_block) ++
+    ~w(mn_access_register_email mn_access_register_email_domain)
 
   @languages [
     {"en", "eng", "English", "English"}
@@ -243,7 +243,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
       add :name, :string
-      add :summary, :string
+      add :summary, :text
       add :url, :string
       add :license, :string
       add :icon, :string
@@ -384,52 +384,52 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     ### tagging
 
-    create table(:mn_tag_category, primary_key: false) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
-      add :canonical_url, :text
-      add :name, :text
-      add :published_at, :timestamptz
-      add :deleted_at, :timestamptz
-      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
-    end
+    # create table(:mn_tag_category, primary_key: false) do
+    #   add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    #   add :canonical_url, :text
+    #   add :name, :text
+    #   add :published_at, :timestamptz
+    #   add :deleted_at, :timestamptz
+    #   timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    # end
 
-    create index(:mn_tag_category, :created_at)
-    create index(:mn_tag_category, :updated_at)
-    create unique_index(:mn_tag_category, :canonical_url)
-    create unique_index(:mn_tag_category, :name, where: "deleted_at is null")
+    # create index(:mn_tag_category, :created_at)
+    # create index(:mn_tag_category, :updated_at)
+    # create unique_index(:mn_tag_category, :canonical_url)
+    # create unique_index(:mn_tag_category, :name, where: "deleted_at is null")
 
-    create table(:mn_tag, primary_key: false) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
-      add :canonical_url, :text
-      add :name, :text, null: false
-      add :published_at, :timestamptz
-      add :deleted_at, :timestamptz
-      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
-    end
+    # create table(:mn_tag, primary_key: false) do
+    #   add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    #   add :canonical_url, :text
+    #   add :name, :text, null: false
+    #   add :published_at, :timestamptz
+    #   add :deleted_at, :timestamptz
+    #   timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    # end
 
-    create index(:mn_tag, :created_at)
-    create index(:mn_tag, :updated_at)
-    create unique_index(:mn_tag, :canonical_url)
-    create unique_index(:mn_tag, :name, where: "deleted_at is null")
+    # create index(:mn_tag, :created_at)
+    # create index(:mn_tag, :updated_at)
+    # create unique_index(:mn_tag, :canonical_url)
+    # create unique_index(:mn_tag, :name, where: "deleted_at is null")
 
-    create table(:mn_tagging, primary_key: false) do
-      add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
-      add :canonical_url, :text
-      add :tag_id, references("mn_tag", on_delete: :nilify_all)
-      add :tagger_id, references("mn_user", on_delete: :nilify_all)
-      add :tagged_id, references("mn_pointer", on_delete: :nilify_all)
-      add :published_at, :timestamptz
-      add :deleted_at, :timestamptz
-      add :is_local, :boolean, null: false
-      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
-    end
+    # create table(:mn_tagging, primary_key: false) do
+    #   add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
+    #   add :canonical_url, :text
+    #   add :tag_id, references("mn_tag", on_delete: :nilify_all)
+    #   add :tagger_id, references("mn_user", on_delete: :nilify_all)
+    #   add :tagged_id, references("mn_pointer", on_delete: :nilify_all)
+    #   add :published_at, :timestamptz
+    #   add :deleted_at, :timestamptz
+    #   add :is_local, :boolean, null: false
+    #   timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
+    # end
 
-    create index(:mn_tagging, :created_at)
-    create index(:mn_tagging, :updated_at)
-    create unique_index(:mn_tagging, :canonical_url)
-    create unique_index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id], where: "deleted_at is null")
-    create index(:mn_tagging, :tagger_id, where: "deleted_at is null")
-    create index(:mn_tagging, :tagged_id, where: "deleted_at is null")
+    # create index(:mn_tagging, :created_at)
+    # create index(:mn_tagging, :updated_at)
+    # create unique_index(:mn_tagging, :canonical_url)
+    # create unique_index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id], where: "deleted_at is null")
+    # create index(:mn_tagging, :tagger_id, where: "deleted_at is null")
+    # create index(:mn_tagging, :tagged_id, where: "deleted_at is null")
 
     create table(:mn_activity, primary_key: false) do
       add :id, references("mn_pointer", on_delete: :delete_all), primary_key: true
@@ -450,110 +450,90 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_activity, :updated_at)
     create index(:mn_activity, :published_at)
 
-    create table(:mn_user_inbox) do
+    create table(:mn_user_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :user_id, references("mn_user", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_user_inbox, :created_at)
     create index(:mn_user_inbox, :user_id)
     create index(:mn_user_inbox, :activity_id)
 
-    create table(:mn_user_outbox) do
+    create table(:mn_user_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :user_id, references("mn_user", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-
-    create index(:mn_user_outbox, :created_at)
     create index(:mn_user_outbox, :user_id)
     create index(:mn_user_outbox, :activity_id)
 
-    create table(:mn_community_inbox) do
+    create table(:mn_community_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_community_inbox, :created_at)
     create index(:mn_community_inbox, :community_id)
     create index(:mn_community_inbox, :activity_id)
 
-    create table(:mn_community_outbox) do
+    create table(:mn_community_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_community_outbox, :created_at)
     create index(:mn_community_outbox, :community_id)
     create index(:mn_community_outbox, :activity_id)
 
-    create table(:mn_collection_inbox) do
+    create table(:mn_collection_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_collection_inbox, :created_at)
     create index(:mn_collection_inbox, :collection_id)
     create index(:mn_collection_inbox, :activity_id)
 
-    create table(:mn_collection_outbox) do
+    create table(:mn_collection_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :collection_id, references("mn_collection", on_delete: :nilify_all)
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_collection_outbox, :created_at)
     create index(:mn_collection_outbox, :collection_id)
     create index(:mn_collection_outbox, :activity_id)
 
-    create table(:mn_instance_inbox) do
+    create table(:mn_instance_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_instance_inbox, :created_at)
     create index(:mn_instance_inbox, :activity_id)
 
-    create table(:mn_instance_outbox) do
+    create table(:mn_instance_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_instance_outbox, :created_at)
     create index(:mn_instance_outbox, :activity_id)
 
-    create table(:mn_moodleverse_inbox) do
+    create table(:mn_moodleverse_inbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_moodleverse_inbox, :created_at)
     create index(:mn_moodleverse_inbox, :activity_id)
 
-    create table(:mn_moodleverse_outbox) do
+    create table(:mn_moodleverse_outbox, primary_key: false) do
+      add :id, :text, primary_key: true
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
-      timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_moodleverse_outbox, :created_at)
     create index(:mn_moodleverse_outbox, :activity_id)
 
-    create table(:oauth_authorizations) do
+    create table(:access_token) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
-      add :expires_at, :timestamptz, null: false
-      add :claimed_at, :timestamptz
-      timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
-    end
-
-    create table(:access_tokens) do
-      add :user_id, references("mn_user", on_delete: :delete_all), null: false
-      add :auth_id, references("oauth_authorizations", on_delete: :delete_all)
-      add :refresh_token, :uuid
       add :expires_at, :timestamptz, null: false
       timestamps(inserted_at: :created_at, type: :utc_datetime_usec)
     end
@@ -613,21 +593,21 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
         end)
     Repo.insert_all("mn_country", countries)
 
-    cats_pointers = Enum.map(@tag_categories, fn _ -> Ecto.UUID.bingenerate() end)
-    {_, _} = Repo.insert_all(
-      "mn_pointer",
-      Enum.map(cats_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_tag_category"]} end)
-    )
-    cats =
-      Enum.zip(cats_pointers, @tag_categories)
-      |> Enum.map(fn {pointer, cat} ->
-        %{"id" => pointer,
-          "name" => cat,
-          "created_at" => now,
-          "updated_at" => now,
-          "published_at" => now}
-      end)
-    Repo.insert_all("mn_tag_category", cats)
+    # cats_pointers = Enum.map(@tag_categories, fn _ -> Ecto.UUID.bingenerate() end)
+    # {_, _} = Repo.insert_all(
+    #   "mn_pointer",
+    #   Enum.map(cats_pointers, fn id -> %{"id" => id, "table_id" => tables["mn_tag_category"]} end)
+    # )
+    # cats =
+    #   Enum.zip(cats_pointers, @tag_categories)
+    #   |> Enum.map(fn {pointer, cat} ->
+    #     %{"id" => pointer,
+    #       "name" => cat,
+    #       "created_at" => now,
+    #       "updated_at" => now,
+    #       "published_at" => now}
+    #   end)
+    # Repo.insert_all("mn_tag_category", cats)
 
     ### last activity views
 
@@ -637,9 +617,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_user_last_activity as
     select
       distinct on (user_id)
-      user_id, created_at
+      id, user_id
     from mn_user_outbox
-    order by user_id, created_at desc
+    order by user_id, id desc
     """
 
     # community
@@ -648,9 +628,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_community_last_activity as
     select
       distinct on (community_id)
-      community_id, created_at
+      id, community_id
     from mn_community_outbox
-    order by community_id, created_at desc
+    order by community_id, id desc
     """
 
     # collection
@@ -659,9 +639,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create view mn_collection_last_activity as
     select
       distinct on (collection_id)
-      collection_id, created_at
+      id, collection_id
     from mn_collection_outbox
-    order by collection_id, created_at desc
+    order by collection_id, id desc
     """
 
     # thread
@@ -743,8 +723,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     :ok = execute "drop view mn_community_follower_count"
     :ok = execute "drop view mn_user_follower_count"
     flush()
-    drop table(:oauth_authorizations)
-    drop table(:oauth_tokens)
+    drop table(:access_token)
 
     drop index(:mn_moodleverse_inbox, :created_at)
     drop index(:mn_moodleverse_inbox, :activity_id)
@@ -800,25 +779,25 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop index(:mn_activity, :published_at)
     drop table(:mn_activity)
     
-    drop index(:mn_tagging, :created_at)
-    drop index(:mn_tagging, :updated_at)
-    drop index(:mn_tagging, :canonical_url)
-    drop index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id])
-    drop index(:mn_tagging, :tagger_id)
-    drop index(:mn_tagging, :tagged_id)
-    drop table(:mn_tagging)
+    # drop index(:mn_tagging, :created_at)
+    # drop index(:mn_tagging, :updated_at)
+    # drop index(:mn_tagging, :canonical_url)
+    # drop index(:mn_tagging, [:tag_id, :tagger_id, :tagged_id])
+    # drop index(:mn_tagging, :tagger_id)
+    # drop index(:mn_tagging, :tagged_id)
+    # drop table(:mn_tagging)
 
-    drop index(:mn_tag, :created_at)
-    drop index(:mn_tag, :updated_at)
-    drop index(:mn_tag, :canonical_url)
-    drop index(:mn_tag, :name)
-    drop table(:mn_tag)
+    # drop index(:mn_tag, :created_at)
+    # drop index(:mn_tag, :updated_at)
+    # drop index(:mn_tag, :canonical_url)
+    # drop index(:mn_tag, :name)
+    # drop table(:mn_tag)
 
-    drop index(:mn_tag_category, :created_at)
-    drop index(:mn_tag_category, :updated_at)
-    drop index(:mn_tag_category, :canonical_url)
-    drop index(:mn_tag_category, :name)
-    drop table(:mn_tag_category)
+    # drop index(:mn_tag_category, :created_at)
+    # drop index(:mn_tag_category, :updated_at)
+    # drop index(:mn_tag_category, :canonical_url)
+    # drop index(:mn_tag_category, :name)
+    # drop table(:mn_tag_category)
 
     drop index(:mn_block, :created_at)
     drop index(:mn_block, :updated_at)

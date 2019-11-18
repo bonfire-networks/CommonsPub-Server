@@ -3,10 +3,22 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections.Outbox do
   use MoodleNet.Common.Schema
+  alias Mootils.Cursor
+  alias MoodleNet.Activities.Activity
+  alias MoodleNet.Collections.Collection
 
-  meta_schema "mn_collection_outbox" do
+  cursor_schema "mn_collection_outbox" do
     belongs_to(:collection, Collection)
     belongs_to(:activity, Activity)
-    timestamps(inserted_at: :created_at)
   end
+
+  def create_changeset(%Collection{} = c, %Activity{} = a) do
+    changes = [
+      id: Cursor.generate_bose64(),
+      collection_id: c.id,
+      activity_id: a.id,
+    ]
+    Changeset.change(%__MODULE__{}, changes)
+  end
+
 end

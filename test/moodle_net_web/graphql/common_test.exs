@@ -10,133 +10,179 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
   # import MoodleNetWeb.Test.ConnHelpers
   # import MoodleNetWeb.Test.GraphQLAssertions
 
-  @create_flag_q """
-  mutation Test($contextId: String!, $message: String!) {
-    flag(contextId: $contextId, message: $message) {
-      id canonicalUrl isLocal isPublic message isResolved createdAt updatedAt
-    }
-  }
-  """
-  @create_follow_q """
-  mutation Test($contextId: String!) {
-    follow(contextId: $contextId) {
-      id canonicalUrl isLocal isPublic createdAt
-    }
-  }
-  """
-  @create_like_q """
-  mutation Test($contextId: String!) {
-    like(contextId: $contextId) {
-      id canonicalUrl isLocal isPublic createdAt
-    }
-  }
-  """
-  @create_tagging_q """
-  mutation Test($contextId: String!, $tagId: String!) {
-    tag(contextId: $contextId, tagId: $tagId) {
-      id isLocal isPublic createdAt
-    }
-  }
-  """
-  @delete_q """
-  mutation Test($contextId: String!) {
-    delete(contextId: $contextId)
-  }
-  """
-  describe "create_flag" do
-    test "works" do
-      vars = %{"contextId" => "c", "message" => "m"}
-      query = %{operationName: "Test", query: @create_flag_q, variables: vars}
-      assert %{"flag" => flag} = gql_post_data(json_conn(),query)
-      assert_flag(flag)
+  describe "flag" do
+    @tag :skip
+    test "placeholder" do
     end
   end
-  describe "create_follow" do
-    test "works" do
-      vars = %{"contextId" => ""}
-      query = %{operationName: "Test", query: @create_follow_q, variables: vars}
-      assert %{"follow" => follow} = gql_post_data(json_conn(),query)
-      assert_follow(follow)
+  describe "follow" do
+    @tag :skip
+    test "placeholder" do
     end
   end
-  describe "create_like" do
-    test "works" do
-      vars = %{"contextId" => ""}
-      query = %{operationName: "Test", query: @create_like_q, variables: vars}
-      assert %{"like" => like} = gql_post_data(json_conn(),query)
-      assert_like(like)
+  describe "like" do
+    @tag :skip
+    test "placeholder" do
     end
   end
-  describe "delete" do
-    test "works" do
-      vars = %{"contextId" => ""}
-      query = %{operationName: "Test", query: @delete_q, variables: vars}
-      assert %{"delete" => true} = gql_post_data(json_conn(),query)
+  describe "flag.creator" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "flag.context" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "follow.creator" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "follow.context" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "like.creator" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "like.context" do
+    @tag :skip
+    test "placeholder" do
     end
   end
 
-  describe "tag" do
-    test "for a tagging" do
-    end
-  end
-  describe "context" do
-    test "for a like" do
-    end
-    test "for a flag" do
-    end
-    test "for a follow" do
-    end
-    # test "for a tagging" do
-    # end
-  end
-  describe "my_follow" do
-    test "for a user" do
-    end
-    test "for a community" do
-    end
-    test "for a collection" do
-    end
-    test "for a thread" do
-    end
-  end
-  describe "my_like" do
-    test "for a collection" do
-    end
-    test "for a resource" do
-    end
-    test "for a comment" do
-    end
-  end
-  describe "followers" do
-    test "for a user" do
-    end
-    test "for a community" do
-    end
-    test "for a thread" do
-    end
-  end
-  describe "likes" do
-    test "for a collection" do
-    end
-    test "for a resource" do
-    end
-    test "for a comment" do
-    end
-  end
-  describe "flags" do
-    test "for a user" do
-    end
-    test "for a community" do
-    end
-    test "for a collection" do
-    end
-    test "for a resource" do
-    end
-    test "for a comment" do
-    end
-    test "for a thread" do
-    end
-  end
+  # @create_flag_q """
+  # mutation Test($contextId: String!, $message: String!) {
+  #   flag(contextId: $contextId, message: $message) {
+  #     id canonicalUrl isLocal isPublic message isResolved createdAt updatedAt
+  #   }
+  # }
+  # """
+  # @create_follow_q """
+  # mutation Test($contextId: String!) {
+  #   follow(contextId: $contextId) {
+  #     id canonicalUrl isLocal isPublic createdAt
+  #   }
+  # }
+  # """
+  # @create_like_q """
+  # mutation Test($contextId: String!) {
+  #   like(contextId: $contextId) {
+  #     id canonicalUrl isLocal isPublic createdAt
+  #   }
+  # }
+  # """
+  # @create_tagging_q """
+  # mutation Test($contextId: String!, $tagId: String!) {
+  #   tag(contextId: $contextId, tagId: $tagId) {
+  #     id isLocal isPublic createdAt
+  #   }
+  # }
+  # """
+  # @delete_q """
+  # mutation Test($contextId: String!) {
+  #   delete(contextId: $contextId)
+  # }
+  # """
+  # describe "create_flag" do
+  #   test "works" do
+  #     vars = %{"contextId" => "c", "message" => "m"}
+  #     query = %{operationName: "Test", query: @create_flag_q, variables: vars}
+  #     assert %{"flag" => flag} = gql_post_data(json_conn(),query)
+  #     assert_flag(flag)
+  #   end
+  # end
+  # describe "create_follow" do
+  #   test "works" do
+  #     vars = %{"contextId" => ""}
+  #     query = %{operationName: "Test", query: @create_follow_q, variables: vars}
+  #     assert %{"follow" => follow} = gql_post_data(json_conn(),query)
+  #     assert_follow(follow)
+  #   end
+  # end
+  # describe "create_like" do
+  #   test "works" do
+  #     vars = %{"contextId" => ""}
+  #     query = %{operationName: "Test", query: @create_like_q, variables: vars}
+  #     assert %{"like" => like} = gql_post_data(json_conn(),query)
+  #     assert_like(like)
+  #   end
+  # end
+  # describe "delete" do
+  #   test "works" do
+  #     vars = %{"contextId" => ""}
+  #     query = %{operationName: "Test", query: @delete_q, variables: vars}
+  #     assert %{"delete" => true} = gql_post_data(json_conn(),query)
+  #   end
+  # end
+
+  # describe "tag" do
+  #   test "for a tagging" do
+  #   end
+  # end
+  # describe "context" do
+  #   test "for a like" do
+  #   end
+  #   test "for a flag" do
+  #   end
+  #   test "for a follow" do
+  #   end
+  #   # test "for a tagging" do
+  #   # end
+  # end
+  # describe "my_follow" do
+  #   test "for a user" do
+  #   end
+  #   test "for a community" do
+  #   end
+  #   test "for a collection" do
+  #   end
+  #   test "for a thread" do
+  #   end
+  # end
+  # describe "my_like" do
+  #   test "for a collection" do
+  #   end
+  #   test "for a resource" do
+  #   end
+  #   test "for a comment" do
+  #   end
+  # end
+  # describe "followers" do
+  #   test "for a user" do
+  #   end
+  #   test "for a community" do
+  #   end
+  #   test "for a thread" do
+  #   end
+  # end
+  # describe "likes" do
+  #   test "for a collection" do
+  #   end
+  #   test "for a resource" do
+  #   end
+  #   test "for a comment" do
+  #   end
+  # end
+  # describe "flags" do
+  #   test "for a user" do
+  #   end
+  #   test "for a community" do
+  #   end
+  #   test "for a collection" do
+  #   end
+  #   test "for a resource" do
+  #   end
+  #   test "for a comment" do
+  #   end
+  #   test "for a thread" do
+  #   end
+  # end
 
   # describe "tags" do
   # end

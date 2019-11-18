@@ -7,26 +7,30 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   permitted to register a MoodleNet account while public signup is
   disabled.
   """
-
   use MoodleNet.Common.Schema
+  import MoodleNet.Common.Changeset, only: [validate_email: 2, meta_pointer_constraint: 1]
   alias Ecto.Changeset
-  import MoodleNet.Common.Changeset, only: [validate_email: 2]
+  alias MoodleNet.Meta
+  alias MoodleNet.Meta.Pointer
 
-  standalone_schema "mn_access_register_email" do
+  @type t :: %__MODULE__{}
+
+  meta_schema "mn_access_register_email" do
     field(:email, :string, primary_key: true)
     timestamps()
   end
 
-  @cast ~w(email)a
-  @required @cast
+  @create_cast ~w(email)a
+  @create_required @create_cast
 
-  @doc "A changeset for both creation and update purposes"
-  def changeset(entry \\ %__MODULE__{}, fields)
-  def changeset(%__MODULE__{}=entry, fields) do
-    entry
-    |> Changeset.cast(fields, @cast)
-    |> Changeset.validate_required(@required)
+  def create_changeset(%Pointer{id: id} = pointer, fields) do
+    %__MODULE__{id: id}
+    |> Changeset.cast(fields, @create_cast)
+    |> Changeset.validate_required(@create_required)
     |> validate_email(:email)
-    |> Changeset.unique_constraint(:email)
+    |> Changeset.unique_constraint(:email,
+      name: "mn_access_register_email"
+    )
+    |> meta_pointer_constraint()
   end
 end

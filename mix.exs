@@ -1,3 +1,6 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mixfile do
   use Mix.Project
 
@@ -53,6 +56,7 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
+      {:dataloader, "~> 1.0.0"},
       {:absinthe, "~> 1.5.0-beta.2"},
       {:absinthe_plug, "~> 1.5.0-alpha.0"},
       # webserver
@@ -96,13 +100,14 @@ defmodule MoodleNet.Mixfile do
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
-      {:pleroma_job_queue, "~> 0.3"}, # job queue
+      {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       # dev/test only
-      {:faker, "~> 0.12"}, # fake data generation. TODO: stop using outside of tests
+      {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: :test}, # fake data generation for AP
-      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:stream_data, "~> 0.4"},             # property testing
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
     ]
   end
 

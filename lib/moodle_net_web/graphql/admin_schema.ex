@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
   object :admin_mutations do
     
     @desc "Close a flag"
-    field :resolve_flag, type: :boolean do
+    field :resolve_flag, :flag do
       arg :flag_id, non_null(:string)
       resolve &AdminResolver.resolve_flag/2
     end

@@ -32,14 +32,14 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   object :comments_mutations do
 
     @desc "Create a new thread"
-    field :create_thread, type: :comment do
+    field :create_thread, :comment do
       arg :context_id, non_null(:string)
       arg :comment, non_null(:comment_input)
       resolve &CommentsResolver.create_thread/2
     end
 
     @desc "Create a reply"
-    field :create_reply, type: :comment do
+    field :create_reply, :comment do
       arg :thread_id, non_null(:string)
       arg :in_reply_to_id, non_null(:string)
       arg :comment, non_null(:comment_input)
@@ -47,7 +47,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Edit a comment"
-    field :edit_comment, type: :comment do
+    field :edit_comment, :comment do
       arg :comment_id, non_null(:string)
       arg :comment, non_null(:comment_input)
       resolve &CommentsResolver.update/2
@@ -58,23 +58,23 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   @desc "A thread is essentially a list of comments"
   object :thread do
     @desc "An instance-local UUID identifying the thread"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "Whether the thread is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean)
     @desc "Whether the thread is publically visible"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean)
     @desc "Whether an instance admin has hidden the thread"
-    field :is_hidden, :boolean
+    field :is_hidden, non_null(:boolean)
 
     @desc "When the thread was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
     @desc "When the thread was last updated"
-    field :updated_at, :string
+    field :updated_at, non_null(:string)
     @desc "The last time the thread or a comment on it was created or updated"
-    field :last_activity, :string do
+    field :last_activity, non_null(:string) do
       resolve &CommentsResolver.last_activity/3
     end
 
@@ -84,12 +84,12 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "The object the thread is attached to"
-    field :context, :thread_context do
+    field :context, non_null(:thread_context) do
       resolve &CommentsResolver.context/3
     end
 
     @desc "Comments in the thread, most recently created first"
-    field :comments, :comments_edges do
+    field :comments, non_null(:comments_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -97,7 +97,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, :follows_edges do
+    field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -118,44 +118,46 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   end
 
   object :threads_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:thread)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:thread))
     field :total_count, non_null(:integer)
   end
 
   object :threads_edges do
-    field :page_info, non_null(:page_info)
+    field :page_info, :page_info
     field :edges, list_of(:threads_edge)
     field :total_count, non_null(:integer)
   end
 
   object :threads_edge do
     field :cursor, non_null(:string)
-    field :node, :thread
+    field :node, non_null(:thread)
   end
 
   object :comment do
     @desc "An instance-local UUID identifying the thread"
-    field :id, :string
+    field :id, non_null(:string)
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "The id of the comment this one was a reply to"
-    field :in_reply_to_id, :string
+    field :in_reply_to, :comment do
+      resolve &CommentsResolver.comment/3
+    end
     @desc "The comment text"
-    field :content, :string
+    field :content, non_null(:string)
 
     @desc "Whether the comment is local to the instance"
-    field :is_local, :boolean
+    field :is_local, non_null(:boolean)
     @desc "Whether the comment is publically visible"
-    field :is_public, :boolean
+    field :is_public, non_null(:boolean)
     @desc "Whether an comment admin has hidden the thread"
-    field :is_hidden, :boolean
+    field :is_hidden, non_null(:boolean)
 
     @desc "When the comment was created"
-    field :created_at, :string
+    field :created_at, non_null(:string)
     @desc "When the comment was last updated"
-    field :updated_at, :string
+    field :updated_at, non_null(:string)
 
     @desc "The current user's like of this comment, if any"
     field :my_like, :like do
@@ -163,17 +165,17 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "The user who created this comment"
-    field :creator, :user do
+    field :creator, non_null(:user) do
       resolve &UsersResolver.creator/3
     end
 
     @desc "The thread this comment is part of"
-    field :thread, :thread do
+    field :thread, non_null(:thread) do
       resolve &CommentsResolver.thread/3
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likes, :likes_edges do
+    field :likes, non_null(:likes_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -181,7 +183,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Flags users have made about the comment, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, non_null(:flags_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -191,20 +193,20 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   end
 
   object :comments_nodes do
-    field :page_info, non_null(:page_info)
-    field :nodes, list_of(:comment)
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:comment))
     field :total_count, non_null(:integer)
   end
 
   object :comments_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:comments_edge)
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:comments_edge))
     field :total_count, non_null(:integer)
   end
 
   object :comments_edge do
     field :cursor, non_null(:string)
-    field :node, :comment
+    field :node, non_null(:comment)
   end
 
   input_object :comment_input do

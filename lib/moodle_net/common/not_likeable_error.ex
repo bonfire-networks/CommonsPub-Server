@@ -2,12 +2,23 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common.NotLikeableError do
-  @enforce_keys [:id]
+  @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
-  @type t :: %__MODULE__{id: binary}
+  @type t :: %__MODULE__{
+    message: binary,
+    code: binary,
+    status: integer,
+  }
 
   @doc "Create a new NotLikeableError"
-  @spec new(id :: binary) :: t
-  def new(id) when is_binary(id), do: %__MODULE__{id: id}
+  @spec new(type :: binary) :: t
+  def new(type) when is_binary(type) do
+    %__MODULE__{
+      message: "You can not like a #{type}",
+      code: "not_likeable",
+      status: 403,
+    }
+  end
+
 end

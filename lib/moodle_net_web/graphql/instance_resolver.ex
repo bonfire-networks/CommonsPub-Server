@@ -6,7 +6,9 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   alias MoodleNet.{Fake, GraphQL}
 
   def instance(_, info) do
-    {:ok, %{}}
+    hostname  = System.get_env("HOSTNAME")
+    description = System.get_env("INSTANCE_DESCRIPTION")
+    {:ok, %{hostname: hostname, description: description}}
   end
 
   def outbox(_, args, info) do

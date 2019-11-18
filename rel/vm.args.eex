@@ -24,3 +24,6 @@
 # Enable SMP automatically based on availability
 # On OTP21+, this is not needed anymore.
 -smp auto
+
+# leap smearing and time correction
++c +C multi_time_warp

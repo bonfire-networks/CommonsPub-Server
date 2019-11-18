@@ -1,6 +1,11 @@
 # The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.9.0-alpine` image uses
-ARG ALPINE_VERSION=3.9
+# This should match the version of Alpine that the `elixir:1.9.4-alpine` image uses
+# To find this you need to:
+# 1. Locate the dockerfile for the elixir image to get the erlang image version
+#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.9/alpine/Dockerfile
+# 2. Locate the dockerfile for the corresponding erlang image
+#    e.g. https://github.com/erlang/docker-erlang-otp/blob/master/22/alpine/Dockerfile
+ARG ALPINE_VERSION=3.10
 
 # The following are build arguments used to change variable parts of the image.
 # The name of your application/release (required)
@@ -8,7 +13,7 @@ ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
-FROM elixir:1.9.0-alpine as builder
+FROM elixir:1.9.4-alpine as builder
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 
@@ -33,14 +38,9 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && \
-    apk add --no-cache \
-      bash \
-      openssl-dev
+RUN apk update && apk add --no-cache bash openssl-dev
 
-ENV APP_NAME=${APP_NAME} \
-    APP_VSN=${APP_VSN} \
-    APP_REVISION=${APP_VSN}-${APP_BUILD}
+ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
 WORKDIR /opt/app
 

@@ -13,8 +13,15 @@ defmodule ActivityPubWeb.ActorView do
     public_key = :public_key.pem_entry_encode(:SubjectPublicKeyInfo, public_key)
     public_key = :public_key.pem_encode([public_key])
 
+    type = case actor.data["type"] do
+      "MN:Community" -> "Group"
+      "MN:Collection" -> "Group"
+      _ -> actor.data["type"]
+    end
+
     actor.data
     |> Map.put("url", actor.data["id"])
+    |> Map.put("type", type)
     |> Map.merge(%{
       "publicKey" => %{
         "id" => "#{actor.data["id"]}#main-key",
@@ -23,5 +30,7 @@ defmodule ActivityPubWeb.ActorView do
       }
     })
     |> Map.merge(Utils.make_json_ld_header())
+    |> Enum.filter(fn {_k, v} -> v != nil end)
+    |> Enum.into(%{})
   end
 end

@@ -13,11 +13,13 @@ defmodule ActivityPub.Object do
   alias ActivityPub.Object
 
   @primary_key {:id, :binary_id, autogenerate: true}
+  @foreign_key_type :binary_id
 
   schema "ap_object" do
     field(:data, :map)
     field(:local, :boolean, default: true)
     field(:public, :boolean)
+    belongs_to(:mn_pointer, MoodleNet.Meta.Pointer)
 
     timestamps()
   end
@@ -27,6 +29,8 @@ defmodule ActivityPub.Object do
   def get_by_ap_id(ap_id) do
     Repo.one(from(object in Object, where: fragment("(?)->>'id' = ?", object.data, ^ap_id)))
   end
+
+  def get_by_pointer_id(pointer_id), do: Repo.get_by(Object, mn_pointer_id: pointer_id)
 
   def insert(attrs) do
     attrs
@@ -41,8 +45,14 @@ defmodule ActivityPub.Object do
 
   def changeset(object, attrs) do
     object
-    |> cast(attrs, [:data, :local, :public])
+    |> cast(attrs, [:data, :local, :public, :mn_pointer_id])
     |> validate_required(:data)
+  end
+
+  def update(object, attrs) do
+    object
+    |> change(attrs)
+    |> Repo.update()
   end
 
   def normalize(_, fetch_remote \\ true)

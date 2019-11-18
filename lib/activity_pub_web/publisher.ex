@@ -26,7 +26,7 @@ defmodule ActivityPubWeb.Publisher do
   * `actor`: the actor which is signing the message
   * `id`: the ActivityStreams URI of the message
   """
-  def publish_one(%{inbox: inbox, json: json, actor: actor, id: id} = params) do
+  def publish_one(%{inbox: inbox, json: json, actor: %Actor{} = actor, id: id} = params) do
     Logger.info("Federating #{id} to #{inbox}")
     host = URI.parse(inbox).host
 
@@ -65,6 +65,15 @@ defmodule ActivityPubWeb.Publisher do
         unless params[:unreachable_since], do: Instances.set_unreachable(inbox)
         {:error, response}
     end
+  end
+
+  def publish_one(%{actor_username: username} = params) do
+    {:ok, actor} = Actor.get_by_username(username)
+
+    params
+    |> Map.delete(:actor_username)
+    |> Map.put(:actor, actor)
+    |> publish_one()
   end
 
   defp recipients(actor, activity) do
@@ -126,6 +135,7 @@ defmodule ActivityPubWeb.Publisher do
   def publish(actor, activity) do
     {:ok, data} = Transmogrifier.prepare_outgoing(activity.data)
     json = Jason.encode!(data)
+    ActivityPub.maybe_forward_activity(activity)
 
     recipients(actor, activity)
     |> Enum.map(fn actor ->
@@ -135,13 +145,13 @@ defmodule ActivityPubWeb.Publisher do
     |> maybe_federate_to_mothership()
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
-      ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
-        inbox: inbox,
-        json: json,
-        actor: actor,
-        id: activity.data["id"],
-        unreachable_since: unreachable_since
-      })
+    ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
+      inbox: inbox,
+      json: json,
+      actor_username: actor.username,
+      id: activity.data["id"],
+      unreachable_since: unreachable_since
+    })
     end)
   end
 

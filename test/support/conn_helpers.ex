@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   require Phoenix.ConnTest
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
-  alias MoodleNet.OAuth.Token
+  alias MoodleNet.Access.Token
   alias MoodleNet.Users.User
   
   @endpoint MoodleNetWeb.Endpoint
@@ -67,8 +67,16 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def gql_post_200(conn \\ json_conn(), query),
     do: gql_post(conn, query, 200)
 
-  def gql_post_data(conn \\ json_conn(), query),
-    do: Map.fetch!(gql_post_200(conn, query), "data")
+  def gql_post_data(conn \\ json_conn(), query) do
+    case gql_post_200(conn, query) do
+      %{"data" => data, "errors" => errors} ->
+        throw {:additional_errors, errors}
+      %{"errors" => errors} ->
+        throw {:unexpected_errors, errors}
+      %{"data" => data} -> data
+      other -> throw {:horribly_wrong, other}
+    end
+  end
 
   def gql_post_errors(conn \\ json_conn(), query),
     do: Map.fetch!(gql_post_200(conn, query), "errors")

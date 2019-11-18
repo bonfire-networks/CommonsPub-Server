@@ -8,15 +8,86 @@ defmodule MoodleNetWeb.GraphQL.CommentsTest do
   # import ActivityPub.Entity, only: [local_id: 1]
   # @moduletag format: :json
 
-  describe "CommentsResolver.fetch" do
+  describe "thread" do
+    @tag :skip
+    test "placeholder" do
+    end
   end
-  describe "CommentsResolver.create_thread" do
+  describe "comment" do
+    @tag :skip
+    test "placeholder" do
+    end
   end
-  describe "CommentsResolver.create_reply" do
+  describe "createThread" do
+    @tag :skip
+    test "placeholder" do
+    end
   end
-  describe "CommentsResolver.update" do
+  describe "createReply" do
+    @tag :skip
+    test "placeholder" do
+    end
   end
-  describe "CommentsResolver.delete" do
+  describe "editComment" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "thread.lastActivity" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "thread.myFollow" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "thread.context" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+  describe "thread.comments" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "thread.followers" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comment.myLike" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comment.creator" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comment.thread" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comment.likes" do
+    @tag :skip
+    test "placeholder" do
+    end
+  end
+
+  describe "comment.flags" do
+    @tag :skip
+    test "placeholder" do
+    end
   end
 
 end

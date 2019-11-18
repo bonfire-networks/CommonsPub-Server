@@ -28,46 +28,49 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     # |> GraphQL.response(info)
   end
 
-  def collection(%{collection_id: id}, info) do
-    {:ok, Fake.collection()}
-    |> GraphQL.response(info)
-    # GraphQL.response(Collections.fetch(id), info)
-  end
+  def collection(%{collection_id: id}, info), do: Collections.fetch(id)
 
   def collection(_,_,info) do
     {:ok, Fake.collection()}
     |> GraphQL.response(info)
   end
-  def create_collection(%{collection: attrs, community_id: community_id}, info) do
-    # Repo.transact_with(fn ->
-    #   with {:ok, user} <- GraphQL.current_user(info),
-    #        {:ok, actor} <- Users.fetch_actor(user),
-    #        {:ok, community} <- Communities.fetch(id) do
-    # 	permitted =
-    # 	  user.is_instance_admin or
-    #       collection.creator_id == actor.id or
-    # 	if permitted do
-    #       Collections.create(community, actor, attrs)
-    # 	else
-    # 	  GraphQL.not_permitted()
-    # 	end
-    #   end
-    # end)
-    # |> GraphQL.response(info)
-    {:ok, Fake.collection()}
-    |> GraphQL.response(info)
+
+  def canonical_url(coll, _, _), do: {:ok, coll.actor.canonical_url}
+  def preferred_username(coll, _, _), do: {:ok, coll.actor.preferred_username}
+  def is_local(coll, _, _), do: {:ok, is_nil(coll.actor.peer_id)}
+  def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
+  def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
+  def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}
+
+  def create_collection(%{collection: attrs, community_id: id}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user(info),
+           {:ok, community} <- Communities.fetch(id) do
+        attrs = Map.merge(attrs, %{is_public: true})
+        Collections.create(community, user, attrs)
+      end
+    end)
   end
 
   def update_collection(%{collection: changes, collection_id: id}, info) do
-    # with {:ok, actor} <- current_actor(info),
-    #      {:ok, collection} <- fetch(id, "MoodleNet:Collection"),
-    #      {:ok, collection} <- MoodleNet.update_collection(actor, collection, changes) do
-    #   fields = requested_fields(info)
-    #   {:ok, prepare(collection, fields)}
-    # end
-    # |> Errors.handle_error()
-    {:ok, Fake.collection()}
-    |> GraphQL.response(info)
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user(info),
+           {:ok, collection} <- Collections.fetch(id) do
+        collection = Repo.preload(collection, :community)
+        cond do
+          user.local_user.is_instance_admin ->
+	    Collections.update(collection, changes)
+
+          collection.creator_id == user.id ->
+	    Collections.update(collection, changes)
+
+          collection.community.creator_id == user.id ->
+	    Collections.update(collection, changes)
+
+          true -> GraphQL.not_permitted("update")
+        end
+      end
+    end)
   end
 
   # def delete(%{collection_id: id}, info) do

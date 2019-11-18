@@ -194,15 +194,15 @@ defimpl Response, for: AuthPayload do
 end
 
 defimpl Response, for: Me do
-  def to_response(self, info, path) do
-    self
+  @me_fields ~w(email wants_email_digest wants_notifications is_confirmed is_instance_admin)a
+  def to_response(self, info, path), do: self
     # user = Response.to_response(self.user, info, path ++ [:user])
-    # is_confirmed = not is_nil(self.user.local_user.confirmed_at)
-    # self.user.local_user
-    # |> Map.take(~w(email wants_email_digest wants_notifications is_instance_admin)a)
-    # |> Map.put(:is_confirmed, is_confirmed)
+    # ret = self.user.local_user
+    # |> Map.take(@me_fields)
     # |> Map.put(:user, user)
-  end
+    # IO.inspect(ret: ret)
+    # ret
+  # end
 end
 
 defimpl Response, for: User do

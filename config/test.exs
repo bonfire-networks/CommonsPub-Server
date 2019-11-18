@@ -9,7 +9,7 @@ use Mix.Config
 # you can enable the server option below.
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [port: 4001],
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
@@ -53,6 +53,8 @@ config :moodle_net, MoodleNet.OAuth,
 
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
+
+config :moodle_net, Oban, queues: false, prune: :disabled
 
 config :moodle_net, MoodleNet.Uploads.Storage,
   provider: [Belt.Provider.Filesystem, [[directory: "test_uploads", base_url: "http://localhost:4000/uploads"]]]

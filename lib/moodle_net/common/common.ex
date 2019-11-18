@@ -4,7 +4,6 @@
 defmodule MoodleNet.Common do
 
   alias MoodleNet.{Meta, Repo}
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -17,8 +16,10 @@ defmodule MoodleNet.Common do
     Tag,
   }
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Access.NotPermittedError
+  alias MoodleNet.Common.{Changeset, NotFoundError}
+  alias MoodleNet.Users.User
   import Ecto.Query
-  alias MoodleNet.Common.Changeset
 
   ### pagination
 
@@ -56,7 +57,7 @@ defmodule MoodleNet.Common do
 
   ### liking
 
-  def find_like(%Actor{}=liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
+  def find_like(%User{}=liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
 
   defp find_like_q(liker_id, liked_id) do
     from l in Like,
@@ -65,7 +66,7 @@ defmodule MoodleNet.Common do
       where: is_nil(l.deleted_at)
   end
 
-  def insert_like(%Actor{}=liker, liked, fields) do
+  def insert_like(%User{}=liker, liked, fields) do
     Repo.transact_with fn ->
       pointer = Meta.find!(liked.id)
 
@@ -78,10 +79,10 @@ defmodule MoodleNet.Common do
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
-  def like(%Actor{}=liker, liked, fields) do
+  def like(%User{}=liker, liked, fields) do
     Repo.transact_with fn ->
       case find_like(liker, liked) do
-        {:ok, _} -> {:error, AlreadyLikedError.new(liked.id)}
+        {:ok, _} -> {:error, AlreadyLikedError.new("user")}
         _ -> insert_like(liker, liked, fields)
       end
     end
@@ -93,16 +94,16 @@ defmodule MoodleNet.Common do
   end
 
   @doc """
-  Return a list of likes for an actor.
+  Return a list of likes for a user.
   """
-  def likes_by(%Actor{}=actor), do: Repo.all(likes_by_query(actor))
+  def likes_by(%User{}=user), do: Repo.all(likes_by_query(user))
 
   @doc """
   Return a list of likes for any object participating in the meta abstraction.
   """
   def likes_of(%{id: _id}=thing), do: Repo.all(likes_of_query(thing))
 
-  defp likes_by_query(%Actor{id: id}) do
+  defp likes_by_query(%User{id: id}) do
     from l in Like,
       where: is_nil(l.deleted_at),
       where: l.liker_id == ^id
@@ -116,7 +117,7 @@ defmodule MoodleNet.Common do
 
   ## Flagging
 
-  def find_flag(%Actor{} = flagger, flagged) do
+  def find_flag(%User{} = flagger, flagged) do
     Repo.single(find_flag_q(flagger.id, flagged.id))
   end
 
@@ -127,20 +128,20 @@ defmodule MoodleNet.Common do
       where: is_nil(f.deleted_at)
   end
 
-  def flag(%Actor{} = flagger, flagged, fields) do
+  def flag(%User{} = flagger, flagged, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-  	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-  	_ -> insert_flag(flagger, flagged, fields)
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ -> insert_flag(flagger, flagged, fields)
       end
     end
   end
 
-  def flag(%Actor{} = flagger, flagged, community, fields) do
+  def flag(%User{} = flagger, flagged, community, fields) do
     Repo.transact_with fn ->
       case find_flag(flagger, flagged) do
-  	{:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-  	_ -> insert_flag(flagger, flagged, community, fields)
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ -> insert_flag(flagger, flagged, community, fields)
       end
     end
   end
@@ -168,9 +169,9 @@ defmodule MoodleNet.Common do
   end
 
   @doc """
-  Return a list of open flags for an actor.
+  Return a list of open flags for an user.
   """
-  def flags_by(%Actor{} = actor), do: Repo.all(flags_by_query(actor))
+  def flags_by(%User{} = user), do: Repo.all(flags_by_query(user))
 
   @doc """
   Return a list of open flags for any object participating in the meta abstraction.
@@ -188,7 +189,7 @@ defmodule MoodleNet.Common do
     Repo.all(query)
   end
 
-  defp flags_by_query(%Actor{id: id}) do
+  defp flags_by_query(%User{id: id}) do
     from f in Flag,
       where: is_nil(f.deleted_at),
       where: f.flagger_id == ^id
@@ -202,6 +203,29 @@ defmodule MoodleNet.Common do
 
   ## Following
 
+  @spec list_follows(User.t()) :: [Follow.t()]
+  def list_follows(%User{id: id}) do
+    query = from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: f.follower_id == ^id
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  @spec list_by_followed(%{id: binary}) :: [Follow.t()]
+  def list_by_followed(%{id: id} = followed) do
+    query = from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: f.followed_id == ^id
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  @spec find_follow(User.t(), %{id: binary}) :: {:ok, Follow.t()} | {:error, NotFoundError.t()}
+  def find_follow(%User{} = follower, followed) do
+    Repo.single(follow_q(follower.id, followed.id))
+  end
+
   defp follow_q(follower_id, followed_id) do
     from f in Follow,
       where: is_nil(f.deleted_at),
@@ -209,24 +233,22 @@ defmodule MoodleNet.Common do
       where: f.followed_id == ^followed_id
   end
 
-  def find_follow(%Actor{} = follower, followed) do
-    Repo.single(follow_q(follower.id, followed.id))
+  @spec follow(User.t, any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def follow(%User{} = follower, followed, fields) do
+    Repo.transact_with fn ->
+      case find_follow(follower, followed) do
+        {:ok, _} -> {:error, AlreadyFollowingError.new("user")}
+        _ -> insert_follow(follower, followed, fields)
+      end
+    end
   end
 
   defp insert_follow(follower, followed, fields) do
     Repo.transact_with fn ->
       pointer = Meta.find!(followed.id)
-      Repo.insert(Follow.create_changeset(follower, pointer, fields))
-    end
-  end
-
-  @spec follow(Actor.t, any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def follow(%Actor{} = follower, followed, fields) do
-    Repo.transact_with fn ->
-      case find_follow(follower, followed) do
-  	{:ok, _} -> {:error, AlreadyFollowingError.new(followed.id)}
-  	_ -> insert_follow(follower, followed, fields)
-      end
+      Meta.point_to!(Follow)
+      |> Follow.create_changeset(follower, pointer, fields)
+      |> Repo.insert()
     end
   end
 
@@ -242,15 +264,19 @@ defmodule MoodleNet.Common do
   @spec undo_follow(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def undo_follow(%Follow{} = follow), do: soft_delete(follow)
 
+  @spec preload_follow(Follow.t(), Keyword.t()) :: Follow.t()
+  def preload_follow(%Follow{} = follow, opts \\ []),
+    do: Repo.preload(follow, [:followed, :follower], opts)
+
   ## Blocking
 
-  @spec block(Actor.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
-  def block(%Actor{} = blocker, blocked, fields) do
+  @spec block(User.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
+  def block(%User{} = blocker, blocked, fields) do
     Repo.transact_with(fn ->
       pointer = Meta.find!(blocked.id)
 
-      blocker
-      |> Block.create_changeset(pointer, fields)
+      Meta.point_to!(Block)
+      |> Block.create_changeset(blocker, pointer, fields)
       |> Repo.insert()
     end)
   end
@@ -269,28 +295,28 @@ defmodule MoodleNet.Common do
 
   ## Tagging
 
-  @spec tag(Actor.t, any, map) :: {:ok, Tag.t} | {:error, Changeset.t()}
-  def tag(%Actor{} = tagger, tagged, fields) do
-    Repo.transact_with(fn ->
-      pointer = Meta.find!(tagged.id)
+  # @spec tag(User.t, any, map) :: {:ok, Tag.t} | {:error, Changeset.t()}
+  # def tag(%User{} = tagger, tagged, fields) do
+  #   Repo.transact_with(fn ->
+  #     pointer = Meta.find!(tagged.id)
 
-      tagger
-      |> Tag.create_changeset(pointer, fields)
-      |> Repo.insert()
-    end)
-  end
+  #     tagger
+  #     |> Tag.create_changeset(pointer, fields)
+  #     |> Repo.insert()
+  #   end)
+  # end
 
-  @spec update_tag(Tag.t(), map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
-  def update_tag(%Tag{} = tag, fields) do
-    Repo.transact_with(fn ->
-      tag
-      |> Tag.update_changeset(fields)
-      |> Repo.update()
-    end)
-  end
+  # @spec update_tag(Tag.t(), map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  # def update_tag(%Tag{} = tag, fields) do
+  #   Repo.transact_with(fn ->
+  #     tag
+  #     |> Tag.update_changeset(fields)
+  #     |> Repo.update()
+  #   end)
+  # end
 
-  @spec untag(Tag.t()) :: {:ok, Tag.t()} | {:error, Changeset.t()}
-  def untag(%Tag{} = tag), do: soft_delete(tag)
+  # @spec untag(Tag.t()) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  # def untag(%Tag{} = tag), do: soft_delete(tag)
 
   ## Deletion
 

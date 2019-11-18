@@ -4,10 +4,12 @@
 defmodule MoodleNet.Communities do
   import Ecto.Query, only: [from: 2]
   alias Ecto.Changeset
+
   alias MoodleNet.Actors.{
     Actor,
-    ActorFollowerCount,
+    ActorFollowerCount
   }
+
   alias Ecto.Association.NotLoaded
   alias MoodleNet.{Actors, Collections, Common, Meta, Repo, Users}
   alias MoodleNet.Common.Query
@@ -17,13 +19,12 @@ defmodule MoodleNet.Communities do
 
   # def count_for_list(), do: Repo.one(count_for_list_q())
 
-  # @doc "Lists public, non-deleted communities by follower count"
-  # def list(opts \\ %{})
-  # def list(%{}=opts) do
-  #   Enum.map Repo.all(list_q()), fn {community, actor, count} ->
-  #     %{community | actor: %{actor | follower_count: count}}
-  #   end
-  # end
+  @doc "Lists public, non-deleted communities by follower count"
+  def list() do
+    Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
+      Community.vivify_virtuals(%{community | actor: actor, follower_count: count})
+    end)
+  end
 
   # defp count_for_list_q() do
   #   Community
@@ -32,81 +33,109 @@ defmodule MoodleNet.Communities do
   #   |> Query.count()
   # end
 
-  # def list_q() do
-  #   from c in Community,
-  #     join: a in Actor, on: a.alias_id == c.id,
-  #     left_join: fc in assoc(a, :follower_count),
-  #     where: not is_nil(c.published_at),
-  #     where: is_nil(c.deleted_at),
-  #     select: {c,a,fc},
-  #     limit: 100,
-  #     order_by: [desc: fc.count, desc: a.updated_at, desc: a.id]
-  # end
+  def list_q() do
+    from(c in Community,
+      join: a in Actor,
+      on: a.id == c.actor_id,
+      left_join: fc in assoc(c, :follower_count),
+      where: not is_nil(c.published_at),
+      where: is_nil(c.deleted_at),
+      select: {c, a, fc},
+      limit: 100,
+      order_by: [desc: fc.count, desc: a.updated_at, desc: a.id]
+    )
+  end
 
-  # @doc "Fetches a public, non-deleted community by id"
-  # def fetch(id) when is_binary(id) do
-  #   with {:ok, {c,a}} <- Repo.single(fetch_q(id)) do
-  #     {:ok, %{c | actor: a}}
-  #   end
-  # end
+  @doc "Fetches a public, non-deleted community by id"
+  def fetch(id) when is_binary(id) do
+    with {:ok, comm} <- Repo.single(fetch_q(id)) do
+      {:ok, preload_actor(comm)}
+    end
+  end
 
-  # defp fetch_q(id) do
-  #   from c in Community,
-  #     inner_join: a in Actor, on: c.id == a.alias_id,
-  #     where: a.id == ^id,
-  #     where: not is_nil(c.published_at),
-  #     where: not is_nil(a.published_at),
-  #     where: is_nil(c.deleted_at),
-  #     where: is_nil(a.deleted_at),
-  #     select: {c,a}
-  # end
+  defp fetch_q(id) do
+    from(c in Community,
+      where: c.id == ^id,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.deleted_at),
+      where: is_nil(c.disabled_at)
+    )
+  end
 
-  # @doc "Fetches a community by ID, ignoring whether it is public or not."
-  # @spec fetch_private(id :: binary) :: {:ok, Community.t} | {:error, NotFoundError.t}
-  # def fetch_private(id) when is_binary(id), do: Repo.fetch(Community, id)
+  def fetch_by_username(username) when is_binary(username) do
+    Repo.transact_with(fn ->
+      with {:ok, comm} <- Repo.single(fetch_by_username_q(username)) do
+	{:ok, preload(comm)}
+      end
+    end)
+  end
 
-  # @spec create(User.t, Actor.t, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
-  # def create(%User{id: id}, %Actor{alias_id: alias_id} = creator, %{} = attrs)
-  # when id == alias_id do
-  #   Repo.transact_with fn ->
-  #     with {:ok, comm} <- insert_community(creator, attrs),
-  #          {:ok, actor} <- Actors.create_with_alias(comm.id, attrs) do
-  # 	{:ok, %{ comm | actor: actor }}
-  #     end
-  #   end
-  # end
+  defp fetch_by_username_q(username) when is_binary(username) do
+    from c in Community,
+      join: a in assoc(c, :actor),
+      where: a.preferred_username == ^username,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.deleted_at),
+      where: is_nil(c.disabled_at)
+  end
 
-  # defp insert_community(creator, attrs) do
-  #   Meta.point_to!(Community)
-  #   |> Community.create_changeset(creator, attrs)
-  #   |> Repo.insert()
-  # end
+  @doc "Fetches a community by ID, ignoring whether it is public or not."
+  @spec fetch_private(id :: binary) :: {:ok, Community.t()} | {:error, NotFoundError.t()}
+  def fetch_private(id) when is_binary(id) do
+    with {:ok, comm} <- Repo.fetch(Community, id) do
+      {:ok, preload(comm)}
+    end
+  end
 
-  # @spec update(%Community{}, attrs :: map) :: {:ok, Community.t} | {:error, Changeset.t}
-  # def update(%Community{} = community, attrs) when is_map(attrs) do
-  #   Repo.transact_with fn ->
-  #     with {:ok, actor} <- fetch_actor(community),
-  #          {:ok, community} <- Repo.update(Community.update_changeset(community, attrs)),
-  #          {:ok, actor} <- Actors.update(actor, attrs) do
-  #       {:ok, %{community | actor: actor}}
-  #     end
-  #   end
-  # end
+  @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %{} = attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, comm} <- insert_community(creator, actor, attrs) do
+	comm = Community.vivify_virtuals(%{comm | actor: actor, creator: creator})
+        {:ok, comm}
+      end
+    end)
+  end
 
-  # def soft_delete(%Community{} = community) do
-  #   Repo.transact_with fn ->
-  #     with {:ok, deleted} <- Common.soft_delete(community),
-  #          {:ok, actor} <- fetch_actor(community),
-  #          {:ok, actor} <- Actors.soft_delete(actor) do
-  #       {:ok, deleted}
-  #     end
-  #   end
-  # end
+  defp insert_community(creator, actor, attrs) do
+    Meta.point_to!(Community)
+    |> Community.create_changeset(creator, actor, attrs)
+    |> Repo.insert()
+  end
 
-  # def fetch_actor(%Community{id: id, actor: nil}), do: Actors.fetch_by_alias(id)
-  # def fetch_actor(%Community{actor: actor}), do: {:ok, actor}
+  @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
+  def update(%Community{} = community, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      community = preload_actor(community)
+      with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
+           {:ok, actor} <- Actors.update(community.actor, attrs) do
+        community = Community.vivify_virtuals(%{ comm | actor: actor})
+        {:ok, community}
+      end
+    end)
+  end
 
-  # def fetch_creator(%Community{creator_id: id, creator: %NotLoaded{}}), do: Actors.fetch(id)
-  # def fetch_creator(%Community{creator: creator}), do: {:ok, creator}
+  def soft_delete(%Community{} = community), do: Common.soft_delete(community)
+
+  def preload(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload([:actor, :creator], opts)
+    |> Community.vivify_virtuals()
+  end
+
+  def preload_actor(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload(:actor, opts)
+    |> Community.vivify_virtuals()
+  end
+  def preload_creator(%Community{} = community, opts \\ []) do
+    community
+    |> Repo.preload(:creator, opts)
+    |> Community.vivify_virtuals()
+  end
+
+  def fetch_creator(%Community{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
+  def fetch_creator(%Community{creator: creator}), do: {:ok, creator}
 
 end
