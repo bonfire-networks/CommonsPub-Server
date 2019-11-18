@@ -1,17 +1,17 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.ActivityWorker do
-  use Oban.Worker, queue: "activities_outbox", max_attempts: 1
+  use Oban.Worker, queue: "activities", max_attempts: 1
 
   require Logger
 
-  alias MoodleNet.{Common, Meta, Repo, Users, Comments}
-  alias MoodleNet.Activities
-  alias MoodleNet.Communities
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Users.User
+  alias MoodleNet.{Activities, Communities, Collections, Common, Meta, Repo, Users, Comments}
   alias MoodleNet.Common.{Follow, Like}
   alias MoodleNet.Comments.{Comment, Thread}
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Users.User
 
   @impl Worker
   def perform(
@@ -61,15 +61,15 @@ defmodule MoodleNet.Workers.ActivityWorker do
   end
 
   defp insert_outbox!(%User{} = user, activity) do
-    Repo.insert(Users.Outbox.changeset(user, activity))
+    Repo.insert!(Users.Outbox.changeset(user, activity))
   end
 
   defp insert_outbox!(%Community{} = community, activity) do
-    {:ok, _} = Repo.insert(Communities.Outbox.changeset(community, activity))
+    Repo.insert!(Communities.Outbox.changeset(community, activity))
   end
 
   defp insert_outbox!(%Collection{} = collection, activity) do
-    {:ok, _} = Repo.insert(Collections.Outbox.changeset(collection, activity))
+    Repo.insert!(Collections.Outbox.changeset(collection, activity))
 
     {:ok, comm} = Communities.fetch(collection.community_id)
     insert_outbox!(comm, activity)
@@ -80,25 +80,18 @@ defmodule MoodleNet.Workers.ActivityWorker do
   end
 
   defp insert_inbox!(%User{} = user, activity) do
+    insert_follower_inbox!(user, activity)
+
     user
     |> Users.Inbox.changeset(activity)
     |> Repo.insert!()
-
-    insert_follower_inbox!(user, activity)
   end
 
   defp insert_inbox!(%Community{} = community, activity) do
-    community
-    |> Communities.Inbox.changeset(activity)
-    |> Repo.insert!()
-
     insert_follower_inbox!(community, activity)
   end
 
   defp insert_inbox!(%Collection{} = collection, activity) do
-    collection
-    |> Collections.Inbox.changeset(activity)
-    |> Repo.insert!()
     insert_follower_inbox!(collection, activity)
 
     {:ok, community} = Communities.fetch(collection.community_id)
