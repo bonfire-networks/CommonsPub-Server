@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.CommonTest do
   use MoodleNet.DataCase, async: true
+  use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
   alias MoodleNet.Common
@@ -72,6 +73,11 @@ defmodule MoodleNet.CommonTest do
       assert like.liker_id == liker.id
       assert like.liked_id == liked.id
       assert like.published_at
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "create", context_id: like.id, user_id: like.liker_id}
+      )
     end
   end
 
@@ -201,11 +207,13 @@ defmodule MoodleNet.CommonTest do
 
   describe "list_follows/1" do
     test "returns a list of follows for a user", %{user: follower} do
-      follows = for _ <- 1..5 do
-        followed = fake_meta!()
-        assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
-        follow
-      end
+      follows =
+        for _ <- 1..5 do
+          followed = fake_meta!()
+          assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+          follow
+        end
+
       fetched = Common.list_follows(follower)
 
       assert Enum.count(fetched) == Enum.count(follows)
@@ -215,11 +223,14 @@ defmodule MoodleNet.CommonTest do
   describe "list_by_followed/1" do
     test "returns a list of follows for an item" do
       followed = fake_meta!()
-      follows = for _ <- 1..5 do
-        follower = fake_user!()
-        assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
-        follow
-      end
+
+      follows =
+        for _ <- 1..5 do
+          follower = fake_user!()
+          assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+          follow
+        end
+
       fetched = Common.list_by_followed(followed)
 
       assert Enum.count(fetched) == Enum.count(follows)
@@ -242,6 +253,11 @@ defmodule MoodleNet.CommonTest do
       assert follow.followed_id == followed.id
       assert follow.published_at
       refute follow.muted_at
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "create", context_id: follow.id, user_id: follower.id}
+      )
     end
 
     # test "can mute a follow", %{user: follower} do
@@ -273,6 +289,11 @@ defmodule MoodleNet.CommonTest do
 
       assert {:ok, follow} = Common.undo_follow(follow)
       assert follow.deleted_at
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "delete", context_id: follow.id, user_id: follower.id}
+      )
     end
   end
 

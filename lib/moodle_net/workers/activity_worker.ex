@@ -66,11 +66,6 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
   defp insert_outbox!(%Community{} = community, activity) do
     {:ok, _} = Repo.insert(Communities.Outbox.changeset(community, activity))
-
-    # if user.id != community.creator_id do
-    #   {:ok, creator} = Communities.fetch_creator(community)
-    #   insert_outbox!(creator, activity)
-    # end
   end
 
   defp insert_outbox!(%Collection{} = collection, activity) do

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.CommentsTest do
   use MoodleNet.DataCase, async: true
+  use Oban.Testing, repo: MoodleNet.Repo
 
   import MoodleNet.Test.Faking
   alias MoodleNet.Access.NotPermittedError
@@ -107,6 +108,11 @@ defmodule MoodleNet.CommentsTest do
       attrs = Fake.thread()
       assert {:ok, thread} = Comments.create_thread(parent, creator, attrs)
       assert thread.canonical_url == attrs[:canonical_url]
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "create", context_id: thread.id, user_id: creator.id}
+      )
     end
 
     test "fails to create a thread with invalid attributes", %{user: creator, parent: parent} do
@@ -130,6 +136,11 @@ defmodule MoodleNet.CommentsTest do
       refute thread.deleted_at
       assert {:ok, thread} = Comments.soft_delete_thread(thread)
       assert thread.deleted_at
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "delete", context_id: thread.id, user_id: thread.creator_id}
+      )
     end
   end
 
@@ -353,6 +364,11 @@ defmodule MoodleNet.CommentsTest do
       assert comment.content == attrs.content
       assert comment.is_hidden == attrs.is_hidden
       assert comment.is_local == attrs.is_local
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "create", context_id: comment.id, user_id: creator.id}
+      )
     end
 
     test "fails given invalid attributes", %{user: creator, thread: thread} do
@@ -405,6 +421,11 @@ defmodule MoodleNet.CommentsTest do
       refute comment.deleted_at
       assert {:ok, comment} = Comments.soft_delete_comment(comment)
       assert comment.deleted_at
+
+      assert_enqueued(
+        worker: MoodleNet.Workers.ActivityWorker,
+        args: %{verb: "delete", context_id: comment.id, user_id: context.user.id}
+      )
     end
   end
 end
