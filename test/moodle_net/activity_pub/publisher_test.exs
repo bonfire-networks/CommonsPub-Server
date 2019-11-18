@@ -19,23 +19,56 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert activity.data["context"] == actor.ap_id
     end
 
-    # This should work but context function for creating replies is missing and changeset
-    # function returns an error.
-    @tag :skip
     test "it federates a reply to a comment" do
       actor = fake_user!()
       commented_actor = fake_user!()
-      thread = fake_thread!(actor, commented_actor)
+      {:ok, thread} = MoodleNet.Comments.create_thread(commented_actor, actor, %{is_local: true})
       comment = fake_comment!(actor, thread)
       # Publish the comment first so we can reply to it
       Publisher.comment(comment)
-      reply = fake_comment!(commented_actor, thread)
-      changeset = MoodleNet.Comments.Comment.reply_to_changeset(reply, comment)
-      {:ok, reply} = MoodleNet.Repo.update(changeset)
+      {:ok, reply} = MoodleNet.Comments.create_comment_reply(thread, actor, comment, %{content: "test", is_local: true})
 
-      IO.inspect(reply)
       assert {:ok, activity} = Publisher.comment(reply)
       assert activity.object.data["inReplyTo"]
+    end
+  end
+
+  describe "creating resources" do
+    test "it federates a resource" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+
+      assert {:ok, activity} = Publisher.create_resource(resource)
+      assert activity.object.mn_pointer_id == resource.id
+      assert activity.local == true
+      assert activity.object.local == true
+      {:ok, collection} = ActivityPub.Actor.get_by_local_id(collection.id)
+      {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
+      assert activity.data["context"] == collection.ap_id
+      assert activity.data["actor"] == actor.ap_id
+    end
+  end
+
+  describe "creating actors" do
+    test "it federates a create activity for a community" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+
+      assert {:ok, activity} = Publisher.create_community(community)
+      assert activity.data["object"]["type"] == "Group"
+      assert activity.data["object"]["id"]
+    end
+
+    test "it federate a create activity for a collection" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+
+      assert {:ok, activity} = Publisher.create_collection(collection)
+      assert activity.data["object"]["type"] == "Group"
+      assert activity.data["object"]["id"]
     end
   end
 

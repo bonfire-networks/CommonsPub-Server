@@ -1,3 +1,7 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule MoodleNet.ActivityPub.Utils do
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
@@ -19,7 +23,8 @@ defmodule MoodleNet.ActivityPub.Utils do
     reply_id = Map.get(comment, :reply_to_id)
 
     if reply_id do
-      ActivityPub.Object.get_by_pointer_id(reply_id)
+      object = ActivityPub.Object.get_by_pointer_id(reply_id)
+      object.data["id"]
     else
       nil
     end
