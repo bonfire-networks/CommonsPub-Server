@@ -112,7 +112,8 @@ defmodule ActivityPub do
     local = !(params[:local] == false)
     published = params[:published]
 
-    with create_data <-
+    with  nil <- Object.normalize(additional["id"], false),
+          create_data <-
            Utils.make_create_data(
              %{to: to, actor: actor, published: published, context: context, object: object},
              additional
