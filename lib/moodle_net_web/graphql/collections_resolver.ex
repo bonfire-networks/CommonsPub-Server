@@ -110,6 +110,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
+  def creator(%Collection{}=coll, _, info), do: Users.fetch(coll.creator_id)
   def community(%Collection{}=coll, _, info), do: Communities.fetch(coll.community_id)
 
   def last_activity(_, _, info) do

@@ -259,8 +259,21 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
     end
   end
   describe "collection.creator" do
-    @tag :skip
+
     test "placeholder" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"creator" => user} = coll2
+      assert_user(alice, user)
     end
   end
   describe "collection.community" do
