@@ -116,12 +116,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The user who created the collection"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.creator/3
+      resolve &CollectionsResolver.creator/3
     end
 
     @desc "The community the collection belongs to"
     field :community, non_null(:community) do
-      resolve &CommunitiesResolver.community/3
+      resolve &CollectionsResolver.community/3
     end
 
     @desc "The resources in the collection, most recently created last"

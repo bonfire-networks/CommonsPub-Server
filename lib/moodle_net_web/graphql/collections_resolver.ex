@@ -110,6 +110,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
+  def community(%Collection{}=coll, _, info), do: Communities.fetch(coll.community_id)
+
   def last_activity(_, _, info) do
     {:ok, Fake.past_datetime()}
     |> GraphQL.response(info)

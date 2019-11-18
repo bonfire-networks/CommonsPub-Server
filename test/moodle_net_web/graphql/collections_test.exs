@@ -275,7 +275,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
         }
       }
       """
-      
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"community" => comm2} = coll2
+      assert_community(comm, comm2)
     end
 
   end
