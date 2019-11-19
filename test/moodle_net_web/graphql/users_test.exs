@@ -444,33 +444,175 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "myFollow" do
-    @tag :skip
-    test "placeholder" do
+    test "works for guest" do
+      alice = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"user" => user} = gql_post_data(%{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFollow" => nil} = user
+    end
+    test "works for user - followd" do
+      alice = fake_user!()
+      bob = fake_user!()
+      {:ok, follow} = Common.follow(bob, alice, %{is_local: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFollow" => follow2} = user
+      assert_follow(follow,follow2)
+    end
+    test "works for user - unfollowd" do
+      alice = fake_user!()
+      bob = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFollow" => nil} = user
     end
   end
 
   describe "myLike" do
-    @tag :skip
-    test "placeholder" do
+    test "works for guest" do
+      alice = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"user" => user} = gql_post_data(%{query: query})
+      user = assert_user(alice, user)
+      assert %{"myLike" => nil} = user
+    end
+    test "works for user - liked" do
+      alice = fake_user!()
+      bob = fake_user!()
+      {:ok, like} = Common.like(bob, alice, %{is_local: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myLike { #{like_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myLike" => like2} = user
+      assert_like(like,like2)
+    end
+    test "works for user - unliked" do
+      alice = fake_user!()
+      bob = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myLike { #{like_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myLike" => nil} = user
     end
   end
 
   describe "followedCommunities" do
-    test "placeholder" do
+    test "works for guest" do
+      alice = fake_user!()
+      bob = fake_user!()
+      celia = fake_user!()
+      {:ok, bob_like} = Common.like(bob, alice, %{is_local: true})
+      {:ok, celia_like} = Common.like(celia, alice, %{is_local: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          followedCommunities {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                follow { #{follow_basics()} }
+                community { #{community_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"user" => user} = gql_post_data(%{query: query})
+      user = assert_user(alice, user)
+      assert %{"followedCommunities" => followeds} = user
+      edge_list = assert_edge_list(followeds)
+      for edge <- edge_list.edges do
+        assert_follow(edge["follow"])
+        assert_community(edge["community"])
+      end
     end
   end
 
   describe "followedCollections" do
-    @tag :skip
-    test "placeholder" do
+    test "works for guest" do
+      alice = fake_user!()
+      bob = fake_user!()
+      celia = fake_user!()
+      {:ok, bob_like} = Common.like(bob, alice, %{is_local: true})
+      {:ok, celia_like} = Common.like(celia, alice, %{is_local: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          followedCollections {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                follow { #{follow_basics()} }
+                collection { #{collection_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"user" => user} = gql_post_data(%{query: query})
+      user = assert_user(alice, user)
+      assert %{"followedCollections" => followeds} = user
+      edge_list = assert_edge_list(followeds)
+      for edge <- edge_list.edges do
+        assert_follow(edge["follow"])
+        assert_collection(edge["collection"])
+      end
     end
   end
 
-  describe "followedUsers" do
-    @tag :skip
-    test "placeholder" do
-    end
-  end
+  # describe "followedUsers" do
+  #   @tag :skip
+  #   test "placeholder" do
+  #   end
+  # end
+
 
   describe "likes" do
 

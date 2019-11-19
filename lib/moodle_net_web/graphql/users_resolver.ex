@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
   def me(_, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
-      {:ok, Me.new(current_user)}
+      {:ok, Me.new(Users.preload_actor(current_user))}
     end
   end
 
