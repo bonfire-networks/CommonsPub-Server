@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
     @desc "The object of the user's verbing"
     field :context, non_null(:activity_context) do
-      resolve &ActivitiesResolver.context/3
+      resolve &CommonResolver.context/3
     end
   end
 
