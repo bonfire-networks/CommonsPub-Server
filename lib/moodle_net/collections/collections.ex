@@ -124,7 +124,8 @@ defmodule MoodleNet.Collections do
   def create(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, coll} <- insert_collection(community, creator, actor, attrs) do
+           {:ok, coll} <- insert_collection(community, creator, actor, attrs),
+           {:ok, _} <- publish_collection(coll, "create") do
         {:ok, %{coll | actor: actor, creator: creator}}
       end
     end)
@@ -134,6 +135,14 @@ defmodule MoodleNet.Collections do
     Meta.point_to!(Collection)
     |> Collection.create_changeset(community, creator, actor, attrs)
     |> Repo.insert()
+  end
+
+  defp publish_collection(%Collection{} = collection, verb) do
+    MoodleNet.FeedPublisher.publish(%{
+      "verb" => verb,
+      "context_id" => collection.id,
+      "user_id" => collection.creator_id,
+    })
   end
 
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
@@ -148,7 +157,12 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  def soft_delete(%Collection{} = collection), do: Common.soft_delete(collection)
+  def soft_delete(%Collection{} = collection) do
+    with {:ok, collection} <- Common.soft_delete(collection),
+         {:ok, _} <- publish_collection(collection, "delete") do
+      {:ok, collection}
+    end
+  end
 
   def preload(%Collection{} = collection, opts \\ []),
     do: Repo.preload(collection, :actor, opts)
@@ -158,5 +172,4 @@ defmodule MoodleNet.Collections do
 
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
-
 end

@@ -86,7 +86,8 @@ defmodule MoodleNet.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%Collection{} = collection, %User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, resource} <- insert_resource(collection, creator, attrs) do
+      with {:ok, resource} <- insert_resource(collection, creator, attrs),
+           {:ok, _} <- publish_resource(resource, "create") do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
@@ -98,12 +99,24 @@ defmodule MoodleNet.Resources do
     |> Repo.insert()
   end
 
+  defp publish_resource(%Resource{} = resource, verb) do
+    MoodleNet.FeedPublisher.publish(%{
+      "verb" => verb,
+      "context_id" => resource.id,
+      "user_id" => resource.creator_id,
+    })
+  end
+
   @spec update(Resource.t(), attrs :: map) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def update(%Resource{} = resource, attrs) when is_map(attrs) do
     Repo.update(Resource.update_changeset(resource, attrs))
   end
 
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def soft_delete(%Resource{} = resource), do: Common.soft_delete(resource)
-
+  def soft_delete(%Resource{} = resource) do
+    with {:ok, resource} <- Common.soft_delete(resource),
+         {:ok, _} <- publish_resource(resource, "delete") do
+      {:ok, resource}
+    end
+  end
 end
