@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
-  alias MoodleNet.{Fake, GraphQL}
+  alias MoodleNet.{Fake, GraphQL, Repo}
   alias MoodleNet.Activities.Activity
   
   def activity(%{activity_id: id}, info) do

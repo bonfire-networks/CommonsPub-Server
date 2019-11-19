@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Fake, GraphQL, Instance}
+  alias MoodleNet.{Common, Fake, GraphQL, Instance}
 
   def instance(_, info) do
     hostname  = System.get_env("HOSTNAME")
