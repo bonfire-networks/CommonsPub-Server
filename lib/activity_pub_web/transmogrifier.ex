@@ -152,7 +152,7 @@ defmodule ActivityPubWeb.Transmogrifier do
          {:ok, follower} <- Actor.get_by_ap_id(follower),
          {:ok, activity} <- ActivityPub.follow(follower, followed, id, false) do
       ActivityPub.accept(%{
-        to: [follower["id"]],
+        to: [follower.data["id"]],
         actor: followed,
         object: data,
         local: true
