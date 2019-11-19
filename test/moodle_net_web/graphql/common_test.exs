@@ -6,18 +6,40 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
   alias MoodleNet.{Common,Access}
   # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import MoodleNetWeb.Test.GraphQLAssertions
-  # import MoodleNet.Test.Faking
-  # import MoodleNetWeb.Test.ConnHelpers
-  # import MoodleNetWeb.Test.GraphQLAssertions
+  import MoodleNet.Test.Faking
+  import MoodleNetWeb.Test.ConnHelpers
+  import MoodleNetWeb.Test.GraphQLAssertions
+  import MoodleNetWeb.Test.GraphQLFields
 
   describe "flag" do
-    @tag :skip
     test "placeholder" do
+      alice = fake_user!()
+      bob = fake_user!()
+      {:ok, flag} = Common.flag(alice, bob, %{is_local: true}) # alice flags bob
+      q = """
+      { flag(flagId: "#{flag.id}") {
+          #{flag_basics()}
+        }
+      }
+      """
+      assert %{"flag" => flag2} = gql_post_data(%{query: q})
+      flag2 = assert_flag(flag, flag2)
     end
   end
+
   describe "follow" do
-    @tag :skip
-    test "placeholder" do
+    test "works for guest" do
+      alice = fake_user!()
+      bob = fake_user!()
+      {:ok, follow} = Common.follow(alice, bob, %{is_local: true}) # alice follows bob
+      q = """
+      { follow(followId: "#{follow.id}") {
+          #{follow_basics()}
+        }
+      }
+      """
+      assert %{"follow" => follow2} = gql_post_data(%{query: q})
+      follow2 = assert_follow(follow, follow2)
     end
   end
   describe "like" do

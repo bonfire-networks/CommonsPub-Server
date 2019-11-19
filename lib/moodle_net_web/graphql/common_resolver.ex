@@ -21,15 +21,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
-  def flag(%{flag_id: id}, info) do
-    {:ok, Fake.flag()}
-    |> GraphQL.response(info)
-  end
+  def flag(%{flag_id: id}, info), do: Common.fetch_flag(id)
 
-  def follow(%{follow_id: id}, info) do
-    {:ok, Fake.follow()}
-    |> GraphQL.response(info)
-  end
+  def follow(%{follow_id: id}, info), do: Common.fetch_follow(id)
 
   def follow(parent, _, info) do
     case Map.get(parent, :follow) do
@@ -39,10 +33,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
 
-  def like(%{like_id: id}, info) do
-    {:ok, Fake.like()}
-    |> GraphQL.response(info)
-  end
+  def like(%{like_id: id}, info), do: Common.fetch_like(id)
 
   def like(parent,_, info) do
     case Map.get(parent, :like) do

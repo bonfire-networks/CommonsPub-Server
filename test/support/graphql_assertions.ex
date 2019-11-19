@@ -56,34 +56,44 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   end
 
   def assert_node_list(list) do
-    assert %{"pageInfo" => page, "totalCount" => count} = list
+    assert %{"nodes" => nodes, "totalCount" => count} = list
     assert is_integer(count)
-    assert %{"startCursor" => start, "endCursor" => ends} = page
-    assert is_binary(start)
-    assert is_binary(ends)
-    assert %{"nodes" => nodes} = list
     assert is_list(nodes)
-    page_info = %{start_cursor: start, end_cursor: ends}
-    %{page_info: page_info, nodes: nodes}
+    if nodes == [] do
+      assert count == 0 # remove me
+      %{nodes: [], total_count: count}
+    else
+      assert %{"pageInfo" => page} = list
+      assert %{"startCursor" => start, "endCursor" => ends} = page
+      assert is_binary(start)
+      assert is_binary(ends)
+      page_info = %{start_cursor: start, end_cursor: ends}
+      %{page_info: page_info, nodes: nodes, total_count: count}
+    end
   end
 
   
 
   def assert_edge_list(list, cursor_fn \\ &(&1.id)) do
-    assert %{"pageInfo" => page, "totalCount" => count} = list
-    assert is_integer(count)
-    assert %{"startCursor" => start, "endCursor" => ends} = page
-    assert is_binary(start)
-    assert is_binary(ends)
-    assert %{"edges" => edges} = list
+    assert %{"edges" => edges, "totalCount" => count} = list
     assert is_list(edges)
-    edges = Enum.map(edges, fn e ->
-      assert %{"cursor" => cursor, "node" => node} = e
-      assert is_binary(cursor)
-      Map.merge(e, %{cursor: cursor, node: node})
-    end)
-    page_info = %{start_cursor: start, end_cursor: ends}
-    %{page_info: page_info, total_count: count, edges: edges}
+    assert is_integer(count)
+    if edges == [] do
+      assert count == 0 # remove me
+      %{edges: [], total_count: count}
+    else
+      assert %{"pageInfo" => page} = list
+      assert %{"startCursor" => start, "endCursor" => ends} = page
+      assert is_binary(start)
+      assert is_binary(ends)
+      edges = Enum.map(edges, fn e ->
+        assert %{"cursor" => cursor, "node" => node} = e
+        assert is_binary(cursor)
+        Map.merge(e, %{cursor: cursor, node: node})
+      end)
+      page_info = %{start_cursor: start, end_cursor: ends}
+      %{page_info: page_info, total_count: count, edges: edges}
+    end
   end
 
   def assert_language(lang) do

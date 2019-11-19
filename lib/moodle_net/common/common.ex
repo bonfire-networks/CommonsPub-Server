@@ -243,6 +243,16 @@ defmodule MoodleNet.Common do
 
   ## Following
 
+  def fetch_follow(id), do: Repo.single(fetch_follow_q(id))
+
+  defp fetch_follow_q(id) do
+    from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: not is_nil(f.published_at),
+      where: f.id == ^id
+  end
+
+
   @spec list_follows(User.t()) :: [Follow.t()]
   def list_follows(%User{id: id}) do
     query =

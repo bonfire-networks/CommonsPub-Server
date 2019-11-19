@@ -19,19 +19,60 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm_3 = fake_community!(bob)
       comm_4 = fake_community!(bob)
       comm_5 = fake_community!(bob)
+      comms = [comm_1, comm_2, comm_3, comm_4, comm_5]
+      keyed = Enum.reduce(comms, %{}, fn comm, acc ->
+	Map.put(acc, comm.id, comm)
+      end)
       q = """
       { communities {
           #{page_basics()} nodes { #{community_basics()} }
         }
       }
       """
-      assert %{"communities" => comms} = gql_post_data(%{query: q})
-      node_list = assert_node_list(comms)
+      assert %{"communities" => comms2} = gql_post_data(%{query: q})
+      node_list = assert_node_list(comms2)
       assert Enum.count(node_list.nodes) == 5
       for node <- node_list.nodes do
-	assert_community(node)
+	assert_community(keyed[node["id"]], node)
       end
     end
+  end
+
+  describe "communities.creator" do
+    test "works" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm_1 = fake_community!(alice)
+      comm_2 = fake_community!(alice)
+      comm_3 = fake_community!(bob)
+      comm_4 = fake_community!(bob)
+      comm_5 = fake_community!(bob)
+      comms = [comm_1, comm_2, comm_3, comm_4, comm_5]
+      keyed = Enum.reduce(comms, %{}, fn comm, acc ->
+	Map.put(acc, comm.id, comm)
+      end)
+      named = Enum.reduce([alice, bob], %{}, fn person, acc ->
+	Map.put(acc, person.id, person)
+      end)
+      q = """
+      { communities {
+          #{page_basics()} nodes {
+            #{community_basics()}
+            creator { #{user_basics()} }
+          }
+        }
+      }
+      """
+      assert %{"communities" => comms2} = gql_post_data(%{query: q})
+      node_list = assert_node_list(comms2)
+      assert Enum.count(node_list.nodes) == 5
+      for node <- node_list.nodes do
+	comm = assert_community(keyed[node["id"]], node)
+	assert %{"creator" => creator} = comm
+	assert_user(named[creator["id"]], creator)
+      end
+    end
+    
   end
 
   describe "community" do

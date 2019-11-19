@@ -96,7 +96,7 @@ defmodule MoodleNet.Communities do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm} <- insert_community(creator, actor, attrs),
            {:ok, _} <- publish_community(comm, "create") do
-        {:ok, comm}
+        {:ok, %{ comm | actor: actor }}
       end
     end)
   end
@@ -121,8 +121,7 @@ defmodule MoodleNet.Communities do
       community = preload(community)
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(community.actor, attrs) do
-        community = %{ comm | actor: actor}
-        {:ok, community}
+        {:ok, %{ comm | actor: actor}}
       end
     end)
   end
