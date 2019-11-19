@@ -13,10 +13,12 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
   def outbox(_, args, info) do
     Repo.transact_with(fn ->
-      activities =
-        Instance.outbox()
-        |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-      count = Instance.count_for_outbox()
+      # activities =
+      #   Instance.outbox()
+      #   |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+      # count = Instance.count_for_outbox()
+      activities = []
+      count = 0
       page_info = Common.page_info(activities)
       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     end)
