@@ -183,6 +183,30 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   #   end
   # end
 
+  def is_public(parent, _, _), do: {:ok, not is_nil(parent.published_at)}
+  def is_disabled(parent, _, _), do: {:ok, not is_nil(parent.disabled_at)}
+  def is_deleted(parent, _, _), do: {:ok, not is_nil(parent.deleted_at)}
+
+  def my_like(parent, _, info) do
+    case GraphQL.current_user(info) do
+      {:ok, user} ->
+	with {:error, _} <- Common.find_like(user, parent) do
+          {:ok, nil}
+	end
+      _ -> {:ok, nil}
+    end
+  end
+
+  def my_follow(parent, _, info) do
+    case GraphQL.current_user(info) do
+      {:ok, user} ->
+	with {:error, _} <- Common.find_follow(user, parent) do
+          {:ok, nil}
+	end
+      _ -> {:ok, nil}
+    end
+  end
+
   defp flaggable_entity(pointer) do
     %Table{schema: table} = Meta.points_to!(pointer)
     case table do

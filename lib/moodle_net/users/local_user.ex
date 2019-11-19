@@ -94,13 +94,6 @@ defmodule MoodleNet.Users.LocalUser do
     |> change_public()
   end
 
-  def vivify_virtuals(%LocalUser{}=user) do
-    %{ user |
-       is_confirmed: not is_nil(user.confirmed_at),
-       is_deleted: not is_nil(user.deleted_at),
-    }
-  end
-
   # internals
 
   defp lower_case_email(%Changeset{valid?: false} = ch), do: ch

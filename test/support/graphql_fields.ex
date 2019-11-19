@@ -66,14 +66,14 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def like_basics() do
     """
     id canonicalUrl
-    isLocal isPublic createdAt __typename
+    isLocal isPublic createdAt updatedAt __typename
     """
   end
 
   def follow_basics() do
     """
     id canonicalUrl
-    isLocal isPublic createdAt __typename
+    isLocal isPublic createdAt updatedAt __typename
     """
   end
 

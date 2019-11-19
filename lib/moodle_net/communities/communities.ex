@@ -22,16 +22,19 @@ defmodule MoodleNet.Communities do
   @doc "Lists public, non-deleted communities by follower count"
   def list() do
     Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
-      Community.vivify_virtuals(%{community | actor: actor, follower_count: count})
+      %{community | actor: actor, follower_count: count}
     end)
   end
 
-  # defp count_for_list_q() do
-  #   Community
-  #   |> Query.only_public()
-  #   |> Query.only_undeleted()
-  #   |> Query.count()
-  # end
+  def count_for_list(), do: Repo.one(count_for_list_q())
+
+  defp count_for_list_q() do
+    from(c in Community,
+      where: not is_nil(c.published_at),
+      where: is_nil(c.deleted_at),
+      select: count(c),
+    )
+  end
 
   def list_q() do
     from(c in Community,
@@ -49,7 +52,7 @@ defmodule MoodleNet.Communities do
   @doc "Fetches a public, non-deleted community by id"
   def fetch(id) when is_binary(id) do
     with {:ok, comm} <- Repo.single(fetch_q(id)) do
-      {:ok, preload_actor(comm)}
+      {:ok, preload(comm)}
     end
   end
 
@@ -92,7 +95,7 @@ defmodule MoodleNet.Communities do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm} <- insert_community(creator, actor, attrs) do
-	comm = Community.vivify_virtuals(%{comm | actor: actor, creator: creator})
+	comm = %{comm | actor: actor, creator: creator}
         {:ok, comm}
       end
     end)
@@ -107,10 +110,10 @@ defmodule MoodleNet.Communities do
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      community = preload_actor(community)
+      community = preload(community)
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(community.actor, attrs) do
-        community = Community.vivify_virtuals(%{ comm | actor: actor})
+        community = %{ comm | actor: actor}
         {:ok, community}
       end
     end)
@@ -120,19 +123,12 @@ defmodule MoodleNet.Communities do
 
   def preload(%Community{} = community, opts \\ []) do
     community
-    |> Repo.preload([:actor, :creator], opts)
-    |> Community.vivify_virtuals()
+    |> Repo.preload(:actor, opts)
   end
 
-  def preload_actor(%Community{} = community, opts \\ []) do
-    community
-    |> Repo.preload(:actor, opts)
-    |> Community.vivify_virtuals()
-  end
   def preload_creator(%Community{} = community, opts \\ []) do
     community
     |> Repo.preload(:creator, opts)
-    |> Community.vivify_virtuals()
   end
 
   def fetch_creator(%Community{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)

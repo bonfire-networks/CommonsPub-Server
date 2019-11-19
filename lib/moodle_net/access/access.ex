@@ -114,12 +114,7 @@ defmodule MoodleNet.Access do
   @spec fetch_token_and_user(token :: binary) :: {:ok, %Token{}} | {:error, TokenNotFoundError.t}
   def fetch_token_and_user(token) when is_binary(token) do
     case UUID.cast(token) do
-      {:ok, token} ->
-	with {:ok, token} <- Repo.single(fetch_token_and_user_query(token)) do
-	  local_user = LocalUser.vivify_virtuals(token.user.local_user)
-	  user = User.vivify_virtuals(Users.preload_actor(token.user))
-	  {:ok, %{token | user: %{ user | local_user: local_user } } }
-	end
+      {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
       :error -> {:error, TokenNotFoundError.new()}
     end
   end

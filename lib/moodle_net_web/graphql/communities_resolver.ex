@@ -24,11 +24,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   def community(%{community_id: id}, info), do: Communities.fetch(id)
 
-  def community(_, _, info) do
-    {:ok, Fake.community()}
-    |> GraphQL.response(info)
-  end
-
   def communities(args, info) do
     Repo.transact_with(fn ->
       count = Communities.count_for_list()
@@ -54,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 	  community.creator_id == user.id ->
             Communities.update(community, changes)
 
-	  not community.is_public -> GraphQL.not_found()
+	  is_nil(community.published_at) -> GraphQL.not_found()
 
 	  true -> GraphQL.not_permitted()
     	end
@@ -76,6 +71,25 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   end)
   #   |> GraphQL.response(info)
   # end
+
+  def canonical_url(%Community{}=community, _, info) do
+    {:ok, community.actor.canonical_url}
+  end
+  def preferred_username(%Community{}=community, _, info) do
+    {:ok, community.actor.preferred_username}
+  end
+
+  def is_local(%Community{}=community, _, info) do
+    {:ok, is_nil(community.actor.peer_id)}
+  end
+
+  def collections(%Community{}=community, _, info) do
+    Repo.transact_with(fn ->
+      count = Collections.count_for_list_in_community(community)
+      comms = Collections.list_in_community(community)
+      {:ok, GraphQL.edge_list(comms, count, &(&1.created_at))}
+    end)
+  end
 
   def inbox(community, _, info) do
     activities = Fake.long_list(&Fake.activity/0)

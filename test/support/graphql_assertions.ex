@@ -254,9 +254,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comm.summary == comm2.summary
     assert comm.icon == comm2.icon
     assert comm.image == comm2.image
-    assert comm.is_local == comm2.is_local
-    assert comm.is_public == comm2.is_public
-    assert comm.is_disabled == comm2.is_disabled
+    assert is_nil(comm.actor.peer_id) == comm2.is_local
+    assert not is_nil(comm.published_at) == comm2.is_public
+    assert not is_nil(comm.disabled_at) == comm2.is_disabled
     assert comm.created_at == comm2.created_at
     assert comm.updated_at == comm2.updated_at
     comm2
@@ -503,12 +503,16 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"createdAt" => created} = follow
     assert is_binary(created)
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
+    assert %{"updatedAt" => updated} = follow
+    assert is_binary(updated)
+    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Follow"} = follow
     %{id: id,
       canonical_url: url,
       is_local: local,
       is_public: public,
-      created_at: created_at }
+      created_at: created_at,
+      updated_at: updated_at }
     |> Map.merge(follow)
   end
 

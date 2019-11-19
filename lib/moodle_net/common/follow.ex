@@ -24,7 +24,7 @@ defmodule MoodleNet.Common.Follow do
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @required ~w(is_local)a

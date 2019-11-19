@@ -24,17 +24,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def collections(%Community{}=community, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.collection/0)}
-    |> GraphQL.response(info)
-    Repo.transact_with(fn ->
-      count = Collections.count_for_list_in_community(community)
-      comms = Collections.list_in_community(community)
-      page_info = Common.page_info(comms)
-      {:ok, %{page_info: page_info, total_count: count, nodes: comms}}
-    end)
-  end
-
   def collection(%{collection_id: id}, info), do: Collections.fetch(id)
 
   def collection(_,_,info) do

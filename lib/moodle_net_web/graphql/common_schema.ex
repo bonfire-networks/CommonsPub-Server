@@ -120,7 +120,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "Whether the flag is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the flag is public"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
 
     @desc "When the flag was created"
     field :created_at, non_null(:string)
@@ -182,7 +184,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "Whether the follow is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the follow is public"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
 
     @desc "When the follow was created"
     field :created_at, non_null(:string)
@@ -232,7 +236,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "Whether the like is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the like is public"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
 
     @desc "When the like was created"
     field :created_at, non_null(:string)

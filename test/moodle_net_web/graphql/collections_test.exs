@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Users}
+  alias MoodleNet.{Access, Common, Users}
 
   describe "collections" do
 
@@ -248,16 +248,116 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
     test "placeholder" do
     end
   end
+
   describe "collection.myLike" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for liked for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => like2} = coll2
     end
+
+    test "works for unliked for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => nil} = coll2
+    end
+
+    test "nil for guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => nil} = coll2
+    end
+
   end
+
   describe "collection.myFollow" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for followed for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, follow} = Common.follow(bob, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => follow2} = coll2
+      assert_follow(follow, follow2)
     end
+
+    test "works for unfollowed for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => nil} = coll2
+    end
+
+    test "nil for guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => nil} = coll2
+    end
+
   end
+
+
   describe "collection.creator" do
 
     test "placeholder" do
