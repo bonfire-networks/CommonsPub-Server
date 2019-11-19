@@ -127,7 +127,6 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-<<<<<<< HEAD
   def outbox(%Community{}=community, opts \\ %{}) do
     Repo.all(outbox_q(community, opts))
     |> Repo.preload(:activity)
@@ -154,14 +153,6 @@ defmodule MoodleNet.Communities do
   end
 
   def soft_delete(%Community{} = community), do: Common.soft_delete(community)
-=======
-  def soft_delete(%Community{} = community) do
-    with {:ok, community} <- Common.soft_delete(community),
-         {:ok, _} <- publish_community(community, "delete") do
-      {:ok, community}
-    end
-  end
->>>>>>> ecba0d77... Publish event when community, resource or collection is created/deleted
 
   def preload(%Community{} = community, opts \\ []) do
     community
