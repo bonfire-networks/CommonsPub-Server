@@ -168,6 +168,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     # case Repo.preload(parent, :last_activity).last_activity do
     # end
     
-  end
+  # end
     
 end
