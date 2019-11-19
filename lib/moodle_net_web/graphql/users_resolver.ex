@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
