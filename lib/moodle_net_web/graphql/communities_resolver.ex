@@ -73,7 +73,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   # end
 
   def canonical_url(%Community{}=community, _, info) do
-    {:ok, community.actor.canonical_url}
+    {:ok, Fake.website()}
+    # {:ok, community.actor.canonical_url}
   end
   def preferred_username(%Community{}=community, _, info) do
     {:ok, community.actor.preferred_username}
