@@ -16,6 +16,7 @@ defmodule MoodleNet.Common do
     Tag
   }
 
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.{Changeset, NotFoundError}
@@ -27,11 +28,11 @@ defmodule MoodleNet.Common do
 
   def paginate(query, opts), do: query
 
-  def page_info(results) when is_list(results) do
+  def page_info(results, id \\ &(&1.id)) when is_list(results) do
     case results do
       [] -> nil
-      [x] -> %{start_cursor: x.id, end_cursor: x.id}
-      [x | xs] -> %{start_cursor: x.id, end_cursor: List.last(xs).id}
+      [x] -> %{start_cursor: id.(x), end_cursor: id.(x)}
+      [x | xs] -> %{start_cursor: id.(x), end_cursor: id.(List.last(xs))}
     end
   end
 
@@ -288,7 +289,7 @@ defmodule MoodleNet.Common do
 	on: f.followed_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.follower_id == ^id,
-	select: f
+	select: {f,c}
       )
     Repo.all(query)
   end
@@ -312,7 +313,7 @@ defmodule MoodleNet.Common do
 	on: f.followed_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.follower_id == ^id,
-	select: f
+	select: {f,c}
       )
     Repo.all(query)
   end

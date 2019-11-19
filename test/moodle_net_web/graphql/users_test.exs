@@ -542,10 +542,10 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "followedCommunities" do
     test "works for guest" do
       alice = fake_user!()
-      bob = fake_user!()
-      celia = fake_user!()
-      {:ok, bob_like} = Common.like(bob, alice, %{is_local: true})
-      {:ok, celia_like} = Common.like(celia, alice, %{is_local: true})
+      bob = fake_community!(alice)
+      celia = fake_community!(alice)
+      {:ok, bob_follow} = Common.follow(alice, bob, %{is_local: true})
+      {:ok, celia_follow} = Common.follow(alice, celia, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -566,9 +566,10 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = assert_user(alice, user)
       assert %{"followedCommunities" => followeds} = user
       edge_list = assert_edge_list(followeds)
+      assert 2 == Enum.count(edge_list.edges)
       for edge <- edge_list.edges do
-        assert_follow(edge["follow"])
-        assert_community(edge["community"])
+        assert_follow(edge.node["follow"])
+        assert_community(edge.node["community"])
       end
     end
   end
@@ -576,10 +577,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "followedCollections" do
     test "works for guest" do
       alice = fake_user!()
-      bob = fake_user!()
-      celia = fake_user!()
-      {:ok, bob_like} = Common.like(bob, alice, %{is_local: true})
-      {:ok, celia_like} = Common.like(celia, alice, %{is_local: true})
+      bob = fake_community!(alice)
+      celia = fake_collection!(alice, bob)
+      dave = fake_collection!(alice, bob)
+      {:ok, celia_follow} = Common.like(alice, celia, %{is_local: true})
+      {:ok, dave_follow} = Common.like(alice, dave, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}

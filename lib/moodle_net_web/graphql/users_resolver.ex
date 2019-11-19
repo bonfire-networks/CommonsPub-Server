@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Common, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -152,25 +152,28 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def followed_communities(%User{}=user,_,info) do
     Repo.transact_with(fn ->
-      # comms = Common.list_followed_communities(user)
-      # count = Common.count_for_list_followed_communities(user)
-      activities = []
-      count = 0
-      page_info = Common.page_info(activities)
-      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+      comms =
+	Common.list_followed_communities(user)
+        |> Enum.map(fn {f,c} -> %{cursor: f.id, node: %{follow: f, community: Communities.preload(c)}} end)
+      count = Common.count_for_list_followed_communities(user)
+      page_info = Common.page_info(comms, &(&1.node.follow.id))
+      {:ok, %{page_info: page_info, total_count: count, edges: comms}}
     end)
   end
 
-  def followed_collections(_,_,info) do
+  def follow(%{follow: follow}, _, _), do: {:ok, follow}
+  def community(%{community: community}, _, _), do: {:ok, community}
+
+  def followed_collections(%User{}=user,_,info) do
     Repo.transact_with(fn ->
-      # comms =
-      #   Common.list_followed_collections(user)
-        # |> Enum.map(
-      # count = Common.count_for_list_followed_collections(user)
-      activities = []
-      count = 0
-      page_info = Common.page_info(activities)
-      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+      colls =
+	Common.list_followed_collections(user)
+        |> Enum.map(fn {f,c} ->
+	  %{cursor: f.id, node: %{follow: f, collection: Collections.preload(c)}}
+        end)
+      count = Common.count_for_list_followed_collections(user)
+      page_info = Common.page_info(colls, &(&1.node.follow.id))
+      {:ok, %{page_info: page_info, total_count: count, edges: colls}}
     end)
   end
 
