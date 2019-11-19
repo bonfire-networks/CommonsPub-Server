@@ -79,13 +79,11 @@ defmodule MoodleNet.Common do
   end
 
   defp publish_like(%Like{} = like, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "user_id" => like.liker_id,
-      "context_id" => like.id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+      "context_id" => like.id
+    })
   end
 
   @doc """
@@ -94,7 +92,9 @@ defmodule MoodleNet.Common do
   def like(%User{} = liker, liked, fields) do
     Repo.transact_with(fn ->
       case find_like(liker, liked) do
-        {:ok, _} -> {:error, AlreadyLikedError.new("user")}
+        {:ok, _} ->
+          {:error, AlreadyLikedError.new("user")}
+
         _ ->
           with {:ok, like} <- insert_like(liker, liked, fields),
                {:ok, _} <- publish_like(like, "create") do
@@ -341,13 +341,11 @@ defmodule MoodleNet.Common do
   end
 
   defp publish_follow(%Follow{} = follow, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "user_id" => follow.follower_id,
-      "context_id" => follow.id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+      "context_id" => follow.id
+    })
   end
 
   @spec update_follow(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
@@ -380,10 +378,11 @@ defmodule MoodleNet.Common do
   end
 
   defp block_q(blocker_id, blocked_id) do
-    from b in Block,
+    from(b in Block,
       where: is_nil(b.deleted_at),
       where: b.blocker_id == ^blocker_id,
       where: b.blocked_id == ^blocked_id
+    )
   end
 
   @spec block(User.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}

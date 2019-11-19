@@ -103,6 +103,7 @@ config :moodle_net, Oban,
     federator_outgoing: 50,
     ap_incoming: 10,
     mn_activities: 10,
+    mn_ap_publish: 30,
   ]
 
 config :moodle_net, :workers,
