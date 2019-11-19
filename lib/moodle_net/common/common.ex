@@ -242,6 +242,30 @@ defmodule MoodleNet.Common do
     Enum.map(Repo.all(query), &preload_follow/1)
   end
 
+  def list_followed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+      )
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  def list_followed_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+      )
+
+    Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
   @spec list_by_followed(%{id: binary}) :: [Follow.t()]
   def list_by_followed(%{id: id} = followed) do
     query =

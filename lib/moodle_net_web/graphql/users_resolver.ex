@@ -164,7 +164,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Users.fetch(parent.creator_id)
   end
 
-  def last_activity(parent,_,info) do
+  def last_activity(parent,_,info), do: {:ok, Fake.past_datetime()}
     # case Repo.preload(parent, :last_activity).last_activity do
     # end
     
