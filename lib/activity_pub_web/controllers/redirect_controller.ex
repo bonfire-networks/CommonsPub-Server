@@ -30,7 +30,7 @@ defmodule ActivityPubWeb.RedirectController do
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
       {:ok, %MoodleNet.Users.User{} = actor} ->
-        redirect(conn, external: frontend_base <> "/users/" <> actor.id)
+        redirect(conn, external: frontend_base <> "/user/" <> actor.id)
 
       {:ok, %MoodleNet.Collections.Collection{} = actor} ->
         redirect(conn, external: frontend_base <> "/collections/" <> actor.id)

@@ -144,7 +144,7 @@ defmodule MoodleNetWeb.Router do
   scope ap_base_path, ActivityPubWeb do
     pipe_through(:signed_activity_pub)
 
-    post "/users/:username/inbox", ActivityPubController, :inbox
+    post "/actors/:username/inbox", ActivityPubController, :inbox
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
