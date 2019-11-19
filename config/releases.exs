@@ -33,6 +33,7 @@ end
 
 sentry_dsn = System.get_env("SENTRY_DSN")
 sentry_env = System.get_env("SENTRY_ENV")
+
 if not is_nil(sentry_dsn) do
   config :sentry,
     dsn: sentry_dsn,
