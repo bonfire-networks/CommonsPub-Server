@@ -63,6 +63,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def context(%Flag{}=flag, _, info), do: get_context(flag, &(&1.flagged_id))
   def context(%Follow{}=follow, _, _info), do: get_context(follow, &(&1.followed_id))
   def context(%Like{}=like, _, _info), do: get_context(like, &(&1.liked_id))
+  def context(other, _, _info), do: get_context(other)
 
   defp get_context(thing, accessor \\ &(&1.context_id)) do
     context_id = accessor.(thing)

@@ -10,10 +10,6 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
     |> GraphQL.response(info)
   end
 
-  def context(%Activity{}=parent, _, info) do
-    {:ok, GraphQL.response(Fake.activity_context(), info)}
-  end
-
   def user(%Activity{}=parent, _, info) do
     {:ok, Repo.preload(parent, [user: :actor]).user}
   end
