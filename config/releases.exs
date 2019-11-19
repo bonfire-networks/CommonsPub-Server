@@ -38,5 +38,6 @@ if not is_nil(sentry_dsn) do
     dsn: sentry_dsn,
     environment_name: sentry_env || Mix.env,
     root_source_code_path: File.cwd!,
-    enable_source_code_context: true
+    enable_source_code_context: true,
+    included_environments: [:prod, :home, :next, :mothership, :team]
 end
