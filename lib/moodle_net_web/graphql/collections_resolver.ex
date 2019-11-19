@@ -32,8 +32,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def canonical_url(coll, _, _), do: {:ok, Fake.website()} # {:ok, coll.actor.canonical_url}
-  def preferred_username(coll, _, _), do: {:ok, coll.actor.preferred_username}
-  def is_local(coll, _, _), do: {:ok, is_nil(coll.actor.peer_id)}
+  def preferred_username(coll, _, _), do: {:ok, Fake.preferred_username()} # {:ok, coll.actor.preferred_username}
+  def is_local(coll, _, _), do: {:ok, true} # {:ok, is_nil(coll.actor.peer_id)}
   def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
   def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
   def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}

@@ -77,11 +77,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     # {:ok, community.actor.canonical_url}
   end
   def preferred_username(%Community{}=community, _, info) do
-    {:ok, community.actor.preferred_username}
+    {:ok, Fake.preferred_username()}
+    # {:ok, community.actor.preferred_username}
   end
 
   def is_local(%Community{}=community, _, info) do
-    {:ok, is_nil(community.actor.peer_id)}
+    {:ok, true}
+    # {:ok, is_nil(community.actor.peer_id)}
   end
 
   def creator(%Community{}=community, _, info) do
