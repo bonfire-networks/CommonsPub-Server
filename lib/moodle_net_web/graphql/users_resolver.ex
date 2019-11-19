@@ -151,12 +151,29 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def followed_communities(%User{}=user,_,info) do
-    # Repo.transact_with(fn ->
-    #   with {:ok, 
-    # end)
+    Repo.transact_with(fn ->
+      # comms = Common.list_followed_communities(user)
+      # count = Common.count_for_list_followed_communities(user)
+      activities = []
+      count = 0
+      page_info = Common.page_info(activities)
+      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    end)
   end
+
   def followed_collections(_,_,info) do
+    Repo.transact_with(fn ->
+      # comms =
+      #   Common.list_followed_collections(user)
+        # |> Enum.map(
+      # count = Common.count_for_list_followed_collections(user)
+      activities = []
+      count = 0
+      page_info = Common.page_info(activities)
+      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    end)
   end
+
   def followed_users(_,_,info) do
   end
 

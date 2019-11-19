@@ -249,9 +249,21 @@ defmodule MoodleNet.Common do
 	on: f.followed_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.follower_id == ^id,
+	select: f
       )
+    Repo.all(query)
+  end
 
-    Enum.map(Repo.all(query), &preload_follow/1)
+  def count_for_list_followed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: count(f)
+      )
+    Repo.one(query)
   end
 
   def list_followed_collections(%User{id: id}) do
@@ -261,9 +273,21 @@ defmodule MoodleNet.Common do
 	on: f.followed_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.follower_id == ^id,
+	select: f
       )
+    Repo.all(query)
+  end
 
-    Enum.map(Repo.all(query), &preload_follow/1)
+  def count_for_list_followed_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: count(f)
+      )
+    Repo.one(query)
   end
 
   @spec list_by_followed(%{id: binary}) :: [Follow.t()]
