@@ -29,7 +29,7 @@ defmodule MoodleNet.Common do
 
   def page_info(results) when is_list(results) do
     case results do
-      [] -> %{start_cursor: "", end_cursor: ""}
+      [] -> nil
       [x] -> %{start_cursor: x.id, end_cursor: x.id}
       [x | xs] -> %{start_cursor: x.id, end_cursor: List.last(xs).id}
     end
