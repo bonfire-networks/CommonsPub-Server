@@ -83,6 +83,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     {:ok, is_nil(community.actor.peer_id)}
   end
 
+  def creator(%Community{}=community, _, info) do
+    Users.fetch(community.creator_id)
+  end
+
   def collections(%Community{}=community, _, info) do
     Repo.transact_with(fn ->
       count = Collections.count_for_list_in_community(community)

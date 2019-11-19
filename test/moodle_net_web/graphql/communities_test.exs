@@ -272,9 +272,22 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   describe "community.creator" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"community" => comm} = gql_post_data(%{query: q})
+      comm = assert_community(comm)
+      assert %{"creator" => user} = comm
+      assert_user(alice, user)
     end
+
   end
 
   describe "community.collections" do

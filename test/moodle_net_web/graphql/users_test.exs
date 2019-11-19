@@ -468,7 +468,6 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "followedCommunities" do
-    @tag :skip
     test "placeholder" do
     end
   end
@@ -498,18 +497,62 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "inbox" do
-    @tag :skip
     test "Works for self" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = """
+      { me {
+          #{me_basics()}
+          user {
+            #{user_basics()}
+            inbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+          }
+        }
+      }
+      """
+      assert %{"me" => me} = gql_post_data(conn, %{query: query})
+      me = assert_me(me)
+      assert %{"user" => user2} = me
+      user2 = assert_user(user, user2)
+      assert %{"inbox" => inbox} = user2
+      edge_list = assert_edge_list(inbox)
+      # assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+	activity = assert_activity(edge.node)
+	assert is_binary(edge.cursor)
+      end
     end
-    test "Does not work for other" do
-    end
-    test "Does not work for guest" do
-    end
+    # test "Does not work for other" do
+    # end
+    # test "Does not work for guest" do
+    # end
   end
 
   describe "outbox" do
-    @tag :skip
-    test "placeholder" do
+    test "Works for self" do
+      user = fake_user!()
+      conn = user_conn(user)
+      query = """
+      { me {
+          #{me_basics()}
+          user {
+            #{user_basics()}
+            outbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+          }
+        }
+      }
+      """
+      assert %{"me" => me} = gql_post_data(conn, %{query: query})
+      me = assert_me(me)
+      assert %{"user" => user2} = me
+      user2 = assert_user(user, user2)
+      assert %{"outbox" => outbox} = user2
+      edge_list = assert_edge_list(outbox)
+      # assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+	activity = assert_activity(edge.node)
+	assert is_binary(edge.cursor)
+      end
     end
   end
 

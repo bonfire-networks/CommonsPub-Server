@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     NotFoundError,
     NotPermittedError,
   }
-  alias MoodleNet.Users.Me
+  alias MoodleNet.Users.{Me, User}
 
   def username_available(%{username: username}, _info) do
     {:ok, Actors.is_username_available?(username)}
@@ -124,25 +124,32 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_disabled(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
   def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
-  def inbox(user, params, info) do
-    # with {:ok, current_user} <- GraphQL.current_user(info) do
-    #   if user.id == current_user.id do
-    #     with {:ok, activities, count} <- Users.inbox(current_user) do
-    #       {:ok, GraphQL.edge_list(activities, count)
-    #     end
-    #   else
-    # 	GraphQL.not_permitted()
-    #   end
-    # end
+  def inbox(%User{}=user, params, info) do
+    with {:ok, current_user} <- GraphQL.current_user(info) do
+      if user.id == current_user.id do
+        Repo.transact_with(fn ->
+          activities = Users.inbox(current_user)
+          count = Users.count_for_inbox(current_user)
+          {:ok, GraphQL.edge_list(activities, count)}
+        end)
+      else
+    	GraphQL.not_permitted()
+      end
+    end
   end
 
   def outbox(user, params, info) do
-    # with {:ok, activities, count} <- Users.outbox(user) do
-    #   {:ok, GraphQL.edge_list(activities, count)
-    # end
+    Repo.transact_with(fn ->
+      activities = Users.outbox(user)
+      count = Users.count_for_outbox(user)
+      {:ok, GraphQL.edge_list(activities, count)}
+    end)
   end
 
-  def followed_communities(_,_,info) do
+  def followed_communities(%User{}=user,_,info) do
+    # Repo.transact_with(fn ->
+    #   with {:ok, 
+    # end)
   end
   def followed_collections(_,_,info) do
   end

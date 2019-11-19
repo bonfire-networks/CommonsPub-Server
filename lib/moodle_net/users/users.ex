@@ -14,7 +14,9 @@ defmodule MoodleNet.Users do
 
   alias MoodleNet.Users.{
     EmailConfirmToken,
+    Inbox,
     LocalUser,
+    Outbox,
     ResetPasswordToken,
     TokenAlreadyClaimedError,
     TokenExpiredError,
@@ -302,6 +304,57 @@ defmodule MoodleNet.Users do
       end
     end)
   end
+
+  def inbox(%User{}=user, opts \\ %{}) do
+    Repo.all(inbox_q(user, opts))
+    |> Repo.preload(:activity)
+  end
+  def inbox_q(%User{id: id}=user, _opts) do
+    from i in Inbox,
+      join: u in assoc(i, :user),
+      join: a in assoc(i, :activity),
+      where: u.id == ^id,
+      where: not is_nil(a.published_at),
+      select: i,
+      preload: [:activity]
+  end
+  def count_for_inbox(%User{}=user, opts \\ %{}) do
+    Repo.one(count_for_inbox_q(user, opts))
+  end
+  def count_for_inbox_q(%User{id: id}=user, _opts) do
+    from i in Inbox,
+      join: u in assoc(i, :user),
+      join: a in assoc(i, :activity),
+      where: u.id == ^id,
+      where: not is_nil(a.published_at),
+      select: count(i)
+  end
+
+  def outbox(%User{}=user, opts \\ %{}) do
+    Repo.all(outbox_q(user, opts))
+    |> Repo.preload(:activity)
+  end
+  def outbox_q(%User{id: id}=user, _opts) do
+    from i in Outbox,
+      join: u in assoc(i, :user),
+      join: a in assoc(i, :activity),
+      where: u.id == ^id,
+      where: not is_nil(a.published_at),
+      select: i,
+      preload: [:activity]
+  end
+  def count_for_outbox(%User{}=user, opts \\ %{}) do
+    Repo.one(count_for_outbox_q(user, opts))
+  end
+  def count_for_outbox_q(%User{id: id}=user, _opts) do
+    from i in Outbox,
+      join: u in assoc(i, :user),
+      join: a in assoc(i, :activity),
+      where: u.id == ^id,
+      where: not is_nil(a.published_at),
+      select: count(i)
+  end
+  
 
   @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])

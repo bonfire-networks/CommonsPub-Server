@@ -111,7 +111,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "The user who created the community"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.creator/3
+      resolve &CommunitiesResolver.creator/3
     end
 
     @desc "The communities a user has joined, most recently joined first"
