@@ -172,4 +172,8 @@ defmodule MoodleNet.Collections do
 
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
+
+  def outbox(_), do: []
+  def count_for_outbox(_), do: 0
+  
 end

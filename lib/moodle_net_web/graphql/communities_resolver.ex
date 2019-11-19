@@ -96,12 +96,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def inbox(community, _, info) do
-    activities =
-      Fake.long_list(&Fake.activity/0)
-      |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-    count = Fake.pos_integer()
-    {:ok, GraphQL.edge_list(activities, count)}
-    |> GraphQL.response(info)    
+    # activities =
+    #   Fake.long_list(&Fake.activity/0)
+    #   |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+    # count = Fake.pos_integer()
+    # {:ok, GraphQL.edge_list(activities, count)}
+    # |> GraphQL.response(info)    
+    {:ok, GraphQL.edge_list([], 0)}
   end
 
   def outbox(community, _, info) do
@@ -113,6 +114,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       page_info = Common.page_info(activities, &(&1.cursor))
       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     end)
+    # {:ok, GraphQL.edge_list([], 0)}
   end
 
   def last_activity(_, _, info) do
