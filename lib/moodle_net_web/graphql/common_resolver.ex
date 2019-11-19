@@ -313,33 +313,34 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   #   |> GraphQL.response(info)
   # end
 
-  def create_tagging(_, info) do
-    {:ok, Fake.tagging()}
-    |> GraphQL.response(info)
-  end
+  # def create_tagging(_, info) do
+  #   {:ok, Fake.tagging()}
+  #   |> GraphQL.response(info)
+  # end
   def my_follow(parent, _, info) do
-    {:ok, Fake.follow()}
-    |> GraphQL.response(info)
+    case GraphQL.current_user(info) do
+      {:ok, user} ->
+	with {:error, _} <- Common.find_follow(user, parent) do
+	  {:ok, nil}
+	end
+      _ -> {:ok, nil}
+    end
   end
   def my_like(parent, _, info) do
-    {:ok, Fake.like()}
-    |> GraphQL.response(info)
+    case GraphQL.current_user(info) do
+      {:ok, user} ->
+	with {:error, _} <- Common.find_like(user, parent) do
+	  {:ok, nil}
+	end
+      _ -> {:ok, nil}
+    end
   end
-  def followers(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.follow/0)}
-    |> GraphQL.response(info)
-  end
-  def likes(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.like/0)}
-    |> GraphQL.response(info)
-  end
-  def flags(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.flag/0)}
-    |> GraphQL.response(info)
-  end
-  def tags(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.tagging/0)}
-    |> GraphQL.response(info)
-  end
+  def followers(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}
+  def likes(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}
+  def flags(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}
+  # def tags(parent, _, info) do
+  #   {:ok, Fake.long_edge_list(&Fake.tagging/0)}
+  #   |> GraphQL.response(info)
+  # end
 
 end
