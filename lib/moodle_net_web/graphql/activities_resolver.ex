@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   end
 
   def user(%Activity{}=parent, _, info) do
-    {:ok, Repo.preload(parent, :user).user}
+    {:ok, Repo.preload(parent, [user: :actor]).user}
   end
 
 end
