@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   alias MoodleNetWeb.GraphQL.{
     ActivitiesResolver,
     CollectionsResolver,
+    CommonResolver,
     UsersResolver,
   }
   alias MoodleNet.Collections.Collection
