@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
     @desc "The user who performed the activity"
     field :user, non_null(:user) do
-      resolve &UsersResolver.user/3
+      resolve &ActivitiesResolver.user/3
     end
 
     @desc "The object of the user's verbing"

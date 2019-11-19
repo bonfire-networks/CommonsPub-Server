@@ -5,7 +5,7 @@ defmodule MoodleNet.Collections do
   alias MoodleNet.{Actors, Common, Meta, Users, Repo}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Query
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Collections.{Collection, Outbox}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Users.User
   alias Ecto.Association.NotLoaded
@@ -173,7 +173,29 @@ defmodule MoodleNet.Collections do
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
 
-  def outbox(_), do: []
-  def count_for_outbox(_), do: 0
+  def outbox(%Collection{}=collection, opts \\ %{}) do
+    Repo.all(outbox_q(collection, opts))
+    |> Repo.preload(:activity)
+  end
+  def outbox_q(%Collection{id: id}=collection, _opts) do
+    from i in Outbox,
+      join: c in assoc(i, :collection),
+      join: a in assoc(i, :activity),
+      where: c.id == ^id,
+      where: not is_nil(a.published_at),
+      select: i,
+      preload: [:activity]
+  end
+  def count_for_outbox(%Collection{}=collection, opts \\ %{}) do
+    Repo.one(count_for_outbox_q(collection, opts))
+  end
+  def count_for_outbox_q(%Collection{id: id}=collection, _opts) do
+    from i in Outbox,
+      join: c in assoc(i, :collection),
+      join: a in assoc(i, :activity),
+      where: c.id == ^id,
+      where: not is_nil(a.published_at),
+      select: count(i)
+  end
   
 end
