@@ -163,7 +163,11 @@ defmodule MoodleNet.Common do
     Repo.transact_with(fn ->
       case find_flag(flagger, flagged) do
         {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-        _ -> insert_flag(flagger, flagged, community, fields)
+        _ ->
+          with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
+               {:ok, _} <- publish_flag(flag, "create") do
+            {:ok, flag}
+          end
       end
     end)
   end
@@ -186,6 +190,14 @@ defmodule MoodleNet.Common do
       |> Flag.create_changeset(flagger, community, pointer, fields)
       |> Repo.insert()
     end)
+  end
+
+  defp publish_flag(%Flag{} = flag, verb) do
+    MoodleNet.FeedPublisher.publish(%{
+      "verb" => verb,
+      "user_id" => flag.flagger_id,
+      "context_id" => flag.id
+    })
   end
 
   def resolve_flag(%Flag{} = flag) do
