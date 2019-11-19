@@ -98,44 +98,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   #   |> GraphQL.response(info)
   # end
 
-  def create_follow(%{context_id: id}, info) do
-    # Repo.transact_with fn ->
-    #   with {:ok, me} <- GraphQL.current_user(info),
-    #        {:ok, actor} <- Users.fetch_actor(me),
-    #        {:ok, pointer} <- Meta.find(id),
-    #        {:ok, thing} <- followable_entity(pointer) do
-    #     case Common.follow(actor, thing, %{}) do
-    #       {:ok, _} -> {:ok, true}
-    #       other -> GraphQL.response(other, info)
-    #     end
-    #   else
-    #     other -> GraphQL.response(other, info)
-    #   end
-    # end
-    {:ok, Fake.follow()}
-    |> GraphQL.response(info)
-  end
-
-  # def undo_follow(%{context_id: id}, info) do
-  #   Repo.transact_with fn ->
-  #     with {:ok, me} <- GraphQL.current_user(info),
-  #          {:ok, actor} <- Users.fetch_actor(me),
-  #          {:ok, pointer} <- Meta.find(id),
-  #          {:ok, thing} <- flaggable_entity(pointer) do
-  #       case Common.find_follow(actor, thing) do
-  #         {:ok, follow} ->
-  #           case Common.undo_follow(follow) do
-  #             {:ok, _} -> {:ok, true}
-  #             other -> GraphQL.response(other, info)
-  #           end
-  #         _ -> GraphQL.response({:error, NotFoundError.new(id)}, info)
-  #       end
-  #     else
-  #       other -> GraphQL.response(other, info)
-  #     end
-  #   end
-  # end
-
   # TODO: store community id where appropriate
   def create_flag(%{context_id: id, message: message}, info) do
     # Repo.transact_with fn ->
@@ -155,59 +117,25 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
 
-  # def undo_flag(%{context_id: id}, info) do
-  #   Repo.transact_with fn ->
-  #     with {:ok, me} <- GraphQL.current_user(info),
-  #          {:ok, actor} <- Users.fetch_actor(me),
-  #          {:ok, pointer} <- Meta.find(id),
-  #          {:ok, thing} <- flaggable_entity(pointer) do
-  #       case Common.find_flag(actor, thing) do
-  #         {:ok, flag} ->
-  #           case Common.resolve_flag(flag) do
-  #             {:ok, _} -> {:ok, true}
-  #             other -> GraphQL.response(other, info)
-  #           end
-  #         _ -> GraphQL.response({:error, NotFoundError.new(id)}, info)
-  #       end
-  #     else
-  #       other -> GraphQL.response(other, info)
-  #     end
-  #   end
-  # end
-
   def create_like(%{context_id: id}, info) do
-    # Repo.transact_with fn ->
-    #   with {:ok, me} <- GraphQL.current_user(info),
-    #        {:ok, actor} <- Users.fetch_actor(me),
-    #        {:ok, pointer} <- Meta.find(id),
-    #        {:ok, thing} <- flaggable_entity(pointer) do
-    #     case Common.like(actor, thing, %{}) do
-    #       {:ok, _} -> {:ok, true}
-    #       other -> GraphQL.response(other, info)
-    #     end
-    #   else
-    #     other -> GraphQL.response(other, info)
-    #   end
-    # end
-    {:ok, Fake.like()}
-    |> GraphQL.response(info)
+    Repo.transact_with fn ->
+      with {:ok, me} <- GraphQL.current_user(info),
+           {:ok, pointer} <- Meta.find(id),
+           {:ok, thing} <- likeable_entity(pointer) do
+        Common.like(me, thing, %{is_local: true})
+      end
+    end
   end
 
-  # def undo_like(%{context_id: id}, info) do
-  #   Repo.transact_with fn ->
-  #     with {:ok, me} <- GraphQL.current_user(info),
-  #          {:ok, actor} <- Users.fetch_actor(me),
-  #          {:ok, pointer} <- Meta.find(id),
-  #          {:ok, thing} <- flaggable_entity(pointer) do
-  #       case Common.find_like(actor, thing) do
-  #         {:ok, _} -> {:ok, true}
-  #         other -> GraphQL.response(other, info)
-  #       end
-  #     else
-  #       other -> GraphQL.response(other, info)
-  #     end
-  #   end
-  # end
+  def create_follow(%{context_id: id}, info) do
+    Repo.transact_with fn ->
+      with {:ok, me} <- GraphQL.current_user(info),
+           {:ok, pointer} <- Meta.find(id),
+           {:ok, thing} <- followable_entity(pointer) do
+        Common.follow(me, thing, %{is_local: true})
+      end
+    end
+  end
 
   def is_public(parent, _, _), do: {:ok, not is_nil(parent.published_at)}
   def is_disabled(parent, _, _), do: {:ok, not is_nil(parent.disabled_at)}
@@ -238,8 +166,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     case table do
       Resource -> Meta.follow(pointer)
       Comment -> Meta.follow(pointer)
+      Community -> Meta.follow(pointer)
       Collection -> Meta.follow(pointer)
-      Actor -> Meta.follow(pointer)
+      User -> Meta.follow(pointer)
       _ ->
 	IO.inspect("unflaggable: #{table}")
 	{:error, NotFlaggableError.new(pointer.id)}
@@ -251,17 +180,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     case table do
       Collection -> Meta.follow(pointer)
       Thread -> Meta.follow(pointer)
-      Actor ->
-        with {:ok, actor} <- Meta.follow(pointer),
-             {:ok, pointer2} <- Meta.find(actor.alias_id) do
-          %Table{schema: table2} = Meta.points_to!(pointer2)
-          case table2 do
-            Community -> {:ok, actor}
-            _ ->
-	      IO.inspect("unfollowable via actor: #{table}")
-	      {:error, NotFollowableError.new(pointer.id)}
-          end
-        end
+      Community -> Meta.follow(pointer)
+      User -> Meta.follow(pointer)
       _ ->
 	IO.inspect("unfollowable: #{table}")
 	{:error, NotFollowableError.new(pointer.id)}
@@ -270,6 +190,15 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   defp likeable_entity(pointer) do
     %Table{schema: table} = Meta.points_to!(pointer)
+    case table do
+      Collection -> Meta.follow(pointer)
+      Thread -> Meta.follow(pointer)
+      Community -> Meta.follow(pointer)
+      User -> Meta.follow(pointer)
+      _ ->
+	IO.inspect("unfollowable: #{table}")
+	{:error, NotFollowableError.new(pointer.id)}
+    end
   end
 
   # def followed(%Follow{}=follow,_,info)

@@ -271,6 +271,44 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       assert_collection(eve, context)
     end
   end
+
+  describe "createLike" do
+    test "works for a user liking a user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      conn = user_conn(alice)
+      q = """
+      mutation Test {
+        createLike(contextId: "#{bob.id}") {
+          #{like_basics()}
+        }
+      }
+      """
+      query = %{query: q, mutation: "Test"}
+      assert %{"createLike" => like} = gql_post_data(conn, query)
+      assert_like(like)
+      {:ok, _} = Common.find_like(alice, bob)
+    end
+  end
+
+  describe "createFollow" do
+    test "works for a user following a user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      conn = user_conn(alice)
+      q = """
+      mutation Test {
+        createFollow(contextId: "#{bob.id}") {
+          #{follow_basics()}
+        }
+      }
+      """
+      query = %{query: q, mutation: "Test"}
+      assert %{"createFollow" => follow} = gql_post_data(conn, query)
+      assert_follow(follow)
+      {:ok, _} = Common.find_follow(alice, bob)
+    end
+  end
   # describe "tags" do
   # end
 
