@@ -174,7 +174,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 	  %{cursor: f.id, node: %{follow: f, collection: Collections.preload(c)}}
         end)
       count = Common.count_for_list_followed_collections(user)
-      page_info = Common.page_info(colls, &(&1.node.follow.id))
+      page_info = Common.page_info(colls, &(&1.cursor))
       {:ok, %{page_info: page_info, total_count: count, edges: colls}}
     end)
   end

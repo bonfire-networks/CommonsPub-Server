@@ -106,15 +106,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def outbox(community, _, info) do
-    Repo.transact_with(fn ->
-      activities =
-	Communities.outbox(community)
-        |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-      count = Communities.count_for_outbox(community)
-      page_info = Common.page_info(activities, &(&1.cursor))
-      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
-    end)
-    # {:ok, GraphQL.edge_list([], 0)}
+    # Repo.transact_with(fn ->
+    #   activities =
+    # 	Communities.outbox(community)
+    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+    #   count = Communities.count_for_outbox(community)
+    #   page_info = Common.page_info(activities, &(&1.cursor))
+    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    # end)
+    {:ok, GraphQL.edge_list([], 0)}
   end
 
   def last_activity(_, _, info) do
