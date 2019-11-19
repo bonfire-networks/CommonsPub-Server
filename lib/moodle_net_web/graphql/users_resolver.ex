@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Common, Fake, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -130,7 +130,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         Repo.transact_with(fn ->
           activities = Users.inbox(current_user)
           count = Users.count_for_inbox(current_user)
-          {:ok, GraphQL.edge_list(activities, count)}
+          page_info = Common.page_info(activities)
+          {:ok, %{page_info: page_info, total_count: count, edges: activities}}
         end)
       else
     	GraphQL.not_permitted()
@@ -140,9 +141,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def outbox(user, params, info) do
     Repo.transact_with(fn ->
-      activities = Users.outbox(user)
+      activities =
+        Users.outbox(user)
+        |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
       count = Users.count_for_outbox(user)
-      {:ok, GraphQL.edge_list(activities, count)}
+      page_info = Common.page_info(activities)
+      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     end)
   end
 

@@ -332,8 +332,26 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   describe "community.outbox" do
-    @tag :skip
-    test "placeholder" do
+    test "Works for self" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      conn = user_conn(user)
+      query = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()}
+          outbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+        }
+      }
+      """
+      assert %{"community" => comm2} = gql_post_data(conn, %{query: query})
+      comm2 = assert_community(comm, comm2)
+      assert %{"outbox" => outbox} = comm2
+      edge_list = assert_edge_list(outbox)
+      # assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+	activity = assert_activity(edge.node)
+	assert is_binary(edge.cursor)
+      end
     end
   end
 

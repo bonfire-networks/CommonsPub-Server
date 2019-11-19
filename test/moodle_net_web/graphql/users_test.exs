@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Users}
+  alias MoodleNet.{Access, Common, Users}
 
   describe "usernameAvailable" do
     test "works for a guest" do

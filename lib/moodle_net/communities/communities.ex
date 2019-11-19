@@ -13,7 +13,7 @@ defmodule MoodleNet.Communities do
   alias Ecto.Association.NotLoaded
   alias MoodleNet.{Actors, Collections, Common, Meta, Repo, Users}
   alias MoodleNet.Common.Query
-  alias MoodleNet.Communities.Community
+  alias MoodleNet.Communities.{Community, Outbox}
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Users.User
 
@@ -117,6 +117,31 @@ defmodule MoodleNet.Communities do
         {:ok, community}
       end
     end)
+  end
+
+  def outbox(%Community{}=community, opts \\ %{}) do
+    Repo.all(outbox_q(community, opts))
+    |> Repo.preload(:activity)
+  end
+  def outbox_q(%Community{id: id}=community, _opts) do
+    from i in Outbox,
+      join: c in assoc(i, :community),
+      join: a in assoc(i, :activity),
+      where: c.id == ^id,
+      where: not is_nil(a.published_at),
+      select: i,
+      preload: [:activity]
+  end
+  def count_for_outbox(%Community{}=community, opts \\ %{}) do
+    Repo.one(count_for_outbox_q(community, opts))
+  end
+  def count_for_outbox_q(%Community{id: id}=community, _opts) do
+    from i in Outbox,
+      join: c in assoc(i, :community),
+      join: a in assoc(i, :activity),
+      where: c.id == ^id,
+      where: not is_nil(a.published_at),
+      select: count(i)
   end
 
   def soft_delete(%Community{} = community), do: Common.soft_delete(community)
