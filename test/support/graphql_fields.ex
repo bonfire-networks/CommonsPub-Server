@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def flag_basics() do
     """
     id canonicalUrl message isResolved
-    isLocal isPublic createdAt updatedAt __typename
+    isLocal createdAt updatedAt __typename
     """
   end
 

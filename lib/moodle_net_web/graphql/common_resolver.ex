@@ -3,7 +3,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
-  alias MoodleNet.{Accounts, Actors, Common, Fake, GraphQL, Localisation, Meta, Repo, Users}
+  alias MoodleNet.{
+    Accounts,
+    Actors,
+    Collections,
+    Common,
+    Communities,
+    Fake,
+    GraphQL,
+    Localisation,
+    Meta,
+    Repo,
+    Users,
+  }
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Comment, Thread}
@@ -21,6 +33,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
+  def is_resolved(%Flag{}=flag, _, _), do: {:ok, not is_nil(flag.resolved_at)}
+
   def flag(%{flag_id: id}, info), do: Common.fetch_flag(id)
 
   def follow(%{follow_id: id}, info), do: Common.fetch_follow(id)
@@ -30,7 +44,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       nil -> {:ok, Fake.follow()}
       other -> {:ok, other}
     end
-    |> GraphQL.response(info)
   end
 
   def like(%{like_id: id}, info), do: Common.fetch_like(id)
@@ -40,8 +53,30 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       nil -> {:ok, Fake.like()}
       other -> {:ok, other}
     end
-    |> GraphQL.response(info)
   end
+
+  def creator(%Flag{}=flag, _, info), do: Users.fetch(flag.flagger_id)
+  def creator(%Follow{}=follow, _, info), do: Users.fetch(follow.follower_id)
+  def creator(%Like{}=like, _, info), do: Users.fetch(like.liker_id)
+
+
+  def context(%Flag{}=flag, _, info), do: get_context(flag, &(&1.flagged_id))
+  def context(%Follow{}=follow, _, _info), do: get_context(follow, &(&1.followed_id))
+  def context(%Like{}=like, _, _info), do: get_context(like, &(&1.liked_id))
+
+  defp get_context(thing, accessor \\ &(&1.context_id)) do
+    context_id = accessor.(thing)
+    with {:ok, pointer} <- Meta.find(context_id),
+         {:ok, thing} <- Meta.follow(pointer) do
+      {:ok, loaded_context(thing)}
+    end
+  end
+  
+  def loaded_context(%Community{}=community), do: Communities.preload(community)
+  def loaded_context(%Collection{}=collection), do: Collections.preload(collection)
+  def loaded_context(%User{}=user), do: Users.preload_actor(user)
+  def loaded_context(other), do: other
+
   # def tag(%{tag_id: id}, info) do
   #   {:ok, Fake.tag()}
   #   |> GraphQL.response(info)

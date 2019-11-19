@@ -469,9 +469,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"message" => message, "isResolved" => resolved} = flag
     assert is_binary(message)
     assert is_boolean(resolved)
-    assert %{"isLocal" => local, "isPublic" => public} = flag
+    assert %{"isLocal" => local} = flag #, "isPublic" => public} = flag
     assert is_boolean(local)
-    assert is_boolean(public)
+    # assert is_boolean(public)
     assert %{"createdAt" => created} = flag
     assert %{"updatedAt" => updated} = flag
     assert is_binary(created)
@@ -484,7 +484,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       message: message,
       is_resolved: resolved,
       is_local: local,
-      is_public: public,
+      # is_public: public,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(flag)
@@ -495,9 +495,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert flag.id == flag2.id
     assert flag.canonical_url == flag2.canonical_url
     assert flag.message == flag2.message
-    assert flag.is_resolved == flag2.is_resolved
+    assert not is_nil(flag.is_resolved) == flag2.is_resolved
     assert flag.is_local == flag2.is_local
-    assert flag.is_public == flag2.is_public
+    # assert flag.is_public == flag2.is_public
     assert flag.created_at == flag2.created_at
     assert flag.updated_at == flag2.updated_at
     flag2
@@ -512,7 +512,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_boolean(public)
     assert %{"createdAt" => created} = follow
     assert is_binary(created)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
     assert %{"updatedAt" => updated} = follow
     assert is_binary(updated)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
@@ -546,13 +546,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_boolean(public)
     assert %{"createdAt" => created} = like
     assert is_binary(created)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
+    assert %{"updatedAt" => updated} = like
+    assert is_binary(updated)
+    assert {:ok, updated_at, 0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Like"} = like
     %{id: id,
       canonical_url: url,
       is_local: local,
       is_public: public,
-      created_at: created_at }
+      created_at: created_at,
+      updated_at: updated_at }
     |> Map.merge(like)
   end
 

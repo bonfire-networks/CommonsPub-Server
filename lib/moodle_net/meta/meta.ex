@@ -34,13 +34,15 @@ defmodule MoodleNet.Meta do
   alias Ecto.Changeset
   alias MoodleNet.Repo
   alias MoodleNet.Peers.Peer
-  alias MoodleNet.Common.NotInTransactionError
+  alias MoodleNet.Common.{
+    NotFoundError,
+    NotInTransactionError,
+  }
   alias MoodleNet.Meta.{
     Introspection,
     Pointer,
     PointerDanglingError,
     PointerInsertError,
-    PointerNotFoundError,
     PointerTypeError,
     Table,
     TableNotFoundError,
@@ -51,7 +53,7 @@ defmodule MoodleNet.Meta do
   @doc "Looks up a pointer by id"
   def find(id), do: find_result(Repo.get(Pointer, id), id)
 
-  defp find_result(nil, id), do: {:error, PointerNotFoundError.new(id)}
+  defp find_result(nil, id), do: {:error, NotFoundError.new(id)}
   defp find_result(pointer, id), do: {:ok, pointer}
 
   @spec find!(binary()) :: Pointer.t()

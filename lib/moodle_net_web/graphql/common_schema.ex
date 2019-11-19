@@ -115,14 +115,16 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     @desc "The reason for flagging"
     field :message, non_null(:string)
     @desc "Is the flag considered dealt with by the instance moderator?"
-    field :is_resolved, non_null(:boolean)
+    field :is_resolved, non_null(:boolean) do
+      resolve &CommonResolver.is_resolved/3
+    end
 
     @desc "Whether the flag is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the flag is public"
-    field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public/3
-    end
+    # field :is_public, non_null(:boolean) do
+    #   resolve &CommonResolver.is_public/3
+    # end
 
     @desc "When the flag was created"
     field :created_at, non_null(:string)
@@ -131,7 +133,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who flagged"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.creator/3
+      resolve &CommonResolver.creator/3
     end
 
     @desc "The thing that is being flagged"
@@ -195,7 +197,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who followed"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.user/3
+      resolve &CommonResolver.creator/3
     end
 
     @desc "The thing that is being followed"
@@ -247,7 +249,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "The user who liked"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.user/3
+      resolve &CommonResolver.creator/3
     end
 
     @desc "The thing that is liked"

@@ -58,6 +58,15 @@ defmodule MoodleNet.Common do
 
   ### liking
 
+  def fetch_like(id), do: Repo.single(fetch_like_q(id))
+
+  defp fetch_like_q(id) do
+    from l in Like,
+      where: is_nil(l.deleted_at),
+      where: not is_nil(l.published_at),
+      where: l.id == ^id
+  end
+
   def find_like(%User{} = liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
 
   defp find_like_q(liker_id, liked_id) do
@@ -137,6 +146,14 @@ defmodule MoodleNet.Common do
     do: Repo.preload(like, [:liked, :liker], opts)
 
   ## Flagging
+
+  def fetch_flag(id), do: Repo.single(fetch_flag_q(id))
+
+  defp fetch_flag_q(id) do
+    from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.id == ^id
+  end
 
   def find_flag(%User{} = flagger, flagged) do
     Repo.single(find_flag_q(flagger.id, flagged.id))

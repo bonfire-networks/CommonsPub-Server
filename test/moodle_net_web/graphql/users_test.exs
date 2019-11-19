@@ -61,20 +61,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
       query = "{ user(userId: \"#{user.id}\") { #{user_basics()} } }"
       assert %{"user" => user2} = gql_post_data(json_conn(), %{query: query})
-      user2 = assert_user(user2)
-      assert user.id == user2.id
-      assert user.actor.preferred_username == user2.preferred_username
-      assert user.name == user2.name
-      assert user.summary == user2.summary
-      assert user.location == user2.location
-      assert user.website == user2.website
-      assert user.icon == user2.icon
-      assert user.image == user2.image
-      assert user.created_at == user2.created_at
-      assert user.updated_at == user2.updated_at
-      assert user2.is_public == true
-      assert user2.is_disabled == false
-      assert user2.is_local == true
+      user2 = assert_user(user, user2)
       # assert user.primary_language == user2["primaryLanguage"]
     end
   #   @tag :skip
