@@ -17,6 +17,8 @@ defmodule ActivityPub.Actor do
   alias ActivityPub.Object
   alias MoodleNet.Repo
 
+  require Logger
+
   @type t :: %Actor{}
 
   defstruct [:id, :data, :local, :keys, :ap_id, :username, :deactivated, :mn_pointer_id]
@@ -27,6 +29,7 @@ defmodule ActivityPub.Actor do
   @spec update_actor(String.t()) :: {:ok, Actor.t()} | {:error, any()}
   def update_actor(actor_id) do
     # TODO: make better
+    Logger.info("Updating actor #{actor_id}")
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
          update_actor_data_by_ap_id(actor_id, data) do
       # Return Actor

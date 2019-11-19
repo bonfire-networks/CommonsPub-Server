@@ -66,6 +66,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   defp can_delete_object?(ap_id) do
+    Logger.info("Checking delete permission for #{ap_id}")
     case Fetcher.fetch_remote_object_from_id(ap_id) do
       {:error, "Object has been deleted"} -> true
       %{"type" => "Tombstone"} -> true
