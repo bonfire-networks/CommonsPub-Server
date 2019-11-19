@@ -44,7 +44,6 @@ defmodule MoodleNet.Communities do
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
       select: {c, a, fc},
-      limit: 100,
       order_by: [desc: fc.count, desc: a.updated_at, desc: a.id]
     )
   end
