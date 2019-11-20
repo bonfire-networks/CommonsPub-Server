@@ -16,6 +16,7 @@ defmodule MoodleNet.Common do
     Tag
   }
 
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.{Changeset, NotFoundError}
@@ -27,11 +28,11 @@ defmodule MoodleNet.Common do
 
   def paginate(query, opts), do: query
 
-  def page_info(results) when is_list(results) do
+  def page_info(results, id \\ &(&1.id)) when is_list(results) do
     case results do
-      [] -> %{start_cursor: "", end_cursor: ""}
-      [x] -> %{start_cursor: x.id, end_cursor: x.id}
-      [x | xs] -> %{start_cursor: x.id, end_cursor: List.last(xs).id}
+      [] -> nil
+      [x] -> %{start_cursor: id.(x), end_cursor: id.(x)}
+      [x | xs] -> %{start_cursor: id.(x), end_cursor: id.(List.last(xs))}
     end
   end
 
@@ -58,6 +59,15 @@ defmodule MoodleNet.Common do
 
   ### liking
 
+  def fetch_like(id), do: Repo.single(fetch_like_q(id))
+
+  defp fetch_like_q(id) do
+    from l in Like,
+      where: is_nil(l.deleted_at),
+      where: not is_nil(l.published_at),
+      where: l.id == ^id
+  end
+
   def find_like(%User{} = liker, liked), do: Repo.single(find_like_q(liker.id, liked.id))
 
   defp find_like_q(liker_id, liked_id) do
@@ -79,13 +89,11 @@ defmodule MoodleNet.Common do
   end
 
   defp publish_like(%Like{} = like, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "user_id" => like.liker_id,
-      "context_id" => like.id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+      "context_id" => like.id
+    })
   end
 
   @doc """
@@ -94,7 +102,9 @@ defmodule MoodleNet.Common do
   def like(%User{} = liker, liked, fields) do
     Repo.transact_with(fn ->
       case find_like(liker, liked) do
-        {:ok, _} -> {:error, AlreadyLikedError.new("user")}
+        {:ok, _} ->
+          {:error, AlreadyLikedError.new("user")}
+
         _ ->
           with {:ok, like} <- insert_like(liker, liked, fields),
                {:ok, _} <- publish_like(like, "create") do
@@ -138,6 +148,14 @@ defmodule MoodleNet.Common do
 
   ## Flagging
 
+  def fetch_flag(id), do: Repo.single(fetch_flag_q(id))
+
+  defp fetch_flag_q(id) do
+    from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.id == ^id
+  end
+
   def find_flag(%User{} = flagger, flagged) do
     Repo.single(find_flag_q(flagger.id, flagged.id))
   end
@@ -163,7 +181,11 @@ defmodule MoodleNet.Common do
     Repo.transact_with(fn ->
       case find_flag(flagger, flagged) do
         {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
-        _ -> insert_flag(flagger, flagged, community, fields)
+        _ ->
+          with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
+               {:ok, _} <- publish_flag(flag, "create") do
+            {:ok, flag}
+          end
       end
     end)
   end
@@ -186,6 +208,14 @@ defmodule MoodleNet.Common do
       |> Flag.create_changeset(flagger, community, pointer, fields)
       |> Repo.insert()
     end)
+  end
+
+  defp publish_flag(%Flag{} = flag, verb) do
+    MoodleNet.FeedPublisher.publish(%{
+      "verb" => verb,
+      "user_id" => flag.flagger_id,
+      "context_id" => flag.id
+    })
   end
 
   def resolve_flag(%Flag{} = flag) do
@@ -231,6 +261,16 @@ defmodule MoodleNet.Common do
 
   ## Following
 
+  def fetch_follow(id), do: Repo.single(fetch_follow_q(id))
+
+  defp fetch_follow_q(id) do
+    from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: not is_nil(f.published_at),
+      where: f.id == ^id
+  end
+
+
   @spec list_follows(User.t()) :: [Follow.t()]
   def list_follows(%User{id: id}) do
     query =
@@ -240,6 +280,54 @@ defmodule MoodleNet.Common do
       )
 
     Enum.map(Repo.all(query), &preload_follow/1)
+  end
+
+  def list_followed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: {f,c}
+      )
+    Repo.all(query)
+  end
+
+  def count_for_list_followed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: count(f)
+      )
+    Repo.one(query)
+  end
+
+  def list_followed_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: {f,c}
+      )
+    Repo.all(query)
+  end
+
+  def count_for_list_followed_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+	on: f.followed_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.follower_id == ^id,
+	select: count(f)
+      )
+    Repo.one(query)
   end
 
   @spec list_by_followed(%{id: binary}) :: [Follow.t()]
@@ -293,13 +381,11 @@ defmodule MoodleNet.Common do
   end
 
   defp publish_follow(%Follow{} = follow, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "user_id" => follow.follower_id,
-      "context_id" => follow.id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+      "context_id" => follow.id
+    })
   end
 
   @spec update_follow(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
@@ -332,10 +418,11 @@ defmodule MoodleNet.Common do
   end
 
   defp block_q(blocker_id, blocked_id) do
-    from b in Block,
+    from(b in Block,
       where: is_nil(b.deleted_at),
       where: b.blocker_id == ^blocker_id,
       where: b.blocked_id == ^blocked_id
+    )
   end
 
   @spec block(User.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}

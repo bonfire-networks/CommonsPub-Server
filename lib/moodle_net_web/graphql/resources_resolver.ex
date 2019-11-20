@@ -15,12 +15,15 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def is_public(%Resource{}=res, _, _), do: {:ok, not is_nil(res.published_at)}
   def is_disabled(%Resource{}=res, _, _), do: {:ok, not is_nil(res.disabled_at)}
 
+  def collection(%Resource{}=res, _, _), do: {:ok, Repo.preload(res, :collection).collection}
+
   def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.fetch(collection_id),
              {:ok, resource} <- Resources.create(collection, current_user, attrs) do
-          {:ok, %{ resource | is_local: is_nil(collection.actor.peer_id) } }
+	  is_local = is_nil(collection.actor.peer_id)
+          {:ok, %{ resource | collection: collection, is_local: is_local } }
         end
       end)
     end

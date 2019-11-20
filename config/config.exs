@@ -98,7 +98,13 @@ config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 config :moodle_net, Oban,
   repo: MoodleNet.Repo,
   prune: {:maxlen, 100_000},
-  queues: [federator_incoming: 50, federator_outgoing: 50, ap_incoming: 50, activities: 50]
+  queues: [
+    federator_incoming: 50,
+    federator_outgoing: 50,
+    ap_incoming: 10,
+    mn_activities: 10,
+    mn_ap_publish: 30,
+  ]
 
 config :moodle_net, :workers,
   retries: [

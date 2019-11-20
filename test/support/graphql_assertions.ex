@@ -56,34 +56,44 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   end
 
   def assert_node_list(list) do
-    assert %{"pageInfo" => page, "totalCount" => count} = list
+    assert %{"nodes" => nodes, "totalCount" => count} = list
     assert is_integer(count)
-    assert %{"startCursor" => start, "endCursor" => ends} = page
-    assert is_binary(start)
-    assert is_binary(ends)
-    assert %{"nodes" => nodes} = list
     assert is_list(nodes)
-    page_info = %{start_cursor: start, end_cursor: ends}
-    %{page_info: page_info, nodes: nodes}
+    if nodes == [] do
+      assert count == 0 # remove me
+      %{nodes: [], total_count: count}
+    else
+      assert %{"pageInfo" => page} = list
+      assert %{"startCursor" => start, "endCursor" => ends} = page
+      assert is_binary(start)
+      assert is_binary(ends)
+      page_info = %{start_cursor: start, end_cursor: ends}
+      %{page_info: page_info, nodes: nodes, total_count: count}
+    end
   end
 
   
 
   def assert_edge_list(list, cursor_fn \\ &(&1.id)) do
-    assert %{"pageInfo" => page, "totalCount" => count} = list
-    assert is_integer(count)
-    assert %{"startCursor" => start, "endCursor" => ends} = page
-    assert is_binary(start)
-    assert is_binary(ends)
-    assert %{"edges" => edges} = list
+    assert %{"edges" => edges, "totalCount" => count} = list
     assert is_list(edges)
-    edges = Enum.map(edges, fn e ->
-      assert %{"cursor" => cursor, "node" => node} = e
-      assert is_binary(cursor)
-      Map.merge(e, %{cursor: cursor, node: node})
-    end)
-    page_info = %{start_cursor: start, end_cursor: ends}
-    %{page_info: page_info, total_count: count, edges: edges}
+    assert is_integer(count)
+    if edges == [] do
+      assert count == 0 # remove me
+      %{edges: [], total_count: count}
+    else
+      assert %{"pageInfo" => page} = list
+      assert %{"startCursor" => start, "endCursor" => ends} = page
+      assert is_binary(start)
+      assert is_binary(ends)
+      edges = Enum.map(edges, fn e ->
+        assert %{"cursor" => cursor, "node" => node} = e
+        assert is_binary(cursor)
+        Map.merge(e, %{cursor: cursor, node: node})
+      end)
+      page_info = %{start_cursor: start, end_cursor: ends}
+      %{page_info: page_info, total_count: count, edges: edges}
+    end
   end
 
   def assert_language(lang) do
@@ -254,9 +264,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comm.summary == comm2.summary
     assert comm.icon == comm2.icon
     assert comm.image == comm2.image
-    assert comm.is_local == comm2.is_local
-    assert comm.is_public == comm2.is_public
-    assert comm.is_disabled == comm2.is_disabled
+    assert is_nil(comm.actor.peer_id) == comm2.is_local
+    assert not is_nil(comm.published_at) == comm2.is_public
+    assert not is_nil(comm.disabled_at) == comm2.is_disabled
     assert comm.created_at == comm2.created_at
     assert comm.updated_at == comm2.updated_at
     comm2
@@ -459,9 +469,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"message" => message, "isResolved" => resolved} = flag
     assert is_binary(message)
     assert is_boolean(resolved)
-    assert %{"isLocal" => local, "isPublic" => public} = flag
+    assert %{"isLocal" => local} = flag #, "isPublic" => public} = flag
     assert is_boolean(local)
-    assert is_boolean(public)
+    # assert is_boolean(public)
     assert %{"createdAt" => created} = flag
     assert %{"updatedAt" => updated} = flag
     assert is_binary(created)
@@ -474,7 +484,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       message: message,
       is_resolved: resolved,
       is_local: local,
-      is_public: public,
+      # is_public: public,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(flag)
@@ -485,9 +495,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert flag.id == flag2.id
     assert flag.canonical_url == flag2.canonical_url
     assert flag.message == flag2.message
-    assert flag.is_resolved == flag2.is_resolved
+    assert not is_nil(flag.is_resolved) == flag2.is_resolved
     assert flag.is_local == flag2.is_local
-    assert flag.is_public == flag2.is_public
+    # assert flag.is_public == flag2.is_public
     assert flag.created_at == flag2.created_at
     assert flag.updated_at == flag2.updated_at
     flag2
@@ -502,13 +512,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_boolean(public)
     assert %{"createdAt" => created} = follow
     assert is_binary(created)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
+    assert %{"updatedAt" => updated} = follow
+    assert is_binary(updated)
+    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Follow"} = follow
     %{id: id,
       canonical_url: url,
       is_local: local,
       is_public: public,
-      created_at: created_at }
+      created_at: created_at,
+      updated_at: updated_at }
     |> Map.merge(follow)
   end
 
@@ -532,13 +546,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_boolean(public)
     assert %{"createdAt" => created} = like
     assert is_binary(created)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
+    assert %{"updatedAt" => updated} = like
+    assert is_binary(updated)
+    assert {:ok, updated_at, 0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Like"} = like
     %{id: id,
       canonical_url: url,
       is_local: local,
       is_public: public,
-      created_at: created_at }
+      created_at: created_at,
+      updated_at: updated_at }
     |> Map.merge(like)
   end
 

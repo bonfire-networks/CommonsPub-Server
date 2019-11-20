@@ -144,13 +144,11 @@ defmodule MoodleNet.Comments do
   end
 
   defp publish_thread(%Thread{} = thread, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "user_id" => thread.creator_id,
       "context_id" => thread.id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+    })
   end
 
   #
@@ -294,12 +292,10 @@ defmodule MoodleNet.Comments do
   end
 
   defp publish_comment(%Comment{} = comment, verb) do
-    %{
+    MoodleNet.FeedPublisher.publish(%{
       "verb" => verb,
       "context_id" => comment.id,
       "user_id" => comment.creator_id,
-    }
-    |> ActivityWorker.new()
-    |> Oban.insert()
+    })
   end
 end

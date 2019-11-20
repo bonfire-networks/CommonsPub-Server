@@ -59,21 +59,21 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def flag_basics() do
     """
     id canonicalUrl message isResolved
-    isLocal isPublic createdAt updatedAt __typename
+    isLocal createdAt updatedAt __typename
     """
   end
 
   def like_basics() do
     """
     id canonicalUrl
-    isLocal isPublic createdAt __typename
+    isLocal isPublic createdAt updatedAt __typename
     """
   end
 
   def follow_basics() do
     """
     id canonicalUrl
-    isLocal isPublic createdAt __typename
+    isLocal isPublic createdAt updatedAt __typename
     """
   end
 

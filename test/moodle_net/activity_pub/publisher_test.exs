@@ -22,7 +22,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a reply to a comment" do
       actor = fake_user!()
       commented_actor = fake_user!()
-      {:ok, thread} = MoodleNet.Comments.create_thread(commented_actor, actor, %{is_local: true})
+      thread = fake_thread!(actor, commented_actor, %{is_local: true})
       comment = fake_comment!(actor, thread)
       # Publish the comment first so we can reply to it
       Publisher.comment(comment)

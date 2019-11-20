@@ -8,11 +8,71 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Test.Fake
+  alias MoodleNet.Common
 
   describe "communities" do
-    @tag :skip
-    test "placeholder" do
+    test "works" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm_1 = fake_community!(alice)
+      comm_2 = fake_community!(alice)
+      comm_3 = fake_community!(bob)
+      comm_4 = fake_community!(bob)
+      comm_5 = fake_community!(bob)
+      comms = [comm_1, comm_2, comm_3, comm_4, comm_5]
+      keyed = Enum.reduce(comms, %{}, fn comm, acc ->
+	Map.put(acc, comm.id, comm)
+      end)
+      q = """
+      { communities {
+          #{page_basics()} nodes { #{community_basics()} }
+        }
+      }
+      """
+      assert %{"communities" => comms2} = gql_post_data(%{query: q})
+      node_list = assert_node_list(comms2)
+      assert Enum.count(node_list.nodes) == 5
+      for node <- node_list.nodes do
+	assert_community(keyed[node["id"]], node)
+      end
     end
+  end
+
+  describe "communities.creator" do
+    test "works" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm_1 = fake_community!(alice)
+      comm_2 = fake_community!(alice)
+      comm_3 = fake_community!(bob)
+      comm_4 = fake_community!(bob)
+      comm_5 = fake_community!(bob)
+      comms = [comm_1, comm_2, comm_3, comm_4, comm_5]
+      keyed = Enum.reduce(comms, %{}, fn comm, acc ->
+	Map.put(acc, comm.id, comm)
+      end)
+      named = Enum.reduce([alice, bob], %{}, fn person, acc ->
+	Map.put(acc, person.id, person)
+      end)
+      q = """
+      { communities {
+          #{page_basics()} nodes {
+            #{community_basics()}
+            creator { #{user_basics()} }
+          }
+        }
+      }
+      """
+      assert %{"communities" => comms2} = gql_post_data(%{query: q})
+      node_list = assert_node_list(comms2)
+      assert Enum.count(node_list.nodes) == 5
+      for node <- node_list.nodes do
+	comm = assert_community(keyed[node["id"]], node)
+	assert %{"creator" => creator} = comm
+	assert_user(named[creator["id"]], creator)
+      end
+    end
+    
   end
 
   describe "community" do
@@ -200,15 +260,75 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   describe "community.myFollow" do
-    @tag :skip
-    test "placeholder" do
+    test "works for followed for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, follow} = Common.follow(bob, comm, %{is_local: true})
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"community" => comm2} = gql_post_data(conn, %{query: q})
+      comm2 = assert_community(comm, comm2)
+      assert %{"myFollow" => follow2} = comm2
+      assert_follow(follow, follow2)
     end
+
+    test "works for unfollowed for user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"community" => comm2} = gql_post_data(conn, %{query: q})
+      comm2 = assert_community(comm, comm2)
+      assert %{"myFollow" => nil} = comm2
+    end
+
+    test "nil for guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      bob = fake_user!()
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"community" => comm2} = gql_post_data(%{query: q})
+      comm2 = assert_community(comm, comm2)
+      assert %{"myFollow" => nil} = comm2
+    end
+
+
   end
 
   describe "community.creator" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"community" => comm} = gql_post_data(%{query: q})
+      comm = assert_community(comm)
+      assert %{"creator" => user} = comm
+      assert_user(alice, user)
     end
+
   end
 
   describe "community.collections" do
@@ -217,11 +337,12 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       colls = Enum.map(1..5, fn _ -> fake_collection!(alice, comm) end)
       q = """
-      { community(communityId: #{}) {
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()}
           collections {
             pageInfo { startCursor endCursor }
             totalCount
-            nodes { #{collection_basics()} }
+            edges { cursor node { #{collection_basics()} } }
           }
         }
       }
@@ -229,11 +350,12 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"collections" => colls} = comm
-      edge_list = assert_edge_list(colls)
+      edge_list = assert_edge_list(colls, &(&1.created_at))
       assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
 	coll = assert_collection(edge.node)
-	assert edge.cursor == coll.created_at
+	{:ok, cursor, 0} = DateTime.from_iso8601(edge.cursor)
+	assert cursor == coll.created_at
       end
     end
   end
@@ -251,8 +373,26 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   describe "community.outbox" do
-    @tag :skip
-    test "placeholder" do
+    test "Works for self" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      conn = user_conn(user)
+      query = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()}
+          outbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+        }
+      }
+      """
+      assert %{"community" => comm2} = gql_post_data(conn, %{query: query})
+      comm2 = assert_community(comm, comm2)
+      assert %{"outbox" => outbox} = comm2
+      edge_list = assert_edge_list(outbox)
+      # assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+	activity = assert_activity(edge.node)
+	assert is_binary(edge.cursor)
+      end
     end
   end
 

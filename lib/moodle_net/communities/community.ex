@@ -73,17 +73,6 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
-  def vivify_virtuals(%Community{actor: %Actor{}}=comm) do
-    %{ comm |
-       canonical_url: comm.actor.canonical_url,
-       preferred_username: comm.actor.preferred_username,
-       is_public: not is_nil(comm.published_at),
-       is_disabled: not is_nil(comm.disabled_at),
-       is_deleted: not is_nil(comm.deleted_at),
-       is_local: is_nil(comm.actor.peer_id),
-    }
-  end
-
   defp common_changeset(changeset) do
     changeset
     |> change_public()

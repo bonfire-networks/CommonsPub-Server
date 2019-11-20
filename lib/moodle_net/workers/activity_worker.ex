@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.ActivityWorker do
-  use Oban.Worker, queue: "activities", max_attempts: 1
+  use Oban.Worker, queue: "mn_activities", max_attempts: 1
 
   require Logger
 
@@ -12,6 +12,7 @@ defmodule MoodleNet.Workers.ActivityWorker do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Users.User
+  import Ecto.Query
 
   @impl Worker
   def perform(
@@ -79,18 +80,6 @@ defmodule MoodleNet.Workers.ActivityWorker do
     Logger.warn("Unsupported type for outbox: #{to_string(type)}")
   end
 
-  defp insert_inbox!(%User{} = user, activity) do
-    insert_follower_inbox!(user, activity)
-
-    user
-    |> Users.Inbox.changeset(activity)
-    |> Repo.insert!()
-  end
-
-  defp insert_inbox!(%Community{} = community, activity) do
-    insert_follower_inbox!(community, activity)
-  end
-
   defp insert_inbox!(%Collection{} = collection, activity) do
     insert_follower_inbox!(collection, activity)
 
@@ -105,14 +94,16 @@ defmodule MoodleNet.Workers.ActivityWorker do
     insert_inbox!(context, activity)
   end
 
-  defp insert_inbox!(%Comment{} = comment, activity) do
-    insert_follower_inbox!(comment, activity)
+  defp insert_inbox!(other, activity) do
+    insert_follower_inbox!(other, activity)
   end
 
-  defp insert_follower_inbox!(target, activity) do
+  defp insert_follower_inbox!(target, %{id: activity_id} = activity) do
     for follow <- Common.list_by_followed(target) do
+      follower_id = follow.follower_id
       %Follow{follower: follower} = Common.preload_follow(follow)
 
+      # FIXME: handle duplicates
       follower
       |> Users.Inbox.changeset(activity)
       |> Repo.insert!()

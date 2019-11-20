@@ -257,10 +257,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :followed_community do
     field :follow, non_null(:follow) do
-      resolve &CommonResolver.follow/3
+      resolve &UsersResolver.follow/3
     end
     field :community, non_null(:community) do
-      resolve &CommunitiesResolver.community/3
+      resolve &UsersResolver.community/3
     end
   end
 

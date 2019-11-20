@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -16,14 +16,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     NotFoundError,
     NotPermittedError,
   }
-  alias MoodleNet.Users.Me
+  alias MoodleNet.Users.{Me, User}
 
   def username_available(%{username: username}, _info) do
     {:ok, Actors.is_username_available?(username)}
   end
   def me(_, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
-      {:ok, Me.new(current_user)}
+      {:ok, Me.new(Users.preload_actor(current_user))}
     end
   end
 
@@ -119,33 +119,66 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def canonical_url(user, _, _), do: {:ok, user.actor.canonical_url}
   def preferred_username(user, _, _), do: {:ok, user.actor.preferred_username}
-  def is_local(user, _, _), do: {:ok, is_nil(user.actor.peer_id)}
+  def is_local(user, _, _), do: {:ok, true} # {:ok, is_nil(user.actor.peer_id)}
   def is_public(user, _, _), do: {:ok, not is_nil(user.published_at)}
   def is_disabled(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
   def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
-  def inbox(user, params, info) do
+  def inbox(%User{}=user, params, info) do
     # with {:ok, current_user} <- GraphQL.current_user(info) do
     #   if user.id == current_user.id do
-    #     with {:ok, activities, count} <- Users.inbox(current_user) do
-    #       {:ok, GraphQL.edge_list(activities, count)
-    #     end
+    #     Repo.transact_with(fn ->
+    #       activities = Users.inbox(current_user)
+    #       count = Users.count_for_inbox(current_user)
+    #       page_info = Common.page_info(activities)
+    #       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    #     end)
     #   else
     # 	GraphQL.not_permitted()
     #   end
     # end
+    {:ok, GraphQL.edge_list([],0)}
   end
 
   def outbox(user, params, info) do
-    # with {:ok, activities, count} <- Users.outbox(user) do
-    #   {:ok, GraphQL.edge_list(activities, count)
-    # end
+    # Repo.transact_with(fn ->
+    #   activities =
+    #     Users.outbox(user)
+    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+    #   count = Users.count_for_outbox(user)
+    #   page_info = Common.page_info(activities)
+    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    # end)
+    {:ok, GraphQL.edge_list([],0)}
   end
 
-  def followed_communities(_,_,info) do
+  def followed_communities(%User{}=user,_,info) do
+    Repo.transact_with(fn ->
+      comms =
+	Common.list_followed_communities(user)
+        |> Enum.map(fn {f,c} -> %{cursor: f.id, node: %{follow: f, community: Communities.preload(c)}} end)
+      count = Common.count_for_list_followed_communities(user)
+      page_info = Common.page_info(comms, &(&1.node.follow.id))
+      {:ok, %{page_info: page_info, total_count: count, edges: comms}}
+    end)
   end
-  def followed_collections(_,_,info) do
+
+  def follow(%{follow: follow}, _, _), do: {:ok, follow}
+  def community(%{community: community}, _, _), do: {:ok, community}
+
+  def followed_collections(%User{}=user,_,info) do
+    Repo.transact_with(fn ->
+      colls =
+	Common.list_followed_collections(user)
+        |> Enum.map(fn {f,c} ->
+	  %{cursor: f.id, node: %{follow: f, collection: Collections.preload(c)}}
+        end)
+      count = Common.count_for_list_followed_collections(user)
+      page_info = Common.page_info(colls, &(&1.cursor))
+      {:ok, %{page_info: page_info, total_count: count, edges: colls}}
+    end)
   end
+
   def followed_users(_,_,info) do
   end
 
@@ -153,10 +186,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Users.fetch(parent.creator_id)
   end
 
-  def last_activity(parent,_,info) do
+  def last_activity(parent,_,info), do: {:ok, Fake.past_datetime()}
     # case Repo.preload(parent, :last_activity).last_activity do
     # end
     
-  end
-    
+  # end
+
+  
 end

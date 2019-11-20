@@ -57,9 +57,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
     @desc "A url for the community, may be to a remote instance"
-    field :canonical_url, :string
+    field :canonical_url, :string do
+      resolve &CommunitiesResolver.canonical_url/3
+    end
     @desc "An instance-unique identifier shared with users and collections"
-    field :preferred_username, non_null(:string)
+    field :preferred_username, non_null(:string) do
+      resolve &CommunitiesResolver.preferred_username/3
+    end
 
     @desc "A name field"
     field :name, non_null(:string)
@@ -71,11 +75,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :image, :string
 
     @desc "Whether the community is local to the instance"
-    field :is_local, non_null(:boolean)
+    field :is_local, non_null(:boolean) do
+      resolve &CommunitiesResolver.is_local/3
+    end
     @desc "Whether the community has a public profile"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
     @desc "Whether an instance admin has disabled the community"
-    field :is_disabled, non_null(:boolean)
+    field :is_disabled, non_null(:boolean) do
+      resolve &CommonResolver.is_disabled/3
+    end
 
     @desc "When the community was created"
     field :created_at, non_null(:string)
@@ -101,7 +111,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "The user who created the community"
     field :creator, non_null(:user) do
-      resolve &UsersResolver.creator/3
+      resolve &CommunitiesResolver.creator/3
     end
 
     @desc "The communities a user has joined, most recently joined first"
@@ -109,7 +119,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CollectionsResolver.collections/3
+      resolve &CommunitiesResolver.collections/3
     end
 
     @desc """

@@ -24,17 +24,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def collections(%Community{}=community, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.collection/0)}
-    |> GraphQL.response(info)
-    Repo.transact_with(fn ->
-      count = Collections.count_for_list_in_community(community)
-      comms = Collections.list_in_community(community)
-      page_info = Common.page_info(comms)
-      {:ok, %{page_info: page_info, total_count: count, nodes: comms}}
-    end)
-  end
-
   def collection(%{collection_id: id}, info), do: Collections.fetch(id)
 
   def collection(_,_,info) do
@@ -42,9 +31,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     |> GraphQL.response(info)
   end
 
-  def canonical_url(coll, _, _), do: {:ok, coll.actor.canonical_url}
-  def preferred_username(coll, _, _), do: {:ok, coll.actor.preferred_username}
-  def is_local(coll, _, _), do: {:ok, is_nil(coll.actor.peer_id)}
+  def canonical_url(coll, _, _), do: {:ok, Fake.website()} # {:ok, coll.actor.canonical_url}
+  def preferred_username(coll, _, _), do: {:ok, Fake.preferred_username()} # {:ok, coll.actor.preferred_username}
+  def is_local(coll, _, _), do: {:ok, true} # {:ok, is_nil(coll.actor.peer_id)}
   def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
   def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
   def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}
@@ -118,9 +107,16 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     |> GraphQL.response(info)
   end
 
-  def outbox(_,_,info) do
-    {:ok, Fake.long_edge_list(&Fake.activity/0)}
-    |> GraphQL.response(info)
-  end
+  def outbox(collection,_,info) do
+    # Repo.transact_with(fn ->
+    #   activities =
+    # 	Collections.outbox(collection)
+    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+    #   count = Collections.count_for_outbox(collection)
+    #   page_info = Common.page_info(activities, &(&1.cursor))
+    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    # end)
+   {:ok, GraphQL.edge_list([],0)}
+   end
 
 end
