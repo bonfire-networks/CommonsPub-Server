@@ -123,6 +123,63 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
+  def update_user(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"]),
+           image: maybe_fix_image_object(data["image"])
+         },
+         {:ok, _} <- MoodleNet.Users.update_remote(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_community(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"]),
+           image: maybe_fix_image_object(actor["image"])
+         },
+         {:ok, _} <- MoodleNet.Communities.update(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_collection(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"])
+         },
+         {:ok, _} <- MoodleNet.Collections.update(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_remote_actor(actor_object) do
+    data = actor_object.data
+    with {:ok, actor} <- get_actor_by_id(actor_object.mn_pointer_id) do
+      case actor do
+        %MoodleNet.Users.User{} ->
+          update_user(actor, data)
+
+        %MoodleNet.Communities.Community{} ->
+          update_community(actor, data)
+
+        %MoodleNet.Collections.Collection{} ->
+          update_collection(actor, data)
+      end
+    end
+  end
+
   def maybe_create_remote_actor(actor) do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host

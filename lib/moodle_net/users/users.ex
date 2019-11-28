@@ -271,6 +271,18 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  @spec update_remote(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def update_remote(%User{} = user, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- fetch_actor(user),
+           {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
+           {:ok, actor} <- Actors.update(actor, attrs) do
+        user = %{ user | actor: actor }
+        {:ok, user}
+      end
+    end)
+  end
+
   @spec soft_delete(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user) do
     Repo.transact_with(fn ->
@@ -354,7 +366,7 @@ defmodule MoodleNet.Users do
       where: not is_nil(a.published_at),
       select: count(i)
   end
-  
+
 
   @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])

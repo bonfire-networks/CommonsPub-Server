@@ -249,10 +249,13 @@ defmodule ActivityPubWeb.TransmogrifierTest do
       {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(data)
       update_data = File.read!("test/fixtures/mastodon-update.json") |> Poison.decode!()
 
+      {:ok, actor} = Actor.get_by_ap_id(data["actor"])
+
       object =
         update_data["object"]
         |> Map.put("actor", data["actor"])
         |> Map.put("id", data["actor"])
+        |> Map.put("preferredUsername", actor.data["preferredUsername"])
 
       update_data =
         update_data

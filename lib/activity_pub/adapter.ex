@@ -29,6 +29,9 @@ defmodule ActivityPub.Adapter do
   @callback update_local_actor(Actor.t(), Map.t()) :: {:ok, any()} | {:error, any()}
   defdelegate update_local_actor(actor, params), to: @adapter
 
+  @callback update_remote_actor(Object.t()) :: :ok | {:error, any()}
+  defdelegate update_remote_actor(actor), to: @adapter
+
   @doc """
   Passes data to be handled by the host application
   """
