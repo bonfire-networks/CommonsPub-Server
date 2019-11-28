@@ -75,17 +75,18 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_community(community) do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(community.creator_id),
          {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(community.id),
-         community_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
+         community_object <-
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
          params <- %{
-          actor: actor,
-          to: [@public_uri],
-          object: community_object,
-          context: ActivityPub.Utils.generate_context_id(),
-          additional: %{
-            "cc" => [actor.data["followers"]]
-          }
-        } do
-     ActivityPub.create(params)
+           actor: actor,
+           to: [@public_uri],
+           object: community_object,
+           context: ActivityPub.Utils.generate_context_id(),
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         } do
+      ActivityPub.create(params)
     else
       {:error, e} -> {:error, e}
     end
@@ -94,18 +95,19 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_collection(collection) do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(collection.creator_id),
          {:ok, ap_collection} <- ActivityPub.Actor.get_by_local_id(collection.id),
-         collection_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
+         collection_object <-
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
          {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(collection.community_id),
          params <- %{
-          actor: actor,
-          to: [@public_uri, ap_community.ap_id],
-          object: collection_object,
-          context: ActivityPub.Utils.generate_context_id(),
-          additional: %{
-            "cc" => [actor.data["followers"]]
-          }
-        } do
-     ActivityPub.create(params)
+           actor: actor,
+           to: [@public_uri, ap_community.ap_id],
+           object: collection_object,
+           context: ActivityPub.Utils.generate_context_id(),
+           additional: %{
+             "cc" => [actor.data["followers"]]
+           }
+         } do
+      ActivityPub.create(params)
     else
       _e -> :error
     end
@@ -239,6 +241,22 @@ defmodule MoodleNet.ActivityPub.Publisher do
         },
         flag.id
       )
+    else
+      _e -> :error
+    end
+  end
+
+  def update_actor(actor) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id),
+         actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
+         params <- %{
+           to: [@public_uri],
+           cc: [actor.data["followers"]],
+           object: actor_object,
+           actor: actor.ap_id,
+           local: true
+         } do
+      ActivityPub.update(params)
     else
       _e -> :error
     end
