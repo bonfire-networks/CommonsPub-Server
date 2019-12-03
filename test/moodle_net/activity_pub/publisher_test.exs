@@ -26,10 +26,26 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       comment = fake_comment!(actor, thread)
       # Publish the comment first so we can reply to it
       Publisher.comment(comment)
-      {:ok, reply} = MoodleNet.Comments.create_comment_reply(thread, actor, comment, %{content: "test", is_local: true})
+
+      {:ok, reply} =
+        MoodleNet.Comments.create_comment_reply(thread, actor, comment, %{
+          content: "test",
+          is_local: true
+        })
 
       assert {:ok, activity} = Publisher.comment(reply)
       assert activity.object.data["inReplyTo"]
+    end
+
+    test "it deletes a comment" do
+      actor = fake_user!()
+      commented_actor = fake_user!()
+      thread = fake_thread!(actor, commented_actor, %{is_local: true})
+      comment = fake_comment!(actor, thread)
+      # Publish the comment first so we can delete it
+      Publisher.comment(comment)
+
+      assert {:ok, activity} = Publisher.delete_comment_or_resource(comment)
     end
   end
 
@@ -48,6 +64,16 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
       assert activity.data["context"] == collection.ap_id
       assert activity.data["actor"] == actor.ap_id
+    end
+
+    test "it deletes a resource" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+      Publisher.create_resource(resource)
+
+      assert {:ok, activity} = Publisher.delete_comment_or_resource(resource)
     end
   end
 
@@ -79,7 +105,11 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true, is_local: true})
+        MoodleNet.Common.follow(follower, followed, %{
+          is_muted: false,
+          is_public: true,
+          is_local: true
+        })
 
       assert {:ok, activity} = Publisher.follow(follow)
       assert activity.data["to"] == [ap_followed.ap_id]
@@ -91,7 +121,11 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true, is_local: true})
+        MoodleNet.Common.follow(follower, followed, %{
+          is_muted: false,
+          is_public: true,
+          is_local: true
+        })
 
       {:ok, follow_activity} = Publisher.follow(follow)
       {:ok, unfollow} = MoodleNet.Common.undo_follow(follow)
@@ -106,7 +140,11 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{is_muted: false, is_public: true, is_local: true})
+        MoodleNet.Common.follow(follower, followed, %{
+          is_muted: false,
+          is_public: true,
+          is_local: true
+        })
 
       assert {:error, "account is private"} = Publisher.follow(follow)
     end
@@ -156,7 +194,13 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       flagger = fake_user!()
       ap_flagged = actor()
       {:ok, flagged} = MoodleNet.Users.fetch_any_by_username(ap_flagged.username)
-      {:ok, flag} = MoodleNet.Common.flag(flagger, flagged, %{message: "blocked AND reported!!!", is_local: true})
+
+      {:ok, flag} =
+        MoodleNet.Common.flag(flagger, flagged, %{
+          message: "blocked AND reported!!!",
+          is_local: true
+        })
+
       assert {:ok, activity} = Publisher.flag(flag)
     end
 
@@ -169,7 +213,10 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(commented_actor, comment, %{message: "blocked AND reported!!!", is_local: true})
+        MoodleNet.Common.flag(commented_actor, comment, %{
+          message: "blocked AND reported!!!",
+          is_local: true
+        })
 
       assert {:ok, activity} = Publisher.flag(flag)
     end
@@ -184,7 +231,9 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       # Comment needs to be published before it can be liked
       Publisher.comment(comment)
 
-      {:ok, like} = MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+      {:ok, like} =
+        MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+
       assert {:ok, like_activity, object} = Publisher.like(like)
       assert like_activity.data["object"] == object.data["id"]
     end
@@ -196,12 +245,53 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       comment = fake_comment!(actor, thread)
       # Comment needs to be published before it can be liked
       Publisher.comment(comment)
-      {:ok, like} = MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+
+      {:ok, like} =
+        MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+
       Publisher.like(like)
       # No context function for unliking
       assert {:ok, unlike_activity, like_activity, object} = Publisher.unlike(like)
       assert like_activity.data["object"] == object.data["id"]
       assert unlike_activity.data["object"] == like_activity.data
+    end
+  end
+
+  describe "updating actors" do
+    test "it works for users" do
+      actor = fake_user!()
+      assert {:ok, activity} = Publisher.update_actor(actor)
+    end
+
+    test "it works for communities" do
+      actor = fake_user!() |> fake_community!()
+      assert {:ok, activity} = Publisher.update_actor(actor)
+    end
+
+    test "it works for collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      actor = fake_collection!(user, comm)
+      assert {:ok, activity} = Publisher.update_actor(actor)
+    end
+  end
+
+  describe "deleting actors" do
+    test "it works for users" do
+      actor = fake_user!()
+      assert {:ok, activity} = Publisher.delete_actor(actor)
+    end
+
+    test "it works for communities" do
+      actor = fake_user!() |> fake_community!()
+      assert {:ok, activity} = Publisher.delete_actor(actor)
+    end
+
+    test "it works for collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      actor = fake_collection!(user, comm)
+      assert {:ok, activity} = Publisher.delete_actor(actor)
     end
   end
 end

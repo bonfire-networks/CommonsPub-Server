@@ -123,6 +123,64 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
+  def update_user(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"]),
+           image: maybe_fix_image_object(data["image"])
+         },
+         {:ok, _} <- MoodleNet.Users.update_remote(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_community(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"]),
+           image: maybe_fix_image_object(actor["image"])
+         },
+         {:ok, _} <- MoodleNet.Communities.update(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_collection(actor, data) do
+    with params <- %{
+           name: data["name"],
+           summary: data["summary"],
+           icon: maybe_fix_image_object(data["icon"])
+         },
+         {:ok, _} <- MoodleNet.Collections.update(actor, params) do
+      :ok
+    else
+      {:error, e} -> {:error, e}
+    end
+  end
+
+  def update_remote_actor(actor_object) do
+    data = actor_object.data
+
+    with {:ok, actor} <- get_actor_by_id(actor_object.mn_pointer_id) do
+      case actor do
+        %MoodleNet.Users.User{} ->
+          update_user(actor, data)
+
+        %MoodleNet.Communities.Community{} ->
+          update_community(actor, data)
+
+        %MoodleNet.Collections.Collection{} ->
+          update_collection(actor, data)
+      end
+    end
+  end
+
   def maybe_create_remote_actor(actor) do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
@@ -198,6 +256,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          attrs <- %{
            is_public: true,
+           is_local: false,
            is_disabled: false,
            name: object.data["name"],
            canonical_url: object.data["id"],
@@ -309,6 +368,42 @@ defmodule MoodleNet.ActivityPub.Adapter do
       :ok
     else
       {:error, e} -> {:error, e}
+    end
+  end
+
+  def perform(
+        :handle_activity,
+        %{data: %{"type" => "Delete", "object" => obj_id}} = activity
+      ) do
+    object = ActivityPub.Object.get_by_ap_id(obj_id)
+
+    if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
+      with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
+           {:ok, _} <-
+             (case object.data["type"] do
+                "Person" -> MoodleNet.Users.soft_delete_remote(actor)
+                "MN:Community" -> MoodleNet.Communities.soft_delete(actor)
+                "MN:Collection" -> MoodleNet.Collections.soft_delete(actor)
+              end) do
+        :ok
+      else
+        {:error, e} ->
+          {:error, e}
+      end
+    else
+      case object.data["formerType"] do
+        "Note" ->
+          with {:ok, comment} <- MoodleNet.Comments.fetch_comment(object.mn_pointer_id),
+               {:ok, _} <- MoodleNet.Comments.soft_delete_comment(comment) do
+            :ok
+          end
+
+        "Document" ->
+          with {:ok, resource} <- MoodleNet.Resources.fetch(object.mn_pointer_id),
+               {:ok, _} <- MoodleNet.Resources.soft_delete(resource) do
+            :ok
+          end
+      end
     end
   end
 

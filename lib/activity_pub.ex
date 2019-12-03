@@ -91,8 +91,8 @@ defmodule ActivityPub do
         end
 
       {:ok, activity}
-      else
-        error -> {:error, error}
+    else
+      error -> {:error, error}
     end
   end
 
@@ -112,8 +112,8 @@ defmodule ActivityPub do
     local = !(params[:local] == false)
     published = params[:published]
 
-    with  nil <- Object.normalize(additional["id"], false),
-          create_data <-
+    with nil <- Object.normalize(additional["id"], false),
+         create_data <-
            Utils.make_create_data(
              %{to: to, actor: actor, published: published, context: context, object: object},
              additional
@@ -324,7 +324,15 @@ defmodule ActivityPub do
   def delete(object, local \\ true)
 
   def delete(%{data: %{"id" => id, "type" => type}} = actor, local)
-      when type in ["Person", "Application", "Service", "Organization", "Group"] do
+      when type in [
+             "Person",
+             "Application",
+             "Service",
+             "Organization",
+             "Group",
+             "MN:Community",
+             "MN:Collection"
+           ] do
     to = [actor.data["followers"]]
 
     with data <- %{
