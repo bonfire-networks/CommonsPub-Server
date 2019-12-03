@@ -18,6 +18,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     MoodleverseSchema,
     ResourcesSchema,
     UsersSchema,
+    UploadSchema,
   }
   alias MoodleNetWeb.GraphQL.Middleware.{Debug,CollapseErrors}
 
@@ -39,6 +40,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types MoodleverseSchema
   import_types ResourcesSchema
   import_types UsersSchema
+  import_types UploadSchema
 
   query do
     import_fields :activities_queries
@@ -61,6 +63,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :communities_mutations
     import_fields :resources_mutations
     import_fields :user_mutations
+    import_fields :upload_mutations
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
