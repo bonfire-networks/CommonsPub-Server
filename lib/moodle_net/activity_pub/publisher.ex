@@ -246,6 +246,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     end
   end
 
+  # Works for Users, Collections, Communities (not MN.Actor)
   def update_actor(actor) do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id),
          actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
@@ -259,6 +260,13 @@ defmodule MoodleNet.ActivityPub.Publisher do
       ActivityPub.update(params)
     else
       _e -> :error
+    end
+  end
+
+  # Works for Users, Collections, Communities (not MN.Actor)
+  def delete_actor(actor) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id) do
+      ActivityPub.delete(actor)
     end
   end
 end

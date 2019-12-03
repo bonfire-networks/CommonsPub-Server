@@ -34,7 +34,7 @@ defmodule ActivityPub.Factory do
     collection =
       insert(:actor, %{
         data: %{
-          "type" => "MN:Community",
+          "type" => "MN:Collection",
           "attributedTo" => actor.ap_id,
           "context" => community.ap_id,
           "resources" => []

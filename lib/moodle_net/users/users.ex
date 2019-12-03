@@ -295,6 +295,16 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def soft_delete_remote(%User{} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)) do
+        user = preload_actor(user)
+        {:ok, user}
+      end
+    end)
+  end
+
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
     Repo.transact_with(fn ->

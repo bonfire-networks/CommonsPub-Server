@@ -166,6 +166,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_remote_actor(actor_object) do
     data = actor_object.data
+
     with {:ok, actor} <- get_actor_by_id(actor_object.mn_pointer_id) do
       case actor do
         %MoodleNet.Users.User{} ->
@@ -366,6 +367,27 @@ defmodule MoodleNet.ActivityPub.Adapter do
       :ok
     else
       {:error, e} -> {:error, e}
+    end
+  end
+
+  def perform(
+        :handle_activity,
+        %{data: %{"type" => "Delete", "object" => obj_id}} = activity
+      ) do
+    object = ActivityPub.Object.get_by_ap_id(obj_id)
+    if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
+      with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
+           {:ok, _} <-
+             (case object.data["type"] do
+                "Person" -> MoodleNet.Users.soft_delete_remote(actor)
+                "MN:Community" -> MoodleNet.Communities.soft_delete(actor)
+                "MN:Collection" -> MoodleNet.Collections.soft_delete(actor)
+              end) do
+        :ok
+      else
+        {:error, e} ->
+          {:error, e}
+      end
     end
   end
 
