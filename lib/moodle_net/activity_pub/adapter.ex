@@ -256,6 +256,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          attrs <- %{
            is_public: true,
+           is_local: false,
            is_disabled: false,
            name: object.data["name"],
            canonical_url: object.data["id"],
