@@ -44,12 +44,15 @@ defmodule MoodleNet.Uploads do
           Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
         end)
 
-      # rollback file changes on failure
-      with {:error, _} <- result do
-        Storage.delete(file_info.id)
+      with {:ok, upload} <- result,
+           {:ok, url} <- remote_url(upload) do
+        {:ok, %{upload | url: url}}
+      else
+        e ->
+          # rollback file changes on failure
+          Storage.delete(file_info.id)
+          e
       end
-
-      result
     end
   end
 

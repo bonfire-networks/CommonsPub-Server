@@ -17,6 +17,8 @@ defmodule MoodleNet.Uploads.Upload do
     belongs_to(:parent, Pointer)
     belongs_to(:uploader, User)
     field(:path, :string)
+    # FIXME
+    field(:url, :string, virtual: true)
     field(:size, :integer)
     field(:media_type, :string)
     field(:metadata, :map)
@@ -27,13 +29,14 @@ defmodule MoodleNet.Uploads.Upload do
   end
 
   @create_cast ~w(path size media_type metadata is_public)a
-  @create_required ~w(path size media_type is_public)a
+  @create_required ~w(path size media_type)a
 
   def create_changeset(parent, %User{} = uploader, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> Changeset.change(
+      is_public: true,
       parent_id: parent.id,
       uploader_id: uploader.id
     )
