@@ -241,5 +241,29 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
+
+    test "comment deletes" do
+      actor = fake_user!()
+      commented_actor = fake_user!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
+      ActivityPub.delete(object, false)
+      %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert {:error, _} = MoodleNet.Comments.fetch_comment(comment.id)
+    end
+
+    test "resource deletes" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+      {:ok, activity} = MoodleNet.ActivityPub.Publisher.create_resource(resource)
+      object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
+      ActivityPub.delete(object, false)
+      %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert {:error, _} = MoodleNet.Resources.fetch(resource.id)
+    end
   end
 end

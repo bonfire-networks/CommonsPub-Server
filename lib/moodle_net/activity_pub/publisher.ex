@@ -43,6 +43,14 @@ defmodule MoodleNet.ActivityPub.Publisher do
     end
   end
 
+  def delete_comment_or_resource(comment) do
+    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_pointer_id(comment.id) do
+      ActivityPub.delete(object)
+    else
+      _e -> :error
+    end
+  end
+
   def create_resource(resource) do
     with {:ok, collection} <- ActivityPub.Actor.get_by_local_id(resource.collection_id),
          {:ok, actor} <- ActivityPub.Actor.get_by_local_id(resource.creator_id),

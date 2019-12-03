@@ -36,6 +36,17 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.comment(reply)
       assert activity.object.data["inReplyTo"]
     end
+
+    test "it deletes a comment" do
+      actor = fake_user!()
+      commented_actor = fake_user!()
+      thread = fake_thread!(actor, commented_actor, %{is_local: true})
+      comment = fake_comment!(actor, thread)
+      # Publish the comment first so we can delete it
+      Publisher.comment(comment)
+
+      assert {:ok, activity} = Publisher.delete_comment_or_resource(comment)
+    end
   end
 
   describe "creating resources" do
@@ -53,6 +64,16 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
       assert activity.data["context"] == collection.ap_id
       assert activity.data["actor"] == actor.ap_id
+    end
+
+    test "it deletes a resource" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+      Publisher.create_resource(resource)
+
+      assert {:ok, activity} = Publisher.delete_comment_or_resource(resource)
     end
   end
 

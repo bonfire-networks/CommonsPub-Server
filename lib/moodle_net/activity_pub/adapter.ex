@@ -375,6 +375,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Delete", "object" => obj_id}} = activity
       ) do
     object = ActivityPub.Object.get_by_ap_id(obj_id)
+
     if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
@@ -387,6 +388,20 @@ defmodule MoodleNet.ActivityPub.Adapter do
       else
         {:error, e} ->
           {:error, e}
+      end
+    else
+      case object.data["formerType"] do
+        "Note" ->
+          with {:ok, comment} <- MoodleNet.Comments.fetch_comment(object.mn_pointer_id),
+               {:ok, _} <- MoodleNet.Comments.soft_delete_comment(comment) do
+            :ok
+          end
+
+        "Document" ->
+          with {:ok, resource} <- MoodleNet.Resources.fetch(object.mn_pointer_id),
+               {:ok, _} <- MoodleNet.Resources.soft_delete(resource) do
+            :ok
+          end
       end
     end
   end
