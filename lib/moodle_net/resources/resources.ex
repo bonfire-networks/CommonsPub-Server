@@ -71,6 +71,7 @@ defmodule MoodleNet.Resources do
     from r in Resource,
       join: c in assoc(r, :collection),
       join: a in assoc(c, :actor),
+      where: r.id == ^id,
       where: not is_nil(r.published_at),
       where: not is_nil(c.published_at),
       where: is_nil(r.deleted_at),

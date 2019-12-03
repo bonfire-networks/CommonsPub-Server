@@ -131,20 +131,4 @@ defmodule MoodleNet.CommunitiesTest do
       assert deleted_community.deleted_at
     end
   end
-
-  describe "Communities.fetch_actor" do
-    test "works when an actor is already preloaded" do
-      assert user = fake_user!()
-      assert community = fake_community!(user)
-      assert {:ok, %Actor{}} = Communities.fetch_actor(community)
-    end
-
-    test "works when an actor is not preloaded" do
-      assert user = fake_user!()
-      assert community = fake_community!(user)
-      community = %Community{community | actor: %Ecto.Association.NotLoaded{}}
-      assert {:ok, %Actor{}} = Communities.fetch_actor(community)
-    end
-  end
-
 end

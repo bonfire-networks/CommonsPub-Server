@@ -19,7 +19,7 @@ defmodule MoodleNet.AccessTest do
     RegisterEmailAccess,
   }
 
-  defp strip(user), do: Map.drop(user, [:actor, :email_confirm_tokens, :auth, :user])
+  defp strip(user), do: Map.drop(user, [:actor, :email_confirm_tokens, :auth, :user, :is_disabled, :is_public])
 
   describe "MoodleNet.Access.create_register_email_domain/1" do
     test "can be found with find_register_email_domain after success" do
