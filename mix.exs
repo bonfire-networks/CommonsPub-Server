@@ -52,6 +52,7 @@ defmodule MoodleNet.Mixfile do
 
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:dev), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
@@ -81,6 +82,7 @@ defmodule MoodleNet.Mixfile do
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
+      {:ecto_ulid, "~> 0.2.0"},
       # Password hashing
       {:argon2_elixir, "~> 2.0"},
       # Outbound HTTP
@@ -104,7 +106,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       # dev/test only
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
-      {:ex_machina, "~> 2.3", only: :test}, # fake data generation for AP
+      {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},             # property testing
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
@@ -115,6 +117,7 @@ defmodule MoodleNet.Mixfile do
 
   defp aliases do
     [
+      "ecto.rebuild": ["ecto.reset", "ecto.seeds"],
       "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.seeds": ["run priv/repo/seeds.exs"],
