@@ -9,7 +9,7 @@ defmodule MoodleNet.FileTest do
   alias MoodleNet.File
 
   describe "has_extension?/2" do
-    @extensions ~w(.jpg .jpeg .png)
+    @extensions ~w(jpg jpeg png)
 
     test "returns true with a valid extension" do
       paths = [
