@@ -10,7 +10,7 @@ defmodule MoodleNet.Comments.Thread do
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
 
-  meta_schema "mn_thread" do
+  table_schema "mn_thread" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     field(:canonical_url, :string)

@@ -4,7 +4,7 @@
 defmodule MoodleNet.Common.TagCategory do
   use MoodleNet.Common.Schema
 
-  meta_schema "mn_tag_category" do
+  table_schema "mn_tag_category" do
     field(:canonical_url, :string)
     field(:name, :string)
     field(:is_public, :boolean, virtual: true)

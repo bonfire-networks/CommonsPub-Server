@@ -10,7 +10,7 @@ defmodule MoodleNet.Common.ChangesetTest do
   defmodule Dummy do
     use MoodleNet.Common.Schema
 
-    standalone_schema "dummy" do
+    table_schema "dummy" do
       field(:url, :string)
       field(:email, :string)
       field(:email_domain, :string)

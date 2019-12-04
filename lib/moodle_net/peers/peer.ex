@@ -19,7 +19,7 @@ defmodule MoodleNet.Peers.Peer do
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.Peer
 
-  meta_schema "mn_peer" do
+  table_schema "mn_peer" do
     field(:ap_url_base, :string)
     field(:deleted_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)

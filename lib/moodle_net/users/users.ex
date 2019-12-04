@@ -111,9 +111,7 @@ defmodule MoodleNet.Users do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, local_user} <- insert_local_user(attrs),
            :ok <- check_register_access(local_user.email, opts),
-           pointer = Meta.point_to!(User),
-           {:ok, user} <-
-             Repo.insert(User.local_register_changeset(pointer, actor, local_user, attrs)),
+           {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs)),
            {:ok, token} <- create_email_confirm_token(local_user) do
         user
         |> Email.welcome(token)
@@ -133,8 +131,7 @@ defmodule MoodleNet.Users do
   def register_remote(attrs, opts \\ []) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           pointer = Meta.point_to!(User),
-           {:ok, user} <- Repo.insert(User.register_changeset(pointer, actor, attrs)) do
+           {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs)) do
         {:ok, %{user | actor: actor}}
       end
     end)

@@ -12,7 +12,7 @@ defmodule MoodleNet.Uploads.Upload do
 
   @type t :: %__MODULE__{}
 
-  standalone_schema "mn_upload" do
+  table_schema "mn_upload" do
     # has_one(:preview, __MODULE__)
     belongs_to(:parent, Pointer)
     belongs_to(:uploader, User)

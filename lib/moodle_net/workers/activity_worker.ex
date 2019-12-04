@@ -41,12 +41,12 @@ defmodule MoodleNet.Workers.ActivityWorker do
   end
 
   defp fetch_target!(%Follow{} = follow) do
-    %Follow{followed: followed} = Common.preload_follow(follow)
+    %Follow{context: followed} = Common.preload_follow(follow)
     Meta.follow!(followed)
   end
 
   defp fetch_target!(%Like{} = like) do
-    %Like{liked: liked} = Common.preload_like(like)
+    %Like{context: liked} = Common.preload_like(like)
     Meta.follow!(liked)
   end
 
@@ -101,7 +101,7 @@ defmodule MoodleNet.Workers.ActivityWorker do
   defp insert_follower_inbox!(target, %{id: activity_id} = activity) do
     for follow <- Common.list_by_followed(target) do
       follower_id = follow.follower_id
-      %Follow{follower: follower} = Common.preload_follow(follow)
+      %Follow{creator: follower} = Common.preload_follow(follow)
 
       # FIXME: handle duplicates
       follower

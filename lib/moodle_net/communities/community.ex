@@ -23,7 +23,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
 
-  meta_schema "mn_community" do
+  table_schema "mn_community" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
     field(:canonical_url, :string, virtual: true)

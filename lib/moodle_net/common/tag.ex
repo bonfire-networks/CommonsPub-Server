@@ -11,7 +11,7 @@ defmodule MoodleNet.Common.Tag do
 
   @type t :: %__MODULE__{}
 
-  standalone_schema "mn_tag" do
+  table_schema "mn_tag" do
     field(:canonical_url, :string)
     field(:name, :string)
     field(:is_public, :boolean, virtual: true)

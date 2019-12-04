@@ -10,14 +10,14 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   """
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [soft_delete_changeset: 2]
-  alias Ecto.Changeset
+  alias Ecto.{Changeset,UUID}
   alias MoodleNet.Users.{EmailConfirmToken, LocalUser}
 
   @type validity :: {pos_integer, System.time_unit()}
 
   @default_validity {60 * 60 * 48, :second}
 
-  standalone_schema "mn_local_user_email_confirm_token" do
+  uuidv4_schema "mn_local_user_email_confirm_token" do
     belongs_to(:local_user, LocalUser)
     field(:expires_at, :utc_datetime_usec)
     field(:confirmed_at, :utc_datetime_usec)
@@ -35,6 +35,7 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   def create_changeset(%LocalUser{} = local_user, validity) do
     %EmailConfirmToken{}
     |> Changeset.cast(%{}, [])
+    |> Changeset.put_change(:id, UUID.bingenerate())
     |> Changeset.put_change(:local_user_id, local_user.id)
     |> Changeset.put_change(:expires_at, expires_at(validity))
   end

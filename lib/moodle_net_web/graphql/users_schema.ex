@@ -280,7 +280,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &CommonResolver.follow/3
     end
     field :collection, non_null(:collection) do
-      resolve &CollectionsResolver.collection/3
+      resolve &UsersResolver.collection/3
     end
   end
 

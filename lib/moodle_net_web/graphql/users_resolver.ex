@@ -33,7 +33,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   # def user(%{preferred_username: name}, info), do: Users.fetch_by_username(name)
 
   def user(%Me{}=me, _, info), do: {:ok, me.user}
-
+  # followed user
+  # def user(%
   # def user(%Activity{}=activity, _, info)
   # def user(%Like{}=like, _, info)
   # def user(%Flag{}=flag, _, info)
@@ -124,32 +125,34 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_disabled(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
   def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
+  # followed collection
+  def collection(_,_,info) do
+  end
+
   def inbox(%User{}=user, params, info) do
-    # with {:ok, current_user} <- GraphQL.current_user(info) do
-    #   if user.id == current_user.id do
-    #     Repo.transact_with(fn ->
-    #       activities = Users.inbox(current_user)
-    #       count = Users.count_for_inbox(current_user)
-    #       page_info = Common.page_info(activities)
-    #       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
-    #     end)
-    #   else
-    # 	GraphQL.not_permitted()
-    #   end
-    # end
-    {:ok, GraphQL.edge_list([],0)}
+    with {:ok, current_user} <- GraphQL.current_user(info) do
+      if user.id == current_user.id do
+        Repo.transact_with(fn ->
+          activities = Users.inbox(current_user)
+          count = Users.count_for_inbox(current_user)
+          page_info = Common.page_info(activities)
+          {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+        end)
+      else
+    	GraphQL.not_permitted()
+      end
+    end
   end
 
   def outbox(user, params, info) do
-    # Repo.transact_with(fn ->
-    #   activities =
-    #     Users.outbox(user)
-    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-    #   count = Users.count_for_outbox(user)
-    #   page_info = Common.page_info(activities)
-    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
-    # end)
-    {:ok, GraphQL.edge_list([],0)}
+    Repo.transact_with(fn ->
+      activities =
+        Users.outbox(user)
+        |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+      count = Users.count_for_outbox(user)
+      page_info = Common.page_info(activities)
+      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+    end)
   end
 
   def followed_communities(%User{}=user,_,info) do
@@ -179,7 +182,17 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end)
   end
 
-  def followed_users(_,_,info) do
+  def followed_users(%User{}=user,_,info) do
+    Repo.transact_with(fn ->
+      users =
+	Common.list_followed_users(user)
+        |> Enum.map(fn {f,c} ->
+	  %{cursor: f.id, node: %{follow: f, user: Users.preload(c)}}
+        end)
+      count = Common.count_for_list_followed_users(user)
+      page_info = Common.page_info(users, &(&1.cursor))
+      {:ok, %{page_info: page_info, total_count: count, edges: users}}
+    end)
   end
 
   def creator(parent,_,info) do

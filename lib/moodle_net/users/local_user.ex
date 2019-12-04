@@ -10,7 +10,7 @@ defmodule MoodleNet.Users.LocalUser do
   alias Ecto.Changeset
   alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
 
-  standalone_schema "mn_local_user" do
+  table_schema "mn_local_user" do
     field(:email, :string)
     field(:password, :string, virtual: true)
     field(:password_hash, :string)
@@ -23,12 +23,13 @@ defmodule MoodleNet.Users.LocalUser do
     field(:deleted_at, :utc_datetime_usec)
     has_one(:user, User)
     has_many(:email_confirm_tokens, EmailConfirmToken)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(email password wants_email_digest wants_notifications is_instance_admin)a
+  @register_cast_attrs [] ++
+    ~w(email password wants_email_digest wants_notifications is_instance_admin)a
   @register_required_attrs ~w(email password)a
 
   @doc "Create a changeset for registration"

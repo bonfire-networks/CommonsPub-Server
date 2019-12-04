@@ -15,9 +15,8 @@ defmodule MoodleNet.Meta.Table do
 
   @type t :: %__MODULE__{}
 
-  standalone_schema "mn_table" do
+  table_schema "mn_table" do
     field :table, :string
     field :schema, :any, virtual: true
-    timestamps(inserted_at: :created_at, updated_at: false)
   end
 end

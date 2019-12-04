@@ -7,7 +7,7 @@ defmodule MoodleNet.Instance.Outbox do
   alias MoodleNet.Activities.Activity
   alias Ecto.Changeset
 
-  cursor_schema "mn_instance_outbox" do
+  table_schema "mn_instance_outbox" do
     belongs_to(:activity, Activity)
   end
 

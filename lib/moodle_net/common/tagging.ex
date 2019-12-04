@@ -11,10 +11,10 @@ defmodule MoodleNet.Common.Tagging do
 
   # @type t :: %__MODULE__{}
 
-  # meta_schema "mn_tagging" do
+  # table_schema "mn_tagging" do
   #   belongs_to(:tag, Tag)
-  #   belongs_to(:tagger, User)
-  #   belongs_to(:tagged, Pointer)
+  #   belongs_to(:creator, User)
+  #   belongs_to(:context, Pointer)
   #   field(:canonical_url, :string)
   #   field(:name, :string)
   #   field(:is_local, :boolean)
@@ -31,7 +31,7 @@ defmodule MoodleNet.Common.Tagging do
   #   %__MODULE__{}
   #   |> Changeset.cast(fields, @create_cast)
   #   |> Changeset.validate_required(@create_required)
-  #   |> Changeset.put_assoc(:tagger, tagger)
+  #   |> Changeset.put_assoc(:tagger, tagger) # BROKEN
   #   |> Changeset.put_assoc(:tagged, tagged)
   #   |> change_public()
   # end

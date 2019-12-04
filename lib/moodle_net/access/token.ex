@@ -7,11 +7,11 @@ defmodule MoodleNet.Access.Token do
   use MoodleNet.Common.Schema
   alias MoodleNet.Users.User
   alias MoodleNet.Access.Token
-  alias Ecto.Changeset
+  alias Ecto.{Changeset, UUID}
 
   @default_validity 3600 * 24 * 14 # two weeks, in seconds
 
-  standalone_schema "access_token" do
+  uuidv4_schema "access_token" do
     field :expires_at, :utc_datetime_usec
     belongs_to :user, User
     timestamps()
@@ -20,7 +20,11 @@ defmodule MoodleNet.Access.Token do
   def create_changeset(%User{id: user_id} = user, validity \\ @default_validity) do
     %Token{}
     |> Changeset.cast(%{}, [])
-    |> Changeset.change(user_id: user_id, expires_at: expires_at(validity))
+    |> Changeset.change(
+      id: UUID.bingenerate(),
+      user_id: user_id,
+      expires_at: expires_at(validity)
+    )
   end
 
   defp expires_at(validity),

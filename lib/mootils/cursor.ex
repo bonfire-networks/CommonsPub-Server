@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Mootils.Cursor do
   @moduledoc """
-  A cursor is a 144-bit synthetic identifier permitting efficient pagination.
+  A cursor is a 144-bit synthetic identifier permitting efficient pagination
 
   It consists of a high resolution posixtime and some random input to
   reduce the risk of collision and is represented either as raw bytes

@@ -15,7 +15,7 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
 
   @type t :: %__MODULE__{}
 
-  meta_schema "mn_access_register_email" do
+  table_schema "mn_access_register_email" do
     field(:email, :string, primary_key: true)
     timestamps()
   end

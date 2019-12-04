@@ -194,7 +194,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:location, &location/0)
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:image, &image/0)
-    |> Map.put_new_lazy(:is_local, &bool/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
@@ -239,6 +238,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+    |> Map.put_new_lazy(:is_featured, &bool/0)
     |> Map.merge(actor(base))
   end
 
@@ -269,6 +269,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+    |> Map.put_new_lazy(:is_featured, &bool/0)
     |> Map.merge(actor(base))
   end
 

@@ -4,7 +4,7 @@
 defmodule MoodleNet.Users.ResetPasswordToken do
   use MoodleNet.Common.Schema
 
-  alias Ecto.Changeset
+  alias Ecto.{Changeset, UUID}
   alias MoodleNet.Users.LocalUser
   import MoodleNet.Common.Changeset, only: [claim_changeset: 3]
 
@@ -12,7 +12,7 @@ defmodule MoodleNet.Users.ResetPasswordToken do
 
   @default_validity {60 * 60 * 48, :second}
 
-  standalone_schema "mn_local_user_reset_password_token" do
+  uuidv4_schema "mn_local_user_reset_password_token" do
     belongs_to(:local_user, LocalUser)
     field(:expires_at, :utc_datetime_usec)
     field(:reset_at, :utc_datetime_usec)
@@ -24,6 +24,7 @@ defmodule MoodleNet.Users.ResetPasswordToken do
   def create_changeset(%LocalUser{} = local_user, validity) do
     %__MODULE__{}
     |> Changeset.cast(%{}, [])
+    |> Changeset.put_change(:id, UUID.bingenerate())
     |> Changeset.put_change(:local_user_id, local_user.id)
     |> Changeset.put_change(:expires_at, expires_at(validity))
   end

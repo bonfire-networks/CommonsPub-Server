@@ -7,7 +7,7 @@ defmodule MoodleNet.Instance.Inbox do
   alias MoodleNet.Activities.Activity
   alias Ecto.Changeset
 
-  cursor_schema "mn_instance_inbox" do
+  table_schema "mn_instance_inbox" do
     belongs_to(:activity, Activity)
   end
 

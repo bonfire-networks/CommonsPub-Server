@@ -15,7 +15,7 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
-  meta_schema "mn_resource" do
+  table_schema "mn_resource" do
     belongs_to(:creator, User)
     belongs_to(:collection, Collection)
     # belongs_to(:primary_language, Language, type: :binary)

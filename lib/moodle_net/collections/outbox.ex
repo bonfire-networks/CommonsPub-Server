@@ -8,7 +8,7 @@ defmodule MoodleNet.Collections.Outbox do
   alias MoodleNet.Collections.Collection
   alias Ecto.Changeset
 
-  cursor_schema "mn_collection_outbox" do
+  table_schema "mn_collection_outbox" do
     belongs_to(:collection, Collection)
     belongs_to(:activity, Activity)
   end

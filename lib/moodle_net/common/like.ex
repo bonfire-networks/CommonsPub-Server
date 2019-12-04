@@ -9,15 +9,15 @@ defmodule MoodleNet.Common.Like do
   Likes participate in the meta system and must be created from a pointer
   """
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [meta_pointer_constraint: 1, change_public: 1]
+  import MoodleNet.Common.Changeset, only: [change_public: 1]
   alias MoodleNet.Common.Like
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
-  meta_schema "mn_like" do
-    belongs_to :liker, User
-    belongs_to :liked, Pointer
+  table_schema "mn_like" do
+    belongs_to :creator, User
+    belongs_to :context, Pointer
     field :canonical_url, :string
     field :is_local, :boolean
     field :is_public, :boolean, virtual: true
@@ -29,18 +29,17 @@ defmodule MoodleNet.Common.Like do
   @required ~w(is_local)a
   @cast @required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%Pointer{id: id}, %User{} = liker, %Pointer{} = liked, %{}=fields) do
-    %Like{id: id}
+  def create_changeset(%User{} = liker, %Pointer{} = liked, %{}=fields) do
+    %Like{}
     |> Changeset.cast(fields, @cast)
     |> Changeset.change(
-      id: id,
-      liker_id: liker.id,
-      liked_id: liked.id,
+      creator_id: liker.id,
+      context_id: liked.id,
       is_public: true
     )
     |> Changeset.validate_required(@required)
-    |> Changeset.foreign_key_constraint(:liked_id)
-    |> Changeset.foreign_key_constraint(:liker_id)
+    |> Changeset.foreign_key_constraint(:creator_id)
+    |> Changeset.foreign_key_constraint(:context_id)
     |> common_changeset()
   end
 
@@ -53,6 +52,5 @@ defmodule MoodleNet.Common.Like do
   defp common_changeset(changeset) do
     changeset
     |> change_public()
-    |> meta_pointer_constraint()
   end
 end

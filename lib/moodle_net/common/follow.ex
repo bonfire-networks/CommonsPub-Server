@@ -4,8 +4,7 @@
 defmodule MoodleNet.Common.Follow do
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_muted: 1, meta_pointer_constraint: 1]
+  import MoodleNet.Common.Changeset, only: [change_public: 1, change_muted: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
@@ -14,9 +13,9 @@ defmodule MoodleNet.Common.Follow do
 
   @type t :: %__MODULE__{}
 
-  meta_schema "mn_follow" do
-    belongs_to(:follower, User)
-    belongs_to(:followed, Pointer)
+  table_schema "mn_follow" do
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
     field(:canonical_url, :string)
     field(:is_local, :boolean)
     field(:is_muted, :boolean, virtual: true)
@@ -31,23 +30,22 @@ defmodule MoodleNet.Common.Follow do
   @cast @required ++ ~w(canonical_url is_muted is_public)a
 
   def create_changeset(
-        %Pointer{id: id} = pointer,
         %User{} = follower,
         %Pointer{} = followed,
         fields
       ) do
-    Meta.assert_points_to!(pointer, __MODULE__)
 
     %__MODULE__{}
     |> Changeset.cast(fields, @cast)
     |> Changeset.change(
-      id: id,
       is_muted: false,
       is_public: true,
-      follower_id: follower.id,
-      followed_id: followed.id
+      creator_id: follower.id,
+      context_id: followed.id
     )
     |> Changeset.validate_required(@required)
+    |> Changeset.foreign_key_constraint(:creator_id)
+    |> Changeset.foreign_key_constraint(:context_id)
     |> common_changeset()
   end
 
@@ -61,6 +59,6 @@ defmodule MoodleNet.Common.Follow do
     changeset
     |> change_public()
     |> change_muted()
-    |> meta_pointer_constraint()
   end
+
 end

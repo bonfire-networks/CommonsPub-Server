@@ -14,7 +14,7 @@ defmodule MoodleNet.Activities.Activity do
 
   @type t :: %__MODULE__{}
 
-  meta_schema "mn_activity" do
+  table_schema "mn_activity" do
     belongs_to(:user, User)
     belongs_to(:context, Pointer)
     field(:canonical_url, :string)

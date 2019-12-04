@@ -5,7 +5,7 @@ defmodule MoodleNet.Common.Block do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1, meta_pointer_constraint: 1]
+    only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Meta.Pointer
@@ -13,9 +13,9 @@ defmodule MoodleNet.Common.Block do
 
   @type t :: %__MODULE__{}
 
-  meta_schema "mn_block" do
-    belongs_to(:blocker, User)
-    belongs_to(:blocked, Pointer)
+  table_schema "mn_block" do
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
     field(:canonical_url, :string)
     field(:is_local, :boolean)
     field(:is_public, :boolean, virtual: true)
@@ -31,16 +31,17 @@ defmodule MoodleNet.Common.Block do
   @create_cast ~w(canonical_url is_local is_public is_blocked)a
   @required_cast ~w(is_local is_public is_blocked)a
 
-  def create_changeset(%Pointer{id: id} = pointer, %User{} = blocker, %Pointer{} = blocked, fields) do
+  def create_changeset(%User{} = blocker, %Pointer{} = blocked, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@required_cast)
     |> Changeset.change(
-      id: id,
-      blocker_id: blocker.id,
-      blocked_id: blocked.id,
+      creator_id: blocker.id,
+      context_id: blocked.id,
       is_muted: false,
     )
+    |> Changeset.foreign_key_constraint(:creator_id)
+    |> Changeset.foreign_key_constraint(:context_id)
     |> common_changeset()
   end
 
@@ -57,6 +58,6 @@ defmodule MoodleNet.Common.Block do
     |> change_public()
     |> change_muted()
     |> change_synced_timestamp(:is_blocked, :blocked_at)
-    |> meta_pointer_constraint()
   end
+
 end

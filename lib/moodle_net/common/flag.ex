@@ -9,17 +9,16 @@ defmodule MoodleNet.Common.Flag do
   """
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_synced_timestamp: 3]
+  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
 
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Communities.Community
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
-  meta_schema "mn_flag" do
-    belongs_to(:flagger, User)
-    belongs_to(:flagged, Pointer)
+  table_schema "mn_flag" do
+    belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
     belongs_to(:community, Community)
     field(:canonical_url, :string)
     field(:message, :string)
@@ -33,29 +32,26 @@ defmodule MoodleNet.Common.Flag do
   @required ~w(message is_local)a
   @cast @required ++ ~w(canonical_url is_resolved)a
 
-  def create_changeset(%Pointer{id: id}, %User{} = flagger, %Pointer{} = flagged, attrs) do
+  def create_changeset(%User{} = flagger, %Pointer{} = flagged, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      id: id,
-      flagger_id: flagger.id,
-      flagged_id: flagged.id
+      creator_id: flagger.id,
+      context_id: flagged.id
     )
-    |> Changeset.foreign_key_constraint(:flagged_id)
-    |> Changeset.foreign_key_constraint(:flagger_id)
+    |> Changeset.foreign_key_constraint(:creator_id)
+    |> Changeset.foreign_key_constraint(:context_id)
     |> change_synced_timestamp(:is_resolved, :resolved_at)
-    |> meta_pointer_constraint()
   end
 
   def create_changeset(
-        %Pointer{} = pointer,
         %User{} = flagger,
         %Community{} = community,
         %Pointer{} = flagged,
         attrs
       ) do
-    create_changeset(pointer, flagger, flagged, attrs)
+    create_changeset(flagger, flagged, attrs)
     |> Changeset.put_change(:community_id, community.id)
     |> Changeset.foreign_key_constraint(:community_id)
   end

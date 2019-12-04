@@ -14,7 +14,6 @@ defmodule MoodleNet.Actors do
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.{Actors, Meta, Repo}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Meta.Pointer
   alias Ecto.{Changeset, Multi}
 
   @doc "Fetches an actor by id"

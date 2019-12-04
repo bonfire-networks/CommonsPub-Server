@@ -19,7 +19,7 @@ defmodule MoodleNet.Collections.Collection do
 
   @type t :: %__MODULE__{}
 
-  meta_schema "mn_collection" do
+  table_schema "mn_collection" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
     belongs_to(:community, Community)

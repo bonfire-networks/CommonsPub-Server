@@ -15,7 +15,7 @@ defmodule MoodleNet.Meta.Pointer do
   alias Ecto.Changeset
   alias MoodleNet.Meta.{Pointer, Table}
 
-  standalone_schema "mn_pointer" do
+  table_schema "mn_pointer" do
     belongs_to :table, Table
     field :pointed, :any, virtual: true
   end

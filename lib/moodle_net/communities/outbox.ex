@@ -8,7 +8,7 @@ defmodule MoodleNet.Communities.Outbox do
   alias MoodleNet.Communities.Community
   alias Ecto.Changeset
 
-  cursor_schema "mn_community_outbox" do
+  table_schema "mn_community_outbox" do
     belongs_to(:community, Community)
     belongs_to(:activity, Activity)
   end

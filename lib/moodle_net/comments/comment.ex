@@ -14,7 +14,7 @@ defmodule MoodleNet.Comments.Comment do
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
 
-  meta_schema "mn_comment" do
+  table_schema "mn_comment" do
     belongs_to(:creator, User)
     belongs_to(:thread, Thread)
     belongs_to(:reply_to, Comment)

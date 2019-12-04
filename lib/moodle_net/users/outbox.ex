@@ -9,7 +9,7 @@ defmodule MoodleNet.Users.Outbox do
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
-  cursor_schema "mn_user_outbox" do
+  table_schema "mn_user_outbox" do
     belongs_to(:user, User)
     belongs_to(:activity, Activity)
   end

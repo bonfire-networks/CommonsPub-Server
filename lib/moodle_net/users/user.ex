@@ -8,15 +8,15 @@ defmodule MoodleNet.Users.User do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_synced_timestamp: 3, change_public: 1]
+    only: [change_synced_timestamp: 3, change_public: 1]
 
-  alias Ecto.Changeset
+  alias Ecto.{Changeset, ULID}
   alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
-  meta_schema "mn_user" do
+  table_schema "mn_user" do
     belongs_to(:actor, Actor)
     belongs_to(:local_user, LocalUser)
     # belongs_to(:primary_language, Language)
@@ -34,7 +34,7 @@ defmodule MoodleNet.Users.User do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     has_many(:email_confirm_tokens, EmailConfirmToken)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @email_regexp ~r/.+\@.+\..+/
@@ -43,24 +43,19 @@ defmodule MoodleNet.Users.User do
   @register_required_attrs ~w(name)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%Pointer{id: id} = pointer, %Actor{} = actor, attrs) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
-    %User{id: id}
+  def register_changeset(%Actor{id: id}, %{} = attrs) do
+    %User{}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)
-    |> Changeset.change(actor_id: actor.id)
+    |> Changeset.change(actor_id: id, id: ULID.generate())
     |> common_changeset()
   end
 
-  def local_register_changeset(
-        %Pointer{id: id} = pointer,
-        actor,
-        %LocalUser{} = local_user,
-        attrs
-      ) do
-    register_changeset(pointer, actor, attrs)
-    |> Changeset.put_assoc(:local_user, local_user)
+  def local_register_changeset(%Actor{} = actor, %LocalUser{id: id}, %{} = attrs) do
+    cs = register_changeset(actor, attrs)
+    |> Changeset.put_change(:local_user_id, id)
+    IO.inspect(cs: cs)
+    cs
   end
 
   @update_cast_attrs ~w(name summary location website icon image is_public is_disabled)a
@@ -79,6 +74,5 @@ defmodule MoodleNet.Users.User do
     changeset
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> change_public()
-    |> meta_pointer_constraint()
   end
 end

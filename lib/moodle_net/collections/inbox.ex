@@ -8,7 +8,7 @@ defmodule MoodleNet.Collections.Inbox do
   alias MoodleNet.Collections.Collection
   alias Ecto.Changeset
 
-  cursor_schema "mn_collection_inbox" do
+  table_schema "mn_collection_inbox" do
     belongs_to(:collection, Collection)
     belongs_to(:activity, Activity)
   end

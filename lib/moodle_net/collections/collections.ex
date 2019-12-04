@@ -89,10 +89,8 @@ defmodule MoodleNet.Collections do
 
   defp fetch_q(id) do
     from(coll in Collection,
-      join: comm in Community,
-      on: coll.community_id == comm.id,
-      join: a in Actor,
-      on: coll.actor_id == a.id,
+      join: comm in assoc(coll, :community),
+      join: a in assoc(coll, :actor),
       where: coll.id == ^id,
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
