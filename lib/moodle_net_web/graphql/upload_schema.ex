@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     end
   end
 
-  # @desc "An image that can optionally contain a preview."
+  @desc "An uploaded file, may contain metadata."
   object :file_upload do
     field(:id, non_null(:id))
     field(:url, non_null(:string))
@@ -45,12 +45,31 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     end
   end
 
+  @desc """
+  Metadata associated with a file.
+
+  None of the parameters are required and are filled depending on the
+  file type.
+  """
   object :file_metadata do
     field(:width_px, :integer)
     field(:height_px, :integer)
     field(:page_count, :integer)
   end
 
+  @desc """
+  The type of an upload field.
+
+  For example an icon or image.
+  """
+  enum :field_type do
+    value :icon, description: "A small icon, also known as an avatar"
+    value :image, description: "A large image, also known as a header"
+  end
+
+  @desc """
+  Supported parents of a file upload.
+  """
   union :upload_parent do
     description "A parent of an upload"
     types [:collection, :comment, :community, :resource, :user]
