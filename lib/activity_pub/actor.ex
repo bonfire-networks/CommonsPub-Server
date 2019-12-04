@@ -356,6 +356,8 @@ defmodule ActivityPub.Actor do
       |> Map.put("deactivated", !actor.deactivated)
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
+    # Return Actor
+    get_by_ap_id(actor.ap_id)
   end
 
   def get_creator_ap_id(actor) do
