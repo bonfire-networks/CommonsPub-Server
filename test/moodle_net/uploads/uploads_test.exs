@@ -26,7 +26,7 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Uploads.fetch(Fake.uuid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Uploads.fetch(Fake.ulid())
     end
   end
 

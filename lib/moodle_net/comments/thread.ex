@@ -1,8 +1,7 @@
 defmodule MoodleNet.Comments.Thread do
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [change_synced_timestamp: 3, meta_pointer_constraint: 1]
+  import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
 
   alias Ecto.Changeset
   alias MoodleNet.Comments.{Thread, ThreadFollowerCount}
@@ -27,13 +26,10 @@ defmodule MoodleNet.Comments.Thread do
   @required ~w(is_local)a
   @cast @required ++ ~w(canonical_url is_locked is_hidden)a
 
-  def create_changeset(%Pointer{id: id} = pointer, %Pointer{} = context, %User{} = creator, attrs) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
+  def create_changeset(%Pointer{} = context, %User{} = creator, attrs) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      id: id,
       creator_id: creator.id,
       context_id: context.id
     )
@@ -51,6 +47,5 @@ defmodule MoodleNet.Comments.Thread do
     changeset
     |> change_synced_timestamp(:is_hidden, :hidden_at)
     |> change_synced_timestamp(:is_locked, :locked_at)
-    |> meta_pointer_constraint()
   end
 end

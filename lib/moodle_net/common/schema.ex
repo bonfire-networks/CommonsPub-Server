@@ -37,7 +37,7 @@ defmodule MoodleNet.Common.Schema do
     quote do
       @primary_key {:id, :binary_id, autogenerate: true}
       @foreign_key_type Ecto.ULID
-      @timestamps_opts [type: :utc_datetime_usec, inserted_at: false]
+      @timestamps_opts [type: :utc_datetime_usec, inserted_at: :created_at]
       schema(unquote(table), unquote(body))
     end
   end

@@ -25,7 +25,7 @@ defmodule MoodleNet.Common.Block do
     field(:is_blocked, :boolean, virtual: true)
     field(:blocked_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @create_cast ~w(canonical_url is_local is_public is_blocked)a

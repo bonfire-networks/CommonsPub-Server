@@ -5,7 +5,7 @@ defmodule MoodleNet.Comments.Comment do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_public: 1, change_synced_timestamp: 3]
+    only: [change_public: 1, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
@@ -32,14 +32,11 @@ defmodule MoodleNet.Comments.Comment do
   @required ~w(content is_local)a
   @cast @required ++ ~w(canonical_url is_hidden is_public)a
 
-  @spec create_changeset(Pointer.t(), User.t(), Thread.t(), map) :: Changeset.t()
-  def create_changeset(%Pointer{id: id} = pointer, creator, thread, attrs) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
+  @spec create_changeset(User.t(), Thread.t(), map) :: Changeset.t()
+  def create_changeset(creator, thread, attrs) do
     %Comment{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      id: id,
       creator_id: creator.id,
       thread_id: thread.id,
       is_public: true
@@ -63,6 +60,5 @@ defmodule MoodleNet.Comments.Comment do
     changeset
     |> change_public()
     |> change_synced_timestamp(:is_hidden, :hidden_at)
-    |> meta_pointer_constraint()
   end
 end

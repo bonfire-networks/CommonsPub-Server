@@ -13,16 +13,44 @@ defmodule MoodleNet.Workers.ActivityWorker do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Users.User
   import Ecto.Query
+  import MoodleNet.Workers.Utils, only: [configure_logger: 1]
 
   @impl Worker
   def perform(
         %{
           "verb" => verb,
-          "user_id" => user_id,
+          "creator_id" => user_id,
           "context_id" => context_id,
         },
         _job
       ) do
+    configure_logger(__MODULE__)
+    try do
+      run_job(verb, user_id, context_id)
+    catch
+      reason ->
+	Logger.error(
+	  "[ActivityWorker] Failed to #{inspect(verb)} context #{inspect(context_id)}" <>
+            "for #{inspect(user_id)}: #{inspect(reason)}"
+	)
+        for line <- __STACKTRACE__ do
+          Logger.error("[ActivityWorker: #{inspect(verb)}-#{inspect(context_id)}-#{inspect(user_id)}] #{inspect(line)}")
+        end
+	throw :failed
+    rescue
+      reason ->
+	Logger.error(
+	  "[ActivityWorker] Failed to #{inspect(verb)} context #{inspect(context_id)}" <>
+            "for #{inspect(user_id)}: #{inspect(reason)}"
+	)
+        for line <- __STACKTRACE__ do
+          Logger.error("[ActivityWorker: #{inspect(verb)}-#{inspect(context_id)}-#{inspect(user_id)}] #{inspect(line)}")
+        end
+	throw :failed
+    end
+  end
+
+  defp run_job(verb ,user_id, context_id) do
     Repo.transaction(fn ->
       {:ok, user} = Users.fetch(user_id)
       context = context_id |> Meta.find!() |> Meta.follow!()
@@ -41,12 +69,12 @@ defmodule MoodleNet.Workers.ActivityWorker do
   end
 
   defp fetch_target!(%Follow{} = follow) do
-    %Follow{context: followed} = Common.preload_follow(follow)
+    %Follow{context: followed} = Repo.preload(follow, [:context, :creator])
     Meta.follow!(followed)
   end
 
   defp fetch_target!(%Like{} = like) do
-    %Like{context: liked} = Common.preload_like(like)
+    %Like{context: liked} = Repo.preload(like, [:context, :creator])
     Meta.follow!(liked)
   end
 
@@ -100,8 +128,8 @@ defmodule MoodleNet.Workers.ActivityWorker do
 
   defp insert_follower_inbox!(target, %{id: activity_id} = activity) do
     for follow <- Common.list_by_followed(target) do
-      follower_id = follow.follower_id
-      %Follow{creator: follower} = Common.preload_follow(follow)
+      follower_id = follow.creator_id
+      %Follow{creator: follower} = Repo.preload(follow, [:creator, :context])
 
       # FIXME: handle duplicates
       follower
@@ -109,4 +137,5 @@ defmodule MoodleNet.Workers.ActivityWorker do
       |> Repo.insert!()
     end
   end
+
 end

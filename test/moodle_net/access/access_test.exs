@@ -115,7 +115,7 @@ defmodule MoodleNet.AccessTest do
   describe "MoodleNet.Access.hard_delete!/1" do
     test "raises :function_clause when given input of the wrong type" do
       Repo.transaction(fn ->
-        assert :function_clause = catch_error(Access.hard_delete(Fake.uuid()))
+        assert :function_clause = catch_error(Access.hard_delete(Fake.ulid()))
       end)
     end
 

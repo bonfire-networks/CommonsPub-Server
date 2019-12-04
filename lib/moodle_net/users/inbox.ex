@@ -4,7 +4,6 @@
 defmodule MoodleNet.Users.Inbox do
   use MoodleNet.Common.Schema
 
-  alias Mootils.Cursor
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Users.User
   alias Ecto.Changeset
@@ -16,7 +15,6 @@ defmodule MoodleNet.Users.Inbox do
 
   def changeset(%User{} = u, %Activity{} = a) do
     changes = [
-      id: Cursor.generate_bose64(),
       user_id: u.id,
       activity_id: a.id,
     ]

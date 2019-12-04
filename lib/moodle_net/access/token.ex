@@ -21,7 +21,6 @@ defmodule MoodleNet.Access.Token do
     %Token{}
     |> Changeset.cast(%{}, [])
     |> Changeset.change(
-      id: UUID.bingenerate(),
       user_id: user_id,
       expires_at: expires_at(validity)
     )

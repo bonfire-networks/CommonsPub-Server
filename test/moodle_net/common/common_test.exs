@@ -70,13 +70,13 @@ defmodule MoodleNet.CommonTest do
     test "a user can like any meta object", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Common.like(liker, liked, Fake.like())
-      assert like.liker_id == liker.id
-      assert like.liked_id == liked.id
+      assert like.creator_id == liker.id
+      assert like.context_id == liked.id
       assert like.published_at
 
       assert_enqueued(
         worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "create", context_id: like.id, user_id: like.liker_id}
+        args: %{verb: "create", context_id: like.id, creator_id: like.creator_id}
       )
     end
   end
@@ -93,8 +93,8 @@ defmodule MoodleNet.CommonTest do
       assert Enum.count(likes) == 3
 
       for like <- likes do
-        assert like.liker_id == liker.id
-        assert Enum.any?(things, fn thing -> thing.id == like.liked_id end)
+        assert like.creator_id == liker.id
+        assert Enum.any?(things, fn thing -> thing.id == like.context_id end)
       end
     end
   end
@@ -112,8 +112,8 @@ defmodule MoodleNet.CommonTest do
       assert Enum.count(likes) == 3
 
       for like <- likes do
-        assert like.liked_id == thing.id
-        assert Enum.any?(users, fn user -> user.id == like.liker_id end)
+        assert like.context_id == thing.id
+        assert Enum.any?(users, fn user -> user.id == like.creator_id end)
       end
     end
   end
@@ -122,8 +122,8 @@ defmodule MoodleNet.CommonTest do
     test "a user can flag any meta object", %{user: flagger} do
       flagged = fake_meta!()
       assert {:ok, flag} = Common.flag(flagger, flagged, Fake.flag())
-      assert flag.flagger_id == flagger.id
-      assert flag.flagged_id == flagged.id
+      assert flag.creator_id == flagger.id
+      assert flag.context_id == flagged.id
       assert flag.message
     end
   end
@@ -134,7 +134,7 @@ defmodule MoodleNet.CommonTest do
       community = fake_community!(user)
       collection = fake_collection!(user, community)
       assert {:ok, flag} = Common.flag(flagger, collection, community, Fake.flag())
-      assert flag.flagged_id == collection.id
+      assert flag.context_id == collection.id
       assert flag.community_id == community.id
     end
   end
@@ -151,8 +151,8 @@ defmodule MoodleNet.CommonTest do
       assert Enum.count(flags) == 3
 
       for flag <- flags do
-        assert flag.flagger_id == flagger.id
-        assert Enum.any?(things, fn thing -> thing.id == flag.flagged_id end)
+        assert flag.creator_id == flagger.id
+        assert Enum.any?(things, fn thing -> thing.id == flag.context_id end)
       end
     end
   end
@@ -170,8 +170,8 @@ defmodule MoodleNet.CommonTest do
       assert Enum.count(flags) == 3
 
       for flag <- flags do
-        assert flag.flagged_id == thing.id
-        assert Enum.any?(users, fn user -> user.id == flag.flagger_id end)
+        assert flag.context_id == thing.id
+        assert Enum.any?(users, fn user -> user.id == flag.creator_id end)
       end
     end
   end
@@ -236,8 +236,8 @@ defmodule MoodleNet.CommonTest do
       assert Enum.count(fetched) == Enum.count(follows)
 
       for follow <- fetched do
-        assert follow.followed
-        assert follow.follower
+        assert follow.context
+        assert follow.creator
       end
     end
   end
@@ -249,14 +249,14 @@ defmodule MoodleNet.CommonTest do
       attrs = Fake.follow(%{is_public: true, is_muted: false})
       assert {:ok, follow} = Common.follow(follower, followed, attrs)
 
-      assert follow.follower_id == follower.id
-      assert follow.followed_id == followed.id
+      assert follow.creator_id == follower.id
+      assert follow.context_id == followed.id
       assert follow.published_at
       refute follow.muted_at
 
       assert_enqueued(
         worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "create", context_id: follow.id, user_id: follower.id}
+        args: %{verb: "create", context_id: follow.id, creator_id: follower.id}
       )
     end
 
@@ -292,7 +292,7 @@ defmodule MoodleNet.CommonTest do
 
       assert_enqueued(
         worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "delete", context_id: follow.id, user_id: follower.id}
+        args: %{verb: "delete", context_id: follow.id, creator_id: follower.id}
       )
     end
   end

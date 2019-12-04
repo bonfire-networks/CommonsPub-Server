@@ -130,8 +130,7 @@ defmodule MoodleNet.Collections do
   end
 
   defp insert_collection(community, creator, actor, attrs) do
-    Meta.point_to!(Collection)
-    |> Collection.create_changeset(community, creator, actor, attrs)
+    Collection.create_changeset(community, creator, actor, attrs)
     |> Repo.insert()
   end
 

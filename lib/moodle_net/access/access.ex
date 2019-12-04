@@ -32,9 +32,7 @@ defmodule MoodleNet.Access do
   @doc "Permit registration with all emails at the provided domain"
   def create_register_email_domain(domain) do
     Repo.transact_with(fn ->
-      Meta.point_to!(RegisterEmailDomainAccess)
-      |> RegisterEmailDomainAccess.create_changeset(%{domain: domain})
-      |> Repo.insert()
+      Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
     end)
   end
 
@@ -43,9 +41,7 @@ defmodule MoodleNet.Access do
   @doc "Permit registration with the provided email"
   def create_register_email(email) do
     Repo.transact_with(fn ->
-      Meta.point_to!(RegisterEmailAccess)
-      |> RegisterEmailAccess.create_changeset(%{email: email})
-      |> Repo.insert()
+      Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
     end)
   end
 

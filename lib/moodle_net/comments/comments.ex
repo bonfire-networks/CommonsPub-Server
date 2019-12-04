@@ -118,8 +118,7 @@ defmodule MoodleNet.Comments do
   defp insert_thread(context, creator, attrs) do
     context = Meta.find!(context.id)
 
-    Meta.point_to!(Thread)
-    |> Thread.create_changeset(context, creator, attrs)
+    Thread.create_changeset(context, creator, attrs)
     |> Repo.insert()
   end
 
@@ -264,14 +263,12 @@ defmodule MoodleNet.Comments do
   end
 
   defp insert_comment(thread, creator, attrs) do
-    Meta.point_to!(Comment)
-    |> Comment.create_changeset(creator, thread, attrs)
+    Comment.create_changeset(creator, thread, attrs)
     |> Repo.insert()
   end
 
   defp insert_comment(thread, creator, reply_to, attrs) do
-    Meta.point_to!(Comment)
-    |> Comment.create_changeset(creator, thread, attrs)
+    Comment.create_changeset(creator, thread, attrs)
     |> Comment.reply_to_changeset(reply_to)
     |> Repo.insert()
   end

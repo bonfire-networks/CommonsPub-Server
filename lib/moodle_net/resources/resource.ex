@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources.Resource do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_public: 1, change_disabled: 1, validate_http_url: 2]
+    only: [change_public: 1, change_disabled: 1, validate_http_url: 2]
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
@@ -37,16 +37,13 @@ defmodule MoodleNet.Resources.Resource do
   @required ~w(name url)a
   @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon)a
 
-  @spec create_changeset(Pointer.t(), Collection.t(), User.t(), map) :: Changeset.t()
-  @doc "Creates a changeset for insertion of a resource with the given pointer and attributes."
-  def create_changeset(%Pointer{id: id} = pointer, collection, creator, attrs) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
+  @spec create_changeset(Collection.t(), User.t(), map) :: Changeset.t()
+  @doc "Creates a changeset for insertion of a resource with the given attributes."
+  def create_changeset(collection, creator, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      id: id,
       collection_id: collection.id,
       creator_id: creator.id,
       is_public: true
@@ -67,7 +64,6 @@ defmodule MoodleNet.Resources.Resource do
     |> change_disabled()
     |> change_public()
     |> validate_http_url(:url)
-    |> meta_pointer_constraint()
   end
 
 end

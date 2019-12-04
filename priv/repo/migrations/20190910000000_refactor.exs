@@ -162,7 +162,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :local_user_id, references("mn_local_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :confirmed_at, :timestamptz
-      timestamps(inserted_at: false, type: :utc_datetime_usec)
+      timestamps(type: :utc_datetime_usec, inserted_at: :created_at)
     end
 
     create index(:mn_local_user_email_confirm_token, :local_user_id)
@@ -171,7 +171,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :local_user_id, references("mn_local_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
       add :reset_at, :timestamptz
-      timestamps(inserted_at: false, type: :utc_datetime_usec)
+      timestamps(type: :utc_datetime_usec, inserted_at: :created_at)
     end
 
     create index(:mn_local_user_reset_password_token, :local_user_id)
@@ -504,7 +504,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create table(:access_token) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
       add :expires_at, :timestamptz, null: false
-      timestamps(inserted_at: false, type: :utc_datetime_usec)
+      timestamps(type: :utc_datetime_usec, inserted_at: :created_at)
     end
 
     # now we are going to do things with what we've already created.
@@ -538,7 +538,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       end if;
       insert into mn_pointer (id, table_id)
       values (NEW.id, table_id);
-      return null;
+      return NEW;
     end;
     $$ language plpgsql
     """

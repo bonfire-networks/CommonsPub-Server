@@ -75,7 +75,7 @@ defmodule MoodleNet.ResourcesTest do
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.fetch(Fake.uuid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.fetch(Fake.ulid())
     end
   end
 

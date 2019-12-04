@@ -38,7 +38,7 @@ defmodule MoodleNet.Activities do
   def list_by_user(%User{id: id}) do
     query =
       from(a in Activity,
-        where: a.user_id == ^id
+        where: a.creator_id == ^id
       )
       |> only_public_q()
 
@@ -79,8 +79,8 @@ defmodule MoodleNet.Activities do
   Will ignore users that are deleted.
   """
   @spec fetch_user(Activity.t()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
-  def fetch_user(%Activity{user_id: id, user: %NotLoaded{}}), do: Users.fetch(id)
-  def fetch_user(%Activity{user: user}), do: {:ok, user}
+  def fetch_user(%Activity{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
+  def fetch_user(%Activity{creator: user}), do: {:ok, user}
 
   @doc """
   Fetch the context related to an activity and resolve it to its original type.
@@ -102,7 +102,7 @@ defmodule MoodleNet.Activities do
   def create(%{id: _} = context, %User{} = user, %{} = attrs) do
     Repo.transact_with(fn ->
       with {:ok, activity} <- insert_activity(context, user, attrs) do
-        {:ok, %Activity{activity | context: context, user: user}}
+        {:ok, %Activity{activity | context: context, creator: user}}
       end
     end)
   end
@@ -110,8 +110,7 @@ defmodule MoodleNet.Activities do
   defp insert_activity(context, user, attrs) do
     context = Meta.find!(context.id)
 
-    Meta.point_to!(Activity)
-    |> Activity.create_changeset(context, user, attrs)
+    Activity.create_changeset(context, user, attrs)
     |> Repo.insert()
   end
 

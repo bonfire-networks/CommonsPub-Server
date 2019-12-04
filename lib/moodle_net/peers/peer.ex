@@ -11,8 +11,7 @@ defmodule MoodleNet.Peers.Peer do
   """
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, validate_http_url: 2, change_synced_timestamp: 3]
+  import MoodleNet.Common.Changeset, only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
   alias MoodleNet.Meta
@@ -24,27 +23,23 @@ defmodule MoodleNet.Peers.Peer do
     field(:deleted_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
-    timestamps(inserted_at: :created_at)
+    timestamps()
   end
 
   @required ~w(ap_url_base)a
   @cast @required ++ ~w(is_disabled)a
 
-  def create_changeset(%Pointer{id: id} = pointer, fields) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
-    %Peer{id: id}
+  def create_changeset(fields) do
+    %Peer{}
     |> Changeset.cast(fields, @cast)
     |> Changeset.validate_required(@required)
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> validate_http_url(:ap_url_base)
-    |> meta_pointer_constraint()
   end
 
   def update_changeset(%Peer{} = peer, fields) do
     peer
     |> Changeset.cast(fields, @cast)
     |> change_synced_timestamp(:is_disabled, :disabled_at)
-    |> meta_pointer_constraint()
   end
 end

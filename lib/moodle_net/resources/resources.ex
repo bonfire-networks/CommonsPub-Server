@@ -95,8 +95,7 @@ defmodule MoodleNet.Resources do
   end
 
   defp insert_resource(collection, creator, attrs) do
-    Meta.point_to!(Resource)
-    |> Resource.create_changeset(collection, creator, attrs)
+    Resource.create_changeset(collection, creator, attrs)
     |> Repo.insert()
   end
 

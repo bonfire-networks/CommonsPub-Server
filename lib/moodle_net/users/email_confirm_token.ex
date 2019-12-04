@@ -35,7 +35,6 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   def create_changeset(%LocalUser{} = local_user, validity) do
     %EmailConfirmToken{}
     |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(:id, UUID.bingenerate())
     |> Changeset.put_change(:local_user_id, local_user.id)
     |> Changeset.put_change(:expires_at, expires_at(validity))
   end

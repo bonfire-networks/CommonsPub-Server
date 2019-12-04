@@ -146,7 +146,7 @@ defmodule MoodleNet.ActivitiesTest do
       assert {:ok, %Activity{} = activity} = Activities.create(context, user, attrs)
       assert activity.verb == attrs.verb
       assert activity.canonical_url == attrs.canonical_url
-      assert activity.user.id == user.id
+      assert activity.creator.id == user.id
       assert activity.context.id == context.id
     end
 

@@ -13,12 +13,28 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
+  import MoodleNet.Workers.Utils, only: [configure_logger: 1]
 
   @impl Worker
   def perform(%{"context_id" => context_id}, _job) do
-    context = context_id |> Meta.find!() |> Meta.follow!()
-
-    only_local(context, &publish/1)
+    configure_logger(__MODULE__)
+    try do
+      context = context_id |> Meta.find!() |> Meta.follow!()
+  
+      only_local(context, &publish/1)
+    catch
+      reason ->
+	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        for line <- __STACKTRACE__ do
+          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
+        end
+    rescue
+      reason ->
+	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        for line <- __STACKTRACE__ do
+          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
+        end
+    end
 
     # ignore failure for now
     :ok

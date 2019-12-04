@@ -111,7 +111,7 @@ defmodule MoodleNet.CollectionsTest do
     end
 
     test "fails with a missing ID" do
-      assert {:error, %NotFoundError{}} = Collections.fetch(Fake.uuid())
+      assert {:error, %NotFoundError{}} = Collections.fetch(Fake.ulid())
     end
   end
 

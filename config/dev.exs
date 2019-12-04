@@ -96,3 +96,6 @@ config :moodle_net, MoodleNet.OAuth,
 
 config :moodle_net, MoodleNet.Uploads.Storage,
   provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads"]]]
+
+config :moodle_net, MoodleNet.Workers.ActivityWorker,
+  log_level: :warn

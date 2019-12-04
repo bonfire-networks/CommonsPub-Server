@@ -8,10 +8,9 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   disabled.
   """
   use MoodleNet.Common.Schema
-  import MoodleNet.Common.Changeset, only: [validate_email: 2, meta_pointer_constraint: 1]
+  import MoodleNet.Common.Changeset, only: [validate_email: 2]
   alias Ecto.Changeset
   alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
 
   @type t :: %__MODULE__{}
 
@@ -23,14 +22,12 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   @create_cast ~w(email)a
   @create_required @create_cast
 
-  def create_changeset(%Pointer{id: id} = pointer, fields) do
-    %__MODULE__{id: id}
+
+  def create_changeset(fields) do
+    %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> validate_email(:email)
-    |> Changeset.unique_constraint(:email,
-      name: "mn_access_register_email"
-    )
-    |> meta_pointer_constraint()
+    |> Changeset.unique_constraint(:email, name: "mn_access_register_email")
   end
 end

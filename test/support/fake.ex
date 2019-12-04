@@ -123,6 +123,8 @@ defmodule MoodleNet.Test.Fake do
 
   @doc "Generates a random unique uuid"
   def uuid(), do: unused(&Faker.UUID.v4/0, :uuid)
+  @doc "Generates a random unique ulid"
+  def ulid(), do: Ecto.ULID.generate()
   @doc "Generates a random unique email"
   def email(), do: unused(&Faker.Internet.email/0, :email)
   @doc "Generates a random domain name"
@@ -139,7 +141,7 @@ defmodule MoodleNet.Test.Fake do
 
   def language(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:id, &ulid/0) # todo: these can't both be right
     |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
@@ -148,7 +150,7 @@ defmodule MoodleNet.Test.Fake do
 
   def country(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
+    |> Map.put_new_lazy(:id, &ulid/0) # todo: these can't both be right
     |> Map.put_new_lazy(:iso_code2, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
     |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
@@ -211,7 +213,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("website", &website/0)
     |> Map.put_new_lazy("icon", &icon/0)
     |> Map.put_new_lazy("image", &image/0)
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
   end
@@ -224,14 +226,14 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("website", &website/0)
     |> Map.put_new_lazy("icon", &icon/0)
     |> Map.put_new_lazy("image", &image/0)
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
   end
 
   def community(base \\ %{}) do
     base
-    # |> Map.put_new_lazy(:primary_language_id, &uuid/0)
+    # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:icon, &icon/0)
@@ -245,7 +247,7 @@ defmodule MoodleNet.Test.Fake do
   def community_create_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)
@@ -254,7 +256,7 @@ defmodule MoodleNet.Test.Fake do
 
   def community_update_input(base \\ %{}) do
     base
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)
@@ -263,7 +265,7 @@ defmodule MoodleNet.Test.Fake do
 
   def collection(base \\ %{}) do
     base
-    # |> Map.put_new_lazy(:primary_language_id, &uuid/0)
+    # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:icon, &icon/0)
@@ -276,7 +278,7 @@ defmodule MoodleNet.Test.Fake do
   def collection_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)
@@ -284,7 +286,7 @@ defmodule MoodleNet.Test.Fake do
 
   def collection_update_input(base \\ %{}) do
     base
-    # |> Map.put_new_lazy("primaryLanguageId", &uuid/0)
+    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("icon", &icon/0)

@@ -4,8 +4,7 @@
 defmodule MoodleNet.Activities.Activity do
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_public: 1]
+  import MoodleNet.Common.Changeset, only: [change_public: 1]
 
   alias MoodleNet.Users.User
   alias MoodleNet.Meta
@@ -15,7 +14,7 @@ defmodule MoodleNet.Activities.Activity do
   @type t :: %__MODULE__{}
 
   table_schema "mn_activity" do
-    belongs_to(:user, User)
+    belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     field(:canonical_url, :string)
     field(:verb, :string)
@@ -29,14 +28,11 @@ defmodule MoodleNet.Activities.Activity do
   @required ~w(verb is_local)a
   @cast @required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%Pointer{id: id} = pointer, %Pointer{} = context, %User{} = user, attrs) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
+  def create_changeset(%Pointer{} = context, %User{} = user, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      id: id,
-      user_id: user.id,
+      creator_id: user.id,
       context_id: context.id,
       is_public: true
     )
@@ -53,6 +49,5 @@ defmodule MoodleNet.Activities.Activity do
   defp common_changeset(changeset) do
     changeset
     |> change_public()
-    |> meta_pointer_constraint()
   end
 end

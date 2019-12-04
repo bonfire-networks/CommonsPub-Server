@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Instance.Inbox do
   use MoodleNet.Common.Schema
-  alias Mootils.Cursor
   alias MoodleNet.Activities.Activity
   alias Ecto.Changeset
 
@@ -12,8 +11,7 @@ defmodule MoodleNet.Instance.Inbox do
   end
 
   def changeset(%Activity{id: id}) do
-    changes = [ id: Cursor.generate_bose64(), activity_id: id ]
-    Changeset.change(%__MODULE__{}, changes)
+    Changeset.change(%__MODULE__{}, activity_id: id)
   end
 
 end

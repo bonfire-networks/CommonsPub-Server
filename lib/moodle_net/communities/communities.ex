@@ -101,8 +101,7 @@ defmodule MoodleNet.Communities do
   end
 
   defp insert_community(creator, actor, attrs) do
-    Meta.point_to!(Community)
-    |> Community.create_changeset(creator, actor, attrs)
+    Community.create_changeset(creator, actor, attrs)
     |> Repo.insert()
   end
 

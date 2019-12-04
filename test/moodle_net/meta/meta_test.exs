@@ -4,7 +4,7 @@ defmodule MoodleNet.MetaTest do
   import ExUnit.Assertions
   import MoodleNet.Meta.Introspection, only: [ecto_schema_table: 1]
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Meta, Repo}
+  alias MoodleNet.{Access, Meta, Repo}
 
   alias MoodleNet.Meta.{
     Pointer,
@@ -20,14 +20,14 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Comments.{Comment, Thread}
 
-  alias MoodleNet.Common.{Block, Flag, Follow, Like, NotInTransactionError}
+  alias MoodleNet.Common.{Block, Flag, Follow, Feature, Like, NotInTransactionError}
 
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
   alias MoodleNet.Localisation.{Country, Language}
 
   @known_schemas [
-    Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Follow,
+    Table, Feature, Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Follow,
     Like, Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess,
     Block, Activity,
   ]
@@ -132,7 +132,7 @@ defmodule MoodleNet.MetaTest do
     test "throws TableNotFoundError when given a non-meta table" do
       table = %Table{table: "power_of_greyskull"}
 
-      assert %TableNotFoundError{table: Table} ==
+      assert %TableNotFoundError{table: Access.Token} ==
                catch_throw(Meta.forge!(table))
     end
   end

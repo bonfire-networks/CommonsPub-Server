@@ -74,7 +74,7 @@ defmodule MoodleNet.CommentsTest do
     end
 
     test "returns not found if the thread is missing" do
-      assert {:error, %NotFoundError{}} = Comments.fetch_thread(Faker.UUID.v4())
+      assert {:error, %NotFoundError{}} = Comments.fetch_thread(Fake.ulid())
     end
   end
 

@@ -29,8 +29,7 @@ defmodule MoodleNet.Peers do
   @doc "Create a Peer from the provided attributes"
   def create(attrs) do
     Repo.transact_with(fn ->
-      pointer = Meta.point_to!(Peer)
-      Repo.insert(Peer.create_changeset(pointer, attrs))
+      Repo.insert(Peer.create_changeset(attrs))
     end)
   end
 

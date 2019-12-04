@@ -87,11 +87,6 @@ defmodule MoodleNet.Common.Changeset do
     end
   end
 
-  @doc "Adds a foreign key constraint for pointer on the id"
-  @spec meta_pointer_constraint(Changeset.t()) :: Changeset.t()
-  def meta_pointer_constraint(changeset),
-    do: Changeset.foreign_key_constraint(changeset, :id)
-
   @doc "Creates a changeset for claiming an entity"
   def claim_changeset(it, column \\ :claimed_at, error \\ "was already claimed"),
     do: soft_delete_changeset(it, column, error)

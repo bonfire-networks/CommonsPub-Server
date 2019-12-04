@@ -33,6 +33,7 @@ defmodule MoodleNet.Users.User do
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
+    field(:stale_error, :string, virtual: true)
     has_many(:email_confirm_tokens, EmailConfirmToken)
     timestamps()
   end
@@ -47,15 +48,13 @@ defmodule MoodleNet.Users.User do
     %User{}
     |> Changeset.cast(attrs, @register_cast_attrs)
     |> Changeset.validate_required(@register_required_attrs)
-    |> Changeset.change(actor_id: id, id: ULID.generate())
+    |> Changeset.change(actor_id: id)
     |> common_changeset()
   end
 
   def local_register_changeset(%Actor{} = actor, %LocalUser{id: id}, %{} = attrs) do
-    cs = register_changeset(actor, attrs)
+    register_changeset(actor, attrs)
     |> Changeset.put_change(:local_user_id, id)
-    IO.inspect(cs: cs)
-    cs
   end
 
   @update_cast_attrs ~w(name summary location website icon image is_public is_disabled)a

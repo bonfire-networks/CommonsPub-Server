@@ -6,7 +6,6 @@ defmodule MoodleNet.Communities.Community do
 
   import MoodleNet.Common.Changeset,
     only: [
-      meta_pointer_constraint: 1,
       change_public: 1,
       change_disabled: 1,
       validate_language_code: 2
@@ -49,13 +48,10 @@ defmodule MoodleNet.Communities.Community do
   @required ~w(name)a
   @cast @required ++ ~w(is_disabled is_public summary icon image)a
 
-  def create_changeset(%Pointer{id: id} = pointer, %User{} = creator, %Actor{} = actor, fields) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
+  def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
     %Community{}
     |> Changeset.cast(fields, @cast)
     |> Changeset.change(
-      id: id,
       # communities are currently all public
       is_public: true,
       actor_id: actor.id,
@@ -78,6 +74,5 @@ defmodule MoodleNet.Communities.Community do
     |> change_public()
     |> change_disabled()
     # |> validate_language_code(:primary_language)
-    |> meta_pointer_constraint()
   end
 end

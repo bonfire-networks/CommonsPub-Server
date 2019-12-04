@@ -55,7 +55,7 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %NotFoundError{}} = Communities.fetch(Fake.uuid())
+      assert {:error, %NotFoundError{}} = Communities.fetch(Fake.ulid())
     end
   end
 
@@ -69,7 +69,7 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     test "fails when given a missing ID" do
-      assert {:error, %NotFoundError{}} = Communities.fetch_private(Fake.uuid())
+      assert {:error, %NotFoundError{}} = Communities.fetch_private(Fake.ulid())
     end
   end
 

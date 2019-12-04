@@ -4,8 +4,7 @@
 defmodule MoodleNet.Collections.Collection do
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset,
-    only: [meta_pointer_constraint: 1, change_public: 1, change_disabled: 1]
+  import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
@@ -41,19 +40,15 @@ defmodule MoodleNet.Collections.Collection do
   @cast @required ++ ~w(summary icon is_disabled)a
 
   def create_changeset(
-        %Pointer{id: id} = pointer,
         %Community{} = community,
         %User{} = creator,
         %Actor{} = actor,
         attrs
       ) do
-    Meta.assert_points_to!(pointer, __MODULE__)
-
     %Collection{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      id: id,
       actor_id: actor.id,
       creator_id: creator.id,
       community_id: community.id,
@@ -72,6 +67,5 @@ defmodule MoodleNet.Collections.Collection do
     changeset
     |> change_public()
     |> change_disabled()
-    |> meta_pointer_constraint()
   end
 end
