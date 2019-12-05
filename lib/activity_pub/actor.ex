@@ -273,7 +273,7 @@ defmodule ActivityPub.Actor do
   end
 
   defp get_actor_from_follow(follow) do
-    with {:ok, actor} <- get_by_local_id(follow.follower_id) do
+    with {:ok, actor} <- get_by_local_id(follow.creator_id) do
       actor
     else
       {:error, _} -> nil

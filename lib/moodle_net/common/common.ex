@@ -408,8 +408,8 @@ defmodule MoodleNet.Common do
   defp block_q(blocker_id, blocked_id) do
     from(b in Block,
       where: is_nil(b.deleted_at),
-      where: b.blocker_id == ^blocker_id,
-      where: b.blocked_id == ^blocked_id
+      where: b.creator_id == ^blocker_id,
+      where: b.context_id == ^blocked_id
     )
   end
 

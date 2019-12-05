@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.Repo
+  alias MoodleNet.{Actors, Collections, Communities, Repo, Users}
   alias MoodleNet.ActivityPub.Utils
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
@@ -11,40 +11,23 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    with {:ok, actor} <- MoodleNet.Users.fetch_any_by_username(username) do
+    with {:ok, actor} <- Actors.fetch_any_by_username(username) do
+      actor =
+        actor
+	|> Actors.preload_alias()
+	|> Actors.juggle_alias()
+
       {:ok, actor}
     else
-      {:error, _e} ->
-        with {:ok, actor} <- MoodleNet.Communities.fetch_by_username(username) do
-          {:ok, actor}
-        else
-          {:error, _e} ->
-            with {:ok, actor} <- MoodleNet.Collections.fetch_by_username(username) do
-              actor = Repo.preload(actor, [:community, :actor, :creator])
-              {:ok, actor}
-            else
-              _e -> {:error, "not found"}
-            end
-        end
+      _e -> {:error, "not found"}
     end
   end
 
   def get_actor_by_id(id) do
-    with {:ok, actor} <- MoodleNet.Users.fetch(id) do
-      {:ok, actor}
-    else
-      {:error, _e} ->
-        with {:ok, actor} <- MoodleNet.Communities.fetch(id) do
-          {:ok, actor}
-        else
-          {:error, _e} ->
-            with {:ok, actor} <- MoodleNet.Collections.fetch(id) do
-              actor = Repo.preload(actor, [:community, :actor, :creator])
-              {:ok, actor}
-            else
-              _e -> {:error, "not found"}
-            end
-        end
+    with {:error, _e} <- Users.fetch(id),
+         {:error, _e} <- Communities.fetch_private(id),
+         {:error, _e} <- Collections.fetch(id) do
+      {:error, "not found"}
     end
   end
 

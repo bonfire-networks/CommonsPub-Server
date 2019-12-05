@@ -16,6 +16,9 @@ defmodule MoodleNet.Actors.Actor do
   table_schema "mn_actor" do
     belongs_to :peer, MoodleNet.Peers.Peer
     has_one :follower_count, ActorFollowerCount
+    has_one :user, User
+    has_one :community, Community
+    has_one :collection, Collection
     # has_one :following_count, ActorFollowingCount
     field :preferred_username, :string
     field :canonical_url, :string

@@ -14,6 +14,9 @@ defmodule MoodleNet.Actors do
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.{Actors, Meta, Repo}
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Users.User
   alias Ecto.{Changeset, Multi}
 
   @doc "Fetches an actor by id"
@@ -34,6 +37,24 @@ defmodule MoodleNet.Actors do
   @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
   def fetch_any_by_username(username) when is_binary(username) do
     Repo.single(fetch_any_by_username_q(username))
+  end
+
+  def preload_alias(%Actor{}=actor) do
+    Repo.preload(actor, [:user, :collection, :community])
+  end
+
+  @doc """
+  Returns the actor's alias with the actor preloaded, without hitting the database.
+  Note: assumes the actor has had its alias preloaded.
+  """
+  def juggle_alias(%Actor{user: %User{}=user}=actor) do
+    %{ user | actor: actor}
+  end
+  def juggle_alias(%Actor{community: %Community{}=comm}=actor) do
+    %{ comm | actor: actor}
+  end
+  def juggle_alias(%Actor{collection: %Collection{}=coll}=actor) do
+    %{ coll | actor: actor}
   end
 
   defp fetch_by_username_q(username) do

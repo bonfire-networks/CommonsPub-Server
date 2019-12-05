@@ -9,6 +9,7 @@ defmodule ActivityPub.Object do
   import Ecto.Query
 
   alias MoodleNet.Repo
+  alias Ecto.ULID
   alias ActivityPub.Fetcher
   alias ActivityPub.Object
 
@@ -19,7 +20,7 @@ defmodule ActivityPub.Object do
     field(:data, :map)
     field(:local, :boolean, default: true)
     field(:public, :boolean)
-    belongs_to(:mn_pointer, MoodleNet.Meta.Pointer)
+    belongs_to(:mn_pointer, MoodleNet.Meta.Pointer, type: ULID)
 
     timestamps()
   end
