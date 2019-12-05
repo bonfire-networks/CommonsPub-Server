@@ -70,7 +70,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     field :is_hidden, non_null(:boolean)
 
     @desc "When the thread was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the thread was last updated"
     field :updated_at, non_null(:string)
     @desc "The last time the thread or a comment on it was created or updated"
@@ -155,7 +157,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     field :is_hidden, non_null(:boolean)
 
     @desc "When the comment was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the comment was last updated"
     field :updated_at, non_null(:string)
 

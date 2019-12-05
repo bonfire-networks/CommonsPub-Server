@@ -163,7 +163,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "When the user signed up"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the user last updated their profile"
     field :updated_at, non_null(:string)
     @desc "The last time the user did anything"

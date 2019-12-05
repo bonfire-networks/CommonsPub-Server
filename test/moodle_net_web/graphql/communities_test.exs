@@ -254,8 +254,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   end
 
   describe "community.lastActivity" do
-    @tag :skip
-    test "placeholder" do
+    test "works" do
+      
     end
   end
 
@@ -350,12 +350,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"collections" => colls} = comm
-      edge_list = assert_edge_list(colls, &(&1.created_at))
+      edge_list = assert_edge_list(colls, &(&1.id))
       assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
 	coll = assert_collection(edge.node)
-	{:ok, cursor, 0} = DateTime.from_iso8601(edge.cursor)
-	assert cursor == coll.created_at
+	assert coll.id == edge.cursor
       end
     end
   end

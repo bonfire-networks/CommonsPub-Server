@@ -4,8 +4,8 @@
 defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   @moduledoc "GraphQL languages and countries"
 
-  use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.LocalisationResolver
+  # use Absinthe.Schema.Notation
+  # alias MoodleNetWeb.GraphQL.{CommonResolver, LocalisationResolver}
 
   # object :localisation_queries do
 
@@ -52,7 +52,9 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :iso_code3, :string
   #   field :english_name, :string
   #   field :local_name, :string
-  #   field :created_at, :string
+  #   field :created_at, :string do
+    #   resolve &CommonResolver.created_at/3
+    # end
   #   field :updated_at, :string
   # end
 
@@ -79,7 +81,9 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :iso_code3, :string
   #   field :english_name, :string
   #   field :local_name, :string
-  #   field :created_at, :string
+  #   field :created_at, :string do
+    #   resolve &CommonResolver.created_at/3
+    # end
   #   field :updated_at, :string
   # end
 

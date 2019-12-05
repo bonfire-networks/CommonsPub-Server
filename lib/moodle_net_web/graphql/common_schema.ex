@@ -129,7 +129,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     # end
 
     @desc "When the flag was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the flag was updated"
     field :updated_at, non_null(:string)
 
@@ -193,7 +195,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
 
     @desc "When the follow was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the follow was last updated"
     field :updated_at, non_null(:string)
 
@@ -245,7 +249,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
 
     @desc "When the like was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the like was last updated"
     field :updated_at, non_null(:string)
 
@@ -298,7 +304,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   field :is_public, :boolean
 
   #   @desc "When the like was created"
-  #   field :created_at, :string
+  #   field :created_at, :string do
+  #     resolve &CommonResolver.created_at/3
+  #   end
 
   #   # @desc "The current user's follow of the category, if any"
   #   # field :my_follow, :follow do
@@ -343,7 +351,9 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   #   field :is_public, :boolean
 
   #   @desc "When the like was created"
-  #   field :created_at, :string
+    # field :created_at, :string do
+    #   resolve &CommonResolver.created_at/3
+    # end
 
   #   # @desc "The current user's follow of the category, if any"
   #   # field :my_follow, :follow do

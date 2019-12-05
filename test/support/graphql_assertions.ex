@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias Ecto.ULID
   import ExUnit.Assertions
 
   def assert_location(loc) do
@@ -208,7 +209,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert user.website == user2.website
     assert user.icon == user2.icon
     assert user.image == user2.image
-    assert user.created_at == user2.created_at
+    assert ULID.timestamp(user.id) == {:ok, user2.created_at}
     assert user.updated_at == user2.updated_at
     assert user2.is_public == true
     assert user2.is_disabled == false
@@ -267,7 +268,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_nil(comm.actor.peer_id) == comm2.is_local
     assert not is_nil(comm.published_at) == comm2.is_public
     assert not is_nil(comm.disabled_at) == comm2.is_disabled
-    assert comm.created_at == comm2.created_at
+    assert ULID.timestamp(comm.id) == {:ok, comm2.created_at}
     assert comm.updated_at == comm2.updated_at
     comm2
   end
@@ -321,7 +322,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_nil(coll.actor.peer_id) == coll2.is_local
     assert not is_nil(coll.published_at) == coll2.is_public
     assert not is_nil(coll.disabled_at) == coll2.is_disabled
-    assert coll.created_at == coll2.created_at
+    assert ULID.timestamp(coll.id) == {:ok, coll2.created_at}
     assert coll.updated_at == coll2.updated_at
     coll2
   end
@@ -377,7 +378,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert res.license == res2.license
     assert not is_nil(res.published_at) == res2.is_public
     assert not is_nil(res.disabled_at) == res2.is_disabled
-    assert res.created_at == res2.created_at
+    assert ULID.timestamp(res.id) == {:ok, res2.created_at}
     assert res.updated_at == res2.updated_at
     res2
   end
@@ -415,7 +416,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert thread.is_local == thread2.is_local
     assert thread.is_public == thread2.is_public
     assert thread.is_hidden == thread2.is_hidden
-    assert thread.created_at == thread2.created_at
+    assert ULID.timestamp(thread.id) == {:ok, thread2.created_at}
     assert thread.updated_at == thread2.updated_at
     thread2
   end
@@ -457,7 +458,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comment.is_local == comment2.is_local
     assert comment.is_public == comment2.is_public
     assert comment.is_hidden == comment2.is_hidden
-    assert comment.created_at == comment2.created_at
+    assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
     assert comment.updated_at == comment2.updated_at
     comment2
   end
@@ -498,7 +499,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert not is_nil(flag.is_resolved) == flag2.is_resolved
     assert flag.is_local == flag2.is_local
     # assert flag.is_public == flag2.is_public
-    assert flag.created_at == flag2.created_at
+    assert ULID.timestamp(flag.id) == {:ok, flag2.created_at}
     assert flag.updated_at == flag2.updated_at
     flag2
   end
@@ -532,7 +533,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert follow.canonical_url == follow2.canonical_url
     assert follow.is_local == follow2.is_local
     assert follow.is_public == follow2.is_public
-    assert follow.created_at == follow2.created_at
+    assert ULID.timestamp(follow.id) == {:ok, follow2.created_at}
     assert follow.updated_at == follow2.updated_at
     follow2
   end
@@ -566,7 +567,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert like.canonical_url == like2.canonical_url
     assert like.is_local == like2.is_local
     assert like.is_public == like2.is_public
-    assert like.created_at == like2.created_at
+    assert ULID.timestamp(like.id) == {:ok, like2.created_at}
     assert like.updated_at == like2.updated_at
     like2
   end
@@ -600,7 +601,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert activity.verb == activity2.verb
     assert activity.is_local == activity2.is_local
     assert activity.is_public == activity2.is_public
-    assert activity.created_at == activity2.created_at
+    assert ULID.timestamp(activity.id) == {:ok, activity2.created_at}
     activity2
   end
 

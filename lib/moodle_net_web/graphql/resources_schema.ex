@@ -95,7 +95,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "When the collection was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
     @desc "When the collection was last updated"
     field :updated_at, non_null(:string)
     # @desc """

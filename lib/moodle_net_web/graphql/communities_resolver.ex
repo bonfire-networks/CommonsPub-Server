@@ -91,7 +91,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     Repo.transact_with(fn ->
       count = Collections.count_for_list_in_community(community)
       comms = Collections.list_in_community(community)
-      {:ok, GraphQL.edge_list(comms, count, &(&1.created_at))}
+      {:ok, GraphQL.edge_list(comms, count, &(&1.id))}
     end)
   end
 

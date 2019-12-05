@@ -83,8 +83,8 @@ defmodule MoodleNet.Mixfile do
       {:ecto_sql, "~> 3.1"},
       {:postgrex, "~> 0.14"},
       {:ecto_ulid,
-       git: "https://github.com/jayjun/ecto-ulid",
-       ref: "82beb20069c5757a7987b3d3d184dc4f2e265089"}, # for an ecto 3.2 fix
+       git: "https://github.com/irresponsible/ecto-ulid",
+       branch: "moodlenet"},
       # Password hashing
       {:argon2_elixir, "~> 2.0"},
       # Outbound HTTP

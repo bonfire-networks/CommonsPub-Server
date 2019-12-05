@@ -40,7 +40,9 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     field :is_public, non_null(:boolean)
 
     @desc "When the activity was created"
-    field :created_at, non_null(:string)
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
 
     @desc "The user who performed the activity"
     field :user, non_null(:user) do

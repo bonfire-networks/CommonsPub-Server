@@ -415,12 +415,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
-      edge_list = assert_edge_list(res, &(&1.created_at))
+      edge_list = assert_edge_list(res, &(&1.id))
       assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
 	res = assert_resource(edge.node)
-	assert {:ok, cursor, 0} = DateTime.from_iso8601(edge.cursor)
-	assert cursor == res.created_at
+	assert assert res.id == edge.cursor
       end
       
     end

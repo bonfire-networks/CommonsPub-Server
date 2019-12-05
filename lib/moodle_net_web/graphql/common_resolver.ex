@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
+  alias Ecto.ULID
   alias MoodleNet.{
     Accounts,
     Actors,
@@ -33,6 +34,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
+  def created_at(%{id: id}, _, _) do
+    ULID.timestamp(id)
+  end
+
   def is_resolved(%Flag{}=flag, _, _), do: {:ok, not is_nil(flag.resolved_at)}
 
   def flag(%{flag_id: id}, info), do: Common.fetch_flag(id)
@@ -55,15 +60,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     end
   end
 
-  def creator(%Flag{}=flag, _, info), do: Users.fetch(flag.flagger_id)
-  def creator(%Follow{}=follow, _, info), do: Users.fetch(follow.follower_id)
-  def creator(%Like{}=like, _, info), do: Users.fetch(like.liker_id)
+  def creator(%{creator_id: id}, _, info), do: Users.fetch(id)
 
 
-  def context(%Flag{}=flag, _, info), do: get_context(flag, &(&1.flagged_id))
-  def context(%Follow{}=follow, _, _info), do: get_context(follow, &(&1.followed_id))
-  def context(%Like{}=like, _, _info), do: get_context(like, &(&1.liked_id))
-  def context(other, _, _info), do: get_context(other)
+  def context(%{context_id: id}=it, _, info), do: get_context(it, &(&1.context_id))
 
   defp get_context(thing, accessor \\ &(&1.context_id)) do
     context_id = accessor.(thing)
