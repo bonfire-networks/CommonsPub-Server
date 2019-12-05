@@ -2,13 +2,39 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads do
+  import Ecto.Query
+
   alias Ecto.Changeset
-  alias MoodleNet.Uploads.{Upload, Storage}
   alias MoodleNet.{Repo, Meta}
+  alias MoodleNet.Common.Query
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.{Upload, Storage}
 
   # TODO: move to config
   @extensions_allow ~w(pdf rtf ogg mp3 flac wav flv gif jpg jpeg png)
+
+  @doc """
+  Return a list of uploads associated with any parent, assuming it is a pointer.
+  """
+  @spec list_by_parent(parent :: any) :: [Upload.t()]
+  def list_by_parent(%{id: id} = _parent), do: Repo.all(list_by_parent_q(id))
+
+  defp list_by_parent_q(id) do
+    Upload
+    |> Query.only_public()
+    |> Query.only_undeleted()
+    |> where(parent_id: ^id)
+  end
+
+  @spec list_by_uploader(User.t()) :: [Upload.t()]
+  def list_by_uploader(%User{id: id}), do: Repo.all(list_by_uploader_q(id))
+
+  defp list_by_uploader_q(id) do
+    Upload
+    |> Query.only_public()
+    |> Query.only_undeleted()
+    |> where(uploader_id: ^id)
+  end
 
   @doc """
   Attempt to retrieve an upload by its ID.
