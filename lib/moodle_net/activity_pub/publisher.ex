@@ -43,6 +43,14 @@ defmodule MoodleNet.ActivityPub.Publisher do
     end
   end
 
+  def delete_comment_or_resource(comment) do
+    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_pointer_id(comment.id) do
+      ActivityPub.delete(object)
+    else
+      _e -> :error
+    end
+  end
+
   def create_resource(resource) do
     with {:ok, collection} <- ActivityPub.Actor.get_by_local_id(resource.collection_id),
          {:ok, actor} <- ActivityPub.Actor.get_by_local_id(resource.creator_id) do
@@ -241,6 +249,30 @@ defmodule MoodleNet.ActivityPub.Publisher do
       )
     else
       _e -> :error
+    end
+  end
+
+  # Works for Users, Collections, Communities (not MN.Actor)
+  def update_actor(actor) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id),
+         actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
+         params <- %{
+           to: [@public_uri],
+           cc: [actor.data["followers"]],
+           object: actor_object,
+           actor: actor.ap_id,
+           local: true
+         } do
+      ActivityPub.update(params)
+    else
+      _e -> :error
+    end
+  end
+
+  # Works for Users, Collections, Communities (not MN.Actor)
+  def delete_actor(actor) do
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id) do
+      ActivityPub.delete(actor)
     end
   end
 end

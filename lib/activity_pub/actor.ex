@@ -31,7 +31,7 @@ defmodule ActivityPub.Actor do
     # TODO: make better
     Logger.info("Updating actor #{actor_id}")
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         update_actor_data_by_ap_id(actor_id, data) do
+         :ok <- update_actor_data_by_ap_id(actor_id, data) do
       # Return Actor
       get_by_ap_id(actor_id)
     end
@@ -288,6 +288,7 @@ defmodule ActivityPub.Actor do
       follows
       |> Enum.map(&get_actor_from_follow/1)
       |> Enum.filter(fn actor -> actor && !actor.local end)
+
     {:ok, followers}
   end
 
@@ -336,10 +337,13 @@ defmodule ActivityPub.Actor do
   end
 
   def update_actor_data_by_ap_id(ap_id, data) do
-    ap_id
-    |> Object.get_by_ap_id()
-    |> Ecto.Changeset.change(%{data: data})
-    |> MoodleNet.Repo.update()
+    {:ok, actor} =
+      ap_id
+      |> Object.get_by_ap_id()
+      |> Ecto.Changeset.change(%{data: data})
+      |> MoodleNet.Repo.update()
+
+    Adapter.update_remote_actor(actor)
   end
 
   defp deactivated?(%Object{} = actor) do
@@ -352,6 +356,8 @@ defmodule ActivityPub.Actor do
       |> Map.put("deactivated", !actor.deactivated)
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
+    # Return Actor
+    get_by_ap_id(actor.ap_id)
   end
 
   def get_creator_ap_id(actor) do
