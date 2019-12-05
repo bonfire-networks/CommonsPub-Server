@@ -16,12 +16,24 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   import_types Absinthe.Plug.Types
 
   object :upload_mutations do
-    @desc "Upload an avatar (icon in ActivityPub). Returns the full image."
-    field :upload_file, type: :file_upload do
+    @desc "Upload a small icon, also known as an avatar."
+    field :upload_icon, type: :file_upload do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
-      arg(:field_type, non_null(:field_type))
-      resolve(&UploadResolver.upload/2)
+      resolve(&UploadResolver.upload_icon/2)
+    end
+
+    @desc "Upload a large image, also known as a header."
+    field :upload_image, type: :file_upload do
+      arg(:context_id, non_null(:id))
+      arg(:upload, non_null(:upload))
+      resolve(&(UploadResolver.upload_image/2))
+    end
+
+    field :upload_resource, type: :file_upload do
+      arg(:context_id, non_null(:id))
+      arg(:upload, non_null(:upload))
+      resolve(&UploadResolver.upload_resource/2)
     end
   end
 
@@ -56,16 +68,6 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field(:width_px, :integer)
     field(:height_px, :integer)
     field(:page_count, :integer)
-  end
-
-  @desc """
-  The type of an upload field.
-
-  For example an icon or image.
-  """
-  enum :field_type do
-    value :icon, description: "A small icon, also known as an avatar"
-    value :image, description: "A large image, also known as a header"
   end
 
   # TODO
