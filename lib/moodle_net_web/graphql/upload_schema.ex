@@ -65,14 +65,29 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   file type.
   """
   object :file_metadata do
+    field(:intrinsics, :file_intrinsics)
+    # Image/Video
     field(:width_px, :integer)
     field(:height_px, :integer)
-    field(:page_count, :integer)
+    # Audio
+    field(:sample_rate_hz, :integer)
+    field(:num_audio_channels, :integer)
   end
 
-  # TODO
-  # object :file_intrinsics do
-  # end
+  @desc "More detailed metadata parsed from a file."
+  object :file_intrinsics do
+    # Audio
+    field(:num_frames, :integer)
+    field(:bits_per_sample, :integer)
+    field(:byte_rate, :integer)
+    field(:block_align, :integer)
+    # Document
+    field(:page_count, :integer)
+    # Image
+    field(:num_color_palette, :integer)
+    field(:color_planes, :integer)
+    field(:bits_per_pixel, :integer)
+  end
 
   @desc "Supported parents of a file upload."
   union :upload_parent do
