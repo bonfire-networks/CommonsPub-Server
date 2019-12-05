@@ -130,7 +130,7 @@ defmodule MoodleNet.MetaTest do
     # end
 
     test "throws TableNotFoundError when given a non-meta table" do
-      table = %Table{table: "power_of_greyskull"}
+      table = %Access.Token{}
 
       assert %TableNotFoundError{table: Access.Token} ==
                catch_throw(Meta.forge!(table))
