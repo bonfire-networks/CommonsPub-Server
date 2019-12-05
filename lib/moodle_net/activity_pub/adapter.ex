@@ -14,10 +14,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, actor} <- Actors.fetch_any_by_username(username) do
       actor =
         actor
-	|> Actors.preload_alias()
-	|> Actors.juggle_alias()
+        |> Actors.preload_alias()
+        |> Actors.juggle_alias()
 
-      {:ok, actor}
+      unless actor.deleted_at do
+        {:ok, actor}
+      else
+        {:error, "not found"}
+      end
     else
       _e -> {:error, "not found"}
     end

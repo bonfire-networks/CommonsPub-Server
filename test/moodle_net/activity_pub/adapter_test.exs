@@ -224,8 +224,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       actor = actor()
       ActivityPub.delete(actor, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      {:ok, actor} = Adapter.get_actor_by_ap_id(actor.ap_id)
-      assert actor.deleted_at
+      assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
     test "community deletes" do
@@ -238,7 +237,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "collection deletes" do
       actor = collection()
       ActivityPub.delete(actor, false)
-      %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       assert {:error, "not found"} = Adapter.get_actor_by_ap_id(actor.ap_id)
     end
 
