@@ -6,16 +6,12 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
 
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
-  alias MoodleNet.Uploads
   alias MoodleNet.Uploads.Storage
 
-  @field_types ["icon", "image"]
-
-  def upload_query(parent, file, field) do
-    field_type = String.upcase(field)
+  def upload_query(parent, file, mutation_name) do
     query = """
     mutation {
-      uploadFile(contextId: \"#{parent.id}\", upload: \"file\", fieldType: #{field_type}) {
+      #{mutation_name}(contextId: \"#{parent.id}\", upload: \"file\") {
         id
         url
         media_type
@@ -48,63 +44,177 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
     end)
   end
 
-  describe "upload" do
-    test "upload an image for an existing object" do
-      for field <- @field_types do
-        user = fake_user!()
-        file = %Plug.Upload{
-          path: "test/fixtures/images/150.png",
-          filename: "150.png",
-          content_type: "image/png"
-        }
-        query = upload_query(user, file, field)
-        conn = user_conn(user)
+  describe "upload_icon" do
+    test "for an existing object" do
+      user = fake_user!()
+      file = %Plug.Upload{
+        path: "test/fixtures/images/150.png",
+        filename: "150.png",
+        content_type: "image/png"
+      }
+      query = upload_query(user, file, "uploadIcon")
+      conn = user_conn(user)
 
-        assert resp = gql_post_data(conn, query)
-        refute Map.has_key?(resp, "errors")
-        assert %{"uploadFile" => upload} = resp
+      assert resp = gql_post_data(conn, query)
+      refute Map.has_key?(resp, "errors")
+      assert %{"uploadIcon" => upload} = resp
 
-        assert upload["id"]
-        # FIXME: support scope
-        # assert upload["url"] =~ "#{user.id}/#{file.filename}"
-        assert_valid_url upload["url"]
-        assert upload["size"]
-        assert upload["metadata"]["width_px"]
-        assert upload["metadata"]["height_px"]
+      assert upload["id"]
+      # FIXME: support scope
+      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert_valid_url upload["url"]
+      assert upload["size"]
+      assert upload["metadata"]["width_px"]
+      assert upload["metadata"]["height_px"]
 
-        assert {:ok, user} = MoodleNet.Users.fetch(user.id)
-        assert Map.get(user, String.to_existing_atom(field)) == upload["url"]
-      end
+      assert {:ok, user} = MoodleNet.Users.fetch(user.id)
+      assert user.icon == upload["url"]
     end
 
     test "fails with an invalid file extension" do
-      for field <- @field_types do
-        user = fake_user!()
-        file = %Plug.Upload{
-          path: "test/fixtures/not-a-virus.exe",
-          filename: "not-a-virus.exe",
-          content_type: "application/executable"
-        }
-        query = upload_query(user, file, field)
-        conn = user_conn(user)
+      user = fake_user!()
+      file = %Plug.Upload{
+        path: "test/fixtures/not-a-virus.exe",
+        filename: "not-a-virus.exe",
+        content_type: "application/executable"
+      }
+      query = upload_query(user, file, "uploadIcon")
+      conn = user_conn(user)
 
-        assert [%{"message" => "extension_denied"}] = gql_post_errors(conn, query)
-      end
+      assert [%{"message" => "extension_denied"}] = gql_post_errors(conn, query)
     end
 
     test "fails with an missing file" do
-      for field <- @field_types do
-        user = fake_user!()
-        file = %Plug.Upload{
-          path: "missing.png",
-          filename: "missing.png",
-          content_type: "image/png"
-        }
-        query = upload_query(user, file, "icon")
-        conn = user_conn(user)
+      user = fake_user!()
+      file = %Plug.Upload{
+        path: "missing.png",
+        filename: "missing.png",
+        content_type: "image/png"
+      }
+      query = upload_query(user, file, "uploadIcon")
+      conn = user_conn(user)
 
-        assert [%{"message" => "enoent"}] = gql_post_errors(conn, query)
-      end
+      assert [%{"message" => "enoent"}] = gql_post_errors(conn, query)
+    end
+  end
+
+  describe "upload_image" do
+    test "for an existing object" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      file = %Plug.Upload{
+        path: "test/fixtures/images/150.png",
+        filename: "150.png",
+        content_type: "image/png"
+      }
+      query = upload_query(comm, file, "uploadImage")
+      conn = user_conn(user)
+
+      assert resp = gql_post_data(conn, query)
+      refute Map.has_key?(resp, "errors")
+      assert %{"uploadImage" => upload} = resp
+
+      assert upload["id"]
+      # FIXME: support scope
+      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert_valid_url upload["url"]
+      assert upload["size"]
+      assert upload["metadata"]["width_px"]
+      assert upload["metadata"]["height_px"]
+
+      assert {:ok, comm} = MoodleNet.Communities.fetch(comm.id)
+      assert comm.image == upload["url"]
+    end
+
+    test "fails with an invalid file extension" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      file = %Plug.Upload{
+        path: "test/fixtures/not-a-virus.exe",
+        filename: "not-a-virus.exe",
+        content_type: "application/executable"
+      }
+      query = upload_query(comm, file, "uploadImage")
+      conn = user_conn(user)
+
+      assert [%{"message" => "extension_denied"}] = gql_post_errors(conn, query)
+    end
+
+    test "fails with an missing file" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      file = %Plug.Upload{
+        path: "missing.png",
+        filename: "missing.png",
+        content_type: "image/png"
+      }
+      query = upload_query(comm, file, "uploadImage")
+      conn = user_conn(user)
+
+      assert [%{"message" => "enoent"}] = gql_post_errors(conn, query)
+    end
+  end
+
+  describe "upload_resource" do
+    test "for an existing object" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+      file = %Plug.Upload{
+        path: "test/fixtures/images/150.png",
+        filename: "150.png",
+        content_type: "image/png"
+      }
+      query = upload_query(res, file, "uploadResource")
+      conn = user_conn(user)
+
+      assert resp = gql_post_data(conn, query)
+      refute Map.has_key?(resp, "errors")
+      assert %{"uploadResource" => upload} = resp
+
+      assert upload["id"]
+      # FIXME: support scope
+      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert_valid_url upload["url"]
+      assert upload["size"]
+      assert upload["metadata"]["width_px"]
+      assert upload["metadata"]["height_px"]
+
+      assert {:ok, res} = MoodleNet.Resources.fetch(res.id)
+      assert res.url == upload["url"]
+    end
+
+    test "fails with an invalid file extension" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+      file = %Plug.Upload{
+        path: "test/fixtures/not-a-virus.exe",
+        filename: "not-a-virus.exe",
+        content_type: "application/executable"
+      }
+      query = upload_query(res, file, "uploadResource")
+      conn = user_conn(user)
+
+      assert [%{"message" => "extension_denied"}] = gql_post_errors(conn, query)
+    end
+
+    test "fails with an missing file" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+      file = %Plug.Upload{
+        path: "missing.png",
+        filename: "missing.png",
+        content_type: "image/png"
+      }
+      query = upload_query(res, file, "uploadResource")
+      conn = user_conn(user)
+
+      assert [%{"message" => "enoent"}] = gql_post_errors(conn, query)
     end
   end
 end
