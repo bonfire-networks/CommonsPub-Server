@@ -20,6 +20,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field :upload_file, type: :file_upload do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
+      arg(:field_type, non_null(:field_type))
       resolve(&UploadResolver.upload/2)
     end
   end
@@ -67,9 +68,11 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     value :image, description: "A large image, also known as a header"
   end
 
-  @desc """
-  Supported parents of a file upload.
-  """
+  # TODO
+  # object :file_intrinsics do
+  # end
+
+  @desc "Supported parents of a file upload."
   union :upload_parent do
     description "A parent of an upload"
     types [:collection, :comment, :community, :resource, :user]

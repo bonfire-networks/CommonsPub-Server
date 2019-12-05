@@ -11,15 +11,31 @@ defmodule MoodleNet.UploadsTest do
 
   @image_file %{path: "test/fixtures/images/150.png", filename: "150.png"}
 
-  def fake_upload(file, attrs) do
+  def fake_upload(file, attrs \\ %{}) do
     user = fake_user!()
     community = fake_community!(user)
     Uploads.upload(community, user, file, attrs)
   end
 
+  def strip(upload), do: Map.drop(upload, [:is_public, :url])
+
+  describe "list_by_parent" do
+    test "returns a list of uploads for a parent" do
+      comm = fake_user!() |> fake_community!()
+
+      uploads = for _ <- 1..5 do
+        user = fake_user!()
+        {:ok, upload} = Uploads.upload(comm, user, @image_file, %{})
+        upload
+      end
+
+      assert MapSet.new(uploads) == MapSet.new(Uploads.list_by_parent(comm))
+    end
+  end
+
   describe "fetch" do
     test "returns an upload for an existing ID" do
-      assert {:ok, original_upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, original_upload} = fake_upload(@image_file)
       assert {:ok, fetched_upload} = Uploads.fetch(original_upload.id)
       assert original_upload.id == fetched_upload.id
       assert original_upload.path == fetched_upload.path
@@ -32,7 +48,7 @@ defmodule MoodleNet.UploadsTest do
 
   describe "fetch_by_path" do
     test "returns an upload with the given path" do
-      assert {:ok, original_upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, original_upload} = fake_upload(@image_file)
       assert {:ok, fetched_upload} = Uploads.fetch_by_path(original_upload.path)
       assert original_upload.id == fetched_upload.id
       assert original_upload.path == fetched_upload.path
@@ -45,7 +61,7 @@ defmodule MoodleNet.UploadsTest do
 
   describe "upload" do
     test "creates a file upload" do
-      assert {:ok, upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, upload} = fake_upload(@image_file)
       assert upload.path
       assert upload.size
       assert upload.media_type == "image/png"
@@ -55,24 +71,18 @@ defmodule MoodleNet.UploadsTest do
 
     test "fails when the file has a disallowed extension" do
       file = %{path: "test/fixtures/not-a-virus.exe", filename: "not-a-virus.exe"}
-      assert {:error, :extension_denied} = fake_upload(file, %{is_public: true})
+      assert {:error, :extension_denied} = fake_upload(file)
     end
 
     test "fails when the upload is a missing file" do
       file = %{path: "missing.pdf", filename: "missing.pdf"}
-      assert {:error, :enoent} = fake_upload(file, %{is_public: true})
-    end
-
-    test "fails when the upload is missing attributes" do
-      file = %{path: "test/fixtures/images/150.png", filename: "150.png"}
-      assert {:error, changeset} = fake_upload(file, %{})
-      assert Keyword.get(changeset.errors, :is_public)
+      assert {:error, :enoent} = fake_upload(file)
     end
   end
 
   describe "remote_url" do
     test "returns the remote URL for an existing upload" do
-      assert {:ok, upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, upload} = fake_upload(@image_file)
       assert {:ok, url} = Uploads.remote_url(upload)
 
       uri = URI.parse(url)
@@ -82,14 +92,14 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "returns an error when the upload is missing" do
-      assert {:ok, upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, upload} = fake_upload(@image_file)
       assert {:error, :enoent} = Uploads.remote_url(%{upload | path: "missing.png"})
     end
   end
 
   describe "soft_delete" do
     test "updates the deletion date of the upload" do
-      assert {:ok, upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, upload} = fake_upload(@image_file)
       refute upload.deleted_at
       assert {:ok, deleted_upload} = Uploads.soft_delete(upload)
       assert deleted_upload.deleted_at
@@ -100,7 +110,7 @@ defmodule MoodleNet.UploadsTest do
 
   describe "hard_delete" do
     test "removes the upload, including files" do
-      assert {:ok, upload} = fake_upload(@image_file, %{is_public: true})
+      assert {:ok, upload} = fake_upload(@image_file)
       assert :ok = Uploads.hard_delete(upload)
       assert {:error, :enoent} = Storage.remote_url(upload.path)
     end
