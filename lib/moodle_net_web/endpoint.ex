@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.Endpoint do
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Jason,
-    length: 50_000,
+    length: 10_000_000,
     body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []}
   )
 
