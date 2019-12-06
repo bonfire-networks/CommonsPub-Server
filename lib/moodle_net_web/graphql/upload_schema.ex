@@ -16,15 +16,28 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   import_types Absinthe.Plug.Types
 
   object :upload_mutations do
-    @desc "Upload an avatar (icon in ActivityPub). Returns the full image."
-    field :upload_file, type: :file_upload do
+    @desc "Upload a small icon, also known as an avatar."
+    field :upload_icon, type: :file_upload do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
-      resolve(&UploadResolver.upload/2)
+      resolve(&UploadResolver.upload_icon/2)
+    end
+
+    @desc "Upload a large image, also known as a header."
+    field :upload_image, type: :file_upload do
+      arg(:context_id, non_null(:id))
+      arg(:upload, non_null(:upload))
+      resolve(&(UploadResolver.upload_image/2))
+    end
+
+    field :upload_resource, type: :file_upload do
+      arg(:context_id, non_null(:id))
+      arg(:upload, non_null(:upload))
+      resolve(&UploadResolver.upload_resource/2)
     end
   end
 
-  # @desc "An image that can optionally contain a preview."
+  @desc "An uploaded file, may contain metadata."
   object :file_upload do
     field(:id, non_null(:id))
     field(:url, non_null(:string))
@@ -45,12 +58,38 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     end
   end
 
+  @desc """
+  Metadata associated with a file.
+
+  None of the parameters are required and are filled depending on the
+  file type.
+  """
   object :file_metadata do
+    field(:intrinsics, :file_intrinsics)
+    # Image/Video
     field(:width_px, :integer)
     field(:height_px, :integer)
-    field(:page_count, :integer)
+    # Audio
+    field(:sample_rate_hz, :integer)
+    field(:num_audio_channels, :integer)
   end
 
+  @desc "More detailed metadata parsed from a file."
+  object :file_intrinsics do
+    # Audio
+    field(:num_frames, :integer)
+    field(:bits_per_sample, :integer)
+    field(:byte_rate, :integer)
+    field(:block_align, :integer)
+    # Document
+    field(:page_count, :integer)
+    # Image
+    field(:num_color_palette, :integer)
+    field(:color_planes, :integer)
+    field(:bits_per_pixel, :integer)
+  end
+
+  @desc "Supported parents of a file upload."
   union :upload_parent do
     description "A parent of an upload"
     types [:collection, :comment, :community, :resource, :user]

@@ -2,13 +2,39 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads do
+  import Ecto.Query
+
   alias Ecto.Changeset
-  alias MoodleNet.Uploads.{Upload, Storage}
   alias MoodleNet.{Repo, Meta}
+  alias MoodleNet.Common.Query
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.{Upload, Storage}
 
   # TODO: move to config
   @extensions_allow ~w(pdf rtf ogg mp3 flac wav flv gif jpg jpeg png)
+
+  @doc """
+  Return a list of uploads associated with any parent, assuming it is a pointer.
+  """
+  @spec list_by_parent(parent :: any) :: [Upload.t()]
+  def list_by_parent(%{id: id} = _parent), do: Repo.all(list_by_parent_q(id))
+
+  defp list_by_parent_q(id) do
+    Upload
+    |> Query.only_public()
+    |> Query.only_undeleted()
+    |> where(parent_id: ^id)
+  end
+
+  @spec list_by_uploader(User.t()) :: [Upload.t()]
+  def list_by_uploader(%User{id: id}), do: Repo.all(list_by_uploader_q(id))
+
+  defp list_by_uploader_q(id) do
+    Upload
+    |> Query.only_public()
+    |> Query.only_undeleted()
+    |> where(uploader_id: ^id)
+  end
 
   @doc """
   Attempt to retrieve an upload by its ID.
@@ -27,10 +53,12 @@ defmodule MoodleNet.Uploads do
   participates in the meta abstraction, providing the actor responsible for
   the upload.
   """
-  @spec upload(parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
+  @spec upload(upload_def :: any, parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
-  def upload(parent, %User{} = uploader, file, attrs) do
-    with {:ok, file_info} <- Storage.store(file, extensions: @extensions_allow) do
+  def upload(upload_def, %{id: _id} = parent, %User{} = uploader, file, attrs) do
+    storage_opts = [extensions: @extensions_allow, scope: parent.id]
+
+    with {:ok, file_info} <- Storage.store(upload_def, file, storage_opts) do
       attrs =
         attrs
         |> Map.put(:path, file_info.id)
