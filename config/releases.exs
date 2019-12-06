@@ -1,5 +1,5 @@
 import Config
-
+require Logger
 config :moodle_net, MoodleNet.Repo,
   username: System.fetch_env!("DATABASE_USER"),
   password: System.fetch_env!("DATABASE_PASS"),
@@ -41,4 +41,6 @@ if is_binary(sentry_dsn) and is_binary(sentry_env) do
     root_source_code_path: File.cwd!,
     enable_source_code_context: true,
     included_environments: [sentry_env]
+else
+  Logger.info("[Release Config] Not configuring sentry as at least one of SENTRY_DSN, SENTRY_ENV is missing")
 end
