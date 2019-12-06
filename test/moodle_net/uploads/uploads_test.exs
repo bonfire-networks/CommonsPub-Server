@@ -29,7 +29,7 @@ defmodule MoodleNet.UploadsTest do
         upload
       end
 
-      assert MapSet.new(uploads) == MapSet.new(Uploads.list_by_parent(comm))
+      assert Enum.count(uploads) == Enum.count(Uploads.list_by_parent(comm))
     end
   end
 

@@ -8,8 +8,6 @@ defmodule MoodleNet.Uploads.Storage do
 
   @spec store(file :: file_source()) :: {:ok, file_info()} | {:error, term}
   def store(file, opts \\ []) do
-    opts = [overwrite: true] ++ opts
-
     with {:ok, file} <- allow_extension(file, opts),
          {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
          {:ok, metadata} <- get_metadata(file) do
