@@ -35,7 +35,7 @@ end
 sentry_dsn = System.get_env("SENTRY_DSN")
 sentry_env = System.get_env("SENTRY_ENV")
 
-Application.ensure_all_started(:logger)
+Application.ensure_all_started(:logger, :permanent)
 
 if is_binary(sentry_dsn) and is_binary(sentry_env) do
   Logger.info("[Release Config] Configuring sentry with SENTRY_DSN: #{sentry_dsn} SENTRY_ENV: #{sentry_env}")
