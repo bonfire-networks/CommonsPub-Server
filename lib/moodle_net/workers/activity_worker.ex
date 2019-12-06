@@ -13,7 +13,7 @@ defmodule MoodleNet.Workers.ActivityWorker do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Users.User
   import Ecto.Query
-  import MoodleNet.Workers.Utils, only: [run_with_debug: 3]
+  import MoodleNet.Workers.Utils, only: [run_with_debug: 4]
 
   @impl Worker
   def perform(arg, job), do: run_with_debug(__MODULE__, &run_job/1, job, arg)
@@ -22,7 +22,7 @@ defmodule MoodleNet.Workers.ActivityWorker do
     %{"verb" => verb,
       "creator_id" => user_id,
       "context_id" => context_id,
-    },
+    }
   ) do
     Repo.transaction(fn ->
       {:ok, user} = Users.fetch(user_id)

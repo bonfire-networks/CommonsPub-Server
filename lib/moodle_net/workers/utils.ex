@@ -19,17 +19,15 @@ defmodule MoodleNet.Workers.Utils do
       configure_logger(module)
       fun.(arg)
     catch
-      reason -> debug(reason, __STACKTRACE__)
+      reason -> debug(job, reason, __STACKTRACE__)
     rescue
-      reason -> debug(reason, __STACKTRACE__)
+      reason -> debug(job, reason, __STACKTRACE__)
     end
   end
 
-  defp debug(reason, trace) do
+  defp debug(job,reason, trace) do
     Logger.error(
-	    "[ActivityWorker] Failed to #{inspect(verb)} " <>
-        "context #{inspect(context_id)} " <>
-        "for #{inspect(user_id)}: #{inspect(reason)}"
+	    "[ActivityWorker] Failed to run job: #{inspect(job)}, reason: #{inspect(reason)}"
 	  )
     if Mix.env == :dev do
       IO.puts(Exception.format_stacktrace(trace))
