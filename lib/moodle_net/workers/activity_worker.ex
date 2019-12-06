@@ -13,44 +13,17 @@ defmodule MoodleNet.Workers.ActivityWorker do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Users.User
   import Ecto.Query
-  import MoodleNet.Workers.Utils, only: [configure_logger: 1]
+  import MoodleNet.Workers.Utils, only: [run_with_debug: 3]
 
   @impl Worker
-  def perform(
-        %{
-          "verb" => verb,
-          "creator_id" => user_id,
-          "context_id" => context_id,
-        },
-        _job
-      ) do
-    configure_logger(__MODULE__)
-    try do
-      run_job(verb, user_id, context_id)
-    catch
-      reason ->
-	Logger.error(
-	  "[ActivityWorker] Failed to #{inspect(verb)} context #{inspect(context_id)}" <>
-            "for #{inspect(user_id)}: #{inspect(reason)}"
-	)
-        for line <- __STACKTRACE__ do
-          Logger.error("[ActivityWorker: #{inspect(verb)}-#{inspect(context_id)}-#{inspect(user_id)}] #{inspect(line)}")
-        end
-	throw :failed
-    rescue
-      reason ->
-	Logger.error(
-	  "[ActivityWorker] Failed to #{inspect(verb)} context #{inspect(context_id)}" <>
-            "for #{inspect(user_id)}: #{inspect(reason)}"
-	)
-        for line <- __STACKTRACE__ do
-          Logger.error("[ActivityWorker: #{inspect(verb)}-#{inspect(context_id)}-#{inspect(user_id)}] #{inspect(line)}")
-        end
-	throw :failed
-    end
-  end
+  def perform(arg, job), do: run_with_debug(__MODULE__, &run_job/1, job, arg)
 
-  defp run_job(verb ,user_id, context_id) do
+  defp run_job(
+    %{"verb" => verb,
+      "creator_id" => user_id,
+      "context_id" => context_id,
+    },
+  ) do
     Repo.transaction(fn ->
       {:ok, user} = Users.fetch(user_id)
       context = context_id |> Meta.find!() |> Meta.follow!()
