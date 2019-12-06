@@ -60,8 +60,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert %{"uploadIcon" => upload} = resp
 
       assert upload["id"]
-      # FIXME: support scope
-      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert upload["url"] =~ "#{user.id}/#{file.filename}"
       assert_valid_url upload["url"]
       assert upload["size"]
       assert upload["metadata"]["width_px"]
@@ -115,8 +114,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert %{"uploadImage" => upload} = resp
 
       assert upload["id"]
-      # FIXME: support scope
-      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert upload["url"] =~ "#{comm.id}/#{file.filename}"
       assert_valid_url upload["url"]
       assert upload["size"]
       assert upload["metadata"]["width_px"]
@@ -174,8 +172,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert %{"uploadResource" => upload} = resp
 
       assert upload["id"]
-      # FIXME: support scope
-      # assert upload["url"] =~ "#{user.id}/#{file.filename}"
+      assert upload["url"] =~ "#{res.id}/#{file.filename}"
       assert_valid_url upload["url"]
       assert upload["size"]
       assert upload["metadata"]["width_px"]
