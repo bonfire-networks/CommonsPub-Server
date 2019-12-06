@@ -331,13 +331,14 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     ### blocking system
 
-    # desc: one thing missing is silence/block/ban of user/group/instance,
-    #       by users, community moderators, or admins
-
     create table(:mn_block) do
       add :canonical_url, :text
-      add :creator_id, references("mn_user", on_delete: :delete_all), null: false
-      add :context_id, references("mn_pointer", on_delete: :delete_all), null: false
+      # always the person that created it
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
+      # if this is set, it's a block on behalf of a community
+      add :community_id, references("mn_community", on_delete: :nilify_all)
+      # the thing being blocked
+      add :context_id, references("mn_pointer", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :muted_at, :timestamptz
       add :blocked_at, :timestamptz
