@@ -34,11 +34,11 @@ end
 sentry_dsn = System.get_env("SENTRY_DSN")
 sentry_env = System.get_env("SENTRY_ENV")
 
-if not is_nil(sentry_dsn) do
+if is_binary(sentry_dsn) and is_binary(sentry_env) do
   config :sentry,
     dsn: sentry_dsn,
-    environment_name: sentry_env || Mix.env,
+    environment_name: sentry_env,
     root_source_code_path: File.cwd!,
     enable_source_code_context: true,
-    included_environments: [:prod, :home, :next, :mothership, :team]
+    included_environments: [sentry_env]
 end
