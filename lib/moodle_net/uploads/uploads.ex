@@ -55,8 +55,10 @@ defmodule MoodleNet.Uploads do
   """
   @spec upload(parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
-  def upload(parent, %User{} = uploader, file, attrs) do
-    with {:ok, file_info} <- Storage.store(file, extensions: @extensions_allow) do
+  def upload(%{id: _id} = parent, %User{} = uploader, file, attrs) do
+    storage_opts = [extensions: @extensions_allow, scope: parent.id]
+
+    with {:ok, file_info} <- Storage.store(file, storage_opts) do
       attrs =
         attrs
         |> Map.put(:path, file_info.id)
