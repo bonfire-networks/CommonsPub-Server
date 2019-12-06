@@ -19,21 +19,57 @@ defmodule MoodleNet.Workers.Utils do
       configure_logger(module)
       fun.(arg)
     catch
-      reason -> debug(job, reason, __STACKTRACE__)
+      cause -> debug_throw(module, cause, job, __STACKTRACE__)
     rescue
-      reason -> debug(job, reason, __STACKTRACE__)
+      cause -> debug_exception(module, cause, job, __STACKTRACE__)
     end
   end
 
-  defp debug(job,reason, trace) do
-    Logger.error(
-	    "[ActivityWorker] Failed to run job: #{inspect(job)}, reason: #{inspect(reason)}"
-	  )
+  defp debug_exception(module, exception, job, stacktrace) do
     if Mix.env == :dev do
-      IO.puts(Exception.format_stacktrace(trace))
+      debug_log(job, stacktrace)
+      IO.inspect(raised: exception)
     else
-      Sentry.capture_exception
+      sentry_raised(module, exception, job, stacktrace)
     end
+    {:error, exception}
+  end
+
+  defp debug_throw(module, thrown, job, stacktrace) do
+    if Mix.env == :dev do
+      debug_log(job, stacktrace)
+      IO.inspect(thrown: thrown)
+    else
+      sentry_thrown(module, thrown, job, stacktrace)
+    end
+    {:error, thrown}
+  end
+
+  defp sentry_raised(module, exception, job, stacktrace) do
+    Sentry.capture_exception(
+      exception,
+      stacktrace: stacktrace,
+      event_source: module,
+      extra: %{job: job},
+      level: :error
+    )
+  end
+
+  defp sentry_thrown(module, thrown, job, stacktrace) do
+    Sentry.Event.create_event(
+      message: "Worker Job failed",
+      stacktrace: stacktrace,
+      event_source: module,
+      extra: %{job: job, thrown: thrown},
+      level: :error
+    )
+    |> Sentry.send_event()
+  end
+
+  defp debug_log(job, stacktrace) do
+    Logger.error("[ActivityWorker] Job failed!")
+    IO.puts(Exception.format_stacktrace(stacktrace))
+    IO.inspect(job: job)
   end
 
 end
