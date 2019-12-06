@@ -53,12 +53,12 @@ defmodule MoodleNet.Uploads do
   participates in the meta abstraction, providing the actor responsible for
   the upload.
   """
-  @spec upload(parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
+  @spec upload(upload_def :: any, parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
-  def upload(%{id: _id} = parent, %User{} = uploader, file, attrs) do
+  def upload(upload_def, %{id: _id} = parent, %User{} = uploader, file, attrs) do
     storage_opts = [extensions: @extensions_allow, scope: parent.id]
 
-    with {:ok, file_info} <- Storage.store(file, storage_opts) do
+    with {:ok, file_info} <- Storage.store(upload_def, file, storage_opts) do
       attrs =
         attrs
         |> Map.put(:path, file_info.id)

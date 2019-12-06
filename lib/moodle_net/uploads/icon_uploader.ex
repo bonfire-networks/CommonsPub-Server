@@ -4,9 +4,7 @@
 defmodule MoodleNet.Uploads.IconUploader do
   use MoodleNet.Uploads.Definition
 
-  def valid?(file) do
-    true
-  end
+  def allowed_extensions, do: ~w(gif jpg jpeg png)
 
   def transform(file) do
     :skip

@@ -14,7 +14,15 @@ defmodule MoodleNet.UploadsTest do
   def fake_upload(file, attrs \\ %{}) do
     user = fake_user!()
     community = fake_community!(user)
-    Uploads.upload(community, user, file, attrs)
+
+    upload_def =
+      Faker.Util.pick([
+        MoodleNet.Uploads.IconUploader,
+        MoodleNet.Uploads.ImageUploader,
+        MoodleNet.Uploads.ResourceUploader
+      ])
+
+    Uploads.upload(upload_def, community, user, file, attrs)
   end
 
   def strip(upload), do: Map.drop(upload, [:is_public, :url])
@@ -23,11 +31,15 @@ defmodule MoodleNet.UploadsTest do
     test "returns a list of uploads for a parent" do
       comm = fake_user!() |> fake_community!()
 
-      uploads = for _ <- 1..5 do
-        user = fake_user!()
-        {:ok, upload} = Uploads.upload(comm, user, @image_file, %{})
-        upload
-      end
+      uploads =
+        for _ <- 1..5 do
+          user = fake_user!()
+
+          {:ok, upload} =
+            Uploads.upload(MoodleNet.Uploads.IconUploader, comm, user, @image_file, %{})
+
+          upload
+        end
 
       assert Enum.count(uploads) == Enum.count(Uploads.list_by_parent(comm))
     end
@@ -75,7 +87,7 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "fails when the upload is a missing file" do
-      file = %{path: "missing.pdf", filename: "missing.pdf"}
+      file = %{path: "missing.gif", filename: "missing.gif"}
       assert {:error, :enoent} = fake_upload(file)
     end
   end
