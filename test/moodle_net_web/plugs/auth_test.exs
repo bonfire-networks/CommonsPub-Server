@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
   alias MoodleNetWeb.Plugs.Auth
 
   defp strip_token(token), do: Map.drop(token, [:user])
-  defp strip_user(user), do: Map.drop(user, [:email_confirm_tokens])
+  defp strip_user(user), do: Map.drop(user, [:email_confirm_tokens, :actor, :is_disabled, :is_public])
 
   test "works with a current user" do
     user = fake_user!(%{}, confirm_email: true)

@@ -8,8 +8,9 @@ defmodule MoodleNetWeb.Router do
   MoodleNet Router
   """
   use MoodleNetWeb, :router
+  use Plug.ErrorHandler
   use Sentry.Plug
-
+  
   if Mix.env == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end

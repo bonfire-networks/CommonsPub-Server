@@ -48,7 +48,10 @@ defmodule MoodleNetWeb.Plugs.Auth do
              :ok <- Access.verify_token(token, get_now(opts)) do
           put_current_user(conn, token.user, token)
         else
-          {:error, error} -> Conn.assign(conn, :auth_error, error)
+          {:error, error} ->
+            Conn.assign(conn, :auth_error, error)
+            |> Conn.assign(:current_user, nil)
+            |> Conn.assign(:auth_token, nil)
         end
       _ -> conn
     end
