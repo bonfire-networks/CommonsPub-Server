@@ -23,15 +23,11 @@ defmodule MoodleNet.Common.Feature do
 
   @create_cast ~w(canonical_url is_local)a
 
-  def create_changeset(%User{} = blocker, %Pointer{} = blocked, fields) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id} = context, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_cast)
-    |> Changeset.change(
-      blocker_id: blocker.id,
-      blocked_id: blocked.id,
-      is_muted: false,
-    )
+    |> Changeset.change(creator_id: creator_id, context_id: context_id)
   end
 
 end

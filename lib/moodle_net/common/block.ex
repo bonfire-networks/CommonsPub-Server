@@ -31,13 +31,13 @@ defmodule MoodleNet.Common.Block do
   @create_cast ~w(canonical_url is_local is_public is_blocked)a
   @required_cast ~w(is_local is_public is_blocked)a
 
-  def create_changeset(%User{} = blocker, %Pointer{} = blocked, fields) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@required_cast)
     |> Changeset.change(
-      creator_id: blocker.id,
-      context_id: blocked.id,
+      creator_id: creator_id,
+      context_id: context_id,
       is_muted: false,
     )
     |> Changeset.foreign_key_constraint(:creator_id)

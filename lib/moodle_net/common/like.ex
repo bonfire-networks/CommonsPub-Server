@@ -26,31 +26,29 @@ defmodule MoodleNet.Common.Like do
     timestamps()
   end
 
-  @required ~w(is_local)a
-  @cast @required ++ ~w(canonical_url is_public)a
+  @create_required ~w(is_local)a
+  @create_cast @create_required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%User{} = liker, %Pointer{} = liked, %{}=fields) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{}=fields) do
     %Like{}
-    |> Changeset.cast(fields, @cast)
+    |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
-      creator_id: liker.id,
-      context_id: liked.id,
+      creator_id: creator_id,
+      context_id: context_id,
       is_public: true
     )
-    |> Changeset.validate_required(@required)
+    |> Changeset.validate_required(@create_required)
     |> Changeset.foreign_key_constraint(:creator_id)
     |> Changeset.foreign_key_constraint(:context_id)
-    |> common_changeset()
+    |> change_public()
   end
+
+  @update_cast ~w(canonical_url is_public)a
 
   def update_changeset(%Like{}=like, %{}=fields) do
     like
-    |> Changeset.cast(fields, @cast)
-    |> common_changeset()
-  end
-
-  defp common_changeset(changeset) do
-    changeset
+    |> Changeset.cast(fields, @update_cast)
     |> change_public()
   end
+
 end

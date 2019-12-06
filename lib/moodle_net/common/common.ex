@@ -3,16 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common do
   alias MoodleNet.{Meta, Repo}
-
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
     AlreadyLikedError,
     Block,
     DeletionError,
+    Feature,
     Flag,
     Follow,
     Like,
+    Query,
     Tag
   }
 
@@ -56,6 +57,35 @@ defmodule MoodleNet.Common do
   #   do: {:ok, limit(query, ^limit)}
 
   # defp paginate_limit(query, limit)
+
+  ### features
+
+  def featured_collections() do
+    featured_collections_q()
+    |> Repo.all()
+    |> Query.unroll()
+  end
+  def featured_communities() do
+    featured_communities_q()
+    |> Repo.all()
+    |> Query.unroll()
+  end
+
+  defp featured_collections_q() do
+    from f in Feature,
+      join: c in Collection,
+      on: f.context_id == c.id,
+      order_by: [desc: f.id],
+      select: {f, c}
+  end
+
+  defp featured_communities_q() do
+    from f in Feature,
+      join: c in Collection,
+      on: f.context_id == c.id,
+      order_by: [desc: f.id],
+      select: {f, c}
+  end
 
   ### liking
 

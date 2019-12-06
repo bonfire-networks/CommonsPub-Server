@@ -29,19 +29,14 @@ defmodule MoodleNet.Common.Follow do
   @required ~w(is_local)a
   @cast @required ++ ~w(canonical_url is_muted is_public)a
 
-  def create_changeset(
-        %User{} = follower,
-        %Pointer{} = followed,
-        fields
-      ) do
-
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @cast)
     |> Changeset.change(
       is_muted: false,
       is_public: true,
-      creator_id: follower.id,
-      context_id: followed.id
+      creator_id: creator_id,
+      context_id: context_id
     )
     |> Changeset.validate_required(@required)
     |> Changeset.foreign_key_constraint(:creator_id)

@@ -5,6 +5,10 @@ defmodule MoodleNet.Common.Query do
 
   import Ecto.Query
 
+  def unroll(items, key \\ :context)
+  def unroll(items, key) when is_list(items), do: Enum.map(&unroll(&1, key))
+  def unroll({l,r}, key), do: %{ l | key => r}
+
   def count(query) do
     select(query, [q], count(q))
   end

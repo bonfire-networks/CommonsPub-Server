@@ -66,13 +66,18 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     end
 
   #   @tag :skip
-  #   @todo_when :post_moot
+  #   @milestone :privacy
   #   test "Does not work for a user that is not public" do
   #     user = fake_user!(%{is_public: false})
   #     conn = user_conn(user)
   #     query = "{ user(userId: \"#{user.id}\") { #{user_basics()} }}"
   #     # TODO: ensure this is correct, we may want unauthorized
   #     assert_not_found(gql_post_errors(conn, %{query: query}), ["user"])
+  #   end
+
+  #   @tag :skip
+  #   @milestone :privacy
+  #   test "Works for self when not public" do
   #   end
 
   end
@@ -439,6 +444,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   describe "lastActivity" do
     @tag :skip
+    @todo :worker
     test "placeholder" do
     end
   end
@@ -691,7 +697,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "outbox" do
-    @tag :skip # broken
+
     test "Works for self" do
       user = fake_user!()
       conn = user_conn(user)
@@ -705,7 +711,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
         }
       }
       """
-      # assert %{success: 1} = Oban.drain_queue(:mn_activities)
+      assert %{success: 1} = Oban.drain_queue(:mn_activities)
       assert %{"me" => me} = gql_post_data(conn, %{query: query})
       me = assert_me(me)
       assert %{"user" => user2} = me

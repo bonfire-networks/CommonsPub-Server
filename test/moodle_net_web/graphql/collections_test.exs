@@ -421,7 +421,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
 	res = assert_resource(edge.node)
 	assert assert res.id == edge.cursor
       end
-      
     end
 
   end

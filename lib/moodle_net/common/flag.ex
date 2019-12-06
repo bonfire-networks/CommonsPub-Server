@@ -32,27 +32,20 @@ defmodule MoodleNet.Common.Flag do
   @required ~w(message is_local)a
   @cast @required ++ ~w(canonical_url is_resolved)a
 
-  def create_changeset(%User{} = flagger, %Pointer{} = flagged, attrs) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: flagger.id,
-      context_id: flagged.id
-    )
+    |> Changeset.change(creator_id: creator_id, context_id: context_id)
     |> Changeset.foreign_key_constraint(:creator_id)
     |> Changeset.foreign_key_constraint(:context_id)
     |> change_synced_timestamp(:is_resolved, :resolved_at)
   end
 
-  def create_changeset(
-        %User{} = flagger,
-        %Community{} = community,
-        %Pointer{} = flagged,
-        attrs
-      ) do
-    create_changeset(flagger, flagged, attrs)
+  def create_changeset(%User{} = creator, %Community{} = community, %{} = context, attrs) do
+    create_changeset(creator, context, attrs)
     |> Changeset.put_change(:community_id, community.id)
     |> Changeset.foreign_key_constraint(:community_id)
   end
+
 end
