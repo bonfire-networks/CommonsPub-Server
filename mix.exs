@@ -34,7 +34,6 @@ defmodule MoodleNet.Mixfile do
      extra_applications: [
        :logger,
        :runtime_tools,
-       :comeonin,
        :hackney,
        :mime,
        :belt,

@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.Endpoint do
   """
   use Phoenix.Endpoint, otp_app: :moodle_net
 
-  if System.get_env("SENTRY_DSN") do
+  if is_binary(System.get_env("SENTRY_DSN")) and is_binary(System.get_env("SENTRY_ENV")) do
     use Sentry.Phoenix.Endpoint
   end
 

@@ -1,5 +1,6 @@
 import Config
 require Logger
+
 config :moodle_net, MoodleNet.Repo,
   username: System.fetch_env!("DATABASE_USER"),
   password: System.fetch_env!("DATABASE_PASS"),
@@ -35,6 +36,7 @@ sentry_dsn = System.get_env("SENTRY_DSN")
 sentry_env = System.get_env("SENTRY_ENV")
 
 if is_binary(sentry_dsn) and is_binary(sentry_env) do
+  Logger.info("[Release Config] Configuring sentry with SENTRY_DSN: #{sentry_dsn} SENTRY_ENV: #{sentry_env}")
   config :sentry,
     dsn: sentry_dsn,
     environment_name: sentry_env,
