@@ -4,7 +4,7 @@
 defmodule MoodleNet.Uploads.Definition do
   alias MoodleNet.Uploads.Storage
 
-  @callback valid?(Storage.file_source()) :: boolean
+  @callback allowed_extensions() :: [binary] | :all
   @callback transform(Storage.file_source()) :: {command :: atom, arguments :: [binary]} | :skip
 
   defmacro __using__(opts) do

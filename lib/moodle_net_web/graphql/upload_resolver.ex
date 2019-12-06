@@ -10,16 +10,21 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   @allowed_field_names ~w(icon image url)a
 
-  def upload_icon(params, info), do: upload(params, info, :icon)
-  def upload_image(params, info), do: upload(params, info, :image)
-  def upload_resource(params, info), do: upload(params, info, :url)
+  def upload_icon(params, info),
+    do: upload(params, info, :icon, MoodleNet.Uploads.IconUploader)
 
-  defp upload(params, info, field_name) when is_atom(field_name) do
+  def upload_image(params, info),
+    do: upload(params, info, :image, MoodleNet.Uploads.ImageUploader)
+
+  def upload_resource(params, info),
+    do: upload(params, info, :url, MoodleNet.Uploads.ResourceUploader)
+
+  defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
            {:ok, parent} <- Meta.find(params.context_id),
            parent = Meta.follow!(parent),
-           {:ok, upload} <- Uploads.upload(parent, user, params.upload, params) do
+           {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params) do
         # TODO: move me
         parent
         |> Changeset.cast(%{}, [])
