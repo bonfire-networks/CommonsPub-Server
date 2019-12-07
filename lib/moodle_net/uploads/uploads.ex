@@ -10,9 +10,6 @@ defmodule MoodleNet.Uploads do
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{Upload, Storage}
 
-  # TODO: move to config
-  @extensions_allow ~w(pdf rtf ogg mp3 flac wav flv gif jpg jpeg png)
-
   @doc """
   Return a list of uploads associated with any parent, assuming it is a pointer.
   """
@@ -56,7 +53,7 @@ defmodule MoodleNet.Uploads do
   @spec upload(upload_def :: any, parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Upload.t()} | {:error, Changeset.t()}
   def upload(upload_def, %{id: _id} = parent, %User{} = uploader, file, attrs) do
-    storage_opts = [extensions: @extensions_allow, scope: parent.id]
+    storage_opts = [scope: parent.id]
 
     with {:ok, file_info} <- Storage.store(upload_def, file, storage_opts) do
       attrs =
