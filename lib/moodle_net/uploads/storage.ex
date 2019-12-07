@@ -57,7 +57,7 @@ defmodule MoodleNet.Uploads.Storage do
   end
 
   defp allow_extension(upload_def, path) when is_binary(path) do
-    allow_extension(upload_def, %{filename: Path.basename(path)})
+    allow_extension(upload_def, %{path: path, filename: Path.basename(path)})
   end
 
   defp allow_extension(upload_def, %{filename: filename} = file) do
