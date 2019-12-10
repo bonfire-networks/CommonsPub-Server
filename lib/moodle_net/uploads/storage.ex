@@ -60,13 +60,13 @@ defmodule MoodleNet.Uploads.Storage do
     allow_extension(upload_def, %{path: path, filename: Path.basename(path)})
   end
 
-  defp allow_extension(upload_def, %{path: path} = file) do
+  defp allow_extension(upload_def, %{filename: filename} = file) do
     case upload_def.allowed_extensions() do
       :all ->
         {:ok, file}
 
       allowed ->
-        if MoodleNet.File.has_extension?(path, allowed) do
+        if MoodleNet.File.has_extension?(filename, allowed) do
           {:ok, file}
         else
           {:error, :extension_denied}

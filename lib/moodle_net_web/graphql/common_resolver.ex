@@ -101,21 +101,13 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   # TODO: store community id where appropriate
   def create_flag(%{context_id: id, message: message}, info) do
-    # Repo.transact_with fn ->
-    #   with {:ok, me} <- GraphQL.current_user(info),
-    #        {:ok, actor} <- Users.fetch_actor(me),
-    #        {:ok, pointer} <- Meta.find(id),
-    #        {:ok, thing} <- flaggable_entity(pointer) do
-    #     case Common.flag(actor, thing, %{message: reason}) do
-    #       {:ok, _} -> {:ok, true}
-    #       other -> GraphQL.response(other, info)
-    #     end
-    #   else
-    #     other -> GraphQL.response(other, info)
-    #   end
-    # end 
-    {:ok, Fake.flag()}
-    |> GraphQL.response(info)
+    Repo.transact_with(fn ->
+      with {:ok, me} <- GraphQL.current_user(info),
+           {:ok, pointer} <- Meta.find(id),
+           {:ok, thing} <- flaggable_entity(pointer) do
+        Common.flag(me, thing, %{message: message})
+      end
+    end)
   end
 
   def create_like(%{context_id: id}, info) do
@@ -265,6 +257,17 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       _ -> {:ok, nil}
     end
   end
+
+  def my_flag(parent, _, info) do
+    case GraphQL.current_user(info) do
+      {:ok, user} ->
+        with {:error, _} <- Common.find_flag(user, parent) do
+          {:ok, nil}
+        end
+      _ -> {:ok, nil}
+    end
+  end
+
   def followers(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}
   def likes(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}
   def flags(parent, _, info), do: {:ok, GraphQL.edge_list([],0)}

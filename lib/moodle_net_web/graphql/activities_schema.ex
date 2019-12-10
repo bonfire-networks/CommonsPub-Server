@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
+  alias MoodleNet.Common.{Follow, Like, Flag}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
@@ -60,12 +61,15 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
   union :activity_context do
     description("Activity object")
-    types([:community, :collection, :resource, :comment])
+    types([:community, :collection, :resource, :comment, :flag, :follow, :like])
     resolve_type(fn
       %Collection{}, _ -> :collection
       %Comment{},    _ -> :comment
       %Community{},  _ -> :community
       %Resource{},   _ -> :resource
+      %Flag{},     _   -> :flag
+      %Follow{},     _ -> :follow
+      %Like{},       _ -> :like
     end)
   end
 

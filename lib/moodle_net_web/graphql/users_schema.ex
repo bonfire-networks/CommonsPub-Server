@@ -183,6 +183,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &CommonResolver.my_like/3
     end
 
+    @desc "The current user's flag of this user, if any"
+    field :my_flag, :flag do
+      resolve &CommonResolver.my_flag/3
+    end
+
     # @desc "The language the user wishes to use moodlenet in"
     # field :primary_language, :language do
     #   resolve &LocalisationResolver.primary_language/3
