@@ -5,53 +5,41 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   alias MoodleNet.{Comments, Fake, GraphQL}
   
-  def comment(%{comment_id: id}, info) do
-    {:ok, Fake.comment()}
-    |> GraphQL.response(info)
-  end
+  def comment(%{comment_id: id}, info), do: Comments.fetch_comment(id)
 
   def comment(parent, _, info) do
-    {:ok, Fake.comment()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def comments(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.comment/0)}
-    |> GraphQL.response(info)
+    {:ok, GraphQL.edge_list([], 0)}
   end
 
   def thread(%{thread_id: id}, info) do
-    {:ok, Fake.thread()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
   def thread(_,_, info) do
-    {:ok, Fake.thread()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def threads(parent, _, info) do
-    {:ok, Fake.long_edge_list(&Fake.thread/0)}
-    |> GraphQL.response(info)
+    {:ok, GraphQL.edge_list([], 0)}
   end
 
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
-    {:ok, Fake.comment()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def create_reply(%{thread_id: thread, in_reply_to_id: reply_to, comment: attrs}, info) do
-    {:ok, Fake.comment()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def update(%{comment_id: comment_id, comment: changes}, info) do
-    {:ok, Fake.comment()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def context(parent, _, info) do
-    {:ok, Fake.thread_context()}
-    |> GraphQL.response(info)
+    {:ok, nil}
   end
 
   def last_activity(_, _, info) do
