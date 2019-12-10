@@ -65,6 +65,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
         "type" => "Document",
         "tag" => resource.license
       }
+
       params = %{
         actor: actor,
         to: [@public_uri, collection.ap_id],
@@ -74,6 +75,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
           "cc" => [actor.data["followers"]]
         }
       }
+
       ActivityPub.create(params, resource.id)
     else
       _e -> :error
@@ -84,6 +86,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(community.creator_id),
          {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(community.id) do
       community_object = ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community})
+
       params = %{
         actor: actor,
         to: [@public_uri],
@@ -93,6 +96,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
           "cc" => [actor.data["followers"]]
         }
       }
+
       ActivityPub.create(params)
     else
       {:error, e} -> {:error, e}
@@ -102,7 +106,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_collection(collection) do
     with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(collection.creator_id),
          {:ok, ap_collection} <- ActivityPub.Actor.get_by_local_id(collection.id),
-         collection_object = ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
+         collection_object =
+           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
          {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(collection.community_id) do
       params = %{
         actor: actor,
@@ -113,6 +118,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
           "cc" => [actor.data["followers"]]
         }
       }
+
       ActivityPub.create(params)
     else
       _e -> :error

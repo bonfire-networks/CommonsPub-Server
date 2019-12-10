@@ -220,6 +220,56 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert {:ok, _} = MoodleNet.Common.find_like(like_actor, comment)
     end
 
+    test "flags" do
+      actor = fake_user!()
+      commented_actor = fake_user!()
+      thread = fake_thread!(actor, commented_actor)
+      comment = fake_comment!(actor, thread)
+      {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
+      flag_actor = actor()
+      {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
+
+      ActivityPub.flag(%{
+        actor: flag_actor,
+        context: ActivityPub.Utils.generate_context_id(),
+        statuses: [activity.object],
+        account: account,
+        local: false,
+        content: "blocked AND reported!!!!"
+      })
+
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
+      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment)
+    end
+
+    test "flags with multiple comments" do
+      actor = fake_user!()
+      commented_actor = fake_user!()
+      thread = fake_thread!(actor, commented_actor)
+      comment_1 = fake_comment!(actor, thread)
+      {:ok, activity_1} = MoodleNet.ActivityPub.Publisher.comment(comment_1)
+      comment_2 = fake_comment!(actor, thread)
+      {:ok, activity_2} = MoodleNet.ActivityPub.Publisher.comment(comment_2)
+
+      flag_actor = actor()
+      {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
+
+      ActivityPub.flag(%{
+        actor: flag_actor,
+        context: ActivityPub.Utils.generate_context_id(),
+        statuses: [activity_1.object, activity_2.object],
+        account: account,
+        local: false,
+        content: "blocked AND reported!!!!"
+      })
+
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
+      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment_1)
+      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment_2)
+    end
+
     test "user deletes" do
       actor = actor()
       ActivityPub.delete(actor, false)

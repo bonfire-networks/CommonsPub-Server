@@ -394,6 +394,26 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
+  def perform(:handle_activity, %{data: %{"type" => "Flag"}} = activity) do
+    with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]) do
+      activity.data["object"]
+      |> Enum.map(fn ap_id -> ActivityPub.Object.get_by_ap_id(ap_id) end)
+      # Filter nils
+      |> Enum.filter(fn object -> object end)
+      |> Enum.map(fn object ->
+        object.mn_pointer_id |> MoodleNet.Meta.find!() |> MoodleNet.Meta.follow!()
+      end)
+      |> Enum.each(fn object ->
+        MoodleNet.Common.flag(actor, object, %{
+          message: activity.data["content"],
+          is_local: false
+        })
+      end)
+
+      :ok
+    end
+  end
+
   def perform(:handle_activity, activity) do
     Logger.info("Unhandled activity type: #{activity.data["type"]}")
     :ok
