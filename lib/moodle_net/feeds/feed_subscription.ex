@@ -19,7 +19,7 @@ defmodule MoodleNet.Feeds.FeedSubscription do
     timestamps()
   end
 
-  def create_changeset(%{id: subscriber_id}, %Feed{id: feed_id}, %{}=attrs)
+  def create_changeset(%{id: subscriber_id}, feed_id, %{}=attrs)
   when is_binary(subscriber_id) and is_binary(feed_id) do
     
     

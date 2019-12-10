@@ -110,7 +110,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     #   page_info = Common.page_info(activities, &(&1.cursor))
     #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     # end)
-   {:ok, GraphQL.edge_list([],0)}
+   {:ok, GraphQL.feed_list([],0)}
    end
 
 end

@@ -46,13 +46,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
           user.local_user.is_instance_admin ->
             Communities.update(community, changes)
 
-	  community.creator_id == user.id ->
+          community.creator_id == user.id ->
             Communities.update(community, changes)
 
-	  is_nil(community.published_at) -> GraphQL.not_found()
+          is_nil(community.published_at) -> GraphQL.not_found()
 
-	  true -> GraphQL.not_permitted()
-    	end
+          true -> GraphQL.not_permitted()
+        end
       end
     end)
   end
@@ -102,7 +102,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     # count = Fake.pos_integer()
     # {:ok, GraphQL.edge_list(activities, count)}
     # |> GraphQL.response(info)    
-    {:ok, GraphQL.edge_list([], 0)}
+    {:ok, GraphQL.feed_list([], 0)}
   end
 
   def outbox(community, _, info) do
@@ -110,7 +110,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       activities = Communities.outbox(community)
       count = Enum.count(activities)
       # count = Communities.count_for_outbox(community)
-      {:ok, GraphQL.edge_list(activities, count)}
+      {:ok, GraphQL.feed_list(activities, count)}
     end)
   end
 

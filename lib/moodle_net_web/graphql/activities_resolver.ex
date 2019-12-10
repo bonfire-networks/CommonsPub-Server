@@ -6,8 +6,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   alias MoodleNet.Activities.Activity
   
   def activity(%{activity_id: id}, info) do
-    {:ok, Fake.activity()}
-    |> GraphQL.response(info)
+    Activities.fetch(id)
   end
 
   def user(%Activity{}=parent, _, info) do

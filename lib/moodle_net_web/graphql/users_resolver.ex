@@ -143,8 +143,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
           {:ok, activities} = Users.inbox(current_user)
           count = Enum.count(activities)
           # count = Users.count_for_inbox(current_user)
-          page_info = Common.page_info(activities)
-          {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+          {:ok, GraphQL.feed_list(activities, count)}
         end)
       else
         GraphQL.not_permitted()
@@ -157,7 +156,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       activities = Users.outbox(user)
       count = Enum.count(activities)
       # count = Users.count_for_outbox(user)
-      {:ok, GraphQL.edge_list(activities, count)}
+      {:ok, GraphQL.feed_list(activities, count)}
     end)
   end
 

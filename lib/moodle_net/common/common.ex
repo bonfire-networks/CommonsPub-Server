@@ -69,7 +69,8 @@ defmodule MoodleNet.Common do
     |> Query.unroll()
   end
 
-#todo counts
+  #todo counts
+
   def featured_communities() do
     featured_communities_q()
     |> Repo.all()
@@ -87,13 +88,29 @@ defmodule MoodleNet.Common do
       select: {f, c, a}
   end
 
-  defp featured_communities_q() do
+  defp count_featured_collections_q() do
     from f in Feature,
       join: c in Collection,
+      on: f.context_id == c.id,
+      order_by: [desc: f.id],
+      select: count(f)
+  end
+
+  defp featured_communities_q() do
+    from f in Feature,
+      join: c in Community,
       on: f.context_id == c.id,
       join: a in assoc(c, :actor),
       order_by: [desc: f.id],
       select: {f, c, a}
+  end
+
+  defp count_featured_communities_q() do
+    from f in Feature,
+      join: c in Community,
+      on: f.context_id == c.id,
+      order_by: [desc: f.id],
+      select: count(f)
   end
 
   ### liking
@@ -318,10 +335,10 @@ defmodule MoodleNet.Common do
     query =
       from(f in Follow,
         join: c in Community,
-	on: f.context_id == c.id,
+        on: f.context_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.creator_id == ^id,
-	select: {f,c}
+        select: {f,c}
       )
     Repo.all(query)
   end
@@ -330,10 +347,10 @@ defmodule MoodleNet.Common do
     query =
       from(f in Follow,
         join: c in Community,
-	on: f.context_id == c.id,
+        on: f.context_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.creator_id == ^id,
-	select: count(f)
+        select: count(f)
       )
     Repo.one(query)
   end
@@ -342,10 +359,10 @@ defmodule MoodleNet.Common do
     query =
       from(f in Follow,
         join: c in Collection,
-	on: f.context_id == c.id,
+        on: f.context_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.creator_id == ^id,
-	select: {f,c}
+        select: {f,c}
       )
     Repo.all(query)
   end
@@ -354,10 +371,10 @@ defmodule MoodleNet.Common do
     query =
       from(f in Follow,
         join: c in Collection,
-	on: f.context_id == c.id,
+        on: f.context_id == c.id,
         where: is_nil(f.deleted_at),
         where: f.creator_id == ^id,
-	select: count(f)
+        select: count(f)
       )
     Repo.one(query)
   end
