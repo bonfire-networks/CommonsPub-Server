@@ -102,7 +102,6 @@ config :moodle_net, Oban,
     federator_incoming: 50,
     federator_outgoing: 50,
     ap_incoming: 10,
-    mn_activities: 10,
     mn_ap_publish: 30,
   ]
 
@@ -111,7 +110,6 @@ config :moodle_net, :workers,
     federator_incoming: 5,
     federator_outgoing: 5
   ]
-
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
