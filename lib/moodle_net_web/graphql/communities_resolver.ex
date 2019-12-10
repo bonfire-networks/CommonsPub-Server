@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   def outbox(community, _, info) do
     Repo.transact_with(fn ->
       activities =
-    	Communities.outbox(community)
+    	  Communities.outbox(community)
         |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
       count = Enum.count(activities)
       # count = Communities.count_for_outbox(community)
