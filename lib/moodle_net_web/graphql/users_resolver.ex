@@ -149,7 +149,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       activities =
         Users.outbox(user)
         |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-      count = Users.count_for_outbox(user)
+      count = Enum.count(activities)
+      # count = Users.count_for_outbox(user)
       page_info = Common.page_info(activities)
       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     end)

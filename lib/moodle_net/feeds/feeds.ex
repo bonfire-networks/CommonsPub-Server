@@ -14,6 +14,8 @@ defmodule MoodleNet.Feeds do
   
   def create_feed(), do: Repo.insert(Feed.create_changeset())
 
+  def create_sub()
+
   # returns a list of feed ids
   def active_subs_for(%{id: id}) do
     Repo.all(active_subs_for_q(id))
@@ -32,6 +34,7 @@ defmodule MoodleNet.Feeds do
   def feed_activities(feed_ids, %{}=opts) when is_list(feed_ids) do
     feed_activities_q(feed_ids)
     |> feed_activities_opts(opts)
+    |> Repo.all()
   end
 
   def publish_to_feeds(feed_targets, activity) when is_list(feed_targets) do

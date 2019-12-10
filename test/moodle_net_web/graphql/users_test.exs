@@ -666,7 +666,6 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       alice = fake_user!()
       bob = fake_user!()
       comm = fake_community!(bob)
-      # assert %{success: 1} = Oban.drain_queue(:mn_activities)
       conn = user_conn(alice)
       query = """
       { me {
@@ -711,7 +710,6 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
         }
       }
       """
-      assert %{success: 1} = Oban.drain_queue(:mn_activities)
       assert %{"me" => me} = gql_post_data(conn, %{query: query})
       me = assert_me(me)
       assert %{"user" => user2} = me
@@ -720,8 +718,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       edge_list = assert_edge_list(outbox)
       # assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
-	activity = assert_activity(edge.node)
-	assert is_binary(edge.cursor)
+        activity = assert_activity(edge.node)
+        assert is_binary(edge.cursor)
       end
     end
   end

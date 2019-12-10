@@ -110,7 +110,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       activities =
     	Communities.outbox(community)
         |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-      count = Communities.count_for_outbox(community)
+      count = Enum.count(activities)
+      # count = Communities.count_for_outbox(community)
       page_info = Common.page_info(activities, &(&1.cursor))
       {:ok, %{page_info: page_info, total_count: count, edges: activities}}
     end)

@@ -144,13 +144,13 @@ defmodule MoodleNet.Common.Changeset do
     end
   end
 
-  @spec change_synced_timestamp(Changeset.t(), atom, atom, atom, atom) :: Changeset.t()
+  @spec change_synced_timestamps(Changeset.t(), atom, atom, atom, atom) :: Changeset.t()
   @doc """
   If a changeset includes a change to `bool_field`, we change two
   timestamps columns (representing activated and deactivated) so that
   only one is set to a non-null value at a time.
   """
-  def change_synced_timestamps(changeset, bool_field, on_field, off_field, default \\ true) do
+  def change_synced_timestamps(changeset, bool_field, on_field, off_field, default \\ true)
 
   def change_synced_timestamps(changeset, bool_field, on_field, off_field, default)
   when is_atom(bool_field) and is_atom(on_field)
@@ -189,4 +189,5 @@ defmodule MoodleNet.Common.Changeset do
       do: changeset,
       else: Changeset.put_error(changeset, column, message)
   end
+
 end

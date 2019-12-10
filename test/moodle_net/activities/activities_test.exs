@@ -28,7 +28,6 @@ defmodule MoodleNet.ActivitiesTest do
           fake_activity!(user, context)
         end
       found = Activities.list_by_context(context)
-      IO.inspect(found: found, orig: known)
       assert Enum.count(found) == 1 + Enum.count(known)
     end
   end
