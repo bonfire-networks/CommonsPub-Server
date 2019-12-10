@@ -38,6 +38,8 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
 
   def user_conn(conn \\ json_conn(), user), do: with_user(conn, user)
 
+  def token_conn(conn \\ json_conn(), token), do: with_authorization(conn, token)
+
   @default_opts [
     store: :cookie,
     key: "foobar",

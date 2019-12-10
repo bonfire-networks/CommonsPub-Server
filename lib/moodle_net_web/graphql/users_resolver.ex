@@ -74,15 +74,21 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
           {:ok, %{token: token.id, me: Me.new(user)}}
         end
       _ ->
-	Argon2.no_user_verify([])
-	GraphQL.invalid_credential()
+        Argon2.no_user_verify([])
+        GraphQL.invalid_credential()
     end
   end
 
   def delete_session(_, info) do
     with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, token} <- Access.fetch_token(user),
-         {:ok, token} <- Access.hard_delete(token) do
+         {:ok, token} <- Access.hard_delete(info.context.auth_token) do
+      {:ok, true}
+    end
+  end
+
+  def delete_all_sessions(_, info) do
+    with {:ok, user} <- GraphQL.current_user(info),
+         {count, _} <- Access.delete_all_for_user(user) do
       {:ok, true}
     end
   end

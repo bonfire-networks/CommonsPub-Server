@@ -23,6 +23,7 @@ defmodule MoodleNet.Access do
     UserEmailNotConfirmedError,
   }
   alias MoodleNet.Users.{LocalUser, User}
+  import Ecto.Query
 
   @type access :: RegisterEmailDomainAccess.t | RegisterEmailAccess.t
   @type token  :: Token.t
@@ -99,8 +100,12 @@ defmodule MoodleNet.Access do
       else: {:error, NoAccessError.new()}
   end
 
-  def fetch_token(%User{id: user_id}),
-    do: Repo.fetch_by(Token, user_id: user_id)
+  def fetch_token(id) when is_binary(id),do: Repo.fetch
+
+  def delete_tokens_for_user(%User{id: user_id}) do
+    from(t in Token, where: is_nil(t.deleted_at), where: t.user_id == ^user_id)
+    |> Repo.delete_all()
+  end
 
   @doc """
   Fetches a token along with the user it is linked to.

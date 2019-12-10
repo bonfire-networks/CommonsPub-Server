@@ -423,9 +423,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "UsersResolver.delete_session" do
     test "Works with a logged in user" do
       user = fake_user!(%{password: "password"}, confirm_email: true)
-      assert {:ok, _} = Access.create_token(user, "password")
+      assert {:ok, token} = Access.create_token(user, "password")
 
-      conn = user_conn(user)
+      conn = token_conn(token)
       query = "mutation { deleteSession }"
       assert %{"deleteSession" => true} = gql_post_data(conn, %{query: query})
     end

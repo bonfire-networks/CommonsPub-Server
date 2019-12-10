@@ -14,7 +14,8 @@ defmodule MoodleNet.Feeds do
   
   def create_feed(), do: Repo.insert(Feed.create_changeset())
 
-  def create_sub()
+  def create_sub() do
+  end
 
   # returns a list of feed ids
   def active_subs_for(%{id: id}) do
