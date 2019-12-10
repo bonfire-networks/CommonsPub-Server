@@ -11,7 +11,7 @@ defmodule MoodleNet.Communities do
   }
 
   alias Ecto.Association.NotLoaded
-  alias MoodleNet.{Actors, Collections, Common, Meta, Repo, Users}
+  alias MoodleNet.{Activities, Actors, Collections, Common, Feeds, Meta, Repo, Users}
   alias MoodleNet.Common.Query
   alias MoodleNet.Communities.{Community, Outbox}
   alias MoodleNet.Localisation.Language
@@ -93,8 +93,26 @@ defmodule MoodleNet.Communities do
   def create(%User{} = creator, %{} = attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
+           {:ok, inbox} <- Feeds.create_feed(),
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
            {:ok, comm} <- insert_community(creator, actor, attrs),
-           {:ok, _} <- publish_community(comm, "create") do
+           {:ok, activity} <- Activities.create(comm, creator, %{verb: "create", is_local: true}),
+           :ok <- publish_create(creator, comm, activity) do
+        {:ok, %{ comm | actor: actor }}
+      end
+    end)
+  end
+
+  @spec create_remote(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
+  def create_remote(%User{} = creator, %{} = attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.put(attrs, :outbox_id, outbox.id),
+           {:ok, comm} <- insert_community(creator, actor, attrs),
+           {:ok, activity} <- Activities.create(comm, creator, %{verb: "create", is_local: true}),
+           :ok <- publish_create(creator, comm, activity) do
         {:ok, %{ comm | actor: actor }}
       end
     end)
@@ -105,13 +123,11 @@ defmodule MoodleNet.Communities do
     |> Repo.insert()
   end
 
-  defp publish_community(%Community{} = community, verb) do
-    MoodleNet.FeedPublisher.publish(%{
-      "verb" => verb,
-      "context_id" => community.id,
-      "user_id" => community.creator_id,
-    })
+  defp publish_create(creator, community, activity) do
+    Feeds.publish_to_feeds([community, creator], activity)
   end
+  # defp publish_update(community, activity) do
+  # end
 
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
@@ -125,28 +141,7 @@ defmodule MoodleNet.Communities do
   end
 
   def outbox(%Community{}=community, opts \\ %{}) do
-    Repo.all(outbox_q(community, opts))
-    |> Repo.preload(:activity)
-  end
-  def outbox_q(%Community{id: id}=community, _opts) do
-    from i in Outbox,
-      join: c in assoc(i, :community),
-      join: a in assoc(i, :activity),
-      where: c.id == ^id,
-      where: not is_nil(a.published_at),
-      select: i,
-      preload: [:activity]
-  end
-  def count_for_outbox(%Community{}=community, opts \\ %{}) do
-    Repo.one(count_for_outbox_q(community, opts))
-  end
-  def count_for_outbox_q(%Community{id: id}=community, _opts) do
-    from i in Outbox,
-      join: c in assoc(i, :community),
-      join: a in assoc(i, :activity),
-      where: c.id == ^id,
-      where: not is_nil(a.published_at),
-      select: count(i)
+    Feeds.feed_activities([community.outbox_id], opts)
   end
 
   def soft_delete(%Community{} = community), do: Common.soft_delete(community)

@@ -6,10 +6,10 @@ defmodule MoodleNet.Users do
   A Context for dealing with Users.
   """
   import Ecto.Query, only: [from: 2]
-  alias MoodleNet.{Access, Actors, Common, Meta, Repo}
+  alias MoodleNet.{Access, Actors, Common, Feeds, Meta, Repo}
   alias MoodleNet.Actors.{Actor, ActorRevision}
   alias MoodleNet.Common.NotFoundError
-
+  alias MoodleNet.Feedsk
   alias MoodleNet.Mail.{Email, MailService}
 
   alias MoodleNet.Users.{
@@ -111,13 +111,16 @@ defmodule MoodleNet.Users do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, local_user} <- insert_local_user(attrs),
            :ok <- check_register_access(local_user.email, opts),
-           {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs)),
+           {:ok, inbox} <- Feeds.create_feed(),
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
+           {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
            {:ok, token} <- create_email_confirm_token(local_user) do
         user
         |> Email.welcome(token)
         |> MailService.deliver_now()
 
-	user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
+        user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
         {:ok, user}
       end
     end)
@@ -131,7 +134,9 @@ defmodule MoodleNet.Users do
   def register_remote(attrs, opts \\ []) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs)) do
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.put(attrs, :outbox_id, outbox.id),
+           {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
         {:ok, %{user | actor: actor}}
       end
     end)
@@ -324,56 +329,16 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{}=user, opts \\ %{}) do
-    Repo.all(inbox_q(user, opts))
-    |> Repo.preload(:activity)
-  end
-  def inbox_q(%User{id: id}=user, _opts) do
-    from i in Inbox,
-      join: u in assoc(i, :user),
-      join: a in assoc(i, :activity),
-      where: u.id == ^id,
-      where: not is_nil(a.published_at),
-      select: i,
-      preload: [:activity]
-  end
-  def count_for_inbox(%User{}=user, opts \\ %{}) do
-    Repo.one(count_for_inbox_q(user, opts))
-  end
-  def count_for_inbox_q(%User{id: id}=user, _opts) do
-    from i in Inbox,
-      join: u in assoc(i, :user),
-      join: a in assoc(i, :activity),
-      where: u.id == ^id,
-      where: not is_nil(a.published_at),
-      select: count(i)
+  def inbox(%User{inbox_id: inbox_id}=user, opts \\ %{}) do
+    Repo.transact(fn ->
+      subs = [user.inbox_id | Feeds.active_subscriptions_for(user)]
+      Feeds.subs_feed(subs)
+    end)
   end
 
   def outbox(%User{}=user, opts \\ %{}) do
-    Repo.all(outbox_q(user, opts))
-    |> Repo.preload(:activity)
+    Feeds.feed_activities([user.outbox_id], opts)
   end
-  def outbox_q(%User{id: id}=user, _opts) do
-    from i in Outbox,
-      join: u in assoc(i, :user),
-      join: a in assoc(i, :activity),
-      where: u.id == ^id,
-      where: not is_nil(a.published_at),
-      select: i,
-      preload: [:activity]
-  end
-  def count_for_outbox(%User{}=user, opts \\ %{}) do
-    Repo.one(count_for_outbox_q(user, opts))
-  end
-  def count_for_outbox_q(%User{id: id}=user, _opts) do
-    from i in Outbox,
-      join: u in assoc(i, :user),
-      join: a in assoc(i, :activity),
-      where: u.id == ^id,
-      where: not is_nil(a.published_at),
-      select: count(i)
-  end
-
 
   @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])

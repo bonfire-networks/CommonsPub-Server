@@ -160,6 +160,7 @@ defmodule MoodleNet.Test.Fake do
   def peer(base \\ %{}) do
     base
     |> Map.put_new_lazy(:ap_url_base, &ap_url_base/0)
+    |> Map.put_new_lazy(:domain, &domain/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
   end
 

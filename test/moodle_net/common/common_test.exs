@@ -73,11 +73,6 @@ defmodule MoodleNet.CommonTest do
       assert like.creator_id == liker.id
       assert like.context_id == liked.id
       assert like.published_at
-
-      assert_enqueued(
-        worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "create", context_id: like.id, creator_id: like.creator_id}
-      )
     end
   end
 
@@ -253,11 +248,6 @@ defmodule MoodleNet.CommonTest do
       assert follow.context_id == followed.id
       assert follow.published_at
       refute follow.muted_at
-
-      assert_enqueued(
-        worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "create", context_id: follow.id, creator_id: follower.id}
-      )
     end
 
     # test "can mute a follow", %{user: follower} do
@@ -289,11 +279,6 @@ defmodule MoodleNet.CommonTest do
 
       assert {:ok, follow} = Common.undo_follow(follow)
       assert follow.deleted_at
-
-      assert_enqueued(
-        worker: MoodleNet.Workers.ActivityWorker,
-        args: %{verb: "delete", context_id: follow.id, creator_id: follower.id}
-      )
     end
   end
 

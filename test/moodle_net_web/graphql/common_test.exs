@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
 
   describe "flag" do
 
-    test "works for guest" do
+    test "does not work for guest" do
       alice = fake_user!()
       bob = fake_user!()
       # alice flags bob. bob is bad.

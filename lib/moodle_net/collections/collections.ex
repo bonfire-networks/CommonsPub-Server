@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.{Actors, Common, Meta, Users, Repo}
+  alias MoodleNet.{Activities, Actors, Common, Feeds, Meta, Users, Repo}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Query
   alias MoodleNet.Collections.{Collection, Outbox}
@@ -117,13 +117,30 @@ defmodule MoodleNet.Collections do
     Repo.single(fetch_by_username_q(username))
   end
 
-  @spec create(Community.t(), User.t(), attrs :: map) ::
-          {:ok, Collection.t()} | {:error, Changeset.t()}
+  @spec create(Community.t(), User.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, coll} <- insert_collection(community, creator, actor, attrs),
-           {:ok, _} <- publish_collection(coll, "create") do
+           {:ok, inbox} <- Feeds.create_feed(),
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
+           {:ok, coll} <- insert_collection(community, creator, actor, attrs2),
+           {:ok, activity} <- Activities.create(coll, creator, %{verb: "create", is_local: true}),
+           :ok <- publish_create(community, creator, coll, activity) do
+        {:ok, %{coll | actor: actor, creator: creator}}
+      end
+    end)
+  end
+
+  @spec create_remote(Community.t, User.t, attrs :: map) :: {:ok, Collection.t} | {:error, Changeset.t}
+  def create_remote(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, outbox} <- Feeds.create_feed(),
+           attrs2 = Map.put(attrs, :outbox_id, outbox.id),
+           {:ok, coll} <- insert_collection(community, creator, actor, attrs2),
+           {:ok, activity} <- Activities.create(coll, creator, %{verb: "create", is_local: false}),
+           :ok <- publish_create(community, creator, coll, activity) do
         {:ok, %{coll | actor: actor, creator: creator}}
       end
     end)
@@ -134,14 +151,14 @@ defmodule MoodleNet.Collections do
     |> Repo.insert()
   end
 
-  defp publish_collection(%Collection{} = collection, verb) do
-    MoodleNet.FeedPublisher.publish(%{
-      "verb" => verb,
-      "context_id" => collection.id,
-      "user_id" => collection.creator_id,
-    })
+  defp publish_create(community, creator, collection, activity) do
+    Feeds.publish_to_feeds([community, creator, collection], activity)
   end
 
+  # defp publish_update(community, updator, collection, activity) do
+  # end
+
+  # TODO: take the user who is performing the update
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
@@ -155,44 +172,28 @@ defmodule MoodleNet.Collections do
   end
 
   def soft_delete(%Collection{} = collection) do
-    with {:ok, collection} <- Common.soft_delete(collection),
-         {:ok, _} <- publish_collection(collection, "delete") do
-      {:ok, collection}
-    end
+    Common.soft_delete(collection)
   end
 
-  def preload(%Collection{} = collection, opts \\ []),
-    do: Repo.preload(collection, :actor, opts)
+  def preload(collection, opts \\ [])
 
-  def preload(collections, opts) when is_list(collections),
-    do: Repo.preload(collections, :actor, opts)
+  def preload(%Collection{} = collection, opts) do
+    Repo.preload(collection, :actor, opts)
+  end
+
+  def preload(collections, opts) when is_list(collections) do
+    Repo.preload(collections, :actor, opts)
+  end
 
   def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
 
-  def outbox(%Collection{}=collection, opts \\ %{}) do
-    Repo.all(outbox_q(collection, opts))
-    |> Repo.preload(:activity)
+  def outbox(collection, opts \\ %{})
+  def outbox(%Collection{outbox_id: outbox_id}=collection, %{}=opts) do
+    case outbox_id do
+      nil -> []
+      _ -> Feeds.feed_activities([outbox_id], opts)
+    end
   end
-  def outbox_q(%Collection{id: id}=collection, _opts) do
-    from i in Outbox,
-      join: c in assoc(i, :collection),
-      join: a in assoc(i, :activity),
-      where: c.id == ^id,
-      where: not is_nil(a.published_at),
-      select: i,
-      preload: [:activity]
-  end
-  def count_for_outbox(%Collection{}=collection, opts \\ %{}) do
-    Repo.one(count_for_outbox_q(collection, opts))
-  end
-  def count_for_outbox_q(%Collection{id: id}=collection, _opts) do
-    from i in Outbox,
-      join: c in assoc(i, :collection),
-      join: a in assoc(i, :activity),
-      where: c.id == ^id,
-      where: not is_nil(a.published_at),
-      select: count(i)
-  end
-  
+
 end

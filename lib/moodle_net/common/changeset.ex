@@ -91,7 +91,7 @@ defmodule MoodleNet.Common.Changeset do
   def claim_changeset(it, column \\ :claimed_at, error \\ "was already claimed"),
     do: soft_delete_changeset(it, column, error)
 
-  @spec soft_delete_changeset(Changeset.t(), atom, any) :: Changeset.t()
+#  @spec soft_delete_changeset(Changeset.t(), atom, any) :: Changeset.t()
   @doc "Creates a changeset for deleting an entity"
   def soft_delete_changeset(it, column \\ :deleted_at, error \\ "was already deleted") do
     cs = Changeset.cast(it, %{}, [])
@@ -120,7 +120,7 @@ defmodule MoodleNet.Common.Changeset do
 
   @spec change_synced_timestamp(Changeset.t(), atom, atom) :: Changeset.t()
   @doc """
-  If a changeset includes a change to `bool`, we ensure that the
+  If a changeset includes a change to `bool_field`, we ensure that the
   `timestamp` field is updated if required. In the case of true, this
   means setting it to now if it is null and in the case of false, this
   means setting it to null if it is not null.
@@ -142,6 +142,41 @@ defmodule MoodleNet.Common.Changeset do
       _ ->
         changeset
     end
+  end
+
+  @spec change_synced_timestamp(Changeset.t(), atom, atom, atom, atom) :: Changeset.t()
+  @doc """
+  If a changeset includes a change to `bool_field`, we change two
+  timestamps columns (representing activated and deactivated) so that
+  only one is set to a non-null value at a time.
+  """
+  def change_synced_timestamps(changeset, bool_field, on_field, off_field, default \\ true) do
+
+  def change_synced_timestamps(changeset, bool_field, on_field, off_field, default)
+  when is_atom(bool_field) and is_atom(on_field)
+  and is_atom(off_field) and is_boolean(default) do
+
+    case Changeset.fetch_change(changeset, bool_field) do
+      {:ok, val} ->
+        case val do
+          true ->
+            changeset
+            |> Changeset.put_change(on_field, DateTime.utc_now())
+            |> Changeset.put_change(off_field, nil)
+          false ->
+            changeset
+            |> Changeset.put_change(on_field, nil)
+            |> Changeset.put_change(off_field, DateTime.utc_now())
+        end
+      :error ->
+        case Changeset.fetch_value(changeset, bool_field) do
+          {:ok, val} -> changeset
+          :error ->
+            cs = Changeset.put_change(bool_field, default)
+            change_synced_timestamps(cs, bool_field, on_field, off_field, default)
+        end
+    end
+
   end
 
   def validate_exactly_one(changeset, [column|_]=columns, message) do

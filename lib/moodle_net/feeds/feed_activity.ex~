@@ -1,0 +1,16 @@
+defmodule MoodleNet.Feeds.Feed do
+
+  alias Ecto.Changeset
+  alias MoodleNet.Meta.Pointer
+  use MoodleNet.Common.Schema
+
+  table_schema "mn_feed" do
+  end
+
+  @doc "Creates a new feed in the database"
+  def create_changeset() do
+    %__MODULE__{}
+    |> Changeset.cast(%{},[])
+  end    
+
+end

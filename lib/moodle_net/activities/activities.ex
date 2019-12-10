@@ -11,7 +11,7 @@ defmodule MoodleNet.Activities do
   alias Ecto.Association.NotLoaded
 
   @type context :: %{id: binary}
-
+  
   @doc """
   Return a list of activities related to any context that participates in the
   meta abstraction.
@@ -25,7 +25,6 @@ defmodule MoodleNet.Activities do
         where: a.context_id == ^id
       )
       |> only_public_q()
-
     Repo.all(query)
   end
 

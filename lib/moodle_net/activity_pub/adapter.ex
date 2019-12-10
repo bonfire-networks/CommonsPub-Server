@@ -56,7 +56,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     peer =
       case Repo.get_by(MoodleNet.Peers.Peer, ap_url_base: ap_base) do
         nil ->
-          {:ok, peer} = MoodleNet.Peers.create(%{ap_url_base: ap_base})
+          {:ok, peer} = MoodleNet.Peers.create(%{ap_url_base: ap_base, domain: uri.host})
           peer
 
         peer ->
@@ -83,14 +83,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
         "MN:Community" ->
           {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
           {:ok, creator} = get_actor_by_username(ap_creator.username)
-          MoodleNet.Communities.create(creator, create_attrs)
+          MoodleNet.Communities.create_remote(creator, create_attrs)
 
         "MN:Collection" ->
           {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
           {:ok, creator} = get_actor_by_username(ap_creator.username)
           {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
           {:ok, community} = get_actor_by_username(ap_community.username)
-          MoodleNet.Collections.create(community, creator, create_attrs)
+          MoodleNet.Collections.create_remote(community, creator, create_attrs)
       end
 
     object = ActivityPub.Object.get_by_ap_id(actor["id"])

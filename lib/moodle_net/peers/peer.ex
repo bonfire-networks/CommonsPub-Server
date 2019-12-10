@@ -11,7 +11,8 @@ defmodule MoodleNet.Peers.Peer do
   """
   use MoodleNet.Common.Schema
 
-  import MoodleNet.Common.Changeset, only: [validate_http_url: 2, change_synced_timestamp: 3]
+  import MoodleNet.Common.Changeset,
+    only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
   alias MoodleNet.Meta
@@ -20,13 +21,14 @@ defmodule MoodleNet.Peers.Peer do
 
   table_schema "mn_peer" do
     field(:ap_url_base, :string)
+    field(:domain, :string)
     field(:deleted_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     timestamps()
   end
 
-  @required ~w(ap_url_base)a
+  @required ~w(ap_url_base domain)a
   @cast @required ++ ~w(is_disabled)a
 
   def create_changeset(fields) do

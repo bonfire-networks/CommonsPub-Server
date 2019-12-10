@@ -17,6 +17,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Feeds.Feed
   # alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
@@ -25,6 +26,8 @@ defmodule MoodleNet.Communities.Community do
   table_schema "mn_community" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
+    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
+    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     field(:canonical_url, :string, virtual: true)
     field(:preferred_username, :string, virtual: true)
     # belongs_to(:primary_language, Language)
@@ -45,27 +48,27 @@ defmodule MoodleNet.Communities.Community do
     timestamps()
   end
 
-  @required ~w(name)a
-  @cast @required ++ ~w(is_disabled is_public summary icon image)a
+  @create_required ~w(name)a
+  @create_cast @create_required ++
+    ~w(is_disabled is_public summary icon image inbox_id outbox_id)a
 
   def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
     %Community{}
-    |> Changeset.cast(fields, @cast)
+    |> Changeset.cast(fields, @create_cast)
     |> Changeset.change(
       # communities are currently all public
       is_public: true,
       actor_id: actor.id,
-      creator_id: creator.id
+      creator_id: creator.id,
     )
-    |> Changeset.validate_required(@required)
+    |> Changeset.validate_required(@create_required)
     |> common_changeset()
   end
 
-  @update_cast ~w(name summary icon image is_disabled is_public)a
-
+  @update_cast ~w(name summary icon image is_disabled is_public inbox_id outbox_id)a
   def update_changeset(%Community{} = community, fields) do
     community
-    |> Changeset.cast(fields, @cast)
+    |> Changeset.cast(fields, @update_cast)
     |> common_changeset()
   end
 

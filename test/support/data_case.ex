@@ -23,15 +23,7 @@ defmodule MoodleNet.DataCase do
   using do
     quote do
       alias MoodleNet.Repo
-      alias MoodleNet.Factory
-
-      alias Ecto.Multi
-
-      # import Ecto
-      # import Ecto.Changeset
-      # import Ecto.Query
       import MoodleNet.DataCase
-
       use Bamboo.Test
     end
   end

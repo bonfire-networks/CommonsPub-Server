@@ -13,12 +13,15 @@ defmodule MoodleNet.Users.User do
   alias Ecto.{Changeset, ULID}
   alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Feeds.Feed
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   table_schema "mn_user" do
     belongs_to(:actor, Actor)
     belongs_to(:local_user, LocalUser)
+    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
+    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
     field(:canonical_url, :string, virtual: true)
     field(:preferred_username, :string, virtual: true)
@@ -40,14 +43,15 @@ defmodule MoodleNet.Users.User do
 
   @email_regexp ~r/.+\@.+\..+/
 
-  @register_cast_attrs ~w(name summary location website icon image is_public is_disabled)a
-  @register_required_attrs ~w(name)a
+  @register_required ~w(name)a
+  @register_cast @register_required ++
+    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Actor{id: id}, %{} = attrs) do
     %User{}
-    |> Changeset.cast(attrs, @register_cast_attrs)
-    |> Changeset.validate_required(@register_required_attrs)
+    |> Changeset.cast(attrs, @register_cast)
+    |> Changeset.validate_required(@register_required)
     |> Changeset.change(actor_id: id)
     |> common_changeset()
   end
@@ -57,12 +61,13 @@ defmodule MoodleNet.Users.User do
     |> Changeset.put_change(:local_user_id, id)
   end
 
-  @update_cast_attrs ~w(name summary location website icon image is_public is_disabled)a
+  @update_cast [] ++
+    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do
     user
-    |> Changeset.cast(attrs, @update_cast_attrs)
+    |> Changeset.cast(attrs, @update_cast)
     |> common_changeset()
   end
 
@@ -74,4 +79,5 @@ defmodule MoodleNet.Users.User do
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> change_public()
   end
+
 end

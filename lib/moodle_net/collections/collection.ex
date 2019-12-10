@@ -10,6 +10,7 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.{Collection, CollectionFollowerCount}
+  alias MoodleNet.Feeds.Feed
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
@@ -22,6 +23,8 @@ defmodule MoodleNet.Collections.Collection do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
     belongs_to(:community, Community)
+    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
+    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
     has_one(:follower_count, CollectionFollowerCount)
     has_many(:resources, Resource)
@@ -37,7 +40,7 @@ defmodule MoodleNet.Collections.Collection do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(summary icon is_disabled)a
+  @cast @required ++ ~w(summary icon is_disabled inbox_id outbox_id)a
 
   def create_changeset(
         %Community{} = community,

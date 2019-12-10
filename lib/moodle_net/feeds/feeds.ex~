@@ -1,0 +1,9 @@
+defmodule MoodleNet.Feeds do
+
+  alias MoodleNet.Feeds.Feed
+  alias MoodleNet.Repo
+
+  def create(), do: Repo.insert(Feed.create_changeset())
+
+  def soft_delete(%Feed{}=feed
+end

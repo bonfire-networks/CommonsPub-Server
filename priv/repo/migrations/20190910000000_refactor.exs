@@ -7,8 +7,9 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
   alias Ecto.ULID
 
   @meta_tables [] ++
-    ~w(mn_table mn_country mn_language mn_peer mn_user mn_community mn_collection) ++
-    ~w(mn_resource mn_activity mn_thread mn_comment mn_like mn_flag mn_follow mn_feature mn_block) ++
+    ~w(mn_table mn_feed mn_country mn_language mn_peer mn_user mn_community) ++
+    ~w(mn_collection mn_resource mn_activity mn_thread mn_comment) ++
+    ~w(mn_like mn_flag mn_follow mn_feature mn_block) ++
     ~w(mn_access_register_email mn_access_register_email_domain)
 
   @languages [
@@ -37,6 +38,28 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create index(:mn_pointer, :table_id)
+
+    # basically a reservation
+    create table(:mn_feed) do
+    end
+
+    create table(:mn_feed_subscription) do
+      add :subscriber_id, references("mn_pointer", on_delete: :delete_all), null: false
+      add :feed_id, references("mn_feed", on_delete: :delete_all), null: false
+      add :activated_at, :timestamptz
+      add :disabled_at, :timestamptz
+      add :deleted_at, :timestamptz
+      timestamps(inserted_at: false, type: :utc_datetime_usec)
+    end
+
+    create unique_index(
+      :mn_feed_subscription,
+      [:subscriber_id, :feed_id],
+      name: :mn_feed_subscription_subscriber_feed_idx,
+      where: "deleted_at is null"
+    )
+    create index(:mn_feed_subscription, :subscriber_id)
+    create index(:mn_feed_subscription, :feed_id)
 
     # countries
     
@@ -89,12 +112,14 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     # an activitypub-compatible peer instance
     create table(:mn_peer) do
       add :ap_url_base, :text, null: false
+      add :domain, :text, null: false # shown in the username of actors
       add :deleted_at, :timestamptz
       add :disabled_at, :timestamptz
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
     create unique_index(:mn_peer, :ap_url_base, where: "deleted_at is null")
+    create unique_index(:mn_peer, :domain, where: "deleted_at is null")
 
     ### actor system
 
@@ -141,6 +166,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :actor_id, references("mn_actor", on_delete: :delete_all)
       add :local_user_id, references("mn_local_user", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :inbox_id, references("mn_feed", on_delete: :nilify_all)
+      add :outbox_id, references("mn_feed", on_delete: :nilify_all)
       add :name, :text
       add :summary, :text
       add :location, :text
@@ -182,6 +209,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :actor_id, references(:mn_actor, on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :inbox_id, references("mn_feed", on_delete: :nilify_all)
+      add :outbox_id, references("mn_feed", on_delete: :nilify_all)
       add :name, :text
       add :summary, :text
       add :icon, :text
@@ -203,6 +232,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :community_id, references("mn_community", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
+      add :inbox_id, references("mn_feed", on_delete: :nilify_all)
+      add :outbox_id, references("mn_feed", on_delete: :nilify_all)
       add :name, :text
       add :summary, :text
       add :icon, :text
@@ -219,6 +250,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_collection, :primary_language_id)
 
     # a resource is an item in a collection, a link somewhere or some text
+
     create table(:mn_resource) do
       add :canonical_url, :text
       add :creator_id, references("mn_user", on_delete: :nilify_all)
@@ -307,7 +339,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_like, :updated_at)
     create unique_index(:mn_like, :canonical_url)
     create unique_index(:mn_like, [:creator_id, :context_id], where: "deleted_at is null")
-    create index(:mn_like, :context_id, where: "deleted_at is null")
+    create index(:mn_like, :context_id)
 
     # a flagged piece of content. may be a user, community,
     # collection, resource, thread, comment
@@ -326,8 +358,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_flag, :updated_at)
     create unique_index(:mn_flag, :canonical_url)
     create unique_index(:mn_flag, [:creator_id, :context_id], where: "deleted_at is null")
-    create index(:mn_flag, :context_id, where: "deleted_at is null")
-    create index(:mn_flag, :community_id, where: "deleted_at is null")
+    create index(:mn_flag, :context_id)
+    create index(:mn_flag, :community_id)
 
     ### blocking system
 
@@ -350,7 +382,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_block, :updated_at)
     create unique_index(:mn_block, :canonical_url)
     create unique_index(:mn_block, [:creator_id, :context_id], where: "deleted_at is null")
-    create index(:mn_block, :context_id, where: "deleted_at is null")
+    create index(:mn_block, :context_id)
 
     ### features
 
@@ -364,7 +396,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     create unique_index(:mn_feature, :canonical_url)
     create unique_index(:mn_feature, [:creator_id, :context_id], where: "deleted_at is null")
-    create index(:mn_feature, :context_id, where: "deleted_at is null")
+    create index(:mn_feature, :context_id)
 
     ### tagging
 
@@ -410,8 +442,8 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_tagging, :updated_at)
     create unique_index(:mn_tagging, :canonical_url)
     create unique_index(:mn_tagging, [:tag_id, :creator_id, :context_id], where: "deleted_at is null")
-    create index(:mn_tagging, :creator_id, where: "deleted_at is null")
-    create index(:mn_tagging, :context_id, where: "deleted_at is null")
+    create index(:mn_tagging, :creator_id)
+    create index(:mn_tagging, :context_id)
 
     create table(:mn_activity) do
       add :canonical_url, :text
@@ -430,77 +462,13 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_activity, :updated_at)
     create index(:mn_activity, :published_at)
 
-    create table(:mn_user_inbox) do
-      add :user_id, references("mn_user", on_delete: :nilify_all)
+    create table(:mn_feed_activity) do
+      add :feed_id, references("mn_feed", on_delete: :delete_all), null: false
       add :activity_id, references("mn_activity", on_delete: :nilify_all)
     end
 
-    create index(:mn_user_inbox, :user_id)
-    create index(:mn_user_inbox, :activity_id)
-
-    create table(:mn_user_outbox) do
-      add :user_id, references("mn_user", on_delete: :nilify_all)
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_user_outbox, :user_id)
-    create index(:mn_user_outbox, :activity_id)
-
-    create table(:mn_community_inbox) do
-      add :community_id, references("mn_community", on_delete: :nilify_all)
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_community_inbox, :community_id)
-    create index(:mn_community_inbox, :activity_id)
-
-    create table(:mn_community_outbox) do
-      add :community_id, references("mn_community", on_delete: :nilify_all)
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_community_outbox, :community_id)
-    create index(:mn_community_outbox, :activity_id)
-
-    create table(:mn_collection_inbox) do
-      add :collection_id, references("mn_collection", on_delete: :nilify_all)
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_collection_inbox, :collection_id)
-    create index(:mn_collection_inbox, :activity_id)
-
-    create table(:mn_collection_outbox) do
-      add :collection_id, references("mn_collection", on_delete: :nilify_all)
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_collection_outbox, :collection_id)
-    create index(:mn_collection_outbox, :activity_id)
-
-    create table(:mn_instance_inbox) do
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_instance_inbox, :activity_id)
-
-    create table(:mn_instance_outbox) do
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_instance_outbox, :activity_id)
-
-    create table(:mn_moodleverse_inbox) do
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_moodleverse_inbox, :activity_id)
-
-    create table(:mn_moodleverse_outbox) do
-      add :activity_id, references("mn_activity", on_delete: :nilify_all)
-    end
-
-    create index(:mn_moodleverse_outbox, :activity_id)
+    create index(:mn_feed_activity, :feed_id)
+    create index(:mn_feed_activity, :activity_id)
 
     create table(:access_token) do
       add :user_id, references("mn_user", on_delete: :delete_all), null: false
@@ -553,6 +521,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       """
     end
 
+    
     langs =
       Enum.map(@languages, fn {code2, code3, name, name2} ->
         %{"id" => ULID.bingenerate(),
@@ -592,47 +561,6 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     ### last activity views
 
     # user
-
-    :ok = execute """
-    create view mn_user_last_activity as
-    select
-      distinct on (user_id)
-      id, user_id
-    from mn_user_outbox
-    order by user_id, id desc
-    """
-
-    # community
-
-    :ok = execute """
-    create view mn_community_last_activity as
-    select
-      distinct on (community_id)
-      id, community_id
-    from mn_community_outbox
-    order by community_id, id desc
-    """
-
-    # collection
-
-    :ok = execute """
-    create view mn_collection_last_activity as
-    select
-      distinct on (collection_id)
-      id, collection_id
-    from mn_collection_outbox
-    order by collection_id, id desc
-    """
-
-    # thread
-
-    :ok = execute """
-    create view mn_thread_last_activity as
-    select distinct on (thread_id)
-      thread_id, updated_at
-    from mn_comment
-    order by thread_id, updated_at desc
-    """
 
     ### follower counts
 
@@ -697,49 +625,29 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
   def down do
 
+    for table <- @meta_tables do
+      :ok = execute "drop trigger insert_pointer_#{table}"
+    end
+    :ok = execute "drop function insert_pointer";
+
+    :ok = execute "drop view mn_user_last_activity"
+    :ok = execute "drop view mn_thread_last_activity"
+    :ok = execute "drop view mn_collection_last_activity"
+    :ok = execute "drop view mn_community_last_activity"
+    
     :ok = execute "drop view mn_user_following_count"
     :ok = execute "drop view mn_thread_follower_count"
     :ok = execute "drop view mn_collection_follower_count"
     :ok = execute "drop view mn_community_follower_count"
     :ok = execute "drop view mn_user_follower_count"
+
     flush()
+
     drop table(:access_token)
 
-    drop index(:mn_moodleverse_inbox, :activity_id)
-    drop table(:mn_moodleverse_inbox)
-
-    drop index(:mn_moodleverse_outbox, :activity_id)
-    drop table(:mn_moodleverse_outbox)
-
-    drop table(:mn_instance_inbox)
-    drop index(:mn_instance_inbox, :activity_id)
-
-    drop table(:mn_instance_outbox)
-    drop index(:mn_instance_outbox, :activity_id)
-
-    drop index(:mn_collection_outbox, :collection_id)
-    drop index(:mn_collection_outbox, :activity_id)
-    drop table(:mn_collection_outbox)
-
-    drop index(:mn_collection_inbox, :collection_id)
-    drop index(:mn_collection_inbox, :activity_id)
-    drop table(:mn_collection_inbox)
-
-    drop index(:mn_community_inbox, :community_id)
-    drop index(:mn_community_inbox, :activity_id)
-    drop table(:mn_community_inbox)
-
-    drop index(:mn_community_outbox, :community_id)
-    drop index(:mn_community_outbox, :activity_id)
-    drop table(:mn_community_outbox)
-
-    drop index(:mn_user_inbox, :user_id)
-    drop index(:mn_user_inbox, :activity_id)
-    drop table(:mn_user_inbox)
-
-    drop index(:mn_user_outbox, :user_id)
-    drop index(:mn_user_outbox, :activity_id)
-    drop table(:mn_user_outbox)
+    drop index(:mn_feed_activity, :feed_id)
+    drop index(:mn_feed_activity, :activity_id)
+    drop table(:mn_feed_activity)
 
     drop index(:mn_activity, :canonical_url)
     drop index(:mn_activity, :creator_id)
@@ -847,7 +755,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop index(:mn_actor, :canonical_url)
     drop table(:mn_actor)
 
-    drop index(:mn_peer, :ap_url_base)
+    drop index(:mn_peer, :domain)
     drop index(:mn_peer, :ap_url_base)
     drop table(:mn_peer)
 
@@ -865,10 +773,12 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop index(:mn_country, :iso_code3)
     drop table(:mn_country)
 
-    for table <- @meta_tables do
-      :ok = execute "drop trigger insert_pointer_#{table}"
-    end
-    :ok = execute "drop function insert_pointer";
+    drop index(:mn_feed_subscription, [:subscriber_id, :feed_id], name: :mn_feed_subscription)
+    drop index(:mn_feed_subscription, :feed_id)
+    drop index(:mn_feed_subscription, :subscriber_id)
+    drop table(:mn_feed_subscription)
+
+    drop table(:mn_feed)
 
     drop index(:mn_pointer, :table_id)
     drop table(:mn_pointer)

@@ -21,15 +21,15 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Comments.{Comment, Thread}
 
   alias MoodleNet.Common.{Block, Flag, Follow, Feature, Like, NotInTransactionError}
-
+  alias MoodleNet.Feeds.Feed
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User
   alias MoodleNet.Localisation.{Country, Language}
 
   @known_schemas [
-    Table, Feature, Peer, User, Community, Collection, Resource, Comment, Thread, Flag, Follow,
-    Like, Country, Language, RegisterEmailAccess, RegisterEmailDomainAccess,
-    Block, Activity,
+    Table, Feature, Feed, Peer, User, Community, Collection, Resource, Comment,
+    Thread, Flag, Follow, Like, Country, Language, RegisterEmailAccess,
+    RegisterEmailDomainAccess, Block, Activity,
   ]
   @known_tables Enum.map(@known_schemas, &ecto_schema_table/1)
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
