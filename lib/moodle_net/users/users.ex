@@ -330,8 +330,8 @@ defmodule MoodleNet.Users do
   end
 
   def inbox(%User{inbox_id: inbox_id}=user, opts \\ %{}) do
-    Repo.transact(fn ->
-      subs = [user.inbox_id | Feeds.active_subscriptions_for(user)]
+    Repo.transaction(fn ->
+      subs = [user.inbox_id | Feeds.active_sub_for(user)]
       Feeds.subs_feed(subs)
     end)
   end
