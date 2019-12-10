@@ -193,7 +193,35 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it flags an actor" do
       flagger = fake_user!()
       ap_flagged = actor()
-      {:ok, flagged} = MoodleNet.Users.fetch_any_by_username(ap_flagged.username)
+      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
+
+      {:ok, flag} =
+        MoodleNet.Common.flag(flagger, flagged, %{
+          message: "blocked AND reported!!!",
+          is_local: true
+        })
+
+      assert {:ok, activity} = Publisher.flag(flag)
+    end
+
+    test "it flages a community" do
+      flagger = fake_user!()
+      ap_flagged = community()
+      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
+
+      {:ok, flag} =
+        MoodleNet.Common.flag(flagger, flagged, %{
+          message: "blocked AND reported!!!",
+          is_local: true
+        })
+
+      assert {:ok, activity} = Publisher.flag(flag)
+    end
+
+    test "it flags a collection" do
+      flagger = fake_user!()
+      ap_flagged = collection()
+      {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
         MoodleNet.Common.flag(flagger, flagged, %{
