@@ -270,6 +270,25 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment_2)
     end
 
+    test "flag with only actor" do
+      actor = fake_user!()
+      flag_actor = actor()
+      {:ok, account} = ActivityPub.Actor.get_by_local_id(actor.id)
+
+      ActivityPub.flag(%{
+        actor: flag_actor,
+        context: ActivityPub.Utils.generate_context_id(),
+        statuses: [],
+        account: account,
+        local: false,
+        content: "blocked AND reported!!!!"
+      })
+
+      assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
+      {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
+      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, actor)
+    end
+
     test "user deletes" do
       actor = actor()
       ActivityPub.delete(actor, false)
