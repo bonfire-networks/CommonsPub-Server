@@ -147,7 +147,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
           {:ok, %{page_info: page_info, total_count: count, edges: activities}}
         end)
       else
-    	GraphQL.not_permitted()
+        GraphQL.not_permitted()
       end
     end
   end

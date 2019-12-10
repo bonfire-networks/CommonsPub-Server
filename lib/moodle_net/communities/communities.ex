@@ -38,8 +38,7 @@ defmodule MoodleNet.Communities do
 
   def list_q() do
     from(c in Community,
-      join: a in Actor,
-      on: a.id == c.actor_id,
+      join: a in assoc(c, :actor),
       left_join: fc in assoc(c, :follower_count),
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
@@ -57,10 +56,12 @@ defmodule MoodleNet.Communities do
 
   defp fetch_q(id) do
     from(c in Community,
+      join: a in assoc(c, :actor),
       where: c.id == ^id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
-      where: is_nil(c.disabled_at)
+      where: is_nil(c.disabled_at),
+      preload: [:actor]
     )
   end
 

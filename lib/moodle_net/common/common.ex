@@ -68,26 +68,32 @@ defmodule MoodleNet.Common do
     |> Repo.all()
     |> Query.unroll()
   end
+
+#todo counts
   def featured_communities() do
     featured_communities_q()
     |> Repo.all()
-    |> Query.unroll()
+    |> Enum.map(fn {f,c,a} ->
+      %{feature: f, community: c}
+    end)
   end
 
   defp featured_collections_q() do
     from f in Feature,
       join: c in Collection,
       on: f.context_id == c.id,
+      join: a in assoc(c, :actor),
       order_by: [desc: f.id],
-      select: {f, c}
+      select: {f, c, a}
   end
 
   defp featured_communities_q() do
     from f in Feature,
       join: c in Collection,
       on: f.context_id == c.id,
+      join: a in assoc(c, :actor),
       order_by: [desc: f.id],
-      select: {f, c}
+      select: {f, c, a}
   end
 
   ### liking
