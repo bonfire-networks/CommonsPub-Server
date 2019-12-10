@@ -140,7 +140,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       if user.id == current_user.id do
         Repo.transact_with(fn ->
           activities = Users.inbox(current_user)
-          count = Users.count_for_inbox(current_user)
+          count = Enum.count(activities)
+          # count = Users.count_for_inbox(current_user)
           page_info = Common.page_info(activities)
           {:ok, %{page_info: page_info, total_count: count, edges: activities}}
         end)
