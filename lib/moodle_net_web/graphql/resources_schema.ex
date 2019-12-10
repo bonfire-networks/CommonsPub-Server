@@ -113,6 +113,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
       resolve &CommonResolver.my_like/3
     end
 
+    @desc "The current user's flag of the resource, if any"
+    field :my_flag, :flag do
+      resolve &CommonResolver.my_flag/3
+    end
+
     @desc "The user who created the resource"
     field :creator, non_null(:user) do
       resolve &UsersResolver.creator/3

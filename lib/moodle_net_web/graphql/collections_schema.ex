@@ -111,6 +111,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CommonResolver.my_follow/3
     end
 
+    @desc "The current user's flag of the collection, if any"
+    field :my_flag, :flag do
+      resolve &CommonResolver.my_flag/3
+    end
+
     # @desc "The primary language the community speaks"
     # field :primary_language, :language do
     #   resolve &LocalisationResolver.primary_language/3
