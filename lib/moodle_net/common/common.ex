@@ -29,7 +29,10 @@ defmodule MoodleNet.Common do
 
   def paginate(query, opts), do: query
 
-  def page_info(results, id \\ &(&1.cursor)) when is_list(results) do
+  defp cursor_or_id(%{cursor: cursor}), do: cursor
+  defp cursor_or_id(%{id: id}), do: id
+  
+  def page_info(results, id \\ &cursor_or_id/1) when is_list(results) do
     case results do
       [] -> nil
       [x] -> %{start_cursor: id.(x), end_cursor: id.(x)}

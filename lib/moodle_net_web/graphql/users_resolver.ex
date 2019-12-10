@@ -154,13 +154,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def outbox(user, params, info) do
     Repo.transact_with(fn ->
-      activities =
-        Users.outbox(user)
-        |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
+      activities = Users.outbox(user)
       count = Enum.count(activities)
       # count = Users.count_for_outbox(user)
-      page_info = Common.page_info(activities)
-      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+      {:ok, GraphQL.edge_list(activities, count)}
     end)
   end
 

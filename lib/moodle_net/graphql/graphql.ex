@@ -55,6 +55,7 @@ defmodule MoodleNet.GraphQL do
     page_info = Common.page_info(nodes)
     %{page_info: page_info, total_count: count, nodes: nodes}
   end
+
   def edge_list(items, count, cursor_fn \\ &(&1.id)) do
     page_info = Common.page_info(items)
     edges = Enum.map(items, &edge(&1, cursor_fn))

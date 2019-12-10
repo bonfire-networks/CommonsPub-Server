@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       node_list = assert_node_list(comms2)
       assert Enum.count(node_list.nodes) == 5
       for node <- node_list.nodes do
-	assert_community(keyed[node["id"]], node)
+        assert_community(keyed[node["id"]], node)
       end
     end
   end
