@@ -220,6 +220,23 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
 
       assert {:ok, activity} = Publisher.flag(flag)
     end
+
+    test "it flags a resource" do
+      actor = fake_user!()
+      community = fake_community!(actor)
+      collection = fake_collection!(actor, community)
+      resource = fake_resource!(actor, collection)
+      flag_actor = fake_user!()
+      Publisher.create_resource(resource)
+
+      {:ok, flag} =
+        MoodleNet.Common.flag(flag_actor, resource, %{
+          message: "blocked AND reported!!!",
+          is_local: true
+        })
+
+      assert {:ok, activity} = Publisher.flag(flag)
+    end
   end
 
   describe "likes" do
