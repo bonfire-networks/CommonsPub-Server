@@ -36,7 +36,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
              "cc" => cc
            }
          } do
-      # FIXME: pointer_id isn't getting inserted for whatever reason
       ActivityPub.create(params, comment.id)
     else
       _e -> :error
@@ -220,7 +219,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
-          %MoodleNet.Comments.Comment{} ->
+          %{creator_id: id} when not is_nil(id) ->
             flagged = Repo.preload(flagged, creator: :actor)
 
             {:ok, account} =
@@ -231,7 +230,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
               account: account
             }
 
-          _ ->
+          %{actor_id: id} when not is_nil(id) ->
             flagged = Repo.preload(flagged, :actor)
 
             {:ok, account} =
@@ -249,7 +248,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
           context: ActivityPub.Utils.generate_context_id(),
           statuses: params.statuses,
           account: params.account,
-          content: flag.message
+          content: flag.message,
+          forward: true
         },
         flag.id
       )
