@@ -37,6 +37,7 @@ defmodule MoodleNet.Mixfile do
        :hackney,
        :mime,
        :belt,
+       :cachex,
      ]
     ]
   end
@@ -105,6 +106,7 @@ defmodule MoodleNet.Mixfile do
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
+      {:cachex, "~> 3.2"}, # caching
       # dev/test only
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP

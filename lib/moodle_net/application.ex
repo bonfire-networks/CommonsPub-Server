@@ -28,6 +28,8 @@ defmodule MoodleNet.Application do
       worker(CountryService, []),
       worker(TableService, []),
       supervisor(Endpoint, []),
+      worker(Cachex, [:ap_actor_cache, []]),
+      worker(Caches, [:ap_object_cache, []]),
       {Oban, Application.get_env(:moodle_net, Oban)}
     ]
 
