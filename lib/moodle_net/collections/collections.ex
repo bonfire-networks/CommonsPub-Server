@@ -114,7 +114,9 @@ defmodule MoodleNet.Collections do
 
 
   def fetch_by_username(username) when is_binary(username) do
-    Repo.single(fetch_by_username_q(username))
+    with {:ok, coll} <- Repo.single(fetch_by_username_q(username)) do
+      {:ok, preload(coll)}
+    end
   end
 
   @spec create(Community.t(), User.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
