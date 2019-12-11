@@ -14,6 +14,7 @@ defmodule MoodleNet.Comments.Thread do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     belongs_to(:outbox, Feed)
+    field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)
     field(:is_locked, :boolean, virtual: true)
     field(:locked_at, :utc_datetime_usec)

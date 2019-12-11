@@ -3,6 +3,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
   import MoodleNet.Test.Faking
   import ActivityPub.Factory
   alias MoodleNet.ActivityPub.Publisher
+  alias MoodleNet.Follows
 
   describe "comments" do
     test "it federates a comment that's threaded on an actor" do
@@ -28,7 +29,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, reply} =
-        MoodleNet.Comments.create_comment_reply(thread, actor, comment, %{
+        MoodleNet.Comments.create_comment_reply(actor, thread, comment, %{
           content: "test",
           is_local: true
         })
@@ -128,7 +129,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, follow_activity} = Publisher.follow(follow)
-      {:ok, unfollow} = MoodleNet.Common.undo_follow(follow)
+      {:ok, unfollow} = Follows.undo(follow)
 
       assert {:ok, unfollow_activity} = Publisher.unfollow(unfollow)
       assert unfollow_activity.data["object"]["id"] == follow_activity.data["id"]

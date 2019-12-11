@@ -5,8 +5,12 @@ defmodule MoodleNet.Comments do
   import Ecto.Query
   alias MoodleNet.{Activities, Common, Feeds, Meta, Users, Repo}
   alias MoodleNet.Access.NotPermittedError
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{NotFoundError, Query}
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.ActivityWorker
   alias Ecto.Association.NotLoaded
@@ -111,9 +115,9 @@ defmodule MoodleNet.Comments do
       with {:ok, feed} <- Feeds.create_feed(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
            {:ok, thread} <- insert_thread(creator, context, attrs),
-           act_attrs = %{verb: "create", is_local: thread.is_local},
+           act_attrs = %{verb: "created", is_local: thread.is_local},
            {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-           :ok <- publish_thread(creator, thread, activity, :create) do
+           :ok <- publish_thread(creator, thread, context, activity, :created) do
         {:ok, thread}
       end
     end)
@@ -129,35 +133,73 @@ defmodule MoodleNet.Comments do
   @spec update_thread(Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def update_thread(%Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
-      Repo.update(Thread.update_changeset(thread, attrs))
+      with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)),
+           :ok <- publish_thread(thread, :updated) do
+        {:ok, thread}
+      end
     end)
   end
 
   @spec soft_delete_thread(Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete_thread(%Thread{} = thread), do: Common.soft_delete(thread)
-
-  defp publish_thread(creator, thread, activity, :create) do
-    :ok
-  end
-  defp publish_thread(creator, thread, activity, _verb) do
-    :ok
-  end
-
-  defp publish_comment(creator, thread, comment, activity, :create) do
-    # MoodleNet.FeedPublisher.publish(%{
-    #   "verb" => verb,
-    #   "context_id" => comment.id,
-    #   "user_id" => comment.creator_id,
-    # })
-    :ok
-  end
-  defp publish_comment(creator, thread, comment, activity, _verb) do
-    :ok
+  def soft_delete_thread(%Thread{} = thread) do
+    Repo.transact_with(fn ->
+      with {:ok, thread} <- Common.soft_delete(thread),
+           :ok <- publish_thread(thread, :deleted) do
+        {:ok, thread}
+      end
+    end)
   end
 
-  #
+  defp context_feeds(%Resource{}=resource) do
+    r = Repo.preload(resource, [collection: [:community]])
+    [r.collection.outbox_id, r.collection.community.outbox_id]
+  end
+
+  defp context_feeds(%Collection{}=collection) do
+    c = Repo.preload(collection, [:community])
+    [c.outbox_id, c.community.outbox_id]
+  end
+
+  defp context_feeds(%Community{outbox_id: id}), do: [id]
+  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+  defp context_feeds(_), do: []
+
+  defp publish_thread(creator, thread, context, activity, :created) do
+    feeds = context_feeds(context) ++ [creator.outbox_id, thread.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(thread.id, creator.id, thread.is_local)
+    end
+  end
+  defp publish_thread(thread, :updated) do
+    ap_publish(thread.id, thread.creator_id, thread.is_local) # TODO: wrong if edited by admin
+  end
+  defp publish_thread(thread, :deleted) do
+    ap_publish(thread.id, thread.creator_id, thread.is_local) # TODO: wrong if edited by admin
+  end
+
+  defp publish_comment(creator, thread, comment, activity, :created) do
+    feeds = context_feeds(thread.ctx) ++ [creator.outbox_id, thread.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(comment.id, creator.id, comment.is_local)
+    end
+  end
+  defp publish_comment(thread, comment, :updated) do
+    ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
+  end
+  defp publish_comment(thread, comment, :deleted) do
+    ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
+  end
+
+  defp ap_publish(context_id, user_id, true) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
+
+
   # Comments
-  #
 
   @doc """
   Return a list of public, non-deleted, unhidden comments contained in a  thread.
@@ -240,9 +282,10 @@ defmodule MoodleNet.Comments do
   def create_comment(%User{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, comment} <- insert_comment(thread, creator, attrs),
-           act_attrs = %{verb: "create", is_local: comment.is_local},
+           thread = preload_ctx(thread),
+           act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-           :ok <- publish_comment(creator, thread, comment, activity, :create) do
+           :ok <- publish_comment(creator, thread, comment, activity, :created) do
         {:ok, comment}
       end
     end)
@@ -262,11 +305,20 @@ defmodule MoodleNet.Comments do
     %Comment{} = reply_to,
     attrs
   ) do
-    # FIXME: check that the thread you're replying to is the same one
-    if thread.locked_at do
-      {:error, NotPermittedError.new("create")}
-    else
-      insert_comment(thread, creator, reply_to, attrs)
+    cond do
+      not is_nil(thread.locked_at) -> {:error, NotPermittedError.new("create")}
+      thread.id != reply_to.thread_id -> {:error, NotPermittedError.new("create")}
+      true ->
+        attrs = Map.put(attrs, :reply_to_id, reply_to.id)
+        Repo.transact_with(fn ->
+          with {:ok, comment} <- insert_comment(thread, creator, attrs),
+               act_attrs = %{verb: "created", is_local: comment.is_local},
+               {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+               thread = preload_ctx(thread),
+               :ok <- publish_comment(creator, thread, comment, activity, :created) do
+            {:ok, comment}
+          end
+        end)
     end
   end
 
@@ -279,6 +331,19 @@ defmodule MoodleNet.Comments do
     Comment.create_changeset(creator, thread, attrs)
     |> Comment.reply_to_changeset(reply_to)
     |> Repo.insert()
+  end
+
+  def preload_ctx(%Thread{}=thread) do
+    case thread.ctx do
+      nil ->
+        case thread.context do
+          %Pointer{}=pointer ->
+            context = Meta.follow!(pointer)
+            %{ thread | context: context }
+          _ -> preload_ctx(Repo.preload(thread, :context))
+        end
+      other -> thread
+    end
   end
 
   @spec update_comment(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}

@@ -58,6 +58,7 @@ defmodule MoodleNet.Common do
 
   # defp paginate_limit(query, limit)
 
+
   ## Deletion
 
   @spec soft_delete(any()) :: {:ok, any()} | {:error, DeletionError.t()}

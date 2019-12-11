@@ -38,9 +38,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def is_resolved(%Flag{}=flag, _, _), do: {:ok, not is_nil(flag.resolved_at)}
 
-  def flag(%{flag_id: id}, info), do: Common.fetch_flag(id)
+  def flag(%{flag_id: id}, info), do: Flags.fetch(id)
 
-  def follow(%{follow_id: id}, info), do: Common.fetch_follow(id)
+  def follow(%{follow_id: id}, info), do: Follows.fetch(id)
 
   def follow(parent, _, info) do
     case Map.get(parent, :follow) do
@@ -49,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     end
   end
 
-  def like(%{like_id: id}, info), do: Common.fetch_like(id)
+  def like(%{like_id: id}, info), do: Likes.fetch(id)
 
   def like(parent,_, info) do
     case Map.get(parent, :like) do
@@ -134,7 +134,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_like(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Common.find_like(user, parent) do
+	with {:error, _} <- Likes.find(user, parent) do
           {:ok, nil}
 	end
       _ -> {:ok, nil}
@@ -144,7 +144,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_follow(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Common.find_follow(user, parent) do
+	with {:error, _} <- Follows.find(user, parent) do
           {:ok, nil}
 	end
       _ -> {:ok, nil}
@@ -239,7 +239,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_follow(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-        with {:error, _} <- Common.find_follow(user, parent) do
+        with {:error, _} <- Follows.find(user, parent) do
           {:ok, nil}
         end
       _ -> {:ok, nil}
@@ -248,7 +248,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_like(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-        with {:error, _} <- Common.find_like(user, parent) do
+        with {:error, _} <- Likes.find(user, parent) do
           {:ok, nil}
         end
       _ -> {:ok, nil}
@@ -258,7 +258,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_flag(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-        with {:error, _} <- Common.find_flag(user, parent) do
+        with {:error, _} <- Flags.find(user, parent) do
           {:ok, nil}
         end
       _ -> {:ok, nil}

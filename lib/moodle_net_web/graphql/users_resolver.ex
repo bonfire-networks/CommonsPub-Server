@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, Follows, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -163,9 +163,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def followed_communities(%User{}=user,_,info) do
     Repo.transact_with(fn ->
       comms =
-	Common.list_followed_communities(user)
-        |> Enum.map(fn {f,c} -> %{cursor: f.id, node: %{follow: f, community: Communities.preload(c)}} end)
-      count = Common.count_for_list_followed_communities(user)
+        Follows.list_communities(user)
+        |> Enum.map(fn f ->
+          %{cursor: f.id, node: %{follow: f, community: f.ctx}}
+        end)
+      count = Follows.count_for_list_communities(user)
       page_info = Common.page_info(comms, &(&1.node.follow.id))
       {:ok, %{page_info: page_info, total_count: count, edges: comms}}
     end)
@@ -177,11 +179,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def followed_collections(%User{}=user,_,info) do
     Repo.transact_with(fn ->
       colls =
-	Common.list_followed_collections(user)
-        |> Enum.map(fn {f,c} ->
-	  %{cursor: f.id, node: %{follow: f, collection: Collections.preload(c)}}
+        Follows.list_collections(user)
+        |> Enum.map(fn f ->
+          %{cursor: f.id, node: %{follow: f, collection: f.ctx}}
         end)
-      count = Common.count_for_list_followed_collections(user)
+      count = Follows.count_for_list_collections(user)
       page_info = Common.page_info(colls, &(&1.cursor))
       {:ok, %{page_info: page_info, total_count: count, edges: colls}}
     end)

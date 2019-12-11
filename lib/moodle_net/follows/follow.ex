@@ -16,6 +16,7 @@ defmodule MoodleNet.Follows.Follow do
   table_schema "mn_follow" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
+    field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)
     field(:is_local, :boolean)
     field(:is_muted, :boolean, virtual: true)

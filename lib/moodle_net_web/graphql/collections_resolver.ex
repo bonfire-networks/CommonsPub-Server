@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       with {:ok, user} <- GraphQL.current_user(info),
            {:ok, community} <- Communities.fetch(id) do
         attrs = Map.merge(attrs, %{is_public: true})
-        Collections.create(community, user, attrs)
+        Collections.create(user, community, attrs)
       end
     end)
   end

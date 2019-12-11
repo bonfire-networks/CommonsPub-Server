@@ -30,7 +30,7 @@ defmodule MoodleNet.Comments.Comment do
   end
 
   @required ~w(content is_local)a
-  @cast @required ++ ~w(canonical_url is_hidden is_public)a
+  @cast @required ++ ~w(canonical_url is_hidden is_public reply_to_id)a
 
   @spec create_changeset(User.t(), Thread.t(), map) :: Changeset.t()
   def create_changeset(creator, thread, attrs) do

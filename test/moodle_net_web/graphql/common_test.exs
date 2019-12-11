@@ -287,7 +287,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       query = %{query: q, mutation: "Test"}
       assert %{"createLike" => like} = gql_post_data(conn, query)
       assert_like(like)
-      {:ok, _} = Common.find_like(alice, bob)
+      {:ok, _} = Likes.find(alice, bob)
     end
   end
 
@@ -306,7 +306,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       query = %{query: q, mutation: "Test"}
       assert %{"createFollow" => follow} = gql_post_data(conn, query)
       assert_follow(follow)
-      {:ok, _} = Common.find_follow(alice, bob)
+      {:ok, _} = Follows.find(alice, bob)
     end
   end
   # describe "tags" do

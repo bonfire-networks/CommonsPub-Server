@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources do
   import Ecto.Query
 
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Repo, Meta, Users}
+  alias MoodleNet.{Activities, Common, Feeds, Repo, Meta, Users}
   alias MoodleNet.Common.{Query, NotFoundError}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
@@ -89,9 +89,9 @@ defmodule MoodleNet.Resources do
     Repo.transact_with(fn ->
       res_attrs = Map.put(attrs, :is_local, is_nil(collection.actor.peer_id))
       with {:ok, resource} <- insert_resource(creator, collection, res_attrs),
-           act_attrs = %{verb: "create", is_local: resource.is_local},
+           act_attrs = %{verb: "created", is_local: resource.is_local},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
-           :ok <- publish(creator, collection, resource, activity, :create) do
+           :ok <- publish(creator, collection, resource, activity, :created) do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
@@ -102,20 +102,27 @@ defmodule MoodleNet.Resources do
   end
 
   # TODO
-  defp publish(creator, collection, resource, activity, :create) do
-    case resource.is_local do
-      true -> :ok
-      false -> :ok # activitypub?
+  defp publish(creator, collection, resource, activity, :created) do
+    community = Repo.preload(collection, :community).community
+    feeds = [collection.outbox_id, community.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(resource.id, resource.creator_id, resource.is_local)
     end
-    # MoodleNet.FeedPublisher.publish(%{
-    #   "verb" => verb,
-    #   "context_id" => resource.id,
-    #   "user_id" => resource.creator_id,
-    # })
   end
-  defp publish(creator, collection, resource, activity, _verb) do
-    :ok # activitypub?
+  defp publish(collection, resource, :updated) do
+    ap_publish(resource.id, resource.creator_id, resource.is_local)
   end
+  defp publish(collection, resource, :deleted) do
+    ap_publish(resource.id, resource.creator_id, resource.is_local)
+  end
+
+  defp ap_publish(context_id, user_id, true) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
 
   defp insert_resource(creator, collection, attrs) do
     Repo.insert(Resource.create_changeset(creator, collection, attrs))

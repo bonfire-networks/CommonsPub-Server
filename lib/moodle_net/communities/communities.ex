@@ -44,7 +44,6 @@ defmodule MoodleNet.Communities do
       where: is_nil(c.deleted_at),
       select: {c, a, fc},
       order_by: [desc: fc.count, desc: a.updated_at, desc: a.id],
-      preload: [actor: a]
     )
   end
 
@@ -58,7 +57,8 @@ defmodule MoodleNet.Communities do
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at),
       where: is_nil(c.disabled_at),
-      preload: [:actor]
+      select: c,
+      preload: [actor: a]
     )
   end
 
@@ -94,9 +94,9 @@ defmodule MoodleNet.Communities do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm_attrs} <- create_boxes(actor, attrs),
            {:ok, comm} <- insert_community(creator, actor, comm_attrs),
-           act_attrs = %{verb: "create", is_local: is_nil(actor.peer_id)},
+           act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
-           :ok <- publish(creator, comm, activity, :create) do
+           :ok <- publish(creator, comm, activity, :created) do
         {:ok, comm}
       end
     end)
@@ -125,20 +125,35 @@ defmodule MoodleNet.Communities do
     end
   end
 
-  # TODO
-  defp publish(creator, community, activity, :create) do
-    case community.actor.peer_id do
-      nil -> Feeds.publish_to_feeds([community.outbox_id, creator.outbox_id], activity)
-      _ -> :ok # TODO: activitypub?
+  defp publish(creator, community, activity, :created) do
+    feeds = [community.outbox_id, creator.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(community.id, creator.id, community.actor.peer_id)
     end
   end
-  defp publish(creator, community, activity, _verb), do: :ok
+  defp publish(community, :updated) do
+    ap_publish(community.id, community.creator_id, community.actor.peer_id) # TODO: wrong if edited by admin
+  end
+  defp publish(community, :deleted) do
+    ap_publish(community.id, community.creator_id, community.actor.peer_id) # TODO: wrong if edited by admin
+  end
+
+  defp ap_publish(context_id, user_id, nil) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
 
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
-           {:ok, actor} <- Actors.update(community.actor, attrs) do
+           {:ok, actor} <- Actors.update(community.actor, attrs),
+           act_attrs = %{verb: "updated", is_local: is_nil(community.actor.peer_id)},
+           community = %{ comm | actor: actor },
+           :ok <- publish(community, :updated)  do
         {:ok, %{ comm | actor: actor}}
       end
     end)
@@ -148,7 +163,14 @@ defmodule MoodleNet.Communities do
     Feeds.feed_activities([community.outbox_id], opts)
   end
 
-  def soft_delete(%Community{} = community), do: Common.soft_delete(community)
+  def soft_delete(%Community{} = community) do
+    Repo.transact_with(fn ->
+      with {:ok, community} <- Common.soft_delete(community),
+           :ok <- publish(community, :deleted) do
+        {:ok, community}
+      end
+    end)
+  end
 
   def preload(%Community{} = community, opts \\ []) do
     community

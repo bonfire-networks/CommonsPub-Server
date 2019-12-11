@@ -38,12 +38,13 @@ defmodule MoodleNet.Follows do
     from(f in Follow,
       join: c in Community,
       on: f.context_id == c.id,
+      join: a in assoc(c, :actor),
       where: is_nil(f.deleted_at),
       where: f.creator_id == ^id,
-      select: {f,c}
+      select: {f,c,a}
     )
     |> Repo.all()
-    |> Enum.map(fn {f, c} -> %{f | context: c} end)
+    |> Enum.map(fn {f, c, a} -> %{f | ctx: %{ c | actor: a }} end)
   end
 
   def count_for_list_communities(%User{id: id}) do
@@ -62,12 +63,13 @@ defmodule MoodleNet.Follows do
     from(f in Follow,
       join: c in Collection,
       on: f.context_id == c.id,
+      join: a in assoc(c, :actor),
       where: is_nil(f.deleted_at),
       where: f.creator_id == ^id,
-      select: {f,c}
+      select: {f,c,a}
     )
     |> Repo.all()
-    |> Enum.map(fn {f, c} -> %{f | context: c} end)
+    |> Enum.map(fn {f, c, a} -> %{f | ctx: %{c | actor: a}} end)
   end
 
   def count_for_list_collections(%User{id: id}) do
@@ -122,7 +124,7 @@ defmodule MoodleNet.Follows do
                act_attrs = %{verb: "create", is_local: follow.is_local},
                {:ok, activity} <- Activities.create(follower, follow, act_attrs),
                :ok <- publish(follow, follower, followed, activity, :create) do
-            {:ok, %{follow | context: followed}}
+            {:ok, %{follow | ctx: followed}}
           end
       end
     end)

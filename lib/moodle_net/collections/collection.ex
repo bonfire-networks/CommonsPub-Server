@@ -43,8 +43,8 @@ defmodule MoodleNet.Collections.Collection do
   @cast @required ++ ~w(summary icon is_disabled inbox_id outbox_id)a
 
   def create_changeset(
-        %Community{} = community,
         %User{} = creator,
+        %Community{} = community,
         %Actor{} = actor,
         attrs
       ) do
@@ -52,9 +52,9 @@ defmodule MoodleNet.Collections.Collection do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      actor_id: actor.id,
       creator_id: creator.id,
       community_id: community.id,
+      actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()

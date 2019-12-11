@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     with {:ok, current_user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.fetch(collection_id),
-             {:ok, resource} <- Resources.create(collection, current_user, attrs) do
+             {:ok, resource} <- Resources.create(current_user, collection, attrs) do
 	  is_local = is_nil(collection.actor.peer_id)
           {:ok, %{ resource | collection: collection, is_local: is_local } }
         end
@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
         with {:ok, collection} <- Collections.fetch(collection_id),
              {:ok, resource} <- Resources.fetch(resource_id),
              attrs = Map.take(resource, ~w(name summary icon url license)a),
-             {:ok, resource} <- Resources.create(collection, current_user, attrs) do
+             {:ok, resource} <- Resources.create(current_user, collection, attrs) do
           {:ok, Map.put(resource, :is_local, true)}
         end
       end)

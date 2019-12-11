@@ -91,7 +91,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
           {:ok, creator} = get_actor_by_username(ap_creator.username)
           {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
           {:ok, community} = get_actor_by_username(ap_community.username)
-          MoodleNet.Collections.create(community, creator, create_attrs)
+          MoodleNet.Collections.create(creator, community, create_attrs)
       end
 
     object = ActivityPub.Object.get_by_ap_id(actor["id"])
@@ -199,7 +199,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, thread} <- MoodleNet.Comments.fetch_thread(parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, _} <-
-           MoodleNet.Comments.create_comment_reply(thread, actor, parent_comment, %{
+           MoodleNet.Comments.create_comment_reply(actor, thread, parent_comment, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -220,9 +220,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, parent} <- MoodleNet.Meta.follow(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <-
-           MoodleNet.Comments.create_thread(parent, actor, %{is_public: true, is_local: false}),
+           MoodleNet.Comments.create_thread(actor, parent, %{is_public: true, is_local: false}),
          {:ok, _} <-
-           MoodleNet.Comments.create_comment(thread, actor, %{
+           MoodleNet.Comments.create_comment(actor, thread, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -254,7 +254,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon: object.data["icon"]
          },
          {:ok, _} <-
-           MoodleNet.Resources.create(collection, actor, attrs) do
+           MoodleNet.Resources.create(actor, collection, attrs) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -301,8 +301,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, follow} <- MoodleNet.Common.find_follow(follower, followed),
-         {:ok, _} <- MoodleNet.Common.undo_follow(follow) do
+         {:ok, follow} <- MoodleNet.Follows.find(follower, followed),
+         {:ok, _} <- MoodleNet.Follows.undo(follow) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -332,8 +332,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, block} <- MoodleNet.Common.find_block(blocker, blocked),
-         {:ok, _} <- MoodleNet.Common.delete_block(block) do
+         {:ok, block} <- MoodleNet.Blocks.find(blocker, blocked),
+         {:ok, _} <- MoodleNet.Blocks.delete(block) do
       :ok
     else
       {:error, e} -> {:error, e}

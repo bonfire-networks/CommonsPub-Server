@@ -58,7 +58,7 @@ defmodule MoodleNet.Collections do
   end
 
   def count_for_list_in_community(%Community{id: id}) do
-    Repo.one(Query.count(list_in_community_q(id)))
+    Repo.one(count_for_list_in_community_q(id))
   end
 
   def list_in_community(%Community{id: id}) do
@@ -76,11 +76,23 @@ defmodule MoodleNet.Collections do
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
       where: is_nil(comm.deleted_at),
+      select: coll,
       preload: [actor: a]
     )
   end
 
-  defp count_for_list_in_community_q(id), do: Query.count(list_in_community_q(id))
+  defp count_for_list_in_community_q(id) do
+    from(coll in Collection,
+      join: comm in Community,
+      on: coll.community_id == comm.id,
+      where: comm.id == ^id,
+      where: not is_nil(coll.published_at),
+      where: is_nil(coll.deleted_at),
+      where: not is_nil(comm.published_at),
+      where: is_nil(comm.deleted_at),
+      select: count(coll)
+    )
+  end
 
   def fetch(id) when is_binary(id) do
     with {:ok, coll} <- Repo.single(fetch_q(id)) do
@@ -97,6 +109,7 @@ defmodule MoodleNet.Collections do
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
       where: is_nil(comm.deleted_at),
+      select: coll,
       preload: [actor: a]
     )
   end
@@ -111,6 +124,7 @@ defmodule MoodleNet.Collections do
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
       where: is_nil(comm.deleted_at),
+      select: coll,
       preload: [actor: a]
     )
   end
@@ -127,10 +141,10 @@ defmodule MoodleNet.Collections do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_collection(community, creator, actor, coll_attrs),
-           act_attrs = %{verb: "create", is_local: true},
+           {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
+           act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(community, creator, coll, activity, :create) do
+           :ok <- publish(creator, community, coll, activity, :created) do
         {:ok, coll}
       end
     end)
@@ -153,23 +167,31 @@ defmodule MoodleNet.Collections do
     end
   end
 
-  defp insert_collection(community, creator, actor, attrs) do
-    cs = Collection.create_changeset(community, creator, actor, attrs)
+  defp insert_collection(creator, community, actor, attrs) do
+    cs = Collection.create_changeset(creator, community, actor, attrs)
     with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
   end
 
-  # TODO
-  defp publish(community, creator, collection, activity, :create) do
-    case collection.actor.peer_id do
-      nil ->
-        [community.outbox_id, creator.outbox_id, collection.outbox_id]
-        |> Feeds.publish_to_feeds(activity)
-      _ -> :ok # TODO activitypub?
+  defp publish(creator, community, collection, activity, :created) do
+    feeds = [community.outbox_id, creator.outbox_id, collection.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(collection.id, creator.id, collection.actor.peer_id)
     end
   end
-  defp publish(community, editor, collection, activity, _verb) do
-    :ok
+  defp publish(collection, :updated) do
+    ap_publish(collection.id, collection.creator_id, collection.actor.peer_id) # TODO: wrong if edited by admin
   end
+  defp publish(collection, :deleted) do
+    ap_publish(collection.id, collection.creator_id, collection.actor.peer_id) # TODO: wrong if edited by admin
+  end
+
+  defp ap_publish(context_id, user_id, nil) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
@@ -178,14 +200,20 @@ defmodule MoodleNet.Collections do
       collection = Repo.preload(collection, :community)
       community = collection.community
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
-           {:ok, actor} <- Actors.update(collection.actor, attrs) do
+           {:ok, actor} <- Actors.update(collection.actor, attrs),
+           :ok <- publish(collection, :updated) do
         {:ok, %{ collection | actor: actor }}
       end
     end)
   end
 
   def soft_delete(%Collection{} = collection) do
-    Common.soft_delete(collection)
+    Repo.transact_with(fn ->
+      with {:ok, collection} <- Common.soft_delete(collection),
+           :ok <- publish(collection, :deleted) do
+        {:ok, collection}
+      end
+    end)
   end
 
   def preload(collection, opts \\ [])
