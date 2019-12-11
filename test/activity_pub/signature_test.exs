@@ -14,6 +14,7 @@ defmodule ActivityPub.SignatureTest do
 
   setup do
     mock(fn env -> apply(HttpRequestMock, :request, [env]) end)
+    Cachex.reset(:ap_actor_cache, [only: :cache])
     :ok
   end
 

@@ -22,6 +22,8 @@ defmodule ActivityPubWeb.TransmogrifierTest do
         apply(HttpRequestMock, :request, [env])
     end)
 
+    Cachex.reset(:ap_actor_cache, only: :cache)
+
     :ok
   end
 
@@ -74,8 +76,10 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming user deletes" do
-      %{data: %{"id" => ap_id}} = insert(:actor, %{data: %{"id" => "http://mastodon.example.org/users/admin"}})
-      assert Object.get_by_ap_id(ap_id)
+      %{data: %{"id" => ap_id}} =
+        insert(:actor, %{data: %{"id" => "http://mastodon.example.org/users/admin"}})
+
+      assert object = Object.get_by_ap_id(ap_id)
 
       data =
         File.read!("test/fixtures/mastodon-delete-user.json")

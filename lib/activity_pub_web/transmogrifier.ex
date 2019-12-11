@@ -216,7 +216,9 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with :ok <- Actor.update_actor_data_by_ap_id(actor_id, object) do
+    with :ok <- Actor.update_actor_data_by_ap_id(actor_id, object),
+         {:ok, actor} <- Actor.get_by_ap_id(actor_id),
+         {:ok, _} <- Actor.set_cache(actor) do
       ActivityPub.update(%{
         local: false,
         to: data["to"] || [],

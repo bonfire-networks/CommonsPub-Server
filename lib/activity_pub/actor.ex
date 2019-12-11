@@ -183,14 +183,14 @@ defmodule ActivityPub.Actor do
   def set_cache(%Actor{} = actor) do
     Cachex.put(:ap_actor_cache, "ap_id:#{actor.ap_id}", actor)
     Cachex.put(:ap_actor_cache, "username:#{actor.username}", actor)
-    Cachex.put(:ap_actor_cache, "user_info:#{actor.id}", actor)
+    Cachex.put(:ap_actor_cache, "id:#{actor.id}", actor)
     {:ok, actor}
   end
 
   def invalidate_cache(%Actor{} = actor) do
     Cachex.del(:ap_actor_cache, "ap_id:#{actor.ap_id}")
     Cachex.del(:ap_actor_cache, "username:#{actor.username}")
-    Cachex.del(:ap_actor_cache, "user_info:#{actor.id}")
+    Cachex.del(:ap_actor_cache, "id:#{actor.id}")
   end
 
   def get_cached_by_ap_id(ap_id) do
