@@ -260,7 +260,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   # Works for Users, Collections, Communities (not MN.Actor)
   def update_actor(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id),
+    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id),
          actor_object <- ActivityPubWeb.ActorView.render("actor.json", %{actor: actor}),
          params <- %{
            to: [@public_uri],
@@ -280,6 +280,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def delete_actor(actor) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id) do
       ActivityPub.delete(actor)
+      #FIXME: currently the cache will get re-set when the delete activity is being federated
       ActivityPub.Actor.invalidate_cache(actor)
     end
   end
