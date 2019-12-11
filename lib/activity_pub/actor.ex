@@ -442,11 +442,11 @@ defmodule ActivityPub.Actor do
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
     # Return Actor
-    get_by_ap_id(actor.ap_id)
+    set_cache(get_by_ap_id(actor.ap_id))
   end
 
   def get_creator_ap_id(actor) do
-    with {:ok, actor} <- get_by_local_id(actor.creator_id) do
+    with {:ok, actor} <- get_cached_by_local_id(actor.creator_id) do
       actor.ap_id
     else
       {:error, nil} -> nil
@@ -454,7 +454,7 @@ defmodule ActivityPub.Actor do
   end
 
   def get_community_ap_id(actor) do
-    with {:ok, actor} <- get_by_local_id(actor.community_id) do
+    with {:ok, actor} <- get_cached_by_local_id(actor.community_id) do
       actor.ap_id
     else
       {:error, nil} -> nil
