@@ -151,7 +151,7 @@ defmodule MoodleNet.ActivitiesTest do
   describe "create" do
     test "creates a new activity", %{user: user, context: context} do
       attrs = Fake.activity()
-      assert {:ok, %Activity{} = activity} = Activities.create(context, user, attrs)
+      assert {:ok, %Activity{} = activity} = Activities.create(user, context, attrs)
       assert activity.verb == attrs.verb
       assert activity.canonical_url == attrs.canonical_url
       assert activity.creator.id == user.id
@@ -159,7 +159,7 @@ defmodule MoodleNet.ActivitiesTest do
     end
 
     test "fails if missing attributes", %{user: user, context: context} do
-      assert {:error, changeset} = Activities.create(context, user, %{})
+      assert {:error, changeset} = Activities.create(user, context, %{})
       assert Keyword.get(changeset.errors, :verb)
     end
   end

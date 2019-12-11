@@ -50,16 +50,15 @@ defmodule MoodleNet.Activities do
   Will ignore unpublished or deleted activities.
   """
   @spec fetch(binary()) :: {:ok, Activity.t()} | {:error, NotFoundError.t()}
-  def fetch(id) do
-    query =
-      from(a in Activity,
-        where: a.id == ^id
-      )
-      |> only_public_q()
+  def fetch(id), do: Repo.single(fetch_q(id))
 
-    Repo.single(query)
+  defp fetch_q(id) do
+    from(a in Activity,
+      where: a.id == ^id
+    )
+    |> only_public_q()
   end
-
+  
   defp only_public_q(query) do
     query
     |> Query.only_public()
@@ -97,20 +96,15 @@ defmodule MoodleNet.Activities do
   Create a new activity related to any context that participates in the meta
   abstraction.
   """
-  @spec create(context(), User.t(), map) :: {:ok, Activity.t()} | {:error, Changeset.t()}
-  def create(%{id: _} = context, %User{} = user, %{} = attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, activity} <- insert_activity(context, user, attrs) do
-        {:ok, %Activity{activity | context: context, creator: user}}
-      end
-    end)
+  @spec create(User.t(), context(), map) :: {:ok, Activity.t()} | {:error, Changeset.t()}
+  def create(creator, context, %{}=attrs) do
+    with {:ok, activity} <- insert(creator, context, attrs) do
+      {:ok, %Activity{activity | context: context, creator: creator}}
+    end
   end
 
-  defp insert_activity(context, user, attrs) do
-    context = Meta.find!(context.id)
-
-    Activity.create_changeset(context, user, attrs)
-    |> Repo.insert()
+  defp insert(creator, context, attrs) do
+    Repo.insert(Activity.create_changeset(creator, context, attrs))
   end
 
   @doc """

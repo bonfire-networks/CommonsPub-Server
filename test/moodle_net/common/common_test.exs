@@ -6,13 +6,20 @@ defmodule MoodleNet.CommonTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.Common
+  alias MoodleNet.{Blocks, Common, Features, Flags, Follows, Likes}
   alias MoodleNet.Test.Fake
 
   setup do
     {:ok, %{user: fake_user!()}}
   end
 
+  def fake_followable!() do
+    user = fake_user!()
+    community = fake_community!(user)
+    collection = fake_collection!(user, community)
+    thread = fake_thread!(user, collection)
+    Faker.Util.pick([user, community, collection, thread])
+  end
   def fake_meta!() do
     user = fake_user!()
     community = fake_community!(user)
@@ -20,7 +27,7 @@ defmodule MoodleNet.CommonTest do
     resource = fake_resource!(user, collection)
     thread = fake_thread!(user, resource)
     comment = fake_comment!(user, thread)
-    Faker.Util.pick([user, community, collection, resource, comment])
+    Faker.Util.pick([user, community, collection, resource, thread, comment])
   end
 
   # describe "paginate" do
@@ -69,7 +76,7 @@ defmodule MoodleNet.CommonTest do
   describe "like/3" do
     test "a user can like any meta object", %{user: liker} do
       liked = fake_meta!()
-      assert {:ok, like} = Common.like(liker, liked, Fake.like())
+      assert {:ok, like} = Likes.create(liker, liked, Fake.like())
       assert like.creator_id == liker.id
       assert like.context_id == liked.id
       assert like.published_at
@@ -81,10 +88,10 @@ defmodule MoodleNet.CommonTest do
       things = for _ <- 1..3, do: fake_meta!()
 
       for thing <- things do
-        assert {:ok, like} = Common.like(liker, thing, Fake.like())
+        assert {:ok, like} = Likes.create(liker, thing, Fake.like())
       end
 
-      likes = Common.likes_by(liker)
+      likes = Likes.list_by(liker)
       assert Enum.count(likes) == 3
 
       for like <- likes do
@@ -100,10 +107,10 @@ defmodule MoodleNet.CommonTest do
       users = for _ <- 1..3, do: fake_user!()
 
       for user <- users do
-        assert {:ok, like} = Common.like(user, thing, Fake.like())
+        assert {:ok, like} = Likes.create(user, thing, Fake.like())
       end
 
-      likes = Common.likes_of(thing)
+      likes = Likes.list_of(thing)
       assert Enum.count(likes) == 3
 
       for like <- likes do
@@ -116,7 +123,7 @@ defmodule MoodleNet.CommonTest do
   describe "flag/3" do
     test "a user can flag any meta object", %{user: flagger} do
       flagged = fake_meta!()
-      assert {:ok, flag} = Common.flag(flagger, flagged, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, flagged, Fake.flag())
       assert flag.creator_id == flagger.id
       assert flag.context_id == flagged.id
       assert flag.message
@@ -128,7 +135,7 @@ defmodule MoodleNet.CommonTest do
       user = fake_user!()
       community = fake_community!(user)
       collection = fake_collection!(user, community)
-      assert {:ok, flag} = Common.flag(flagger, collection, community, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, collection, community, Fake.flag())
       assert flag.context_id == collection.id
       assert flag.community_id == community.id
     end
@@ -139,10 +146,10 @@ defmodule MoodleNet.CommonTest do
       things = for _ <- 1..3, do: fake_meta!()
 
       for thing <- things do
-        assert {:ok, flag} = Common.flag(flagger, thing, Fake.flag())
+        assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       end
 
-      flags = Common.flags_by(flagger)
+      flags = Flags.list_by(flagger)
       assert Enum.count(flags) == 3
 
       for flag <- flags do
@@ -158,10 +165,10 @@ defmodule MoodleNet.CommonTest do
       users = for _ <- 1..3, do: fake_user!()
 
       for user <- users do
-        assert {:ok, flag} = Common.flag(user, thing, Fake.flag())
+        assert {:ok, flag} = Flags.create(user, thing, Fake.flag())
       end
 
-      flags = Common.flags_of(thing)
+      flags = Flags.list_of(thing)
       assert Enum.count(flags) == 3
 
       for flag <- flags do
@@ -177,10 +184,10 @@ defmodule MoodleNet.CommonTest do
       community = fake_community!(fake_user!())
 
       for thing <- things do
-        assert {:ok, flag} = Common.flag(flagger, thing, community, Fake.flag())
+        assert {:ok, flag} = Flags.create(flagger, thing, community, Fake.flag())
       end
 
-      flags = Common.flags_of_community(community)
+      flags = Flags.list_in_community(community)
       assert Enum.count(flags) == 3
 
       for flag <- flags do
@@ -192,10 +199,10 @@ defmodule MoodleNet.CommonTest do
   describe "resolve_flag/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()
-      assert {:ok, flag} = Common.flag(flagger, thing, Fake.flag())
+      assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       refute flag.deleted_at
 
-      assert {:ok, flag} = Common.resolve_flag(flag)
+      assert {:ok, flag} = Flags.resolve(flag)
       assert flag.deleted_at
     end
   end
@@ -204,12 +211,12 @@ defmodule MoodleNet.CommonTest do
     test "returns a list of follows for a user", %{user: follower} do
       follows =
         for _ <- 1..5 do
-          followed = fake_meta!()
-          assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+          followed = fake_followable!()
+          assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
           follow
         end
 
-      fetched = Common.list_follows(follower)
+      fetched = Follows.list_by(follower)
 
       assert Enum.count(fetched) == Enum.count(follows)
     end
@@ -217,16 +224,16 @@ defmodule MoodleNet.CommonTest do
 
   describe "list_by_followed/1" do
     test "returns a list of follows for an item" do
-      followed = fake_meta!()
+      followed = fake_followable!()
 
       follows =
         for _ <- 1..5 do
           follower = fake_user!()
-          assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+          assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
           follow
         end
 
-      fetched = Common.list_by_followed(followed)
+      fetched = Follows.list_of(followed)
 
       assert Enum.count(fetched) == Enum.count(follows)
 
@@ -238,11 +245,11 @@ defmodule MoodleNet.CommonTest do
   end
 
   describe "follow/3" do
-    test "creates a follow for any meta object", %{user: follower} do
-      followed = fake_meta!()
+    test "creates a follow for anything with an outbox", %{user: follower} do
+      followed = fake_followable!()
 
       attrs = Fake.follow(%{is_public: true, is_muted: false})
-      assert {:ok, follow} = Common.follow(follower, followed, attrs)
+      assert {:ok, follow} = Follows.create(follower, followed, attrs)
 
       assert follow.creator_id == follower.id
       assert follow.context_id == followed.id
@@ -257,27 +264,29 @@ defmodule MoodleNet.CommonTest do
     # end
 
     test "fails to create a follow with missing attributes", %{user: follower} do
-      followed = fake_meta!()
-      assert {:error, _} = Common.follow(follower, followed, %{})
+      followed = fake_followable!()
+      assert {:error, _} = Follows.create(follower, followed, %{})
     end
   end
 
   describe "update_follow/2" do
     test "updates the attributes of an existing follow", %{user: follower} do
-      followed = fake_meta!()
-      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow(%{is_public: false}))
-      assert {:ok, updated_follow} = Common.update_follow(follow, Fake.follow(%{is_public: true}))
+      followed = fake_followable!()
+      assert {:ok, follow} =
+        Follows.create(follower, followed, Fake.follow(%{is_public: false}))
+      assert {:ok, updated_follow} =
+        Follows.update(follow, Fake.follow(%{is_public: true}))
       assert follow != updated_follow
     end
   end
 
   describe "undo_follow/1" do
     test "removes a follower from a followed object", %{user: follower} do
-      followed = fake_meta!()
-      assert {:ok, follow} = Common.follow(follower, followed, Fake.follow())
+      followed = fake_followable!()
+      assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
       refute follow.deleted_at
 
-      assert {:ok, follow} = Common.undo_follow(follow)
+      assert {:ok, follow} = Follows.undo(follow)
       assert follow.deleted_at
     end
   end
@@ -287,7 +296,7 @@ defmodule MoodleNet.CommonTest do
       blocked = fake_meta!()
 
       assert {:ok, block} =
-               Common.block(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
+        Blocks.create(blocker, blocked, Fake.block(%{is_muted: true, is_blocked: true}))
 
       assert block.blocked_at
       # assert block.muted_at
@@ -297,8 +306,8 @@ defmodule MoodleNet.CommonTest do
   describe "update_block/2" do
     test "updates the attributes of an existing block", %{user: blocker} do
       blocked = fake_meta!()
-      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
-      assert {:ok, updated_block} = Common.update_block(block, Fake.block(%{is_blocked: true}))
+      assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
+      assert {:ok, updated_block} = Blocks.update(block, Fake.block(%{is_blocked: true}))
       assert block != updated_block
     end
   end
@@ -306,10 +315,10 @@ defmodule MoodleNet.CommonTest do
   describe "delete_block/1" do
     test "removes a block", %{user: blocker} do
       blocked = fake_meta!()
-      assert {:ok, block} = Common.block(blocker, blocked, Fake.block(%{is_blocked: false}))
+      assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
       refute block.deleted_at
 
-      assert {:ok, block} = Common.delete_block(block)
+      assert {:ok, block} = Blocks.delete(block)
       assert block.deleted_at
     end
   end

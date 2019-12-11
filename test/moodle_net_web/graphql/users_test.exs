@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Common, Users}
+  alias MoodleNet.{Access, Common, Follows, Likes, Users}
 
   describe "usernameAvailable" do
     test "works for a guest" do
@@ -466,7 +466,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     test "works for user - followd" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, follow} = Common.follow(bob, alice, %{is_local: true})
+      {:ok, follow} = Follows.create(bob, alice, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -514,7 +514,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     test "works for user - liked" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, like} = Common.like(bob, alice, %{is_local: true})
+      {:ok, like} = Likes.create(bob, alice, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -550,8 +550,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       alice = fake_user!()
       bob = fake_community!(alice)
       celia = fake_community!(alice)
-      {:ok, bob_follow} = Common.follow(alice, bob, %{is_local: true})
-      {:ok, celia_follow} = Common.follow(alice, celia, %{is_local: true})
+      {:ok, bob_follow} = Follows.create(alice, bob, %{is_local: true})
+      {:ok, celia_follow} = Follows.create(alice, celia, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -586,8 +586,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       bob = fake_community!(alice)
       celia = fake_collection!(alice, bob)
       dave = fake_collection!(alice, bob)
-      {:ok, celia_follow} = Common.like(alice, celia, %{is_local: true})
-      {:ok, dave_follow} = Common.like(alice, dave, %{is_local: true})
+      {:ok, celia_follow} = Likes.create(alice, celia, %{is_local: true})
+      {:ok, dave_follow} = Likes.create(alice, dave, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -628,8 +628,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       alice = fake_user!()
       bob = fake_user!()
       celia = fake_user!()
-      {:ok, bob_like} = Common.like(bob, alice, %{is_local: true})
-      {:ok, celia_like} = Common.like(celia, alice, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, alice, %{is_local: true})
+      {:ok, celia_like} = Likes.create(celia, alice, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}

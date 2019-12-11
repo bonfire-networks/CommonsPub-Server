@@ -12,10 +12,21 @@ defmodule MoodleNet.Feeds do
 
   def fetch_sub(id), do: Repo.fetch(FeedSubscription, id)
   
+  def find_sub(%{id: subscriber_id}, feed_id) do
+    Repo.single(find_sub_q(subscriber_id, feed_id))
+  end
+
+  defp find_sub_q(subscriber_id, feed_id) do
+    from s in FeedSubscription,
+      where: s.subscriber_id == ^subscriber_id,
+      where: s.feed_id == ^feed_id,
+      where: not is_nil(s.activated_at)
+  end
+    
   def create_feed(), do: Repo.insert(Feed.create_changeset())
 
-  def create_sub(%{id: subscriber_id}=subscriber, feed_id) do
-    Repo.insert(FeedSubscription.create_changeset(subscriber, feed_id, %{is_active: true}))
+  def create_sub(%{id: subscriber_id}=subscriber, feed_id, attrs) do
+    Repo.insert(FeedSubscription.create_changeset(subscriber_id, feed_id, %{is_active: true}))
   end
 
   # returns a list of feed ids
@@ -39,23 +50,18 @@ defmodule MoodleNet.Feeds do
     |> Repo.all()
   end
 
-  def publish_to_feeds(feed_targets, activity) when is_list(feed_targets) do
-    to_insert =
-      feed_targets
-      |> Enum.flat_map(&publish_to_feed_activity(activity.id, &1))
-    with {_,_} <- Repo.insert_all(FeedActivity, to_insert) do
-      :ok
-    end
+  @spec publish_to_feeds(feed_ids :: [binary], Activity.t) :: :ok
+  def publish_to_feeds(feed_ids, activity) when is_list(feed_ids) do
+    case Enum.flat_map(feed_ids, &publish_to_feed_activity(activity.id, &1)) do
+      [] -> :ok
+      many -> with {_,_} <- Repo.insert_all(FeedActivity, many), do: :ok
+    end        
   end
 
   defp publish_to_feed_activity(_, nil), do: []
 
   defp publish_to_feed_activity(activity, id) when is_binary(id) do
     [%{feed_id: id, activity_id: activity, id: ULID.generate()}]
-  end
-
-  defp publish_to_feed_activity(activity, %{outbox_id: id}) do
-    publish_to_feed_activity(activity, id)
   end
 
   defp feed_activities_q(feed_ids) do

@@ -105,7 +105,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{
+        MoodleNet.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -121,7 +121,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{
+        MoodleNet.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -140,7 +140,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
 
       {:ok, follow} =
-        MoodleNet.Common.follow(follower, followed, %{
+        MoodleNet.Follows.create(follower, followed, %{
           is_muted: false,
           is_public: true,
           is_local: true
@@ -157,7 +157,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
 
       {:ok, block} =
-        MoodleNet.Common.block(blocker, blocked, %{
+        MoodleNet.Blocks.create(blocker, blocked, %{
           is_muted: false,
           is_public: true,
           is_blocked: false,
@@ -174,7 +174,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
 
       {:ok, block} =
-        MoodleNet.Common.block(blocker, blocked, %{
+        MoodleNet.Blocks.create(blocker, blocked, %{
           is_muted: false,
           is_public: true,
           is_blocked: false,
@@ -182,7 +182,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, block_activity} = Publisher.block(block)
-      {:ok, unblock} = MoodleNet.Common.delete_block(block)
+      {:ok, unblock} = MoodleNet.Blocks.delete(block)
 
       assert {:ok, unblock_activity} = Publisher.unblock(unblock)
       assert unblock_activity.data["object"]["id"] == block_activity.data["id"]
@@ -196,7 +196,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(flagger, flagged, %{
+        MoodleNet.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -210,7 +210,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(flagger, flagged, %{
+        MoodleNet.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -224,7 +224,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(flagger, flagged, %{
+        MoodleNet.Flags.create(flagger, flagged, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -241,7 +241,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(commented_actor, comment, %{
+        MoodleNet.Flags.create(commented_actor, comment, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -258,7 +258,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.create_resource(resource)
 
       {:ok, flag} =
-        MoodleNet.Common.flag(flag_actor, resource, %{
+        MoodleNet.Flags.create(flag_actor, resource, %{
           message: "blocked AND reported!!!",
           is_local: true
         })
@@ -277,7 +277,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, like} =
-        MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+        MoodleNet.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
 
       assert {:ok, like_activity, object} = Publisher.like(like)
       assert like_activity.data["object"] == object.data["id"]
@@ -292,7 +292,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, like} =
-        MoodleNet.Common.like(commented_actor, comment, %{is_public: true, is_local: true})
+        MoodleNet.Likes.create(commented_actor, comment, %{is_public: true, is_local: true})
 
       Publisher.like(like)
       # No context function for unliking

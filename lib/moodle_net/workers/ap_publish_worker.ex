@@ -9,7 +9,10 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.{Actors, Meta, Users}
   alias MoodleNet.ActivityPub.Publisher
   alias MoodleNet.Comments.Comment
-  alias MoodleNet.Common.{Block, Flag, Follow, Like}
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource

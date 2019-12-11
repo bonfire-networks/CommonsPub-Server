@@ -11,7 +11,11 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
-  alias MoodleNet.Common.{Follow, Like, Flag}
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User

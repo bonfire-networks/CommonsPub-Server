@@ -93,8 +93,8 @@ defmodule MoodleNet.ResourcesTest do
 
         assert {:ok, resource} =
                  Resources.create(
-                   context.collection,
                    context.user,
+                   context.collection,
                    attrs
                  )
 
@@ -107,8 +107,8 @@ defmodule MoodleNet.ResourcesTest do
       Repo.transaction(fn ->
         assert {:error, changeset} =
                  Resources.create(
-                   context.collection,
                    context.user,
+                   context.collection,
                    %{}
                  )
 

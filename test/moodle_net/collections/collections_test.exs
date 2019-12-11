@@ -120,7 +120,7 @@ defmodule MoodleNet.CollectionsTest do
       attrs = Fake.collection()
 
       assert {:ok, collection} =
-               Collections.create(context.community, context.user, attrs)
+               Collections.create(context.user, context.community, attrs)
 
       assert collection.name == attrs.name
       assert collection.community_id == context.community.id
@@ -130,7 +130,7 @@ defmodule MoodleNet.CollectionsTest do
 
     test "fails if given invalid attributes", context do
       assert {:error, changeset} =
-               Collections.create(context.community, context.user, %{})
+               Collections.create(context.user, context.community, %{})
     end
   end
 

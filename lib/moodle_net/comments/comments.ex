@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Comments do
   import Ecto.Query
-  alias MoodleNet.{Common, Meta, Users, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Meta, Users, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Common.{NotFoundError, Query}
@@ -104,22 +104,23 @@ defmodule MoodleNet.Comments do
   @doc """
   Create a new thread for any context that participates in the meta abstraction.
   """
-  @spec create_thread(context :: any, User.t(), map) ::
+  @spec create_thread(User.t(), context :: any, map) ::
           {:ok, Thread.t()} | {:error, Changeset.t()}
-  def create_thread(context, %User{} = creator, attrs) do
+  def create_thread(%User{} = creator, context, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, thread} <- insert_thread(context, creator, attrs),
-           {:ok, _} <- publish_thread(thread, "create") do
+      with {:ok, feed} <- Feeds.create_feed(),
+           attrs = Map.put(attrs, :outbox_id, feed.id),
+           {:ok, thread} <- insert_thread(creator, context, attrs),
+           act_attrs = %{verb: "create", is_local: thread.is_local},
+           {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+           :ok <- publish_thread(creator, thread, activity, :create) do
         {:ok, thread}
       end
     end)
   end
 
-  defp insert_thread(context, creator, attrs) do
-    context = Meta.find!(context.id)
-
-    Thread.create_changeset(context, creator, attrs)
-    |> Repo.insert()
+  defp insert_thread(creator, context, attrs) do
+    Repo.insert(Thread.create_changeset(creator, context, attrs))
   end
 
   @doc """
@@ -133,21 +134,25 @@ defmodule MoodleNet.Comments do
   end
 
   @spec soft_delete_thread(Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete_thread(%Thread{} = thread) do
-    Repo.transact_with(fn ->
-      with {:ok, thread} <- Common.soft_delete(thread),
-           {:ok, _} <- publish_thread(thread, "delete") do
-        {:ok, thread}
-      end
-    end)
+  def soft_delete_thread(%Thread{} = thread), do: Common.soft_delete(thread)
+
+  defp publish_thread(creator, thread, activity, :create) do
+    :ok
+  end
+  defp publish_thread(creator, thread, activity, _verb) do
+    :ok
   end
 
-  defp publish_thread(%Thread{} = thread, verb) do
-    MoodleNet.FeedPublisher.publish(%{
-      "verb" => verb,
-      "user_id" => thread.creator_id,
-      "context_id" => thread.id,
-    })
+  defp publish_comment(creator, thread, comment, activity, :create) do
+    # MoodleNet.FeedPublisher.publish(%{
+    #   "verb" => verb,
+    #   "context_id" => comment.id,
+    #   "user_id" => comment.creator_id,
+    # })
+    :ok
+  end
+  defp publish_comment(creator, thread, comment, activity, _verb) do
+    :ok
   end
 
   #
@@ -231,11 +236,13 @@ defmodule MoodleNet.Comments do
   def fetch_comment_reply_to(%Comment{reply_to_id: id, reply_to: %NotLoaded{}}), do: fetch_comment(id)
   def fetch_comment_reply_to(%Comment{reply_to: reply_to}), do: {:ok, reply_to}
 
-  @spec create_comment(Thread.t(), User.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def create_comment(%Thread{} = thread, %User{} = creator, attrs) when is_map(attrs) do
+  @spec create_comment(User.t(), Thread.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
+  def create_comment(%User{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, comment} <- insert_comment(thread, creator, attrs),
-           {:ok, _} <- publish_comment(comment, "create") do
+           act_attrs = %{verb: "create", is_local: comment.is_local},
+           {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+           :ok <- publish_comment(creator, thread, comment, activity, :create) do
         {:ok, comment}
       end
     end)
@@ -246,19 +253,20 @@ defmodule MoodleNet.Comments do
 
   Will fail with `NotPermittedError` if the parent thread is locked.
   """
-  @spec create_comment_reply(Thread.t(), User.t(), Comment.t(), map) ::
-          {:ok, Comment.t()} | {:error, Changeset.t()} | {:error, NotPermittedError.t()}
-  def create_comment_reply(%Thread{} = thread, %User{} = creator, %Comment{} = reply_to, attrs) do
+  @spec create_comment_reply(User.t(), Thread.t(), Comment.t(), map) ::
+    {:ok, Comment.t()} | {:error, Changeset.t()} | {:error, NotPermittedError.t()}
+
+  def create_comment_reply(
+    %User{} = creator,
+    %Thread{} = thread,
+    %Comment{} = reply_to,
+    attrs
+  ) do
     # FIXME: check that the thread you're replying to is the same one
     if thread.locked_at do
       {:error, NotPermittedError.new("create")}
     else
-      Repo.transact_with(fn ->
-        with {:ok, comment} <- insert_comment(thread, creator, reply_to, attrs),
-             {:ok, _} <- publish_comment(comment, "create") do
-          {:ok, comment}
-        end
-      end)
+      insert_comment(thread, creator, reply_to, attrs)
     end
   end
 
@@ -279,20 +287,6 @@ defmodule MoodleNet.Comments do
   end
 
   @spec soft_delete_comment(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete_comment(%Comment{} = comment) do
-    Repo.transact_with(fn ->
-      with {:ok, comment} <- Common.soft_delete(comment),
-           {:ok, _} <- publish_comment(comment, "delete") do
-        {:ok, comment}
-      end
-    end)
-  end
+  def soft_delete_comment(%Comment{} = comment), do: Common.soft_delete(comment)
 
-  defp publish_comment(%Comment{} = comment, verb) do
-    MoodleNet.FeedPublisher.publish(%{
-      "verb" => verb,
-      "context_id" => comment.id,
-      "user_id" => comment.creator_id,
-    })
-  end
 end

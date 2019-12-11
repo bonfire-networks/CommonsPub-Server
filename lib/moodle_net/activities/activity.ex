@@ -28,13 +28,14 @@ defmodule MoodleNet.Activities.Activity do
   @required ~w(verb is_local)a
   @cast @required ++ ~w(canonical_url is_public)a
 
-  def create_changeset(%Pointer{} = context, %User{} = user, attrs) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, %{}=attrs)
+  when is_binary(creator_id) and is_binary(context_id) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: user.id,
-      context_id: context.id,
-      is_public: true
+      creator_id: creator_id,
+      context_id: context_id,
+      is_public: true,
     )
     |> Changeset.validate_required(@required)
     |> common_changeset()

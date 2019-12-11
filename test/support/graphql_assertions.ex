@@ -6,8 +6,11 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Thread, Comment}
-  alias MoodleNet.Common.{Flag, Follow, Like}
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
   alias Ecto.ULID

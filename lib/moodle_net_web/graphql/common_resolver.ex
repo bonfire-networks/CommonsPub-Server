@@ -11,7 +11,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     Common,
     Communities,
     Fake,
+    Flags,
+    Follows,
     GraphQL,
+    Likes,
     Localisation,
     Meta,
     Repo,
@@ -20,15 +23,10 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Comment, Thread}
-  alias MoodleNet.Common.{
-    AlreadyFlaggedError,
-    AlreadyFollowingError,
-    NotFlaggableError,
-    NotFollowableError,
-    NotFoundError,
-    NotPermittedError,
-  }
-  alias MoodleNet.Common.{Flag,Follow,Like}
+  alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError}
+  alias MoodleNet.Follows.{AlreadyFollowingError, Follow, NotFollowableError}
+  alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError}
+  alias MoodleNet.Common.{NotFoundError, NotPermittedError}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Meta.Table
   alias MoodleNet.Resources.Resource
@@ -61,7 +59,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   def creator(%{creator_id: id}, _, info), do: Users.fetch(id)
-
 
   def context(%{context_id: id}=it, _, info), do: get_context(it, &(&1.context_id))
 
@@ -105,7 +102,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       with {:ok, me} <- GraphQL.current_user(info),
            {:ok, pointer} <- Meta.find(id),
            {:ok, thing} <- flaggable_entity(pointer) do
-        Common.flag(me, thing, %{message: message})
+        Flags.create(me, thing, %{message: message})
       end
     end)
   end
@@ -115,7 +112,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       with {:ok, me} <- GraphQL.current_user(info),
            {:ok, pointer} <- Meta.find(id),
            {:ok, thing} <- likeable_entity(pointer) do
-        Common.like(me, thing, %{is_local: true})
+        Likes.create(me, thing, %{is_local: true})
       end
     end
   end
@@ -125,7 +122,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       with {:ok, me} <- GraphQL.current_user(info),
            {:ok, pointer} <- Meta.find(id),
            {:ok, thing} <- followable_entity(pointer) do
-        Common.follow(me, thing, %{is_local: true})
+        Follows.create(me, thing, %{is_local: true})
       end
     end
   end
@@ -242,18 +239,18 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_follow(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Common.find_follow(user, parent) do
-	  {:ok, nil}
-	end
+        with {:error, _} <- Common.find_follow(user, parent) do
+          {:ok, nil}
+        end
       _ -> {:ok, nil}
     end
   end
   def my_like(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Common.find_like(user, parent) do
-	  {:ok, nil}
-	end
+        with {:error, _} <- Common.find_like(user, parent) do
+          {:ok, nil}
+        end
       _ -> {:ok, nil}
     end
   end

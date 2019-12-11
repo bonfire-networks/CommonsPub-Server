@@ -4,9 +4,12 @@
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
   alias MoodleNet.Activities.Activity
-  alias MoodleNet.Common.{Flag, Follow, Like}
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.{Flag, Follow, Like}
   alias MoodleNet.Comments.{Comment,Thread}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource

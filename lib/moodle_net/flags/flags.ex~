@@ -1,0 +1,117 @@
+defmodule MoodleNet.Flags do
+  alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError}
+  alias MoodleNet.Repo
+  import Ecto.Query
+  
+
+  def fetch_flag(id), do: Repo.single(fetch_flag_q(id))
+
+  defp fetch_flag_q(id) do
+    from f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.id == ^id
+  end
+
+  def find_flag(%User{} = flagger, flagged) do
+    Repo.single(find_flag_q(flagger.id, flagged.id))
+  end
+
+  defp find_flag_q(flagger_id, flagged_id) do
+    from(f in Flag,
+      where: f.creator_id == ^flagger_id,
+      where: f.context_id == ^flagged_id,
+      where: is_nil(f.deleted_at)
+    )
+  end
+
+  def flag(%User{} = flagger, flagged, fields) do
+    Repo.transact_with(fn ->
+      case find_flag(flagger, flagged) do
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ -> insert_flag(flagger, flagged, fields)
+      end
+    end)
+  end
+
+  def flag(%User{} = flagger, flagged, community, fields) do
+    Repo.transact_with(fn ->
+      case find_flag(flagger, flagged) do
+        {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
+        _ ->
+          with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
+               {:ok, _} <- publish_flag(flag, "create") do
+            {:ok, flag}
+          end
+      end
+    end)
+  end
+
+  defp insert_flag(flagger, flagged, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(flagged.id)
+
+      Flag.create_changeset(flagger, pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  defp insert_flag(flagger, flagged, community, fields) do
+    Repo.transact_with(fn ->
+      pointer = Meta.find!(flagged.id)
+
+      Flag.create_changeset(flagger, community, pointer, fields)
+      |> Repo.insert()
+    end)
+  end
+
+  defp publish_create(%Flag{} = flag, verb) do
+    # MoodleNet.FeedPublisher.publish(%{
+    #   "verb" => verb,
+    #   "creator_id" => flag.creator_id,
+    #   "context_id" => flag.id
+    # })
+  end
+
+  def resolve(%Flag{} = flag) do
+    Repo.transact_with(fn -> soft_delete(flag) end)
+  end
+
+
+  @doc """
+  Return a list of open flags for an user.
+  """
+  def flags_by(%User{} = user), do: Repo.all(flags_by_query(user))
+
+  @doc """
+  Return a list of open flags for any object participating in the meta abstraction.
+  """
+  def flags_of(%{id: _id} = thing), do: Repo.all(flags_of_query(thing))
+
+  @doc """
+  Return open flags for a community.
+  """
+  def flags_of_community(%Community{id: id}) do
+    query =
+      from(f in Flag,
+        where: is_nil(f.deleted_at),
+        where: f.community_id == ^id
+      )
+
+    Repo.all(query)
+  end
+
+  defp flags_by_query(%User{id: id}) do
+    from(f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.creator_id == ^id
+    )
+  end
+
+  defp flags_of_query(%{id: id}) do
+    from(f in Flag,
+      where: is_nil(f.deleted_at),
+      where: f.context_id == ^id
+    )
+  end
+  
+end

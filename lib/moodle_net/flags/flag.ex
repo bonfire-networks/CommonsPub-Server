@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Common.Flag do
+defmodule MoodleNet.Flags.Flag do
   @moduledoc """
   A flag is a report that something is breaking the rules
 
@@ -32,19 +32,21 @@ defmodule MoodleNet.Common.Flag do
   @required ~w(message is_local)a
   @cast @required ++ ~w(canonical_url is_resolved)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
+  def create_changeset(%User{id: creator_id}, community, %{id: context_id}, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(creator_id: creator_id, context_id: context_id)
     |> Changeset.foreign_key_constraint(:creator_id)
     |> Changeset.foreign_key_constraint(:context_id)
+    |> maybe_community(community)
     |> change_synced_timestamp(:is_resolved, :resolved_at)
   end
 
-  def create_changeset(%User{} = creator, %Community{} = community, %{} = context, attrs) do
-    create_changeset(creator, context, attrs)
-    |> Changeset.put_change(:community_id, community.id)
+  defp maybe_community(changeset, nil), do: changeset
+  defp maybe_community(changeset, %{id: id}) do
+    changeset
+    |> Changeset.put_change(:community_id, id)
     |> Changeset.foreign_key_constraint(:community_id)
   end
 

@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   }
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.Flag
+  alias MoodleNet.Flags.Flag
   alias MoodleNet.Resources.Resource
 
   object :comments_queries do

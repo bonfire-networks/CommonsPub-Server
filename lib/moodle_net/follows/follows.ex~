@@ -1,0 +1,161 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
+defmodule MoodleNet.Common do
+  alias MoodleNet.{Activities, Feeds, Meta, Repo}
+  alias MoodleNet.Common.{
+    AlreadyFollowingError,
+    Follow,
+  }
+
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Access.NotPermittedError
+  alias MoodleNet.Common.{Changeset, NotFoundError}
+  alias MoodleNet.Users.User
+  import Ecto.Query
+
+  def fetch(id), do: Repo.single(fetch_q(id))
+
+  defp fetch_q(id) do
+    from f in Follow,
+      where: is_nil(f.deleted_at),
+      where: not is_nil(f.published_at),
+      where: f.id == ^id
+  end
+
+
+  @spec lists(User.t()) :: [Follow.t()]
+  def lists(%User{id: id}) do
+    query =
+      from(f in Follow,
+        where: is_nil(f.deleted_at),
+        where: f.creator_id == ^id
+      )
+    Repo.all(query)
+  end
+
+  def listed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+        on: f.context_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.creator_id == ^id,
+        select: {f,c}
+      )
+    Repo.all(query)
+  end
+
+  def count_for_listed_communities(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Community,
+        on: f.context_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.creator_id == ^id,
+        select: count(f)
+      )
+    Repo.one(query)
+  end
+
+  def list_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+        on: f.context_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.creator_id == ^id,
+        select: {f,c}
+      )
+    Repo.all(query)
+  end
+
+  def count_for_list_collections(%User{id: id}) do
+    query =
+      from(f in Follow,
+        join: c in Collection,
+        on: f.context_id == c.id,
+        where: is_nil(f.deleted_at),
+        where: f.creator_id == ^id,
+        select: count(f)
+      )
+    Repo.one(query)
+  end
+
+  @spec list_byed(%{id: binary}) :: [Follow.t()]
+  def list_byed(%{id: id} = followed) do
+    query =
+      from(f in Follow,
+        where: is_nil(f.deleted_at),
+        where: f.context_id == ^id
+      )
+
+    Repo.all(query)
+  end
+
+  @spec find(User.t(), %{id: binary}) :: {:ok, Follow.t()} | {:error, NotFoundError.t()}
+  def find(%User{} = follower, followed) do
+    Repo.single(follow_q(follower.id, followed.id))
+  end
+
+  defp follow_q(follower_id, followed_id) do
+    from(f in Follow,
+      where: is_nil(f.deleted_at),
+      where: f.creator_id == ^follower_id,
+      where: f.context_id == ^followed_id
+    )
+  end
+
+  @spec follow(User.t(), any, map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def follow(%User{} = follower, %{outbox_id: outbox_id}=followed, fields) do
+    Repo.transact_with(fn ->
+      case find(follower, followed) do
+        {:ok, _} ->
+          {:error, AlreadyFollowingError.new("user")}
+
+        _ ->
+          with {:ok, _sub} <- Feeds.create_sub(follower, outbox_id),
+               {:ok, follow} <- insert(follower, followed, fields),
+               {:ok, activity} <- Activities.create(follow, follower, %{verb: "create"}),
+               :ok <- publish_create(follow, follower, followed, activity) do
+            {:ok, %{follow | context: followed}}
+          end
+      end
+    end)
+  end
+
+  defp insert(follower, followed, fields) do
+    Repo.insert(Follow.create_changeset(follower, followed, fields))
+  end
+
+  defp publish_create(%Follow{} = follow, creator, followed, activity) do
+    # Feeds.publish_to_feeds([creator.outbox_id, followed
+    :ok
+  end
+
+  defp publish_delete(%Follow{} = follow, creator, followed, activity) do
+    # Feeds.publish_to_feeds([creator.outbox_id, followed
+    :ok
+  end
+
+  @spec update(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def update(%Follow{} = follow, fields) do
+    Repo.transact_with(fn ->
+      follow
+      |> Follow.update_changeset(fields)
+      |> Repo.update()
+    end)
+  end
+
+  @spec undo(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def undo(%Follow{} = follow) do
+    Repo.transact_with(fn ->
+      follow = Repo.preload(follow, [:creator, :context])
+      with {:ok, _} <- soft_delete(follow),
+           {:ok, activity} <- Activities.create(follow, follow.creator, %{verb: "delete"}),
+           :ok <- publish_delete(follow, follow.creator, follow.context, activity) do
+        {:ok, follow}
+      end
+    end)
+  end

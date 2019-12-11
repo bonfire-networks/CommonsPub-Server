@@ -62,7 +62,7 @@ defmodule MoodleNet.Collections do
   end
 
   def list_in_community(%Community{id: id}) do
-    preload(Repo.all(list_in_community_q(id)))
+    Repo.all(list_in_community_q(id))
   end
 
   defp list_in_community_q(id) do
@@ -75,7 +75,8 @@ defmodule MoodleNet.Collections do
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at)
+      where: is_nil(comm.deleted_at),
+      preload: [actor: a]
     )
   end
 
@@ -95,7 +96,8 @@ defmodule MoodleNet.Collections do
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at)
+      where: is_nil(comm.deleted_at),
+      preload: [actor: a]
     )
   end
 
@@ -108,7 +110,8 @@ defmodule MoodleNet.Collections do
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at)
+      where: is_nil(comm.deleted_at),
+      preload: [actor: a]
     )
   end
 
@@ -119,55 +122,63 @@ defmodule MoodleNet.Collections do
     end
   end
 
-  @spec create(Community.t(), User.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
-  def create(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do
+  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, inbox} <- Feeds.create_feed(),
-           {:ok, outbox} <- Feeds.create_feed(),
-           attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
-           {:ok, coll} <- insert_collection(community, creator, actor, attrs2),
-           {:ok, activity} <- Activities.create(coll, creator, %{verb: "create", is_local: true}),
-           :ok <- publish_create(community, creator, coll, activity) do
-        {:ok, %{coll | actor: actor, creator: creator}}
+           {:ok, coll_attrs} <- create_boxes(actor, attrs),
+           {:ok, coll} <- insert_collection(community, creator, actor, coll_attrs),
+           act_attrs = %{verb: "create", is_local: true},
+           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
+           :ok <- publish(community, creator, coll, activity, :create) do
+        {:ok, coll}
       end
     end)
   end
 
-  @spec create_remote(Community.t, User.t, attrs :: map) :: {:ok, Collection.t} | {:error, Changeset.t}
-  def create_remote(%Community{} = community, %User{} = creator, attrs) when is_map(attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, outbox} <- Feeds.create_feed(),
-           attrs2 = Map.put(attrs, :outbox_id, outbox.id),
-           {:ok, coll} <- insert_collection(community, creator, actor, attrs2),
-           {:ok, activity} <- Activities.create(coll, creator, %{verb: "create", is_local: false}),
-           :ok <- publish_create(community, creator, coll, activity) do
-        {:ok, %{coll | actor: actor, creator: creator}}
-      end
-    end)
+  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
+  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
+
+  defp create_local_boxes(attrs) do
+    with {:ok, inbox} <- Feeds.create_feed(),
+         {:ok, outbox} <- Feeds.create_feed() do
+      extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
+      {:ok, Map.merge(attrs, extra)}
+    end
+  end
+
+  defp create_remote_boxes(attrs) do
+    with {:ok, outbox} <- Feeds.create_feed() do
+      {:ok, Map.put(attrs, :outbox_id, outbox.id)}
+    end
   end
 
   defp insert_collection(community, creator, actor, attrs) do
-    Collection.create_changeset(community, creator, actor, attrs)
-    |> Repo.insert()
+    cs = Collection.create_changeset(community, creator, actor, attrs)
+    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
   end
 
-  defp publish_create(community, creator, collection, activity) do
-    Feeds.publish_to_feeds([community, creator, collection], activity)
+  # TODO
+  defp publish(community, creator, collection, activity, :create) do
+    case collection.actor.peer_id do
+      nil ->
+        [community.outbox_id, creator.outbox_id, collection.outbox_id]
+        |> Feeds.publish_to_feeds(activity)
+      _ -> :ok # TODO activitypub?
+    end
   end
-
-  # defp publish_update(community, updator, collection, activity) do
-  # end
+  defp publish(community, editor, collection, activity, _verb) do
+    :ok
+  end
 
   # TODO: take the user who is performing the update
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
-      collection = preload(collection)
-      actor = collection.actor
+      collection = Repo.preload(collection, :community)
+      community = collection.community
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
-           {:ok, actor} <- Actors.update(actor, attrs) do
+           {:ok, actor} <- Actors.update(collection.actor, attrs) do
         {:ok, %{ collection | actor: actor }}
       end
     end)

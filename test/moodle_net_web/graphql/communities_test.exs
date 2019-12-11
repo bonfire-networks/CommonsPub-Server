@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Test.Fake
-  alias MoodleNet.Common
+  alias MoodleNet.{Common, Follows}
 
   describe "communities" do
     test "works" do
@@ -265,7 +265,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       bob = fake_user!()
       conn = user_conn(bob)
-      {:ok, follow} = Common.follow(bob, comm, %{is_local: true})
+      {:ok, follow} = Follows.create(bob, comm, %{is_local: true})
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()} myFollow { #{follow_basics()} }

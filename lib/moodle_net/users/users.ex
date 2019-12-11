@@ -105,41 +105,41 @@ defmodule MoodleNet.Users do
 
   `:public_registration` - boolean, default false. if false, accesss will be checked
   """
-  @spec register(attrs :: map, opts :: Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def register(%{} = attrs, opts \\ []) do
+  @spec register(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  def register(attrs, opts \\ []) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, local_user} <- insert_local_user(attrs),
-           :ok <- check_register_access(local_user.email, opts),
-           {:ok, inbox} <- Feeds.create_feed(),
-           {:ok, outbox} <- Feeds.create_feed(),
-           attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
-           {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
-           {:ok, token} <- create_email_confirm_token(local_user) do
-        user
-        |> Email.welcome(token)
-        |> MailService.deliver_now()
-
-        user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
-        {:ok, user}
+      with {:ok, actor} <- Actors.create(attrs) do
+        case actor.peer_id do
+          nil -> register_local(actor, attrs, opts)
+          _ -> register_remote(actor, attrs, opts)
+        end
       end
     end)
   end
 
-  @doc """
-  Register a remote-only user. The user will not have a :local_user relation, only an actor
-  will be created.
-  """
-  @spec register_remote(map, Keyword.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def register_remote(attrs, opts \\ []) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, outbox} <- Feeds.create_feed(),
-           attrs2 = Map.put(attrs, :outbox_id, outbox.id),
-           {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
-        {:ok, %{user | actor: actor}}
-      end
-    end)
+  defp register_local(actor, attrs, opts) do
+    with {:ok, local_user} <- insert_local_user(attrs),
+         :ok <- check_register_access(local_user.email, opts),
+         {:ok, inbox} <- Feeds.create_feed(),
+         {:ok, outbox} <- Feeds.create_feed(),
+         attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
+         {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
+         {:ok, token} <- create_email_confirm_token(local_user) do
+      user
+      |> Email.welcome(token)
+      |> MailService.deliver_now()
+
+      user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
+      {:ok, user}
+    end
+  end
+
+  defp register_remote(actor, attrs, _opts) do
+    with {:ok, outbox} <- Feeds.create_feed(),
+         attrs2 = Map.put(attrs, :outbox_id, outbox.id),
+         {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
+      {:ok, %{user | actor: actor}}
+    end
   end
 
   defp should_check_register_access?(opts) do

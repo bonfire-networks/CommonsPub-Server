@@ -20,7 +20,12 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Comments.{Comment, Thread}
 
-  alias MoodleNet.Common.{Block, Flag, Follow, Feature, Like, NotInTransactionError}
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Likes.Like
+  alias MoodleNet.Common.NotInTransactionError
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Peers.Peer
   alias MoodleNet.Users.User

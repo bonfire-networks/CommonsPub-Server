@@ -70,6 +70,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
       is_public: true,
+      is_local: false,
       is_disabled: false,
       peer_id: peer.id,
       canonical_url: actor["id"]
@@ -78,19 +79,19 @@ defmodule MoodleNet.ActivityPub.Adapter do
     {:ok, created_actor} =
       case actor["type"] do
         "Person" ->
-          MoodleNet.Users.register_remote(create_attrs)
+          MoodleNet.Users.register(create_attrs)
 
         "MN:Community" ->
           {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
           {:ok, creator} = get_actor_by_username(ap_creator.username)
-          MoodleNet.Communities.create_remote(creator, create_attrs)
+          MoodleNet.Communities.create(creator, create_attrs)
 
         "MN:Collection" ->
           {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
           {:ok, creator} = get_actor_by_username(ap_creator.username)
           {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
           {:ok, community} = get_actor_by_username(ap_community.username)
-          MoodleNet.Collections.create_remote(community, creator, create_attrs)
+          MoodleNet.Collections.create(community, creator, create_attrs)
       end
 
     object = ActivityPub.Object.get_by_ap_id(actor["id"])
@@ -282,7 +283,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
-           MoodleNet.Common.follow(follower, followed, %{
+           MoodleNet.Follows.create(follower, followed, %{
              is_public: true,
              is_muted: false,
              is_local: false,
@@ -312,7 +313,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]),
          {:ok, _} <-
-           MoodleNet.Common.block(blocker, blocked, %{
+           MoodleNet.Blocks.create(blocker, blocked, %{
              is_public: true,
              is_muted: false,
              is_blocked: true,
@@ -347,7 +348,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id),
          {:ok, liked} <- MoodleNet.Meta.follow(liked),
          {:ok, _} <-
-           MoodleNet.Common.like(actor, liked, %{
+           MoodleNet.Likes.create(actor, liked, %{
              is_public: true,
              is_local: false,
              canonical_url: activity.data["id"]
@@ -405,7 +406,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         object.mn_pointer_id |> MoodleNet.Meta.find!() |> MoodleNet.Meta.follow!()
       end)
       |> Enum.each(fn object ->
-        MoodleNet.Common.flag(actor, object, %{
+        MoodleNet.Flags.create(actor, object, %{
           message: activity.data["content"],
           is_local: false
         })
@@ -418,7 +419,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => [account]}} = activity) do
     with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]),
          {:ok, account} <- get_actor_by_ap_id(account) do
-      MoodleNet.Common.flag(actor, account, %{
+      MoodleNet.Flags.create(actor, account, %{
         message: activity.data["content"],
         is_local: false
       })
