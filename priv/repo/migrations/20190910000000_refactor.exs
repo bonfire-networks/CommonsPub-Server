@@ -279,6 +279,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :canonical_url, :text
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :context_id, references("mn_pointer", on_delete: :nilify_all)
+      add :outbox_id, references("mn_feed", on_delete: :nilify_all)
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       add :locked_at, :timestamptz
