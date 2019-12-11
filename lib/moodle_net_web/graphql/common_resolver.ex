@@ -114,7 +114,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       with {:ok, me} <- GraphQL.current_user(info),
            {:ok, pointer} <- Meta.find(id),
            {:ok, thing} <- flaggable_entity(pointer) do
-        Flags.create(me, thing, %{message: message})
+        Flags.create(me, thing, %{message: message, is_local: true})
       end
     end)
   end
