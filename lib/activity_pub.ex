@@ -49,7 +49,7 @@ defmodule ActivityPub do
 
   defp check_actor_is_active(actor) do
     if not is_nil(actor) do
-      with {:ok, actor} <- Actor.get_by_ap_id(actor),
+      with {:ok, actor} <- Actor.get_cached_by_ap_id(actor),
            false <- actor.deactivated do
         :ok
       else

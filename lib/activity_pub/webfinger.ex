@@ -26,7 +26,7 @@ defmodule ActivityPub.WebFinger do
       {:ok, represent_user(actor)}
     else
       _e ->
-        case Actor.get_by_ap_id(resource) do
+        case Actor.get_cached_by_ap_id(resource) do
           {:ok, actor} ->
             {:ok, represent_user(actor)}
 

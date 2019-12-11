@@ -37,7 +37,7 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
   def run([ap_id | _]) do
     start_app()
 
-    with {:ok, actor} <- Actor.get_by_ap_id(ap_id) do
+    with {:ok, actor} <- Actor.get_cached_by_ap_id(ap_id) do
       {:ok, actor_object} = Actor.toggle_active(actor)
 
       shell_info(

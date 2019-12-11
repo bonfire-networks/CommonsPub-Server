@@ -36,7 +36,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def get_actor_by_ap_id(ap_id) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_ap_id(ap_id),
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
          {:ok, actor} <- get_actor_by_username(actor.username) do
       {:ok, actor}
     else
@@ -81,15 +81,12 @@ defmodule MoodleNet.ActivityPub.Adapter do
           MoodleNet.Users.register_remote(create_attrs)
 
         "MN:Community" ->
-          {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
-          {:ok, creator} = get_actor_by_username(ap_creator.username)
+          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
           MoodleNet.Communities.create_remote(creator, create_attrs)
 
         "MN:Collection" ->
-          {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
-          {:ok, creator} = get_actor_by_username(ap_creator.username)
-          {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
-          {:ok, community} = get_actor_by_username(ap_community.username)
+          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
+          {:ok, community} = get_actor_by_ap_id(actor["context"])
           MoodleNet.Collections.create_remote(community, creator, create_attrs)
       end
 

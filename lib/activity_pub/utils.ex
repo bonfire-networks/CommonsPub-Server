@@ -85,7 +85,7 @@ defmodule ActivityPub.Utils do
         %{data: %{"actor" => object_actor_id, "id" => id}} = object,
         activity_id
       ) do
-    {:ok, object_actor} = Actor.get_by_ap_id(object_actor_id)
+    {:ok, object_actor} = Actor.get_cached_by_ap_id(object_actor_id)
 
     to =
       if public?(object.data) do

@@ -28,7 +28,8 @@ defmodule ActivityPub.Fetcher do
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
       else
-        {:error, e} -> {:error, e}
+        {:error, e} ->
+          {:error, e}
       end
     end
   end

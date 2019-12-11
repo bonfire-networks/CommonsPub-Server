@@ -30,10 +30,11 @@ defmodule ActivityPub.Actor do
   def update_actor(actor_id) do
     # TODO: make better
     Logger.info("Updating actor #{actor_id}")
+
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
          :ok <- update_actor_data_by_ap_id(actor_id, data) do
       # Return Actor
-      get_by_ap_id(actor_id)
+      set_cache(get_by_ap_id(actor_id))
     end
   end
 
@@ -53,7 +54,7 @@ defmodule ActivityPub.Actor do
   Fetches the public key for given actor AP ID.
   """
   def get_public_key_for_ap_id(ap_id) do
-    with {:ok, actor} <- get_by_ap_id(ap_id),
+    with {:ok, actor} <- get_or_fetch_by_ap_id(ap_id),
          {:ok, public_key} <- public_key_from_data(actor.data) do
       {:ok, public_key}
     else
@@ -70,7 +71,7 @@ defmodule ActivityPub.Actor do
   """
   def fetch_by_username(username) do
     with {:ok, %{"id" => ap_id}} when not is_nil(ap_id) <- WebFinger.finger(username) do
-      get_remote_actor(ap_id)
+      fetch_by_ap_id(ap_id)
     else
       _e -> {:error, "No AP id in WebFinger"}
     end
@@ -105,7 +106,7 @@ defmodule ActivityPub.Actor do
   end
 
   defp get_remote_actor(ap_id) do
-    with {:ok, actor} <- Fetcher.fetch_object_from_id(ap_id),
+    with %Object{} = actor <- Object.get_by_ap_id(ap_id),
          false <- check_if_time_to_update(actor),
          actor <- format_remote_actor(actor) do
       Adapter.maybe_create_remote_actor(actor)
@@ -114,8 +115,19 @@ defmodule ActivityPub.Actor do
       true ->
         update_actor(ap_id)
 
+      nil ->
+        {:error, "not found"}
+
       {:error, e} ->
         {:error, e}
+    end
+  end
+
+  defp fetch_by_ap_id(ap_id) do
+    with {:ok, object} <- Fetcher.fetch_object_from_id(ap_id),
+         actor <- format_remote_actor(object) do
+      Adapter.maybe_create_remote_actor(actor)
+      set_cache(actor)
     end
   end
 
@@ -156,6 +168,71 @@ defmodule ActivityPub.Actor do
     else
       get_remote_actor(ap_id)
     end
+  end
+
+  def get_or_fetch_by_ap_id(ap_id) do
+    case get_cached_by_ap_id(ap_id) do
+      {:ok, actor} -> {:ok, actor}
+      _ -> fetch_by_ap_id(ap_id)
+    end
+  end
+
+  def set_cache({:ok, actor}), do: set_cache(actor)
+  def set_cache({:error, err}), do: {:error, err}
+
+  def set_cache(%Actor{} = actor) do
+    Cachex.put(:ap_actor_cache, "ap_id:#{actor.ap_id}", actor)
+    Cachex.put(:ap_actor_cache, "username:#{actor.username}", actor)
+    Cachex.put(:ap_actor_cache, "user_info:#{actor.id}", actor)
+    {:ok, actor}
+  end
+
+  def invalidate_cache(%Actor{} = actor) do
+    Cachex.del(:ap_actor_cache, "ap_id:#{actor.ap_id}")
+    Cachex.del(:ap_actor_cache, "username:#{actor.username}")
+    Cachex.del(:ap_actor_cache, "user_info:#{actor.id}")
+  end
+
+  def get_cached_by_ap_id(ap_id) do
+    key = "ap_id:#{ap_id}"
+
+    case Cachex.fetch(:ap_actor_cache, key, fn _ ->
+           case get_by_ap_id(ap_id) do
+             {:ok, actor} -> {:commit, actor}
+             {:error, _} -> {:ignore, nil}
+           end
+         end) do
+      {:ok, actor} -> {:ok, actor}
+      {:commit, actor} -> {:ok, actor}
+      {:ignore, _} -> {:error, "not found"}
+    end
+  end
+
+  def get_cached_by_local_id(id) do
+    key = "id:#{id}"
+
+    Cachex.fetch(:ap_actor_cache, key, fn _ ->
+      case get_by_local_id(id) do
+        {:ok, actor} ->
+          {:commit, actor}
+
+        _ ->
+          {:ignore, nil}
+      end
+    end)
+  end
+
+  def get_cached_by_username(username) do
+    key = "username:#{username}"
+
+    Cachex.fetch(:ap_actor_cache, key, fn ->
+      actor_result = get_or_fetch_by_username(username)
+
+      case actor_result do
+        {:ok, actor} -> {:commit, actor}
+        {:error, _error} -> {:ignore, nil}
+      end
+    end)
   end
 
   def get_by_ap_id!(ap_id) do
@@ -321,6 +398,7 @@ defmodule ActivityPub.Actor do
   end
 
   def delete(%Actor{local: false} = actor) do
+    invalidate_cache(actor)
     Repo.delete(%Object{
       id: actor.id
     })

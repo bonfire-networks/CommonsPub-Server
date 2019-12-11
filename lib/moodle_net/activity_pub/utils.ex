@@ -60,7 +60,7 @@ defmodule MoodleNet.ActivityPub.Utils do
     case ActivityPub.Object.get_by_ap_id(ap_id) do
       nil ->
         # Might be a local actor
-        with {:ok, actor} <- ActivityPub.Actor.get_by_ap_id(ap_id) do
+        with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id) do
           actor.mn_pointer_id
         else
           nil -> nil
