@@ -28,9 +28,33 @@ defmodule MoodleNet.Application do
       worker(CountryService, []),
       worker(TableService, []),
       supervisor(Endpoint, []),
-      worker(Cachex, [:ap_actor_cache, []]),
-      worker(Caches, [:ap_object_cache, []]),
-      {Oban, Application.get_env(:moodle_net, Oban)}
+      {Oban, Application.get_env(:moodle_net, Oban)},
+      %{
+        id: :cachex_actor,
+        start:
+          {Cachex, :start_link,
+           [
+             :ap_actor_cache,
+             [
+               default_ttl: 25_000,
+               ttl_interval: 1000,
+               limit: 2500
+             ]
+           ]}
+      },
+      %{
+        id: :cachex_object,
+        start:
+          {Cachex, :start_link,
+           [
+             :ap_object_cache,
+             [
+               default_ttl: 25_000,
+               ttl_interval: 1000,
+               limit: 2500
+             ]
+           ]}
+      }
     ]
 
     opts = [strategy: :one_for_one, name: MoodleNet.Supervisor]
