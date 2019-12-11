@@ -22,8 +22,6 @@ defmodule ActivityPubWeb.TransmogrifierTest do
         apply(HttpRequestMock, :request, [env])
     end)
 
-    Cachex.reset(:ap_actor_cache, only: :cache)
-
     :ok
   end
 
