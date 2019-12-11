@@ -75,8 +75,7 @@ defmodule MoodleNet.Mixfile do
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
       {:format_parser, "~> 1.3.0"},
-      # MIME type map
-      {:mime, "~> 1.2"},
+      {:file_info, "~> 0.0.4"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
