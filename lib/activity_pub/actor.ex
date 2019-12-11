@@ -81,7 +81,7 @@ defmodule ActivityPub.Actor do
   Tries to get a local actor by username or tries to fetch it remotely if username is provided in `username@domain.tld` format.
   """
   def get_or_fetch_by_username(username) do
-    with {:ok, actor} <- get_by_username(username) do
+    with {:ok, actor} <- get_cached_by_username(username) do
       {:ok, actor}
     else
       _e ->
@@ -211,28 +211,34 @@ defmodule ActivityPub.Actor do
   def get_cached_by_local_id(id) do
     key = "id:#{id}"
 
-    Cachex.fetch(:ap_actor_cache, key, fn _ ->
-      case get_by_local_id(id) do
-        {:ok, actor} ->
-          {:commit, actor}
+    case Cachex.fetch(:ap_actor_cache, key, fn _ ->
+           case get_by_local_id(id) do
+             {:ok, actor} ->
+               {:commit, actor}
 
-        _ ->
-          {:ignore, nil}
-      end
-    end)
+             _ ->
+               {:ignore, nil}
+           end
+         end) do
+      {:ok, actor} -> {:ok, actor}
+      {:commit, actor} -> {:ok, actor}
+      {:ignore, _} -> {:error, "not found"}
+    end
   end
 
   def get_cached_by_username(username) do
     key = "username:#{username}"
 
-    Cachex.fetch(:ap_actor_cache, key, fn ->
-      actor_result = get_or_fetch_by_username(username)
-
-      case actor_result do
-        {:ok, actor} -> {:commit, actor}
-        {:error, _error} -> {:ignore, nil}
-      end
-    end)
+    case Cachex.fetch(:ap_actor_cache, key, fn ->
+           case get_by_username(username) do
+             {:ok, actor} -> {:commit, actor}
+             {:error, _error} -> {:ignore, nil}
+           end
+         end) do
+      {:ok, actor} -> {:ok, actor}
+      {:commit, actor} -> {:ok, actor}
+      {:ignore, _} -> {:error, "not found"}
+    end
   end
 
   def get_by_ap_id!(ap_id) do
@@ -399,6 +405,7 @@ defmodule ActivityPub.Actor do
 
   def delete(%Actor{local: false} = actor) do
     invalidate_cache(actor)
+
     Repo.delete(%Object{
       id: actor.id
     })

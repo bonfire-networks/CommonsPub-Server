@@ -44,7 +44,7 @@ defmodule ActivityPubWeb.ActivityPubController do
     if get_format(conn) == "html" do
       RedirectController.actor(conn, %{"username" => username})
     else
-      with {:ok, actor} <- Actor.get_by_username(username) do
+      with {:ok, actor} <- Actor.get_cached_by_username(username) do
         conn
         |> put_resp_header("content-type", "application/activity+json")
         |> json(ActorView.render("actor.json", %{actor: actor}))
