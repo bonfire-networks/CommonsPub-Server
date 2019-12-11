@@ -10,9 +10,8 @@ defmodule MoodleNet.Uploads.Storage do
   def store(upload_def, file, opts \\ []) do
     with {:ok, file} <- allow_extension(upload_def, file),
          {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
+         {:ok, media_type} <- get_media_type(file),
          {:ok, metadata} <- get_metadata(file) do
-      media_type = format_to_media_type(metadata.format)
-
       {:ok,
        %{id: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
     end
@@ -46,10 +45,20 @@ defmodule MoodleNet.Uploads.Storage do
     provider
   end
 
+  defp get_media_type(%{path: path}) do
+    case FileInfo.get_info(path) do
+      %{^path => %{type: type, subtype: subtype}} ->
+        {:ok, "#{type}/#{subtype}"}
+
+      _ ->
+        {:error, :unknown_format}
+    end
+  end
+
   defp get_metadata(%{path: path}) do
     with {:ok, binary} <- File.read(path) do
       case FormatParser.parse(binary) do
-        {:error, "Unknown"} -> {:error, :unsupported_format}
+        {:error, "Unknown"} -> {:ok, %{}}
         info when is_map(info) -> {:ok, Map.from_struct(info)}
         other -> other
       end
@@ -72,12 +81,5 @@ defmodule MoodleNet.Uploads.Storage do
           {:error, :extension_denied}
         end
     end
-  end
-
-  defp format_to_media_type(format) do
-    # HACK: format_parser.ex uses a weird format, returning what seems to mostly
-    # be an atom of the file type. E.g. `test-image.png` => `:png`.
-    maybe_ext = to_string(format)
-    MIME.type(maybe_ext)
   end
 end
