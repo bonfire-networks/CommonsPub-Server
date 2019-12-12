@@ -106,7 +106,7 @@ defmodule ActivityPub.Actor do
   end
 
   defp get_remote_actor(ap_id) do
-    with %Object{} = actor <- Object.get_by_ap_id(ap_id),
+    with %Object{} = actor <- Object.get_cached_by_ap_id(ap_id),
          false <- check_if_time_to_update(actor),
          actor <- format_remote_actor(actor) do
       Adapter.maybe_create_remote_actor(actor)
@@ -322,7 +322,7 @@ defmodule ActivityPub.Actor do
 
   # Remote actor coming from MN local database
   defp format_local_actor(actor) do
-    actor_object = Object.get_by_pointer_id(actor.id)
+    actor_object = Object.get_cached_by_pointer_id(actor.id)
     format_remote_actor(actor_object)
   end
 
@@ -424,9 +424,9 @@ defmodule ActivityPub.Actor do
   def update_actor_data_by_ap_id(ap_id, data) do
     {:ok, actor} =
       ap_id
-      |> Object.get_by_ap_id()
+      |> Object.get_cached_by_ap_id()
       |> Ecto.Changeset.change(%{data: data})
-      |> MoodleNet.Repo.update()
+      |> Object.update_and_set_cache()
 
     Adapter.update_remote_actor(actor)
   end

@@ -90,7 +90,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
           MoodleNet.Collections.create_remote(community, creator, create_attrs)
       end
 
-    object = ActivityPub.Object.get_by_ap_id(actor["id"])
+    object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
 
     ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
     {:ok, created_actor}
@@ -271,7 +271,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
           }
         } = activity
       ) do
-    object = ActivityPub.Object.get_by_ap_id(object_id)
+    object = ActivityPub.Object.get_cached_by_ap_id(object_id)
     handle_create(activity, object)
   end
 
@@ -340,7 +340,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          %ActivityPub.Object{} = object <-
-           ActivityPub.Object.get_by_ap_id(activity.data["object"]),
+           ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
          {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id),
          {:ok, liked} <- MoodleNet.Meta.follow(liked),
          {:ok, _} <-
@@ -359,7 +359,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         :handle_activity,
         %{data: %{"type" => "Delete", "object" => obj_id}} = activity
       ) do
-    object = ActivityPub.Object.get_by_ap_id(obj_id)
+    object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
     if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
@@ -395,7 +395,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       when length(objects) > 1 do
     with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]) do
       activity.data["object"]
-      |> Enum.map(fn ap_id -> ActivityPub.Object.get_by_ap_id(ap_id) end)
+      |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
       # Filter nils
       |> Enum.filter(fn object -> object end)
       |> Enum.map(fn object ->

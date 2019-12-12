@@ -43,7 +43,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def delete_comment_or_resource(comment) do
-    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_pointer_id(comment.id) do
+    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_pointer_id(comment.id) do
       ActivityPub.delete(object)
     else
       _e -> :error
@@ -226,7 +226,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
               ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
 
             %{
-              statuses: [ActivityPub.Object.get_by_pointer_id(flagged.id)],
+              statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],
               account: account
             }
 

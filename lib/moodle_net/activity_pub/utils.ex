@@ -23,7 +23,7 @@ defmodule MoodleNet.ActivityPub.Utils do
     reply_id = Map.get(comment, :reply_to_id)
 
     if reply_id do
-      object = ActivityPub.Object.get_by_pointer_id(reply_id)
+      object = ActivityPub.Object.get_cached_by_pointer_id(reply_id)
       object.data["id"]
     else
       nil
@@ -31,7 +31,7 @@ defmodule MoodleNet.ActivityPub.Utils do
   end
 
   def get_object_ap_id(object) do
-    case ActivityPub.Object.get_by_pointer_id(object.id) do
+    case ActivityPub.Object.get_cached_by_pointer_id(object.id) do
       nil ->
         case ActivityPub.Actor.get_cached_by_local_id(object.id) do
           {:ok, actor} -> actor.ap_id
@@ -44,7 +44,7 @@ defmodule MoodleNet.ActivityPub.Utils do
   end
 
   def get_object(object) do
-    case ActivityPub.Object.get_by_pointer_id(object.id) do
+    case ActivityPub.Object.get_cached_by_pointer_id(object.id) do
       nil ->
         case ActivityPub.Actor.get_cached_by_local_id(object.id) do
           {:ok, actor} -> actor
@@ -57,7 +57,7 @@ defmodule MoodleNet.ActivityPub.Utils do
   end
 
   def get_pointer_id_by_ap_id(ap_id) do
-    case ActivityPub.Object.get_by_ap_id(ap_id) do
+    case ActivityPub.Object.get_cached_by_ap_id(ap_id) do
       nil ->
         # Might be a local actor
         with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id) do

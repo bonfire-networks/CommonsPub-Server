@@ -53,7 +53,7 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp get_follow_activity(follow_object, followed) do
     with object_id when not is_nil(object_id) <- Utils.get_ap_id(follow_object),
-         {_, %Object{} = activity} <- {:activity, Object.get_by_ap_id(object_id)} do
+         {_, %Object{} = activity} <- {:activity, Object.get_cached_by_ap_id(object_id)} do
       {:ok, activity}
     else
       # Can't find the activity. This might a Mastodon 2.3 "Accept"

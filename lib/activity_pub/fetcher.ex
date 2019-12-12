@@ -19,7 +19,7 @@ defmodule ActivityPub.Fetcher do
   Checks if an object exists in the database and fetches it if it doesn't.
   """
   def fetch_object_from_id(id) do
-    if object = Object.get_by_ap_id(id) do
+    if object = Object.get_cached_by_ap_id(id) do
       {:ok, object}
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
