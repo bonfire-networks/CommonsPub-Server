@@ -16,6 +16,11 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   code_reloader: true,
   check_origin: false
 
+config :cors_plug,
+  origin: ["*"],
+  max_age: 86400,
+  methods: ["GET", "POST"]
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
