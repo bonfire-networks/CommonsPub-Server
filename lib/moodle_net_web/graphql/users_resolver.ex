@@ -132,9 +132,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
   # followed collection
-  def collection(parent,_,info) do
-    parent.collection
-  end
+  def collection(parent,_,info), do: {:ok, parent.collection}
 
   def inbox(%User{}=user, params, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
