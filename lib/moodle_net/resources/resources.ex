@@ -16,9 +16,7 @@ defmodule MoodleNet.Resources do
   def list, do: Repo.all(list_q())
 
   defp list_q do
-    Resource
-    |> Query.only_public()
-    |> Query.only_undeleted()
+    basic_list_q()
     |> Query.order_by_recently_updated()
     |> only_from_undeleted_collections()
   end
@@ -26,23 +24,24 @@ defmodule MoodleNet.Resources do
   defp only_from_undeleted_collections(query) do
     from(q in query,
       join: c in assoc(q, :collection),
-      on: q.collection_id == c.id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at)
     )
   end
 
+  defp basic_list_q() do
+    from(res in Resource,
+      where: not is_nil(res.published_at),
+      where: is_nil(res.deleted_at))
+  end
+
+
   @spec list_in_collection(Collection.t()) :: [Resource.t()]
   def list_in_collection(%Collection{id: id}), do: Repo.all(list_in_collection_q(id))
 
   defp list_in_collection_q(id) do
-    from(res in Resource,
-      join: coll in Collection,
-      on: res.collection_id == coll.id,
-      where: coll.id == ^id,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at)
-    )
+    basic_list_q()
+    |> where([res], res.collection_id == ^id)
   end
 
   @spec count_for_list_in_collection(Collection.t()) :: [Resource.t()]
@@ -50,14 +49,8 @@ defmodule MoodleNet.Resources do
     do: Repo.one(count_for_list_in_collection_q(id))
 
   defp count_for_list_in_collection_q(id) do
-    from(res in Resource,
-      join: coll in Collection,
-      on: res.collection_id == coll.id,
-      where: coll.id == ^id,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      select: count(res)
-    )
+    list_in_collection_q(id)
+    |> select([r], count(r))
   end
 
   @spec fetch(binary()) :: {:ok, Resource.t()} | {:error, NotFoundError.t()}

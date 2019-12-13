@@ -15,46 +15,44 @@ defmodule MoodleNet.Collections do
 
   @spec list() :: [Collection.t()]
   def list() do
-    Enum.map(Repo.all(list_q()), fn {collection, actor, count} ->
-      %Collection{collection | actor: actor, follower_count: count}
-    end)
+    Repo.all(list_q())
+    |> Repo.preload(:resources)
   end
 
   defp list_q() do
-    Collection
-    |> Query.only_public()
-    |> Query.only_undeleted()
-    |> Query.order_by_recently_updated()
-    |> only_from_undeleted_communities()
-    |> follower_count_q()
+    from(coll in Collection,
+      join: actor in assoc(coll, :actor),
+      join: comm in assoc(coll, :community),
+      left_join: fc in assoc(coll, :follower_count),
+      where: not is_nil(coll.published_at),
+      where: is_nil(coll.deleted_at),
+      where: not is_nil(comm.published_at),
+      where: is_nil(comm.deleted_at),
+      order_by: [desc: fc.count, asc: coll.id],
+      select: coll,
+      preload: [actor: actor, follower_count: fc]
+    )
   end
 
   defp only_from_undeleted_communities(query) do
     from(q in query,
       join: c in assoc(q, :community),
-      on: q.community_id == c.id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at)
     )
   end
 
-  defp follower_count_q(query) do
+  defp order_by_follower_count_q(query) do
     from(q in query,
-      join: a in Actor,
-      on: a.id == q.actor_id,
       left_join: fc in assoc(q, :follower_count),
-      select: {q, a, fc},
-      limit: 100,
-      order_by: [desc: fc.count, desc: a.id]
+      order_by: [desc: fc.count, desc: q.id],
+      preload: [follower_count: fc]
     )
   end
 
   defp count_for_list_q() do
-    Collection
-    |> Query.only_public()
-    |> Query.only_undeleted()
+    basic_list_count_q()
     |> only_from_undeleted_communities()
-    |> Query.count()
   end
 
   def count_for_list_in_community(%Community{id: id}) do
@@ -65,33 +63,31 @@ defmodule MoodleNet.Collections do
     Repo.all(list_in_community_q(id))
   end
 
-  defp list_in_community_q(id) do
+  defp basic_list_q() do
     from(coll in Collection,
-      join: comm in Community,
-      on: coll.community_id == comm.id,
-      join: a in Actor,
-      on: coll.actor_id == a.id,
-      where: comm.id == ^id,
+      join: a in assoc(coll, :actor),
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
-      where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
       select: coll,
       preload: [actor: a]
     )
   end
 
-  defp count_for_list_in_community_q(id) do
+  defp basic_list_count_q() do
     from(coll in Collection,
-      join: comm in Community,
-      on: coll.community_id == comm.id,
-      where: comm.id == ^id,
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
-      where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
-      select: count(coll)
-    )
+      select: count(coll))
+  end
+
+  defp list_in_community_q(id) do
+    basic_list_q()
+    |> where([coll], coll.community_id == ^id)
+  end
+
+  defp count_for_list_in_community_q(id) do
+    basic_list_count_q()
+    |> where([coll], coll.community_id == ^id)
   end
 
   def fetch(id) when is_binary(id) do

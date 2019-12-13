@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.fetch(collection_id),
              {:ok, resource} <- Resources.create(current_user, collection, attrs) do
-	  is_local = is_nil(collection.actor.peer_id)
+          is_local = is_nil(collection.actor.peer_id)
           {:ok, %{ resource | collection: collection, is_local: is_local } }
         end
       end)

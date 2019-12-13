@@ -73,10 +73,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   # end
 
   def canonical_url(%Community{}=community, _, info) do
-    {:ok, community.actor.canonical_url}
+    {:ok, Repo.preload(community, :actor).actor.canonical_url}
   end
   def preferred_username(%Community{}=community, _, info) do
-    {:ok, community.actor.preferred_username}
+    {:ok, Repo.preload(community, :actor).actor.preferred_username}
   end
 
   def is_local(%Community{}=community, _, info) do
@@ -90,7 +90,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   def collections(%Community{}=community, _, info) do
     Repo.transact_with(fn ->
       count = Collections.count_for_list_in_community(community)
-      colls = Collections.list_in_community(community)
+      colls =
+        Collections.list_in_community(community)
+        |> Enum.map(fn coll -> %{ coll | community: community} end)
       {:ok, GraphQL.edge_list(colls, count)}
     end)
   end

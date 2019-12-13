@@ -26,8 +26,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   def collection(%{collection_id: id}, info), do: Collections.fetch(id)
 
   def canonical_url(coll, _, _), do: {:ok, coll.actor.canonical_url}
-  def preferred_username(coll, _, _), do: {:ok, coll.actor.preferred_username}
-  def is_local(coll, _, _), do: {:ok, is_nil(coll.actor.peer_id)}
+  def preferred_username(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.preferred_username}
+  def is_local(coll, _, _), do: {:ok, is_nil(Repo.preload(coll, :actor).actor.peer_id)}
   def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
   def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
   def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}
@@ -93,8 +93,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def creator(%Collection{}=coll, _, info), do: Users.fetch(coll.creator_id)
-  def community(%Collection{}=coll, _, info), do: Communities.fetch(coll.community_id)
+  def creator(%Collection{}=coll, _, info) do
+    {:ok, Repo.preload(coll, [creator: :actor]).creator}
+  end
+  def community(%Collection{}=coll, _, info) do
+    {:ok, Repo.preload(coll, [community: :actor]).community}
+  end
 
   def last_activity(_, _, info) do
     {:ok, Fake.past_datetime()}

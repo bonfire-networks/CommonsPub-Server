@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
-  alias MoodleNet.{Comments, Fake, GraphQL}
+  alias MoodleNet.{Comments, Fake, GraphQL, Repo}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Communities.Community
