@@ -202,35 +202,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     |> GraphQL.response(info)
   end
 
-  def context(%Follow{}=follow, _, info) do
-    case Map.get(follow, :context) do
-      nil -> {:ok, Fake.follow_context()}
-      context -> {:ok, context}
-    end
-    |> GraphQL.response(info)
+  def context(%{}=parent, _, info) do
+    {:ok, Meta.follow!(Repo.preload(parent, :context).context)}
   end
 
-  def context(%Flag{}, _, info) do
-    {:ok, Fake.flag_context()}
-    |> GraphQL.response(info)
-  end
-  def context(%Like{}, _, info) do
-    {:ok, Fake.like_context()}
-    |> GraphQL.response(info)
-  end
-  # def context(%Tagging{}, _, info) do
-  #   {:ok, Fake.tagging_context()}
-  #   |> GraphQL.response(info)
-  # end
 
-  def context(%Like{}, _, info) do
-    {:ok, Fake.like_context()}
-    |> GraphQL.response(info)
-  end
-  # def context(%Tagging{}, _, info) do
-  #   {:ok, Fake.tagging_context()}
-  #   |> GraphQL.response(info)
-  # end
 
   # def create_tagging(_, info) do
   #   {:ok, Fake.tagging()}

@@ -87,7 +87,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The object the thread is attached to"
     field :context, non_null(:thread_context) do
-      resolve &CommentsResolver.context/3
+      resolve &CommonResolver.context/3
     end
 
     @desc "Comments in the thread, most recently created first"
@@ -144,7 +144,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The id of the comment this one was a reply to"
     field :in_reply_to, :comment do
-      resolve &CommentsResolver.comment/3
+      resolve &CommentsResolver.in_reply_to/3
     end
     @desc "The comment text"
     field :content, non_null(:string)

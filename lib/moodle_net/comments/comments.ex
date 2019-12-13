@@ -29,6 +29,12 @@ defmodule MoodleNet.Comments do
     end)
   end
 
+  def list_threads_on(context_id) when is_binary(context_id) do
+    Enum.map(Repo.all(list_threads_on_q(context_id)), fn {thread, count} ->
+      %Thread{thread | follower_count: count}
+    end)
+  end
+
   @doc """
   Return a list of all thread, regardless of hidden status.
   """
@@ -48,6 +54,11 @@ defmodule MoodleNet.Comments do
   defp list_threads_q do
     list_threads_private_q()
     |> only_unhidden_threads_q()
+  end
+
+  defp list_threads_on_q(id) do
+    list_threads_q()
+    |> where([q], q.context_id == ^id)
   end
 
   defp only_unhidden_threads_q(query) do
