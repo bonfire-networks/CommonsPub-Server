@@ -118,34 +118,62 @@ defmodule MoodleNet.Follows do
           {:error, AlreadyFollowingError.new("user")}
 
         _ ->
-          sub_attrs = %{is_active: true}
-          with {:ok, _sub} <- Feeds.create_sub(follower, outbox_id, sub_attrs),
-               {:ok, follow} <- insert(follower, followed, fields),
+          with {:ok, follow} <- insert(follower, followed, fields),
                act_attrs = %{verb: "create", is_local: follow.is_local},
                {:ok, activity} <- Activities.create(follower, follow, act_attrs),
-               :ok <- publish(follow, follower, followed, activity, :create) do
+               :ok <- subscribe(follower, followed),
+               :ok <- publish(follower, follow, followed, activity, :created) do
             {:ok, %{follow | ctx: followed}}
           end
       end
     end)
   end
 
+  # we only maintain subscriptions for local users
+  defp subscribe(%User{actor: %{peer_id: nil}}=follower, %{outbox_id: outbox_id})
+  when is_binary(outbox_id) do
+    case Feeds.find_sub(follower, outbox_id) do
+      {:ok, _} -> :ok
+      _ ->
+        with {:ok, _} <- Feeds.create_sub(follower, outbox_id, %{is_active: true}), do: :ok
+    end
+  end
+  defp subscribe(_, _), do: :ok
+
   defp insert(follower, followed, fields) do
     Repo.insert(Follow.create_changeset(follower, followed, fields))
   end
 
-  defp publish(%Follow{} = follow, creator, followed, activity, :create) do
-    # Feeds.publish_to_feeds([creator.outbox_id, followed
-    :ok
+  defp publish(creator, %Follow{} = follow, followed, activity, :created) do
+    feeds = [creator.outbox_id, followed.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(follow.id, creator.id, follow.is_local)
+    end
   end
-  defp publish(%Follow{} = follow, activity, :update) do
-    # Feeds.publish_to_feeds([creator.outbox_id, followed
-    :ok
+  defp publish(%Follow{} = follow, activity, :update) do # TODO FIX
+    follow = Repo.preload(follow, [:creator, :context])
+    context = Meta.preload!(follow.context).pointed
+    feeds = [follow.creator.outbox_id, context.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(follow.id, follow.creator_id, follow.is_local)
+    end
   end
-  defp publish(%Follow{} = follow, activity, :delete) do
-    # Feeds.publish_to_feeds([creator.outbox_id, followed
-    :ok
+  defp publish(%Follow{} = follow, activity, :delete) do # TODO FIX
+    follow = Repo.preload(follow, [:creator, :context])
+    context = Meta.preload!(follow.context).pointed
+    feeds = [follow.creator.outbox_id, context.outbox_id]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(follow.id, follow.creator_id, follow.is_local)
+    end
   end
+
+  defp ap_publish(context_id, user_id, true) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
 
   @spec update(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def update(%Follow{} = follow, fields) do
