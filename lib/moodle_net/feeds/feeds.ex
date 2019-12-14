@@ -85,6 +85,7 @@ defmodule MoodleNet.Feeds do
       join: a in assoc(f, :activity),
       join: c in assoc(a, :context),
       where: not is_nil(a.published_at),
+      where: is_nil(a.deleted_at),
       where: f.feed_id in ^feed_ids,
       where: c.table_id in ^table_ids,
       order_by: [desc: f.id],
