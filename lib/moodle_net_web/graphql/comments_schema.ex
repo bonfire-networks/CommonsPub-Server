@@ -67,7 +67,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the thread is publically visible"
     field :is_public, non_null(:boolean)
     @desc "Whether an instance admin has hidden the thread"
-    field :is_hidden, non_null(:boolean)
+    field :is_hidden, non_null(:boolean) do
+      resolve &CommonResolver.is_hidden/3
+    end
 
     @desc "When the thread was created"
     field :created_at, non_null(:string) do
@@ -154,7 +156,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the comment is publically visible"
     field :is_public, non_null(:boolean)
     @desc "Whether an comment admin has hidden the thread"
-    field :is_hidden, non_null(:boolean)
+    field :is_hidden, non_null(:boolean) do
+      resolve &CommonResolver.is_hidden/3
+    end
 
     @desc "When the comment was created"
     field :created_at, non_null(:string) do

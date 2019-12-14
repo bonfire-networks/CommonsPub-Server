@@ -305,7 +305,7 @@ defmodule MoodleNet.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, thread, act_attrs),
            :ok <- publish_comment(creator, thread, comment, activity, :created) do
-        {:ok, comment}
+        {:ok, %{ comment | thread: thread }}
       end
     end)
   end
