@@ -68,14 +68,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def like(%{like_id: id}, info), do: Likes.fetch(id)
 
-  def like(parent,_, info) do
-    case Map.get(parent, :like) do
-      nil -> {:ok, Fake.like()}
-      other -> {:ok, other}
-    end
-  end
+  def like(parent,_, info), do: {:ok, Map.get(parent, :like)}
 
-  def creator(%{creator_id: id}, _, info), do: Users.fetch(id)
+  def creator(parent, _, info), do: Repo.preload(parent, :creator).creator
 
   def context(parent, _, info) do
     with {:ok, thing} <- Meta.follow(preload_context(parent).context) do
@@ -146,14 +141,15 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def is_public(parent, _, _), do: {:ok, not is_nil(parent.published_at)}
   def is_disabled(parent, _, _), do: {:ok, not is_nil(parent.disabled_at)}
+  def is_hidden(parent, _, _), do: {:ok, not is_nil(parent.hidden_at)}
   def is_deleted(parent, _, _), do: {:ok, not is_nil(parent.deleted_at)}
 
   def my_like(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Likes.find(user, parent) do
+        with {:error, _} <- Likes.find(user, parent) do
           {:ok, nil}
-	end
+        end
       _ -> {:ok, nil}
     end
   end
@@ -161,9 +157,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def my_follow(parent, _, info) do
     case GraphQL.current_user(info) do
       {:ok, user} ->
-	with {:error, _} <- Follows.find(user, parent) do
+        with {:error, _} <- Follows.find(user, parent) do
           {:ok, nil}
-	end
+        end
       _ -> {:ok, nil}
     end
   end
@@ -210,9 +206,24 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   # def followed(%Follow{}=follow,_,info)
 
-  def delete(_,_info) do
+  def delete(%{context_id: id},_info) do
+    # with {:ok, pointer} <- Meta.find(id) do
+    #   thing = meta.follow!(pointer)
+    #   case thing do
+    #     %Collection{} ->
+    #     %Comment{} -> :comment
+    #     %Community{} -> :community
+    #     %Flag{} -> :flag
+    #     %Follow{} -> :follow
+    #     %Like{} -> :like
+    #     %Resource{} -> :resource
+    #     %Thread{} -> :thread
+    #     %User{} -> :user
+    #   end
+    # end
     {:ok, true}
   end
+
 
   def tag(_, _, info) do
     {:ok, Fake.tag()}
