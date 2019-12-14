@@ -126,9 +126,9 @@ defmodule MoodleNet.Comments do
       with {:ok, feed} <- Feeds.create_feed(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
            {:ok, thread} <- insert_thread(creator, context, attrs),
-           act_attrs = %{verb: "created", is_local: thread.is_local},
-           {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-           :ok <- publish_thread(creator, thread, context, activity, :created) do
+           # act_attrs = %{verb: "created", is_local: thread.is_local},
+           # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+           :ok <- publish_thread(creator, thread, context, :created) do
         {:ok, thread}
       end
     end)
@@ -175,11 +175,11 @@ defmodule MoodleNet.Comments do
   defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   defp context_feeds(_), do: []
 
-  defp publish_thread(creator, thread, context, activity, :created) do
+  defp publish_thread(creator, thread, context, :created) do
     feeds = context_feeds(context) ++ [creator.outbox_id, thread.outbox_id]
-    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+    # with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(thread.id, creator.id, thread.is_local)
-    end
+    # end
   end
   defp publish_thread(thread, :updated) do
     ap_publish(thread.id, thread.creator_id, thread.is_local) # TODO: wrong if edited by admin

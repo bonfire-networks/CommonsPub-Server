@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.{Activities, Actors, Common, Feeds, Meta, Users, Repo}
+  alias MoodleNet.{Activities, Actors, Common, Communities, Feeds, Meta, Users, Repo}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.Query
   alias MoodleNet.Collections.{Collection, Outbox}
@@ -19,11 +19,67 @@ defmodule MoodleNet.Collections do
     |> Repo.preload(:resources)
   end
 
+  @doc "A query for selecting from the collection"
+  def base_q() do
+    from coll in Collection, as: :collection
+  end
+
+  @doc "Transform a query to join the collection's actor"
+  def join_actor_q(q) do
+    join q, :inner, [collection: c],
+      actor in assoc(c, :actor), as: :collection_actor
+  end
+
+  @doc "Transforms a query to join from collections to their communities"
+  def join_community_q(q) do
+    join q, :inner, [collection: c],
+      comm in assoc(c, :community),
+      as: :community
+  end
+
+  @doc "Transforms a query to join from collections to their follower counts"
+  def join_follower_count_q(q) do
+    join q, :left, [collection: coll],
+      j in assoc(coll, :follower_count),
+      as: :collection_follower_count
+  end
+
+  def filter_for_list_all(q) do
+    q
+    |> filter_private_q()
+    |> filter_deleted_q()
+    |> filter_disabled_q()
+  end
+
+  @doc "Transforms a query to filter out private collections"
+  def filter_private_q(q) do
+    where q, [collection: c], not is_nil(c.published_at)
+  end
+
+  @doc "Transforms a query to filter out deleted collections"
+  def filter_deleted_q(q) do
+    where q, [collection: c], is_nil(c.deleted_at)
+  end
+
+  @doc "Transforms a query to filter out disabled collections"
+  def filter_disabled_q(q) do
+    where q, [collection: c], is_nil(c.disabled_at)
+  end
+
   defp list_q() do
-    from(coll in Collection,
-      join: actor in assoc(coll, :actor),
-      join: comm in assoc(coll, :community),
-      left_join: fc in assoc(coll, :follower_count),
+    base_q()
+    |> join_actor_q()
+    |> join_community_q()
+    |> join_follower_count_q()
+    |> filter_for_list_all()
+    |> filter_deleted_q()
+    |> Communities.filter_private_q()
+    |> Communities.filter_deleted_q()
+
+    from(coll in Collection, as: :collection,
+      join: actor in assoc(coll, :actor), as: :actor,
+      join: comm in assoc(coll, :community), as: :community,
+      left_join: fc in assoc(coll, :follower_count), as: :follower_count,
       where: not is_nil(coll.published_at),
       where: is_nil(coll.deleted_at),
       where: not is_nil(comm.published_at),

@@ -13,6 +13,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   
   def comment(%{comment_id: id}, info), do: Comments.fetch_comment(id)
 
+  def in_reply_to(%Comment{reply_to_id: nil}, _, info), do: {:ok, nil}
   def in_reply_to(%Comment{reply_to_id: id}, _, info), do: Comments.fetch_comment(id)
 
   def comments(%User{}=user, _, info) do
@@ -45,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
              :ok <- validate_thread_context(context),
              {:ok, thread} <- Comments.create_thread(user, context, %{is_local: true}),
              attrs = Map.put(attrs, :is_local, true) do
-          Comments.create_comment(user, thread, Map.put(attrs))
+          Comments.create_comment(user, thread, attrs)
         end
       end)
     end

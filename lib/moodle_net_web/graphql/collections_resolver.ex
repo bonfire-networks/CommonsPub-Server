@@ -106,15 +106,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def outbox(collection,_,info) do
-    # Repo.transact_with(fn ->
-    #   activities =
-    # 	Collections.outbox(collection)
-    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-    #   count = Collections.count_for_outbox(collection)
-    #   page_info = Common.page_info(activities, &(&1.cursor))
-    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
-    # end)
-   {:ok, GraphQL.feed_list([],0)}
+    Repo.transact_with(fn ->
+      activities = Collections.outbox(collection)
+      count = Enum.count(activities)
+      # count = Communities.count_for_outbox(community)
+      {:ok, GraphQL.feed_list(activities, count)}
+    end)
    end
 
 end

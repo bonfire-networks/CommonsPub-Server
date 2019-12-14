@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
-  import Ecto.Query, only: [from: 2]
+  import Ecto.Query
   alias Ecto.Changeset
 
   alias MoodleNet.Actors.{
@@ -26,6 +26,10 @@ defmodule MoodleNet.Communities do
     end)
   end
 
+  # def count_for_list(), do: Repo.one(count_for_list_q())
+
+  def list(), do: Repo.all(list_public_q())
+
   def count_for_list(), do: Repo.one(count_for_list_q())
 
   defp count_for_list_q() do
@@ -36,15 +40,67 @@ defmodule MoodleNet.Communities do
     )
   end
 
-  def list_q() do
-    from(c in Community,
-      join: a in assoc(c, :actor),
-      left_join: fc in assoc(c, :follower_count),
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at),
-      select: {c, a, fc},
-      order_by: [desc: fc.count, desc: a.updated_at, desc: a.id],
-    )
+  defp base_q() do
+    from c in Community, as: :community
+  end
+
+  def join_actor_q(q) do
+    join q, :inner, [community: comm],
+      j in assoc(comm, :actor), as: :community_actor
+  end
+
+  def join_follower_count_q(q) do
+    join q, :left, [community: comm],
+      j in assoc(comm, :follower_count),
+      as: :community_follower_count
+  end
+
+  def filter_deleted_q(q) do
+    where q, [community: c], is_nil(c.deleted_at)
+  end
+
+  def filter_disabled_q(q) do
+    where q, [community: c], is_nil(c.disabled_at)
+  end
+
+  def filter_private_q(q) do
+    where q, [community: c], not is_nil(c.published_at)
+  end
+
+  @doc """
+  A query for listing public communities
+  Orders by:
+  * Most followers
+  * Most recently updated
+  * act
+  """
+  def list_public_q() do
+    base_q()
+    |> join_actor_q()
+    |> join_follower_count_q()
+    |> filter_private_q()
+    |> filter_deleted_q()
+    |> select([community: c], c)
+    |> preload_actor_and_follower_count_q()
+    |> order_by_followers_updates_new_q()
+  end
+
+  @doc "Preloads the actor and follower count to the community"
+  def preload_actor_and_follower_count_q(q) do
+    preload q,
+      [community_actor: a, community_follower_count: f],
+      [actor: a, follower_count: f]
+  end
+
+  @doc """
+  Orders by:
+  * Most followers
+  * Most recently updated
+  * Community ULID (Most recently created + jitter)
+  """
+  def order_by_followers_updates_new_q(q) do
+    order_by q, [community: c, community_follower_count: f],
+      [desc: f.count, desc: c.updated_at, desc: c.id]
   end
 
   @doc "Fetches a public, non-deleted community by id"

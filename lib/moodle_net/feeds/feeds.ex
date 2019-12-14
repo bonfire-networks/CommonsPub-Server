@@ -4,6 +4,14 @@
 defmodule MoodleNet.Feeds do
 
   alias MoodleNet.Feeds.{Feed, FeedActivity, FeedSubscription}
+  alias MoodleNet.Meta.TableService
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Comments.Comment
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Likes.Like
+  alias MoodleNet.Resources.Resource
   alias MoodleNet.Repo
   alias Ecto.ULID
   import Ecto.Query
@@ -40,15 +48,19 @@ defmodule MoodleNet.Feeds do
     |> select([s], s.feed_id)
   end
 
+  @default_activity_contexts [
+    Collection, Comment, Community, Resource, Flag, Follow, Like
+  ]
   def feed_activities(feed_id, opts \\ %{})
   def feed_activities(feed_id, %{}=opts) when is_binary(feed_id),
     do: feed_activities([feed_id], opts)
 
   def feed_activities(feed_ids, %{}=opts) when is_list(feed_ids) do
-    feed_activities_q(feed_ids)
-    |> feed_activities_opts(opts)
+    feed_activities_q(feed_ids, opts)
     |> Repo.all()
   end
+
+  defp table_ids(schemas), do: Enum.map(&TableService.lookup_id!/1)
 
   @spec publish_to_feeds(feed_ids :: [binary], Activity.t) :: :ok
   def publish_to_feeds(feed_ids, activity) when is_list(feed_ids) do
@@ -64,13 +76,19 @@ defmodule MoodleNet.Feeds do
     [%{feed_id: id, activity_id: activity, id: ULID.generate()}]
   end
 
-  defp feed_activities_q(feed_ids) do
+  defp feed_activities_q(feed_ids, opts) do
+    table_ids =
+      Map.get(opts, :contexts, @default_activity_contexts)
+      |> Enum.map(&TableService.lookup_id!/1)
+
     from f in FeedActivity,
       join: a in assoc(f, :activity),
+      join: c in assoc(a, :context),
       where: not is_nil(a.published_at),
       where: f.feed_id in ^feed_ids,
+      where: c.table_id in ^table_ids,
       select: f,
-      preload: [:activity]
+      preload: [activity: {a, context: c}]
   end
 
   # defp feed_activities_count_q(feed_ids) do
