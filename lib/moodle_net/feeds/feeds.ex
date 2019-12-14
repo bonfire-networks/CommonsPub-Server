@@ -87,6 +87,7 @@ defmodule MoodleNet.Feeds do
       where: not is_nil(a.published_at),
       where: f.feed_id in ^feed_ids,
       where: c.table_id in ^table_ids,
+      order_by: [desc: fa.id],
       select: f,
       preload: [activity: {a, context: c}]
   end
