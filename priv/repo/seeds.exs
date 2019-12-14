@@ -13,12 +13,13 @@ admin = %{
 }
 |> fake_user!(confirm_email: true)
 
-# for _ <- 1..10 do
-#   comm = fake_community!(admin)
-#   for _ <- 1..10 do
-#     coll = fake_collection!(admin, comm)
-#     for _ <- 1..10 do
-#       fake_resource!(admin, coll)
-#     end
-#   end
-# end
+for _ <- 1..4 do
+  user = fake_user!()
+  comm = fake_community!(user)
+  for _ <- 1..5 do
+    coll = fake_collection!(user, comm)
+    for _ <- 1..3 do
+      fake_resource!(user, coll)
+    end
+  end
+end
