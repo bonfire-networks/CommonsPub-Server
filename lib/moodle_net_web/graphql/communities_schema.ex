@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   GraphQL community fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
+  alias MoodleNet.Communities
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
   alias MoodleNet.Resources.Resource

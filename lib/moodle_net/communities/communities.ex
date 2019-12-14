@@ -17,13 +17,15 @@ defmodule MoodleNet.Communities do
   alias MoodleNet.Localisation.Language
   alias MoodleNet.Users.User
 
-  # def count_for_list(), do: Repo.one(count_for_list_q())
+  @doc "Creates a Dataloader for querying from the GraphQL API"
+  def graphql_data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &graphql_query/2,
+      default_params: %{context: ctx}
+  end
 
-  @doc "Lists public, non-deleted communities by follower count"
-  def list() do
-    Enum.map(Repo.all(list_q()), fn {community, actor, count} ->
-      %{community | actor: actor, follower_count: count}
-    end)
+  def graphql_query(Community, context) do
+    list_public_q()
   end
 
   # def count_for_list(), do: Repo.one(count_for_list_q())

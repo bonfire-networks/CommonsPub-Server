@@ -20,7 +20,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UsersSchema,
     UploadSchema,
   }
+  alias MoodleNet.{Collections, Communities,Resources}
   alias MoodleNetWeb.GraphQL.Middleware.{Debug,CollapseErrors}
+
+  def plugins do
+    [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+  end
 
   def middleware(middleware, _field, _object) do
     # [{Debug, :start}] ++

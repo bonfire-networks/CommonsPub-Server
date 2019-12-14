@@ -10,8 +10,21 @@ defmodule MoodleNet.Resources do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias MoodleNet.GraphQL
   alias Ecto.Association.NotLoaded
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
+  # def query(Resources, %{ctx: ctx}) do
+    
+  # end
+  
   @spec list() :: [Resource.t()]
   def list, do: Repo.all(list_q())
 

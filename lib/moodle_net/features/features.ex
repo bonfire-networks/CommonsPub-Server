@@ -6,6 +6,14 @@ defmodule MoodleNet.Features do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Users.User
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
   def featured_collections() do
     featured_collections_q()
     |> Repo.all()

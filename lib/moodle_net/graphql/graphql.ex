@@ -29,6 +29,8 @@ defmodule MoodleNet.GraphQL do
     |> Enum.map(& &1.schema_node.identifier)
   end
 
+  def loader(%{context: %{loader: loader}}), do: loader
+
   def current_user(%Resolution{}=info) do
     case info.context.current_user do
       nil -> not_logged_in()

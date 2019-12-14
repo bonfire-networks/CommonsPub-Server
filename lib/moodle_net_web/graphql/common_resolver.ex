@@ -20,6 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     Repo,
     Users,
   }
+  alias Ecto.Association.NotLoaded
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.{Comment, Thread}
@@ -32,9 +33,25 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
-  def created_at(%{id: id}, _, _) do
-    ULID.timestamp(id)
+  def node_list_callback(result, parent, args) do
+    count = Enum.count(result)
+    {:ok, GraphQL.node_list(result, count)}
   end
+
+  def edge_list_callback(nil, parent, args) do
+   {:ok, GraphQL.edge_list([], 0)}
+  end
+  def edge_list_callback(result, parent, args) do
+    count = Enum.count(result)
+    {:ok, GraphQL.edge_list(result, count)}
+  end
+
+  def box_list_callback(result, parent, args) do
+    count = Enum.count(result)
+    {:ok, GraphQL.box_list(result, count)}
+  end
+
+  def created_at(%{id: id}, _, _), do: ULID.timestamp(id)
 
   def is_resolved(%Flag{}=flag, _, _), do: {:ok, not is_nil(flag.resolved_at)}
 
@@ -60,16 +77,16 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def creator(%{creator_id: id}, _, info), do: Users.fetch(id)
 
-  def context(%{context_id: id}=it, _, info), do: get_context(it, &(&1.context_id))
-
-  defp get_context(thing, accessor \\ &(&1.context_id)) do
-    context_id = accessor.(thing)
-    with {:ok, pointer} <- Meta.find(context_id),
-         {:ok, thing} <- Meta.follow(pointer) do
+  def context(parent, _, info) do
+    with {:ok, thing} <- Meta.follow(preload_context(parent).context) do
       {:ok, loaded_context(thing)}
     end
   end
   
+  defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)
+  defp preload_context(%{context: %{}}=me), do: me
+  defp preload_context(me), do: Repo.preload(me, :context)
+
   def loaded_context(%Community{}=community), do: Communities.preload(community)
   def loaded_context(%Collection{}=collection), do: Collections.preload(collection)
   def loaded_context(%User{}=user), do: Users.preload_actor(user)
@@ -160,8 +177,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       Collection -> Meta.follow(pointer)
       User -> Meta.follow(pointer)
       _ ->
-	IO.inspect("unflaggable: #{table}")
-	{:error, NotFlaggableError.new(pointer.id)}
+        IO.inspect("unflaggable: #{table}")
+        {:error, NotFlaggableError.new(pointer.id)}
     end
   end
 
@@ -173,8 +190,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       Community -> Meta.follow(pointer)
       User -> Meta.follow(pointer)
       _ ->
-	IO.inspect("unfollowable: #{table}")
-	{:error, NotFollowableError.new(pointer.id)}
+        IO.inspect("unfollowable: #{table}")
+        {:error, NotFollowableError.new(pointer.id)}
     end
   end
 
@@ -186,8 +203,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       Community -> Meta.follow(pointer)
       User -> Meta.follow(pointer)
       _ ->
-	IO.inspect("unfollowable: #{table}")
-	{:error, NotFollowableError.new(pointer.id)}
+        IO.inspect("unfollowable: #{table}")
+        {:error, NotFollowableError.new(pointer.id)}
     end
   end
 

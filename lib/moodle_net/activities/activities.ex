@@ -10,6 +10,14 @@ defmodule MoodleNet.Activities do
   alias MoodleNet.Common.{NotFoundError, Query}
   alias Ecto.Association.NotLoaded
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
   @type context :: %{id: binary}
   
   @doc """

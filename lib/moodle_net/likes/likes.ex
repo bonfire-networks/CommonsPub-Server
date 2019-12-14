@@ -6,6 +6,14 @@ defmodule MoodleNet.Likes do
   import Ecto.Query
   alias Ecto.Changeset
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
   def fetch(id), do: Repo.single(fetch_q(id))
 
   defp fetch_q(id) do

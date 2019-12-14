@@ -26,6 +26,15 @@ defmodule MoodleNet.Users do
 
   alias Ecto.Changeset
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
+
   @doc "Fetches a user by id"
   @spec fetch(id :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
   def fetch(id) when is_binary(id) do

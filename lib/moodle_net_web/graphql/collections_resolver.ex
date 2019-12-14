@@ -23,9 +23,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def collection(%{collection_id: id}, info), do: Collections.fetch(id)
+  def collection(%{collection_id: id}, info) do
+    Collections.fetch(id)
+    # Dataloader.load(GraphQL.loader(), Collections, Collection, [id])
+  end
 
-  def canonical_url(coll, _, _), do: {:ok, coll.actor.canonical_url}
+  def canonical_url(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.canonical_url}
   def preferred_username(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.preferred_username}
   def is_local(coll, _, _), do: {:ok, is_nil(Repo.preload(coll, :actor).actor.peer_id)}
   def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}

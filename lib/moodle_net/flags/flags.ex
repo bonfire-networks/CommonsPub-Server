@@ -8,6 +8,13 @@ defmodule MoodleNet.Flags do
   alias MoodleNet.Communities.Community
   import Ecto.Query
   
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
 
   def fetch(id), do: Repo.single(fetch_q(id))
 
@@ -43,8 +50,8 @@ defmodule MoodleNet.Flags do
 
   defp really_create(flagger, flagged, community, fields) do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
-         {:ok, activity} <- insert_activity(flagger, flag, "create") do
-      publish(flagger, flagged, flag, community, "create")
+         {:ok, activity} <- insert_activity(flagger, flag, "created") do
+      publish(flagger, flagged, flag, community, "created")
     end
   end
     

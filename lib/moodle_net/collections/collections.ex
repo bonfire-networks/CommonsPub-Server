@@ -11,6 +11,27 @@ defmodule MoodleNet.Collections do
   alias Ecto.Association.NotLoaded
   import Ecto.Query
 
+  def graphql_data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &graphql_query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def graphql_query(Collection, context) do
+    IO.inspect(path: :collection)
+    list_q()
+  end
+
+  def graphql_query({Collection, :community}, context) do
+    IO.inspect(got_context: context)
+    Communities.list()
+  end
+
+  def graphql_query(q, context) do
+    IO.inspect(got_context: context)
+    Community
+  end
+
   def count_for_list(), do: Repo.one(count_for_list_q())
 
   @spec list() :: [Collection.t()]
@@ -72,22 +93,8 @@ defmodule MoodleNet.Collections do
     |> join_community_q()
     |> join_follower_count_q()
     |> filter_for_list_all()
-    |> filter_deleted_q()
     |> Communities.filter_private_q()
     |> Communities.filter_deleted_q()
-
-    from(coll in Collection, as: :collection,
-      join: actor in assoc(coll, :actor), as: :actor,
-      join: comm in assoc(coll, :community), as: :community,
-      left_join: fc in assoc(coll, :follower_count), as: :follower_count,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
-      order_by: [desc: fc.count, asc: coll.id],
-      select: coll,
-      preload: [actor: actor, follower_count: fc]
-    )
   end
 
   defp only_from_undeleted_communities(query) do

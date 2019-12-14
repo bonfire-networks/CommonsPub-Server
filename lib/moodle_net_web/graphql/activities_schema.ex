@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
   alias MoodleNetWeb.GraphQL.{
     ActivitiesResolver,
     CollectionsResolver,

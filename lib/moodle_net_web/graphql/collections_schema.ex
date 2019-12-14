@@ -6,6 +6,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   GraphQL collection fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
+  alias MoodleNet.Collections
+  alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.{
     CollectionsResolver,
     CommentsResolver,
@@ -24,12 +27,18 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :before, :string
       arg :after, :string
       resolve &CollectionsResolver.collections/2
+      # resolve dataloader(
+      #   Collections,
+      #   Collection,
+      #   callback: &CommonResolver.edge_list_callback/3
+      # )
     end
 
     @desc "Get a collection"
     field :collection, :collection do
       arg :collection_id, non_null(:string)
       resolve &CollectionsResolver.collection/2
+      # resolve dataloader(Collections, Collection)
     end
   end
 

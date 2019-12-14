@@ -15,6 +15,14 @@ defmodule MoodleNet.Comments do
   alias MoodleNet.Workers.ActivityWorker
   alias Ecto.Association.NotLoaded
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
   #
   # Threads
   #

@@ -15,6 +15,14 @@ defmodule MoodleNet.Follows do
   alias Ecto.Changeset
   import Ecto.Query
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
   def fetch(id), do: Repo.single(fetch_q(id))
 
   defp fetch_q(id) do
@@ -119,7 +127,7 @@ defmodule MoodleNet.Follows do
 
         _ ->
           with {:ok, follow} <- insert(follower, followed, fields),
-               act_attrs = %{verb: "create", is_local: follow.is_local},
+               act_attrs = %{verb: "created", is_local: follow.is_local},
                {:ok, activity} <- Activities.create(follower, follow, act_attrs),
                :ok <- subscribe(follower, followed),
                :ok <- publish(follower, follow, followed, activity, :created) do
