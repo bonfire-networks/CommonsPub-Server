@@ -16,6 +16,8 @@ defmodule MoodleNet.Comments.Thread do
     belongs_to(:outbox, Feed)
     field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
     field(:is_locked, :boolean, virtual: true)
     field(:locked_at, :utc_datetime_usec)
     field(:is_hidden, :boolean, virtual: true)
@@ -50,5 +52,6 @@ defmodule MoodleNet.Comments.Thread do
     changeset
     |> change_synced_timestamp(:is_hidden, :hidden_at)
     |> change_synced_timestamp(:is_locked, :locked_at)
+    |> change_synced_timestamp(:is_locked, :published_at)
   end
 end
