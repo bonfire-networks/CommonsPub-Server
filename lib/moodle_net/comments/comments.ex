@@ -239,7 +239,8 @@ defmodule MoodleNet.Comments do
       where: is_nil(c.deleted_at),
       # allow for threads that are hidden because they can't be fetched unless
       # you use fetch_thread_private
-      where: is_nil(t.deleted_at)
+      where: is_nil(t.deleted_at),
+      order_by: [desc: c.updated_at]
     )
   end
 
@@ -358,7 +359,7 @@ defmodule MoodleNet.Comments do
         case thread.context do
           %Pointer{}=pointer ->
             context = Meta.follow!(pointer)
-            %{ thread | context: context }
+            %{ thread | context: %{ thread.context | pointed: context }}
           _ -> preload_ctx(Repo.preload(thread, :context))
         end
       other -> thread

@@ -65,7 +65,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the thread is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the thread is publically visible"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
     @desc "Whether an instance admin has hidden the thread"
     field :is_hidden, non_null(:boolean) do
       resolve &CommonResolver.is_hidden/3
@@ -154,7 +156,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the comment is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the comment is publically visible"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
     @desc "Whether an comment admin has hidden the thread"
     field :is_hidden, non_null(:boolean) do
       resolve &CommonResolver.is_hidden/3

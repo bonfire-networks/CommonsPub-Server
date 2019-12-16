@@ -70,7 +70,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def like(parent,_, info), do: {:ok, Map.get(parent, :like)}
 
-  def creator(parent, _, info), do: Repo.preload(parent, :creator).creator
+  def creator(parent, _, info), do: {:ok, Repo.preload(parent, :creator).creator}
 
   def context(parent, _, info) do
     with {:ok, thing} <- Meta.follow(preload_context(parent).context) do

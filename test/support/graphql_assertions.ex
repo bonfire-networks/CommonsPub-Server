@@ -417,7 +417,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert thread.id == thread2.id
     assert thread.canonical_url == thread2.canonical_url
     assert thread.is_local == thread2.is_local
-    assert thread.is_public == thread2.is_public
+    assert is_nil(thread.published_at) == not thread2.is_public
     assert thread.is_hidden == thread2.is_hidden
     assert ULID.timestamp(thread.id) == {:ok, thread2.created_at}
     assert thread.updated_at == thread2.updated_at
@@ -459,8 +459,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comment.canonical_url == comment2.canonical_url
     assert comment.content == comment2.content
     assert comment.is_local == comment2.is_local
-    assert comment.is_public == comment2.is_public
-    assert comment.is_hidden == comment2.is_hidden
+    assert is_nil(comment.published_at) == not comment2.is_public
+    assert is_nil(comment.hidden_at) == comment2.is_hidden
     assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
     assert comment.updated_at == comment2.updated_at
     comment2

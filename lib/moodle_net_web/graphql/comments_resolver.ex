@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   def comments(%Thread{}=parent, _, info) do
     comments = Comments.list_comments_in_thread(parent)
     count = Enum.count(comments)
-    {:ok, Enum.edge_list(comments, count)}
+    {:ok, GraphQL.edge_list(comments, count)}
   end
 
   def thread(%{thread_id: id}, info), do: Comments.fetch_thread(id)
