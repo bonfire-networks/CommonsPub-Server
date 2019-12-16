@@ -1,6 +1,8 @@
 defmodule MoodleNet.Features do
   import Ecto.Query
   alias Ecto.Changeset
+  alias MoodleNet.{Collections, Common, Communities, Repo}
+  alias MoodleNet.Meta.TableService
   alias MoodleNet.Features.Feature
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
@@ -8,60 +10,63 @@ defmodule MoodleNet.Features do
 
   def data(ctx) do
     Dataloader.Ecto.new Repo,
-      query: &query/2,
+      query: &graphql_query/2,
       default_params: %{ctx: ctx}
   end
 
-  def query(q, %{ctx: _}), do: q
+  def graphql_query(q, %{ctx: _}), do: q
 
-  def featured_collections() do
-    featured_collections_q()
-    |> Repo.all()
-    |> Query.unroll()
-  end
+  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
 
-  #todo counts
-
-  def featured_communities() do
-    featured_communities_q()
-    |> Repo.all()
-    |> Enum.map(fn {f,c,a} ->
-      %{feature: f, community: c}
-    end)
-  end
-
-  defp featured_collections_q() do
+  defp fetch_q(id) do
     from f in Feature,
-      join: c in Collection,
-      on: f.context_id == c.id,
-      join: a in assoc(c, :actor),
+      join: c in assoc(f, :context),
+      where: is_nil(f.deleted_at),
       order_by: [desc: f.id],
-      select: {f, c, a}
+      select: f,
+      preload: [context: c]
   end
 
-  defp count_featured_collections_q() do
+  def list(opts \\ %{}) do
+    Repo.all(list_q(opts))
+  end
+
+  def count_for_list(opts \\ %{}) do
+    Repo.one(count_for_list_q(opts))
+  end
+
+  def create(%User{}=creator, context, attrs) do
+    Feature.create_changeset(creator, context, attrs)
+    |> Repo.insert()
+  end
+
+  def create(_, _, _), do: GraphQL.not_permitted()
+
+  @default_feature_contexts [Collection, Community]
+  def list_q(opts \\ %{}) do
+    table_ids =
+      Map.get(opts, :contexts, @default_feature_contexts)
+      |> Enum.map(&TableService.lookup_id!/1)
     from f in Feature,
-      join: c in Collection,
-      on: f.context_id == c.id,
+      join: c in assoc(f, :context),
+      where: is_nil(f.deleted_at),
+      where: c.table_id in ^table_ids,
       order_by: [desc: f.id],
+      select: f,
+      preload: [context: c]
+  end
+  
+  def count_for_list_q(opts \\ %{}) do
+    table_ids =
+      Map.get(opts, :contexts, @default_feature_contexts)
+      |> Enum.map(&TableService.lookup_id!/1)
+    from f in Feature,
+      join: c in assoc(f, :context),
+      where: is_nil(f.deleted_at),
+      where: c.table_id in ^table_ids,
       select: count(f)
   end
 
-  defp featured_communities_q() do
-    from f in Feature,
-      join: c in Community,
-      on: f.context_id == c.id,
-      join: a in assoc(c, :actor),
-      order_by: [desc: f.id],
-      select: {f, c, a}
-  end
-
-  defp count_featured_communities_q() do
-    from f in Feature,
-      join: c in Community,
-      on: f.context_id == c.id,
-      order_by: [desc: f.id],
-      select: count(f)
-  end
+  def delete(%Feature{}=feat), do: Common.soft_delete(feat)
 
 end

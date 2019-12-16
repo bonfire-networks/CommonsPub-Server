@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Features.Feature do
   use MoodleNet.Common.Schema
-
-  import MoodleNet.Common.Changeset
-
   alias Ecto.Changeset
+  alias MoodleNet.Features.Feature
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
 
@@ -18,16 +16,23 @@ defmodule MoodleNet.Features.Feature do
     field(:canonical_url, :string)
     field(:is_local, :boolean)
     field(:deleted_at, :utc_datetime_usec)
-    timestamps()
   end
 
-  @create_cast ~w(canonical_url is_local)a
+  @create_cast ~w(is_local canonical_url)a
+  @create_required ~w(is_local)a
 
   def create_changeset(%User{id: creator_id}, %{id: context_id} = context, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
-    |> Changeset.validate_required(@create_cast)
+    |> Changeset.validate_required(@create_required)
     |> Changeset.change(creator_id: creator_id, context_id: context_id)
+  end
+
+  @update_cast ~w(canonical_url)
+
+  def update_changeset(%Feature{}=feat, %{}=attrs) do
+    feat
+    |> Changeset.cast(attrs, @update_cast)
   end
 
 end
