@@ -90,8 +90,8 @@ defmodule ActivityPubWeb.Publisher do
   defp maybe_use_sharedinbox(%{data: data}),
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
 
-  defp maybe_federate_to_mothership(recipients) do
-    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" do
+  defp maybe_federate_to_mothership(recipients, activity) do
+    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public do
       recipients ++ ["https://mothership.moodle.net/pub/shared_inbox"]
     else
       recipients
@@ -142,7 +142,7 @@ defmodule ActivityPubWeb.Publisher do
       determine_inbox(activity, actor)
     end)
     |> Enum.uniq()
-    |> maybe_federate_to_mothership()
+    |> maybe_federate_to_mothership(activity)
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
     ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
