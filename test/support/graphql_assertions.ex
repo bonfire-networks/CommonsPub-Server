@@ -460,7 +460,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comment.content == comment2.content
     assert comment.is_local == comment2.is_local
     assert is_nil(comment.published_at) == not comment2.is_public
-    assert is_nil(comment.hidden_at) == comment2.is_hidden
+    assert is_nil(comment.hidden_at) == not comment2.is_hidden
     assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
     assert comment.updated_at == comment2.updated_at
     comment2

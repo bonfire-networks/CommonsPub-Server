@@ -463,7 +463,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
   describe "community.followers" do
     @tag :skip
-    test "placeholder" do
+    test "works" do
     end
   end
 
