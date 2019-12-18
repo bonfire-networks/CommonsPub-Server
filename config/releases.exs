@@ -22,6 +22,12 @@ config :moodle_net,
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"), # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url) # env variable for URL of frontend, otherwise assume proxied behind same host as backend
 
+upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
+upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
+
+config :moodle_net, MoodleNet.Uploads.Storage,
+  provider: [Belt.Provider.Filesystem, [[directory: upload_dir, base_url: upload_url]]]
+
 mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
 mail_domain = System.get_env("MAIL_DOMAIN")
 mail_key = System.get_env("MAIL_KEY")
