@@ -126,6 +126,7 @@ defmodule MoodleNet.Follows do
           {:error, AlreadyFollowingError.new("user")}
 
         _ ->
+          follower = Repo.preload(follower, :actor)
           with {:ok, follow} <- insert(follower, followed, fields),
                act_attrs = %{verb: "created", is_local: follow.is_local},
                {:ok, activity} <- Activities.create(follower, follow, act_attrs),
