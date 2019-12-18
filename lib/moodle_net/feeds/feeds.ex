@@ -16,6 +16,9 @@ defmodule MoodleNet.Feeds do
   alias Ecto.ULID
   import Ecto.Query
   
+  def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
+  def instance_inbox_id(),  do: "10CA11NSTANCE1NB0XFEED1D00"
+
   def fetch_feed(id), do: Repo.fetch(Feed, id)
 
   def fetch_sub(id), do: Repo.fetch(FeedSubscription, id)
@@ -49,7 +52,7 @@ defmodule MoodleNet.Feeds do
   end
 
   @default_activity_contexts [
-    Collection, Comment, Community, Resource, Flag, Follow, Like
+    Collection, Comment, Community, Resource, Like #Flag, Follow
   ]
   def feed_activities(feed_id, opts \\ %{})
   def feed_activities(feed_id, %{}=opts) when is_binary(feed_id),

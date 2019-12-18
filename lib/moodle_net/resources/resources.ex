@@ -110,7 +110,7 @@ defmodule MoodleNet.Resources do
   # TODO
   defp publish(creator, collection, resource, activity, :created) do
     community = Repo.preload(collection, :community).community
-    feeds = [collection.outbox_id, community.outbox_id]
+    feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
     with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(resource.id, resource.creator_id, resource.is_local)
     end

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Common, Fake, Features, GraphQL, Repo, Instance}
+  alias MoodleNet.{Common, Fake, Features, Feeds, GraphQL, Repo, Instance}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
 
@@ -33,14 +33,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
   def outbox(_, args, info) do
     Repo.transact_with(fn ->
-      # activities =
-      #   Instance.outbox()
-      #   |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-      # count = Instance.count_for_outbox()
-      activities = []
-      count = 0
+      activities = Feeds.feed_activities(Feeds.instance_outbox_id())
+      count = Enum.count(activities)
       page_info = Common.page_info(activities)
-      {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+      {:ok, GraphQL.edge_list(activities, count)}
     end)
   end
 

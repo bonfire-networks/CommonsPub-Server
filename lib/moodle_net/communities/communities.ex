@@ -184,7 +184,7 @@ defmodule MoodleNet.Communities do
   end
 
   defp publish(creator, community, activity, :created) do
-    feeds = [community.outbox_id, creator.outbox_id]
+    feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
     with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(community.id, creator.id, community.actor.peer_id)
     end

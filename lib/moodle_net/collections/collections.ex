@@ -232,7 +232,10 @@ defmodule MoodleNet.Collections do
   end
 
   defp publish(creator, community, collection, activity, :created) do
-    feeds = [community.outbox_id, creator.outbox_id, collection.outbox_id]
+    feeds = [
+      community.outbox_id, creator.outbox_id,
+      collection.outbox_id, Feeds.instance_outbox_id(),
+    ]
     with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(collection.id, creator.id, collection.actor.peer_id)
     end

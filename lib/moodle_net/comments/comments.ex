@@ -184,7 +184,6 @@ defmodule MoodleNet.Comments do
   defp context_feeds(_), do: []
 
   defp publish_thread(creator, thread, context, :created) do
-    feeds = context_feeds(context) ++ [creator.outbox_id, thread.outbox_id]
     # with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(thread.id, creator.id, thread.is_local)
     # end
@@ -197,7 +196,9 @@ defmodule MoodleNet.Comments do
   end
 
   defp publish_comment(creator, thread, comment, activity, :created) do
-    feeds = context_feeds(thread.ctx) ++ [creator.outbox_id, thread.outbox_id]
+    feeds = context_feeds(thread.context.pointed) ++ [
+      creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
+    ]
     with :ok <- Feeds.publish_to_feeds(feeds, activity) do
       ap_publish(comment.id, creator.id, comment.is_local)
     end
