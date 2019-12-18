@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
       activities = Feeds.feed_activities(Feeds.instance_outbox_id())
       count = Enum.count(activities)
       page_info = Common.page_info(activities)
-      {:ok, GraphQL.edge_list(activities, count)}
+      {:ok, GraphQL.feed_list(activities, count)}
     end)
   end
 
