@@ -332,8 +332,9 @@ defmodule MoodleNet.Comments do
         attrs = Map.put(attrs, :reply_to_id, reply_to.id)
         Repo.transact_with(fn ->
           with {:ok, comment} <- insert_comment(thread, creator, attrs),
+               thread = preload_ctx(thread),
                act_attrs = %{verb: "created", is_local: comment.is_local},
-               {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+               {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                thread = preload_ctx(thread),
                :ok <- publish_comment(creator, thread, comment, activity, :created) do
             {:ok, comment}
