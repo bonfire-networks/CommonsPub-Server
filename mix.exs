@@ -76,8 +76,6 @@ defmodule MoodleNet.Mixfile do
       # File format parsing
       {:format_parser, "~> 1.3.0"},
       {:tree_magic, git: "https://github.com/antoniskalou/tree_magic.ex"},
-      # MIME type map
-      {:mime, "~> 1.2"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
