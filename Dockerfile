@@ -38,7 +38,7 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && apk add --no-cache bash openssl-dev
+RUN apk update && apk add --no-cache bash build-base openssl-dev
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
