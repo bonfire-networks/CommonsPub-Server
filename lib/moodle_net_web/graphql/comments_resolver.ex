@@ -44,8 +44,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         with {:ok, pointer} = Meta.find(context_id),
              context = Meta.follow!(pointer),
              :ok <- validate_thread_context(context),
-             {:ok, thread} <- Comments.create_thread(user, context, %{is_local: true}),
-             attrs = Map.put(attrs, :is_local, true) do
+             {:ok, thread} <- Comments.create_thread(user, context, %{is_local: true}) do
+          attrs = Map.put(attrs, :is_local, true)
           Comments.create_comment(user, thread, attrs)
         end
       end)

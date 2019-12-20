@@ -218,11 +218,10 @@ defmodule MoodleNet.Comments do
   end
   defp ap_publish(_, _, _), do: :ok
 
-
   # Comments
 
   @doc """
-  Return a list of public, non-deleted, unhidden comments contained in a  thread.
+  Return a list of public, non-deleted, unhidden comments contained in a thread.
 
   Ignores all comments if the parent thread has been deleted.
   """
@@ -305,7 +304,7 @@ defmodule MoodleNet.Comments do
       with {:ok, comment} <- insert_comment(thread, creator, attrs),
            thread = preload_ctx(thread),
            act_attrs = %{verb: "created", is_local: comment.is_local},
-           {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+           {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish_comment(creator, thread, comment, activity, :created) do
         {:ok, %{ comment | thread: thread }}
       end
