@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def comment_basics() do
     """
-    id canonicalUrl inReplyToId content
+    id canonicalUrl content
     isLocal isPublic isHidden createdAt updatedAt __typename
     """
   end

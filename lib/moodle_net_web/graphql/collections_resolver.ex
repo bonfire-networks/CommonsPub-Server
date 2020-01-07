@@ -23,11 +23,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def collection(%{collection_id: id}, info), do: Collections.fetch(id)
+  def collection(%{collection_id: id}, info) do
+    Collections.fetch(id)
+    # Dataloader.load(GraphQL.loader(), Collections, Collection, [id])
+  end
 
-  def canonical_url(coll, _, _), do: {:ok, coll.actor.canonical_url}
-  def preferred_username(coll, _, _), do: {:ok, coll.actor.preferred_username}
-  def is_local(coll, _, _), do: {:ok, is_nil(coll.actor.peer_id)}
+  def canonical_url(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.canonical_url}
+  def preferred_username(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.preferred_username}
+  def is_local(coll, _, _), do: {:ok, is_nil(Repo.preload(coll, :actor).actor.peer_id)}
   def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
   def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
   def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}
@@ -37,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       with {:ok, user} <- GraphQL.current_user(info),
            {:ok, community} <- Communities.fetch(id) do
         attrs = Map.merge(attrs, %{is_public: true})
-        Collections.create(community, user, attrs)
+        Collections.create(user, community, attrs)
       end
     end)
   end
@@ -93,8 +96,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  def creator(%Collection{}=coll, _, info), do: Users.fetch(coll.creator_id)
-  def community(%Collection{}=coll, _, info), do: Communities.fetch(coll.community_id)
+  def creator(%Collection{}=coll, _, info) do
+    {:ok, Repo.preload(coll, [creator: :actor]).creator}
+  end
+  def community(%Collection{}=coll, _, info) do
+    {:ok, Repo.preload(coll, [community: :actor]).community}
+  end
 
   def last_activity(_, _, info) do
     {:ok, Fake.past_datetime()}
@@ -102,15 +109,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def outbox(collection,_,info) do
-    # Repo.transact_with(fn ->
-    #   activities =
-    # 	Collections.outbox(collection)
-    #     |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-    #   count = Collections.count_for_outbox(collection)
-    #   page_info = Common.page_info(activities, &(&1.cursor))
-    #   {:ok, %{page_info: page_info, total_count: count, edges: activities}}
-    # end)
-   {:ok, GraphQL.edge_list([],0)}
+    Repo.transact_with(fn ->
+      activities = Collections.outbox(collection)
+      count = Enum.count(activities)
+      # count = Communities.count_for_outbox(community)
+      {:ok, GraphQL.feed_list(activities, count)}
+    end)
    end
 
 end

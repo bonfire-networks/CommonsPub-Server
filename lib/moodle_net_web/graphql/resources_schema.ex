@@ -94,12 +94,13 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
       resolve &ResourcesResolver.is_disabled/3
     end
 
-    @desc "When the collection was created"
+    @desc "When the resource was created"
     field :created_at, non_null(:string) do
       resolve &CommonResolver.created_at/3
     end
-    @desc "When the collection was last updated"
+    @desc "When the resource was last updated"
     field :updated_at, non_null(:string)
+
     # @desc """
     # When the resource was last updated or a thread or a comment on it
     # was created or updated
@@ -111,6 +112,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "The current user's like of the resource, if any"
     field :my_like, :like do
       resolve &CommonResolver.my_like/3
+    end
+
+    @desc "The current user's flag of the resource, if any"
+    field :my_flag, :flag do
+      resolve &CommonResolver.my_flag/3
     end
 
     @desc "The user who created the resource"

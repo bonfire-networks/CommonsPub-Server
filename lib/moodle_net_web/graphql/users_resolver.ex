@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.Errors
-  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, GraphQL, OAuth, Repo, Users}
+  alias MoodleNet.{Access, Actors, Collections, Common, Communities, Fake, Follows, GraphQL, OAuth, Repo, Users}
   alias MoodleNet.Common.{
     AlreadyFlaggedError,
     AlreadyFollowingError,
@@ -124,17 +124,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_confirmed(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
   def is_instance_admin(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
-  def canonical_url(user, _, _), do: {:ok, user.actor.canonical_url}
-  def preferred_username(user, _, _), do: {:ok, user.actor.preferred_username}
+  def canonical_url(user, _, _), do: {:ok, Repo.preload(user, :actor).actor.canonical_url}
+  def preferred_username(user, _, _), do: {:ok, Repo.preload(user, :actor).actor.preferred_username}
   def is_local(user, _, _), do: {:ok, true} # {:ok, is_nil(user.actor.peer_id)}
   def is_public(user, _, _), do: {:ok, not is_nil(user.published_at)}
   def is_disabled(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
   def is_deleted(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
   # followed collection
-  def collection(parent,_,info) do
-    parent.collection
-  end
+  def collection(parent,_,info), do: {:ok, Repo.preload(parent.collection, :actor)}
 
   def inbox(%User{}=user, params, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
@@ -143,11 +141,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
           {:ok, activities} = Users.inbox(current_user)
           count = Enum.count(activities)
           # count = Users.count_for_inbox(current_user)
-          page_info = Common.page_info(activities)
-          {:ok, %{page_info: page_info, total_count: count, edges: activities}}
+          {:ok, GraphQL.feed_list(activities, count)}
         end)
       else
-    	GraphQL.not_permitted()
+        GraphQL.not_permitted()
       end
     end
   end
@@ -157,16 +154,18 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       activities = Users.outbox(user)
       count = Enum.count(activities)
       # count = Users.count_for_outbox(user)
-      {:ok, GraphQL.edge_list(activities, count)}
+      {:ok, GraphQL.feed_list(activities, count)}
     end)
   end
 
   def followed_communities(%User{}=user,_,info) do
     Repo.transact_with(fn ->
       comms =
-	Common.list_followed_communities(user)
-        |> Enum.map(fn {f,c} -> %{cursor: f.id, node: %{follow: f, community: Communities.preload(c)}} end)
-      count = Common.count_for_list_followed_communities(user)
+        Follows.list_communities(user)
+        |> Enum.map(fn f ->
+          %{cursor: f.id, node: %{follow: f, community: f.ctx}}
+        end)
+      count = Follows.count_for_list_communities(user)
       page_info = Common.page_info(comms, &(&1.node.follow.id))
       {:ok, %{page_info: page_info, total_count: count, edges: comms}}
     end)
@@ -178,11 +177,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def followed_collections(%User{}=user,_,info) do
     Repo.transact_with(fn ->
       colls =
-	Common.list_followed_collections(user)
-        |> Enum.map(fn {f,c} ->
-	  %{cursor: f.id, node: %{follow: f, collection: Collections.preload(c)}}
+        Follows.list_collections(user)
+        |> Enum.map(fn f ->
+          %{cursor: f.id, node: %{follow: f, collection: f.ctx}}
         end)
-      count = Common.count_for_list_followed_collections(user)
+      count = Follows.count_for_list_collections(user)
       page_info = Common.page_info(colls, &(&1.cursor))
       {:ok, %{page_info: page_info, total_count: count, edges: colls}}
     end)

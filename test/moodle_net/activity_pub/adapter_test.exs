@@ -100,10 +100,10 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "reply to a comment" do
       actor = fake_user!()
       community = fake_user!() |> fake_community!()
-      {:ok, thread} = MoodleNet.Comments.create_thread(community, actor, %{is_local: true})
+      {:ok, thread} = MoodleNet.Comments.create_thread(actor, community, %{is_local: true})
 
       {:ok, comment} =
-        MoodleNet.Comments.create_comment(thread, actor, %{is_local: true, content: "hi"})
+        MoodleNet.Comments.create_comment(actor, thread, %{is_local: true, content: "hi"})
 
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
       reply_actor = actor()
@@ -170,7 +170,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:ok, _} = MoodleNet.Common.find_follow(follower, followed)
+      assert {:ok, _} = MoodleNet.Follows.find(follower, followed)
     end
 
     test "unfollows" do
@@ -182,7 +182,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:error, _} = MoodleNet.Common.find_follow(follower, followed)
+      assert {:error, _} = MoodleNet.Follows.find(follower, followed)
     end
 
     test "blocks" do
@@ -192,7 +192,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.block(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
-      assert {:ok, _} = MoodleNet.Common.find_block(blocker, blocked)
+      assert {:ok, _} = MoodleNet.Blocks.find(blocker, blocked)
     end
 
     test "unblocks" do
@@ -204,7 +204,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.unblock(blocker, ap_blocked, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, blocker} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(blocker.ap_id)
-      assert {:error, _} = MoodleNet.Common.find_block(blocker, blocked)
+      assert {:error, _} = MoodleNet.Blocks.find(blocker, blocked)
     end
 
     test "likes" do
@@ -217,7 +217,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, like_actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
-      assert {:ok, _} = MoodleNet.Common.find_like(like_actor, comment)
+      assert {:ok, _} = MoodleNet.Likes.find(like_actor, comment)
     end
 
     test "flags" do
@@ -240,7 +240,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment)
+      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment)
     end
 
     test "flags with multiple comments" do
@@ -266,8 +266,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment_1)
-      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, comment_2)
+      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_1)
+      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_2)
     end
 
     test "flag with only actor" do
@@ -286,7 +286,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Common.find_flag(flag_actor, actor)
+      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, actor)
     end
 
     test "user deletes" do

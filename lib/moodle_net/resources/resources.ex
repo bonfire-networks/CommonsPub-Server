@@ -5,20 +5,31 @@ defmodule MoodleNet.Resources do
   import Ecto.Query
 
   alias Ecto.Changeset
-  alias MoodleNet.{Common, Repo, Meta, Users}
+  alias MoodleNet.{Activities, Common, Feeds, Repo, Meta, Users}
   alias MoodleNet.Common.{Query, NotFoundError}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias MoodleNet.GraphQL
   alias Ecto.Association.NotLoaded
 
+  def data(ctx) do
+    Dataloader.Ecto.new Repo,
+      query: &query/2,
+      default_params: %{ctx: ctx}
+  end
+
+  def query(q, %{ctx: _}), do: q
+
+  # def query(Resources, %{ctx: ctx}) do
+    
+  # end
+  
   @spec list() :: [Resource.t()]
   def list, do: Repo.all(list_q())
 
   defp list_q do
-    Resource
-    |> Query.only_public()
-    |> Query.only_undeleted()
+    basic_list_q()
     |> Query.order_by_recently_updated()
     |> only_from_undeleted_collections()
   end
@@ -26,23 +37,24 @@ defmodule MoodleNet.Resources do
   defp only_from_undeleted_collections(query) do
     from(q in query,
       join: c in assoc(q, :collection),
-      on: q.collection_id == c.id,
       where: not is_nil(c.published_at),
       where: is_nil(c.deleted_at)
     )
   end
 
+  defp basic_list_q() do
+    from(res in Resource,
+      where: not is_nil(res.published_at),
+      where: is_nil(res.deleted_at))
+  end
+
+
   @spec list_in_collection(Collection.t()) :: [Resource.t()]
   def list_in_collection(%Collection{id: id}), do: Repo.all(list_in_collection_q(id))
 
   defp list_in_collection_q(id) do
-    from(res in Resource,
-      join: coll in Collection,
-      on: res.collection_id == coll.id,
-      where: coll.id == ^id,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at)
-    )
+    basic_list_q()
+    |> where([res], res.collection_id == ^id)
   end
 
   @spec count_for_list_in_collection(Collection.t()) :: [Resource.t()]
@@ -50,14 +62,8 @@ defmodule MoodleNet.Resources do
     do: Repo.one(count_for_list_in_collection_q(id))
 
   defp count_for_list_in_collection_q(id) do
-    from(res in Resource,
-      join: coll in Collection,
-      on: res.collection_id == coll.id,
-      where: coll.id == ^id,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      select: count(res)
-    )
+    list_in_collection_q(id)
+    |> select([r], count(r))
   end
 
   @spec fetch(binary()) :: {:ok, Resource.t()} | {:error, NotFoundError.t()}
@@ -83,28 +89,49 @@ defmodule MoodleNet.Resources do
   def fetch_creator(%Resource{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
   def fetch_creator(%Resource{creator: creator}), do: {:ok, creator}
 
-  @spec create(Collection.t(), User.t(), attrs :: map) ::
+  @spec create(User.t(), Collection.t(), attrs :: map) ::
           {:ok, Resource.t()} | {:error, Changeset.t()}
-  def create(%Collection{} = collection, %User{} = creator, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %Collection{} = collection, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, resource} <- insert_resource(collection, creator, attrs),
-           {:ok, _} <- publish_resource(resource, "create") do
+      res_attrs = Map.put(attrs, :is_local, is_nil(collection.actor.peer_id))
+      with {:ok, resource} <- insert_resource(creator, collection, res_attrs),
+           act_attrs = %{verb: "created", is_local: resource.is_local},
+           {:ok, activity} <- insert_activity(creator, resource, act_attrs),
+           :ok <- publish(creator, collection, resource, activity, :created) do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
   end
 
-  defp insert_resource(collection, creator, attrs) do
-    Resource.create_changeset(collection, creator, attrs)
-    |> Repo.insert()
+  defp insert_activity(creator, resource, attrs) do
+    Activities.create(creator, resource, attrs)
   end
 
-  defp publish_resource(%Resource{} = resource, verb) do
+  # TODO
+  defp publish(creator, collection, resource, activity, :created) do
+    community = Repo.preload(collection, :community).community
+    feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
+    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+      ap_publish(resource.id, resource.creator_id, resource.is_local)
+    end
+  end
+  defp publish(collection, resource, :updated) do
+    ap_publish(resource.id, resource.creator_id, resource.is_local)
+  end
+  defp publish(collection, resource, :deleted) do
+    ap_publish(resource.id, resource.creator_id, resource.is_local)
+  end
+
+  defp ap_publish(context_id, user_id, true) do
     MoodleNet.FeedPublisher.publish(%{
-      "verb" => verb,
-      "context_id" => resource.id,
-      "user_id" => resource.creator_id,
+      "context_id" => context_id,
+      "user_id" => user_id,
     })
+  end
+  defp ap_publish(_, _, _), do: :ok
+
+  defp insert_resource(creator, collection, attrs) do
+    Repo.insert(Resource.create_changeset(creator, collection, attrs))
   end
 
   @spec update(Resource.t(), attrs :: map) :: {:ok, Resource.t()} | {:error, Changeset.t()}
@@ -113,10 +140,6 @@ defmodule MoodleNet.Resources do
   end
 
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def soft_delete(%Resource{} = resource) do
-    with {:ok, resource} <- Common.soft_delete(resource),
-         {:ok, _} <- publish_resource(resource, "delete") do
-      {:ok, resource}
-    end
-  end
+  def soft_delete(%Resource{} = resource), do: Common.soft_delete(resource)
+
 end

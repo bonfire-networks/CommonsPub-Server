@@ -5,6 +5,7 @@ defmodule MoodleNet.Comments.Thread do
 
   alias Ecto.Changeset
   alias MoodleNet.Comments.{Thread, ThreadFollowerCount}
+  alias MoodleNet.Feeds.Feed
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
@@ -12,7 +13,11 @@ defmodule MoodleNet.Comments.Thread do
   table_schema "mn_thread" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
+    belongs_to(:outbox, Feed)
+    field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
     field(:is_locked, :boolean, virtual: true)
     field(:locked_at, :utc_datetime_usec)
     field(:is_hidden, :boolean, virtual: true)
@@ -23,15 +28,15 @@ defmodule MoodleNet.Comments.Thread do
     timestamps()
   end
 
-  @required ~w(is_local)a
+  @required ~w(is_local outbox_id)a
   @cast @required ++ ~w(canonical_url is_locked is_hidden)a
 
-  def create_changeset(%Pointer{} = context, %User{} = creator, attrs) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
     %Thread{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
-      creator_id: creator.id,
-      context_id: context.id
+      creator_id: creator_id,
+      context_id: context_id
     )
     |> Changeset.validate_required(@required)
     |> common_changeset()
@@ -47,5 +52,6 @@ defmodule MoodleNet.Comments.Thread do
     changeset
     |> change_synced_timestamp(:is_hidden, :hidden_at)
     |> change_synced_timestamp(:is_locked, :locked_at)
+    |> change_synced_timestamp(:is_locked, :published_at)
   end
 end

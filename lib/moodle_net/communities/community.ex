@@ -13,11 +13,11 @@ defmodule MoodleNet.Communities.Community do
 
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Common.Flag
   alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Comments.Thread
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
+  alias MoodleNet.Flags.Flag
   # alias MoodleNet.Localisation.Language
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer

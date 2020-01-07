@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Test.Fake
-  alias MoodleNet.Common
+  alias MoodleNet.{Common, Follows}
 
   describe "communities" do
     test "works" do
@@ -265,7 +265,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       bob = fake_user!()
       conn = user_conn(bob)
-      {:ok, follow} = Common.follow(bob, comm, %{is_local: true})
+      {:ok, follow} = Follows.create(bob, comm, %{is_local: true})
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()} myFollow { #{follow_basics()} }
@@ -353,21 +353,117 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       edge_list = assert_edge_list(colls, &(&1.id))
       assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
-	coll = assert_collection(edge.node)
-	assert coll.id == edge.cursor
+        coll = assert_collection(edge.node)
+        assert coll.id == edge.cursor
       end
     end
   end
 
   describe "community.threads" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works when there are no threads" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()}
+          threads {
+            pageInfo { startCursor endCursor }
+            totalCount
+            edges {
+              cursor
+              node {
+                #{thread_basics()}
+                comments {
+                  pageInfo { startCursor endCursor }
+                  totalCount
+                  edges {
+                    cursor
+                    node {
+                      #{comment_basics()}
+                      inReplyTo { #{comment_basics()} }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"community" => comm} = gql_post_data(%{query: q})
+      comm = assert_community(comm)
+      assert %{"threads" => threads} = comm
+      edge_list = assert_edge_list(threads, &(&1.id))
+      assert Enum.count(edge_list.edges) == 0
+      assert threads["totalCount"] == 0
+      # for edge <- edge_list.edges do
+      #   coll = assert_collection(edge.node)
+      #   assert coll.id == edge.cursor
+      # end
+    end
+
+    test "works when there are threads" do
+      alice = fake_user!()
+      bob = fake_user!()
+      comm = fake_community!(alice)
+      t1 = fake_thread!(bob, comm)
+      t1c1 = fake_comment!(bob, t1)
+      t1c2 = fake_comment!(alice, t1)
+      t2 = fake_thread!(alice, comm)
+      t2c1 = fake_comment!(alice, t2)
+      t2c2 = fake_comment!(bob, t2)
+      thread_1 = [t1c2, t1c1]
+      thread_2 = [t2c2, t2c1]
+      threads = %{t1.id => {t1, [t1c2, t1c1]}, t2.id => {t2, [t2c2, t2c1]}}
+      q = """
+      { community(communityId: "#{comm.id}") {
+          #{community_basics()}
+          threads {
+            pageInfo { startCursor endCursor }
+            totalCount
+            edges {
+              cursor
+              node {
+                #{thread_basics()}
+                comments {
+                  pageInfo { startCursor endCursor }
+                  totalCount
+                  edges {
+                    cursor
+                    node { #{comment_basics()} }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"community" => comm} = gql_post_data(%{query: q})
+      comm = assert_community(comm)
+      assert %{"threads" => threads2} = comm
+      edge_list = assert_edge_list(threads2, &(&1.id))
+      assert Enum.count(edge_list.edges) == 2
+      assert threads2["totalCount"] == 2
+      for edge <- edge_list.edges do
+        assert {thread, comments} = threads[edge.cursor]
+        t = assert_thread(thread, edge.node)
+        assert t.id == edge.cursor
+        assert %{"comments" => comments2} = t
+        edge_list = assert_edge_list(comments2, &(&1.id))
+        assert Enum.count(edge_list.edges) == 2
+        for {edge, comment} <- Enum.zip(edge_list.edges, comments) do
+          assert edge["node"]["id"] == edge["cursor"]
+          assert_comment(comment, edge["node"])
+        end
+      end
     end
   end
 
   describe "community.followers" do
     @tag :skip
-    test "placeholder" do
+    test "works" do
     end
   end
 
@@ -389,8 +485,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       edge_list = assert_edge_list(outbox)
       # assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
-	activity = assert_activity(edge.node)
-	assert is_binary(edge.cursor)
+        activity = assert_activity(edge.node)
+        assert is_binary(edge.cursor)
       end
     end
   end

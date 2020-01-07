@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
   alias MoodleNetWeb.GraphQL.{
     ActivitiesResolver,
     CollectionsResolver,
@@ -11,6 +12,11 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
@@ -37,7 +43,9 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     @desc "Whether the activity is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the activity is public"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
 
     @desc "When the activity was created"
     field :created_at, non_null(:string) do
@@ -60,12 +68,15 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
   union :activity_context do
     description("Activity object")
-    types([:community, :collection, :resource, :comment])
+    types([:community, :collection, :resource, :comment, :flag, :follow, :like])
     resolve_type(fn
       %Collection{}, _ -> :collection
       %Comment{},    _ -> :comment
       %Community{},  _ -> :community
       %Resource{},   _ -> :resource
+      %Flag{},     _   -> :flag
+      %Follow{},     _ -> :follow
+      %Like{},       _ -> :like
     end)
   end
 

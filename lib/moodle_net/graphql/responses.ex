@@ -6,7 +6,12 @@ alias MoodleNet.GraphQL.{Edge, EdgeList, NodeList, PageInfo, Response}
 alias MoodleNet.Activities.Activity
 alias MoodleNet.Collections.Collection
 alias MoodleNet.Comments.{Comment, Thread}
-alias MoodleNet.Common.{Flag, Follow, Like, Tag, Category, Tagging}
+alias MoodleNet.Blocks.Block
+alias MoodleNet.Flags.Flag
+alias MoodleNet.Follows.Follow
+alias MoodleNet.Features.Feature
+alias MoodleNet.Likes.Like
+alias MoodleNet.Tags.{Tag, Tagging}
 alias MoodleNet.Communities.Community
 alias MoodleNet.Localisation.{Country, Language}
 alias MoodleNet.Resources.Resource

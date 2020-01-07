@@ -301,6 +301,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:url, &url/0)
     |> Map.put_new_lazy(:license, &license/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_hidden, &falsehood/0)
   end
@@ -347,7 +348,7 @@ defmodule MoodleNet.Test.Fake do
   def like(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
-    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
   end
 
@@ -355,14 +356,14 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:message, &paragraph/0)
-    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_resolved, &falsehood/0)
   end
 
   def follow(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
-    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_muted, &falsehood/0)
   end
@@ -370,7 +371,7 @@ defmodule MoodleNet.Test.Fake do
   def block(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
-    |> Map.put_new_lazy(:is_local, &bool/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_blocked, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_muted, &falsehood/0)

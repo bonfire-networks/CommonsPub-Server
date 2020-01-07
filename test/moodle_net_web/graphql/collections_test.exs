@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Common, Users}
+  alias MoodleNet.{Access, Common, Follows, Users}
 
   describe "collections" do
 
@@ -310,7 +310,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!()
       conn = user_conn(bob)
-      {:ok, follow} = Common.follow(bob, coll, %{is_local: true})
+      {:ok, follow} = Follows.create(bob, coll, %{is_local: true})
       q = """
       { collection(collectionId: "#{coll.id}") {
           #{collection_basics()} myFollow { #{follow_basics()} }

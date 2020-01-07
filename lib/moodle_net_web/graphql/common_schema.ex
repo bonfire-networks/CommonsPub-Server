@@ -4,9 +4,12 @@
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
   alias MoodleNet.Activities.Activity
-  alias MoodleNet.Common.{Flag, Follow, Like}
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Likes.Like
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.{Flag, Follow, Like}
   alias MoodleNet.Comments.{Comment,Thread}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
@@ -29,6 +32,10 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
       arg :like_id, non_null(:string)
       resolve &CommonResolver.like/2
     end
+    # field :feature, :feature do
+    #   arg :feature_id, non_null(:string)
+    #   resolve &CommonResolver.feature/2
+    # end
     # field :tag, :tag do
     #   arg :tag_id, non_null(:string)
     #   resolve &CommonResolver.tag/2
@@ -45,20 +52,26 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   object :common_mutations do
 
-    @desc "Flag a user, community, collection, resource or comment, returning a flag id"
+    @desc "Flag a user, community, collection, resource or comment, returning the flag"
     field :create_flag, :flag do
       arg :context_id, non_null(:string)
       arg :message, non_null(:string)
       resolve &CommonResolver.create_flag/2
     end
 
-    @desc "Follow a community, collection or thread returning a follow id"
+    @desc "Follow a community, collection or thread returning the follow"
     field :create_follow, :follow do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.create_follow/2
     end
 
-    @desc "Like a comment, collection, or resource returning a like id"
+    # @desc "Feature a community, or collection, returning the feature"
+    # field :create_feature, :feature do
+    #   arg :context_id, non_null(:string)
+    #   resolve &CommonResolver.create_feature/2
+    # end
+
+    @desc "Like a comment, collection, or resource returning the like"
     field :create_like, :like do
       arg :context_id, non_null(:string)
       resolve &CommonResolver.create_like/2
@@ -107,9 +120,62 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     end
   end
 
+  @desc "A featured piece of content"
+  object :feature do
+    @desc "An instance-local UUID identifying the feature"
+    field :id, non_null(:string)
+    @desc "A url for the feature, may be to a remote instance"
+    field :canonical_url, :string
+
+    @desc "Whether the feature is local to the instance"
+    field :is_local, non_null(:boolean)
+
+    @desc "When the feature was created"
+    field :created_at, non_null(:string) do
+      resolve &CommonResolver.created_at/3
+    end
+
+    @desc "The user who featured"
+    field :creator, non_null(:user) do
+      resolve &CommonResolver.creator/3
+    end
+
+    @desc "The thing that is being featured"
+    field :context, non_null(:feature_context) do
+      resolve &CommonResolver.context/3
+    end
+
+  end
+
+  union :feature_context do
+    description "A thing that can be featured"
+    types [:collection, :community]
+    resolve_type fn
+      %Collection{}, _ -> :collection
+      %Community{},  _ -> :community
+    end
+  end
+
+  object :features_nodes do
+    field :page_info, :page_info
+    field :nodes, non_null(list_of(:feature))
+    field :total_count, non_null(:integer)
+  end
+
+  object :features_edges do
+    field :page_info, :page_info
+    field :edges, non_null(list_of(:features_edge))
+    field :total_count, non_null(:integer)
+  end
+
+  object :features_edge do
+    field :cursor, non_null(:string)
+    field :node, non_null(:feature)
+  end
+
   @desc "A report about objectionable content"
   object :flag do
-    @desc "An instance-local UUID identifying the user"
+    @desc "An instance-local UUID identifying the flag"
     field :id, non_null(:string)
     @desc "A url for the flag, may be to a remote instance"
     field :canonical_url, :string
@@ -123,7 +189,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
     @desc "Whether the flag is local to the instance"
     field :is_local, non_null(:boolean)
-    @desc "Whether the flag is public"
+    # @desc "Whether the flag is public"
     # field :is_public, non_null(:boolean) do
     #   resolve &CommonResolver.is_public/3
     # end

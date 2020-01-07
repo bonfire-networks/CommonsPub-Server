@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
   }
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.Flag
+  alias MoodleNet.Flags.Flag
   alias MoodleNet.Resources.Resource
 
   object :comments_queries do
@@ -65,9 +65,13 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the thread is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the thread is publically visible"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
     @desc "Whether an instance admin has hidden the thread"
-    field :is_hidden, non_null(:boolean)
+    field :is_hidden, non_null(:boolean) do
+      resolve &CommonResolver.is_hidden/3
+    end
 
     @desc "When the thread was created"
     field :created_at, non_null(:string) do
@@ -87,7 +91,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The object the thread is attached to"
     field :context, non_null(:thread_context) do
-      resolve &CommentsResolver.context/3
+      resolve &CommonResolver.context/3
     end
 
     @desc "Comments in the thread, most recently created first"
@@ -144,7 +148,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
 
     @desc "The id of the comment this one was a reply to"
     field :in_reply_to, :comment do
-      resolve &CommentsResolver.comment/3
+      resolve &CommentsResolver.in_reply_to/3
     end
     @desc "The comment text"
     field :content, non_null(:string)
@@ -152,9 +156,13 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     @desc "Whether the comment is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the comment is publically visible"
-    field :is_public, non_null(:boolean)
+    field :is_public, non_null(:boolean) do
+      resolve &CommonResolver.is_public/3
+    end
     @desc "Whether an comment admin has hidden the thread"
-    field :is_hidden, non_null(:boolean)
+    field :is_hidden, non_null(:boolean) do
+      resolve &CommonResolver.is_hidden/3
+    end
 
     @desc "When the comment was created"
     field :created_at, non_null(:string) do

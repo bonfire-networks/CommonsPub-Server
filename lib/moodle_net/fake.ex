@@ -388,7 +388,7 @@ defmodule MoodleNet.Fake do
     |> Map.put_new_lazy(:created_at, &past_datetime/0)
     |> Map.put_new_lazy(:updated_at, &past_datetime/0)
     # |> Map.put_new_lazy(:is_muted, &falsehood/0)
-    |> Map.put(:__struct__, MoodleNet.Common.Follow)
+    |> Map.put(:__struct__, MoodleNet.Follows.Follow)
   end
 
   def follow_context() do

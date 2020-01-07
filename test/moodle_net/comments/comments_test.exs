@@ -106,12 +106,12 @@ defmodule MoodleNet.CommentsTest do
   describe "create_thread" do
     test "creates a new thread with any parent", %{user: creator, parent: parent} do
       attrs = Fake.thread()
-      assert {:ok, thread} = Comments.create_thread(parent, creator, attrs)
+      assert {:ok, thread} = Comments.create_thread(creator, parent, attrs)
       assert thread.canonical_url == attrs[:canonical_url]
     end
 
     test "fails to create a thread with invalid attributes", %{user: creator, parent: parent} do
-      assert {:error, changeset} = Comments.create_thread(parent, creator, %{})
+      assert {:error, changeset} = Comments.create_thread(creator, parent, %{})
       assert Keyword.get(changeset.errors, :is_local)
     end
   end
@@ -333,7 +333,7 @@ defmodule MoodleNet.CommentsTest do
       in_reply = fake_comment!(context.user, thread, %{is_hidden: false})
 
       assert {:ok, comment} =
-               Comments.create_comment_reply(thread, context.user, in_reply, Fake.comment())
+        Comments.create_comment_reply(context.user, thread, in_reply, Fake.comment())
 
       assert {:ok, fetched_reply_to} = Comments.fetch_comment_reply_to(comment)
       assert fetched_reply_to.id == in_reply.id
@@ -349,7 +349,7 @@ defmodule MoodleNet.CommentsTest do
   describe "create_comment" do
     test "creates a new comment with a thread parent", %{user: creator, thread: thread} do
       attrs = Fake.comment()
-      assert {:ok, comment} = Comments.create_comment(thread, creator, attrs)
+      assert {:ok, comment} = Comments.create_comment(creator, thread, attrs)
       assert comment.canonical_url == attrs.canonical_url
       assert comment.content == attrs.content
       assert comment.is_hidden == attrs.is_hidden
@@ -357,7 +357,7 @@ defmodule MoodleNet.CommentsTest do
     end
 
     test "fails given invalid attributes", %{user: creator, thread: thread} do
-      assert {:error, changeset} = Comments.create_comment(thread, creator, %{is_public: false})
+      assert {:error, changeset} = Comments.create_comment(creator, thread, %{is_public: false})
 
       assert Keyword.get(changeset.errors, :content)
     end
@@ -370,8 +370,8 @@ defmodule MoodleNet.CommentsTest do
 
       assert {:ok, comment} =
                Comments.create_comment_reply(
-                 thread,
                  context.user,
+                 thread,
                  reply_to,
                  Fake.comment()
                )
@@ -384,7 +384,7 @@ defmodule MoodleNet.CommentsTest do
       reply_to = fake_comment!(context.user, thread)
 
       assert {:error, %NotPermittedError{}} =
-               Comments.create_comment_reply(thread, context.user, reply_to, Fake.comment())
+        Comments.create_comment_reply(context.user, thread, reply_to, Fake.comment())
     end
   end
 

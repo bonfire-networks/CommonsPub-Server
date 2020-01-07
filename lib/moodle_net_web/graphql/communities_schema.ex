@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   GraphQL community fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
+  alias MoodleNet.Communities
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Comments.Comment
   alias MoodleNet.Resources.Resource
@@ -101,9 +102,19 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &CommunitiesResolver.last_activity/3
     end
 
+    @desc "The current user's like of this community, if any"
+    field :my_like, :like do
+      resolve &CommonResolver.my_like/3
+    end
+
     @desc "The current user's follow of the community, if any"
     field :my_follow, :follow do
       resolve &CommonResolver.my_follow/3
+    end
+
+    @desc "The current user's flag of the community, if any"
+    field :my_flag, :flag do
+      resolve &CommonResolver.my_flag/3
     end
  
     # @desc "The primary language the community speaks"

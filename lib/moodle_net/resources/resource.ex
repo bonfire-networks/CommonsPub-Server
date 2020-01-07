@@ -34,12 +34,12 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @required ~w(name url)a
+  @required ~w(name url is_local)a
   @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon)a
 
-  @spec create_changeset(Collection.t(), User.t(), map) :: Changeset.t()
+  @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
-  def create_changeset(collection, creator, attrs) do
+  def create_changeset(creator, collection, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)

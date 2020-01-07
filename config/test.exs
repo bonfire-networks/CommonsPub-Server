@@ -22,7 +22,8 @@ config :moodle_net, MoodleNet.Repo,
   password: System.get_env("DATABASE_PASS", "postgres"),
   database: "moodle_net_test",
   hostname: System.get_env("DATABASE_HOST", "localhost"),
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 25
 
 # Reduce cost of hashing for testing
 config :argon2_elixir,

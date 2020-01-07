@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.{Common,Access}
+  alias MoodleNet.{Access, Common, Flags, Follows, Likes}
   # import MoodleNet.MediaProxy.URLBuilder, only: [encode: 1]
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNet.Test.Faking
@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_user!()
       # alice flags bob. bob is bad.
-      {:ok, flag} = Common.flag(alice, bob, %{is_local: true, message: "bad"})
+      {:ok, flag} = Flags.create(alice, bob, %{is_local: true, message: "bad"})
       q = """
       { flag(flagId: "#{flag.id}") {
           #{flag_basics()}
@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, follow} = Common.follow(alice, bob, %{is_local: true}) # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = """
       { follow(followId: "#{follow.id}") {
           #{follow_basics()}
@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, like} = Common.like(alice, bob, %{is_local: true}) # alice likes bob
+      {:ok, like} = Likes.create(alice, bob, %{is_local: true}) # alice likes bob
       q = """
       { like(likeId: "#{like.id}") {
           #{like_basics()}
@@ -64,7 +64,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_user!()
       # alice flags bob. bob is bad.
-      {:ok, flag} = Common.flag(alice, bob, %{is_local: true, message: "bad"})
+      {:ok, flag} = Flags.create(alice, bob, %{is_local: true, message: "bad"})
       q = """
       { flag(flagId: "#{flag.id}") {
           #{flag_basics()}
@@ -83,7 +83,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_user!()
       # alice flags bob. bob is bad.
-      {:ok, flag} = Common.flag(alice, bob, %{is_local: true, message: "bad"})
+      {:ok, flag} = Flags.create(alice, bob, %{is_local: true, message: "bad"})
       q = """
       { flag(flagId: "#{flag.id}") {
           #{flag_basics()}
@@ -100,7 +100,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_community!(alice)
       # alice flags bob. bob is bad.
-      {:ok, flag} = Common.flag(alice, bob, %{is_local: true, message: "bad"})
+      {:ok, flag} = Flags.create(alice, bob, %{is_local: true, message: "bad"})
       q = """
       { flag(flagId: "#{flag.id}") {
           #{flag_basics()}
@@ -118,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       bob = fake_community!(alice)
       eve = fake_collection!(alice, bob)
       # alice flags bob. bob is bad.
-      {:ok, flag} = Common.flag(alice, eve, %{is_local: true, message: "bad"})
+      {:ok, flag} = Flags.create(alice, eve, %{is_local: true, message: "bad"})
       q = """
       { flag(flagId: "#{flag.id}") {
           #{flag_basics()}
@@ -136,7 +136,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, follow} = Common.follow(alice, bob, %{is_local: true}) # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = """
       { follow(followId: "#{follow.id}") {
           #{follow_basics()}
@@ -154,7 +154,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest with a user follow" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, follow} = Common.follow(alice, bob, %{is_local: true}) # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = """
       { follow(followId: "#{follow.id}") {
           #{follow_basics()}
@@ -170,7 +170,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest with a community follow" do
       alice = fake_user!()
       bob = fake_community!(alice)
-      {:ok, follow} = Common.follow(alice, bob, %{is_local: true}) # alice follows bob
+      {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = """
       { follow(followId: "#{follow.id}") {
           #{follow_basics()}
@@ -187,7 +187,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_community!(alice)
       eve = fake_collection!(alice, bob)
-      {:ok, follow} = Common.follow(alice, eve, %{is_local: true}) # alice follows bob
+      {:ok, follow} = Follows.create(alice, eve, %{is_local: true}) # alice follows bob
       q = """
       { follow(followId: "#{follow.id}") {
           #{follow_basics()}
@@ -205,7 +205,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, like} = Common.like(alice, bob, %{is_local: true}) # alice likes bob
+      {:ok, like} = Likes.create(alice, bob, %{is_local: true}) # alice likes bob
       q = """
       { like(likeId: "#{like.id}") {
           #{like_basics()}
@@ -223,7 +223,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest with a user like" do
       alice = fake_user!()
       bob = fake_user!()
-      {:ok, like} = Common.like(alice, bob, %{is_local: true}) # alice likes bob
+      {:ok, like} = Likes.create(alice, bob, %{is_local: true}) # alice likes bob
       q = """
       { like(likeId: "#{like.id}") {
           #{like_basics()}
@@ -240,7 +240,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
     test "works for guest with a community like" do
       alice = fake_user!()
       bob = fake_community!(alice)
-      {:ok, like} = Common.like(alice, bob, %{is_local: true}) # alice likes bob
+      {:ok, like} = Likes.create(alice, bob, %{is_local: true}) # alice likes bob
       q = """
       { like(likeId: "#{like.id}") {
           #{like_basics()}
@@ -257,7 +257,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       alice = fake_user!()
       bob = fake_community!(alice)
       eve = fake_collection!(alice, bob)
-      {:ok, like} = Common.like(alice, eve, %{is_local: true}) # alice likes bob
+      {:ok, like} = Likes.create(alice, eve, %{is_local: true}) # alice likes bob
       q = """
       { like(likeId: "#{like.id}") {
           #{like_basics()}
@@ -287,7 +287,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       query = %{query: q, mutation: "Test"}
       assert %{"createLike" => like} = gql_post_data(conn, query)
       assert_like(like)
-      {:ok, _} = Common.find_like(alice, bob)
+      {:ok, _} = Likes.find(alice, bob)
     end
   end
 
@@ -306,7 +306,7 @@ defmodule MoodleNetWeb.GraphQL.CommonTest do
       query = %{query: q, mutation: "Test"}
       assert %{"createFollow" => follow} = gql_post_data(conn, query)
       assert_follow(follow)
-      {:ok, _} = Common.find_follow(alice, bob)
+      {:ok, _} = Follows.find(alice, bob)
     end
   end
   # describe "tags" do

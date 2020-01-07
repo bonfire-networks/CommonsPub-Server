@@ -16,6 +16,11 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   code_reloader: true,
   check_origin: false
 
+config :cors_plug,
+  origin: ["*"],
+  max_age: 86400,
+  methods: ["GET", "POST"]
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
@@ -95,7 +100,7 @@ config :moodle_net, MoodleNet.OAuth,
   scopes: "read,write,follow"
 
 config :moodle_net, MoodleNet.Uploads.Storage,
-  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads"]]]
+  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads/"]]]
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn

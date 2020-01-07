@@ -44,7 +44,7 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_activity!(user, context, overrides \\ %{}) do
-    {:ok, activity} = Activities.create(context, user, Fake.activity(overrides))
+    {:ok, activity} = Activities.create(user, context, Fake.activity(overrides))
     activity
   end
 
@@ -80,22 +80,22 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_collection!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, collection} = Collections.create(community, user, Fake.collection(overrides))
+    {:ok, collection} = Collections.create(user, community, Fake.collection(overrides))
     collection
   end
 
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
-    {:ok, resource} = Resources.create(collection, user, Fake.resource(overrides))
+    {:ok, resource} = Resources.create(user, collection, Fake.resource(overrides))
     resource
   end
 
   def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Comments.create_thread(parent, user, Fake.thread(overrides))
+    {:ok, thread} = Comments.create_thread(user, parent, Fake.thread(overrides))
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create_comment(thread, user, Fake.comment(overrides))
+    {:ok, comment} = Comments.create_comment(user, thread, Fake.comment(overrides))
     comment
   end
 

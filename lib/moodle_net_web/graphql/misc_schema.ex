@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
 
   def fetch_web_metadata(%{url: url}, info) do
     case MoodleNet.MetadataScraper.fetch(url) do
-      {:error, _} -> {:error, MoodleNet.Common.NotFoundError.new(url)}
+      {:error, _} -> {:error, MoodleNet.Common.NotFoundError.new()}
       ret -> ret
     end
   end
