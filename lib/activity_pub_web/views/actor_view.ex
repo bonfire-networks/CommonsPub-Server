@@ -36,6 +36,29 @@ defmodule ActivityPubWeb.ActorView do
     |> Enum.into(%{})
   end
 
+  def render("following.json", %{actor: actor, page: page}) do
+    {:ok, followers} = Actor.get_followings(actor)
+
+    total = length(followers)
+
+    collection(followers, "#{actor.ap_id}/following", page, total)
+    |> Map.merge(Utils.make_json_ld_header())
+  end
+
+  def render("following.json", %{actor: actor}) do
+    {:ok, followers} = Actor.get_followings(actor)
+
+    total = length(followers)
+
+    %{
+      "id" => "#{actor.ap_id}/following",
+      "type" => "Collection",
+      "first" => collection(followers, "#{actor.ap_id}/followers", 1, total),
+      "totalItems" => total
+    }
+    |> Map.merge(Utils.make_json_ld_header())
+  end
+
   def render("followers.json", %{actor: actor, page: page}) do
     {:ok, followers} = Actor.get_followers(actor)
 

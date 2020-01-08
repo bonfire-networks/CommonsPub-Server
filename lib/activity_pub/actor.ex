@@ -363,6 +363,18 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_followings(actor) do
+    {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
+    follows = MoodleNet.Follows.list_by(actor)
+
+    followers =
+      follows
+      |> Enum.map(&get_actor_from_follow/1)
+      |> Enum.filter(fn actor -> actor end)
+
+    {:ok, followers}
+  end
+
   def get_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
     follows = MoodleNet.Follows.list_of(actor)
