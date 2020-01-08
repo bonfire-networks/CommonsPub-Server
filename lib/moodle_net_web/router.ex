@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.Router do
   use MoodleNetWeb, :router
   use Plug.ErrorHandler
   use Sentry.Plug
-  
+
   if Mix.env == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
@@ -133,8 +133,6 @@ defmodule MoodleNetWeb.Router do
   scope ap_base_path, ActivityPubWeb do
     pipe_through(:activity_pub)
 
-    get "/:id", ActivityPubController, :show
-    get "/:id/page", ActivityPubController, :collection_page
     get "/objects/:uuid", ActivityPubController, :object
     get "/actors/:username", ActivityPubController, :actor
     # These don't have to be implemented right now.
