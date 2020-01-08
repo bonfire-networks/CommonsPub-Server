@@ -59,5 +59,41 @@ defmodule ActivityPub.ActivityPubControllerTest do
       assert resp["preferredUsername"] == actor.actor.preferred_username
       assert resp["url"] == resp["id"]
     end
+
+    test "follower collection" do
+      actor = fake_user!()
+      follower = fake_user!()
+
+      MoodleNet.Follows.create(follower, actor, %{is_local: true})
+      {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
+
+      resp =
+        build_conn()
+        |> put_req_header("accept", "application/json")
+        |> get("pub/actors/#{ap_actor.username}/followers")
+        |> json_response(200)
+
+      assert length(resp["first"]["orderedItems"]) == 1
+      assert resp["totalItems"] == 1
+      assert resp["type"] == "Collection"
+    end
+
+    test "follower collection pagination" do
+      actor = fake_user!()
+      follower = fake_user!()
+
+      MoodleNet.Follows.create(follower, actor, %{is_local: true})
+      {:ok, ap_actor} = ActivityPub.Actor.get_by_local_id(actor.id)
+
+      resp =
+        build_conn()
+        |> put_req_header("accept", "application/json")
+        |> get("pub/actors/#{ap_actor.username}/followers?page=1")
+        |> json_response(200)
+
+      assert length(resp["orderedItems"]) == 1
+      assert resp["totalItems"] == 1
+      assert resp["type"] == "CollectionPage"
+    end
   end
 end
