@@ -10,7 +10,7 @@ defmodule ActivityPubWeb.RedirectController do
     frontend_base = MoodleNet.Config.get!(:frontend_base_url)
 
     with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
-         %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_ap_id(ap_id),
+         %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_ap_id(ap_id),
          {:ok, pointer} <- MoodleNet.Meta.find(object.mn_pointer_id),
          {:ok, object} <- MoodleNet.Meta.follow(pointer) do
       case object do

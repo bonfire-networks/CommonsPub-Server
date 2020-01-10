@@ -28,7 +28,7 @@ defmodule ActivityPubWeb.ActivityPubController do
       RedirectController.object(conn, %{"uuid" => uuid})
     else
       with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
-           %Object{} = object <- Object.get_by_ap_id(ap_id),
+           %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
            true <- object.public do
         conn
         |> put_resp_header("content-type", "application/activity+json")
@@ -44,7 +44,7 @@ defmodule ActivityPubWeb.ActivityPubController do
     if get_format(conn) == "html" do
       RedirectController.actor(conn, %{"username" => username})
     else
-      with {:ok, actor} <- Actor.get_by_username(username) do
+      with {:ok, actor} <- Actor.get_cached_by_username(username) do
         conn
         |> put_resp_header("content-type", "application/activity+json")
         |> json(ActorView.render("actor.json", %{actor: actor}))

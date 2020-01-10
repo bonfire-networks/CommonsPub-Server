@@ -15,7 +15,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
     with {:ok, context} <- MoodleNet.Meta.follow(comment.thread.context),
          object_ap_id = Utils.get_object_ap_id(context),
-         {:ok, actor} <- ActivityPub.Actor.get_by_local_id(comment.creator_id),
+         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
          {to, cc} <- Utils.determine_recipients(actor, context),
          object = %{
            "content" => comment.content,
@@ -43,7 +43,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def delete_comment_or_resource(comment) do
-    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_pointer_id(comment.id) do
+    with %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_pointer_id(comment.id) do
       ActivityPub.delete(object)
     else
       _e -> :error
@@ -51,8 +51,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def create_resource(resource) do
-    with {:ok, collection} <- ActivityPub.Actor.get_by_local_id(resource.collection_id),
-         {:ok, actor} <- ActivityPub.Actor.get_by_local_id(resource.creator_id) do
+    with {:ok, collection} <- ActivityPub.Actor.get_cached_by_local_id(resource.collection_id),
+         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id) do
       object = %{
         "name" => resource.name,
         "url" => resource.url,
@@ -82,8 +82,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def create_community(community) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(community.creator_id),
-         {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(community.id) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(community.creator_id),
+         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(community.id) do
       community_object = ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community})
 
       params = %{
@@ -103,11 +103,11 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def create_collection(collection) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(collection.creator_id),
-         {:ok, ap_collection} <- ActivityPub.Actor.get_by_local_id(collection.id),
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(collection.creator_id),
+         {:ok, ap_collection} <- ActivityPub.Actor.get_cached_by_local_id(collection.id),
          collection_object =
            ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
-         {:ok, ap_community} <- ActivityPub.Actor.get_by_local_id(collection.community_id) do
+         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(collection.community_id) do
       params = %{
         actor: actor,
         to: [@public_uri, ap_community.ap_id],
@@ -131,7 +131,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def follow(follow) do
     follow = Repo.preload(follow, creator: :actor, context: [])
 
-    with {:ok, follower} <- Actor.get_by_username(follow.creator.actor.preferred_username),
+    with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
          {:ok, followed} <- MoodleNet.Meta.follow(follow.context),
          followed = Repo.preload(followed, :actor),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
@@ -150,7 +150,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def unfollow(follow) do
     follow = Repo.preload(follow, creator: :actor, context: [])
 
-    with {:ok, follower} <- Actor.get_by_username(follow.creator.actor.preferred_username),
+    with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
          {:ok, followed} <- MoodleNet.Meta.follow(follow.context),
          followed = Repo.preload(followed, :actor),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
@@ -163,7 +163,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def block(block) do
     block = Repo.preload(block, creator: :actor, context: [])
 
-    with {:ok, blocker} <- Actor.get_by_username(block.creator.actor.preferred_username),
+    with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
          {:ok, blocked} <- MoodleNet.Meta.follow(block.context),
          blocked = Repo.preload(blocked, :actor),
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
@@ -177,7 +177,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def unblock(block) do
     block = Repo.preload(block, creator: :actor, context: [])
 
-    with {:ok, blocker} <- Actor.get_by_username(block.creator.actor.preferred_username),
+    with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
          {:ok, blocked} <- MoodleNet.Meta.follow(block.context),
          blocked = Repo.preload(blocked, :actor),
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
@@ -190,7 +190,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def like(like) do
     like = Repo.preload(like, :context)
 
-    with {:ok, liker} <- Actor.get_by_local_id(like.creator_id),
+    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id),
          {:ok, liked} <- MoodleNet.Meta.follow(like.context) do
       object = Utils.get_object(liked)
       ActivityPub.like(liker, object)
@@ -202,7 +202,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def unlike(like) do
     like = Repo.preload(like, :context)
 
-    with {:ok, liker} <- Actor.get_by_local_id(like.creator_id),
+    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id),
          {:ok, liked} <- MoodleNet.Meta.follow(like.context) do
       object = Utils.get_object(liked)
       ActivityPub.unlike(liker, object)
@@ -214,7 +214,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def flag(flag) do
     flag = Repo.preload(flag, creator: :actor, context: [])
 
-    with {:ok, flagger} <- Actor.get_by_username(flag.creator.actor.preferred_username),
+    with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.actor.preferred_username),
          {:ok, flagged} <- MoodleNet.Meta.follow(flag.context) do
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
@@ -226,7 +226,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
               ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
 
             %{
-              statuses: [ActivityPub.Object.get_by_pointer_id(flagged.id)],
+              statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],
               account: account
             }
 
@@ -270,6 +270,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
            local: true
          } do
       ActivityPub.update(params)
+      ActivityPub.Actor.set_cache(actor)
     else
       _e -> :error
     end
@@ -277,8 +278,10 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   # Works for Users, Collections, Communities (not MN.Actor)
   def delete_actor(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_local_id(actor.id) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id) do
       ActivityPub.delete(actor)
+      #FIXME: currently the cache will get re-set when the delete activity is being federated
+      ActivityPub.Actor.invalidate_cache(actor)
     end
   end
 end
