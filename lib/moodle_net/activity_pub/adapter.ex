@@ -36,7 +36,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def get_actor_by_ap_id(ap_id) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
+    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
          {:ok, actor} <- get_actor_by_username(actor.username) do
       {:ok, actor}
     else
