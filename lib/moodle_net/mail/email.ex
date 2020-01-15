@@ -32,8 +32,7 @@ defmodule MoodleNet.Mail.Email do
   defp base_email(user) do
     new_email()
     |> to(user.local_user.email)
-    # FIXME domain configuration
-    |> from("no-reply@moodle.net")
+    |> from(reply_to_email())
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
 
@@ -45,5 +44,10 @@ defmodule MoodleNet.Mail.Email do
   # Note that the base url is expected to end without a slash (/)
   defp frontend_url(path) do
     Application.fetch_env!(:moodle_net, :frontend_base_url) <> "/" <> path
+  end
+
+  defp reply_to_email do
+    Application.fetch_env!(:moodle_net, MoodleNet.Mail.MailService)
+    |> Keyword.get(:reply_to, "no-reply@moodle.net")
   end
 end
