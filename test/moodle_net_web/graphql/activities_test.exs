@@ -13,6 +13,9 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchemaTest do
   describe "activity" do
     @tag :skip
     test "placeholder" do
+      # q = """
+      # { activity(activityId: "#{activity.id}") { #{activity_basics()} }}
+      # """
     end
   end
 
