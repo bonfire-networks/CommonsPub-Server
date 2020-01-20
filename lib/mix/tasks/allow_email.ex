@@ -20,11 +20,11 @@ defmodule Mix.Tasks.MoodleNet.AllowEmail do
   def run([email | _]) when is_binary(email) do
     Mix.Task.run("app.start")
 
-    if MoodleNet.Allows.is_register_whitelisted?(email) do
-      Mix.shell.info("#{email} already present in whitelist.")
+    if MoodleNet.Access.is_register_accessed?(email) do
+      Mix.shell.info("#{email} already allowed to sign up.")
     else
-      {:ok, _} = MoodleNet.Allows.create_register_email(email)
-      Mix.shell.info("#{email} added to whitelist.")
+      {:ok, _} = MoodleNet.Access.create_register_email(email)
+      Mix.shell.info("#{email} added to the allow list.")
     end
   end
 
