@@ -104,3 +104,5 @@ config :moodle_net, MoodleNet.Uploads.Storage,
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn
+
+config :logger, truncate: :infinity
