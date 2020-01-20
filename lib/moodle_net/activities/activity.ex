@@ -35,7 +35,7 @@ defmodule MoodleNet.Activities.Activity do
     |> Changeset.change(
       creator_id: creator_id,
       context_id: context_id,
-      is_public: true,
+      is_public: true
     )
     |> Changeset.validate_required(@required)
     |> common_changeset()
