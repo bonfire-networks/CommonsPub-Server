@@ -40,9 +40,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
       else
         _e -> :error
       end
-    catch
-      _ -> :error
     rescue
+      _ -> :error
+    catch
       _ -> :error
     end
   end

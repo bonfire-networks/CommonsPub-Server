@@ -3,16 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
-  alias MoodleNet.{Batching, Follows, GraphQL, Repo}
+  alias MoodleNet.{Follows, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Follows.{Follow, NotFollowableError}
-  alias MoodleNet.Meta.{Pointers, Table}
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.Comment
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{CommonResolver, FollowsResolver}
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def follow(%{follow_id: id}, %{context: %{current_user: user}}) do

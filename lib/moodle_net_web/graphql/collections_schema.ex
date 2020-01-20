@@ -6,20 +6,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   GraphQL collection fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-  import Absinthe.Resolution.Helpers
-  alias MoodleNet.Collections
-  alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
     CollectionsResolver,
     CommentsResolver,
-    CommunitiesResolver,
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
-    LocalisationResolver,
-    ResourcesResolver,
     UsersResolver,
   }
 

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
 
-  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
   alias MoodleNet.Peers
   alias MoodleNet.Repo
@@ -15,7 +14,7 @@ defmodule MoodleNet.Meta.Pointers do
   def many(filters \\ []), do: {:ok, Repo.all(PointersQueries.query(Pointer, filters))}
 
   def maybe_forge!(%Pointer{} = pointer), do: pointer
-  def maybe_forge!(%{__struct__: id} = pointed), do: forge!(pointed)
+  def maybe_forge!(%{__struct__: _} = pointed), do: forge!(pointed)
 
   @doc """
   Retrieves the Table that a pointer points to
@@ -63,7 +62,6 @@ defmodule MoodleNet.Meta.Pointers do
   def preload!(pointer_or_pointers, opts \\ [])
   def preload!(%Pointer{id: id, table_id: table_id}=pointer, opts) do
     if is_nil(pointer.pointed) or Keyword.get(opts, :force) do
-      table = TableService.lookup_schema!(pointer.table_id)
       {:ok, [pointed]} = loader(table_id, id: id)
       %{ pointer | pointed: pointed }
     else

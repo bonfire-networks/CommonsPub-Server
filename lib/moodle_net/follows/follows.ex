@@ -2,11 +2,8 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
-  alias MoodleNet.{Activities, Batching, Common, Repo}
+  alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
@@ -15,9 +12,8 @@ defmodule MoodleNet.Follows do
     Queries,
   }
   alias MoodleNet.Meta.{Pointer, Pointers}
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
   alias Ecto.Changeset
-  import Ecto.Query
 
   def one(filters), do: Repo.single(Queries.query(Follow, filters))
 
@@ -55,7 +51,7 @@ defmodule MoodleNet.Follows do
   def create(%User{} = follower, %Pointer{}=followed, %{}=fields, opts) do
     create(follower, Pointers.follow!(followed), fields, opts)
   end
-  def create(%User{} = follower, %{outbox_id: outbox_id}=followed, fields, opts) do
+  def create(%User{} = follower, %{outbox_id: _}=followed, fields, opts) do
     if followed.__struct__ in valid_contexts() do
       Repo.transact_with(fn ->
         case one(creator_id: follower.id, context_id: followed.id) do
@@ -88,7 +84,8 @@ defmodule MoodleNet.Follows do
     end
   end
 
-  defp federate(%Follow{is_local: true} = follow, opts \\ []) do
+  defp federate(%Follow{is_local: true} = follow, opts \\ [])
+  defp federate(%Follow{is_local: true} = follow, opts) do
     if Keyword.get(opts, :federate, true) do
       MoodleNet.FeedPublisher.publish(%{
         "context_id" => follow.context_id,

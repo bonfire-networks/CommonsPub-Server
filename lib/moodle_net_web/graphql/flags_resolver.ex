@@ -4,9 +4,9 @@
 defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   alias MoodleNet.{Flags, GraphQL, Repo}
-  alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError}
+  alias MoodleNet.Flags.Flag
   alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Meta.{Pointers, Table}
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 

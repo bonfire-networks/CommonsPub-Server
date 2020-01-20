@@ -48,7 +48,7 @@ defmodule MoodleNet.Localisation.CountryService do
   def lookup(key) when is_binary(key),
     do: lookup_result(key, :ets.lookup(@table_name, key))
 	  
-  defp lookup_result(key, []), do: {:error, CountryNotFoundError.new()}
+  defp lookup_result(_, []), do: {:error, CountryNotFoundError.new()}
   defp lookup_result(_, [{_,v}]), do: {:ok, v}
 
   @spec lookup!(iso2_code :: binary) :: Country.t

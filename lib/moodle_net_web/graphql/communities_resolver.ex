@@ -6,23 +6,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   Performs the GraphQL Community queries.
   """
   import Ecto.Query
-  alias Absinthe.Relay
-  alias MoodleNet.{
-    Accounts,
-    Actors,
-    Batching,
-    Common,
-    Collections,
-    Communities,
-    GraphQL,
-    Repo,
-    Threads,
-    Users,
-  }
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Batching.{NodesPages, EdgesPages}
+  alias MoodleNet.{Collections, Communities, GraphQL, Repo}
+  alias MoodleNet.Batching.EdgesPages
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.FeedActivities
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
@@ -75,18 +61,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   |> GraphQL.response(info)
   # end
 
-  def canonical_url_edge(%Community{}=community, _, info) do
-    {:ok, community.actor.canonical_url}
-  end
-
-  def preferred_username_edge(%Community{}=community, _, info) do
-    {:ok, community.actor.preferred_username}
-  end
-
-  def is_local_edge(%Community{}=community, _, info) do
-    {:ok, is_nil(community.actor.peer_id)}
-  end
-
   def collections_count_edge(%Community{}=community, _, info) do
     
   end
@@ -107,21 +81,19 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     edges
   end
 
-  def inbox_edge(community, _, info) do
-    # {:ok, GraphQL.edge_list(activities, count)}
-    # |> GraphQL.response(info)    
-    {:ok, GraphQL.feed_list([], 0)}
+  def inbox_edge(_community, _, _info) do
+    {:ok, EdgesPage.new([], [], &(&1.id))}
   end
 
   def outbox_edge(%Community{outbox_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_outbox_edge, user}, id, EdgesPages.getter(id)
+    batch {__MODULE__, :batch_outbox_edge}, id, EdgesPages.getter(id)
   end
 
-  def batch_outbox_edge(user, ids) do
+  def batch_outbox_edge(_, ids) do
     {:ok, edges} = FeedActivities.edges_pages(&(&1.feed_id), &(&1.id), id: ids)
     edges
   end
 
-  def last_activity_edge(_, _, info), do: {:ok, DateTime.utc_now()}
+  def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
 end

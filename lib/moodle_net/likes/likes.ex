@@ -41,7 +41,7 @@ defmodule MoodleNet.Likes do
     Repo.insert(Like.create_changeset(liker, liked, fields))
   end
 
-  defp publish(%Like{} = like, verb) do
+  defp publish(%Like{} = _like, _verb) do
     # MoodleNet.FeedPublisher.publish(%{
     #   "verb" => verb,
     #   "creator_id" => like.creator_id,

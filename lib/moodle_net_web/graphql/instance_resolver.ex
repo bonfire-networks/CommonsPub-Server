@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Common, Fake, Features, Feeds, GraphQL, Repo, Instance}
+  alias MoodleNet.{Features, Feeds}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities

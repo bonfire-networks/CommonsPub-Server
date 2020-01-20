@@ -6,16 +6,15 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias Ecto.ULID
   alias MoodleNet.Batching.Edges
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, %{context: %{current_user: user}}) do
+  def context_edge(%{context_id: id}, _, _info)
     batch {__MODULE__, :batch_context_edge, user}, id, Edges.getter(id)
   end
   
-  def batch_context_edge(user, ids) do
+  def batch_context_edge(_, ids) do
     {:ok, ptrs} = Pointers.many(id: ids)
     Edges.new(Pointers.follow!(ptrs), &(&1.id))
   end

@@ -2,23 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
-  import Ecto.Query
   alias Ecto.Changeset
-
-  alias MoodleNet.Actors.{
-    Actor,
-    ActorFollowerCount
-  }
-
-  alias Ecto.Association.NotLoaded
-  alias MoodleNet.{Activities, Actors, Collections, Common, Feeds, Follows, Meta, Repo, Users}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
-  alias MoodleNet.Common.{Query, NotFoundError}
-  alias MoodleNet.Communities.{Community, Outbox, Queries}
+  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
+  alias MoodleNet.Batching.{Edges, EdgesPage, NodesPage}
+  alias MoodleNet.Communities.{Community, Queries}
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Localisation.Language
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
 
   
   @doc """
@@ -137,8 +126,7 @@ defmodule MoodleNet.Communities do
     Repo.transact_with(fn ->
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(community.actor, attrs),
-           act_attrs = %{verb: "updated", is_local: is_nil(community.actor.peer_id)},
-           community = %{ comm | actor: actor },
+           community <- %{ comm | actor: actor },
            :ok <- publish(community, :updated)  do
         {:ok, %{ comm | actor: actor}}
       end

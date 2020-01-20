@@ -40,7 +40,7 @@ defmodule MoodleNet.Common.Changeset do
     end)
   end
 
-  defp valid_http_uri?(%URI{scheme: scheme, host: host, path: path}) do
+  defp valid_http_uri?(%URI{scheme: scheme, host: host}) do
     scheme in ["http", "https"] && not is_nil(host)
   end
 
@@ -170,7 +170,7 @@ defmodule MoodleNet.Common.Changeset do
         end
       :error ->
         case Changeset.fetch_field(changeset, bool_field) do
-          {:ok, val} -> changeset
+          {:ok, _} -> changeset
           :error ->
             cs = Changeset.put_change(changeset, bool_field, default)
             change_synced_timestamps(cs, bool_field, on_field, off_field, default)
@@ -180,7 +180,7 @@ defmodule MoodleNet.Common.Changeset do
   end
 
   def validate_exactly_one(changeset, [column|_]=columns, message) do
-    sum = Enum.reduce(column, 0, fn field, acc ->
+    sum = Enum.reduce(columns, 0, fn field, acc ->
       if is_nil(Changeset.get_field(changeset, field)),
         do: acc,
         else: acc + 1

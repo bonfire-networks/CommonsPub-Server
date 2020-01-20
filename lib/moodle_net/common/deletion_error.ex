@@ -6,13 +6,13 @@ defmodule MoodleNet.Common.DeletionError do
   defstruct @enforce_keys
 
   alias Ecto.Changeset
+  alias MoodleNet.Common.DeletionError
 
   @type t :: %__MODULE__{ changeset: Changeset.t() }
 
-  @spec new(term()) :: [t()]
+  @spec new(term) :: t
   @doc "Create a new DeletionError"
-  def new(changeset) do
-    []
+  def new(changeset), do: %DeletionError{ changeset: changeset }
   end
   
 end

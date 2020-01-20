@@ -27,7 +27,6 @@ defmodule MoodleNet.Uploads.Storage do
     upload_provider() |> Belt.delete(file_id)
   end
 
-  @scope :test
   @spec delete_all() :: :ok | {:error, term}
   def delete_all do
     upload_provider() |> Belt.delete_all()

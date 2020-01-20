@@ -283,7 +283,7 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{id: id, inbox_id: inbox_id}=user, _opts \\ %{}) do
+  def inbox(%User{id: id, inbox_id: inbox_id}, _opts \\ %{}) do
     Repo.transact_with(fn ->
       {:ok, subs} = FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
       ids = [inbox_id | Enum.map(subs, &(&1.feed_id)) ]

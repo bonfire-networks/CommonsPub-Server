@@ -9,10 +9,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   alias MoodleNetWeb.GraphQL.{
     CommonResolver,
-    CollectionsResolver,
     FlagsResolver,
     LikesResolver,
-    LocalisationResolver,
     ResourcesResolver,
     UsersResolver,
   }

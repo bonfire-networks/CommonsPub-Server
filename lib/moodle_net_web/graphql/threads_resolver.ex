@@ -4,14 +4,9 @@
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.Batching.{NodesPage, EdgesPages}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Batching.{EdgesPages}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, Comments, Thread}
-  alias MoodleNet.Users.User
+  alias MoodleNet.Threads.{Comments, Thread}
   import Absinthe.Resolution.Helpers, only: [batch: 3]
   
   def thread(%{thread_id: id}, info), do: Threads.one(id: id, user: info.context.current_user)

@@ -4,7 +4,7 @@
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias MoodleNet.Batching.{Edge, EdgesPage, EdgesPages, PageInfo}
+  alias MoodleNet.Batching.{Edge, EdgesPage, PageInfo}
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
   defprotocol Response do

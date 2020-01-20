@@ -4,14 +4,10 @@
 defmodule MoodleNetWeb.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
-    CollectionsResolver,
     CommonResolver,
-    CommentsResolver,
-    CommunitiesResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
-    LocalisationResolver,
     UsersResolver,
   }
 

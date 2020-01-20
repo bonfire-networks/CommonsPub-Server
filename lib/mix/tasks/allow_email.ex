@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Mix.Tasks.MoodleNet.AllowEmail do
   use Mix.Task
-  import Mix.Ecto
 
   @usage "mix moodle_net.allow_email EMAIL"
 

@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Queries do
 
-  alias MoodleNet.{Repo}
-  alias MoodleNet.Threads.{Comment, FollowerCount, LastComment, Thread}
+  alias MoodleNet.Threads.{LastComment, Thread}
+  alias MoodleNet.Follows.FollowerCount
   alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
 

@@ -38,14 +38,14 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end)
   end
 
-  def is_public(%Upload{}=upload, _, info), do: not is_nil(upload.published_at)
+  def is_public(%Upload{}=upload, _, _info), do: not is_nil(upload.published_at)
 
-  def parent(%Upload{parent_id: id}, _, info) do
+  def parent(%Upload{parent_id: id}, _, _info) do
     with {:ok, pointer} <- Pointers.one(id: id) do
       {:ok, Pointers.follow!(pointer)}
     end
   end
 
-  def uploader(%Upload{uploader_id: id}, _, info), do: Users.one(id: id)
+  def uploader(%Upload{uploader_id: id}, _, _info), do: Users.one(id: id)
 
 end

@@ -26,14 +26,14 @@ defmodule MoodleNet.Workers.APPublishWorker do
       Pointers.one!(id: context_id)
       |> Pointers.follow!()
       |> only_local(&publish/1)
-    catch
-      reason ->
+    rescue
+      _reason ->
         Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
         for line <- __STACKTRACE__ do
           Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
         end
-    rescue
-      reason ->
+    catch
+      _reason ->
         Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
         for line <- __STACKTRACE__ do
           Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")

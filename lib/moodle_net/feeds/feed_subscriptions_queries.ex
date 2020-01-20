@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds.FeedSubscriptionsQueries do
   alias MoodleNet.Feeds.FeedSubscription
-  alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
 
   def query(FeedSubscription) do

@@ -20,11 +20,8 @@ defmodule MoodleNet.Meta.TableService do
   supervision hierarchy neatly.
   """
   
-  alias MoodleNet.Meta.{Introspection, Table, TableService, TableNotFoundError}
+  alias MoodleNet.Meta.{Introspection, Table, TableNotFoundError}
   alias MoodleNet.Repo
-  import Ecto.Query, only: [select: 3]
-  import MoodleNet.Meta.Introspection,
-    only: [ecto_schema_modules: 0, ecto_schema_table: 1]
 
   use GenServer
 

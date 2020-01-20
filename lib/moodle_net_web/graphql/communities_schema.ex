@@ -63,11 +63,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :id, non_null(:string)
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CommunitiesResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
     @desc "An instance-unique identifier shared with users and collections"
     field :preferred_username, non_null(:string) do
-      resolve &CommunitiesResolver.preferred_username_edge/3
+      resolve &ActorsResolver.preferred_username_edge/3
     end
 
     @desc "A name field"
@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "Whether the community is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &CommunitiesResolver.is_local_edge/3
+      resolve &ActorsResolver.is_local_edge/3
     end
     @desc "Whether the community has a public profile"
     field :is_public, non_null(:boolean) do

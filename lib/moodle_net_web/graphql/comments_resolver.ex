@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     edges
   end
 
-  def thread_edge(%Comment{thread: %Thread{}=thread}=parent,_, info), do: {:ok, thread}
+  def thread_edge(%Comment{thread: %Thread{}=thread}, _, _info), do: {:ok, thread}
   def thread_edge(%Comment{thread_id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_thread_edge, user}, id, Edges.getter(id)
   end
@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     edges
   end
 
-  def threads_edge(%{id: id}=parent, _, %{context: %{current_user: user}}) do
+  def threads_edge(%{id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
   end
 

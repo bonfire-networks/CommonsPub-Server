@@ -8,9 +8,6 @@ defmodule MoodleNet.Threads.Comment do
     only: [change_public: 1, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
 

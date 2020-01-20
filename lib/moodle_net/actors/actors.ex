@@ -14,9 +14,6 @@ defmodule MoodleNet.Actors do
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.Repo
   alias MoodleNet.Actors.{Actor, Queries}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Users.User
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Actor, filters))

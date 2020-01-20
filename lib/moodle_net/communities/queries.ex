@@ -108,14 +108,14 @@ defmodule MoodleNet.Communities.Queries do
   * Most recently updated (TODO recent activity)
   * Community ULID (Most recently created + jitter)
   """
-  def list(q, filters \\ []) do
+  def list(q) do
     order_by q, [community: c, follower_count: f],
       desc: coalesce(f.count, 0),
       desc: c.updated_at,
       desc: c.id
   end
 
-  def group_count(q, key, filters \\ []) do
+  def group_count(q, key) do
     q
     |> group_by([community: c], field(c, ^key))
     |> select([community: c], {field(c, ^key), count(c.id)})

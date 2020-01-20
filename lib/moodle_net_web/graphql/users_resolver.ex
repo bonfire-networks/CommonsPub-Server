@@ -5,19 +5,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
-  alias Absinthe.Resolution
   alias MoodleNetWeb.GraphQL
   alias MoodleNet.{
     Access,
     Actors,
-    Batching,
     Collections,
-    Common,
     Communities,
     Follows,
     GraphQL,
     Likes,
-    OAuth,
     Repo,
     Users,
   }
@@ -75,10 +71,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       [order: :timeline_desc],
       [group_count: :creator_id]
     )
-  end
-
-  def comments_edge(%User{id: id}, _, %{context: %{current_user: user}}) do
-    Comments.many(user: user, creator_id: id)
   end
 
   def create_user(%{user: attrs}, info) do

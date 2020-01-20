@@ -7,7 +7,6 @@ defmodule MoodleNet.Activities.Activity do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
 
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias Ecto.Changeset
 
