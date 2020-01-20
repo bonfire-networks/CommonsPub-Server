@@ -10,8 +10,6 @@ defmodule MoodleNetWeb.ConnCase do
   use ExUnit.CaseTemplate
   require Phoenix.ConnTest
 
-  @endpoint MoodleNetWeb.Endpoint
-
   using do
     quote do
       use Phoenix.ConnTest
