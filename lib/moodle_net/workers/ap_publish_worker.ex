@@ -6,34 +6,35 @@ defmodule MoodleNet.Workers.APPublishWorker do
 
   require Logger
 
-  alias MoodleNet.{Actors, Meta, Users}
+  alias MoodleNet.{Actors, Users}
   alias MoodleNet.ActivityPub.Publisher
-  alias MoodleNet.Comments.Comment
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.Comment
   import MoodleNet.Workers.Utils, only: [configure_logger: 1]
 
   @impl Worker
   def perform(%{"context_id" => context_id}, _job) do
     configure_logger(__MODULE__)
     try do
-      context = context_id |> Meta.find!() |> Meta.follow!()
-  
-      only_local(context, &publish/1)
+      Pointers.one!(id: context_id)
+      |> Pointers.follow!()
+      |> only_local(&publish/1)
     catch
       reason ->
-	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
         for line <- __STACKTRACE__ do
           Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
         end
     rescue
       reason ->
-	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
         for line <- __STACKTRACE__ do
           Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
         end
@@ -96,23 +97,16 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   defp only_local(%{actor_id: actor_id} = context, commit_fn) do
-    with {:ok, actor} <- Actors.fetch(actor_id) do
-      if is_nil(actor.peer_id) do
-        commit_fn.(context)
-      else
-        :ignored
-      end
+    with {:ok, actor} <- Actors.one([:remote, id: actor_id]) do
+      commit_fn.(context)
+    else _ -> :ignored
     end
   end
 
   defp only_local(%{creator_id: creator_id} = context, commit_fn) do
-    with {:ok, user} <- Users.fetch_private(creator_id),
-         {:ok, actor} <- Actors.fetch(user.actor_id) do
-      if is_nil(actor.peer_id) do
-        commit_fn.(context)
-      else
-        :ignored
-      end
+    with {:ok, user} <- Users.one([:remote, id: creator_id]) do
+      commit_fn.(context)
+    else _ -> :ignored
     end
   end
 

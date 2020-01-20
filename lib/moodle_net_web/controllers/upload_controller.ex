@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.UploadController do
 
   def get(conn, %{"path" => path_parts}) do
     path = Enum.join(path_parts, "/")
-    with {:ok, path} <- MoodleNet.Uploads.fetch_by_path(path) do
+    with {:ok, path} <- Uploads.fetch_by_path(path) do
       conn
       # |> put_resp_content_type(file.content_type)
       |> send_file(200, path)

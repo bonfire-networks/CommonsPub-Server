@@ -69,7 +69,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
       assert created_actor.actor.preferred_username == username
     end
 
@@ -78,11 +78,14 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} =
+        Adapter.create_remote_actor(actor.data, username)
 
-      %ActivityPub.Object{} = object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
+      assert %ActivityPub.Object{} = object =
+        ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      %MoodleNet.Meta.Pointer{} = MoodleNet.Meta.find!(object.mn_pointer_id)
+      assert {:ok, %MoodleNet.Meta.Pointer{}} =
+        MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
     end
   end
 
@@ -100,10 +103,10 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "reply to a comment" do
       actor = fake_user!()
       community = fake_user!() |> fake_community!()
-      {:ok, thread} = MoodleNet.Comments.create_thread(actor, community, %{is_local: true})
+      {:ok, thread} = MoodleNet.Threads.create(actor, community, %{is_local: true})
 
       {:ok, comment} =
-        MoodleNet.Comments.create_comment(actor, thread, %{is_local: true, content: "hi"})
+        MoodleNet.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})
 
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
       reply_actor = actor()
@@ -319,7 +322,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Comments.fetch_comment(comment.id)
+      assert {:error, _} = MoodleNet.Threads.Comments.one(id: comment.id)
     end
 
     test "resource deletes" do

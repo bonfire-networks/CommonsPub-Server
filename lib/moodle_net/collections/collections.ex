@@ -2,198 +2,71 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.{Activities, Actors, Common, Communities, Feeds, Meta, Users, Repo}
+  alias MoodleNet.{Activities, Actors, Common, Communities, Feeds, Follows, Meta, Users, Repo}
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Common.Query
-  alias MoodleNet.Collections.{Collection, Outbox}
+  alias MoodleNet.Collections.{Collection, Outbox, Queries}
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Users.User
+  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Users.{LocalUser, User}
   alias Ecto.Association.NotLoaded
   import Ecto.Query
 
-  def graphql_data(ctx) do
-    Dataloader.Ecto.new Repo,
-      query: &graphql_query/2,
-      default_params: %{ctx: ctx}
+  @doc """
+  Retrieves a single collection by arbitrary filters.
+  Used by:
+  * GraphQL Item queries
+  * ActivityPub integration
+  * Various parts of the codebase that need to query for collections (inc. tests)
+  """
+  def one(filters), do: Repo.single(Queries.query(Collection, filters))
+
+  @doc """
+  Retrieves a list of collections by arbitrary filters.
+  Used by:
+  * Various parts of the codebase that need to query for collections (inc. tests)
+  """
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
+
+  def edges(group_fn, filters \\ [])
+  when is_function(group_fn, 1) do
+    {:ok, edges} = many(filters)
+    {:ok, Edges.new(edges, group_fn)}
   end
 
-  def graphql_query(Collection, context) do
-    IO.inspect(path: :collection)
-    list_q()
-  end
+  @doc """
+  Retrieves a NodesPage of collections according to various filters
 
-  def graphql_query({Collection, :community}, context) do
-    IO.inspect(got_context: context)
-    Communities.list()
-  end
-
-  def graphql_query(q, context) do
-    IO.inspect(got_context: context)
-    Community
-  end
-
-  def count_for_list(), do: Repo.one(count_for_list_q())
-
-  @spec list() :: [Collection.t()]
-  def list() do
-    Repo.all(list_q())
-    |> Repo.preload(:resources)
-  end
-
-  @doc "A query for selecting from the collection"
-  def base_q() do
-    from coll in Collection, as: :collection
-  end
-
-  @doc "Transform a query to join the collection's actor"
-  def join_actor_q(q) do
-    join q, :inner, [collection: c],
-      actor in assoc(c, :actor), as: :collection_actor
-  end
-
-  @doc "Transforms a query to join from collections to their communities"
-  def join_community_q(q) do
-    join q, :inner, [collection: c],
-      comm in assoc(c, :community),
-      as: :community
-  end
-
-  @doc "Transforms a query to join from collections to their follower counts"
-  def join_follower_count_q(q) do
-    join q, :left, [collection: coll],
-      j in assoc(coll, :follower_count),
-      as: :collection_follower_count
-  end
-
-  def filter_for_list_all(q) do
-    q
-    |> filter_private_q()
-    |> filter_deleted_q()
-    |> filter_disabled_q()
-  end
-
-  @doc "Transforms a query to filter out private collections"
-  def filter_private_q(q) do
-    where q, [collection: c], not is_nil(c.published_at)
-  end
-
-  @doc "Transforms a query to filter out deleted collections"
-  def filter_deleted_q(q) do
-    where q, [collection: c], is_nil(c.deleted_at)
-  end
-
-  @doc "Transforms a query to filter out disabled collections"
-  def filter_disabled_q(q) do
-    where q, [collection: c], is_nil(c.disabled_at)
-  end
-
-  defp list_q() do
-    base_q()
-    |> join_actor_q()
-    |> join_community_q()
-    |> join_follower_count_q()
-    |> filter_for_list_all()
-    |> Communities.filter_private_q()
-    |> Communities.filter_deleted_q()
-  end
-
-  defp only_from_undeleted_communities(query) do
-    from(q in query,
-      join: c in assoc(q, :community),
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at)
-    )
-  end
-
-  defp order_by_follower_count_q(query) do
-    from(q in query,
-      left_join: fc in assoc(q, :follower_count),
-      order_by: [desc: fc.count, desc: q.id],
-      preload: [follower_count: fc]
-    )
-  end
-
-  defp count_for_list_q() do
-    basic_list_count_q()
-    |> only_from_undeleted_communities()
-  end
-
-  def count_for_list_in_community(%Community{id: id}) do
-    Repo.one(count_for_list_in_community_q(id))
-  end
-
-  def list_in_community(%Community{id: id}) do
-    Repo.all(list_in_community_q(id))
-  end
-
-  defp basic_list_q() do
-    from(coll in Collection,
-      join: a in assoc(coll, :actor),
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      select: coll,
-      preload: [actor: a]
-    )
-  end
-
-  defp basic_list_count_q() do
-    from(coll in Collection,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      select: count(coll))
-  end
-
-  defp list_in_community_q(id) do
-    basic_list_q()
-    |> where([coll], coll.community_id == ^id)
-  end
-
-  defp count_for_list_in_community_q(id) do
-    basic_list_count_q()
-    |> where([coll], coll.community_id == ^id)
-  end
-
-  def fetch(id) when is_binary(id) do
-    with {:ok, coll} <- Repo.single(fetch_q(id)) do
-      {:ok, preload(coll)}
+  Used by:
+  * GraphQL resolver bulk resolution global resolution
+  """
+  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def nodes_page(cursor_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Collection, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, NodesPage.new(data, count, cursor_fn)}
     end
   end
 
-  defp fetch_q(id) do
-    from(coll in Collection,
-      join: comm in assoc(coll, :community),
-      join: a in assoc(coll, :actor),
-      where: coll.id == ^id,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
-      select: coll,
-      preload: [actor: a]
-    )
-  end
+  @doc """
+  Retrieves an EdgesPages of collections according to various filters
 
-  defp fetch_by_username_q(username) do
-    from(coll in Collection,
-      join: comm in assoc(coll, :community),
-      join: a in assoc(coll, :actor),
-      on: coll.actor_id == a.id,
-      where: a.preferred_username == ^username,
-      where: not is_nil(coll.published_at),
-      where: is_nil(coll.deleted_at),
-      where: not is_nil(comm.published_at),
-      where: is_nil(comm.deleted_at),
-      select: coll,
-      preload: [actor: a]
-    )
-  end
-
-
-  def fetch_by_username(username) when is_binary(username) do
-    with {:ok, coll} <- Repo.single(fetch_by_username_q(username)) do
-      {:ok, preload(coll)}
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def edges_pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
+    {data_q, count_q} = Queries.queries(Collection, base_filters, data_filters, count_filters)
+    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
+      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
     end
   end
+
+  ## mutations
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
@@ -203,7 +76,8 @@ defmodule MoodleNet.Collections do
            {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(creator, community, coll, activity, :created) do
+           :ok <- publish(creator, community, coll, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
         {:ok, coll}
       end
     end)
@@ -213,15 +87,15 @@ defmodule MoodleNet.Collections do
   defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
 
   defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create_feed(),
-         {:ok, outbox} <- Feeds.create_feed() do
+    with {:ok, inbox} <- Feeds.create(),
+         {:ok, outbox} <- Feeds.create() do
       extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
       {:ok, Map.merge(attrs, extra)}
     end
   end
 
   defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create_feed() do
+    with {:ok, outbox} <- Feeds.create() do
       {:ok, Map.put(attrs, :outbox_id, outbox.id)}
     end
   end
@@ -236,7 +110,7 @@ defmodule MoodleNet.Collections do
       community.outbox_id, creator.outbox_id,
       collection.outbox_id, Feeds.instance_outbox_id(),
     ]
-    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+    with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish(collection.id, creator.id, collection.actor.peer_id)
     end
   end
@@ -277,19 +151,6 @@ defmodule MoodleNet.Collections do
       end
     end)
   end
-
-  def preload(collection, opts \\ [])
-
-  def preload(%Collection{} = collection, opts) do
-    Repo.preload(collection, :actor, opts)
-  end
-
-  def preload(collections, opts) when is_list(collections) do
-    Repo.preload(collections, :actor, opts)
-  end
-
-  def fetch_creator(%Collection{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
-  def fetch_creator(%Collection{creator: creator}), do: {:ok, creator}
 
   def outbox(collection, opts \\ %{})
   def outbox(%Collection{outbox_id: outbox_id}=collection, %{}=opts) do

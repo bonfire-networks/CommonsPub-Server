@@ -1,17 +1,16 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.CommentsTest do
+defmodule MoodleNet.Threads.CommentsTest do
   use MoodleNet.DataCase, async: true
   use Oban.Testing, repo: MoodleNet.Repo
 
   import MoodleNet.Test.Faking
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Comments
-  alias MoodleNet.Comments.Thread
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias MoodleNet.Threads.{Comments, Thread}
   alias MoodleNet.Test.Fake
 
   setup do

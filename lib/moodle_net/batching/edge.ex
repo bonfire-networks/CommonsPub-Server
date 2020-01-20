@@ -5,7 +5,7 @@ defmodule MoodleNet.Batching.Edge do
   @enforce_keys [:cursor, :node]
   defstruct @enforce_keys
 
-  alias MoodleNet.GraphQL.Edge
+  alias MoodleNet.Batching.Edge
 
   @type t :: %Edge{
     node: term,

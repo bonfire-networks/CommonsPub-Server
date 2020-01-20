@@ -2,14 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.Mail.Email do
   @moduledoc """
   Email Bamboo module
   """
   import MoodleNetWeb.Gettext
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
-  alias MoodleNet.Users
 
   def welcome(user, token) do
     url = email_confirmation_url(user.id, token.id)
@@ -32,9 +30,8 @@ defmodule MoodleNet.Mail.Email do
   end
 
   defp base_email(user) do
-    {:ok, local_user} = Users.fetch_local_user(user)
     new_email()
-    |> to(local_user.email)
+    |> to(user.local_user.email)
     # FIXME domain configuration
     |> from("no-reply@moodle.net")
     |> put_layout({MoodleNetWeb.LayoutView, :email})
