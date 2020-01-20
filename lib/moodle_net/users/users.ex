@@ -5,100 +5,50 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
-  import Ecto.Query, only: [from: 2]
-  alias MoodleNet.{Access, Actors, Common, Feeds, Meta, Repo}
-  alias MoodleNet.Actors.{Actor, ActorRevision}
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Feedsk
+  alias MoodleNet.{Access, Actors, Feeds, Repo}
+  alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
+  alias MoodleNet.Batching.{Edges, NodesPage, EdgesPages}
   alias MoodleNet.Mail.{Email, MailService}
 
   alias MoodleNet.Users.{
     EmailConfirmToken,
-    Inbox,
     LocalUser,
-    Outbox,
     ResetPasswordToken,
     TokenAlreadyClaimedError,
     TokenExpiredError,
+    Queries,
     User,
-    UserFlag,
   }
 
   alias Ecto.Changeset
 
-  def data(ctx) do
-    Dataloader.Ecto.new Repo,
-      query: &query/2,
-      default_params: %{ctx: ctx}
-  end
+  def one(filters), do: Repo.single(Queries.query(User, filters))
 
-  def query(q, %{ctx: _}), do: q
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(User, filters))}
 
-
-  @doc "Fetches a user by id"
-  @spec fetch(id :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
-  def fetch(id) when is_binary(id) do
-    with {:ok, user} <- Repo.single(fetch_q(id)) do
-      {:ok, preload(user)}
+  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(User, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, NodesPage.new(data, count, cursor_fn)}
     end
   end
 
-  def fetch_q(id) do
-    from(u in User,
-      where: u.id == ^id,
-      where: is_nil(u.deleted_at)
-    )
+  def edges(group_fn, filters \\ [])
+  when is_function(group_fn, 1) do
+    ret =
+      Queries.query(User, filters)
+      |> Repo.all()
+      |> Edges.new(group_fn)
+    {:ok, ret}
   end
 
-  @spec fetch_by_username(username :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
-  def fetch_by_username(username) when is_binary(username) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.fetch_by_username(username),
-           {:ok, user} <- Repo.fetch_by(User, actor_id: actor.id) do
-        {:ok, preload_local_user(%User{user | actor: actor})}
-      end
-    end)
-  end
-
-  @spec fetch_any_by_username(username :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
-  def fetch_any_by_username(username) when is_binary(username) do
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.fetch_any_by_username(username),
-           {:ok, user} <- Repo.fetch_by(User, actor_id: actor.id) do
-        {:ok, preload_actor(%User{user | actor: actor})}
-      end
-    end)
-  end
-
-  @spec fetch_by_email(email :: binary()) :: {:ok, User.t()} | {:error, NotFoundError.t()}
-  def fetch_by_email(email) when is_binary(email) do
-    with {:ok, local_user} <- Repo.single(fetch_by_email_q(email)) do
-      user = Repo.preload(local_user, :user).user
-      user = preload_actor(%{user | local_user: local_user})
-      {:ok, user}
+  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(User, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
+      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
     end
-  end
-
-  defp fetch_by_email_q(email) do
-    from(lu in LocalUser,
-      where: lu.email == ^email,
-      where: is_nil(lu.deleted_at)
-    )
-  end
-
-  @spec fetch_actor(User.t()) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_actor(%User{actor_id: id}), do: Actors.fetch(id)
-  def fetch_actor(%User{actor: actor}), do: Actors.fetch(actor.id)
-
-  def fetch_actor_private(%User{actor_id: id}), do: Actors.fetch_private(id)
-
-  @spec fetch_local_user(User.t()) :: {:ok, LocalUser.t()} | {:error, NotFoundError.t()}
-  def fetch_local_user(%User{local_user_id: id}) do
-    Repo.fetch(LocalUser, id)
-  end
-
-  def fetch_local_user(%User{local_user: local_user} = user) do
-    Repo.fetch(LocalUser, local_user.id)
   end
 
   @doc """
@@ -129,22 +79,23 @@ defmodule MoodleNet.Users do
   defp register_local(actor, attrs, opts) do
     with {:ok, local_user} <- insert_local_user(attrs),
          :ok <- check_register_access(local_user.email, opts),
-         {:ok, inbox} <- Feeds.create_feed(),
-         {:ok, outbox} <- Feeds.create_feed(),
+         {:ok, inbox} <- Feeds.create(),
+         {:ok, outbox} <- Feeds.create(),
          attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
+      user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
+
       user
       |> Email.welcome(token)
       |> MailService.deliver_now()
 
-      user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
       {:ok, user}
     end
   end
 
   defp register_remote(actor, attrs, _opts) do
-    with {:ok, outbox} <- Feeds.create_feed(),
+    with {:ok, outbox} <- Feeds.create(),
          attrs2 = Map.put(attrs, :outbox_id, outbox.id),
          {:ok, user} <- Repo.insert(User.register_changeset(actor, attrs2)) do
       {:ok, %{user | actor: actor}}
@@ -181,14 +132,13 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
-           {:ok, user} <- Repo.fetch_by(User, local_user_id: token.local_user_id) do
+           {:ok, user} <- one(local_user_id: token.local_user_id) do
         confirm_email(user)
       end
     end)
   end
 
   # use the email confirmation mechanism
-  @scope :test
   @doc """
   Verify a user's email address, allowing them to access their account.
 
@@ -198,8 +148,7 @@ defmodule MoodleNet.Users do
   @spec confirm_email(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def confirm_email(%User{} = user) do
     Repo.transact_with(fn ->
-      with {:ok, local_user} <- fetch_local_user(user),
-           {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(local_user)) do
+      with {:ok, local_user} <- Repo.update(LocalUser.confirm_email_changeset(user.local_user)) do
         user = preload_actor(%{ user | local_user: local_user})
         {:ok, user}
       end
@@ -208,21 +157,20 @@ defmodule MoodleNet.Users do
 
   @spec unconfirm_email(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unconfirm_email(%User{} = user) do
+    cs = LocalUser.unconfirm_email_changeset(user.local_user)
     Repo.transact_with(fn ->
-      with {:ok, local_user} <- fetch_local_user(user),
-           {:ok, local_user} <- Repo.update(LocalUser.unconfirm_email_changeset(local_user)) do
+      with {:ok, local_user} <- Repo.update(cs) do
         user = preload_actor(%{ user | local_user: local_user })
         {:ok, user}
-
       end
     end)
   end
 
   @spec request_password_reset(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def request_password_reset(%User{} = user) do
+    cs = ResetPasswordToken.create_changeset(user.local_user)
     Repo.transact_with(fn ->
-      with {:ok, local_user} <- fetch_local_user(user),
-           {:ok, token} <- Repo.insert(ResetPasswordToken.create_changeset(local_user)) do
+      with {:ok, token} <- Repo.insert(cs) do
         user
         |> Email.reset_password_request(token)
         |> MailService.deliver_now()
@@ -243,14 +191,13 @@ defmodule MoodleNet.Users do
            :ok <- validate_token(token, :reset_at, now),
            {:ok, local_user} <- Repo.fetch(LocalUser, token.local_user_id),
            {:ok, user} <- Repo.fetch_by(User, local_user_id: local_user.id),
-           {:ok, token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
+           {:ok, _token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- Repo.update(LocalUser.update_changeset(local_user, %{password: password})) do
+        user = preload_actor(%{ user | local_user: local_user })
         user
         |> Email.password_reset()
         |> MailService.deliver_now()
-
-	user = preload_actor(%{ user | local_user: local_user })
-	{:ok, user}
+        {:ok, user}
       end
     end)
   end
@@ -271,11 +218,9 @@ defmodule MoodleNet.Users do
   @spec update(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- fetch_actor(user),
-           {:ok, local_user} <- fetch_local_user(user),
-           {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(actor, attrs),
-           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(local_user, attrs)) do
+      with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
+           {:ok, actor} <- Actors.update(user.actor, attrs),
+           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)) do
         user = %{ user | local_user: local_user, actor: actor }
         {:ok, user}
       end
@@ -285,9 +230,8 @@ defmodule MoodleNet.Users do
   @spec update_remote(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, actor} <- fetch_actor(user),
-           {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(actor, attrs) do
+      with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
+           {:ok, actor} <- Actors.update(user.actor, attrs) do
         user = %{ user | actor: actor }
         {:ok, user}
       end
@@ -296,10 +240,10 @@ defmodule MoodleNet.Users do
 
   @spec soft_delete(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete(%User{} = user) do
+    cs = LocalUser.soft_delete_changeset(user.local_user)
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
-           {:ok, local_user} <- fetch_local_user(user),
-           {:ok, local_user} <- Repo.update(LocalUser.soft_delete_changeset(local_user)) do
+           {:ok, local_user} <- Repo.update(cs) do
         user = preload_actor(%{ user | local_user: local_user})
         {:ok, user}
       end
@@ -308,8 +252,9 @@ defmodule MoodleNet.Users do
 
   @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete_remote(%User{} = user) do
+    cs = User.soft_delete_changeset(user)
     Repo.transact_with(fn ->
-      with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)) do
+      with {:ok, user} <- Repo.update(cs) do
         user = preload_actor(user)
         {:ok, user}
       end
@@ -318,9 +263,9 @@ defmodule MoodleNet.Users do
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
+    cs = LocalUser.make_instance_admin_changeset(user.local_user)
     Repo.transact_with(fn ->
-      with {:ok, local_user} <- fetch_local_user(user),
-           {:ok, local_user} <- Repo.update(LocalUser.make_instance_admin_changeset(local_user)) do
+      with {:ok, local_user} <- Repo.update(cs) do
         user = preload_actor(%{ user | local_user: local_user})
         {:ok, user}
       end
@@ -329,25 +274,31 @@ defmodule MoodleNet.Users do
 
   @spec unmake_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def unmake_instance_admin(%User{} = user) do
+    cs = LocalUser.unmake_instance_admin_changeset(user.local_user)
     Repo.transact_with(fn ->
-      with {:ok, local_user} <- fetch_local_user(user),
-           {:ok, local_user} <- Repo.update(LocalUser.unmake_instance_admin_changeset(local_user)) do
+      with {:ok, local_user} <- Repo.update(cs) do
         user = preload_actor(%{ user | local_user: local_user})
         {:ok, user}
       end
     end)
   end
 
-  def inbox(%User{inbox_id: inbox_id}=user, opts \\ %{}) do
-    Repo.transaction(fn ->
-      subs = [user.inbox_id | Feeds.active_subs_for(user)]
-      Feeds.feed_activities(subs)
+  def inbox(%User{id: id, inbox_id: inbox_id}=user, _opts \\ %{}) do
+    Repo.transact_with(fn ->
+      {:ok, subs} = FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
+      ids = [inbox_id | Enum.map(subs, &(&1.feed_id)) ]
+      FeedActivities.edges_page(
+        &(&1.id),
+        [feed_id: ids]
+      )
     end)
   end
 
   def outbox(%User{}=user, opts \\ %{}) do
     Feeds.feed_activities([user.outbox_id], opts)
   end
+
+  def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val
 
   @spec preload(User.t(), Keyword.t()) :: User.t()
   def preload(user, opts \\ [])
