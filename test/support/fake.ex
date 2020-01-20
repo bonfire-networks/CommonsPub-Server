@@ -71,7 +71,6 @@ defmodule MoodleNet.Test.Fake do
 
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
-  @doc "Generate a random boolean that set to nil"
   @doc "Generate a random signed integer"
   def integer(), do: Faker.random_between(@integer_min, @integer_max)
   @doc "Generate a random positive integer"
@@ -114,10 +113,8 @@ defmodule MoodleNet.Test.Fake do
   def location(), do: Faker.Address.city() <> " " <> Faker.Address.country()
   @doc "A website address"
   def website(), do: Faker.Internet.url()
-  @doc "A language name (not really)"
-  def language(), do: Faker.Address.country()
   @doc "A verb to be used for an activity."
-  def verb(), do: Faker.Util.pick(["create", "update", "delete"])
+  def verb(), do: Faker.Util.pick(["created", "updated", "deleted"])
 
   # Unique data
 

@@ -82,9 +82,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  
-
-  def assert_edge_list(list, cursor_fn \\ &(&1.id)) do
+  def assert_edge_list(list) do
     assert %{"edges" => edges, "totalCount" => count} = list
     assert is_list(edges)
     assert is_integer(count)
