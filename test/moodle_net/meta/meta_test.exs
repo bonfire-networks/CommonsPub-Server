@@ -18,7 +18,7 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Comments.{Comment, Thread}
+  alias MoodleNet.Threads.{Comment, Thread}
 
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag

@@ -29,7 +29,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, reply} =
-        MoodleNet.Comments.create_comment_reply(actor, thread, comment, %{
+        MoodleNet.Threads.Comments.create_reply(actor, thread, comment, %{
           content: "test",
           is_local: true
         })

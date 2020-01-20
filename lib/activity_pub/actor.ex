@@ -365,7 +365,7 @@ defmodule ActivityPub.Actor do
 
   def get_external_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    follows = MoodleNet.Follows.list_of(actor)
+    {:ok, follows} = MoodleNet.Follows.many(context_id: actor.id)
 
     followers =
       follows

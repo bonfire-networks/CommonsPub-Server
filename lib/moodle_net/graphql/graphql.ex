@@ -4,7 +4,8 @@
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias MoodleNet.Common
+  alias MoodleNet.Batching.{Edge, EdgesPage, EdgesPages, PageInfo}
+  import MoodleNet.Common.Query, only: [match_admin: 0]
 
   defprotocol Response do
     def to_response(self, info, path)
@@ -29,11 +30,32 @@ defmodule MoodleNet.GraphQL do
     |> Enum.map(& &1.schema_node.identifier)
   end
 
-  def loader(%{context: %{loader: loader}}), do: loader
+  def admin_or_not_permitted(%Resolution{}=info) do
+    case info.context.current_user do
+      match_admin() -> info.context.current_user
+      _ -> not_permitted()
+    end
+  end
 
-  def current_user(%Resolution{}=info) do
+  def current_user(%Resolution{}=info), do: current_user_or_not_logged_in(info)
+
+  def current_user_or_not_logged_in(%Resolution{}=info) do
     case info.context.current_user do
       nil -> not_logged_in()
+      user -> {:ok, user}
+    end
+  end
+
+  def current_user_or_empty_edge_list(%Resolution{}=info) do
+    case info.context.current_user do
+      nil -> {:ok, EdgesPage.new([], 0, &(&1))}
+      user -> {:ok, user}
+    end
+  end
+
+  def current_user_or(%Resolution{}=info, value) do
+    case info.context.current_user do
+      nil -> {:ok, value}
       user -> {:ok, user}
     end
   end
@@ -41,7 +63,7 @@ defmodule MoodleNet.GraphQL do
   def guest_only(%Resolution{}=info) do
     case info.context.current_user do
       nil -> :ok
-      user -> not_permitted()
+      _user -> not_permitted()
     end
   end
 
@@ -53,26 +75,14 @@ defmodule MoodleNet.GraphQL do
     end
   end
 
-  def node_list(nodes, count) do
-    page_info = Common.page_info(nodes)
-    %{page_info: page_info, total_count: count, nodes: nodes}
+  def feed_activities_page(activities, count) when is_integer(count) do
+    edges = Enum.map(activities, &feed_activity_edge/1)
+    page_info = PageInfo.new(edges)
+    total_count = Enum.count(edges)
+    EdgesPage.new(page_info, total_count, &(&1.id))
   end
 
-  def edge_list(items, count, cursor_fn \\ &(&1.id)) do
-    page_info = Common.page_info(items)
-    edges = Enum.map(items, &edge(&1, cursor_fn))
-    %{page_info: page_info, total_count: count, edges: edges}
-  end
-
-  defp edge(node, cursor_fn), do: %{cursor: cursor_fn.(node), node: node}
-
-  def feed_list(activities, count) do
-    page_info = Common.page_info(activities)
-    edges = Enum.map(activities, &feed_list_edge/1)
-    %{page_info: page_info, total_count: count, edges: edges}
-  end
-
-  defp feed_list_edge(node), do: %{cursor: node.id, node: node.activity}
+  defp feed_activity_edge(node), do: Edge.new(node.activity, node.id)
 
   alias MoodleNet.Access.{
     InvalidCredentialError,
@@ -90,4 +100,5 @@ defmodule MoodleNet.GraphQL do
   def not_permitted(verb \\ "do"), do: {:error, NotPermittedError.new(verb)}
 
   def not_found(), do: {:error, NotFoundError.new()}
+
 end

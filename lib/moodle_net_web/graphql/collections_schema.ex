@@ -10,10 +10,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   alias MoodleNet.Collections
   alias MoodleNet.Collections.Collection
   alias MoodleNetWeb.GraphQL.{
+    ActorsResolver,
     CollectionsResolver,
     CommentsResolver,
     CommunitiesResolver,
     CommonResolver,
+    FlagsResolver,
+    FollowsResolver,
+    LikesResolver,
     LocalisationResolver,
     ResourcesResolver,
     UsersResolver,
@@ -27,11 +31,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :before, :string
       arg :after, :string
       resolve &CollectionsResolver.collections/2
-      # resolve dataloader(
-      #   Collections,
-      #   Collection,
-      #   callback: &CommonResolver.edge_list_callback/3
-      # )
     end
 
     @desc "Get a collection"
@@ -68,12 +67,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :id, non_null(:string)
     @desc "A url for the collection, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CollectionsResolver.canonical_url/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
     
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, non_null(:string) do
-      resolve &CollectionsResolver.preferred_username/3
+      resolve &ActorsResolver.preferred_username_edge/3
     end
 
     @desc "A name field"
@@ -85,44 +84,46 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "Whether the collection is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &CollectionsResolver.is_local/3
+      resolve &ActorsResolver.is_local_edge/3
     end
     @desc "Whether the collection is public"
     field :is_public, non_null(:boolean) do
-      resolve &CollectionsResolver.is_public/3
+      resolve &CommonResolver.is_public_edge/3
     end
     @desc "Whether an instance admin has hidden the collection"
     field :is_disabled, non_null(:boolean) do
-      resolve &CollectionsResolver.is_disabled/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the collection was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at/3
+      resolve &CommonResolver.created_at_edge/3
     end
+
     @desc "When the collection was last updated"
     field :updated_at, non_null(:string)
+
     @desc """
     When the collection or a resource in it was last updated or a
     thread or a comment was created or updated
     """
     field :last_activity, non_null(:string) do
-      resolve &CollectionsResolver.last_activity/3
+      resolve &CollectionsResolver.last_activity_edge/3
     end
 
     @desc "The current user's like of this collection, if any"
     field :my_like, :like do
-      resolve &CommonResolver.my_like/3
+      resolve &LikesResolver.my_like_edge/3
     end
 
     @desc "The current user's follow of this collection, if any"
     field :my_follow, :follow do
-      resolve &CommonResolver.my_follow/3
+      resolve &FollowsResolver.my_follow_edge/3
     end
 
-    @desc "The current user's flag of the collection, if any"
+     @desc "The current user's flag of the collection, if any"
     field :my_flag, :flag do
-      resolve &CommonResolver.my_flag/3
+      resolve &FlagsResolver.my_flag_edge/3
     end
 
     # @desc "The primary language the community speaks"
@@ -132,12 +133,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "The user who created the collection"
     field :creator, non_null(:user) do
-      resolve &CollectionsResolver.creator/3
+      resolve &UsersResolver.creator_edge/3
     end
 
     @desc "The community the collection belongs to"
     field :community, non_null(:community) do
-      resolve &CollectionsResolver.community/3
+      resolve &CollectionsResolver.community_edge/3
     end
 
     @desc "The resources in the collection, most recently created last"
@@ -145,15 +146,20 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CollectionsResolver.resources/3
+      resolve &CollectionsResolver.resources_edge/3
+    end
+
+    @desc "Total number of followers, including those we can't see"
+    field :follower_count, :integer do
+      resolve &FollowsResolver.follower_count_edge/3
     end
 
     @desc "Subscriptions users have to the collection"
     field :followers, non_null(:follows_edges) do
       arg :limit, :integer
       arg :before, :string
-      arg :after,  :string
-      resolve &CommonResolver.followers/3
+      arg :after, :string
+      resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Likes users have given the collection"
@@ -161,7 +167,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likes/3
+      resolve &LikesResolver.likes_edge/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
@@ -169,15 +175,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.flags/3
+      resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
-    # field :tags, :taggings_edges do
+    # field :taggings, :taggings_edges do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
-    #   resolve &CommonResolver.taggings/3
+    #   resolve &CommonResolver.taggings_edge/3
     # end
 
     @desc """
@@ -188,7 +194,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommentsResolver.threads/3
+      resolve &CommentsResolver.threads_edge/3
     end
 
     @desc "Activities on the collection, most recent first"
@@ -196,14 +202,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CollectionsResolver.outbox/3
+      resolve &CollectionsResolver.outbox_edge/3
     end
 
   end
 
   object :collections_nodes do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:collection))
+    field :nodes, list_of(:collection)
     field :total_count, non_null(:integer)
   end
 

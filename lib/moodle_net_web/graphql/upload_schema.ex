@@ -8,9 +8,9 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   alias MoodleNetWeb.GraphQL.UploadResolver
 
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.Comment
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.Comment
   alias MoodleNet.Users.User
 
   import_types Absinthe.Plug.Types
@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     end
 
     field(:uploader, non_null(:user)) do
-      resolve(&UploaderResolver.uploader/3)
+      resolve(&UploadResolver.uploader/3)
     end
   end
 

@@ -15,8 +15,6 @@ defmodule MoodleNet.Peers.Peer do
     only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.Peer
 
   table_schema "mn_peer" do

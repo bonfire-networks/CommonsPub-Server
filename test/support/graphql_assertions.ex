@@ -5,13 +5,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.{Thread, Comment}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
   alias Ecto.ULID
   import ExUnit.Assertions
@@ -65,7 +65,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_list(nodes)
     if nodes == [] do
       assert count == 0 # remove me
-      %{nodes: [], total_count: count}
+      page_info = %{
+        start_cursor: nil,
+        end_cursor: nil,
+        has_next_page: false,
+        has_previous_page: false,
+      }
+      %{nodes: [], total_count: count, page_info: page_info}
     else
       assert %{"pageInfo" => page} = list
       assert %{"startCursor" => start, "endCursor" => ends} = page
@@ -535,7 +541,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert follow.id == follow2.id
     assert follow.canonical_url == follow2.canonical_url
     assert follow.is_local == follow2.is_local
-    assert follow.is_public == follow2.is_public
+    assert not is_nil(follow.published_at) == follow2.is_public
     assert ULID.timestamp(follow.id) == {:ok, follow2.created_at}
     assert follow.updated_at == follow2.updated_at
     follow2

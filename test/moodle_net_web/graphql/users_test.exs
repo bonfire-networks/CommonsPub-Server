@@ -7,7 +7,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Common, Follows, Likes, Users}
+  alias MoodleNet.{Access, Flags, Follows, Likes, Users}
+  alias MoodleNet.Meta.Pointers
 
   describe "usernameAvailable" do
     test "works for a guest" do
@@ -48,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   describe "user" do
 
-    test "Works for a logged in user" do
+    test "Works for a logged in user with a public user" do
       user = fake_user!(%{is_public: true})
       conn = user_conn(user)
       query = "{ user(userId: \"#{user.id}\") { #{user_basics()} } }"
@@ -224,7 +225,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       conn = user_conn(user)
       query = "mutation { deleteSelf(iAmSure: true) }"
       assert %{"deleteSelf" => true} == gql_post_data(conn, %{query: query})
-      assert {:error, e} = Users.fetch(user.id)
+      assert {:ok, user2} = Users.one(id: user.id)
+      assert user2.deleted_at
     end
 
     test "Does not work if you are unsure" do
@@ -450,7 +452,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   end
 
   describe "myFollow" do
-    test "works for guest" do
+
+    test "is nil for a guest" do
       alice = fake_user!()
       query = """
       { user(userId: "#{alice.id}") {
@@ -463,7 +466,40 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = assert_user(alice, user)
       assert %{"myFollow" => nil} = user
     end
-    test "works for user - followd" do
+
+    test "is nil for a user who doesn't follow" do
+      alice = fake_user!()
+      bob = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFollow" => nil} = user
+    end
+
+    test "is nil for an instance admin who doesn't follow" do
+      alice = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFollow" => nil} = user
+    end
+
+    test "works for user who follows" do
       alice = fake_user!()
       bob = fake_user!()
       {:ok, follow} = Follows.create(bob, alice, %{is_local: true})
@@ -480,9 +516,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"myFollow" => follow2} = user
       assert_follow(follow,follow2)
     end
-    test "works for user - unfollowd" do
+
+    test "works for an instance admin who follows" do
       alice = fake_user!()
-      bob = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      {:ok, follow} = Follows.create(bob, alice, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -493,12 +531,100 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       conn = user_conn(bob)
       assert %{"user" => user} = gql_post_data(conn, %{query: query})
       user = assert_user(alice, user)
-      assert %{"myFollow" => nil} = user
+      assert %{"myFollow" => follow2} = user
+      assert_follow(follow,follow2)
+    end
+
+  end
+
+  describe "myFlag" do
+
+    test "is nil for a guest" do
+      alice = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"user" => user} = gql_post_data(%{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFlag" => nil} = user
+    end
+
+    test "is nil for a user who doesn't flag" do
+      alice = fake_user!()
+      bob = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFlag" => nil} = user
+    end
+
+    test "is nil for an instance admin who doesn't flag" do
+      alice = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFlag" => nil} = user
+    end
+
+    test "works for user who flags" do
+      alice = fake_user!()
+      bob = fake_user!()
+      {:ok, flag} = Flags.create(bob, alice, %{is_local: true, message: "naughty"})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFlag" => flag2} = user
+      assert_flag(flag,flag2)
+    end
+
+    test "works for an instance admin who flags" do
+      alice = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      {:ok, flag} = Flags.create(bob, Pointers.forge!(alice), %{is_local: true, message: "naughty"})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myFlag" => flag2} = user
+      assert_flag(flag,flag2)
     end
   end
 
   describe "myLike" do
-    test "works for guest" do
+
+    test "is nil for a guest" do
       alice = fake_user!()
       query = """
       { user(userId: "#{alice.id}") {
@@ -511,7 +637,40 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = assert_user(alice, user)
       assert %{"myLike" => nil} = user
     end
-    test "works for user - liked" do
+
+    test "is nil for a user who doesn't like" do
+      alice = fake_user!()
+      bob = fake_user!()
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myLike { #{like_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myLike" => nil} = user
+    end
+
+    test "is nil for an instance admin who doesn't like" do
+      alice = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      query = """
+      { user(userId: "#{alice.id}") {
+          #{user_basics()}
+          myLike { #{like_basics()} }
+        }
+      }
+      """
+      conn = user_conn(bob)
+      assert %{"user" => user} = gql_post_data(conn, %{query: query})
+      user = assert_user(alice, user)
+      assert %{"myLike" => nil} = user
+    end
+
+    test "works for a user who likes" do
       alice = fake_user!()
       bob = fake_user!()
       {:ok, like} = Likes.create(bob, alice, %{is_local: true})
@@ -528,9 +687,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"myLike" => like2} = user
       assert_like(like,like2)
     end
-    test "works for user - unliked" do
+
+    test "works for an instance admin who likes" do
       alice = fake_user!()
-      bob = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
+      {:ok, like} = Likes.create(bob, alice, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -541,17 +702,18 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       conn = user_conn(bob)
       assert %{"user" => user} = gql_post_data(conn, %{query: query})
       user = assert_user(alice, user)
-      assert %{"myLike" => nil} = user
+      assert %{"myLike" => like2} = user
+      assert_like(like,like2)
     end
+
   end
 
   describe "followedCommunities" do
+
     test "works for guest" do
       alice = fake_user!()
       bob = fake_community!(alice)
       celia = fake_community!(alice)
-      {:ok, bob_follow} = Follows.create(alice, bob, %{is_local: true})
-      {:ok, celia_follow} = Follows.create(alice, celia, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -578,16 +740,16 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
         assert_community(edge.node["community"])
       end
     end
+
   end
 
   describe "followedCollections" do
+
     test "works for guest" do
       alice = fake_user!()
       bob = fake_community!(alice)
       celia = fake_collection!(alice, bob)
       dave = fake_collection!(alice, bob)
-      {:ok, celia_follow} = Likes.create(alice, celia, %{is_local: true})
-      {:ok, dave_follow} = Likes.create(alice, dave, %{is_local: true})
       query = """
       { user(userId: "#{alice.id}") {
           #{user_basics()}
@@ -608,11 +770,13 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = assert_user(alice, user)
       assert %{"followedCollections" => followeds} = user
       edge_list = assert_edge_list(followeds)
+      assert 2 == Enum.count(edge_list.edges)
       for edge <- edge_list.edges do
-        assert_follow(edge["follow"])
-        assert_collection(edge["collection"])
+        assert_follow(edge.node["follow"])
+        assert_collection(edge.node["collection"])
       end
     end
+
   end
 
   # describe "followedUsers" do
@@ -685,8 +849,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       edge_list = assert_edge_list(inbox)
       assert Enum.count(edge_list.edges) == 1
       for edge <- edge_list.edges do
-	activity = assert_activity(edge.node)
-	assert is_binary(edge.cursor)
+        activity = assert_activity(edge.node)
+        assert is_binary(edge.cursor)
       end
     end
     # test "Does not work for other" do

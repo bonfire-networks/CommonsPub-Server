@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
 
   def gql_post_data(conn \\ json_conn(), query) do
     case gql_post_200(conn, query) do
-      %{"data" => data, "errors" => errors} ->
+      %{"data" => _data, "errors" => errors} ->
         throw {:additional_errors, errors}
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}

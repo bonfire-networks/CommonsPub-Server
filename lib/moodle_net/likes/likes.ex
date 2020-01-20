@@ -1,36 +1,40 @@
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes do
 
   alias MoodleNet.Repo
-  alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError}
-  alias MoodleNet.Users.User
+  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
+  alias MoodleNet.Meta.{Pointers, Table}
+  alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
   alias Ecto.Changeset
 
-  def data(ctx) do
-    Dataloader.Ecto.new Repo,
-      query: &query/2,
-      default_params: %{ctx: ctx}
+  def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
+
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Like, filters))}
+
+  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Like, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, NodesPage.new(data, count, cursor_fn)}
+    end
   end
 
-  def query(q, %{ctx: _}), do: q
-
-  def fetch(id), do: Repo.single(fetch_q(id))
-
-  defp fetch_q(id) do
-    from(l in Like,
-      where: is_nil(l.deleted_at),
-      where: not is_nil(l.published_at),
-      where: l.id == ^id)
+  def edges(group_fn, filters \\ [])
+  when is_function(group_fn, 1) do
+    {:ok, edges} = many(filters)
+    {:ok, Edges.new(edges, group_fn)}
   end
 
-  def find(%User{} = liker, liked), do: Repo.single(find_q(liker.id, liked.id))
-
-  defp find_q(liker_id, liked_id) do
-    from(l in Like,
-      where: l.creator_id == ^liker_id,
-      where: l.context_id == ^liked_id,
-      where: is_nil(l.deleted_at)
-    )
+  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Like, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
+      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
+    end
   end
 
   def insert(%User{} = liker, liked, fields) do
@@ -50,46 +54,33 @@ defmodule MoodleNet.Likes do
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
   def create(%User{} = liker, liked, fields) do
-    Repo.transact_with(fn ->
-      case find(liker, liked) do
-        {:ok, _} ->
-          {:error, AlreadyLikedError.new("user")}
-
-        _ ->
-          with {:ok, like} <- insert(liker, liked, fields),
-               :ok <- publish(like, "create") do
-            {:ok, like}
-          end
-      end
-    end)
+    liked = Pointers.maybe_forge!(liked)
+    %Table{schema: table} = Pointers.table!(liked)
+    if table in valid_contexts() do
+      Repo.transact_with(fn ->
+        case one(context_id: liked.id, creator_id: liker.id) do
+          {:ok, _} ->
+            {:error, AlreadyLikedError.new("user")}
+  
+          _ ->
+            with {:ok, like} <- insert(liker, liked, fields),
+                 :ok <- publish(like, "create") do
+              {:ok, like}
+            end
+        end
+      end)
+    else
+      {:error, NotLikeableError.new(table)}
+    end
   end
 
   def update(%Like{} = like, fields) do
     Repo.update(Like.update_changeset(like, fields))
   end
 
-  @doc """
-  Return a list of likes for a user.
-  """
-  def list_by(%User{} = user), do: Repo.all(list_by_query(user))
-
-  @doc """
-  Return a list of likes for any object participating in the meta abstraction.
-  """
-  def list_of(%{id: _id} = thing), do: Repo.all(list_of_query(thing))
-
-  defp list_by_query(%User{id: id}) do
-    from(l in Like,
-      where: is_nil(l.deleted_at),
-      where: l.creator_id == ^id
-    )
-  end
-
-  defp list_of_query(%{id: id}) do
-    from(l in Like,
-      where: is_nil(l.deleted_at),
-      where: l.context_id == ^id
-    )
+  defp valid_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:valid_contexts)
   end
 
 end

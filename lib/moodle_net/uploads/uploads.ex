@@ -5,8 +5,9 @@ defmodule MoodleNet.Uploads do
   import Ecto.Query
 
   alias Ecto.Changeset
-  alias MoodleNet.{Repo, Meta}
   alias MoodleNet.Common.Query
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{Upload, Storage}
 
@@ -65,8 +66,9 @@ defmodule MoodleNet.Uploads do
 
       result =
         Repo.transact_with(fn ->
-          pointer = Meta.find!(parent.id)
-          Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+          with {:ok, pointer} <- Pointers.one(id: parent.id) do
+            Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+          end
         end)
 
       with {:ok, upload} <- result,

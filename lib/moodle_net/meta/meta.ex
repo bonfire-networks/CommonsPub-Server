@@ -17,35 +17,22 @@ defmodule MoodleNet.Meta do
   Participating tables must:
 
   * Have an entry in `MoodleNet.Meta.Table`
-
-  * Have a UUID primary key which is also a foreign key which
-    references `MoodleNet.Meta.Pointer`
-
-  * Have a deletion trigger that cascades the delete to
-    `MoodleNet.Meta.Pointer` (TODO - delete the pointer for now and it will cascade)
-
-  Insertion operations on participating tables must:
-
-  * Insert a Pointer in the same transaction as an insert into the
-    other table. This is so that in the event of the other insert
-    failing, the Pointer will also be removed.
+  * Have a ULID primary key
+  * Have a creation trigger that inserts a pointer on insertion
+  * Have a deletion trigger that deletes a pointer on delete
   """
 
-  alias Ecto.Changeset
   alias MoodleNet.Repo
-  alias MoodleNet.Peers.Peer
   alias MoodleNet.Common.{
     NotFoundError,
     NotInTransactionError,
   }
   alias MoodleNet.Meta.{
-    Introspection,
     Pointer,
     PointerDanglingError,
     PointerInsertError,
     PointerTypeError,
     Table,
-    TableNotFoundError,
     TableService,
   }
 
@@ -54,10 +41,10 @@ defmodule MoodleNet.Meta do
   def find(id), do: find_result(Repo.get(Pointer, id), id)
 
   defp find_result(nil, id), do: {:error, NotFoundError.new(id)}
-  defp find_result(pointer, id), do: {:ok, pointer}
+  defp find_result(pointer, _id), do: {:ok, pointer}
 
   @spec find!(binary()) :: Pointer.t()
-  @doc "Looks up a pointer by id or throws a PointerNotFoundError"
+  @doc "Looks up a pointer by id or throws a NotFoundError"
   def find!(id), do: find_result!(find(id))
     
   defp find_result!({:ok, v}), do: v
@@ -79,45 +66,6 @@ defmodule MoodleNet.Meta do
   #     _ -> Map.put(acc, table_id, [id])
   #   end
   # end
-
-  @doc """
-  Creates a Pointer in the database, pointing to the given table or throws
-  Note: throws NotInTransactionError unless you're in a transaction
-  """
-  @spec point_to!(TableService.table_id()) :: Pointer.t()
-  def point_to!(table) do
-    if not Repo.in_transaction?(),
-      do: throw NotInTransactionError.new(table)
-      
-    table
-    |> pointer_changeset()
-    |> Repo.insert()
-    |> point_to_result()
-  end
-
-  @doc """
-  Forge a pointer from a structure that participates in the meta abstraction.
-
-  Does not hit the database, is safe so long as the provided struct
-  participates in the meta abstraction
-  """
-  @spec forge!(%{__struct__: atom, id: binary}) :: %Pointer{}
-  def forge!(%{__struct__: table_id, id: id} = pointed) do
-    table = TableService.lookup!(table_id)
-    %Pointer{id: id, table: table, table_id: table.id, pointed: pointed}
-  end
-
-  @doc """
-  Forges a pointer to a meta entry we don't actually have loaded.
-
-  Does not hit the database, is safe so long as the entry we wish to
-  synthesise represents a legitimate entry in the database.
-  """
-  @spec forge!(table_id :: integer | atom, id :: binary) :: %Pointer{}
-  def forge!(table_id, id) do
-    table = TableService.lookup!(table_id)
-    %Pointer{id: id, table: table, table_id: table.id}
-  end
 
   defp point_to_result({:ok, v}), do: v
   defp point_to_result({:error, e}), do: throw PointerInsertError.new(e)
@@ -161,57 +109,6 @@ defmodule MoodleNet.Meta do
       {:ok, thing} -> thing
       {:error, e} -> throw e
     end
-  end
-
-  @spec preload!(Pointer.t | [Pointer.t]) :: Pointer.t | [Pointer.t]
-  @spec preload!(Pointer.t | [Pointer.t], list) :: Pointer.t | [Pointer.t]
-  @doc """
-  Follows one or more pointers and adds the pointed records to the `pointed` attrs
-  """
-  def preload!(pointer_or_pointers, opts \\ [])
-  def preload!(%Pointer{}=pointer, opts) do
-    if is_nil(pointer.pointed) or Keyword.get(opts, :force),
-      do: %{ pointer | pointed: follow!(pointer) },
-      else: pointer
-  end
-  def preload!(pointers, opts) when is_list(pointers) do
-    pointers
-    |> preload_load(opts)
-    |> preload_collate(pointers)
-  end
-
-  defp preload_collate(loaded, pointers),
-    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.fetch!(loaded, p.id) } end)
-
-  defp preload_load(pointers, opts) do
-    force = Keyword.get(opts, :force, false)
-    pointers
-    |> Enum.reduce(%{}, &preload_search(force, &1, &2)) # find ids
-    |> Enum.reduce(%{}, &preload_per_table/2)           # query
-  end
-  
-  defp preload_search(false, %{pointed: pointed}=pointer, acc)
-  when not is_nil(pointed), do: acc
-  
-  defp preload_search(_force, pointer, acc) do
-    ids = [ pointer.id | Map.get(acc, pointer.table_id, []) ]
-    Map.put(acc, pointer.table_id, ids)
-  end
-    
-  defp preload_per_table({table_id, ids}, acc) do
-    load_many(table_id, ids)
-    |> Enum.reduce(acc, &Map.put(&2, &1.id, &1))
-  end
-  import Ecto.Query
-  
-  defp load_many(table_id, ids) do
-    TableService.lookup_schema!(table_id)
-    |> load_many_query(ids)
-    |> Repo.all()
-  end
-
-  defp load_many_query(schema, ids) do
-    from s in schema, where: s.id in ^ids
   end
 
 end

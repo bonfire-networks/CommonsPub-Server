@@ -1,44 +1,49 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.ActivityPub.Publisher do
   alias ActivityPub.Actor
-  alias MoodleNet.Repo
   alias MoodleNet.ActivityPub.Utils
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Repo
 
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
-    comment = Repo.preload(comment, thread: :context)
-
-    with {:ok, context} <- MoodleNet.Meta.follow(comment.thread.context),
-         object_ap_id = Utils.get_object_ap_id(context),
-         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
-         {to, cc} <- Utils.determine_recipients(actor, context),
-         object = %{
-           "content" => comment.content,
-           "to" => to,
-           "cc" => cc,
-           "actor" => actor.ap_id,
-           "attributedTo" => actor.ap_id,
-           "type" => "Note",
-           "inReplyTo" => Utils.get_in_reply_to(comment),
-           "context" => object_ap_id
-         },
-         params = %{
-           actor: actor,
-           to: to,
-           object: object,
-           context: object_ap_id,
-           additional: %{
-             "cc" => cc
-           }
-         } do
-      ActivityPub.create(params, comment.id)
-    else
-      _e -> :error
+    try do
+      comment = Repo.preload(comment, thread: :context)
+      context = Pointers.follow!(comment.thread.context)
+      with object_ap_id = Utils.get_object_ap_id(context),
+           {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
+           {to, cc} <- Utils.determine_recipients(actor, context),
+           object = %{
+             "content" => comment.content,
+             "to" => to,
+             "cc" => cc,
+             "actor" => actor.ap_id,
+             "attributedTo" => actor.ap_id,
+             "type" => "Note",
+             "inReplyTo" => Utils.get_in_reply_to(comment),
+             "context" => object_ap_id
+           },
+           params = %{
+             actor: actor,
+             to: to,
+             object: object,
+             context: object_ap_id,
+             additional: %{
+               "cc" => cc
+             }
+           } do
+        ActivityPub.create(params, comment.id)
+      else
+        _e -> :error
+      end
+    catch
+      _ -> :error
+    rescue
+      _ -> :error
     end
   end
 
@@ -132,8 +137,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     follow = Repo.preload(follow, creator: :actor, context: [])
 
     with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
-         {:ok, followed} <- MoodleNet.Meta.follow(follow.context),
-         followed = Repo.preload(followed, :actor),
+         followed = Pointers.follow!(follow.context),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
         MoodleNet.Follows.undo(follow)
@@ -151,8 +155,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     follow = Repo.preload(follow, creator: :actor, context: [])
 
     with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
-         {:ok, followed} <- MoodleNet.Meta.follow(follow.context),
-         followed = Repo.preload(followed, :actor),
+         followed = Pointers.follow!(follow.context),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       ActivityPub.unfollow(follower, followed)
     else
@@ -164,8 +167,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     block = Repo.preload(block, creator: :actor, context: [])
 
     with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
-         {:ok, blocked} <- MoodleNet.Meta.follow(block.context),
-         blocked = Repo.preload(blocked, :actor),
+         blocked = Pointers.follow!(block.context),
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
       # FIXME: insert pointer in AP database, insert cannonical URL in MN database
       ActivityPub.block(blocker, blocked)
@@ -178,8 +180,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     block = Repo.preload(block, creator: :actor, context: [])
 
     with {:ok, blocker} <- Actor.get_cached_by_username(block.creator.actor.preferred_username),
-         {:ok, blocked} <- MoodleNet.Meta.follow(block.context),
-         blocked = Repo.preload(blocked, :actor),
+         blocked = Pointers.follow!(block.context),
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
       ActivityPub.unblock(blocker, blocked)
     else
@@ -190,8 +191,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def like(like) do
     like = Repo.preload(like, :context)
 
-    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id),
-         {:ok, liked} <- MoodleNet.Meta.follow(like.context) do
+    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
+      liked = Pointers.follow!(like.context)
       object = Utils.get_object(liked)
       ActivityPub.like(liker, object)
     else
@@ -202,8 +203,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def unlike(like) do
     like = Repo.preload(like, :context)
 
-    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id),
-         {:ok, liked} <- MoodleNet.Meta.follow(like.context) do
+    with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
+      liked = Pointers.follow!(like.context)
       object = Utils.get_object(liked)
       ActivityPub.unlike(liker, object)
     else
@@ -214,8 +215,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def flag(flag) do
     flag = Repo.preload(flag, creator: :actor, context: [])
 
-    with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.actor.preferred_username),
-         {:ok, flagged} <- MoodleNet.Meta.follow(flag.context) do
+    with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.actor.preferred_username) do
+      flagged = Pointers.follow!(flag.context)
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do

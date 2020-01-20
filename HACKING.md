@@ -206,17 +206,17 @@ They are
 
 Here are the current contexts:
 
+* `MoodleNet.Access` (for managing and querying email whitelists)
 * `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
 * `MoodleNet.Collections` (for managing and querying collections of resources)
-* `MoodleNet.Comments` (for managing and querying comments on content)
 * `MoodleNet.Common` (functionality shared across many contexts, mostly database related)
 * `MoodleNet.Communities` (for managing and querying communities)
 * `MoodleNet.Mail` (for rendering and sending emails)
 * `MoodleNet.Meta` (for managing and querying references to content in many tables)
 * `MoodleNet.OAuth` (for OAuth functionality)
 * `MoodleNet.Resources` (for managing and querying the resources in collections)
+* `MoodleNet.Threads` (for managing and querying threads on content)
 * `MoodleNet.Users` (for managing and querying both local and remote users)
-* `MoodleNet.Whitelists` (for managing and querying email whitelists)
 
 There are some additional modules:
 
