@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Comments.Comment do
+defmodule MoodleNet.Threads.Comment do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
@@ -9,9 +9,9 @@ defmodule MoodleNet.Comments.Comment do
 
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
 
   table_schema "mn_comment" do
@@ -61,4 +61,5 @@ defmodule MoodleNet.Comments.Comment do
     |> change_public()
     |> change_synced_timestamp(:is_hidden, :hidden_at)
   end
+
 end

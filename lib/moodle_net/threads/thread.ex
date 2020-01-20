@@ -1,19 +1,24 @@
-defmodule MoodleNet.Comments.Thread do
+# MoodleNet: Connecting and empowering educators worldwide
+# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# SPDX-License-Identifier: AGPL-3.0-only
+defmodule MoodleNet.Threads.Thread do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
 
   alias Ecto.Changeset
-  alias MoodleNet.Comments.{Thread, ThreadFollowerCount}
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
+  alias MoodleNet.Threads.{Comment, FollowerCount, LastComment, Thread}
 
   table_schema "mn_thread" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     belongs_to(:outbox, Feed)
+    has_one(:follower_count, FollowerCount)
+    has_one(:last_comment, LastComment)
     field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)
     field(:is_public, :boolean, virtual: true)
@@ -24,7 +29,6 @@ defmodule MoodleNet.Comments.Thread do
     field(:hidden_at, :utc_datetime_usec)
     field(:is_local, :boolean)
     field(:deleted_at, :utc_datetime_usec)
-    has_one(:follower_count, ThreadFollowerCount)
     timestamps()
   end
 
@@ -36,7 +40,8 @@ defmodule MoodleNet.Comments.Thread do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       creator_id: creator_id,
-      context_id: context_id
+      context_id: context_id,
+      is_public: true
     )
     |> Changeset.validate_required(@required)
     |> common_changeset()
@@ -52,6 +57,6 @@ defmodule MoodleNet.Comments.Thread do
     changeset
     |> change_synced_timestamp(:is_hidden, :hidden_at)
     |> change_synced_timestamp(:is_locked, :locked_at)
-    |> change_synced_timestamp(:is_locked, :published_at)
+    |> change_synced_timestamp(:is_public, :published_at)
   end
 end
