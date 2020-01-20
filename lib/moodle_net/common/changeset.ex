@@ -169,10 +169,10 @@ defmodule MoodleNet.Common.Changeset do
             |> Changeset.put_change(off_field, DateTime.utc_now())
         end
       :error ->
-        case Changeset.fetch_value(changeset, bool_field) do
+        case Changeset.fetch_field(changeset, bool_field) do
           {:ok, val} -> changeset
           :error ->
-            cs = Changeset.put_change(bool_field, default)
+            cs = Changeset.put_change(changeset, bool_field, default)
             change_synced_timestamps(cs, bool_field, on_field, off_field, default)
         end
     end
@@ -187,7 +187,7 @@ defmodule MoodleNet.Common.Changeset do
     end)
     if sum == 1,
       do: changeset,
-      else: Changeset.put_error(changeset, column, message)
+      else: Changeset.add_error(changeset, column, message)
   end
 
 end
