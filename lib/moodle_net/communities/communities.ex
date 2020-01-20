@@ -11,138 +11,65 @@ defmodule MoodleNet.Communities do
   }
 
   alias Ecto.Association.NotLoaded
-  alias MoodleNet.{Activities, Actors, Collections, Common, Feeds, Meta, Repo, Users}
-  alias MoodleNet.Common.Query
-  alias MoodleNet.Communities.{Community, Outbox}
+  alias MoodleNet.{Activities, Actors, Collections, Common, Feeds, Follows, Meta, Repo, Users}
+  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
+  alias MoodleNet.Common.{Query, NotFoundError}
+  alias MoodleNet.Communities.{Community, Outbox, Queries}
+  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Follows.Follow
   alias MoodleNet.Localisation.Language
-  alias MoodleNet.Users.User
+  alias MoodleNet.Users.{LocalUser, User}
 
-  @doc "Creates a Dataloader for querying from the GraphQL API"
-  def graphql_data(ctx) do
-    Dataloader.Ecto.new Repo,
-      query: &graphql_query/2,
-      default_params: %{context: ctx}
-  end
+  
+  @doc """
+  Retrieves a single community by arbitrary filters.
+  Used by:
+  * GraphQL Item queries
+  * ActivityPub integration
+  * Various parts of the codebase that need to query for communities (inc. tests)
+  """
+  def one(filters), do: Repo.single(Queries.query(Community, filters))
 
-  def graphql_query(Community, context) do
-    list_public_q()
-  end
+  @doc """
+  Retrieves a list of communities by arbitrary filters.
+  Used by:
+  * Various parts of the codebase that need to query for communities (inc. tests)
+  """
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
-  # def count_for_list(), do: Repo.one(count_for_list_q())
-
-  def list(), do: Repo.all(list_public_q())
-
-  def count_for_list(), do: Repo.one(count_for_list_q())
-
-  defp count_for_list_q() do
-    from(c in Community,
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at),
-      select: count(c),
-    )
-  end
-
-  defp base_q() do
-    from c in Community, as: :community
-  end
-
-  def join_actor_q(q) do
-    join q, :inner, [community: comm],
-      j in assoc(comm, :actor), as: :community_actor
-  end
-
-  def join_follower_count_q(q) do
-    join q, :left, [community: comm],
-      j in assoc(comm, :follower_count),
-      as: :community_follower_count
-  end
-
-  def filter_deleted_q(q) do
-    where q, [community: c], is_nil(c.deleted_at)
-  end
-
-  def filter_disabled_q(q) do
-    where q, [community: c], is_nil(c.disabled_at)
-  end
-
-  def filter_private_q(q) do
-    where q, [community: c], not is_nil(c.published_at)
+  def edges(group_fn, filters \\ [])
+  when is_function(group_fn, 1) do
+    {:ok, edges} = many(filters)
+    {:ok, Edges.new(edges, group_fn)}
   end
 
   @doc """
-  A query for listing public communities
-  Orders by:
-  * Most followers
-  * Most recently updated
-  * act
-  """
-  def list_public_q() do
-    base_q()
-    |> join_actor_q()
-    |> join_follower_count_q()
-    |> filter_private_q()
-    |> filter_deleted_q()
-    |> select([community: c], c)
-    |> preload_actor_and_follower_count_q()
-    |> order_by_followers_updates_new_q()
-  end
+  Retrieves a NodesPage of communities according to various filters
 
-  @doc "Preloads the actor and follower count to the community"
-  def preload_actor_and_follower_count_q(q) do
-    preload q,
-      [community_actor: a, community_follower_count: f],
-      [actor: a, follower_count: f]
+  Used by:
+  * Various parts of the codebase that need to query for communities (inc. tests)
+  """
+  def nodes_page(cursor_fn, filters \\ [], data_filters \\ [], count_filters \\ [])
+  def nodes_page(cursor_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, NodesPage.new(data, count, cursor_fn)}
+    end
   end
 
   @doc """
-  Orders by:
-  * Most followers
-  * Most recently updated
-  * Community ULID (Most recently created + jitter)
+  Retrieves an EdgesPages of communities according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
   """
-  def order_by_followers_updates_new_q(q) do
-    order_by q, [community: c, community_follower_count: f],
-      [desc: f.count, desc: c.updated_at, desc: c.id]
-  end
-
-  @doc "Fetches a public, non-deleted community by id"
-  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
-
-  defp fetch_q(id) do
-    from(c in Community,
-      join: a in assoc(c, :actor),
-      where: c.id == ^id,
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at),
-      where: is_nil(c.disabled_at),
-      select: c,
-      preload: [actor: a]
-    )
-  end
-
-  def fetch_by_username(username) when is_binary(username) do
-    Repo.transact_with(fn ->
-      with {:ok, comm} <- Repo.single(fetch_by_username_q(username)) do
-        {:ok, preload(comm)}
-      end
-    end)
-  end
-
-  defp fetch_by_username_q(username) when is_binary(username) do
-    from c in Community,
-      join: a in assoc(c, :actor),
-      where: a.preferred_username == ^username,
-      where: not is_nil(c.published_at),
-      where: is_nil(c.deleted_at),
-      where: is_nil(c.disabled_at),
-      preload: [actor: a]
-  end
-
-  @doc "Fetches a community by ID, ignoring whether it is public or not."
-  @spec fetch_private(id :: binary) :: {:ok, Community.t()} | {:error, NotFoundError.t()}
-  def fetch_private(id) when is_binary(id) do
-    with {:ok, comm} <- Repo.fetch(Community, id) do
-      {:ok, preload(comm)}
+  def edges_pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
+    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
+    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
+      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
     end
   end
 
@@ -154,6 +81,7 @@ defmodule MoodleNet.Communities do
            {:ok, comm} <- insert_community(creator, actor, comm_attrs),
            act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
+           {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            :ok <- publish(creator, comm, activity, :created) do
         {:ok, comm}
       end
@@ -164,15 +92,15 @@ defmodule MoodleNet.Communities do
   defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
 
   defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create_feed(),
-         {:ok, outbox} <- Feeds.create_feed() do
+    with {:ok, inbox} <- Feeds.create(),
+         {:ok, outbox} <- Feeds.create() do
       extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
       {:ok, Map.merge(attrs, extra)}
     end
   end
 
   defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create_feed() do
+    with {:ok, outbox} <- Feeds.create() do
       {:ok, Map.put(attrs, :outbox_id, outbox.id)}
     end
   end
@@ -185,7 +113,7 @@ defmodule MoodleNet.Communities do
 
   defp publish(creator, community, activity, :created) do
     feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
-    with :ok <- Feeds.publish_to_feeds(feeds, activity) do
+    with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish(community.id, creator.id, community.actor.peer_id)
     end
   end
@@ -217,8 +145,8 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  def outbox(%Community{}=community, opts \\ %{}) do
-    Feeds.feed_activities([community.outbox_id], opts)
+  def outbox(%Community{}=community) do
+    FeedActivities.edges_page(feed_id: community.outbox_id)
   end
 
   def soft_delete(%Community{} = community) do
@@ -229,18 +157,5 @@ defmodule MoodleNet.Communities do
       end
     end)
   end
-
-  def preload(%Community{} = community, opts \\ []) do
-    community
-    |> Repo.preload(:actor, opts)
-  end
-
-  def preload_creator(%Community{} = community, opts \\ []) do
-    community
-    |> Repo.preload(:creator, opts)
-  end
-
-  def fetch_creator(%Community{creator_id: id, creator: %NotLoaded{}}), do: Users.fetch(id)
-  def fetch_creator(%Community{creator: creator}), do: {:ok, creator}
 
 end
