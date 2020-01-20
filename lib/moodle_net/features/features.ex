@@ -1,72 +1,57 @@
 defmodule MoodleNet.Features do
   import Ecto.Query
   alias Ecto.Changeset
-  alias MoodleNet.{Collections, Common, Communities, Repo}
-  alias MoodleNet.Meta.TableService
-  alias MoodleNet.Features.Feature
+  alias MoodleNet.{Collections, Common, Communities, GraphQL, Repo}
+  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
+  alias MoodleNet.Features.{Feature, Queries}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.TableService
   alias MoodleNet.Users.User
 
-  def data(ctx) do
-    Dataloader.Ecto.new Repo,
-      query: &graphql_query/2,
-      default_params: %{ctx: ctx}
-  end
+  def one(filters), do: Repo.single(Queries.query(Feature, filters))
 
-  def graphql_query(q, %{ctx: _}), do: q
-
-  def fetch(id) when is_binary(id), do: Repo.single(fetch_q(id))
-
-  defp fetch_q(id) do
-    from f in Feature,
-      join: c in assoc(f, :context),
-      where: is_nil(f.deleted_at),
-      order_by: [desc: f.id],
-      select: f,
-      preload: [context: c]
-  end
-
-  def list(opts \\ %{}) do
-    Repo.all(list_q(opts))
-  end
-
-  def count_for_list(opts \\ %{}) do
-    Repo.one(count_for_list_q(opts))
-  end
+  def many(filters \\ []), do: Repo.all(Queries.query(Feature, filters))
 
   def create(%User{}=creator, context, attrs) do
-    Feature.create_changeset(creator, context, attrs)
-    |> Repo.insert()
+    Repo.insert(Feature.create_changeset(creator, context, attrs))
   end
 
-  def create(_, _, _), do: GraphQL.not_permitted()
-
-  @default_feature_contexts [Collection, Community]
-  def list_q(opts \\ %{}) do
-    table_ids =
-      Map.get(opts, :contexts, @default_feature_contexts)
-      |> Enum.map(&TableService.lookup_id!/1)
-    from f in Feature,
-      join: c in assoc(f, :context),
-      where: is_nil(f.deleted_at),
-      where: c.table_id in ^table_ids,
-      order_by: [desc: f.id],
-      select: f,
-      preload: [context: c]
-  end
-  
-  def count_for_list_q(opts \\ %{}) do
-    table_ids =
-      Map.get(opts, :contexts, @default_feature_contexts)
-      |> Enum.map(&TableService.lookup_id!/1)
-    from f in Feature,
-      join: c in assoc(f, :context),
-      where: is_nil(f.deleted_at),
-      where: c.table_id in ^table_ids,
-      select: count(f)
+  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, NodesPage.new(data, count, cursor_fn)}
+    end
   end
 
-  def delete(%Feature{}=feat), do: Common.soft_delete(feat)
+  def edges(group_fn, filters \\ [])
+  when is_function(group_fn, 1) do
+    {:ok, edges} = many(filters)
+    {:ok, Edges.new(edges, group_fn)}
+  end
+
+  @doc """
+  Retrieves an EdgesPages of feed activities according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def edges_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, EdgesPage.new(data, count, cursor_fn)}
+    end
+  end
+
+  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
+      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
+    end
+  end
 
 end
