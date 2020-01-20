@@ -3,46 +3,63 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
-  alias MoodleNet.{Comments, Fake, GraphQL, Meta, Repo}
+  alias MoodleNet.{GraphQL, Repo, Threads}
+  alias MoodleNet.Batching.{Edges, EdgesPages}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.{Comment, Thread}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.{Comment, Comments, Thread}
   alias MoodleNet.Users.User
-  
-  def comment(%{comment_id: id}, info), do: Comments.fetch_comment(id)
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
-  def in_reply_to(%Comment{reply_to_id: nil}, _, info), do: {:ok, nil}
-  def in_reply_to(%Comment{reply_to_id: id}, _, info), do: Comments.fetch_comment(id)
-
-  def comments(%User{}=user, _, info) do
-    comments = Comments.list_comments_for_user(user)
-    count = Enum.count(comments)
-    {:ok, Enum.edge_list(comments, count)}
-  end
-  def comments(%Thread{}=parent, _, info) do
-    comments = Comments.list_comments_in_thread(parent)
-    count = Enum.count(comments)
-    {:ok, GraphQL.edge_list(comments, count)}
+  def comment(%{comment_id: id}, %{context: %{current_user: user}}) do
+    Comments.one(id: id, user: user)
   end
 
-  def thread(%{thread_id: id}, info), do: Comments.fetch_thread(id)
-  def thread(%Comment{}=parent,_, info) do # on comment
-    {:ok, Repo.preload(parent, :thread).thread}
+  def in_reply_to_edge(%Comment{reply_to_id: nil}, _, _info), do: {:ok, nil}
+  def in_reply_to_edge(%Comment{reply_to_id: id}, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_in_reply_to_edge, user}, id, Edges.getter(id)
   end
 
-  def threads(%{id: context_id}=parent, _, info) do
-    threads = Comments.list_threads_on(context_id)
-    count = Enum.count(threads)
-    {:ok, GraphQL.edge_list(threads, count)}
+  def batch_in_reply_to_edge(user, ids) do
+    {:ok, edges} = Comments.edges(&(&1.id), id: ids, user: user)
+    edges
   end
+
+  def thread_edge(%Comment{thread: %Thread{}=thread}=parent,_, info), do: {:ok, thread}
+  def thread_edge(%Comment{thread_id: id}, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_thread_edge, user}, id, Edges.getter(id)
+  end
+
+  def batch_thread_edge(user, ids) do
+    {:ok, edges} = Threads.edges(&(&1.id), id: ids, user: user)
+    edges
+  end
+
+  def threads_edge(%{id: id}=parent, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
+  end
+
+  def batch_threads_edge(user, ids) do
+    {:ok, edges} = Threads.edges_pages(
+      &(&1.context_id),
+      &(&1.id),
+      [context_id: ids, user: user],
+      [join: :last_comment, order: :last_comment_desc],
+      [group_count: :context_id]
+    )
+    edges
+  end
+
+  ## mutations
 
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
-        with {:ok, pointer} = Meta.find(context_id),
-             context = Meta.follow!(pointer),
+        with {:ok, pointer} <- Pointers.one(id: context_id),
+             context = Pointers.follow!(pointer),
              :ok <- validate_thread_context(context),
              {:ok, thread} <- Comments.create_thread(user, context, %{is_local: true}) do
           attrs = Map.put(attrs, :is_local, true)
@@ -61,10 +78,10 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
-        with {:ok, thread} <- Comments.fetch_thread(thread_id),
-             {:ok, parent} <- Comments.fetch_comment(reply_to),
+        with {:ok, thread} <- Threads.one([:hidden, :deleted, :private, id: thread_id]),
+             {:ok, parent} <- Comments.one([:hidden, :deleted, :private, id: reply_to]),
              attrs = Map.put(attrs, :is_local, true) do
-          Comments.create_comment_reply(user, thread, parent, attrs)
+          Comments.create_reply(user, thread, parent, attrs)
         end
       end)
     end
@@ -83,7 +100,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     end
   end
 
-  def last_activity(_, _, info) do
+  def last_activity_edge(_, _, info) do
     {:ok, Fake.past_datetime()}
     |> GraphQL.response(info)
   end

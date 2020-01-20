@@ -11,7 +11,6 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     UsersResolver,
   }
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.Comment
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
@@ -19,6 +18,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
   alias MoodleNet.Likes.Like
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.Comment
   alias MoodleNet.Users.User
 
   object :activities_queries do
@@ -38,28 +38,30 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     field :canonical_url, :string
 
     @desc "The verb describing the activity"
-    field :verb, non_null(:activity_verb)
+    field :verb, non_null(:activity_verb) do
+      resolve &ActivitiesResolver.verb_edge/3
+    end
 
     @desc "Whether the activity is local to the instance"
     field :is_local, non_null(:boolean)
     @desc "Whether the activity is public"
     field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public/3
+      resolve &CommonResolver.is_public_edge/3
     end
 
     @desc "When the activity was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at/3
+      resolve &CommonResolver.created_at_edge/3
     end
 
     @desc "The user who performed the activity"
     field :user, non_null(:user) do
-      resolve &ActivitiesResolver.user/3
+      resolve &ActivitiesResolver.user_edge/3
     end
 
     @desc "The object of the user's verbing"
     field :context, non_null(:activity_context) do
-      resolve &CommonResolver.context/3
+      resolve &ActivitiesResolver.context_edge/3
     end
   end
 
@@ -68,7 +70,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
   union :activity_context do
     description("Activity object")
-    types([:community, :collection, :resource, :comment, :flag, :follow, :like])
+    types([:community, :collection, :resource, :comment, :flag, :follow, :like, :user])
     resolve_type(fn
       %Collection{}, _ -> :collection
       %Comment{},    _ -> :comment
@@ -77,18 +79,19 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
       %Flag{},     _   -> :flag
       %Follow{},     _ -> :follow
       %Like{},       _ -> :like
+      %User{},       _ -> :user
     end)
   end
 
   object :activities_nodes do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:activity))
+    field :nodes, list_of(:activity)
     field :total_count, non_null(:integer)
   end
 
   object :activities_edges do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:activities_edge))
+    field :edges, list_of(:activities_edge)
     field :total_count, non_null(:integer)
   end
 

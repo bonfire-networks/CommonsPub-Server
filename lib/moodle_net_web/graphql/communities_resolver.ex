@@ -10,26 +10,29 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   alias MoodleNet.{
     Accounts,
     Actors,
+    Batching,
     Common,
     Collections,
     Communities,
-    Fake,
     GraphQL,
     Repo,
+    Threads,
     Users,
   }
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Batching.{NodesPages, EdgesPages}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Feeds.FeedActivities
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
-  def community(%{community_id: id}, info), do: Communities.fetch(id)
+  def community(%{community_id: id}, %{context: %{current_user: user}}) do
+    Communities.one(id: id, user: user)
+  end
 
-  def communities(args, info) do
-    Repo.transact_with(fn ->
-      count = Communities.count_for_list()
-      comms = Communities.list()
-      {:ok, GraphQL.node_list(comms, count)}
-    end)
+  def communities(args, %{context: %{current_user: user}}) do
+    Communities.nodes_page &(&1.id), [user: user],
+      join: :follower_count, order: :list
   end
 
   def create_community(%{community: attrs}, info) do
@@ -41,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   def update_community(%{community: changes, community_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, community} <- Communities.fetch_private(id) do
+           {:ok, community} <- community(%{community_id: id}, info) do
         cond do
           user.local_user.is_instance_admin ->
             Communities.update(community, changes)
@@ -72,53 +75,53 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   |> GraphQL.response(info)
   # end
 
-  def canonical_url(%Community{}=community, _, info) do
-    {:ok, Repo.preload(community, :actor).actor.canonical_url}
-  end
-  def preferred_username(%Community{}=community, _, info) do
-    {:ok, Repo.preload(community, :actor).actor.preferred_username}
+  def canonical_url_edge(%Community{}=community, _, info) do
+    {:ok, community.actor.canonical_url}
   end
 
-  def is_local(%Community{}=community, _, info) do
+  def preferred_username_edge(%Community{}=community, _, info) do
+    {:ok, community.actor.preferred_username}
+  end
+
+  def is_local_edge(%Community{}=community, _, info) do
     {:ok, is_nil(community.actor.peer_id)}
   end
 
-  def creator(%Community{}=community, _, info) do
-    Users.fetch(community.creator_id)
+  def collections_count_edge(%Community{}=community, _, info) do
+    
   end
 
-  def collections(%Community{}=community, _, info) do
-    Repo.transact_with(fn ->
-      count = Collections.count_for_list_in_community(community)
-      colls =
-        Collections.list_in_community(community)
-        |> Enum.map(fn coll -> %{ coll | community: community} end)
-      {:ok, GraphQL.edge_list(colls, count)}
-    end)
+  def collections_edge(%Community{collections: cs}, _, info) when is_list(cs), do: {:ok, cs}
+  def collections_edge(%Community{id: id}=community, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_collections_edge, user}, id, EdgesPages.getter(id)
   end
 
-  def inbox(community, _, info) do
-    # activities =
-    #   Fake.long_list(&Fake.activity/0)
-    #   |> Enum.map(fn box -> %{cursor: box.id, node: box.activity} end)
-    # count = Fake.pos_integer()
+  def batch_collections_edge(user, ids) do
+    {:ok, edges} = Collections.edges_pages(
+      &(&1.community_id),
+      &(&1.id),
+      [community_id: ids, user: user],
+      [join: :follower_count, order: :followers_desc, preload: :follower_count],
+      [group_count: :community_id]
+    )
+    edges
+  end
+
+  def inbox_edge(community, _, info) do
     # {:ok, GraphQL.edge_list(activities, count)}
     # |> GraphQL.response(info)    
     {:ok, GraphQL.feed_list([], 0)}
   end
 
-  def outbox(community, _, info) do
-    Repo.transact_with(fn ->
-      activities = Communities.outbox(community)
-      count = Enum.count(activities)
-      # count = Communities.count_for_outbox(community)
-      {:ok, GraphQL.feed_list(activities, count)}
-    end)
+  def outbox_edge(%Community{outbox_id: id}, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_outbox_edge, user}, id, EdgesPages.getter(id)
   end
 
-  def last_activity(_, _, info) do
-    {:ok, Fake.past_datetime()}
-    |> GraphQL.response(info)
+  def batch_outbox_edge(user, ids) do
+    {:ok, edges} = FeedActivities.edges_pages(&(&1.feed_id), &(&1.id), id: ids)
+    edges
   end
+
+  def last_activity_edge(_, _, info), do: {:ok, DateTime.utc_now()}
 
 end

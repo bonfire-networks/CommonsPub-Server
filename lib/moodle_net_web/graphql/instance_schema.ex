@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &InstanceResolver.outbox/3
+      resolve &InstanceResolver.outbox_edge/3
     end
 
   end

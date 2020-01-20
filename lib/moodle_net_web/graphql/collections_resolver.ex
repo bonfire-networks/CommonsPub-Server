@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.{
+    Batching,
     Collections,
     Common,
     Communities,
@@ -11,34 +12,68 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Resources,
     Users,
   }
+  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Resources.Resosurce
   alias MoodleNet.Users.User
+  alias MoodleNetWeb.GraphQL.{CommunitiesResolver, UsersResolver}
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  use MoodleNet.Common.Metadata
 
-  def collections(_args, info) do
-    Repo.transact_with(fn ->
-      count = Collections.count_for_list()
-      colls = Collections.list()
-      {:ok, GraphQL.node_list(colls, count)}
-    end)
+  def collection(%{collection_id: id}, %{context: %{current_user: user}}) do
+    Collections.one(user: user, id: id, join: :follower_count, preload: :actor)
   end
 
-  def collection(%{collection_id: id}, info) do
-    Collections.fetch(id)
-    # Dataloader.load(GraphQL.loader(), Collections, Collection, [id])
+  def collections(_args, %{context: %{current_user: user}}) do
+    Collections.nodes_page(
+      &(&1.id),
+      [user: user],
+      [join: :follower_count, order: :followers_desc, preload: :follower_count]
+    )
   end
 
-  def canonical_url(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.canonical_url}
-  def preferred_username(coll, _, _), do: {:ok, Repo.preload(coll, :actor).actor.preferred_username}
-  def is_local(coll, _, _), do: {:ok, is_nil(Repo.preload(coll, :actor).actor.peer_id)}
-  def is_public(coll, _, _), do: {:ok, not is_nil(coll.published_at)}
-  def is_disabled(coll, _, _), do: {:ok, not is_nil(coll.disabled_at)}
-  def is_deleted(coll, _, _), do: {:ok, not is_nil(coll.deleted_at)}
+  @will_break_when :pagination
+  def resources_edge(%Collection{id: id}, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_resources_edge, user}, id, EdgesPages.getter(id)
+  end
+
+  def batch_resources_edge(user, ids) do
+    {:ok, edges} = Resources.edges_pages(
+      &(&1.collection_id),
+      &(&1.id),
+      [user: user, collection_id: ids],
+      [order: :timeline_asc],
+      [group_count: :collection_id]
+    )
+    edges
+  end
+
+  def community_edge(%Collection{}=coll, _, info) do
+    {:ok, Repo.preload(coll, [community: :actor]).community}
+  end
+
+  def last_activity_edge(_, _, info) do
+    {:ok, Fake.past_datetime()}
+    |> GraphQL.response(info)
+  end
+
+  def outbox_edge(%Collection{outbox_id: id}, _, %{context: %{current_user: user}}) do
+    batch {__MODULE__, :batch_outbox_edge, user}, id, EdgesPages.getter(id)
+  end
+
+  def batch_outbox_edge(user, ids) do
+    {:ok, edges} = FeedActivities.edges_pages(&(&1.feed_id), &(&1.id), id: ids)
+    edges
+  end
+
+  ## finally the mutations...
 
   def create_collection(%{collection: attrs, community_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, community} <- Communities.fetch(id) do
+           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
         attrs = Map.merge(attrs, %{is_public: true})
         Collections.create(user, community, attrs)
       end
@@ -48,7 +83,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   def update_collection(%{collection: changes, collection_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, collection} <- Collections.fetch(id) do
+           {:ok, collection} <- collection(%{collection_id: id}, info) do
         collection = Repo.preload(collection, :community)
         cond do
           user.local_user.is_instance_admin ->
@@ -87,34 +122,5 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   #   {:ok, true}
   #   |> GraphQL.response(info)
   # end
-
-  def resources(%Collection{}=coll, _, info) do
-    Repo.transact_with(fn ->
-      count = Resources.count_for_list_in_collection(coll)
-      comms = Resources.list_in_collection(coll)
-      {:ok, GraphQL.edge_list(comms, count, &(&1.id))}
-    end)
-  end
-
-  def creator(%Collection{}=coll, _, info) do
-    {:ok, Repo.preload(coll, [creator: :actor]).creator}
-  end
-  def community(%Collection{}=coll, _, info) do
-    {:ok, Repo.preload(coll, [community: :actor]).community}
-  end
-
-  def last_activity(_, _, info) do
-    {:ok, Fake.past_datetime()}
-    |> GraphQL.response(info)
-  end
-
-  def outbox(collection,_,info) do
-    Repo.transact_with(fn ->
-      activities = Collections.outbox(collection)
-      count = Enum.count(activities)
-      # count = Communities.count_for_outbox(community)
-      {:ok, GraphQL.feed_list(activities, count)}
-    end)
-   end
 
 end

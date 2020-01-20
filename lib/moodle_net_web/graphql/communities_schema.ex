@@ -8,14 +8,18 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   use Absinthe.Schema.Notation
   alias MoodleNet.Communities
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.Comment
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.Comment
   alias MoodleNetWeb.GraphQL.{
     CollectionsResolver,
     CommonResolver,
     CommentsResolver,
     CommunitiesResolver,
+    FlagsResolver,
+    FollowsResolver,
+    LikesResolver,
     LocalisationResolver,
+    ThreadsResolver,
     UsersResolver,
   }
 
@@ -59,11 +63,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :id, non_null(:string)
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CommunitiesResolver.canonical_url/3
+      resolve &CommunitiesResolver.canonical_url_edge/3
     end
     @desc "An instance-unique identifier shared with users and collections"
     field :preferred_username, non_null(:string) do
-      resolve &CommunitiesResolver.preferred_username/3
+      resolve &CommunitiesResolver.preferred_username_edge/3
     end
 
     @desc "A name field"
@@ -77,44 +81,46 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "Whether the community is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &CommunitiesResolver.is_local/3
+      resolve &CommunitiesResolver.is_local_edge/3
     end
     @desc "Whether the community has a public profile"
     field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public/3
+      resolve &CommonResolver.is_public_edge/3
     end
     @desc "Whether an instance admin has disabled the community"
     field :is_disabled, non_null(:boolean) do
-      resolve &CommonResolver.is_disabled/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the community was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at/3
+      resolve &CommonResolver.created_at_edge/3
     end
+
     @desc "When the community was last updated"
     field :updated_at, non_null(:string)
+
     @desc """
     When the community or a resource or collection in it was last
     updated or a thread or a comment was created or updated
     """
     field :last_activity, non_null(:string) do
-      resolve &CommunitiesResolver.last_activity/3
+      resolve &CommunitiesResolver.last_activity_edge/3
     end
 
     @desc "The current user's like of this community, if any"
     field :my_like, :like do
-      resolve &CommonResolver.my_like/3
+      resolve &LikesResolver.my_like_edge/3
     end
 
     @desc "The current user's follow of the community, if any"
     field :my_follow, :follow do
-      resolve &CommonResolver.my_follow/3
+      resolve &FollowsResolver.my_follow_edge/3
     end
 
     @desc "The current user's flag of the community, if any"
     field :my_flag, :flag do
-      resolve &CommonResolver.my_flag/3
+      resolve &FlagsResolver.my_flag_edge/3
     end
  
     # @desc "The primary language the community speaks"
@@ -123,16 +129,16 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     # end
 
     @desc "The user who created the community"
-    field :creator, non_null(:user) do
-      resolve &CommunitiesResolver.creator/3
+    field :creator, :user do
+      resolve &UsersResolver.creator_edge/3
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, non_null(:collections_edges) do
+    field :collections, :collections_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommunitiesResolver.collections/3
+      resolve &CommunitiesResolver.collections_edge/3
     end
 
     @desc """
@@ -140,19 +146,32 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, non_null(:threads_edges) do
+    field :threads, :threads_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommentsResolver.threads/3
+      resolve &ThreadsResolver.threads_edge/3
+    end
+
+    @desc "Total number of followers, including those we can't see"
+    field :follower_count, :integer do
+      resolve &FollowsResolver.follower_count_edge/3
     end
 
     @desc "Users following the community, most recently followed first"
-    field :followers, non_null(:follows_edges) do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.followers/3
+      resolve &FollowsResolver.followers_edge/3
+    end
+
+    @desc "Flags users have made about the community, most recently created first"
+    field :flags, non_null(:flags_edges) do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Activities for community moderators. Not available to plebs."
@@ -168,20 +187,20 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommunitiesResolver.outbox/3
+      resolve &CommunitiesResolver.outbox_edge/3
     end
 
   end
 
   object :communities_nodes do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:community))
+    field :nodes, list_of(:community)
     field :total_count, non_null(:integer)
   end
 
   object :communities_edges do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:community))
+    field :edges, non_null(list_of(:communities_edge))
     field :total_count, non_null(:integer)
   end
 
