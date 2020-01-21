@@ -1,19 +1,21 @@
 # MoodleNet Developer FAQ
 
-Hello, potential contributor!
+*These instructions are for hacking on the MoodleNet backend. If you wish to deploy MoodleNet in production, please refer to our [Deployment Guide](https://gitlab.com/moodlenet/servers/federated/blob/develop/DEPLOY.md)!*
 
-This is a work in progress guide to getting MoodleNet up and running
-as a developer. Please ask questions in the [public Telegram chat](https://t.me/moodlenet_devs) or
-via GitLab if something is not clear.
+Hello, potential contributor! :-)
+
+This is a work in progress guide to getting MoodleNet up and running as a developer. Please ask questions in the [public Telegram chat](https://t.me/moodlenet_devs) or via GitLab issues if something is not clear.
 
 Happy hacking!
+
 
 ## Getting set up
 
 There are three options. The easy option should work the best for most
 users:
 
-### Easy Option - fully managed via docker-compose
+
+### Option 1 (the easy way) - fully managed via docker-compose
 
 1. Dependencies:
 
@@ -47,7 +49,8 @@ make dev
 * `4000` - moodlenet http listener
 * `5432` - postgres database server
 
-### Semi-Manual Option - docker-managed dataabase
+
+### Option 2 (the middle ground) - docker-managed database
 
 Dependencies:
 
@@ -86,10 +89,10 @@ Finally, you may launch the application in iex:
 iex -S mix phx.server
 ```
 
-### Fully Manual
+### Option 3 (the hard metal one) - fully manual
 
 If you wish to avoid docker entirely, you will need to follow the
-steps above, except:
+same steps as option 2, except:
 
 1. After setting the environment with `eval $(make dev-exports)`, you
    will need to export the following variables in the environment to
@@ -98,13 +101,25 @@ steps above, except:
    * `DATABASE_USER`
    * `DATABASE_PASS`
    * `DATABASE_NAME`
+
 2. You will not need to run `make dev-db-up`
+
+
+## Running
+
+By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
+
+The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+
+If you haven't set up transactional emails, while in development, you can access emails (such as signup validation) at `/sent_emails`.
+
 
 ## Documentation
 
 The code is somewhat documented inline. You can read the resulting [Module & Function Documentation](https://new.next.moodle.net/docs/server/api-reference.html#modules) on the project website. 
 
 If you add more documentation (thanks!), you can generate HTML docs (using `Exdoc`) by running `mix docs`. 
+
 
 ## Internationalisation
 
@@ -116,9 +131,10 @@ The backend code currently has very few translatable strings, basically error me
 
 The locale is set using the `MoodleNetWeb.Plugs.SetLocale` plug which checks the header or a param.
 
-If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex).
+If you've added any localisable fields, you should run `mix gettext.extract` to extract them into `/priv/gettext/en/LC_MESSAGES/`. Upload those files to the translation system (eg. Transifex). 
 
 If you've downloaded or received new translated files, copy them to the approriate languages folder(s) in `/priv/gettext/` before rebuilding the app.
+
 
 ## What happens when I get this error?
 
@@ -170,11 +186,6 @@ config :moodle_net, MoodleNet.Repo,
   timeout: 60_000
 ```
 
-## Running
-
-By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
-
-The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
 
 ## Codebase navigation
 
@@ -202,7 +213,6 @@ top level modules which comprise a grouping of:
 * OTP services
 * Ecto schemas
 
-They are 
 
 Here are the current contexts:
 
@@ -231,7 +241,11 @@ There are some additional modules:
 
 TODO
 
+
 ## Subsystems
+
+TODO
+
 
 ## Naming
 
@@ -239,7 +253,7 @@ It is said that naming is one of the four hard problems of computer
 science (along with cache management and off-by-one errors). We don't
 claim our scheme is the best, but we do strive for consistency.
 
-The rules:
+Naming rules:
 
 * Context names all begin `MoodleNet.` and are named in plural where possible.
 * Everything within a context begins with the context name and a `.`
