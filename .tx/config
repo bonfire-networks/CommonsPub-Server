@@ -2,16 +2,16 @@
 host = https://www.transifex.com
 
 [moodlenet.backend-default]
-file_filter = /priv/gettext/<lang>/LC_MESSAGES/default.po
+file_filter = priv/gettext/<lang>/LC_MESSAGES/default.po
 minimum_perc = 0
-source_file = /priv/gettext/default.pot
+source_file = priv/gettext/default.pot
 source_lang = en_GB
 type = PO
 
 [moodlenet.backend-errors]
-file_filter = /priv/gettext/<lang>/LC_MESSAGES/errors.po
+file_filter = priv/gettext/<lang>/LC_MESSAGES/errors.po
 minimum_perc = 0
-source_file = /priv/gettext/errors.pot
+source_file = priv/gettext/errors.pot
 source_lang = en_GB
 type = PO
 
