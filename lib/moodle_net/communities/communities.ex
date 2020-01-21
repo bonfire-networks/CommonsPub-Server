@@ -133,8 +133,8 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  def outbox(%Community{}=community) do
-    FeedActivities.edges_page(feed_id: community.outbox_id)
+  def outbox(%Community{outbox_id: id}) do
+    FeedActivities.edges_page(&(&1.id), feed_id: id, table: default_outbox_query_contexts())
   end
 
   def soft_delete(%Community{} = community) do
@@ -144,6 +144,16 @@ defmodule MoodleNet.Communities do
         {:ok, community}
       end
     end)
+  end
+
+  # defp default_inbox_query_contexts() do
+  #   Application.fetch_env!(:moodle_net, __MODULE__)
+  #   |> Keyword.fetch!(:default_inbox_query_contexts)
+  # end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end

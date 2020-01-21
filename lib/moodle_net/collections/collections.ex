@@ -152,12 +152,18 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  def outbox(collection, opts \\ %{})
-  def outbox(%Collection{outbox_id: id}=collection, %{}=opts) do
-    case id do
-      nil -> {:ok, EdgesPage.new([], [], &(&1.id))}
-      _ -> FeedsActivities.edges_page([id], opts)
-    end
+  def outbox(%Collection{outbox_id: id}) do
+    FeedActivities.edges_page(&(&1.id), feed_id: id, table: default_outbox_query_contexts())
+  end
+
+  # defp default_inbox_query_contexts() do
+  #   Application.fetch_env!(:moodle_net, __MODULE__)
+  #   |> Keyword.fetch!(:default_inbox_query_contexts)
+  # end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end

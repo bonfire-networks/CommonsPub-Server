@@ -59,13 +59,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     |> GraphQL.response(info)
   end
 
-  def outbox_edge(%Collection{outbox_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_outbox_edge, user}, id, EdgesPages.getter(id)
-  end
-
-  def batch_outbox_edge(user, ids) do
-    {:ok, edges} = FeedActivities.edges_pages(&(&1.feed_id), &(&1.id), id: ids)
-    edges
+  def outbox_edge(%Collection{}=coll, _, %{context: %{current_user: user}}) do
+    Collections.outbox(coll)
   end
 
   ## finally the mutations...

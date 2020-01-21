@@ -43,10 +43,13 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     end
 
     @desc "Whether the activity is local to the instance"
-    field :is_local, non_null(:boolean)
+    field :is_local, non_null(:boolean) do
+      resolve &ActivitiesResolver.is_local_edge/3
+    end
+
     @desc "Whether the activity is public"
     field :is_public, non_null(:boolean) do
-      resolve &CommonResolver.is_public_edge/3
+      resolve &ActivitiesResolver.is_public_edge/3
     end
 
     @desc "When the activity was created"

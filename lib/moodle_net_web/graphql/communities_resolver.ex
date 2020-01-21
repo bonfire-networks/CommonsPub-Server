@@ -85,13 +85,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     {:ok, EdgesPage.new([], [], &(&1.id))}
   end
 
-  def outbox_edge(%Community{outbox_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_outbox_edge}, id, EdgesPages.getter(id)
-  end
-
-  def batch_outbox_edge(_, ids) do
-    {:ok, edges} = FeedActivities.edges_pages(&(&1.feed_id), &(&1.id), id: ids)
-    edges
+  def outbox_edge(%Community{}=community, _, %{context: %{current_user: user}}) do
+    Communities.outbox(community)
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}

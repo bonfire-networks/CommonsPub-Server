@@ -332,5 +332,4 @@ defmodule MoodleNet.Users do
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
-
 end
