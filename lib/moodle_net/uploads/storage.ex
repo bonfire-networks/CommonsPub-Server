@@ -19,7 +19,9 @@ defmodule MoodleNet.Uploads.Storage do
 
   @spec remote_url(file_id()) :: {:ok, binary} | {:error, term}
   def remote_url(file_id) do
-    upload_provider() |> Belt.get_url(file_id) |> URI.encode()
+    with {:ok, url} <- upload_provider() |> Belt.get_url(file_id) do
+      {:ok, URI.encode(url)}
+    end
   end
 
   @spec delete(file_id()) :: :ok | {:error, term}
