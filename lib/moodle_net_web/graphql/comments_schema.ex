@@ -86,12 +86,12 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "The thread this comment is part of"
-    field :thread, non_null(:thread) do
+    field :thread, :thread do
       resolve &CommentsResolver.thread_edge/3
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likes, non_null(:likes_edges) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -99,7 +99,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Flags users have made about the comment, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string

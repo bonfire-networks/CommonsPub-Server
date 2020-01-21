@@ -49,11 +49,11 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
       resolve(&UploadResolver.is_public/3)
     end
 
-    field(:parent, non_null(:upload_parent)) do
+    field(:parent, :upload_parent) do
       resolve(&UploadResolver.parent/3)
     end
 
-    field(:uploader, non_null(:user)) do
+    field(:uploader, :user) do
       resolve(&UploadResolver.uploader/3)
     end
   end

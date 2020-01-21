@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "The collection this resource is a part of"
-    field :collection, non_null(:collection) do
+    field :collection, :collection do
       resolve &ResourcesResolver.collection_edge/3
     end
 
@@ -135,7 +135,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likes, non_null(:likes_edges) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -143,7 +143,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string

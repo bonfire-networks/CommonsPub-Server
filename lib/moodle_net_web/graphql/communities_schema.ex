@@ -168,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Flags users have made about the community, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -184,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     # end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string

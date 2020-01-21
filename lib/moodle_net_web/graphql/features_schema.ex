@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
     end
 
     @desc "The thing that is being featured"
-    field :context, non_null(:feature_context) do
+    field :context, :feature_context do
       resolve &CommonResolver.context_edge/3
     end
 

@@ -199,7 +199,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, non_null(:follows_edges) do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -207,7 +207,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The communities a user is following, most recently followed first"
-    field :followed_communities, non_null(:followed_communities_edges) do
+    field :followed_communities, :followed_communities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -215,7 +215,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The collections a user is following, most recently followed first"
-    field :followed_collections, non_null(:followed_collections_edges) do
+    field :followed_collections, :followed_collections_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -223,7 +223,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The users a user is following, most recently followed first"
-    field :followed_users, non_null(:followed_users_edges) do
+    field :followed_users, :followed_users_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -231,7 +231,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The likes a user has created"
-    field :likes, non_null(:likes_edges) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -239,7 +239,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Comments the user has made, most recently created first"
-    field :comments, non_null(:comments_edges) do
+    field :comments, :comments_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -247,7 +247,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Activities of the user, most recently created first"
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -258,7 +258,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     Activities of others the user is following, most recently created
     first. Only available to the current user under `me`
     """
-    field :inbox, non_null(:activities_edges) do
+    field :inbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string

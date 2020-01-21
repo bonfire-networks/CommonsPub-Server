@@ -131,12 +131,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "The community the collection belongs to"
-    field :community, non_null(:community) do
+    field :community, :community do
       resolve &CollectionsResolver.community_edge/3
     end
 
     @desc "The resources in the collection, most recently created last"
-    field :resources, non_null(:resources_edges) do
+    field :resources, :resources_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -149,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, non_null(:follows_edges) do
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -157,7 +157,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Likes users have given the collection"
-    field :likes, non_null(:likes_edges) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -165,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Flags users have made about the collection, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -184,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     The threads created on the collection, most recently created
     first. Does not include threads created on resources.
     """
-    field :threads, non_null(:threads_edges) do
+    field :threads, :threads_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -192,7 +192,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Activities on the collection, most recent first"
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
