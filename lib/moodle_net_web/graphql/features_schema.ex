@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
     end
 
     @desc "The user who featured"
-    field :creator, non_null(:user) do
+    field :creator, :user do
       resolve &UsersResolver.creator_edge/3
     end
 

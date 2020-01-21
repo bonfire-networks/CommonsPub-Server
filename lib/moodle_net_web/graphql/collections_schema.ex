@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     # end
 
     @desc "The user who created the collection"
-    field :creator, non_null(:user) do
+    field :creator, :user do
       resolve &UsersResolver.creator_edge/3
     end
 

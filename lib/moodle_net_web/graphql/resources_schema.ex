@@ -120,7 +120,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
 
     @desc "The user who created the resource"
-    field :creator, non_null(:user) do
+    field :creator, :user do
       resolve &UsersResolver.creator_edge/3
     end
 

@@ -127,10 +127,7 @@ defmodule MoodleNet.Follows do
         with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}), do: :ok
     end
   end
-  defp subscribe(a,b,c) do
-    IO.inspect(a: a, b: b, c: c)
-    :ok
-  end
+  defp subscribe(_,_,_), do: :ok
 
   defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
     context = Pointers.follow!(Repo.preload(follow, :context).context)

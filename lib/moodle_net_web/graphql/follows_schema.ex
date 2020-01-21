@@ -52,7 +52,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsSchema do
     field :updated_at, non_null(:string)
 
     @desc "The user who followed"
-    field :creator, non_null(:user) do
+    field :creator, :user do
       resolve &UsersResolver.creator_edge/3
     end
 
