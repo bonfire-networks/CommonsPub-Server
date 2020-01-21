@@ -287,9 +287,10 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, subs} <- feed_subscriptions(user) do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
+        IO.inspect(ids: ids)
         FeedActivities.edges_page(
           &(&1.id),
-          [feed_id: ids, table: default_inbox_query_contexts()]
+          feed_id: ids, table: default_inbox_query_contexts(), order: :timeline_desc
         )
       end
     end)
@@ -300,7 +301,12 @@ defmodule MoodleNet.Users do
   end
 
   def outbox(%User{outbox_id: id}, opts \\ %{}) do
-    FeedActivities.edges_page(&(&1.id), feed_id: id, table: default_outbox_query_contexts())
+    FeedActivities.edges_page(
+      &(&1.id),
+      feed_id: id,
+      table: default_outbox_query_contexts(),
+      order: :timeline_desc
+    )
   end
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val

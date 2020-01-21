@@ -12,7 +12,7 @@ defmodule MoodleNet.Follows do
     Queries,
   }
   alias MoodleNet.Meta.{Pointer, Pointers}
-  alias MoodleNet.Users.User
+  alias MoodleNet.Users.{LocalUser, User}
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Follow, filters))
@@ -119,7 +119,7 @@ defmodule MoodleNet.Follows do
   end
 
   # we only maintain subscriptions for local users
-  defp subscribe(%User{actor: %{peer_id: nil}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})
+  defp subscribe(%User{local_user: %LocalUser{}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})
   when is_binary(outbox_id) do
     case FeedSubscriptions.one(subscriber_id: follower.id, feed_id: outbox_id) do
       {:ok, _} -> :ok
@@ -127,7 +127,10 @@ defmodule MoodleNet.Follows do
         with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}), do: :ok
     end
   end
-  defp subscribe(_, _, _), do: :ok
+  defp subscribe(a,b,c) do
+    IO.inspect(a: a, b: b, c: c)
+    :ok
+  end
 
   defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
     context = Pointers.follow!(Repo.preload(follow, :context).context)

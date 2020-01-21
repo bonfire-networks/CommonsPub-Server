@@ -4,29 +4,22 @@
 defmodule MoodleNet.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
-  alias MoodleNet.Repo
-  alias MoodleNet.Instance.Outbox
-  import Ecto.Query
+  alias MoodleNet.{Feeds, Repo}
+  alias MoodleNet.Feeds.FeedActivities
   
-  def outbox(opts \\ %{}) do
-    Repo.all(outbox_q(opts))
-    |> Repo.preload(:activity)
+  def outbox() do
+    FeedActivities.edges_page(
+      &(&1.id),
+      feed_id: Feeds.instance_outbox_id(),
+      order: :timeline_desc,
+      table: default_outbox_query_contexts()      
+    )
   end
-  def outbox_q(_opts) do
-    from i in Outbox,
-      join: a in assoc(i, :activity),
-      where: not is_nil(a.published_at),
-      select: i,
-      preload: [:activity]
-  end
-  def count_for_outbox(opts \\ %{}) do
-    Repo.one(count_for_outbox_q(opts))
-  end
-  def count_for_outbox_q(_opts) do
-    from i in Outbox,
-      join: a in assoc(i, :activity),
-      where: not is_nil(a.published_at),
-      select: count(i)
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end
+

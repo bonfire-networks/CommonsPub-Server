@@ -10,6 +10,7 @@ alias MoodleNet.{
   Features,
   Flags,
   Follows,
+  Instance,
   Likes,
   Threads,
   Users,
@@ -35,6 +36,9 @@ config :moodle_net, Feeds,
 
 config :moodle_net, Blocks,
   valid_contexts: [Collection, Community, User]
+
+config :moodle_net, Instance,
+  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Collections,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
