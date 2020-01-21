@@ -93,4 +93,7 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
     order_by q, [feed_activity: fa], [desc: fa.id]
   end
 
+  def filter(q, {:distinct, field}) do
+    distinct q, [feed_activity: fa], fa.activity_id
+  end
 end

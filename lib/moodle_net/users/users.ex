@@ -290,7 +290,9 @@ defmodule MoodleNet.Users do
         IO.inspect(ids: ids)
         FeedActivities.edges_page(
           &(&1.id),
-          feed_id: ids, table: default_inbox_query_contexts(), order: :timeline_desc
+          feed_id: ids,
+          table: default_inbox_query_contexts(),
+          order: :timeline_desc
         )
       end
     end)
