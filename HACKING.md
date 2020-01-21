@@ -105,6 +105,15 @@ same steps as option 2, except:
 2. You will not need to run `make dev-db-up`
 
 
+## Running
+
+By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
+
+The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+
+If you haven't set up transactional emails, while in development, you can access emails (such as signup validation) at `/sent_emails`.
+
+
 ## Documentation
 
 The code is somewhat documented inline. You can read the resulting [Module & Function Documentation](https://new.next.moodle.net/docs/server/api-reference.html#modules) on the project website. 
@@ -176,12 +185,6 @@ config :moodle_net, MoodleNet.Repo,
   pool_size: 10,
   timeout: 60_000
 ```
-
-## Running
-
-By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
-
-The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
 
 
 ## Codebase navigation
