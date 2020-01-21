@@ -84,7 +84,7 @@ defmodule MoodleNet.Users do
          attrs2 = Map.merge(attrs, %{inbox_id: inbox.id, outbox_id: outbox.id}),
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
-      user = %{user | actor: actor, local_user: local_user, email_confirm_tokens: [token]}
+      user = %{user | actor: actor, local_user: %{ local_user | email_confirm_tokens: [token]}}
 
       user
       |> Email.welcome(token)

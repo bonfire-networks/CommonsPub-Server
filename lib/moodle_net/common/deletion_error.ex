@@ -13,6 +13,5 @@ defmodule MoodleNet.Common.DeletionError do
   @spec new(term) :: t
   @doc "Create a new DeletionError"
   def new(changeset), do: %DeletionError{ changeset: changeset }
-  end
   
 end

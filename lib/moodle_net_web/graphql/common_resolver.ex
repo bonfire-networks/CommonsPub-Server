@@ -10,8 +10,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, _info)
-    batch {__MODULE__, :batch_context_edge, user}, id, Edges.getter(id)
+  def context_edge(%{context_id: id}, _, _info) do
+    batch {__MODULE__, :batch_context_edge}, id, Edges.getter(id)
   end
   
   def batch_context_edge(_, ids) do

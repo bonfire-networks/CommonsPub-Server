@@ -80,7 +80,7 @@ defmodule MoodleNet.Access do
     do: find_response(Repo.get_by(RegisterEmailDomainAccess, domain: domain))
 
   defp find_response(nil), do: {:error, NotFoundError.new()}
-  defp find_response(nal), do: {:ok, val}
+  defp find_response(val), do: {:ok, val}
 
   @spec is_register_accessed?(email :: binary()) :: boolean()
   @doc "true if the user's email or the domain of the user's email is accessed"

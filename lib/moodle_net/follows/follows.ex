@@ -84,7 +84,7 @@ defmodule MoodleNet.Follows do
     end
   end
 
-  defp federate(%Follow{is_local: true} = follow, opts \\ [])
+  defp federate(follow, opts \\ [])
   defp federate(%Follow{is_local: true} = follow, opts) do
     if Keyword.get(opts, :federate, true) do
       MoodleNet.FeedPublisher.publish(%{

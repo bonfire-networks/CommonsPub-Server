@@ -101,8 +101,8 @@ defmodule MoodleNet.Meta.TableService do
   # operating over the referenced tables to the `schema` key. Errors
   # if a matching schema is not found
   defp pair_schemata(entries) do
-    index = Enum.reduce(ecto_schema_modules() ,%{}, fn module, acc ->
-      schema_reduce(ecto_schema_table(module), module, acc)
+    index = Enum.reduce(Introspection.ecto_schema_modules() ,%{}, fn module, acc ->
+      schema_reduce(Introspection.ecto_schema_table(module), module, acc)
     end)
     Enum.map(entries, &pair_schema(&1, Map.get(index, &1.table)))
   end

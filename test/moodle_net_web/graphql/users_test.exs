@@ -324,7 +324,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   describe "UsersResolver.confirm_email" do
     test "Works for a guest with a valid token" do
       user = fake_user!()
-      [token] = user.email_confirm_tokens
+      [token] = user.local_user.email_confirm_tokens
       query = """
       mutation {
         confirmEmail(token: "#{token.id}") {
@@ -340,7 +340,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "Works with an authenticated user" do
       user = fake_user!()
-      [token] = user.email_confirm_tokens
+      [token] = user.local_user.email_confirm_tokens
       query = """
       mutation {
         confirmEmail(token: "#{token.id}") {

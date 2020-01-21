@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.Comment
   alias MoodleNetWeb.GraphQL.{
+    ActorsResolver,
     CollectionsResolver,
     CommonResolver,
     CommentsResolver,
