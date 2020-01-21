@@ -36,6 +36,14 @@ config :moodle_net, Feeds,
 config :moodle_net, Blocks,
   valid_contexts: [Collection, Community, User]
 
+config :moodle_net, Collections,
+  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
+  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+
+config :moodle_net, Communities,
+  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
+  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+
 config :moodle_net, Features,
   valid_contexts: [Collection, Community]
 
@@ -52,7 +60,9 @@ config :moodle_net, Threads,
   valid_contexts: [Collection, Community, Flag, Resource, User]
 
 config :moodle_net, Users,
-  public_registration: false
+  public_registration: false,
+  default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
+  default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
  # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable

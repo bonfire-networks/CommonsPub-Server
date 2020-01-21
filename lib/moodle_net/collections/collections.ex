@@ -153,10 +153,10 @@ defmodule MoodleNet.Collections do
   end
 
   def outbox(collection, opts \\ %{})
-  def outbox(%Collection{outbox_id: outbox_id}=collection, %{}=opts) do
-    case outbox_id do
-      nil -> []
-      _ -> Feeds.feed_activities([outbox_id], opts)
+  def outbox(%Collection{outbox_id: id}=collection, %{}=opts) do
+    case id do
+      nil -> {:ok, EdgesPage.new([], [], &(&1.id))}
+      _ -> FeedsActivities.edges_page([id], opts)
     end
   end
 

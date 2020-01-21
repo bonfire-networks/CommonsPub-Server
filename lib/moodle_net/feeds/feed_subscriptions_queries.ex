@@ -6,7 +6,7 @@ defmodule MoodleNet.Feeds.FeedSubscriptionsQueries do
   import Ecto.Query
 
   def query(FeedSubscription) do
-    from fs in FeedSubscription, as: :like
+    from fs in FeedSubscription, as: :feed_subscription
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -23,41 +23,41 @@ defmodule MoodleNet.Feeds.FeedSubscriptionsQueries do
   ## by status
   
   def filter(q, :deleted) do
-    where q, [like: l], is_nil(l.deleted_at)
+    where q, [feed_subscription: fs], is_nil(fs.deleted_at)
   end
 
   def filter(q, :disabled) do
-    where q, [like: l], is_nil(l.disabled_at)
+    where q, [feed_subscription: fs], is_nil(fs.disabled_at)
   end
 
   def filter(q, :inactive) do
-    where q, [like: l], not is_nil(l.activated_at)
+    where q, [feed_subscription: fs], not is_nil(fs.activated_at)
   end
 
   # by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [like: l], l.id == ^id
+    where q, [feed_subscription: fs], fs.id == ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [like: l], l.id in ^ids
+    where q, [feed_subscription: fs], fs.id in ^ids
   end
 
   def filter(q, {:feed_id, id}) when is_binary(id) do
-    where q, [like: l], l.feed_id == ^id
+    where q, [feed_subscription: fs], fs.feed_id == ^id
   end
 
   def filter(q, {:feed_id, ids}) when is_list(ids) do
-    where q, [like: l], l.feed_id in ^ids
+    where q, [feed_subscription: fs], fs.feed_id in ^ids
   end
 
   def filter(q, {:subscriber_id, id}) when is_binary(id) do
-    where q, [like: l], l.subscriber_id == ^id
+    where q, [feed_subscription: fs], fs.subscriber_id == ^id
   end
 
   def filter(q, {:subscriber_id, ids}) when is_list(ids) do
-    where q, [like: l], l.subscriber_id in ^ids
+    where q, [feed_subscription: fs], fs.subscriber_id in ^ids
   end
 
 end

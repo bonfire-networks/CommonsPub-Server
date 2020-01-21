@@ -247,7 +247,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def outbox_edge(%User{outbox_id: id}, _, %{context: %{current_user: user}}) do
-    FeedActivities.edges_page(&(&1.id), feed_id: id)
+    Users.outbox(user)
   end
 
   def follow_edge(follow, _, _), do: {:ok, follow}

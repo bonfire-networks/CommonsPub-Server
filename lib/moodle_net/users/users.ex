@@ -283,19 +283,24 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{id: id, inbox_id: inbox_id}, _opts \\ %{}) do
+  def inbox(%User{inbox_id: inbox_id}=user) do
     Repo.transact_with(fn ->
-      {:ok, subs} = FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
-      ids = [inbox_id | Enum.map(subs, &(&1.feed_id)) ]
-      FeedActivities.edges_page(
-        &(&1.id),
-        [feed_id: ids]
-      )
+      with {:ok, subs} <- feed_subscriptions(user) do
+        ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
+        FeedActivities.edges_page(
+          &(&1.id),
+          [feed_id: ids, table: default_inbox_query_contexts()]
+        )
+      end
     end)
   end
 
-  def outbox(%User{}=user, opts \\ %{}) do
-    Feeds.feed_activities([user.outbox_id], opts)
+  def feed_subscriptions(%User{id: id}) do
+    FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
+  end
+
+  def outbox(%User{outbox_id: id}, opts \\ %{}) do
+    FeedActivities.edges_page(&(&1.id), feed_id: id, table: default_outbox_query_contexts())
   end
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val
@@ -316,4 +321,16 @@ defmodule MoodleNet.Users do
   def preload_local_user(%User{} = user, opts \\ []) do
     Repo.preload(user, :local_user, opts)
   end
+
+  defp default_inbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_inbox_query_contexts)
+  end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+
+
 end

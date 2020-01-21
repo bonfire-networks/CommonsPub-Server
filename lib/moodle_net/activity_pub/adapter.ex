@@ -2,18 +2,19 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Actors, Collections, Communities, Repo, Users}
+  alias MoodleNet.{Actors, Collections, Communities, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Threads.Comments
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    with {:error, _e} <- Users.one(username: username),
-         {:error, _e} <- Communities.one(username: username),
-         {:error, _e} <- Collections.one(username: username) do
+    with {:error, _e} <- Users.one([:deleted, username: username]),
+         {:error, _e} <- Communities.one([:deleted, username: username]),
+         {:error, _e} <- Collections.one([:deleted, username: username]) do
       {:error, "not found"}
     end
   end
@@ -183,11 +184,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
       ) do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
-         {:ok, parent_comment} <- MoodleNet.Threads.Comments.one(id: parent_id),
-         {:ok, thread} <- MoodleNet.Threads.one(id: parent_comment.thread_id),
+         {:ok, parent_comment} <- Comments.one(id: parent_id),
+         {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, _} <-
-           MoodleNet.Threads.Comments.create_comment_reply(actor, thread, parent_comment, %{
+           Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -207,10 +208,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, thread} <-
-           MoodleNet.Threads.Comments.create_thread(actor, parent, %{is_public: true, is_local: false}),
+         {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
          {:ok, _} <-
-           MoodleNet.Threads.Comments.create_comment(actor, thread, %{
+           Comments.create(actor, thread, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -369,14 +369,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
     else
       case object.data["formerType"] do
         "Note" ->
-          with {:ok, comment} <- MoodleNet.Threads.Comments.one(id: object.mn_pointer_id),
-               {:ok, _} <- MoodleNet.Threads.Comments.soft_delete_comment(comment) do
+          with {:ok, comment} <- Comments.one(id: object.mn_pointer_id),
+               {:ok, _} <- Comments.soft_delete_comment(comment) do
             :ok
           end
 
         "Document" ->
-          with {:ok, resource} <- MoodleNet.Resources.one(id: object.mn_pointer_id),
-               {:ok, _} <- MoodleNet.Resources.soft_delete(resource) do
+          with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
+               {:ok, _} <- Resources.soft_delete(resource) do
             :ok
           end
       end

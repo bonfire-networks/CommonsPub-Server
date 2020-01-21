@@ -173,7 +173,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:ok, _} = MoodleNet.Follows.find(follower, followed)
+      assert {:ok, _} = MoodleNet.Follows.one(creator_id: follower.id, context_id: followed.id)
     end
 
     test "unfollows" do
@@ -220,7 +220,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, like_actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
-      assert {:ok, _} = MoodleNet.Likes.find(like_actor, comment)
+      assert {:ok, _} = MoodleNet.Likes.one(creator_id: like_actor.id, context_id: comment.id)
     end
 
     test "flags" do
@@ -243,7 +243,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment.id)
     end
 
     test "flags with multiple comments" do
@@ -269,8 +269,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_1)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_2)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment_1.id)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment_2.id)
     end
 
     test "flag with only actor" do
@@ -289,7 +289,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, actor)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: actor.id)
     end
 
     test "user deletes" do

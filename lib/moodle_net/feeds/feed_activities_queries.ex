@@ -5,6 +5,7 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   use MoodleNet.Common.Metadata
   alias MoodleNet.Activities
   alias MoodleNet.Feeds.FeedActivity
+  alias MoodleNet.Meta.TableService
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
@@ -68,7 +69,27 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
     where q, [feed_activity: fa], fa.activity_id in ^ids
   end
 
-  def filter(q, {:order, :timeline}) do
+  def filter(q, {:table_id, id}) when is_binary(id) do
+    where q, [context: c], c.table_id == ^id
+  end
+
+  def filter(q, {:table_id, ids}) when is_list(ids) do
+    where q, [context: c], c.table_id in ^ids
+  end
+
+  def filter(q, {:table, table}) when is_atom(table) do
+    id = TableService.lookup_id!(table)
+    where q, [context: c], c.table_id == ^id
+  end
+
+  def filter(q, {:table, tables}) when is_list(tables) do
+    ids = Enum.map(tables, &TableService.lookup_id!/1)
+    where q, [context: c], c.table_id in ^ids
+  end
+
+  ## by order
+
+  def filter(q, {:order, :timeline_desc}) do
     order_by q, [feed_activity: fa], [desc: fa.id]
   end
 

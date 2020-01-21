@@ -103,7 +103,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a follow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one(username: ap_followed.username)
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -119,7 +119,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unfollow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one(username: ap_followed.username)
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -138,7 +138,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it errors when remote account manually approves followers" do
       follower = fake_user!()
       ap_followed = actor(%{data: %{"manuallyApprovesFollowers" => true}})
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one(username: ap_followed.username)
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -155,7 +155,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a block of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
+      {:ok, blocked} = MoodleNet.Users.one(username: ap_blocked.username)
 
       {:ok, block} =
         MoodleNet.Blocks.create(blocker, blocked, %{
@@ -172,7 +172,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unblock of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
+      {:ok, blocked} = MoodleNet.Users.one(username: ap_blocked.username)
 
       {:ok, block} =
         MoodleNet.Blocks.create(blocker, blocked, %{
