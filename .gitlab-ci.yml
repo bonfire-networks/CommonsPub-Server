@@ -13,6 +13,7 @@ cache:
   paths:
     - deps
     - _build
+    - .pip
 
 stages:
   - build
@@ -30,6 +31,17 @@ build:
     - mix deps.get
     - mix compile --force
     
+localisation:  # prepare localisation strings
+  stage: test
+  before_script:
+    - apk add --update py-pip && pip --cache-dir=.pip install -U pip # Install the AWS SDK for pushing the docs python3 
+    - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
+  script:
+    - mix gettext.extract # extract strings to be localised
+    - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
+  only:
+  - develop
+
 unit-testing:
   stage: test
   services:
@@ -42,16 +54,13 @@ unit-testing:
     - mix test --trace --preload-modules
 
 pages:
-  stage: deploy # deploy docs + TODO localisation strings
+  stage: deploy # deploy documentation
   before_script:
-    - apk add --update py-pip && pip install -U pip && pip install awscli # Install the AWS SDK for pushing the docs python3 
+    - apk add --update py-pip && pip --cache-dir=.pip install -U pip && pip --cache-dir=.pip install awscli # Install the AWS SDK for pushing the docs python3 
     - mix local.hex --force
     - mix local.rebar --force
     - 'MIX_ENV=dev mix deps.get'
-    - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
   script:
-    - mix gettext.extract # extract strings to be localised
-    - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
     - MIX_ENV=dev mix docs
     - mv doc public # serve as GitLab Pages artifact
     - aws s3 sync public/ s3://${DOCS_STAGING_BUCKET}/docs/server/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to S3-served website
