@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Actors, Collections, Communities, Repo, Resources, Threads, Users}
+  alias MoodleNet.{Collections, Communities, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
@@ -14,7 +14,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def get_actor_by_username(username) do
     with {:error, _e} <- Users.one([:deleted, username: username]),
          {:error, _e} <- Communities.one([:deleted, username: username]),
-         {:error, _e} <- Collections.one([:deleted, username: username]) do
+         {:error, _e} <-
+           (with {:ok, coll} <- Collections.one([:deleted, username: username]) do
+              {:ok, Repo.preload(coll, :actor)}
+            end) do
       {:error, "not found"}
     end
   end
@@ -22,7 +25,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def get_actor_by_id(id) do
     with {:error, _e} <- Users.one(id: id),
          {:error, _e} <- Communities.one(id: id),
-         {:error, _e} <- Collections.one(id: id) do
+         {:error, _e} <-
+           (with {:ok, coll} <- Collections.one(id: id) do
+              {:ok, Repo.preload(coll, :actor)}
+            end) do
       {:error, "not found"}
     end
   end
@@ -320,7 +326,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, block} <- MoodleNet.Blocks.one(creator_id: blocker.id, context_id: blocked.id),
+         {:ok, block} <- MoodleNet.Blocks.find(blocker, blocked),
          {:ok, _} <- MoodleNet.Blocks.delete(block) do
       :ok
     else
@@ -370,7 +376,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       case object.data["formerType"] do
         "Note" ->
           with {:ok, comment} <- Comments.one(id: object.mn_pointer_id),
-               {:ok, _} <- Comments.soft_delete_comment(comment) do
+               {:ok, _} <- Comments.soft_delete(comment) do
             :ok
           end
 
@@ -384,7 +390,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def perform(:handle_activity, %{data: %{"type" => "Flag", "object" => objects}} = activity)
-  when length(objects) > 1 do
+      when length(objects) > 1 do
     with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]) do
       activity.data["object"]
       |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
