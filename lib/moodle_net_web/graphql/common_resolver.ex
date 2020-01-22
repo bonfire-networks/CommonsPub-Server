@@ -4,8 +4,17 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
+  alias MoodleNet.Common
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Likes.Like
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Batching.Edges
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
@@ -58,23 +67,23 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   # def followed(%Follow{}=follow,_,info)
 
   def delete(%{context_id: id},_info) do
-    # with {:ok, pointer} <- Pointers.one(id: id) do
-    #   thing = meta.follow!(pointer)
-    #   case thing do
-    #     %Collection{} ->
-    #     %Comment{} -> :comment
-    #     %Community{} -> :community
-    #     %Flag{} -> :flag
-    #     %Follow{} -> :follow
-    #     %Like{} -> :like
-    #     %Resource{} -> :resource
-    #     %Thread{} -> :thread
-    #     %User{} -> :user
-    #   end
-    # end
-    {:ok, true}
+    with {:ok, pointer} <- Pointers.one(id: id),
+         context = Pointers.follow!(pointer),
+         {:ok, delete_fn} <- ensure_delete_fn(context) do
+      delete_fn.(context)
+    end
   end
 
+  defp ensure_delete_fn(%Community{}), do: {:ok, &MoodleNet.Communities.soft_delete/1}
+  defp ensure_delete_fn(%Collection{}), do: {:ok, &MoodleNet.Collections.soft_delete/1}
+  defp ensure_delete_fn(%Resource{}), do: {:ok, &MoodleNet.Resources.soft_delete/1}
+  defp ensure_delete_fn(%Comment{}), do: {:ok, &MoodleNet.Threads.Comments.soft_delete/1}
+  defp ensure_delete_fn(%Feature{}), do: {:ok, &MoodleNet.Features.soft_delete/1}
+  defp ensure_delete_fn(%Thread{}), do: {:ok, &MoodleNet.Threads.soft_delete/1}
+  defp ensure_delete_fn(%User{}), do: {:ok, &MoodleNet.Users.soft_delete/1}
+  defp ensure_delete_fn(%Follow{}), do: {:ok, &MoodleNet.Follows.undo/1}
+  defp ensure_delete_fn(%Like{}), do: {:ok, &MoodleNet.Likes.undo/1}
+  defp ensure_delete_fn(_), do: GraphQL.not_permitted("delete")
 
   # def tag(_, _, info) do
   #   {:ok, Fake.tag()}

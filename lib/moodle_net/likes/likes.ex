@@ -3,10 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes do
 
-  alias MoodleNet.Repo
+  alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Meta.{Pointers, Table}
+  alias MoodleNet.Meta.{Pointer, Pointers, Table}
   alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
   alias Ecto.Changeset
@@ -41,22 +42,32 @@ defmodule MoodleNet.Likes do
     Repo.insert(Like.create_changeset(liker, liked, fields))
   end
 
-  defp publish(%Like{} = _like, _verb) do
-    # MoodleNet.FeedPublisher.publish(%{
-    #   "verb" => verb,
-    #   "creator_id" => like.creator_id,
-    #   "context_id" => like.id
-    # })
+  defp publish(creator, context, %Like{} = like, verb) do
+    attrs = %{verb: verb, is_local: like.is_local}
+    with {:ok, activity} <- Activities.create(creator, like, attrs) do
+      FeedActivities.publish(activity, [creator.outbox_id, context.outbox_id])
+    end
+  end
+
+  defp federate(%Like{is_local: true} = like) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => like.context_id,
+      "user_id" => like.creator_id,
+    })
     :ok
   end
+  defp federate(_), do: :ok
 
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
   """
-  def create(%User{} = liker, liked, fields) do
-    liked = Pointers.maybe_forge!(liked)
-    %Table{schema: table} = Pointers.table!(liked)
-    if table in valid_contexts() do
+  def create(liker, liked, fields)
+  def create(%User{} = liker, %Pointer{} = liked, fields) do
+    create(liker, Pointers.follow!(liked), fields)
+  end
+
+  def create(%User{} = liker, %{outbox_id: _, __struct__: ctx} = liked, fields) do
+    if ctx in valid_contexts() do
       Repo.transact_with(fn ->
         case one(context_id: liked.id, creator_id: liker.id) do
           {:ok, _} ->
@@ -64,13 +75,13 @@ defmodule MoodleNet.Likes do
   
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
-                 :ok <- publish(like, "create") do
+                 :ok <- publish(liker, liked, like, "create") do
               {:ok, like}
             end
         end
       end)
     else
-      {:error, NotLikeableError.new(table)}
+      {:error, NotLikeableError.new(ctx)}
     end
   end
 
@@ -78,9 +89,18 @@ defmodule MoodleNet.Likes do
     Repo.update(Like.update_changeset(like, fields))
   end
 
+  @spec undo(Like.t()) :: {:ok, Like.t()} | {:error, any}
+  def undo(%Like{} = like) do
+    Repo.transact_with(fn ->
+      with {:ok, like} <- Common.soft_delete(like),
+            :ok <- federate(like) do
+        {:ok, like}
+      end
+    end)
+  end
+
   defp valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
-
 end
