@@ -11,7 +11,6 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
-  alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def comment(%{comment_id: id}, %{context: %{current_user: user}}) do
@@ -61,9 +60,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         with {:ok, pointer} <- Pointers.one(id: context_id),
              context = Pointers.follow!(pointer),
              :ok <- validate_thread_context(context),
-             {:ok, thread} <- Comments.create_thread(user, context, %{is_local: true}) do
+             {:ok, thread} <- Threads.create(user, context, %{is_local: true}) do
           attrs = Map.put(attrs, :is_local, true)
-          Comments.create_comment(user, thread, attrs)
+          Comments.create(user, thread, attrs)
         end
       end)
     end
@@ -89,19 +88,18 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   def update(%{comment_id: comment_id, comment: changes}, info) do
     with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, comment} <- Comments.fetch_comment(comment_id) do
+         {:ok, comment} <- Comments.one(id: comment_id) do
       cond do
         user.is_local_admin ->
-          Comments.update_comment(comment, changes)
+          Comments.update(comment, changes)
         comment.creator_id == user.id ->
-          Comments.update_comment(comment, changes)
+          Comments.update(comment, changes)
         true -> GraphQL.not_permitted("update")
       end
     end
   end
 
   def last_activity_edge(_, _, info) do
-    {:ok, Fake.past_datetime()}
-    |> GraphQL.response(info)
+    {:ok, DateTime.utc_now()}
   end
 end
