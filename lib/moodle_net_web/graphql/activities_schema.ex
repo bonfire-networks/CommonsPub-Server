@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
 
     @desc "The user who performed the activity"
     field :user, :user do
-      resolve &ActivitiesResolver.user_edge/3
+      resolve &UsersResolver.creator_edge/3
     end
 
     @desc "The object of the user's verbing"

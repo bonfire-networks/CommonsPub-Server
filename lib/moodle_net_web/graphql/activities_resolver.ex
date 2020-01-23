@@ -14,17 +14,6 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
     Activities.one(id: id, user: user)
   end
 
-  def user_edge(%Activity{creator_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_user_edge, user}, id, Edges.getter(id)
-  end
-
-  def batch_user_edge(user, ids) do
-    {:ok, edges} = Users.edges(&(&1.id), id: ids, user: user)
-    edges
-  end
-
-  # def verb_edge(%Activity{verb: verb}, _, _info), do: {:ok, verb}
-
   def context_edge(%Activity{context: context}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_context_edge, user}, context, Edges.getter(context.id)
   end
