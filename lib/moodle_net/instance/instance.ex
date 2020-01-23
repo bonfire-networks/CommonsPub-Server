@@ -10,8 +10,10 @@ defmodule MoodleNet.Instance do
   def outbox() do
     Activities.edges_page(
       &(&1.id),
+      join: :feed_activity,
       feed_id: Feeds.instance_outbox_id(),
       order: :timeline_desc,
+      distinct: :feed_id,
       table: default_outbox_query_contexts()      
     )
   end
