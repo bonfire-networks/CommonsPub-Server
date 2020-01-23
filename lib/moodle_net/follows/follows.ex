@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
-  alias MoodleNet.{Activities, Common, Repo}
+  alias MoodleNet.{Activities, Common, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{

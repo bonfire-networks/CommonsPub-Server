@@ -8,7 +8,7 @@ defmodule MoodleNet.Follows.FollowerCountsQueries do
   import Ecto.Query
 
   def query(FollowerCount) do
-    from f in Follow, as: :follow
+    from f in FollowerCount, as: :follower_count
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -25,11 +25,11 @@ defmodule MoodleNet.Follows.FollowerCountsQueries do
   # by field values
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [follow: f], f.context_id == ^id
+    where q, [follower_count: f], f.context_id == ^id
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [follow: f], f.context_id in ^ids
+    where q, [follower_count: f], f.context_id in ^ids
   end
 
 end

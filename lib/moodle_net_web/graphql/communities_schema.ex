@@ -159,7 +159,12 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
-    @desc "Users following the community, most recently followed first"
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
+   @desc "Users following the community, most recently followed first"
     field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows.FollowerCount do
   use MoodleNet.Common.Schema
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Meta.Pointer
 
   view_schema "mn_follower_count" do

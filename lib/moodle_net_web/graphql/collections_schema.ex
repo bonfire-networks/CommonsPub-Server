@@ -148,6 +148,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
     @desc "Subscriptions users have to the collection"
     field :followers, :follows_edges do
       arg :limit, :integer
