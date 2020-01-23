@@ -151,7 +151,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "Whether the user is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &UsersResolver.is_local_edge/3
+      resolve &ActorsResolver.is_local_edge/3
     end
     @desc "Whether the user has a public profile"
     field :is_public, non_null(:boolean) do
@@ -159,7 +159,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
     @desc "Whether an instance admin has disabled the user's account"
     field :is_disabled, non_null(:boolean) do
-      resolve &UsersResolver.is_disabled_edge/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the user signed up"

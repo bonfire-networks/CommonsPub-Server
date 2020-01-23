@@ -18,7 +18,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Users,
   }
   alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Threads.Comments
@@ -158,11 +157,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def wants_notifications_edge(me, _, _), do: {:ok, me.user.local_user.wants_notifications}
   def is_confirmed_edge(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
-
-  def is_local_edge(user, _, _), do: {:ok, true} # {:ok, is_nil(user.actor.peer_id)}
-  def is_public_edge(user, _, _), do: {:ok, not is_nil(user.published_at)}
-  def is_disabled_edge(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
-  def is_deleted_edge(user, _, _), do: {:ok, not is_nil(user.deleted_at)}
 
   def followed_collections_edge(%{id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_followed_collections_edge, user}, id, EdgesPages.getter(id)
