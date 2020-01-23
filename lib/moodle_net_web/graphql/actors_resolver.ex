@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   Resolver functions shared between actor types.
   """
   alias MoodleNet.Actors.Actor
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
   
   @doc "Returns the canonical url for the actor"
   def canonical_url_edge(%{actor: %Actor{canonical_url: u}}, _, _), do: {:ok, u}
