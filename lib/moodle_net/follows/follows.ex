@@ -107,7 +107,6 @@ defmodule MoodleNet.Follows do
   end
 
   @spec undo(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def undo(%Follow{is_local: false}), do: {:error, :not_local}
   def undo(%Follow{is_local: true} = follow) do
     Repo.transact_with(fn ->
       with {:ok, _} <- unsubscribe(follow),
@@ -116,6 +115,10 @@ defmodule MoodleNet.Follows do
         {:ok, follow}
       end
     end)
+  end
+
+  def undo(%Follow{is_local: false} = follow) do
+    Common.soft_delete(follow)
   end
 
   # we only maintain subscriptions for local users
