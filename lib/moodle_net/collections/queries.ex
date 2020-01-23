@@ -7,13 +7,12 @@ defmodule MoodleNet.Collections.Queries do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Likes.Like
-  alias MoodleNet.Users.{LocalUser, User}
-
+  alias MoodleNet.Users.User
+  import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Collection) do
-    from c in Collection, as: :collection,
-      join: a in assoc(c, :actor), as: :actor
+    from c in Collection, as: :collection
   end
 
   def query(:count) do
@@ -33,6 +32,10 @@ defmodule MoodleNet.Collections.Queries do
 
   def join_to(q, specs, jq) when is_list(specs) do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
+  end
+
+  def join_to(q, :actor, jq) do
+    join q, jq, [collection: c], a in assoc(c, :actor), as: :actor
   end
 
   def join_to(q, :community, jq) do
@@ -63,6 +66,12 @@ defmodule MoodleNet.Collections.Queries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
+  ## by special
+
+  def filter(q, :default) do
+    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
+  end
+
   ## by join
 
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
@@ -70,23 +79,21 @@ defmodule MoodleNet.Collections.Queries do
 
   ## by user
 
-  def filter(q, {:user, %User{local_user: %LocalUser{is_instance_admin: true}}}) do
-    filter(q, :deleted)
-  end
+  def filter(q, {:user, match_admin()}), do: q
 
   def filter(q, {:user, %User{id: id}}) do
     q
     |> join_to([:community, follow: id, community_follow: id])
     |> where([community: c, community_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> where([collection: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> filter(~w(deleted disabled)a)
+    |> filter(~w(disabled)a)
     |> Communities.Queries.filter(~w(deleted disabled)a)
   end
 
   def filter(q, {:user, nil}) do
     q
     |> join_to(:community)
-    |> filter(~w(deleted disabled private)a)
+    |> filter(~w(disabled private)a)
     |> Communities.Queries.filter(~w(deleted disabled private)a)
   end
 

@@ -16,15 +16,41 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   use MoodleNet.Common.Metadata
 
   def collection(%{collection_id: id}, %{context: %{current_user: user}}) do
-    Collections.one(user: user, id: id, join: :follower_count, preload: :actor)
+    Collections.one(
+      user: user,
+      id: id,
+      join: :actor,
+      preload: :actor
+    )
   end
 
   def collections(_args, %{context: %{current_user: user}}) do
     Collections.nodes_page(
       &(&1.id),
       [user: user],
-      [join: :follower_count, order: :followers_desc, preload: :follower_count]
+      [join: {:actor, :left},
+       join: :follower_count,
+       order: :followers_desc,
+       preload: :follower_count]
     )
+  end
+
+  def resource_count_edge(%Collection{id: id}, _, _info) do
+    batch {__MODULE__, :batch_resource_count_edge}, id,
+      fn edges ->
+        case Map.get(edges, id) do
+          [{_, count}] -> {:ok, count}
+          _ -> {:ok, 0}
+        end
+      end
+  end
+
+  def batch_resource_count_edge(_, ids) do
+    {:ok, edges} = Resources.many(
+      collection_id: ids,
+      group_count: :collection_id
+    )
+    Enum.group_by(edges, fn {id, _} -> id end)
   end
 
   @will_break_when :pagination
@@ -48,7 +74,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def batch_community_edge(_, ids) do
-    {:ok, edges} = Communities.edges(&(&1.id), id: ids)
+    {:ok, edges} = Communities.edges(&(&1.id), [:default, id: ids])
     edges
   end
 

@@ -135,6 +135,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CollectionsResolver.community_edge/3
     end
 
+    @desc "The total number of resources in the collection, including private ones"
+    field :resource_count, :integer do
+      resolve &CollectionsResolver.resource_count_edge/3
+    end
+
     @desc "The resources in the collection, most recently created last"
     field :resources, :resources_edges do
       arg :limit, :integer
