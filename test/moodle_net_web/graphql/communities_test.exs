@@ -34,7 +34,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       node_list = assert_node_list(comms2)
       assert Enum.count(node_list.nodes) == 5
       for node <- node_list.nodes do
-        assert_community(keyed[node["id"]], node)
+        comm = assert_community(keyed[node["id"]], node)
+        assert comm.collection_count == 0
+        assert comm.follower_count == 1
+        assert comm.liker_count == 0
       end
     end
   end
@@ -86,11 +89,14 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       """
       query = %{query: q}
       assert %{"community" => comm2} = gql_post_data(query)
-      assert_community(comm, comm2)
+      comm2 = assert_community(comm, comm2)
+      assert comm2.follower_count == 1
+      assert comm2.liker_count == 0
+      # assert comm2collectionsCount"] == 0
     end
 
-    test "does not work for a guest in a private community" do
-    end
+    # test "does not work for a guest in a private community" do
+    # end
 
     test "works for a random user for a public community" do
       user = fake_user!()
@@ -691,8 +697,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       bob = fake_user!()
       eve = fake_user!()
       comm = fake_community!(alice)
+      {:ok, alice_follow} = Follows.one([:deleted, creator_id: alice.id, context_id: comm.id])
       {:ok, bob_follow} = Follows.create(bob, comm, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, comm, %{is_local: true})
+      folls = [eve_follow, bob_follow, alice_follow]
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
@@ -714,8 +722,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"followers" => folls2} = comm
       edges = assert_edge_list(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
+      for {foll, edge} <- Enum.zip(folls, edges) do
+        foll = assert_follow(foll, edge.node)
         assert foll.id == edge.cursor
       end
     end
@@ -727,8 +735,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       mallory = fake_user!()
       conn = user_conn(mallory)
+      {:ok, alice_follow} = Follows.one([:deleted, creator_id: alice.id, context_id: comm.id])
       {:ok, bob_follow} = Follows.create(bob, comm, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, comm, %{is_local: true})
+      folls = [eve_follow, bob_follow, alice_follow]
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
@@ -750,8 +760,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"followers" => folls2} = comm
       edges = assert_edge_list(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
+      for {foll, edge} <- Enum.zip(folls, edges) do
+        foll = assert_follow(foll, edge.node)
         assert foll.id == edge.cursor
       end
     end
@@ -763,8 +773,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       mallory = fake_user!(%{is_instance_admin: true})
       conn = user_conn(mallory)
+      {:ok, alice_follow} = Follows.one([:deleted, creator_id: alice.id, context_id: comm.id])
       {:ok, bob_follow} = Follows.create(bob, comm, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, comm, %{is_local: true})
+      folls = [eve_follow, bob_follow, alice_follow]
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
@@ -786,8 +798,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"followers" => folls2} = comm
       edges = assert_edge_list(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
+      for {foll,edge} <- Enum.zip(folls, edges) do
+        foll = assert_follow(foll, edge.node)
         assert foll.id == edge.cursor
       end
     end
