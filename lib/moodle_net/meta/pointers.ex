@@ -132,9 +132,9 @@ defmodule MoodleNet.Meta.Pointers do
 
   defp loader(Activity, filters), do: Activities.many(filters)
   defp loader(Block, filters), do: Blocks.many(filters)
-  defp loader(Collection, filters), do: Collections.many(filters ++ [preload: :actor])
+  defp loader(Collection, filters), do: Collections.many([:default| filters])
   defp loader(Comment, filters), do: Comments.many(filters)
-  defp loader(Community, filters), do: Communities.many(filters)
+  defp loader(Community, filters), do: Communities.many([:default | filters])
   defp loader(Feed, filters), do: Feeds.many(filters)
   defp loader(Flag, filters), do: Flags.many(filters)
   defp loader(Follow, filters), do: Follows.many(filters)
@@ -142,6 +142,6 @@ defmodule MoodleNet.Meta.Pointers do
   defp loader(Peer, filters), do: Peers.many(filters)
   defp loader(Resource, filters), do: Resources.many(filters)
   defp loader(Thread, filters), do: Threads.many(filters)
-  defp loader(User, filters), do: Users.many(filters)
+  defp loader(User, filters), do: Users.many([:default | filters])
 
 end
