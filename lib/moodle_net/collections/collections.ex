@@ -153,10 +153,12 @@ defmodule MoodleNet.Collections do
   end
 
   def outbox(%Collection{outbox_id: id}) do
-    FeedActivities.edges_page(
+    Activities.edges_page(
       &(&1.id),
+      join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
+      distinct: :feed_id,
       order: :timeline_desc
     )
   end

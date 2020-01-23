@@ -6,6 +6,7 @@ defmodule MoodleNet.Activities do
 
   alias MoodleNet.{Common, Meta, Repo, Users}
   alias MoodleNet.Activities.{Activity, Queries}
+  alias MoodleNet.Batching.EdgesPage
   alias MoodleNet.Users.User
   alias MoodleNet.Common.{NotFoundError, Query}
   alias Ecto.Association.NotLoaded
@@ -13,6 +14,21 @@ defmodule MoodleNet.Activities do
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
 
   def many(filters \\ []), do: Repo.all(Queries.query(Activity, filters))
+
+  @doc """
+  Retrieves an EdgesPages of feed activities according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def edges_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Activity, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, EdgesPage.new(data, count, cursor_fn)}
+    end
+  end
 
   @doc """
   Create a new activity related to any context that participates in the meta

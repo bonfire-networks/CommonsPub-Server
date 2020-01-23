@@ -14,15 +14,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
     Activities.one(id: id, user: user)
   end
 
-  def is_local_edge(%FeedActivity{activity: %Activity{is_local: loc}}, _, _) do
-    {:ok, loc}
-  end
-
-  def is_public_edge(%FeedActivity{activity: %Activity{published_at: pub}}, _, _) do
-    {:ok, not is_nil(pub)}
-  end
-
-  def user_edge(%FeedActivity{activity: %Activity{creator_id: id}}, _, %{context: %{current_user: user}}) do
+  def user_edge(%Activity{creator_id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_user_edge, user}, id, Edges.getter(id)
   end
 
@@ -31,10 +23,9 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
     edges
   end
 
-  def verb_edge(%FeedActivity{activity: %Activity{verb: verb}}, _, _info), do: {:ok, verb}
+  # def verb_edge(%Activity{verb: verb}, _, _info), do: {:ok, verb}
 
-
-  def context_edge(%FeedActivity{activity: %Activity{context: context}}, _, %{context: %{current_user: user}}) do
+  def context_edge(%Activity{context: context}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_context_edge, user}, context, Edges.getter(context.id)
   end
 

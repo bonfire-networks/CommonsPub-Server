@@ -38,18 +38,14 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     field :canonical_url, :string
 
     @desc "The verb describing the activity"
-    field :verb, non_null(:activity_verb) do
-      resolve &ActivitiesResolver.verb_edge/3
-    end
+    field :verb, non_null(:activity_verb)
 
     @desc "Whether the activity is local to the instance"
-    field :is_local, non_null(:boolean) do
-      resolve &ActivitiesResolver.is_local_edge/3
-    end
+    field :is_local, non_null(:boolean)
 
     @desc "Whether the activity is public"
     field :is_public, non_null(:boolean) do
-      resolve &ActivitiesResolver.is_public_edge/3
+      resolve &CommonResolver.is_public_edge/3
     end
 
     @desc "When the activity was created"

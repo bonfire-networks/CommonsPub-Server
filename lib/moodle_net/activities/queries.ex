@@ -31,6 +31,18 @@ defmodule MoodleNet.Activities.Queries do
   @spec query(Activity, filters) :: Query.t
   def query(q, filters), do: filter(query(q), filters)
 
+  def queries(query, base_filters, data_filters, count_filters) do
+    base_q = query(query, base_filters)
+    data_q = filter(base_q, data_filters)
+    count_q = filter(base_q, count_filters)
+    {data_q, count_q}
+  end
+
+  def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, :feed_activity, jq) do
+    join q, jq, [activity: a], fa in assoc(a, :feed_activities), as: :feed_activity
+  end
 
   ### filter/2
 
@@ -44,6 +56,12 @@ defmodule MoodleNet.Activities.Queries do
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
+
+  ## by join
+
+  def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
+
+  def filter(q, {:join,rel}), do: join_to(q, rel)
 
   ## by user
 
@@ -98,6 +116,36 @@ defmodule MoodleNet.Activities.Queries do
     ids = Enum.map(tables, &TableService.lookup_id!/1)
     where q, [context: c], c.table_id in ^ids
   end
+
+  def filter(q, {:feed_id, id}) when is_binary(id) do
+    where q, [feed_activity: fa], fa.feed_id == ^id
+  end
+
+  def filter(q, {:feed_id, ids}) when is_list(ids) do
+    where q, [feed_activity: fa], fa.feed_id in ^ids
+  end
+
+  ## grouping
+
+  def filter(q, {:distinct, :feed_id}) do
+    distinct q, [feed_activity: fa], fa.feed_id
+  end
+
+  def filter(q, {:group, :feed_id}) do
+    group_by q, [feed_activity: fa], fa.feed_id
+  end
+
+  def filter(q, {:group, key}) when is_atom(key) do
+    group_by q, [activity: a], field(a, ^key)
+  end
+
+  ## ordering
+
+  def filter(q, {:order, :timeline_desc}) do
+    order_by q, [activity: a], [desc: a.id]
+  end
+
+  ### dynamic filters
 
   def dyn_filter(:deleted) do
     dynamic([activity: a], is_nil(a.deleted_at))

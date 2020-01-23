@@ -4,7 +4,7 @@
 defmodule MoodleNet.Communities do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, NodesPage}
+  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Communities.{Community, Queries}
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
@@ -134,10 +134,12 @@ defmodule MoodleNet.Communities do
   end
 
   def outbox(%Community{outbox_id: id}) do
-    FeedActivities.edges_page(
+    Activities.edges_page(
       &(&1.id),
+      join: {:feed_activity, :inner},
       feed_id: id,
       table: default_outbox_query_contexts(),
+      distinct: :feed_id,
       order: :timeline_desc
     )
   end

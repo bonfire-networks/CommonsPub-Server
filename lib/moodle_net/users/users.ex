@@ -5,8 +5,8 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
-  alias MoodleNet.{Access, Actors, Feeds, Repo}
-  alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
+  alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
+  alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Batching.{Edges, NodesPage, EdgesPages}
   alias MoodleNet.Mail.{Email, MailService}
 
@@ -288,10 +288,12 @@ defmodule MoodleNet.Users do
       with {:ok, subs} <- feed_subscriptions(user) do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
         IO.inspect(ids: ids)
-        FeedActivities.edges_page(
+        Activities.edges_page(
           &(&1.id),
+          join: :feed_activity,
           feed_id: ids,
           table: default_inbox_query_contexts(),
+          distinct: :feed_id,
           order: :timeline_desc
         )
       end
@@ -303,10 +305,12 @@ defmodule MoodleNet.Users do
   end
 
   def outbox(%User{outbox_id: id}, opts \\ %{}) do
-    FeedActivities.edges_page(
+    Activities.edges_page(
       &(&1.id),
+      join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
+      distinct: :feed_id,
       order: :timeline_desc
     )
   end
