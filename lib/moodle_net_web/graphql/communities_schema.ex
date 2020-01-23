@@ -134,8 +134,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &UsersResolver.creator_edge/3
     end
 
-    field :collections_count, :integer do
-      resolve &CommunitiesResolver.collections_count_edge/3
+    @desc "The total number of collections in the community, including private ones"
+    field :collection_count, :integer do
+      resolve &CommunitiesResolver.collection_count_edge/3
     end
 
     @desc "The communities a user has joined, most recently joined first"

@@ -10,9 +10,7 @@ defmodule MoodleNet.Communities.Queries do
   import Ecto.Query
 
   def query(Community) do
-    from c in Community, as: :community,
-      join: a in assoc(c, :actor), as: :actor,
-      preload: [actor: a]
+    from c in Community, as: :community
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -25,6 +23,10 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
+
+  def join_to(q, :actor, jq) do
+    join q, jq, [community: c], a in assoc(c, :actor), as: :actor
+  end
 
   def join_to(q, {:follow, follower_id}, jq) do
     join q, jq, [community: c], f in Follow, as: :follow,
@@ -44,6 +46,12 @@ defmodule MoodleNet.Communities.Queries do
 
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
+  end
+
+  ## special
+
+  def filter(q, :default) do
+    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
   end
 
   ## by join
@@ -100,6 +108,12 @@ defmodule MoodleNet.Communities.Queries do
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
     where q, [actor: a], a.preferred_username in ^usernames
+  end
+
+  ## by preload
+
+  def filter(q, {:preload, :actor}) do
+    preload q, [actor: a], [actor: a]
   end
 
   @doc """

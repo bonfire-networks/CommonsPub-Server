@@ -11,11 +11,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def community(%{community_id: id}, %{context: %{current_user: user}}) do
-    Communities.one(id: id, user: user)
+    Communities.one([:default, id: id, user: user])
   end
 
   def communities(_args, %{context: %{current_user: user}}) do
-    Communities.nodes_page &(&1.id), [user: user],
+    Communities.nodes_page &(&1.id), [:default, user: user],
       join: :follower_count, order: :list
   end
 
@@ -59,19 +59,22 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   |> GraphQL.response(info)
   # end
 
-  def collections_count_edge(%Community{id: id}, _, _info) do
-    batch {__MODULE__, :batch_collections_count_edge}, id, Edges.getter(id)
+  def collection_count_edge(%Community{id: id}, _, _info) do
+    batch {__MODULE__, :batch_collection_count_edge}, id,
+      fn edges ->
+        case Map.get(edges, id) do
+          [{_, count}] -> {:ok, count}
+          _ -> {:ok, 0}
+        end
+      end
   end
 
-  def batch_collections_count_edge(_, ids) do
-    {:ok, edges} = Collections.edges(
-      &(&1.community_id),
+  def batch_collection_count_edge(_, ids) do
+    {:ok, edges} = Collections.many(
       community_id: ids,
-      join: :follower_count,
-      order: :followers_desc,
       group_count: :community_id
     )
-    edges
+    Enum.group_by(edges, fn {id, _} -> id end)
   end
 
   def collections_edge(%Community{collections: cs}, _, info) when is_list(cs), do: {:ok, cs}
@@ -84,7 +87,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       &(&1.community_id),
       &(&1.id),
       [community_id: ids, user: user],
-      [join: :follower_count, order: :followers_desc, preload: :follower_count],
+      [join: {:actor, :inner},
+       join: :follower_count,
+       order: :followers_desc,
+       preload: :follower_count],
       [group_count: :community_id]
     )
     edges
