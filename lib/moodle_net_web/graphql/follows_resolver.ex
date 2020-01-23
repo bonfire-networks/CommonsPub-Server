@@ -30,10 +30,9 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   def follower_count_edge(%{id: id}, _, _) do
     batch {__MODULE__, :batch_follower_count_edge}, id,
       fn edges ->
-        with {ok, item} <- Edges.get(edges, id) do
-          {:ok, item.count}
-        else
-          _ -> {:ok, 0}
+        case Edges.get(edges, id) do
+          {:ok, nil} -> {:ok, 0}
+          {:ok, other} -> {:ok, other.count}
         end
       end
   end

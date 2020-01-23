@@ -4,8 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Likes.{Like, LikerCounts}
-  alias MoodleNet.Common.{NotFoundError, NotPermittedError}
+  alias MoodleNet.Likes.LikerCounts
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -44,10 +43,9 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   def liker_count_edge(%{id: id}, _, _) do
     batch {__MODULE__, :batch_liker_count_edge}, id,
       fn edges ->
-        with {ok, item} <- Edges.get(edges, id) do
-          {:ok, item.count}
-        else
-          _ -> {:ok, 0}
+        case Edges.get(edges, id) do
+          {:ok, nil} -> {:ok, 0}
+          {:ok, other} -> {:ok, other.count}
         end
       end
   end
