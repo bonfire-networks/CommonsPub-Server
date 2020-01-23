@@ -1,21 +1,15 @@
 defmodule MoodleNet.Features do
   import Ecto.Query
   alias Ecto.Changeset
-  alias MoodleNet.{Collections, Common, Communities, GraphQL, Repo}
+  alias MoodleNet.{GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   alias MoodleNet.Features.{Feature, Queries}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Meta.TableService
+  alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   alias MoodleNet.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Feature, filters))
 
-  def many(filters \\ []), do: Repo.all(Queries.query(Feature, filters))
-
-  def create(%User{}=creator, context, attrs) do
-    Repo.insert(Feature.create_changeset(creator, context, attrs))
-  end
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feature, filters))}
 
   def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   when is_function(cursor_fn, 1) do
@@ -52,6 +46,27 @@ defmodule MoodleNet.Features do
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
       {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
     end
+  end
+
+  def create(%User{}=creator, %Pointer{}=context, attrs) do
+    target_table = Pointers.table!(context)
+    if target_table.schema in get_valid_contexts() do
+      Repo.insert(Feature.create_changeset(creator, context, attrs))
+    else
+      {:error, GraphQL.not_permitted()}
+    end
+  end
+  def create(%User{}=creator, %{__struct__: struct}=context, attrs) do
+    if struct in get_valid_contexts() do
+      Repo.insert(Feature.create_changeset(creator, context, attrs))
+    else
+      {:error, GraphQL.not_permitted()}
+    end
+  end
+
+  defp get_valid_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:valid_contexts)
   end
 
 end
