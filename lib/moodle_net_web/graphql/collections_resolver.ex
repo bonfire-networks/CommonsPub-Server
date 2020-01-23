@@ -3,22 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.{
-    Batching,
     Collections,
-    Common,
     Communities,
     GraphQL,
     Repo,
     Resources,
-    Users,
   }
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Batching.{Edges, EdgesPages}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Resources.Resosurce
-  alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{CommunitiesResolver, UsersResolver}
+  alias MoodleNetWeb.GraphQL.CommunitiesResolver
   import Absinthe.Resolution.Helpers, only: [batch: 3]
   use MoodleNet.Common.Metadata
 
@@ -50,16 +43,20 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     edges
   end
 
-  def community_edge(%Collection{}=coll, _, info) do
-    {:ok, Repo.preload(coll, [community: :actor]).community}
+  def community_edge(%Collection{community_id: id}, _, _info) do
+    batch {__MODULE__, :batch_community_edge}, id, Edges.getter(id)
   end
 
-  def last_activity_edge(_, _, info) do
-    {:ok, Fake.past_datetime()}
-    |> GraphQL.response(info)
+  def batch_community_edge(_, ids) do
+    {:ok, edges} = Communities.edges(&(&1.id), id: ids)
+    edges
   end
 
-  def outbox_edge(%Collection{}=coll, _, %{context: %{current_user: user}}) do
+  def last_activity_edge(_, _, _info) do
+    {:ok, DateTime.utc_now()}
+  end
+
+  def outbox_edge(%Collection{}=coll, _, _info) do
     Collections.outbox(coll)
   end
 
