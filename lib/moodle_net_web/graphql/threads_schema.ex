@@ -82,6 +82,11 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
       resolve &ThreadsResolver.comments_edge/3
     end
 
+    @desc "Total number of followers, including those we can't see"
+    field :follower_count, :integer do
+      resolve &FollowsResolver.follower_count_edge/3
+    end
+
     @desc "Users following the collection, most recently followed first"
     field :followers, :follows_edges do
       arg :limit, :integer

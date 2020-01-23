@@ -90,6 +90,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
       resolve &CommentsResolver.thread_edge/3
     end
 
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
     @desc "Users who like the comment, most recently liked first"
     field :likes, :likes_edges do
       arg :limit, :integer
