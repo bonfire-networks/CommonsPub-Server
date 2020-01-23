@@ -127,8 +127,8 @@ defmodule MoodleNet.Activities.Queries do
 
   ## grouping
 
-  def filter(q, {:distinct, :feed_id}) do
-    distinct q, [feed_activity: fa], fa.feed_id
+  def filter(q, {:distinct, key}) when is_atom(key) do
+    distinct q, [activity: a], field(a, ^key)
   end
 
   def filter(q, {:group, :feed_id}) do

@@ -293,7 +293,7 @@ defmodule MoodleNet.Users do
           join: :feed_activity,
           feed_id: ids,
           table: default_inbox_query_contexts(),
-          distinct: :feed_id,
+          distinct: :id,
           order: :timeline_desc
         )
       end
@@ -310,7 +310,7 @@ defmodule MoodleNet.Users do
       join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: :feed_id,
+      distinct: :id,
       order: :timeline_desc
     )
   end

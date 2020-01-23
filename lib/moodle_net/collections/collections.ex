@@ -2,17 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  alias MoodleNet.{Activities, Actors, Common, Communities, Feeds, Follows, Meta, Users, Repo}
-  alias MoodleNet.Actors.Actor
+  alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
-  alias MoodleNet.Common.Query
-  alias MoodleNet.Collections.{Collection, Outbox, Queries}
+  alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Users.{LocalUser, User}
-  alias Ecto.Association.NotLoaded
-  import Ecto.Query
+  alias MoodleNet.Users.User
 
   @doc """
   Retrieves a single collection by arbitrary filters.
@@ -134,7 +129,6 @@ defmodule MoodleNet.Collections do
   def update(%Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
       collection = Repo.preload(collection, :community)
-      community = collection.community
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
            {:ok, actor} <- Actors.update(collection.actor, attrs),
            :ok <- publish(collection, :updated) do
@@ -158,7 +152,7 @@ defmodule MoodleNet.Collections do
       join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: :feed_id,
+      distinct: :id,
       order: :timeline_desc
     )
   end

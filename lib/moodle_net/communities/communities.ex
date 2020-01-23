@@ -139,7 +139,7 @@ defmodule MoodleNet.Communities do
       join: {:feed_activity, :inner},
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: :feed_id,
+      distinct: :id,
       order: :timeline_desc
     )
   end
