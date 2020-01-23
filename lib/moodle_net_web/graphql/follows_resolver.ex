@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages}
+  alias MoodleNet.Follows.{Follow, FollowerCounts}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]

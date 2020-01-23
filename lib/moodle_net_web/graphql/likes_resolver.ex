@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Likes.LikerCounts
+  alias MoodleNet.Likes.{Like, LikerCounts}
   alias MoodleNet.Common.{NotFoundError, NotPermittedError}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
