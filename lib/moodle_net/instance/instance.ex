@@ -5,10 +5,10 @@ defmodule MoodleNet.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
   alias MoodleNet.{Feeds, Repo}
-  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Activities
   
   def outbox() do
-    FeedActivities.edges_page(
+    Activities.edges_page(
       &(&1.id),
       feed_id: Feeds.instance_outbox_id(),
       order: :timeline_desc,
