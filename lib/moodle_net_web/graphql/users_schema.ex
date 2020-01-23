@@ -129,11 +129,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :id, non_null(:id)
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &UsersResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
     @desc "An instance-unique identifier shared with communities and collections"
     field :preferred_username, non_null(:string) do
-      resolve &UsersResolver.preferred_username_edge/3
+      resolve &ActorsResolver.preferred_username_edge/3
     end
 
     @desc "A name field"

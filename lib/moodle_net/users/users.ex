@@ -132,7 +132,7 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
-           {:ok, user} <- one(local_user_id: token.local_user_id) do
+           {:ok, user} <- one([:default, local_user_id: token.local_user_id]) do
         confirm_email(user)
       end
     end)
@@ -185,7 +185,7 @@ defmodule MoodleNet.Users do
   def claim_password_reset(token, password, now \\ DateTime.utc_now())
 
   def claim_password_reset(token, password, %DateTime{} = now)
-      when is_binary(password) do
+  when is_binary(password) do
     Repo.transact_with(fn ->
       with {:ok, token} <- Repo.fetch(ResetPasswordToken, token),
            :ok <- validate_token(token, :reset_at, now),

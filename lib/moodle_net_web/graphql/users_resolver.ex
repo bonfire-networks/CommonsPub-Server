@@ -53,11 +53,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
   def user(%{user_id: id}, %{context: %{current_user: user}}) do
-    Users.one(id: id, user: user)
+    Users.one([:default, id: id, user: user])
   end
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
 
-  def user_edge(%Me{}=me, _, info), do: {:ok, me.user}
+  def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
 
   def comments_edge(%User{id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_comments_edge, user}, id, EdgesPages.getter(id)
@@ -94,43 +94,45 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       {:ok, true}
     end
   end
-  def delete(%{i_am_sure: false}, info) do
+  def delete(%{i_am_sure: false}, _info) do
     {:error, "Now is not the time to have second thoughts."}
   end
 
   def create_session(%{email: email, password: password}, info) do
-    case Users.one([:deleted, :disabled, email: email]) do
-      {:ok, user} ->
-        with {:ok, token} <- Access.create_token(user, password) do
-          {:ok, %{token: token.id, me: Me.new(user)}}
-        end
-      _ ->
-        Argon2.no_user_verify([])
-        GraphQL.invalid_credential()
+    with :ok <- GraphQL.guest_only(info) do
+      case Users.one([:default, email: email]) do
+        {:ok, user} ->
+          with {:ok, token} <- Access.create_token(user, password) do
+            {:ok, %{token: token.id, me: Me.new(user)}}
+          end
+        _ ->
+          Argon2.no_user_verify([])
+          GraphQL.invalid_credential()
+      end
     end
   end
 
   def delete_session(_, info) do
-    with {:ok, user} <- GraphQL.current_user(info),
-         {:ok, token} <- Access.hard_delete(info.context.auth_token) do
+    with {:ok, _user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, _token} <- Access.hard_delete(info.context.auth_token) do
       {:ok, true}
     end
   end
 
   def delete_all_sessions(_, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {count, _} <- Access.delete_tokens_for_user(user) do
+         {_count, _} <- Access.delete_tokens_for_user(user) do
       {:ok, true}
     end
   end
 
   def reset_password_request(%{email: email}, info) do
     with :ok <- GraphQL.guest_only(info),
-    	 {:ok, user} <- Users.one([:deleted, :disabled, email: email]),
-         {:ok, token} <- Users.request_password_reset(user) do
+         {:ok, user} <- Users.one([:default, email: email]),
+         {:ok, _token} <- Users.request_password_reset(user) do
       {:ok, true}
     end
- end
+  end
 
   def reset_password(%{token: token, password: password}, info) do
     with :ok <- GraphQL.guest_only(info),
@@ -141,12 +143,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def confirm_email(%{token: token}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- Users.claim_email_confirm_token(token),
-           {:ok, token} <- Access.unsafe_put_token(user) do
-        {:ok, %{token: token.id, me: Me.new(user)}}
-      end
-    end)
+    with :ok <- GraphQL.guest_only(info) do
+      Repo.transact_with(fn ->
+        with {:ok, user} <- Users.claim_email_confirm_token(token),
+             {:ok, token} <- Access.unsafe_put_token(user) do
+          {:ok, %{token: token.id, me: Me.new(user)}}
+        end
+      end)
+    end
   end
 
   def email_edge(me, _, _), do: {:ok, me.user.local_user.email}
@@ -155,8 +159,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_confirmed_edge(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
-  def canonical_url_edge(user, _, _), do: {:ok, Repo.preload(user, :actor).actor.canonical_url}
-  def preferred_username_edge(user, _, _), do: {:ok, Repo.preload(user, :actor).actor.preferred_username}
   def is_local_edge(user, _, _), do: {:ok, true} # {:ok, is_nil(user.actor.peer_id)}
   def is_public_edge(user, _, _), do: {:ok, not is_nil(user.published_at)}
   def is_disabled_edge(user, _, _), do: {:ok, not is_nil(user.disabled_at)}
@@ -182,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def batch_collection_edge(_, ids) do
-    {:ok, edges} = Collections.edges(&(&1.id), id: ids, preload: :actor)
+    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids, preload: :actor])
     edges
   end
 
@@ -206,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def batch_community_edge(_, ids) do
-    {:ok, edges} = Communities.edges(&(&1.id), id: ids)
+    {:ok, edges} = Communities.edges(&(&1.id), [:default, id: ids])
     edges
   end
 
@@ -215,15 +217,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def followed_users_edge(%{id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_followed_users_edge, user}, id, EdgesPages.getter(id)
   end
-
-  # followed collection
-
-  def collection_edge(%{collection: collection},_,info) do
-    {:ok, Repo.preload(collection, :actor)}
-  end
-
- 
-  # followed user
 
   def batch_followed_users_edge(user, ids) do
     {:ok, edges} = Follows.edges_pages(
@@ -246,7 +239,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def outbox_edge(%User{outbox_id: id}, _, %{context: %{current_user: user}}) do
+  def outbox_edge(%User{}=user, _, _info) do
     Users.outbox(user)
   end
 
@@ -257,10 +250,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def batch_creator_edge(user, ids) do
-    {:ok, users} = Users.edges(&(&1.id), id: ids, user: user)
+    {:ok, users} = Users.edges(&(&1.id), [:default, id: ids, user: user])
     users
   end
 
-  def last_activity_edge(parent,_,info), do: {:ok, DateTime.utc_now()}
+  def last_activity_edge(_parent,_,_info), do: {:ok, DateTime.utc_now()}
   
 end

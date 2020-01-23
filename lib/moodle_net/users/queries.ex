@@ -4,15 +4,13 @@
 defmodule MoodleNet.Users.Queries do
 
   alias MoodleNet.Actors
+  import MoodleNet.Common.Query, only: [match_admin: 0]
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
 
   def query(User) do
-    from u in User, as: :user,
-      join: a in assoc(u, :actor), as: :actor,
-      left_join: l in assoc(u, :local_user), as: :local_user,
-      preload: [actor: a, local_user: l]
+    from u in User, as: :user
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -25,6 +23,14 @@ defmodule MoodleNet.Users.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
+
+  def join_to(q, :actor, jq) do
+    join q, jq, [user: u], assoc(u, :actor), as: :actor
+  end
+
+  def join_to(q, :local_user, jq) do
+    join q, jq, [user: u], l in assoc(u, :local_user), as: :local_user
+  end
 
   def join_to(q, {:follow, follower_id}, jq) do
     join q, jq, [user: u], f in Follow, as: :follow,
@@ -46,19 +52,31 @@ defmodule MoodleNet.Users.Queries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
+  ## by special
+
+  def filter(q, :default) do
+    q
+    |> filter([:deleted, join: {:actor, :inner}, join: :local_user])
+    |> preload([actor: a, local_user: u], [actor: a, local_user: u])
+  end
+
+  ## by join
+
+  def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
+  def filter(q, {:join, join}), do: join_to(q, join)
+
   ## by users
   
-  def filter(q, {:user, %User{local_user: %LocalUser{is_instance_admin: true}}}) do
-    filter(q, :deleted)
-  end
+  def filter(q, {:user, match_admin()}), do: q
 
   def filter(q, {:user, %User{id: id}}) do
     join_to(q, {:follow, id})
     |> where([follow: f, user: u], not is_nil(u.published_at) or not is_nil(f.id))
+    |> filter(:disabled)
   end
 
   def filter(q, {:user, nil}) do # guest
-    filter q, ~w(deleted disabled private)a
+    filter q, ~w(disabled private)a
   end
 
   ## by status
@@ -109,8 +127,17 @@ defmodule MoodleNet.Users.Queries do
     where q, [local_user: l], l.email in ^emails
   end
 
+  ## order
+
   def filter(q, {:order, :timeline_desc}) do
     order_by q, [user: u], [desc: u.id]
   end
+
+  ## preload
+
+  def preload(q, :actor) do
+    preload q, [actor: a], [actor: a]
+  end
+
 end
 
