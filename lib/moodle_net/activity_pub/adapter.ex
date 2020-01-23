@@ -12,23 +12,17 @@ defmodule MoodleNet.ActivityPub.Adapter do
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    with {:error, _e} <- Users.one([:deleted, username: username]),
-         {:error, _e} <- Communities.one([:deleted, username: username]),
-         {:error, _e} <-
-           (with {:ok, coll} <- Collections.one([:deleted, username: username]) do
-              {:ok, Repo.preload(coll, :actor)}
-            end) do
+    with {:error, _e} <- Users.one([:default, username: username]),
+         {:error, _e} <- Communities.one([:default, username: username]),
+         {:error, _e} <- Collections.one([:default, username: username]) do
       {:error, "not found"}
     end
   end
 
   def get_actor_by_id(id) do
-    with {:error, _e} <- Users.one(id: id),
-         {:error, _e} <- Communities.one(id: id),
-         {:error, _e} <-
-           (with {:ok, coll} <- Collections.one(id: id) do
-              {:ok, Repo.preload(coll, :actor)}
-            end) do
+    with {:error, _e} <- Users.one([:default, id: id]),
+         {:error, _e} <- Communities.one([:default, id: id]),
+         {:error, _e} <- Collections.one([:default, id: id]) do
       {:error, "not found"}
     end
   end
@@ -97,7 +91,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
-           MoodleNet.Actors.one(username: actor.data["preferredUsername"]),
+           MoodleNet.Actors.one([username: actor.data["preferredUsername"]]),
          {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
@@ -295,7 +289,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, follow} <- MoodleNet.Follows.one(creator_id: follower.id, context_id: followed.id),
+         {:ok, follow} <- MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
          {:ok, _} <- MoodleNet.Follows.undo(follow) do
       :ok
     else

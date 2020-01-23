@@ -185,7 +185,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:error, _} = MoodleNet.Follows.find(follower, followed)
+      assert {:error, _} =
+        MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id])
     end
 
     test "blocks" do
@@ -322,7 +323,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Threads.Comments.one(id: comment.id)
+      assert {:error, _} = MoodleNet.Threads.Comments.one([:deleted, id: comment.id])
     end
 
     test "resource deletes" do
@@ -334,7 +335,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Resources.fetch(resource.id)
+      assert {:error, _} = MoodleNet.Resources.one([:deleted, id: resource.id])
     end
+
   end
 end
