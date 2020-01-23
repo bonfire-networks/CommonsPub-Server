@@ -27,14 +27,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def batch_collection_edge(current_user, ids) do
-    {:ok, edges} = Collections.edges(&(&1.id), id: ids, preload: :actor)
+    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])
     edges
   end
 
   def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
-        with {:ok, collection} <- Collections.one(user: current_user, id: collection_id, preload: :actor),
+        with {:ok, collection} <- Collections.one([:default, user: current_user, id: collection_id]),
              {:ok, resource} <- Resources.create(current_user, collection, attrs) do
           is_local = is_nil(collection.actor.peer_id)
           {:ok, %{ resource | collection: collection, is_local: is_local } }
@@ -65,7 +65,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def copy_resource(%{resource_id: resource_id, collection_id: collection_id}, info) do
     with {:ok, current_user} <- GraphQL.current_user(info) do
       Repo.transact_with(fn ->
-        with {:ok, collection} <- Collections.one(id: collection_id, user: current_user, preload: :actor),
+        with {:ok, collection} <- Collections.one([:default, id: collection_id, user: current_user]),
              {:ok, resource} <- resource(%{resource_id: resource_id}, info),
              attrs = Map.take(resource, ~w(name summary icon url license)a),
              {:ok, resource} <- Resources.create(current_user, collection, attrs) do
