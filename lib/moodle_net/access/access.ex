@@ -100,7 +100,7 @@ defmodule MoodleNet.Access do
       else: {:error, NoAccessError.new()}
   end
 
-  def fetch_token(id) when is_binary(id),do: Repo.fetch
+  def fetch_token(id) when is_binary(id), do: Repo.fetch(Token, id)
 
   def delete_tokens_for_user(%User{id: user_id}) do
     from(t in Token, where: is_nil(t.deleted_at), where: t.user_id == ^user_id)
@@ -124,7 +124,7 @@ defmodule MoodleNet.Access do
     import Ecto.Query, only: [from: 2]
     from t in Token,
       where: t.id == ^token,
-      preload: [user: :local_user]
+      preload: [user: [:local_user, :actor]]
   end
 
   @type token_create_error :: %InvalidCredentialError{} | %UserDisabledError{} | %UserEmailNotConfirmedError{} | Changeset.t{}
