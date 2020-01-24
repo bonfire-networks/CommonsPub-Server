@@ -127,6 +127,14 @@ defmodule MoodleNet.Activities.Queries do
 
   ## grouping
 
+  def filter(q, {:distinct, [desc: key]}) when is_atom(key) do
+    distinct q, [activity: a], [desc: field(a, ^key)]
+  end
+
+  def filter(q, {:distinct, [asc: key]}) when is_atom(key) do
+    distinct q, [activity: a], [asc: field(a, ^key)]
+  end
+
   def filter(q, {:distinct, key}) when is_atom(key) do
     distinct q, [activity: a], field(a, ^key)
   end
@@ -140,6 +148,10 @@ defmodule MoodleNet.Activities.Queries do
   end
 
   ## ordering
+
+  def filter(q, {:order, :timeline_asc}) do
+    order_by q, [activity: a], [asc: a.id]
+  end
 
   def filter(q, {:order, :timeline_desc}) do
     order_by q, [activity: a], [desc: a.id]

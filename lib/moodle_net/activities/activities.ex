@@ -2,21 +2,18 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Activities do
-  import Ecto.Query
 
-  alias MoodleNet.{Common, Meta, Repo, Users}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Activities.{Activity, Queries}
   alias MoodleNet.Batching.EdgesPage
   alias MoodleNet.Users.User
-  alias MoodleNet.Common.{NotFoundError, Query}
-  alias Ecto.Association.NotLoaded
 
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
 
-  def many(filters \\ []), do: Repo.all(Queries.query(Activity, filters))
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Activity, filters))}
 
   @doc """
-  Retrieves an EdgesPages of feed activities according to various filters
+  Retrieves an EdgesPage of feed activities according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution

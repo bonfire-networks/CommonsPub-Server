@@ -152,7 +152,7 @@ defmodule MoodleNet.Collections do
       join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: :id,
+      distinct: [desc: :id],
       order: :timeline_desc
     )
   end
