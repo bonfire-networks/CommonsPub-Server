@@ -59,6 +59,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collection do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
+
     @desc "A url for the collection, may be to a remote instance"
     field :canonical_url, :string do
       resolve &ActorsResolver.canonical_url_edge/3
@@ -67,6 +68,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, non_null(:string) do
       resolve &ActorsResolver.preferred_username_edge/3
+    end
+
+    @desc "A preferred username + the host domain"
+    field :display_username, non_null(:string) do
+      resolve &ActorsResolver.display_username_edge/3
     end
 
     @desc "A name field"

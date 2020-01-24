@@ -18,9 +18,18 @@ defmodule MoodleNet.Instance do
     )
   end
 
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
+  defp default_outbox_query_contexts(config \\ config()) do
+    Keyword.fetch!(config, :default_outbox_query_contexts)
+  end
+
+  defp config(), do: Application.fetch_env!(:moodle_net, __MODULE__)
+
+  def hostname(config \\ config()) do
+    Keyword.fetch!(config, :hostname)
+  end
+
+  def description(config \\ config()) do
+    Keyword.fetch!(config, :description)
   end
 
 end

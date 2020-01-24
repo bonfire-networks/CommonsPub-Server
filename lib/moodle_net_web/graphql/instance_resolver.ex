@@ -9,9 +9,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   alias MoodleNet.Feeds.FeedActivities
 
   def instance(_, info) do
-    hostname  = System.get_env("HOSTNAME")
-    description = System.get_env("INSTANCE_DESCRIPTION")
-    {:ok, %{hostname: hostname, description: description}}
+    {:ok, %{hostname: Instance.hostname(), description: Instance.description()}}
   end
 
   def featured_communities(_, _args, _info) do

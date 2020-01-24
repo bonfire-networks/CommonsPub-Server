@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   
   def user_basics() do
     """
-    id canonicalUrl preferredUsername
+    id canonicalUrl preferredUsername displayUsername
     name summary location website icon image followerCount likerCount
     isLocal isPublic isDisabled createdAt updatedAt __typename
     """
@@ -34,7 +34,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def community_basics() do
     """
-    id canonicalUrl preferredUsername
+    id canonicalUrl preferredUsername displayUsername
     name summary icon image collectionCount followerCount likerCount
     isLocal isPublic isDisabled createdAt updatedAt __typename
     """
@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def collection_basics() do
     """
-    id canonicalUrl preferredUsername
+    id canonicalUrl preferredUsername displayUsername
     name summary icon resourceCount followerCount likerCount
     isLocal isPublic isDisabled createdAt updatedAt __typename
     """

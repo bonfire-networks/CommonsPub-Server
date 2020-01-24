@@ -62,13 +62,20 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :community do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
+
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
       resolve &ActorsResolver.canonical_url_edge/3
     end
+
     @desc "An instance-unique identifier shared with users and collections"
     field :preferred_username, non_null(:string) do
       resolve &ActorsResolver.preferred_username_edge/3
+    end
+
+    @desc "A preferred username + the host domain"
+    field :display_username, non_null(:string) do
+      resolve &ActorsResolver.display_username_edge/3
     end
 
     @desc "A name field"
