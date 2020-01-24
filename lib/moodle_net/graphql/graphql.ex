@@ -4,7 +4,7 @@
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias MoodleNet.Batching.{Edge, EdgesPage, PageInfo}
+  alias MoodleNet.Batching.EdgesPage
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
   def wanted(resolution, path \\ [])
@@ -59,15 +59,6 @@ defmodule MoodleNet.GraphQL do
       node -> reproject(node.selections, keys)
     end
   end
-
-  def feed_activities_page(activities, count) when is_integer(count) do
-    edges = Enum.map(activities, &feed_activity_edge/1)
-    page_info = PageInfo.new(edges)
-    total_count = Enum.count(edges)
-    EdgesPage.new(page_info, total_count, &(&1.id))
-  end
-
-  defp feed_activity_edge(node), do: Edge.new(node.activity, node.id)
 
   alias MoodleNet.Access.{
     InvalidCredentialError,
