@@ -9,6 +9,18 @@
 
 ---
 
+## Step 0 - Configure your database
+
+You must provide a postgresql database for moodlenet data storage. We
+require postgres 9.4 or above.
+
+If you are running in a restricted environment such as Amazon RDS, you
+will need to execute some sql against the database:
+
+```
+CREATE EXTENSION IF NOT EXISTS citext;
+```
+
 ## Step 1 - Configure the backend
 
 MoodleNet needs some environment variables to be configured in order to work (a list of which can be found in the file `config/docker.env` in this same repository).
