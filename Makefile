@@ -48,6 +48,18 @@ push: ## Add latest tag to last build and push
 	@echo docker push moodlenet/moodlenet:latest
 	@docker push moodlenet/moodlenet:latest
 
+tag_latest: ## Add latest tag to last build 
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	
+tag_stable: ## Tag stable, latest and version tags to the last build 
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	
 push_stable: ## Tag stable, latest and version tags to the last build and push
 	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
 	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
