@@ -7,7 +7,7 @@ defmodule MoodleNet.Repo.Migrations.CiTextPreferredUsername do
 
   def up do
     :ok = execute """
-    CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
+    CREATE EXTENSION IF NOT EXISTS citext
     """
     :ok = execute """
     ALTER TABLE mn_actor
