@@ -87,11 +87,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     end
     @desc "Whether the resource is public"
     field :is_public, non_null(:boolean) do
-      resolve &ResourcesResolver.is_public_edge/3
+      resolve &CommonResolver.is_public_edge/3
     end
     @desc "Whether an instance admin has hidden the resource"
     field :is_disabled, non_null(:boolean) do
-      resolve &ResourcesResolver.is_disabled_edge/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the resource was created"

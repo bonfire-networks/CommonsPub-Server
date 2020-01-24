@@ -3,12 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.{Collections, GraphQL, Repo, Resources}
-  alias MoodleNetWeb.GraphQL.{
-    CollectionsResolver,
-    CommonResolver,
-    LocalisationResolver,
-  }
-  alias MoodleNet.Batching.{Edges, EdgesPages}
+  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Batching.Edges
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -17,16 +13,33 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     Resources.one(user: user, id: id)
   end
 
-  def is_local_edge(%Resource{}=res, _, _), do: {:ok, true}
-  def is_public_edge(%Resource{}=res, _, _), do: {:ok, not is_nil(res.published_at)}
-  def is_disabled_edge(%Resource{}=res, _, _), do: {:ok, not is_nil(res.disabled_at)}
-
-  def collection_edge(%Resource{collection: %Collection{}=c}, _, info), do: {:ok, c}
-  def collection_edge(%Resource{collection_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_collection_edge, user}, id, Edges.getter(id)
+  def is_local_edge(%{collection: %Collection{actor: %Actor{peer_id: peer_id}}}, _, _) do
+    {:ok, is_nil(peer_id)}
+  end
+  def is_local_edge(%{collection_id: id}, _, _) do
+    batch {__MODULE__, :batch_is_local_edge}, id,
+      fn edges ->
+        ret =
+          edges
+          |> Map.get(id, %{})
+          |> Map.get(:actor, %{})
+          |> Map.get(:peer_id)
+          |> is_nil()
+        {:ok, ret}
+      end
   end
 
-  def batch_collection_edge(current_user, ids) do
+  def batch_is_local_edge(_, ids) do
+    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])
+    edges
+  end
+
+  def collection_edge(%Resource{collection: %Collection{}=c}, _, _info), do: {:ok, c}
+  def collection_edge(%Resource{collection_id: id}, _, _) do
+    batch {__MODULE__, :batch_collection_edge}, id, Edges.getter(id)
+  end
+
+  def batch_collection_edge(_, ids) do
     {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])
     edges
   end
@@ -75,8 +88,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     end
   end
 
-  def last_activity_edge(_, _, info) do
-    {:ok, DateTime.utc_now()}
-  end
+  def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
 end
