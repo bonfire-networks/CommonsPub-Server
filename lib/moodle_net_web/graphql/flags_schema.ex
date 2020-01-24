@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.Comment
   alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{ActivitiesResolver, CommonResolver, FlagsResolver, UsersResolver}
+  alias MoodleNetWeb.GraphQL.{CommonResolver, FlagsResolver, UsersResolver}
 
   object :flags_queries do
 

@@ -3,12 +3,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Features, Feeds, Instance}
+  alias MoodleNet.{Features, Instance}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Feeds.FeedActivities
 
-  def instance(_, info) do
+  def instance(_, _info) do
     {:ok, %{hostname: Instance.hostname(), description: Instance.description()}}
   end
 
@@ -21,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def featured_collections(_, args, info) do
+  def featured_collections(_, _args, _info) do
     Features.edges_page(
       &(&1.id),
       [join: :context, table: Collection],
@@ -30,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def outbox_edge(_, _, %{context: %{current_user: user}}) do
+  def outbox_edge(_, _, _info) do
     Instance.outbox()
   end
 

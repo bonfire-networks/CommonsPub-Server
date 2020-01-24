@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     edges
   end
 
-  def threads_edge(%{id: id}=parent, _, %{context: %{current_user: user}}) do
+  def threads_edge(%{id: id}, _, %{context: %{current_user: user}}) do
     batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
   end
 
@@ -71,6 +71,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
   end
 
-  def last_activity_edge(_, _, info), do: {:ok, DateTime.utc_now()}
+  def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
 end

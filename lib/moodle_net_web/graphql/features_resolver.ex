@@ -7,12 +7,14 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
   """
   alias MoodleNet.{Features, GraphQL}
   alias MoodleNet.Meta.Pointers
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
 
   def features(_args, _info) do
-    Features.many(join: :context, order: :timeline_desc, prefetch: :context)
+    Features.nodes_page(
+      &(&1.id),
+      [],
+      [join: :context, order: :timeline_desc, prefetch: :context])
   end
 
   def create_feature(%{context_id: id}, info) do

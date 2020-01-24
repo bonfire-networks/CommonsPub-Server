@@ -50,6 +50,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   # end
 
   def is_public_edge(parent, _, _), do: {:ok, not is_nil(parent.published_at)}
+  def is_local_edge(%{is_local: is_local}, _, _), do: {:ok, is_local}
   def is_disabled_edge(parent, _, _), do: {:ok, not is_nil(parent.disabled_at)}
   def is_hidden_edge(parent, _, _), do: {:ok, not is_nil(parent.hidden_at)}
   def is_deleted_edge(parent, _, _), do: {:ok, not is_nil(parent.deleted_at)}

@@ -7,7 +7,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     CommonResolver,
     FollowsResolver,
     ThreadsResolver,
-    UsersResolver,
   }
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
