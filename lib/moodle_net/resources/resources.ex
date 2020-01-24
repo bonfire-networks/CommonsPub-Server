@@ -2,21 +2,13 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
-  import Ecto.Query
-
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Collections, Communities, Feeds, Repo, Meta, Users}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
-  alias MoodleNet.Common.{Query, NotFoundError}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Follows.Follow
   alias MoodleNet.Resources.{Resource, Queries}
-  alias MoodleNet.Users.{LocalUser, User}
-  alias MoodleNet.GraphQL
-  alias Ecto.Association.NotLoaded
-
-  import Ecto.Query
+  alias MoodleNet.Users.User
 
   @doc """
   Retrieves a single resource by arbitrary filters.
@@ -91,17 +83,17 @@ defmodule MoodleNet.Resources do
   end
 
   # TODO
-  defp publish(creator, collection, resource, activity, :created) do
+  defp publish(_creator, collection, resource, activity, :created) do
     community = Repo.preload(collection, :community).community
     feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
     with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish(resource.id, resource.creator_id, resource.is_local)
     end
   end
-  defp publish(collection, resource, :updated) do
+  defp publish(resource, :updated) do
     ap_publish(resource.id, resource.creator_id, resource.is_local)
   end
-  defp publish(collection, resource, :deleted) do
+  defp publish(resource, :deleted) do
     ap_publish(resource.id, resource.creator_id, resource.is_local)
   end
 
@@ -118,11 +110,24 @@ defmodule MoodleNet.Resources do
   end
 
   @spec update(Resource.t(), attrs :: map) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def update(%Resource{} = resource, attrs) when is_map(attrs) do
+  def update(%Resource{is_local: false} = resource, attrs) when is_map(attrs) do
     Repo.update(Resource.update_changeset(resource, attrs))
+  end
+  def update(%Resource{} = resource, attrs) when is_map(attrs) do
+    with {:ok, updated} <- Repo.update(Resource.update_changeset(resource, attrs)),
+         :ok <- publish(resource, :updated) do
+      {:ok, updated}
+    end
   end
 
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def soft_delete(%Resource{} = resource), do: Common.soft_delete(resource)
+  def soft_delete(%Resource{is_local: false} = resource), do: Common.soft_delete(resource)
+
+  def soft_delete(%Resource{is_local: true} = resource) do
+    with {:ok, deleted} <- Common.soft_delete(resource),
+         :ok <- publish(deleted, :deleted) do
+      {:ok, deleted}
+    end
+  end
 
 end

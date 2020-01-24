@@ -9,9 +9,6 @@ defmodule MoodleNet.Resources.Resource do
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Localisation.Language
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 

@@ -3,18 +3,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
-  alias MoodleNet.{Activities, Common, Feeds, Users, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.{NotFoundError, Query}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
-  alias Ecto.Association.NotLoaded
 
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 
@@ -53,10 +51,10 @@ defmodule MoodleNet.Threads.Comments do
       ap_publish(comment.id, creator.id, comment.is_local)
     end
   end
-  defp publish(_thread, comment, :updated) do
+  defp publish(comment, :updated) do
     ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
   end
-  defp publish(_thread, comment, :deleted) do
+  defp publish(comment, :deleted) do
     ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
   end
 
@@ -174,14 +172,7 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   defp insert(thread, creator, attrs) do
-    Comment.create_changeset(creator, thread, attrs)
-    |> Repo.insert()
-  end
-
-  defp insert(thread, creator, reply_to, attrs) do
-    Comment.create_changeset(creator, thread, attrs)
-    |> Comment.reply_to_changeset(reply_to)
-    |> Repo.insert()
+    Repo.insert(Comment.create_changeset(creator, thread, attrs))
   end
 
   def preload_ctx(%Thread{}=thread) do
@@ -198,11 +189,28 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   @spec update(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def update(%Comment{} = comment, attrs) do
+
+  def update(%Comment{is_local: false} = comment, attrs) do
     Repo.update(Comment.update_changeset(comment, attrs))
   end
 
+  def update(%Comment{is_local: true} = comment, attrs) do
+    with {:ok, updated} <- Repo.update(Comment.update_changeset(comment, attrs)),
+         :ok <- publish(comment, :updated) do
+      {:ok, updated}
+    end
+  end
+
   @spec soft_delete(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete(%Comment{} = comment), do: Common.soft_delete(comment)
+  def soft_delete(%Comment{is_local: false} = comment) do
+    Common.soft_delete(comment)
+  end
+
+  def soft_delete(%Comment{is_local: true} = comment) do
+    with {:ok, deleted} <- Common.soft_delete(comment),
+         :ok <- publish(comment, :deleted) do
+      {:ok, deleted}
+    end
+  end
 
 end
