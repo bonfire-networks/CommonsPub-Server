@@ -7,21 +7,6 @@ defmodule MoodleNet.GraphQL do
   alias MoodleNet.Batching.{Edge, EdgesPage, PageInfo}
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
-  defprotocol Response do
-    def to_response(self, info, path)
-  end
-
-  def response(value_or_tuple, resolution, path \\ [])
-
-  def response({:ok, value}, %Resolution{}=info, path),
-    do: {:ok, Response.to_response(value, info, path)}
-
-  def response({:error, value}, %Resolution{}=info, path),
-    do: {:error, Response.to_response(value, info, path)}
-
-  def response(value, %Resolution{}=info, path),
-    do: Response.to_response(value, info, path)
-
   def wanted(resolution, path \\ [])
 
   def wanted(%Resolution{}=info, path) do
