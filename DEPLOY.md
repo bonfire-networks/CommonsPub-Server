@@ -57,15 +57,18 @@ GNU Make 4.2.1
 ```
 
 2. Clone this repository and change into the directory:
+
 ```sh
 $ git clone https://gitlab.com/moodlenet/servers/federated.git
 $ cd federated
 ```
 
 3. Build the docker image.
+
 **Skip this step if you want to use the pre-built image provided by MoodleNet on Docker cloud instead.**
 
 ```
+
 $ make build
 
 $ make tag_latest
@@ -82,6 +85,7 @@ $ docker-compose up
 5. The backend should now be running at [http://localhost:4000/](http://localhost:4000/).
 
 6. If that worked, start the app as a daemon next time:
+
 ```sh
 $ docker-compose up -d
 ```
@@ -130,8 +134,7 @@ There is a `Makefile` with two commands:
 
 #### Quickstart
 
-The quick way to get started with building a release, assuming that elixir and erlang
-are already installed.
+The quick way to get started with building a release, assuming that elixir and erlang are already installed.
 
 ```bash
 $ export MIX_ENV=prod
@@ -148,28 +151,28 @@ $ _build/prod/rel/moodle_net/bin/moodle_net start
 
 See the section on [Runtime Configuration](#runtime-configuration) for information on exporting environment variables.
 
-#### 1. Building the release
+#### B-1. Building the release
 
 * Clone this repo.
-
+* Make sure you have erlang and elixir installed (check `Dockerfile` for what version we're currently using)
 * Run `mix deps.get` to install elixir dependencies.
-* From here on out, you may want to consider what your `MIX_ENV` is set to. For production,
-ensure that you either export `MIX_ENV=prod` or use it for each command. Continuing, we are 
-assuming `MIX_ENV=prod`.
+* From here on out, you may want to consider what your `MIX_ENV` is set to. For production, ensure that you either export `MIX_ENV=prod` or use it for each command. Continuing, we are assuming `MIX_ENV=prod`.
 * Run `mix release` to create an elixir release. This will create an executable in your `_build/prod/rel/moodle_net` directory. We will be using the `bin/moodle_net` executable from here on.
 
-#### 2. Running the release
+#### B-2. Running the release
 
 * Export all required environment variables. See [Runtime Configuration](#runtime-configuration) section.
 
 * Create a database, if one is not created already with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.create_db()'`.
 * You will likely also want to run the migrations. This is done similarly with `bin/moodle_net eval 'MoodleNet.ReleaseTasks.migrate_db()'`.
+* If you’re using RDS or some other locked down DB, you may need to run     `CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;` on your database with elevated privileges.
+
 
 * You can check if your instance is configured correctly by running it with `moodle_net start` 
 
 * To run the instance as a daemon, use `bin/moodle_net daemon`.
 
-#### 3. Adding HTTPS
+#### B-3. Adding HTTPS
 
 The common and convenient way for adding HTTPS is by using Nginx or Caddyserver as a reverse proxy. 
 
