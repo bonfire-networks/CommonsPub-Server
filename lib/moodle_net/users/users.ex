@@ -289,11 +289,12 @@ defmodule MoodleNet.Users do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
         Activities.edges_page(
           &(&1.id),
-          join: :feed_activity,
-          feed_id: ids,
-          table: default_inbox_query_contexts(),
-          distinct: :id,
-          order: :timeline_desc
+          [:deleted,
+           join: :feed_activity,
+           feed_id: ids,
+           table: default_inbox_query_contexts(),
+           distinct: :id],
+          [order: :timeline_desc]
         )
       end
     end)
