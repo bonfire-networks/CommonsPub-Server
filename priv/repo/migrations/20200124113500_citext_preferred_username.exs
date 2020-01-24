@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Repo.Migrations.CiTextPreferredUsername do
   use Ecto.Migration
-  alias MoodleNet.Repo
 
   def up do
     :ok = execute """
