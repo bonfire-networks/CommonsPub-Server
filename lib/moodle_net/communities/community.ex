@@ -8,9 +8,8 @@ defmodule MoodleNet.Communities.Community do
     only: [
       change_public: 1,
       change_disabled: 1,
-      validate_language_code: 2
+      # validate_language_code: 2
     ]
-
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
@@ -18,9 +17,6 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Flags.Flag
   # alias MoodleNet.Localisation.Language
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Threads.Thread
   alias MoodleNet.Users.User
 
   table_schema "mn_community" do

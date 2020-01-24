@@ -4,8 +4,7 @@
 defmodule MoodleNet.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
-  alias MoodleNet.{Feeds, Repo}
-  alias MoodleNet.Activities
+  alias MoodleNet.{Activities, Feeds}
   
   def outbox() do
     Activities.edges_page(

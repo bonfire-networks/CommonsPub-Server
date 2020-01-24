@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
     Activities.one(id: id, user: user)
   end
 
-  def context_edge(%Activity{context: context}, _, %{context: %{current_user: user}}) do
+  def context_edge(%Activity{context: context}, _, _) do
     batch {__MODULE__, :batch_context_edge}, context, Edges.getter(context.id)
   end
 

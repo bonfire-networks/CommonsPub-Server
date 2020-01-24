@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonSchema do
   use Absinthe.Schema.Notation
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Features.Feature
@@ -14,10 +12,7 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
-  alias MoodleNetWeb.GraphQL.{
-    CommonResolver,
-    UsersResolver,
-  }
+  alias MoodleNetWeb.GraphQL.CommonResolver
 
   object :common_queries do
 

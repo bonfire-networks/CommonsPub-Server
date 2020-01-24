@@ -74,9 +74,7 @@ defmodule MoodleNet.GraphQL do
     NotLoggedInError,
     NotPermittedError,
   }
-  alias MoodleNet.Common.{
-    NotFoundError,
-  }
+  alias MoodleNet.Common.NotFoundError
 
   def invalid_credential(), do: {:error, InvalidCredentialError.new()}
 
