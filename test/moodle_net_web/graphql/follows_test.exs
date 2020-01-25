@@ -159,13 +159,13 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       conn = user_conn(actor)
       q = """
       mutation Test {
-        createRemoteFollow(url: "https://kawen.space/users/karen") {
+        followRemoteActor(url: "https://kawen.space/users/karen") {
           #{follow_basics()}
         }
       }
     """
     query = %{query: q, mutation: "Test"}
-    assert %{"createRemoteFollow" => follow} = gql_post_data(conn, query)
+    assert %{"followRemoteActor" => follow} = gql_post_data(conn, query)
     assert_follow(follow)
     {:ok, followed} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id("https://kawen.space/users/karen")
     {:ok, _} = Follows.one(creator_id: actor.id, context_id: followed.id)
