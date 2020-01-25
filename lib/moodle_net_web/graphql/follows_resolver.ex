@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     end
   end
 
-  def create_remote_follow(%{url: url}, info) do
+  def follow_remote_actor(%{url: url}, info) do
       with {:ok, me} <- GraphQL.current_user(info),
            {:ok, actor} <- MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(url) do
           Follows.create(me, actor, %{is_local: true})
