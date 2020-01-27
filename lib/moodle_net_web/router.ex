@@ -110,11 +110,6 @@ defmodule MoodleNetWeb.Router do
     get "/webfinger", WebFingerController, :webfinger
   end
 
-  scope "/uploads", MoodleNetWeb do
-    pipe_through(:media)
-    get("/*path", UploadController, :get)
-  end
-
   @doc """
   Serve the mock homepage, or forward ActivityPub API requests to the AP module's router
   """
