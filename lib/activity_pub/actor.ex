@@ -363,6 +363,30 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_followings(actor) do
+    {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
+    {:ok, follows} = MoodleNet.Follows.many(creator_id: actor.id)
+
+    followers =
+      follows
+      |> Enum.map(&get_actor_from_follow/1)
+      |> Enum.filter(fn actor -> actor end)
+
+    {:ok, followers}
+  end
+
+  def get_followers(actor) do
+    {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
+    {:ok, follows} = MoodleNet.Follows.many(context_id: actor.id)
+
+    followers =
+      follows
+      |> Enum.map(&get_actor_from_follow/1)
+      |> Enum.filter(fn actor -> actor end)
+
+    {:ok, followers}
+  end
+
   def get_external_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
     {:ok, follows} = MoodleNet.Follows.many(context_id: actor.id)
