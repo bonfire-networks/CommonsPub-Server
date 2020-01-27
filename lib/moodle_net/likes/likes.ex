@@ -79,7 +79,7 @@ defmodule MoodleNet.Likes do
   
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
-                 :ok <- publish(liker, liked, like, "create") do
+                 :ok <- publish(liker, liked, like, "created") do
               {:ok, like}
             end
         end
