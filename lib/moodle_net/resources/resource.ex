@@ -22,7 +22,6 @@ defmodule MoodleNet.Resources.Resource do
     field(:url, :string)
     field(:license, :string)
     field(:icon, :string)
-    field(:is_local, :boolean, virtual: true)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -31,7 +30,7 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @required ~w(name url is_local)a
+  @required ~w(name url)a
   @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()

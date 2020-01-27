@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
+  alias Ecto.Association.NotLoaded
+  alias MoodleNet.{Activities, Common, Collections, Feeds, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.FeedActivities
@@ -70,7 +71,7 @@ defmodule MoodleNet.Resources do
     Repo.transact_with(fn ->
       res_attrs = Map.put(attrs, :is_local, is_nil(collection.actor.peer_id))
       with {:ok, resource} <- insert_resource(creator, collection, res_attrs),
-           act_attrs = %{verb: "created", is_local: resource.is_local},
+           act_attrs = %{verb: "created", is_local: is_local(resource)},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection, resource, activity, :created) do
         {:ok, %Resource{resource | creator: creator}}
@@ -87,14 +88,14 @@ defmodule MoodleNet.Resources do
     community = Repo.preload(collection, :community).community
     feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(resource.id, resource.creator_id, resource.is_local)
+      ap_publish(resource.id, resource.creator_id, is_local(resource))
     end
   end
   defp publish(resource, :updated) do
-    ap_publish(resource.id, resource.creator_id, resource.is_local)
+    ap_publish(resource.id, resource.creator_id, is_local(resource))
   end
   defp publish(resource, :deleted) do
-    ap_publish(resource.id, resource.creator_id, resource.is_local)
+    ap_publish(resource.id, resource.creator_id, is_local(resource))
   end
 
   defp ap_publish(context_id, user_id, true) do
@@ -110,24 +111,35 @@ defmodule MoodleNet.Resources do
   end
 
   @spec update(Resource.t(), attrs :: map) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def update(%Resource{is_local: false} = resource, attrs) when is_map(attrs) do
-    Repo.update(Resource.update_changeset(resource, attrs))
-  end
   def update(%Resource{} = resource, attrs) when is_map(attrs) do
-    with {:ok, updated} <- Repo.update(Resource.update_changeset(resource, attrs)),
-         :ok <- publish(resource, :updated) do
-      {:ok, updated}
+    if is_local(resource) do
+      with {:ok, updated} <- Repo.update(Resource.update_changeset(resource, attrs)),
+           :ok <- publish(resource, :updated) do
+        {:ok, updated}
+      end
+    else
+      Repo.update(Resource.update_changeset(resource, attrs))
     end
   end
 
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
-  def soft_delete(%Resource{is_local: false} = resource), do: Common.soft_delete(resource)
-
-  def soft_delete(%Resource{is_local: true} = resource) do
-    with {:ok, deleted} <- Common.soft_delete(resource),
-         :ok <- publish(deleted, :deleted) do
-      {:ok, deleted}
+  def soft_delete(%Resource{} = resource) do
+    if is_local(resource) do
+      with {:ok, deleted} <- Common.soft_delete(resource),
+           :ok <- publish(deleted, :deleted) do
+        {:ok, deleted}
+      end
+    else
+      Common.soft_delete(resource)
     end
   end
 
+  @spec is_local(Resource.t()) :: boolean
+  def is_local(%{collection_id: id} = resource) when is_binary(id) do
+    case Collections.one([:default, id: resource.collection_id]) do
+      {:ok, collection} -> is_nil(collection.actor.peer_id)
+      # shouldn't happen
+      _ -> false
+    end
+  end
 end
