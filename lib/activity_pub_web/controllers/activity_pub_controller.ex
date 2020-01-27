@@ -31,8 +31,9 @@ defmodule ActivityPubWeb.ActivityPubController do
            %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
            true <- object.public do
         conn
-        |> put_resp_header("content-type", "application/activity+json")
-        |> json(ObjectView.render("object.json", %{object: object}))
+        |> put_resp_content_type("application/activity+json")
+        |> put_view(ObjectView)
+        |> render("object.json", %{object: object})
       else
         _ ->
           {:error, :not_found}
@@ -46,11 +47,52 @@ defmodule ActivityPubWeb.ActivityPubController do
     else
       with {:ok, actor} <- Actor.get_cached_by_username(username) do
         conn
-        |> put_resp_header("content-type", "application/activity+json")
-        |> json(ActorView.render("actor.json", %{actor: actor}))
+        |> put_resp_content_type("application/activity+json")
+        |> put_view(ActorView)
+        |> render("actor.json", %{actor: actor})
       else
         {:error, _e} -> {:error, :not_found}
       end
+    end
+  end
+
+  def following(conn, %{"username" => username, "page" => page}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      {page, _} = Integer.parse(page)
+
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("following.json", %{actor: actor, page: page})
+    end
+  end
+
+  def following(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("following.json", %{actor: actor})
+    end
+  end
+
+  def followers(conn, %{"username" => username, "page" => page}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      {page, _} = Integer.parse(page)
+
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("followers.json", %{actor: actor, page: page})
+    end
+  end
+
+  def followers(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("followers.json", %{actor: actor})
     end
   end
 

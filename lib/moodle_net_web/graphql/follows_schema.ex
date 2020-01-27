@@ -28,6 +28,12 @@ defmodule MoodleNetWeb.GraphQL.FollowsSchema do
       resolve &FollowsResolver.create_follow/2
     end
 
+    @desc "Follow a community, collection or a user by their canonical url returning the follow"
+    field :follow_remote_actor, :follow do
+      arg :url, non_null(:string)
+      resolve &FollowsResolver.follow_remote_actor/2
+    end
+
   end
 
   @desc "A record that a user follows something"
