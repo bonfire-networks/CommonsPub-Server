@@ -293,8 +293,8 @@ defmodule MoodleNet.Users do
            join: :feed_activity,
            feed_id: ids,
            table: default_inbox_query_contexts(),
-           distinct: [desc: :id],
-           order: :timeline_desc]
+           distinct: [desc: :id], # this does the actual ordering *sigh*
+           order: :timeline_desc] # this is here because ecto has made questionable choices
         )
       end
     end)
@@ -310,8 +310,8 @@ defmodule MoodleNet.Users do
       join: :feed_activity,
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: [desc: :id],
-      order: :timeline_desc
+      distinct: [desc: :id], # this does the actual ordering *sigh*
+      order: :timeline_desc # this is here because ecto has made questionable choices
     )
   end
 

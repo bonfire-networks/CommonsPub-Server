@@ -139,8 +139,8 @@ defmodule MoodleNet.Communities do
       join: {:feed_activity, :inner},
       feed_id: id,
       table: default_outbox_query_contexts(),
-      distinct: [desc: :id],
-      order: :timeline_desc
+      distinct: [desc: :id], # this does the actual ordering *sigh*
+      order: :timeline_desc # this is here because ecto has made questionable choices
     )
   end
 
