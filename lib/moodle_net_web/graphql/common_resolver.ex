@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
-  alias MoodleNet.Common
+  alias MoodleNet.{Common, GraphQL}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Resources.Resource
@@ -66,24 +66,28 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   # def followed(%Follow{}=follow,_,info)
 
-  def delete(%{context_id: id},_info) do
-    with {:ok, pointer} <- Pointers.one(id: id),
-         context = Pointers.follow!(pointer),
-         {:ok, delete_fn} <- ensure_delete_fn(context) do
-      delete_fn.(context)
+  def delete(%{context_id: id}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, pointer} <- Pointers.one(id: id),
+         context = Pointers.follow!(pointer) do
+      if user.local_user.is_instance_admin do
+        do_delete(context)
+      else
+        GraphQL.not_permitted("delete")
+      end
     end
   end
 
-  defp ensure_delete_fn(%Community{}), do: {:ok, &MoodleNet.Communities.soft_delete/1}
-  defp ensure_delete_fn(%Collection{}), do: {:ok, &MoodleNet.Collections.soft_delete/1}
-  defp ensure_delete_fn(%Resource{}), do: {:ok, &MoodleNet.Resources.soft_delete/1}
-  defp ensure_delete_fn(%Comment{}), do: {:ok, &MoodleNet.Threads.Comments.soft_delete/1}
-  defp ensure_delete_fn(%Feature{}), do: {:ok, &MoodleNet.Features.soft_delete/1}
-  defp ensure_delete_fn(%Thread{}), do: {:ok, &MoodleNet.Threads.soft_delete/1}
-  defp ensure_delete_fn(%User{}), do: {:ok, &MoodleNet.Users.soft_delete/1}
-  defp ensure_delete_fn(%Follow{}), do: {:ok, &MoodleNet.Follows.undo/1}
-  defp ensure_delete_fn(%Like{}), do: {:ok, &MoodleNet.Likes.undo/1}
-  defp ensure_delete_fn(_), do: GraphQL.not_permitted("delete")
+  defp do_delete(%Community{}=c), do: MoodleNet.Communities.soft_delete(c)
+  defp do_delete(%Collection{}=c), do: MoodleNet.Collections.soft_delete(c)
+  defp do_delete(%Resource{}=r), do: MoodleNet.Resources.soft_delete(r)
+  defp do_delete(%Comment{}=c), do: MoodleNet.Threads.Comments.soft_delete(c)
+  defp do_delete(%Feature{}=f), do: MoodleNet.Features.soft_delete(f)
+  defp do_delete(%Thread{}=t), do: MoodleNet.Threads.soft_delete(t)
+  defp do_delete(%User{}=u), do: MoodleNet.Users.soft_delete(u)
+  defp do_delete(%Follow{}=f), do: MoodleNet.Follows.undo(f)
+  defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
+  defp do_delete(_), do: GraphQL.not_permitted("delete")
 
   # def tag(_, _, info) do
   #   {:ok, Fake.tag()}
