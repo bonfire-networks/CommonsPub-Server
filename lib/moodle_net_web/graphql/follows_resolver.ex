@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def batch_my_follow_edge(%{id: id}, ids) do
-    {:ok, edges} = Follows.edges(&(&1.context_id), creator_id: id, context_id: ids)
+    {:ok, edges} = Follows.edges(&(&1.context_id), [:deleted, creator_id: id, context_id: ids])
     edges
   end
 
