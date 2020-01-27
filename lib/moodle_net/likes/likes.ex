@@ -7,10 +7,8 @@ defmodule MoodleNet.Likes do
   alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Meta.{Pointer, Pointers, Table}
-  alias MoodleNet.Users.{LocalUser, User}
-  import Ecto.Query
-  alias Ecto.Changeset
+  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
 
@@ -42,10 +40,16 @@ defmodule MoodleNet.Likes do
     Repo.insert(Like.create_changeset(liker, liked, fields))
   end
 
-  defp publish(creator, context, %Like{} = like, verb) do
+  defp publish(creator, %{outbox_id: context_outbox_id}, %Like{} = like, verb) do
     attrs = %{verb: verb, is_local: like.is_local}
     with {:ok, activity} <- Activities.create(creator, like, attrs) do
-      FeedActivities.publish(activity, [creator.outbox_id, context.outbox_id])
+      FeedActivities.publish(activity, [creator.outbox_id, context_outbox_id])
+    end
+  end
+  defp publish(creator, _context, %Like{} = like, verb) do
+    attrs = %{verb: verb, is_local: like.is_local}
+    with {:ok, activity} <- Activities.create(creator, like, attrs) do
+      FeedActivities.publish(activity, [creator.outbox_id])
     end
   end
 
@@ -66,7 +70,7 @@ defmodule MoodleNet.Likes do
     create(liker, Pointers.follow!(liked), fields)
   end
 
-  def create(%User{} = liker, %{outbox_id: _, __struct__: ctx} = liked, fields) do
+  def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
     if ctx in valid_contexts() do
       Repo.transact_with(fn ->
         case one(context_id: liked.id, creator_id: liker.id) do
