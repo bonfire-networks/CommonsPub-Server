@@ -98,6 +98,10 @@ defmodule MoodleNet.Threads.CommentsQueries do
     where q, [comment: c], c.creator_id in ^ids
   end
 
+  def filter(q, {:order, :timeline_asc}) do
+    order_by(q, [comment: c], [asc: c.id])
+  end
+
   def filter(q, {:order, :timeline_desc}) do
     order_by(q, [comment: c], [desc: c.id])
   end
