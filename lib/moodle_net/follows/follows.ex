@@ -54,7 +54,7 @@ defmodule MoodleNet.Follows do
   def create(%User{} = follower, %{outbox_id: _}=followed, fields, opts) do
     if followed.__struct__ in valid_contexts() do
       Repo.transact_with(fn ->
-        case one(creator_id: follower.id, context_id: followed.id) do
+        case one([:deleted, creator_id: follower.id, context_id: followed.id]) do
           {:ok, _} ->
             {:error, AlreadyFollowingError.new("user")}
   

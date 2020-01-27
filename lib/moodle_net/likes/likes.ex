@@ -73,7 +73,7 @@ defmodule MoodleNet.Likes do
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
     if ctx in valid_contexts() do
       Repo.transact_with(fn ->
-        case one(context_id: liked.id, creator_id: liker.id) do
+        case one([:deleted, context_id: liked.id, creator_id: liker.id]) do
           {:ok, _} ->
             {:error, AlreadyLikedError.new("user")}
   
