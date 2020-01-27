@@ -631,11 +631,6 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
     :ok = execute "drop function insert_pointer";
 
-    :ok = execute "drop view mn_user_last_activity"
-    :ok = execute "drop view mn_thread_last_activity"
-    :ok = execute "drop view mn_collection_last_activity"
-    :ok = execute "drop view mn_community_last_activity"
-    
     :ok = execute "drop view mn_user_following_count"
     :ok = execute "drop view mn_thread_follower_count"
     :ok = execute "drop view mn_collection_follower_count"

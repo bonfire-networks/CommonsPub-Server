@@ -49,7 +49,7 @@ defmodule MoodleNet.Actors.Actor do
   @doc "Creates a changeset for updating the given actor from the given attrs"
   def update_changeset(%Actor{} = actor, attrs) do
     actor
-    |> Changeset.cast(attrs, @create_cast)
+    |> Changeset.cast(attrs, @update_cast)
   end
 
 end

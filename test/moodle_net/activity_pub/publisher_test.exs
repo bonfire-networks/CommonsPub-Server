@@ -29,7 +29,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, reply} =
-        MoodleNet.Comments.create_comment_reply(actor, thread, comment, %{
+        MoodleNet.Threads.Comments.create_reply(actor, thread, comment, %{
           content: "test",
           is_local: true
         })
@@ -103,7 +103,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a follow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -119,7 +119,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unfollow of a remote actor" do
       follower = fake_user!()
       ap_followed = actor()
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -138,7 +138,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it errors when remote account manually approves followers" do
       follower = fake_user!()
       ap_followed = actor(%{data: %{"manuallyApprovesFollowers" => true}})
-      {:ok, followed} = MoodleNet.Users.fetch_any_by_username(ap_followed.username)
+      {:ok, followed} = MoodleNet.Users.one([:default, username: ap_followed.username])
 
       {:ok, follow} =
         MoodleNet.Follows.create(follower, followed, %{
@@ -155,7 +155,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federates a block of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
+      {:ok, blocked} = MoodleNet.Users.one([:default, username: ap_blocked.username])
 
       {:ok, block} =
         MoodleNet.Blocks.create(blocker, blocked, %{
@@ -172,7 +172,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
     test "it federate an unblock of a remote actor" do
       blocker = fake_user!()
       ap_blocked = actor()
-      {:ok, blocked} = MoodleNet.Users.fetch_any_by_username(ap_blocked.username)
+      {:ok, blocked} = MoodleNet.Users.one([:default, username: ap_blocked.username])
 
       {:ok, block} =
         MoodleNet.Blocks.create(blocker, blocked, %{
@@ -205,7 +205,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.flag(flag)
     end
 
-    test "it flages a community" do
+    test "it flags a community" do
       flagger = fake_user!()
       ap_flagged = community()
       {:ok, flagged} = MoodleNet.ActivityPub.Adapter.get_actor_by_username(ap_flagged.username)
@@ -233,7 +233,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.flag(flag)
     end
 
-    test "if flags a comment" do
+    test "it flags a comment" do
       actor = fake_user!()
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor)

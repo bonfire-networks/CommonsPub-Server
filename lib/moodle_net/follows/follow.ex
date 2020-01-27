@@ -8,7 +8,6 @@ defmodule MoodleNet.Follows.Follow do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
 
   @type t :: %__MODULE__{}

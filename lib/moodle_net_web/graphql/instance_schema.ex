@@ -23,21 +23,21 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     # field :name, :string
     field :description, :string
     
-    field :featured_collections, non_null(:features_edges) do
+    field :featured_collections, :features_edges do
       resolve &InstanceResolver.featured_collections/3
     end
 
-    field :featured_communities, non_null(:features_edges) do
+    field :featured_communities, :features_edges do
       resolve &InstanceResolver.featured_communities/3
     end
     @desc """
     A list of public activity on the local instance, most recent first
     """
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &InstanceResolver.outbox/3
+      resolve &InstanceResolver.outbox_edge/3
     end
 
   end

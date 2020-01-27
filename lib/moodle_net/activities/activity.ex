@@ -6,8 +6,8 @@ defmodule MoodleNet.Activities.Activity do
 
   import MoodleNet.Common.Changeset, only: [change_public: 1]
 
+  alias MoodleNet.Feeds.FeedActivity
   alias MoodleNet.Users.User
-  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
   alias Ecto.Changeset
 
@@ -16,6 +16,7 @@ defmodule MoodleNet.Activities.Activity do
   table_schema "mn_activity" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
+    has_many :feed_activities, FeedActivity
     field(:canonical_url, :string)
     field(:verb, :string)
     field(:is_local, :boolean)
@@ -35,7 +36,7 @@ defmodule MoodleNet.Activities.Activity do
     |> Changeset.change(
       creator_id: creator_id,
       context_id: context_id,
-      is_public: true,
+      is_public: true
     )
     |> Changeset.validate_required(@required)
     |> common_changeset()

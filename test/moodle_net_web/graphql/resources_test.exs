@@ -7,9 +7,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Repo, Users}
+  alias MoodleNet.{Flags, Likes}
 
   describe "resource" do
+
     test "works for a guest" do
       alice = fake_user!()
       comm = fake_community!(alice)
@@ -25,7 +26,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert res2.is_disabled == false
       assert res2.is_local == true
     end
+
   end
+
   describe "createResource" do
 
     test "works for a user" do
@@ -38,7 +41,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         createResource(collectionId: "#{coll.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -63,7 +66,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         createResource(collectionId: "#{coll.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -71,6 +74,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert_not_logged_in(gql_post_errors(query), ["createResource"])
     end
   end
+
   describe "updateResource" do
 
     test "works for the resource creator" do
@@ -84,7 +88,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         updateResource(resourceId: "#{resource.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -112,7 +116,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         updateResource(resourceId: "#{resource.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -140,7 +144,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         updateResource(resourceId: "#{resource.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -166,7 +170,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test($resource: ResourceInput!) {
         updateResource(resourceId: "#{resource.id}", resource: $resource) {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -187,7 +191,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test {
         copyResource(resourceId: "#{resource.id}", collectionId: "#{coll2.id}") {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -203,7 +207,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
 
     test "does not work for a guest" do
       alice = fake_user!()
-      bob = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       coll2 = fake_collection!(alice, comm)
@@ -211,7 +214,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       q = """
       mutation Test {
         copyResource(resourceId: "#{resource.id}", collectionId: "#{coll2.id}") {
-	  #{resource_basics()}
+          #{resource_basics()}
         }
       }
       """
@@ -246,28 +249,613 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
     end
   end
   describe "resource.myLike" do
-    @tag :skip
-    test "placeholder" do
+
+    test "is nil for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myLike" => nil} = res2
+    end
+
+    test "is nil for an instance admin who does not like it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myLike" => nil} = res2
+    end
+
+    test "is nil for a user who does not like it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myLike" => nil} = res2
+    end
+
+    test "works for an instance admin who likes it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      {:ok, like} = Likes.create(bob, res, %{is_local: true})
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myLike" => like2} = res2
+      assert_like(like, like2)
+    end
+
+    test "works for a user who likes it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, like} = Likes.create(bob, res, %{is_local: true})
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myLike" => like2} = res2
+      assert_like(like, like2)
     end
   end
+
+  describe "resource.myFlag" do
+
+    test "is nil for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myFlag" => nil} = res2
+    end
+
+    test "is nil for an instance admin who does not flag it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myFlag" => nil} = res2
+    end
+
+    test "is nil for a user who does not flag it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myFlag" => nil} = res2
+    end
+
+    test "works for an instance admin who flags it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      {:ok, flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myFlag" => flag2} = res2
+      assert_flag(flag, flag2)
+    end
+
+    test "works for a user who flags it" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"myFlag" => flag2} = res2
+      assert_flag(flag, flag2)
+    end
+
+  end
+
   describe "resource.creator" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"creator" => alice2} = res2
+      assert_user(alice, alice2)
+    end
+
+    test "works for an instance admin" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"creator" => alice2} = res2
+      assert_user(alice, alice2)
+    end
+
+    test "works for a user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} creator { #{user_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"creator" => alice2} = res2
+      assert_user(alice, alice2)
+    end
+
     @tag :skip
-    test "placeholder" do
+    test "does not work for a guest with a private user" do
+    end
+
+    @tag :skip
+    test "works for a private user themselves" do
+    end
+
+    @tag :skip
+    test "works for an instance admin with a private user" do
     end
   end
+
   describe "resource.collection" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} collection { #{collection_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"collection" => coll2} = res2
+      assert_collection(coll, coll2)
+    end
+
+    test "works for an instance admin" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} collection { #{collection_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"collection" => coll2} = res2
+      assert_collection(coll, coll2)
+    end
+
+    test "works for a user with a public user" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()} collection { #{collection_basics()} }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"collection" => coll2} = res2
+      assert_collection(coll, coll2)
+    end
+
     @tag :skip
-    test "placeholder" do
+    test "does not work for a guest with a private user" do
+    end
+
+    @tag :skip
+    test "works with a user for a private user they follow" do
+    end
+
+    @tag :skip
+    test "works for a private user themselves" do
+    end
+
+    @tag :skip
+    test "works for an instance admin with a private user" do
     end
   end
+
   describe "resource.likes" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      {:ok, alice_like} = Likes.create(alice, res, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, res, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, res, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"likes" => likes2} = res2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
     end
+
+    test "works for a user with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      {:ok, alice_like} = Likes.create(alice, res, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, res, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, res, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      mallory = fake_user!()
+      conn = user_conn(mallory)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"likes" => likes2} = res2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
+    end
+
+    test "works for an instance admin with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll)
+      {:ok, alice_like} = Likes.create(alice, res, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, res, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, res, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      mallory = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(mallory)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"likes" => likes2} = res2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
+    end
+
   end
+
   describe "resource.flags" do
+
+    test "empty for a guest with a public resource" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll, %{is_local: true})
+      {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(%{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"flags" => flags2} = res2
+      assert [] == assert_edge_list(flags2).edges
+    end
+
+    test "empty for a user with a public resource" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll, %{is_local: true})
+      {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
+      mallory = fake_user!()
+      conn = user_conn(mallory)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"flags" => flags2} = res2
+      assert [] == assert_edge_list(flags2).edges
+    end
+
+    test "works for a user who has flagged a public resource" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll, %{is_local: true})
+      {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
+      flags = [eve_flag]
+      conn = user_conn(eve)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"flags" => flags2} = res2
+      edges = assert_edge_list(flags2).edges
+      assert Enum.count(edges) == Enum.count(flags)
+      for {flag, edge} <- Enum.zip(flags, edges) do
+        assert_flag(flag, edge.node)
+      end
+    end
+
+    test "works for an instance admin with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = fake_resource!(alice, coll, %{is_local: true})
+      {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
+      flags = [eve_flag, bob_flag, alice_flag]
+      mallory = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(mallory)
+      q = """
+      { resource(resourceId: "#{res.id}") {
+          #{resource_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Resource { #{resource_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
+      res2 = assert_resource(res, res2)
+      assert %{"flags" => flags2} = res2
+      edges = assert_edge_list(flags2).edges
+      assert Enum.count(edges) == Enum.count(flags)
+      for {flag, edge} <- Enum.zip(flags, edges) do
+        assert_flag(flag, edge.node)
+      end
+    end
+
     @tag :skip
-    test "placeholder" do
+    test "works for a community moderator" do
     end
   end
 

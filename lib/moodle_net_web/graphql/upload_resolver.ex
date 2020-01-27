@@ -5,7 +5,8 @@
 
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias Ecto.Changeset
-  alias MoodleNet.{GraphQL, Uploads, Users, Meta, Repo}
+  alias MoodleNet.{GraphQL, Uploads, Users, Repo}
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Upload
 
   @allowed_field_names ~w(icon image url)a
@@ -22,8 +23,8 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, parent} <- Meta.find(params.context_id),
-           parent = Meta.follow!(parent),
+           {:ok, parent} <- Pointers.one(id: params.context_id),
+           parent = Pointers.follow!(parent),
            {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params) do
         # TODO: move me
         parent
@@ -37,11 +38,14 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end)
   end
 
-  def is_public(%Upload{}=upload, _, info), do: not is_nil(upload.published_at)
+  def is_public(%Upload{}=upload, _, _info), do: not is_nil(upload.published_at)
 
-  def parent(%Upload{}=upload, _, info) do
-    with {:ok, pointer} <- Meta.find(upload), do: Meta.follow(pointer)
+  def parent(%Upload{parent_id: id}, _, _info) do
+    with {:ok, pointer} <- Pointers.one(id: id) do
+      {:ok, Pointers.follow!(pointer)}
+    end
   end
 
-  def uploader(%Upload{}=upload, _, info), do: Users.fetch(upload)
+  def uploader(%Upload{uploader_id: id}, _, _info), do: Users.one(id: id)
+
 end

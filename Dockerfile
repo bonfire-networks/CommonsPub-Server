@@ -13,7 +13,8 @@ ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
-FROM elixir:1.9.4-alpine as builder
+FROM elixir:1.9.4-alpine as builder 
+# make sure to update the version in .gitlab-ci.yml as well when switching Elixir version 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 

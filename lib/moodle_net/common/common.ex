@@ -2,29 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Common do
-  alias MoodleNet.{Activities, Feeds, Meta, Repo}
-  alias MoodleNet.Common.{
-    AlreadyFollowingError,
-    AlreadyLikedError,
-    Block,
-    DeletionError,
-    Feature,
-    Follow,
-    Like,
-    Query,
-    Tag
-  }
-
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Common.{Changeset, NotFoundError}
-  alias MoodleNet.Users.User
-  import Ecto.Query
+  alias MoodleNet.Repo
+  alias MoodleNet.Common.{Changeset, DeletionError}
 
   ### pagination
 
-  def paginate(query, opts), do: query
+  def paginate(query, _opts), do: query
 
   defp cursor_or_id(%{cursor: cursor}), do: cursor
   defp cursor_or_id(%{id: id}), do: id

@@ -8,19 +8,15 @@ defmodule MoodleNet.Communities.Community do
     only: [
       change_public: 1,
       change_disabled: 1,
-      validate_language_code: 2
+      # validate_language_code: 2
     ]
-
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.{Community, CommunityFollowerCount}
-  alias MoodleNet.Comments.Thread
+  alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Flags.Flag
   # alias MoodleNet.Localisation.Language
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
 
   table_schema "mn_community" do
@@ -44,7 +40,6 @@ defmodule MoodleNet.Communities.Community do
     field(:is_local, :boolean, virtual: true)
     has_many(:collections, Collection)
     has_many(:flags, Flag)
-    has_one(:follower_count, CommunityFollowerCount)
     timestamps()
   end
 
@@ -59,7 +54,7 @@ defmodule MoodleNet.Communities.Community do
       # communities are currently all public
       is_public: true,
       actor_id: actor.id,
-      creator_id: creator.id,
+      creator_id: creator.id
     )
     |> Changeset.validate_required(@create_required)
     |> common_changeset()

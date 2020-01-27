@@ -1,4 +1,4 @@
-image: elixir:1.9.0 #update this when we switch Elixir version
+image: elixir:1.9.4-alpine #update this when we switch Elixir version in Dockerfile
 
 variables: 
   POSTGRES_DB: moodle_net_test
@@ -13,6 +13,7 @@ cache:
   paths:
     - deps
     - _build
+    - .pip
 
 stages:
   - build
@@ -20,6 +21,7 @@ stages:
   - deploy
 
 before_script:
+  - apk add --no-cache build-base cmake curl git rust cargo
   - mix local.hex --force
   - mix local.rebar --force
   
@@ -29,6 +31,16 @@ build:
     - mix deps.get
     - mix compile --force
     
+localisation:  # prepare localisation strings
+  stage: test
+  script:
+    - apk add --update py-pip && pip --cache-dir=.pip install -U pip # Install the AWS SDK for pushing the docs python3 
+    - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
+    - mix gettext.extract # extract strings to be localised
+    - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
+  only:
+  - develop
+
 unit-testing:
   stage: test
   services:
@@ -41,13 +53,10 @@ unit-testing:
     - mix test --trace --preload-modules
 
 pages:
-  stage: deploy
-  before_script:
-    - apt-get update -qq && apt-get install -y -qq python3-pip python3-setuptools && pip3 install --upgrade pip && pip install awscli # Install the AWS SDK for pushing the docs python3 
-    - mix local.hex --force
-    - mix local.rebar --force
-    - 'MIX_ENV=dev mix deps.get'
+  stage: deploy # deploy documentation
   script:
+    - apk add --update py-pip && pip --cache-dir=.pip install -U pip && pip --cache-dir=.pip install awscli # Install the AWS SDK for pushing the docs python3 
+    - 'MIX_ENV=dev mix deps.get'
     - MIX_ENV=dev mix docs
     - mv doc public # serve as GitLab Pages artifact
     - aws s3 sync public/ s3://${DOCS_STAGING_BUCKET}/docs/server/ --delete --exclude .git --exclude README.md --acl public-read # also copy docs to S3-served website

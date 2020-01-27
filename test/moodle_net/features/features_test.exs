@@ -6,9 +6,10 @@ defmodule MoodleNet.FeaturesTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Features, Meta}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Features
+  alias MoodleNet.Meta.Pointers
 
   def fake_featurable!() do
     user = fake_user!()
@@ -51,7 +52,7 @@ defmodule MoodleNet.FeaturesTest do
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
@@ -72,7 +73,7 @@ defmodule MoodleNet.FeaturesTest do
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
@@ -94,7 +95,7 @@ defmodule MoodleNet.FeaturesTest do
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
