@@ -124,7 +124,7 @@ defmodule MoodleNet.Follows do
   # we only maintain subscriptions for local users
   defp subscribe(%User{local_user: %LocalUser{}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})
   when is_binary(outbox_id) do
-    case FeedSubscriptions.one(subscriber_id: follower.id, feed_id: outbox_id) do
+    case FeedSubscriptions.one([:deleted, subscriber_id: follower.id, feed_id: outbox_id]) do
       {:ok, _} -> :ok
       _ ->
         with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}), do: :ok
