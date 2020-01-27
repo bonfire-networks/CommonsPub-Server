@@ -1,7 +1,7 @@
 defmodule MoodleNet.Features do
   import Ecto.Query
   alias Ecto.Changeset
-  alias MoodleNet.{GraphQL, Repo}
+  alias MoodleNet.{Common, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   alias MoodleNet.Features.{Feature, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers, TableService}
@@ -69,4 +69,5 @@ defmodule MoodleNet.Features do
     |> Keyword.fetch!(:valid_contexts)
   end
 
+  def soft_delete(%Feature{} = feature), do: Common.soft_delete(feature)
 end
