@@ -134,7 +134,7 @@ defmodule MoodleNet.Follows do
 
   defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
     context = Pointers.follow!(Repo.preload(follow, :context).context)
-    case FeedSubscriptions.one(subscriber_id: creator_id, feed_id: context.outbox_id) do
+    case FeedSubscriptions.one([:deleted, subscriber_id: creator_id, feed_id: context.outbox_id]) do
       {:ok, sub} -> Common.soft_delete(sub)
       _ -> {:ok, []} # shouldn't be here
     end
