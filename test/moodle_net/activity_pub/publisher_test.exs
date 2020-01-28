@@ -65,8 +65,6 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       {:ok, actor} = ActivityPub.Actor.get_by_local_id(actor.id)
       assert activity.data["context"] == collection.ap_id
       assert activity.data["actor"] == actor.ap_id
-      {:ok, resource} = MoodleNet.Resources.one(id: resource.id)
-      assert resource.canonical_url == activity.object.data["id"]
     end
 
     test "it deletes a resource" do
@@ -88,8 +86,6 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.create_community(community)
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
-      {:ok, community} = MoodleNet.Communities.one([:default, id: community.id])
-      assert community.actor.canonical_url == activity.data["object"]["id"]
     end
 
     test "it federate a create activity for a collection" do
@@ -100,8 +96,6 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       assert {:ok, activity} = Publisher.create_collection(collection)
       assert activity.data["object"]["type"] == "Group"
       assert activity.data["object"]["id"]
-      {:ok, collection} = MoodleNet.Collections.one([:default, id: collection.id])
-      assert collection.actor.canonical_url == activity.data["object"]["id"]
     end
   end
 
