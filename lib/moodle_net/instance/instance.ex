@@ -11,7 +11,7 @@ defmodule MoodleNet.Instance do
       &(&1.id),
       join: :feed_activity,
       feed_id: Feeds.instance_outbox_id(),
-      distinct: [:desc, :id],
+      distinct: [desc: :id],
       order: :timeline_desc,
       table: default_outbox_query_contexts()      
     )

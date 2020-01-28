@@ -22,13 +22,13 @@ defmodule MoodleNetWeb.Endpoint do
   plug(Plug.RequestId)
   plug(Plug.Logger)
 
-  config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
+  # config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
 
-  plug(
-    Plug.Static,
-    at: config |> Keyword.fetch!(:base_url),
-    from: {:moodle_net, config |> Keyword.fetch!(:directory)}
-  )
+  # plug(
+  #   Plug.Static,
+  #   at: config |> Keyword.fetch!(:base_url),
+  #   from: {:moodle_net, config |> Keyword.fetch!(:directory)}
+  # )
 
   plug(
     Plug.Parsers,
