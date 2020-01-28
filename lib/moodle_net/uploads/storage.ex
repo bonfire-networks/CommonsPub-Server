@@ -35,13 +35,11 @@ defmodule MoodleNet.Uploads.Storage do
   end
 
   defp upload_provider do
-    provider_config = Application.fetch_env!(:moodle_net, __MODULE__) |> Keyword.fetch!(:provider)
+    config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
 
-    {:ok, provider} =
-      case provider_config do
-        provider when is_atom(provider) -> provider.new()
-        [provider, config] when is_atom(provider) -> apply(provider, :new, config)
-      end
+    {:ok, provider} = :moodle_net
+    |> Application.fetch_env!(MoodleNet.Uploads)
+    |> Belt.Provider.Filesystem.new()
 
     provider
   end

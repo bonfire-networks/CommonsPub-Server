@@ -31,8 +31,9 @@ config :moodle_net,
 upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
 upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
 
-config :moodle_net, MoodleNet.Uploads.Storage,
-  provider: [Belt.Provider.Filesystem, [[directory: upload_dir, base_url: upload_url]]]
+config :moodle_net, MoodleNet.Uploads,
+  base_url: upload_url,
+  directory: upload_dir
 
 mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
 mail_domain = System.get_env("MAIL_DOMAIN")
