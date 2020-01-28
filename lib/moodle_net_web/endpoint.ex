@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.Endpoint do
   plug(Plug.RequestId)
   plug(Plug.Logger)
 
-  plug(MoodleNet.Plugs.Static)
+  plug(MoodleNetWeb.Plugs.Static)
 
   plug(
     Plug.Parsers,
