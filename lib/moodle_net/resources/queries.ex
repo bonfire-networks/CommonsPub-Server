@@ -122,6 +122,10 @@ defmodule MoodleNet.Resources.Queries do
     order_by q, [resource: r], [asc: r.id]
   end
 
+  def filter(q, {:order, :timeline_desc}) do
+    order_by q, [resource: r], [desc: r.id]
+  end
+
   def filter(q, {:group_count, key}) when is_atom(key) do
     filter(q, group: key, count: key)
   end

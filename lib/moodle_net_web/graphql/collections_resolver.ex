@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       &(&1.collection_id),
       &(&1.id),
       [user: user, collection_id: ids],
-      [order: :timeline_asc],
+      [order: :timeline_desc],
       [group_count: :collection_id]
     )
     edges

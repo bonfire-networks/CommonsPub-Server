@@ -68,8 +68,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def delete(%{context_id: id}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, pointer} <- Pointers.one(id: id),
-         context = Pointers.follow!(pointer) do
+         {:ok, pointer} <- Pointers.one(id: id) do
+      context = Pointers.follow!(pointer)
       if user.local_user.is_instance_admin do
         do_delete(context)
       else
