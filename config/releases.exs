@@ -13,7 +13,7 @@ desc = System.fetch_env("INSTANCE_DESCRIPTION")
 port = String.to_integer(System.get_env("PORT", "4000"))
 base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
 
-config :moodle_net, Instance,
+config :moodle_net, MoodleNet.Instance,
   hostname: hostname,
   description: desc
 
