@@ -39,7 +39,7 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && apk add --no-cache bash build-base openssl-dev nginx
+RUN apk update && apk add --no-cache bash build-base openssl-dev caddy
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
@@ -47,4 +47,4 @@ WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
 COPY config/Caddyfile /opt/app/Caddyfile
-CMD trap 'exit' INT; caddy run --config /opt/app/Caddyfile
+CMD trap 'exit' INT; caddy --conf /opt/app/Caddyfile

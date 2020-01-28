@@ -14,15 +14,17 @@
   rewrite /.well-known {
     to /proxy-elixir{uri}
   }
-
+  rewrite /pub {
+    to /proxy-elixir{uri}
+  }
 # rewrite any other non-existing paths to single-page-app index
 #  rewrite {
 #    to {path} {path}/ index.html
 #  }
 
-  proxy /proxy-elixir/ backend:4001 {
-    
-    on startup /opt/app/bin/moodle_net start &
+  on startup /opt/app/bin/moodle_net start &
+
+  proxy /proxy-elixir/ 127.0.0.1:4001 {
 
     websocket
     transparent

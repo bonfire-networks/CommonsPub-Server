@@ -4,8 +4,9 @@ defmodule MoodleNet.Workers.APReceiverWorker do
 
   @impl Oban.Worker
   def perform(%{"op" => "handle_activity", "activity_id" => activity_id}, _job) do
-    configure_logger(__MODULE__)
-    activity = ActivityPub.Object.get_by_id(activity_id)
-    MoodleNet.ActivityPub.Adapter.perform(:handle_activity, activity)
+    # configure_logger(__MODULE__)
+    # activity = ActivityPub.Object.get_by_id(activity_id)
+    # MoodleNet.ActivityPub.Adapter.perform(:handle_activity, activity)
+    :ok
   end
 end
