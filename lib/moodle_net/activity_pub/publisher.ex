@@ -14,7 +14,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
     try do
       comment = Repo.preload(comment, thread: :context)
       context = Pointers.follow!(comment.thread.context)
-
       with object_ap_id = Utils.get_object_ap_id(context),
            {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
            {to, cc} <- Utils.determine_recipients(actor, context),
@@ -58,30 +57,30 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   def create_resource(resource) do
     with {:ok, collection} <- ActivityPub.Actor.get_cached_by_local_id(resource.collection_id),
-         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
-         object <- %{
-           "name" => resource.name,
-           "url" => resource.url,
-           "icon" => Map.get(resource, :icon),
-           "actor" => actor.ap_id,
-           "attributedTo" => actor.ap_id,
-           "context" => collection.ap_id,
-           "summary" => Map.get(resource, :summary),
-           "type" => "Document",
-           "tag" => resource.license
-         },
-         params <- %{
-           actor: actor,
-           to: [@public_uri, collection.ap_id],
-           object: object,
-           context: collection.ap_id,
-           additional: %{
-             "cc" => [actor.data["followers"]]
-           }
-         },
-         {:ok, activity} <- ActivityPub.create(params, resource.id) do
-      MoodleNet.Resources.update(resource, %{canonical_url: activity.object.data["id"]})
-      {:ok, activity}
+         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id) do
+      object = %{
+        "name" => resource.name,
+        "url" => resource.url,
+        "icon" => Map.get(resource, :icon),
+        "actor" => actor.ap_id,
+        "attributedTo" => actor.ap_id,
+        "context" => collection.ap_id,
+        "summary" => Map.get(resource, :summary),
+        "type" => "Document",
+        "tag" => resource.license
+      }
+
+      params = %{
+        actor: actor,
+        to: [@public_uri, collection.ap_id],
+        object: object,
+        context: collection.ap_id,
+        additional: %{
+          "cc" => [actor.data["followers"]]
+        }
+      }
+
+      ActivityPub.create(params, resource.id)
     else
       _e -> :error
     end
@@ -89,21 +88,20 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   def create_community(community) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(community.creator_id),
-         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(community.id),
-         community_object <-
-           ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community}),
-         params <- %{
-           actor: actor,
-           to: [@public_uri],
-           object: community_object,
-           context: ActivityPub.Utils.generate_context_id(),
-           additional: %{
-             "cc" => [actor.data["followers"]]
-           }
-         },
-         {:ok, activity} = ActivityPub.create(params) do
-      MoodleNet.Communities.update(community, %{canonical_url: activity.data["object"]["id"]})
-      {:ok, activity}
+         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(community.id) do
+      community_object = ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_community})
+
+      params = %{
+        actor: actor,
+        to: [@public_uri],
+        object: community_object,
+        context: ActivityPub.Utils.generate_context_id(),
+        additional: %{
+          "cc" => [actor.data["followers"]]
+        }
+      }
+
+      ActivityPub.create(params)
     else
       {:error, e} -> {:error, e}
     end
@@ -112,21 +110,20 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_collection(collection) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(collection.creator_id),
          {:ok, ap_collection} <- ActivityPub.Actor.get_cached_by_local_id(collection.id),
-         collection_object <-
+         collection_object =
            ActivityPubWeb.ActorView.render("actor.json", %{actor: ap_collection}),
-         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(collection.community_id),
-         params <- %{
-           actor: actor,
-           to: [@public_uri, ap_community.ap_id],
-           object: collection_object,
-           context: ActivityPub.Utils.generate_context_id(),
-           additional: %{
-             "cc" => [actor.data["followers"]]
-           }
-         },
-         {:ok, activity} <- ActivityPub.create(params) do
-      MoodleNet.Collections.update(collection, %{canonical_url: activity.data["object"]["id"]})
-      {:ok, activity}
+         {:ok, ap_community} <- ActivityPub.Actor.get_cached_by_local_id(collection.community_id) do
+      params = %{
+        actor: actor,
+        to: [@public_uri, ap_community.ap_id],
+        object: collection_object,
+        context: ActivityPub.Utils.generate_context_id(),
+        additional: %{
+          "cc" => [actor.data["followers"]]
+        }
+      }
+
+      ActivityPub.create(params)
     else
       _e -> :error
     end
@@ -220,7 +217,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
     with {:ok, flagger} <- Actor.get_cached_by_username(flag.creator.actor.preferred_username) do
       flagged = Pointers.follow!(flag.context)
-
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
@@ -285,7 +281,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def delete_actor(actor) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id) do
       ActivityPub.delete(actor)
-      # FIXME: currently the cache will get re-set when the delete activity is being federated
+      #FIXME: currently the cache will get re-set when the delete activity is being federated
       ActivityPub.Actor.invalidate_cache(actor)
     end
   end
