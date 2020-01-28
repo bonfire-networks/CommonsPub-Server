@@ -3,8 +3,7 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-use Mix.Config
-
+import Config
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :moodle_net, MoodleNetWeb.Endpoint,
