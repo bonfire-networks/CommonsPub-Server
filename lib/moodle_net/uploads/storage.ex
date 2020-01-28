@@ -49,6 +49,7 @@ defmodule MoodleNet.Uploads.Storage do
   defp get_media_type(%{path: path}), do: TreeMagic.from_filepath(path)
 
   defp get_metadata(%{path: path}) do
+    # TODO: don't read entire file
     with {:ok, binary} <- File.read(path) do
       case FormatParser.parse(binary) do
         {:error, "Unknown"} -> {:ok, %{}}

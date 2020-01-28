@@ -74,7 +74,7 @@ defmodule MoodleNet.Mixfile do
       # File storage
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
-      {:format_parser, "~> 1.3.0"},
+      {:format_parser, git: "https://github.com/antoniskalou/format_parser.ex"},
       {:tree_magic, git: "https://github.com/antoniskalou/tree_magic.ex"},
       # database
       {:ecto, "~> 3.1"},
