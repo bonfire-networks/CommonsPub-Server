@@ -23,17 +23,11 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, parent} <- Pointers.one(id: params.context_id),
-           parent = Pointers.follow!(parent),
-           {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params) do
-        # TODO: move me
-        parent
-        |> Changeset.cast(%{}, [])
-        # FIXME: put ID instead
-        |> Changeset.put_change(field_name, upload.url)
-        |> Repo.update()
-
-        {:ok, upload}
+           {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
+           parent = Pointers.follow!(parent_ptr),
+           {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params),
+           {:ok, parent} <- update_parent_field(parent, field_name, upload.url) do
+        {:ok, %{upload | parent: parent_ptr}}
       end
     end)
   end
@@ -48,4 +42,10 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def uploader(%Upload{uploader_id: id}, _, _info), do: Users.one(id: id)
 
+  defp update_parent_field(parent, field_name, val) do
+    parent
+    |> Changeset.cast(%{}, [])
+    |> Changeset.put_change(field_name, val)
+    |> Repo.update()
+  end
 end

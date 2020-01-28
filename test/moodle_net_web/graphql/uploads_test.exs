@@ -182,6 +182,22 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert res.url == upload["url"]
     end
 
+    test "works with PDF files" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+      file = %Plug.Upload{
+        path: "test/fixtures/very-important.pdf",
+        filename: "150.png",
+        content_type: "image/png"
+      }
+      query = upload_query(res, file, "uploadResource")
+      conn = user_conn(user)
+
+      assert %{"uploadResource" => _res} = gql_post_data(conn, query)
+    end
+
     test "fails with an invalid file extension" do
       user = fake_user!()
       comm = fake_community!(user)
