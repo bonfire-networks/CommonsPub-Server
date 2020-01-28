@@ -69,8 +69,7 @@ defmodule MoodleNet.Resources do
           {:ok, Resource.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Collection{} = collection, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      res_attrs = Map.put(attrs, :is_local, is_nil(collection.actor.peer_id))
-      with {:ok, resource} <- insert_resource(creator, collection, res_attrs),
+      with {:ok, resource} <- insert_resource(creator, collection, attrs),
            act_attrs = %{verb: "created", is_local: is_local(resource)},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection, resource, activity, :created) do
