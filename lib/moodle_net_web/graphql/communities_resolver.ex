@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
+  alias MoodleNet.{Activities, Collections, Communities, GraphQL, Instance, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
   alias MoodleNet.Communities.Community
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -17,6 +17,13 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   def communities(_args, %{context: %{current_user: user}}) do
     Communities.nodes_page &(&1.id), [:default, user: user],
       join: :follower_count, order: :list
+  end
+
+  def canonical_url_edge(%Community{id: id, actor: %{canonical_url: nil}}, _, _) do
+    {:ok, Instance.base_url() <> "/communities/" <> id}
+  end
+  def canonical_url_edge(%Community{actor: %{canonical_url: url}}, _, _) do
+    {:ok, url}
   end
 
   def create_community(%{community: attrs}, info) do

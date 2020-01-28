@@ -31,5 +31,7 @@ defmodule MoodleNet.Instance do
     Keyword.fetch!(config, :description)
   end
 
+  def base_url(), do: Application.fetch_env!(:moodle_net, :base_url)
+
 end
 

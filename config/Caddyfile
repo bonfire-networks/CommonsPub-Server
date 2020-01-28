@@ -1,0 +1,49 @@
+:4000, 
+:80 
+{
+
+  root /var/www
+
+# rewrite all paths used in Elixir app
+  rewrite /api {
+    to /proxy-elixir{uri}
+  }
+  rewrite /oauth {
+    to /proxy-elixir{uri}
+  }
+  rewrite /.well-known {
+    to /proxy-elixir{uri}
+  }
+
+# rewrite any other non-existing paths to single-page-app index
+#  rewrite {
+#    to {path} {path}/ index.html
+#  }
+
+  proxy /proxy-elixir/ backend:4001 {
+    
+    on startup /opt/app/bin/moodle_net start &
+
+    websocket
+    transparent
+    without /proxy-elixir
+  }
+
+  gzip
+
+  header / {
+    Access-Control-Allow-Origin   *
+    Access-Control-Allow-Methods  "POST, PUT, DELETE, GET, PATCH, OPTIONS"
+    Access-Control-Allow-Headers  "Authorization, Content-Type, Idempotency-Key"
+    Access-Control-Expose-Headers "Link, X-RateLimit-Reset, X-RateLimit-Limit, X-RateLimit-Remaining, X-Request-Id"
+
+    X-XSS-Protection                  "1; mode=block"
+    X-Permitted-Cross-Domain-Policies none
+    #X-Frame-Options                   DENY
+    X-Content-Type-Options            nosniff
+    Referrer-Policy                   same-origin
+    X-Download-Options                noopen
+
+    Strict-Transport-Security "max-age=31536000"
+  }
+}

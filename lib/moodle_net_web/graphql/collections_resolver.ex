@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Collections,
     Communities,
     GraphQL,
+    Instance,
     Repo,
     Resources,
   }
@@ -33,6 +34,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
        order: :followers_desc,
        preload: :follower_count]
     )
+  end
+
+  def canonical_url_edge(%Collection{id: id, actor: %{canonical_url: nil}}, _, _) do
+    {:ok, Instance.base_url() <> "/collections/" <> id}
+  end
+  def canonical_url_edge(%Collection{actor: %{canonical_url: url}}, _, _) do
+    {:ok, url}
   end
 
   def resource_count_edge(%Collection{id: id}, _, _info) do

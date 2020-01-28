@@ -29,7 +29,7 @@ RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
 
 COPY . .
 
-RUN mix do phx.digest, release
+RUN mix release
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
@@ -39,12 +39,12 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && apk add --no-cache bash build-base openssl-dev
+RUN apk update && apk add --no-cache bash build-base openssl-dev nginx
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
 WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
-
-CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} start
+COPY config/Caddyfile /opt/app/Caddyfile
+CMD trap 'exit' INT; caddy run --config /opt/app/Caddyfile
