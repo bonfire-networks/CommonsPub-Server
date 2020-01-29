@@ -21,26 +21,26 @@ defmodule MoodleNet.Workers.APPublishWorker do
 
   @impl Worker
   def perform(%{"context_id" => context_id}, _job) do
-    # configure_logger(__MODULE__)
-    # try do
-    #   Pointers.one!(id: context_id)
-    #   |> Pointers.follow!()
-    #   |> only_local(&publish/1)
-    # rescue
-    #   _reason ->
-    #     Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
-    #     for line <- __STACKTRACE__ do
-    #       Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
-    #     end
-    # catch
-    #   _reason ->
-    #     Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
-    #     for line <- __STACKTRACE__ do
-    #       Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
-    #     end
-    # end
+    configure_logger(__MODULE__)
+    try do
+      Pointers.one!(id: context_id)
+      |> Pointers.follow!()
+      |> only_local(&publish/1)
+    rescue
+      _reason ->
+        Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        for line <- __STACKTRACE__ do
+          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
+        end
+    catch
+      _reason ->
+        Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
+        for line <- __STACKTRACE__ do
+          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
+        end
+    end
 
-    # # ignore failure for now
+    # ignore failure for now
     :ok
   end
 
