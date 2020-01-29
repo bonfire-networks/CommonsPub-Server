@@ -12,7 +12,7 @@ defmodule MoodleNet.Communities.Community do
     ]
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
+  alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Flags.Flag
@@ -27,6 +27,7 @@ defmodule MoodleNet.Communities.Community do
     field(:canonical_url, :string, virtual: true)
     field(:preferred_username, :string, virtual: true)
     # belongs_to(:primary_language, Language)
+    has_one(:follower_count, CommunityFollowerCount)
     field(:name, :string)
     field(:summary, :string)
     field(:icon, :string)
