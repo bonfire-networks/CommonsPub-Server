@@ -7,6 +7,5 @@ defmodule MoodleNet.Workers.APReceiverWorker do
     configure_logger(__MODULE__)
     activity = ActivityPub.Object.get_by_id(activity_id)
     MoodleNet.ActivityPub.Adapter.perform(:handle_activity, activity)
-    :ok
   end
 end
