@@ -88,7 +88,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
     commit_fn.(context)
   end
 
-  defp only_local(%{peer_id: nil} = context, commit_fn) do
+  defp only_local(%{actor: %{peer_id: nil}} = context, commit_fn) do
     commit_fn.(context)
   end
 
