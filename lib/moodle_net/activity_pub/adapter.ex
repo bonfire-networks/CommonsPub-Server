@@ -55,9 +55,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
           peer
       end
 
+    name =
+      case actor["name"] do
+        nil -> actor["preferredUsername"]
+        "" -> actor["preferredUsername"]
+        _ -> actor["name"]
+      end
+
     create_attrs = %{
       preferred_username: username,
-      name: actor["name"] || actor["preferredUsername"],
+      name: name,
       summary: actor["summary"],
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
