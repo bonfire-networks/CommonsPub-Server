@@ -73,6 +73,16 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert created_actor.actor.preferred_username == username
     end
 
+    test "crete remote actor with blank name" do
+      actor = insert(:actor)
+      host = URI.parse(actor.data["id"]).host
+      username = actor.data["preferredUsername"] <> "@" <> host
+      data = Map.put(actor.data, "name", "")
+
+      assert {:ok, created_actor} = Adapter.create_remote_actor(data, username)
+      assert created_actor.actor.preferred_username == username
+    end
+
     test "pointer insertion into AP table works" do
       actor = insert(:actor)
       host = URI.parse(actor.data["id"]).host
