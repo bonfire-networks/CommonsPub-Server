@@ -17,15 +17,15 @@
   rewrite /pub {
     to /proxy-elixir{uri}
   }
- 
+
+  cgi /shutdown/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
+
 # rewrite any other non-existing paths to index files or single-page-app
   rewrite {
-    to {path} {path}/ /proxy-frontend{uri}
+    to {path} {path}/ {path}/index.html /proxy-frontend{uri}
   }
 
   on startup /opt/app/bin/moodle_net start &
-
-  cgi /shutdown/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
 
   proxy /proxy-elixir/ 127.0.0.1:4001 {
 
