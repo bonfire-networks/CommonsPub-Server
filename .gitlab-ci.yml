@@ -73,6 +73,7 @@ staging:
   - docker:stable-dind
   before_script:
     - echo 'Prepare to build docker images...' # override the default in this case
+    - apk add --update --no-cache cmake
   script:
     - make build_with_cache
     - make push
