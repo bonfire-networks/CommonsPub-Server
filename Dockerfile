@@ -54,10 +54,10 @@ RUN apk add --update --no-cache \
     git \
     mailcap \
     openssh-client \
-    openssl-dev
+    openssl-dev \
     tzdata \
     bash \
-    build-base \
+    build-base
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
