@@ -21,9 +21,9 @@ stages:
   - deploy
 
 before_script:
-  - apk add --no-cache build-base cmake curl git rust cargo
-  - mix local.hex --force
-  - mix local.rebar --force
+  - apk add --update --no-cache build-base cmake curl git rust cargo py-pip openrc
+  - make manual-deps
+  - pip --cache-dir=.pip install -U pip # upgrade pip
   
 build:
   stage: build
@@ -34,7 +34,6 @@ build:
 localisation:  # prepare localisation strings
   stage: test
   script:
-    - apk add --update py-pip && pip --cache-dir=.pip install -U pip # Install the AWS SDK for pushing the docs python3 
     - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
     - mix gettext.extract # extract strings to be localised
     - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
@@ -47,15 +46,14 @@ unit-testing:
   - name: postgres:9.6.6
     command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
   script:
-    - mix deps.get
     - mix ecto.create
     - mix ecto.migrate
     - mix test --trace --preload-modules
 
-pages:
-  stage: deploy # deploy documentation
+docs:
+  stage: test # deploy documentation (stage should be changed 'deploy' when tests are fixed)
   script:
-    - apk add --update py-pip && pip --cache-dir=.pip install -U pip && pip --cache-dir=.pip install awscli # Install the AWS SDK for pushing the docs python3 
+    - pip --cache-dir=.pip install awscli # Install the AWS SDK for pushing the docs  
     - 'MIX_ENV=dev mix deps.get'
     - MIX_ENV=dev mix docs
     - mv doc public # serve as GitLab Pages artifact
@@ -64,5 +62,15 @@ pages:
   artifacts:
     paths:
     - public
+  only:
+  - develop
+
+staging:
+  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  script:
+    - apk add --no-cache docker
+    - service docker start
+    - make build_with_cache
+    - make push
   only:
   - develop

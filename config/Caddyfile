@@ -17,10 +17,11 @@
   rewrite /pub {
     to /proxy-elixir{uri}
   }
-# rewrite any other non-existing paths to single-page-app index
-#  rewrite {
-#    to {path} {path}/ index.html
-#  }
+ 
+# rewrite any other non-existing paths to index files or single-page-app
+  rewrite {
+    to {path} {path}/ /proxy-frontend{uri}
+  }
 
   on startup /opt/app/bin/moodle_net start &
 
@@ -29,6 +30,13 @@
     websocket
     transparent
     without /proxy-elixir
+  }
+
+  proxy /proxy-frontend/ {$FRONTEND_BASE_URL} {
+
+    cache
+    transparent
+    without /proxy-frontend
   }
 
   gzip
