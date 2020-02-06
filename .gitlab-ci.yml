@@ -70,6 +70,7 @@ docs:
 staging:
   stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   script:
+    - apk add --no-cache docker
     - make build_with_cache
     - make push
   only:
