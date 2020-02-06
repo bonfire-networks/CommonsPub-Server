@@ -66,9 +66,7 @@ defmodule ActivityPub.Fetcher do
 
   @skipped_types [
     "Person",
-    ["Group", "MoodleNet:Community"],
-    ["Group", "MoodleNet:Collection"],
-    ["Page", "MoodleNet:EducationalResource"],
+    "Group",
     "Collection",
     "OrderedCollection",
     "CollectionPage",
