@@ -71,6 +71,8 @@ staging:
     name: docker:stable
   services:
   - docker:stable-dind
+  before_script:
+    - echo 'Prepare to build docker images...' # override the default in this case
   script:
     - make build_with_cache
     - make push
