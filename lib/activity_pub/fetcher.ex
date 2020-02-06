@@ -53,6 +53,9 @@ defmodule ActivityPub.Fetcher do
       {:ok, %{status: code}} when code in [404, 410] ->
         {:error, "Object has been deleted"}
 
+      {:error, %Jason.DecodeError{} = _error} ->
+        {:error, "Invalid AP JSON"}
+
       {:error, e} ->
         {:error, e}
 
