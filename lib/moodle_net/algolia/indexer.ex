@@ -27,7 +27,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "id" => community.id,
+      "index_instance_object_id" => community.id,
       "canonicalUrl" => community.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
@@ -39,7 +39,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
-      "createdAt" => community.published_at
+      "createdAt" => community.published_at,
+      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode64(padding: false)
     }
   end
 
@@ -53,7 +54,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "id" => collection.id,
+      "index_instance_object_id" => collection.id,
       "canonicalUrl" => collection.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
@@ -65,7 +66,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_type" => "Collection",
       "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
       "createdAt" => collection.published_at,
-      "community" => format_object(collection.community)
+      "community" => format_object(collection.community),
+      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode64(padding: false)
     }
   end
 
@@ -79,7 +81,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "id" => resource.id,
+      "index_instance_object_id" => resource.id,
       "name" => resource.name,
       "canonicalUrl" => resource.canonical_url,
       "createdAt" => resource.published_at,
@@ -92,7 +94,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "updatedAt" => resource.updated_at,
       "index_type" => "Resource",
       "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
-      "collection" => format_object(resource.collection)
+      "collection" => format_object(resource.collection),
+      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode64(padding: false)
     }
   end
 
