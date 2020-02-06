@@ -47,4 +47,5 @@ WORKDIR /opt/app
 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
 COPY config/Caddyfile /opt/app/Caddyfile
+COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
 CMD trap 'exit' INT; caddy --conf /opt/app/Caddyfile

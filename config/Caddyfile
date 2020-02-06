@@ -25,6 +25,8 @@
 
   on startup /opt/app/bin/moodle_net start &
 
+  cgi /shutdown/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
+
   proxy /proxy-elixir/ 127.0.0.1:4001 {
 
     websocket
