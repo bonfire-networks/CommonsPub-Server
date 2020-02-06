@@ -31,6 +31,16 @@ COPY . .
 
 RUN mix release
 
+FROM abiosoft/caddy:builder as caddy-builder
+
+ARG version="1.0.3"
+ARG plugins="git,cors,realip,expires,cache,cgi"
+
+# process wrapper
+RUN go get -v github.com/abiosoft/parent
+
+RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh
+
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
 
@@ -39,13 +49,34 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && apk add --no-cache bash build-base openssl-dev caddy
+RUN apk add --update --no-cache \
+    ca-certificates \
+    git \
+    mailcap \
+    openssh-client \
+    openssl-dev
+    tzdata \
+    bash \
+    build-base \
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
+ENV ACME_AGREE="true"
+
 WORKDIR /opt/app
 
+# install caddy
+COPY --from=caddy-builder /install/caddy /usr/bin/caddy
+# validate caddy install
+RUN /usr/bin/caddy -version
+RUN /usr/bin/caddy -plugins
+
+# install app 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
+
+# prepare to run
 COPY config/Caddyfile /opt/app/Caddyfile
 COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
+
+# start
 CMD trap 'exit' INT; caddy --conf /opt/app/Caddyfile
