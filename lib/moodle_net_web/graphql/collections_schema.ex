@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collections_queries do
 
     @desc "Get list of collections, most recent activity first"
-    field :collections, non_null(:collections_nodes) do
+    field :collections, non_null(:collections_edges) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -215,12 +215,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CollectionsResolver.outbox_edge/3
     end
 
-  end
-
-  object :collections_nodes do
-    field :page_info, :page_info
-    field :nodes, list_of(:collection)
-    field :total_count, non_null(:integer)
   end
 
   object :collections_edges do

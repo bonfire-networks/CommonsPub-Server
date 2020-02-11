@@ -107,12 +107,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
   end
 
-  object :threads_nodes do
-    field :page_info, :page_info
-    field :nodes, non_null(list_of(:threads_edge))
-    field :total_count, non_null(:integer)
-  end
-
   object :threads_edges do
     field :page_info, :page_info
     field :edges, list_of(:threads_edge)

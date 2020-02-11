@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   # object :localisation_queries do
 
   #   @desc "Get list of languages we know about"
-  #   field :languages, non_null(:languages_nodes) do
+  #   field :languages, non_null(:languages_edges) do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -22,13 +22,13 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #     resolve &LocalisationResolver.language/2
   #   end
 
-  #   field :search_language, non_null(:languages_nodes) do
+  #   field :search_language, non_null(:languages_edges) do
   #     arg :query, non_null(:string)
   #     resolve &LocalisationResolver.search_language/2
   #   end
 
   #   @desc "Get list of languages we know about"
-  #   field :countries, non_null(:countries_nodes) do
+  #   field :countries, non_null(:countries_edges) do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #     resolve &LocalisationResolver.country/2
   #   end
 
-  #   field :search_country, :countries_nodes do
+  #   field :search_country, :countries_edges do
   #     arg :query, non_null(:string)
   #     resolve &LocalisationResolver.search_country/2
   #   end
@@ -56,12 +56,6 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
     #   resolve &CommonResolver.created_at/3
     # end
   #   field :updated_at, :string
-  # end
-
-  # object :languages_nodes do
-  #   field :page_info, non_null(:page_info)
-  #   field :nodes, list_of(:language)
-  #   field :total_count, non_null(:integer)
   # end
 
   # object :languages_edges do
@@ -85,12 +79,6 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
     #   resolve &CommonResolver.created_at/3
     # end
   #   field :updated_at, :string
-  # end
-
-  # object :countries_nodes do
-  #   field :page_info, non_null(:page_info)
-  #   field :nodes, list_of(:country)
-  #   field :total_count, non_null(:integer)
   # end
 
   # object :countries_edges do
