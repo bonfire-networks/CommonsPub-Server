@@ -67,11 +67,14 @@ defmodule MoodleNet.Flags do
       publish(flagger, flagged, flag, community, "created")
     end
   end
-    
+
   # TODO: different for remote/local?
   defp publish(flagger, flagged, flag, community, verb) do
     {:ok, flag}
   end
+
+  defp federate(%Flag{is_local: true} = flag), do: :ok
+  defp federate(_), do: :ok
 
   defp insert_activity(flagger, flag, verb) do
     Activities.create(flagger, flag, %{verb: verb, is_local: flag.is_local})
@@ -82,46 +85,11 @@ defmodule MoodleNet.Flags do
   end
 
   def resolve(%Flag{} = flag) do
-    Repo.transact_with(fn -> Common.soft_delete(flag) end)
+    Repo.transact_with(fn ->
+      with {:ok, flag} <- Common.soft_delete(flag),
+        :ok <- federate(flag) do
+        {:ok, flag}
+      end
+    end)
   end
-
-  @doc """
-  Return a list of open flags for an user.
-  """
-  def list_by(%User{} = user), do: Repo.all(list_by_query(user))
-
-  @doc """
-  Return a list of open flags for any object participating in the meta abstraction.
-  """
-  def list_of(%{id: _id} = thing), do: Repo.all(list_of_query(thing))
-
-  @doc """
-
-  Return open flags in a community.
-  """
-  def list_in_community(%Community{id: id}) do
-    Repo.all(list_in_community_query(id))
-  end
-
-  defp list_in_community_query(id) do
-    from(f in Flag,
-      where: is_nil(f.deleted_at),
-      where: f.community_id == ^id
-    )
-  end
-
-  defp list_by_query(%User{id: id}) do
-    from(f in Flag,
-      where: is_nil(f.deleted_at),
-      where: f.creator_id == ^id
-    )
-  end
-
-  defp list_of_query(%{id: id}) do
-    from(f in Flag,
-      where: is_nil(f.deleted_at),
-      where: f.context_id == ^id
-    )
-  end
-
 end

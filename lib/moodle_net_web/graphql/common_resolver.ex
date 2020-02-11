@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Features.Feature
+  alias MoodleNet.Flags.Flag
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Batching.Edges
   alias MoodleNet.Meta.Pointers
@@ -86,6 +87,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   defp do_delete(%Thread{}=t), do: MoodleNet.Threads.soft_delete(t)
   defp do_delete(%User{}=u), do: MoodleNet.Users.soft_delete(u)
   defp do_delete(%Follow{}=f), do: MoodleNet.Follows.undo(f)
+  defp do_delete(%Flag{}=f), do: MoodleNet.Flags.resolve(f)
   defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
   defp do_delete(_), do: GraphQL.not_permitted("delete")
 
