@@ -266,6 +266,15 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
+  defp maybe_create_image_object(url) when not is_nil(url) do
+    %{
+      "type" => "Image",
+      "url" => url
+    }
+  end
+
+  defp maybe_create_image_object(_), do: nil
+
   defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
@@ -287,8 +296,8 @@ defmodule ActivityPub.Actor do
       "preferredUsername" => actor.actor.preferred_username,
       "name" => actor.name,
       "summary" => Map.get(actor, :summary),
-      "icon" => Map.get(actor, :icon),
-      "image" => Map.get(actor, :image)
+      "icon" => maybe_create_image_object(Map.get(actor, :icon)),
+      "image" => maybe_create_image_object(Map.get(actor, :image))
     }
 
     data =
