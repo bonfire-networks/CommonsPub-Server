@@ -125,4 +125,8 @@ defmodule ActivityPubWeb.ActivityPubController do
 
     json(conn, dgettext("errors", "error"))
   end
+
+  def noop(conn, _params) do
+    json(conn, "ok")
+  end
 end
