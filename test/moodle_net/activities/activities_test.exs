@@ -123,16 +123,6 @@ defmodule MoodleNet.ActivitiesTest do
     end
   end
 
-  describe "fetch_user" do
-    test "returns the related user of an activity", %{user: user, context: context} do
-      activity = fake_activity!(user, context) |> Map.drop([:user])
-      # re-fetch to remove preloads
-      assert {:ok, activity} = Activities.one(id: activity.id)
-      fetched = activity.creator
-      assert fetched.id == user.id
-    end
-  end
-
   describe "create" do
     test "creates a new activity", %{user: user, context: context} do
       attrs = Fake.activity()
