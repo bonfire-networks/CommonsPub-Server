@@ -79,15 +79,10 @@ defmodule MoodleNetWeb.GraphQL.FollowsSchema do
     end
   end
 
-  object :follows_edges do
+  object :follows_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:follows_edge))
+    field :edges, non_null(list_of(:follow))
     field :total_count, non_null(:integer)
-  end
-
-  object :follows_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:follow)
   end
 
 end

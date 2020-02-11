@@ -211,7 +211,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -219,7 +219,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The communities a user is following, most recently followed first"
-    field :followed_communities, :followed_communities_edges do
+    field :followed_communities, :followed_communities_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -227,7 +227,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The collections a user is following, most recently followed first"
-    field :followed_collections, :followed_collections_edges do
+    field :followed_collections, :followed_collections_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -235,7 +235,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The users a user is following, most recently followed first"
-    field :followed_users, :followed_users_edges do
+    field :followed_users, :followed_users_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -243,7 +243,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "The likes a user has created"
-    field :likes, :likes_edges do
+    field :likes, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -251,7 +251,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Comments the user has made, most recently created first"
-    field :comments, :comments_edges do
+    field :comments, :comments_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -259,7 +259,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Activities of the user, most recently created first"
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -270,7 +270,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     Activities of others the user is following, most recently created
     first. Only available to the current user under `me`
     """
-    field :inbox, :activities_edges do
+    field :inbox, :activities_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -278,7 +278,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
   #   @desc "Taggings the user has created"
-  #   field :tagged, :taggings_edges do
+  #   field :tagged, :taggings_page do
   #     arg :limit, :integer
   #     arg :before, :string
   #     arg :after, :string
@@ -296,15 +296,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :followed_communities_edges do
+  object :followed_communities_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_communities_edge))
+    field :edges, non_null(list_of(:followed_community))
     field :total_count, non_null(:integer)
-  end
-
-  object :followed_communities_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:followed_community)
   end
 
   object :followed_collection do
@@ -316,15 +311,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :followed_collections_edges do
+  object :followed_collections_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_collections_edge))
+    field :edges, non_null(list_of(:followed_collection))
     field :total_count, non_null(:integer)
-  end
-
-  object :followed_collections_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:followed_collection)
   end
 
   object :followed_user do
@@ -336,15 +326,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :followed_users_edges do
+  object :followed_users_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_users_edge))
+    field :edges, non_null(list_of(:followed_user))
     field :total_count, non_null(:integer)
-  end
-
-  object :followed_users_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:followed_user)
   end
 
   input_object :registration_input do

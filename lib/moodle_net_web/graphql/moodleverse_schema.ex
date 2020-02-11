@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
     # @desc """
     # A list of public activity from all federated instances
     # """
-    # field :outbox, :activities_edges do
+    # field :outbox, :activities_page do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string

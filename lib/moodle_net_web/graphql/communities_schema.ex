@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_queries do
 
     @desc "Get list of communities, most followed first"
-    field :communities, non_null(:communities_edges) do
+    field :communities, non_null(:communities_page) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -140,7 +140,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, :collections_edges do
+    field :collections, :collections_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -152,7 +152,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, :threads_edges do
+    field :threads, :threads_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -170,7 +170,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
    @desc "Users following the community, most recently followed first"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -178,7 +178,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "Flags users have made about the community, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -186,7 +186,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     # @desc "Activities for community moderators. Not available to plebs."
-    # field :inbox, non_null(:activities_edges) do
+    # field :inbox, non_null(:activities_page) do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
@@ -194,7 +194,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     # end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -203,15 +203,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
   end
 
-  object :communities_edges do
+  object :communities_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:communities_edge))
+    field :edges, non_null(list_of(:community))
     field :total_count, non_null(:integer)
-  end
-
-  object :communities_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:community)
   end
 
   input_object :community_input do

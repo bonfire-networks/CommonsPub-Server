@@ -74,7 +74,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
 
     @desc "Comments in the thread, most recently created first"
-    field :comments, :comments_edges do
+    field :comments, :comments_page do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -87,7 +87,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
@@ -107,15 +107,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
   end
 
-  object :threads_edges do
+  object :threads_page do
     field :page_info, :page_info
-    field :edges, list_of(:threads_edge)
+    field :edges, non_null(list_of(:thread))
     field :total_count, non_null(:integer)
-  end
-
-  object :threads_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:thread)
   end
 
 end

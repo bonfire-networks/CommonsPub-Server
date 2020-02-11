@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   object :collections_queries do
 
     @desc "Get list of collections, most recent activity first"
-    field :collections, non_null(:collections_edges) do
+    field :collections, non_null(:collections_page) do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -147,7 +147,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "The resources in the collection, most recently created last"
-    field :resources, :resources_edges do
+    field :resources, :resources_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -165,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -173,7 +173,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Likes users have given the collection"
-    field :likes, :likes_edges do
+    field :likes, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -181,7 +181,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Flags users have made about the collection, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -189,7 +189,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
-    # field :taggings, :taggings_edges do
+    # field :taggings, :taggings_page do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
@@ -200,7 +200,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     The threads created on the collection, most recently created
     first. Does not include threads created on resources.
     """
-    field :threads, :threads_edges do
+    field :threads, :threads_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -208,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Activities on the collection, most recent first"
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
@@ -217,15 +217,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
   end
 
-  object :collections_edges do
+  object :collections_page do
     field :page_info, :page_info
-    field :edges, non_null(list_of(:collections_edge))
+    field :edges, non_null(list_of(:collection))
     field :total_count, non_null(:integer)
-  end
-
-  object :collections_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:collection)
   end
 
   input_object :collection_input do
