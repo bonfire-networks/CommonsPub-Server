@@ -18,7 +18,17 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Translates MN Entity to an AP compatible format
   """
+  def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Group"}} = data) do
+    data =
+      data
+      |> Map.merge(Utils.make_json_ld_header())
+      |> Map.delete("bcc")
+
+    {:ok, data}
+  end
+
   def prepare_outgoing(%{"type" => "Create", "object" => object_id} = data) do
+    IO.inspect(data)
     object =
       object_id
       |> Object.normalize()
