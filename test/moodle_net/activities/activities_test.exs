@@ -21,13 +21,13 @@ defmodule MoodleNet.ActivitiesTest do
   describe "list_by_context" do
     test "returns a list of activities for a context", %{context: context} do
       # When we create a community, it inserts an activity to link to outboxes
-      assert [creation] = Activities.list_by_context(context)
+      assert [creation] = Activities.many(context_id: context.id)
       known =
         for _ <- 1..5 do
           user = fake_user!()
           fake_activity!(user, context)
         end
-      found = Activities.list_by_context(context)
+      {:ok, found} = Activities.many(context_id: context.id)
       assert Enum.count(found) == 1 + Enum.count(known)
     end
   end
@@ -35,19 +35,19 @@ defmodule MoodleNet.ActivitiesTest do
   describe "list_by_user" do
     test "returns a list of activities for a user", %{user: user} do
       # When we create a community, it inserts an activity to link to outboxes
-      assert [creation] = Activities.list_by_user(user)
+      assert {:ok, [creation]} = Activities.many(user: user)
       found =
         for _ <- 1..5 do
           context = fake_community!(fake_user!())
           fake_activity!(user, context)
         end
 
-      assert Enum.count(Activities.list_by_user(user)) == 1 + Enum.count(found)
+      assert Enum.count(Activities.many(user: user)) == 1 + Enum.count(found)
     end
 
     test "excludes unpublished activities", %{user: user} do
       # When we create a community, it inserts an activity to link to outboxes
-      assert [creation] = Activities.list_by_user(user)
+      assert {:ok, [creation]} = Activities.many(user: user)
       found =
         for _ <- 1..5 do
           context = fake_community!(fake_user!())
@@ -64,14 +64,14 @@ defmodule MoodleNet.ActivitiesTest do
           end
         end)
 
-      fetched = Activities.list_by_user(user)
+      {:ok, fetched} = Activities.many(user: user)
 
       assert 1 + Enum.count(found) - Enum.count(unpublished) == Enum.count(fetched)
     end
 
     test "excludes deleted activities", %{user: user} do
       # When we create a community, it inserts an activity to link to outboxes
-      assert [creation] = Activities.list_by_user(user)
+      assert {:ok, [creation]} = Activities.many(user: user)
       found =
         for _ <- 1..5 do
           context = fake_community!(fake_user!())
@@ -88,7 +88,7 @@ defmodule MoodleNet.ActivitiesTest do
           end
         end)
 
-      fetched = Activities.list_by_user(user)
+      {:ok, fetched} = Activities.many(user: user)
 
       assert 1 + Enum.count(found) - Enum.count(deleted) == Enum.count(fetched)
     end
@@ -97,20 +97,20 @@ defmodule MoodleNet.ActivitiesTest do
   describe "fetch" do
     test "returns an activity by ID", %{user: user, context: context} do
       activity = fake_activity!(user, context)
-      assert {:ok, fetched} = Activities.fetch(activity.id)
+      assert {:ok, fetched} = Activities.one(id: activity.id)
       assert fetched.id == activity.id
     end
 
     test "ignores activities that are unpublished", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.update(activity, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Activities.fetch(activity.id)
+      assert {:error, %NotFoundError{}} = Activities.one([:private, id: activity.id])
     end
 
     test "ignores activities that are deleted", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.soft_delete(activity)
-      assert {:error, %NotFoundError{}} = Activities.fetch(activity.id)
+      assert {:error, %NotFoundError{}} = Activities.one([:deleted, id: activity.id])
     end
   end
 
@@ -120,11 +120,11 @@ defmodule MoodleNet.ActivitiesTest do
       context: context
     } do
       activity = fake_activity!(user, context)
-      assert {:ok, activity} = Activities.fetch_private(activity.id)
+      assert {:ok, activity} = Activities.one(id: activity.id)
       assert {:ok, activity} = Activities.update(activity, %{is_public: false})
-      assert {:ok, activity} = Activities.fetch_private(activity.id)
+      assert {:ok, activity} = Activities.one(id: activity.id)
       assert {:ok, activity} = Activities.soft_delete(activity)
-      assert {:ok, _} = Activities.fetch_private(activity.id)
+      assert {:ok, _} = Activities.one(id: activity.id)
     end
   end
 
@@ -132,8 +132,8 @@ defmodule MoodleNet.ActivitiesTest do
     test "returns the related user of an activity", %{user: user, context: context} do
       activity = fake_activity!(user, context) |> Map.drop([:user])
       # re-fetch to remove preloads
-      assert {:ok, activity} = Activities.fetch(activity.id)
-      assert {:ok, fetched} = Activities.fetch_user(activity)
+      assert {:ok, activity} = Activities.one(id: activity.id)
+      fetched = activity.creator
       assert fetched.id == user.id
     end
   end

@@ -52,12 +52,16 @@ defmodule MoodleNet.Features.Queries do
   def filter(q, {:join, join}), do: join_to(q, join)
 
   ## by status
-  
+
   def filter(q, :deleted) do
     where q, [feature: f], is_nil(f.deleted_at)
   end
 
   ## by field values
+
+  def filter(q, {:id, id}) when is_binary(id) do
+    where q, [feature: f], f.id == ^id
+  end
 
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [feature: f], f.id in ^ids

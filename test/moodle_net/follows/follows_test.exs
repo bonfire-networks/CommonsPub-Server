@@ -21,7 +21,7 @@ defmodule MoodleNet.FollowsTest do
     Faker.Util.pick([user, community, collection, thread])
   end
 
-  describe "list_follows/1" do
+  describe "many/1" do
     test "returns a list of follows for a user", %{user: follower} do
       follows =
         for _ <- 1..5 do
@@ -30,13 +30,11 @@ defmodule MoodleNet.FollowsTest do
           follow
         end
 
-      fetched = Follows.list_by(follower)
+      {:ok, fetched} = Follows.many(creator_id: follower.id)
 
       assert Enum.count(fetched) == Enum.count(follows)
     end
-  end
 
-  describe "list_by_followed/1" do
     test "returns a list of follows for an item" do
       followed = fake_followable!()
 
@@ -47,7 +45,7 @@ defmodule MoodleNet.FollowsTest do
           follow
         end
 
-      fetched = Follows.list_of(followed)
+      {:ok, fetched} = Follows.many(context_id: followed.id)
 
       assert Enum.count(fetched) == Enum.count(follows)
 

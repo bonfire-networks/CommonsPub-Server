@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads.StorageTest do
   use ExUnit.Case, async: true
+  @moduletag :skip
 
   alias MoodleNet.Uploads.Storage
 

@@ -33,7 +33,7 @@ defmodule MoodleNet.LikesTest do
     end
   end
 
-  describe "likes_by/1" do
+  describe "many/1" do
     test "returns a list of likes for an user", %{user: liker} do
       things = for _ <- 1..3, do: fake_meta!()
 
@@ -41,7 +41,7 @@ defmodule MoodleNet.LikesTest do
         assert {:ok, like} = Likes.create(liker, thing, Fake.like())
       end
 
-      likes = Likes.list_by(liker)
+      {:ok, likes} = Likes.many(creator_id: liker.id)
       assert Enum.count(likes) == 3
 
       for like <- likes do
@@ -49,9 +49,7 @@ defmodule MoodleNet.LikesTest do
         assert Enum.any?(things, fn thing -> thing.id == like.context_id end)
       end
     end
-  end
 
-  describe "likes_of/1" do
     test "returns a list of likes by users for any meta object" do
       thing = fake_community!(fake_user!())
       users = for _ <- 1..3, do: fake_user!()
@@ -60,7 +58,7 @@ defmodule MoodleNet.LikesTest do
         assert {:ok, like} = Likes.create(user, thing, Fake.like())
       end
 
-      likes = Likes.list_of(thing)
+      {:ok, likes} = Likes.many(context_id: thing.id)
       assert Enum.count(likes) == 3
 
       for like <- likes do

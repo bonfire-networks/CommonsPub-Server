@@ -7,14 +7,14 @@ defmodule MoodleNet.Test.FeedsTest do
 
   describe "Creating and finding a feed" do
     test "works" do
-      assert {:ok, feed} = Feeds.create_feed()
-      assert {:ok, feed2} = Feeds.fetch_feed(feed.id)
+      assert {:ok, feed} = Feeds.create()
+      assert {:ok, feed2} = Feeds.one(id: feed.id)
     end
   end
 
   describe "Publishing to a feed" do
     test "works" do
-      assert {:ok, feed} = Feeds.create_feed()
+      assert {:ok, feed} = Feeds.create()
     end
   end
 

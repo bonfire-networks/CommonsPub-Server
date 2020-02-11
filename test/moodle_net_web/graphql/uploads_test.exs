@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.UploadsTest do
   use MoodleNetWeb.ConnCase, async: true
+  @moduletag :skip
 
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
