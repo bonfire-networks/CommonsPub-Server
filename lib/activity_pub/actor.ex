@@ -459,7 +459,7 @@ defmodule ActivityPub.Actor do
   def update_actor_data_by_ap_id(ap_id, data) do
       ap_id
       |> Object.get_cached_by_ap_id()
-      |> Ecto.Changeset.change(%{data: data})
+      |> Ecto.Changeset.change(%{data: data, updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)})
       |> Object.update_and_set_cache()
   end
 
