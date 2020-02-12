@@ -71,7 +71,7 @@ staging-build-and-push:
   script:
     - make build_with_cache
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Skipped pushing to Docker Hub"; fi
-    - if [ ! -z "$MAILGUN_KEY" ]; then make hq_deploy_staging ; else echo "Skipped deploying to staging"; fi
+    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Skipped deploying to staging"; fi
   only:
   - develop
 
@@ -87,6 +87,6 @@ stable-build-and-push:
   script:
     - make build_with_cache
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Skipped pushing to Docker Hub"; fi
-    - if [ ! -z "$MAILGUN_KEY" ]; then make hq_deploy_stable ; else echo "Skipped deploying to HQ sites"; fi
+    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Skipped deploying to HQ sites"; fi
   only:
   - master
