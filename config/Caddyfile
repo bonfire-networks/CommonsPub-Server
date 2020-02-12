@@ -33,15 +33,22 @@
   }
 
 
-  # rewrite any other non-existing paths to index files or single-page-app
-  proxy / {$FRONTEND_BASE_URL} {
+  rewrite / {
+    if {$FRONTEND_HOSTNAME} not {$HOSTNAME} # if frontend is served on another domain, we'll proxy that
+    to /proxy-frontend{uri}
+  }
+
+  proxy /proxy-frontend/ {$FRONTEND_HOSTNAME} {
     except /uploads /devops /proxy-elixir
     #cache
     transparent
-    header_upstream Host {$FRONTEND_BASE_URL}
+    header_upstream Host {$FRONTEND_HOSTNAME}
   }
 
 
   gzip
+
+  errors
+  log stdout
 
 }
