@@ -78,11 +78,11 @@ push_stable: ## Tag stable, latest and version tags to the last build and push
 
 hq_deploy_staging: # used by Moodle HQ to trigger deploys to k8s
 	@curl -v https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
-
-hq_deploy_stable:
-	@curl -v https://home.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl -v https://team.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl -v https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
+	
+hq_deploy_stable:
+	@curl -v https://home.moodle.net/devops/respawn/$(MAIL_KEY)
 
 dev-exports:
 	awk '{print "export " $$0}' config/docker.dev.env
