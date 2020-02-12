@@ -32,9 +32,11 @@ defmodule ActivityPub.Actor do
     Logger.info("Updating actor #{actor_id}")
 
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         :ok <- update_actor_data_by_ap_id(actor_id, data) do
+         {:ok, object} <- update_actor_data_by_ap_id(actor_id, data) do
       # Return Actor
-      set_cache(get_by_ap_id(actor_id))
+      {:ok, actor} = set_cache(format_remote_actor(object))
+      Adapter.update_remote_actor(actor)
+      {:ok, actor}
     end
   end
 
@@ -455,13 +457,10 @@ defmodule ActivityPub.Actor do
   end
 
   def update_actor_data_by_ap_id(ap_id, data) do
-    {:ok, actor} =
       ap_id
       |> Object.get_cached_by_ap_id()
       |> Ecto.Changeset.change(%{data: data})
       |> Object.update_and_set_cache()
-
-    Adapter.update_remote_actor(actor)
   end
 
   defp deactivated?(%Object{} = actor) do
