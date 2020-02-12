@@ -18,12 +18,12 @@ defmodule MoodleNet.Activities do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, base_filters, data_filters, count_filters)
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
   when is_function(cursor_fn, 1) do
     {data_q, count_q} = Queries.queries(Activity, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn)}
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
     end
   end
 

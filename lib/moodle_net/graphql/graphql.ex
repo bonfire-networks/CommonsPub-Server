@@ -7,6 +7,21 @@ defmodule MoodleNet.GraphQL do
   alias MoodleNet.Batching.EdgesPage
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
+  def reverse_path(info) do
+    Enum.reverse(Resolution.path(info))
+  end
+
+  def in_list?(info) do
+    case reverse_path(info) do
+      [_, index | _] when is_integer(index) -> true
+      _ -> false
+    end
+  end
+
+  def parent_name(resolution) do
+    resolution.path
+  end
+
   def wanted(resolution, path \\ [])
 
   def wanted(%Resolution{}=info, path) do
@@ -33,7 +48,7 @@ defmodule MoodleNet.GraphQL do
 
   def current_user_or_empty_edge_list(%Resolution{}=info) do
     case info.context.current_user do
-      nil -> {:ok, EdgesPage.new([], 0, &(&1))}
+      nil -> {:ok, EdgesPage.new([], 0, &(&1), %{})}
       user -> {:ok, user}
     end
   end

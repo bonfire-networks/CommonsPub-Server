@@ -14,15 +14,55 @@ defmodule MoodleNet.Batching.EdgesPage do
     edges: [Edge.t],
   }
 
-  @spec new(data :: [term], total_count :: non_neg_integer, cursor_fn :: (map -> binary)) :: t
-  @will_break_when :privacy
-  def new(data, total_count, cursor_fn)
-  when is_list(data) and is_integer(total_count) and total_count >= 0
+  def new(edges, total_count, cursor_fn, page_opts)
+  when is_list(edges) and is_integer(total_count) and total_count >= 0
   and is_function(cursor_fn, 1) do
-    edges = Enum.map(data, &Edge.new(&1, cursor_fn))
-    page_info = PageInfo.new(edges)
-    total_count = Enum.count(edges)
+    {page_info, edges} = paginate(edges, page_opts, cursor_fn)
     %EdgesPage{page_info: page_info, total_count: total_count, edges: edges}
+  end
+
+  # there are no results
+  defp paginate([], _opts, _cursor_fn), do: {PageInfo.new(nil, nil, false, false), []}
+
+  # there were results and we must check for the previous page marker
+  defp paginate([e|es]=edges, %{after: a, limit: limit}, cursor_fn) do
+    if cursor_fn.(e) == a,
+      do: paginate_after(true, edges, limit, cursor_fn),
+      else: paginate_after(nil, edges, limit, cursor_fn)
+  end
+
+  # there were results and we must check for the next page marker
+  defp paginate(edges, %{before: b, limit: limit}, cursor_fn) do
+    if cursor_fn.(List.last(edges)) == b,
+      do: paginate_before(true, :lists.droplast(edges), limit, cursor_fn),
+      else: paginate_before(nil, edges, limit, cursor_fn)
+  end
+
+  # there is no previous page
+  defp paginate(edges, %{limit: limit}, cursor_fn) do
+    paginate_after(false, edges, limit, cursor_fn)
+  end
+
+  defp paginate_after(prev, edges, limit, cursor_fn) do
+    if Enum.count(edges) > limit,
+      do: pagination_result(prev, true, Enum.take(edges, limit), cursor_fn),
+      else: pagination_result(prev, false, edges, cursor_fn)
+  end
+
+  defp paginate_before(next, edges, limit, cursor_fn) do
+    if Enum.count(edges) > limit,
+      do: pagination_result(true, next, Enum.take(edges, limit), cursor_fn),
+      else: pagination_result(false, next, edges, cursor_fn)
+  end
+
+  defp pagination_result(prev, next, [], _) do
+    {PageInfo.new(nil, nil, prev, next), []}
+  end
+
+  defp pagination_result(prev, next, edges, cursor_fn) do
+    first = cursor_fn.(List.first(edges))
+    last = cursor_fn.(List.last(edges))
+    {PageInfo.new(first, last, prev, next), edges}
   end
 
 end

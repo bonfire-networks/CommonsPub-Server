@@ -2,7 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Batching.EdgesPages do
-  @enforce_keys ~w(data counts cursor_fn)a
+  @enforce_keys ~w(data counts cursor_fn page_opts)a
   defstruct @enforce_keys
 
   alias MoodleNet.Batching.{EdgesPage, EdgesPages}
@@ -20,16 +20,26 @@ defmodule MoodleNet.Batching.EdgesPages do
   this function will crash. Our intuition is that this would mean an
   error in the calling code, so we would rather raise it early.
   """
-  def new(data_rows, count_rows, group_fn, cursor_fn)
+  def new(data_rows, count_rows, group_fn, cursor_fn, page_opts)
   when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
     data = Enum.group_by(data_rows, group_fn)
     counts = Map.new(count_rows)
-    %EdgesPages{data: data, counts: counts, cursor_fn: cursor_fn}
+    %EdgesPages{data: data, counts: counts, cursor_fn: cursor_fn, page_opts: page_opts}
   end
 
   @doc "Returns an EdgesPage for the given key, defaulting to an empty one"
-  def get(%EdgesPages{data: data, counts: counts, cursor_fn: cursor_fn}, key) do
-    {:ok, EdgesPage.new(Map.get(data, key, []), Map.get(counts, key, 0), cursor_fn)}
+  def get(
+    %EdgesPages{
+      data: data,
+      counts: counts,
+      cursor_fn: cursor_fn,
+      page_opts: page_opts,
+    },
+    key
+  ) do
+    data = Map.get(data, key, [])
+    count = Map.get(counts, key, 0)
+    {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
   end
 
   @doc """

@@ -11,14 +11,6 @@ defmodule MoodleNet.Features do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feature, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
   def edges(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
     {:ok, edges} = many(filters)
@@ -26,25 +18,25 @@ defmodule MoodleNet.Features do
   end
 
   @doc """
-  Retrieves an EdgesPages of feed activities according to various filters
+  Retrieves an EdgesPages of features according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, base_filters, data_filters, count_filters)
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
   when is_function(cursor_fn, 1) do
     {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn)}
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
     end
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
     {data_q, count_q} = Queries.queries(Feature, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
+      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn, page_opts)}
     end
   end
 

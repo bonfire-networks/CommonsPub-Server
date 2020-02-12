@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
@@ -19,25 +19,32 @@ defmodule MoodleNet.Follows do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Follow, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Follow, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
   def edges(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
     {:ok, edges} = many(filters)
     {:ok, Edges.new(edges, group_fn)}
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  @doc """
+  Retrieves an EdgesPages of follows according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = Queries.queries(Follow, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
+    end
+  end
+
+  def edges_pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
     {data_q, count_q} = Queries.queries(Follow, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
+      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn, page_opts)}
     end
   end
 
