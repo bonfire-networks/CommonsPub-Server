@@ -19,7 +19,7 @@
   }
 
 
-  cgi /devops/respawn/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
+  cgi /devops/respawn/{$MAILGUN_KEY} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
 
 
   on startup /opt/app/bin/moodle_net start &
