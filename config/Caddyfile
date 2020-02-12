@@ -53,6 +53,6 @@
   gzip
 
   errors
-  log stdout
+  #log stdout
 
 }

@@ -59,18 +59,34 @@ locales-and-docs:
   only:
   - develop
 
-build-and-push:
+staging-build-and-push:
   stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:
   - docker:stable-dind
   before_script: # override the default in this case
-    - apk add --update --no-cache build-base cmake git
+    - apk add --update --no-cache build-base cmake git curl
     - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - make build_with_cache
-    - if [ "$CI_COMMIT_REF_NAME" == 'master' ]; then make push_stable ; else make push; fi
+    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Skipped pushing to Docker Hub"; fi
+    - if [ ! -z "$MAILGUN_KEY" ]; then make hq_deploy_staging ; else echo "Skipped deploying to staging"; fi
   only:
   - develop
+
+stable-build-and-push:
+  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  image:
+    name: docker:stable
+  services:
+  - docker:stable-dind
+  before_script: # override the default in this case
+    - apk add --update --no-cache build-base cmake git curl
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - make build_with_cache
+    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Skipped pushing to Docker Hub"; fi
+    - if [ ! -z "$MAILGUN_KEY" ]; then make hq_deploy_stable ; else echo "Skipped deploying to HQ sites"; fi
+  only:
   - master

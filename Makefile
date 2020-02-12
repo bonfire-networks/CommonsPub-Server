@@ -76,6 +76,14 @@ push_stable: ## Tag stable, latest and version tags to the last build and push
 	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
+hq_deploy_staging: # used by Moodle HQ to trigger deploys to k8s
+	@curl -v https://home.next.moodle.net/devops/respawn/$(MAILGUN_KEY)
+
+hq_deploy_stable:
+	@curl -v https://home.moodle.net/devops/respawn/$(MAILGUN_KEY)
+	@curl -v https://team.moodle.net/devops/respawn/$(MAILGUN_KEY)
+	@curl -v https://mothership.moodle.net/devops/respawn/$(MAILGUN_KEY)
+
 dev-exports:
 	awk '{print "export " $$0}' config/docker.dev.env
 
