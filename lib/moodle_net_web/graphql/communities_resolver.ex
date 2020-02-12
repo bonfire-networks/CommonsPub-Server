@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   @moduledoc """
   Performs the GraphQL Community queries.
   """
-  alias MoodleNet.{Activities, Collections, Communities, GraphQL, Instance, Repo}
+  alias MoodleNet.{Activities, Batching, Collections, Communities, GraphQL, Instance, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
   alias MoodleNet.Communities.Community
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -14,9 +14,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     Communities.one([:default, id: id, user: user])
   end
 
-  def communities(_args, %{context: %{current_user: user}}) do
-    Communities.nodes_page &(&1.id), [:default, user: user],
-      join: :follower_count, order: :list
+  def communities(%{}=page_opts, %{context: %{current_user: user}}) do
+    with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+      Communities.edges_page(
+        &(&1.id),
+        page_opts,
+        [:default, user: user],
+        [join: :follower_count, order: :list]
+      )
+    end
   end
 
   # def canonical_url_edge(%Community{id: id, actor: %{canonical_url: nil}}, _, _) do
@@ -85,14 +91,35 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def collections_edge(%Community{collections: cs}, _, info) when is_list(cs), do: {:ok, cs}
-  def collections_edge(%Community{id: id}=community, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_collections_edge, user}, id, EdgesPages.getter(id)
+  def collections_edge(%Community{id: id}=community, %{}=page_opts, %{context: %{current_user: user}}=info) do
+    if GraphQL.in_list?(info) do
+      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+        batch {__MODULE__, :batch_collections_edge, {page_opts, user}}, id, EdgesPages.getter(id)
+      end
+    else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_collections_edge(page_opts, user, id)
+      end
+    end
   end
 
-  def batch_collections_edge(user, ids) do
+  def single_collections_edge(page_opts, user, ids) do
+    Collections.edges_page(
+      &(&1.id),
+      page_opts,
+      [community_id: ids, user: user],
+      [join: {:actor, :inner},
+       join: :follower_count,
+       order: :followers_desc,
+       preload: :follower_count]
+    )
+  end
+
+  def batch_collections_edge({page_opts, user}, ids) do
     {:ok, edges} = Collections.edges_pages(
       &(&1.community_id),
       &(&1.id),
+      page_opts,
       [community_id: ids, user: user],
       [join: {:actor, :inner},
        join: :follower_count,
@@ -107,9 +134,37 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     {:ok, EdgesPage.new([], [], &(&1.id))}
   end
 
-  def outbox_edge(%Community{}=community, _, %{context: %{current_user: user}}) do
-    Communities.outbox(community)
+  def outbox_edge(%Community{outbox_id: id}, page_opts, %{context: %{current_user: user}}=info) do
+    # if GraphQL.in_list?(info) do
+    #   with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+    #     batch {__MODULE__, :batch_outbox_edge, {page_opts, user}}, id, EdgesPages.getter(id)
+    #   end
+    # else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_outbox_edge(page_opts, user, id)
+      end
+    # end
   end
+
+  def single_outbox_edge(page_opts, user, id) do
+    Activities.edges_page(
+      &(&1.id),
+      page_opts,
+      [join: :feed_activity,
+       feed_id: id,
+       table: default_outbox_query_contexts(),
+       distinct: [desc: :id], # this does the actual ordering *sigh*
+       order: :timeline_desc] # this is here because ecto has made questionable choices
+    )
+  end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, Communities)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+
+  # def batch_outbox_edge({page_opts, user}, ids) do
+  # end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 

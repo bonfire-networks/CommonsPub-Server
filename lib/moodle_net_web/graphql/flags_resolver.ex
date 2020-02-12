@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
-  alias MoodleNet.{Flags, GraphQL, Repo}
+  alias MoodleNet.{Batching, Flags, GraphQL, Repo}
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.Batching.{Edges, EdgesPages}
+  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -16,16 +16,34 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     end
   end
 
-  def flags_edge(%{id: id}, _, info) do
+  def flags_edge(%{id: id}, %{}=page_opts, info) do
     with {:ok, %User{}=user} <- GraphQL.current_user_or_empty_edge_list(info) do
-      batch {__MODULE__, :batch_flags_edge, user}, id, EdgesPages.getter(id)
+      if GraphQL.in_list?(info) do
+        with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+          batch {__MODULE__, :batch_flags_edge, {page_opts,user}}, id, EdgesPages.getter(id)
+        end
+      else
+        with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+          single_flags_edge(page_opts, user, id)
+        end
+      end
     end
   end
 
-  def batch_flags_edge(user, ids) do
+  def single_flags_edge(page_opts, user, ids) do
+    Flags.edges_page(
+      &(&1.id),
+      page_opts,
+      [user: user, context_id: ids],
+      [order: :timeline_desc]
+    )
+  end
+
+  def batch_flags_edge({page_opts, user}, ids) do
     {:ok, edges} = Flags.edges_pages(
       &(&1.context_id),
       &(&1.id),
+      page_opts,
       [:deleted, user: user, context_id: ids],
       [order: :timeline_desc],
       [group_count: :context_id]

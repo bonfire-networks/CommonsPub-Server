@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
-  alias MoodleNet.{GraphQL, Repo, Threads}
+  alias MoodleNet.{Batching, GraphQL, Repo, Threads}
   alias MoodleNet.Batching.{EdgesPages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.{Comments, Thread}
@@ -13,14 +13,32 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   # edges
   
-  def comments_edge(%Thread{id: id}, _, info) do
-    batch {__MODULE__, :batch_comments_edge, info.context.current_user}, id, EdgesPages.getter(id)
+  def comments_edge(%Thread{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
+    if GraphQL.in_list?(info) do
+      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+        batch {__MODULE__, :batch_comments_edge, {page_opts,user}}, id, EdgesPages.getter(id)
+      end
+    else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_comments_edge(page_opts, user, id)
+      end
+    end
   end
 
-  def batch_comments_edge(current_user, ids) do
+  def single_comments_edge(page_opts, current_user, ids) do
+    Comments.edges_page(
+      &(&1.id),
+      page_opts,
+      [user: current_user, thread_id: ids],
+      [order: :timeline_asc]
+    )
+  end
+
+  def batch_comments_edge({page_opts, current_user}, ids) do
     {:ok, edges} = Comments.edges_pages(
       &(&1.thread_id),
       &(&1.id),
+      page_opts,
       [user: current_user, thread_id: ids],
       [order: :timeline_asc],
       [group_count: :thread_id]
@@ -28,14 +46,32 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     edges
   end
 
-  def threads_edge(%{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
+  def threads_edge(%{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
+    if GraphQL.in_list?(info) do
+      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+        batch {__MODULE__, :batch_threads_edge, {page_opts,user}}, id, EdgesPages.getter(id)
+      end
+    else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_threads_edge(page_opts, user, id)
+      end
+    end
   end
 
-  def batch_threads_edge(current_user, ids) do
+  def single_threads_edge(page_opts, current_user, ids) do
+    Threads.edges_page(
+      &(&1.id),
+      page_opts,
+      [user: current_user, context_id: ids],
+      [join: :last_comment, order: :last_comment_desc, preload: :last_comment]
+    )
+  end
+
+  def batch_threads_edge({page_opts, current_user}, ids) do
     {:ok, edges} = Threads.edges_pages(
       &(&1.context_id),
       &(&1.id),
+      page_opts,
       [user: current_user, context_id: ids],
       [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
       [group_count: :context_id]

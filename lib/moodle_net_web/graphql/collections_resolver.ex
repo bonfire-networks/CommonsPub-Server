@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.{
+    Batching,
     Collections,
     Communities,
     GraphQL,
@@ -25,15 +26,18 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
-  def collections(_args, %{context: %{current_user: user}}) do
-    Collections.nodes_page(
-      &(&1.id),
-      [user: user],
-      [join: {:actor, :left},
-       join: :follower_count,
-       order: :followers_desc,
-       preload: :follower_count]
-    )
+  def collections(page_opts, %{context: %{current_user: user}}) do
+    with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+      Collections.edges_page(
+        &(&1.id),
+        page_opts,
+        [user: user],
+        [join: {:actor, :left},
+         join: :follower_count,
+         order: :followers_desc,
+         preload: :follower_count]
+      )
+    end
   end
 
   # def canonical_url_edge(%Collection{id: id, actor: %{canonical_url: nil}}, _, _) do
@@ -43,7 +47,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     {:ok, url}
   end
 
-  def resource_count_edge(%Collection{id: id}, _, _info) do
+  def resource_count_edge(%Collection{id: id}, _, info) do
     batch {__MODULE__, :batch_resource_count_edge}, id,
       fn edges ->
         case Map.get(edges, id) do
@@ -61,15 +65,32 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Enum.group_by(edges, fn {id, _} -> id end)
   end
 
-  @will_break_when :pagination
-  def resources_edge(%Collection{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_resources_edge, user}, id, EdgesPages.getter(id)
+  def resources_edge(%Collection{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
+    if GraphQL.in_list?(info) do
+      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+        batch {__MODULE__, :batch_resources_edge, {page_opts,user}}, id, EdgesPages.getter(id)
+      end
+    else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_resources_edge(page_opts, user, id)
+      end
+    end
   end
 
-  def batch_resources_edge(user, ids) do
-    {:ok, edges} = Resources.edges_pages(
-      &(&1.collection_id),
+  def single_resources_edge(page_opts, user, id) do
+    Resources.edges_page(
       &(&1.id),
+      page_opts,
+      [user: user, collection_id: id],
+      [order: :timeline_desc]
+    )
+  end
+  
+  def batch_resources_edge({page_opts, user}, ids) do
+    {:ok, edges} = Resources.edges_pages(
+      &(&1.id),
+      &(&1.collection_id),
+      page_opts,
       [user: user, collection_id: ids],
       [order: :timeline_desc],
       [group_count: :collection_id]
@@ -90,8 +111,33 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     {:ok, DateTime.utc_now()}
   end
 
-  def outbox_edge(%Collection{}=coll, _, _info) do
-    Collections.outbox(coll)
+  def outbox_edge(%Collection{outbox_id: id}, page_opts, %{context: %{current_user: user}}=info) do
+    # if GraphQL.in_list?(info) do
+    #   with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+    #     batch {__MODULE__, :batch_outbox_edge, {page_opts, user}}, id, EdgesPages.getter(id)
+    #   end
+    # else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_outbox_edge(page_opts, user, id)
+      end
+    # end
+  end
+
+  def single_outbox_edge(page_opts, user, id) do
+    Activities.edges_page(
+      &(&1.id),
+      page_opts,
+      [join: :feed_activity,
+       feed_id: id,
+       table: default_outbox_query_contexts(),
+       distinct: [desc: :id], # this does the actual ordering *sigh*
+       order: :timeline_desc] # this is here because ecto has made questionable choices
+    )
+  end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, Collections)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
   ## finally the mutations...

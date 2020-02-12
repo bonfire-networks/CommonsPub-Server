@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
-  alias MoodleNet.{Follows, GraphQL, Repo}
+  alias MoodleNet.{Batching, Follows, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPages}
   alias MoodleNet.Follows.{Follow, FollowerCounts}
   alias MoodleNet.Meta.Pointers
@@ -42,14 +42,32 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     edges
   end
 
-  def followers_edge(%{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_followers_edge, user}, id, EdgesPages.getter(id)
+  def followers_edge(%{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
+    if GraphQL.in_list?(info) do
+      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+        batch {__MODULE__, :batch_followers_edge, {page_opts,user}}, id, EdgesPages.getter(id)
+      end
+    else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_followers_edge(page_opts, user, id)
+      end
+    end
   end
 
-  def batch_followers_edge(user, ids) do
+  def single_followers_edge(page_opts, user, ids) do
+    Follows.edges_page(
+      &(&1.id),
+      page_opts,
+      [context_id: ids, user: user],
+      [order: :timeline_desc]
+    )
+  end
+
+  def batch_followers_edge({page_opts, user}, ids) do
     {:ok, edges} = Follows.edges_pages(
       &(&1.context_id),
       &(&1.id),
+      page_opts,
       [context_id: ids, user: user],
       [order: :timeline_desc],
       [group_count: :context_id]
