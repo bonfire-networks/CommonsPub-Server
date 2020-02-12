@@ -18,14 +18,12 @@
     to /proxy-elixir{uri}
   }
 
-  cgi /shutdown/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
 
-# rewrite any other non-existing paths to index files or single-page-app
-  rewrite {
-    to {path} /proxy-frontend{uri}
-  }
+  cgi /devops/respawn/{$SECRET_KEY_BASE} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
+
 
   on startup /opt/app/bin/moodle_net start &
+
 
   proxy /proxy-elixir/ 127.0.0.1:4001 {
 
@@ -34,29 +32,16 @@
     without /proxy-elixir
   }
 
-  proxy /proxy-frontend/ {$FRONTEND_BASE_URL} {
 
+  # rewrite any other non-existing paths to index files or single-page-app
+  proxy / {$FRONTEND_BASE_URL} {
+    except /uploads /devops /proxy-elixir
     #cache
     transparent
     header_upstream Host {$FRONTEND_BASE_URL}
-    without /proxy-frontend
   }
+
 
   gzip
 
-  header / {
-    Access-Control-Allow-Origin   *
-    Access-Control-Allow-Methods  "POST, PUT, DELETE, GET, PATCH, OPTIONS"
-    Access-Control-Allow-Headers  "Authorization, Content-Type, Idempotency-Key"
-    Access-Control-Expose-Headers "Link, X-RateLimit-Reset, X-RateLimit-Limit, X-RateLimit-Remaining, X-Request-Id"
-
-    X-XSS-Protection                  "1; mode=block"
-    X-Permitted-Cross-Domain-Policies none
-    #X-Frame-Options                   DENY
-    X-Content-Type-Options            nosniff
-    Referrer-Policy                   same-origin
-    X-Download-Options                noopen
-
-    Strict-Transport-Security "max-age=31536000"
-  }
 }
