@@ -52,9 +52,6 @@ defmodule MoodleNet.Threads do
     end
   end
 
-  def last_activity_edges(filters \\ []) do
-  end
-
   @spec create(User.t, context :: any, map) :: {:ok, Thread.t} | {:error, Changeset.t}
   def create(%User{} = creator, context, attrs) do
     Repo.transact_with(fn ->

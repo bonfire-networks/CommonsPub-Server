@@ -4,7 +4,6 @@
 defmodule MoodleNet.Access.RegisterEmailDomainAccessesQueries do
 
   alias MoodleNet.Access.RegisterEmailDomainAccess
-  alias MoodleNet.Meta.PointersQueries
   import Ecto.Query
 
   def query(RegisterEmailDomainAccess) do

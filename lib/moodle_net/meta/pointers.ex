@@ -98,8 +98,6 @@ defmodule MoodleNet.Meta.Pointers do
     Enum.reduce(items, acc, &Map.put(&2, &1.id, &1))
   end
 
-  import Ecto.Query
-
   alias MoodleNet.{
     Activities,
     Blocks,

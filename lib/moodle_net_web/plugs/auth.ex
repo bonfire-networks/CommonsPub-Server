@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
       * `auth_token`, a Token
   """
   alias Plug.Conn
-  alias MoodleNet.{Access,Users}
+  alias MoodleNet.Access
   alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     Token,

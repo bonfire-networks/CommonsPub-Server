@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNetWeb.GraphQL
   alias MoodleNet.{
     Access,
+    Activities,
     Actors,
     Batching,
     Collections,
@@ -165,7 +166,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end
     else
       with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
-        single_followed_collections_edge(page_opts, user, id)
+        single_followed_communities_edge(page_opts, user, id)
       end
     end
   end
@@ -245,8 +246,28 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def outbox_edge(%User{}=user, _, _info) do
-    Users.outbox(user)
+  def outbox_edge(%User{outbox_id: id}, page_opts, %{context: %{current_user: user}}=_info) do
+    # if GraphQL.in_list?(info) do
+    #   with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
+    #     batch {__MODULE__, :batch_outbox_edge, {page_opts, user}}, id, EdgesPages.getter(id)
+    #   end
+    # else
+      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
+        single_outbox_edge(page_opts, user, id)
+      end
+    # end
+  end
+
+  def single_outbox_edge(page_opts, _user, id) do
+    Activities.edges_page(
+      &(&1.id),
+      page_opts,
+      [join: :feed_activity,
+       feed_id: id,
+       table: default_outbox_query_contexts(),
+       distinct: [desc: :id], # this does the actual ordering *sigh*
+       order: :timeline_desc] # this is here because ecto has made questionable choices
+    )
   end
 
   def follow_edge(follow, _, _), do: {:ok, follow}
@@ -343,5 +364,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end)
     end
   end
-  
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, Users)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+
 end

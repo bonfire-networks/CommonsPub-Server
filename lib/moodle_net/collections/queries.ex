@@ -6,7 +6,6 @@ defmodule MoodleNet.Collections.Queries do
   alias MoodleNet.Communities
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Likes.Like
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query

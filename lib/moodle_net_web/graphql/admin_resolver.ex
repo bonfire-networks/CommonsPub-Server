@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
   
   def admin(_, _info), do: {:ok, %{}}
 
-  def resolve_flag(%{flag_id: id}, info) do
+  def resolve_flag(%{flag_id: _id}, _info) do
     {:ok, nil}
   end
 

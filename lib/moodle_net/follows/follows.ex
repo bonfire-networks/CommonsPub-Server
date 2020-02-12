@@ -8,7 +8,6 @@ defmodule MoodleNet.Follows do
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
     Follow,
-    NotFollowableError,
     Queries,
   }
   alias MoodleNet.Meta.{Pointer, Pointers}

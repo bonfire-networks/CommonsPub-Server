@@ -4,7 +4,6 @@
 defmodule MoodleNet.Queries do
 
   alias Ecto.Changeset
-  alias MoodleNet.Queries
   alias MoodleNet.Queries.PageOpts
 
   def page_opts(fields, opts \\ %{})

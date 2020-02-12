@@ -5,7 +5,7 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
 
   alias MoodleNet.Repo
   alias MoodleNet.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Batching.EdgesPage
 
   def one(filters) do
     RegisterEmailDomainAccessesQueries.query(RegisterEmailDomainAccess, filters)

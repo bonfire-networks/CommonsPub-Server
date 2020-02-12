@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{Batching, GraphQL, Likes, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
+  alias MoodleNet.Batching.{Edges, EdgesPages}
   alias MoodleNet.Likes.LikerCounts
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User

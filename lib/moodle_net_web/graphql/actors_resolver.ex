@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   """
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Instance
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  # import Absinthe.Resolution.Helpers, only: [batch: 3]
   
   @doc "Returns the canonical url for the actor"
   def canonical_url_edge(%{actor: %Actor{canonical_url: u}}, _, _), do: {:ok, u}

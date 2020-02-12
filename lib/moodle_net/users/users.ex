@@ -7,7 +7,7 @@ defmodule MoodleNet.Users do
   """
   alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
   alias MoodleNet.Feeds.FeedSubscriptions
-  alias MoodleNet.Batching.{Edges, NodesPage, EdgesPages}
+  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
   alias MoodleNet.Mail.{Email, MailService}
 
   alias MoodleNet.Users.{
@@ -307,19 +307,13 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def feed_subscriptions(%User{id: id}) do
-    FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
+  defp default_inbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_inbox_query_contexts)
   end
 
-  def outbox(%User{outbox_id: id}, opts \\ %{}) do
-    Activities.edges_page(
-      &(&1.id),
-      join: :feed_activity,
-      feed_id: id,
-      table: default_outbox_query_contexts(),
-      distinct: [desc: :id], # this does the actual ordering *sigh*
-      order: :timeline_desc # this is here because ecto has made questionable choices
-    )
+  def feed_subscriptions(%User{id: id}) do
+    FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
   end
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val
@@ -339,16 +333,6 @@ defmodule MoodleNet.Users do
   @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
   def preload_local_user(%User{} = user, opts \\ []) do
     Repo.preload(user, :local_user, opts)
-  end
-
-  defp default_inbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:default_inbox_query_contexts)
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end
