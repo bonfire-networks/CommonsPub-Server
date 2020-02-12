@@ -44,7 +44,11 @@ defmodule MoodleNet.Uploads.Storage do
     provider
   end
 
-  defp get_media_type(%{path: path}), do: TreeMagic.from_filepath(path)
+  defp get_media_type(%{path: path}) do
+    with {:ok, info} <- TwinkleStar.from_filepath(path) do
+      {:ok, info.media_type}
+    end
+  end
 
   defp get_metadata(%{path: path}) do
     # TODO: don't read entire file

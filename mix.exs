@@ -75,7 +75,7 @@ defmodule MoodleNet.Mixfile do
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
       {:format_parser, git: "https://github.com/antoniskalou/format_parser.ex"},
-      {:tree_magic, git: "https://github.com/antoniskalou/tree_magic.ex"},
+      {:twinkle_star, git: "https://github.com/antoniskalou/twinkle_star"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
