@@ -720,11 +720,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           followedCommunities {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                follow { #{follow_basics()} }
-                community { #{community_basics()} }
-              }
+              follow { #{follow_basics()} }
+              community { #{community_basics()} }
             }
           }
         }
@@ -733,11 +730,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"user" => user} = gql_post_data(%{query: query})
       user = assert_user(alice, user)
       assert %{"followedCommunities" => followeds} = user
-      edge_list = assert_edge_list(followeds)
-      assert 2 == Enum.count(edge_list.edges)
-      for edge <- edge_list.edges do
-        assert_follow(edge.node["follow"])
-        assert_community(edge.node["community"])
+      edges = assert_edges_page(followeds)
+      assert 2 == Enum.count(edges.edges)
+      for edge <- edges.edges do
+        assert_follow(edge["follow"])
+        assert_community(edge["community"])
       end
     end
 
@@ -756,11 +753,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           followedCollections {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                follow { #{follow_basics()} }
-                collection { #{collection_basics()} }
-              }
+              follow { #{follow_basics()} }
+              collection { #{collection_basics()} }
             }
           }
         }
@@ -769,11 +763,11 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"user" => user} = gql_post_data(%{query: query})
       user = assert_user(alice, user)
       assert %{"followedCollections" => followeds} = user
-      edge_list = assert_edge_list(followeds)
-      assert 2 == Enum.count(edge_list.edges)
-      for edge <- edge_list.edges do
-        assert_follow(edge.node["follow"])
-        assert_collection(edge.node["collection"])
+      edges = assert_edges_page(followeds)
+      assert 2 == Enum.count(edges.edges)
+      for edge <- edges.edges do
+        assert_follow(edge["follow"])
+        assert_collection(edge["collection"])
       end
     end
 
@@ -799,10 +793,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           #{user_basics()}
           likes {
             #{page_basics()}
-            edges {
-              cursor
-              node { #{like_basics()} }
-            }
+            edges { #{like_basics()} }
           }
         }
       }
@@ -810,7 +801,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"user" => user} = gql_post_data(%{query: query})
       user = assert_user(alice, user)
       assert %{"likes" => likes} = user
-      edge_list = assert_edge_list(likes)
+      edges = assert_edges_page(likes)
       # assert Enum.count(likes) == 2
       # for like <- likes do
       #   assert_like(like)
@@ -836,7 +827,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           #{me_basics()}
           user {
             #{user_basics()}
-            inbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+            inbox { #{page_basics()} edges { #{activity_basics()} }
           }
         }
       }
@@ -846,11 +837,10 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"user" => user2} = me
       user2 = assert_user(alice, user2)
       assert %{"inbox" => inbox} = user2
-      edge_list = assert_edge_list(inbox)
-      assert Enum.count(edge_list.edges) == 1
-      for edge <- edge_list.edges do
-        activity = assert_activity(edge.node)
-        assert is_binary(edge.cursor)
+      edges = assert_edges_page(inbox)
+      assert Enum.count(edges.edges) == 1
+      for edge <- edges.edges do
+        activity = assert_activity(edge)
       end
     end
     # test "Does not work for other" do
@@ -869,7 +859,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           #{me_basics()}
           user {
             #{user_basics()}
-            outbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+            outbox { #{page_basics()} edges { #{activity_basics()} } }
           }
         }
       }
@@ -879,11 +869,10 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       assert %{"user" => user2} = me
       user2 = assert_user(user, user2)
       assert %{"outbox" => outbox} = user2
-      edge_list = assert_edge_list(outbox)
-      # assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        activity = assert_activity(edge.node)
-        assert is_binary(edge.cursor)
+      edges = assert_edges_page(outbox)
+      # assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges do
+        activity = assert_activity(edge)
       end
     end
   end

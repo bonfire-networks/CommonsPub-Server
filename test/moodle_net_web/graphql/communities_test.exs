@@ -26,15 +26,15 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = """
       { communities {
           #{page_basics()}
-          nodes { #{community_basics()} }
+          edges { #{community_basics()} }
         }
       }
       """
       assert %{"communities" => comms2} = gql_post_data(%{query: q})
-      node_list = assert_node_list(comms2)
-      assert Enum.count(node_list.nodes) == 5
-      for node <- node_list.nodes do
-        comm = assert_community(keyed[node["id"]], node)
+      edges = assert_edges_page(comms2)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges do
+        comm = assert_community(keyed[edge["id"]], edge)
         assert comm.collection_count == 0
         assert comm.follower_count == 1
         assert comm.liker_count == 0
@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = """
       { communities {
           #{page_basics()}
-          nodes {
+          edges {
             #{community_basics()}
             creator { #{user_basics()} }
           }
@@ -69,10 +69,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       }
       """
       assert %{"communities" => comms2} = gql_post_data(%{query: q})
-      node_list = assert_node_list(comms2)
-      assert Enum.count(node_list.nodes) == 5
-      for node <- node_list.nodes do
-        comm = assert_community(keyed[node["id"]], node)
+      edges = assert_edges_page(comms2)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges do
+        comm = assert_community(keyed[edge["id"]], edge)
         assert %{"creator" => creator} = comm
         assert_user(named[creator["id"]], creator)
       end
@@ -572,9 +572,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
           collections {
-            pageInfo { startCursor endCursor }
-            totalCount
-            edges { cursor node { #{collection_basics()} } }
+            #{page_basics()}
+            edges { #{collection_basics()} }
           }
         }
       }
@@ -582,12 +581,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"collections" => colls} = comm
-      edge_list = assert_edge_list(colls)
-      assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        coll = assert_collection(edge.node)
-        assert coll.id == edge.cursor
-      end
+      edges = assert_edges_page(colls)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges, do: assert_collection(edge)
     end
   end
 
@@ -600,22 +596,14 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
           threads {
-            pageInfo { startCursor endCursor }
-            totalCount
+            #{page_basics()}
             edges {
-              cursor
-              node {
-                #{thread_basics()}
-                comments {
-                  pageInfo { startCursor endCursor }
-                  totalCount
-                  edges {
-                    cursor
-                    node {
-                      #{comment_basics()}
-                      inReplyTo { #{comment_basics()} }
-                    }
-                  }
+              #{thread_basics()}
+              comments {
+                #{page_basics()}
+                edges {
+                  #{comment_basics()}
+                  inReplyTo { #{comment_basics()} }
                 }
               }
             }
@@ -626,12 +614,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"threads" => threads} = comm
-      edge_list = assert_edge_list(threads)
-      assert Enum.count(edge_list.edges) == 0
+      edges = assert_edges_page(threads)
+      assert Enum.count(edges.edges) == 0
       assert threads["totalCount"] == 0
-      # for edge <- edge_list.edges do
-      #   coll = assert_collection(edge.node)
-      #   assert coll.id == edge.cursor
+      # for edge <- edges.edges do
+      #   assert_collection(edge.node)
       # end
     end
 
@@ -645,25 +632,19 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       t2 = fake_thread!(alice, comm)
       t2c1 = fake_comment!(alice, t2)
       t2c2 = fake_comment!(bob, t2)
-      threads = [{t1, [t1c2, t1c1]}, {t2, [t2c2, t2c1]}]
+      # comments are in ascending creation order - is this correct?
+      threads = [{t1, [t1c1, t1c2]}, {t2, [t2c1, t2c2]}]
       q = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
           threads {
-            pageInfo { startCursor endCursor }
+            #{page_basics()}
             totalCount
             edges {
-              cursor
-              node {
-                #{thread_basics()}
-                comments {
-                  pageInfo { startCursor endCursor }
-                  totalCount
-                  edges {
-                    cursor
-                    node { #{comment_basics()} }
-                  }
-                }
+              #{thread_basics()}
+              comments {
+                #{page_basics()}
+                edges {#{comment_basics()} }
               }
             }
           }
@@ -673,17 +654,15 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"threads" => threads2} = comm
-      edge_list = assert_edge_list(threads2)
-      assert Enum.count(edge_list.edges) == Enum.count(threads)
-      for {{t,cs},edge} <- Enum.zip(threads, edge_list.edges) do
-        t = assert_thread(t, edge.node)
-        assert t.id == edge.cursor
+      edges = assert_edges_page(threads2)
+      assert Enum.count(edges.edges) == Enum.count(threads)
+      for {{t,cs},edge} <- Enum.zip(threads, edges.edges) do
+        t = assert_thread(t, edge)
         assert %{"comments" => comments2} = t
-        edge_list = assert_edge_list(comments2)
-        assert Enum.count(edge_list.edges) == Enum.count(cs)
-        for {comment, edge} <- Enum.zip(cs, edge_list.edges) do
-          assert edge["node"]["id"] == edge["cursor"]
-          assert_comment(comment, edge["node"])
+        edges = assert_edges_page(comments2)
+        assert Enum.count(edges.edges) == Enum.count(cs)
+        for {comment, edge} <- Enum.zip(cs, edges.edges) do
+          assert_comment(comment, edge)
         end
       end
       assert threads2["totalCount"] == 2
@@ -707,11 +686,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -720,11 +696,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(%{query: q})
       comm = assert_community(comm)
       assert %{"followers" => folls2} = comm
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
       for {foll, edge} <- Enum.zip(folls, edges) do
-        foll = assert_follow(foll, edge.node)
-        assert foll.id == edge.cursor
+        assert_follow(foll, edge)
       end
     end
 
@@ -745,11 +720,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -758,11 +730,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(conn, %{query: q})
       comm = assert_community(comm)
       assert %{"followers" => folls2} = comm
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
       for {foll, edge} <- Enum.zip(folls, edges) do
-        foll = assert_follow(foll, edge.node)
-        assert foll.id == edge.cursor
+        assert_follow(foll, edge)
       end
     end
 
@@ -783,11 +754,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -796,11 +764,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm} = gql_post_data(conn, %{query: q})
       comm = assert_community(comm)
       assert %{"followers" => folls2} = comm
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
       for {foll,edge} <- Enum.zip(folls, edges) do
-        foll = assert_follow(foll, edge.node)
-        assert foll.id == edge.cursor
+        assert_follow(foll, edge)
       end
     end
   end
@@ -813,18 +780,19 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       query = """
       { community(communityId: "#{comm.id}") {
           #{community_basics()}
-          outbox { #{page_basics()} edges { cursor node { #{activity_basics()} } } }
+          outbox { #{page_basics()} edges { #{activity_basics()} } }
         }
       }
       """
+      _coll = fake_collection!(user, comm)
+      _coll = fake_collection!(user, comm)
       assert %{"community" => comm2} = gql_post_data(conn, %{query: query})
       comm2 = assert_community(comm, comm2)
       assert %{"outbox" => outbox} = comm2
-      edge_list = assert_edge_list(outbox)
-      # assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        assert_activity(edge.node)
-        assert is_binary(edge.cursor)
+      edges = assert_edges_page(outbox)
+      assert Enum.count(edges.edges) == 3
+      for edge <- edges.edges do
+        assert_activity(edge)
       end
     end
   end
@@ -851,12 +819,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Community { #{community_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Community { #{community_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -865,7 +830,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm2} = gql_post_data(%{query: q})
       comm2 = assert_community(comm, comm2)
       assert %{"flags" => flags2} = comm2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "empty for a user with a public community" do
@@ -884,12 +849,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Community { #{community_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Community { #{community_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -898,7 +860,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm2} = gql_post_data(conn, %{query: q})
       comm2 = assert_community(comm, comm2)
       assert %{"flags" => flags2} = comm2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "works for a user who has flagged a public community" do
@@ -917,12 +879,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Community { #{community_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Community { #{community_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -931,10 +890,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm2} = gql_post_data(conn, %{query: q})
       comm2 = assert_community(comm, comm2)
       assert %{"flags" => flags2} = comm2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
       for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
+        assert_flag(flag, edge)
       end
     end
 
@@ -955,12 +914,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Community { #{community_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Community { #{community_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -969,10 +925,10 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       assert %{"community" => comm2} = gql_post_data(conn, %{query: q})
       comm2 = assert_community(comm, comm2)
       assert %{"flags" => flags2} = comm2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
       for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
+        assert_flag(flag, edge)
       end
     end
   end

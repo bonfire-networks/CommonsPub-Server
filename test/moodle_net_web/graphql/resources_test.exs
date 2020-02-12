@@ -597,12 +597,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -611,10 +608,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(%{query: q})
       res2 = assert_resource(res, res2)
       assert %{"likes" => likes2} = res2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
       for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
+        assert_like(like, edge)
       end
     end
 
@@ -637,12 +634,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -651,10 +645,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
       res2 = assert_resource(res, res2)
       assert %{"likes" => likes2} = res2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
       for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
+        assert_like(like, edge)
       end
     end
 
@@ -677,12 +671,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -691,10 +682,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
       res2 = assert_resource(res, res2)
       assert %{"likes" => likes2} = res2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
       for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
+        assert_like(like, edge)
       end
     end
 
@@ -718,12 +709,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -732,7 +720,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(%{query: q})
       res2 = assert_resource(res, res2)
       assert %{"flags" => flags2} = res2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "empty for a user with a public resource" do
@@ -753,12 +741,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -767,7 +752,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
       res2 = assert_resource(res, res2)
       assert %{"flags" => flags2} = res2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "works for a user who has flagged a public resource" do
@@ -788,12 +773,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -802,10 +784,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
       res2 = assert_resource(res, res2)
       assert %{"flags" => flags2} = res2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
       for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
+        assert_flag(flag, edge)
       end
     end
 
@@ -828,12 +810,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Resource { #{resource_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Resource { #{resource_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -842,10 +821,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert %{"resource" => res2} = gql_post_data(conn, %{query: q})
       res2 = assert_resource(res, res2)
       assert %{"flags" => flags2} = res2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
       for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
+        assert_flag(flag, edge)
       end
     end
 

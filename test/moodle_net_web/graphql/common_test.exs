@@ -53,7 +53,8 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
   end
 
   describe "delete" do
-    test "works for various types that allow deletion" do
+    @tag :skip
+    test "works for various types that allow deletion for an admin" do
       user = fake_user!(%{is_instance_admin: true})
       conn = user_conn(user)
 

@@ -24,16 +24,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       q = """
       { collections {
           #{page_basics()}
-          nodes { #{collection_basics()} }
+          edges { #{collection_basics()} }
         }
       }
       """
       assert %{"collections" => colls} = gql_post_data(%{query: q})
-      node_list = assert_node_list(colls)
-      assert Enum.count(node_list.nodes) == 5
-      for node <- node_list.nodes do
-        assert_collection(node)
-      end
+      edges = assert_edges_page(colls)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges, do: assert_collection(edge)
     end
 
   end
@@ -572,9 +570,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
       q = """
       { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} resources {
+          #{collection_basics()}
+          resources {
             #{page_basics()}
-            edges { cursor node { #{resource_basics()} } }
+            edges { #{resource_basics()} }
           }
         }
       }
@@ -582,12 +581,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
-      edge_list = assert_edge_list(res)
-      assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        res = assert_resource(edge.node)
-        assert assert res.id == edge.cursor
-      end
+      edges = assert_edges_page(res)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges, do: assert_resource(edge)
     end
 
     test "works for an instance admin" do
@@ -599,7 +595,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       { collection(collectionId: "#{coll.id}") {
           #{collection_basics()} resources {
             #{page_basics()}
-            edges { cursor node { #{resource_basics()} } }
+            edges { #{resource_basics()} }
           }
         }
       }
@@ -608,12 +604,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
-      edge_list = assert_edge_list(res)
-      assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        res = assert_resource(edge.node)
-        assert assert res.id == edge.cursor
-      end
+      edges = assert_edges_page(res)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges, do: assert_resource(edge)
     end
 
     test "works for a user for a public collection" do
@@ -625,7 +618,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       { collection(collectionId: "#{coll.id}") {
           #{collection_basics()} resources {
             #{page_basics()}
-            edges { cursor node { #{resource_basics()} } }
+            edges { #{resource_basics()} }
           }
         }
       }
@@ -634,12 +627,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
-      edge_list = assert_edge_list(res)
-      assert Enum.count(edge_list.edges) == 5
-      for edge <- edge_list.edges do
-        res = assert_resource(edge.node)
-        assert assert res.id == edge.cursor
-      end
+      edges = assert_edges_page(res)
+      assert Enum.count(edges.edges) == 5
+      for edge <- edges.edges, do: assert_resource(edge)
     end
 
   end
@@ -660,11 +650,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -673,12 +660,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll} = gql_post_data(%{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
-        assert foll.id == edge.cursor
-      end
+      for edge <- edges, do: assert_follow(edge)
     end
 
     test "works for a user" do
@@ -697,11 +681,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -710,12 +691,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
-        assert foll.id == edge.cursor
-      end
+      for edge <- edges, do: assert_follow(edge)
     end
 
     test "works for an instance admin" do
@@ -734,11 +712,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           followers {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{follow_basics()}
-                creator { #{user_basics()} }
-              }
+              #{follow_basics()}
+              creator { #{user_basics()} }
             }
           }
         }
@@ -747,12 +722,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
-      edges = assert_edge_list(folls2).edges
+      edges = assert_edges_page(folls2).edges
       assert Enum.count(edges) == 3
-      for edge <- edges do
-        foll = assert_follow(edge.node)
-        assert foll.id == edge.cursor
-      end
+      for edge <- edges, do: assert_follow(edge)
     end
   end
 
@@ -774,12 +746,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -788,11 +757,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
-      for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
-      end
+      for {like, edge} <- Enum.zip(likes, edges), do: assert_like(like, edge)
     end
 
     test "works for a user with a public user" do
@@ -813,12 +780,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -827,11 +791,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
-      for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
-      end
+      for {like, edge} <- Enum.zip(likes, edges), do: assert_like(like, edge)
     end
 
     test "works for an instance admin with a public user" do
@@ -852,12 +814,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           likes {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{like_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{like_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -866,11 +825,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
-      edges = assert_edge_list(likes2).edges
+      edges = assert_edges_page(likes2).edges
       assert Enum.count(edges) == Enum.count(likes)
-      for {like, edge} <- Enum.zip(likes, edges) do
-        assert_like(like, edge.node)
-      end
+      for {like, edge} <- Enum.zip(likes, edges), do: assert_like(like, edge)
     end
 
   end
@@ -893,12 +850,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -907,7 +861,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "empty for a user with a public collection" do
@@ -928,12 +882,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -942,7 +893,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
-      assert [] == assert_edge_list(flags2).edges
+      assert [] == assert_edges_page(flags2).edges
     end
 
     test "works for a user who has flagged a public collection" do
@@ -962,12 +913,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -976,11 +924,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
-      for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
-      end
+      for {flag, edge} <- Enum.zip(flags, edges), do: assert_flag(flag, edge)
     end
 
     test "works for an instance admin with a public user" do
@@ -1001,12 +947,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
           flags {
             #{page_basics()}
             edges {
-              cursor
-              node {
-                #{flag_basics()}
-                context { ... on Collection { #{collection_basics()} } }
-                creator { #{user_basics()} }
-              }
+              #{flag_basics()}
+              context { ... on Collection { #{collection_basics()} } }
+              creator { #{user_basics()} }
             }
           }
         }
@@ -1015,11 +958,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
-      edges = assert_edge_list(flags2).edges
+      edges = assert_edges_page(flags2).edges
       assert Enum.count(edges) == Enum.count(flags)
-      for {flag, edge} <- Enum.zip(flags, edges) do
-        assert_flag(flag, edge.node)
-      end
+      for {flag, edge} <- Enum.zip(flags, edges), do: assert_flag(flag, edge)
     end
 
     @tag :skip
