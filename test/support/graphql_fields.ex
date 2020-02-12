@@ -1,7 +1,7 @@
 defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def page_basics() do
-    "totalCount pageInfo { startCursor endCursor __typename }"
+    "totalCount pageInfo { startCursor endCursor hasPreviousPage hasNextPage __typename }"
   end
   
   def user_basics() do

@@ -59,49 +59,36 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_location(loc)
   end
 
-  def assert_node_list(list) do
-    assert %{"nodes" => nodes, "totalCount" => count} = list
-    assert is_integer(count)
-    assert is_list(nodes)
-    if nodes == [] do
-      assert count == 0 # remove me
-      page_info = %{
-        start_cursor: nil,
-        end_cursor: nil,
-        has_next_page: false,
-        has_previous_page: false,
-      }
-      %{nodes: [], total_count: count, page_info: page_info}
-    else
-      assert %{"pageInfo" => page} = list
-      assert %{"startCursor" => start, "endCursor" => ends} = page
-      assert is_binary(start)
-      assert is_binary(ends)
-      page_info = %{start_cursor: start, end_cursor: ends}
-      %{page_info: page_info, nodes: nodes, total_count: count}
-    end
+  def assert_page_info(page) do
+    assert %{"startCursor" => start, "endCursor" => ends} = page
+    assert %{"hasPreviousPage" => prev, "hasNextPage" => next} = page
+    assert is_binary(start) or is_nil(start)
+    assert is_binary(ends) or is_nil(ends)
+    assert is_boolean(prev) or is_nil(prev)
+    assert is_boolean(next) or is_nil(next)
+    %{
+      start_cursor: start,
+      end_cursor: ends,
+      has_previous_page: prev,
+      has_next_page: next,
+    }
+    |> Map.merge(page)
   end
 
-  def assert_edge_list(list) do
-    assert %{"edges" => edges, "totalCount" => count} = list
+  def assert_edges_page(list) do
+    assert %{"edges" => edges, "totalCount" => count, "pageInfo" => page} = list
     assert is_list(edges)
     assert is_integer(count)
+    page_info = assert_page_info(page)
     if edges == [] do
-      assert count == 0 # remove me
-      %{edges: [], total_count: count}
+      assert is_nil(page_info.start_cursor)
+      assert is_nil(page_info.end_cursor)
     else
-      assert %{"pageInfo" => page} = list
-      assert %{"startCursor" => start, "endCursor" => ends} = page
-      assert is_binary(start)
-      assert is_binary(ends)
-      edges = Enum.map(edges, fn e ->
-        assert %{"cursor" => cursor, "node" => node} = e
-        assert is_binary(cursor)
-        Map.merge(e, %{cursor: cursor, node: node})
-      end)
-      page_info = %{start_cursor: start, end_cursor: ends}
-      %{page_info: page_info, total_count: count, edges: edges}
+      assert is_binary(page_info.start_cursor)
+      assert is_binary(page_info.end_cursor)
     end
+    %{page_info: page_info, total_count: count, edges: edges}
+    |> Map.merge(list)
   end
 
   def assert_language(lang) do
@@ -116,6 +103,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     # assert is_binary(created)
     # assert is_binary(updated)
   end
+
   def assert_country(country), do: assert_language(country)
 
   def assert_auth_payload(ap) do
@@ -124,6 +112,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_me(me)
     assert %{"__typename" => "AuthPayload"} = ap
   end
+
   def assert_me(me) do
     assert %{"email" => email} = me
     assert is_binary(email)
@@ -145,6 +134,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       user: user}
     |> Map.merge(me)
   end
+
   def assert_me(%User{}=user, %{}=me) do
     me = assert_me(me)
     assert user.local_user.email == me.email
