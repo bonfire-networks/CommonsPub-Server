@@ -7,7 +7,7 @@ defmodule MoodleNet.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """
-  @max_body_size 1024 * 1024 * 10 # 10mb
+  @max_body_size 2048
   @furlex_media_types ~w(text/html)
 
   def fetch(url) when is_binary(url) do
