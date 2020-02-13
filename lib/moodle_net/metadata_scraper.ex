@@ -7,9 +7,31 @@ defmodule MoodleNet.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """
+  @max_body_size 1024 * 1024 * 10 # 10mb
+  @furlex_media_types ~w(text/html)
+
   def fetch(url) when is_binary(url) do
-    with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
-      {:ok, format_data(data, url)}
+    with {:ok, status, _headers, client} <- :hackney.get(url),
+         {:ok, contents} <- :hackney.body(client, @max_body_size),
+         {:ok, file_info} <- TwinkleStar.from_bytes(contents) do
+      data =
+        case unfurl(url, file_info) do
+          {:ok, data} -> data
+          {:error, _} -> %{}
+        end
+
+      {:ok, Map.put(data, :media_type, file_info.media_type)}
+    end
+  end
+
+  defp unfurl(url, %{media_type: media_type}) do
+    # HACK: furlex breaks if passed anything unsupported
+    if media_type in @furlex_media_types do
+      with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
+        {:ok, format_data(data, url)}
+      end
+    else
+      {:error, :furlex_unsupported_format}
     end
   end
 
