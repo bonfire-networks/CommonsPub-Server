@@ -93,12 +93,14 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   # FIXME: boilerplate code
   defp allow_delete?(user, context) do
-    allow_user_delete?(user, context) or user.local_user.is_instance_admin
+    user.local_user.is_instance_admin or allow_user_delete?(user, context)
   end
 
   defp allow_user_delete?(user, %{__struct__: type, creator_id: creator_id} = context) do
     type in [Flag, Like, Follow, Thread, Comment] and creator_id == user.id
   end
+
+  defp allow_user_delete?(_, _), do: false
 
   # def tag(_, _, info) do
   #   {:ok, Fake.tag()}
