@@ -7,13 +7,10 @@ defmodule MoodleNet.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """
-  @max_body_size 2048
   @furlex_media_types ~w(text/html)
 
   def fetch(url) when is_binary(url) do
-    with {:ok, status, _headers, client} <- :hackney.get(url),
-         {:ok, contents} <- :hackney.body(client, @max_body_size),
-         {:ok, file_info} <- TwinkleStar.from_bytes(contents) do
+    with {:ok, file_info} <- TwinkleStar.from_uri(url) do
       data =
         case unfurl(url, file_info) do
           {:ok, data} -> data
