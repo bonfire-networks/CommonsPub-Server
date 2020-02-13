@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, pointer} <- Pointers.one(id: id) do
       context = Pointers.follow!(pointer)
-      if user.local_user.is_instance_admin do
+      if allow_delete?(user, context) do
         do_delete(context)
       else
         GraphQL.not_permitted("delete")
@@ -90,6 +90,15 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   defp do_delete(%Flag{}=f), do: MoodleNet.Flags.resolve(f)
   defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
   defp do_delete(_), do: GraphQL.not_permitted("delete")
+
+  # FIXME: boilerplate code
+  defp allow_delete?(user, context) do
+    allow_user_delete?(user, context) or user.local_user.is_instance_admin
+  end
+
+  defp allow_user_delete?(user, %{__struct__: type, creator_id: creator_id} = context) do
+    type in [Flag, Like, Follow, Thread, Comment] and creator_id == user.id
+  end
 
   # def tag(_, _, info) do
   #   {:ok, Fake.tag()}
