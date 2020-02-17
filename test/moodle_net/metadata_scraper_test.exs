@@ -36,4 +36,16 @@ defmodule MoodleNet.MetadataScraperTest do
     assert {:ok, data} = Subject.fetch(url)
     assert data.image == "https://graphql.org/img/og_image.png"
   end
+
+  test "returns media type for remote files" do
+    urls = %{
+      "https://upload.wikimedia.org/wikipedia/commons/a/a9/US_Airways_A319-132_LAS_N838AW.jpg" => "image/jpeg",
+      "http://africau.edu/images/default/sample.pdf" => "application/pdf"
+    }
+
+    for {url, media_type} <- urls do
+      assert {:ok, data} = Subject.fetch(url)
+      assert data.media_type == media_type
+    end
+  end
 end
