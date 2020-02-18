@@ -29,7 +29,7 @@ defmodule MoodleNet.Users.Queries do
   end
 
   def join_to(q, :local_user, jq) do
-    join q, jq, [user: u], l in assoc(u, :local_user), as: :local_user
+    join q, jq, [user: u], assoc(u, :local_user), as: :local_user
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
@@ -135,9 +135,12 @@ defmodule MoodleNet.Users.Queries do
 
   ## preload
 
-  def preload(q, :actor) do
-    preload q, [actor: a], [actor: a]
+  def filter(q, {:preload, :actor}) do
+    preload q, [actor: a], actor: a
   end
 
+  def filter(q, {:preload, :local_user}) do
+    preload q, [local_user: u], local_user: u
+  end
 end
 

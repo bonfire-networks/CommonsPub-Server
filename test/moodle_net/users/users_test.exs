@@ -27,7 +27,7 @@ defmodule MoodleNet.UsersTest do
         assert user.local_user.email == attrs.email
         assert user.local_user.wants_email_digest == attrs.wants_email_digest
         assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -42,7 +42,7 @@ defmodule MoodleNet.UsersTest do
         assert user.local_user.email == attrs.email
         assert user.local_user.wants_email_digest == attrs.wants_email_digest
         assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -58,7 +58,7 @@ defmodule MoodleNet.UsersTest do
         assert user.local_user.email == attrs.email
         assert user.local_user.wants_email_digest == attrs.wants_email_digest
         assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -97,14 +97,14 @@ defmodule MoodleNet.UsersTest do
   describe "claim_confirm_email_token/2" do
     test "confirms a user's email" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
       assert user.local_user.confirmed_at
     end
 
     test "will not confirm if the token is expired" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert then = DateTime.add(DateTime.utc_now(), 60 * 60 * 49, :second)
 
       assert {:error, %TokenExpiredError{} = error} =
@@ -113,7 +113,7 @@ defmodule MoodleNet.UsersTest do
 
     test "will not claim twice" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
 
       assert {:error, %TokenAlreadyClaimedError{} = error} =
@@ -164,7 +164,7 @@ defmodule MoodleNet.UsersTest do
       refute token.reset_at
       assert {:ok, _} = Users.claim_password_reset(token.id, "password")
 
-      assert {:ok, updated_user} = Users.fetch(user.id)
+      assert {:ok, updated_user} = Users.one([:default, id: user.id])
       assert updated_user.local_user.password_hash != user.local_user.password_hash
     end
   end
@@ -175,7 +175,6 @@ defmodule MoodleNet.UsersTest do
       attrs = Fake.user()
       assert {:ok, user} = Users.update(user, attrs)
       assert user.name == attrs.name
-      assert user.actor.preferred_username == attrs.preferred_username
       assert user.local_user.email == attrs.email
       assert user.local_user.wants_email_digest == attrs.wants_email_digest
     end
