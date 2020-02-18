@@ -9,6 +9,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.{Flags, Follows, Likes}
 
+  defp collection_query(id, extra_fields \\ "") do
+    query "collection(collectionId: \"#{id}\")",
+      "#{collection_basics()} #{extra_fields}"
+  end
+  defp collections_query(page_opts \\ "", extra_fields \\ "") do
+    page_query "collections #{page_opts}",
+      "#{collection_basics()} #{extra_fields}"
+  end
+
+  # limit | after
+
   describe "collections" do
 
     test "works for a guest" do
@@ -21,13 +32,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll_3 = fake_collection!(bob, comm_2)
       coll_4 = fake_collection!(bob, comm_2)
       coll_5 = fake_collection!(bob, comm_2)
-      q = """
-      { collections {
-          #{page_basics()}
-          edges { #{collection_basics()} }
-        }
-      }
-      """
+      q = collections_query()
       assert %{"collections" => colls} = gql_post_data(%{query: q})
       edges = assert_edges_page(colls)
       assert Enum.count(edges.edges) == 5
@@ -35,6 +40,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
     end
 
   end
+
   describe "collection" do
 
     test "works for the owner" do
@@ -42,9 +48,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       conn = user_conn(user)
-      q = """
-      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
-      """
+      q = collection_query(coll.id)
       query = %{query: q}
       assert %{"collection" => coll2} = gql_post_data(conn, query)
       assert_collection(coll, coll2)
@@ -56,9 +60,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(user, comm)
       user2 = fake_user!()
       conn = user_conn(user2)
-      q = """
-      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
-      """
+      q = collection_query(coll.id)
       query = %{query: q}
       assert %{"collection" => coll2} = gql_post_data(query)
       assert_collection(coll, coll2)
@@ -68,9 +70,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       user = fake_user!()
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") { #{collection_basics()} } }
-      """
+      q = collection_query(coll.id)
       query = %{query: q}
       assert %{"collection" => coll2} = gql_post_data(query)
       assert_collection(coll, coll2)
@@ -257,12 +257,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myLike { #{like_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myLike" => nil} = coll2
@@ -274,12 +269,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!()
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myLike { #{like_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myLike" => nil} = coll2
@@ -291,12 +281,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myLike { #{like_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myLike" => nil} = coll2
@@ -309,12 +294,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!()
       conn = user_conn(bob)
       {:ok, like} = Likes.create(bob, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myLike { #{like_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myLike" => like2} = coll2
@@ -328,12 +308,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
       {:ok, like} = Likes.create(bob, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myLike { #{like_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myLike" => like2} = coll2
@@ -347,12 +322,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFollow { #{follow_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFollow" => nil} = coll2
@@ -364,12 +334,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!()
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFollow { #{follow_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFollow" => nil} = coll2
@@ -381,12 +346,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFollow { #{follow_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFollow" => nil} = coll2
@@ -399,12 +359,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!()
       conn = user_conn(bob)
       {:ok, follow} = Follows.create(bob, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFollow { #{follow_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFollow" => follow2} = coll2
@@ -418,12 +373,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
       {:ok, follow} = Follows.create(bob, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFollow { #{follow_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFollow" => follow2} = coll2
@@ -438,12 +388,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFlag { #{flag_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFlag { #{flag_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFlag" => nil} = coll2
@@ -455,12 +400,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!()
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFlag { #{flag_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFlag { #{flag_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFlag" => nil} = coll2
@@ -472,12 +412,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFlag { #{flag_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFlag { #{flag_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFlag" => nil} = coll2
@@ -490,12 +425,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!()
       conn = user_conn(bob)
       {:ok, flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFlag { #{flag_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFlag { #{flag_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFlag" => flag2} = coll2
@@ -509,12 +439,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
       {:ok, flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFlag { #{flag_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "myFlag { #{flag_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"myFlag" => flag2} = coll2
@@ -529,17 +454,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} creator { #{user_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "creator { #{user_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"creator" => user} = coll2
       assert_user(alice, user)
     end
+
   end
   describe "collection.community" do
 
@@ -547,12 +468,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} community { #{community_basics()} }
-        }
-      }
-      """
+      q = collection_query(coll.id, "community { #{community_basics()} }")
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"community" => comm2} = coll2
@@ -568,16 +484,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          resources {
-            #{page_basics()}
-            edges { #{resource_basics()} }
-          }
-        }
-      }
-      """
+      q = collection_query(coll.id, page_subquery("resources", resource_basics()))
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
@@ -591,15 +498,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} resources {
-            #{page_basics()}
-            edges { #{resource_basics()} }
-          }
-        }
-      }
-      """
+      q = collection_query(coll.id, page_subquery("resources", resource_basics()))
       conn = user_conn(alice)
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
@@ -614,15 +513,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} resources {
-            #{page_basics()}
-            edges { #{resource_basics()} }
-          }
-        }
-      }
-      """
+      q = collection_query(coll.id, page_subquery("resources", resource_basics()))
       conn = user_conn(alice)
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
@@ -644,19 +535,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll = fake_collection!(alice, comm)
       {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          followers {
-            #{page_basics()}
-            edges {
-              #{follow_basics()}
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery("followers", "#{follow_basics()} creator { #{user_basics()} }")
       assert %{"collection" => coll} = gql_post_data(%{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
@@ -675,19 +555,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       conn = user_conn(mallory)
       {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          followers {
-            #{page_basics()}
-            edges {
-              #{follow_basics()}
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery("followers", "#{follow_basics()} creator { #{user_basics()} }")
       assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
@@ -706,19 +575,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       conn = user_conn(mallory)
       {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
       {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          followers {
-            #{page_basics()}
-            edges {
-              #{follow_basics()}
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery("followers", "#{follow_basics()} creator { #{user_basics()} }")
       assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
       coll = assert_collection(coll)
       assert %{"followers" => folls2} = coll
@@ -740,20 +598,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       {:ok, bob_like} = Likes.create(bob, coll, %{is_local: true})
       {:ok, eve_like} = Likes.create(eve, coll, %{is_local: true})
       likes = [eve_like, bob_like, alice_like]
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          likes {
-            #{page_basics()}
-            edges {
-              #{like_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "likes", """
+          #{like_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
@@ -774,20 +626,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       likes = [eve_like, bob_like, alice_like]
       mallory = fake_user!()
       conn = user_conn(mallory)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          likes {
-            #{page_basics()}
-            edges {
-              #{like_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "likes", """
+          #{like_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
@@ -808,20 +654,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       likes = [eve_like, bob_like, alice_like]
       mallory = fake_user!(%{is_instance_admin: true})
       conn = user_conn(mallory)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          likes {
-            #{page_basics()}
-            edges {
-              #{like_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "likes", """
+          #{like_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"likes" => likes2} = coll2
@@ -844,20 +684,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       {:ok, bob_flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
       {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
       flags = [eve_flag, bob_flag, alice_flag]
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          flags {
-            #{page_basics()}
-            edges {
-              #{flag_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "flags", """
+          #{flag_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
@@ -876,20 +710,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       flags = [eve_flag, bob_flag, alice_flag]
       mallory = fake_user!()
       conn = user_conn(mallory)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          flags {
-            #{page_basics()}
-            edges {
-              #{flag_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "flags", """
+          #{flag_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
@@ -907,20 +735,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
       flags = [eve_flag]
       conn = user_conn(eve)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          flags {
-            #{page_basics()}
-            edges {
-              #{flag_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "flags", """
+          #{flag_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
@@ -941,20 +763,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       flags = [eve_flag, bob_flag, alice_flag]
       mallory = fake_user!(%{is_instance_admin: true})
       conn = user_conn(mallory)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()}
-          flags {
-            #{page_basics()}
-            edges {
-              #{flag_basics()}
-              context { ... on Collection { #{collection_basics()} } }
-              creator { #{user_basics()} }
-            }
-          }
-        }
-      }
-      """
+      q = collection_query coll.id,
+        page_subquery(
+          "flags", """
+          #{flag_basics()}
+          context { ... on Collection { #{collection_basics()} } }
+          creator { #{user_basics()} }
+          """
+        )
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"flags" => flags2} = coll2
