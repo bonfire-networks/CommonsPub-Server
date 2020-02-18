@@ -8,7 +8,10 @@ defmodule MoodleNet.Workers.ObanLogger do
     end
 
     Sentry.Event.create_event(
-      message: "Worker Job failed",
+      message: """
+      #{meta.worker} Job failed.
+      #{inspect(meta.error)}
+      """,
       stacktrace: meta.stack,
       event_source: meta.worker,
       extra: %{job: meta.id, args: meta.args},
