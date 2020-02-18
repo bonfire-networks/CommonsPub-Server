@@ -311,7 +311,7 @@ defmodule ActivityPub.Actor do
 
         "MN:Collection" ->
           data
-          |> Map.put("resource", get_and_format_resources_for_actor(actor))
+          |> Map.put("resources", get_and_format_resources_for_actor(actor))
           |> Map.put("attributedTo", get_creator_ap_id(actor))
           |> Map.put("context", get_community_ap_id(actor))
 
