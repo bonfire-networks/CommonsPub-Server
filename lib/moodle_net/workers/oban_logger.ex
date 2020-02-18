@@ -14,7 +14,7 @@ defmodule MoodleNet.Workers.ObanLogger do
       """,
       stacktrace: meta.stack,
       event_source: meta.worker,
-      extra: %{job: meta.id, args: meta.args},
+      extra: %{job: meta.id, args: meta.args, kind: meta.kind},
       level: :error
     )
     |> Sentry.send_event()
