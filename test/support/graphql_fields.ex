@@ -1,5 +1,13 @@
 defmodule MoodleNetWeb.Test.GraphQLFields do
 
+  def query(query, fields), do: "{ #{subquery(query, fields)} }"
+
+  def subquery(query, fields), do: "#{query} { #{fields} }"
+
+  def page_query(query, fields), do: "{ #{page_subquery(query, fields)} }"
+
+  def page_subquery(query, fields), do: "#{query} { #{page_basics()} edges { #{fields} } }"
+
   def page_basics() do
     "totalCount pageInfo { startCursor endCursor hasPreviousPage hasNextPage __typename }"
   end
