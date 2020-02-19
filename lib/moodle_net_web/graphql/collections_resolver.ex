@@ -36,9 +36,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
-  def canonical_url_edge(%Collection{id: id, actor: %{canonical_url: nil}}, _, _) do
-    {:ok, Instance.base_url() <> "/collections/" <> id}
-  end
+  # def canonical_url_edge(%Collection{id: id, actor: %{canonical_url: nil}}, _, _) do
+  #   {:ok, Instance.base_url() <> "/collections/" <> id} # canonical URL should be set by AP, but we can use FE URL as fallback
+  # end
   def canonical_url_edge(%Collection{actor: %{canonical_url: url}}, _, _) do
     {:ok, url}
   end

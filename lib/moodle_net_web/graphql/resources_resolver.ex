@@ -29,12 +29,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       end
   end
 
-  # def canonical_url_edge(%Resource{canonical_url: nil}) do
-  #   {:ok, Instance.base_url() <> "/resource/" <> id}
-  # end
-  # def canonical_url_edge(%Collection{actor: %Actor{canonical_url: url}}) do
-  #   {:ok, url}
-  # end
+  def canonical_url_edge(%Resource{canonical_url: url}) do
+    {:ok, url}
+  end
 
   def batch_is_local_edge(_, ids) do
     {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])

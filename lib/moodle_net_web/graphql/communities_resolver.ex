@@ -19,9 +19,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       join: :follower_count, order: :list
   end
 
-  def canonical_url_edge(%Community{id: id, actor: %{canonical_url: nil}}, _, _) do
-    {:ok, Instance.base_url() <> "/communities/" <> id}
-  end
+  # def canonical_url_edge(%Community{id: id, actor: %{canonical_url: nil}}, _, _) do
+  #   {:ok, Instance.base_url() <> "/communities/" <> id} # canonical URL should be set by AP, but we use FE URL as fallback
+  # end
   def canonical_url_edge(%Community{actor: %{canonical_url: url}}, _, _) do
     {:ok, url}
   end
