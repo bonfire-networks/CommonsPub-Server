@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.MoodleNet.DeactivateActorTest do
+defmodule Mix.Tasks.MoodleNet.TaskTest do
   use MoodleNet.DataCase
 
   alias ActivityPub.Actor
