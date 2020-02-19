@@ -3,14 +3,17 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Users.Queries do
 
-  alias MoodleNet.Actors
+  import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias MoodleNet.Actors
+  alias MoodleNet.Actors.Actor
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.{LocalUser, User}
-  import Ecto.Query
 
   def query(User) do
-    from u in User, as: :user
+    from u in User, as: :user,
+      join: a in assoc(u, :actor), as: :actor,
+      preload: [actor: a]
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -24,9 +27,9 @@ defmodule MoodleNet.Users.Queries do
 
   def join_to(q, spec, join_qualifier \\ :left)
 
-  def join_to(q, :actor, jq) do
-    join q, jq, [user: u], assoc(u, :actor), as: :actor
-  end
+  # def join_to(q, :actor, jq) do
+    # join q, jq, [user: u], assoc(u, :actor), as: :actor
+  # end
 
   def join_to(q, :local_user, jq) do
     join q, jq, [user: u], assoc(u, :local_user), as: :local_user
@@ -56,8 +59,8 @@ defmodule MoodleNet.Users.Queries do
 
   def filter(q, :default) do
     q
-    |> filter([:deleted, join: {:actor, :inner}, join: :local_user])
-    |> preload([actor: a, local_user: u], [actor: a, local_user: u])
+    |> filter([:deleted, join: :local_user])
+    |> preload([local_user: u], [local_user: u])
   end
 
   ## by join
@@ -74,7 +77,7 @@ defmodule MoodleNet.Users.Queries do
     |> where([follow: f, user: u], not is_nil(u.published_at) or not is_nil(f.id))
     |> filter(:disabled)
   end
-
+  
   def filter(q, {:user, nil}) do # guest
     filter q, ~w(disabled private)a
   end

@@ -29,21 +29,18 @@ defmodule MoodleNet.UsersTest do
       user = fake_user!()
       assert {:ok, fetched} = Users.one(id: user.id)
       assert fetched.id == user.id
-      assert_user_equal fetched, user
     end
 
     test "by username" do
       user = fake_user!()
       assert {:ok, fetched} = Users.one(username: user.actor.preferred_username)
       assert fetched.id == user.id
-      assert_user_equal fetched, user
     end
 
     test "by email" do
       user = fake_user!()
       assert {:ok, fetched} = Users.one(email: user.local_user.email)
       assert fetched.id == user.id
-      assert_user_equal fetched, user
     end
 
     test "fails for missing" do

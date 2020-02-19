@@ -143,5 +143,4 @@ defmodule MoodleNet.Meta.Pointers do
   defp loader(Resource, filters), do: Resources.many(filters)
   defp loader(Thread, filters), do: Threads.many(filters)
   defp loader(User, filters), do: Users.many([:default | filters])
-
 end
