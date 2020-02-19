@@ -77,6 +77,22 @@ defmodule MoodleNet.ReleaseTasks do
     Ecto.Migrator.run(repo, migrations_path, :down, step: 1)
   end
 
+  def reset_db(step: 1) do
+    start_apps()
+    start_repos()
+
+    Enum.each(@repos, &reset_repo/1)
+
+    stop_services()
+  end
+
+  defp reset_repo(repo) do
+    app = Keyword.get(repo.config, :otp_app)
+    Logger.info("Running rollback for #{app}")
+    migrations_path = priv_path_for(repo, "migrations")
+    Ecto.Migrator.run(repo, migrations_path, :down, all: true)
+  end
+
   def seed_db() do
     start_apps()
 
