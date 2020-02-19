@@ -6,9 +6,8 @@ defmodule MoodleNet.Users.Queries do
   import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
   alias MoodleNet.Actors
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
 
   def query(User) do
     from u in User, as: :user,
@@ -26,10 +25,6 @@ defmodule MoodleNet.Users.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
-
-  # def join_to(q, :actor, jq) do
-    # join q, jq, [user: u], assoc(u, :actor), as: :actor
-  # end
 
   def join_to(q, :local_user, jq) do
     join q, jq, [user: u], assoc(u, :local_user), as: :local_user
@@ -135,15 +130,5 @@ defmodule MoodleNet.Users.Queries do
   def filter(q, {:order, :timeline_desc}) do
     order_by q, [user: u], [desc: u.id]
   end
-
-  ## preload
-
-  # def filter(q, {:preload, :actor}) do
-  #   preload q, [actor: a], actor: a
-  # end
-
-  # def filter(q, {:preload, :local_user}) do
-  #   preload q, [local_user: u], local_user: u
-  # end
 end
 
