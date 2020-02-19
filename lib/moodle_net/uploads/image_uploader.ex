@@ -6,7 +6,5 @@ defmodule MoodleNet.Uploads.ImageUploader do
 
   def allowed_extensions, do: ~w(gif jpg jpeg png)
 
-  def transform(file) do
-    :skip
-  end
+  def transform(_file), do: :skip
 end
