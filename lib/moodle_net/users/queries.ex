@@ -135,12 +135,12 @@ defmodule MoodleNet.Users.Queries do
 
   ## preload
 
-  def filter(q, {:preload, :actor}) do
-    preload q, [actor: a], actor: a
-  end
+  # def filter(q, {:preload, :actor}) do
+  #   preload q, [actor: a], actor: a
+  # end
 
-  def filter(q, {:preload, :local_user}) do
-    preload q, [local_user: u], local_user: u
-  end
+  # def filter(q, {:preload, :local_user}) do
+  #   preload q, [local_user: u], local_user: u
+  # end
 end
 
