@@ -4,7 +4,7 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
 
   @shortdoc "Deactivate a remote actor, disabling incoming federation from it"
 
-  @usage "mix task moodle_net.deactivate_actor ACTOR_URI"
+  @usage "mix moodle_net.deactivate_actor ACTOR_URI"
 
   @moduledoc """
   This mix task is useful for disabling abusive actors without rejecting their entire instance.

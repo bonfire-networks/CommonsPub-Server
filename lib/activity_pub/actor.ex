@@ -242,7 +242,7 @@ defmodule ActivityPub.Actor do
   end
 
   def get_by_ap_id!(ap_id) do
-    with {:ok, actor} <- get_by_ap_id(ap_id) do
+    with {:ok, actor} <- get_cached_by_ap_id(ap_id) do
       actor
     else
       {:error, _e} -> nil
