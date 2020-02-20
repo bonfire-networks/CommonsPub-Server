@@ -317,23 +317,6 @@ defmodule MoodleNet.Users do
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val
 
-  @spec preload(User.t(), Keyword.t()) :: User.t()
-  def preload(user, opts \\ [])
-
-  def preload(%User{} = user, opts) do
-    Repo.preload(user, [:local_user, :actor], opts)
-  end
-
-  @spec preload_actor(User.t(), Keyword.t()) :: User.t()
-  def preload_actor(%User{} = user, opts \\ []) do
-    Repo.preload(user, :actor, opts)
-  end
-
-  @spec preload_local_user(User.t(), Keyword.t()) :: User.t()
-  def preload_local_user(%User{} = user, opts \\ []) do
-    Repo.preload(user, :local_user, opts)
-  end
-
   defp default_inbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_inbox_query_contexts)
