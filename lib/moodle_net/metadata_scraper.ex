@@ -8,9 +8,10 @@ defmodule MoodleNet.MetadataScraper do
   Given a url, it downloads the html metadata
   """
   @furlex_media_types ~w(text/html)
+  @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do
-    with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+    with {:ok, file_info} <- TwinkleStar.from_uri(url, @request_opts) do
       data =
         case unfurl(url, file_info) do
           {:ok, data} -> data
@@ -24,7 +25,7 @@ defmodule MoodleNet.MetadataScraper do
   defp unfurl(url, %{media_type: media_type}) do
     # HACK: furlex breaks if passed anything unsupported
     if media_type in @furlex_media_types do
-      with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
+      with {:ok, data} <- Furlex.unfurl(url, @request_opts) do
         {:ok, format_data(data, url)}
       end
     else
