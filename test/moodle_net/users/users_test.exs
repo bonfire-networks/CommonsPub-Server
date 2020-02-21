@@ -51,10 +51,6 @@ defmodule MoodleNet.UsersTest do
     end
   end
 
-  describe "many/1" do
-    
-  end
-
   describe "register/1" do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
