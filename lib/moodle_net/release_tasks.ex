@@ -77,7 +77,7 @@ defmodule MoodleNet.ReleaseTasks do
     Ecto.Migrator.run(repo, migrations_path, :down, step: 1)
   end
 
-  def reset_db(step: 1) do
+  def reset_db() do
     start_apps()
     start_repos()
 
