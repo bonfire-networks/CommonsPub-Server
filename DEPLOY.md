@@ -86,8 +86,6 @@ $ make build
 $ make tag_latest
 ```
 
-(During subsequent builds, you may want to build using the docker cache: `make build_with_cache`)
-
 4. Start the docker containers with docker-compose:
 
 ```sh

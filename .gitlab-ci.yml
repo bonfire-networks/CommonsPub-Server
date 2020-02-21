@@ -69,7 +69,7 @@ staging-build-and-push:
     - apk add --update --no-cache build-base cmake git curl
     - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - make build_with_cache
+    - make build
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Skipped pushing to Docker Hub"; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Skipped deploying to staging"; fi
   only:
@@ -85,8 +85,8 @@ stable-build-and-push:
     - apk add --update --no-cache build-base cmake git curl
     - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - make build_with_cache
-    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Skipped pushing to Docker Hub"; fi
-    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Skipped deploying to HQ sites"; fi
+    - make build
+    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Push to Docker Hub or skip if login details missing..."; fi
+    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
   - master

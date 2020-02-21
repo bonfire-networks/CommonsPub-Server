@@ -8,7 +8,7 @@ help:
 	@echo "$(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build: ## Build the Docker image
+build_without_cache: ## Build the Docker image
 	@echo APP_NAME=$(APP_NAME)
 	@echo APP_VSN=$(APP_VSN)
 	@echo APP_BUILD=$(APP_BUILD)
@@ -26,7 +26,7 @@ build: ## Build the Docker image
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
-build_with_cache: ## Build the Docker image using previous cache
+build: ## Build the Docker image using previous cache
 	@echo APP_NAME=$(APP_NAME)
 	@echo APP_VSN=$(APP_VSN)
 	@echo APP_BUILD=$(APP_BUILD)
