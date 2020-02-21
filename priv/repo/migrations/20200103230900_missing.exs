@@ -61,7 +61,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     select mn_comment.thread_id as thread_id, max(mn_comment.id) as comment_id
     from mn_comment
     group by mn_comment.thread_id
-    """     
+    """
 
     :ok = execute """
     create view mn_user_last_activity as
@@ -69,7 +69,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     from mn_user left join mn_feed_activity
     on mn_user.outbox_id = mn_feed_activity.feed_id
     group by mn_user.id
-    """     
+    """
 
     :ok = execute """
     create view mn_community_last_activity as
@@ -77,7 +77,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     from mn_community left join mn_feed_activity
     on mn_community.outbox_id = mn_feed_activity.feed_id
     group by mn_community.id
-    """     
+    """
 
     :ok = execute """
     create view mn_collection_last_activity as
@@ -85,7 +85,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     from mn_collection left join mn_feed_activity
     on mn_collection.outbox_id = mn_feed_activity.feed_id
     group by mn_collection.id
-    """     
+    """
 
     :ok = execute """
     create view mn_follower_count as
@@ -143,7 +143,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     where mn_follow.deleted_at is null
     group by mn_collection.id
     """
-    
+
     :ok = execute """
     create view mn_thread_follower_count as
     select mn_thread.id as thread_id,
@@ -159,8 +159,8 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     :ok = execute "drop view mn_thread_last_comment"
     :ok = execute "drop aggregate max(uuid)"
     :ok = execute "drop aggregate min(uuid)"
-    :ok = execute "drop function max_uuid"
-    :ok = execute "drop function min_uuid"
+    :ok = execute "drop function max_uuid(uuid, uuid)"
+    :ok = execute "drop function min_uuid(uuid, uuid)"
   end
 
 end
