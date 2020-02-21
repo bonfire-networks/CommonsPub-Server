@@ -79,5 +79,7 @@ COPY config/Caddyfile /opt/app/Caddyfile
 COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
 RUN chmod +x /opt/app/shutdown-instance.sh
 
+ARG BACKEND_PROXY_ON
+
 # start
-CMD trap 'exit' INT; caddy --conf /opt/app/Caddyfile
+CMD trap 'exit' INT; if [ "$BACKEND_PROXY_ON" = "true" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/${APP_NAME} start ; fi
