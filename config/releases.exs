@@ -10,7 +10,7 @@ config :moodle_net, MoodleNet.Repo,
 
 hostname = System.fetch_env!("HOSTNAME")
 desc = System.fetch_env("INSTANCE_DESCRIPTION")
-port = 4001 # String.to_integer(System.get_env("PORT", "4000"))
+port = String.to_integer(System.get_env("PORT", "4000"))
 base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
 
 config :moodle_net, MoodleNet.Instance,

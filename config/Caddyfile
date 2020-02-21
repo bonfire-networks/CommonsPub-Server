@@ -25,7 +25,7 @@
   on startup /opt/app/bin/moodle_net start &
 
 
-  proxy /proxy-elixir/ 127.0.0.1:4001 {
+  proxy /proxy-elixir/ 127.0.0.1:{$PORT} {
 
     without /proxy-elixir
     transparent
@@ -34,7 +34,7 @@
 
 
   rewrite / {
-    if {$FRONTEND_HOSTNAME} not {$HOSTNAME} # if frontend is served on another domain, we'll proxy that
+    if {$FRONTEND_HOSTNAME} not {$HOSTNAME} # if frontend is served on another domain, proxy that
     if {path} not_starts_with /uploads
     if {path} not_starts_with /devops
     if {path} not_starts_with /proxy-elixir
