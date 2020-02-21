@@ -103,6 +103,7 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     group by mn_like.context_id
     """
 
+    :ok = execute "drop view mn_user_follower_count"
     :ok = execute "drop view mn_user_following_count"
     :ok = execute "drop view mn_community_follower_count"
     :ok = execute "drop view mn_collection_follower_count"
