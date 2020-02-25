@@ -7,9 +7,9 @@ defmodule MoodleNet.Uploads.Definition do
   @callback allowed_extensions() :: [binary] | :all
   @callback transform(Storage.file_source()) :: {command :: atom, arguments :: [binary]} | :skip
 
-  defmacro __using__(opts) do
+  defmacro __using__(_opts) do
     quote do
-      @behaviour __MODULE__
+      @behaviour MoodleNet.Uploads.Definition
     end
   end
 end
