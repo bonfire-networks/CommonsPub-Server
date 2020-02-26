@@ -103,18 +103,18 @@ defmodule MoodleNet.Repo.Migrations.Missing do
     group by mn_like.context_id
     """
 
-    :ok = execute "drop view mn_user_follower_count"
-    :ok = execute "drop view mn_user_following_count"
-    :ok = execute "drop view mn_community_follower_count"
-    :ok = execute "drop view mn_collection_follower_count"
-    :ok = execute "drop view mn_thread_follower_count"
+    :ok = execute "drop view if exists mn_user_follower_count"
+    :ok = execute "drop view if exists mn_user_following_count"
+    :ok = execute "drop view if exists mn_community_follower_count"
+    :ok = execute "drop view if exists mn_collection_follower_count"
+    :ok = execute "drop view if exists mn_thread_follower_count"
 
   end
 
   def down do
 
-    :ok = execute "drop view mn_follower_count"
-    :ok = execute "drop view mn_liker_count"
+    :ok = execute "drop view if exists mn_follower_count"
+    :ok = execute "drop view if exists mn_liker_count"
 
     ### follower counts - copypasta from refactor migration to preserve downness
 

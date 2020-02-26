@@ -16,7 +16,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     {"en", "eng", "English", "English"}
   ]
   @tag_categories ["Hashtag", "K-12 Classification"]
-    
+
   @countries [
     {"nl", "nld", "Netherlands", "Nederland"}
   ]
@@ -62,7 +62,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     create index(:mn_feed_subscription, :feed_id)
 
     # countries
-    
+
     create table(:mn_country) do
       add :iso_code2, :string, size: 2
       add :iso_code3, :string, size: 3
@@ -202,7 +202,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end
 
     create index(:mn_local_user_reset_password_token, :local_user_id)
-    
+
     # a community is a group actor that is home to collections,
     # threads and members
     create table(:mn_community) do
@@ -321,7 +321,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       add :is_local, :boolean, null: false
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
-    
+
     create index(:mn_follow, :updated_at)
     create unique_index(:mn_follow, :canonical_url)
     create unique_index(:mn_follow,[:creator_id, :context_id], where: "deleted_at is null")
@@ -484,7 +484,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     flush()
 
     now = DateTime.utc_now()
-    
+
     tables = Enum.map(@meta_tables, fn name ->
       %{"id" => ULID.bingenerate(), "table" => name}
     end)
@@ -492,7 +492,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
       Map.put(acc, table, id)
     end)
-    
+
     :ok = execute """
     create function insert_pointer()
     returns trigger
@@ -512,7 +512,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     end;
     $$ language plpgsql
     """
-    
+
     for table <- @meta_tables do
       :ok = execute """
       create trigger "insert_pointer_#{table}"
@@ -522,7 +522,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
       """
     end
 
-    
+
     langs =
       Enum.map(@languages, fn {code2, code3, name, name2} ->
         %{"id" => ULID.bingenerate(),
@@ -599,7 +599,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     """
 
     # thread
-    
+
     :ok = execute """
     create view mn_thread_follower_count as
     select mn_thread.id as thread_id,
@@ -627,15 +627,16 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
   def down do
 
     for table <- @meta_tables do
-      :ok = execute "drop trigger insert_pointer_#{table}"
+      :ok = execute "drop trigger insert_pointer_#{table} on #{table}"
     end
-    :ok = execute "drop function insert_pointer";
 
-    :ok = execute "drop view mn_user_following_count"
-    :ok = execute "drop view mn_thread_follower_count"
-    :ok = execute "drop view mn_collection_follower_count"
-    :ok = execute "drop view mn_community_follower_count"
-    :ok = execute "drop view mn_user_follower_count"
+    :ok = execute "drop function insert_pointer()";
+
+    :ok = execute "drop view if exists mn_user_following_count"
+    :ok = execute "drop view if exists mn_thread_follower_count"
+    :ok = execute "drop view if exists mn_collection_follower_count"
+    :ok = execute "drop view if exists mn_community_follower_count"
+    :ok = execute "drop view if exists mn_user_follower_count"
 
     flush()
 
@@ -651,7 +652,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop index(:mn_activity, :updated_at)
     drop index(:mn_activity, :published_at)
     drop table(:mn_activity)
-    
+
     drop index(:mn_tagging, :updated_at)
     drop index(:mn_tagging, :canonical_url)
     drop index(:mn_tagging, [:tag_id, :creator_id, :context_id])
@@ -670,13 +671,13 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop table(:mn_tag_category)
 
     drop index(:mn_feature, :canonical_url)
-    drop index(:mn_feature, [:user_id, :context_id])
+    drop index(:mn_feature, [:creator_id, :context_id])
     drop index(:mn_feature, :context_id)
     drop table(:mn_feature)
 
     drop index(:mn_block, :updated_at)
     drop index(:mn_block, :canonical_url)
-    drop index(:mn_block, [:user_id, :context_id])
+    drop index(:mn_block, [:creator_id, :context_id])
     drop index(:mn_block, :context_id)
     drop table(:mn_block)
 
@@ -741,14 +742,12 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
 
     drop index(:mn_local_user_reset_password_token, :local_user_id)
     drop table(:mn_local_user_reset_password_token)
-    
+
     drop index(:mn_local_user, :email)
-    drop table(:mn_local_user, :email)
+    drop table(:mn_local_user)
 
     drop index(:mn_actor, [:preferred_username, :peer_id], name: :mn_actor_preferred_username_peer_id_index)
     drop index(:mn_actor, [:preferred_username], name: :mn_actor_peer_id_null_index)
-    drop index(:mn_actor, :peer_id)
-    drop index(:mn_actor, :canonical_url)
     drop table(:mn_actor)
 
     drop index(:mn_peer, :domain)
@@ -769,7 +768,7 @@ defmodule MoodleNet.Repo.Migrations.BigRefactor do
     drop index(:mn_country, :iso_code3)
     drop table(:mn_country)
 
-    drop index(:mn_feed_subscription, [:subscriber_id, :feed_id], name: :mn_feed_subscription)
+    drop index(:mn_feed_subscription, [:subscriber_id, :feed_id], name: :mn_feed_subscription_subscriber_feed_idx)
     drop index(:mn_feed_subscription, :feed_id)
     drop index(:mn_feed_subscription, :subscriber_id)
     drop table(:mn_feed_subscription)
