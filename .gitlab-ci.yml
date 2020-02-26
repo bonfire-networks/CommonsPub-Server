@@ -70,8 +70,8 @@ staging-build-and-push:
     - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - make build
-    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Skipped pushing to Docker Hub"; fi
-    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Skipped deploying to staging"; fi
+    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Push to Docker Hub or skip if login details missing..."; fi
+    - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
   - develop
 
