@@ -40,7 +40,7 @@
     to /proxy-frontend{uri}
   }
 
-  proxy /proxy-frontend/ {$FRONTEND_HOSTNAME} {
+  proxy /proxy-frontend/ https://{$FRONTEND_HOSTNAME} {
     except /uploads /devops /proxy-elixir
     without /proxy-frontend
     #cache
