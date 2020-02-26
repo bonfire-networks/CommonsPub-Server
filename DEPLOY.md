@@ -71,8 +71,8 @@ GNU Make 4.2.1
 2. Clone this repository and change into the directory:
 
 ```sh
-$ git clone https://gitlab.com/moodlenet/servers/federated.git
-$ cd federated
+$ git clone https://gitlab.com/moodlenet/servers/federated.git moodlenet-backend
+$ cd moodlenet-backend
 ```
 
 3. Build the docker image.
@@ -102,26 +102,27 @@ $ docker-compose up -d
 
 #### Docker commands
 
-The first time you launch the docker instance the database may not be created.
-There are several commands to make the first launch easier.
-We will use `docker-compose` to show the commands:
-
-* `docker-compose run --rm web bin/moodle_net create_db` creates the database
-* `docker-compose run --rm web bin/moodle_net migrate_db` creates the database and runs the migrations
-* `docker-compose run --rm web bin/moodle_net drop_db` drops the database
-
-Other important commands are:
-
 * `docker-compose up` launches the service, by default at the port 4000.
-* `docker-compose run --rm web /bin/sh` runs a simple shell inside of the container, useful to explore the image
-* `docker-compose run --rm web bin/moodle_net console` runs an `iex` console
-* `docker-compose exec web bin/moodle_net remote_console` runs an `iex` console when the service is already running.
-* `docker-compose run --rm web bin/moodle_net help` returns all the possible commands
+* `docker-compose run --rm backend bin/moodle_net` returns all the possible commands
+* `docker-compose run --rm backend /bin/sh` runs a simple shell inside of the container, useful to explore the image
+* `docker-compose run --rm backend bin/moodle_net start_iex` starts a new `iex` console
+* `docker-compose run backend bin/moodle_net remote` runs an `iex` console when the service is already running.
 
+There are some useful release tasks under `MoodleNet.ReleaseTasks.` that can be run in an `iex` console:
 
-However, we can do so by running the following command in an `iex` console:
+- `create_db` starts the app, creates the DB, and stops 
+- `create_repos` creates the DB on already running app
+- `drop_db` starts the app, deletes the DB, and stops  
+- `drop_repos` deletes the DB 
+- `empty_db` starts the app, runs all down migrations, and stops  
+- `empty_repos` runs all down migrations
+- `migrate_db` starts the app, runs all up migrations, and stops 
+- `migrate_repos` runs all up migrations
+- `rollback_db` rolls back the previous migration
 
-`iex> MoodleNet.ReleaseTasks.seed_db([])`
+For example: 
+`iex> MoodleNet.ReleaseTasks.create_db` to create your database if it doesn't already exist.
+
 
 #### Building a Docker image
 
