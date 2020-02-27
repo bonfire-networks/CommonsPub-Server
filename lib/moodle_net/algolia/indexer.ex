@@ -14,13 +14,18 @@ defmodule MoodleNet.Algolia.Indexer do
   alias MoodleNet.Likes.LikerCounts
 
   defp check_envs() do
-    System.get_env("ALGOLIA_ID") and
-      System.get_env("ALGOLIA_SECRET") and
+    System.get_env("ALGOLIA_ID") &&
+      System.get_env("ALGOLIA_SECRET") &&
       System.get_env("ALGOLIA_INDEX")
   end
 
-  def index_object(object) do
-    if check_envs() do
+  defp supported_type(%Community{} = _object), do: true
+  defp supported_type(%Collection{} = _object), do: true
+  defp supported_type(%Resource{} = _object), do: true
+  defp supported_type(_), do: false
+
+  def maybe_index_object(object) do
+    if check_envs() && supported_type(object) do
       object
       |> format_object()
       |> push_object()
