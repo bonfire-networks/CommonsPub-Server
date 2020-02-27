@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def batch_my_like_edge(_user, []), do: %{}
   def batch_my_like_edge(user, ids) do
-    {:ok, likes} = Likes.edges(&(&1.context_id), creator_id: user.id, context_id: ids)
+    {:ok, likes} = Likes.edges(&(&1.context_id), [:deleted, creator_id: user.id, context_id: ids])
     likes
   end
 

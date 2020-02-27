@@ -35,27 +35,22 @@ defmodule MoodleNet.Uploads.Storage do
   end
 
   defp upload_provider do
-    provider_config = Application.fetch_env!(:moodle_net, __MODULE__) |> Keyword.fetch!(:provider)
-
-    {:ok, provider} =
-      case provider_config do
-        provider when is_atom(provider) -> provider.new()
-        [provider, config] when is_atom(provider) -> apply(provider, :new, config)
-      end
+    {:ok, provider} = :moodle_net
+    |> Application.fetch_env!(MoodleNet.Uploads)
+    |> Belt.Provider.Filesystem.new()
 
     provider
   end
 
-  defp get_media_type(%{path: path}), do: TreeMagic.from_filepath(path)
-
-  defp get_metadata(%{path: path}) do
-    with {:ok, binary} <- File.read(path) do
-      case FormatParser.parse(binary) do
-        {:error, "Unknown"} -> {:ok, %{}}
-        info when is_map(info) -> {:ok, Map.from_struct(info)}
-        other -> other
-      end
+  defp get_media_type(%{path: path}) do
+    with {:ok, info} <- TwinkleStar.from_filepath(path) do
+      {:ok, info.media_type}
     end
+  end
+
+  defp get_metadata(%{path: _path}) do
+    # TODO
+    {:ok, %{}}
   end
 
   defp allow_extension(upload_def, path) when is_binary(path) do

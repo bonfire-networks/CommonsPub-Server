@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Flags, Likes}
+  alias MoodleNet.{Flags, Likes, Resources}
 
   describe "resource" do
 
@@ -24,7 +24,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       res2 = assert_resource(res, res2)
       assert res2.is_public == true
       assert res2.is_disabled == false
-      assert res2.is_local == true
     end
 
   end
@@ -55,7 +54,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert res.license == ri["license"]
       assert res.is_public == true
       assert res.is_disabled == false
-      assert res.is_local == true
     end
 
     test "does not work for a guest" do
@@ -102,7 +100,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert res.license == ri["license"]
       assert res.is_public == true
       assert res.is_disabled == false
-      assert res.is_local == true
     end
 
     test "works for the collection creator" do
@@ -130,7 +127,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert res.license == ri["license"]
       assert res.is_public == true
       assert res.is_disabled == false
-      assert res.is_local == true
     end
 
     test "works for the community creator" do
@@ -158,7 +154,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       assert res.license == ri["license"]
       assert res.is_public == true
       assert res.is_disabled == false
-      assert res.is_local == true
     end
 
     test "does not work for a guest" do
@@ -713,7 +708,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       eve = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      res = fake_resource!(alice, coll, %{is_local: true})
+      res = fake_resource!(alice, coll)
       {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
       {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
       {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
@@ -746,7 +741,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       eve = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      res = fake_resource!(alice, coll, %{is_local: true})
+      res = fake_resource!(alice, coll)
       {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
       {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
       {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
@@ -781,7 +776,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       eve = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      res = fake_resource!(alice, coll, %{is_local: true})
+      res = fake_resource!(alice, coll)
       {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
       {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
       {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})
@@ -820,7 +815,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       eve = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      res = fake_resource!(alice, coll, %{is_local: true})
+      res = fake_resource!(alice, coll)
       {:ok, alice_flag} = Flags.create(alice, res, %{is_local: true, message: "naughty"})
       {:ok, bob_flag} = Flags.create(bob, res, %{is_local: true, message: "naughty"})
       {:ok, eve_flag} = Flags.create(eve, res, %{is_local: true, message: "naughty"})

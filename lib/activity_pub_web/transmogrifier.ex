@@ -18,6 +18,15 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Translates MN Entity to an AP compatible format
   """
+  def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Group"}} = data) do
+    data =
+      data
+      |> Map.merge(Utils.make_json_ld_header())
+      |> Map.delete("bcc")
+
+    {:ok, data}
+  end
+
   def prepare_outgoing(%{"type" => "Create", "object" => object_id} = data) do
     object =
       object_id
@@ -216,7 +225,7 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with :ok <- Actor.update_actor_data_by_ap_id(actor_id, object),
+    with {:ok, _} <- Actor.update_actor_data_by_ap_id(actor_id, object),
          {:ok, actor} <- Actor.get_by_ap_id(actor_id),
          {:ok, _} <- Actor.set_cache(actor) do
       ActivityPub.update(%{

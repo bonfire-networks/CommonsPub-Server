@@ -4,8 +4,18 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
+  alias MoodleNet.{Common, GraphQL}
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Likes.Like
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Features.Feature
+  alias MoodleNet.Flags.Flag
+  alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Batching.Edges
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
@@ -57,24 +67,40 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   # def followed(%Follow{}=follow,_,info)
 
-  def delete(%{context_id: id},_info) do
-    # with {:ok, pointer} <- Pointers.one(id: id) do
-    #   thing = meta.follow!(pointer)
-    #   case thing do
-    #     %Collection{} ->
-    #     %Comment{} -> :comment
-    #     %Community{} -> :community
-    #     %Flag{} -> :flag
-    #     %Follow{} -> :follow
-    #     %Like{} -> :like
-    #     %Resource{} -> :resource
-    #     %Thread{} -> :thread
-    #     %User{} -> :user
-    #   end
-    # end
-    {:ok, true}
+  def delete(%{context_id: id}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, pointer} <- Pointers.one(id: id) do
+      context = Pointers.follow!(pointer)
+      if allow_delete?(user, context) do
+        do_delete(context)
+      else
+        GraphQL.not_permitted("delete")
+      end
+    end
   end
 
+  defp do_delete(%Community{}=c), do: MoodleNet.Communities.soft_delete(c)
+  defp do_delete(%Collection{}=c), do: MoodleNet.Collections.soft_delete(c)
+  defp do_delete(%Resource{}=r), do: MoodleNet.Resources.soft_delete(r)
+  defp do_delete(%Comment{}=c), do: MoodleNet.Threads.Comments.soft_delete(c)
+  defp do_delete(%Feature{}=f), do: MoodleNet.Features.soft_delete(f)
+  defp do_delete(%Thread{}=t), do: MoodleNet.Threads.soft_delete(t)
+  defp do_delete(%User{}=u), do: MoodleNet.Users.soft_delete(u)
+  defp do_delete(%Follow{}=f), do: MoodleNet.Follows.undo(f)
+  defp do_delete(%Flag{}=f), do: MoodleNet.Flags.resolve(f)
+  defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
+  defp do_delete(_), do: GraphQL.not_permitted("delete")
+
+  # FIXME: boilerplate code
+  defp allow_delete?(user, context) do
+    user.local_user.is_instance_admin or allow_user_delete?(user, context)
+  end
+
+  defp allow_user_delete?(user, %{__struct__: type, creator_id: creator_id} = context) do
+    type in [Flag, Like, Follow, Thread, Comment] and creator_id == user.id
+  end
+
+  defp allow_user_delete?(_, _), do: false
 
   # def tag(_, _, info) do
   #   {:ok, Fake.tag()}

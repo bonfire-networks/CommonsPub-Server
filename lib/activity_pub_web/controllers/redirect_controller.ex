@@ -9,6 +9,7 @@ defmodule ActivityPubWeb.RedirectController do
   alias MoodleNet.Threads.Comment
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
@@ -21,6 +22,8 @@ defmodule ActivityPubWeb.RedirectController do
       case object do
         %Comment{} ->
           redirect(conn, external: frontend_base <> "/threads/" <> object.thread_id)
+        %Resource{} ->
+          redirect(conn, external: frontend_base <> "/collections/" <> object.collection_id <> "/resources")
         _ ->
           redirect(conn, external: "#{frontend_base}/404")
       end

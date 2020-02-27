@@ -1,7 +1,7 @@
 version: '3.5'
 
 services:
-  web:
+  backend:
     # You can build your own image from the source running:
     # $ make build
     # $ make tag_latest

@@ -32,9 +32,11 @@ defmodule ActivityPub.Actor do
     Logger.info("Updating actor #{actor_id}")
 
     with {:ok, data} <- Fetcher.fetch_remote_object_from_id(actor_id),
-         :ok <- update_actor_data_by_ap_id(actor_id, data) do
+         {:ok, object} <- update_actor_data_by_ap_id(actor_id, data) do
       # Return Actor
-      set_cache(get_by_ap_id(actor_id))
+      {:ok, actor} = set_cache(format_remote_actor(object))
+      Adapter.update_remote_actor(actor)
+      {:ok, actor}
     end
   end
 
@@ -242,7 +244,7 @@ defmodule ActivityPub.Actor do
   end
 
   def get_by_ap_id!(ap_id) do
-    with {:ok, actor} <- get_by_ap_id(ap_id) do
+    with {:ok, actor} <- get_cached_by_ap_id(ap_id) do
       actor
     else
       {:error, _e} -> nil
@@ -266,6 +268,15 @@ defmodule ActivityPub.Actor do
     |> Map.put("publicKey", public_key)
   end
 
+  defp maybe_create_image_object(url) when not is_nil(url) do
+    %{
+      "type" => "Image",
+      "url" => url
+    }
+  end
+
+  defp maybe_create_image_object(_), do: nil
+
   defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
@@ -287,8 +298,8 @@ defmodule ActivityPub.Actor do
       "preferredUsername" => actor.actor.preferred_username,
       "name" => actor.name,
       "summary" => Map.get(actor, :summary),
-      "icon" => Map.get(actor, :icon),
-      "image" => Map.get(actor, :image)
+      "icon" => maybe_create_image_object(Map.get(actor, :icon)),
+      "image" => maybe_create_image_object(Map.get(actor, :image))
     }
 
     data =
@@ -300,7 +311,7 @@ defmodule ActivityPub.Actor do
 
         "MN:Collection" ->
           data
-          |> Map.put("resource", get_and_format_resources_for_actor(actor))
+          |> Map.put("resources", get_and_format_resources_for_actor(actor))
           |> Map.put("attributedTo", get_creator_ap_id(actor))
           |> Map.put("context", get_community_ap_id(actor))
 
@@ -446,13 +457,10 @@ defmodule ActivityPub.Actor do
   end
 
   def update_actor_data_by_ap_id(ap_id, data) do
-    {:ok, actor} =
       ap_id
       |> Object.get_cached_by_ap_id()
-      |> Ecto.Changeset.change(%{data: data})
+      |> Ecto.Changeset.change(%{data: data, updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)})
       |> Object.update_and_set_cache()
-
-    Adapter.update_remote_actor(actor)
   end
 
   defp deactivated?(%Object{} = actor) do

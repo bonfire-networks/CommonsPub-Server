@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-use Mix.Config
+import Config
 
 alias MoodleNet.{
   Blocks,
@@ -38,7 +38,7 @@ config :moodle_net, Blocks,
   valid_contexts: [Collection, Community, User]
 
 config :moodle_net, Instance,
-  hostname: "localhost",
+  hostname: "moodlenet.local",
   description: "Local development instance",
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 

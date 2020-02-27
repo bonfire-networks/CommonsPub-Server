@@ -41,7 +41,7 @@ defmodule MoodleNet.Follows.Queries do
 
   def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
 
-  def filter(q, {:join,rel}), do: join_to(q, rel)
+  def filter(q, {:join, rel}), do: join_to(q, rel)
 
   ## by users
   

@@ -40,15 +40,15 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
     description "A thing that can be deleted"
     types [
       :collection, :comment, :community, :feature,
-      :flag, :follow, :like, :resource, :thread, :user,
+      :follow, :flag, :like, :resource, :thread, :user,
     ]
     resolve_type fn
       %Collection{}, _ -> :collection
       %Comment{},    _ -> :comment
       %Community{},  _ -> :community
       %Feature{},    _ -> :feature
-      %Flag{},       _ -> :flag
       %Follow{},     _ -> :follow
+      %Flag{},       _ -> :flag
       %Like{},       _ -> :like
       %Resource{},   _ -> :resource
       %Thread{},     _ -> :thread

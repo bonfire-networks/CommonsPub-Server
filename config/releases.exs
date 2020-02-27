@@ -13,7 +13,7 @@ desc = System.fetch_env("INSTANCE_DESCRIPTION")
 port = String.to_integer(System.get_env("PORT", "4000"))
 base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
 
-config :moodle_net, Instance,
+config :moodle_net, MoodleNet.Instance,
   hostname: hostname,
   description: desc
 
@@ -31,8 +31,9 @@ config :moodle_net,
 upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
 upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
 
-config :moodle_net, MoodleNet.Uploads.Storage,
-  provider: [Belt.Provider.Filesystem, [[directory: upload_dir, base_url: upload_url]]]
+config :moodle_net, MoodleNet.Uploads,
+  base_url: upload_url,
+  directory: upload_dir
 
 mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
 mail_domain = System.get_env("MAIL_DOMAIN")

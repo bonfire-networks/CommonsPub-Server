@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "A url for the collection, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &ActorsResolver.canonical_url_edge/3
+      resolve &CollectionsResolver.canonical_url_edge/3
     end
     
     @desc "An instance-unique identifier shared with users and communities"

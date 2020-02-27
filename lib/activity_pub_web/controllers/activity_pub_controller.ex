@@ -36,7 +36,9 @@ defmodule ActivityPubWeb.ActivityPubController do
         |> render("object.json", %{object: object})
       else
         _ ->
-          {:error, :not_found}
+          conn
+          |> put_status(404)
+          |> json(%{error: "not found"})
       end
     end
   end
@@ -51,7 +53,10 @@ defmodule ActivityPubWeb.ActivityPubController do
         |> put_view(ActorView)
         |> render("actor.json", %{actor: actor})
       else
-        {:error, _e} -> {:error, :not_found}
+        _ ->
+          conn
+          |> put_status(404)
+          |> json(%{error: "not found"})
       end
     end
   end
@@ -124,5 +129,9 @@ defmodule ActivityPubWeb.ActivityPubController do
     end
 
     json(conn, dgettext("errors", "error"))
+  end
+
+  def noop(conn, _params) do
+    json(conn, "ok")
   end
 end

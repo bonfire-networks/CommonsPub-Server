@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
@@ -17,7 +17,6 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   http: [port: {:system, "PORT"}],
   # This is critical for ensuring web-sockets properly authorize.
   url: [host: {:system, "HOSTNAME"}, port: {:system, "PORT"}],
-  cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
   root: ".",
   version: Application.spec(:moodle_net, :vsn)

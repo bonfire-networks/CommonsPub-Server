@@ -54,7 +54,7 @@ defmodule MoodleNet.Follows do
   def create(%User{} = follower, %{outbox_id: _}=followed, fields, opts) do
     if followed.__struct__ in valid_contexts() do
       Repo.transact_with(fn ->
-        case one(creator_id: follower.id, context_id: followed.id) do
+        case one([:deleted, creator_id: follower.id, context_id: followed.id]) do
           {:ok, _} ->
             {:error, AlreadyFollowingError.new("user")}
   
@@ -124,7 +124,7 @@ defmodule MoodleNet.Follows do
   # we only maintain subscriptions for local users
   defp subscribe(%User{local_user: %LocalUser{}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})
   when is_binary(outbox_id) do
-    case FeedSubscriptions.one(subscriber_id: follower.id, feed_id: outbox_id) do
+    case FeedSubscriptions.one([:deleted, subscriber_id: follower.id, feed_id: outbox_id]) do
       {:ok, _} -> :ok
       _ ->
         with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}), do: :ok
@@ -134,7 +134,7 @@ defmodule MoodleNet.Follows do
 
   defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
     context = Pointers.follow!(Repo.preload(follow, :context).context)
-    case FeedSubscriptions.one(subscriber_id: creator_id, feed_id: context.outbox_id) do
+    case FeedSubscriptions.one([:deleted, subscriber_id: creator_id, feed_id: context.outbox_id]) do
       {:ok, sub} -> Common.soft_delete(sub)
       _ -> {:ok, []} # shouldn't be here
     end

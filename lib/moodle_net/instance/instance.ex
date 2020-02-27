@@ -11,8 +11,8 @@ defmodule MoodleNet.Instance do
       &(&1.id),
       join: :feed_activity,
       feed_id: Feeds.instance_outbox_id(),
+      distinct: [desc: :id],
       order: :timeline_desc,
-      distinct: :id,
       table: default_outbox_query_contexts()      
     )
   end
@@ -30,6 +30,8 @@ defmodule MoodleNet.Instance do
   def description(config \\ config()) do
     Keyword.fetch!(config, :description)
   end
+
+  def base_url(), do: Application.fetch_env!(:moodle_net, :base_url)
 
 end
 

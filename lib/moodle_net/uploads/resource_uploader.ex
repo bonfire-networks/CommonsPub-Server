@@ -9,7 +9,5 @@ defmodule MoodleNet.Uploads.ResourceUploader do
       ~w(odg otg odc ogg mp3 m4a wav mp4 flv avi gif jpg jpeg png svg webm) ++
       ~w(eps tex mbz)
 
-  def transform(file) do
-    :skip
-  end
+  def transform(_file), do: :skip
 end

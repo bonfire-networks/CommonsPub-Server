@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -99,8 +99,9 @@ config :moodle_net, MoodleNet.OAuth,
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
 
-config :moodle_net, MoodleNet.Uploads.Storage,
-  provider: [Belt.Provider.Filesystem, [[directory: "uploads", base_url: "http://localhost:4000/uploads/"]]]
+config :moodle_net, MoodleNet.Uploads,
+  directory: "uploads",
+  base_url: "/uploads/"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn

@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
       &(&1.thread_id),
       &(&1.id),
       [user: current_user, thread_id: ids],
-      [order: :timeline_desc],
+      [order: :timeline_asc],
       [group_count: :thread_id]
     )
     edges
