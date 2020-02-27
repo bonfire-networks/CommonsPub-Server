@@ -84,4 +84,20 @@ defmodule ActivityPub.HTTP do
   """
   def post(url, body, headers \\ [], options \\ []),
     do: request(:post, url, body, headers, options)
+
+  @doc """
+  Makes a PUT request
+
+  see `ActivityPub.HTTP.request/5`
+  """
+  def put(url, body, headers \\ [], options \\ []),
+    do: request(:put, url, body, headers, options)
+
+  @doc """
+  Makes a DELETE request
+
+  see `ActivityPub.HTTP.request/5`
+  """
+  def delete(url, body \\ "", headers \\ [], options \\ []),
+    do: request(:delete, url, body, headers, options)
 end
