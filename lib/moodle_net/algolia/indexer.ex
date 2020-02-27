@@ -13,10 +13,20 @@ defmodule MoodleNet.Algolia.Indexer do
   alias MoodleNet.Follows.FollowerCounts
   alias MoodleNet.Likes.LikerCounts
 
+  defp check_envs() do
+    System.get_env("ALGOLIA_ID") and
+      System.get_env("ALGOLIA_SECRET") and
+      System.get_env("ALGOLIA_INDEX")
+  end
+
   def index_object(object) do
-    object
-    |> format_object()
-    |> push_object()
+    if check_envs() do
+      object
+      |> format_object()
+      |> push_object()
+    else
+      :ok
+    end
   end
 
   def format_object(%Community{} = community) do
@@ -40,7 +50,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_type" => "Community",
       "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
       "createdAt" => community.published_at,
-      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode64(padding: false)
+      "objectID" =>
+        :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode64(padding: false)
     }
   end
 
@@ -67,7 +78,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
-      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode64(padding: false)
+      "objectID" =>
+        :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode64(padding: false)
     }
   end
 
@@ -104,17 +116,19 @@ defmodule MoodleNet.Algolia.Indexer do
     application_id = System.get_env("ALGOLIA_ID")
     api_key = System.get_env("ALGOLIA_SECRET")
     index_name = System.get_env("ALGOLIA_INDEX")
-    url = "https://#{application_id}.algolia.net/1/indexes/#{index_name}"
+    url = "https://#{application_id}.algolia.net/1/indexes/#{index_name}/#{object["objectID"]}"
 
     headers = [
       {"X-Algolia-API-Key", api_key},
       {"X-Algolia-Application-id", application_id}
     ]
 
-    with {:ok, %{status: code}} when code == 201 <- HTTP.post(url, json, headers) do
+    with {:ok, %{status: code}} when code == 200 <- HTTP.put(url, json, headers) do
       :ok
     else
-      _ -> Logger.warn("Couldn't index object ID #{object["id"]}")
+      _ ->
+        Logger.warn("Couldn't index object ID #{object["id"]}")
+        :ok
     end
   end
 end
