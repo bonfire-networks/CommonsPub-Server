@@ -4,9 +4,8 @@
 defmodule MoodleNet.Users.ResetPasswordToken do
   use MoodleNet.Common.Schema
 
-  alias Ecto.{Changeset, UUID}
+  alias Ecto.Changeset
   alias MoodleNet.Users.LocalUser
-  import MoodleNet.Common.Changeset, only: [claim_changeset: 3]
 
   @type t :: %__MODULE__{}
 

@@ -8,6 +8,7 @@ defmodule MoodleNet.MetaTest do
 
   alias MoodleNet.Meta.{
     Pointer,
+    Pointers,
     Table,
     TableService,
     TableNotFoundError
@@ -18,7 +19,7 @@ defmodule MoodleNet.MetaTest do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Comments.{Comment, Thread}
+  alias MoodleNet.Threads.{Comment, Thread}
 
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
@@ -105,7 +106,7 @@ defmodule MoodleNet.MetaTest do
     end
   end
 
-  describe "MoodleNet.Meta.forge!" do
+  describe "MoodleNet.Pointers.forge!" do
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       {:ok, %{}}
@@ -113,7 +114,7 @@ defmodule MoodleNet.MetaTest do
 
     test "forges a pointer for a peer" do
       peer = fake_peer!()
-      pointer = Meta.forge!(peer)
+      pointer = Pointers.forge!(peer)
       assert pointer.id == peer.id
       assert pointer.pointed == peer
       assert pointer.table_id == pointer.table.id
@@ -122,7 +123,7 @@ defmodule MoodleNet.MetaTest do
 
     test "forges a pointer for a user" do
       user = fake_user!()
-      pointer = Meta.forge!(user)
+      pointer = Pointers.forge!(user)
       assert pointer.id == user.id
       assert pointer.pointed == user
       assert pointer.table_id == pointer.table.id
@@ -138,7 +139,7 @@ defmodule MoodleNet.MetaTest do
       table = %Access.Token{}
 
       assert %TableNotFoundError{table: Access.Token} ==
-               catch_throw(Meta.forge!(table))
+               catch_throw(Pointers.forge!(table))
     end
   end
 
@@ -150,15 +151,15 @@ defmodule MoodleNet.MetaTest do
 
     test "returns the Table the Pointer points to" do
       assert user = fake_user!()
-      assert pointer = Meta.forge!(user)
+      assert pointer = Pointers.forge!(user)
       assert user_table = TableService.lookup!(User)
-      assert table = Meta.points_to!(pointer)
+      assert table = Pointers.table!(pointer)
       assert table == user_table
     end
 
     test "throws a TableNotFoundError if the Pointer doesn't point to a known table" do
       pointer = %Pointer{id: 123, table_id: 999}
-      assert %TableNotFoundError{table: 999} = catch_throw(Meta.points_to!(pointer))
+      assert %TableNotFoundError{table: 999} = catch_throw(Pointers.table!(pointer))
     end
   end
 
@@ -197,32 +198,30 @@ defmodule MoodleNet.MetaTest do
     test "follows pointers" do
       Repo.transaction(fn ->
         assert peer = fake_peer!()
-        assert pointer = Meta.find!(peer.id)
-        assert table = Meta.points_to!(pointer)
+        assert pointer = Pointers.one!(id: peer.id)
+        assert table = Pointers.table!(pointer)
         assert table.table == "mn_peer"
         assert table.schema == Peer
         assert table.id == pointer.table_id
         peer = Map.drop(peer, [:is_disabled])
-        assert {:ok, peer2} = Meta.follow(pointer)
-        assert peer3 = Meta.follow!(pointer)
+        assert peer2 = Pointers.follow!(pointer)
         assert Map.drop(peer2, [:is_disabled]) == peer
-        assert Map.drop(peer3, [:is_disabled]) == peer
       end)
     end
 
     test "preload! can load one pointer" do
       Repo.transaction(fn ->
         assert peer = fake_peer!() |> Map.drop([:is_disabled])
-        assert pointer = Meta.find!(peer.id)
-        assert table = Meta.points_to!(pointer)
+        assert pointer = Pointers.one!(id: peer.id)
+        assert table = Pointers.table!(pointer)
         assert table.table == "mn_peer"
         assert table.schema == Peer
         assert table.id == pointer.table_id
-        assert pointer2 = Meta.preload!(pointer)
+        assert pointer2 = Pointers.preload!(pointer)
         assert Map.drop(pointer2.pointed, [:is_disabled]) == peer
         assert pointer2.id == pointer.id
         assert pointer2.table_id == pointer.table_id
-        assert [pointer3] = Meta.preload!([pointer])
+        assert [pointer3] = Pointers.preload!([pointer])
         assert pointer2 == pointer3
       end)
     end
@@ -231,9 +230,9 @@ defmodule MoodleNet.MetaTest do
       Repo.transaction(fn ->
         assert peer = fake_peer!()
         assert peer2 = fake_peer!()
-        assert pointer = Meta.find!(peer.id)
-        assert pointer2 = Meta.find!(peer2.id)
-        assert [pointer3, pointer4] = Meta.preload!([pointer, pointer2])
+        assert pointer = Pointers.one!(id: peer.id)
+        assert pointer2 = Pointers.one!(id: peer2.id)
+        assert [pointer3, pointer4] = Pointers.preload!([pointer, pointer2])
         assert pointer3.id == pointer.id
         assert pointer4.id == pointer2.id
         assert pointer3.table_id == pointer.table_id
@@ -251,13 +250,13 @@ defmodule MoodleNet.MetaTest do
         assert user = fake_user!()
         assert user2 = fake_user!()
         assert actor = fake_actor!()
-        assert pointer = Meta.find!(peer.id)
-        assert pointer2 = Meta.find!(peer2.id)
-        assert pointer3 = Meta.find!(user.id)
-        assert pointer4 = Meta.find!(user2.id)
+        assert pointer = Pointers.one!(id: peer.id)
+        assert pointer2 = Pointers.one!(id: peer2.id)
+        assert pointer3 = Pointers.one!(id: user.id)
+        assert pointer4 = Pointers.one!(id: user2.id)
 
         assert [pointer5, pointer6, pointer7, pointer8] =
-                 Meta.preload!([pointer, pointer2, pointer3, pointer4])
+                 Pointers.preload!([pointer, pointer2, pointer3, pointer4])
 
         assert pointer5.id == pointer.id
         assert pointer6.id == pointer2.id

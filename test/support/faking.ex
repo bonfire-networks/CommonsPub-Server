@@ -7,7 +7,6 @@ defmodule MoodleNet.Test.Faking do
     Access,
     Activities,
     Actors,
-    Comments,
     Communities,
     Collections,
     Meta,
@@ -15,9 +14,10 @@ defmodule MoodleNet.Test.Faking do
     Users,
     Localisation,
     Resources,
-    Access,
+    Threads,
   }
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
 
   def fake_register_email_domain_access!(domain \\ Fake.domain())
@@ -90,12 +90,12 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Comments.create_thread(user, parent, Fake.thread(overrides))
+    {:ok, thread} = Threads.create(user, parent, Fake.thread(overrides))
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
-    {:ok, comment} = Comments.create_comment(user, thread, Fake.comment(overrides))
+    {:ok, comment} = Comments.create(user, thread, Fake.comment(overrides))
     comment
   end
 

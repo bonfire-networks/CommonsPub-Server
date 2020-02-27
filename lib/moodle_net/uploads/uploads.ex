@@ -2,13 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Uploads do
-  import Ecto.Query
 
   alias Ecto.Changeset
-  alias MoodleNet.{Repo, Meta}
-  alias MoodleNet.Common.Query
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Repo
   alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.{Upload, Storage}
+  alias MoodleNet.Uploads.{Upload, Storage, Queries}
 
   @doc """
   Return a list of uploads associated with any parent, assuming it is a pointer.
@@ -17,20 +16,14 @@ defmodule MoodleNet.Uploads do
   def list_by_parent(%{id: id} = _parent), do: Repo.all(list_by_parent_q(id))
 
   defp list_by_parent_q(id) do
-    Upload
-    |> Query.only_public()
-    |> Query.only_undeleted()
-    |> where(parent_id: ^id)
+    Queries.query(Upload, [:private, :deleted, parent_id: id])
   end
 
   @spec list_by_uploader(User.t()) :: [Upload.t()]
   def list_by_uploader(%User{id: id}), do: Repo.all(list_by_uploader_q(id))
 
   defp list_by_uploader_q(id) do
-    Upload
-    |> Query.only_public()
-    |> Query.only_undeleted()
-    |> where(uploader_id: ^id)
+    Queries.query(Upload, [:private, :deleted, uploader_id: id])
   end
 
   @doc """
@@ -65,8 +58,9 @@ defmodule MoodleNet.Uploads do
 
       result =
         Repo.transact_with(fn ->
-          pointer = Meta.find!(parent.id)
-          Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+          with {:ok, pointer} <- Pointers.one(id: parent.id) do
+            Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
+          end
         end)
 
       with {:ok, upload} <- result,

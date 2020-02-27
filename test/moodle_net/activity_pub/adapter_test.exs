@@ -69,7 +69,17 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert created_actor.actor.preferred_username == username
+    end
+
+    test "crete remote actor with blank name" do
+      actor = insert(:actor)
+      host = URI.parse(actor.data["id"]).host
+      username = actor.data["preferredUsername"] <> "@" <> host
+      data = Map.put(actor.data, "name", "")
+
+      assert {:ok, created_actor} = Adapter.create_remote_actor(data, username)
       assert created_actor.actor.preferred_username == username
     end
 
@@ -78,11 +88,14 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} =
+        Adapter.create_remote_actor(actor.data, username)
 
-      %ActivityPub.Object{} = object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
+      assert %ActivityPub.Object{} = object =
+        ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
-      %MoodleNet.Meta.Pointer{} = MoodleNet.Meta.find!(object.mn_pointer_id)
+      assert {:ok, %MoodleNet.Meta.Pointer{}} =
+        MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
     end
   end
 
@@ -100,10 +113,10 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "reply to a comment" do
       actor = fake_user!()
       community = fake_user!() |> fake_community!()
-      {:ok, thread} = MoodleNet.Comments.create_thread(actor, community, %{is_local: true})
+      {:ok, thread} = MoodleNet.Threads.create(actor, community, %{is_local: true})
 
       {:ok, comment} =
-        MoodleNet.Comments.create_comment(actor, thread, %{is_local: true, content: "hi"})
+        MoodleNet.Threads.Comments.create(actor, thread, %{is_local: true, content: "hi"})
 
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
       reply_actor = actor()
@@ -170,7 +183,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:ok, _} = MoodleNet.Follows.find(follower, followed)
+      assert {:ok, _} = MoodleNet.Follows.one(creator_id: follower.id, context_id: followed.id)
     end
 
     test "unfollows" do
@@ -182,7 +195,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      assert {:error, _} = MoodleNet.Follows.find(follower, followed)
+      assert {:error, _} =
+        MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id])
     end
 
     test "blocks" do
@@ -217,7 +231,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _, _} = ActivityPub.like(like_actor, activity.object, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, like_actor} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(like_actor.ap_id)
-      assert {:ok, _} = MoodleNet.Likes.find(like_actor, comment)
+      assert {:ok, _} = MoodleNet.Likes.one(creator_id: like_actor.id, context_id: comment.id)
     end
 
     test "flags" do
@@ -240,7 +254,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment.id)
     end
 
     test "flags with multiple comments" do
@@ -266,8 +280,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_1)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, comment_2)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment_1.id)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: comment_2.id)
     end
 
     test "flag with only actor" do
@@ -286,7 +300,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, flag_actor} = Adapter.get_actor_by_ap_id(flag_actor.ap_id)
-      assert {:ok, flag} = MoodleNet.Flags.find(flag_actor, actor)
+      assert {:ok, flag} = MoodleNet.Flags.one(creator_id: flag_actor.id, context_id: actor.id)
     end
 
     test "user deletes" do
@@ -319,7 +333,7 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Comments.fetch_comment(comment.id)
+      assert {:error, _} = MoodleNet.Threads.Comments.one([:deleted, id: comment.id])
     end
 
     test "resource deletes" do
@@ -331,7 +345,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)
       %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
-      assert {:error, _} = MoodleNet.Resources.fetch(resource.id)
+      assert {:error, _} = MoodleNet.Resources.one([:deleted, id: resource.id])
     end
+
   end
 end

@@ -36,7 +36,7 @@ defmodule MoodleNet.CollectionsTest do
     end
   end
 
-  describe "list" do
+  describe "many" do
     test "returns a list of non-deleted collections", context do
       all = for _ <- 1..4 do
         user = fake_user!()
@@ -51,7 +51,7 @@ defmodule MoodleNet.CollectionsTest do
           acc
         end
       end)
-      fetched = Collections.list()
+      {:ok, fetched} = Collections.many(:deleted)
 
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
       for coll <- fetched do
@@ -70,12 +70,10 @@ defmodule MoodleNet.CollectionsTest do
         fake_collection!(user, comm)
       end
 
-      fetched = Collections.list()
+      {:ok, fetched} = Collections.many(:deleted)
       assert Enum.empty?(fetched)
     end
-  end
 
-  describe "list_in_community" do
     test "returns a list of collections in a community", context do
       collections = for _ <- 1..4 do
         user = fake_user!()
@@ -86,14 +84,14 @@ defmodule MoodleNet.CollectionsTest do
       user = fake_user!()
       fake_collection!(user, fake_community!(user))
 
-      fetched = Collections.list_in_community(context.community)
+      {:ok, fetched} = Collections.many(community_id: context.community.id)
       assert Enum.count(collections) == Enum.count(fetched)
     end
   end
 
-  describe "fetch" do
+  describe "one" do
     test "returns a collection by ID", context do
-      assert {:ok, coll} = Collections.fetch(context.collection.id)
+      assert {:ok, coll} = Collections.one(id: context.collection.id)
       assert coll.id == context.collection.id
       assert coll.actor
       assert coll.creator
@@ -101,17 +99,17 @@ defmodule MoodleNet.CollectionsTest do
 
     test "fails when it has been deleted", context do
       assert {:ok, collection} = Collections.soft_delete(context.collection)
-      assert {:error, %NotFoundError{}} = Collections.fetch(collection.id)
+      assert {:error, %NotFoundError{}} = Collections.one([:deleted, id: context.collection.id])
     end
 
     test "fails when the parent community has been deleted", context do
       assert collection = fake_collection!(context.user, context.community)
       assert {:ok, _} = Communities.soft_delete(context.community)
-      assert {:error, %NotFoundError{}} = Collections.fetch(collection.id)
+      assert {:error, %NotFoundError{}} = Collections.one([:deleted, id: context.collection.id])
     end
 
     test "fails with a missing ID" do
-      assert {:error, %NotFoundError{}} = Collections.fetch(Fake.ulid())
+      assert {:error, %NotFoundError{}} = Collections.one([id: Fake.ulid()])
     end
   end
 

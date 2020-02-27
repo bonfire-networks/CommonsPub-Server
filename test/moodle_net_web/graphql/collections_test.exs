@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Common, Follows, Users}
+  alias MoodleNet.{Flags, Follows, Likes}
 
   describe "collections" do
 
@@ -22,13 +22,17 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       coll_4 = fake_collection!(bob, comm_2)
       coll_5 = fake_collection!(bob, comm_2)
       q = """
-      { collections { pageInfo { startCursor endCursor } totalCount nodes { #{collection_basics()} } } }
+      { collections {
+          #{page_basics()}
+          nodes { #{collection_basics()} }
+        }
+      }
       """
       assert %{"collections" => colls} = gql_post_data(%{query: q})
       node_list = assert_node_list(colls)
       assert Enum.count(node_list.nodes) == 5
       for node <- node_list.nodes do
-	assert_collection(node)
+        assert_collection(node)
       end
     end
 
@@ -251,41 +255,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
 
   describe "collection.myLike" do
 
-    test "works for liked for user" do
-      alice = fake_user!()
-      comm = fake_community!(alice)
-      coll = fake_collection!(alice, comm)
-      bob = fake_user!()
-      conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
-      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
-      coll2 = assert_collection(coll, coll2)
-      assert %{"myLike" => like2} = coll2
-    end
-
-    test "works for unliked for user" do
-      alice = fake_user!()
-      comm = fake_community!(alice)
-      coll = fake_collection!(alice, comm)
-      bob = fake_user!()
-      conn = user_conn(bob)
-      q = """
-      { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myLike { #{like_basics()} }
-        }
-      }
-      """
-      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
-      coll2 = assert_collection(coll, coll2)
-      assert %{"myLike" => nil} = coll2
-    end
-
-    test "nil for guest" do
+    test "is nil for a guest" do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
@@ -300,11 +270,131 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"myLike" => nil} = coll2
     end
 
+    test "is nil for a user who doesn't like" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => nil} = coll2
+    end
+
+    test "is nil for an instance admin who doesn't like" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => nil} = coll2
+    end
+
+    test "works for a user who liked" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, like} = Likes.create(bob, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => like2} = coll2
+      assert_like(like, like2)
+    end
+
+    test "works for an instance admin who likes" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      {:ok, like} = Likes.create(bob, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myLike { #{like_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myLike" => like2} = coll2
+    end
+
   end
 
   describe "collection.myFollow" do
 
-    test "works for followed for user" do
+    test "is nil for a guest" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => nil} = coll2
+    end
+
+    test "is nil for a user who doesn't follow" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => nil} = coll2
+    end
+
+    test "is nil for an instance admin who doesn't follow" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFollow { #{follow_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFollow" => nil} = coll2
+    end
+
+    test "works for a user who follows" do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
@@ -323,12 +413,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert_follow(follow, follow2)
     end
 
-    test "works for unfollowed for user" do
+    test "works for an instance admin who follows" do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      bob = fake_user!()
+      bob = fake_user!(%{is_instance_admin: true})
       conn = user_conn(bob)
+      {:ok, follow} = Follows.create(bob, coll, %{is_local: true})
       q = """
       { collection(collectionId: "#{coll.id}") {
           #{collection_basics()} myFollow { #{follow_basics()} }
@@ -337,26 +428,102 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       """
       assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
       coll2 = assert_collection(coll, coll2)
-      assert %{"myFollow" => nil} = coll2
+      assert %{"myFollow" => follow2} = coll2
+      assert_follow(follow, follow2)
     end
 
-    test "nil for guest" do
+  end
+
+  describe "collection.myFlag" do
+
+    test "is nil for a guest" do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       q = """
       { collection(collectionId: "#{coll.id}") {
-          #{collection_basics()} myFollow { #{follow_basics()} }
+          #{collection_basics()} myFlag { #{flag_basics()} }
         }
       }
       """
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
-      assert %{"myFollow" => nil} = coll2
+      assert %{"myFlag" => nil} = coll2
+    end
+
+    test "is nil for a user who doesn't flag" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFlag" => nil} = coll2
+    end
+
+    test "is nil for an instance admin who doesn't flag" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFlag" => nil} = coll2
+    end
+
+    test "works for a user who flags" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!()
+      conn = user_conn(bob)
+      {:ok, flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFlag" => flag2} = coll2
+      assert_flag(flag, flag2)
+    end
+
+    test "works for an instance admin who flags" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      bob = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(bob)
+      {:ok, flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} myFlag { #{flag_basics()} }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"myFlag" => flag2} = coll2
+      assert_flag(flag, flag2)
     end
 
   end
-
 
   describe "collection.creator" do
 
@@ -415,30 +582,451 @@ defmodule MoodleNetWeb.GraphQL.CollectionsTest do
       assert %{"collection" => coll2} = gql_post_data(%{query: q})
       coll2 = assert_collection(coll, coll2)
       assert %{"resources" => res} = coll2
-      edge_list = assert_edge_list(res, &(&1.id))
+      edge_list = assert_edge_list(res)
       assert Enum.count(edge_list.edges) == 5
       for edge <- edge_list.edges do
-	res = assert_resource(edge.node)
-	assert assert res.id == edge.cursor
+        res = assert_resource(edge.node)
+        assert assert res.id == edge.cursor
+      end
+    end
+
+    test "works for an instance admin" do
+      alice = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} resources {
+            #{page_basics()}
+            edges { cursor node { #{resource_basics()} } }
+          }
+        }
+      }
+      """
+      conn = user_conn(alice)
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"resources" => res} = coll2
+      edge_list = assert_edge_list(res)
+      assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+        res = assert_resource(edge.node)
+        assert assert res.id == edge.cursor
+      end
+    end
+
+    test "works for a user for a public collection" do
+      alice = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      res = Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()} resources {
+            #{page_basics()}
+            edges { cursor node { #{resource_basics()} } }
+          }
+        }
+      }
+      """
+      conn = user_conn(alice)
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"resources" => res} = coll2
+      edge_list = assert_edge_list(res)
+      assert Enum.count(edge_list.edges) == 5
+      for edge <- edge_list.edges do
+        res = assert_resource(edge.node)
+        assert assert res.id == edge.cursor
       end
     end
 
   end
+
   describe "collection.followers" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
+      {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          followers {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{follow_basics()}
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll} = gql_post_data(%{query: q})
+      coll = assert_collection(coll)
+      assert %{"followers" => folls2} = coll
+      edges = assert_edge_list(folls2).edges
+      assert Enum.count(edges) == 3
+      for edge <- edges do
+        foll = assert_follow(edge.node)
+        assert foll.id == edge.cursor
+      end
+    end
+
+    test "works for a user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      mallory = fake_user!()
+      conn = user_conn(mallory)
+      {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
+      {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          followers {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{follow_basics()}
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
+      coll = assert_collection(coll)
+      assert %{"followers" => folls2} = coll
+      edges = assert_edge_list(folls2).edges
+      assert Enum.count(edges) == 3
+      for edge <- edges do
+        foll = assert_follow(edge.node)
+        assert foll.id == edge.cursor
+      end
+    end
+
+    test "works for an instance admin" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      mallory = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(mallory)
+      {:ok, bob_follow} = Follows.create(bob, coll, %{is_local: true})
+      {:ok, eve_follow} = Follows.create(eve, coll, %{is_local: true})
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          followers {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{follow_basics()}
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll} = gql_post_data(conn, %{query: q})
+      coll = assert_collection(coll)
+      assert %{"followers" => folls2} = coll
+      edges = assert_edge_list(folls2).edges
+      assert Enum.count(edges) == 3
+      for edge <- edges do
+        foll = assert_follow(edge.node)
+        assert foll.id == edge.cursor
+      end
     end
   end
+
   describe "collection.likes" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for a guest with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_like} = Likes.create(alice, coll, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, coll, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, coll, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"likes" => likes2} = coll2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
     end
+
+    test "works for a user with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_like} = Likes.create(alice, coll, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, coll, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, coll, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      mallory = fake_user!()
+      conn = user_conn(mallory)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"likes" => likes2} = coll2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
+    end
+
+    test "works for an instance admin with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_like} = Likes.create(alice, coll, %{is_local: true})
+      {:ok, bob_like} = Likes.create(bob, coll, %{is_local: true})
+      {:ok, eve_like} = Likes.create(eve, coll, %{is_local: true})
+      likes = [eve_like, bob_like, alice_like]
+      mallory = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(mallory)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          likes {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{like_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"likes" => likes2} = coll2
+      edges = assert_edge_list(likes2).edges
+      assert Enum.count(edges) == Enum.count(likes)
+      for {like, edge} <- Enum.zip(likes, edges) do
+        assert_like(like, edge.node)
+      end
+    end
+
   end
+
   describe "collection.flags" do
+
+    test "empty for a guest with a public collection" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_flag} = Flags.create(alice, coll, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
+      flags = [eve_flag, bob_flag, alice_flag]
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(%{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"flags" => flags2} = coll2
+      assert [] == assert_edge_list(flags2).edges
+    end
+
+    test "empty for a user with a public collection" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_flag} = Flags.create(alice, coll, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
+      flags = [eve_flag, bob_flag, alice_flag]
+      mallory = fake_user!()
+      conn = user_conn(mallory)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"flags" => flags2} = coll2
+      assert [] == assert_edge_list(flags2).edges
+    end
+
+    test "works for a user who has flagged a public collection" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_flag} = Flags.create(alice, coll, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
+      flags = [eve_flag]
+      conn = user_conn(eve)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"flags" => flags2} = coll2
+      edges = assert_edge_list(flags2).edges
+      assert Enum.count(edges) == Enum.count(flags)
+      for {flag, edge} <- Enum.zip(flags, edges) do
+        assert_flag(flag, edge.node)
+      end
+    end
+
+    test "works for an instance admin with a public user" do
+      alice = fake_user!()
+      bob = fake_user!()
+      eve = fake_user!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      {:ok, alice_flag} = Flags.create(alice, coll, %{is_local: true, message: "naughty"})
+      {:ok, bob_flag} = Flags.create(bob, coll, %{is_local: true, message: "naughty"})
+      {:ok, eve_flag} = Flags.create(eve, coll, %{is_local: true, message: "naughty"})
+      flags = [eve_flag, bob_flag, alice_flag]
+      mallory = fake_user!(%{is_instance_admin: true})
+      conn = user_conn(mallory)
+      q = """
+      { collection(collectionId: "#{coll.id}") {
+          #{collection_basics()}
+          flags {
+            #{page_basics()}
+            edges {
+              cursor
+              node {
+                #{flag_basics()}
+                context { ... on Collection { #{collection_basics()} } }
+                creator { #{user_basics()} }
+              }
+            }
+          }
+        }
+      }
+      """
+      assert %{"collection" => coll2} = gql_post_data(conn, %{query: q})
+      coll2 = assert_collection(coll, coll2)
+      assert %{"flags" => flags2} = coll2
+      edges = assert_edge_list(flags2).edges
+      assert Enum.count(edges) == Enum.count(flags)
+      for {flag, edge} <- Enum.zip(flags, edges) do
+        assert_flag(flag, edge.node)
+      end
+    end
+
     @tag :skip
-    test "placeholder" do
+    test "works for a community moderator" do
     end
   end
+
   describe "collection.threads" do
     @tag :skip
     test "placeholder" do

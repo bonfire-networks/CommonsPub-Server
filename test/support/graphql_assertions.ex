@@ -5,13 +5,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Comments.{Thread, Comment}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
   alias Ecto.ULID
   import ExUnit.Assertions
@@ -65,7 +65,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert is_list(nodes)
     if nodes == [] do
       assert count == 0 # remove me
-      %{nodes: [], total_count: count}
+      page_info = %{
+        start_cursor: nil,
+        end_cursor: nil,
+        has_next_page: false,
+        has_previous_page: false,
+      }
+      %{nodes: [], total_count: count, page_info: page_info}
     else
       assert %{"pageInfo" => page} = list
       assert %{"startCursor" => start, "endCursor" => ends} = page
@@ -76,9 +82,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  
-
-  def assert_edge_list(list, cursor_fn \\ &(&1.id)) do
+  def assert_edge_list(list) do
     assert %{"edges" => edges, "totalCount" => count} = list
     assert is_list(edges)
     assert is_integer(count)
@@ -182,6 +186,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"updatedAt" => updated} = user
     assert is_binary(created)
     assert is_binary(updated)
+    assert %{"followerCount" => follower_count} = user
+    assert %{"likerCount" => liker_count} = user
+    assert is_integer(follower_count) and follower_count >= 0
+    assert is_integer(liker_count) and liker_count >= 0
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "User"} = user
@@ -194,6 +202,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       website: website,
       icon: icon,
       image: image,
+      follower_count: follower_count,
+      liker_count: liker_count,
       is_local: local,
       is_public: public,
       is_disabled: disabled,
@@ -241,6 +251,12 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"updatedAt" => updated} = comm
     assert is_binary(created)
     assert is_binary(updated)
+    assert %{"collectionCount" => collection_count} = comm
+    assert %{"followerCount" => follower_count} = comm
+    assert %{"likerCount" => liker_count} = comm
+    assert is_integer(collection_count) and collection_count >= 0
+    assert is_integer(follower_count) and follower_count >= 0
+    assert is_integer(liker_count) and liker_count >= 0
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Community"} = comm
@@ -254,6 +270,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       is_local: local,
       is_public: public,
       is_disabled: disabled,
+      liker_count: liker_count,
+      follower_count: follower_count,
+      collection_count: collection_count,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(comm)
@@ -297,6 +316,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"updatedAt" => updated} = coll
     assert is_binary(created)
     assert is_binary(updated)
+    assert %{"followerCount" => follower_count} = coll
+    assert %{"likerCount" => liker_count} = coll
+    assert is_integer(follower_count) and follower_count >= 0
+    assert is_integer(liker_count) and liker_count >= 0
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Collection"} = coll
@@ -309,6 +332,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       is_local: local,
       is_public: public,
       is_disabled: disabled,
+      follower_count: follower_count,
+      liker_count: liker_count,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(coll)
@@ -399,6 +424,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"updatedAt" => updated} = thread
     assert is_binary(created)
     assert is_binary(updated)
+    assert %{"followerCount" => follower_count} = thread
+    assert is_integer(follower_count) and follower_count >= 0
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Thread"} = thread
@@ -407,6 +434,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       is_local: local,
       is_public: public,
       is_hidden: hidden,
+      follower_count: follower_count,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(thread)
@@ -439,6 +467,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert %{"updatedAt" => updated} = comment
     assert is_binary(created)
     assert is_binary(updated)
+    assert %{"likerCount" => liker_count} = comment
+    assert is_integer(liker_count) and liker_count >= 0
     assert {:ok, created_at,0} = DateTime.from_iso8601(created)
     assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
     assert %{"__typename" => "Comment"} = comment
@@ -448,6 +478,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       is_local: local,
       is_public: public,
       is_hidden: hidden,
+      liker_count: liker_count,
       created_at: created_at,
       updated_at: updated_at }
     |> Map.merge(comment)
@@ -535,7 +566,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert follow.id == follow2.id
     assert follow.canonical_url == follow2.canonical_url
     assert follow.is_local == follow2.is_local
-    assert follow.is_public == follow2.is_public
+    assert not is_nil(follow.published_at) == follow2.is_public
     assert ULID.timestamp(follow.id) == {:ok, follow2.created_at}
     assert follow.updated_at == follow2.updated_at
     follow2

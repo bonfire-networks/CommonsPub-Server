@@ -19,7 +19,9 @@ defmodule MoodleNet.Uploads.Storage do
 
   @spec remote_url(file_id()) :: {:ok, binary} | {:error, term}
   def remote_url(file_id) do
-    upload_provider() |> Belt.get_url(file_id)
+    with {:ok, url} <- upload_provider() |> Belt.get_url(file_id) do
+      {:ok, URI.encode(url)}
+    end
   end
 
   @spec delete(file_id()) :: :ok | {:error, term}
@@ -27,34 +29,28 @@ defmodule MoodleNet.Uploads.Storage do
     upload_provider() |> Belt.delete(file_id)
   end
 
-  @scope :test
   @spec delete_all() :: :ok | {:error, term}
   def delete_all do
     upload_provider() |> Belt.delete_all()
   end
 
   defp upload_provider do
-    provider_config = Application.fetch_env!(:moodle_net, __MODULE__) |> Keyword.fetch!(:provider)
-
-    {:ok, provider} =
-      case provider_config do
-        provider when is_atom(provider) -> provider.new()
-        [provider, config] when is_atom(provider) -> apply(provider, :new, config)
-      end
+    {:ok, provider} = :moodle_net
+    |> Application.fetch_env!(MoodleNet.Uploads)
+    |> Belt.Provider.Filesystem.new()
 
     provider
   end
 
-  defp get_media_type(%{path: path}), do: TreeMagic.from_filepath(path)
-
-  defp get_metadata(%{path: path}) do
-    with {:ok, binary} <- File.read(path) do
-      case FormatParser.parse(binary) do
-        {:error, "Unknown"} -> {:ok, %{}}
-        info when is_map(info) -> {:ok, Map.from_struct(info)}
-        other -> other
-      end
+  defp get_media_type(%{path: path}) do
+    with {:ok, info} <- TwinkleStar.from_filepath(path) do
+      {:ok, info.media_type}
     end
+  end
+
+  defp get_metadata(%{path: _path}) do
+    # TODO
+    {:ok, %{}}
   end
 
   defp allow_extension(upload_def, path) when is_binary(path) do

@@ -13,19 +13,6 @@ defmodule MoodleNetWeb.Endpoint do
     use Sentry.Phoenix.Endpoint
   end
 
-  @doc """
-  Serves at "/" the static files from "priv/static" directory.
-
-  You should set gzip to true if you are running phoenix.digest when deploying your static files in production.
-  """
-  plug(Plug.Static,
-    at: "/",
-    from: :moodle_net,
-    gzip: false,
-    only:
-      ~w(css fonts images js robots.txt index.html static finmoji emoji packs sounds images instance sw.js favicon.ico, moodlenet-log.png)
-  )
-
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
     plug Phoenix.LiveReloader
@@ -34,6 +21,8 @@ defmodule MoodleNetWeb.Endpoint do
 
   plug(Plug.RequestId)
   plug(Plug.Logger)
+
+  plug(MoodleNetWeb.Plugs.Static)
 
   plug(
     Plug.Parsers,

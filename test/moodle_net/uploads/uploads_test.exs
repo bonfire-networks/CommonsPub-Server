@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.UploadsTest do
   use MoodleNet.DataCase, async: true
+  @moduletag :skip
 
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake

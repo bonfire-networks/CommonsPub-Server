@@ -7,27 +7,57 @@ defmodule MoodleNet.UsersTest do
   import MoodleNet.Test.Faking
   alias Ecto.Changeset
   alias MoodleNet.{Users, Access}
-
+  alias MoodleNet.Access.NoAccessError
+  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Users.{
     TokenAlreadyClaimedError,
     TokenExpiredError,
     User,
   }
-
-  alias MoodleNet.Access.NoAccessError
   alias MoodleNet.Test.Fake
+
+  def assert_user_equal(user, attrs) do
+    assert user.name == attrs.name
+    assert user.actor.preferred_username == attrs.preferred_username
+    assert user.local_user.email == attrs.email
+    assert user.local_user.wants_email_digest == attrs.wants_email_digest
+    assert user.local_user.wants_notifications == attrs.wants_notifications
+  end
+
+  describe "one/1" do
+    test "by id" do
+      user = fake_user!()
+      assert {:ok, fetched} = Users.one(id: user.id)
+      assert fetched.id == user.id
+      assert fetched.actor.preferred_username
+    end
+
+    test "by username" do
+      user = fake_user!()
+      assert {:ok, fetched} = Users.one(username: user.actor.preferred_username)
+      assert fetched.id == user.id
+      assert fetched.actor.preferred_username
+    end
+
+    test "by email" do
+      user = fake_user!()
+      assert {:ok, fetched} = Users.one([:default, email: user.local_user.email])
+      assert fetched.id == user.id
+      assert fetched.actor.preferred_username
+    end
+
+    test "fails for missing" do
+      assert {:error, %NotFoundError{}} = Users.one(id: Fake.ulid())
+    end
+  end
 
   describe "register/1" do
     test "creates a user account with valid attrs when public registration is enabled" do
       Repo.transaction(fn ->
         attrs = Fake.user()
         assert {:ok, user} = Users.register(attrs, public_registration: true)
-
-        assert user.actor.preferred_username == attrs.preferred_username
-        assert user.local_user.email == attrs.email
-        assert user.local_user.wants_email_digest == attrs.wants_email_digest
-        assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert_user_equal user, attrs
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -37,12 +67,9 @@ defmodule MoodleNet.UsersTest do
         attrs = Fake.actor(Fake.user())
         assert {:ok, _} = Access.create_register_email(attrs.email)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
-        assert user.name == attrs.name
-        assert user.actor.preferred_username == attrs.preferred_username
-        assert user.local_user.email == attrs.email
-        assert user.local_user.wants_email_digest == attrs.wants_email_digest
-        assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert_user_equal(user, attrs)
+
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -53,12 +80,9 @@ defmodule MoodleNet.UsersTest do
         [_, domain] = String.split(attrs.email, "@", parts: 2)
         assert {:ok, _} = Access.create_register_email_domain(domain)
         assert {:ok, user} = Users.register(attrs, public_registration: false)
-        assert user.name == attrs.name
-        assert user.actor.preferred_username == attrs.preferred_username
-        assert user.local_user.email == attrs.email
-        assert user.local_user.wants_email_digest == attrs.wants_email_digest
-        assert user.local_user.wants_notifications == attrs.wants_notifications
-        assert [token] = user.email_confirm_tokens
+        assert_user_equal user, attrs
+
+        assert [token] = user.local_user.email_confirm_tokens
         assert nil == token.confirmed_at
       end)
     end
@@ -97,14 +121,14 @@ defmodule MoodleNet.UsersTest do
   describe "claim_confirm_email_token/2" do
     test "confirms a user's email" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
       assert user.local_user.confirmed_at
     end
 
     test "will not confirm if the token is expired" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert then = DateTime.add(DateTime.utc_now(), 60 * 60 * 49, :second)
 
       assert {:error, %TokenExpiredError{} = error} =
@@ -113,7 +137,7 @@ defmodule MoodleNet.UsersTest do
 
     test "will not claim twice" do
       assert user = fake_user!()
-      assert [token] = user.email_confirm_tokens
+      assert [token] = user.local_user.email_confirm_tokens
       assert {:ok, %User{} = user} = Users.claim_email_confirm_token(token.id)
 
       assert {:error, %TokenAlreadyClaimedError{} = error} =
@@ -164,7 +188,7 @@ defmodule MoodleNet.UsersTest do
       refute token.reset_at
       assert {:ok, _} = Users.claim_password_reset(token.id, "password")
 
-      assert {:ok, updated_user} = Users.fetch(user.id)
+      assert {:ok, updated_user} = Users.one([:default, id: user.id])
       assert updated_user.local_user.password_hash != user.local_user.password_hash
     end
   end
@@ -175,7 +199,6 @@ defmodule MoodleNet.UsersTest do
       attrs = Fake.user()
       assert {:ok, user} = Users.update(user, attrs)
       assert user.name == attrs.name
-      assert user.actor.preferred_username == attrs.preferred_username
       assert user.local_user.email == attrs.email
       assert user.local_user.wants_email_digest == attrs.wants_email_digest
     end

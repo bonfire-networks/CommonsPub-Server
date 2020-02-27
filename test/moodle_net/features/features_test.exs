@@ -6,9 +6,10 @@ defmodule MoodleNet.FeaturesTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Features, Meta}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Features
+  alias MoodleNet.Meta.Pointers
 
   def fake_featurable!() do
     user = fake_user!()
@@ -17,20 +18,20 @@ defmodule MoodleNet.FeaturesTest do
     Faker.Util.pick([community, collection])
   end
 
-  describe "fetch/1" do
+  describe "one/1" do
     test "works" do
       alice = fake_user!()
       comm = fake_community!(alice)
       assert {:ok, feat} = Features.create(alice, comm, %{is_local: true})
       assert feat.context_id == comm.id
-      assert {:ok, feat2} = Features.fetch(feat.id)
+      assert {:ok, feat2} = Features.one(id: feat.id)
       assert Map.delete(feat, :context) == Map.delete(feat2, :context)
     end
   end
 
-  describe "list/1" do
+  describe "many/1" do
     test "returns an empty list when there are no features" do
-      assert [] == Features.list()
+      assert {:ok, []} == Features.many()
     end
 
     test "returns a list of featured communities and collections" do
@@ -46,12 +47,12 @@ defmodule MoodleNet.FeaturesTest do
       assert {:ok, f3} = Features.create(alice, c3, %{is_local: true})
       assert {:ok, f4} = Features.create(alice, c4, %{is_local: true})
       check = [{f4, c4}, {f3, c3}, {f2, c2}, {f1, c1}]
-      assert features = Features.list()
+      assert {:ok, features} = Features.many()
       assert Enum.count(features) == 4
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
@@ -67,12 +68,12 @@ defmodule MoodleNet.FeaturesTest do
       assert {:ok, f2} = Features.create(alice, c2, %{is_local: true})
       assert {:ok, f3} = Features.create(alice, c3, %{is_local: true})
       check = [{f3, c3}, {f2, c2}, {f1, c1}]
-      assert features = Features.list(%{contexts: [Community]})
+      assert {:ok, features} = Features.many(table: Community)
       assert Enum.count(features) == 3
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
@@ -89,12 +90,12 @@ defmodule MoodleNet.FeaturesTest do
       assert {:ok, f2} = Features.create(alice, c2, %{is_local: true})
       assert {:ok, f3} = Features.create(alice, c3, %{is_local: true})
       check = [{f3, c3}, {f2, c2}, {f1, c1}]
-      assert features = Features.list(%{contexts: [Collection]})
+      assert {:ok, features} = Features.many(table: Collection)
       assert Enum.count(features) == 3
       for {pulled, {f, c}} <- Enum.zip(features, check) do
         assert Map.delete(pulled, :context) == Map.delete(f, :context)
         c2 = Map.drop(c, [:actor, :is_disabled, :is_public])
-        ctx = Map.drop(Meta.follow!(pulled.context), [:actor, :is_disabled, :is_public])
+        ctx = Map.drop(Pointers.follow!(pulled.context), [:actor, :is_disabled, :is_public])
         assert ctx == c2
       end
     end
@@ -123,11 +124,10 @@ defmodule MoodleNet.FeaturesTest do
       comm = fake_community!(alice)
       assert {:ok, feat} = Features.create(alice, comm, %{is_local: true})
       assert feat.context_id == comm.id
-      assert {:ok, feat2} = Features.fetch(feat.id)
+      assert {:ok, feat2} = Features.one(id: feat.id)
       assert Map.delete(feat, :context) == Map.delete(feat2, :context)
-      assert {:ok, _} = Features.delete(feat)
-      assert {:error, _} = Features.fetch(feat.id)
+      assert {:ok, _} = Features.soft_delete(feat)
+      assert {:error, _} = Features.one([:deleted, id: feat.id])
     end
   end
-
 end

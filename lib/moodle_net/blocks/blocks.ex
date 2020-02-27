@@ -1,7 +1,7 @@
 defmodule MoodleNet.Blocks do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Blocks.{AlreadyBlockedError, Block, NotBlockableError}
+  alias MoodleNet.Blocks.Block
   alias MoodleNet.Users.User
   
   import Ecto.Query

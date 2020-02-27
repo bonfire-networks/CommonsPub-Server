@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
   GraphQL activity fields, associations, queries and mutations.
   """
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.MoodleverseResolver
+  # alias MoodleNetWeb.GraphQL.MoodleverseResolver
 
   object :moodleverse_queries do
 

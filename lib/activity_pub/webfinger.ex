@@ -22,11 +22,11 @@ defmodule ActivityPub.WebFinger do
     regex = ~r/(acct:)?(?<username>[a-z0-9A-Z_\.-]+)@#{host}/
 
     with %{"username" => username} <- Regex.named_captures(regex, resource),
-         {:ok, actor} <- Actor.get_by_username(username) do
+         {:ok, actor} <- Actor.get_cached_by_username(username) do
       {:ok, represent_user(actor)}
     else
       _e ->
-        case Actor.get_by_ap_id(resource) do
+        case Actor.get_cached_by_ap_id(resource) do
           {:ok, actor} ->
             {:ok, represent_user(actor)}
 

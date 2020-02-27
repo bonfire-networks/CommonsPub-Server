@@ -16,7 +16,7 @@ defmodule MoodleNet.ResourcesTest do
     {:ok, %{user: user, collection: collection, resource: resource}}
   end
 
-  describe "list" do
+  describe "many" do
     test "fetches a list of non-deleted, public resources", context do
       all = for _ <- 1..4 do
         user = fake_user!()
@@ -32,7 +32,7 @@ defmodule MoodleNet.ResourcesTest do
           acc
         end
       end)
-      fetched = Resources.list()
+      {:ok, fetched} = Resources.many(:deleted)
 
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
     end
@@ -46,12 +46,10 @@ defmodule MoodleNet.ResourcesTest do
         fake_resource!(user, collection)
       end
 
-      fetched = Resources.list()
+      {:ok, fetched} = Resources.many(:deleted)
       assert Enum.empty?(fetched)
     end
-  end
 
-  describe "list_in_collection" do
     test "returns a list of non-deletd resources in a collection", context do
       resources = for _ <- 1..4 do
         user = fake_user!()
@@ -63,22 +61,24 @@ defmodule MoodleNet.ResourcesTest do
       comm = fake_community!(user)
       fake_resource!(user, fake_collection!(user, comm))
 
-      fetched = Resources.list_in_collection(context.collection)
+      {:ok, fetched} = Resources.many(collection_id: context.collection.id)
       assert Enum.count(resources) == Enum.count(fetched)
     end
   end
 
-  describe "fetch" do
+  describe "one" do
     test "fetches an existing resource", %{resource: resource} do
-      assert {:ok, resource} = Resources.fetch(resource.id)
+      assert {:ok, resource} = Resources.one(id: resource.id)
       assert resource.creator
     end
 
     test "returns not found if the resource is missing" do
-      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.fetch(Fake.ulid())
+      assert {:error, %MoodleNet.Common.NotFoundError{}} = Resources.one(id: Fake.ulid())
     end
   end
 
+  # deprecated function?
+  @tag :skip
   describe "fetch_creator" do
     test "fetches the creator of a resource", context do
       assert {:ok, %User{} = user} = Resources.fetch_creator(context.resource)

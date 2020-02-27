@@ -19,7 +19,7 @@ defmodule ActivityPub.Fetcher do
   Checks if an object exists in the database and fetches it if it doesn't.
   """
   def fetch_object_from_id(id) do
-    if object = Object.get_by_ap_id(id) do
+    if object = Object.get_cached_by_ap_id(id) do
       {:ok, object}
     else
       with {:ok, data} <- fetch_remote_object_from_id(id),
@@ -28,7 +28,8 @@ defmodule ActivityPub.Fetcher do
            {:ok} <- check_if_public(object.public) do
         {:ok, object}
       else
-        {:error, e} -> {:error, e}
+        {:error, e} ->
+          {:error, e}
       end
     end
   end
@@ -52,6 +53,9 @@ defmodule ActivityPub.Fetcher do
       {:ok, %{status: code}} when code in [404, 410] ->
         {:error, "Object has been deleted"}
 
+      {:error, %Jason.DecodeError{} = _error} ->
+        {:error, "Invalid AP JSON"}
+
       {:error, e} ->
         {:error, e}
 
@@ -62,9 +66,7 @@ defmodule ActivityPub.Fetcher do
 
   @skipped_types [
     "Person",
-    ["Group", "MoodleNet:Community"],
-    ["Group", "MoodleNet:Collection"],
-    ["Page", "MoodleNet:EducationalResource"],
+    "Group",
     "Collection",
     "OrderedCollection",
     "CollectionPage",

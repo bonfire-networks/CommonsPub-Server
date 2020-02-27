@@ -7,67 +7,90 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   alias MoodleNetWeb.GraphQL.{
     ActivitiesSchema,
     AdminSchema,
+    BlocksSchema,
     CollectionsSchema,
     CommentsSchema,
     CommonSchema,
     CommunitiesSchema,
     JSON,
+    FeaturesSchema,
+    FlagsSchema,
+    FollowsSchema,
     InstanceSchema,
-    LocalisationSchema,
+    LikesSchema,
+    # LocalisationSchema,
     MiscSchema,
     MoodleverseSchema,
     ResourcesSchema,
+    ThreadsSchema,
     UsersSchema,
     UploadSchema,
   }
-  alias MoodleNet.{Collections, Communities,Resources}
-  alias MoodleNetWeb.GraphQL.Middleware.{Debug,CollapseErrors}
+  alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
 
   def plugins do
-    [Absinthe.Middleware.Dataloader] ++ Absinthe.Plugin.defaults()
+    Absinthe.Plugin.defaults()
   end
 
   def middleware(middleware, _field, _object) do
-    # [{Debug, :start}] ++
+    # [{MoodleNetWeb.GraphQL.Middleware.Debug, :start}] ++
     middleware ++ [CollapseErrors]
   end
 
   import_types ActivitiesSchema
   import_types AdminSchema
+  import_types BlocksSchema
   import_types CollectionsSchema
   import_types CommentsSchema
   import_types CommonSchema
   import_types CommunitiesSchema
+  import_types FeaturesSchema
+  import_types FlagsSchema
+  import_types FollowsSchema
   import_types InstanceSchema
   import_types JSON
+  import_types LikesSchema
   # import_types LocalisationSchema
   import_types MiscSchema
   import_types MoodleverseSchema
   import_types ResourcesSchema
+  import_types ThreadsSchema
   import_types UsersSchema
   import_types UploadSchema
 
   query do
     import_fields :activities_queries
+    import_fields :blocks_queries
     import_fields :collections_queries
     import_fields :comments_queries
     import_fields :common_queries
     import_fields :communities_queries
+    import_fields :features_queries
+    import_fields :flags_queries
+    import_fields :follows_queries
     import_fields :instance_queries
+    import_fields :likes_queries
     # import_fields :localisation_queries
     import_fields :moodleverse_queries
     import_fields :resources_queries
+    import_fields :threads_queries
     import_fields :users_queries
   end
 
   mutation do
     import_fields :admin_mutations
+    import_fields :blocks_mutations
     import_fields :collections_mutations
     import_fields :comments_mutations
     import_fields :common_mutations
     import_fields :communities_mutations
+    import_fields :features_mutations
+    import_fields :flags_mutations
+    import_fields :follows_mutations
+    import_fields :likes_mutations
     import_fields :resources_mutations
-    import_fields :user_mutations
+    import_fields :threads_mutations
+    import_fields :users_mutations
     import_fields :upload_mutations
 
     @desc "Fetch metadata from webpage"

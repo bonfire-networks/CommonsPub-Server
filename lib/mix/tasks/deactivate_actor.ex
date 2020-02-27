@@ -4,7 +4,7 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
 
   @shortdoc "Deactivate a remote actor, disabling incoming federation from it"
 
-  @usage "mix task moodle_net.deactivate_actor ACTOR_URI"
+  @usage "mix moodle_net.deactivate_actor ACTOR_URI"
 
   @moduledoc """
   This mix task is useful for disabling abusive actors without rejecting their entire instance.
@@ -37,7 +37,7 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
   def run([ap_id | _]) do
     start_app()
 
-    with {:ok, actor} <- Actor.get_by_ap_id(ap_id) do
+    with {:ok, actor} <- Actor.get_cached_by_ap_id(ap_id) do
       {:ok, actor_object} = Actor.toggle_active(actor)
 
       shell_info(

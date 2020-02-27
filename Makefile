@@ -8,7 +8,7 @@ help:
 	@echo "$(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-build: ## Build the Docker image
+build_without_cache: ## Build the Docker image
 	@echo APP_NAME=$(APP_NAME)
 	@echo APP_VSN=$(APP_VSN)
 	@echo APP_BUILD=$(APP_BUILD)
@@ -26,7 +26,7 @@ build: ## Build the Docker image
 		-t moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) .
 	@echo moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 
-build_with_cache: ## Build the Docker image using previous cache
+build: ## Build the Docker image using previous cache
 	@echo APP_NAME=$(APP_NAME)
 	@echo APP_VSN=$(APP_VSN)
 	@echo APP_BUILD=$(APP_BUILD)
@@ -48,6 +48,18 @@ push: ## Add latest tag to last build and push
 	@echo docker push moodlenet/moodlenet:latest
 	@docker push moodlenet/moodlenet:latest
 
+tag_latest: ## Add latest tag to last build 
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	
+tag_stable: ## Tag stable, latest and version tags to the last build 
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:$(APP_VSN)
+	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:stable
+	
 push_stable: ## Tag stable, latest and version tags to the last build and push
 	@echo docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
 	@docker tag moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD) moodlenet/moodlenet:latest
@@ -63,6 +75,14 @@ push_stable: ## Tag stable, latest and version tags to the last build and push
 	@docker push moodlenet/moodlenet:$(APP_VSN)
 	@echo docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
 	@docker push moodlenet/moodlenet:$(APP_VSN)-$(APP_BUILD)
+
+hq_deploy_staging: # used by Moodle HQ to trigger deploys to k8s
+	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
+	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
+	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
+	
+hq_deploy_stable:
+	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
 
 dev-exports:
 	awk '{print "export " $$0}' config/docker.dev.env

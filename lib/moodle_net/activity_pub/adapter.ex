@@ -1,42 +1,34 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Actors, Collections, Communities, Repo, Users}
+  alias MoodleNet.{Collections, Communities, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Threads.Comments
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
   @behaviour ActivityPub.Adapter
 
   def get_actor_by_username(username) do
-    with {:ok, actor} <- Actors.fetch_any_by_username(username) do
-      actor =
-        actor
-        |> Actors.preload_alias()
-        |> Actors.juggle_alias()
-
-      unless actor.deleted_at do
-        {:ok, actor}
-      else
-        {:error, "not found"}
-      end
-    else
-      _e -> {:error, "not found"}
+    with {:error, _e} <- Users.one([:default, username: username]),
+         {:error, _e} <- Communities.one([:default, username: username]),
+         {:error, _e} <- Collections.one([:default, username: username]) do
+      {:error, "not found"}
     end
   end
 
   def get_actor_by_id(id) do
-    with {:error, _e} <- Users.fetch(id),
-         {:error, _e} <- Communities.fetch_private(id),
-         {:error, _e} <- Collections.fetch(id) do
+    with {:error, _e} <- Users.one([:default, id: id]),
+         {:error, _e} <- Communities.one([:default, id: id]),
+         {:error, _e} <- Collections.one([:default, id: id]) do
       {:error, "not found"}
     end
   end
 
   def get_actor_by_ap_id(ap_id) do
-    with {:ok, actor} <- ActivityPub.Actor.get_by_ap_id(ap_id),
+    with {:ok, actor} <- ActivityPub.Actor.get_or_fetch_by_ap_id(ap_id),
          {:ok, actor} <- get_actor_by_username(actor.username) do
       {:ok, actor}
     else
@@ -63,9 +55,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
           peer
       end
 
+    name =
+      case actor["name"] do
+        nil -> actor["preferredUsername"]
+        "" -> actor["preferredUsername"]
+        _ -> actor["name"]
+      end
+
     create_attrs = %{
       preferred_username: username,
-      name: actor["name"] || actor["preferredUsername"],
+      name: name,
       summary: actor["summary"],
       icon: maybe_fix_image_object(actor["icon"]),
       image: maybe_fix_image_object(actor["image"]),
@@ -82,19 +81,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
           MoodleNet.Users.register(create_attrs)
 
         "MN:Community" ->
-          {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
-          {:ok, creator} = get_actor_by_username(ap_creator.username)
+          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
           MoodleNet.Communities.create(creator, create_attrs)
 
         "MN:Collection" ->
-          {:ok, ap_creator} = ActivityPub.Actor.get_by_ap_id(actor["attributedTo"])
-          {:ok, creator} = get_actor_by_username(ap_creator.username)
-          {:ok, ap_community} = ActivityPub.Actor.get_by_ap_id(actor["context"])
-          {:ok, community} = get_actor_by_username(ap_community.username)
+          {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
+          {:ok, community} = get_actor_by_ap_id(actor["context"])
           MoodleNet.Collections.create(creator, community, create_attrs)
       end
 
-    object = ActivityPub.Object.get_by_ap_id(actor["id"])
+    object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
 
     ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
     {:ok, created_actor}
@@ -102,7 +98,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
-           MoodleNet.Actors.fetch_by_username(actor.data["preferredUsername"]),
+           MoodleNet.Actors.one([username: actor.data["preferredUsername"]]),
          {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
@@ -173,7 +169,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     host = URI.parse(actor.data["id"]).host
     username = actor.data["preferredUsername"] <> "@" <> host
 
-    case Repo.fetch_by(MoodleNet.Actors.Actor, %{preferred_username: username}) do
+    case MoodleNet.Actors.one(username: username) do
       {:error, _} ->
         with {:ok, _actor} <- create_remote_actor(actor.data, username) do
           :ok
@@ -195,11 +191,11 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
       ) do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
-         {:ok, parent_comment} <- MoodleNet.Comments.fetch_comment(parent_id),
-         {:ok, thread} <- MoodleNet.Comments.fetch_thread(parent_comment.thread_id),
+         {:ok, parent_comment} <- Comments.one(id: parent_id),
+         {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, _} <-
-           MoodleNet.Comments.create_comment_reply(actor, thread, parent_comment, %{
+           Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -216,13 +212,12 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note"}} = object
       ) do
     with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
-         {:ok, pointer} <- MoodleNet.Meta.find(pointer_id),
-         {:ok, parent} <- MoodleNet.Meta.follow(pointer),
+         {:ok, pointer} <- Pointers.one(id: pointer_id),
+         parent = Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, thread} <-
-           MoodleNet.Comments.create_thread(actor, parent, %{is_public: true, is_local: false}),
+         {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
          {:ok, _} <-
-           MoodleNet.Comments.create_comment(actor, thread, %{
+           Comments.create(actor, thread, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
@@ -275,7 +270,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
           }
         } = activity
       ) do
-    object = ActivityPub.Object.get_by_ap_id(object_id)
+    object = ActivityPub.Object.get_cached_by_ap_id(object_id)
     handle_create(activity, object)
   end
 
@@ -301,7 +296,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, follow} <- MoodleNet.Follows.find(follower, followed),
+         {:ok, follow} <- MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
          {:ok, _} <- MoodleNet.Follows.undo(follow) do
       :ok
     else
@@ -344,9 +339,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(activity.data["actor"]),
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          %ActivityPub.Object{} = object <-
-           ActivityPub.Object.get_by_ap_id(activity.data["object"]),
-         {:ok, liked} <- MoodleNet.Meta.find(object.mn_pointer_id),
-         {:ok, liked} <- MoodleNet.Meta.follow(liked),
+           ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
+         {:ok, liked} <- Pointers.one(id: object.mn_pointer_id),
+         liked = Pointers.follow!(liked),
          {:ok, _} <-
            MoodleNet.Likes.create(actor, liked, %{
              is_public: true,
@@ -363,7 +358,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         :handle_activity,
         %{data: %{"type" => "Delete", "object" => obj_id}} = activity
       ) do
-    object = ActivityPub.Object.get_by_ap_id(obj_id)
+    object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
     if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
@@ -381,14 +376,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
     else
       case object.data["formerType"] do
         "Note" ->
-          with {:ok, comment} <- MoodleNet.Comments.fetch_comment(object.mn_pointer_id),
-               {:ok, _} <- MoodleNet.Comments.soft_delete_comment(comment) do
+          with {:ok, comment} <- Comments.one(id: object.mn_pointer_id),
+               {:ok, _} <- Comments.soft_delete(comment) do
             :ok
           end
 
         "Document" ->
-          with {:ok, resource} <- MoodleNet.Resources.fetch(object.mn_pointer_id),
-               {:ok, _} <- MoodleNet.Resources.soft_delete(resource) do
+          with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
+               {:ok, _} <- Resources.soft_delete(resource) do
             :ok
           end
       end
@@ -399,11 +394,12 @@ defmodule MoodleNet.ActivityPub.Adapter do
       when length(objects) > 1 do
     with {:ok, actor} <- get_actor_by_ap_id(activity.data["actor"]) do
       activity.data["object"]
-      |> Enum.map(fn ap_id -> ActivityPub.Object.get_by_ap_id(ap_id) end)
+      |> Enum.map(fn ap_id -> ActivityPub.Object.get_cached_by_ap_id(ap_id) end)
       # Filter nils
       |> Enum.filter(fn object -> object end)
       |> Enum.map(fn object ->
-        object.mn_pointer_id |> MoodleNet.Meta.find!() |> MoodleNet.Meta.follow!()
+        Pointers.one!(id: object.mn_pointer_id)
+        |> Pointers.follow!()
       end)
       |> Enum.each(fn object ->
         MoodleNet.Flags.create(actor, object, %{

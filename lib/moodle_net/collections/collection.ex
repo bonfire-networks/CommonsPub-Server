@@ -11,9 +11,6 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.{Collection, CollectionFollowerCount}
   alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Localisation.Language
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 

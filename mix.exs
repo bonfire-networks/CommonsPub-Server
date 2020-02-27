@@ -37,6 +37,7 @@ defmodule MoodleNet.Mixfile do
        :hackney,
        :mime,
        :belt,
+       :cachex,
      ]
     ]
   end
@@ -56,7 +57,6 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:dataloader, "~> 1.0.0"},
       {:absinthe, "~> 1.5.0-beta.2"},
       {:absinthe_plug, "~> 1.5.0-alpha.0"},
       # webserver
@@ -74,8 +74,8 @@ defmodule MoodleNet.Mixfile do
       # File storage
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
-      {:format_parser, "~> 1.3.0"},
-      {:tree_magic, git: "https://github.com/antoniskalou/tree_magic.ex"},
+      {:format_parser, git: "https://github.com/antoniskalou/format_parser.ex"},
+      {:twinkle_star, git: "https://github.com/antoniskalou/twinkle_star"},
       # database
       {:ecto, "~> 3.1"},
       {:ecto_sql, "~> 3.1"},
@@ -104,6 +104,7 @@ defmodule MoodleNet.Mixfile do
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
+      {:cachex, "~> 3.2"}, # caching
       # dev/test only
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP

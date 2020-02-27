@@ -12,61 +12,11 @@ defmodule MoodleNet.Actors do
   """
 
   import Ecto.Query, only: [from: 2]
-  alias MoodleNet.{Actors, Meta, Repo}
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Users.User
-  alias Ecto.{Changeset, Multi}
+  alias MoodleNet.Repo
+  alias MoodleNet.Actors.{Actor, Queries}
+  alias Ecto.Changeset
 
-  @doc "Fetches an actor by id"
-  @spec fetch(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch(id) when is_binary(id), do: Repo.fetch(Actor, id)
-
-  @doc "Fetches an actor by ID, ignoring whether if it is public or not."
-  @spec fetch_private(id :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_private(id) when is_binary(id), do: Repo.fetch(Actor, id)
-
-  @doc "Fetches n local actor by username"
-  @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_by_username(username) when is_binary(username) do
-    Repo.single(fetch_by_username_q(username))
-  end
-
-  @doc "Fetches a remote or a local actor by username"
-  @spec fetch(username :: binary) :: {:ok, Actor.t()} | {:error, NotFoundError.t()}
-  def fetch_any_by_username(username) when is_binary(username) do
-    Repo.single(fetch_any_by_username_q(username))
-  end
-
-  def preload_alias(%Actor{}=actor) do
-    Repo.preload(actor, [:user, :collection, :community])
-  end
-
-  @doc """
-  Returns the actor's alias with the actor preloaded, without hitting the database.
-  Note: assumes the actor has had its alias preloaded.
-  """
-  def juggle_alias(%Actor{user: %User{}=user}=actor) do
-    %{ user | actor: actor}
-  end
-  def juggle_alias(%Actor{community: %Community{}=comm}=actor) do
-    %{ comm | actor: actor}
-  end
-  def juggle_alias(%Actor{collection: %Collection{}=coll}=actor) do
-    %{ coll | actor: actor}
-  end
-
-  defp fetch_by_username_q(username) do
-    from a in Actor,
-      where: a.preferred_username == ^username,
-      where: is_nil(a.peer_id)
-  end
-
-  defp fetch_any_by_username_q(username) do
-    from a in Actor,
-    where: a.preferred_username == ^username
-  end
+  def one(filters), do: Repo.single(Queries.query(Actor, filters))
 
   # a username remains taken forever and regardless of publicity
   defp is_username_available_q(username) do
@@ -85,12 +35,12 @@ defmodule MoodleNet.Actors do
   end
 
   @doc "creates a new actor from the given attrs"
-  @spec create(attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
+  @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
     Repo.insert(Actor.create_changeset(attrs))
   end
 
-  @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} :: {:error, Changeset.t()}
+  @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def update(%Actor{} = actor, attrs) when is_map(attrs) do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
