@@ -23,11 +23,17 @@ defmodule ActivityPubWeb.ActivityPubController do
   alias ActivityPubWeb.ObjectView
   alias ActivityPubWeb.RedirectController
 
+  def ap_route_helper(uuid) do
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+    MoodleNetWeb.base_url() <> ap_base_path <> "/objects/" <> uuid
+  end
+
   def object(conn, %{"uuid" => uuid}) do
     if get_format(conn) == "html" do
       RedirectController.object(conn, %{"uuid" => uuid})
     else
-      with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
+      with ap_id <- ap_route_helper(uuid),
            %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
            true <- object.public do
         conn
