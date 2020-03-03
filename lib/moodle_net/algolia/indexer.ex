@@ -42,7 +42,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "index_instance_object_id" => community.id,
+      "index_mothership_object_id" => community.id,
       "canonicalUrl" => community.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
@@ -70,7 +70,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "index_instance_object_id" => collection.id,
+      "index_mothership_object_id" => collection.id,
       "canonicalUrl" => collection.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
@@ -98,7 +98,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     %{
-      "index_instance_object_id" => resource.id,
+      "index_mothership_object_id" => resource.id,
       "name" => resource.name,
       "canonicalUrl" => resource.canonical_url,
       "createdAt" => resource.published_at,
