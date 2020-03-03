@@ -53,7 +53,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "preferredUsername" => community.actor.preferred_username,
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
-      "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
+      "index_instance" => URI.parse(community.actor.canonical_url).host,
       "createdAt" => community.published_at,
       "objectID" =>
         :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode64(padding: false)
@@ -80,7 +80,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "preferredUsername" => collection.actor.preferred_username,
       "summary" => Map.get(collection, :summary),
       "index_type" => "Collection",
-      "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
+      "index_instance" => URI.parse(collection.actor.canonical_url).host,
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
       "objectID" =>
@@ -110,9 +110,10 @@ defmodule MoodleNet.Algolia.Indexer do
       "summary" => Map.get(resource, :summary),
       "updatedAt" => resource.updated_at,
       "index_type" => "Resource",
-      "index_instance" => System.get_env("HOSTNAME", MoodleNetWeb.Endpoint.host()),
+      "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
-      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode64(padding: false)
+      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode64(padding: false),
+      "url" => resource.url
     }
   end
 
@@ -132,7 +133,7 @@ defmodule MoodleNet.Algolia.Indexer do
       :ok
     else
       _ ->
-        Logger.warn("Couldn't index object ID #{object["id"]}")
+        Logger.warn("Couldn't index object ID #{object["objectID"]}")
         :ok
     end
   end

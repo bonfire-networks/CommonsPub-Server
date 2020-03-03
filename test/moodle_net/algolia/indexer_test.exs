@@ -10,7 +10,7 @@ defmodule MoodleNet.Algolia.IndexerTest do
   test "format community" do
     community = fake_user!() |> fake_community!()
     json = Indexer.format_object(community)
-    assert json["index_instance_object_id"] == community.id
+    assert json["index_mothership_object_id"] == community.id
     assert json["canonicalUrl"] == community.actor.canonical_url
     assert json["icon"] == community.icon
     assert json["image"] == community.image
@@ -25,7 +25,7 @@ defmodule MoodleNet.Algolia.IndexerTest do
     collection = fake_collection!(user, community)
 
     json = Indexer.format_object(collection)
-    assert json["index_instance_object_id"] == collection.id
+    assert json["index_mothership_object_id"] == collection.id
     assert json["canonicalUrl"] == collection.actor.canonical_url
     assert json["icon"] == collection.icon
     assert json["preferredUsername"] == collection.actor.preferred_username
@@ -41,7 +41,7 @@ defmodule MoodleNet.Algolia.IndexerTest do
     resource = fake_resource!(user, collection)
 
     json = Indexer.format_object(resource)
-    assert json["index_instance_object_id"] == resource.id
+    assert json["index_mothership_object_id"] == resource.id
     assert json["canonicalUrl"] == resource.canonical_url
     assert json["icon"] == resource.icon
     assert json["summary"] == resource.summary
