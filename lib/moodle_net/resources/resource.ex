@@ -21,6 +21,7 @@ defmodule MoodleNet.Resources.Resource do
     field(:summary, :string)
     field(:url, :string)
     field(:license, :string)
+    field(:author, :string)
     field(:icon, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
