@@ -11,7 +11,9 @@ defmodule MoodleNet.MetadataScraper do
   @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do
-    with {:ok, file_info} <- TwinkleStar.from_uri(url, @request_opts) do
+    file_info_res = url |> ensure_http_scheme() |> TwinkleStar.from_uri(@request_opts)
+
+    with {:ok, file_info} <- file_info_res do
       data =
         case unfurl(url, file_info) do
           {:ok, data} -> data
@@ -30,6 +32,14 @@ defmodule MoodleNet.MetadataScraper do
       end
     else
       {:error, :furlex_unsupported_format}
+    end
+  end
+
+  defp ensure_http_scheme(url) do
+    case URI.parse(url) do
+      %URI{host: host, scheme: nil} = uri when not is_nil(host) ->
+        %URI{ uri | scheme: "http" }
+      uri -> uri
     end
   end
 
