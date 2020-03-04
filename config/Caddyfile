@@ -1,4 +1,5 @@
-:80 
+:80#,:443 
+# uncomment the above to enable SSL / HTTPS
 {
 
   root /var/www
@@ -40,7 +41,7 @@
     to /proxy-frontend{uri}
   }
 
-  proxy /proxy-frontend/ https://{$FRONTEND_HOSTNAME} {
+  proxy /proxy-frontend/ {$FRONTEND_BASE_URL} {
     except /uploads /devops /proxy-elixir
     without /proxy-frontend
     #cache
