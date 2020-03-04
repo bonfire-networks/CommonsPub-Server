@@ -132,8 +132,9 @@ defmodule MoodleNet.Algolia.Indexer do
     with {:ok, %{status: code}} when code == 200 <- HTTP.put(url, json, headers) do
       :ok
     else
-      _ ->
+      {_, message} ->
         Logger.warn("Couldn't index object ID #{object["objectID"]}")
+        Logger.warn(inspect(message))
         :ok
     end
   end
