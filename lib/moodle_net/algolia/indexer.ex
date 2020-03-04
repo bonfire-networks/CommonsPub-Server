@@ -56,7 +56,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(community.actor.canonical_url).host,
       "createdAt" => community.published_at,
       "objectID" =>
-        :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode64(padding: false)
+        :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
     }
   end
 
@@ -84,7 +84,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
       "objectID" =>
-        :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode64(padding: false)
+        :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
     }
   end
 
@@ -112,7 +112,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_type" => "Resource",
       "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
-      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode64(padding: false),
+      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
       "url" => resource.url
     }
   end
