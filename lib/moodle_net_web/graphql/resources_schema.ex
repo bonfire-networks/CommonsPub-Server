@@ -66,6 +66,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :url, :string
     @desc "What license is it available under?"
     field :license, :string
+    @desc "The original author"
+    field :author, :string
     # @desc "approx reading time in minutes"
     # field :time_required, :integer
     # @desc "free text"
