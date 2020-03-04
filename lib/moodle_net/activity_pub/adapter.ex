@@ -100,7 +100,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
-           MoodleNet.Actors.one([username: actor.data["preferredUsername"]]),
+           MoodleNet.Actors.one(username: actor.data["preferredUsername"]),
          {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
@@ -191,7 +191,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def handle_create(
         _activity,
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
-      ) do
+      )
+      when not is_nil(in_reply_to) do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
@@ -299,7 +300,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
-         {:ok, follow} <- MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
+         {:ok, follow} <-
+           MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
          {:ok, _} <- MoodleNet.Follows.undo(follow) do
       :ok
     else
