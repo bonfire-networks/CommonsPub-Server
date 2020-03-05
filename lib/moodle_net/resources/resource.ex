@@ -32,7 +32,7 @@ defmodule MoodleNet.Resources.Resource do
   end
 
   @required ~w(name)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon url)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon url author)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
