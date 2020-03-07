@@ -1,12 +1,12 @@
 # CommonsPub Federated Server 
 
 ## About the project
-A project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards). 
+[CommonsPub](http://commonspub.org) is a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards). 
 
 This is the back-end, written in Elixir (running on the Erlang VM, and using the Phoenix web framework). 
 The federation API uses [ActivityPub](http://activitypub.rocks/) 
 The client API uses GraphQL. 
-The front-end is built with React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react)).
+The front-end is built with React (in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 This codebase was forked from [MoodleNet](http://moodle.net/), which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma).
 
@@ -14,11 +14,11 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 
 ## Documentation index
 
-Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/moodlenet/clients/react/blob/develop/README.md#deploying-moodlenet).
+Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/CommonsPub/Client/-/blob/develop/README.md#deploying).
 
-Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/moodlenet/servers/federated/blob/develop/DEPLOY.md).
+Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/develop/DEPLOY.md).
 
-Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/moodlenet/servers/federated/blob/develop/HACKING.md).
+Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/develop/HACKING.md).
 
 ## Copyright and License
 
