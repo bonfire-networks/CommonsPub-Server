@@ -1,15 +1,15 @@
 # CommonsPub Federated Server 
 
 ## About the project
-This is a project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards). 
-
+A project to create a generic federated server, based on the `ActivityPub` and `ActivityStreams` web standards). 
 
 This is the back-end, written in Elixir (running on the Erlang VM, and using the Phoenix web framework). 
-The client API uses GraphQL. 
 The federation API uses [ActivityPub](http://activitypub.rocks/) 
+The client API uses GraphQL. 
 The front-end is built with React (in a [seperate repo](https://gitlab.com/moodlenet/clients/react)).
 
-This codebase was forked from [MoodleNet](http://moodle.net/), which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma). 
+This codebase was forked from [MoodleNet](http://moodle.net/), which was originally forked from [Pleroma](https://git.pleroma.social/pleroma/pleroma).
+
 ---
 
 ## Documentation index
