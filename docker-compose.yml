@@ -7,7 +7,9 @@ services:
     # $ make tag_latest
     image: "moodlenet/moodlenet:latest"
     ports:
-      - "4000:4000"
+      - "4000:4000" # you may want to comment this in production
+      - "80:80"
+      - "443:443"
     env_file:
       - config/docker.env
     depends_on:

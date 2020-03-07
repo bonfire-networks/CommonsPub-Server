@@ -15,7 +15,7 @@ defmodule ActivityPubWeb.RedirectController do
   def object(conn, %{"uuid" => uuid}) do
     frontend_base = MoodleNet.Config.get!(:frontend_base_url)
 
-    with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
+    with ap_id <- ActivityPubWeb.ActivityPubController.ap_route_helper(uuid),
          %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_ap_id(ap_id),
          {:ok, pointer} <- Pointers.one(id: object.mn_pointer_id) do
          object = Pointers.follow!(pointer)
