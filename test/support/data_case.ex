@@ -72,7 +72,7 @@ defmodule MoodleNet.DataCase do
 
   @doc "Returns true if the provided is a DeletionError that was stale"
   def was_already_deleted?(
-    %DeletionError{changeset: %{errors: [id: {"has already been deleted", [stale: true]}]}}
+    %DeletionError{message: "has already been deleted"}
   ), do: true
 
   def was_already_deleted?(_), do: false

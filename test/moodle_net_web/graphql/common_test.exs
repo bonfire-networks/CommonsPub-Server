@@ -58,6 +58,7 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       resource = fake_resource!(user, coll)
+
       for context <- [other_user, comm, coll, resource] do
         query = %{query: delete_q(context.id)}
         assert %{"delete" => res} = gql_post_data(conn, query)
@@ -92,7 +93,8 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
       assert %{"delete" => res} = gql_post_data(conn, query)
       assert res["id"] == flag.id
 
-      assert %{"errors" => errors} = gql_post_errors(conn, query)
+      assert [%{"code" => "deletion_error", "message" => "was already deleted"}] =
+               gql_post_errors(conn, query)
     end
 
     test "can not delete another user" do
