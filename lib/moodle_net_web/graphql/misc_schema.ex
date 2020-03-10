@@ -17,7 +17,9 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
     field(:language, :string)
     field(:author, :string)
     field(:source, :string)
-    field(:resource_type, :string)
+    field(:mime_type, :string)
+    field(:embed_type, :string)
+    field(:embed_code, :string)
   end
 
   object :fetched_object do
