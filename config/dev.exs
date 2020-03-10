@@ -78,8 +78,9 @@ config :moodle_net, MoodleNet.Repo,
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
-config :moodle_net, :base_url,
-  System.get_env("BASE_URL", "http://localhost:4000")
+base_url = System.get_env("BASE_URL", "http://localhost:4000")
+
+config :moodle_net, :base_url, base_url
 
 config :moodle_net, :ap_base_path,
   System.get_env("AP_BASE_PATH", "/pub")
@@ -101,7 +102,7 @@ config :moodle_net, MoodleNet.OAuth,
 
 config :moodle_net, MoodleNet.Uploads,
   directory: "uploads",
-  base_url: "/uploads/"
+  base_url: base_url <> "/uploads/"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn
