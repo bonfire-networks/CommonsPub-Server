@@ -81,12 +81,24 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
       assert res["id"] == flag.id
     end
 
-    test "can not delete another user" do
+    test "deleting an item twice" do
+      user = fake_user!()
+      conn = user_conn(user)
 
+      comm = fake_community!(user)
+      assert {:ok, flag} = Flags.create(user, comm, Fake.flag())
+      query = %{query: delete_q(flag.id)}
+
+      assert %{"delete" => res} = gql_post_data(conn, query)
+      assert res["id"] == flag.id
+
+      assert %{"errors" => errors} = gql_post_errors(conn, query)
+    end
+
+    test "can not delete another user" do
     end
 
     test "can not delete an item of another user" do
-      
     end
   end
 end
