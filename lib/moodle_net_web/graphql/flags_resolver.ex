@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     {:ok, edges} = Flags.edges_pages(
       &(&1.context_id),
       &(&1.id),
-      [user: user, context_id: ids],
+      [:deleted, user: user, context_id: ids],
       [order: :timeline_desc],
       [group_count: :context_id]
     )
@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   def batch_my_flag_edge(_user, []), do: %{}
   def batch_my_flag_edge(%User{id: id}, ids) do
-    {:ok, edges} = Flags.edges(&(&1.context_id), creator_id: id, context_id: ids)
+    {:ok, edges} = Flags.edges(&(&1.context_id), [:deleted, creator_id: id, context_id: ids])
     edges
   end
 
