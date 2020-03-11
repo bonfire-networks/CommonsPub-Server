@@ -45,6 +45,7 @@ defmodule MoodleNet.MetadataScraper do
 
   defp format_data(data, url, media_type) do
     %{
+      url: url,
       title: title(data),
       summary: summary(data),
       image: image(data, url),

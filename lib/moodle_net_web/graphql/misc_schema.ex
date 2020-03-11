@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   alias ActivityPub.Fetcher
 
   object :web_metadata do
+    field(:url, :string)
     field(:title, :string)
     field(:summary, :string)
     field(:image, :string)
