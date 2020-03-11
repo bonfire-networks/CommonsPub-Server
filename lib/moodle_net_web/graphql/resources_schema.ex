@@ -74,15 +74,18 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "The original author"
     field :author, :string
 
-    @desc "The file type"
-    field :mime_type, :string
+    # TODO: add these 3 fields to DB:
 
-    @desc "The type of content that may be embeded"
-    field :embed_type, :string
+    # @desc "The file type"
+    # field :mime_type, :string
 
-    @desc "The HTML code of content that may be embeded"
-    field :embed_code, :string
+    # @desc "The type of content that may be embeded"
+    # field :embed_type, :string
 
+    # @desc "The HTML code of content that may be embeded"
+    # field :embed_code, :string
+
+    # No longer or not yet in use:
     # @desc "approx reading time in minutes"
     # field :time_required, :integer
     # @desc "free text"
