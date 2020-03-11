@@ -17,7 +17,7 @@ defmodule MoodleNet.GraphQL do
 
   def admin_or_not_permitted(%Resolution{}=info) do
     case info.context.current_user do
-      match_admin() -> info.context.current_user
+      match_admin() -> {:ok, info.context.current_user}
       _ -> not_permitted()
     end
   end

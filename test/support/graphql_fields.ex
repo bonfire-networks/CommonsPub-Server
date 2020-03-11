@@ -117,4 +117,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     """
   end
 
+  def feature_basics() do
+    """
+    id canonicalUrl isLocal createdAt __typename
+    """
+  end
 end
