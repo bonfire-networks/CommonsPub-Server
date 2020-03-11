@@ -34,14 +34,14 @@
 
 
   rewrite / {
-    if {$FRONTEND_HOSTNAME} not {$HOSTNAME} # if frontend is served on another domain, proxy that
+    if {$PROXY_FRONTEND_URL} not {$FRONTEND_BASE_URL} # if frontend is served somewhere else, proxy that
     if {path} not_starts_with /uploads
     if {path} not_starts_with /devops
     if {path} not_starts_with /proxy-elixir
     to /proxy-frontend{uri}
   }
 
-  proxy /proxy-frontend/ {$FRONTEND_BASE_URL} {
+  proxy /proxy-frontend/ {$PROXY_FRONTEND_URL} {
     except /uploads /devops /proxy-elixir
     without /proxy-frontend
     #cache
