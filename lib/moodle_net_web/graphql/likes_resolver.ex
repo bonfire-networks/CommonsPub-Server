@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     {:ok, edges} = Likes.edges_pages(
       &(&1.context_id),
       &(&1.id),
-      [user: user, context_id: ids],
+      [:deleted, user: user, context_id: ids],
       [order: :timeline_desc],
       [group_count: :context_id]
     )
