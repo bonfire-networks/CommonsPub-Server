@@ -1,5 +1,7 @@
 defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
   use Ecto.Migration
+  import Ecto.Query
+  alias MoodleNet.Repo
 
   @moduledoc """
   Inverts the relationship between the context used by an upload and the upload itself.
@@ -32,11 +34,11 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     end
 
     create table(:mn_content_upload) do
-      add :path, :string
+      add :path, :string, null: false
     end
 
     create table(:mn_content_mirror) do
-      add :url, :string
+      add :url, :string, null: false
     end
 
     alter table(:mn_content) do
@@ -55,8 +57,8 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
 
     # Move all items from mn_upload to mn_content_upload
     :ok = execute """
-    insert into mn_content_upload (path)
-    select path from mn_content;
+    insert into mn_content_upload (id, path)
+    select id, path from mn_content;
     """
 
     # Update mn_content to reference mn_content_upload
@@ -67,14 +69,21 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     where c.path = cu.path;
     """
 
-    # TODO: handle remote URL's
-    :ok = execute update_mirrors_q("mn_user", "icon", "icon_id")
-    :ok = execute update_mirrors_q("mn_user", "image", "image_id")
-    :ok = execute update_mirrors_q("mn_community", "image", "image_id")
-    :ok = execute update_mirrors_q("mn_community", "icon", "icon_id")
-    :ok = execute update_mirrors_q("mn_collection", "icon", "icon_id")
-    :ok = execute update_mirrors_q("mn_resource", "icon", "icon_id")
-    :ok = execute update_mirrors_q("mn_resource", "url", "content_id")
+    # Handle remote URL's
+    :ok = execute_mirrors_q("mn_user", "icon", "icon_id")
+    :ok = execute_mirrors_q("mn_user", "image", "image_id")
+    :ok = execute_mirrors_q("mn_community", "image", "image_id")
+    :ok = execute_mirrors_q("mn_community", "icon", "icon_id")
+    :ok = execute_mirrors_q("mn_collection", "icon", "icon_id")
+    :ok = execute_mirrors_q("mn_resource", "icon", "icon_id")
+    :ok = execute_mirrors_q("mn_resource", "url", "content_id")
+
+    flush()
+
+    # TODO: ensure there are no dangling records
+    false = repo().exists?(from(c in "mn_content", where: is_nil(c.content_upload_id) and is_nil(c.content_mirror_id)))
+    # false = repo().exists?("mn_content_upload")
+    # false = repo().exists?("mn_content_mirror")
 
     # FIXME: add constraint to forbid both or neither references set
     alter table(:mn_content) do
@@ -123,20 +132,47 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     end
 
     rename table(:mn_content), to: table(:mn_upload)
+
+    alter table(:mn_upload) do
+      add :parent_id, references(:mn_pointer, on_delete: :delete_all), null: false
+      add :path, :string, null: false
+    end
+
+    # TODO: move over data
+
+    alter table(:mn_upload) do
+      remove :content_upload_id
+      remove :content_mirror_id
+    end
   end
 
   defp update_uploads_q(table, old_field, new_field) do
     """
     update #{table} x
     set #{new_field} = c.id
-    from mn_content as c
-    where x.id = c.parent_id and x.#{old_field} like '%' || c.path;
+    from mn_content c
+    where x.id = c.parent_id and x.#{old_field} = c.path;
     """
   end
 
-  defp update_mirrors_q(table, old_field, new_field) do
+  defp execute_mirrors_q(table, old_field, new_field) do
+    :ok = execute """
+    insert into mn_content_mirror (id, url)
+    select uuid_generate_v4(), #{old_field} from #{table}
+    where #{new_field} is null and #{old_field} is not null;
     """
-    fail;
+
+    :ok = execute """
+    insert into mn_content (id, parent_id, content_mirror_id, path, media_type, size, created_at, updated_at)
+    select x.id, x.id, cm.id, cm.url, 'application/octet-stream', 0, x.updated_at, x.updated_at from mn_content_mirror cm, #{table} x
+    where x.#{old_field} = cm.url;
+    """
+
+    :ok = execute """
+    update #{table} x
+    set #{new_field} = c.id
+    from mn_content c
+    where x.id = c.parent_id and x.#{old_field} = c.path;
     """
   end
 end
