@@ -80,6 +80,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
       resolve &LikesResolver.my_like_edge/3
     end
 
+    @desc "The current user's flag of this comment, if any"
+    field :my_flag, :flag do
+      resolve &FlagsResolver.my_flag_edge/3
+    end
+
     @desc "The user who created this comment"
     field :creator, :user do
       resolve &UsersResolver.creator_edge/3
