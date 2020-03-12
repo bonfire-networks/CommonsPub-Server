@@ -70,4 +70,18 @@ defmodule MoodleNet.ActivityPub.Utils do
         object.mn_pointer_id
     end
   end
+
+  def create_author_object(%{author: nil}) do
+    nil
+  end
+
+  def create_author_object(%{author: author}) do
+    uri = URI.parse(author)
+
+    if uri.host do
+      %{"url" => author, "type" => "Person"}
+    else
+      %{"name" => author, "type" => "Person"}
+    end
+  end
 end
