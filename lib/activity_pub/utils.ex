@@ -46,6 +46,7 @@ defmodule ActivityPub.Utils do
       "@context" => [
         "https://www.w3.org/ns/activitystreams",
         "https://litepub.social/litepub/context.jsonld",
+        "http://schema.org/",
         %{
           "collections" => "mn:collections",
           "resources" => "mn:resources"
