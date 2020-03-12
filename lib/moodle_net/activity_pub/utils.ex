@@ -84,4 +84,12 @@ defmodule MoodleNet.ActivityPub.Utils do
       %{"name" => author, "type" => "Person"}
     end
   end
+
+  def get_author(nil), do: nil
+
+  def get_author(%{"url" => url}), do: url
+
+  def get_author(%{"name" => name}), do: name
+
+  def get_author(author) when is_binary(author), do: author
 end
