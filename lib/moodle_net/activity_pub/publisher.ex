@@ -68,7 +68,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "context" => collection.ap_id,
            "summary" => Map.get(resource, :summary),
            "type" => "Document",
-           "tag" => resource.license
+           "tag" => resource.license,
+           "author" => Utils.create_author_object(resource)
          },
          params = %{
            actor: actor,
