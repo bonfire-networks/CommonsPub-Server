@@ -108,15 +108,15 @@ defmodule MoodleNet.Meta.PointersTest do
     # TODO: merge antonis' work and figure out preloads
     test "preload! can load many pointers of many types" do
       Repo.transaction(fn ->
-        assert peer = fake_peer!()
-        assert peer2 = fake_peer!()
-        assert user = fake_user!()
-        assert user2 = fake_user!()
-        assert actor = fake_actor!()
+        peer = fake_peer!()
+        user = fake_user!()
+        comm = fake_community!(user)
+        thread = fake_thread!(user, comm)
+        comment = fake_comment!(user, thread)
         assert pointer = Pointers.one!(id: peer.id)
-        assert pointer2 = Pointers.one!(id: peer2.id)
+        assert pointer2 = Pointers.one!(id: comm.id)
         assert pointer3 = Pointers.one!(id: user.id)
-        assert pointer4 = Pointers.one!(id: user2.id)
+        assert pointer4 = Pointers.one!(id: comment.id)
 
         assert [pointer5, pointer6, pointer7, pointer8] =
                  Pointers.preload!([pointer, pointer2, pointer3, pointer4])
@@ -126,7 +126,9 @@ defmodule MoodleNet.Meta.PointersTest do
         assert pointer7.id == pointer3.id
         assert pointer8.id == pointer4.id
         assert Map.drop(pointer5.pointed, [:is_disabled]) == Map.drop(peer, [:is_disabled])
-        assert Map.drop(pointer6.pointed, [:is_disabled]) == Map.drop(peer2, [:is_disabled])
+
+        assert Map.drop(pointer6.pointed, [:is_disabled, :is_public]) ==
+                 Map.drop(comm, [:is_disabled, :is_public])
 
         pointed7 =
           Map.drop(pointer7.pointed, [
@@ -141,7 +143,7 @@ defmodule MoodleNet.Meta.PointersTest do
             :preferred_username
           ])
 
-        user3 =
+        user2 =
           Map.drop(user, [
             :actor,
             :local_user,
@@ -154,35 +156,16 @@ defmodule MoodleNet.Meta.PointersTest do
             :preferred_username
           ])
 
-        assert pointed7 == user3
+        assert pointed7 == user2
 
         pointed8 =
           Map.drop(pointer8.pointed, [
-            :actor,
-            :local_user,
-            :email_confirm_tokens,
-            :is_disabled,
-            :is_public,
-            :is_deleted,
-            :canonical_url,
-            :is_local,
-            :preferred_username
+                :is_hidden, :is_public, :thread
           ])
 
-        user4 =
-          Map.drop(user2, [
-            :actor,
-            :local_user,
-            :email_confirm_tokens,
-            :is_disabled,
-            :is_public,
-            :is_deleted,
-            :canonical_url,
-            :is_local,
-            :preferred_username
-          ])
+        comment2 = Map.drop(comment, [:is_hidden, :is_public, :thread])
 
-        assert pointed8 == user4
+        assert pointed8 == comment2
       end)
     end
 
