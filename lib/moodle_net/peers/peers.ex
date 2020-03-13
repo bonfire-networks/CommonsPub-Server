@@ -15,13 +15,16 @@ defmodule MoodleNet.Peers do
   alias MoodleNet.{Common, Meta, Peers, Repo}
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Peers.Peer
+  alias MoodleNet.Peers.{Peer, Queries}
 
   # Querying
 
   @spec fetch(binary()) :: {:ok, Peer.t()} | {:error, NotFoundError.t()}
   @doc "Looks up the Peer with the given id in the database"
   def fetch(id), do: Repo.fetch(Peer, id)
+
+  def one(filters \\ []), do: Repo.single(Queries.query(Peer, filters))
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Peer, filters))}
 
   # Insertion
 

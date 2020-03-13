@@ -4,7 +4,7 @@ defmodule MoodleNet.MetaTest do
   import ExUnit.Assertions
   import MoodleNet.Meta.Introspection, only: [ecto_schema_table: 1]
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Meta, Repo}
+  alias MoodleNet.{Access, Repo}
 
   alias MoodleNet.Meta.{
     Pointer,
@@ -41,7 +41,7 @@ defmodule MoodleNet.MetaTest do
   @table_schemas Map.new(Enum.zip(@known_tables, @known_schemas))
   @expected_table_names Enum.sort(@known_tables)
 
-  describe "MoodleNet.Meta.TableService" do
+  describe "MoodleNet.Meta.Pointers.TableService" do
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       {:ok, %{}}
@@ -87,25 +87,6 @@ defmodule MoodleNet.MetaTest do
     end
   end
 
-  describe "MoodleNet.Meta.point_to!" do
-    test "throws when not in a transaction" do
-      expected_error = %NotInTransactionError{cause: "mn_peer"}
-      assert catch_throw(Meta.point_to!("mn_peer")) == expected_error
-    end
-
-    test "inserts a pointer when in a transaction" do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
-
-      Repo.transaction(fn ->
-        %Pointer{} = ptr = Meta.point_to!("mn_peer")
-        assert ptr.table_id == TableService.lookup_id!("mn_peer")
-        assert ptr.__meta__.state == :loaded
-        assert ptr2 = Meta.find!(ptr.id)
-        assert ptr2 == ptr
-      end)
-    end
-  end
-
   describe "MoodleNet.Pointers.forge!" do
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
@@ -143,53 +124,7 @@ defmodule MoodleNet.MetaTest do
     end
   end
 
-  describe "MoodleNet.Meta.points_to!" do
-    setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
-      {:ok, %{}}
-    end
-
-    test "returns the Table the Pointer points to" do
-      assert user = fake_user!()
-      assert pointer = Pointers.forge!(user)
-      assert user_table = TableService.lookup!(User)
-      assert table = Pointers.table!(pointer)
-      assert table == user_table
-    end
-
-    test "throws a TableNotFoundError if the Pointer doesn't point to a known table" do
-      pointer = %Pointer{id: 123, table_id: 999}
-      assert %TableNotFoundError{table: 999} = catch_throw(Pointers.table!(pointer))
-    end
-  end
-
-  describe "MoodleNet.Meta.assert_points_to!" do
-    setup do
-      :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
-      {:ok, %{}}
-    end
-
-    test "returns :ok if the Pointer points to the correct table" do
-      assert user = fake_user!()
-      assert pointer = Meta.forge!(user)
-      assert :ok == Meta.assert_points_to!(pointer, User)
-    end
-
-    test "throws an error if the Pointer points to the wrong table" do
-      assert user = fake_user!()
-      assert pointer = Meta.forge!(user)
-      assert :ok == Meta.assert_points_to!(pointer, User)
-    end
-
-    test "throws an error if the input isn't a known table name" do
-      pointer = %Pointer{id: 123, table_id: :bibbity_bobbity_boo}
-
-      assert %TableNotFoundError{table: :bibbity_bobbity_boo} =
-               catch_throw(Meta.assert_points_to!(pointer, :bibbity_bobbity_boo))
-    end
-  end
-
-  describe "MoodleNet.Meta.follow" do
+  describe "MoodleNet.Meta.Pointers.follow" do
     setup do
       :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
       {:ok, %{}}
@@ -271,6 +206,10 @@ defmodule MoodleNet.MetaTest do
         user4 = Map.drop(user2, [:actor, :local_user, :email_confirm_tokens, :is_disabled, :is_public, :is_deleted, :canonical_url, :is_local, :preferred_username])
         assert pointed8 == user4
       end)
+    end
+
+    test "key error does not occur for missing ID's" do
+      
     end
   end
 end
