@@ -127,8 +127,8 @@ defmodule MoodleNet.Meta.PointersTest do
         assert pointer8.id == pointer4.id
         assert Map.drop(pointer5.pointed, [:is_disabled]) == Map.drop(peer, [:is_disabled])
 
-        assert Map.drop(pointer6.pointed, [:is_disabled, :is_public]) ==
-                 Map.drop(comm, [:is_disabled, :is_public])
+        assert Map.drop(pointer6.pointed, [:is_disabled, :is_public, :actor]) ==
+                 Map.drop(comm, [:is_disabled, :is_public, :actor])
 
         pointed7 =
           Map.drop(pointer7.pointed, [
@@ -167,9 +167,6 @@ defmodule MoodleNet.Meta.PointersTest do
 
         assert pointed8 == comment2
       end)
-    end
-
-    test "key error does not occur for missing ID's" do
     end
   end
 end
