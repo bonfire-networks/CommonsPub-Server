@@ -28,7 +28,7 @@ defmodule MoodleNet.MetadataScraper do
     # HACK: furlex breaks if passed anything unsupported
     if media_type in @furlex_media_types do
       with {:ok, data} <- Furlex.unfurl(url, @request_opts) do
-        {:ok, format_data(data, url)}
+        {:ok, format_data(data, url, media_type)}
       end
     else
       {:error, :furlex_unsupported_format}
@@ -43,8 +43,9 @@ defmodule MoodleNet.MetadataScraper do
     end
   end
 
-  defp format_data(data, url) do
+  defp format_data(data, url, media_type) do
     %{
+      url: url,
       title: title(data),
       summary: summary(data),
       image: image(data, url),
@@ -52,7 +53,8 @@ defmodule MoodleNet.MetadataScraper do
       language: language(data),
       author: author(data),
       source: source(data),
-      resource_type: resource_type(data)
+      embed_type: embed_type(data),
+      mime_type: media_type
     }
   end
 
@@ -97,7 +99,7 @@ defmodule MoodleNet.MetadataScraper do
     |> only_first()
   end
 
-  defp resource_type(data) do
+  defp embed_type(data) do
     (get(data, :facebook, "type") || get(data, :oembed, "type"))
     |> only_first()
   end

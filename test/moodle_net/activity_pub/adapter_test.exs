@@ -153,7 +153,11 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
         "type" => "Document",
         "tag" => "GPL-v3",
         "summary" => "this is a resource",
-        "icon" => "https://icon.store/picture.png"
+        "icon" => "https://icon.store/picture.png",
+        "author" => %{
+          "name" => "Author McAuthorface",
+          "type" => "Person"
+        }
       }
 
       params = %{
