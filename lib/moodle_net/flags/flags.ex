@@ -51,7 +51,7 @@ defmodule MoodleNet.Flags do
     %Table{schema: table} = Pointers.table!(flagged)
     if table in valid_contexts() do
       Repo.transact_with(fn ->
-        case one(creator_id: flagger.id, context_id: flagged.id) do
+        case one([:deleted, creator_id: flagger.id, context_id: flagged.id]) do
           {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
           _ -> really_create(flagger, flagged, community, fields)
         end

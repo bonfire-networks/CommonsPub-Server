@@ -85,7 +85,7 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def filter(q, :disabled) do
-    where q, [community: c], is_nil(c.disabled_at)
+    where q, [community: c], not is_nil(c.disabled_at)
   end
 
   def filter(q, :private) do
