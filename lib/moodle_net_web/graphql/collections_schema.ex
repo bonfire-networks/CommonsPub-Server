@@ -9,15 +9,21 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
     CollectionsResolver,
-    CommentsResolver,
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
+    ThreadsResolver,
     UsersResolver,
   }
 
   object :collections_queries do
+
+    @desc "Get a collection by id"
+    field :collection, :collection do
+      arg :collection_id, non_null(:string)
+      resolve &CollectionsResolver.collection/2
+    end
 
     @desc "Get list of collections, most recent activity first"
     field :collections, non_null(:collections_page) do
@@ -27,12 +33,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &CollectionsResolver.collections/2
     end
 
-    @desc "Get a collection"
-    field :collection, :collection do
-      arg :collection_id, non_null(:string)
-      resolve &CollectionsResolver.collection/2
-      # resolve dataloader(Collections, Collection)
-    end
   end
 
   object :collections_mutations do
@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "A url for the collection, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CollectionsResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
     
     @desc "An instance-unique identifier shared with users and communities"
@@ -172,12 +172,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &FollowsResolver.followers_edge/3
     end
 
-    @desc "Likes users have given the collection"
-    field :likes, :likes_page do
+    @desc "Likes users have made of the collection"
+    field :likers, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
@@ -204,7 +204,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommentsResolver.threads_edge/3
+      resolve &ThreadsResolver.threads_edge/3
     end
 
     @desc "Activities on the collection, most recent first"
@@ -232,7 +232,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   end
 
   input_object :collection_update_input do
-    field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string
     field :icon, :string

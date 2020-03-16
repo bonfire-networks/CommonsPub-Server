@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CommunitiesResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
 
     @desc "An instance-unique identifier shared with users and collections"
@@ -164,9 +164,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
-    @desc "Total number of likers, including those we can't see"
+    @desc "Total number of likes, including those we can't see"
     field :liker_count, :integer do
       resolve &LikesResolver.liker_count_edge/3
+    end
+
+    @desc "Likes users have given the community"
+    field :likers, :likes_page do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &LikesResolver.likers_edge/3
     end
 
    @desc "Users following the community, most recently followed first"

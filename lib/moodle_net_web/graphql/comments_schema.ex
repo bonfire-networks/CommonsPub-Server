@@ -10,10 +10,6 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     LikesResolver,
     UsersResolver,
   }
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Resources.Resource
 
   object :comments_queries do
 
@@ -101,11 +97,11 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likes, :likes_page do
+    field :likers, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the comment, most recently created first"

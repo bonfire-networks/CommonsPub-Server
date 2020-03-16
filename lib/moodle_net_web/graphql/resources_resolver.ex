@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.{Collections, GraphQL, Repo, Resources}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Batching.Edges
+  alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     {:ok, is_nil(peer_id)}
   end
   def is_local_edge(%{collection_id: id}, _, _) do
-    batch {__MODULE__, :batch_is_local_edge}, id,
+    batch {__MODULE__, :fetch_is_local_edge}, id,
       fn edges ->
         ret =
           edges
@@ -29,27 +29,23 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       end
   end
 
-  def canonical_url_edge(%Resource{canonical_url: url}) do
-    {:ok, url}
-  end
-
-  def batch_is_local_edge(_, ids) do
-    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])
-    edges
+  def fetch_is_local_edge(_, ids) do
+    {:ok, fields} = Collections.fields(&(&1.id), [:default, id: ids])
+    fields
   end
 
   def collection_edge(%Resource{collection: %Collection{}=c}, _, _info), do: {:ok, c}
-  def collection_edge(%Resource{collection_id: id}, _, _) do
-    batch {__MODULE__, :batch_collection_edge}, id, Edges.getter(id)
+  def collection_edge(%Resource{collection_id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_collection_edge, id, info
   end
 
-  def batch_collection_edge(_, ids) do
-    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids])
-    edges
+  def fetch_collection_edge(_, ids) do
+    {:ok, fields} = Collections.fields(&(&1.id), [:default, id: ids])
+    fields
   end
 
   def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user(info) do
+    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.one([:default, user: current_user, id: collection_id]),
              {:ok, resource} <- Resources.create(current_user, collection, attrs) do
@@ -60,7 +56,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def update_resource(%{resource: changes, resource_id: resource_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user(info) do
+    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, resource} <- resource(%{resource_id: resource_id}, info) do
           resource = Repo.preload(resource, [collection: :community])
@@ -79,7 +75,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def copy_resource(%{resource_id: resource_id, collection_id: collection_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user(info) do
+    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.one([:default, id: collection_id, user: current_user]),
              {:ok, resource} <- resource(%{resource_id: resource_id}, info),

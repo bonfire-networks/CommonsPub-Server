@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LocalisationResolver do
   @moduledoc "GraphQL Language and Country queries"
-  alias MoodleNet.{Fake, GraphQL}
-  alias MoodleNet.Localisation
 
   # def languages(_, info) do
   #   {:ok, Fake.long_node_list(&Fake.language/0)}

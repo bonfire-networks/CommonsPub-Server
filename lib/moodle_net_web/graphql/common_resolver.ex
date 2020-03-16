@@ -4,16 +4,16 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
-  alias MoodleNet.{Common, GraphQL}
+  alias MoodleNet.GraphQL
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Features.Feature
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Threads.{Comment, Thread}
-  alias MoodleNet.Batching.Edges
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -21,12 +21,12 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
   def context_edge(%{context_id: id}, _, _info) do
-    batch {__MODULE__, :batch_context_edge}, id, Edges.getter(id)
+    batch {__MODULE__, :batch_context_edge}, id, Fields.getter(id)
   end
   
   def batch_context_edge(_, ids) do
     {:ok, ptrs} = Pointers.many(id: ids)
-    Edges.new(Pointers.follow!(ptrs), &(&1.id))
+    Fields.new(Pointers.follow!(ptrs), &(&1.id))
   end
 
   # defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)

@@ -4,6 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
+    CommentsResolver,
     CommonResolver,
     FollowsResolver,
     ThreadsResolver,
@@ -78,7 +79,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
       arg :limit, :integer
       arg :before, :string
       arg :after,  :string
-      resolve &ThreadsResolver.comments_edge/3
+      resolve &CommentsResolver.comments_edge/3
     end
 
     @desc "Total number of followers, including those we can't see"

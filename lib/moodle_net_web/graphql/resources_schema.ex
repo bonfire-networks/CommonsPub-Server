@@ -154,12 +154,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     #   resolve &LocalisationResolver.primary_language/3
     # end
 
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
     @desc "Users who like the resource, most recently liked first"
-    field :likes, :likes_page do
+    field :likers, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"

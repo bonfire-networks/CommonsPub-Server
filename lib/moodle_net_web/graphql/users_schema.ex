@@ -205,6 +205,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
+    @desc "Total number of likes, including those we can't see"
+    field :like_count, :integer do
+      resolve &LikesResolver.like_count_edge/3
+    end
+
     @desc "Total number of likers, including those we can't see"
     field :liker_count, :integer do
       resolve &LikesResolver.liker_count_edge/3
@@ -244,6 +249,14 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "The likes a user has created"
     field :likes, :likes_page do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.likes_edge/3
+    end
+
+    @desc "The likes a user has created"
+    field :likers, :likes_page do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string

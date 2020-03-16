@@ -3,72 +3,22 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
-  alias MoodleNet.{Batching, GraphQL, Repo, Threads}
-  alias MoodleNet.Batching.{EdgesPages}
+  alias MoodleNet.{GraphQL, Repo, Threads}
+  alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Threads.{Comments, Thread}
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  alias MoodleNet.Threads.Comments
   
   def thread(%{thread_id: id}, info), do: Threads.one(id: id, user: info.context.current_user)
 
   # edges
   
-  def comments_edge(%Thread{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
-    if GraphQL.in_list?(info) do
-      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
-        batch {__MODULE__, :batch_comments_edge, {page_opts,user}}, id, EdgesPages.getter(id)
-      end
-    else
-      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
-        single_comments_edge(page_opts, user, id)
-      end
-    end
+  def threads_edge(%{id: id}, %{}=page_opts, info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_threads_edge, page_opts, id, info, opts)
   end
 
-  def single_comments_edge(page_opts, current_user, ids) do
-    Comments.edges_page(
-      &(&1.id),
-      page_opts,
-      [user: current_user, thread_id: ids],
-      [order: :timeline_asc]
-    )
-  end
-
-  def batch_comments_edge({page_opts, current_user}, ids) do
-    {:ok, edges} = Comments.edges_pages(
-      &(&1.thread_id),
-      &(&1.id),
-      page_opts,
-      [user: current_user, thread_id: ids],
-      [order: :timeline_asc],
-      [group_count: :thread_id]
-    )
-    edges
-  end
-
-  def threads_edge(%{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
-    if GraphQL.in_list?(info) do
-      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
-        batch {__MODULE__, :batch_threads_edge, {page_opts,user}}, id, EdgesPages.getter(id)
-      end
-    else
-      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
-        single_threads_edge(page_opts, user, id)
-      end
-    end
-  end
-
-  def single_threads_edge(page_opts, current_user, ids) do
-    Threads.edges_page(
-      &(&1.id),
-      page_opts,
-      [user: current_user, context_id: ids],
-      [join: :last_comment, order: :last_comment_desc, preload: :last_comment]
-    )
-  end
-
-  def batch_threads_edge({page_opts, current_user}, ids) do
-    {:ok, edges} = Threads.edges_pages(
+  def fetch_threads_edge({page_opts, current_user}, ids) do
+    {:ok, edges} = Threads.pages(
       &(&1.context_id),
       &(&1.id),
       page_opts,
@@ -77,6 +27,15 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
       [group_count: :context_id]
     )
     edges
+  end
+
+  def fetch_threads_edge(page_opts, current_user, ids) do
+    Threads.page(
+      &(&1.id),
+      page_opts,
+      [user: current_user, context_id: ids],
+      [join: :last_comment, order: :last_comment_desc, preload: :last_comment]
+    )
   end
 
   ## mutations
