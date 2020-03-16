@@ -10,7 +10,8 @@ defmodule MoodleNet.Communities.Queries do
   import Ecto.Query
 
   def query(Community) do
-    from c in Community, as: :community
+    from c in Community, as: :community,
+    join: a in assoc(c, :actor), as: :actor
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -23,10 +24,6 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
-
-  def join_to(q, :actor, jq) do
-    join q, jq, [community: c], a in assoc(c, :actor), as: :actor
-  end
 
   def join_to(q, {:follow, follower_id}, jq) do
     join q, jq, [community: c], f in Follow, as: :follow,

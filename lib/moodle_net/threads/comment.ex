@@ -46,7 +46,7 @@ defmodule MoodleNet.Threads.Comment do
     Changeset.put_change(changeset, :reply_to_id, reply_to.id)
   end
 
-  @spec update_changeset(Comment.t(), map) :: Changeset.t()
+  @spec update_changeset(%Comment{}, map) :: Changeset.t()
   def update_changeset(%Comment{} = comment, attrs) do
     comment
     |> Changeset.cast(attrs, @cast)

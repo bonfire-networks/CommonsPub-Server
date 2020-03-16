@@ -341,7 +341,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def follow_remote_actor_submutation(options \\ []) do
     [url: var(:url)]
-    |> gen_submutation(:follow_remote_actor, &follow_fields/1, options)
+    |> gen_submutation(:create_follow_by_URL, &follow_fields/1, options)
   end
 
 

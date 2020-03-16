@@ -10,8 +10,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
-  def follow(%{follow_id: id}, %{context: %{current_user: user}}) do
-    Follows.one(id: id, user: user)
+  def follow(%{follow_id: id}, info) do
+    Follows.one(id: id, user: GraphQL.current_user(info))
   end
 
   def follow(parent, _, _info), do: {:ok, parent.follow}
