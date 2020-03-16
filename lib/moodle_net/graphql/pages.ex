@@ -1,18 +1,18 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.EdgesPages do
+defmodule MoodleNet.GraphQL.Pages do
   @enforce_keys ~w(data counts cursor_fn page_opts)a
   defstruct @enforce_keys
 
-  alias MoodleNet.Batching.{EdgesPage, EdgesPages}
+  alias MoodleNet.GraphQL.{Page, Pages}
 
   @type data :: %{term => term}
   @type counts :: %{term => non_neg_integer}
-  @type t :: %EdgesPages{data: data, counts: counts, cursor_fn: (map -> binary)}
+  @type t :: %Pages{data: data, counts: counts, cursor_fn: (map -> binary)}
   
   @doc """
-  Create a new EdgesPages from some data rows, count rows and a
+  Create a new Pages from some data rows, count rows and a
   grouping key. Groups the data by the grouping key on insertion and
   turns the counts into a map ready for lookup on a per-row basis.
 
@@ -24,12 +24,12 @@ defmodule MoodleNet.Batching.EdgesPages do
   when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
     data = Enum.group_by(data_rows, group_fn)
     counts = Map.new(count_rows)
-    %EdgesPages{data: data, counts: counts, cursor_fn: cursor_fn, page_opts: page_opts}
+    %Pages{data: data, counts: counts, cursor_fn: cursor_fn, page_opts: page_opts}
   end
 
-  @doc "Returns an EdgesPage for the given key, defaulting to an empty one"
+  @doc "Returns an Page for the given key, defaulting to an empty one"
   def get(
-    %EdgesPages{
+    %Pages{
       data: data,
       counts: counts,
       cursor_fn: cursor_fn,
@@ -39,7 +39,7 @@ defmodule MoodleNet.Batching.EdgesPages do
   ) do
     data = Map.get(data, key, [])
     count = Map.get(counts, key, 0)
-    {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
+    {:ok, Page.new(data, count, cursor_fn, page_opts)}
   end
 
   @doc """

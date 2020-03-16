@@ -1,11 +1,11 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.PageOpts do
+defmodule MoodleNet.GraphQL.PageOpts do
 
   use Ecto.Schema
   alias Ecto.Changeset
-  alias MoodleNet.Batching.PageOpts
+  alias MoodleNet.GraphQL.PageOpts
 
   embedded_schema do
     field :limit, :integer

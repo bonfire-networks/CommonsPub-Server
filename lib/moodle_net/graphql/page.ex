@@ -1,24 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Batching.EdgesPage do
+defmodule MoodleNet.GraphQL.Page do
   @enforce_keys ~w(page_info total_count edges)a
   defstruct @enforce_keys
 
-  use MoodleNet.Common.Metadata
-  alias MoodleNet.Batching.{Edge, EdgesPage, PageInfo}
+  alias MoodleNet.GraphQL.{Page, PageInfo}
 
-  @type t :: %EdgesPage{
+  @type t :: %Page{
     page_info: PageInfo.t,
     total_count: non_neg_integer,
-    edges: [Edge.t],
+    edges: [term],
   }
 
   def new(edges, total_count, cursor_fn, page_opts)
   when is_list(edges) and is_integer(total_count) and total_count >= 0
   and is_function(cursor_fn, 1) do
     {page_info, edges} = paginate(edges, page_opts, cursor_fn)
-    %EdgesPage{page_info: page_info, total_count: total_count, edges: edges}
+    %Page{page_info: page_info, total_count: total_count, edges: edges}
   end
 
   # there are no results
