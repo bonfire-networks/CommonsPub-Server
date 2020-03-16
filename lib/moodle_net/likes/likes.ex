@@ -4,8 +4,9 @@
 defmodule MoodleNet.Likes do
 
   alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
+  alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
@@ -14,33 +15,28 @@ defmodule MoodleNet.Likes do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Like, filters))}
 
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
   @doc """
-  Retrieves an EdgesPages of likes according to various filters
+  Retrieves a Page of likes according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Like, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
-    end
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Like,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  def edges_pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Like, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn, page_opts)}
-    end
+    Contexts.pages Queries, Like,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   def insert(%User{} = liker, liked, fields) do

@@ -20,7 +20,7 @@ defmodule MoodleNet.Collections.Queries do
 
   def query(q, filters), do: filter(query(q), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)

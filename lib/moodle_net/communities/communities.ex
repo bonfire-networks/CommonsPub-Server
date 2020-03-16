@@ -4,7 +4,8 @@
 defmodule MoodleNet.Communities do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages}
+  alias MoodleNet.GraphQL.{Fields, Page, Pages}
+  alias MoodleNet.Common.Contexts
   alias MoodleNet.Communities.{Community, Queries}
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
@@ -26,41 +27,37 @@ defmodule MoodleNet.Communities do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
   @doc """
-  Retrieves an EdgesPage of communities according to various filters
+  Retrieves an Page of communities according to various filters
 
   Used by:
   * GraphQL resolver single-parent resolution
   """
-  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, counts, cursor_fn, page_opts)}
-    end
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Community,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   @doc """
-  Retrieves an EdgesPages of communities according to various filters
+  Retrieves an Pages of communities according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
-    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
-    end
+  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.pages Queries, Community,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
+
+
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
@@ -134,7 +131,7 @@ defmodule MoodleNet.Communities do
   end
 
   def outbox(%Community{outbox_id: id}, page_opts \\ %{}) do
-    Activities.edges_page(
+    Activities.page(
       &(&1.id),
       join: {:feed_activity, :inner},
       feed_id: id,

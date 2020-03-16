@@ -5,7 +5,7 @@ defmodule MoodleNet.Activities do
 
   alias MoodleNet.{Common, Repo}
   alias MoodleNet.Activities.{Activity, Queries}
-  alias MoodleNet.Batching.EdgesPage
+  alias MoodleNet.Common.Contexts
   alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
@@ -13,18 +13,27 @@ defmodule MoodleNet.Activities do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Activity, filters))}
 
   @doc """
-  Retrieves an EdgesPage of feed activities according to various filters
+  Retrieves a Page of feed activities according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Activity, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
-    end
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Activity,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
+  end
+
+  @doc """
+  Retrieves a Page of feed activities according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.pages Queries, Activity,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   @doc """

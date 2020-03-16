@@ -9,13 +9,9 @@ defmodule MoodleNet.Activities.Queries do
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Meta.TableService
   import MoodleNet.Common.Query, only: [match_admin: 0]
-  alias MoodleNet.Users.User
-  alias Ecto.{Query, Queryable}
   import Ecto.Query
 
   @default_limit 25
-  @default_max_limit 100
-  @default_min_limit 1
   def query(Activity) do
     from a in Activity, as: :activity,
       join: c in assoc(a, :context), as: :context,
@@ -47,6 +43,16 @@ defmodule MoodleNet.Activities.Queries do
 
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
+  end
+
+  ## by preset
+
+  def filter(q, {:feed, id}) do
+    filter q,
+      join: :feed_activity,
+      feed_id: id,
+      distinct: [desc: :id], # this does the actual ordering *sigh*
+      order: :timeline_desc  # this is here because ecto knows better than me oslt
   end
 
   ## by join
