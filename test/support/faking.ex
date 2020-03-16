@@ -9,16 +9,18 @@ defmodule MoodleNet.Test.Faking do
     Actors,
     Communities,
     Collections,
-    Meta,
+    Flags,
+    Follows,
+    Likes,
     Peers,
     Users,
     Localisation,
     Resources,
     Threads,
   }
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
+  import MoodleNet.Test.Trendy
 
   def fake_register_email_domain_access!(domain \\ Fake.domain())
   when is_binary(domain) do
@@ -55,8 +57,11 @@ defmodule MoodleNet.Test.Faking do
 
   def fake_user!(overrides \\ %{}, opts \\ []) when is_map(overrides) and is_list(opts) do
     {:ok, user} = Users.register(Fake.user(overrides), public_registration: true)
-    user
-    |> maybe_confirm_user_email(opts)
+    maybe_confirm_user_email(user, opts)
+  end
+
+  def fake_admin!(overrides \\ %{}, opts \\ []) do
+    fake_user!(Map.put(overrides, :is_instance_admin, true), opts)
   end
 
   defp maybe_confirm_user_email(user, opts) do
@@ -89,14 +94,62 @@ defmodule MoodleNet.Test.Faking do
     resource
   end
 
-  def fake_thread!(user, parent, overrides \\ %{}) when is_map(overrides) do
-    {:ok, thread} = Threads.create(user, parent, Fake.thread(overrides))
+  def fake_thread!(user, context, overrides \\ %{}) when is_map(overrides) do
+    {:ok, thread} = Threads.create(user, context, Fake.thread(overrides))
     thread
   end
 
   def fake_comment!(user, thread, overrides \\ %{}) when is_map(overrides) do
     {:ok, comment} = Comments.create(user, thread, Fake.comment(overrides))
     comment
+  end
+
+  def fake_reply!(user, thread, comment, overrides \\ %{}) when is_map(overrides) do
+    fake = Fake.comment(Map.put_new(overrides, :in_reply_to, comment.id))
+    {:ok, comment} = Comments.create(user, thread, fake)
+    comment
+  end
+
+  def some_fake_users!(opts \\ %{}, some_arg) do
+    some(some_arg, fn -> fake_user!(opts) end)
+  end
+
+  def some_fake_communities!(opts \\ %{}, some_arg, users) do
+    flat_pam(users, &some(some_arg, fn -> fake_community!(&1, opts) end))
+  end
+
+  def some_fake_collections!(opts \\ %{}, some_arg, users, communities) do
+    flat_pam_product_some(users, communities, some_arg, &fake_collection!(&1, &2, opts))
+  end
+
+  def some_randomer_flags!(opts \\ %{}, some_arg, context) do
+    users = some_fake_users!(opts, some_arg)
+    pam(users, &flag!(&1, context, opts))
+  end
+
+  def some_randomer_follows!(opts \\ %{}, some_arg, context) do
+    users = some_fake_users!(opts, some_arg)
+    pam(users, &follow!(&1, context, opts))
+  end
+
+  def some_randomer_likes!(opts \\ %{}, some_arg, context) do
+    users = some(some_arg, &fake_user!/0)
+    pam(users, &like!(&1, context, opts))
+  end
+
+  def like!(user, context, args \\ %{}) do
+    {:ok, like} = Likes.create(user, context, Fake.like_input(args))
+    like
+  end
+
+  def flag!(user, context, args \\ %{}) do
+    {:ok, flag} = Flags.create(user, context, Fake.flag_input(args))
+    flag
+  end
+
+  def follow!(user, context, args \\ %{}) do
+    {:ok, follow} = Follows.create(user, context, Fake.follow_input(args))
+    follow
   end
 
 end
