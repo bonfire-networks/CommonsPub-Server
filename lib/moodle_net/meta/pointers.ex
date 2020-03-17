@@ -84,22 +84,22 @@ defmodule MoodleNet.Meta.Pointers do
     |> Enum.reduce(%{}, &preload_search(force, &1, &2)) # find ids
     |> Enum.reduce(%{}, &preload_per_table/2)           # query
   end
-  
+
   defp preload_search(false, %{pointed: pointed}, acc)
   when not is_nil(pointed), do: acc
-  
+
   defp preload_search(_force, pointer, acc) do
     ids = [ pointer.id | Map.get(acc, pointer.table_id, []) ]
     Map.put(acc, pointer.table_id, ids)
   end
-    
+
   defp preload_per_table({table_id, ids}, acc) do
     {:ok, items} = loader(table_id, id: ids)
     Enum.reduce(items, acc, &Map.put(&2, &1.id, &1))
   end
 
   import Ecto.Query
-  
+
   alias MoodleNet.{
     Activities,
     Blocks,
@@ -132,9 +132,9 @@ defmodule MoodleNet.Meta.Pointers do
 
   defp loader(Activity, filters), do: Activities.many(filters)
   defp loader(Block, filters), do: Blocks.many(filters)
-  defp loader(Collection, filters), do: Collections.many(filters)
+  defp loader(Collection, filters), do: Collections.many([:default | filters])
   defp loader(Comment, filters), do: Comments.many(filters)
-  defp loader(Community, filters), do: Communities.many(filters)
+  defp loader(Community, filters), do: Communities.many([:default | filters])
   defp loader(Feed, filters), do: Feeds.many(filters)
   defp loader(Flag, filters), do: Flags.many(filters)
   defp loader(Follow, filters), do: Follows.many(filters)
