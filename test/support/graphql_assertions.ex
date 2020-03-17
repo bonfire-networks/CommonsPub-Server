@@ -7,6 +7,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   # alias MoodleNet.Blocks.Block
+  alias MoodleNet.Features.Feature
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
@@ -552,6 +553,32 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
     assert comment.updated_at == comment2.updated_at
     comment2
+  end
+
+  def assert_feature(feature) do
+    assert %{"id" => id, "canonicalUrl" => url} = feature
+    assert is_binary(id)
+    assert is_binary(url) or is_nil(url)
+    assert %{"isLocal" => local} = feature
+    assert is_boolean(local)
+    assert %{"createdAt" => created} = feature
+    assert is_binary(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
+    assert %{"__typename" => "Feature"} = feature
+    %{id: id,
+      canonical_url: url,
+      is_local: local,
+      created_at: created_at}
+    |> Map.merge(feature)
+  end
+
+  def assert_feature(%Feature{}=feature, %{}=feature2) do
+    feature2 = assert_feature(feature2)
+    assert feature.id == feature2.id
+    assert feature.canonical_url == feature2.canonical_url
+    assert feature.is_local == feature2.is_local
+    assert ULID.timestamp(feature.id) == {:ok, feature2.created_at}
+    feature2
   end
 
   def assert_flag(flag) do

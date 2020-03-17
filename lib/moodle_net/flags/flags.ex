@@ -38,7 +38,7 @@ defmodule MoodleNet.Flags do
   * GraphQL resolver bulk resolution
   """
   def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages Queries, Flag,
+    Contexts.pages_all Queries, Flag,
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 

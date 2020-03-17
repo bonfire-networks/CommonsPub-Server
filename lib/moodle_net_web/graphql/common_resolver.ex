@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.GraphQL
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.GraphQL.Fields
+  alias MoodleNet.GraphQL.{Fields, Flow}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
@@ -20,11 +20,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, _info) do
-    batch {__MODULE__, :batch_context_edge}, id, Fields.getter(id)
+  def context_edge(%{context_id: id}, _, info) do
+    Flow.fields(__MODULE__, :fetch_context_edge, id, info)
   end
   
-  def batch_context_edge(_, ids) do
+  def fetch_context_edge(_, ids) do
     {:ok, ptrs} = Pointers.many(id: ids)
     Fields.new(Pointers.follow!(ptrs), &(&1.id))
   end

@@ -64,6 +64,10 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
          is_public is_disabled created_at updated_at __typename)a
   end
 
+  def feature_fields(extra \\ []) do
+    extra ++ ~w(id canonical_url is_local created_at __typename)a
+  end
+
   def flag_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url message is_resolved is_local created_at updated_at __typename)a
@@ -305,8 +309,25 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:update_flag, &flag_fields/1, options)
   end
 
-  ### follows
+  ### features
 
+  def feature_query(options \\ []) do
+    gen_query(:feature_id, &feature_subquery/1, options)
+  end
+
+  def feature_subquery(options \\ []) do
+    gen_subquery(:feature_id, :feature, &feature_fields/1, options)
+  end
+
+  def features_query(options \\ []) do
+    gen_query(:features, &features_subquery/1, options)
+  end
+
+  def features_subquery(options \\ []) do
+    page_subquery(:features, &feature_fields/1, options)
+  end
+
+  ### follows
 
   def follow_query(options \\ []) do
     gen_query(:follow_id, &follow_subquery/1, options)
@@ -341,7 +362,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def follow_remote_actor_submutation(options \\ []) do
     [url: var(:url)]
-    |> gen_submutation(:create_follow_by_URL, &follow_fields/1, options)
+    |> gen_submutation(:createFollowByURL, &follow_fields/1, options)
   end
 
 

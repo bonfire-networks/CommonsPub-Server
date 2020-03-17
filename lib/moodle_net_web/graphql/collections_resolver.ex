@@ -32,7 +32,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Collections.one(
       user: user,
       id: id,
-      join: :actor,
       preload: :actor
     )
   end

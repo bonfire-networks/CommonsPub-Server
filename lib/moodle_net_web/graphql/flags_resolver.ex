@@ -39,8 +39,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
       &(&1.id),
       page_opts,
       [:deleted, user: user, context_id: ids],
-      [order: :timeline_desc],
-      [group_count: :context_id]
+      [order: :timeline_desc]
     )
   end
 

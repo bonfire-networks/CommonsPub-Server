@@ -11,7 +11,8 @@ defmodule MoodleNet.Collections.Queries do
   import Ecto.Query
 
   def query(Collection) do
-    from c in Collection, as: :collection
+    from c in Collection, as: :collection,
+      join: a in assoc(c, :actor), as: :actor
   end
 
   def query(:count) do
@@ -20,6 +21,7 @@ defmodule MoodleNet.Collections.Queries do
 
   def query(q, filters), do: filter(query(q), filters)
 
+  
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -31,10 +33,6 @@ defmodule MoodleNet.Collections.Queries do
 
   def join_to(q, specs, jq) when is_list(specs) do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
-  end
-
-  def join_to(q, :actor, jq) do
-    join q, jq, [collection: c], a in assoc(c, :actor), as: :actor
   end
 
   def join_to(q, :community, jq) do
@@ -65,10 +63,10 @@ defmodule MoodleNet.Collections.Queries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
-  ## by special
+  ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
+    filter q, [:deleted, preload: :actor]
   end
 
   ## by join

@@ -353,6 +353,11 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_local, &truth/0)
   end
 
+  def feature_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_local, &truth/0)
+  end
+
   def flag(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)

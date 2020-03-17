@@ -11,6 +11,7 @@ defmodule MoodleNet.Test.Faking do
     Collections,
     Flags,
     Follows,
+    Features,
     Likes,
     Peers,
     Users,
@@ -150,6 +151,11 @@ defmodule MoodleNet.Test.Faking do
   def follow!(user, context, args \\ %{}) do
     {:ok, follow} = Follows.create(user, context, Fake.follow_input(args))
     follow
+  end
+
+  def feature!(user, context, args \\ %{}) do
+    {:ok, feature} = Features.create(user, context, Fake.feature_input(args))
+    feature
   end
 
 end

@@ -49,8 +49,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       &(&1.id),
       page_opts,
       [community_id: ids, user: user],
-      [join: {:actor, :inner},
-       join: :follower_count,
+      [join: :follower_count,
        order: :followers_desc,
        preload: :follower_count],
       [group_count: :community_id]
@@ -63,8 +62,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       &(&1.id),
       page_opts,
       [community_id: ids, user: user],
-      [join: {:actor, :inner},
-       join: :follower_count,
+      [join: :follower_count,
        order: :followers_desc,
        preload: :follower_count]
     )
