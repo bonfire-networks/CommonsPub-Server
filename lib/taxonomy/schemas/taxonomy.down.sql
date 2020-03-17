@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS "tags_related";
+DROP TABLE IF EXISTS "tags";

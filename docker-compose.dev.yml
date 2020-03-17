@@ -11,6 +11,7 @@ services:
       - config/docker.dev.env
     depends_on:
       - db
+      # - dgraph
     volumes:
       - type: bind
         source: .
@@ -23,3 +24,9 @@ services:
       - "5432:5432"
     env_file:
       - config/docker.dev.env
+  # dgraph:
+  #   image: dgraph/standalone:v2.0.0-beta
+  #   ports:
+  #     - "8001:8000"
+  #     - "8080:8080"
+  #     - "9080:9080"

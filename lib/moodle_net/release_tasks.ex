@@ -65,9 +65,13 @@ defmodule MoodleNet.ReleaseTasks do
     start_apps()
     start_repos()
 
-    Enum.each(@repos, &rollback_repo/1)
+    rollback_repos()
 
     stop_services()
+  end
+
+  def rollback_repos() do
+    Enum.each(@repos, &rollback_repo/1)
   end
 
   defp rollback_repo(repo) do
