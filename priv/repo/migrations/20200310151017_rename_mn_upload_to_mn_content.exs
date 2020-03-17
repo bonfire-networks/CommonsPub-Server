@@ -55,6 +55,8 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     :ok = execute update_uploads_q("mn_resource", "icon", "icon_id")
     :ok = execute update_uploads_q("mn_resource", "url", "content_id")
 
+    flush()
+
     # Move all items from mn_upload to mn_content_upload
     :ok = execute """
     insert into mn_content_upload (id, path)
@@ -68,6 +70,8 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     from mn_content_upload cu
     where c.path = cu.path;
     """
+
+    flush()
 
     # Handle remote URL's
     :ok = execute_mirrors_q("mn_user", "icon", "icon_id")
@@ -156,11 +160,11 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
   end
 
   defp execute_mirrors_q(table, old_field, new_field) do
-    :ok = execute """
-    insert into mn_content_mirror (id, url)
-    select uuid_generate_v4(), #{old_field} from #{table}
-    where #{new_field} is null and #{old_field} is not null;
-    """
+    q = from(x in table,
+      where: is_nil(type(^new_field, :string)) and not is_nil(type(^old_field, :string)),
+      select: [type(field(x, ^String.to_atom(old_field)), :string)])
+
+    Repo.insert_all("mn_content_mirror", (for url <- Repo.all(q), do: %{id: Ecto.ULID.generate(), url: url}))
 
     :ok = execute """
     insert into mn_content (id, parent_id, content_mirror_id, path, media_type, size, created_at, updated_at)
