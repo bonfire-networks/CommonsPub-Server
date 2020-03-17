@@ -85,10 +85,16 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   defp do_delete(%Comment{}=c), do: MoodleNet.Threads.Comments.soft_delete(c)
   defp do_delete(%Feature{}=f), do: MoodleNet.Features.soft_delete(f)
   defp do_delete(%Thread{}=t), do: MoodleNet.Threads.soft_delete(t)
-  defp do_delete(%User{}=u), do: MoodleNet.Users.soft_delete(u)
   defp do_delete(%Follow{}=f), do: MoodleNet.Follows.undo(f)
   defp do_delete(%Flag{}=f), do: MoodleNet.Flags.resolve(f)
   defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
+
+  defp do_delete(%User{}=u) do
+    with {:ok, u} <- MoodleNet.Users.one([:default, id: u.id]) do
+      MoodleNet.Users.soft_delete(u)
+    end
+  end
+
   defp do_delete(_), do: GraphQL.not_permitted("delete")
 
   # FIXME: boilerplate code
