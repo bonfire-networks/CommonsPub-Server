@@ -105,6 +105,7 @@ defmodule MoodleNet.Meta.Pointers do
     Blocks,
     Collections,
     Communities,
+    Features,
     Feeds,
     Flags,
     Follows,
@@ -117,6 +118,7 @@ defmodule MoodleNet.Meta.Pointers do
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Features.Feature
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
@@ -135,6 +137,7 @@ defmodule MoodleNet.Meta.Pointers do
   defp loader(Collection, filters), do: Collections.many([:default | filters])
   defp loader(Comment, filters), do: Comments.many(filters)
   defp loader(Community, filters), do: Communities.many([:default | filters])
+  defp loader(Feature, filters), do: Features.many(filters)
   defp loader(Feed, filters), do: Feeds.many(filters)
   defp loader(Flag, filters), do: Flags.many(filters)
   defp loader(Follow, filters), do: Follows.many(filters)
