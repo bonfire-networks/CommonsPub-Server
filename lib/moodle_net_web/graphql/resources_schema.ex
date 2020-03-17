@@ -187,6 +187,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :url, :string
     field :license, :string
     # field :primary_language_id, :string
+    field :author, :string
   end
 
   object :resources_nodes do
