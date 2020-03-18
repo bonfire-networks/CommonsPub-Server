@@ -19,15 +19,15 @@ defmodule MoodleNet.Repo.Migrations.Taxonomy do
 
   def up do
 
-    try_dotsql_execute("lib/taxonomy/schemas/taxonomy.schema.sql")
-    try_dotsql_execute("priv/db_data/taxonomy.data.sql")
+    try_dotsql_execute("lib/taxonomy/migrations/tags.schema.sql")
+    try_dotsql_execute("uploads/db_data/tags.data.sql")
 
 
   end
 
   def down do
 
-    try_dotsql_execute("lib/taxonomy/schemas/taxonomy.down.sql")
+    try_dotsql_execute("lib/taxonomy/migrations/tags.down.sql")
 
   end
 
