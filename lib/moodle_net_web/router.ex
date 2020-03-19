@@ -145,6 +145,6 @@ defmodule MoodleNetWeb.Router do
 
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
-    get "/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
+    get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 end

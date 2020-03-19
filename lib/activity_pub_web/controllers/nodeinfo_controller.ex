@@ -13,11 +13,11 @@ defmodule ActivityPubWeb.NodeinfoController do
       links: [
         %{
           rel: "http://nodeinfo.diaspora.software/ns/schema/2.0",
-          href: MoodleNetWeb.base_url() <> "/nodeinfo/2.0"
+          href: MoodleNetWeb.base_url() <> "/.well-known/nodeinfo/2.0"
         },
         %{
           rel: "http://nodeinfo.diaspora.software/ns/schema/2.1",
-          href: MoodleNetWeb.base_url() <> "/nodeinfo/2.1"
+          href: MoodleNetWeb.base_url() <> "/.well-known/nodeinfo/2.1"
         }
       ]
     }
