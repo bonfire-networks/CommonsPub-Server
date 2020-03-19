@@ -92,6 +92,7 @@ defmodule ActivityPub do
 
       {:ok, activity}
     else
+      %Object{} = object -> object
       error -> {:error, error}
     end
   end
@@ -123,6 +124,7 @@ defmodule ActivityPub do
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}
     else
+      %Object{} = activity -> {:ok, activity}
       {:error, message} -> {:error, message}
     end
   end
