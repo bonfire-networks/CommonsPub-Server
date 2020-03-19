@@ -6,6 +6,7 @@
 defmodule ActivityPubWeb.NodeinfoController do
   use ActivityPubWeb, :controller
 
+  alias MoodleNet.Application
   alias MoodleNet.Config
 
   def schemas(conn, _params) do
@@ -29,8 +30,8 @@ defmodule ActivityPubWeb.NodeinfoController do
     %{
       version: "2.0",
       software: %{
-        name: Mix.Project.config()[:name],
-        version: Mix.Project.config()[:version]
+        name: Application.name(),
+        version: Application.version()
       },
       protocols: ["ActivityPub"],
       services: %{
@@ -62,7 +63,7 @@ defmodule ActivityPubWeb.NodeinfoController do
     updated_software =
       raw_response
       |> Map.get(:software)
-      |> Map.put(:repository, Mix.Project.config()[:source_url])
+      |> Map.put(:repository, Application.repository())
 
     response =
       raw_response

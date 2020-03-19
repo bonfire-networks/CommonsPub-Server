@@ -12,6 +12,15 @@ defmodule MoodleNet.Application do
   alias MoodleNetWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
 
+  @name Mix.Project.config()[:name]
+  @version Mix.Project.config()[:version]
+  @repository Mix.Project.config()[:source_url]
+
+  def name, do: @name
+  def version, do: @version
+  def named_version, do: @name <> " " <> @version
+  def repository, do: @repository
+
   def start(_type, _args) do
 
     MoodleNet.ReleaseTasks.startup_migrations() # start repos, run migrations, stop repos
