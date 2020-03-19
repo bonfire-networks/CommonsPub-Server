@@ -26,20 +26,30 @@ defmodule ActivityPubWeb.NodeinfoController do
     json(conn, response)
   end
 
+  def user_count() do
+    {:ok, users} = MoodleNet.Users.many(:remote)
+    length(users)
+  end
+
   def raw_nodeinfo do
     %{
       version: "2.0",
       software: %{
-        name: Application.name(),
+        name: Application.name() |> String.downcase(),
         version: Application.version()
       },
-      protocols: ["ActivityPub"],
+      protocols: ["activitypub"],
       services: %{
         inbound: [],
         outbound: []
       },
       openRegistrations: Config.get([MoodleNet.Users, :public_registration]),
-      usage: %{},
+      # currently have no good way to get total post count
+      usage: %{
+        users: %{
+          total: user_count()
+        }
+      },
       metadata: %{
         nodeName: Config.get([:instance, :name]),
         nodeDescription: Config.get([:instance, :description]),
