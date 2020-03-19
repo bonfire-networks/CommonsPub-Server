@@ -7,7 +7,7 @@ defmodule MoodleNet.Access.Token do
   use MoodleNet.Common.Schema
   alias MoodleNet.Users.User
   alias MoodleNet.Access.Token
-  alias Ecto.{Changeset, UUID}
+  alias Ecto.Changeset
 
   @default_validity 3600 * 24 * 14 # two weeks, in seconds
 
@@ -17,7 +17,7 @@ defmodule MoodleNet.Access.Token do
     timestamps()
   end
 
-  def create_changeset(%User{id: user_id} = user, validity \\ @default_validity) do
+  def create_changeset(%User{id: user_id}, validity \\ @default_validity) do
     %Token{}
     |> Changeset.cast(%{}, [])
     |> Changeset.change(

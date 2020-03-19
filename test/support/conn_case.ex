@@ -10,8 +10,6 @@ defmodule MoodleNetWeb.ConnCase do
   use ExUnit.CaseTemplate
   require Phoenix.ConnTest
 
-  @endpoint MoodleNetWeb.Endpoint
-
   using do
     quote do
       use Phoenix.ConnTest
@@ -24,6 +22,8 @@ defmodule MoodleNetWeb.ConnCase do
   end
 
   setup tags do
+    Cachex.clear(:ap_actor_cache)
+    Cachex.clear(:ap_object_cache)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do

@@ -13,7 +13,8 @@ ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
-FROM elixir:1.9.4-alpine as builder
+FROM elixir:1.9.4-alpine as builder 
+# make sure to update the version in .gitlab-ci.yml and Dockerfile.dev as well when switching Elixir version 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 
@@ -28,7 +29,17 @@ RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
 
 COPY . .
 
-RUN mix do phx.digest, release
+RUN mix release
+
+FROM abiosoft/caddy:builder as caddy-builder
+
+ARG version="1.0.3"
+ARG plugins="git,cors,realip,expires,cache,cgi"
+
+# process wrapper
+RUN go get -v github.com/abiosoft/parent
+
+RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh
 
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
@@ -38,12 +49,37 @@ ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
 
-RUN apk update && apk add --no-cache bash build-base openssl-dev
+RUN apk add --update --no-cache \
+    ca-certificates \
+    git \
+    mailcap \
+    openssh-client \
+    openssl-dev \
+    tzdata \
+    bash \
+    build-base
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
+ENV ACME_AGREE="true"
+
 WORKDIR /opt/app
 
+# install caddy
+COPY --from=caddy-builder /install/caddy /usr/bin/caddy
+# validate caddy install
+RUN /usr/bin/caddy -version
+RUN /usr/bin/caddy -plugins
+
+# install app 
 COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
 
-CMD trap 'exit' INT; /opt/app/bin/${APP_NAME} start
+# prepare to run
+COPY config/Caddyfile /opt/app/Caddyfile
+COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
+RUN chmod +x /opt/app/shutdown-instance.sh
+
+ARG PROXY_FRONTEND_URL
+
+# start
+CMD trap 'exit' INT; if [ ! -z "$PROXY_FRONTEND_URL" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/${APP_NAME} start ; fi

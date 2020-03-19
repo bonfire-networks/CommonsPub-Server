@@ -46,8 +46,10 @@ defmodule ActivityPubTest do
         to: to
       }
 
-      {:ok, _} = ActivityPub.create(params)
-      assert {:error, _} = ActivityPub.create(params)
+      # First time the function goes through fine and returns a Create activity
+      assert {:ok, %{data: %{"type" => "Create"}}} = ActivityPub.create(params)
+      # Second time the function gets halted when inserting object and returns the object
+      assert {:ok, %{data: %{"type" => "Note"}}} = ActivityPub.create(params)
     end
   end
 

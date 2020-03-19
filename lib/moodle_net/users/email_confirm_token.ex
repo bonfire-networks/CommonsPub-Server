@@ -10,7 +10,7 @@ defmodule MoodleNet.Users.EmailConfirmToken do
   """
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [soft_delete_changeset: 2]
-  alias Ecto.{Changeset,UUID}
+  alias Ecto.Changeset
   alias MoodleNet.Users.{EmailConfirmToken, LocalUser}
 
   @type validity :: {pos_integer, System.time_unit()}

@@ -49,7 +49,7 @@ defmodule ActivityPub do
 
   defp check_actor_is_active(actor) do
     if not is_nil(actor) do
-      with {:ok, actor} <- Actor.get_by_ap_id(actor),
+      with {:ok, actor} <- Actor.get_cached_by_ap_id(actor),
            false <- actor.deactivated do
         :ok
       else
@@ -92,6 +92,7 @@ defmodule ActivityPub do
 
       {:ok, activity}
     else
+      %Object{} = object -> object
       error -> {:error, error}
     end
   end
@@ -123,6 +124,7 @@ defmodule ActivityPub do
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}
     else
+      %Object{} = activity -> {:ok, activity}
       {:error, message} -> {:error, message}
     end
   end

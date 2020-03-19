@@ -9,7 +9,7 @@ defmodule MoodleNet.Access do
   """
 
   alias Ecto.{Changeset, UUID}
-  alias MoodleNet.{Common, Repo, Meta, Users}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Access.{
     InvalidCredentialError,
@@ -64,23 +64,23 @@ defmodule MoodleNet.Access do
   @doc "Removes an access entry or token from the database or throws DeletionError"
   def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete!(w)
   def hard_delete!(%RegisterEmailAccess{} = w), do: Common.hard_delete!(w)
-  def hard_delete(%Token{}=token), do: Common.hard_delete(token)
+  def hard_delete!(%Token{}=token), do: Common.hard_delete(token)
 
 
   @spec find_register_email(email :: binary()) ::
           {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
   @doc "Looks up a RegisterEmailAccess by email"
   def find_register_email(email),
-    do: find_response(email, Repo.get_by(RegisterEmailAccess, email: email))
+    do: find_response(Repo.get_by(RegisterEmailAccess, email: email))
 
   @spec find_register_email_domain(domain :: binary()) ::
           {:ok, RegisterEmailDomainAccess.t()} | {:error, NotFoundError.t()}
   @doc "Looks up a RegisterEmailDomainAccess by domain"
   def find_register_email_domain(domain),
-    do: find_response(domain, Repo.get_by(RegisterEmailDomainAccess, domain: domain))
+    do: find_response(Repo.get_by(RegisterEmailDomainAccess, domain: domain))
 
-  defp find_response(key, nil), do: {:error, NotFoundError.new()}
-  defp find_response(_, val), do: {:ok, val}
+  defp find_response(nil), do: {:error, NotFoundError.new()}
+  defp find_response(val), do: {:ok, val}
 
   @spec is_register_accessed?(email :: binary()) :: boolean()
   @doc "true if the user's email or the domain of the user's email is accessed"
@@ -100,7 +100,7 @@ defmodule MoodleNet.Access do
       else: {:error, NoAccessError.new()}
   end
 
-  def fetch_token(id) when is_binary(id),do: Repo.fetch
+  def fetch_token(id) when is_binary(id), do: Repo.fetch(Token, id)
 
   def delete_tokens_for_user(%User{id: user_id}) do
     from(t in Token, where: is_nil(t.deleted_at), where: t.user_id == ^user_id)
@@ -124,7 +124,7 @@ defmodule MoodleNet.Access do
     import Ecto.Query, only: [from: 2]
     from t in Token,
       where: t.id == ^token,
-      preload: [user: :local_user]
+      preload: [user: [:local_user, :actor]]
   end
 
   @type token_create_error :: %InvalidCredentialError{} | %UserDisabledError{} | %UserEmailNotConfirmedError{} | Changeset.t{}
@@ -153,10 +153,10 @@ defmodule MoodleNet.Access do
   def unsafe_put_token(%User{}=user), do: Repo.insert(Token.create_changeset(user))
 
   @doc false
-  def verify_user(%User{disabled_at: dis}=user)
+  def verify_user(%User{disabled_at: dis})
   when not is_nil(dis), do: {:error, UserDisabledError.new()}
 
-  def verify_user(%User{local_user: %LocalUser{confirmed_at: confirmed}}=user)
+  def verify_user(%User{local_user: %LocalUser{confirmed_at: confirmed}})
   when is_nil(confirmed), do: {:error, UserEmailNotConfirmedError.new()}
 
   def verify_user(%User{local_user: %LocalUser{}}), do: :ok

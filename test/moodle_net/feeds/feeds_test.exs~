@@ -1,3 +1,0 @@
-defmodule MoodleNet.Test.FeedsTest do
-  use MoodleNet.Test.Case
-end

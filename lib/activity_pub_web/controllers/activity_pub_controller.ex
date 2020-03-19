@@ -23,19 +23,28 @@ defmodule ActivityPubWeb.ActivityPubController do
   alias ActivityPubWeb.ObjectView
   alias ActivityPubWeb.RedirectController
 
+  def ap_route_helper(uuid) do
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+    MoodleNetWeb.base_url() <> ap_base_path <> "/objects/" <> uuid
+  end
+
   def object(conn, %{"uuid" => uuid}) do
     if get_format(conn) == "html" do
       RedirectController.object(conn, %{"uuid" => uuid})
     else
-      with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
-           %Object{} = object <- Object.get_by_ap_id(ap_id),
+      with ap_id <- ap_route_helper(uuid),
+           %Object{} = object <- Object.get_cached_by_ap_id(ap_id),
            true <- object.public do
         conn
-        |> put_resp_header("content-type", "application/activity+json")
-        |> json(ObjectView.render("object.json", %{object: object}))
+        |> put_resp_content_type("application/activity+json")
+        |> put_view(ObjectView)
+        |> render("object.json", %{object: object})
       else
         _ ->
-          {:error, :not_found}
+          conn
+          |> put_status(404)
+          |> json(%{error: "not found"})
       end
     end
   end
@@ -44,13 +53,57 @@ defmodule ActivityPubWeb.ActivityPubController do
     if get_format(conn) == "html" do
       RedirectController.actor(conn, %{"username" => username})
     else
-      with {:ok, actor} <- Actor.get_by_username(username) do
+      with {:ok, actor} <- Actor.get_cached_by_username(username) do
         conn
-        |> put_resp_header("content-type", "application/activity+json")
-        |> json(ActorView.render("actor.json", %{actor: actor}))
+        |> put_resp_content_type("application/activity+json")
+        |> put_view(ActorView)
+        |> render("actor.json", %{actor: actor})
       else
-        {:error, _e} -> {:error, :not_found}
+        _ ->
+          conn
+          |> put_status(404)
+          |> json(%{error: "not found"})
       end
+    end
+  end
+
+  def following(conn, %{"username" => username, "page" => page}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      {page, _} = Integer.parse(page)
+
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("following.json", %{actor: actor, page: page})
+    end
+  end
+
+  def following(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("following.json", %{actor: actor})
+    end
+  end
+
+  def followers(conn, %{"username" => username, "page" => page}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      {page, _} = Integer.parse(page)
+
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("followers.json", %{actor: actor, page: page})
+    end
+  end
+
+  def followers(conn, %{"username" => username}) do
+    with {:ok, actor} <- Actor.get_cached_by_username(username) do
+      conn
+      |> put_resp_content_type("application/activity+json")
+      |> put_view(ActorView)
+      |> render("followers.json", %{actor: actor})
     end
   end
 
@@ -82,5 +135,9 @@ defmodule ActivityPubWeb.ActivityPubController do
     end
 
     json(conn, dgettext("errors", "error"))
+  end
+
+  def noop(conn, _params) do
+    json(conn, "ok")
   end
 end

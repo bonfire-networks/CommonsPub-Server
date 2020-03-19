@@ -13,8 +13,10 @@
 .mix
 .hex
 .\#*
+*~
 *.sql
-
+.cache
+.cargo
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*

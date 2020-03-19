@@ -6,7 +6,6 @@ defmodule MoodleNet.Feeds.FeedSubscription do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [change_synced_timestamps: 4]
   alias Ecto.Changeset
-  alias MoodleNet.Activities.Activity
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Feeds.Feed
   

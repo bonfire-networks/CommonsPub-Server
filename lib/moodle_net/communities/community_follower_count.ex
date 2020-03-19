@@ -1,6 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
+
 defmodule MoodleNet.Communities.CommunityFollowerCount do
   use MoodleNet.Common.Schema
   alias MoodleNet.Communities.Community

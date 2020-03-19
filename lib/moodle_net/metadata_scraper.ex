@@ -7,14 +7,45 @@ defmodule MoodleNet.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """
+  @furlex_media_types ~w(text/html)
+  @request_opts [follow_redirect: true]
+
   def fetch(url) when is_binary(url) do
-    with {:ok, data} <- Furlex.unfurl(url, follow_redirect: true) do
-      {:ok, format_data(data, url)}
+    file_info_res = url |> ensure_http_scheme() |> TwinkleStar.from_uri(@request_opts)
+
+    with {:ok, file_info} <- file_info_res do
+      data =
+        case unfurl(url, file_info) do
+          {:ok, data} -> data
+          {:error, _} -> %{}
+        end
+
+      {:ok, Map.put(data, :media_type, file_info.media_type)}
     end
   end
 
-  defp format_data(data, url) do
+  defp unfurl(url, %{media_type: media_type}) do
+    # HACK: furlex breaks if passed anything unsupported
+    if media_type in @furlex_media_types do
+      with {:ok, data} <- Furlex.unfurl(url, @request_opts) do
+        {:ok, format_data(data, url, media_type)}
+      end
+    else
+      {:error, :furlex_unsupported_format}
+    end
+  end
+
+  defp ensure_http_scheme(url) do
+    case URI.parse(url) do
+      %URI{host: host, scheme: nil} = uri when not is_nil(host) ->
+        %URI{ uri | scheme: "http" }
+      uri -> uri
+    end
+  end
+
+  defp format_data(data, url, media_type) do
     %{
+      url: url,
       title: title(data),
       summary: summary(data),
       image: image(data, url),
@@ -22,7 +53,8 @@ defmodule MoodleNet.MetadataScraper do
       language: language(data),
       author: author(data),
       source: source(data),
-      resource_type: resource_type(data)
+      embed_type: embed_type(data),
+      mime_type: media_type
     }
   end
 
@@ -67,7 +99,7 @@ defmodule MoodleNet.MetadataScraper do
     |> only_first()
   end
 
-  defp resource_type(data) do
+  defp embed_type(data) do
     (get(data, :facebook, "type") || get(data, :oembed, "type"))
     |> only_first()
   end

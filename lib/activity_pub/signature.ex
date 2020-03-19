@@ -41,7 +41,7 @@ defmodule ActivityPub.Signature do
          # Ensure the actor is in the database before updating
          # This might potentially update the actor twice in a row
          # TODO: Fix that
-         {:ok, _actor} <- Actor.get_by_ap_id(actor_id),
+         {:ok, _actor} <- Actor.get_or_fetch_by_ap_id(actor_id),
          {:ok, _actor} <- Actor.update_actor(actor_id),
          {:ok, public_key} <- Actor.get_public_key_for_ap_id(actor_id) do
       {:ok, public_key}

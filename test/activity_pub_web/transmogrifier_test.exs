@@ -74,8 +74,10 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming user deletes" do
-      %{data: %{"id" => ap_id}} = insert(:actor, %{data: %{"id" => "http://mastodon.example.org/users/admin"}})
-      assert Object.get_by_ap_id(ap_id)
+      %{data: %{"id" => ap_id}} =
+        insert(:actor, %{data: %{"id" => "http://mastodon.example.org/users/admin"}})
+
+      assert object = Object.get_by_ap_id(ap_id)
 
       data =
         File.read!("test/fixtures/mastodon-delete-user.json")
@@ -249,7 +251,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
       {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(data)
       update_data = File.read!("test/fixtures/mastodon-update.json") |> Poison.decode!()
 
-      {:ok, actor} = Actor.get_by_ap_id(data["actor"])
+      {:ok, actor} = Actor.get_or_fetch_by_ap_id(data["actor"])
 
       object =
         update_data["object"]

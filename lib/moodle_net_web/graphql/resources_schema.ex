@@ -9,8 +9,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
   alias MoodleNetWeb.GraphQL.{
     CommonResolver,
-    CollectionsResolver,
-    LocalisationResolver,
+    FlagsResolver,
+    LikesResolver,
     ResourcesResolver,
     UsersResolver,
   }
@@ -58,14 +58,34 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "A name field"
     field :name, non_null(:string)
+
     @desc "Possibly biographical information"
     field :summary, :string
+
     @desc "An avatar url"
     field :icon, :string
+
     @desc "A link to an external resource"
     field :url, :string
+
     @desc "What license is it available under?"
     field :license, :string
+
+    @desc "The original author"
+    field :author, :string
+
+    # TODO: add these 3 fields to DB:
+
+    # @desc "The file type"
+    # field :mime_type, :string
+
+    # @desc "The type of content that may be embeded"
+    # field :embed_type, :string
+
+    # @desc "The HTML code of content that may be embeded"
+    # field :embed_code, :string
+
+    # No longer or not yet in use:
     # @desc "approx reading time in minutes"
     # field :time_required, :integer
     # @desc "free text"
@@ -83,20 +103,20 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "Whether the resource is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &ResourcesResolver.is_local/3
+      resolve &ResourcesResolver.is_local_edge/3
     end
     @desc "Whether the resource is public"
     field :is_public, non_null(:boolean) do
-      resolve &ResourcesResolver.is_public/3
+      resolve &CommonResolver.is_public_edge/3
     end
     @desc "Whether an instance admin has hidden the resource"
     field :is_disabled, non_null(:boolean) do
-      resolve &ResourcesResolver.is_disabled/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the resource was created"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at/3
+      resolve &CommonResolver.created_at_edge/3
     end
     @desc "When the resource was last updated"
     field :updated_at, non_null(:string)
@@ -111,22 +131,22 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
 
     @desc "The current user's like of the resource, if any"
     field :my_like, :like do
-      resolve &CommonResolver.my_like/3
+      resolve &LikesResolver.my_like_edge/3
     end
 
     @desc "The current user's flag of the resource, if any"
     field :my_flag, :flag do
-      resolve &CommonResolver.my_flag/3
+      resolve &FlagsResolver.my_flag_edge/3
     end
 
     @desc "The user who created the resource"
-    field :creator, non_null(:user) do
-      resolve &UsersResolver.creator/3
+    field :creator, :user do
+      resolve &UsersResolver.creator_edge/3
     end
 
     @desc "The collection this resource is a part of"
-    field :collection, non_null(:collection) do
-      resolve &ResourcesResolver.collection/3
+    field :collection, :collection do
+      resolve &ResourcesResolver.collection_edge/3
     end
 
     # @desc "Languages the resources is available in"
@@ -135,19 +155,19 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # end
 
     @desc "Users who like the resource, most recently liked first"
-    field :likes, non_null(:likes_edges) do
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likes/3
+      resolve &LikesResolver.likes_edge/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, non_null(:flags_edges) do
+    field :flags, :flags_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.flags/3
+      resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
@@ -155,7 +175,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
-    #   resolve &CommonResolver.tags/3
+    #   resolve &CommonResolver.tags_edge/3
     # end
 
   end
@@ -167,11 +187,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :url, :string
     field :license, :string
     # field :primary_language_id, :string
+    field :author, :string
   end
 
   object :resources_nodes do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:resource))
+    field :nodes, non_null(list_of(:resources_edge))
     field :total_count, non_null(:integer)
   end
 

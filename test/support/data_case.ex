@@ -29,6 +29,8 @@ defmodule MoodleNet.DataCase do
   end
 
   setup tags do
+    Cachex.clear(:ap_actor_cache)
+    Cachex.clear(:ap_object_cache)
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(MoodleNet.Repo)
 
     unless tags[:async] do
@@ -70,7 +72,7 @@ defmodule MoodleNet.DataCase do
 
   @doc "Returns true if the provided is a DeletionError that was stale"
   def was_already_deleted?(
-    %DeletionError{changeset: %{errors: [id: {"has already been deleted", [stale: true]}]}}
+    %DeletionError{message: "has already been deleted"}
   ), do: true
 
   def was_already_deleted?(_), do: false

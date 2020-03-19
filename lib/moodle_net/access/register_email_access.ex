@@ -10,7 +10,6 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [validate_email: 2]
   alias Ecto.Changeset
-  alias MoodleNet.Meta
 
   @type t :: %__MODULE__{}
 

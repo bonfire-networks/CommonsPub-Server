@@ -33,6 +33,51 @@ defmodule ActivityPub.Object do
 
   def get_by_pointer_id(pointer_id), do: Repo.get_by(Object, mn_pointer_id: pointer_id)
 
+  def get_cached_by_ap_id(ap_id) do
+    key = "ap_id:#{ap_id}"
+
+    Cachex.fetch!(:ap_object_cache, key, fn _ ->
+      object = get_by_ap_id(ap_id)
+
+      if object do
+        {:commit, object}
+      else
+        {:ignore, object}
+      end
+    end)
+  end
+
+  def get_cached_by_pointer_id(pointer_id) do
+    key = "pointer_id:#{pointer_id}"
+
+    Cachex.fetch!(:ap_object_cache, key, fn _ ->
+      object = get_by_pointer_id(pointer_id)
+
+      if object do
+        {:commit, object}
+      else
+        {:ignore, object}
+      end
+    end)
+  end
+
+  def set_cache(%Object{data: %{"id" => ap_id}} = object) do
+    Cachex.put(:ap_object_cache, "ap_id:#{ap_id}", object)
+
+    if object.mn_pointer_id do
+      Cachex.put(:ap_object_cache, "ap_id:#{ap_id}", object)
+    end
+
+    {:ok, object}
+  end
+
+  def invalidate_cache(%Object{data: %{"id" => ap_id}} = object) do
+    with {:ok, true} <- Cachex.del(:ap_object_cache, "ap_id:#{ap_id}"),
+         {:ok, true} <- Cachex.del(:ap_object_cache, "pointer_id#{object.mn_pointer_id}") do
+      :ok
+    end
+  end
+
   def insert(attrs) do
     attrs
     |> changeset()
@@ -53,13 +98,21 @@ defmodule ActivityPub.Object do
   def update(object, attrs) do
     object
     |> change(attrs)
-    |> Repo.update()
+    |> update_and_set_cache()
+  end
+
+  def update_and_set_cache(changeset) do
+    with {:ok, object} <- Repo.update(changeset) do
+      set_cache(object)
+    else
+      e -> e
+    end
   end
 
   def normalize(_, fetch_remote \\ true)
   def normalize(%Object{} = object, _), do: object
   def normalize(%{"id" => ap_id}, fetch_remote), do: normalize(ap_id, fetch_remote)
-  def normalize(ap_id, false) when is_binary(ap_id), do: get_by_ap_id(ap_id)
+  def normalize(ap_id, false) when is_binary(ap_id), do: get_cached_by_ap_id(ap_id)
 
   def normalize(ap_id, true) when is_binary(ap_id) do
     with {:ok, object} <- Fetcher.fetch_object_from_id(ap_id) do
@@ -89,7 +142,8 @@ defmodule ActivityPub.Object do
   end
 
   def delete(%Object{} = object) do
-    with {:ok, _obj} = swap_object_with_tombstone(object) do
+    with {:ok, _obj} <- swap_object_with_tombstone(object),
+         :ok <- invalidate_cache(object) do
       {:ok, object}
     end
   end

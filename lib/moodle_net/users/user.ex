@@ -10,12 +10,10 @@ defmodule MoodleNet.Users.User do
   import MoodleNet.Common.Changeset,
     only: [change_synced_timestamp: 3, change_public: 1]
 
-  alias Ecto.{Changeset, ULID}
-  alias MoodleNet.Users.{LocalUser, User, EmailConfirmToken}
+  alias Ecto.Changeset
+  alias MoodleNet.Users.{LocalUser, User}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Meta
-  alias MoodleNet.Meta.Pointer
 
   table_schema "mn_user" do
     belongs_to(:actor, Actor)
@@ -37,11 +35,8 @@ defmodule MoodleNet.Users.User do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     field(:stale_error, :string, virtual: true)
-    has_many(:email_confirm_tokens, EmailConfirmToken)
     timestamps()
   end
-
-  @email_regexp ~r/.+\@.+\..+/
 
   @register_required ~w(name)a
   @register_cast @register_required ++

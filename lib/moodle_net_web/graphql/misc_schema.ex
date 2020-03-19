@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   alias ActivityPub.Fetcher
 
   object :web_metadata do
+    field(:url, :string)
     field(:title, :string)
     field(:summary, :string)
     field(:image, :string)
@@ -17,7 +18,9 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
     field(:language, :string)
     field(:author, :string)
     field(:source, :string)
-    field(:resource_type, :string)
+    field(:mime_type, :string)
+    field(:embed_type, :string)
+    field(:embed_code, :string)
   end
 
   object :fetched_object do
@@ -27,10 +30,9 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
     field(:public, :boolean)
   end
 
-  def fetch_web_metadata(%{url: url}, info) do
-    case MoodleNet.MetadataScraper.fetch(url) do
-      {:error, _} -> {:error, MoodleNet.Common.NotFoundError.new()}
-      ret -> ret
+  def fetch_web_metadata(%{url: url}, _info) do
+    with {:error, _} <- MoodleNet.MetadataScraper.fetch(url) do
+      {:error, MoodleNet.Common.NotFoundError.new()}
     end
   end
 

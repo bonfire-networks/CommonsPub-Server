@@ -18,6 +18,15 @@ defmodule ActivityPubWeb.Transmogrifier do
   @doc """
   Translates MN Entity to an AP compatible format
   """
+  def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Group"}} = data) do
+    data =
+      data
+      |> Map.merge(Utils.make_json_ld_header())
+      |> Map.delete("bcc")
+
+    {:ok, data}
+  end
+
   def prepare_outgoing(%{"type" => "Create", "object" => object_id} = data) do
     object =
       object_id
@@ -53,7 +62,7 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   defp get_follow_activity(follow_object, followed) do
     with object_id when not is_nil(object_id) <- Utils.get_ap_id(follow_object),
-         {_, %Object{} = activity} <- {:activity, Object.get_by_ap_id(object_id)} do
+         {_, %Object{} = activity} <- {:activity, Object.get_cached_by_ap_id(object_id)} do
       {:ok, activity}
     else
       # Can't find the activity. This might a Mastodon 2.3 "Accept"
@@ -84,12 +93,12 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(%{"type" => "Flag", "object" => objects, "actor" => actor} = data) do
     with context <- data["context"] || Utils.generate_context_id(),
          content <- data["content"] || "",
-         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, actor} <- Actor.get_or_fetch_by_ap_id(actor),
 
          # Reduce the object list to find the reported user.
          account <-
            Enum.reduce_while(objects, nil, fn ap_id, _ ->
-             with {:ok, actor} <- Actor.get_by_ap_id(ap_id) do
+             with {:ok, actor} <- Actor.get_cached_by_ap_id(ap_id) do
                {:halt, actor}
              else
                _ -> {:cont, nil}
@@ -122,11 +131,11 @@ defmodule ActivityPubWeb.Transmogrifier do
 
   # Incoming actor create, just fetch from source
   def handle_incoming(%{"type" => "Create", "object" => %{"type" => "Group", "id" => ap_id}}),
-    do: Actor.get_by_ap_id(ap_id)
+    do: Actor.get_or_fetch_by_ap_id(ap_id)
 
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
-    {:ok, actor} = Actor.get_by_ap_id(data["actor"])
+    {:ok, actor} = Actor.get_or_fetch_by_ap_id(data["actor"])
 
     params = %{
       to: data["to"],
@@ -149,8 +158,8 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(
         %{"type" => "Follow", "object" => followed, "actor" => follower, "id" => id} = data
       ) do
-    with {:ok, followed} <- Actor.get_by_ap_id(followed),
-         {:ok, follower} <- Actor.get_by_ap_id(follower),
+    with {:ok, followed} <- Actor.get_cached_by_ap_id(followed),
+         {:ok, follower} <- Actor.get_or_fetch_by_ap_id(follower),
          {:ok, activity} <- ActivityPub.follow(follower, followed, id, false) do
       ActivityPub.accept(%{
         to: [follower.data["id"]],
@@ -167,7 +176,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         %{"type" => "Accept", "object" => follow_object, "actor" => _actor, "id" => _id} = data
       ) do
     with actor <- Fetcher.get_actor(data),
-         {:ok, followed} <- Actor.get_by_ap_id(actor),
+         {:ok, followed} <- Actor.get_or_fetch_by_ap_id(actor),
          {:ok, follow_activity} <- get_follow_activity(follow_object, followed) do
       ActivityPub.accept(%{
         to: follow_activity.data["to"],
@@ -187,7 +196,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         %{"type" => "Like", "object" => object_id, "actor" => _actor, "id" => id} = data
       ) do
     with actor <- Fetcher.get_actor(data),
-         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, actor} <- Actor.get_or_fetch_by_ap_id(actor),
          {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity, _object} <- ActivityPub.like(actor, object, id, false) do
       {:ok, activity}
@@ -200,7 +209,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         %{"type" => "Announce", "object" => object_id, "actor" => _actor, "id" => id} = data
       ) do
     with actor <- Fetcher.get_actor(data),
-         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, actor} <- Actor.get_or_fetch_by_ap_id(actor),
          {:ok, object} <- get_obj_helper(object_id),
          public <- Utils.public?(data),
          {:ok, activity, _object} <- ActivityPub.announce(actor, object, id, false, public) do
@@ -216,7 +225,9 @@ defmodule ActivityPubWeb.Transmogrifier do
           data
       )
       when object_type in ["Person", "Application", "Service", "Organization"] do
-    with :ok <- Actor.update_actor_data_by_ap_id(actor_id, object) do
+    with {:ok, _} <- Actor.update_actor_data_by_ap_id(actor_id, object),
+         {:ok, actor} <- Actor.get_by_ap_id(actor_id),
+         {:ok, _} <- Actor.set_cache(actor) do
       ActivityPub.update(%{
         local: false,
         to: data["to"] || [],
@@ -234,8 +245,8 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(
         %{"type" => "Block", "object" => blocked, "actor" => blocker, "id" => id} = _data
       ) do
-    with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
-         {:ok, blocker} <- Actor.get_by_ap_id(blocker),
+    with {:ok, %{local: true} = blocked} <- Actor.get_cached_by_ap_id(blocked),
+         {:ok, blocker} <- Actor.get_or_fetch_by_ap_id(blocker),
          {:ok, activity} <- ActivityPub.block(blocker, blocked, id, false) do
       {:ok, activity}
     else
@@ -255,7 +266,7 @@ defmodule ActivityPubWeb.Transmogrifier do
       {:ok, activity}
     else
       {:actor, true} ->
-        case Actor.get_by_ap_id(object_id) do
+        case Actor.get_cached_by_ap_id(object_id) do
           {:ok, %Actor{data: %{"id" => ^actor}} = actor} ->
             ActivityPub.delete(actor, false)
             Actor.delete(actor)
@@ -278,7 +289,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         } = data
       ) do
     with actor <- Fetcher.get_actor(data),
-         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, actor} <- Actor.get_or_fetch_by_ap_id(actor),
          {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity, _} <- ActivityPub.unannounce(actor, object, id, false) do
       {:ok, activity}
@@ -296,7 +307,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         } = data
       ) do
     with actor <- Fetcher.get_actor(data),
-         {:ok, actor} <- Actor.get_by_ap_id(actor),
+         {:ok, actor} <- Actor.get_or_fetch_by_ap_id(actor),
          {:ok, object} <- get_obj_helper(object_id),
          {:ok, activity, _, _} <- ActivityPub.unlike(actor, object, id, false) do
       {:ok, activity}
@@ -313,8 +324,8 @@ defmodule ActivityPubWeb.Transmogrifier do
           "id" => id
         } = _data
       ) do
-    with {:ok, follower} <- Actor.get_by_ap_id(follower),
-         {:ok, followed} <- Actor.get_by_ap_id(followed) do
+    with {:ok, follower} <- Actor.get_or_fetch_by_ap_id(follower),
+         {:ok, followed} <- Actor.get_or_fetch_by_ap_id(followed) do
       ActivityPub.unfollow(follower, followed, id, false)
     else
       _e -> :error
@@ -329,8 +340,8 @@ defmodule ActivityPubWeb.Transmogrifier do
           "id" => id
         } = _data
       ) do
-    with {:ok, %{local: true} = blocked} <- Actor.get_by_ap_id(blocked),
-         {:ok, blocker} <- Actor.get_by_ap_id(blocker),
+    with {:ok, %{local: true} = blocked} <- Actor.get_or_fetch_by_ap_id(blocked),
+         {:ok, blocker} <- Actor.get_or_fetch_by_ap_id(blocker),
          {:ok, activity} <- ActivityPub.unblock(blocker, blocked, id, false) do
       {:ok, activity}
     else

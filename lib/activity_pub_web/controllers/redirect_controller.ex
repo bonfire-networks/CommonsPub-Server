@@ -5,18 +5,25 @@
 
 defmodule ActivityPubWeb.RedirectController do
   use ActivityPubWeb, :controller
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Threads.Comment
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Resources.Resource
+  alias MoodleNet.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
     frontend_base = MoodleNet.Config.get!(:frontend_base_url)
 
-    with ap_id <- Routes.activity_pub_url(conn, :object, uuid),
-         %ActivityPub.Object{} = object <- ActivityPub.Object.get_by_ap_id(ap_id),
-         {:ok, pointer} <- MoodleNet.Meta.find(object.mn_pointer_id),
-         {:ok, object} <- MoodleNet.Meta.follow(pointer) do
+    with ap_id <- ActivityPubWeb.ActivityPubController.ap_route_helper(uuid),
+         %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_ap_id(ap_id),
+         {:ok, pointer} <- Pointers.one(id: object.mn_pointer_id) do
+         object = Pointers.follow!(pointer)
       case object do
-        %MoodleNet.Comments.Comment{} ->
+        %Comment{} ->
           redirect(conn, external: frontend_base <> "/threads/" <> object.thread_id)
-
+        %Resource{} ->
+          redirect(conn, external: frontend_base <> "/collections/" <> object.collection_id <> "/resources")
         _ ->
           redirect(conn, external: "#{frontend_base}/404")
       end
@@ -29,13 +36,13 @@ defmodule ActivityPubWeb.RedirectController do
     frontend_base = MoodleNet.Config.get!(:frontend_base_url)
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
-      {:ok, %MoodleNet.Users.User{} = actor} ->
+      {:ok, %User{} = actor} ->
         redirect(conn, external: frontend_base <> "/user/" <> actor.id)
 
-      {:ok, %MoodleNet.Collections.Collection{} = actor} ->
+      {:ok, %Collection{} = actor} ->
         redirect(conn, external: frontend_base <> "/collections/" <> actor.id)
 
-      {:ok, %MoodleNet.Communities.Community{} = actor} ->
+      {:ok, %Community{} = actor} ->
         redirect(conn, external: frontend_base <> "/communities/" <> actor.id)
 
       {:error, _e} ->

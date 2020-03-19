@@ -4,11 +4,11 @@
 defmodule MoodleNetWeb.GraphQL.UsersSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
-    CollectionsResolver,
+    ActorsResolver,
     CommonResolver,
-    CommentsResolver,
-    CommunitiesResolver,
-    LocalisationResolver,
+    FlagsResolver,
+    FollowsResolver,
+    LikesResolver,
     UsersResolver,
   }
 
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
   end
 
-  object :user_mutations do
+  object :users_mutations do
 
     @desc "Create a user"
     field :create_user, :me do
@@ -99,27 +99,27 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   object :me do
     @desc "The public info"
     field :user, non_null(:user) do
-      resolve &UsersResolver.user/3
+      resolve &UsersResolver.user_edge/3
     end
     @desc "The user's email"
     field :email, non_null(:string) do
-      resolve &UsersResolver.email/3
+      resolve &UsersResolver.email_edge/3
     end
     @desc "Would the user like to receive digest emails of updates?"
     field :wants_email_digest, non_null(:boolean) do
-      resolve &UsersResolver.wants_email_digest/3
+      resolve &UsersResolver.wants_email_digest_edge/3
     end
     @desc "Does the user want notifications? Which don't work yet."
     field :wants_notifications, non_null(:boolean) do
-      resolve &UsersResolver.wants_notifications/3
+      resolve &UsersResolver.wants_notifications_edge/3
     end
     @desc "Has the user confirmed their account?"
     field :is_confirmed, non_null(:boolean) do
-      resolve &UsersResolver.is_confirmed/3
+      resolve &UsersResolver.is_confirmed_edge/3
     end
     @desc "Is the user a witch or wizard?"
     field :is_instance_admin, non_null(:boolean) do
-      resolve &UsersResolver.is_instance_admin/3
+      resolve &UsersResolver.is_instance_admin_edge/3
     end
   end
 
@@ -127,13 +127,20 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   object :user do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:id)
+
     @desc "A url for the user, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &UsersResolver.canonical_url/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
+
     @desc "An instance-unique identifier shared with communities and collections"
     field :preferred_username, non_null(:string) do
-      resolve &UsersResolver.preferred_username/3
+      resolve &ActorsResolver.preferred_username_edge/3
+    end
+
+    @desc "A preferred username + the host domain"
+    field :display_username, non_null(:string) do
+      resolve &ActorsResolver.display_username_edge/3
     end
 
     @desc "A name field"
@@ -151,41 +158,41 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
     @desc "Whether the user is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &UsersResolver.is_local/3
+      resolve &ActorsResolver.is_local_edge/3
     end
     @desc "Whether the user has a public profile"
     field :is_public, non_null(:boolean) do
-      resolve &UsersResolver.is_public/3
+      resolve &CommonResolver.is_public_edge/3
     end
     @desc "Whether an instance admin has disabled the user's account"
     field :is_disabled, non_null(:boolean) do
-      resolve &UsersResolver.is_disabled/3
+      resolve &CommonResolver.is_disabled_edge/3
     end
 
     @desc "When the user signed up"
     field :created_at, non_null(:string) do
-      resolve &CommonResolver.created_at/3
+      resolve &CommonResolver.created_at_edge/3
     end
     @desc "When the user last updated their profile"
     field :updated_at, non_null(:string)
     @desc "The last time the user did anything"
     field :last_activity, :string do
-      resolve &UsersResolver.last_activity/3
+      resolve &UsersResolver.last_activity_edge/3
     end
 
     @desc "The current user's follow of this user, if any"
     field :my_follow, :follow do
-      resolve &CommonResolver.my_follow/3
+      resolve &FollowsResolver.my_follow_edge/3
     end
 
     @desc "The current user's like of this user, if any"
     field :my_like, :like do
-      resolve &CommonResolver.my_like/3
+      resolve &LikesResolver.my_like_edge/3
     end
 
     @desc "The current user's flag of this user, if any"
     field :my_flag, :flag do
-      resolve &CommonResolver.my_flag/3
+      resolve &FlagsResolver.my_flag_edge/3
     end
 
     # @desc "The language the user wishes to use moodlenet in"
@@ -193,63 +200,81 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     #   resolve &LocalisationResolver.primary_language/3
     # end
 
-    @desc "The communities a user is following, most recently followed first"
-    field :followed_communities, non_null(:followed_communities_edges) do
+    @desc "Total number of followers, including those we can't see"
+    field :follower_count, :integer do
+      resolve &FollowsResolver.follower_count_edge/3
+    end
+
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
+    @desc "Subscriptions users have to the collection"
+    field :followers, :follows_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.followed_communities/3
+      resolve &FollowsResolver.followers_edge/3
+    end
+
+    @desc "The communities a user is following, most recently followed first"
+    field :followed_communities, :followed_communities_edges do
+      arg :limit, :integer
+      arg :before, :string
+      arg :after, :string
+      resolve &UsersResolver.followed_communities_edge/3
     end
 
     @desc "The collections a user is following, most recently followed first"
-    field :followed_collections, non_null(:followed_collections_edges) do
+    field :followed_collections, :followed_collections_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.followed_collections/3
+      resolve &UsersResolver.followed_collections_edge/3
     end
 
     @desc "The users a user is following, most recently followed first"
-    field :followed_users, non_null(:followed_users_edges) do
+    field :followed_users, :followed_users_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.followed_users/3
+      resolve &UsersResolver.followed_users_edge/3
     end
 
-    @desc "The collections a user is following, most recently followed first"
-    field :likes, non_null(:likes_edges) do
+    @desc "The likes a user has created"
+    field :likes, :likes_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommonResolver.likes/3
+      resolve &UsersResolver.likes_edge/3
     end
 
     @desc "Comments the user has made, most recently created first"
-    field :comments, non_null(:comments_edges) do
+    field :comments, :comments_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &CommentsResolver.comments/3
+      resolve &UsersResolver.comments_edge/3
     end
 
     @desc "Activities of the user, most recently created first"
-    field :outbox, non_null(:activities_edges) do
+    field :outbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.outbox/3
+      resolve &UsersResolver.outbox_edge/3
     end
 
     @desc """
     Activities of others the user is following, most recently created
     first. Only available to the current user under `me`
     """
-    field :inbox, non_null(:activities_edges) do
+    field :inbox, :activities_edges do
       arg :limit, :integer
       arg :before, :string
       arg :after, :string
-      resolve &UsersResolver.inbox/3
+      resolve &UsersResolver.inbox_edge/3
     end
 
   #   @desc "Taggings the user has created"
@@ -264,10 +289,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :followed_community do
     field :follow, non_null(:follow) do
-      resolve &UsersResolver.follow/3
+      resolve &UsersResolver.follow_edge/3
     end
     field :community, non_null(:community) do
-      resolve &UsersResolver.community/3
+      resolve &UsersResolver.community_edge/3
     end
   end
 
@@ -284,10 +309,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :followed_collection do
     field :follow, non_null(:follow) do
-      resolve &CommonResolver.follow/3
+      resolve &UsersResolver.follow_edge/3
     end
     field :collection, non_null(:collection) do
-      resolve &UsersResolver.collection/3
+      resolve &UsersResolver.collection_edge/3
     end
   end
 
@@ -304,10 +329,10 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
 
   object :followed_user do
     field :follow, non_null(:follow) do
-      resolve &CommonResolver.follow/3
+      resolve &UsersResolver.follow_edge/3
     end
     field :user, non_null(:user) do
-      resolve &UsersResolver.user/3
+      resolve &UsersResolver.user_edge/3
     end
   end
 

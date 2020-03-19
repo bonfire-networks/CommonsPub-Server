@@ -38,7 +38,7 @@ defmodule MoodleNet.Blocks.Block do
     |> Changeset.change(
       creator_id: creator_id,
       context_id: context_id,
-      is_muted: false,
+      is_muted: false
     )
     |> Changeset.foreign_key_constraint(:creator_id)
     |> Changeset.foreign_key_constraint(:context_id)

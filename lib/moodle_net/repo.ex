@@ -9,7 +9,7 @@ defmodule MoodleNet.Repo do
   use Ecto.Repo,
     otp_app: :moodle_net,
     adapter: Ecto.Adapters.Postgres
-
+  import Ecto.Query
   alias MoodleNet.Common.NotFoundError
 
   @doc """
@@ -47,6 +47,12 @@ defmodule MoodleNet.Repo do
     end
   end
 
+  def fetch_all(queryable, ids) when is_binary(ids) do
+    queryable
+    |> where([t], t.id in ^ids)
+    |> all()
+  end
+
   @doc """
   Run a transaction, similar to `Repo.transaction/1`, but it expects an ok or error
   tuple. If an error tuple is returned, the transaction is aborted.
@@ -61,4 +67,16 @@ defmodule MoodleNet.Repo do
     end)
   end
 
+  def transact_many([]), do: {:ok, []}
+  def transact_many(queries) when is_list(queries) do
+    transaction(fn -> Enum.map(queries, &transact/1) end)
+  end
+
+  defp transact({:all, q}), do: all(q)
+  defp transact({:count, q}), do: aggregate(q, :count)
+  defp transact({:one, q}), do: one(q)
+  defp transact({:one!, q}) do
+    {:ok, ret} = single(q)
+    ret
+  end
 end

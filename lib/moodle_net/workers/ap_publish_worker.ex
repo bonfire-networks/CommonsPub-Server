@@ -2,45 +2,26 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.APPublishWorker do
-  use Oban.Worker, queue: "mn_ap_publish", max_attempts: 2
+  use Oban.Worker, queue: "mn_ap_publish", max_attempts: 1
 
   require Logger
 
-  alias MoodleNet.{Actors, Meta, Users}
   alias MoodleNet.ActivityPub.Publisher
-  alias MoodleNet.Comments.Comment
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
-  import MoodleNet.Workers.Utils, only: [configure_logger: 1]
+  alias MoodleNet.Threads.Comment
 
   @impl Worker
   def perform(%{"context_id" => context_id}, _job) do
-    configure_logger(__MODULE__)
-    try do
-      context = context_id |> Meta.find!() |> Meta.follow!()
-  
-      only_local(context, &publish/1)
-    catch
-      reason ->
-	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
-        for line <- __STACKTRACE__ do
-          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
-        end
-    rescue
-      reason ->
-	Logger.error("[APPublishWorker] Failed to publish #{inspect(context_id)}")
-        for line <- __STACKTRACE__ do
-          Logger.error("[APPublishWorker: #{inspect(context_id)}] #{inspect(line)}")
-        end
-    end
-
-    # ignore failure for now
-    :ok
+      Pointers.one!(id: context_id)
+      |> Pointers.follow!()
+      |> only_local(&publish/1)
   end
 
   defp publish(%Collection{} = collection), do: ignore_deleted(collection, &Publisher.create_collection/1)
@@ -54,7 +35,6 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   defp publish(%Community{} = community) do
-    IO.inspect(community)
     ignore_deleted(community, &Publisher.create_community/1)
   end
 
@@ -90,33 +70,27 @@ defmodule MoodleNet.Workers.APPublishWorker do
 
   defp ignore_deleted(%{deleted_at: deleted_at} = context, commit_fn) do
     if is_nil(deleted_at) do
-      IO.inspect(context)
       commit_fn.(context)
     end
   end
 
-  defp only_local(%{actor_id: actor_id} = context, commit_fn) do
-    with {:ok, actor} <- Actors.fetch(actor_id) do
-      if is_nil(actor.peer_id) do
-        commit_fn.(context)
-      else
-        :ignored
-      end
+  defp only_local(%Resource{collection_id: collection_id} = context, commit_fn) do
+    with {:ok, collection} <- MoodleNet.Collections.one(id: collection_id),
+         {:ok, actor} <- MoodleNet.Actors.one(id: collection.actor_id),
+         true <- is_nil(actor.peer_id) do
+      commit_fn.(context)
+    else _ ->
+      :ignored
     end
   end
 
-  defp only_local(%{creator_id: creator_id} = context, commit_fn) do
-    with {:ok, user} <- Users.fetch_private(creator_id),
-         {:ok, actor} <- Actors.fetch(user.actor_id) do
-      if is_nil(actor.peer_id) do
-        commit_fn.(context)
-      else
-        :ignored
-      end
-    end
-  end
-
-  defp only_local(context, commit_fn) do
+  defp only_local(%{is_local: true} = context, commit_fn) do
     commit_fn.(context)
   end
+
+  defp only_local(%{actor: %{peer_id: nil}} = context, commit_fn) do
+    commit_fn.(context)
+  end
+
+  defp only_local(_, _), do: :ignored
 end

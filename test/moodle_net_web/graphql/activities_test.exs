@@ -3,16 +3,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActivitiesSchemaTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.Test.Fake
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Users}
-  alias MoodleNet.Activities.Activity
+  # alias MoodleNet.Test.Fake
+  # import MoodleNetWeb.Test.GraphQLAssertions
+  # import MoodleNetWeb.Test.GraphQLFields
+  # import MoodleNet.Test.Faking
+  # alias MoodleNet.Users
+  # alias MoodleNet.Activities.Activity
 
   describe "activity" do
     @tag :skip
     test "placeholder" do
+      # q = """
+      # { activity(activityId: "#{activity.id}") { #{activity_basics()} }}
+      # """
     end
   end
 
