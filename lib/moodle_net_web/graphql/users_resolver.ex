@@ -149,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def fetch_collection_edge(_, ids) do
-    {:ok, edges} = Collections.edges(&(&1.id), [:default, id: ids, preload: :actor])
+    {:ok, edges} = Collections.fields(&(&1.id), [:default, id: ids, preload: :actor])
     edges
   end
 

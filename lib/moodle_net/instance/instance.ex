@@ -7,7 +7,7 @@ defmodule MoodleNet.Instance do
   alias MoodleNet.{Activities, Feeds}
   
   def outbox() do
-    Activities.edges_page(
+    Activities.page(
       &(&1.id),
       join: :feed_activity,
       feed_id: Feeds.instance_outbox_id(),

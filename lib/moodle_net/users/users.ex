@@ -289,7 +289,7 @@ defmodule MoodleNet.Users do
     Repo.transact_with(fn ->
       with {:ok, subs} <- feed_subscriptions(user) do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
-        Activities.edges_page(
+        Activities.page(
           &(&1.id),
           [:deleted,
            join: :feed_activity,
