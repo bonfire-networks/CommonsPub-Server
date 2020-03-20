@@ -142,8 +142,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "The communities a user has joined, most recently joined first"
     field :collections, :collections_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CommunitiesResolver.collections_edge/3
     end
 
@@ -154,8 +154,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     """
     field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &ThreadsResolver.threads_edge/3
     end
 
@@ -172,24 +172,24 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Likes users have given the community"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &LikesResolver.likers_edge/3
     end
 
    @desc "Users following the community, most recently followed first"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Flags users have made about the community, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
@@ -204,8 +204,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Activities in the community, most recently created first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CommunitiesResolver.outbox_edge/3
     end
 
