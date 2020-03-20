@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
 
   end
 
-  describe "resource.myLike" do
+  describe "resource.my_like" do
 
     test "is nil for a guest or someone who does not like" do
       [alice, bob] = some_fake_users!(2)
@@ -56,7 +56,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
 
   end
 
-  describe "resource.myFlag" do
+  describe "resource.my_flag" do
 
     test "is nil for a guest or someone who does not flag" do
       [alice, bob] = some_fake_users!(2)

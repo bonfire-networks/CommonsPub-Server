@@ -91,7 +91,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
 
   end
 
-  describe "createLike" do
+  describe "create_like" do
     test "works for a user liking a user" do
       [alice, bob] = some_fake_users!(2)
       conn = user_conn(alice)
