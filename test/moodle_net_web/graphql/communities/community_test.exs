@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Faking
   import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.ConnHelpers
+  import Gruff
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "community" do
@@ -151,15 +152,24 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       colls = order_follower_count(some_fake_collections!(6, users, [comm])) # 24
       total = Enum.count(colls)
-      q = community_query(fields: [collections: page_fields(collection_fields())])
-      vars = %{"communityId" => comm.id}
+      q = community_query(
+        params: [limit: :int],
+        fields: [
+          field(
+            :collections,
+            args: [limit: var(:limit)],
+            fields: page_fields(collection_fields())
+          )
+        ]
+      )
+      vars = %{community_id: comm.id, limit: 2}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
         comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
         assert %{"collections" => colls2, "collectionCount" => count} = comm2
         assert count == total
-        edges = assert_page(colls2, 10, total, nil, true, &(&1["id"])) # should be false
-        piz(colls, edges.edges, &assert_collection/2)
+        page1 = assert_page(colls2, 2, total, false, true, &(&1["id"]))
+        each(colls, page1.edges, &assert_collection/2)
       end
     end
 
@@ -179,7 +189,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
         assert %{"followers" => follows, "followerCount" => count} = comm2
         assert count == 24
-        edges = assert_page(follows, 10, 24, nil, true, &(&1["id"])) # should be false
+        edges = assert_page(follows, 10, 24, false, true, &(&1["id"]))
         for edge <- edges.edges, do: assert_follow(edge)
       end
     end
@@ -201,7 +211,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         comm2 = assert_community(comm, comm2)
         assert %{"likers" => likes, "likerCount" => count} = comm2
         assert count == 23
-        edges = assert_page(likes, 10, 23, nil, true, &(&1["id"])) # should be false
+        edges = assert_page(likes, 10, 23, false, true, &(&1["id"]))
         for edge <- edges.edges, do: assert_like(edge)
       end
     end
@@ -222,7 +232,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       for conn <- conns do
         comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
         assert %{"flags" => flags} = comm2
-        assert_page(flags, 0, 0, false, false, &(&1["id"])) # should be false
+        assert_page(flags, 0, 0, false, false, &(&1["id"]))
       end
     end
 
@@ -238,13 +248,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
       comm2 = assert_community(gruff_post_key(q, user_conn(bob), "community", vars))
       assert %{"flags" => flags} = comm2
-      edges = assert_page(flags, 1, 1, nil, false, &(&1["id"])) # should be false
+      edges = assert_page(flags, 1, 1, false, false, &(&1["id"]))
       for edge <- edges.edges, do: assert_flag(edge)
 
       for conn <- [user_conn(lucy)] do
         comm2 = assert_community(gruff_post_key(q, conn, "community", vars))
         assert %{"flags" => flags} = comm2
-        edges = assert_page(flags, 10, 24, nil, true, &(&1["id"])) # should be false
+        edges = assert_page(flags, 10, 24, false, true, &(&1["id"]))
         for edge <- edges.edges, do: assert_flag(edge)
       end
     end
@@ -288,7 +298,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       _ = zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
           fake_reply!(user, thread, comment)
         end)
-      {_threads, initials} = unpiz(threads_and_initials)
+      {_threads, _initials} = unpiz(threads_and_initials)
       # replies = Enum.map(threads_and_replies, &elem(&1, 1))
       # comments = final_replies ++ replies ++ initials
       q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
@@ -296,7 +306,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
         comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
         assert %{"threads" => threads} = comm2
-        threads = assert_page(threads, 10, 25, nil, true, &(&1["id"])) # should be false
+        _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, false, true, &(&1["id"])).edges
         # end)

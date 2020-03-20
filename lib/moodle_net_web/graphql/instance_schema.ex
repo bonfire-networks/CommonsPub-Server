@@ -35,8 +35,8 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     """
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, :cursor
+      arg :after, :cursor
       resolve &InstanceResolver.outbox_edge/3
     end
 

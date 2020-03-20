@@ -198,11 +198,17 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def collections_query(options \\ []) do
-    gen_query(&collections_subquery/1, options)
+    gen_query(
+      &collections_subquery/1,
+      [{:params, [after: :cursor, before: :cursor, limit: :int]} | options]
+    )
   end
 
   def collections_subquery(options \\ []) do
-    page_subquery(:collections, &collection_fields/1, options)
+    page_subquery(
+      :collections, &collection_fields/1,
+      [{:args, [after: var(:after), before: var(:before), limit: var(:limit)]} | options ]
+    )
   end
 
   def create_collection_mutation(options \\ []) do

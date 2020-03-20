@@ -14,4 +14,5 @@ defmodule MoodleNet.FeedPublisher do
          other -> other
        end
   end
+
 end

@@ -9,7 +9,7 @@ defmodule MoodleNet.Collections.Collection do
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.{Collection, CollectionFollowerCount}
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
@@ -23,7 +23,7 @@ defmodule MoodleNet.Collections.Collection do
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
-    has_one(:follower_count, CollectionFollowerCount)
+    field(:follower_count, :any, virtual: true) # because it's keyed by pointer
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)

@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     CommentsSchema,
     CommonSchema,
     CommunitiesSchema,
+    Cursor,
     JSON,
     FeaturesSchema,
     FlagsSchema,
@@ -26,11 +27,13 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UsersSchema,
     UploadSchema,
   }
+  alias MoodleNetWeb.GraphQL.OverridePhase
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
+  alias Absinthe.Middleware.Batch
 
-  def plugins do
-    Absinthe.Plugin.defaults()
-  end
+  # @pipeline_modifier OverridePhase
+
+  def plugins, do: [Batch]
 
   def middleware(middleware, _field, _object) do
     # [{MoodleNetWeb.GraphQL.Middleware.Debug, :start}] ++
@@ -44,6 +47,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types CommentsSchema
   import_types CommonSchema
   import_types CommunitiesSchema
+  import_types Cursor
   import_types FeaturesSchema
   import_types FlagsSchema
   import_types FollowsSchema

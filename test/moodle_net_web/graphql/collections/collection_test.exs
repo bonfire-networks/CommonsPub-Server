@@ -174,7 +174,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         coll2 = assert_collection(coll, gruff_post_key(q, conn, "collection", vars))
         assert %{"resources" => res2, "resourceCount" => count} = coll2
         assert count == 5
-        edges = assert_page(res2, 5, 5, nil, false, &(&1["id"])) # should be false
+        edges = assert_page(res2, 5, 5, false, false, &(&1["id"]))
         for {re, re2} <- Enum.zip(res, edges.edges) do
           assert_resource(re, re2)
         end
@@ -198,7 +198,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         coll2 = assert_collection(coll, gruff_post_key(q, conn, "collection", vars))
         assert %{"followers" => follows, "followerCount" => count} = coll2
         assert count == 24 # 23 + creator
-        edges = assert_page(follows, 10, 24, nil, true, &(&1["id"])) # should be false
+        edges = assert_page(follows, 10, 24, false, true, &(&1["id"]))
         for edge <- edges.edges, do: assert_follow(edge)
       end
     end
@@ -221,7 +221,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         coll2 = assert_collection(coll, coll2)
         assert %{"likers" => likes, "likerCount" => count} = coll2
         assert count == 23
-        likes = assert_page(likes, 10, 23, nil, true, &(&1["id"])) # should be false
+        likes = assert_page(likes, 10, 23, false, true, &(&1["id"]))
         for edge <- likes.edges, do: assert_like(edge)
       end
     end
@@ -244,7 +244,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         coll2 = gruff_post_key(q, conn, "collection", vars)
         coll2 = assert_collection(coll, coll2)
         assert %{"flags" => flags} = coll2
-        assert_page(flags, 0, 0, false, false, &(&1["id"])) # should be false
+        assert_page(flags, 0, 0, false, false, &(&1["id"]))
       end
     end
 
@@ -261,13 +261,13 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
 
       coll2 = assert_collection(gruff_post_key(q, user_conn(eve), "collection", vars))
       assert %{"flags" => flags} = coll2
-      edges = assert_page(flags, 1, 1, nil, false, &(&1["id"])) # should be false
+      edges = assert_page(flags, 1, 1, false, false, &(&1["id"]))
       for edge <- edges.edges, do: assert_flag(edge)
 
       for conn <- [user_conn(lucy)] do
         coll2 = assert_collection(gruff_post_key(q, conn, "collection", vars))
         assert %{"flags" => flags} = coll2
-        edges = assert_page(flags, 2, 2, nil, false, &(&1["id"])) # should be false
+        edges = assert_page(flags, 2, 2, false, false, &(&1["id"]))
         for edge <- edges.edges, do: assert_flag(edge)
       end
     end
@@ -311,7 +311,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       _ =  zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
           fake_reply!(user, thread, comment)
         end)
-      {_threads, initials} = unpiz(threads_and_initials)
+      {_threads, _initials} = unpiz(threads_and_initials)
       # replies = Enum.map(threads_and_replies, &elem(&1, 1))
       # comments = final_replies ++ replies ++ initials
       q = collection_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
@@ -319,7 +319,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, gruff_post_key(q, conn, "collection", vars))
         assert %{"threads" => threads} = coll2
-        threads = assert_page(threads, 10, 25, nil, true, &(&1["id"])) # should be false
+        _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
         # end)

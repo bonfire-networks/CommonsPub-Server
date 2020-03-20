@@ -8,7 +8,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Flags, Likes, Resources}
 
   describe "resource" do
 
@@ -19,7 +18,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       res = fake_resource!(alice, coll)
       q = resource_query()
       conn = json_conn()
-      res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
+      assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
     end
 
   end
@@ -99,7 +98,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       coll = fake_collection!(alice, comm)
       res = fake_resource!(alice, coll)
       q = resource_query(fields: [creator: user_fields()])
-      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(alice)] do
+      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
         assert %{"creator" => creator} = res2
         assert_user(alice, creator)
@@ -125,7 +124,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       coll = fake_collection!(alice, comm)
       res = fake_resource!(alice, coll)
       q = resource_query(fields: [collection: collection_fields()])
-      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(alice)] do
+      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
         assert %{"collection" => coll2} = res2
         assert_collection(coll, coll2)
@@ -156,7 +155,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
         assert %{"likers" => likes2} = res2
-        likes2 = assert_page(likes2, 3, 3, nil, false, &(&1["id"]))
+        likes2 = assert_page(likes2, 3, 3, false, false, &(&1["id"]))
         each(likes, likes2.edges, &assert_like/2)
       end
     end
@@ -170,7 +169,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       res = fake_resource!(alice, coll)
-      flags = pam([alice, bob, dave], &flag!(&1, res))
+      pam([alice, bob, dave], &flag!(&1, res))
       q = resource_query(
         fields: [
           flags_subquery(
@@ -183,8 +182,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       )
       for conn <- [json_conn(), user_conn(eve)] do
         res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
-        assert %{"flags" => flags2} = res2
-        assert [] == assert_page(flags2, 0, 0, false, false, &(&1["id"])).edges
+        assert %{"flags" => flags} = res2
+        assert [] == assert_page(flags, 0, 0, false, false, &(&1["id"])).edges
       end
     end
 
@@ -209,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
         conn = user_conn(user)
         res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
         assert %{"flags" => flags} = res2
-        assert [flag2] = assert_page(flags, 1, 1, nil, false, &(&1["id"])).edges
+        assert [flag2] = assert_page(flags, 1, 1, false, false, &(&1["id"])).edges
         assert_flag(flag, flag2)
         flag
       end)
@@ -217,7 +216,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       conn = user_conn(lucy)
       res2 = assert_resource(res, gruff_post_key(q, conn, :resource, %{resource_id: res.id}))
       assert %{"flags" => flags2} = res2
-      flags2 = assert_page(flags2, 3, 3, nil, false, &(&1["id"])).edges
+      flags2 = assert_page(flags2, 3, 3, false, false, &(&1["id"])).edges
       each(flags, flags2, &assert_flag/2)
     end
 
@@ -244,7 +243,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesTest do
       alice = fake_user!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
-      ri = Fake.resource_input()
       q = create_resource_mutation()
       conn = json_conn()
       ri = Fake.resource_input()

@@ -10,8 +10,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Repo,
     Resources,
   }
-  alias MoodleNet.GraphQL.Flow
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.GraphQL.{Flow, PageFlow}
+  alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
@@ -22,7 +22,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def collections(page_opts, info) do
-    opts = %{default_limit: 10}
+    opts = %{default_limit: 10, cursor_fn: &GraphQL.cast_int_ulid_id/1}
     Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, opts)
   end
 
@@ -37,13 +37,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_collections(page_opts, user) do
-    Collections.page(
-      &(&1.id),
-      page_opts,
-      [user: user],
-      [join: :follower_count,
-       order: :followers_desc,
-       preload: :follower_count]
+   PageFlow.run(
+      %PageFlow{
+        queries_module: Queries,
+        query: Collection,
+        cursor_fn: Collections.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: user],
+        data_filters: [page: [followers_desc: page_opts]],
+      }
     )
   end
 

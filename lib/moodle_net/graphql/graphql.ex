@@ -71,12 +71,39 @@ defmodule MoodleNet.GraphQL do
     end
   end
 
+
   def full_page_opts(attrs, opts \\ %{}) do
-    Changeset.apply_action(PageOpts.full_changeset(attrs, opts), :create)
+    cursor_fn = Map.get(opts, :cursor_fn, &(&1))
+    with {:ok, page_opts} <- limit_page_opts(attrs, opts) do
+      case attrs do
+        %{before: b, after: a} when not is_nil(b) and not is_nil(a) ->
+          {:error, %{message: "May not provide both before and after"}}
+
+        %{after: a} when not is_nil(a) ->
+          {:ok, Map.put(page_opts, :after, cursor_fn.(a))}
+
+        %{before: b} when not is_nil(b) ->
+          {:ok, Map.put(page_opts, :before, cursor_fn.(b))}
+
+        %{} -> {:ok, page_opts}
+      end
+    end
   end
 
+  @max_limit 100
+  @min_limit 1
+  @default_limit 25
+
   def limit_page_opts(attrs, opts \\ %{}) do
-    Changeset.apply_action(PageOpts.limit_changeset(attrs, opts), :create)
+    max = Map.get(opts, :max_limit, @max_limit)
+    min = Map.get(opts, :min_limit, @min_limit)
+    default = Map.get(opts, :default_limit, @default_limit)
+    limit = Map.get(attrs, :limit, default)
+    if limit < min or limit > max do
+      {:error, %{message: "Bad limit, must be between #{min} and #{max}"}}
+    else
+      {:ok, %{limit: limit}}
+    end
   end
 
   def empty_page(), do: Page.new([], 0, &(&1), %{})
@@ -95,5 +122,17 @@ defmodule MoodleNet.GraphQL do
   def not_permitted(verb \\ "do"), do: {:error, NotPermittedError.new(verb)}
 
   def not_found(), do: {:error, NotFoundError.new()}
+
+  def cast_ulid(str), do: Ecto.ULID.cast(str)
+
+  def cast_int(str), do: Ecto.Type.cast(:integer, str)
+
+  def cast_int_ulid_id(id) do
+    with [int, ulid] <- id,
+         {:ok, _} <- cast_int(int),
+         {:ok, _} <- cast_ulid(id) do
+      {:ok, id}
+    end
+  end
 
 end

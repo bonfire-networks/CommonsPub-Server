@@ -20,7 +20,6 @@ defmodule MoodleNet.Collections.Queries do
   end
 
   def query(q, filters), do: filter(query(q), filters)
-
   
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
@@ -139,7 +138,6 @@ defmodule MoodleNet.Collections.Queries do
   def filter(q, {:order, :followers_desc}) do
     order_by q, [collection: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
-      desc: c.updated_at,
       desc: c.id
   end
 
@@ -161,8 +159,82 @@ defmodule MoodleNet.Collections.Queries do
     preload q, [actor: a], actor: a
   end
 
-  def filter(q, {:preload, :follower_count}) do
-    preload q, [actor: a, follower_count: fc], actor: a, follower_count: fc
+  # pagination
+
+  def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where([collection: c], c.id >= ^a)
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where([collection: c], c.id <= ^b)
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_id, %{limit: limit}}) do
+    limit = limit + 1
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:paginate_followers, %{after: [count, id], limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
+    )
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_followers, %{before: [count, id], limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
+    |> limit(^limit)
+  end
+
+
+  def filter(q, {:page, [followers_desc: page_opts]}) do
+    q
+    |> filter(join: :follower_count, order: :followers_desc)
+    |> page_followers_desc(page_opts)
+    |> select(
+      [collection: c, actor: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+    )
+  end
+
+  defp page_followers_desc(q, %{after: [count, id], limit: limit}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
+    )
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{before: [count, id], limit: limit}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{limit: limit}) do
+    limit = limit + 1
+    q
+    |> limit(^limit)
   end
 
 end

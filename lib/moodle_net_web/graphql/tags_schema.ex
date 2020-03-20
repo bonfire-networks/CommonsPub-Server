@@ -62,8 +62,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
   #   @desc "The tags in the category, most recently created first"
   #   field :tags, :tags_edges do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, :cursor
+  #     arg :after, :cursor
   #     resolve &CommonResolver.category_tags/3
   #   end
 
@@ -109,8 +109,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
   #   @desc "The tags in the category, most recently created first"
   #   field :tags, :tags_edges do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, :cursor
+  #     arg :after, :cursor
   #     resolve &CommonResolver.category_tags/3
   #   end
 
@@ -118,13 +118,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
 
   # object :tag_categories_edges do
   #   field :page_info, non_null(:page_info)
-  #   field :edges, list_of(:tag_categories_edge)
+  #   field :edges, list_of(:tag_category)
   #   field :total_count, non_null(:integer)
-  # end
-
-  # object :tag_categories_edge do
-  #   field :cursor, non_null(:string)
-  #   field :node, :tag_category
   # end
 
 end

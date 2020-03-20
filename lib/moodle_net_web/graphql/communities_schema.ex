@@ -22,8 +22,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Get list of communities, most followed first"
     field :communities, non_null(:communities_page) do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, :cursor
+      arg :after, :cursor
       resolve &CommunitiesResolver.communities/2
     end
 

@@ -98,9 +98,8 @@ defmodule MoodleNet.GraphQL.Flow do
     opts :: Keyword.t
   ) :: term
   def root_page(module, callback, page_opts, info, opts \\ []) do
-    user = info.context.current_user
     with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, user])
+      apply(module, callback, [page_opts, GraphQL.current_user(info)])
     end
   end
 

@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
       conn = json_conn()
       # test the first page with the default limit
       comms = gruff_post_key(communities_query(), conn, :communities)
-      page1 = assert_page(comms, 10, total, nil, true, &(&1["id"])) # should be false not nil
+      page1 = assert_page(comms, 10, total, false, true, &(&1["id"]))
       each(communities, page1.edges, &assert_community/2)
     end
 

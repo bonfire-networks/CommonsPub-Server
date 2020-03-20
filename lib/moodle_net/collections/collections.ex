@@ -3,12 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.GraphQL.Fields
+  alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
   @doc """
   Retrieves a single collection by arbitrary filters.
@@ -40,8 +43,12 @@ defmodule MoodleNet.Collections do
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page Queries, Collection,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
+    base_q = Queries.query(Collection, base_filters)
+    data_q = Queries.filter(base_q, data_filters)
+    count_q = Queries.filter(base_q, count_filters)
+    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
+    end
   end
 
   @doc """
