@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def single_likes_edge(page_opts, user, ids) do
-    Likes.edges_page(
+    Likes.page(
       &(&1.id),
       page_opts,
       [user: user, context_id: ids],
@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def batch_likes_edge({page_opts, user}, ids) do
-    {:ok, edges} = Likes.edges_pages(
+    {:ok, edges} = Likes.pages(
       &(&1.id),
       &(&1.creator_id),
       page_opts,
@@ -92,7 +92,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def single_comments_edge(page_opts, %User{}=user, ids) do
-    Comments.edges_pages(
+    Comments.pages(
       &(&1.id),
       page_opts,
       [user: user, creator_id: ids],
@@ -101,7 +101,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def batch_comments_edge({page_opts,%User{}=user}, ids) do
-    {:ok, pages} = Comments.edges_pages(
+    {:ok, pages} = Comments.pages(
       &(&1.id),
       &(&1.creator_id),
       page_opts,
@@ -239,7 +239,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def single_outbox_edge(page_opts, _user, id) do
-    Activities.edges_page(
+    Activities.page(
       &(&1.id),
       page_opts,
       [join: :feed_activity,
