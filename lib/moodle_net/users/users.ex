@@ -285,12 +285,13 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{inbox_id: inbox_id}=user) do
+  def inbox(%User{inbox_id: inbox_id}=user, page_opts) do
     Repo.transact_with(fn ->
       with {:ok, subs} <- feed_subscriptions(user) do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
         Activities.page(
           &(&1.id),
+          page_opts,
           [:deleted, feed: ids, table: default_inbox_query_contexts()]
         )
       end

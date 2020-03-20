@@ -155,7 +155,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def followed_communities_edge(%{id: id}, %{}=page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_collections_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_followed_communities_edge, page_opts, id, info, opts)
   end
 
   def fetch_followed_communities_edge({page_opts, user}, ids) do
@@ -164,7 +164,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       &(&1.id),
       page_opts,
       [user: user, creator_id: ids, join: :context, table: Community],
-      [order: :timeline_desc],
+      [order: :timeline_desc, preload: :context],
       [group_count: :context_id]
     )
     edges
@@ -216,10 +216,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def inbox_edge(%User{id: id}=user, _, info) do
+  def inbox_edge(%User{id: id}=user, page_opts, info) do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
       if id == current_user.id do
-        Users.inbox(user)
+        ret = Users.inbox(user, page_opts)
+        IO.inspect(ret: ret)
       else
         GraphQL.not_permitted()
       end
