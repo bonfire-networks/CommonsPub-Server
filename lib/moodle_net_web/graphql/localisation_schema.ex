@@ -10,10 +10,10 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   # object :localisation_queries do
 
   #   @desc "Get list of languages we know about"
-  #   field :languages, non_null(:languages_nodes) do
+  #   field :languages, non_null(:languages_page) do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, :cursor
+  #     arg :after, :cursor
   #     resolve &LocalisationResolver.languages/2
   #   end
 
@@ -22,16 +22,16 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #     resolve &LocalisationResolver.language/2
   #   end
 
-  #   field :search_language, non_null(:languages_nodes) do
+  #   field :search_language, non_null(:languages_page) do
   #     arg :query, non_null(:string)
   #     resolve &LocalisationResolver.search_language/2
   #   end
 
   #   @desc "Get list of languages we know about"
-  #   field :countries, non_null(:countries_nodes) do
+  #   field :countries, non_null(:countries_page) do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, :cursor
+  #     arg :after, :cursor
   #     resolve &LocalisationResolver.countries/2
   #   end
 
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #     resolve &LocalisationResolver.country/2
   #   end
 
-  #   field :search_country, :countries_nodes do
+  #   field :search_country, :countries_page do
   #     arg :query, non_null(:string)
   #     resolve &LocalisationResolver.search_country/2
   #   end
@@ -58,21 +58,10 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :updated_at, :string
   # end
 
-  # object :languages_nodes do
+  # object :languages_page do
   #   field :page_info, non_null(:page_info)
-  #   field :nodes, list_of(:language)
+  #   field :edges, non_null(list_of(:language))
   #   field :total_count, non_null(:integer)
-  # end
-
-  # object :languages_edges do
-  #   field :page_info, non_null(:page_info)
-  #   field :edges, list_of(:languages_edge)
-  #   field :total_count, non_null(:integer)
-  # end
-
-  # object :languages_edge do
-  #   field :cursor, non_null(:string)
-  #   field :node, :language
   # end
 
   # object :country do
@@ -87,21 +76,10 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   field :updated_at, :string
   # end
 
-  # object :countries_nodes do
+  # object :countries_page do
   #   field :page_info, non_null(:page_info)
-  #   field :nodes, list_of(:country)
+  #   field :edges, non_null(list_of(:country))
   #   field :total_count, non_null(:integer)
-  # end
-
-  # object :countries_edges do
-  #   field :page_info, non_null(:page_info)
-  #   field :edges, list_of(:countries_edge)
-  #   field :total_count, non_null(:integer)
-  # end
-
-  # object :countries_edge do
-  #   field :cursor, non_null(:string)
-  #   field :node, :country
   # end
 
 end

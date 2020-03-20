@@ -5,7 +5,8 @@ defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Common.Contexts
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
@@ -18,29 +19,31 @@ defmodule MoodleNet.Threads.Comments do
 
   def many(filters \\ []), do: {:ok, Repo.all(CommentsQueries.query(Comment, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = CommentsQueries.queries(Comment, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
     ret =
       CommentsQueries.query(Comment, filters)
       |> Repo.all()
-      |> Edges.new(group_fn)
+      |> Fields.new(group_fn)
     {:ok, ret}
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
-    {data_q, count_q} = CommentsQueries.queries(Comment, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
-    end
+  @doc """
+  Retrieves a Page of comments according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
+  when is_function(cursor_fn, 1) do
+    Contexts.page CommentsQueries, Comment,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
+  end
+
+  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
+    Contexts.pages_all CommentsQueries, Comment,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   defp publish(creator, thread, comment, activity, :created) do

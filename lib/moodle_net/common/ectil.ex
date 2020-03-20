@@ -3,13 +3,11 @@ defmodule MoodleNet.Common.Ectil do
   require Ecto.Query
   alias Ecto.Query
 
-  @default_order [desc_nulls_last: :inserted_at]
+  # @default_order [desc_nulls_last: :inserted_at]
 
   def filter_private(query, user_id),
     do: Query.where(query, [it], it.is_public == true or it.user_id == ^user_id)
 
-  def paginate(query, opts), do: throw :unimplemented
-  
   def order_by(query, sortable_fields, ordering)
   when is_list(sortable_fields) do
     order = order_by_clause(ordering, sortable_fields)

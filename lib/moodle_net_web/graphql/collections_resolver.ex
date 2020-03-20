@@ -3,73 +3,73 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.{
+    Activities,
     Collections,
     Communities,
     GraphQL,
-    Instance,
     Repo,
     Resources,
   }
-  alias MoodleNet.Batching.{Edges, EdgesPages}
-  alias MoodleNet.Collections.Collection
+  alias MoodleNet.GraphQL.{Flow, PageFlow}
+  alias MoodleNet.Collections.{Collection, Queries}
+  alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
-  use MoodleNet.Common.Metadata
 
-  def collection(%{collection_id: id}, %{context: %{current_user: user}}) do
+  ## resolvers
+
+  def collection(%{collection_id: id}, info) do
+    Flow.field(__MODULE__, :fetch_collection, id, info)
+  end
+
+  def collections(page_opts, info) do
+    opts = %{default_limit: 10, cursor_fn: &GraphQL.cast_int_ulid_id/1}
+    Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, opts)
+  end
+
+  ## fetchers
+
+  def fetch_collection(user, id) do
     Collections.one(
       user: user,
       id: id,
-      join: :actor,
       preload: :actor
     )
   end
 
-  def collections(_args, %{context: %{current_user: user}}) do
-    Collections.nodes_page(
+  def fetch_collections(page_opts, user) do
+   PageFlow.run(
+      %PageFlow{
+        queries_module: Queries,
+        query: Collection,
+        cursor_fn: Collections.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: user],
+        data_filters: [page: [followers_desc: page_opts]],
+      }
+    )
+  end
+
+  def resource_count_edge(%Collection{id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_resource_count_edge, id, info,
+      default: 0,
+      getter: &Flow.get_tuple_item(&1, id, 1, 0)
+  end
+
+  def fetch_resource_count_edge(_, ids) do
+    {:ok, edges} = Resources.many(collection_id: ids, group_count: :collection_id)
+    Enums.group(edges, fn {id, _} -> id end)
+  end
+
+  def resources_edge(%Collection{id: id}, %{}=page_opts, info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_resources_edge, page_opts, id, info, opts)
+  end
+
+  def fetch_resources_edge({page_opts, user}, ids) do
+    {:ok, edges} = Resources.pages(
       &(&1.id),
-      [user: user],
-      [join: {:actor, :left},
-       join: :follower_count,
-       order: :followers_desc,
-       preload: :follower_count]
-    )
-  end
-
-  # def canonical_url_edge(%Collection{id: id, actor: %{canonical_url: nil}}, _, _) do
-  #   {:ok, Instance.base_url() <> "/collections/" <> id} # canonical URL should be set by AP, but we can use FE URL as fallback
-  # end
-  def canonical_url_edge(%Collection{actor: %{canonical_url: url}}, _, _) do
-    {:ok, url}
-  end
-
-  def resource_count_edge(%Collection{id: id}, _, _info) do
-    batch {__MODULE__, :batch_resource_count_edge}, id,
-      fn edges ->
-        case Map.get(edges, id) do
-          [{_, count}] -> {:ok, count}
-          _ -> {:ok, 0}
-        end
-      end
-  end
-
-  def batch_resource_count_edge(_, ids) do
-    {:ok, edges} = Resources.many(
-      collection_id: ids,
-      group_count: :collection_id
-    )
-    Enum.group_by(edges, fn {id, _} -> id end)
-  end
-
-  @will_break_when :pagination
-  def resources_edge(%Collection{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_resources_edge, user}, id, EdgesPages.getter(id)
-  end
-
-  def batch_resources_edge(user, ids) do
-    {:ok, edges} = Resources.edges_pages(
       &(&1.collection_id),
-      &(&1.id),
+      page_opts,
       [user: user, collection_id: ids],
       [order: :timeline_desc],
       [group_count: :collection_id]
@@ -77,28 +77,63 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     edges
   end
 
-  def community_edge(%Collection{community_id: id}, _, _info) do
-    batch {__MODULE__, :batch_community_edge}, id, Edges.getter(id)
+  def fetch_resources_edge(page_opts, user, id) do
+    Resources.page(
+      &(&1.id),
+      page_opts,
+      [user: user, collection_id: id],
+      [order: :timeline_desc]
+    )
   end
 
-  def batch_community_edge(_, ids) do
-    {:ok, edges} = Communities.edges(&(&1.id), [:default, id: ids])
-    edges
+  def community_edge(%Collection{community_id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_community_edge, id, info
+  end
+
+  def fetch_community_edge(_, ids) do
+    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
+    fields
   end
 
   def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
   end
 
-  def outbox_edge(%Collection{}=coll, _, _info) do
-    Collections.outbox(coll)
+  def outbox_edge(%Collection{outbox_id: id}, page_opts, %{context: %{current_user: user}}=info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, user, id, info, opts)
+  end
+
+  def fetch_outbox_edge({page_opts, user}, id) do
+    {:ok, box} = Activities.page(
+      &(&1.id),
+      &(&1.id),
+      page_opts,
+      feed: id,
+      table: default_outbox_query_contexts()
+    )
+    box
+  end
+
+  def fetch_outbox_edge(page_opts, user, id) do
+    Activities.page(
+      &(&1.id),
+      page_opts,
+      feed: id,
+      table: default_outbox_query_contexts()
+    )
+  end
+
+  defp default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, Collections)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
   ## finally the mutations...
 
   def create_collection(%{collection: attrs, community_id: id}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
         attrs = Map.merge(attrs, %{is_public: true})
         Collections.create(user, community, attrs)
@@ -108,7 +143,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def update_collection(%{collection: changes, collection_id: id}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, collection} <- collection(%{collection_id: id}, info) do
         collection = Repo.preload(collection, :community)
         cond do

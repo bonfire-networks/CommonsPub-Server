@@ -9,121 +9,114 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
 
-  alias MoodleNet.Features
-
   describe "feature" do
-    test "works for a guest for a feature" do
-      user = fake_user!()
-      comm = fake_community!(user)
 
-      assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
-
-      q = """
-      {
-        feature(featureId: "#{feature.id}") {
-          #{feature_basics()}
-        }
-      }
-      """
-      assert %{"feature" => fetched} = gql_post_data(%{query: q})
-      assert fetched["id"] == feature.id
+    test "works for anyone for a community feature" do
+      [alice, bob] = some_fake_users!(2)
+      eve = fake_admin!()
+      comm = fake_community!(alice)
+      feature = feature!(alice, comm)
+      q = feature_query()
+      vars = %{feature_id: feature.id}
+      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
+        feature2 = gruff_post_key(q, conn, :feature, vars)
+        assert_feature(feature, feature2)
+      end
     end
 
-    test "works for a logged in user" do
-      user = fake_user!()
-      conn = user_conn(user)
-      comm = fake_community!(user)
-      coll = fake_collection!(user, comm)
-
-      assert {:ok, feature} = Features.create(user, coll, %{is_local: true})
-
-      q = """
-      {
-        feature(featureId: "#{feature.id}") {
-          #{feature_basics()}
-        }
-      }
-      """
-      assert %{"feature" => _} = gql_post_data(conn, %{query: q})
+    test "works for anyone for a collection feature" do
+      [alice, bob] = some_fake_users!(2)
+      eve = fake_admin!()
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      feature = feature!(alice, coll)
+      q = feature_query()
+      vars = %{feature_id: feature.id}
+      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
+        feature2 = gruff_post_key(q, conn, :feature, vars)
+        assert_feature(feature, feature2)
+      end
     end
+
   end
 
-  describe "feature.creator" do
-    test "returns the feature creator" do
-      user = fake_user!()
-      comm = fake_community!(user)
+  # describe "feature.creator" do
+  #   test "returns the feature creator" do
+  #     user = fake_user!()
+  #     comm = fake_community!(user)
 
-      assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
+  #     assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
 
-      q = """
-      {
-        feature(featureId: "#{feature.id}") {
-          #{feature_basics()}
-          creator { #{user_basics()} }
-        }
-      }
-      """
-      assert %{"feature" => fetched} = gql_post_data(%{query: q})
-      assert %{"creator" => creator} = fetched
-      assert_user(user, creator)
-    end
-  end
+  #     q = """
+  #     {
+  #       feature(featureId: "#{feature.id}") {
+  #         #{feature_basics()}
+  #         creator { #{user_basics()} }
+  #       }
+  #     }
+  #     """
+  #     assert %{"feature" => fetched} = gql_post_data(%{query: q})
+  #     assert %{"creator" => creator} = fetched
+  #     assert_user(user, creator)
+  #   end
+  # end
 
-  describe "feature.context" do
-    test "returns the feature context" do
-      user = fake_user!()
-      comm = fake_community!(user)
+  # describe "feature.context" do
+  #   test "returns the feature context" do
+  #     user = fake_user!()
+  #     comm = fake_community!(user)
 
-      assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
+  #     assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
 
-      q = """
-      {
-        feature(featureId: "#{feature.id}") {
-          #{feature_basics()}
-          context { ... on Community { #{community_basics()} } }
-        }
-      }
-      """
-      assert %{"feature" => fetched} = gql_post_data(%{query: q})
-      assert %{"context" => context} = fetched
-      assert_community(comm, context)
-    end
-  end
+  #     q = """
+  #     {
+  #       feature(featureId: "#{feature.id}") {
+  #         #{feature_basics()}
+  #         context { ... on Community { #{community_basics()} } }
+  #       }
+  #     }
+  #     """
+  #     assert %{"feature" => fetched} = gql_post_data(%{query: q})
+  #     assert %{"context" => context} = fetched
+  #     assert_community(comm, context)
+  #   end
+  # end
 
-  describe "createFeature" do
-    test "works for an admin" do
-      user = fake_user!(%{is_instance_admin: true})
-      conn = user_conn(user)
-      comm = fake_community!(user)
+  # describe "createFeature" do
+  #   test "works for an admin" do
+  #     user = fake_user!(%{is_instance_admin: true})
+  #     conn = user_conn(user)
+  #     comm = fake_community!(user)
 
-      q = """
-      mutation Test {
-        createFeature(contextId: "#{comm.id}") {
-          #{feature_basics()}
-        }
-      }
-      """
+  #     q = """
+  #     mutation Test {
+  #       createFeature(contextId: "#{comm.id}") {
+  #         #{feature_basics()}
+  #       }
+  #     }
+  #     """
 
-      assert %{"createFeature" => feature} = gql_post_data(conn, %{query: q, mutation: "Test"})
-      assert feature["id"]
+  #     assert %{"createFeature" => feature} = gql_post_data(conn, %{query: q, mutation: "Test"})
+  #     assert feature["id"]
 
-      assert {:ok, _} = Features.one(context_id: comm.id)
-    end
+  #     assert {:ok, _} = Features.one(context_id: comm.id)
+  #   end
 
-    test "fails for a normal user" do
-      user = fake_user!()
-      conn = user_conn(user)
-      comm = fake_community!(user)
+  #   test "fails for a normal user" do
+  #     user = fake_user!()
+  #     conn = user_conn(user)
+  #     comm = fake_community!(user)
 
-      q = """
-      mutation Test {
-        createFeature(contextId: "#{comm.id}") {
-          #{feature_basics()}
-        }
-      }
-      """
+  #     q = """
+  #     mutation Test {
+  #       createFeature(contextId: "#{comm.id}") {
+  #         #{feature_basics()}
+  #       }
+  #     }
+  #     """
 
-      assert [%{"code" => "unauthorized", "status" => 403}] = gql_post_errors(conn, %{query: q, mutation: "Test"})
-    end
-  end
+  #     assert [%{"code" => "unauthorized", "status" => 403}] = gql_post_errors(conn, %{query: q, mutation: "Test"})
+  #   end
+  # end
+
 end

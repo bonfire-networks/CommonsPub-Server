@@ -5,52 +5,62 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   alias MoodleNet.{Flags, GraphQL, Repo}
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.Batching.{Edges, EdgesPages}
+  alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def flag(%{flag_id: id}, info) do
-    with {:ok, %User{}=user} <- GraphQL.current_user_or(info, nil) do
+    with {:ok, %User{}=user} <- GraphQL.current_user_or_not_found(info) do
       Flags.one(id: id, user: user)
     end
   end
 
-  def flags_edge(%{id: id}, _, info) do
-    with {:ok, %User{}=user} <- GraphQL.current_user_or_empty_edge_list(info) do
-      batch {__MODULE__, :batch_flags_edge, user}, id, EdgesPages.getter(id)
+  def flags_edge(%{id: id}, %{}=page_opts, info) do
+    with {:ok, %User{}} <- GraphQL.current_user_or_empty_page(info) do
+      opts = %{default_limit: 10}
+      Flow.pages(__MODULE__, :fetch_flags_edge, page_opts, id, info, opts)
     end
   end
 
-  def batch_flags_edge(user, ids) do
-    {:ok, edges} = Flags.edges_pages(
+  def fetch_flags_edge({page_opts, user}, ids) do
+    {:ok, edges} = Flags.pages(
       &(&1.context_id),
       &(&1.id),
-      [:deleted, user: user, context_id: ids],
+      page_opts,
+      [user: user, context_id: ids],
       [order: :timeline_desc],
       [group_count: :context_id]
     )
     edges
   end
 
+  def fetch_flags_edge(page_opts, user, ids) do
+    Flags.page(
+      &(&1.id),
+      page_opts,
+      [:deleted, user: user, context_id: ids],
+      [order: :timeline_desc]
+    )
+  end
+
   def is_resolved_edge(%Flag{}=flag, _, _), do: {:ok, not is_nil(flag.resolved_at)}
 
   def my_flag_edge(%{id: id}, _, info) do
-    with {:ok, %User{}=user} <- GraphQL.current_user_or(info, nil) do
-      batch {__MODULE__, :batch_my_flag_edge, user}, id, Edges.getter(id)
+    with {:ok, %User{}} <- GraphQL.current_user_or(info, nil) do
+      Flow.fields __MODULE__, :fetch_my_flag_edge, id, info
     end
   end
 
-  def batch_my_flag_edge(_user, []), do: %{}
-  def batch_my_flag_edge(%User{id: id}, ids) do
-    {:ok, edges} = Flags.edges(&(&1.context_id), [:deleted, creator_id: id, context_id: ids])
-    edges
+  def fetch_my_flag_edge(_user, []), do: %{}
+  def fetch_my_flag_edge(%User{id: id}, ids) do
+    {:ok, fields} = Flags.fields(&(&1.context_id), creator_id: id, context_id: ids)
+    fields
   end
 
   # TODO: store community id where appropriate
   def create_flag(%{context_id: id, message: message}, info) do
     Repo.transact_with(fn ->
-      with {:ok, me} <- GraphQL.current_user(info),
+      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: id) do
         Flags.create(me, pointer, %{message: message, is_local: true})
       end

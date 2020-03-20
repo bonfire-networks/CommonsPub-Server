@@ -87,22 +87,10 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
     end
   end
   
-  object :flags_nodes do
+  object :flags_page do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:flags_edge))
+    field :edges, non_null(list_of(:flag))
     field :total_count, non_null(:integer)
   end
-
-  object :flags_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:flags_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :flags_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:flag)
-  end
-
 
 end

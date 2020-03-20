@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def featured_communities(_, _args, _info) do
-    Features.edges_page(
+    Features.page(
       &(&1.id),
       [join: :context, table: Community],
       [order: :timeline_desc, preload: :context],
@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def featured_collections(_, _args, _info) do
-    Features.edges_page(
+    Features.page(
       &(&1.id),
       [join: :context, table: Collection],
       [order: :timeline_desc, preload: :context],

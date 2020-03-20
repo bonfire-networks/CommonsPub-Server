@@ -1,6 +1,6 @@
 defmodule MoodleNet.Blocks do
   alias Ecto.Changeset
-  alias MoodleNet.{Activities, Common, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Blocks.Block
   alias MoodleNet.Users.User
   

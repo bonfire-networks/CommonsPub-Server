@@ -78,21 +78,10 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesSchema do
     end)
   end
 
-  object :activities_nodes do
+  object :activities_page do
     field :page_info, :page_info
-    field :nodes, list_of(:activity)
+    field :edges, list_of(:activity)
     field :total_count, non_null(:integer)
-  end
-
-  object :activities_edges do
-    field :page_info, :page_info
-    field :edges, list_of(:activities_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :activities_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:activity)
   end
 
 end

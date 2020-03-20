@@ -4,7 +4,6 @@
 defmodule MoodleNet.Feeds.Feed do
 
   alias Ecto.Changeset
-  alias MoodleNet.Meta.Pointer
   use MoodleNet.Common.Schema
 
   table_schema "mn_feed" do

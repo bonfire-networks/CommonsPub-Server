@@ -27,11 +27,7 @@ defmodule MoodleNetWeb.Router do
   Serve the GraphiQL API browser on /api/graphql
   """
   pipeline :api_browser do
-    # Not sure if this is ok?
-    # Mixing browser and API stuff does not seem right...
-    # FIXME
     plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
-
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(MoodleNetWeb.Plugs.SetLocale)
@@ -50,8 +46,8 @@ defmodule MoodleNetWeb.Router do
   Serve GraphQL API queries
   """
   pipeline :graphql do
-    plug(MoodleNetWeb.Plugs.Auth)
-    plug MoodleNetWeb.GraphQL.Context
+    plug MoodleNetWeb.Plugs.Auth
+    plug MoodleNetWeb.Plugs.GraphQLContext
     plug :accepts, ["json"]
   end
 
@@ -61,7 +57,9 @@ defmodule MoodleNetWeb.Router do
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
       interface: :simple,
-      json_codec: Jason
+      json_codec: Jason,
+      pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+
   end
 
   scope "/api/v1" do

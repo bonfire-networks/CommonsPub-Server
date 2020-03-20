@@ -4,6 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{
+    CommentsResolver,
     CommonResolver,
     FollowsResolver,
     ThreadsResolver,
@@ -74,11 +75,11 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
 
     @desc "Comments in the thread, most recently created first"
-    field :comments, :comments_edges do
+    field :comments, :comments_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after,  :string
-      resolve &ThreadsResolver.comments_edge/3
+      arg :before, :cursor
+      arg :after,  :cursor
+      resolve &CommentsResolver.comments_edge/3
     end
 
     @desc "Total number of followers, including those we can't see"
@@ -87,10 +88,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
 
     @desc "Users following the collection, most recently followed first"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after,  :string
+      arg :before, :cursor
+      arg :after,  :cursor
       resolve &FollowsResolver.followers_edge/3
     end
 
@@ -107,21 +108,10 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
     end
   end
 
-  object :threads_nodes do
+  object :threads_page do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:threads_edge))
+    field :edges, non_null(list_of(:thread))
     field :total_count, non_null(:integer)
-  end
-
-  object :threads_edges do
-    field :page_info, :page_info
-    field :edges, list_of(:threads_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :threads_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:thread)
   end
 
 end

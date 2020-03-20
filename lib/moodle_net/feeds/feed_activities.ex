@@ -5,7 +5,7 @@ defmodule MoodleNet.Feeds.FeedActivities do
 
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
-  alias MoodleNet.Batching.{EdgesPage, EdgesPages, NodesPage}
+  alias MoodleNet.Batching.{EdgesPage, EdgesPages}
   alias Ecto.ULID
   
 
@@ -25,26 +25,18 @@ defmodule MoodleNet.Feeds.FeedActivities do
   """
   def many(filters), do: {:ok, Repo.all(FeedActivitiesQueries.query(FeedActivity, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
   @doc """
-  Retrieves an EdgesPages of feed activities according to various filters
+  Retrieves an EdgesPage of feed activities according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, base_filters, data_filters, count_filters)
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
   when is_function(cursor_fn, 1) do
     {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn)}
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
     end
   end
 

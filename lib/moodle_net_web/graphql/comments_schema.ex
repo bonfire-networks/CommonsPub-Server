@@ -10,10 +10,6 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     LikesResolver,
     UsersResolver,
   }
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Resources.Resource
 
   object :comments_queries do
 
@@ -101,38 +97,27 @@ defmodule MoodleNetWeb.GraphQL.CommentsSchema do
     end
 
     @desc "Users who like the comment, most recently liked first"
-    field :likes, :likes_edges do
+    field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      arg :before, :cursor
+      arg :after, :cursor
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the comment, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, :cursor
+      arg :after, :cursor
       resolve &FlagsResolver.flags_edge/3
     end
 
   end
 
-  object :comments_nodes do
+  object :comments_page do
     field :page_info, :page_info
-    field :nodes, non_null(list_of(:comments_edge))
+    field :edges, non_null(list_of(:comment))
     field :total_count, non_null(:integer)
-  end
-
-  object :comments_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:comments_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :comments_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:comment)
   end
 
   input_object :comment_input do

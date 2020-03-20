@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.9.0",
+      elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -57,8 +57,8 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5.0-beta.2"},
-      {:absinthe_plug, "~> 1.5.0-alpha.0"},
+      {:absinthe, "~> 1.5.0-rc.3"},
+      {:absinthe_plug, "~> 1.5.0-rc.2"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.1"},
@@ -69,8 +69,9 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_integration, "~> 0.6.0"},
+      {:phoenix_integration, "~> 0.8.0"},
       {:phoenix_ecto, "~> 4.0"},
+      {:floki, "~> 0.24.0", override: true},
       # File storage
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
@@ -106,6 +107,8 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # dev/test only
+      {:gruff, git: "https://github.com/irresponsible/gruff",
+               branch: "master", only: [:dev, :test]},
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},             # property testing

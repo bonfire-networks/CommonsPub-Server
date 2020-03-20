@@ -4,52 +4,62 @@
 defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.Batching.{Edges, EdgesPages}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
+  alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def comment(%{comment_id: id}, %{context: %{current_user: user}}) do
     Comments.one(id: id, user: user)
   end
 
-  def in_reply_to_edge(%Comment{reply_to_id: nil}, _, _info), do: {:ok, nil}
-  def in_reply_to_edge(%Comment{reply_to_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_in_reply_to_edge, user}, id, Edges.getter(id)
+  def comments_edge(%Thread{id: id}, %{}=page_opts, info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
   end
 
-  def batch_in_reply_to_edge(user, ids) do
-    {:ok, edges} = Comments.edges(&(&1.id), id: ids, user: user)
+  def fetch_comments_edge({page_opts, current_user}, ids) do
+    {:ok, edges} = Comments.pages(
+      &(&1.thread_id),
+      &(&1.id),
+      page_opts,
+      [user: current_user, thread_id: ids],
+      [order: :timeline_asc],
+      [group_count: :thread_id]
+    )
     edges
+  end
+
+  def fetch_comments_edge(page_opts, current_user, id) do
+    Comments.page(
+      &(&1.id),
+      page_opts,
+      [user: current_user, thread_id: id],
+      [order: :timeline_asc]
+    )
+  end
+
+  def in_reply_to_edge(%Comment{reply_to_id: nil}, _, _info), do: {:ok, nil}
+  def in_reply_to_edge(%Comment{reply_to_id: id}, _, info) do
+    Flow.fields(__MODULE__, :fetch_in_reply_to_edge, id, info)
+  end
+
+  def fetch_in_reply_to_edge(user, ids) do
+    {:ok, fields} = Comments.fields(&(&1.id), id: ids, user: user)
+    fields
   end
 
   def thread_edge(%Comment{thread: %Thread{}=thread}, _, _info), do: {:ok, thread}
-  def thread_edge(%Comment{thread_id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_thread_edge, user}, id, Edges.getter(id)
+  def thread_edge(%Comment{thread_id: id}, _, info) do
+    Flow.fields(__MODULE__, :fetch_thread_edge, id, info)
   end
 
-  def batch_thread_edge(user, ids) do
-    {:ok, edges} = Threads.edges(&(&1.id), id: ids, user: user)
-    edges
-  end
-
-  def threads_edge(%{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
-  end
-
-  def batch_threads_edge(user, ids) do
-    {:ok, edges} = Threads.edges_pages(
-      &(&1.context_id),
-      &(&1.id),
-      [context_id: ids, user: user],
-      [join: :last_comment, order: :last_comment_desc],
-      [group_count: :context_id]
-    )
-    edges
+  def fetch_thread_edge(user, ids) do
+    {:ok, fields} = Threads.fields(&(&1.id), id: ids, user: user)
+    fields
   end
 
   ## mutations
@@ -99,7 +109,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     end
   end
 
-  def last_activity_edge(_, _, info) do
+  def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
   end
+
 end

@@ -2,7 +2,7 @@ defmodule MoodleNet.Workers.Utils do
 
   require Logger
   
-  defp get_log_level(key \\ MoodleNet.Workers)
+  defp get_log_level(key)
   defp get_log_level(key) when is_atom(key) do
     Application.get_env(:moodle_net, key, [])
     |> Keyword.get(:log_level, :warn)

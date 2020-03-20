@@ -5,7 +5,7 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
 
   alias MoodleNet.Repo
   alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailAccessesQueries}
-  alias MoodleNet.Batching.NodesPage
+  alias MoodleNet.Batching.EdgesPage
 
   def one(filters) do
     Repo.single(RegisterEmailAccessesQueries.query(RegisterEmailAccess, filters))
@@ -15,11 +15,11 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
     {:ok, Repo.all(RegisterEmailAccessesQueries.query(RegisterEmailAccess, filters))}
   end
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   when is_function(cursor_fn, 1) do
     {data_q, count_q} = RegisterEmailAccessesQueries.queries(RegisterEmailAccess, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
     end
   end
 

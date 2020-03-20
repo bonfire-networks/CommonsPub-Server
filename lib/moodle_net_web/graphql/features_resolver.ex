@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
 
   def features(_args, _info) do
-    Features.nodes_page(
+    Features.page(
       &(&1.id),
       [],
       [join: :context, order: :timeline_desc, prefetch: :context])

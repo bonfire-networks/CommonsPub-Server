@@ -2,38 +2,44 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Flags do
-  alias MoodleNet.{Activities, Common, Flags, Meta, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.{Activities, Common, Repo}
+  alias MoodleNet.Common.Contexts
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
-  alias MoodleNet.Meta.{Pointer, Pointers, Table}
-  alias MoodleNet.Users.{LocalUser, User}
-  alias MoodleNet.Communities.Community
-  import Ecto.Query
+  alias MoodleNet.Meta.{Pointers, Table}
+  alias MoodleNet.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Flag, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Flag, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Flag, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Flag, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
-    end
+  @doc """
+  Retrieves an Page of flags according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Flag,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
+  end
+
+  @doc """
+  Retrieves a Pages of flags according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
+    Contexts.pages_all Queries, Flag,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   defp valid_contexts() do

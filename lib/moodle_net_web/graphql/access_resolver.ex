@@ -19,12 +19,12 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
   end
 
   def create_register_email_access(%{email: email}, info) do
-    with {:ok, user} <- GraphQL.admin_or_not_permitted(info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
       RegisterEmailAccesses.create(email)
     end
   end
   def create_register_email_domain_access(%{domain: domain}, info) do
-    with {:ok, user} <- GraphQL.admin_or_not_permitted(info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
       RegisterEmailDomainAccesses.create(domain)
     end
   end

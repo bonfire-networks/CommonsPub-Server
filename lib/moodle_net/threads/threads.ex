@@ -2,50 +2,40 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads do
-  import Ecto.Query
-  alias MoodleNet.{Activities, Batching, Comments, Common, Feeds, Meta, Users, Repo}
-  alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.{NotFoundError, Query}
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.{Comment, LastComment, Thread, Queries}
-  alias MoodleNet.Users.{LocalUser, User}
-  alias MoodleNet.Workers.ActivityWorker
-  alias Ecto.Association.NotLoaded
+  alias MoodleNet.{Common, Feeds, Repo}
+  alias MoodleNet.Common.Contexts
+  alias MoodleNet.GraphQL.Fields
+  alias MoodleNet.Threads.{Thread, Queries}
+  alias MoodleNet.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Thread, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Thread, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    ret =
+    fields =
       Queries.query(Thread, filters)
       |> Repo.all()
-      |> Edges.new(group_fn)
-    {:ok, ret}
+      |> Fields.new(group_fn)
+    {:ok, fields}
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Thread, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
-    end
+  @doc """
+  Retrieves an EdgesPages of comments according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Thread,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  def last_activity_edges(filters \\ []) do
+  def pages(group_fn, cursor_fn, %{}=page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
+    Contexts.pages Queries, Thread,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   @spec create(User.t, context :: any, map) :: {:ok, Thread.t} | {:error, Changeset.t}
@@ -89,19 +79,19 @@ defmodule MoodleNet.Threads do
     end)
   end
 
-  defp context_feeds(%Resource{}=resource) do
-    r = Repo.preload(resource, [collection: [:community]])
-    [r.collection.outbox_id, r.collection.community.outbox_id]
-  end
+  # defp context_feeds(%Resource{}=resource) do
+  #   r = Repo.preload(resource, [collection: [:community]])
+  #   [r.collection.outbox_id, r.collection.community.outbox_id]
+  # end
 
-  defp context_feeds(%Collection{}=collection) do
-    c = Repo.preload(collection, [:community])
-    [c.outbox_id, c.community.outbox_id]
-  end
+  # defp context_feeds(%Collection{}=collection) do
+  #   c = Repo.preload(collection, [:community])
+  #   [c.outbox_id, c.community.outbox_id]
+  # end
 
-  defp context_feeds(%Community{outbox_id: id}), do: [id]
-  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
-  defp context_feeds(_), do: []
+  # defp context_feeds(%Community{outbox_id: id}), do: [id]
+  # defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+  # defp context_feeds(_), do: []
 
   defp publish(creator, thread, _context, :created) do
     # with :ok <- FeedActivities.publish(feeds, activity) do

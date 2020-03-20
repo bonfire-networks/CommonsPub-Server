@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes.LikerCounts do
   alias MoodleNet.Repo
-  alias MoodleNet.Batching.Edges
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{LikerCount, LikerCountsQueries}
 
   def one(filters), do: Repo.single(LikerCountsQueries.query(LikerCount, filters))
@@ -12,10 +12,10 @@ defmodule MoodleNet.Likes.LikerCounts do
     {:ok, Repo.all(LikerCountsQueries.query(LikerCount, filters))}
   end
 
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
 end

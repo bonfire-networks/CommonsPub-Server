@@ -3,11 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.GraphQL.{Fields, Page}
+  alias MoodleNet.Common.Contexts
   alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
   @doc """
   Retrieves a single collection by arbitrary filters.
@@ -25,40 +29,38 @@ defmodule MoodleNet.Collections do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
 
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
   @doc """
-  Retrieves a NodesPage of collections according to various filters
+  Retrieves an Page of collections according to various filters
 
   Used by:
-  * GraphQL resolver bulk resolution global resolution
+  * GraphQL resolver single-parent resolution
   """
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def nodes_page(cursor_fn, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Collection, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+    base_q = Queries.query(Collection, base_filters)
+    data_q = Queries.filter(base_q, data_filters)
+    count_q = Queries.filter(base_q, count_filters)
+    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
 
   @doc """
-  Retrieves an EdgesPages of collections according to various filters
+  Retrieves an Pages of collections according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
-    {data_q, count_q} = Queries.queries(Collection, base_filters, data_filters, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
-    end
+  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.pages Queries, Collection,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   ## mutations
@@ -144,27 +146,6 @@ defmodule MoodleNet.Collections do
         {:ok, collection}
       end
     end)
-  end
-
-  def outbox(%Collection{outbox_id: id}) do
-    Activities.edges_page(
-      &(&1.id),
-      join: :feed_activity,
-      feed_id: id,
-      table: default_outbox_query_contexts(),
-      distinct: [desc: :id], # this does the actual ordering *sigh*
-      order: :timeline_desc # this is here because ecto has made questionable choices
-    )
-  end
-
-  # defp default_inbox_query_contexts() do
-  #   Application.fetch_env!(:moodle_net, __MODULE__)
-  #   |> Keyword.fetch!(:default_inbox_query_contexts)
-  # end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end

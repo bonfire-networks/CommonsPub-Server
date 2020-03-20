@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Upload
 
-  @allowed_field_names ~w(icon image url)a
+  # @allowed_field_names ~w(icon image url)a
 
   def upload_icon(params, info),
     do: upload(params, info, :icon, MoodleNet.Uploads.IconUploader)
@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
            {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
            parent = Pointers.follow!(parent_ptr),
            {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params),
-           {:ok, parent} <- update_parent_field(parent, field_name, upload.url) do
+           {:ok, _parent} <- update_parent_field(parent, field_name, upload.url) do
         {:ok, %{upload | parent: parent_ptr}}
       end
     end)
