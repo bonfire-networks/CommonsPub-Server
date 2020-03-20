@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
 
   test "works with a current user" do
     user = fake_user!(%{}, confirm_email: true)
-    conn = assign(plugged(), :current_user, user)
+    conn = assign(plugged(json_conn()), :current_user, user)
     assert conn == Auth.call(conn, [])
   end
 
@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     user = fake_user!(%{}, confirm_email: true)
     token = fake_token!(user)
     assert conn =
-      plugged()
+      plugged(json_conn())
       |> with_authorization(token)
       |> Auth.call([])
     assert conn.halted == false
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     user = fake_user!(%{}, confirm_email: true)
     token = fake_token!(user)
     assert conn =
-      plugged()
+      plugged(json_conn())
       |> Conn.put_session(:auth_token, token.id)
       |> Auth.call([])
     assert conn.halted == false
@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
   end
 
   test "validates token is sent" do
-    assert conn = Auth.call(plugged(), [])
+    assert conn = Auth.call(plugged(json_conn()), [])
     assert conn.halted == false
     assert conn.assigns[:current_user] == nil
     assert conn.assigns[:auth_token] == nil
@@ -65,7 +65,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     user = fake_user!(%{}, confirm_email: true)
     token = fake_token!(user)
     assert conn =
-      plugged()
+      plugged(json_conn())
       |> Conn.put_session(:auth_token, token.id <> token.id)
       |> Auth.call([])
     assert conn.halted == false
@@ -76,7 +76,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
 
   test "validates token format" do
     assert conn =
-      plugged()
+      plugged(json_conn())
       |> Conn.put_req_header("authorization", "abcdef")
       |> Auth.call([])
     assert conn.halted == false
@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.Plugs.AuthTest do
     token = fake_token!(user)
     then = DateTime.add(DateTime.utc_now(), 3600 * 24 * 15)
     assert conn =
-      plugged()
+      plugged(json_conn())
       |> with_authorization(token)
       |> Auth.call([now: then])
     assert conn.halted == false
