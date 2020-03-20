@@ -42,7 +42,7 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages_all CommentsQueries, Comment,
+    Contexts.pages CommentsQueries, Comment,
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 

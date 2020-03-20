@@ -31,8 +31,8 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
 
   @desc "Cursors for pagination"
   object :page_info do
-    field :start_cursor, :cursor
-    field :end_cursor, :cursor
+    field :start_cursor, list_of(:cursor)
+    field :end_cursor, list_of(:cursor)
     field :has_previous_page, :boolean
     field :has_next_page, :boolean
   end
