@@ -243,7 +243,7 @@ At the top level, there are four seperate namespaces:
 * `ActivityPub` - ActivityPub federation stack
 * `ActivityPubWeb` - Phoenix webapp / ActivityPub API for `ActivityPub`.
 
-MoodleNet and MoodleNetWeb are primarily maintained by @jjl with help from @kalouantonis.
+MoodleNet and MoodleNetWeb are primarily maintained by @jjl with help from @antoniskalou.
 
 ActivityPub and ActivityPubWeb are primarily maintained by @karenkonou.
 
