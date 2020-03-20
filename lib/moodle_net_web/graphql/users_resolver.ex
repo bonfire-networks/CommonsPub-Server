@@ -184,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def fetch_community_edge(_, ids) do
-    {:ok, edges} = Communities.edges(&(&1.id), [:default, id: ids])
+    {:ok, edges} = Communities.fields(&(&1.id), [:default, id: ids])
     edges
   end
 
