@@ -219,8 +219,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def inbox_edge(%User{id: id}=user, page_opts, info) do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
       if id == current_user.id do
-        ret = Users.inbox(user, page_opts)
-        IO.inspect(ret: ret)
+        Users.inbox(user, page_opts)
       else
         GraphQL.not_permitted()
       end
