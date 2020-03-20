@@ -291,12 +291,7 @@ defmodule MoodleNet.Users do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
         Activities.page(
           &(&1.id),
-          [:deleted,
-           join: :feed_activity,
-           feed_id: ids,
-           table: default_inbox_query_contexts(),
-           distinct: [desc: :id], # this does the actual ordering *sigh*
-           order: :timeline_desc] # this is here because ecto has made questionable choices
+          [:deleted, feed: ids, table: default_inbox_query_contexts()]
         )
       end
     end)
