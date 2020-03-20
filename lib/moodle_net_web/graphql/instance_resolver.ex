@@ -12,8 +12,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def featured_communities(_, _args, _info) do
+    page_opts = %{}
     Features.page(
       &(&1.id),
+      page_opts,
       [join: :context, table: Community],
       [order: :timeline_desc, preload: :context],
       []
@@ -21,8 +23,10 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def featured_collections(_, _args, _info) do
+    page_opts = %{}
     Features.page(
       &(&1.id),
+      page_opts,
       [join: :context, table: Collection],
       [order: :timeline_desc, preload: :context],
       []
@@ -30,7 +34,8 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
   end
 
   def outbox_edge(_, _, _info) do
-    Instance.outbox()
+    page_opts = %{}
+    Instance.outbox(page_opts)
   end
 
 end
