@@ -56,12 +56,16 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/graphql" do
+
+    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
+
     pipe_through :graphql
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
       interface: :simple,
       json_codec: Jason
+
   end
 
   scope "/api/v1" do

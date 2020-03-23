@@ -27,6 +27,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UploadSchema,
   }
 
+  require Logger
+
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
 
   def plugins do
@@ -62,6 +64,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # optional modules:
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
+  import_types ValueFlows.GraphQL.Measurement
+
+  Logger.info(inspect(:measurement_fields))
 
   query do
     import_fields :activities_queries
@@ -82,6 +87,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_queries
     import_fields :locales_queries
     import_fields :tags_queries
+    import_fields :tags_queries
+    import_fields :measurement_fields
   end
 
   mutation do
