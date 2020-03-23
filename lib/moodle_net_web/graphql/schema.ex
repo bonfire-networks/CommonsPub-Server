@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UploadSchema,
   }
 
-  require Logger
+  # require Logger
 
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
 
@@ -66,8 +66,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types Taxonomy.GraphQL.TagsSchema
   import_types ValueFlows.GraphQL.Measurement
 
-  Logger.info(inspect(:measurement_fields))
-
   query do
     import_fields :activities_queries
     import_fields :blocks_queries
@@ -88,7 +86,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :locales_queries
     import_fields :tags_queries
     import_fields :tags_queries
-    import_fields :measurement_fields
+    import_fields :measurement_query
   end
 
   mutation do
@@ -106,6 +104,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_mutations
     import_fields :users_mutations
     import_fields :upload_mutations
+    import_fields :measurement_mutation
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do

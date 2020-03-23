@@ -5,27 +5,25 @@ defmodule ValueFlows.GraphQL.Measurement do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
+  require Logger
 
-  object :measurement_fields do
+  import_sdl path: "lib/valueflows/graphql/schemas/measurement.gql"
 
-    import_sdl path: "lib/valueflows/graphql/schemas/measurement.gql"
+  # __MODULE__.__absinthe_blueprint__ # to see the generated type definitions
 
-
-    def hydrate(%{identifier: :all_units}, [%{identifier: :query} | _]) do
-      {:resolve, &__MODULE__.allUnits/3}
-    end
-
-    def allUnits(_, _, _) do
-      items = [
-        %{id: "eur", label: "Euro", symbol: "$"},
-        %{id: "usd", label: "Dollar", symbol: "$"},
-      ]
-
-      {:ok, items}
-    end
-
-
-
+  def hydrate(%{identifier: :all_units}, [%{identifier: :measurement_query} | _]) do
+    Logger.info("hydrating all_units")
+    {:resolve, &__MODULE__.all_units/3}
   end
+
+  def all_units(_, _, _) do
+    items = [
+      %{id: "eur", label: "Euro", symbol: "$"},
+      %{id: "usd", label: "Dollar", symbol: "$"},
+    ]
+
+    {:ok, items}
+  end
+
 
 end
