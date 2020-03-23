@@ -26,8 +26,10 @@ defmodule Taxonomy.GraphQL.TagsSchema do
 
   object :tag do
     field(:id, :integer)
+    # field(:actor, :string)
     field(:label, :string)
-    field(:parent_id, :integer)
+    field(:description, :string)
+    field(:parent_tag_id, :integer)
   end
 
   object :tags_nodes do

@@ -9,10 +9,11 @@ defmodule Taxonomy.Tag do
   @type t :: %__MODULE__{}
 
   @primary_key{:id, :integer, autogenerate: false}
-  schema "tags" do
+  schema "taxonomy_tags" do
     # field(:id, :string)
     field(:label, :string)
-    field(:parent_id, :integer)
+    field(:description, :string)
+    field(:parent_tag_id, :integer)
   end
 
 

@@ -187,4 +187,9 @@ defmodule MoodleNet.ReleaseTasks do
 
     Path.join([priv_dir, repo_underscore, filename])
   end
+
+  def soft_delete_community(id) do
+       {:ok, community} = MoodleNet.Communities.one(id: id)
+       {:ok, community} = MoodleNet.Communities.soft_delete(community)
+  end
 end
