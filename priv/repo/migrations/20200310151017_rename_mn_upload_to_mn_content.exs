@@ -90,29 +90,31 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     # false = repo().exists?("mn_content_mirror")
 
     # FIXME: add constraint to forbid both or neither references set
-    alter table(:mn_content) do
-      remove :parent_id
-      remove :path
-    end
+    # alter table(:mn_content) do
+    #   remove :parent_id
+    #   remove :path
+    # end
 
-    alter table(:mn_resource) do
-      remove :url
-      remove :icon
-    end
+    # alter table(:mn_resource) do
+    #   remove :url
+    #   remove :icon
+    # end
 
-    alter table(:mn_collection) do
-      remove :icon
-    end
+    # alter table(:mn_collection) do
+    #   remove :icon
+    # end
 
-    alter table(:mn_community) do
-      remove :icon
-      remove :image
-    end
+    # alter table(:mn_community) do
+    #   remove :icon
+    #   remove :image
+    # end
 
-    alter table(:mn_user) do
-      remove :icon
-      remove :image
-    end
+    # alter table(:mn_user) do
+    #   remove :icon
+    #   remove :image
+    # end
+
+    # :ok = execute "fail";
   end
 
   def down do
@@ -155,16 +157,16 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     update #{table} x
     set #{new_field} = c.id
     from mn_content c
-    where x.id = c.parent_id and x.#{old_field} = c.path;
+    where x.id = c.parent_id and x.#{old_field} like '%' ||  c.path;
     """
   end
 
   defp execute_mirrors_q(table, old_field, new_field) do
     q = from(x in table,
       where: is_nil(type(^new_field, :string)) and not is_nil(type(^old_field, :string)),
-      select: [type(field(x, ^String.to_atom(old_field)), :string)])
+      select: type(field(x, ^String.to_atom(old_field)), :string))
 
-    Repo.insert_all("mn_content_mirror", (for url <- Repo.all(q), do: %{id: Ecto.ULID.generate(), url: url}))
+    Repo.insert_all("mn_content_mirror", IO.inspect(for url <- Repo.all(q), do: %{id: Ecto.ULID.generate(), url: url}))
 
     :ok = execute """
     insert into mn_content (id, parent_id, content_mirror_id, path, media_type, size, created_at, updated_at)
