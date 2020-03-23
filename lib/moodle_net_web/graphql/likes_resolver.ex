@@ -20,8 +20,9 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     end
   end
 
-  def fetch_my_like_edge(_user, []), do: %{}
-  def fetch_my_like_edge(user, ids) do
+  def fetch_my_like_edge(_info, []), do: %{}
+  def fetch_my_like_edge(info, ids) do
+    user = GraphQL.current_user(info)
     {:ok, likes} = Likes.fields(&(&1.context_id), [:deleted, creator_id: user.id, context_id: ids])
     likes
   end
@@ -31,7 +32,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     Flow.pages(__MODULE__, :fetch_likers_edge, page_opts, id, info, opts)
   end
 
-  def fetch_likers_edge({page_opts, user}, ids) do
+  def fetch_likers_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, pages} = Likes.pages(
       &(&1.context_id),
       &(&1.id),
@@ -43,7 +45,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     pages
   end
 
-  def fetch_likers_edge(page_opts, user, ids) do
+  def fetch_likers_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
     Likes.page(
       &(&1.id),
       page_opts,
@@ -64,7 +67,9 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def fetch_liker_count_edge(_, ids) do
+    IO.inspect(:liker_count)
     {:ok, fields} = LikerCounts.fields(&(&1.context_id), context_id: ids)
+    IO.inspect(fields)
     fields
   end
 
@@ -74,7 +79,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     Flow.pages(__MODULE__, :fetch_likes_edge, page_opts, id, info, opts)
   end
 
-  def fetch_likes_edge({page_opts, user}, ids) do
+  def fetch_likes_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, pages} = Likes.pages(
       &(&1.context_id),
       &(&1.id),
@@ -86,7 +92,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     pages
   end
 
-  def fetch_likes_edge(page_opts, user, ids) do
+  def fetch_likes_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
     Likes.page(
       &(&1.id),
       page_opts,
@@ -110,8 +117,6 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     {:ok, fields} = LikerCounts.fields(&(&1.context_id), context_id: ids)
     fields
   end
-
-
 
   def create_like(%{context_id: id}, info) do
     Repo.transact_with fn ->

@@ -15,7 +15,7 @@ defmodule MoodleNet.Follows.FollowerCounts do
   def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
-    {:ok, Fields.new(fields, group_fn)}
+    Fields.new(fields, group_fn)
   end
 
 end

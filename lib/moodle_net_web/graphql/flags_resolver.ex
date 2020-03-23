@@ -22,7 +22,8 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     end
   end
 
-  def fetch_flags_edge({page_opts, user}, ids) do
+  def fetch_flags_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, edges} = Flags.pages(
       &(&1.context_id),
       &(&1.id),
@@ -34,7 +35,8 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     edges
   end
 
-  def fetch_flags_edge(page_opts, user, ids) do
+  def fetch_flags_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
     Flags.page(
       &(&1.id),
       page_opts,
@@ -51,10 +53,17 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     end
   end
 
-  def fetch_my_flag_edge(_user, []), do: %{}
-  def fetch_my_flag_edge(%User{id: id}, ids) do
-    {:ok, fields} = Flags.fields(&(&1.context_id), creator_id: id, context_id: ids)
-    fields
+  def fetch_my_flag_edge(_info, []), do: %{}
+  def fetch_my_flag_edge(info, ids) do
+    case GraphQL.current_user(info) do
+      nil -> nil
+      user ->
+        {:ok, fields} = Flags.fields(
+          &(&1.context_id),
+          creator_id: user.id, context_id: ids
+        )
+        fields
+    end
   end
 
   # TODO: store community id where appropriate

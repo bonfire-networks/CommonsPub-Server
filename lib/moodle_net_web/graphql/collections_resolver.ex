@@ -28,7 +28,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   ## fetchers
 
-  def fetch_collection(user, id) do
+  def fetch_collection(info, id) do
+    user = GraphQL.current_user(info)
     Collections.one(
       user: user,
       id: id,
@@ -36,10 +37,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
-  def fetch_collections(page_opts, user) do
-   PageFlow.run(
+  def fetch_collections(page_opts, info) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
       %PageFlow{
-        queries_module: Queries,
+        queries: Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
@@ -65,7 +67,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Flow.pages(__MODULE__, :fetch_resources_edge, page_opts, id, info, opts)
   end
 
-  def fetch_resources_edge({page_opts, user}, ids) do
+  def fetch_resources_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, edges} = Resources.pages(
       &(&1.id),
       &(&1.collection_id),
@@ -78,7 +81,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     edges
   end
 
-  def fetch_resources_edge(page_opts, user, id) do
+  def fetch_resources_edge(page_opts, info, id) do
+    user = GraphQL.current_user(info)
     Resources.page(
       &(&1.id),
       page_opts,
@@ -100,12 +104,13 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     {:ok, DateTime.utc_now()}
   end
 
-  def outbox_edge(%Collection{outbox_id: id}, page_opts, %{context: %{current_user: user}}=info) do
+  def outbox_edge(%Collection{outbox_id: id}, page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, user, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
   end
 
-  def fetch_outbox_edge({page_opts, user}, id) do
+  def fetch_outbox_edge({page_opts, info}, id) do
+    user = info.context.current_user
     {:ok, box} = Activities.page(
       &(&1.id),
       &(&1.id),
@@ -116,7 +121,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     box
   end
 
-  def fetch_outbox_edge(page_opts, user, id) do
+  def fetch_outbox_edge(page_opts, info, id) do
+    user = info.context.current_user
     Activities.page(
       &(&1.id),
       page_opts,

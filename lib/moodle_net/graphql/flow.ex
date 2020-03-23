@@ -52,8 +52,7 @@ defmodule MoodleNet.GraphQL.Flow do
     info :: map
   ) :: term
   def field(module, callback, context, info) do
-    user = info.context.current_user
-    apply(module, callback, [user, context])
+    apply(module, callback, [info, context])
   end
 
   @doc """
@@ -77,7 +76,7 @@ defmodule MoodleNet.GraphQL.Flow do
     user = info.context.current_user
     default = Keyword.get(opts, :default, nil)
     getter = Keyword.get(opts, :getter, Fields.getter(context, default))
-    batch {module, callback, user}, context, getter
+    batch {module, callback, info}, context, getter
   end
 
   @doc """
@@ -99,7 +98,7 @@ defmodule MoodleNet.GraphQL.Flow do
   ) :: term
   def root_page(module, callback, page_opts, info, opts \\ []) do
     with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, GraphQL.current_user(info)])
+      apply(module, callback, [page_opts, info])
     end
   end
 
@@ -111,7 +110,11 @@ defmodule MoodleNet.GraphQL.Flow do
   def page(module, callback, page_opts, key, info, opts) do
     user = info.context.current_user
     with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, user, key])
+      case apply(module, callback, [page_opts, info, key]) do
+        {:ok, good} -> {:ok, good}
+        {:error, bad} -> {:error, bad}
+        good -> {:ok, good}
+      end
     end
   end
 
@@ -127,11 +130,11 @@ defmodule MoodleNet.GraphQL.Flow do
     user = info.context.current_user
     if GraphQL.in_list?(info) do
       with {:ok, page_opts} <- GraphQL.limit_page_opts(page_opts, batch_opts) do
-        batch {module, callback, {page_opts, user}}, key, Pages.getter(key)
+        batch {module, callback, {page_opts, info}}, key, Pages.getter(key)
       end
     else
       with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, single_opts) do
-        apply(module, callback, [page_opts, user, key])
+        apply(module, callback, [page_opts, info, key])
       end
     end
   end

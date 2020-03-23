@@ -22,14 +22,21 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     end
   end
 
-  def fetch_my_follow_edge(%{id: id}, ids) do
-    {:ok, fields} = Follows.fields(&(&1.context_id), [:deleted, creator_id: id, context_id: ids])
-    fields
+  def fetch_my_follow_edge(info, ids) do
+    case GraphQL.current_user(info) do
+      nil -> nil
+      user ->
+        {:ok, fields} = Follows.fields(
+        &(&1.context_id),
+        [:deleted, creator_id: user.id, context_id: ids])
+        fields
+    end
   end
 
   def follower_count_edge(%{id: id}, _, _) do
     batch {__MODULE__, :batch_follower_count_edge}, id,
       fn edges ->
+        IO.inspect(:getter)
         case Fields.get(edges, id) do
           {:ok, nil} -> {:ok, 0}
           {:ok, other} -> {:ok, other.count}
@@ -37,9 +44,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
       end
   end
 
-  def batch_follower_count_edge(_, ids) do
-    {:ok, edges} = FollowerCounts.fields(&(&1.context_id), context_id: ids)
-    edges
+  def batch_follower_count_edge(_info, ids) do
+    FollowerCounts.fields(&(&1.context_id), context_id: ids)
   end
 
   def followers_edge(%{id: id}, %{}=page_opts, info) do
@@ -47,7 +53,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, opts)
   end
 
-  def fetch_followers_edge({page_opts, user}, ids) do
+  def fetch_followers_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, edges} = Follows.pages(
       &(&1.context_id),
       &(&1.id),
@@ -59,7 +66,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     edges
   end
 
-  def fetch_followers_edge(page_opts, user, ids) do
+  def fetch_followers_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
     Follows.page(
       &(&1.id),
       page_opts,

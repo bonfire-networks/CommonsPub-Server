@@ -4,9 +4,9 @@
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.GraphQL.Flow
+  alias MoodleNet.GraphQL.{Flow, PageFlow, PagesFlow}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Threads.Comments
+  alias MoodleNet.Threads.{Comment, Comments, Thread}
   
   def thread(%{thread_id: id}, info), do: Threads.one(id: id, user: info.context.current_user)
 
@@ -17,24 +17,34 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     Flow.pages(__MODULE__, :fetch_threads_edge, page_opts, id, info, opts)
   end
 
-  def fetch_threads_edge({page_opts, current_user}, ids) do
-    {:ok, edges} = Threads.pages(
-      &(&1.context_id),
-      &(&1.id),
-      page_opts,
-      [user: current_user, context_id: ids],
-      [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
-      [group_count: :context_id]
+  def fetch_threads_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Threads.Queries,
+        query: Thread,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.context_id),
+        info: info,
+        page_opts: page_opts,
+        base_filters: [user: user, context_id: ids],
+        data_filters: [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
+        count_filters: [group_count: :context_id],
+      }
     )
-    edges
   end
 
-  def fetch_threads_edge(page_opts, current_user, ids) do
-    Threads.page(
-      &(&1.id),
-      page_opts,
-      [user: current_user, context_id: ids],
-      [join: :last_comment, order: :last_comment_desc, preload: :last_comment]
+  def fetch_threads_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Threads.Queries,
+        query: Thread,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [user: user, context_id: ids],
+        data_filters: [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
+      }
     )
   end
 

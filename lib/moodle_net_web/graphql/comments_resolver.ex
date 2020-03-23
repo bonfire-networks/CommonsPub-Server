@@ -21,23 +21,25 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
   end
 
-  def fetch_comments_edge({page_opts, current_user}, ids) do
+  def fetch_comments_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
     {:ok, edges} = Comments.pages(
       &(&1.thread_id),
       &(&1.id),
       page_opts,
-      [user: current_user, thread_id: ids],
+      [user: user, thread_id: ids],
       [order: :timeline_asc],
       [group_count: :thread_id]
     )
     edges
   end
 
-  def fetch_comments_edge(page_opts, current_user, id) do
+  def fetch_comments_edge(page_opts, info, id) do
+    user = GraphQL.current_user(info)
     Comments.page(
       &(&1.id),
       page_opts,
-      [user: current_user, thread_id: id],
+      [user: user, thread_id: id],
       [order: :timeline_asc]
     )
   end
