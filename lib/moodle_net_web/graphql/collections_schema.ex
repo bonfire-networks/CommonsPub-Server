@@ -28,8 +28,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Get list of collections, most recent activity first"
     field :collections, non_null(:collections_page) do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CollectionsResolver.collections/2
     end
 
@@ -149,8 +149,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "The resources in the collection, most recently created last"
     field :resources, :resources_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CollectionsResolver.resources_edge/3
     end
 
@@ -167,32 +167,32 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Subscriptions users have to the collection"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Likes users have made of the collection"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :taggings, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, :cursor
-    #   arg :after, :cursor
+    #   arg :before, list_of(:cursor)
+    #   arg :after, list_of(:cursor)
     #   resolve &CommonResolver.taggings_edge/3
     # end
 
@@ -202,16 +202,16 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     """
     field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &ThreadsResolver.threads_edge/3
     end
 
     @desc "Activities on the collection, most recent first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CollectionsResolver.outbox_edge/3
     end
 

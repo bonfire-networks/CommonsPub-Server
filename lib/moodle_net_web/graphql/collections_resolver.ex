@@ -74,6 +74,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       [order: :timeline_desc],
       [group_count: :collection_id]
     )
+    IO.inspect(edges: edges)
     edges
   end
 

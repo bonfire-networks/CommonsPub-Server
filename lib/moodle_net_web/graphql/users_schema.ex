@@ -218,64 +218,64 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "Subscriptions users have to the collection"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "The communities a user is following, most recently followed first"
     field :followed_communities, :followed_communities_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.followed_communities_edge/3
     end
 
     @desc "The collections a user is following, most recently followed first"
     field :followed_collections, :followed_collections_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.followed_collections_edge/3
     end
 
     @desc "The users a user is following, most recently followed first"
     field :followed_users, :followed_users_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.followed_users_edge/3
     end
 
     @desc "The likes a user has created"
     field :likes, :likes_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.likes_edge/3
     end
 
     @desc "The likes a user has created"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.likes_edge/3
     end
 
     @desc "Comments the user has made, most recently created first"
     field :comments, :comments_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.comments_edge/3
     end
 
     @desc "Activities of the user, most recently created first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.outbox_edge/3
     end
 
@@ -285,16 +285,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     """
     field :inbox, :activities_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &UsersResolver.inbox_edge/3
     end
 
   #   @desc "Taggings the user has created"
   #   field :tagged, :taggings_page do
   #     arg :limit, :integer
-  #     arg :before, :cursor
-  #     arg :after, :cursor
+  #     arg :before, list_of(:cursor)
+  #     arg :after, list_of(:cursor)
   #     resolve &CommonResolver.tagged/3
   #   end
 

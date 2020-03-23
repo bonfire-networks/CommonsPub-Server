@@ -125,4 +125,10 @@ defmodule MoodleNet.Follows.Queries do
     select q, [follow: f], {field(f, ^key), count(f.id)}
   end
 
+  def filter(q, {:preload, :context}) do
+    preload q, [pointer: p], [context: p]
+  end
+
+
+
 end

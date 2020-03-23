@@ -285,18 +285,14 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{inbox_id: inbox_id}=user) do
+  def inbox(%User{inbox_id: inbox_id}=user, page_opts) do
     Repo.transact_with(fn ->
       with {:ok, subs} <- feed_subscriptions(user) do
         ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
-        Activities.edges_page(
+        Activities.page(
           &(&1.id),
-          [:deleted,
-           join: :feed_activity,
-           feed_id: ids,
-           table: default_inbox_query_contexts(),
-           distinct: [desc: :id], # this does the actual ordering *sigh*
-           order: :timeline_desc] # this is here because ecto has made questionable choices
+          page_opts,
+          [:deleted, feed: ids, table: default_inbox_query_contexts()]
         )
       end
     end)

@@ -5,7 +5,7 @@ defmodule MoodleNet.Feeds.FeedActivities do
 
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
-  alias MoodleNet.Batching.{EdgesPage, EdgesPages}
+  alias MoodleNet.GraphQL.{Page, Pages}
   alias Ecto.ULID
   
 
@@ -31,12 +31,12 @@ defmodule MoodleNet.Feeds.FeedActivities do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
   when is_function(cursor_fn, 1) do
     {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
     with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
+      {:ok, Page.new(data, count, cursor_fn, page_opts)}
     end
   end
 
@@ -46,12 +46,12 @@ defmodule MoodleNet.Feeds.FeedActivities do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
+  def pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
   when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
     {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
+      {:ok, Pages.new(data, counts, cursor_fn, group_fn)}
     end
   end
 

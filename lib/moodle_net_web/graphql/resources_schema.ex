@@ -162,24 +162,24 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "Users who like the resource, most recently liked first"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :cursor
-      arg :after, :cursor
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :tags, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, :cursor
-    #   arg :after, :cursor
+    #   arg :before, list_of(:cursor)
+    #   arg :after, list_of(:cursor)
     #   resolve &CommonResolver.tags_edge/3
     # end
 

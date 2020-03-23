@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   import MoodleNetWeb.Test.Orderings
   import MoodleNet.Test.Faking
   import MoodleNet.Test.Trendy
-  # import Gruff
+  import Gruff
 
   describe "collections" do
 
@@ -55,6 +55,44 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       #   |> gruff, post_key(json_conn(), "collections")
       #   |> assert_page(7, total, true, false, &(&1["id"]))
       # drop_each(collections, page_3.edges, 20, &assert_collection/2)
+    end
+
+  end
+
+  describe "collections.resources" do
+
+    test "works for anyone for a public collection" do
+      [alice, bob, dave, eve] = some_fake_users!(4)
+      lucy = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      coll = fake_collection!(bob, comm)
+      coll2 = fake_collection!(dave, comm)
+      res1 = Enum.reverse(Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end))
+      res2 = Enum.reverse(Enum.map(1..5, fn _ -> fake_resource!(alice, coll2) end))
+      colls = [{coll2, res2}, {coll, res1}]
+      q = collections_query(
+        params: [limit: :int],
+        fields: [
+          :resource_count,
+          field(
+            :resources,
+            args: [limit: var(:limit)],
+            fields: page_fields(resource_fields())
+          )
+        ]
+      )
+      vars = %{collection_id: coll.id, limit: 2}
+      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
+      for conn <- conns do
+        colls2 = gruff_post_key(q, conn, :collections, vars)
+        colls2 = assert_page(colls2, 2, 2, false, false, &(&1["id"]))
+        each(colls, colls2.edges, fn {c, rs}, c2 ->
+          c2 = assert_collection(c, c2)
+          assert %{"resources" => rs2, "resourceCount" => count} = c2
+          rs2 = assert_page(rs2, 5, 5, false, false, &(&1["id"]))
+          each(rs, rs2, &assert_resource/2)
+        end)
+      end
     end
 
   end

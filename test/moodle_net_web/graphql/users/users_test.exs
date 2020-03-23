@@ -118,7 +118,6 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   describe "followed_communities" do
 
-    @tag :skip
     test "works for anyone" do
       [alice, bob, eve] = some_fake_users!(%{}, 3)
       lucy = fake_user!(%{is_instance_admin: true})
@@ -130,17 +129,32 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
         user = assert_user(eve, gruff_post_key(q, conn, :user, vars))
-        follows2 = assert_page(user["followedCommunities"], 2, 2, false, true, &(&1["id"]))
-        piz(follows, follows2, &assert_follow/2)
+        follows2 = assert_page(user["followedCommunities"], 2, 2, false, false, &(&1["id"]))
+        each(follows, follows2, &assert_follow/2)
       end
     end
 
   end
 
   describe "user.followed_collections" do
-    @tag :skip
-    test "placeholder" do
+
+    test "works for anyone" do
+      [alice, bob, eve] = some_fake_users!(%{}, 3)
+      lucy = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      coll = fake_collection!(alice, comm)
+      coll2 = fake_collection!(bob, comm)
+      follows = Enum.map([coll, coll2], &follow!(eve, &1))
+      q = user_query(fields: [followed_collections: page_fields(followed_collection_fields())])
+      vars = %{user_id: eve.id}
+      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
+      for conn <- conns do
+        user = assert_user(eve, gruff_post_key(q, conn, :user, vars))
+        follows2 = assert_page(user["followedCollections"], 2, 2, false, false, &(&1["id"]))
+        each(follows, follows2, &assert_follow/2)
+      end
     end
+
   end
 
   describe "user.followed_users" do
