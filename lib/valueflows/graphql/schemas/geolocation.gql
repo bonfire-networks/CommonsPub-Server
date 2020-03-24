@@ -84,12 +84,12 @@ type SpatialThingResponse {
 
 
 
-type Query {
+type GeolocationQuery {
   spatialThing(id: ID): SpatialThing
   allSpatialThings(start: ID, limit: Int): [SpatialThing!]
 }
 
-type Mutation {
+type GeolocationMutation {
   createSpatialThing(spatialThing: SpatialThingCreateParams!): SpatialThingResponse
   updateSpatialThing(spatialThing: SpatialThingUpdateParams!): SpatialThingResponse
   deleteSpatialThing(id: String!): Boolean
