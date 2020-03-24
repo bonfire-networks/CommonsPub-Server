@@ -1,11 +1,11 @@
 # The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.9.4-alpine` image uses
+# This should match the version of Alpine that the current elixir image uses
 # To find this you need to:
 # 1. Locate the dockerfile for the elixir image to get the erlang image version
-#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.9/alpine/Dockerfile
+#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.10/alpine/Dockerfile
 # 2. Locate the dockerfile for the corresponding erlang image
 #    e.g. https://github.com/erlang/docker-erlang-otp/blob/master/22/alpine/Dockerfile
-ARG ALPINE_VERSION=3.10
+ARG ALPINE_VERSION=3.11
 
 # The following are build arguments used to change variable parts of the image.
 # The name of your application/release (required)
@@ -13,7 +13,7 @@ ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
-FROM elixir:1.9.4-alpine as builder 
+FROM elixir:1.10.2-alpine as builder 
 # make sure to update the version in .gitlab-ci.yml and Dockerfile.dev as well when switching Elixir version 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
@@ -34,7 +34,9 @@ RUN mix release
 FROM abiosoft/caddy:builder as caddy-builder
 
 ARG version="1.0.3"
-ARG plugins="git,cors,realip,expires,cache,cgi"
+ARG plugins="git,cors,realip,expires"
+
+ADD https://raw.githubusercontent.com/jeffreystoke/caddy-docker/master/builder/builder.sh /usr/bin/builder.sh
 
 # process wrapper
 RUN go get -v github.com/abiosoft/parent
