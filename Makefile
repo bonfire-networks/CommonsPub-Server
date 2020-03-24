@@ -50,7 +50,7 @@ push: init tag_latest ## Add latest tag to last build and push
 tag_latest: init ## Add latest tag to last build 
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	
+
 tag_stable: init ## Tag stable, latest and version tags to the last build 
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
@@ -58,7 +58,7 @@ tag_stable: init ## Tag stable, latest and version tags to the last build
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
-	
+
 push_stable: init tag_stable ## Tag stable, latest and version tags to the last build and push
 	@echo docker push $(APP_DOCKER_REPO):stable
 	@docker push $(APP_DOCKER_REPO):stable
@@ -71,7 +71,7 @@ hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
 	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
-	
+
 hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
 	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
 
