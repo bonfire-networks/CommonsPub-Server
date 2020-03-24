@@ -79,8 +79,8 @@ defmodule MoodleNet.Mixfile do
       # File metadata extraction
       {:twinkle_star, git: "https://github.com/antoniskalou/twinkle_star"},
       # database
-      {:ecto, "~> 3.4"},
-      {:ecto_sql, "~> 3.4"},
+      {:ecto, "~> 3.3"},
+      {:ecto_sql, "~> 3.3"},
       {:postgrex, "~> 0.14"},
       {:ecto_ulid,
        git: "https://github.com/irresponsible/ecto-ulid",
