@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Plugs.Auth do
   @moduledoc """
@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
       * `auth_token`, a Token
   """
   alias Plug.Conn
-  alias MoodleNet.{Access,Users}
+  alias MoodleNet.Access
   alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     Token,

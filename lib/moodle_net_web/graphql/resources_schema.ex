@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   @moduledoc """
@@ -154,27 +154,32 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     #   resolve &LocalisationResolver.primary_language/3
     # end
 
+    @desc "Total number of likers, including those we can't see"
+    field :liker_count, :integer do
+      resolve &LikesResolver.liker_count_edge/3
+    end
+
     @desc "Users who like the resource, most recently liked first"
-    field :likes, :likes_edges do
+    field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
-    # field :tags, :taggings_edges do
+    # field :tags, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, :string
-    #   arg :after, :string
+    #   arg :before, list_of(:cursor)
+    #   arg :after, list_of(:cursor)
     #   resolve &CommonResolver.tags_edge/3
     # end
 
@@ -190,21 +195,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :author, :string
   end
 
-  object :resources_nodes do
-    field :page_info, :page_info
-    field :nodes, non_null(list_of(:resources_edge))
+  object :resources_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:resource)))
     field :total_count, non_null(:integer)
-  end
-
-  object :resources_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:resources_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :resources_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:resource)
   end
 
 end

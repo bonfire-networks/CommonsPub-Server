@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceSchema do
   @moduledoc """
@@ -23,20 +23,20 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     # field :name, :string
     field :description, :string
     
-    field :featured_collections, :features_edges do
+    field :featured_collections, :features_page do
       resolve &InstanceResolver.featured_collections/3
     end
 
-    field :featured_communities, :features_edges do
+    field :featured_communities, :features_page do
       resolve &InstanceResolver.featured_communities/3
     end
     @desc """
     A list of public activity on the local instance, most recent first
     """
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &InstanceResolver.outbox_edge/3
     end
 

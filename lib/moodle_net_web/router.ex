@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -27,11 +27,7 @@ defmodule MoodleNetWeb.Router do
   Serve the GraphiQL API browser on /api/graphql
   """
   pipeline :api_browser do
-    # Not sure if this is ok?
-    # Mixing browser and API stuff does not seem right...
-    # FIXME
     plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
-
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(MoodleNetWeb.Plugs.SetLocale)
@@ -50,8 +46,8 @@ defmodule MoodleNetWeb.Router do
   Serve GraphQL API queries
   """
   pipeline :graphql do
-    plug(MoodleNetWeb.Plugs.Auth)
-    plug MoodleNetWeb.GraphQL.Context
+    plug MoodleNetWeb.Plugs.Auth
+    plug MoodleNetWeb.Plugs.GraphQLContext
     plug :accepts, ["json"]
   end
 
@@ -64,7 +60,8 @@ defmodule MoodleNetWeb.Router do
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
       interface: :simple,
-      json_codec: Jason
+      json_codec: Jason,
+      pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
 
   end
 
@@ -112,6 +109,7 @@ defmodule MoodleNetWeb.Router do
     pipe_through(:well_known)
 
     get "/webfinger", WebFingerController, :webfinger
+    get "/nodeinfo", NodeinfoController, :schemas
   end
 
   @doc """
@@ -153,5 +151,6 @@ defmodule MoodleNetWeb.Router do
 
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
+    get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
   end
 end

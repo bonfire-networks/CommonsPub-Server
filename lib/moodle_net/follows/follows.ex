@@ -1,14 +1,14 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.Common.Contexts
+  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
     Follow,
-    NotFollowableError,
     Queries,
   }
   alias MoodleNet.Meta.{Pointer, Pointers}
@@ -19,26 +19,28 @@ defmodule MoodleNet.Follows do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Follow, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Follow, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
-  end
-
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
-  def edges_pages(group_fn, cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Follow, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, count, group_fn, cursor_fn)}
-    end
+  @doc """
+  Retrieves an Pages of follows according to various filters
+
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Follow,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
+  end
+
+  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
+    Contexts.pages Queries, Follow,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+
   end
 
   @type create_opt :: {:publish, bool} | {:federate, bool}
@@ -81,6 +83,8 @@ defmodule MoodleNet.Follows do
       with {:ok, activity} <- Activities.create(creator, follow, attrs) do
         FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
       end
+    else
+      :ok
     end
   end
 

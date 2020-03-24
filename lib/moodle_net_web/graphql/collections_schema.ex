@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   @moduledoc """
@@ -9,30 +9,30 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
     CollectionsResolver,
-    CommentsResolver,
     CommonResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
+    ThreadsResolver,
     UsersResolver,
   }
 
   object :collections_queries do
 
-    @desc "Get list of collections, most recent activity first"
-    field :collections, non_null(:collections_nodes) do
-      arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CollectionsResolver.collections/2
-    end
-
-    @desc "Get a collection"
+    @desc "Get a collection by id"
     field :collection, :collection do
       arg :collection_id, non_null(:string)
       resolve &CollectionsResolver.collection/2
-      # resolve dataloader(Collections, Collection)
     end
+
+    @desc "Get list of collections, most recent activity first"
+    field :collections, non_null(:collections_page) do
+      arg :limit, :integer
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &CollectionsResolver.collections/2
+    end
+
   end
 
   object :collections_mutations do
@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
 
     @desc "A url for the collection, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CollectionsResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
     
     @desc "An instance-unique identifier shared with users and communities"
@@ -147,10 +147,10 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "The resources in the collection, most recently created last"
-    field :resources, :resources_edges do
+    field :resources, :resources_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CollectionsResolver.resources_edge/3
     end
 
@@ -165,34 +165,34 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     end
 
     @desc "Subscriptions users have to the collection"
-    field :followers, :follows_edges do
+    field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FollowsResolver.followers_edge/3
     end
 
-    @desc "Likes users have given the collection"
-    field :likes, :likes_edges do
+    @desc "Likes users have made of the collection"
+    field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &LikesResolver.likes_edge/3
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
-    # field :taggings, :taggings_edges do
+    # field :taggings, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, :string
-    #   arg :after, :string
+    #   arg :before, list_of(:cursor)
+    #   arg :after, list_of(:cursor)
     #   resolve &CommonResolver.taggings_edge/3
     # end
 
@@ -200,38 +200,27 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     The threads created on the collection, most recently created
     first. Does not include threads created on resources.
     """
-    field :threads, :threads_edges do
+    field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
-      resolve &CommentsResolver.threads_edge/3
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &ThreadsResolver.threads_edge/3
     end
 
     @desc "Activities on the collection, most recent first"
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CollectionsResolver.outbox_edge/3
     end
 
   end
 
-  object :collections_nodes do
-    field :page_info, :page_info
-    field :nodes, list_of(:collection)
+  object :collections_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:collection)))
     field :total_count, non_null(:integer)
-  end
-
-  object :collections_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:collections_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :collections_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:collection)
   end
 
   input_object :collection_input do
@@ -243,7 +232,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   end
 
   input_object :collection_update_input do
-    field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string
     field :icon, :string

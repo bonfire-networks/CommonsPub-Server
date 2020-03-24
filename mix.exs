@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Mixfile do
   use Mix.Project
@@ -9,7 +9,7 @@ defmodule MoodleNet.Mixfile do
     [
       app: :moodle_net,
       version: "0.9.6-dev",
-      elixir: "~> 1.9.0",
+      elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -71,12 +71,14 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_html, "~> 2.13"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_integration, "~> 0.6.0"},
+      {:phoenix_integration, "~> 0.8.0"},
       {:phoenix_ecto, "~> 4.0"},
+      {:floki, "~> 0.24.0", override: true},
       # File storage
       {:belt, git: "https://gitlab.com/kalouantonis/belt"},
       # File format parsing
       {:format_parser, git: "https://github.com/antoniskalou/format_parser.ex"},
+      # File metadata extraction
       {:twinkle_star, git: "https://github.com/antoniskalou/twinkle_star"},
       # database
       {:ecto, "~> 3.1"},
@@ -112,6 +114,8 @@ defmodule MoodleNet.Mixfile do
       # {:mint, github: "ericmj/mint", branch: "master"},
       # {:retrieval, "~> 0.9.1"}, # taxonomy trees
       # dev/test only
+      {:gruff, git: "https://github.com/irresponsible/gruff",
+               branch: "master", only: [:dev, :test]},
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},             # property testing

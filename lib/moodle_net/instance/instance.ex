@@ -1,14 +1,15 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
   alias MoodleNet.{Activities, Feeds}
   
-  def outbox() do
-    Activities.edges_page(
+  def outbox(page_opts) do
+    Activities.page(
       &(&1.id),
+      page_opts,
       join: :feed_activity,
       feed_id: Feeds.instance_outbox_id(),
       distinct: [desc: :id],

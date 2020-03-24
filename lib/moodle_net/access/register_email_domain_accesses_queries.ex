@@ -1,10 +1,9 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Access.RegisterEmailDomainAccessesQueries do
 
   alias MoodleNet.Access.RegisterEmailDomainAccess
-  alias MoodleNet.Meta.PointersQueries
   import Ecto.Query
 
   def query(RegisterEmailDomainAccess) do

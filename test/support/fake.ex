@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Test.Fake do
   @moduledoc """
@@ -243,7 +243,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.merge(actor(base))
   end
 
-  def community_create_input(base \\ %{}) do
+  def community_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
@@ -277,10 +277,7 @@ defmodule MoodleNet.Test.Fake do
   def collection_input(base \\ %{}) do
     base
     |> Map.put_new_lazy("preferredUsername", &preferred_username/0)
-    # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
-    |> Map.put_new_lazy("name", &name/0)
-    |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
+    |> collection_update_input()
   end
 
   def collection_update_input(base \\ %{}) do
@@ -351,6 +348,16 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_public, &truth/0)
   end
 
+  def like_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_local, &truth/0)
+  end
+
+  def feature_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_local, &truth/0)
+  end
+
   def flag(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
@@ -359,12 +366,23 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:is_resolved, &falsehood/0)
   end
 
+  def flag_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:message, &paragraph/0)
+    |> Map.put_new_lazy(:is_local, &truth/0)
+  end
+    
   def follow(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_muted, &falsehood/0)
+  end
+
+  def follow_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:is_local, &truth/0)
   end
 
   def block(base \\ %{}) do

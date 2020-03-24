@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LikesSchema do
 
@@ -75,15 +75,10 @@ defmodule MoodleNetWeb.GraphQL.LikesSchema do
     end
   end
 
-  object :likes_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:likes_edge))
+  object :likes_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:like)))
     field :total_count, non_null(:integer)
-  end
-
-  object :likes_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:like)
   end
 
 end

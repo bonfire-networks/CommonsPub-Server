@@ -1,18 +1,18 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections.Queries do
 
   alias MoodleNet.Communities
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Likes.Like
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Collection) do
-    from c in Collection, as: :collection
+    from c in Collection, as: :collection,
+      join: a in assoc(c, :actor), as: :actor
   end
 
   def query(:count) do
@@ -20,8 +20,8 @@ defmodule MoodleNet.Collections.Queries do
   end
 
   def query(q, filters), do: filter(query(q), filters)
-
-  def queries(query, base_filters, data_filters, count_filters) do
+  
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)
@@ -32,10 +32,6 @@ defmodule MoodleNet.Collections.Queries do
 
   def join_to(q, specs, jq) when is_list(specs) do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
-  end
-
-  def join_to(q, :actor, jq) do
-    join q, jq, [collection: c], a in assoc(c, :actor), as: :actor
   end
 
   def join_to(q, :community, jq) do
@@ -66,10 +62,10 @@ defmodule MoodleNet.Collections.Queries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
-  ## by special
+  ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
+    filter q, [:deleted, preload: :actor]
   end
 
   ## by join
@@ -142,7 +138,6 @@ defmodule MoodleNet.Collections.Queries do
   def filter(q, {:order, :followers_desc}) do
     order_by q, [collection: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
-      desc: c.updated_at,
       desc: c.id
   end
 
@@ -164,8 +159,82 @@ defmodule MoodleNet.Collections.Queries do
     preload q, [actor: a], actor: a
   end
 
-  def filter(q, {:preload, :follower_count}) do
-    preload q, [actor: a, follower_count: fc], actor: a, follower_count: fc
+  # pagination
+
+  def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where([collection: c], c.id >= ^a)
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where([collection: c], c.id <= ^b)
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_id, %{limit: limit}}) do
+    limit = limit + 1
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:paginate_followers, %{after: [count, id], limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
+    )
+    |> limit(^limit)
+  end
+
+  def filter(q, {:paginate_followers, %{before: [count, id], limit: limit}}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
+    |> limit(^limit)
+  end
+
+
+  def filter(q, {:page, [followers_desc: page_opts]}) do
+    q
+    |> filter(join: :follower_count, order: :followers_desc)
+    |> page_followers_desc(page_opts)
+    |> select(
+      [collection: c, actor: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+    )
+  end
+
+  defp page_followers_desc(q, %{after: [count, id], limit: limit}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
+    )
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{before: [count, id], limit: limit}) do
+    limit = limit + 2
+    q
+    |> where(
+      [collection: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{limit: limit}) do
+    limit = limit + 1
+    q
+    |> limit(^limit)
   end
 
 end

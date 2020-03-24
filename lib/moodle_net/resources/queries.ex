@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources.Queries do
 
@@ -17,7 +17,7 @@ defmodule MoodleNet.Resources.Queries do
     filter(query(query), filters)
   end
 
-  def queries(query, base_filters, data_filters, count_filters) do
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)

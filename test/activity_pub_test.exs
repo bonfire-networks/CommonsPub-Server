@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -46,8 +46,10 @@ defmodule ActivityPubTest do
         to: to
       }
 
-      {:ok, _} = ActivityPub.create(params)
-      assert {:error, _} = ActivityPub.create(params)
+      # First time the function goes through fine and returns a Create activity
+      assert {:ok, %{data: %{"type" => "Create"}}} = ActivityPub.create(params)
+      # Second time the function gets halted when inserting object and returns the object
+      assert {:ok, %{data: %{"type" => "Note"}}} = ActivityPub.create(params)
     end
   end
 

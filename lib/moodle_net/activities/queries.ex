@@ -1,34 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Activities.Queries do
+  @enforce_keys ~w(query)a
+  defstruct @enforce_keys
 
   use MoodleNet.Common.Metadata
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Meta.TableService
   import MoodleNet.Common.Query, only: [match_admin: 0]
-  alias MoodleNet.Users.User
-  alias Ecto.{Query, Queryable}
   import Ecto.Query
 
-  @type status_filter :: :deleted | :private
-  @type user_filter :: {:user, User.t | nil}
-  @type id_filter :: {:table_id, binary | [binary]}
-  @type creator_id_filter :: {:creator_id, binary | [binary]}
-  @type table_id_filter :: {:table_id, binary | [binary]}
-  @type table_filter :: {:table, TableService.table_id | [TableService.table_id]}
-  @type field_filter :: id_filter | creator_id_filter | table_id_filter | table_filter
-  @type filter :: status_filter | user_filter | field_filter
-  @type filters :: filter | [filter]
-
-  @spec query(Activity) :: Query.t
+  @default_limit 25
   def query(Activity) do
     from a in Activity, as: :activity,
       join: c in assoc(a, :context), as: :context,
       preload: [context: c]
   end
 
-  @spec query(Activity, filters) :: Query.t
   def query(q, filters), do: filter(query(q), filters)
 
   def queries(query, base_filters, data_filters, count_filters) do
@@ -47,7 +36,6 @@ defmodule MoodleNet.Activities.Queries do
   ### filter/2
 
   @doc "Filters the query according to arbitrary filters"
-  @spec filter(Queryable.t, filters) :: Query.t
   @will_break_when :privacy # we must figure out how to handle
                             # determining whether the user can see it
 
@@ -55,6 +43,16 @@ defmodule MoodleNet.Activities.Queries do
 
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
+  end
+
+  ## by preset
+
+  def filter(q, {:feed, id}) do
+    filter q,
+      join: :feed_activity,
+      feed_id: id,
+      distinct: [desc: :id], # this does the actual ordering *sigh*
+      order: :timeline_desc  # this is here because ecto knows better than me oslt
   end
 
   ## by join
@@ -81,10 +79,51 @@ defmodule MoodleNet.Activities.Queries do
     where q, [activity: a], not is_nil(a.published_at)
   end
 
+  ## by pagination
+
+  @min_limit 1
+  @max_limit 100
+  @default_limit 25
+  def filter(q, {:paginate, {:timeline_desc, %{after: a}=opts}}) do
+    lim = 2 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim, id: {:lte, lim})
+  end
+
+  def filter(q, {:paginate, {:timeline_desc, %{before: a}=opts}}) do
+    lim = 2 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim, id: {:gte, lim})
+  end 
+
+  def filter(q, {:paginate, {:timeline_desc, %{}=opts}}) do
+    lim = 1 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim)
+  end
+
+  defp get_limit(%{limit: n}) when is_integer(n) do
+    cond do
+      n < @min_limit -> @min_limit
+      n > @max_limit -> @max_limit
+      true -> n
+    end
+  end
+  defp get_limit(%{}), do: @default_limit
+
+  ## by limit
+
+  def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
+
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [activity: a], a.id == ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [activity: a], a.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [activity: a], a.id <= ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do

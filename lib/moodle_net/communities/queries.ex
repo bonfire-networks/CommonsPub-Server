@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities.Queries do
 
@@ -10,12 +10,13 @@ defmodule MoodleNet.Communities.Queries do
   import Ecto.Query
 
   def query(Community) do
-    from c in Community, as: :community
+    from c in Community, as: :community,
+    join: a in assoc(c, :actor), as: :actor
   end
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)
@@ -23,10 +24,6 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
-
-  def join_to(q, :actor, jq) do
-    join q, jq, [community: c], a in assoc(c, :actor), as: :actor
-  end
 
   def join_to(q, {:follow, follower_id}, jq) do
     join q, jq, [community: c], f in Follow, as: :follow,
@@ -51,7 +48,7 @@ defmodule MoodleNet.Communities.Queries do
   ## special
 
   def filter(q, :default) do
-    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
+    filter q, [:deleted, preload: :actor]
   end
 
   ## by join
@@ -85,7 +82,7 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def filter(q, :disabled) do
-    where q, [community: c], not is_nil(c.disabled_at)
+    where q, [community: c], is_nil(c.disabled_at)
   end
 
   def filter(q, :private) do

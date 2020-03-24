@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
 
@@ -63,21 +63,10 @@ defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
     end
   end
 
-  object :features_nodes do
-    field :page_info, :page_info
-    field :nodes, non_null(list_of(:features_edge))
+  object :features_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:feature)))
     field :total_count, non_null(:integer)
-  end
-
-  object :features_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:features_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :features_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:feature)
   end
 
 end

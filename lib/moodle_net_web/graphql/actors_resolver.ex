@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   @moduledoc """
@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
   """
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Instance
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  # import Absinthe.Resolution.Helpers, only: [batch: 3]
   
   @doc "Returns the canonical url for the actor"
   def canonical_url_edge(%{actor: %Actor{canonical_url: u}}, _, _), do: {:ok, u}

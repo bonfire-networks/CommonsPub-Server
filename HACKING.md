@@ -186,24 +186,70 @@ config :moodle_net, MoodleNet.Repo,
   timeout: 60_000
 ```
 
+## Hacking
 
-## Codebase navigation
+MoodleNet is an unusual piece of software, developed in an unusual
+way. It started with requests by Moodle users to be able to share and
+collaborate on educational resources with their peers.
 
-The codebase is hierarchically structured like most Elixir
-applications. The two root modules are:
+Hacking on moodlenet is actually pretty fun. The codebase has a unique
+feeling to work with and we've relentlessly refactored to manage the
+ever-growing complexity that a distributed social network
+implies. This said, it is not easy to understand without context,
+which is what this section is here to provide.
+
+I have been on the team for nearly a year now, during which time we
+have gone from a proof of concept to a (nearly) production-grade
+application, despite the entire team being part-time.
+
+### Design Decisions
+
+Feature goals:
+
+* Flexibility for developers and deployments.
+* Integrated federation with the existing fediverse.
+
+Operational goals:
+
+* Easy to set up and run.
+* Light on resources for small deployments.
+* Scalable for large deployments.
+
+Operationally, there's a tension between wanting to be able to scale
+moodlenet instances and not wanting to burden small instances with
+high resource requirements or difficult setup.
+
+There are no easy answers to this. Our current solution is heavily
+reliant on postgresql. We will monitor perforamnce and scaling and
+continually evolve our strategy.
+
+### Stack
+
+Our implementation language is [Elixir](https://www.elixir-lang.org/),
+a language designed for building reliable systems. We use the
+[Phoenix](https://www.phoenixframework.org/) web framework and the
+[Absinthe](https://absinthe-graphql.org/) GraphQL Toolkit to deliver a
+GraphQL API which the frontend interacts with.
+
+We like our stack and we have no interest in rewriting in PHP, thanks
+for not asking.
+
+### Codebase overview
+
+At the top level, there are four seperate namespaces:
 
 * `MoodleNet` - Main application logic, schemas etc.
-* `MoodleNetWeb` - Phoenix/Absinthe webapp wrapping `MoodleNet`
-* `ActivityPub` - ActivityPub federation application logic, schemas etc.
-* `ActivityPubWeb` - Phoenix webapp / REST API wrapping `ActivityPub`
+* `MoodleNetWeb` - Phoenix/Absinthe webapp + GraphQL API for `MoodleNet`.
+* `ActivityPub` - ActivityPub federation stack
+* `ActivityPubWeb` - Phoenix webapp / ActivityPub API for `ActivityPub`.
 
-This maintains a clean separation between the responsibility for
-managing data and applying business logic (`MoodleNet`) and the means
-of access to these facilities (`MoodleNetWeb`). If we later wished to
-add another transport (perhaps an ssh-based management terminal), this
-would be another top level module which called into `MoodleNet`.
+MoodleNet and MoodleNetWeb are primarily maintained by @jjl with help from @antoniskalou.
 
-### `MoodleNet`
+ActivityPub and ActivityPubWeb are primarily maintained by @karenkonou.
+
+### MoodleNet
+
+#### Contexts
 
 The `MoodleNet` namespace is occupied mostly by contexts. These are
 top level modules which comprise a grouping of:
@@ -213,41 +259,59 @@ top level modules which comprise a grouping of:
 * OTP services
 * Ecto schemas
 
-
 Here are the current contexts:
 
 * `MoodleNet.Access` (for managing and querying email whitelists)
+* `MoodleNet.Activities` (for managing and querying activities, the unit of a feed)
 * `MoodleNet.Actors` (a shared abstraction over users, communities and collections)
 * `MoodleNet.Collections` (for managing and querying collections of resources)
-* `MoodleNet.Common` (functionality shared across many contexts, mostly database related)
 * `MoodleNet.Communities` (for managing and querying communities)
+* `MoodleNet.Features` (for managing and querying featured content)
+* `MoodleNet.Feeds` (for managing and querying feeds)
+* `MoodleNet.Flags` (for managing and querying flags)
+* `MoodleNet.Follows` (for managing and querying follows)
+* `MoodleNet.Instance` (for managing the local instance)
 * `MoodleNet.Mail` (for rendering and sending emails)
 * `MoodleNet.Meta` (for managing and querying references to content in many tables)
 * `MoodleNet.OAuth` (for OAuth functionality)
+* `MoodleNet.Peers` (for managing remote hosts)
 * `MoodleNet.Resources` (for managing and querying the resources in collections)
-* `MoodleNet.Threads` (for managing and querying threads on content)
+* `MoodleNet.Threads` (for managing and querying threads and comments)
 * `MoodleNet.Users` (for managing and querying both local and remote users)
+* `MoodleNet.Uploads` (for managing uploaded content)
 
-There are some additional modules:
+#### Additional Libraries
 
 * `MoodleNet.Application` (OTP application)
+* `MoodleNet.ActivityPub` (ActivityPub integration)
+* `MoodleNet.Algolia` (Mothership search)
+* `MoodleNet.Common` (stuff that gets used everywhere)
+* `MoodleNet.GraphQL` (GraphQL abstractions)
 * `MoodleNet.MediaProxy` (for fetching remote media)
 * `MoodleNet.MetadataScraper` (for scraping metadata from a URL)
-* `MoodleNet.Policy` (centralised permission management)
+* `MoodleNet.Queries` (Helpers for making queries)
+* `MoodleNet.Queries` (Helpers for making queries)
 * `MoodleNet.ReleaseTasks` (OTP release tasks)
 * `MoodleNet.Repo` (Ecto repository)
+* `MoodleNet.Workers` (background tasks)
 
 ### `MoodleNetWeb`
 
 TODO
 
+* Endpoint
+* Router
+* Controllers
+* Views
+* Plugs
+* GraphQL
+  * Schemas
+  * Resolvers
+  * Middleware
+  * Pipeline
+  * Flows
 
-## Subsystems
-
-TODO
-
-
-## Naming
+### Naming
 
 It is said that naming is one of the four hard problems of computer
 science (along with cache management and off-by-one errors). We don't

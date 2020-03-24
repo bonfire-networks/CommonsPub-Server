@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
@@ -12,6 +12,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     CommentsSchema,
     CommonSchema,
     CommunitiesSchema,
+    Cursor,
     JSON,
     FeaturesSchema,
     FlagsSchema,
@@ -30,10 +31,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # require Logger
 
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
+  alias Absinthe.Middleware.Batch
 
-  def plugins do
-    Absinthe.Plugin.defaults()
-  end
+  # @pipeline_modifier OverridePhase
+
+  def plugins, do: [Batch]
 
   def middleware(middleware, _field, _object) do
     # [{MoodleNetWeb.GraphQL.Middleware.Debug, :start}] ++
@@ -47,6 +49,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types CommentsSchema
   import_types CommonSchema
   import_types CommunitiesSchema
+  import_types Cursor
   import_types FeaturesSchema
   import_types FlagsSchema
   import_types FollowsSchema
