@@ -1,18 +1,23 @@
-# The version of Alpine to use for the final image
-# This should match the version of Alpine that the current elixir image uses
-# To find this you need to:
-# 1. Locate the dockerfile for the elixir image to get the erlang image version
-#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.10/alpine/Dockerfile
-# 2. Locate the dockerfile for the corresponding erlang image
-#    e.g. https://github.com/erlang/docker-erlang-otp/blob/master/22/alpine/Dockerfile
-ARG ALPINE_VERSION=3.11
-
 # The following are build arguments used to change variable parts of the image.
 # The name of your application/release (required)
 ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
 
+# Step 1 - Build Caddy webserver
+FROM abiosoft/caddy:builder as caddy-builder
+
+ARG version="1.0.5"
+ARG plugins="cors,realip,expires,cache,cgi"
+
+# ADD https://raw.githubusercontent.com/jeffreystoke/caddy-docker/master/builder/builder.sh /usr/bin/builder.sh
+
+# process wrapper
+RUN go get -v github.com/abiosoft/parent
+
+RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh
+
+# Step 2 - Build our app
 FROM elixir:1.10.2-alpine as builder 
 # make sure to update the version in .gitlab-ci.yml and Dockerfile.dev as well when switching Elixir version 
 
@@ -31,18 +36,16 @@ COPY . .
 
 RUN mix release
 
-FROM abiosoft/caddy:builder as caddy-builder
+# The version of Alpine to use for the final image
+# This should match the version of Alpine that the current elixir image (in Step 2) uses
+# To find this you need to:
+# 1. Locate the dockerfile for the elixir image to get the erlang image version
+#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.10/alpine/Dockerfile
+# 2. Locate the dockerfile for the corresponding erlang image
+#    e.g. https://github.com/erlang/docker-erlang-otp/blob/master/22/alpine/Dockerfile
+ARG ALPINE_VERSION=3.11
 
-ARG version="1.0.3"
-ARG plugins="git,cors,realip,expires"
-
-ADD https://raw.githubusercontent.com/jeffreystoke/caddy-docker/master/builder/builder.sh /usr/bin/builder.sh
-
-# process wrapper
-RUN go get -v github.com/abiosoft/parent
-
-RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh
-
+# Step 3 - Prepare the server image
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
 
@@ -50,6 +53,7 @@ FROM alpine:${ALPINE_VERSION}
 ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
+ARG PROXY_FRONTEND_URL
 
 RUN apk add --update --no-cache \
     ca-certificates \
@@ -59,7 +63,8 @@ RUN apk add --update --no-cache \
     openssl-dev \
     tzdata \
     bash \
-    build-base
+    build-base 
+    # why are git and build-base needed here?
 
 ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
 
@@ -80,8 +85,6 @@ COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
 COPY config/Caddyfile /opt/app/Caddyfile
 COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
 RUN chmod +x /opt/app/shutdown-instance.sh
-
-ARG PROXY_FRONTEND_URL
 
 # start
 CMD trap 'exit' INT; if [ ! -z "$PROXY_FRONTEND_URL" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/${APP_NAME} start ; fi
