@@ -18,8 +18,8 @@ defmodule ValueFlows.GraphQL.Measurement do
 
   def all_units(_, _, _) do
     items = [
-      %{id: "eur", label: "Euro", symbol: "$"},
-      %{id: "usd", label: "Dollar", symbol: "$"},
+      %{id: 1, label: "Euro", symbol: "$"},
+      %{id: 2, label: "Dollar", symbol: "$"},
     ]
 
     {:ok, items}
