@@ -15,7 +15,7 @@ defmodule MoodleNet.Localisation.CountryService do
   service exists solely to own the table and fit into the OTP
   supervision hierarchy neatly.
   """
-  
+
   alias MoodleNet.Localisation.{Country, CountryNotFoundError}
 
   alias MoodleNet.Repo
@@ -47,7 +47,7 @@ defmodule MoodleNet.Localisation.CountryService do
   @spec lookup(iso2_code :: binary()) :: {:ok, Country.t} | {:error, CountryNotFoundError.t}
   def lookup(key) when is_binary(key),
     do: lookup_result(key, :ets.lookup(@table_name, key))
-	  
+
   defp lookup_result(_, []), do: {:error, CountryNotFoundError.new()}
   defp lookup_result(_, [{_,v}]), do: {:ok, v}
 

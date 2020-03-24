@@ -57,10 +57,12 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5.0-beta.2"},
-      {:absinthe_plug, "~> 1.5.0-alpha.0"},
+      {:absinthe, "~> 1.5.0-rc.3"},
+      {:absinthe_plug, "~> 1.5.0-rc.2"},
       # webserver
       {:cowboy, "~> 2.6"},
+      # {:cowboy, "~> 2.5.0"},
+      # {:cowlib, "~> 2.6.0"},
       {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.8"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
@@ -105,6 +107,10 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
+      # {:dlex, "~> 0.4", override: true},
+      # {:castore, "~> 0.1.0", optional: true},
+      # {:mint, github: "ericmj/mint", branch: "master"},
+      # {:retrieval, "~> 0.9.1"}, # taxonomy trees
       # dev/test only
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP

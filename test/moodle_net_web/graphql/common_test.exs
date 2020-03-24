@@ -10,7 +10,7 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
 
-  alias MoodleNet.{Flags, Follows, Likes}
+  alias MoodleNet.{Features, Flags, Follows, Likes}
 
   defp delete_q(id) do
     """
@@ -31,6 +31,9 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
         }
         ... on Comment {
           #{comment_basics()}
+        }
+        ... on Feature {
+          #{feature_basics()}
         }
         ... on Follow {
           #{follow_basics()}
@@ -80,6 +83,11 @@ defmodule MoodleNet.GraphQL.CommonSchemaTest do
       query = %{query: delete_q(flag.id)}
       assert %{"delete" => res} = gql_post_data(conn, query)
       assert res["id"] == flag.id
+
+      assert {:ok, feature} = Features.create(user, comm, %{is_local: true})
+      query = %{query: delete_q(feature.id)}
+      assert %{"delete" => res} = gql_post_data(conn, query)
+      assert res["id"] == feature.id
     end
 
     test "deleting an item twice" do

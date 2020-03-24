@@ -72,7 +72,7 @@ RUN /usr/bin/caddy -version
 RUN /usr/bin/caddy -plugins
 
 # install app 
-COPY --from=builder /opt/app/_build/prod/rel/${APP_NAME} /opt/app
+COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app
 
 # prepare to run
 COPY config/Caddyfile /opt/app/Caddyfile
@@ -82,4 +82,4 @@ RUN chmod +x /opt/app/shutdown-instance.sh
 ARG PROXY_FRONTEND_URL
 
 # start
-CMD trap 'exit' INT; if [ ! -z "$PROXY_FRONTEND_URL" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/${APP_NAME} start ; fi
+CMD trap 'exit' INT; if [ ! -z "$PROXY_FRONTEND_URL" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/moodle_net start ; fi
