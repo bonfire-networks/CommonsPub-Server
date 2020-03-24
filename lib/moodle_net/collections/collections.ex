@@ -67,6 +67,9 @@ defmodule MoodleNet.Collections do
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+    preferred_username = community.actor.preferred_username <> attrs.preferred_username
+    attrs = Map.put(attrs, :preferred_username, preferred_username)
+
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, coll_attrs} <- create_boxes(actor, attrs),
