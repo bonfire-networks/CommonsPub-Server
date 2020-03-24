@@ -61,6 +61,8 @@ defmodule MoodleNet.Mixfile do
       {:absinthe_plug, "~> 1.5.0-rc.2"},
       # webserver
       {:cowboy, "~> 2.6"},
+      # {:cowboy, "~> 2.5.0"},
+      # {:cowlib, "~> 2.6.0"},
       {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.8"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
@@ -107,6 +109,10 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
+      # {:dlex, "~> 0.4", override: true},
+      # {:castore, "~> 0.1.0", optional: true},
+      # {:mint, github: "ericmj/mint", branch: "master"},
+      # {:retrieval, "~> 0.9.1"}, # taxonomy trees
       # dev/test only
       {:gruff, git: "https://github.com/irresponsible/gruff",
                branch: "master", only: [:dev, :test]},
