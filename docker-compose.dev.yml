@@ -11,6 +11,7 @@ services:
       - config/docker.dev.env
     depends_on:
       - db
+      - redis
     volumes:
       - type: bind
         source: .
@@ -23,3 +24,7 @@ services:
       - "5432:5432"
     env_file:
       - config/docker.dev.env
+  redis:
+    image: redislabs/redisgraph
+    ports:
+      - "6379:6379"
