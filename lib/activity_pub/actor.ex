@@ -145,7 +145,7 @@ defmodule ActivityPub.Actor do
     end
   end
 
-  def get_by_local_id(id) do
+  def get_by_local_id(id) when not is_nil(id) do
     with {:ok, actor} <- Adapter.get_actor_by_id(id),
          actor <- format_local_actor(actor) do
       {:ok, actor}
