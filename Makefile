@@ -1,10 +1,10 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
-APP_NAME=moodle_net
+APP_NAME=commonspub
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
-APP_DOCKER_REPO=moodlenet/moodlenet
+APP_DOCKER_REPO=commonspub/server
 APP_DEV_CONTAINER="$(APP_NAME)_dev"
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`

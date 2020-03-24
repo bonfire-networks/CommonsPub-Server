@@ -56,12 +56,16 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/graphql" do
+
+    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
+
     pipe_through :graphql
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
       interface: :simple,
       json_codec: Jason
+
   end
 
   scope "/api/v1" do
@@ -140,6 +144,11 @@ defmodule MoodleNetWeb.Router do
 
     post "/actors/:username/inbox", ActivityPubController, :inbox
     post "/shared_inbox", ActivityPubController, :inbox
+  end
+
+  scope "/taxonomy" do
+    get "/", Taxonomy.Utils, :test
+
   end
 
   scope "/" do
