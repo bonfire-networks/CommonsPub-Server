@@ -64,8 +64,8 @@ defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
   end
 
   object :features_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:feature))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:feature)))
     field :total_count, non_null(:integer)
   end
 

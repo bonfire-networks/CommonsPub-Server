@@ -218,8 +218,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
   end
 
   object :collections_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:collection))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:collection)))
     field :total_count, non_null(:integer)
   end
 

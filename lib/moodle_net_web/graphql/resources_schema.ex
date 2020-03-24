@@ -196,8 +196,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   end
 
   object :resources_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:resource))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:resource)))
     field :total_count, non_null(:integer)
   end
 

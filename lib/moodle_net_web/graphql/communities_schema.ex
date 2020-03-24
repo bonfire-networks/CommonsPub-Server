@@ -212,8 +212,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   end
 
   object :communities_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:community))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:community)))
     field :total_count, non_null(:integer)
   end
 

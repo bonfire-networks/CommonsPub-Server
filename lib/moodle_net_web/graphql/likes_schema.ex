@@ -76,8 +76,8 @@ defmodule MoodleNetWeb.GraphQL.LikesSchema do
   end
 
   object :likes_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:like))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:like)))
     field :total_count, non_null(:integer)
   end
 

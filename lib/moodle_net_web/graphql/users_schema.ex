@@ -310,8 +310,8 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :followed_communities_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_community))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:followed_community)))
     field :total_count, non_null(:integer)
   end
 
@@ -325,8 +325,8 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :followed_collections_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_collection))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:followed_collection)))
     field :total_count, non_null(:integer)
   end
 
@@ -340,8 +340,8 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   object :followed_users_page do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:followed_user))
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:followed_user)))
     field :total_count, non_null(:integer)
   end
 
