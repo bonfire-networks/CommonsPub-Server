@@ -64,10 +64,15 @@ defmodule MoodleNet.Collections do
   end
 
   ## mutations
+  defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: coll_username}) do
+    comm_username <> coll_username
+  end
+
+  defp prepend_comm_username(_community, _attr), do: nil
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-    preferred_username = community.actor.preferred_username <> attrs.preferred_username
+    preferred_username = prepend_comm_username(community, attrs)
     attrs = Map.put(attrs, :preferred_username, preferred_username)
 
     Repo.transact_with(fn ->
