@@ -21,4 +21,18 @@ defmodule MoodleNet.Common.Enums do
   defp group_item(key, value, acc)
   when not is_map_key(acc, key), do: Map.put(acc, key, value)
 
+  def group_map([], fun) when is_function(fun, 1), do: %{}
+
+  def group_map(list, fun)
+  when is_list(list) and is_function(fun, 1),
+    do: group_map(list, %{}, fun)
+
+
+  defp group_map([x | xs], acc, fun), do: group(xs, group_map_item(fun.(x), acc), fun)
+  defp group_map([], acc, _), do: acc
+
+
+  defp group_map_item({key, value}, acc)
+  when not is_map_key(acc, key), do: Map.put(acc, key, value)
+
 end

@@ -10,8 +10,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Repo,
     Resources,
   }
-  alias MoodleNet.GraphQL.{Flow, PageFlow}
+  alias MoodleNet.GraphQL.{Flow, FieldsFlow, PageFlow}
   alias MoodleNet.Collections.{Collection, Queries}
+  alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
@@ -23,7 +24,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def collections(page_opts, info) do
     opts = %{default_limit: 10, cursor_fn: &GraphQL.cast_int_ulid_id/1}
-    Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, opts)
+    ret = Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, opts)
+    IO.inspect(collections_ret: ret)
+    ret
   end
 
   ## fetchers
@@ -52,14 +55,19 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def resource_count_edge(%Collection{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_resource_count_edge, id, info,
-      default: 0,
-      getter: &Flow.get_tuple_item(&1, id, 1, 0)
+    Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0
   end
 
   def fetch_resource_count_edge(_, ids) do
-    {:ok, edges} = Resources.many(collection_id: ids, group_count: :collection_id)
-    Enums.group(edges, fn {id, _} -> id end)
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: Resources.Queries,
+        query: Resource,
+        group_fn: &elem(&1, 0),
+        map_fn: &elem(&1, 1),
+        filters: [collection_id: ids, group_count: :collection_id],
+      }
+    )
   end
 
   def resources_edge(%Collection{id: id}, %{}=page_opts, info) do
@@ -77,7 +85,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       [order: :timeline_desc],
       [group_count: :collection_id]
     )
-    IO.inspect(edges: edges)
+    # IO.inspect(edges: edges)
     edges
   end
 

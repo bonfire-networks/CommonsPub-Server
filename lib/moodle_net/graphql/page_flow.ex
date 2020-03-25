@@ -12,8 +12,8 @@ defmodule MoodleNet.GraphQL.PageFlow do
     data_filters: [],
     count_filters: [],
     count_with: :count,
-    data_transform: nil,
-    count_transform: nil,
+    map_fn: nil,
+    map_count_fn: nil,
   ]
 
   alias MoodleNet.Repo
@@ -28,8 +28,8 @@ defmodule MoodleNet.GraphQL.PageFlow do
     data_filters: list,
     count_filters: list,
     count_with: :count | :all,
-    data_transform: ([term] -> [term]) | nil,
-    count_transform: (term -> term) | nil,
+    map_fn: (term -> term) | nil,
+    map_count_fn: (term -> term) | nil,
   }
 
   def run(
@@ -42,20 +42,29 @@ defmodule MoodleNet.GraphQL.PageFlow do
       data_filters: data_filters,
       count_filters: count_filters,
       count_with: count_with,
-      data_transform: data_transform,
-      count_transform: count_transform,
+      map_fn: map_fn,
+      map_count_fn: map_count_fn,
     }
   ) do
+    IO.inspect(:pre_filter)
     base_q = apply(queries, :query, [query, base_filters])
     data_q = apply(queries, :filter, [base_q, data_filters])
     count_q = apply(queries, :filter, [base_q, count_filters])
+    IO.inspect(:pre_query)
     {:ok, [data, count]} = Repo.transact_many([{:all, data_q}, {count_with, count_q}])
-    data = transform(data_transform, data)
-    count = transform(count_transform, count)
-    {:ok, Page.new(data, count, cursor_fn, page_opts)}
+    IO.inspect(:pre_map)
+    data = map_data(map_fn, data)
+    count = map_count(map_count_fn, count)
+    IO.inspect(:post_map)
+    ret = Page.new(data, count, cursor_fn, page_opts)
+    IO.inspect(page_ret: ret)
+    {:ok, ret}
   end
 
-  defp transform(nil, data), do: data
-  defp transform(fun, data) when is_function(fun, 1), do: fun.(data)
+  defp map_data(nil, data), do: data
+  defp map_data(fun, data) when is_function(fun, 1), do: Enum.map(data, fun)
+
+  defp map_count(nil, data), do: data
+  defp map_count(fun, data) when is_function(fun, 1), do: fun.(data)
 
 end

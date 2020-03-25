@@ -4,8 +4,8 @@
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
-  alias MoodleNet.Follows.FollowerCounts
-  alias MoodleNet.GraphQL.{Fields, Flow}
+  alias MoodleNet.Follows.{FollowerCount, FollowerCountsQueries}
+  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -33,19 +33,20 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     end
   end
 
-  def follower_count_edge(%{id: id}, _, _) do
-    batch {__MODULE__, :batch_follower_count_edge}, id,
-      fn edges ->
-        IO.inspect(:getter)
-        case Fields.get(edges, id) do
-          {:ok, nil} -> {:ok, 0}
-          {:ok, other} -> {:ok, other.count}
-        end
-      end
+  def follower_count_edge(%{id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_follower_count_edge, id, info, default: 0
   end
 
-  def batch_follower_count_edge(_info, ids) do
-    FollowerCounts.fields(&(&1.context_id), context_id: ids)
+  def fetch_follower_count_edge(_, ids) do
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: FollowerCountsQueries,
+        query: FollowerCount,
+        group_fn: &(&1.context_id),
+        map_fn: &(&1.count),
+        filters: [context_id: ids],
+      }
+    )
   end
 
   def followers_edge(%{id: id}, %{}=page_opts, info) do

@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Debug do
   end
 
   defp handle_node(%Value{schema_node: %Scalar{identifier: :cursor}}=node) do
-    IO.inspect(debug: node)
+    # IO.inspect(debug: node)
     node
   end
 

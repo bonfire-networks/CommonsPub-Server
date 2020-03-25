@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
   # end
 
   def validate(x) do
-    IO.inspect(validate: x)
+    # IO.inspect(validate: x)
     true
   end
 

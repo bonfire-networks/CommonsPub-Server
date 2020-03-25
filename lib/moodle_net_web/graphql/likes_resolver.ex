@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
-  alias MoodleNet.GraphQL.{Fields, Flow}
-  alias MoodleNet.Likes.LikerCounts
+  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow}
+  alias MoodleNet.Likes.{LikerCount, LikerCountsQueries}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
 
@@ -55,24 +55,22 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     )
   end
 
+
   def liker_count_edge(%{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_liker_count_edge, id, info,
-      default: 0,
-      getter: fn fields ->
-        case Fields.get(fields, id) do
-          {:ok, nil} -> {:ok, 0}
-          {:ok, other} -> {:ok, other.count}
-        end
-      end
+    Flow.fields __MODULE__, :fetch_liker_count_edge, id, info, default: 0
   end
 
   def fetch_liker_count_edge(_, ids) do
-    IO.inspect(:liker_count)
-    {:ok, fields} = LikerCounts.fields(&(&1.context_id), context_id: ids)
-    IO.inspect(fields)
-    fields
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: LikerCountsQueries,
+        query: LikerCount,
+        group_fn: &(&1.context_id),
+        map_fn: &(&1.count),
+        filters: [context_id: ids],
+      }
+    )
   end
-
 
   def likes_edge(%{id: id}, %{}=page_opts, info) do
     opts = %{default_limit: 10}

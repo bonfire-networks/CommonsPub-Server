@@ -13,8 +13,8 @@ defmodule MoodleNet.GraphQL.PagesFlow do
     base_filters: [],
     data_filters: [],
     count_filters: [],
-    data_transform: nil,
-    count_transform: nil,
+    map_fn: nil,
+    map_counts_fn: nil,
   ]
 
   alias MoodleNet.Repo
@@ -30,8 +30,8 @@ defmodule MoodleNet.GraphQL.PagesFlow do
     base_filters: list,
     data_filters: list,
     count_filters: list,
-    data_transform: ([term] -> [term]) | nil,
-    count_transform: (term -> term) | nil,
+    map_fn: (term -> term) | nil,
+    map_counts_fn: (term -> term) | nil,
   }
 
   def run(
@@ -45,20 +45,23 @@ defmodule MoodleNet.GraphQL.PagesFlow do
       base_filters: base_filters,
       data_filters: data_filters,
       count_filters: count_filters,
-      data_transform: data_transform,
-      count_transform: count_transform,
+      map_fn: map_fn,
+      map_counts_fn: map_counts_fn,
     }
   ) do
     base_q = apply(queries, :query, [query, base_filters])
     data_q = apply(queries, :filter, [base_q, data_filters])
     count_q = apply(queries, :filter, [base_q, count_filters])
     {:ok, [data, counts]} = Repo.transact_many(all: data_q, all: count_q)
-    data = transform(data_transform, data)
-    counts = transform(count_transform, counts)
-    {:ok, Pages.new(data, counts, cursor_fn, group_fn, page_opts)}
+    data = group_data(data, group_fn, map_fn)
+    counts = group_counts(counts, map_counts_fn)
+    Pages.new(data, counts, cursor_fn, page_opts)
   end
 
-  defp transform(nil, data), do: data
-  defp transform(fun, data) when is_function(fun, 1), do: fun.(data)
+  defp group_data(data, group_fn, nil), do: Enum.group_by(data, group_fn)
+  defp group_data(data, group_fn, map_fn), do: Enum.group_by(data, group_fn, map_fn)
+
+  defp group_counts(counts, nil), do: Map.new(counts)
+  defp group_counts(counts, map_fn), do: Map.new(counts, map_fn)
 
 end

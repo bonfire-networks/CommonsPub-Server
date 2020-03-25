@@ -6,9 +6,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   Performs the GraphQL Community queries.
   """
   alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Common.Enums
-  alias MoodleNet.GraphQL.{Flow, Page, PageFlow, PagesFlow}
   alias MoodleNet.Communities.Community
+  alias MoodleNet.GraphQL.{FieldsFlow, Flow, Page, PageFlow, PagesFlow}
 
   def community(%{community_id: id}, info) do
     Communities.one([:default, id: id, user: GraphQL.current_user(info)])
@@ -33,15 +34,19 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def collection_count_edge(%Community{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info,
-      getter: &Flow.get_tuple_item(&1, id, 1, 0)
+    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info, default: 0
   end
 
   def fetch_collection_count_edge(_, ids) do
-    IO.inspect(:collection_count)
-    {:ok, counts} = Collections.many(community_id: ids, group_count: :community_id)
-    IO.inspect(counts)
-    Enums.group(counts, fn {id, _} -> id end)
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: Collections.Queries,
+        query: Collection,
+        group_fn: &elem(&1, 0),
+        map_fn: &elem(&1, 1),
+        filters: [community_id: ids, group_count: :community_id],
+      }
+    )
   end
 
   def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
@@ -54,8 +59,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     user = GraphQL.current_user(info)
     PagesFlow.run(
       %PagesFlow{
-        queries: Communities.Queries,
-        query: Community,
+        queries: Collections.Queries,
+        query: Collection,
         cursor_fn: &(&1.id),
         group_fn: &(&1.community_id),
         info: info,
@@ -71,8 +76,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
-        queries: Communities.Queries,
-        query: Community,
+        queries: Collections.Queries,
+        query: Collection,
         cursor_fn: &(&1.id),
         page_opts: page_opts,
         base_filters: [community_id: ids, user: user],
