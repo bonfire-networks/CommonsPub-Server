@@ -85,12 +85,12 @@ type PlanResponse {
 
 
 
-type Query {
+type PlanQuery {
   plan(id: ID): Plan
   allPlans(start: ID, limit: Int): [Plan!]
 }
 
-type Mutation {
+type PlanMutation {
   createPlan(plan: PlanCreateParams!): PlanResponse
   # :TODO:
   # createPlanFromRecipe(): PlanResponse

@@ -224,7 +224,7 @@ type SettlementResponse {
 
 
 
-type Query {
+type ClaimQuery {
   claim(id: ID): Claim
   allClaims(start: ID, limit: Int): [Claim!]
 
@@ -232,7 +232,7 @@ type Query {
   allSettlements(start: ID, limit: Int): [Settlement!]
 }
 
-type Mutation {
+type ClaimMutation {
   createClaim(claim: ClaimCreateParams!): ClaimResponse
   updateClaim(claim: ClaimUpdateParams!): ClaimResponse
   deleteClaim(id: String!): Boolean

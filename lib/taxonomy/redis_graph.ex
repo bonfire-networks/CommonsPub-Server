@@ -1,4 +1,4 @@
-defmodule Taxonomy do
+defmodule Taxonomy.RedisGraph do
 
   use ActivityPubWeb, :controller
 

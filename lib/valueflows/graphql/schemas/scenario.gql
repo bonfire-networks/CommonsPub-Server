@@ -140,7 +140,7 @@ type ScenarioDefinitionResponse {
 
 
 
-type Query {
+type ScenarioQuery {
   scenario(id: ID): Scenario
   allScenarios(start: ID, limit: Int): [Scenario!]
 
@@ -148,7 +148,7 @@ type Query {
   allScenarioDefinitions(start: ID, limit: Int): [ScenarioDefinition!]
 }
 
-type Mutation {
+type ScenarioMutation {
   createScenario(plan: ScenarioCreateParams!): ScenarioResponse
   updateScenario(plan: ScenarioUpdateParams!): ScenarioResponse
   deleteScenario(id: String!): Boolean

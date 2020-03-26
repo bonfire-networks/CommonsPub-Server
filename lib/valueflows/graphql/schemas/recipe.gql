@@ -267,7 +267,7 @@ type RecipeFlowResponse {
 
 
 
-type Query {
+type RecipeQuery {
   recipeResource(id: ID): RecipeResource
   allRecipeResources(start: ID, limit: Int): [RecipeResource!]
 
@@ -278,7 +278,7 @@ type Query {
   allRecipeFlows(start: ID, limit: Int): [RecipeFlow!]
 }
 
-type Mutation {
+type RecipeMutation {
   createRecipeFlow(recipeFlow: RecipeFlowCreateParams): RecipeFlowResponse
   updateRecipeFlow(recipeFlow: RecipeFlowUpdateParams): RecipeFlowResponse
   deleteRecipeFlow(id: String!): Boolean

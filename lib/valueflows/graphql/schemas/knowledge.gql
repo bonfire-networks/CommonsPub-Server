@@ -146,7 +146,7 @@ type ProcessSpecificationResponse {
 
 
 
-type Query {
+type KnowledgeQuery {
   action(id: ID): Action
   allActions: [Action!]
 
@@ -157,7 +157,7 @@ type Query {
   allProcessSpecifications(start: ID, limit: Int): [ProcessSpecification!]
 }
 
-type Mutation {
+type KnowledgeMutation {
   createResourceSpecification(resourceSpecification: ResourceSpecificationCreateParams): ResourceSpecificationResponse
   updateResourceSpecification(resourceSpecification: ResourceSpecificationUpdateParams): ResourceSpecificationResponse
   deleteResourceSpecification(id: String!): Boolean

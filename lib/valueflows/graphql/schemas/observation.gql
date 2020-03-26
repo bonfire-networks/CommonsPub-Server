@@ -450,7 +450,7 @@ type ProcessResponse {
 
 
 
-type Query {
+type ObservationQuery {
   economicEvent(id: ID): EconomicEvent
   allEconomicEvents(start: ID, limit: Int): [EconomicEvent!]
   filteredEconomicEvents(
@@ -472,7 +472,7 @@ type Query {
   allProcesses(start: ID, limit: Int): [Process!]
 }
 
-type Mutation {
+type ObservationMutation {
   createEconomicEvent(event: EconomicEventCreateParams!, newInventoriedResource: EconomicResourceCreateParams): EconomicEventResponse
   updateEconomicEvent(event: EconomicEventUpdateParams!): EconomicEventResponse
   deleteEconomicEvent(id: String!): Boolean

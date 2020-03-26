@@ -61,12 +61,12 @@ type AgreementResponse {
 
 
 
-type Query {
+type AgreementQuery {
   agreement(id: ID): Agreement
   allAgreements(start: ID, limit: Int): [Agreement!]
 }
 
-type Mutation {
+type AgreementMutation {
   createAgreement(agreement: AgreementCreateParams): AgreementResponse
   updateAgreement(agreement: AgreementUpdateParams): AgreementResponse
   deleteAgreement(id: String!): Boolean

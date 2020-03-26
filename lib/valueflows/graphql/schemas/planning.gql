@@ -584,7 +584,7 @@ type SatisfactionResponse {
 
 
 
-type Query {
+type PlanningQuery {
   commitment(id: ID): Commitment
   allCommitments(start: ID, limit: Int): [Commitment!]
 
@@ -598,7 +598,7 @@ type Query {
   allSatisfactions(start: ID, limit: Int): [Satisfaction!]
 }
 
-type Mutation {
+type PlanningMutation {
   createCommitment(commitment: CommitmentCreateParams): CommitmentResponse
   updateCommitment(commitment: CommitmentUpdateParams): CommitmentResponse
   deleteCommitment(id: String!): Boolean

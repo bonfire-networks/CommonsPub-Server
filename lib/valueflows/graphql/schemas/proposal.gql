@@ -146,12 +146,12 @@ type ProposedToResponse {
 
 
 
-type Query {
+type ProposalQuery {
   proposal(id: ID): Proposal
   allProposals(start: ID, limit: Int): [Proposal!]
 }
 
-type Mutation {
+type ProposalMutation {
   createProposal(proposal: ProposalCreateParams): ProposalResponse
   updateProposal(proposal: ProposalUpdateParams): ProposalResponse
   deleteProposal(id: String!): Boolean

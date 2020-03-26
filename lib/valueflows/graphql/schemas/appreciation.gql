@@ -59,7 +59,7 @@ type AppreciationResponse {
 
 
 
-type Mutation {
+type AppreciationMutation {
   createAppreciation(appreciation: AppreciationCreateParams!): AppreciationResponse
   updateAppreciation(appreciation: AppreciationUpdateParams!): AppreciationResponse
   deleteAppreciation(id: String!): Boolean

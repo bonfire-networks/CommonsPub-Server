@@ -13,7 +13,8 @@
 """
 A person or group or organization with economic agency.
 """
-interface Agent {
+# interface Agent {
+type Agent {
   id: ID!
 
   "An informal or formal textual identifier for an agent. Does not imply uniqueness."
@@ -35,10 +36,11 @@ interface Agent {
   roles: [AgentRelationshipRole!]
 }
 
+
 """
 A natural person.
 """
-type Person implements Agent {
+type Person { # implements Agent {
   id: ID!
 
   "The name that this agent will be referred to by."
@@ -58,12 +60,13 @@ type Person implements Agent {
   relationshipsAsObject(roleId: ID): [AgentRelationship!] # :TODO: category filtering
 
   roles: [AgentRelationshipRole!]
+
 }
 
 """
 A formal or informal group, or legal organization.
 """
-type Organization implements Agent {
+type Organization { # implements Agent {
   id: ID!
 
   # :TODO: define how people can create further typing of Organization
@@ -248,7 +251,7 @@ type AgentRelationshipRoleResponse {
   agentRelationshipRole: AgentRelationshipRole
 }
 
-type Query {
+type AgentQuery {
   "Loads details of the currently authenticated REA agent"
   myAgent: Agent
 
@@ -277,7 +280,7 @@ type Query {
   allAgentRelationshipRoles(start: ID, limit: Int): [AgentRelationshipRole!]
 }
 
-type Mutation {
+type AgentMutation {
   "Registers a new (human) person with the collaboration space"
   createPerson(person: AgentCreateParams!): PersonResponse
   "Update profile details"
