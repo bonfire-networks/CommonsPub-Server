@@ -22,23 +22,22 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       total = Enum.count(collections)
       conn = json_conn()
       q = collections_query()
-      # test the first page with the default limit
-      # colls = gruff_post_key(q, conn, :collections)
-      # page1 = assert_page(colls, 10, total, false, true, cursor)
-      # each(collections, page1.edges, &assert_collection/2)
+      #test the first page with the default limit
+      colls = gruff_post_key(q, conn, :collections)
+      page1 = assert_page(colls, 10, total, false, true, cursor)
+      each(collections, page1.edges, &assert_collection/2)
       # test the first page with explicit limit
-      # conn = recycle(conn)
       vars = %{limit: 11}
       colls = gruff_post_key(q, conn, :collections, vars)
-      # page1 = assert_page(colls, 11, total, false, true, cursor)
-      # each(collections, page1.edges, &assert_collection/2)
-      # test the second page with explicit limit
+      page1 = assert_page(colls, 11, total, false, true, cursor)
+      each(collections, page1.edges, &assert_collection/2)
+      # # test the second page with explicit limit
       # vars = %{limit: 9, after: page1.end_cursor}
       # page2 =
       #   gruff_post_key(q, json_conn(), :collections, vars)
       #   |> assert_page(9, total, nil, true, cursor) # should be true not nil
       # drop_each(collections, page2.edges, 11, &assert_collection/2)
-      # test the third page with explicit limit
+      # # test the third page with explicit limit
       # page3 =
       #   collections_query("(after: \"#{page2.end_cursor}\" limit: 7)")
       #   |> gruff_post_key(json_conn(), "collections")
