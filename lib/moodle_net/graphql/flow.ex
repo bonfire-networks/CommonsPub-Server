@@ -73,10 +73,9 @@ defmodule MoodleNet.GraphQL.Flow do
     opts :: Keyword.t
   ) :: term
   def fields(module, callback, context, info, opts \\ []) do
-    user = info.context.current_user
     default = Keyword.get(opts, :default, nil)
     getter = Keyword.get(opts, :getter, Fields.getter(context, default))
-    batch {module, callback, info}, context, getter
+    batch {module, callback, Map.take(info, [:context])}, context, getter
   end
 
   @doc """
@@ -98,7 +97,7 @@ defmodule MoodleNet.GraphQL.Flow do
   ) :: term
   def root_page(module, callback, page_opts, info, opts \\ []) do
     with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, info])
+      apply(module, callback, [page_opts, Map.take(info, [:context])])
     end
   end
 
@@ -110,7 +109,7 @@ defmodule MoodleNet.GraphQL.Flow do
   def page(module, callback, page_opts, key, info, opts) do
     user = info.context.current_user
     with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      case apply(module, callback, [page_opts, info, key]) do
+      case apply(module, callback, [page_opts, Map.take(info, [:context]), key]) do
         {:ok, good} -> {:ok, good}
         {:error, bad} -> {:error, bad}
         good -> {:ok, good}
@@ -130,11 +129,11 @@ defmodule MoodleNet.GraphQL.Flow do
     user = info.context.current_user
     if GraphQL.in_list?(info) do
       with {:ok, page_opts} <- GraphQL.limit_page_opts(page_opts, batch_opts) do
-        batch {module, callback, {page_opts, info}}, key, Pages.getter(key)
+        batch {module, callback, {page_opts, Map.take(info, [:context])}}, key, Pages.getter(key)
       end
     else
       with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, single_opts) do
-        apply(module, callback, [page_opts, info, key])
+        apply(module, callback, [page_opts, Map.take(info, [:context]), key])
       end
     end
   end
