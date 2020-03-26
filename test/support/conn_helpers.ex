@@ -77,7 +77,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}
       %{"data" => data} ->
-        IO.inspect(client_received: data)
+        # IO.inspect(client_received: data)
         data
       other -> throw {:horribly_wrong, other}
     end
@@ -86,8 +86,8 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def gruff_post_data(query, conn, vars \\ %{}, name \\ "test") do
     query = Gruff.PP.to_string(query)
     vars = recase_vars(vars)
-    IO.puts(query)
-    IO.inspect(vars: vars)
+    # IO.puts(query)
+    # IO.inspect(vars: vars)
     query = %{
       query: query,
       variables: vars,

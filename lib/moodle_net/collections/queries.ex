@@ -231,7 +231,8 @@ defmodule MoodleNet.Collections.Queries do
     |> limit(^limit)
   end
 
-  defp page_followers_desc(q, %{limit: limit}) do
+  defp page_followers_desc(q, %{limit: limit}=opts) do
+    IO.inspect(opts: opts)
     limit = limit + 1
     q
     |> limit(^limit)

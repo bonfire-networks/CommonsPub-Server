@@ -62,7 +62,12 @@ defmodule MoodleNet.Resources.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([:collection, :community, collection_follow: id, community_follow: id])
+    |> join_to(
+      inner: :collection,
+      inner: :community,
+      left: [collection_follow: id],
+      left: [community_follow: id],
+    )
     |> filter(~w(deleted disabled user_collection user_community)a)
     |> Collections.Queries.filter(~w(deleted disabled)a)
     |> Communities.Queries.filter(~w(deleted disabled)a)
@@ -70,7 +75,7 @@ defmodule MoodleNet.Resources.Queries do
 
   def filter(q, {:user, nil}) do
     q
-    |> join_to(~w(collection community)a)
+    |> join_to(inner: :collection, inner: :community)
     |> filter(~w(deleted disabled private)a)
     |> Collections.Queries.filter(~w(deleted disabled private)a)
     |> Communities.Queries.filter(~w(deleted disabled private)a)

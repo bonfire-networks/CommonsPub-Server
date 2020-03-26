@@ -46,18 +46,18 @@ defmodule MoodleNet.GraphQL.PageFlow do
       map_count_fn: map_count_fn,
     }
   ) do
-    IO.inspect(:pre_filter)
+    # IO.inspect(:pre_filter)
     base_q = apply(queries, :query, [query, base_filters])
     data_q = apply(queries, :filter, [base_q, data_filters])
     count_q = apply(queries, :filter, [base_q, count_filters])
-    IO.inspect(:pre_query)
+    # IO.inspect(:pre_query)
     {:ok, [data, count]} = Repo.transact_many([{:all, data_q}, {count_with, count_q}])
-    IO.inspect(:pre_map)
+    # IO.inspect(:pre_map)
     data = map_data(map_fn, data)
     count = map_count(map_count_fn, count)
-    IO.inspect(:post_map)
+    # IO.inspect(:post_map)
     ret = Page.new(data, count, cursor_fn, page_opts)
-    IO.inspect(page_ret: ret)
+    # IO.inspect(page_ret: ret)
     {:ok, ret}
   end
 

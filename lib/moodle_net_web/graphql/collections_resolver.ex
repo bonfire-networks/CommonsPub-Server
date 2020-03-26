@@ -25,7 +25,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   def collections(page_opts, info) do
     opts = %{default_limit: 10, cursor_fn: &GraphQL.cast_int_ulid_id/1}
     ret = Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, opts)
-    IO.inspect(collections_ret: ret)
     ret
   end
 
