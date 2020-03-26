@@ -9,13 +9,6 @@ defmodule ValueFlows.GraphQL.Measurement do
 
   import_sdl path: "lib/valueflows/graphql/schemas/measurement.gql"
 
-  # __MODULE__.__absinthe_blueprint__ # to see the generated type definitions
-
-  def hydrate(%{identifier: :all_units}, [%{identifier: :measurement_query} | _]) do
-    Logger.info("hydrating all_units")
-    {:resolve, &__MODULE__.all_units/3}
-  end
-
   def all_units(_, _, _) do
     items = [
       %{id: 1, label: "Euro", symbol: "$"},
