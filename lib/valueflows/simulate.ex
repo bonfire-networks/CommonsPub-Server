@@ -1,7 +1,7 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Fake do
+defmodule ValueFlows.Simulate do
   @moduledoc false
 
   @doc """
@@ -132,8 +132,9 @@ defmodule ValueFlows.Fake do
   def website(), do: Faker.Internet.url()
   @doc "something that happens to an activity"
   def verb(), do: Faker.Util.pick(["created", "updated"])
-  @doc "A nunit"
-  def unit(), do: Faker.Util.pick(["kilo", "liter"])
+  @doc "A unit"
+  def unit_name(), do: Faker.Util.pick(["kilo", "liter"])
+  def unit_symbol(), do: Faker.Util.pick(["kg", "m"])
 
   # Unique data
 
@@ -185,17 +186,47 @@ defmodule ValueFlows.Fake do
 
   ### Start fake data functions
 
+  ## ValueFlows
+
   def unit(base \\ %{}) do
     base
     |> Map.put_new_lazy(:id, &uuid/0) # todo: these can't both be right
-    |> Map.put_new_lazy(:label, &Faker.Food.measurement/0)
-    |> Map.put_new_lazy(:iso_code3, &Faker.Address.country_code/0)
-    |> Map.put_new_lazy(:english_name, &Faker.Address.country/0)
-    |> Map.put_new_lazy(:local_name, &Faker.Address.country/0)
-    |> Map.put_new_lazy(:created_at, &past_datetime/0)
-    |> Map.put_new_lazy(:updated_at, &past_datetime/0)
-    |> Map.put(:__struct__, MoodleNet.Localisation.Country)
+    |> Map.put_new_lazy(:label, &unit_name/0)
+    |> Map.put_new_lazy(:symbol, &unit_symbol/0)
   end
+
+  def agent(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:image, &image/0)
+  end
+
+  def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
+
+  def action(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0)
+    |> Map.put_new_lazy(:label, &name/0)
+    |> Map.put_new_lazy(:resourceEffect, &inc_dec/0)
+
+  end
+
+  def intent(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:id, &uuid/0)
+    |> Map.put_new_lazy(:name, &name/0)
+    |> Map.put_new_lazy(:resource_classified_as, &website/0)
+    |> Map.put_new_lazy(:note, &summary/0)
+    |> Map.put_new_lazy(:image, &icon/0)
+    # |> Map.put_new_lazy(:has_beginning, &past_datetime/0)
+    |> Map.put_new_lazy(:action, &action/0)
+    |> Map.put_new_lazy(:provider, &agent/0)
+    |> Map.put_new_lazy(:receiver, &agent/0)
+  end
+
+  ## Core
 
   def language(base \\ %{}) do
     base
@@ -220,6 +251,7 @@ defmodule ValueFlows.Fake do
     |> Map.put_new_lazy(:updated_at, &past_datetime/0)
     |> Map.put(:__struct__, MoodleNet.Localisation.Country)
   end
+
 
   # def auth_payload(base \\ %{}) do
   #   base

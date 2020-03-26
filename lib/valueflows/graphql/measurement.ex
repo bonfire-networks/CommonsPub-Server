@@ -5,17 +5,17 @@ defmodule ValueFlows.GraphQL.Measurement do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
+  alias ValueFlows.{Simulate}
   require Logger
 
   import_sdl path: "lib/valueflows/graphql/schemas/measurement.gql"
 
   def all_units(_, _, _) do
-    items = [
-      %{id: 1, label: "Euro", symbol: "$"},
-      %{id: 2, label: "Dollar", symbol: "$"},
-    ]
+    {:ok, Simulate.long_list(&Simulate.unit/0)}
+  end
 
-    {:ok, items}
+  def unit(%{id: id}, info) do
+    {:ok, Simulate.unit()}
   end
 
 

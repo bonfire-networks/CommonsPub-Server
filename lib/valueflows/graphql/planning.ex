@@ -5,9 +5,19 @@ defmodule ValueFlows.GraphQL.Planning do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
+  alias ValueFlows.{Simulate}
   require Logger
 
   import_sdl path: "lib/valueflows/graphql/schemas/planning.gql"
+
+  def intent(%{id: id}, info) do
+    {:ok, Simulate.intent()}
+  end
+
+  def all_intents(_, _, _) do
+    {:ok, Simulate.long_list(&Simulate.intent/0)}
+  end
+
 
 
 end
