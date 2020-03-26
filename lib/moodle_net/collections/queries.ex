@@ -180,27 +180,6 @@ defmodule MoodleNet.Collections.Queries do
     limit(q, ^limit)
   end
 
-  def filter(q, {:paginate_followers, %{after: [count, id], limit: limit}}) do
-    limit = limit + 2
-    q
-    |> where(
-      [collection: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
-    )
-    |> limit(^limit)
-  end
-
-  def filter(q, {:paginate_followers, %{before: [count, id], limit: limit}}) do
-    limit = limit + 2
-    q
-    |> where(
-      [collection: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-    |> limit(^limit)
-  end
-
-
   def filter(q, {:page, [followers_desc: page_opts]}) do
     q
     |> filter(join: :follower_count, order: :followers_desc)

@@ -23,39 +23,40 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       conn = json_conn()
       q = collections_query()
       #test the first page with the default limit
-      colls = gruff_post_key(q, conn, :collections)
-      page1 = assert_page(colls, 10, total, false, true, cursor)
+      page1 =
+        gruff_post_key(q, conn, :collections)
+        |> assert_page(10, total, false, true, cursor)
       each(collections, page1.edges, &assert_collection/2)
       # test the first page with explicit limit
       vars = %{limit: 11}
-      colls = gruff_post_key(q, conn, :collections, vars)
-      page1 = assert_page(colls, 11, total, false, true, cursor)
-      each(collections, page1.edges, &assert_collection/2)
+      page_1 =
+        gruff_post_key(q, conn, :collections, vars)
+        |> assert_page(11, total, false, true, cursor)
+      each(collections, page_1.edges, &assert_collection/2)
       # test the second page with explicit limit
-      vars = %{limit: 9, after: page1.end_cursor}
+      vars = %{limit: 9, after: page_1.end_cursor}
       page2 =
         gruff_post_key(q, json_conn(), :collections, vars)
-        |> assert_page(9, total, nil, true, cursor) # should be true not nil
-      IO.inspect(orig: Enum.map(collections, &(&1.id)), new: Enum.map(page2.edges, &(&1["id"])))
+        |> assert_page(9, total, true, true, cursor) # should be true not nil
       drop_each(collections, page2.edges, 11, &assert_collection/2)
-      # # test the third page with explicit limit
-      # page3 =
-      #   collections_query("(after: \"#{page2.end_cursor}\" limit: 7)")
-      #   |> gruff_post_key(json_conn(), "collections")
-      #   |> assert_page(7, total, true, false, &(&1["id"]))
-      # drop_each(collections, page3.edges, 19, &assert_collection/2)
-      # # test the second page without explicit limit
-      # page_2 =
-      #   collections_query("(after: \"#{page1.end_cursor}\")")
-      #   |> gruff_post_key(json_conn(), "collections")
-      #   |> assert_page(10, total, true, true, &(&1["id"]))
-      # drop_each(collections, page_2.edges, 10, &assert_collection/2)
-      # # test the third page without explicit limit
-      # page_3 =
-      #   collections_query("(after: \"#{page_2.end_cursor}\")")
-      #   |> gruff, post_key(json_conn(), "collections")
-      #   |> assert_page(7, total, true, false, &(&1["id"]))
-      # drop_each(collections, page_3.edges, 20, &assert_collection/2)
+      # test the third page with explicit limit
+      vars = %{limit: 7, after: page2.end_cursor}
+      page3 =
+        gruff_post_key(q, json_conn(), "collections", vars)
+        |> assert_page(7, total, true, false, &(&1["id"]))
+      drop_each(collections, page3.edges, 20, &assert_collection/2)
+      # test the second page without explicit limit
+      vars = %{after: page1.end_cursor}
+      page_2 =
+        gruff_post_key(q, json_conn(), "collections", vars)
+        |> assert_page(10, total, true, true, &(&1["id"]))
+      drop_each(collections, page_2.edges, 10, &assert_collection/2)
+      # test the third page without explicit limit
+      vars = %{after: page_2.end_cursor}
+      page_3 =
+        gruff_post_key(q, json_conn(), "collections", vars)
+        |> assert_page(7, total, true, false, &(&1["id"]))
+      drop_each(collections, page_3.edges, 20, &assert_collection/2)
     end
 
   end

@@ -200,7 +200,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def collections_query(options \\ []) do
     gen_query(
       &collections_subquery/1,
-      [{:params, [after: :cursor, before: :cursor, limit: :int]} | options]
+      [{:params, [after: list_type(:cursor), before: list_type(:cursor), limit: :int]} | options]
     )
   end
 

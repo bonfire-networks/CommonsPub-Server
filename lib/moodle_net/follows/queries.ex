@@ -107,7 +107,14 @@ defmodule MoodleNet.Follows.Queries do
 
   ## by order
 
-  def filter(q, {:order, :timeline_desc}) do
+  def filter(q, {:order, :timeline_desc}), do: filter(q, {:order, [desc: :created]})
+
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [follow: f], [desc: f.id]
+  end
+
+  def filter(q, {:order, [desc: :id]}) do
+    order_by q, [follow: f], [desc: f.id]
     order_by q, [follow: f], [desc: f.id]
   end
 
@@ -129,6 +136,31 @@ defmodule MoodleNet.Follows.Queries do
     preload q, [pointer: p], [context: p]
   end
 
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page_desc_created(page_opts)
+  end
 
+  defp page_desc_created(q, %{after: id, limit: limit}) do
+    limit = limit + 2
+    q
+    |> where([follow: f], f.id <= ^id)
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{before: id, limit: limit}) do
+    limit = limit + 2
+    q
+    |> where([follow: f], f.id >= ^id)
+    |> limit(^limit)
+  end
+
+  defp page_followers_desc(q, %{limit: limit}=opts) do
+    IO.inspect(opts: opts)
+    limit = limit + 1
+    q
+    |> limit(^limit)
+  end
 
 end

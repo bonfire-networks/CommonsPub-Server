@@ -72,18 +72,21 @@ defmodule MoodleNet.GraphQL do
   end
 
 
-  def full_page_opts(attrs, opts \\ %{}) do
-    cursor_fn = Map.get(opts, :cursor_fn, &(&1))
+  def full_page_opts(attrs, cursor_validators, opts \\ %{}) do
     with {:ok, page_opts} <- limit_page_opts(attrs, opts) do
       case attrs do
         %{before: b, after: a} when not is_nil(b) and not is_nil(a) ->
           {:error, %{message: "May not provide both before and after"}}
 
         %{after: a} when not is_nil(a) ->
-          {:ok, Map.put(page_opts, :after, cursor_fn.(a))}
+          if validate_cursor(cursor_validators, a),
+            do: {:ok, Map.put(page_opts, :after, a)},
+            else: {:error, %{message: "Bad after cursor"}}
 
         %{before: b} when not is_nil(b) ->
-          {:ok, Map.put(page_opts, :before, cursor_fn.(b))}
+          if validate_cursor(cursor_validators, b),
+            do: {:ok, Map.put(page_opts, :before, b)},
+            else: {:error, %{message: "Bad before cursor"}}
 
         %{} -> {:ok, page_opts}
       end
@@ -123,16 +126,43 @@ defmodule MoodleNet.GraphQL do
 
   def not_found(), do: {:error, NotFoundError.new()}
 
-  def cast_ulid(str), do: Ecto.ULID.cast(str)
+  @bad_cursor_error {:error, %{message: "Bad cursor"}}
 
-  def cast_int(str), do: Ecto.Type.cast(:integer, str)
-
-  def cast_int_ulid_id(id) do
-    with [int, ulid] <- id,
-         {:ok, _} <- cast_int(int),
-         {:ok, _} <- cast_ulid(id) do
-      {:ok, id}
-    end
+  def cast_ulid(str) when is_binary(str) do
+    with :error <- Ecto.ULID.cast(str), do: @bad_cursor_error
   end
+  def cast_ulid(_), do: @bad_cursor_error
+
+  def cast_posint(int) when is_integer(int) and int > 0, do: {:ok, int}
+  def cast_posint(_), do: @bad_cursor_error
+
+  def cast_nonnegint(int) when is_integer(int) and int >= 0, do: {:ok, int}
+  def cast_nonnegint(_), do: @bad_cursor_error
+
+  def cast_int_ulid_id([int, ulid]) when is_integer(int) and is_binary(ulid) do
+    with :error <- Ecto.ULID.cast(ulid), do: @bad_cursor_error
+  end
+  def cast_int_ulid_id(_), do: @bad_cursor_error
+
+  def validate_cursor([], []), do: :ok
+  def validate_cursor([p | ps], [v | vs]) do
+    if predicated(p, v),
+      do: :ok,
+      else: @bad_cursor_error
+  end  
+  def validate_cursor(_, _), do: @bad_cursor_error
+
+
+  def predicated(fun) when is_function(fun, 1), do: &predicate_result(fun.(&1))
+  def predicated(fun, arg) when is_function(fun, 1), do: predicate_result(fun.(arg))
+  # def predicated(fun) when is_function(fun, 2), do: &predicate_result(fun.(&1, &2))
+  # def predicated(fun) when is_function(fun, 3), do: &predicate_result(fun.(&1, &2, &3))
+
+  defp predicate_result(true), do: true
+  defp predicate_result(:ok), do: true
+  defp predicate_result({:ok, _}), do: true
+  defp predicate_result(false), do: false
+  defp predicate_result(:error), do: false
+  defp predicate_result({:error,_}), do: false
 
 end

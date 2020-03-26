@@ -10,7 +10,6 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
 
   scalar :cursor, name: "Cursor" do
     description """
-
     An opaque position marker for pagination. Paginated queries return
     a PageInfo struct with start and end cursors (which are actually
     lists of Cursor for ...reasons...). You can then issue queries
@@ -25,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
 
   @spec decode(Input.String.t) :: {:ok, binary}
   @spec decode(Input.Integer.t) :: {:ok, integer}
-  @spec decode(term) :: :error
+  @spec decode(term) :: {:error, :bad_parse}
   defp decode(%Input.String{value: value}=s) do
     IO.inspect(string: s)
     {:ok, value}
