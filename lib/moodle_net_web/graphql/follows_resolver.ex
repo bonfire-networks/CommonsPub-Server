@@ -4,8 +4,8 @@
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
-  alias MoodleNet.Follows.{FollowerCount, FollowerCountsQueries}
-  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow}
+  alias MoodleNet.Follows.{Follow, FollowerCount, FollowerCountsQueries}
+  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow, PageFlow, PagesFlow}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -50,30 +50,38 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def followers_edge(%{id: id}, %{}=page_opts, info) do
+    vals = [&Ecto.ULID.cast/1]
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, vals, opts)
   end
 
   def fetch_followers_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    {:ok, edges} = Follows.pages(
-      &(&1.context_id),
-      &(&1.id),
-      page_opts,
-      [context_id: ids, user: user],
-      [order: :timeline_desc],
-      [group_count: :context_id]
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.context_id),
+        page_opts: page_opts,
+        base_filters: [context_id: ids, user: user],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id],
+      }
     )
-    edges
   end
 
   def fetch_followers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    Follows.page(
-      &(&1.id),
-      page_opts,
-      [context_id: ids, user: user],
-      [order: :timeline_desc]
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [context_id: ids, user: user],
+        data_filters: [order: [desc: :created]],
+      }
     )
   end
 

@@ -109,6 +109,18 @@ defmodule MoodleNet.Collections.Queries do
 
   ## by field values
 
+  def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[collection: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+  end
+
+  def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[collection: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+  end
+
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [collection: c], c.id == ^id
   end
@@ -136,10 +148,15 @@ defmodule MoodleNet.Collections.Queries do
   ## by ordering
 
   def filter(q, {:order, :followers_desc}) do
+    filter q, order: [desc: :followers]
+  end
+
+  def filter(q, {:order, [desc: :followers]}) do
     order_by q, [collection: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
   end
+
 
   # grouping and counting
 
@@ -161,6 +178,10 @@ defmodule MoodleNet.Collections.Queries do
 
   # pagination
 
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
     q
@@ -169,52 +190,33 @@ defmodule MoodleNet.Collections.Queries do
   end
 
   def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
-    limit = limit + 2
     q
     |> where([collection: c], c.id <= ^b)
-    |> limit(^limit)
+    |> filter(limit: limit + 2)
   end
 
   def filter(q, {:paginate_id, %{limit: limit}}) do
-    limit = limit + 1
-    limit(q, ^limit)
+    filter(q, limit: limit + 1)
   end
 
-  def filter(q, {:page, [followers_desc: page_opts]}) do
+  def filter(q, {:page, [desc: [followers: page_opts]]}) do
     q
-    |> filter(join: :follower_count, order: :followers_desc)
-    |> page_followers_desc(page_opts)
+    |> filter(join: :follower_count, order: [desc: :followers])
+    |> page(page_opts, [desc: :followers])
     |> select(
       [collection: c, actor: a, follower_count: fc],
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
 
-  defp page_followers_desc(q, %{after: [count, id], limit: limit}) do
-    limit = limit + 2
-    q
-    |> where(
-      [collection: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or coalesce(fc.count, 0) < ^count
-    )
-    |> limit(^limit)
+  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
   end
 
-  defp page_followers_desc(q, %{before: [count, id], limit: limit}) do
-    limit = limit + 2
-    q
-    |> where(
-      [collection: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-    )
-    |> limit(^limit)
+  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
   end
 
-  defp page_followers_desc(q, %{limit: limit}=opts) do
-    IO.inspect(opts: opts)
-    limit = limit + 1
-    q
-    |> limit(^limit)
-  end
+  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
 end

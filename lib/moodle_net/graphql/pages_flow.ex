@@ -2,13 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.PagesFlow do
-  @enforce_keys [:queries, :query, :cursor_fn, :group_fn, :info, :page_opts]
+  @enforce_keys [:queries, :query, :cursor_fn, :group_fn, :page_opts]
   defstruct [
     :queries,
     :query,
     :cursor_fn,
     :group_fn,
-    :info,
     :page_opts,
     base_filters: [],
     data_filters: [],
@@ -25,7 +24,6 @@ defmodule MoodleNet.GraphQL.PagesFlow do
     query: atom,
     cursor_fn: (term -> term),
     group_fn: (term -> term),
-    info: map,
     page_opts: map,
     base_filters: list,
     data_filters: list,
@@ -40,7 +38,6 @@ defmodule MoodleNet.GraphQL.PagesFlow do
       query: query,
       cursor_fn: cursor_fn,
       group_fn: group_fn,
-      info: info,
       page_opts: page_opts,
       base_filters: base_filters,
       data_filters: data_filters,

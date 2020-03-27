@@ -25,10 +25,9 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         query: Thread,
         cursor_fn: &(&1.id),
         group_fn: &(&1.context_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [user: user, context_id: ids],
-        data_filters: [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
+        data_filters: [page: [desc: [followers: page_opts]]],
         count_filters: [group_count: :context_id],
       }
     )
@@ -43,7 +42,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         cursor_fn: &(&1.id),
         page_opts: page_opts,
         base_filters: [user: user, context_id: ids],
-        data_filters: [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
+        data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
   end

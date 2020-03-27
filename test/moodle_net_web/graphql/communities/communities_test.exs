@@ -9,19 +9,53 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   import MoodleNet.Test.Faking
   import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.ConnHelpers
-  # alias MoodleNet.{Flags, Follows, Likes}
+  alias MoodleNet.Communities
 
   describe "communities" do
 
     test "works for a guest" do
+      cursor = Communities.test_cursor(:followers)
       users = some_fake_users!(%{}, 9)
       communities = order_follower_count(some_fake_communities!(%{}, 3, users)) # 27
       total = Enum.count(communities)
       conn = json_conn()
+      q = communities_query()
       # test the first page with the default limit
-      comms = gruff_post_key(communities_query(), conn, :communities)
-      page1 = assert_page(comms, 10, total, false, true, &(&1["id"]))
+      page1 =
+        gruff_post_key(q, conn, :communities)
+        |> assert_page(10, total, false, true, cursor)
       each(communities, page1.edges, &assert_community/2)
+      # test the first page with explicit limit
+      vars = %{limit: 11}
+      page_1 =
+        gruff_post_key(q, conn, :communities, vars)
+        |> assert_page(11, total, false, true, cursor)
+      each(communities, page_1.edges, &assert_community/2)
+      # test the second page with explicit limit
+      vars = %{limit: 9, after: page_1.end_cursor}
+      page2 =
+        gruff_post_key(q, conn, :communities, vars)
+        |> assert_page(9, total, true, true, cursor) # should be true not nil
+      drop_each(communities, page2.edges, 11, &assert_community/2)
+      # test the third page with explicit limit
+      vars = %{limit: 7, after: page2.end_cursor}
+      page3 =
+        gruff_post_key(q, conn, :communities, vars)
+        |> assert_page(7, total, true, false, cursor)
+      drop_each(communities, page3.edges, 20, &assert_community/2)
+      # test the second page without explicit limit
+      vars = %{after: page1.end_cursor}
+      page_2 =
+        gruff_post_key(q, conn, :communities, vars)
+        |> assert_page(10, total, true, true, cursor)
+      drop_each(communities, page_2.edges, 10, &assert_community/2)
+      # test the third page without explicit limit
+      vars = %{after: page_2.end_cursor}
+      page_3 =
+        gruff_post_key(q, conn, :communities, vars)
+        |> assert_page(7, total, true, false, cursor)
+      drop_each(communities, page_3.edges, 20, &assert_community/2)
+
     end
 
   end

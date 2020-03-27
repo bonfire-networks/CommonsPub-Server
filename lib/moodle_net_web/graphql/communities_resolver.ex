@@ -7,7 +7,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   """
   alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.Common.Enums
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{FieldsFlow, Flow, Page, PageFlow, PagesFlow}
 
@@ -16,7 +15,9 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def communities(%{}=page_opts, info) do
-    Flow.root_page(__MODULE__, :fetch_communities, page_opts, info, %{default_limit: 10})
+    vals = [&is_integer/1, &Ecto.ULID.cast/1]
+    opts = %{default_limit: 10}
+    Flow.root_page(__MODULE__, :fetch_communities, page_opts, info, vals, opts)
   end
 
   def fetch_communities(page_opts, info) do
@@ -25,10 +26,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       %PageFlow{
         queries: Communities.Queries,
         query: Community,
-        cursor_fn: &(&1.id),
+        cursor_fn: Communities.cursor(:followers),
         page_opts: page_opts,
         base_filters: [:default, user: user],
-        data_filters: [join: :follower_count, order: :list],
+        data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
   end
@@ -61,12 +62,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       %PagesFlow{
         queries: Collections.Queries,
         query: Collection,
-        cursor_fn: &(&1.id),
+        cursor_fn: Collections.cursor(:followers),
         group_fn: &(&1.community_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [community_id: ids, user: user],
-        data_filters: [page: [followers_desc: page_opts]],
+        data_filters: [page: [desc: [followers: page_opts]]],
         count_filters: [group_count: :community_id]
       }
     )
@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cursor_fn: &(&1.id),
         page_opts: page_opts,
         base_filters: [community_id: ids, user: user],
-        data_filters: [page: [followers_desc: page_opts]],
+        data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
   end

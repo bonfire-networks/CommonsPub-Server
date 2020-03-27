@@ -248,11 +248,18 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def communities_query(options \\ []) do
-    gen_query(&communities_subquery/1, options)
+    gen_query(
+      &communities_subquery/1,
+      [{:params, [after: list_type(:cursor), before: list_type(:cursor), limit: :int]} | options]
+    )
   end
 
   def communities_subquery(options \\ []) do
-    page_subquery(:communities, &community_fields/1, options)
+    page_subquery(
+      :communities,
+      &community_fields/1,
+      [{:args, [after: var(:after), before: var(:before), limit: var(:limit)]} | options ]
+    )
   end
 
   def create_community_mutation(options \\ []) do

@@ -10,6 +10,8 @@ defmodule MoodleNet.Resources.Queries do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
+  defguard is_join_qualifier(x) when x in [:inner, :left, :right, :cross, :full, :inner_lateral, :left_lateral]
+
   def query(Resource) do
     from r in Resource, as: :resource
   end
@@ -29,6 +31,8 @@ defmodule MoodleNet.Resources.Queries do
   def join_to(q, specs, jq) when is_list(specs) do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
+
+  def join_to(q, {jq, table}, _) when is_join_qualifier(jq), do: join_to(q, table, jq)
 
   def join_to(q, :collection, jq) do
     join q, jq, [resource: r], c in assoc(r, :collection), as: :collection
@@ -127,6 +131,14 @@ defmodule MoodleNet.Resources.Queries do
     order_by q, [resource: r], [asc: r.id]
   end
 
+  def filter(q, {:order, [asc: :created]}) do
+    order_by q, [resource: r], [asc: r.id]
+  end
+
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [resource: r], [desc: r.id]
+  end
+
   def filter(q, {:order, :timeline_desc}) do
     order_by q, [resource: r], [desc: r.id]
   end
@@ -135,12 +147,48 @@ defmodule MoodleNet.Resources.Queries do
     filter(q, group: key, count: key)
   end
 
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
   def filter(q, {:group, key}) when is_atom(key) do
     group_by q, [resource: r], [field(r, ^key)]
   end
 
   def filter(q, {:count, key}) when is_atom(key) do
     select q, [resource: r], {field(r, ^key), count(r.id)}
+  end
+
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+  end
+
+  defp page(q, %{after: id, limit: limit}, [desc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: id, limit: limit}, [desc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  def filter(q, {:page, [asc: [created: page_opts]]}) do
+    q
+    |> filter(order: [asc: :created])
+    |> page(page_opts, [asc: :created])
+  end
+
+  defp page(q, %{after: id, limit: limit}, [asc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: id, limit: limit}, [asc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{limit: limit}, _) do
+    filter(q, limit: limit + 1)
   end
 
 end

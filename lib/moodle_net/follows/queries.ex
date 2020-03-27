@@ -99,6 +99,14 @@ defmodule MoodleNet.Follows.Queries do
     where q, [follow: f], f.id == ^id
   end
 
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [follow: f], f.id <= ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [follow: f], f.id >= ^id
+  end
+
   ## by foreign field
 
   def filter(q, {:table_id, ids}), do: PointersQueries.filter(q, table_id: ids)
@@ -110,11 +118,6 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, {:order, :timeline_desc}), do: filter(q, {:order, [desc: :created]})
 
   def filter(q, {:order, [desc: :created]}) do
-    order_by q, [follow: f], [desc: f.id]
-  end
-
-  def filter(q, {:order, [desc: :id]}) do
-    order_by q, [follow: f], [desc: f.id]
     order_by q, [follow: f], [desc: f.id]
   end
 
@@ -136,31 +139,26 @@ defmodule MoodleNet.Follows.Queries do
     preload q, [pointer: p], [context: p]
   end
 
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
   def filter(q, {:page, [desc: [created: page_opts]]}) do
     q
     |> filter(order: [desc: :created])
-    |> page_desc_created(page_opts)
+    |> page(page_opts, [desc: :created])
   end
 
-  defp page_desc_created(q, %{after: id, limit: limit}) do
-    limit = limit + 2
-    q
-    |> where([follow: f], f.id <= ^id)
-    |> limit(^limit)
+  defp page(q, %{after: id, limit: limit}, [desc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
   end
 
-  defp page_followers_desc(q, %{before: id, limit: limit}) do
-    limit = limit + 2
-    q
-    |> where([follow: f], f.id >= ^id)
-    |> limit(^limit)
+  defp page(q, %{before: id, limit: limit}, [desc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
   end
 
-  defp page_followers_desc(q, %{limit: limit}=opts) do
-    IO.inspect(opts: opts)
-    limit = limit + 1
-    q
-    |> limit(^limit)
+  defp page(q, %{limit: limit}, [desc: :created]) do
+    filter(q, limit: limit + 1)
   end
 
 end

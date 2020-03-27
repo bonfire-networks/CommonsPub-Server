@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Repo,
     Resources,
   }
-  alias MoodleNet.GraphQL.{Flow, FieldsFlow, PageFlow}
+  alias MoodleNet.GraphQL.{Flow, FieldsFlow, PageFlow, PagesFlow}
   alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def collections(page_opts, info) do
     vals = [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1] # popularity
-    opts = %{default_limit: 10, cursor_fn: &GraphQL.cast_int_ulid_id/1}
+    opts = %{default_limit: 10}
     ret = Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, vals, opts)
     ret
   end
@@ -44,12 +44,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
-        queries: Queries,
+        queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
         base_filters: [user: user],
-        data_filters: [page: [followers_desc: page_opts]],
+        data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
   end
@@ -77,25 +77,31 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def fetch_resources_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    {:ok, edges} = Resources.pages(
-      &(&1.id),
-      &(&1.collection_id),
-      page_opts,
-      [user: user, collection_id: ids],
-      [order: :timeline_desc],
-      [group_count: :collection_id]
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Resources.Queries,
+        query: Resource,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.collection_id),
+        page_opts: page_opts,
+        base_filters: [:deleted, user: user, collection_id: ids],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :collection_id],
+      }
     )
-    # IO.inspect(edges: edges)
-    edges
   end
 
   def fetch_resources_edge(page_opts, info, id) do
     user = GraphQL.current_user(info)
-    Resources.page(
-      &(&1.id),
-      page_opts,
-      [user: user, collection_id: id],
-      [order: :timeline_desc]
+    PageFlow.run(
+      %PageFlow{
+        queries: Resources.Queries,
+        query: Resource,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [:deleted, user: user, collection_id: id],
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
     )
   end
 

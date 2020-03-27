@@ -49,7 +49,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Like,
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [user: user, context_id: ids],
         data_filters: [order: :timeline_desc],
@@ -94,7 +93,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Comment,
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids],
         data_filters: [order: :timeline_desc],
@@ -137,7 +135,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        info: info,
         base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
         data_filters: [order: :timeline_desc],
         count_filters: [group_count: :context_id],
@@ -181,7 +178,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follow,
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
         data_filters: [order: :timeline_desc],
@@ -228,10 +224,9 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follow,
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
-        info: info,
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: User],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id]
       }
     )
@@ -246,7 +241,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         cursor_fn: &(&1.id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: User],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end

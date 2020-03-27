@@ -27,7 +27,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UsersSchema,
     UploadSchema,
   }
-  alias MoodleNetWeb.GraphQL.OverridePhase
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.Batch
 

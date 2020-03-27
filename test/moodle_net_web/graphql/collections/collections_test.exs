@@ -36,25 +36,25 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       # test the second page with explicit limit
       vars = %{limit: 9, after: page_1.end_cursor}
       page2 =
-        gruff_post_key(q, json_conn(), :collections, vars)
+        gruff_post_key(q, conn, :collections, vars)
         |> assert_page(9, total, true, true, cursor) # should be true not nil
       drop_each(collections, page2.edges, 11, &assert_collection/2)
       # test the third page with explicit limit
       vars = %{limit: 7, after: page2.end_cursor}
       page3 =
-        gruff_post_key(q, json_conn(), "collections", vars)
+        gruff_post_key(q, conn, :collections, vars)
         |> assert_page(7, total, true, false, &(&1["id"]))
       drop_each(collections, page3.edges, 20, &assert_collection/2)
       # test the second page without explicit limit
       vars = %{after: page1.end_cursor}
       page_2 =
-        gruff_post_key(q, json_conn(), "collections", vars)
+        gruff_post_key(q, conn, :collections, vars)
         |> assert_page(10, total, true, true, &(&1["id"]))
       drop_each(collections, page_2.edges, 10, &assert_collection/2)
       # test the third page without explicit limit
       vars = %{after: page_2.end_cursor}
       page_3 =
-        gruff_post_key(q, json_conn(), "collections", vars)
+        gruff_post_key(q, conn, :collections, vars)
         |> assert_page(7, total, true, false, &(&1["id"]))
       drop_each(collections, page_3.edges, 20, &assert_collection/2)
     end

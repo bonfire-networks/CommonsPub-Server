@@ -25,20 +25,9 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
   @spec decode(Input.String.t) :: {:ok, binary}
   @spec decode(Input.Integer.t) :: {:ok, integer}
   @spec decode(term) :: {:error, :bad_parse}
-  defp decode(%Input.String{value: value}=s) do
-    IO.inspect(string: s)
-    {:ok, value}
-  end
-
-  defp decode(%Input.Integer{value: value}=i) do
-    IO.inspect(integer: i)
-    {:ok, value}
-  end
-
-  defp decode(alien) do
-    IO.inspect(alien: alien)
-    {:error, :bad_parse}
-  end
+  defp decode(%Input.String{value: value}=s), do: {:ok, value}
+  defp decode(%Input.Integer{value: value}=i), do: {:ok, value}
+  defp decode(alien), do: {:error, :bad_parse}
 
   defp encode(value), do: value
 
