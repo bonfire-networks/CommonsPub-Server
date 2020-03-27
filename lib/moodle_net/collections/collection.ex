@@ -13,6 +13,7 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.Content
 
   @type t :: %__MODULE__{}
 
@@ -27,7 +28,7 @@ defmodule MoodleNet.Collections.Collection do
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)
-    field(:icon, :string)
+    has_one(:icon, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true, default: false)

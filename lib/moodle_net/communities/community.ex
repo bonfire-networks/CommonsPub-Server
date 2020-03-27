@@ -18,6 +18,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Flags.Flag
   # alias MoodleNet.Localisation.Language
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.Content
 
   table_schema "mn_community" do
     belongs_to(:actor, Actor)
@@ -30,8 +31,8 @@ defmodule MoodleNet.Communities.Community do
     has_one(:follower_count, CommunityFollowerCount)
     field(:name, :string)
     field(:summary, :string)
-    field(:icon, :string)
-    field(:image, :string)
+    field(:icon, Content)
+    field(:image, Content)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)

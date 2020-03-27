@@ -14,6 +14,7 @@ defmodule MoodleNet.Users.User do
   alias MoodleNet.Users.{LocalUser, User}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
+  alias MoodleNet.Uploads.Content
 
   table_schema "mn_user" do
     belongs_to(:actor, Actor)
@@ -27,8 +28,8 @@ defmodule MoodleNet.Users.User do
     field(:summary, :string)
     field(:location, :string)
     field(:website, :string)
-    field(:icon, :string)
-    field(:image, :string)
+    field(:icon, Content)
+    field(:image, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)

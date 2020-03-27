@@ -1,23 +1,22 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.Upload do
+defmodule MoodleNet.Uploads.Content do
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [change_public: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.{ContentRemote, ContentUpload}
 
   @type t :: %__MODULE__{}
 
-  table_schema "mn_upload" do
+  table_schema "mn_content" do
     # has_one(:preview, __MODULE__)
-    belongs_to(:parent, Pointer)
     belongs_to(:uploader, User)
-    field(:path, :string)
-    # FIXME
-    field(:url, :string, virtual: true)
+    has_one(:content_upload, ContentUpload)
+    has_one(:content_remote, ContentRemote)
     field(:size, :integer)
     field(:media_type, :string)
     field(:metadata, :map)
@@ -27,8 +26,8 @@ defmodule MoodleNet.Uploads.Upload do
     timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(path size media_type metadata is_public)a
-  @create_required ~w(path size media_type)a
+  @create_cast ~w(size media_type metadata is_public)a
+  @create_required ~w(size media_type)a
 
   def create_changeset(parent, %User{} = uploader, attrs) do
     %__MODULE__{}
