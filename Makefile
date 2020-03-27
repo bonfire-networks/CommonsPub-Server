@@ -16,12 +16,6 @@ help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build_without_cache: init ## Build the Docker image
-	@echo docker build \
-		--no-cache \
-		--build-arg APP_NAME=$(APP_NAME) \
-		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -31,11 +25,6 @@ build_without_cache: init ## Build the Docker image
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 build: init ## Build the Docker image using previous cache
-	@echo docker build \
-		--build-arg APP_NAME=$(APP_NAME) \
-		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -52,8 +41,6 @@ tag_latest: init ## Add latest tag to last build
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 
 tag_stable: init ## Tag stable, latest and version tags to the last build 
-	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
@@ -136,8 +123,4 @@ good-tests: init
                  test/moodle_net_web/graphql/{users,temporary}_test.exs \
 
 run: init ## Run the app in Docker
-	docker run\
-		--env-file $(APP_DOTENV) \
-		--expose 4000 -p 4000:4000 \
-		--link db \
-		--rm -it $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+	docker-compose up 
