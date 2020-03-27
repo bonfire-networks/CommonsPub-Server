@@ -7,18 +7,16 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias Ecto.Changeset
   alias MoodleNet.{GraphQL, Uploads, Users, Repo}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Uploads.Upload
-
-  # @allowed_field_names ~w(icon image url)a
+  alias MoodleNet.Uploads.Content
 
   def upload_icon(params, info),
-    do: upload(params, info, :icon, MoodleNet.Uploads.IconUploader)
+    do: upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
 
   def upload_image(params, info),
-    do: upload(params, info, :image, MoodleNet.Uploads.ImageUploader)
+    do: upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
 
   def upload_resource(params, info),
-    do: upload(params, info, :url, MoodleNet.Uploads.ResourceUploader)
+    do: upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
 
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
     Repo.transact_with(fn ->
@@ -26,26 +24,20 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
            {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
            parent = Pointers.follow!(parent_ptr),
            {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params),
-           {:ok, _parent} <- update_parent_field(parent, field_name, upload.url) do
-        {:ok, %{upload | parent: parent_ptr}}
+           {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
+        {:ok, upload}
       end
     end)
   end
 
-  def is_public(%Upload{}=upload, _, _info), do: not is_nil(upload.published_at)
+  def is_public(%Content{}=upload, _, _info), do: not is_nil(upload.published_at)
 
-  def parent(%Upload{parent_id: id}, _, _info) do
-    with {:ok, pointer} <- Pointers.one(id: id) do
-      {:ok, Pointers.follow!(pointer)}
-    end
-  end
+  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id)
 
-  def uploader(%Upload{uploader_id: id}, _, _info), do: Users.one(id: id)
-
-  defp update_parent_field(parent, field_name, val) do
+  defp update_parent_field(parent, field_name, %Content{id: id} = content) do
     parent
     |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(field_name, val)
+    |> Changeset.put_change(field_name, id)
     |> Repo.update()
   end
 end

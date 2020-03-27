@@ -47,7 +47,7 @@ defmodule MoodleNet.Communities.Community do
 
   @create_required ~w(name)a
   @create_cast @create_required ++
-    ~w(is_disabled is_public summary icon image inbox_id outbox_id)a
+    ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
 
   def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
     %Community{}

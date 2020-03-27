@@ -166,7 +166,7 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
       where: is_nil(type(^new_field, :string)) and not is_nil(type(^old_field, :string)),
       select: type(field(x, ^String.to_atom(old_field)), :string))
 
-    Repo.insert_all("mn_content_mirror", IO.inspect(for url <- Repo.all(q), do: %{id: Ecto.ULID.generate(), url: url}))
+    Repo.insert_all("mn_content_mirror", (for url <- Repo.all(q), do: %{id: Ecto.ULID.generate(), url: url}))
 
     :ok = execute """
     insert into mn_content (id, parent_id, content_mirror_id, path, media_type, size, created_at, updated_at)

@@ -28,8 +28,8 @@ defmodule MoodleNet.Users.User do
     field(:summary, :string)
     field(:location, :string)
     field(:website, :string)
-    field(:icon, Content)
-    field(:image, Content)
+    has_one(:icon, Content)
+    has_one(:image, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -41,7 +41,7 @@ defmodule MoodleNet.Users.User do
 
   @register_required ~w(name)a
   @register_cast @register_required ++
-    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
+    ~w(name summary location website icon_id image_id is_public is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Actor{id: id}, %{} = attrs) do

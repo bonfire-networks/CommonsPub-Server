@@ -38,7 +38,7 @@ defmodule MoodleNet.Collections.Collection do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(summary icon is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
         %User{} = creator,
