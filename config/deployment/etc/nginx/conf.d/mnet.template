@@ -1,0 +1,64 @@
+upstream backend {
+    server 127.0.0.1:${PORT};
+}
+
+
+server {
+    listen 80 default_server;
+    server_name ${HOSTNAME};
+
+    location /uploads {
+        root /var/www;
+    }
+
+    location / {
+
+        set ${DOLLAR}proxy_frontend_url "${PROXY_FRONTEND_URL}";
+        error_page 418 = @proxy_to_frontend;
+        recursive_error_pages on;
+
+        # if you want the webserver in this container to proxy frontend requests to an external URL
+        if (${DOLLAR}proxy_frontend_url) {
+            return 418;
+        }
+
+        # else, serve the frontend from local files
+        index index.html;
+        root /var/www;
+
+        try_files ${DOLLAR}uri /index.html;
+    }
+
+    location @proxy_to_frontend {
+        proxy_pass ${PROXY_FRONTEND_URL};
+        proxy_set_header Host ${FRONTEND_HOSTNAME};
+        proxy_read_timeout 1m; 
+        # proxy_set_header X-Forwarded-Proto https;
+        proxy_ssl_verify off;
+        proxy_redirect off;
+        proxy_http_version 1.1;
+    }
+
+    # proxy backend paths to the BEAM app
+
+    location /api {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    location /pub {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    location /oauth {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    location /.well-known {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+}

@@ -4,7 +4,8 @@
 /db
 /deps
 /*.ez
-/uploads
+/uploads/*
+!/uploads/index.html
 /test/uploads
 /.elixir_ls
 /doc 
