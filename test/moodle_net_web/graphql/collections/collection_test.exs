@@ -168,7 +168,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       res = Enum.reverse(Enum.map(1..5, fn _ -> fake_resource!(alice, coll) end)) 
       q = collection_query(fields: [:resource_count, resources: page_fields(resource_fields())])
-      vars = %{"collectionId" => coll.id}
+      vars = %{collection_id: coll.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
         coll2 = assert_collection(coll, gruff_post_key(q, conn, "collection", vars))

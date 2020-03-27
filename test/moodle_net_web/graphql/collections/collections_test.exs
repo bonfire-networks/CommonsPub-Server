@@ -4,59 +4,33 @@
 defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   use MoodleNetWeb.ConnCase, async: true
   alias MoodleNet.Collections
+  import MoodleNet.Test.Faking
+  import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.Orderings
-  import MoodleNet.Test.Faking
-  import MoodleNet.Test.Trendy
+  import MoodleNetWeb.Test.Automaton
   import Gruff
 
   describe "collections" do
 
     test "works for a guest" do
-      cursor = Collections.test_cursor(:followers)
       users = some_fake_users!(%{}, 3)
       communities = some_fake_communities!(%{}, 3, users) # 9
       collections = some_fake_collections!(%{}, 1, users, communities) # 27
-      collections = order_follower_count(collections)
-      total = Enum.count(collections)
-      conn = json_conn()
-      q = collections_query()
-      #test the first page with the default limit
-      page1 =
-        gruff_post_key(q, conn, :collections)
-        |> assert_page(10, total, false, true, cursor)
-      each(collections, page1.edges, &assert_collection/2)
-      # test the first page with explicit limit
-      vars = %{limit: 11}
-      page_1 =
-        gruff_post_key(q, conn, :collections, vars)
-        |> assert_page(11, total, false, true, cursor)
-      each(collections, page_1.edges, &assert_collection/2)
-      # test the second page with explicit limit
-      vars = %{limit: 9, after: page_1.end_cursor}
-      page2 =
-        gruff_post_key(q, conn, :collections, vars)
-        |> assert_page(9, total, true, true, cursor) # should be true not nil
-      drop_each(collections, page2.edges, 11, &assert_collection/2)
-      # test the third page with explicit limit
-      vars = %{limit: 7, after: page2.end_cursor}
-      page3 =
-        gruff_post_key(q, conn, :collections, vars)
-        |> assert_page(7, total, true, false, &(&1["id"]))
-      drop_each(collections, page3.edges, 20, &assert_collection/2)
-      # test the second page without explicit limit
-      vars = %{after: page1.end_cursor}
-      page_2 =
-        gruff_post_key(q, conn, :collections, vars)
-        |> assert_page(10, total, true, true, &(&1["id"]))
-      drop_each(collections, page_2.edges, 10, &assert_collection/2)
-      # test the third page without explicit limit
-      vars = %{after: page_2.end_cursor}
-      page_3 =
-        gruff_post_key(q, conn, :collections, vars)
-        |> assert_page(7, total, true, false, &(&1["id"]))
-      drop_each(collections, page_3.edges, 20, &assert_collection/2)
+      root_page_test %{
+        query: collections_query(),
+        connection: json_conn(),
+        return_key: :collections,
+        default_limit: 10,
+        total_count: 27,
+        data: order_follower_count(collections),
+        assert_fn: &assert_collection/2,
+        cursor_fn: Collections.test_cursor(:followers),
+        after: :collections_after,
+        before: :collections_before,
+        limit: :collections_limit,
+      }
     end
 
   end

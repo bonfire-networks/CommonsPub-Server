@@ -198,17 +198,21 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def collections_query(options \\ []) do
-    gen_query(
-      &collections_subquery/1,
-      [{:params, [after: list_type(:cursor), before: list_type(:cursor), limit: :int]} | options]
-    )
+    params = [
+      collections_after: list_type(:cursor),
+      collections_before: list_type(:cursor),
+      collections_limit: :int,
+    ]
+    gen_query(&collections_subquery/1, [ {:params, params} | options ])
   end
 
   def collections_subquery(options \\ []) do
-    page_subquery(
-      :collections, &collection_fields/1,
-      [{:args, [after: var(:after), before: var(:before), limit: var(:limit)]} | options ]
-    )
+    args = [
+      after: var(:collections_after),
+      before: var(:collections_before),
+      limit: var(:collections_limit),
+    ]
+    page_subquery(:collections, &collection_fields/1, [ {:args, args} | options ])
   end
 
   def create_collection_mutation(options \\ []) do
@@ -248,18 +252,21 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def communities_query(options \\ []) do
-    gen_query(
-      &communities_subquery/1,
-      [{:params, [after: list_type(:cursor), before: list_type(:cursor), limit: :int]} | options]
-    )
+    params = [
+      communities_after: list_type(:cursor),
+      communities_before: list_type(:cursor),
+      communities_limit: :int,
+    ]
+    gen_query(&communities_subquery/1, [ {:params, params} | options ])
   end
 
   def communities_subquery(options \\ []) do
-    page_subquery(
-      :communities,
-      &community_fields/1,
-      [{:args, [after: var(:after), before: var(:before), limit: var(:limit)]} | options ]
-    )
+    args = [
+      after: var(:communities_after),
+      before: var(:communities_before),
+      limit: var(:communities_limit),
+    ]
+    page_subquery(:communities, &community_fields/1, [ {:args, args} | options ])
   end
 
   def create_community_mutation(options \\ []) do
