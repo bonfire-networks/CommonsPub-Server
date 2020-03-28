@@ -34,6 +34,10 @@ type Plan {
   ##############################################################################
   # inverse relationships and queries
 
+  processes(filter: planProcessSearchParams): [Process!]
+
+  independentDemands: [Commitment!]
+
   "Grouping around something to create a boundary or context, used for documenting, accounting, planning."
   inScopeOf: [AnyType!]
 
@@ -97,3 +101,13 @@ type PlanMutation {
   updatePlan(plan: PlanUpdateParams!): PlanResponse
   deletePlan(id: String!): Boolean
 }
+
+
+"Query parameters for reading `Process`es related to a `Plan`"
+input planProcessSearchParams {
+  searchString: String
+  after: DateTime
+  before: DateTime
+  finished: Boolean
+}
+

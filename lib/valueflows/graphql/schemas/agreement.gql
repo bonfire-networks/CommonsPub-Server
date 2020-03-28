@@ -28,7 +28,12 @@ type Agreement {
   "A textual description or comment."
   note: String
 
+  ##############################################################################
+  # inverse relationships and queries
+
   involvedAgents: [Agent!]
+  economicEvents: [EconomicEvent!]
+  commitments: [Commitment!]
 }
 
 

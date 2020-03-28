@@ -38,6 +38,9 @@ type Proposal {
   "A textual description or comment."
   note: String
 
+  "Location or area where the proposal is valid."
+  eligibleLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 

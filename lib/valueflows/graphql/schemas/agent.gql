@@ -26,6 +26,9 @@ type Agent {
   "A textual description or comment."
   note: String
 
+  "The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location."
+  primaryLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 
@@ -34,6 +37,13 @@ type Agent {
   relationshipsAsObject(roleId: ID): [AgentRelationship!] # :TODO: category filtering
 
   roles: [AgentRelationshipRole!]
+
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
 }
 
 
@@ -52,6 +62,9 @@ type Person { # implements Agent {
   "A textual description or comment."
   note: String
 
+  "The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location."
+  primaryLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 
@@ -60,6 +73,13 @@ type Person { # implements Agent {
   relationshipsAsObject(roleId: ID): [AgentRelationship!] # :TODO: category filtering
 
   roles: [AgentRelationshipRole!]
+
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
 
 }
 
@@ -81,6 +101,9 @@ type Organization { # implements Agent {
   "A textual description or comment."
   note: String
 
+  "The main place an agent is located, often an address where activities occur and mail can be sent. This is usually a mappable geographic location.  It also could be a website address, as in the case of agents who have no physical location."
+  primaryLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 
@@ -89,6 +112,13 @@ type Organization { # implements Agent {
   relationshipsAsObject(roleId: ID): [AgentRelationship!] # :TODO: category filtering
 
   roles: [AgentRelationshipRole!]
+
+  economicEvents(filter: agentEventSearchParams): [EconomicEvent!]
+  inventoriedEconomicResources(filter: agentResourceSearchParams): [EconomicResource!]
+  processes(filter: agentProcessSearchParams): [Process!]
+  plans(filter: agentPlanSearchParams): [Plan!]
+  commitments(filter: agentCommitmentSearchParams): [Commitment!]
+  intents(filter: agentIntentSearchParams): [Intent!]
 }
 
 # Relationships between agents
@@ -302,4 +332,50 @@ type AgentMutation {
   createAgentRelationshipRole(agentRelationshipRole: AgentRelationshipRoleCreateParams): AgentRelationshipRoleResponse
   updateAgentRelationshipRole(agentRelationshipRole: AgentRelationshipRoleUpdateParams): AgentRelationshipRoleResponse
   deleteAgentRelationshipRole(id: String!): Boolean
+}
+
+
+"Query parameters for reading `EconomicEvent`s related to an `Agent`"
+input agentEventSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+}
+
+"Query parameters for reading `EconomicResource`s related to an `Agent`"
+input agentResourceSearchParams {
+  searchString: String
+  resourceClassification: URI
+  page: Int
+}
+
+"Query parameters for reading `Process`es related to an `Agent`"
+input agentProcessSearchParams {
+  searchString: String
+  finished: Boolean
+}
+
+"Query parameters for reading `Plan`s related to an `Agent`"
+input agentPlanSearchParams {
+  searchString: String
+  finished: Boolean
+}
+
+"Query parameters for reading `Commitment`s related to an `Agent`"
+input agentCommitmentSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+  finished: Boolean
+}
+
+"Query parameters for reading `Intent`s related to an `Agent`"
+input agentIntentSearchParams {
+  searchString: String
+  action: ID
+  startDate: DateTime
+  endDate: DateTime
+  finished: Boolean
 }

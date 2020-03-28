@@ -82,6 +82,15 @@ type Commitment {
   "Reference to an agreement between agents which specifies the rules or policies or calculations which govern this commitment."
   agreedIn: URI
 
+  "This commitment is part of the exchange agreement."
+  clauseOf: Agreement
+
+  "The place where a commitment occurs. Usually mappable."
+  atLocation: SpatialThing
+
+  "Represents a desired deliverable expected from this plan."
+  independentDemandOf: Plan
+
   ##############################################################################
   # inverse relationships and queries
 
@@ -166,13 +175,17 @@ type Intent {
   "Reference to an agreement between agents which specifies the rules or policies or calculations which govern this intent."
   agreedIn: URI
 
+  "The place where an intent would occur. Usually mappable."
+  atLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 
+  satisfiedBy: [Satisfaction!]
+  publishedIn: [ProposedIntent!]
+
   "The intent can be safely deleted, has no dependent information."
   deletable: Boolean
-
-  satisfiedBy: [Satisfaction!]
 }
 
 """

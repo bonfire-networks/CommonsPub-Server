@@ -32,6 +32,15 @@ type SpatialThing {
 
   "A textual description or comment."
   note: String
+
+  ##############################################################################
+  # inverse relationships and queries
+
+  agents: [Agent!]
+  economicResources: [EconomicResource!]
+  economicEvents: [EconomicEvent!]
+  commitments: [Commitment!]
+  intents: [Intent!]
 }
 
 

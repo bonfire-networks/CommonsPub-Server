@@ -74,11 +74,26 @@ type EconomicEvent {
   "References another economic event that implied this economic event, often based on a prior agreement."
   triggeredBy: EconomicEvent
 
+  "This economic event occurs as part of this agreement."
+  realizationOf: Agreement
+
+  "The place where an economic event occurs.  Usually mappable."
+  atLocation: SpatialThing
+
   ##############################################################################
   # inverse relationships and queries
 
   track: [ProductionFlowItem!]
   trace: [ProductionFlowItem!]
+
+  appreciationOf: [Appreciation!]
+  appreciatedBy: [Appreciation!]
+
+  "The commitment which is completely or partially fulfilled by an economic event."
+  fulfills: [Fulfillment!]
+
+  "An intent satisfied fully or partially by an economic event or commitment."
+  satisfies: [Satisfaction!]
 
   "The economic event can be safely deleted, has no dependent information."
   deletable: Boolean
@@ -131,6 +146,9 @@ type EconomicResource {
 
   "The agent currently with primary rights and responsibilites for the economic resource. It is the agent that is associated with the accountingQuantity of the economic resource."
   primaryAccountable: Agent
+
+  "The current place an economic resource is located. Could be at any level of granularity, from a town to an address to a warehouse location. Usually mappable."
+  currentLocation: SpatialThing
 
   ##############################################################################
   # inverse relationships and queries
@@ -189,11 +207,22 @@ type Process {
   "Grouping around something to create a boundary or context, used for documenting, accounting, planning."
   inScopeOf: [AnyType!]
 
+  "The process with its inputs and outputs is part of the plan."
+  plannedWithin: Plan
+
+  "The process with its inputs and outputs is part of the scenario."
+  nestedIn: Scenario
+
   ##############################################################################
   # inverse relationships and queries
 
   inputs(action: ID): [EconomicEvent!]
   outputs(action: ID): [EconomicEvent!]
+  committedInputs(action: ID): [Commitment!]
+  committedOutputs(action: ID): [Commitment!]
+  intendedInputs(action: ID): [Intent!]
+  intendedOutputs(action: ID): [Intent!]
+
   unplannedEconomicEvents(action: ID): [EconomicEvent!]
 
   nextProcesses: [Process!]
