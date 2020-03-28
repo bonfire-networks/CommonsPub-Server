@@ -6,12 +6,12 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4000:4000"
+      - "4004:4000"
     env_file:
       - config/docker.dev.env
     depends_on:
       - db
-      - redis
+      # - redis
       # - dgraph
     volumes:
       - type: bind
@@ -25,10 +25,10 @@ services:
       - "5432:5432"
     env_file:
       - config/docker.dev.env
-  redis:
-    image: redislabs/redisgraph
-    ports:
-      - "6379:6379"
+  # redis:
+  #   image: redislabs/redisgraph
+  #   ports:
+  #     - "6379:6379"
   # dgraph:
   #   image: dgraph/standalone:v2.0.0-beta
   #   ports:
