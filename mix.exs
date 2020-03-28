@@ -109,19 +109,20 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
+      # CommonsPub:
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
       # {:retrieval, "~> 0.9.1"}, # taxonomy trees
-      # dev/test only
+      #{:redix, "~> 0.10.5"}, # Redis client
+      #{:ex_redi, "~> 0.1.1"}, # RediSearch client
+      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
+      # dev/test only>
       {:gruff, git: "https://github.com/irresponsible/gruff",
                branch: "master", only: [:dev, :test]},
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},             # property testing
-      #{:redix, "~> 0.10.5"}, # Redis client
-      #{:ex_redi, "~> 0.1.1"}, # RediSearch client
-      {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
     ]
