@@ -110,6 +110,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:
+      {:geo_postgis, "~> 3.1"}, # geolocation in postgres 
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},

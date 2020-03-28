@@ -9,5 +9,6 @@ defmodule ValueFlows.GraphQL.Geolocation do
 
   import_sdl path: "lib/valueflows/graphql/schemas/geolocation.gql"
 
+  # mix phx.gen.schema Valueflows.Geolocation vf_spatial_things name note mappable_address lat:float long:float alt:float --context-app valueflows
 
 end

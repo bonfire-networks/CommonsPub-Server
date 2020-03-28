@@ -69,9 +69,15 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# # For using with Ecto with Postgis
+# Postgrex.Types.define(MoodleNet.PostgresTypes,
+#   [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
+#   json: Poison)
+
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
+  types: MoodleNet.PostgresTypes,
   username: System.get_env("DATABASE_USER", "postgres"),
   password: System.get_env("DATABASE_PASS", "postgres"),
   database: System.get_env("DATABASE_NAME", "moodle_net_dev"),
