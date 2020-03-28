@@ -8,7 +8,7 @@ defmodule ValueFlows.GraphQL.Knowledge do
   alias ValueFlows.{Simulate}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/knowledge.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"
 
 
   def action(%{id: id}, info) do

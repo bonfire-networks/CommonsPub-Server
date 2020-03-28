@@ -7,7 +7,7 @@ defmodule ValueFlows.GraphQL.Appreciation do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/appreciation.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/appreciation.gql"
 
 
 end

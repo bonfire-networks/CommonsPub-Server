@@ -8,7 +8,7 @@ defmodule ValueFlows.GraphQL.Agent do
   alias ValueFlows.{Simulate}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/agent.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/agent.gql"
 
 
   def all_agents(_, _, _) do

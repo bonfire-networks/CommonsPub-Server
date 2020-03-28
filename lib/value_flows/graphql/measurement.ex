@@ -8,7 +8,7 @@ defmodule ValueFlows.GraphQL.Measurement do
   alias ValueFlows.{Simulate}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/measurement.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/measurement.gql"
 
   def all_units(_, _, _) do
     {:ok, Simulate.long_list(&Simulate.unit/0)}

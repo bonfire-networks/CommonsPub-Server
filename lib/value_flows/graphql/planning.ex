@@ -8,7 +8,7 @@ defmodule ValueFlows.GraphQL.Planning do
   alias ValueFlows.{Simulate}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/planning.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   def intent(%{id: id}, info) do
     {:ok, Simulate.intent()}

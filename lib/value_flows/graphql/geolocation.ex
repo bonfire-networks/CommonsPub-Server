@@ -7,7 +7,7 @@ defmodule ValueFlows.GraphQL.Geolocation do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/valueflows/graphql/schemas/geolocation.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/geolocation.gql"
 
   # mix phx.gen.schema Valueflows.Geolocation vf_spatial_things name note mappable_address lat:float long:float alt:float --context-app valueflows
 
