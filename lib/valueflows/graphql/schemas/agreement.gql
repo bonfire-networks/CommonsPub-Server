@@ -27,6 +27,8 @@ type Agreement {
 
   "A textual description or comment."
   note: String
+
+  involvedAgents: [Agent!]
 }
 
 
