@@ -1,0 +1,19 @@
+##
+#
+# Planning <> Plan API
+#
+# Augments commitments with the ability to be referenced in Plans.
+#
+# @package  vf-graphql
+# @since    2020-02-12
+#
+##
+
+type Commitment {
+  "Represents a desired deliverable expected from this plan."
+  independentDemandOf: Plan
+}
+
+type Plan {
+  independentDemands: [Commitment!]
+}

@@ -1,0 +1,168 @@
+##
+#
+# Knowledge module
+#
+# Provides functionality for classifying and organising other parts of the system, including recipes.
+#
+# @depends  measurement.gql
+# @package  vf-graphql
+# @since    2019-02-11
+#
+##
+
+
+"""
+An action verb defining the kind of event, commitment, or intent.
+It is recommended that the lowercase action verb should be used as the record ID
+in order that references to `Action`s elsewhere in the system are easily readable.
+"""
+type Action {
+  id: ID!
+
+  "A unique verb which defines the action."
+  label: String!
+
+  "The effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource."
+  resourceEffect: String! # "increment", "decrement", "noEffect", "decrementIncrement"
+
+  "Denotes if a process input or output, or not related to a process."
+  inputOutput: String # "input", "output", "notApplicable"
+
+  "The action that should be included on the other direction of the process, for example accept with modify."
+  pairsWith: String # "notApplicable", (any of the action labels) TODO: do we want to do this as an actual Action (optional)? In the VF spec they are NamedIndividuals defined in the spec, including "notApplicable".
+}
+
+# Core VF action IDs & `resourceEffect`s:
+# @see https://github.com/valueflows/valueflows/issues/487
+#   dropoff             (+) transported resource or person leaves the process, the same resource will appear in input with vf:pickup verb
+#   pickup              (-) transported resource or person enters the process, the same resource will appear in output with vf:dropoff verb
+#   consume             (-) for example an ingredient composed into the output, after the process the ingredient is gone
+#   use                 (0) for example a tool used in process, after the process, the tool still exists
+#   work                (0) labor power towards a process
+#   cite                (0) for example a design file, neither used nor consumed, the file remains available at all times
+#   produce             (+) new resource created in that process or an existing stock resource added to
+#   accept              (0) in processes like repair or maintentance, the same resource will appear in output with vf:modify verb
+#   modify              (0) in processes like repair or maintentance, the same resource will appear in input with vf:accept verb
+#   deliver-service     (0) new service produced and delivered (being a service implies that an agent actively receives the service)
+#   transfer-all-rights (-+) give full (in the human realm) rights and responsibilities to another agent, without transferring physical custody
+#   transfer-custody    (-+) give physical custody and control of a resource, without full accounting or ownership rights
+#   transfer            (-+) give full rights and responsibilities plus physical custody
+#   move                (-+) change location and/or identity of a resource with no change of agent
+#   raise               (+) adjusts a quantity up based on a beginning balance or inventory count
+#   lower               (-) adjusts a quantity down based on a beginning balance or inventory count
+
+"""
+Specification of a kind of resource. Could define a material item, service, digital item, currency account, etc.
+Used instead of a classification when more information is needed, particularly for recipes.
+"""
+type ResourceSpecification {
+  id: ID!
+
+  "An informal or formal textual identifier for a type of resource. Does not imply uniqueness."
+  name: String!
+
+  "The uri to an image relevant to the entity, such as a photo, diagram, etc."
+  image: URI
+
+  "A textual description or comment."
+  note: String
+
+  "[UNSTABLE] The default unit used for quantifying this resource type."
+  defaultUnitOfEffort: Unit
+}
+
+"""
+Specifies the kind of process.
+"""
+type ProcessSpecification {
+  id: ID!
+
+  "An informal or formal textual identifier for the process. Does not imply uniqueness."
+  name: String!
+
+  "A textual description or comment."
+  note: String
+}
+
+
+
+input ResourceSpecificationCreateParams {
+  "An informal or formal textual identifier for a type of resource. Does not imply uniqueness."
+  name: String!
+
+  "The uri to an image relevant to the entity, such as a photo, diagram, etc."
+  image: URI
+
+  "A textual description or comment."
+  note: String
+
+  "(`Unit`) [UNSTABLE] The default unit used for quantifying this resource type."
+  defaultUnitOfEffort: ID
+}
+
+input ResourceSpecificationUpdateParams {
+  id: ID!
+
+  "An informal or formal textual identifier for a type of resource. Does not imply uniqueness."
+  name: String
+
+  "The uri to an image relevant to the entity, such as a photo, diagram, etc."
+  image: URI
+
+  "A textual description or comment."
+  note: String
+
+  "(`Unit`) [UNSTABLE] The default unit used for quantifying this resource type."
+  defaultUnitOfEffort: ID
+}
+
+type ResourceSpecificationResponse {
+  resourceSpecification: ResourceSpecification
+}
+
+
+
+input ProcessSpecificationCreateParams {
+  "An informal or formal textual identifier for the process. Does not imply uniqueness."
+  name: String!
+
+  "A textual description or comment."
+  note: String
+}
+
+input ProcessSpecificationUpdateParams {
+  id: ID!
+
+  "An informal or formal textual identifier for the process. Does not imply uniqueness."
+  name: String
+
+  "A textual description or comment."
+  note: String
+}
+
+type ProcessSpecificationResponse {
+  processSpecification: ProcessSpecification
+}
+
+
+
+type KnowledgeQuery {
+  action(id: ID): Action
+  allActions: [Action!]
+
+  resourceSpecification(id: ID): ResourceSpecification
+  allResourceSpecifications(start: ID, limit: Int): [ResourceSpecification!]
+
+  processSpecification(id: ID): ProcessSpecification
+  allProcessSpecifications(start: ID, limit: Int): [ProcessSpecification!]
+}
+
+type KnowledgeMutation {
+  createResourceSpecification(resourceSpecification: ResourceSpecificationCreateParams): ResourceSpecificationResponse
+  updateResourceSpecification(resourceSpecification: ResourceSpecificationUpdateParams): ResourceSpecificationResponse
+  deleteResourceSpecification(id: String!): Boolean
+
+  createProcessSpecification(processSpecification: ProcessSpecificationCreateParams): ProcessSpecificationResponse
+  updateProcessSpecification(processSpecification: ProcessSpecificationUpdateParams): ProcessSpecificationResponse
+  deleteProcessSpecification(id: String!): Boolean
+}

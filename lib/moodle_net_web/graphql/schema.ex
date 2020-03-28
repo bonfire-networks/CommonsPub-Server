@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     UploadSchema,
   }
 
-  # require Logger
+  require Logger
 
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
   alias Absinthe.Middleware.Batch
@@ -71,7 +71,17 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types ValueFlows.GraphQL.Measurement
   import_types ValueFlows.GraphQL.Geolocation
   import_types ValueFlows.GraphQL.Agent
+  import_types ValueFlows.GraphQL.Knowledge
+  import_types ValueFlows.GraphQL.Observation
+  import_types ValueFlows.GraphQL.Recipe
+  import_types ValueFlows.GraphQL.Plan
   import_types ValueFlows.GraphQL.Planning
+  import_types ValueFlows.GraphQL.Proposal
+  import_types ValueFlows.GraphQL.Scenario
+  import_types ValueFlows.GraphQL.Agreement
+  import_types ValueFlows.GraphQL.Appreciation
+  import_types ValueFlows.GraphQL.Claim
+
 
   query do
     import_fields :activities_queries
@@ -99,8 +109,18 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # ValueFlows
     import_fields :measurement_query
     import_fields :geolocation_query
-    # import_fields :agent_query
-    # import_fields :planning_query
+    import_fields :agent_query
+    import_fields :knowledge_query
+    import_fields :observation_query
+    import_fields :recipe_query
+    import_fields :plan_query
+    import_fields :planning_query
+    import_fields :proposal_query
+    import_fields :scenario_query
+    import_fields :agreement_query
+    import_fields :claim_query
+
+
   end
 
   mutation do
@@ -122,8 +142,17 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # ValueFlows
     import_fields :measurement_mutation
     import_fields :geolocation_mutation
-    # import_fields :agent_mutation
-    # import_fields :planning_mutation
+    import_fields :agent_mutation
+    import_fields :knowledge_mutation
+    import_fields :observation_mutation
+    import_fields :recipe_mutation
+    import_fields :plan_mutation
+    import_fields :planning_mutation
+    import_fields :proposal_mutation
+    import_fields :scenario_mutation
+    import_fields :agreement_mutation
+    import_fields :appreciation_mutation
+    import_fields :claim_mutation
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
@@ -138,5 +167,42 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   #   end
 
   end
+
+
+  def hydrate(%{identifier: :all_units}, [%{identifier: :measurement_query} | _]) do
+    {:resolve, &ValueFlows.GraphQL.Measurement.all_units/3}
+  end
+
+  def hydrate(%{identifier: :unit}, [%{identifier: :measurement_query} | _]) do
+    {:resolve, &ValueFlows.GraphQL.Measurement.unit/2}
+  end
+
+  def hydrate(%{identifier: :all_agents}, [%{identifier: :agent_query} | _]) do
+    Logger.info("hydrating")
+    {:resolve, &ValueFlows.GraphQL.Agent.all_agents/3}
+  end
+
+  def hydrate(%{identifier: :agent}, [%{identifier: :agent_query} | _]) do
+    Logger.info("hydrating")
+    {:resolve, &ValueFlows.GraphQL.Agent.agent/2}
+  end
+
+
+  def hydrate(%{identifier: :all_intents}, [%{identifier: :planning_query} | _]) do
+    Logger.info("hydrating")
+    {:resolve, &ValueFlows.GraphQL.Planning.all_intents/3}
+  end
+
+  def hydrate(%{identifier: :intent}, [%{identifier: :planning_query} | _]) do
+    Logger.info("hydrating")
+    {:resolve, &ValueFlows.GraphQL.Planning.intent/2}
+  end
+
+
+
+  def hydrate(_node, _ancestors) do
+    []
+  end
+
 
 end

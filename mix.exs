@@ -57,8 +57,8 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5.0-rc.3"},
-      {:absinthe_plug, "~> 1.5.0-rc.2"},
+      {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
+      {:absinthe_plug, git: "https://github.com/absinthe-graphql/absinthe_plug"},
       # webserver
       {:cowboy, "~> 2.6"},
       # {:cowboy, "~> 2.5.0"},
@@ -119,6 +119,9 @@ defmodule MoodleNet.Mixfile do
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},             # property testing
+      #{:redix, "~> 0.10.5"}, # Redis client
+      #{:ex_redi, "~> 0.1.1"}, # RediSearch client
+      {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
     ]
