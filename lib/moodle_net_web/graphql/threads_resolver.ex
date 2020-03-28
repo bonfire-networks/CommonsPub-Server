@@ -1,46 +1,50 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.Batching.{EdgesPages}
+  alias MoodleNet.GraphQL.{Flow, PageFlow, PagesFlow}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Threads.{Comments, Thread}
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  alias MoodleNet.Threads.{Comment, Comments, Thread}
   
   def thread(%{thread_id: id}, info), do: Threads.one(id: id, user: info.context.current_user)
 
   # edges
   
-  def comments_edge(%Thread{id: id}, _, info) do
-    batch {__MODULE__, :batch_comments_edge, info.context.current_user}, id, EdgesPages.getter(id)
+  def threads_edge(%{id: id}, %{}=page_opts, info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_threads_edge, page_opts, id, info, opts)
   end
 
-  def batch_comments_edge(current_user, ids) do
-    {:ok, edges} = Comments.edges_pages(
-      &(&1.thread_id),
-      &(&1.id),
-      [user: current_user, thread_id: ids],
-      [order: :timeline_asc],
-      [group_count: :thread_id]
+  def fetch_threads_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Threads.Queries,
+        query: Thread,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.context_id),
+        page_opts: page_opts,
+        base_filters: [user: user, context_id: ids],
+        data_filters: [page: [desc: [followers: page_opts]]],
+        count_filters: [group_count: :context_id],
+      }
     )
-    edges
   end
 
-  def threads_edge(%{id: id}, _, %{context: %{current_user: user}}) do
-    batch {__MODULE__, :batch_threads_edge, user}, id, EdgesPages.getter(id)
-  end
-
-  def batch_threads_edge(current_user, ids) do
-    {:ok, edges} = Threads.edges_pages(
-      &(&1.context_id),
-      &(&1.id),
-      [user: current_user, context_id: ids],
-      [join: :last_comment, order: :last_comment_desc, preload: :last_comment],
-      [group_count: :context_id]
+  def fetch_threads_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Threads.Queries,
+        query: Thread,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [user: user, context_id: ids],
+        data_filters: [page: [desc: [followers: page_opts]]],
+      }
     )
-    edges
   end
 
   ## mutations

@@ -1,15 +1,18 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.Batching.{Edges, EdgesPages, NodesPage}
+  alias MoodleNet.GraphQL.{Fields, Page, Pages}
+  alias MoodleNet.Common.Contexts
   alias MoodleNet.Communities.{Community, Queries}
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
-  
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
+
   @doc """
   Retrieves a single community by arbitrary filters.
   Used by:
@@ -26,41 +29,37 @@ defmodule MoodleNet.Communities do
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
-  def edges(group_fn, filters \\ [])
+  def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
+    {:ok, fields} = many(filters)
+    {:ok, Fields.new(fields, group_fn)}
   end
 
   @doc """
-  Retrieves a NodesPage of communities according to various filters
+  Retrieves an Page of communities according to various filters
 
   Used by:
-  * Various parts of the codebase that need to query for communities (inc. tests)
+  * GraphQL resolver single-parent resolution
   """
-  def nodes_page(cursor_fn, filters \\ [], data_filters \\ [], count_filters \\ [])
-  def nodes_page(cursor_fn, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
-    end
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+    Contexts.page Queries, Community,
+      cursor_fn, page_opts, base_filters, data_filters, count_filters
   end
 
   @doc """
-  Retrieves an EdgesPages of communities according to various filters
+  Retrieves an Pages of communities according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def edges_pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def edges_pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
-    {data_q, count_q} = Queries.queries(Community, base_filters, data_filters, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, EdgesPages.new(data, counts, cursor_fn, group_fn)}
-    end
+  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.pages Queries, Community,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
+
+
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
@@ -133,14 +132,14 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  def outbox(%Community{outbox_id: id}) do
-    Activities.edges_page(
+  def outbox(%Community{outbox_id: id}, page_opts \\ %{}) do
+    Activities.page(
       &(&1.id),
       join: {:feed_activity, :inner},
       feed_id: id,
       table: default_outbox_query_contexts(),
       distinct: [desc: :id], # this does the actual ordering *sigh*
-      order: :timeline_desc # this is here because ecto has made questionable choices
+      paginate: {:timeline_desc, page_opts} # this does an order too to appease ecto
     )
   end
 

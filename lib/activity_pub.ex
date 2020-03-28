@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
@@ -92,6 +92,7 @@ defmodule ActivityPub do
 
       {:ok, activity}
     else
+      %Object{} = object -> object
       error -> {:error, error}
     end
   end
@@ -123,6 +124,7 @@ defmodule ActivityPub do
          :ok <- Adapter.maybe_handle_activity(activity) do
       {:ok, activity}
     else
+      %Object{} = activity -> {:ok, activity}
       {:error, message} -> {:error, message}
     end
   end

@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Application do
   @moduledoc """
@@ -11,6 +11,15 @@ defmodule MoodleNet.Application do
   alias MoodleNet.Meta.TableService
   alias MoodleNetWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
+
+  @name Mix.Project.config()[:name]
+  @version Mix.Project.config()[:version]
+  @repository Mix.Project.config()[:source_url]
+
+  def name, do: @name
+  def version, do: @version
+  def named_version, do: @name <> " " <> @version
+  def repository, do: @repository
 
   def start(_type, _args) do
 

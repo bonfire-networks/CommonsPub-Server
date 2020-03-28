@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.ConnHelpers do
   require Phoenix.ConnTest
@@ -7,6 +7,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   alias Plug.{Conn, Session}
   alias MoodleNet.Access.Token
   alias MoodleNet.Users.User
+  import ExUnit.Assertions
   
   @endpoint MoodleNetWeb.Endpoint
 
@@ -50,7 +51,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   @secret String.duplicate("abcdef0123456789", 8)
   @signing_opts Plug.Session.init(Keyword.put(@default_opts, :encrypt, false))
 
-  def plugged(conn \\ json_conn()) do
+  def plugged(conn) do
     conn
     |> Conn.put_private(:phoenix_endpoint, MoodleNetWeb.Endpoint)
     |> Map.put(:secret_key_base, @secret)
@@ -61,26 +62,67 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     |> Controller.fetch_flash()
   end    
     
-  def gql_post(conn \\ json_conn(), query, code) do
+  def gql_post(conn, query, code) do
     ConnTest.post(conn, "/api/graphql", query)
     |> ConnTest.json_response(code)
   end
 
-  def gql_post_200(conn \\ json_conn(), query),
+  def gql_post_200(conn, query),
     do: gql_post(conn, query, 200)
 
-  def gql_post_data(conn \\ json_conn(), query) do
+  def gql_post_data(conn, query) do
     case gql_post_200(conn, query) do
       %{"data" => _data, "errors" => errors} ->
         throw {:additional_errors, errors}
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}
-      %{"data" => data} -> data
+      %{"data" => data} ->
+        # IO.inspect(client_received: data)
+        data
       other -> throw {:horribly_wrong, other}
     end
+  end
+
+  def gruff_post_data(query, conn, vars \\ %{}, name \\ "test") do
+    query = Gruff.PP.to_string(query)
+    vars = recase_vars(vars)
+    IO.puts(query)
+    IO.inspect(vars: vars)
+    query = %{
+      query: query,
+      variables: vars,
+      operationName: name,
+    }
+    gql_post_data(conn, query)
+  end
+
+  def gruff_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
+    key = recase(key)
+    assert %{^key => val} = gruff_post_data(query, conn, vars, name)
+    val
   end
 
   def gql_post_errors(conn \\ json_conn(), query),
     do: Map.fetch!(gql_post_200(conn, query), "errors")
 
+  def gruff_post_errors(query, conn, vars \\ %{}, name \\ "test") do
+    query = Gruff.PP.to_string(query)
+    vars = recase_vars(vars)
+    # IO.inspect(query: query)
+    # IO.inspect(vars: vars)
+    query = %{
+      query: query,
+      variables: vars,
+      operationName: name,
+    }
+   Map.fetch!(gql_post_200(conn, query), "errors")
+  end
+
+  defp recase_vars(%{}=vars) do
+    Enum.reduce(vars, %{}, fn {k,v}, acc -> Map.put(acc, recase(k), v) end)
+  end
+
+  defp recase(atom) when is_atom(atom), do: recase(Atom.to_string(atom))
+  defp recase(binary) when is_binary(binary), do: Recase.to_camel(binary)
+    
 end

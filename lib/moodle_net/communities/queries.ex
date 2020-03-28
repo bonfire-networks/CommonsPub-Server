@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities.Queries do
 
@@ -10,12 +10,13 @@ defmodule MoodleNet.Communities.Queries do
   import Ecto.Query
 
   def query(Community) do
-    from c in Community, as: :community
+    from c in Community, as: :community,
+    join: a in assoc(c, :actor), as: :actor
   end
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)
@@ -23,10 +24,6 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def join_to(q, spec, join_qualifier \\ :left)
-
-  def join_to(q, :actor, jq) do
-    join q, jq, [community: c], a in assoc(c, :actor), as: :actor
-  end
 
   def join_to(q, {:follow, follower_id}, jq) do
     join q, jq, [community: c], f in Follow, as: :follow,
@@ -51,7 +48,7 @@ defmodule MoodleNet.Communities.Queries do
   ## special
 
   def filter(q, :default) do
-    filter q, [:deleted, join: {:actor, :inner}, preload: :actor]
+    filter q, [:deleted, preload: :actor]
   end
 
   ## by join
@@ -62,6 +59,26 @@ defmodule MoodleNet.Communities.Queries do
   ## by order
 
   def filter(q, {:order, :list}), do: list(q)
+
+  def filter(q, {:order, [asc: :created]}) do
+    order_by q, [community: c], asc: c.id
+  end
+
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [community: c], desc: c.id
+  end
+
+  def filter(q, {:order, [asc: :followers]}) do
+    order_by q, [community: c, follower_count: fc],
+      asc: coalesce(fc.count, 0),
+      desc: c.id # most recent
+  end
+
+  def filter(q, {:order, [desc: :followers]}) do
+    order_by q, [community: c, follower_count: fc],
+      desc: coalesce(fc.count, 0),
+      desc: c.id
+  end
 
   ## by users
   
@@ -85,7 +102,7 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def filter(q, :disabled) do
-    where q, [community: c], not is_nil(c.disabled_at)
+    where q, [community: c], is_nil(c.disabled_at)
   end
 
   def filter(q, :private) do
@@ -110,10 +127,46 @@ defmodule MoodleNet.Communities.Queries do
     where q, [actor: a], a.preferred_username in ^usernames
   end
 
+  def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[community: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+  end
+
+  def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[community: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+  end
+
   ## by preload
 
   def filter(q, {:preload, :actor}) do
     preload q, [actor: a], [actor: a]
+  end
+
+  def filter(q, {:page, [desc: [followers: page_opts]]}) do
+    q
+    |> filter(join: :follower_count, order: [desc: :followers])
+    |> page(page_opts, [desc: :followers])
+    |> select(
+      [community: c, actor: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+    )
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{limit: limit}, [desc: :followers]), do: filter(q, limit: limit + 1)
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
   end
 
   @doc """
@@ -134,5 +187,7 @@ defmodule MoodleNet.Communities.Queries do
     |> group_by([community: c], field(c, ^key))
     |> select([community: c], {field(c, ^key), count(c.id)})
   end
+
+
 
 end

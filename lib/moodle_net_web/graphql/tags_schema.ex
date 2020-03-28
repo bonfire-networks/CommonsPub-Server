@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.TagsSchema do
 
@@ -62,8 +62,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
   #   @desc "The tags in the category, most recently created first"
   #   field :tags, :tags_edges do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, list_of(:cursor)
+  #     arg :after, list_of(:cursor)
   #     resolve &CommonResolver.category_tags/3
   #   end
 
@@ -76,7 +76,7 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
   # end
 
   # object :tag_categories_edge do
-  #   field :cursor, non_null(:string)
+  #   field list_of(:cursor), non_null(:string)
   #   field :node, :tag_category
   # end
 
@@ -109,8 +109,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
   #   @desc "The tags in the category, most recently created first"
   #   field :tags, :tags_edges do
   #     arg :limit, :integer
-  #     arg :before, :string
-  #     arg :after, :string
+  #     arg :before, list_of(:cursor)
+  #     arg :after, list_of(:cursor)
   #     resolve &CommonResolver.category_tags/3
   #   end
 
@@ -118,13 +118,8 @@ defmodule MoodleNetWeb.GraphQL.TagsSchema do
 
   # object :tag_categories_edges do
   #   field :page_info, non_null(:page_info)
-  #   field :edges, list_of(:tag_categories_edge)
+  #   field :edges, list_of(:tag_category)
   #   field :total_count, non_null(:integer)
-  # end
-
-  # object :tag_categories_edge do
-  #   field :cursor, non_null(:string)
-  #   field :node, :tag_category
   # end
 
 end

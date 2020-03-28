@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
   @moduledoc """
@@ -22,10 +22,10 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
     # @desc """
     # A list of public activity from all federated instances
     # """
-    # field :outbox, :activities_edges do
+    # field :outbox, :activities_page do
     #   arg :limit, :integer
-    #   arg :before, :string
-    #   arg :after, :string
+    #   arg :before, list_of(:cursor)
+    #   arg :after, list_of(:cursor)
     #   resolve &MoodleverseResolver.outbox/3
     # end
 

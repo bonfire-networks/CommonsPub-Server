@@ -1,12 +1,13 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.Blocks.Block
+  # alias MoodleNet.Blocks.Block
+  alias MoodleNet.Features.Feature
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Likes.Like
@@ -15,6 +16,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Users.User
   alias Ecto.ULID
   import ExUnit.Assertions
+
+  def assert_cursor(x) when is_binary(x) or is_integer(x), do: x
+  def assert_cursors(x) when is_list(x), do: Enum.all?(x, &assert_cursor/1)
 
   def assert_location(loc) do
     assert %{"column" => col, "line" => line} = loc
@@ -59,49 +63,45 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_location(loc)
   end
 
-  def assert_node_list(list) do
-    assert %{"nodes" => nodes, "totalCount" => count} = list
-    assert is_integer(count)
-    assert is_list(nodes)
-    if nodes == [] do
-      assert count == 0 # remove me
-      page_info = %{
-        start_cursor: nil,
-        end_cursor: nil,
-        has_next_page: false,
-        has_previous_page: false,
-      }
-      %{nodes: [], total_count: count, page_info: page_info}
-    else
-      assert %{"pageInfo" => page} = list
-      assert %{"startCursor" => start, "endCursor" => ends} = page
-      assert is_binary(start)
-      assert is_binary(ends)
-      page_info = %{start_cursor: start, end_cursor: ends}
-      %{page_info: page_info, nodes: nodes, total_count: count}
-    end
+  def assert_page_info(page) do
+    assert %{"startCursor" => start, "endCursor" => ends} = page
+    assert %{"hasPreviousPage" => prev, "hasNextPage" => next} = page
+    # assert_cursors(start)
+    # assert_cursors(ends)
+    assert is_boolean(prev) or is_nil(prev)
+    assert is_boolean(next) or is_nil(next)
+    %{
+      start_cursor: start,
+      end_cursor: ends,
+      has_previous_page: prev,
+      has_next_page: next,
+    }
+    |> Map.merge(page)
   end
 
-  def assert_edge_list(list) do
-    assert %{"edges" => edges, "totalCount" => count} = list
+  def assert_page(list, returned_count, total_count, prev?, next?, cursor_fn) do
+    assert %{"edges" => edges, "totalCount" => count, "pageInfo" => page} = list
     assert is_list(edges)
     assert is_integer(count)
+    page_info = assert_page_info(page)
     if edges == [] do
-      assert count == 0 # remove me
-      %{edges: [], total_count: count}
+      assert is_nil(page_info.start_cursor)
+      assert is_nil(page_info.end_cursor)
     else
-      assert %{"pageInfo" => page} = list
-      assert %{"startCursor" => start, "endCursor" => ends} = page
-      assert is_binary(start)
-      assert is_binary(ends)
-      edges = Enum.map(edges, fn e ->
-        assert %{"cursor" => cursor, "node" => node} = e
-        assert is_binary(cursor)
-        Map.merge(e, %{cursor: cursor, node: node})
-      end)
-      page_info = %{start_cursor: start, end_cursor: ends}
-      %{page_info: page_info, total_count: count, edges: edges}
+      start_cursor = cursor_fn.(List.first(edges))
+      end_cursor = cursor_fn.(List.last(edges))
+      # assert_cursors(start_cursor)
+      # assert_cursors(end_cursor)
+      # assert start_cursor == page_info.start_cursor
+      # assert end_cursor == page_info.end_cursor
     end
+    assert Enum.count(edges) == returned_count
+    assert total_count == count
+    assert prev? == page_info.has_previous_page
+    assert next? == page_info.has_next_page
+    %{page_info: page_info, total_count: count, edges: edges}
+    |> Map.merge(page_info)
+    |> Map.merge(list)
   end
 
   def assert_language(lang) do
@@ -116,14 +116,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     # assert is_binary(created)
     # assert is_binary(updated)
   end
+
   def assert_country(country), do: assert_language(country)
 
   def assert_auth_payload(ap) do
     assert %{"token" => token, "me" => me} = ap
     assert is_binary(token)
-    assert_me(me)
+    me = assert_me(me)
     assert %{"__typename" => "AuthPayload"} = ap
+    Map.merge(ap, %{token: token, me: me})
   end
+
   def assert_me(me) do
     assert %{"email" => email} = me
     assert is_binary(email)
@@ -145,6 +148,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       user: user}
     |> Map.merge(me)
   end
+
   def assert_me(%User{}=user, %{}=me) do
     me = assert_me(me)
     assert user.local_user.email == me.email
@@ -161,6 +165,23 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert user.image == user2.image
     me
   end
+
+  def assert_me(%{}=user, %{}=me) do
+    me = assert_me(me)
+    assert user["email"] == me.email or user["email"] == nil
+    assert user["wantsEmailDigest"] == me.wants_email_digest
+    assert user["wantsNotifications"] == me.wants_notifications
+    user2 = me.user
+    assert user["preferredUsername"] == user2.preferred_username or user["preferredUsername"] == nil
+    assert user["name"] == user2.name
+    assert user["summary"] == user2.summary
+    assert user["location"] == user2.location
+    assert user["website"] == user2.website
+    assert user["icon"] == user2.icon
+    assert user["image"] == user2.image
+    me
+  end
+
 
   def assert_user(user) do
     assert %{"id" => id, "canonicalUrl" => url} = user
@@ -294,7 +315,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert comm.updated_at == comm2.updated_at
     comm2
   end
-
+  # input
+  def assert_community(%{}=comm, %{}=comm2) do
+    comm2 = assert_community(comm2)
+    if comm["preferredUsername"] do
+      assert comm["preferredUsername"] == comm2.preferred_username
+    end
+    assert comm["name"] == comm2.name
+    assert comm["summary"] == comm2.summary
+    assert comm["icon"] == comm2.icon
+    comm2
+  end
 
   def assert_collection(coll) do
     assert %{"id" => id, "canonicalUrl" => url} = coll
@@ -354,6 +385,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert coll.updated_at == coll2.updated_at
     coll2
   end
+  # input
+  def assert_collection(%{}=coll, %{}=coll2) do
+    coll2 = assert_collection(coll2)
+    if coll["preferredUsername"] do
+      assert coll["preferredUsername"] == coll2.preferred_username
+    end
+    assert coll["name"] == coll2.name
+    assert coll["summary"] == coll2.summary
+    assert coll["icon"] == coll2.icon
+    coll2
+  end
 
   def assert_resource(resource) do
     assert %{"id" => id, "canonicalUrl" => canon_url} = resource
@@ -408,6 +450,25 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert not is_nil(res.disabled_at) == res2.is_disabled
     assert ULID.timestamp(res.id) == {:ok, res2.created_at}
     assert res.updated_at == res2.updated_at
+    res2
+  end
+  def assert_resource(%{}=res, %{}=res2) do
+    res2 = assert_resource(res2)
+    assert res["name"] == res2.name
+    assert res["summary"] == res2.summary
+    assert res["icon"] == res2.icon
+    assert res["url"] == res2.url
+    assert res["license"] == res2.license
+    res2
+  end
+
+  def assert_copied_resource(%Resource{}=res, %{}=res2) do
+    res2 = assert_resource(res2)
+    assert res.name == res2.name
+    assert res.summary == res2.summary
+    assert res.icon == res2.icon
+    assert res.url == res2.url
+    assert res.license == res2.license
     res2
   end
 
@@ -495,6 +556,32 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
     assert comment.updated_at == comment2.updated_at
     comment2
+  end
+
+  def assert_feature(feature) do
+    assert %{"id" => id, "canonicalUrl" => url} = feature
+    assert is_binary(id)
+    assert is_binary(url) or is_nil(url)
+    assert %{"isLocal" => local} = feature
+    assert is_boolean(local)
+    assert %{"createdAt" => created} = feature
+    assert is_binary(created)
+    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
+    assert %{"__typename" => "Feature"} = feature
+    %{id: id,
+      canonical_url: url,
+      is_local: local,
+      created_at: created_at}
+    |> Map.merge(feature)
+  end
+
+  def assert_feature(%Feature{}=feature, %{}=feature2) do
+    feature2 = assert_feature(feature2)
+    assert feature.id == feature2.id
+    assert feature.canonical_url == feature2.canonical_url
+    assert feature.is_local == feature2.is_local
+    assert ULID.timestamp(feature.id) == {:ok, feature2.created_at}
+    feature2
   end
 
   def assert_flag(flag) do
@@ -600,7 +687,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert like.id == like2.id
     assert like.canonical_url == like2.canonical_url
     assert like.is_local == like2.is_local
-    assert like.is_public == like2.is_public
+    assert is_nil(like.published_at) != like2.is_public
     assert ULID.timestamp(like.id) == {:ok, like2.created_at}
     assert like.updated_at == like2.updated_at
     like2
@@ -650,6 +737,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
     |> Map.put(:type, type)
   end
+
   def assert_like_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
@@ -660,6 +748,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
     |> Map.put(:type, type)
   end
+
   def assert_follow_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
@@ -670,16 +759,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
     |> Map.put(:type, type)
   end
-  def assert_like_context(thing) do
-    assert %{"__typename" => type} = thing
-    case type do
-      "Collection" -> assert_collection(thing)
-      "Comment" -> assert_comment(thing)
-      "Resource" -> assert_resource(thing)
-      "User" -> assert_user(thing)
-    end
-    |> Map.put(:type, type)
-  end
+
   def assert_tagging_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
@@ -692,6 +772,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
     |> Map.put(:type, type)
   end
+
   def assert_activity_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
@@ -702,6 +783,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
     |> Map.put(:type, type)
   end
+
   def assert_thread_context(thing) do
     assert %{"__typename" => type} = thing
     case type do
@@ -727,6 +809,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   #   assert is_binary(created)
   #   assert %{"__typename" => "TagCategory"} = cat
   # end
+
   # def assert_tag(tag) do
   #   assert %{"id" => id, "canonicalUrl" => url} = tag
   #   assert is_binary(id)
@@ -741,6 +824,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   #   assert is_binary(created)
   #   assert %{"__typename" => "Tag"} = tag
   # end
+
   # def assert_tagging(tag) do
   #   assert %{"id" => id, "canonicalUrl" => url} = tag
   #   assert is_binary(id)
@@ -755,4 +839,5 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   # def assert_block(block) do
   # end
+
 end

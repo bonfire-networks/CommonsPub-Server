@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   @moduledoc """
@@ -20,10 +20,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   object :communities_queries do
 
     @desc "Get list of communities, most followed first"
-    field :communities, non_null(:communities_nodes) do
+    field :communities, non_null(:communities_page) do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CommunitiesResolver.communities/2
     end
 
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
 
     @desc "A url for the community, may be to a remote instance"
     field :canonical_url, :string do
-      resolve &CommunitiesResolver.canonical_url_edge/3
+      resolve &ActorsResolver.canonical_url_edge/3
     end
 
     @desc "An instance-unique identifier shared with users and collections"
@@ -140,10 +140,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     end
 
     @desc "The communities a user has joined, most recently joined first"
-    field :collections, :collections_edges do
+    field :collections, :collections_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CommunitiesResolver.collections_edge/3
     end
 
@@ -152,10 +152,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     order. Does not include threads started on collections or
     resources
     """
-    field :threads, :threads_edges do
+    field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &ThreadsResolver.threads_edge/3
     end
 
@@ -164,29 +164,37 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
-    @desc "Total number of likers, including those we can't see"
+    @desc "Total number of likes, including those we can't see"
     field :liker_count, :integer do
       resolve &LikesResolver.liker_count_edge/3
     end
 
-   @desc "Users following the community, most recently followed first"
-    field :followers, :follows_edges do
+    @desc "Likes users have given the community"
+    field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &LikesResolver.likers_edge/3
+    end
+
+   @desc "Users following the community, most recently followed first"
+    field :followers, :follows_page do
+      arg :limit, :integer
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Flags users have made about the community, most recently created first"
-    field :flags, :flags_edges do
+    field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Activities for community moderators. Not available to plebs."
-    # field :inbox, non_null(:activities_edges) do
+    # field :inbox, non_null(:activities_page) do
     #   arg :limit, :integer
     #   arg :before, :string
     #   arg :after, :string
@@ -194,30 +202,19 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     # end
 
     @desc "Activities in the community, most recently created first"
-    field :outbox, :activities_edges do
+    field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
       resolve &CommunitiesResolver.outbox_edge/3
     end
 
   end
 
-  object :communities_nodes do
-    field :page_info, :page_info
-    field :nodes, list_of(:community)
+  object :communities_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:community)))
     field :total_count, non_null(:integer)
-  end
-
-  object :communities_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:communities_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :communities_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:community)
   end
 
   input_object :community_input do

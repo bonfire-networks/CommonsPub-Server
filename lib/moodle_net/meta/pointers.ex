@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
 
@@ -97,8 +97,6 @@ defmodule MoodleNet.Meta.Pointers do
     {:ok, items} = loader(table_id, id: ids)
     Enum.reduce(items, acc, &Map.put(&2, &1.id, &1))
   end
-
-  import Ecto.Query
 
   alias MoodleNet.{
     Activities,

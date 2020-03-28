@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActorsTest do
   use MoodleNet.DataCase, async: true
@@ -50,6 +50,22 @@ defmodule MoodleNet.ActorsTest do
         attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(attrs)
         assert_actor_equal(actor, attrs)
+      end)
+    end
+
+    test "drops invalid characters from preferred_username" do
+      Repo.transaction(fn ->
+        attrs = Fake.actor(%{preferred_username: "actor&name"})
+        assert {:ok, actor} = Actors.create(attrs)
+        assert actor.preferred_username == "actorname"
+      end)
+    end
+
+    test "doesn't drop allowed characters from preferred_username" do
+      Repo.transaction(fn ->
+        attrs = Fake.actor(%{preferred_username: "actor-name_underscore@instance.url"})
+        assert {:ok, actor} = Actors.create(attrs)
+        assert actor.preferred_username == "actor-name_underscore@instance.url"
       end)
     end
 

@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   use MoodleNet.Common.Metadata
@@ -43,10 +43,51 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   # Guest or ordinary user are currently not treated differently
   def filter(q, {:user, _}), do: Activities.Queries.filter(q, ~w(deleted private))
 
+  ## by pagination
+
+  @min_limit 1
+  @max_limit 100
+  @default_limit 25
+  def filter(q, {:paginate, {:timeline_desc, %{after: a}=opts}}) do
+    lim = 2 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim, id: {:lte, lim})
+  end
+
+  def filter(q, {:paginate, {:timeline_desc, %{before: a}=opts}}) do
+    lim = 2 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim, id: {:gte, lim})
+  end 
+
+  def filter(q, {:paginate, {:timeline_desc, %{}=opts}}) do
+    lim = 1 + get_limit(opts)
+    filter(q, order: :timeline_desc, limit: lim)
+  end
+
+  defp get_limit(%{limit: n}) when is_integer(n) do
+    cond do
+      n < @min_limit -> @min_limit
+      n > @max_limit -> @max_limit
+      true -> n
+    end
+  end
+  defp get_limit(%{}), do: @default_limit
+
+  ## by limit
+
+  def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
+
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [feed_activity: fa], fa.id == ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [feed_activity: fa], fa.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [feed_activity: fa], fa.id <= ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do

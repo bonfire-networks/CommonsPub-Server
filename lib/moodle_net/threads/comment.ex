@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Comment do
   use MoodleNet.Common.Schema
@@ -46,7 +46,7 @@ defmodule MoodleNet.Threads.Comment do
     Changeset.put_change(changeset, :reply_to_id, reply_to.id)
   end
 
-  @spec update_changeset(Comment.t(), map) :: Changeset.t()
+  @spec update_changeset(%Comment{}, map) :: Changeset.t()
   def update_changeset(%Comment{} = comment, attrs) do
     comment
     |> Changeset.cast(attrs, @cast)

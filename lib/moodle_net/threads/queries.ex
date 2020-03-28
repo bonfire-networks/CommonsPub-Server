@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Queries do
 
@@ -16,7 +16,7 @@ defmodule MoodleNet.Threads.Queries do
     filter(query(query), filters)
   end
   
-  def queries(query, base_filters, data_filters, count_filters) do
+  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
     count_q = filter(base_q, count_filters)
@@ -86,8 +86,28 @@ defmodule MoodleNet.Threads.Queries do
 
   # by field values
 
+  def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[thread: t, follower_count: fc],
+      (fc.count == ^count and t.id >= ^id) or fc.count > ^count
+  end
+
+  def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[thread: t, follower_count: fc],
+      (fc.count == ^count and t.id <= ^id) or fc.count < ^count
+  end
+
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [thread: t], t.id == ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [thread: t], t.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [thread: t], t.id <= ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
@@ -110,8 +130,18 @@ defmodule MoodleNet.Threads.Queries do
     where q, [thread: t], t.creator_id in ^ids
   end
 
-  def filter(q, {:order, :last_comment_desc}) do
-    order_by q, [last_comment: lc], desc: lc.comment_id
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [thread: t], desc: t.id
+  end
+
+  def filter(q, {:order, [desc: :followers]}) do
+    order_by q, [thread: t, follower_count: fc],
+      desc: coalesce(fc.count, 0),
+      desc: t.id
+  end
+
+  def filter(q, {:order, [desc: :last_comment]}) do
+    order_by q, [thread: t, last_comment: lc], desc: [lc.comment_id, t.id]
   end
 
   def filter(q, {:group_count, key}) when is_atom(key) do
@@ -129,5 +159,42 @@ defmodule MoodleNet.Threads.Queries do
   def filter(q, {:preload, :last_comment}) do
     preload q, [last_comment: lc], last_comment: lc
   end
+
+  # pagination
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(join: :last_comment, join: :follower_count, order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+    |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
+  end
+
+  def filter(q, {:page, [desc: [last_comment: page_opts]]}) do
+    q
+    |> filter(join: :last_comment, join: :follower_count, order: [desc: :last_comment])
+    |> page(page_opts, [desc: :last_comment])
+    |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
+  end
+
+  def filter(q, {:page, [desc: [followers: page_opts]]}) do
+    q
+    |> filter(join: :follower_count, order: [desc: :followers])
+    |> page(page_opts, [desc: :followers])
+    |> select([thread: t, follower_count: fc], %{t | follower_count: coalesce(fc.count, 0)})
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 
 end

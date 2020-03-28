@@ -1,5 +1,5 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.FlagsSchema do
 
@@ -87,22 +87,10 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
     end
   end
   
-  object :flags_nodes do
-    field :page_info, :page_info
-    field :nodes, non_null(list_of(:flags_edge))
+  object :flags_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:flag)))
     field :total_count, non_null(:integer)
   end
-
-  object :flags_edges do
-    field :page_info, :page_info
-    field :edges, non_null(list_of(:flags_edge))
-    field :total_count, non_null(:integer)
-  end
-
-  object :flags_edge do
-    field :cursor, non_null(:string)
-    field :node, non_null(:flag)
-  end
-
 
 end

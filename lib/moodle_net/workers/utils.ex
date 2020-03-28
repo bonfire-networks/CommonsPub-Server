@@ -2,7 +2,7 @@ defmodule MoodleNet.Workers.Utils do
 
   require Logger
   
-  defp get_log_level(key \\ MoodleNet.Workers)
+  defp get_log_level(key)
   defp get_log_level(key) when is_atom(key) do
     Application.get_env(:moodle_net, key, [])
     |> Keyword.get(:log_level, :warn)
@@ -29,7 +29,7 @@ defmodule MoodleNet.Workers.Utils do
   defp debug_exception(module, exception, job, stacktrace) do
     if Mix.env == :dev do
       debug_log(job, stacktrace)
-      IO.inspect(raised: exception)
+      # IO.inspect(raised: exception)
     else
       sentry_raised(module, exception, job, stacktrace)
     end
@@ -39,7 +39,7 @@ defmodule MoodleNet.Workers.Utils do
   defp debug_throw(module, thrown, job, stacktrace) do
     if Mix.env == :dev do
       debug_log(job, stacktrace)
-      IO.inspect(thrown: thrown)
+      # IO.inspect(thrown: thrown)
     else
       sentry_thrown(module, thrown, job, stacktrace)
     end
@@ -69,8 +69,8 @@ defmodule MoodleNet.Workers.Utils do
 
   defp debug_log(job, stacktrace) do
     Logger.error("[ActivityWorker] Job failed!")
-    IO.puts(Exception.format_stacktrace(stacktrace))
-    IO.inspect(job: job)
+    # IO.puts(Exception.format_stacktrace(stacktrace))
+    # IO.inspect(job: job)
   end
 
 end

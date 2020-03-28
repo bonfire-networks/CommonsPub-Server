@@ -1,11 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
+# Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias MoodleNet.Batching.EdgesPage
+  alias Ecto.Changeset
+  alias MoodleNet.GraphQL.{Page, PageOpts}
   import MoodleNet.Common.Query, only: [match_admin: 0]
+
+  def reverse_path(info) do
+    Enum.reverse(Resolution.path(info))
+  end
+
+  # If there is a list anywhere further up the query, we're in a list
+  def in_list?(info), do: Enum.any?(Resolution.path(info), &is_integer/1)
+
+  def parent_name(resolution) do
+    resolution.path
+  end
 
   def wanted(resolution, path \\ [])
 
@@ -21,32 +33,31 @@ defmodule MoodleNet.GraphQL do
       _ -> not_permitted()
     end
   end
+  def current_user(info), do: info.context.current_user
 
-  def current_user(%Resolution{}=info), do: current_user_or_not_logged_in(info)
+  def current_user_or(info, value), do: lazy_or(current_user(info), value)
 
-  def current_user_or_not_logged_in(%Resolution{}=info) do
-    case info.context.current_user do
-      nil -> not_logged_in()
-      user -> {:ok, user}
+  def current_user_or_empty_page(info), do: current_user_or(info, &empty_page/0)
+
+  def current_user_or_not_logged_in(info), do: current_user_or(info, &not_logged_in/0)
+
+  def current_user_or_not_found(info), do: current_user_or(info, &not_found/0)
+
+  def admin_or_not_permitted(%Resolution{}=info) do
+    case current_user(info) do
+      match_admin() -> current_user(info)
+      _ -> not_permitted()
     end
   end
 
-  def current_user_or_empty_edge_list(%Resolution{}=info) do
-    case info.context.current_user do
-      nil -> {:ok, EdgesPage.new([], 0, &(&1))}
-      user -> {:ok, user}
-    end
-  end
-
-  def current_user_or(%Resolution{}=info, value) do
-    case info.context.current_user do
-      nil -> {:ok, value}
-      user -> {:ok, user}
-    end
-  end
+  defp lazy_or(nil, lazy) when is_function(lazy, 0), do: lazy_or(nil, lazy.())
+  defp lazy_or(nil, {:ok, value}), do: {:ok, value}
+  defp lazy_or(nil, {:error, value}), do: {:error, value}
+  defp lazy_or(nil, value), do: {:ok, value}
+  defp lazy_or(value, _), do: {:ok, value}
 
   def guest_only(%Resolution{}=info) do
-    case info.context.current_user do
+    case current_user(info) do
       nil -> :ok
       _user -> not_permitted()
     end
@@ -59,6 +70,46 @@ defmodule MoodleNet.GraphQL do
       node -> reproject(node.selections, keys)
     end
   end
+
+
+  def full_page_opts(attrs, cursor_validators, opts \\ %{}) do
+    with {:ok, page_opts} <- limit_page_opts(attrs, opts) do
+      case attrs do
+        %{before: b, after: a} when not is_nil(b) and not is_nil(a) ->
+          {:error, %{message: "May not provide both before and after"}}
+
+        %{after: a} when not is_nil(a) ->
+          if validate_cursor(cursor_validators, a),
+            do: {:ok, Map.put(page_opts, :after, a)},
+            else: {:error, %{message: "Bad after cursor"}}
+
+        %{before: b} when not is_nil(b) ->
+          if validate_cursor(cursor_validators, b),
+            do: {:ok, Map.put(page_opts, :before, b)},
+            else: {:error, %{message: "Bad before cursor"}}
+
+        %{} -> {:ok, page_opts}
+      end
+    end
+  end
+
+  @max_limit 100
+  @min_limit 1
+  @default_limit 25
+
+  def limit_page_opts(attrs, opts \\ %{}) do
+    max = Map.get(opts, :max_limit, @max_limit)
+    min = Map.get(opts, :min_limit, @min_limit)
+    default = Map.get(opts, :default_limit, @default_limit)
+    limit = Map.get(attrs, :limit, default)
+    if limit < min or limit > max do
+      {:error, %{message: "Bad limit, must be between #{min} and #{max}"}}
+    else
+      {:ok, %{limit: limit}}
+    end
+  end
+
+  def empty_page(), do: Page.new([], 0, &(&1), %{})
 
   alias MoodleNet.Access.{
     InvalidCredentialError,
@@ -74,5 +125,44 @@ defmodule MoodleNet.GraphQL do
   def not_permitted(verb \\ "do"), do: {:error, NotPermittedError.new(verb)}
 
   def not_found(), do: {:error, NotFoundError.new()}
+
+  @bad_cursor_error {:error, %{message: "Bad cursor"}}
+
+  def cast_ulid(str) when is_binary(str) do
+    with :error <- Ecto.ULID.cast(str), do: @bad_cursor_error
+  end
+  def cast_ulid(_), do: @bad_cursor_error
+
+  def cast_posint(int) when is_integer(int) and int > 0, do: {:ok, int}
+  def cast_posint(_), do: @bad_cursor_error
+
+  def cast_nonnegint(int) when is_integer(int) and int >= 0, do: {:ok, int}
+  def cast_nonnegint(_), do: @bad_cursor_error
+
+  def cast_int_ulid_id([int, ulid]) when is_integer(int) and is_binary(ulid) do
+    with :error <- Ecto.ULID.cast(ulid), do: @bad_cursor_error
+  end
+  def cast_int_ulid_id(_), do: @bad_cursor_error
+
+  def validate_cursor([], []), do: :ok
+  def validate_cursor([p | ps], [v | vs]) do
+    if predicated(p, v),
+      do: :ok,
+      else: @bad_cursor_error
+  end  
+  def validate_cursor(_, _), do: @bad_cursor_error
+
+
+  def predicated(fun) when is_function(fun, 1), do: &predicate_result(fun.(&1))
+  def predicated(fun, arg) when is_function(fun, 1), do: predicate_result(fun.(arg))
+  # def predicated(fun) when is_function(fun, 2), do: &predicate_result(fun.(&1, &2))
+  # def predicated(fun) when is_function(fun, 3), do: &predicate_result(fun.(&1, &2, &3))
+
+  defp predicate_result(true), do: true
+  defp predicate_result(:ok), do: true
+  defp predicate_result({:ok, _}), do: true
+  defp predicate_result(false), do: false
+  defp predicate_result(:error), do: false
+  defp predicate_result({:error,_}), do: false
 
 end
