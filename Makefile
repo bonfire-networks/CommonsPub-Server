@@ -122,5 +122,8 @@ good-tests: init
                  test/moodle_net_web/plugs/ \
                  test/moodle_net_web/graphql/{users,temporary}_test.exs \
 
+vf-tests: init
+	mix test lib/value_flows/{geolocation}/tests.ex 
+
 run: init ## Run the app in Docker
 	docker-compose up 

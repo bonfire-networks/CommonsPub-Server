@@ -58,13 +58,14 @@ defmodule ValueFlows.Geolocations do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, community, item, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
-        {:ok, item}
-      end
+           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs) do
+          #  act_attrs = %{verb: "created", is_local: true},
+          #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+          #  :ok <- publish(creator, community, item, activity, :created),
+          #  {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
+          # do
+            {:ok, item}
+          end
     end)
   end
 
