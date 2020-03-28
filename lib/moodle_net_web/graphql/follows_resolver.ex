@@ -4,8 +4,8 @@
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
-  alias MoodleNet.Follows.FollowerCounts
-  alias MoodleNet.GraphQL.{Fields, Flow}
+  alias MoodleNet.Follows.{Follow, FollowerCount, FollowerCountsQueries}
+  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow, PageFlow, PagesFlow}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -22,49 +22,66 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     end
   end
 
-  def fetch_my_follow_edge(%{id: id}, ids) do
-    {:ok, fields} = Follows.fields(&(&1.context_id), [:deleted, creator_id: id, context_id: ids])
-    fields
+  def fetch_my_follow_edge(info, ids) do
+    case GraphQL.current_user(info) do
+      nil -> nil
+      user ->
+        {:ok, fields} = Follows.fields(
+        &(&1.context_id),
+        [:deleted, creator_id: user.id, context_id: ids])
+        fields
+    end
   end
 
-  def follower_count_edge(%{id: id}, _, _) do
-    batch {__MODULE__, :batch_follower_count_edge}, id,
-      fn edges ->
-        case Fields.get(edges, id) do
-          {:ok, nil} -> {:ok, 0}
-          {:ok, other} -> {:ok, other.count}
-        end
-      end
+  def follower_count_edge(%{id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_follower_count_edge, id, info, default: 0
   end
 
-  def batch_follower_count_edge(_, ids) do
-    {:ok, edges} = FollowerCounts.fields(&(&1.context_id), context_id: ids)
-    edges
+  def fetch_follower_count_edge(_, ids) do
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: FollowerCountsQueries,
+        query: FollowerCount,
+        group_fn: &(&1.context_id),
+        map_fn: &(&1.count),
+        filters: [context_id: ids],
+      }
+    )
   end
 
   def followers_edge(%{id: id}, %{}=page_opts, info) do
+    vals = [&Ecto.ULID.cast/1]
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, vals, opts)
   end
 
-  def fetch_followers_edge({page_opts, user}, ids) do
-    {:ok, edges} = Follows.pages(
-      &(&1.context_id),
-      &(&1.id),
-      page_opts,
-      [context_id: ids, user: user],
-      [order: :timeline_desc],
-      [group_count: :context_id]
+  def fetch_followers_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.context_id),
+        page_opts: page_opts,
+        base_filters: [context_id: ids, user: user],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id],
+      }
     )
-    edges
   end
 
-  def fetch_followers_edge(page_opts, user, ids) do
-    Follows.page(
-      &(&1.id),
-      page_opts,
-      [context_id: ids, user: user],
-      [order: :timeline_desc]
+  def fetch_followers_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [context_id: ids, user: user],
+        data_filters: [order: [desc: :created]],
+      }
     )
   end
 

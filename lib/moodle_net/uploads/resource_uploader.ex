@@ -7,7 +7,7 @@ defmodule MoodleNet.Uploads.ResourceUploader do
   def allowed_extensions,
     do: ~w(pdf rtf docx doc odt ott xls xlsx ods ots csv ppt pps pptx odp otp) ++
       ~w(odg otg odc ogg mp3 m4a wav mp4 flv avi gif jpg jpeg png svg webm) ++
-      ~w(eps tex mbz)
+      ~w(eps tex mbz epub mobi torrent)
 
   def transform(_file), do: :skip
 end

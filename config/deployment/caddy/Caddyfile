@@ -19,10 +19,11 @@
   }
 
 
-  cgi /devops/respawn/{$MAIL_KEY} /opt/app/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
+  cgi /devops/respawn/{$MAIL_KEY} /utils/shutdown-instance.sh # webhook used to trigger shutdown of container and respawn of k8s pod
 
 
-  on startup /opt/app/bin/moodle_net start &
+  # we can use Caddy to spawn our BEAM app
+  # on startup /opt/app/bin/moodle_net start &
 
 
   proxy /proxy-elixir/ 127.0.0.1:{$PORT} {

@@ -3,25 +3,33 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   use MoodleNetWeb.ConnCase, async: true
+  import MoodleNet.Test.Faking
+  import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.Orderings
-  import MoodleNet.Test.Faking
-  import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.ConnHelpers
-  # alias MoodleNet.{Flags, Follows, Likes}
+  import MoodleNetWeb.Test.Automaton
+  alias MoodleNet.Communities
 
   describe "communities" do
 
     test "works for a guest" do
       users = some_fake_users!(%{}, 9)
-      communities = order_follower_count(some_fake_communities!(%{}, 3, users)) # 27
-      total = Enum.count(communities)
-      conn = json_conn()
-      # test the first page with the default limit
-      comms = gruff_post_key(communities_query(), conn, :communities)
-      page1 = assert_page(comms, 10, total, false, true, &(&1["id"]))
-      each(communities, page1.edges, &assert_community/2)
+      communities = some_fake_communities!(%{}, 3, users) # 27
+      root_page_test %{
+        query: communities_query(),
+        connection: json_conn(),
+        return_key: :communities,
+        default_limit: 10,
+        total_count: 27,
+        data: order_follower_count(communities),
+        assert_fn: &assert_community/2,
+        cursor_fn: Communities.test_cursor(:followers),
+        after: :communities_after,
+        before: :communities_before,
+        limit: :communities_limit,
+      }
     end
 
   end

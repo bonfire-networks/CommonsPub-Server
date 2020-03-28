@@ -9,8 +9,16 @@ defmodule MoodleNet.GraphQL.Pages do
 
   @type data :: %{term => term}
   @type counts :: %{term => non_neg_integer}
-  @type t :: %Pages{data: data, counts: counts, cursor_fn: (map -> binary)}
-  
+  @type t :: %Pages{data: data, counts: counts, cursor_fn: (term -> term)}
+
+  @doc """
+  Create a new pages from a data map, counts map, cursor function and page opts
+  """
+  def new(data, counts, cursor_fn, page_opts)
+  when is_function(cursor_fn, 1) do
+    %Pages{data: data, counts: counts, cursor_fn: cursor_fn, page_opts: page_opts}
+  end
+
   @doc """
   Create a new Pages from some data rows, count rows and a
   grouping key. Groups the data by the grouping key on insertion and
@@ -20,14 +28,15 @@ defmodule MoodleNet.GraphQL.Pages do
   this function will crash. Our intuition is that this would mean an
   error in the calling code, so we would rather raise it early.
   """
-  def new(data_rows, count_rows, group_fn, cursor_fn, page_opts)
-  when is_function(group_fn, 1) and is_function(cursor_fn, 1) do
+  def new(data_rows, count_rows, group_fn, cursor_fn, %{}=page_opts)
+  when is_list(data_rows) and is_list(count_rows)
+  and is_function(group_fn, 1) and is_function(cursor_fn, 1) do
     data = Enum.group_by(data_rows, group_fn)
     counts = Map.new(count_rows)
     %Pages{data: data, counts: counts, cursor_fn: cursor_fn, page_opts: page_opts}
   end
 
-  @doc "Returns an Page for the given key, defaulting to an empty one"
+  @doc "Returns a Page for the given key, defaulting to an empty one"
   def get(
     %Pages{
       data: data,

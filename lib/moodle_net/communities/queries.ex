@@ -60,6 +60,26 @@ defmodule MoodleNet.Communities.Queries do
 
   def filter(q, {:order, :list}), do: list(q)
 
+  def filter(q, {:order, [asc: :created]}) do
+    order_by q, [community: c], asc: c.id
+  end
+
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [community: c], desc: c.id
+  end
+
+  def filter(q, {:order, [asc: :followers]}) do
+    order_by q, [community: c, follower_count: fc],
+      asc: coalesce(fc.count, 0),
+      desc: c.id # most recent
+  end
+
+  def filter(q, {:order, [desc: :followers]}) do
+    order_by q, [community: c, follower_count: fc],
+      desc: coalesce(fc.count, 0),
+      desc: c.id
+  end
+
   ## by users
   
   def filter(q, {:user, %User{local_user: %LocalUser{is_instance_admin: true}}}) do
@@ -107,10 +127,46 @@ defmodule MoodleNet.Communities.Queries do
     where q, [actor: a], a.preferred_username in ^usernames
   end
 
+  def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[community: c, follower_count: fc],
+      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+  end
+
+  def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
+  when is_integer(count) and is_binary(id) do
+    where q,[community: c, follower_count: fc],
+      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+  end
+
   ## by preload
 
   def filter(q, {:preload, :actor}) do
     preload q, [actor: a], [actor: a]
+  end
+
+  def filter(q, {:page, [desc: [followers: page_opts]]}) do
+    q
+    |> filter(join: :follower_count, order: [desc: :followers])
+    |> page(page_opts, [desc: :followers])
+    |> select(
+      [community: c, actor: a, follower_count: fc],
+      %{c | follower_count: coalesce(fc.count, 0), actor: a}
+    )
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{limit: limit}, [desc: :followers]), do: filter(q, limit: limit + 1)
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
   end
 
   @doc """
@@ -131,5 +187,7 @@ defmodule MoodleNet.Communities.Queries do
     |> group_by([community: c], field(c, ^key))
     |> select([community: c], {field(c, ^key), count(c.id)})
   end
+
+
 
 end

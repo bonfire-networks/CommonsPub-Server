@@ -11,6 +11,8 @@ defmodule MoodleNet.Actors do
   * Collections
   """
 
+  @replacement_regex ~r/[^a-zA-Z0-9@._-]/
+
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.Repo
   alias MoodleNet.Actors.{Actor, Queries}
@@ -20,9 +22,10 @@ defmodule MoodleNet.Actors do
 
   # a username remains taken forever and regardless of publicity
   defp is_username_available_q(username) do
-    from a in Actor,
+    from(a in Actor,
       where: a.preferred_username == ^username,
       where: is_nil(a.peer_id)
+    )
   end
 
   @doc "true if the provided preferred_username is available to register"
@@ -34,9 +37,16 @@ defmodule MoodleNet.Actors do
     end
   end
 
+  defp fix_preferred_username(username) when is_nil(username), do: nil
+
+  defp fix_preferred_username(username) do
+    String.replace(username, @replacement_regex, "")
+  end
+
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
+    attrs = Map.put(attrs, :preferred_username, fix_preferred_username(Map.get(attrs, :preferred_username)))
     Repo.insert(Actor.create_changeset(attrs))
   end
 
@@ -47,5 +57,4 @@ defmodule MoodleNet.Actors do
 
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor), do: Repo.delete(actor)
-
 end

@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+echo "Starting MoodleNet backend..."
+
+exec /opt/app/bin/${APP_NAME} start 

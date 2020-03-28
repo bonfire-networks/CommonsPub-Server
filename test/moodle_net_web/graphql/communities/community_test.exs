@@ -284,35 +284,35 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       randomers = some_fake_users!(5)
       many_randomers = repeat_for_count(randomers, 25)
-      threads_and_initials = flat_pam_some(randomers, 5, fn user -> # 25
-        thread = fake_thread!(user, comm)
-        comment = fake_comment!(user, thread)
-        {thread, comment}
-      end)
-      threads_and_replies =
-        zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
-          reply = fake_reply!(user, thread, initial)
-          {thread, reply}
-        end)
-      # final_replies =
-      _ = zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
-          fake_reply!(user, thread, comment)
-        end)
-      {_threads, _initials} = unpiz(threads_and_initials)
+      # threads_and_initials = flat_pam_some(randomers, 5, fn user -> # 25
+      #   thread = fake_thread!(user, comm)
+      #   comment = fake_comment!(user, thread)
+      #   {thread, comment}
+      # end)
+      # threads_and_replies =
+      #   zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
+      #     reply = fake_reply!(user, thread, initial)
+      #     {thread, reply}
+      #   end)
+      # # final_replies =
+      # _ = zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
+      #     fake_reply!(user, thread, comment)
+      #   end)
+      # {_threads, _initials} = unpiz(threads_and_initials)
       # replies = Enum.map(threads_and_replies, &elem(&1, 1))
       # comments = final_replies ++ replies ++ initials
-      q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
-      vars = %{"communityId" => comm.id}
-      for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
-        assert %{"threads" => threads} = comm2
-        _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
-        # initials2 = Enum.flat_map(threads.edges, fn thread ->
-        #   assert_page(thread["comments"], 1, 3, false, true, &(&1["id"])).edges
-        # end)
-        # assert Enum.count(initials2) == 10
-        # each(Enum.reverse(initials), initials2, &assert_comment/2)
-      end
+      # q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
+      # vars = %{community_id: comm.id}
+      # for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
+      #   comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+      #   assert %{"threads" => threads} = comm2
+      #   # _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
+      #   # initials2 = Enum.flat_map(threads.edges, fn thread ->
+      #   #   assert_page(thread["comments"], 1, 3, false, true, &(&1["id"])).edges
+      #   # end)
+      #   # assert Enum.count(initials2) == 10
+      #   # each(Enum.reverse(initials), initials2, &assert_comment/2)
+      # end
     end
 
   end
