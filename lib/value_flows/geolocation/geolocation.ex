@@ -8,6 +8,7 @@ defmodule ValueFlows.Geolocation do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
+  alias ValueFlows.Geolocation
 
   @type t :: %__MODULE__{}
 

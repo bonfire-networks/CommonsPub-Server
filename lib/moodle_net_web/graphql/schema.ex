@@ -178,26 +178,26 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
   def hydrate(%{identifier: :all_agents}, [%{identifier: :agent_query} | _]) do
-    Logger.info("hydrating")
     {:resolve, &ValueFlows.GraphQL.Agent.all_agents/3}
   end
 
   def hydrate(%{identifier: :agent}, [%{identifier: :agent_query} | _]) do
-    Logger.info("hydrating")
     {:resolve, &ValueFlows.GraphQL.Agent.agent/2}
   end
 
 
   def hydrate(%{identifier: :all_intents}, [%{identifier: :planning_query} | _]) do
-    Logger.info("hydrating")
     {:resolve, &ValueFlows.GraphQL.Planning.all_intents/3}
   end
 
   def hydrate(%{identifier: :intent}, [%{identifier: :planning_query} | _]) do
-    Logger.info("hydrating")
     {:resolve, &ValueFlows.GraphQL.Planning.intent/2}
   end
 
+  def hydrate(%{identifier: :spatial_things}, [%{identifier: :geolocation_query} | _]) do
+    Logger.info("hydrating spatial_things")
+    {:resolve, &ValueFlows.GraphQL.Geolocation.geolocations/2}
+  end
 
 
   def hydrate(_node, _ancestors) do

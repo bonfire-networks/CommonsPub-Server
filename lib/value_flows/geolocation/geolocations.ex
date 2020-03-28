@@ -14,27 +14,6 @@ defmodule ValueFlows.Geolocations do
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
-  @doc """
-  Retrieves a single geolocation by arbitrary filters.
-  Used by:
-  * GraphQL Item queries
-  * ActivityPub integration
-  * Various parts of the codebase that need to query for geolocations (inc. tests)
-  """
-  def one(filters), do: Repo.single(Queries.query(Geolocation, filters))
-
-  @doc """
-  Retrieves a list of geolocations by arbitrary filters.
-  Used by:
-  * Various parts of the codebase that need to query for geolocations (inc. tests)
-  """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Geolocation, filters))}
-
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    {:ok, fields} = many(filters)
-    {:ok, Fields.new(fields, group_fn)}
-  end
 
   @doc """
   Retrieves an Page of geolocations according to various filters

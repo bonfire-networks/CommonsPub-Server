@@ -9,5 +9,12 @@ defmodule ValueFlows.GraphQL.Util do
 
   import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
 
+  # object :page_info do
+  #   field :start_cursor, list_of(non_null(:cursor))
+  #   field :end_cursor, list_of(non_null(:cursor))
+  #   field :has_previous_page, non_null(:boolean)
+  #   field :has_next_page, non_null(:boolean)
+  # end
+
 
 end
