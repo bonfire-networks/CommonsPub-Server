@@ -1,28 +1,32 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Geolocations do
+defmodule ValueFlows.Geolocations do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias MoodleNet.Geolocation
-  alias MoodleNet.Geolocations.Queries
-  # alias MoodleNet.Users.User
+  alias ValueFlows.Geolocation
+  alias ValueFlows.Geolocations.Queries
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Users.User
 
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
   @doc """
-  Retrieves a single Geolocation by arbitrary filters.
+  Retrieves a single geolocation by arbitrary filters.
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for Geolocations (inc. tests)
+  * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def one(filters), do: Repo.single(Queries.query(Geolocation, filters))
 
   @doc """
-  Retrieves a list of Geolocations by arbitrary filters.
+  Retrieves a list of geolocations by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for Geolocations (inc. tests)
+  * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Geolocation, filters))}
 
@@ -33,7 +37,7 @@ defmodule MoodleNet.Geolocations do
   end
 
   @doc """
-  Retrieves an Page of Geolocations according to various filters
+  Retrieves an Page of geolocations according to various filters
 
   Used by:
   * GraphQL resolver single-parent resolution
@@ -49,7 +53,7 @@ defmodule MoodleNet.Geolocations do
   end
 
   @doc """
-  Retrieves an Pages of Geolocations according to various filters
+  Retrieves an Pages of geolocations according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
@@ -61,21 +65,26 @@ defmodule MoodleNet.Geolocations do
   end
 
   ## mutations
+  # defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: item_username}) do
+  #   comm_username <> item_username
+  # end
 
+  # defp prepend_comm_username(_community, _attr), do: nil
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+    # preferred_username = prepend_comm_username(community, attrs)
     # attrs = Map.put(attrs, :preferred_username, preferred_username)
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_geolocation(creator, community, actor, coll_attrs),
+           {:ok, item_attrs} <- create_boxes(actor, attrs),
+           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(creator, community, coll, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
-        {:ok, coll}
+           {:ok, activity} <- Activities.create(creator, item, act_attrs),
+           :ok <- publish(creator, community, item, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
+        {:ok, item}
       end
     end)
   end
@@ -99,30 +108,53 @@ defmodule MoodleNet.Geolocations do
 
   defp insert_geolocation(creator, community, actor, attrs) do
     cs = Geolocation.create_changeset(creator, community, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
+    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
   end
 
+  defp publish(creator, community, geolocation, activity, :created) do
+    feeds = [
+      community.outbox_id, creator.outbox_id,
+      geolocation.outbox_id, Feeds.instance_outbox_id(),
+    ]
+    with :ok <- FeedActivities.publish(activity, feeds) do
+      ap_publish(geolocation.id, creator.id, geolocation.actor.peer_id)
+    end
+  end
+  defp publish(geolocation, :updated) do
+    ap_publish(geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+  end
+  defp publish(geolocation, :deleted) do
+    ap_publish(geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+  end
+
+  defp ap_publish(context_id, user_id, nil) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => context_id,
+      "user_id" => user_id,
+    })
+  end
+  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Geolocation{}, attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(%Geolocation{} = Geolocation, attrs) do
+  def update(%Geolocation{} = geolocation, attrs) do
     Repo.transact_with(fn ->
-      Geolocation = Repo.preload(Geolocation, :community)
-      with {:ok, Geolocation} <- Repo.update(Geolocation.update_changeset(Geolocation, attrs)),
-           {:ok, actor} <- Actors.update(Geolocation.actor, attrs),
-           :ok <- publish(Geolocation, :updated) do
-        {:ok, %{ Geolocation | actor: actor }}
+      geolocation = Repo.preload(geolocation, :community)
+      with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
+           {:ok, actor} <- Actors.update(geolocation.actor, attrs),
+           :ok <- publish(geolocation, :updated) do
+        {:ok, %{ geolocation | actor: actor }}
       end
     end)
   end
 
-  def soft_delete(%Geolocation{} = Geolocation) do
-    Repo.transact_with(fn ->
-      with {:ok, Geolocation} <- Common.soft_delete(Geolocation),
-           :ok <- publish(Geolocation, :deleted) do
-        {:ok, Geolocation}
-      end
-    end)
-  end
+  # def soft_delete(%Geolocation{} = geolocation) do
+  #   Repo.transact_with(fn ->
+  #     with {:ok, geolocation} <- Common.soft_delete(geolocation),
+  #          :ok <- publish(geolocation, :deleted) do
+  #       {:ok, geolocation}
+  #     end
+  #   end)
+  # end
 
 end

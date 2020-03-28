@@ -1,20 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Geolocations.Queries do
+defmodule ValueFlows.Geolocations.Queries do
 
-  alias MoodleNet.Geolocation
-  # alias MoodleNet.Users.User
-  # import MoodleNet.Common.Query, only: [match_admin: 0]
+  alias MoodleNet.Communities
+  alias ValueFlows.Geolocation
+  alias ValueFlows.Geolocations
+  alias MoodleNet.Follows.{Follow, FollowerCount}
+  alias MoodleNet.Users.User
+  import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(Collection) do
-    from c in Collection, as: :collection,
+  def query(Geolocation) do
+    from c in Geolocation, as: :geolocation,
       join: a in assoc(c, :actor), as: :actor
   end
 
   def query(:count) do
-    from c in Collection, as: :collection
+    from c in Geolocation, as: :geolocation
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -33,7 +36,7 @@ defmodule MoodleNet.Geolocations.Queries do
   end
 
   def join_to(q, :community, jq) do
-    join q, jq, [collection: c], c2 in assoc(c, :community), as: :community
+    join q, jq, [geolocation: c], c2 in assoc(c, :community), as: :community
   end
 
   def join_to(q, {:community_follow, follower_id}, jq) do
@@ -42,12 +45,12 @@ defmodule MoodleNet.Geolocations.Queries do
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [collection: c], f in Follow, as: :follow,
+    join q, jq, [geolocation: c], f in Follow, as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
   end
 
   def join_to(q, :follower_count, jq) do
-    join q, jq, [collection: c],
+    join q, jq, [geolocation: c],
       f in FollowerCount, on: c.id == f.context_id,
       as: :follower_count
   end
@@ -79,7 +82,7 @@ defmodule MoodleNet.Geolocations.Queries do
     q
     |> join_to([:community, follow: id, community_follow: id])
     |> where([community: c, community_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> where([collection: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
     |> Communities.Queries.filter(~w(deleted disabled)a)
   end
@@ -94,45 +97,45 @@ defmodule MoodleNet.Geolocations.Queries do
   ## by status
   
   def filter(q, :deleted) do
-    where q, [collection: c], is_nil(c.deleted_at)
+    where q, [geolocation: c], is_nil(c.deleted_at)
   end
 
   def filter(q, :disabled) do
-    where q, [collection: c], is_nil(c.disabled_at)
+    where q, [geolocation: c], is_nil(c.disabled_at)
   end
 
   def filter(q, :private) do
-    where q, [collection: c], not is_nil(c.published_at)
+    where q, [geolocation: c], not is_nil(c.published_at)
   end
 
   ## by field values
 
   def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
   when is_integer(count) and is_binary(id) do
-    where q,[collection: c, follower_count: fc],
+    where q,[geolocation: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
   end
 
   def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
   when is_integer(count) and is_binary(id) do
-    where q,[collection: c, follower_count: fc],
+    where q,[geolocation: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [collection: c], c.id == ^id
+    where q, [geolocation: c], c.id == ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [collection: c], c.id in ^ids
+    where q, [geolocation: c], c.id in ^ids
   end
 
   def filter(q, {:community_id, id}) when is_binary(id) do
-    where q, [collection: c], c.community_id == ^id
+    where q, [geolocation: c], c.community_id == ^id
   end
 
   def filter(q, {:community_id, ids}) when is_list(ids) do
-    where q, [collection: c], c.community_id in ^ids
+    where q, [geolocation: c], c.community_id in ^ids
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
@@ -150,7 +153,7 @@ defmodule MoodleNet.Geolocations.Queries do
   end
 
   def filter(q, {:order, [desc: :followers]}) do
-    order_by q, [collection: c, follower_count: fc],
+    order_by q, [geolocation: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
   end
@@ -163,11 +166,11 @@ defmodule MoodleNet.Geolocations.Queries do
   end
 
   def filter(q, {:group, key}) when is_atom(key) do
-    group_by(q, [collection: c], field(c, ^key))
+    group_by(q, [geolocation: c], field(c, ^key))
   end
 
   def filter(q, {:count, key}) when is_atom(key) do
-    select(q, [collection: c], {field(c, ^key), count(c.id)})
+    select(q, [geolocation: c], {field(c, ^key), count(c.id)})
   end
 
   def filter(q, {:preload, :actor}) do
@@ -183,13 +186,13 @@ defmodule MoodleNet.Geolocations.Queries do
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
     q
-    |> where([collection: c], c.id >= ^a)
+    |> where([geolocation: c], c.id >= ^a)
     |> limit(^limit)
   end
 
   def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
     q
-    |> where([collection: c], c.id <= ^b)
+    |> where([geolocation: c], c.id <= ^b)
     |> filter(limit: limit + 2)
   end
 
@@ -202,7 +205,7 @@ defmodule MoodleNet.Geolocations.Queries do
     |> filter(join: :follower_count, order: [desc: :followers])
     |> page(page_opts, [desc: :followers])
     |> select(
-      [collection: c, actor: a, follower_count: fc],
+      [geolocation: c, actor: a, follower_count: fc],
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
