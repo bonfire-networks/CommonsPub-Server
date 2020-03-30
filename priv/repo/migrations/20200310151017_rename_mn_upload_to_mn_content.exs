@@ -179,8 +179,6 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     where x.id = c.parent_id and x.#{old_field} = c.path;
     """
 
-    flush()
-
     :ok
   end
 end

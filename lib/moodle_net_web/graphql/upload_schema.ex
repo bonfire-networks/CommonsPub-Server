@@ -17,20 +17,20 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   object :upload_mutations do
     @desc "Upload a small icon, also known as an avatar."
-    field :upload_icon, type: :file_upload do
+    field :upload_icon, type: :content do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
       resolve(&UploadResolver.upload_icon/2)
     end
 
     @desc "Upload a large image, also known as a header."
-    field :upload_image, type: :file_upload do
+    field :upload_image, type: :content do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
       resolve(&(UploadResolver.upload_image/2))
     end
 
-    field :upload_resource, type: :file_upload do
+    field :upload_resource, type: :content do
       arg(:context_id, non_null(:id))
       arg(:upload, non_null(:upload))
       resolve(&UploadResolver.upload_resource/2)
@@ -38,9 +38,9 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   end
 
   @desc "An uploaded file, may contain metadata."
-  object :file_upload do
+  object :content do
     field(:id, non_null(:id))
-    field(:url, non_null(:string))
+    # TODO: consider moving size to content_upload
     field(:size, non_null(:integer))
     field(:media_type, non_null(:string))
     field(:metadata, :file_metadata)
@@ -52,6 +52,22 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field(:uploader, :user) do
       resolve(&UploadResolver.uploader/3)
     end
+
+    field(:mirror, :content_mirror) do
+      resolve(&UploadResolver.content_mirror/3)
+    end
+
+    field(:upload, :content_upload) do
+      resolve(&UploadResolver.content_upload/3)
+    end
+  end
+
+  object :content_mirror do
+    field(:url, non_null(:string))
+  end
+
+  object :content_upload do
+    field(:path, non_null(:string))
   end
 
   @desc """
@@ -83,18 +99,5 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field(:num_color_palette, :integer)
     field(:color_planes, :integer)
     field(:bits_per_pixel, :integer)
-  end
-
-  @desc "Supported parents of a file upload."
-  union :upload_parent do
-    description "A parent of an upload"
-    types [:collection, :comment, :community, :resource, :user]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Comment{},    _ -> :comment
-      %Community{},  _ -> :community
-      %Resource{},   _ -> :resource
-      %User{},       _ -> :user
-    end
   end
 end
