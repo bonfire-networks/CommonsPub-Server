@@ -41,6 +41,12 @@ type SpatialThing {
   economicEvents: [EconomicEvent!]
   commitments: [Commitment!]
   intents: [Intent!]
+
+  ## CommonsPub-specific
+
+  canonicalUrl: String
+  displayUsername: String
+  community: Community
 }
 
 

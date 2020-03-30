@@ -24,7 +24,7 @@ defmodule ValueFlows.Geolocation.GraphQL do
 
   ## resolvers
 
-  def geolocation(%{geolocation_id: id}, info) do
+  def geolocation(%{id: id}, info) do
     Flow.field(__MODULE__, :fetch_geolocation, id, info)
   end
 

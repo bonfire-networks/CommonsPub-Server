@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
   use Absinthe.Schema
   alias MoodleNetWeb.GraphQL.{
+    ActorsResolver,
     ActivitiesSchema,
     AdminSchema,
     BlocksSchema,
@@ -202,6 +203,51 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     Logger.info("hydrating spatial_thing")
      {:resolve, &ValueFlows.Geolocation.GraphQL.geolocation/2}
   end
+
+  def hydrate(%{identifier: :canonical_url}, [%{identifier: :spatial_thing} | _]) do
+     {:resolve, &ActorsResolver.canonical_url_edge/3}
+  end
+
+  def hydrate(%{identifier: :display_username}, [%{identifier: :spatial_thing} | _]) do
+     {:resolve, &ActorsResolver.display_username_edge/3}
+  end
+
+  def hydrate(%{identifier: :community}, [%{identifier: :spatial_thing} | _]) do
+     {:resolve, &ValueFlows.Geolocation.GraphQL.community_edge/3}
+  end
+
+  # def hydrate(%Absinthe.Blueprint{}, _) do
+  #   %{
+  #     mutation: %{
+  #       failing_thing: [
+  #         resolve: &__MODULE__.resolve_failing_thing/3
+  #       ]
+  #     },
+  #     query: %{
+  #       bad_resolution: [
+  #         resolve: &__MODULE__.resolve_bad/3
+  #       ],
+  #       number: [
+  #         resolve: &__MODULE__.resolve_number/3
+  #       ],
+  #       thing_by_context: [
+  #         resolve: &__MODULE__.resolve_things_by_context/3
+  #       ],
+  #       things: [
+  #         resolve: &__MODULE__.resolve_things/3
+  #       ],
+  #       thing: [
+  #         resolve: &__MODULE__.resolve_thing/3
+  #       ],
+  #       deprecated_thing: [
+  #         resolve: &__MODULE__.resolve_thing/3
+  #       ],
+  #       deprecated_thing_with_reason: [
+  #         resolve: &__MODULE__.resolve_thing/3
+  #       ]
+  #     }
+  #   }
+  # end
 
 
   # fallback
