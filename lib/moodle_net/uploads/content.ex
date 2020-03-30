@@ -18,7 +18,6 @@ defmodule MoodleNet.Uploads.Content do
     has_one(:content_mirror, ContentMirror)
     has_one(:content_upload, ContentUpload)
     field(:url, :string, virtual: true)
-    field(:size, :integer)
     field(:media_type, :string)
     field(:metadata, :map)
     field(:is_public, :boolean, virtual: true)
@@ -27,8 +26,8 @@ defmodule MoodleNet.Uploads.Content do
     timestamps(inserted_at: :created_at)
   end
 
-  @create_cast ~w(size media_type metadata is_public)a
-  @create_required ~w(size media_type)a
+  @create_cast ~w(media_type metadata is_public)a
+  @create_required ~w(media_type)a
 
   def mirror_changeset(%ContentMirror{} = mirror, %User{} = uploader, attrs) do
     common_changeset(uploader, attrs)

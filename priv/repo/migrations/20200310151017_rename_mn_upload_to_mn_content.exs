@@ -35,6 +35,7 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
 
     create table(:mn_content_upload) do
       add :path, :string, null: false
+      add :size, :integer, null: false
     end
 
     create table(:mn_content_mirror) do
@@ -59,8 +60,8 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
 
     # Move all items from mn_upload to mn_content_upload
     :ok = execute """
-    insert into mn_content_upload (id, path)
-    select id, path from mn_content;
+    insert into mn_content_upload (id, size, path)
+    select id, size, path from mn_content;
     """
 
     # Update mn_content to reference mn_content_upload
@@ -91,6 +92,7 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     # alter table(:mn_content) do
     #   remove :parent_id
     #   remove :path
+    #   remote :size
     # end
 
     # alter table(:mn_resource) do

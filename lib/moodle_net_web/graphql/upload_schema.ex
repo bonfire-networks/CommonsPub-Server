@@ -40,8 +40,6 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   @desc "An uploaded file, may contain metadata."
   object :content do
     field(:id, non_null(:id))
-    # TODO: consider moving size to content_upload
-    field(:size, non_null(:integer))
     field(:media_type, non_null(:string))
     field(:metadata, :file_metadata)
 
@@ -68,6 +66,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   object :content_upload do
     field(:path, non_null(:string))
+    field(:size, non_null(:integer))
   end
 
   @desc """

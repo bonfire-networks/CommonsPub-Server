@@ -8,9 +8,10 @@ defmodule MoodleNet.Uploads.ContentUpload do
 
   table_schema "mn_content_upload" do
     field(:path, :string)
+    field(:size, :integer)
   end
 
-  @cast ~w(path)a
+  @cast ~w(path size)a
   @required @cast
 
   def changeset(attrs) do
