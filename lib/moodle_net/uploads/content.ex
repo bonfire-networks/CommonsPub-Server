@@ -29,19 +29,14 @@ defmodule MoodleNet.Uploads.Content do
   @create_cast ~w(size media_type metadata is_public)a
   @create_required ~w(size media_type)a
 
-  def create_changeset(parent, %User{} = uploader, attrs) do
+  def create_changeset(%User{} = uploader, attrs) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> Changeset.change(
       is_public: true,
-      parent_id: parent.id,
       uploader_id: uploader.id
     )
     |> change_public()
-  end
-
-  def soft_delete_changeset(%__MODULE__{} = upload) do
-    MoodleNet.Common.Changeset.soft_delete_changeset(upload)
   end
 end
