@@ -1,23 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.GraphQL.Knowledge do
+defmodule ValueFlows.Planning.GraphQL do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   alias ValueFlows.{Simulate}
   require Logger
 
-  import_sdl path: "lib/value_flows/graphql/schemas/knowledge.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
-
-  def action(%{id: id}, info) do
-    {:ok, Simulate.action()}
+  def intent(%{id: id}, info) do
+    {:ok, Simulate.intent()}
   end
 
-  def all_actions(_, _) do
-    {:ok, Simulate.long_list(&Simulate.action/0)}
+  def all_intents(_, _, _) do
+    {:ok, Simulate.long_list(&Simulate.intent/0)}
   end
+
 
 
 end
