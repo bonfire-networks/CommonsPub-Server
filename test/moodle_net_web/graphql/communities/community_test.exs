@@ -9,7 +9,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Faking
   import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.ConnHelpers
-  import Gruff
+  import Grumble
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "community" do
@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       vars = %{"communityId" => comm.id}
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        comm2 = gruff_post_key(community_query(), conn, "community", vars)
+        comm2 = grumble_post_key(community_query(), conn, "community", vars)
         comm2 = assert_community(comm, comm2)
         assert comm2.follower_count == 1
         assert comm2.liker_count == 0
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       q = community_query(fields: [my_like: like_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        comm2 = gruff_post_key(q, conn, "community", vars)
+        comm2 = grumble_post_key(q, conn, "community", vars)
         comm2 = assert_community(comm, comm2)
         assert comm2["myLike"] == nil
       end
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = community_query(fields: [my_like: like_fields()])
       for user <- [alice, bob, lucy] do
         {:ok, like} = Likes.create(user, comm, %{is_local: true})
-        comm2 = gruff_post_key(q, user_conn(user), "community", vars)
+        comm2 = grumble_post_key(q, user_conn(user), "community", vars)
         comm2 = assert_community(comm, comm2)
         assert_like(like, comm2["myLike"])
       end
@@ -75,7 +75,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       q = community_query(fields: [my_follow: follow_fields()])
       for conn <- [json_conn(), user_conn(bob), user_conn(lucy)] do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert comm2["myFollow"] == nil
       end
     end
@@ -86,13 +86,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       vars = %{"communityId" => comm.id}
       q = community_query(fields: [my_follow: follow_fields()])
-      comm2 = gruff_post_key(q, user_conn(alice), "community", vars)
+      comm2 = grumble_post_key(q, user_conn(alice), "community", vars)
       comm2 = assert_community(comm, comm2)
       assert_follow(comm2["myFollow"])
 
       for user <- [bob, lucy] do
         {:ok, follow} = Follows.create(user, comm, %{is_local: true})
-        comm2 = assert_community(comm, gruff_post_key(q, user_conn(user), "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, user_conn(user), "community", vars))
         assert_follow(follow, comm2["myFollow"])
       end
     end
@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       q = community_query(fields: [my_flag: flag_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert comm2["myFlag"] == nil
       end
     end
@@ -121,7 +121,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = community_query(fields: [my_flag: flag_fields()])
       for user <- [alice, bob, lucy] do
         {:ok, flag} = Flags.create(user, comm, %{is_local: true, message: "bad"})
-        comm2 = gruff_post_key(q, user_conn(user), "community", vars)
+        comm2 = grumble_post_key(q, user_conn(user), "community", vars)
         comm2 = assert_community(comm, comm2)
         assert_flag(flag, comm2["myFlag"])
       end
@@ -136,7 +136,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       q = community_query(fields: [creator: user_fields()])
       conn = json_conn()
-      comm2 = gruff_post_key(q, conn, :community, %{communityId: comm.id})
+      comm2 = grumble_post_key(q, conn, :community, %{communityId: comm.id})
       comm2 = assert_community(comm, comm2)
       assert %{"creator" => creator} = comm2
       assert_user(alice, creator)
@@ -165,7 +165,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{community_id: comm.id, limit: 2}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert %{"collections" => colls2, "collectionCount" => count} = comm2
         assert count == total
         page1 = assert_page(colls2, 2, total, false, true, &(&1["id"]))
@@ -186,7 +186,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
       for conn <- conns do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert %{"followers" => follows, "followerCount" => count} = comm2
         assert count == 24
         edges = assert_page(follows, 10, 24, false, true, &(&1["id"]))
@@ -207,7 +207,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
       for conn <- conns do
-        comm2 = gruff_post_key(q, conn, "community", vars)
+        comm2 = grumble_post_key(q, conn, "community", vars)
         comm2 = assert_community(comm, comm2)
         assert %{"likers" => likes, "likerCount" => count} = comm2
         assert count == 23
@@ -230,7 +230,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{"communityId" => comm.id}
       conns = [user_conn(eve), json_conn()]
       for conn <- conns do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert %{"flags" => flags} = comm2
         assert_page(flags, 0, 0, false, false, &(&1["id"]))
       end
@@ -246,13 +246,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = community_query(fields: [flags: page_fields(flag_fields())])
       vars = %{"communityId" => comm.id}
 
-      comm2 = assert_community(gruff_post_key(q, user_conn(bob), "community", vars))
+      comm2 = assert_community(grumble_post_key(q, user_conn(bob), "community", vars))
       assert %{"flags" => flags} = comm2
       edges = assert_page(flags, 1, 1, false, false, &(&1["id"]))
       for edge <- edges.edges, do: assert_flag(edge)
 
       for conn <- [user_conn(lucy)] do
-        comm2 = assert_community(gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(grumble_post_key(q, conn, "community", vars))
         assert %{"flags" => flags} = comm2
         edges = assert_page(flags, 10, 24, false, true, &(&1["id"]))
         for edge <- edges.edges, do: assert_flag(edge)
@@ -272,7 +272,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = community_query(fields: [threads_subquery(fields: [comments_subquery()])])
       vars = %{"communityId" => comm.id}
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
-        comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
         assert %{"threads" => threads} = comm2
         assert_page(threads, 0, 0, false, false, &(&1.id))
       end
@@ -304,7 +304,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       # q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
       # vars = %{community_id: comm.id}
       # for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
-      #   comm2 = assert_community(comm, gruff_post_key(q, conn, "community", vars))
+      #   comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
       #   assert %{"threads" => threads} = comm2
       #   # _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
       #   # initials2 = Enum.flat_map(threads.edges, fn thread ->

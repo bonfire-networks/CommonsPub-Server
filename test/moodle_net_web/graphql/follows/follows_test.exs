@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = follow_query()
       conn = json_conn()
-      follow2 = gruff_post_key(q, conn, :follow, %{follow_id: follow.id})
+      follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
       assert_follow(follow, follow2)
     end
 
@@ -36,7 +36,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
       q = follow_query()
       conn = json_conn()
-      follow2 = gruff_post_key(q, conn, :follow, %{follow_id: follow.id})
+      follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
       assert_follow(follow, follow2)
     end
 
@@ -47,7 +47,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
       q = follow_query()
       conn = json_conn()
-      follow2 = gruff_post_key(q, conn, :follow, %{follow_id: follow.id})
+      follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
       assert_follow(follow, follow2)
     end
 
@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       {:ok, follow} = Follows.create(alice, bob, %{is_local: true}) # alice follows bob
       q = follow_query(fields: [creator: user_fields()])
       conn = json_conn()
-      follow2 = assert_follow(follow, gruff_post_key(q, conn, :follow, %{follow_id: follow.id}))
+      follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert %{"creator" => creator} = follow2
       assert_user(alice, creator)
     end
@@ -73,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       follow = follow!(alice, bob)
       q = follow_query(fields: [context: [user_spread()]])
       conn = json_conn()
-      follow2 = assert_follow(follow, gruff_post_key(q, conn, :follow, %{follow_id: follow.id}))
+      follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert %{"context" => context} = follow2
       assert_user(bob, context)
     end
@@ -84,7 +84,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       q = follow_query(fields: [context: [community_spread()]])
       conn = json_conn()
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
-      follow2 = assert_follow(follow, gruff_post_key(q, conn, :follow, %{follow_id: follow.id}))
+      follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert %{"context" => context} = follow2
       assert_community(bob, context)
     end
@@ -96,7 +96,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       q = follow_query(fields: [context: [collection_spread()]])
       conn = json_conn()
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: eve.id)
-      follow2 = assert_follow(follow, gruff_post_key(q, conn, :follow, %{follow_id: follow.id}))
+      follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert %{"context" => context} = follow2
       assert_collection(eve, context)
     end
@@ -107,7 +107,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       [alice, bob] = some_fake_users!(2)
       conn = user_conn(alice)
       q = create_follow_mutation()
-      follow2 = assert_follow(gruff_post_key(q, conn, :create_follow, %{context_id: bob.id}))
+      follow2 = assert_follow(grumble_post_key(q, conn, :create_follow, %{context_id: bob.id}))
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
       assert_follow(follow, follow2)
     end
@@ -119,7 +119,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       conn = user_conn(actor)
       q = follow_remote_actor_mutation()
       vars = %{url: @remote_actor}
-      follow2 = gruff_post_key(q, conn, :follow_remote_actor, vars)
+      follow2 = grumble_post_key(q, conn, :follow_remote_actor, vars)
       {:ok, followed} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(@remote_actor)
       {:ok, follow} = Follows.one(creator_id: actor.id, context_id: followed.id)
       assert_follow(follow, follow2)

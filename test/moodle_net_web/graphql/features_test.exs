@@ -19,7 +19,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
       q = feature_query()
       vars = %{feature_id: feature.id}
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
-        feature2 = gruff_post_key(q, conn, :feature, vars)
+        feature2 = grumble_post_key(q, conn, :feature, vars)
         assert_feature(feature, feature2)
       end
     end
@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
       q = feature_query()
       vars = %{feature_id: feature.id}
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(eve)] do
-        feature2 = gruff_post_key(q, conn, :feature, vars)
+        feature2 = grumble_post_key(q, conn, :feature, vars)
         assert_feature(feature, feature2)
       end
     end

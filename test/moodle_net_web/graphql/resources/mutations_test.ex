@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         ri = Fake.resource_input()
         vars = %{collection_id: coll.id, resource: ri}
-        assert_resource(ri, gruff_post_key(q, conn, :create_resource, vars))
+        assert_resource(ri, grumble_post_key(q, conn, :create_resource, vars))
       end
     end
 
@@ -32,7 +32,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       conn = json_conn()
       ri = Fake.resource_input()
       vars = %{collection_id: coll.id, resource: ri}
-      assert_not_logged_in(gruff_post_errors(q, conn, vars), ["createResource"])
+      assert_not_logged_in(grumble_post_errors(q, conn, vars), ["createResource"])
     end
 
   end
@@ -49,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         ri = Fake.resource_input()
         vars = %{resource_id: resource.id, resource: ri}
-        assert_resource(ri, gruff_post_key(q, conn, :update_resource, vars))
+        assert_resource(ri, grumble_post_key(q, conn, :update_resource, vars))
       end
     end
 
@@ -62,7 +62,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       q = update_resource_mutation()
       ri = Fake.resource_input()
       vars = %{resource_id: resource.id, resource: ri}
-      assert_not_logged_in(gruff_post_errors(q, conn, vars), ["updateResource"])
+      assert_not_logged_in(grumble_post_errors(q, conn, vars), ["updateResource"])
     end
 
   end
@@ -78,7 +78,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       conn = user_conn(bob)
       q = copy_resource_mutation()
       vars = %{resource_id: resource.id, collection_id: coll2.id}
-      assert_copied_resource(resource, gruff_post_key(q, conn, :copy_resource, vars))
+      assert_copied_resource(resource, grumble_post_key(q, conn, :copy_resource, vars))
     end
 
     test "does not work for a guest" do
@@ -90,7 +90,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       conn = json_conn()
       q = copy_resource_mutation()
       vars = %{resource_id: resource.id, collection_id: coll2.id}
-      assert_not_logged_in(gruff_post_errors(q, conn, vars), ["copyResource"])
+      assert_not_logged_in(grumble_post_errors(q, conn, vars), ["copyResource"])
     end
   end
 

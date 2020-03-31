@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
       q = create_community_mutation()
       for conn <- [user_conn(alice), user_conn(lucy)] do
         ci = Fake.community_input()
-        comm = gruff_post_key(q, conn, :create_community, %{community: ci})
+        comm = grumble_post_key(q, conn, :create_community, %{community: ci})
         assert_community(ci, comm)
       end
     end
@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
     test "does not work for a guest" do
       ci = Fake.community_input()
       q = create_community_mutation()
-      assert err = gruff_post_errors(q, json_conn(), %{community: ci})
+      assert err = grumble_post_errors(q, json_conn(), %{community: ci})
     end
 
   end
@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
       for conn <- conns do
         ci = Fake.community_update_input()
         vars = %{community: ci, community_id: comm.id}
-        comm = gruff_post_key(q, conn, :update_community, vars)
+        comm = grumble_post_key(q, conn, :update_community, vars)
         assert_community(ci, comm)
       end
     end
@@ -52,7 +52,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
         ci = Fake.community_update_input()
         vars = %{community: ci, community_id: comm.id}
         q = update_community_mutation()
-        gruff_post_errors(q, conn, vars)
+        grumble_post_errors(q, conn, vars)
       end
     end
 
