@@ -19,6 +19,7 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     @desc "Upload a small icon, also known as an avatar."
     field :upload_icon, type: :content do
       arg(:context_id, non_null(:id))
+      # FIXME: allow url's
       arg(:upload, non_null(:upload))
       resolve(&UploadResolver.upload_icon/2)
     end

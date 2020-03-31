@@ -9,6 +9,12 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Content
 
+  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
+  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
+  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
+
+  defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
+
   def upload_icon(params, info),
     do: upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
 

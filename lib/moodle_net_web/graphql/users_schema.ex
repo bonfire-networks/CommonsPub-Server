@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     FollowsResolver,
     LikesResolver,
     UsersResolver,
+    UploadResolver,
   }
 
   object :users_queries do
@@ -151,10 +152,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :location, :string
     @desc "A valid URL"
     field :website, :string
+
     @desc "An avatar url"
-    field :icon, :string
+    field :icon, :content do
+      resolve &UploadResolver.icon_content_edge/3
+    end
+
     @desc "A header background image url"
-    field :image, :string
+    field :image, :content do
+      resolve &UploadResolver.image_content_edge/3
+    end
 
     @desc "Whether the user is local to the instance"
     field :is_local, non_null(:boolean) do
@@ -358,8 +365,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :summary, :string
     field :location, :string
     field :website, :string
-    field :icon, :string
-    field :image, :string
     # field :primary_language_id, :string
     field :wants_email_digest, non_null(:boolean)
     field :wants_notifications, non_null(:boolean)
@@ -370,8 +375,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :summary, :string
     field :location, :string
     field :website, :string
-    field :icon, :string
-    field :image, :string
     # field :primary_language_id, :string
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean

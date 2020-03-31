@@ -15,6 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     LikesResolver,
     ThreadsResolver,
     UsersResolver,
+    UploadResolver,
   }
 
   object :collections_queries do
@@ -79,8 +80,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :name, non_null(:string)
     @desc "Possibly biographical information"
     field :summary, :string
+
     @desc "An avatar url"
-    field :icon, :string
+    field :icon, :content do
+      resolve &UploadResolver.icon_content_edge/3
+    end
 
     @desc "Whether the collection is local to the instance"
     field :is_local, non_null(:boolean) do
@@ -227,14 +231,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
     # field :primary_language_id, :string
   end
 
   input_object :collection_update_input do
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
     # field :primary_language_id, :string
   end
 
