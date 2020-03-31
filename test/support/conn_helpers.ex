@@ -76,18 +76,18 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
         throw {:additional_errors, errors}
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}
-      %{"data" => data} ->
+      %{"data" => data} -> data
         # IO.inspect(client_received: data)
         data
       other -> throw {:horribly_wrong, other}
     end
   end
 
-  def gruff_post_data(query, conn, vars \\ %{}, name \\ "test") do
-    query = Gruff.PP.to_string(query)
-    vars = recase_vars(vars)
-    IO.puts(query)
-    IO.inspect(vars: vars)
+  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test") do
+    query = Grumble.PP.to_string(query)
+    vars = camel_map(vars)
+    # IO.puts(query)
+    # IO.inspect(vars: vars)
     query = %{
       query: query,
       variables: vars,
@@ -96,18 +96,18 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     gql_post_data(conn, query)
   end
 
-  def gruff_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
-    key = recase(key)
-    assert %{^key => val} = gruff_post_data(query, conn, vars, name)
+  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
+    key = camel(key)
+    assert %{^key => val} = grumble_post_data(query, conn, vars, name)
     val
   end
 
   def gql_post_errors(conn \\ json_conn(), query),
-    do: Map.fetch!(gql_post_200(conn, query), "errors")
+    do: Map.fetch!(gql_post_200(conn, query), :errors)
 
-  def gruff_post_errors(query, conn, vars \\ %{}, name \\ "test") do
-    query = Gruff.PP.to_string(query)
-    vars = recase_vars(vars)
+  def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
+    query = Grumble.PP.to_string(query)
+    vars = camel_map(vars)
     # IO.inspect(query: query)
     # IO.inspect(vars: vars)
     query = %{
@@ -115,14 +115,26 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       variables: vars,
       operationName: name,
     }
-   Map.fetch!(gql_post_200(conn, query), "errors")
+   Map.fetch!(gql_post_200(conn, query), :errors)
   end
 
-  defp recase_vars(%{}=vars) do
-    Enum.reduce(vars, %{}, fn {k,v}, acc -> Map.put(acc, recase(k), v) end)
+  @doc false
+  def camel_map(%{}=vars) do
+    Enum.reduce(vars, %{}, fn {k,v}, acc -> Map.put(acc, camel(k), v) end)
   end
 
-  defp recase(atom) when is_atom(atom), do: recase(Atom.to_string(atom))
-  defp recase(binary) when is_binary(binary), do: Recase.to_camel(binary)
+  @doc false
+  def camel(atom) when is_atom(atom), do: camel(Atom.to_string(atom))
+  def camel(binary) when is_binary(binary), do: Recase.to_camel(binary)
     
+  @doc false
+  def uncamel_map(%{}=map) do
+    Enum.reduce(map, %{}, fn {k,v}, acc -> Map.put(acc, uncamel(k), v) end)
+  end
+
+  @doc false
+  def uncamel(atom) when is_atom(atom), do: atom
+  def uncamel("__typeName"), do: :typename
+  def uncamel(bin) when is_binary(bin), do: String.to_existing_atom(Recase.to_snake(bin))
+
 end

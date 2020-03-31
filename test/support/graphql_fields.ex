@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.GraphQLFields do
 
-  import Gruff
+  import Grumble
 
   def page_info_fields do
     ~w(start_cursor end_cursor has_previous_page has_next_page __typename)a
   end
   
   def page_fields(edge_fields) do
-    page_info = Gruff.field(:page_info, fields: page_info_fields())
-    edges = Gruff.field(:edges, fields: edge_fields)
+    page_info = Grumble.field(:page_info, fields: page_info_fields())
+    edges = Grumble.field(:edges, fields: edge_fields)
     [:total_count, page_info, edges]
   end
 
