@@ -71,6 +71,7 @@ defmodule MoodleNet.Flags do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
          {:ok, activity} <- insert_activity(flagger, flag, "created") do
       publish(flagger, flagged, flag, community, "created")
+      federate(flag)
     end
   end
 
@@ -79,7 +80,13 @@ defmodule MoodleNet.Flags do
     {:ok, flag}
   end
 
-  defp federate(%Flag{is_local: true} = flag), do: :ok
+  defp federate(%Flag{is_local: true} = flag) do
+    MoodleNet.FeedPublisher.publish(%{
+      "context_id" => flag.context_id,
+      "user_id" => flag.creator_id,
+    })
+  end
+
   defp federate(_), do: :ok
 
   defp insert_activity(flagger, flag, verb) do

@@ -79,7 +79,7 @@ defmodule MoodleNet.Test.Fake do
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def preferred_username(), do: unused(&Faker.Pokemon.name/0, :preferred_username)
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> ulid()
 
@@ -319,7 +319,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:message, &paragraph/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
   end
-    
+
   def follow(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
