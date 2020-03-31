@@ -5,6 +5,7 @@ defmodule MoodleNet.Uploads.ContentMirror do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [validate_http_url: 2]
+  alias Ecto.Changeset
 
   @type t :: %__MODULE__{}
 

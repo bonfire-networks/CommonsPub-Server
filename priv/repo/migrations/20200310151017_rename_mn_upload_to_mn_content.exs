@@ -88,33 +88,46 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
     # TODO: ensure there are no dangling records
     false = repo().exists?(from(c in "mn_content", where: is_nil(c.content_upload_id) and is_nil(c.content_mirror_id)))
 
-    # FIXME: add constraint to forbid both or neither references set
-    # alter table(:mn_content) do
-    #   remove :parent_id
-    #   remove :path
-    #   remote :size
-    # end
+    alter table(:mn_content) do
+      remove :parent_id
+      remove :path
+      remove :size
+    end
 
-    # alter table(:mn_resource) do
-    #   remove :url
-    #   remove :icon
-    # end
+    # add constraint to forbid neither references set
+    create constraint(
+      "mn_content",
+      :mirror_or_upload_must_be_set,
+      check: "content_mirror_id is not null or content_upload_id is not null"
+    )
 
-    # alter table(:mn_collection) do
-    #   remove :icon
-    # end
+    # add constraint to forbid both references set
+    create constraint(
+      "mn_content",
+      :mirror_or_upload_must_set_only_one,
+      check: "content_mirror_id is null or content_upload_id is null"
+    )
 
-    # alter table(:mn_community) do
-    #   remove :icon
-    #   remove :image
-    # end
+    alter table(:mn_resource) do
+      remove :url
+      remove :icon
+    end
 
-    # alter table(:mn_user) do
-    #   remove :icon
-    #   remove :image
-    # end
+    alter table(:mn_collection) do
+      remove :icon
+    end
 
-    :ok = execute "fail";
+    alter table(:mn_community) do
+      remove :icon
+      remove :image
+    end
+
+    alter table(:mn_user) do
+      remove :icon
+      remove :image
+    end
+
+    # :ok = execute "fail";
   end
 
   def down do

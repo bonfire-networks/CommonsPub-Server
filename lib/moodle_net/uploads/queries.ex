@@ -7,17 +7,13 @@ defmodule MoodleNet.Uploads.Queries do
   alias MoodleNet.Uploads.Content
 
   def query(Content) do
-    from c in Content, as: :content
+    from c in Content, as: :content,
+      left_join: u in assoc(c, :content_upload), as: :content_upload,
+      left_join: m in assoc(c, :content_mirror), as: :content_mirror,
+      preload: [content_upload: u, content_mirror: m]
   end
 
   def query(q, filters), do: filter(query(q), filters)
-
-  def queries(query, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
@@ -54,12 +50,4 @@ defmodule MoodleNet.Uploads.Queries do
   def filter(q, {:uploader_id, ids}) when is_list(ids) do
     where q, [content: c], c.uploader_id in ^ids
   end
-
-  # def filter(q, {:path, path}) when is_binary(path) do
-  #   where q, [content: u], u.path == ^path
-  # end
-
-  # def filter(q, {:path, paths}) when is_list(paths) do
-  #   where q, [content: u], u.path in ^paths
-  # end
 end

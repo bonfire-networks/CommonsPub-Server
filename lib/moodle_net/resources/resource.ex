@@ -15,8 +15,8 @@ defmodule MoodleNet.Resources.Resource do
   table_schema "mn_resource" do
     belongs_to(:creator, User)
     belongs_to(:collection, Collection)
-    has_one(:content, Content)
-    has_one(:icon, Content)
+    belongs_to(:content, Content)
+    belongs_to(:icon, Content)
     # belongs_to(:primary_language, Language, type: :binary)
     field(:canonical_url, :string)
     field(:name, :string)

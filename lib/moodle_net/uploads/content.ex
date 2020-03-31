@@ -15,8 +15,8 @@ defmodule MoodleNet.Uploads.Content do
   table_schema "mn_content" do
     # has_one(:preview, __MODULE__)
     belongs_to(:uploader, User)
-    has_one(:content_mirror, ContentMirror)
-    has_one(:content_upload, ContentUpload)
+    belongs_to(:content_mirror, ContentMirror)
+    belongs_to(:content_upload, ContentUpload)
     field(:url, :string, virtual: true)
     field(:media_type, :string)
     field(:metadata, :map)

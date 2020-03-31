@@ -28,8 +28,8 @@ defmodule MoodleNet.Users.User do
     field(:summary, :string)
     field(:location, :string)
     field(:website, :string)
-    has_one(:icon, Content)
-    has_one(:image, Content)
+    belongs_to(:icon, Content)
+    belongs_to(:image, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -58,7 +58,7 @@ defmodule MoodleNet.Users.User do
   end
 
   @update_cast [] ++
-    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
+    ~w(name summary location website icon_id image_id is_public is_disabled inbox_id outbox_id)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do

@@ -28,7 +28,7 @@ defmodule MoodleNet.Collections.Collection do
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)
-    has_one(:icon, Content)
+    belongs_to(:icon, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true, default: false)

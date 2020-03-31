@@ -4,6 +4,8 @@
 defmodule MoodleNet.Uploads.ContentUpload do
   use MoodleNet.Common.Schema
 
+  alias Ecto.Changeset
+
   @type t :: %__MODULE__{}
 
   table_schema "mn_content_upload" do
