@@ -33,7 +33,7 @@ server {
         proxy_pass ${PROXY_FRONTEND_URL};
         proxy_set_header Host ${FRONTEND_HOSTNAME};
         proxy_read_timeout 1m; 
-        # proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto https;
         proxy_ssl_verify off;
         proxy_redirect off;
         proxy_http_version 1.1;
