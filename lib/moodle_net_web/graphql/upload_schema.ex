@@ -43,6 +43,10 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field(:media_type, non_null(:string))
     field(:metadata, :file_metadata)
 
+    field(:url, non_null(:string)) do
+      resolve(&UploadResolver.remote_url/3)
+    end
+
     field(:is_public, non_null(:boolean)) do
       resolve(&UploadResolver.is_public/3)
     end
@@ -61,12 +65,12 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   end
 
   object :content_mirror do
-    field(:url, non_null(:string))
+    field(:url, :string)
   end
 
   object :content_upload do
-    field(:path, non_null(:string))
-    field(:size, non_null(:integer))
+    field(:path, :string)
+    field(:size, :integer)
   end
 
   @desc """

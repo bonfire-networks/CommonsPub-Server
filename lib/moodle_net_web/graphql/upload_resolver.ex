@@ -19,20 +19,23 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     do: upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
 
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
+    user = GraphQL.current_user(info)
+      with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
            parent = Pointers.follow!(parent_ptr),
-           {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params),
+           {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
            {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
         {:ok, upload}
       end
-    end)
   end
 
-  def is_public(%Content{}=upload, _, _info), do: not is_nil(upload.published_at)
+  def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
   def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id)
+
+  def remote_url(%Content{}=upload, _, _info), do: Uploads.remote_url(upload)
+
+  def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
+  def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
 
   defp update_parent_field(parent, field_name, %Content{id: id} = content) do
     parent

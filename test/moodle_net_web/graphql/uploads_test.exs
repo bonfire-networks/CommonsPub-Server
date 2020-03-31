@@ -3,23 +3,35 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.OldUploadsTest do
   use MoodleNetWeb.ConnCase, async: true
-  @moduletag :skip
 
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Uploads.Storage
 
   def upload_query(parent, file, mutation_name) do
+    #TODO: use gruff
     query = """
     mutation {
       #{mutation_name}(contextId: \"#{parent.id}\", upload: \"file\") {
         id
         url
         media_type
-        size
         metadata {
           width_px
           height_px
+        }
+
+        upload {
+          path
+          size
+        }
+
+        mirror {
+          url
+        }
+
+        uploader {
+          id
         }
       }
     }
@@ -63,12 +75,12 @@ defmodule MoodleNetWeb.GraphQL.OldUploadsTest do
       assert upload["id"]
       assert upload["url"] =~ "#{user.id}/#{file.filename}"
       assert_valid_url upload["url"]
-      assert upload["size"]
+      assert upload["upload"]["size"]
       # assert upload["metadata"]["width_px"]
       # assert upload["metadata"]["height_px"]
 
       assert {:ok, user} = MoodleNet.Users.one(id: user.id)
-      assert user.icon == upload["url"]
+      # assert user.icon == upload["url"]
     end
 
     test "fails with an invalid file extension" do
@@ -115,14 +127,14 @@ defmodule MoodleNetWeb.GraphQL.OldUploadsTest do
       assert %{"uploadImage" => upload} = resp
 
       assert upload["id"]
-      assert upload["url"] =~ "#{comm.id}/#{file.filename}"
+      assert upload["url"] =~ "#{user.id}/#{file.filename}"
       assert_valid_url upload["url"]
-      assert upload["size"]
+      assert upload["upload"]["size"]
       # assert upload["metadata"]["width_px"]
       # assert upload["metadata"]["height_px"]
 
       assert {:ok, comm} = MoodleNet.Communities.one(id: comm.id)
-      assert comm.image == upload["url"]
+      # assert comm.image == upload["url"]
     end
 
     test "fails with an invalid file extension" do
@@ -173,14 +185,14 @@ defmodule MoodleNetWeb.GraphQL.OldUploadsTest do
       assert %{"uploadResource" => upload} = resp
 
       assert upload["id"]
-      assert upload["url"] =~ "#{res.id}/#{file.filename}"
+      assert upload["url"] =~ "#{user.id}/#{file.filename}"
       assert_valid_url upload["url"]
-      assert upload["size"]
+      assert upload["upload"]["size"]
       # assert upload["metadata"]["width_px"]
       # assert upload["metadata"]["height_px"]
 
       assert {:ok, res} = MoodleNet.Resources.one(id: res.id)
-      assert res.url == upload["url"]
+      assert res.content_id == upload["id"]
     end
 
     test "works with PDF files" do

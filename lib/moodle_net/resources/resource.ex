@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources.Resource do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_disabled: 1, validate_http_url: 2]
+    only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
@@ -60,7 +60,6 @@ defmodule MoodleNet.Resources.Resource do
     changeset
     |> change_disabled()
     |> change_public()
-    |> validate_http_url(:url)
   end
 
 end
