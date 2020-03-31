@@ -169,86 +169,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   end
 
-  # use ValueFlows.Geolocation.Hydrate
-
-  def hydrate(%{identifier: :all_units}, [%{identifier: :measurement_query} | _]) do
-    {:resolve, &ValueFlows.Measurement.GraphQL.all_units/3}
+  # hydate VF schema with resolvers
+  def hydrate(%Absinthe.Blueprint{}, _) do
+    ValueFlows.GraphQL.Hydrate.hydrate(%Absinthe.Blueprint{})
   end
-
-  def hydrate(%{identifier: :unit}, [%{identifier: :measurement_query} | _]) do
-    {:resolve, &ValueFlows.Measurement.GraphQL.unit/2}
-  end
-
-  def hydrate(%{identifier: :all_agents}, [%{identifier: :agent_query} | _]) do
-    {:resolve, &ValueFlows.Agent.GraphQL.all_agents/3}
-  end
-
-  def hydrate(%{identifier: :agent}, [%{identifier: :agent_query} | _]) do
-    {:resolve, &ValueFlows.Agent.GraphQL.agent/2}
-  end
-
-  def hydrate(%{identifier: :all_intents}, [%{identifier: :planning_query} | _]) do
-    {:resolve, &ValueFlows.Planning.GraphQL.all_intents/3}
-  end
-
-  def hydrate(%{identifier: :intent}, [%{identifier: :planning_query} | _]) do
-    {:resolve, &ValueFlows.Planning.GraphQL.intent/2}
-  end
-
-  def hydrate(%{identifier: :spatial_things}, [%{identifier: :geolocation_query} | _]) do
-     {:resolve, &ValueFlows.Geolocation.GraphQL.geolocations/2}
-  end
-
-  def hydrate(%{identifier: :spatial_thing}, [%{identifier: :geolocation_query} | _]) do
-    Logger.info("hydrating spatial_thing")
-     {:resolve, &ValueFlows.Geolocation.GraphQL.geolocation/2}
-  end
-
-  def hydrate(%{identifier: :canonical_url}, [%{identifier: :spatial_thing} | _]) do
-     {:resolve, &ActorsResolver.canonical_url_edge/3}
-  end
-
-  def hydrate(%{identifier: :display_username}, [%{identifier: :spatial_thing} | _]) do
-     {:resolve, &ActorsResolver.display_username_edge/3}
-  end
-
-  def hydrate(%{identifier: :community}, [%{identifier: :spatial_thing} | _]) do
-     {:resolve, &ValueFlows.Geolocation.GraphQL.community_edge/3}
-  end
-
-  # def hydrate(%Absinthe.Blueprint{}, _) do
-  #   %{
-  #     mutation: %{
-  #       failing_thing: [
-  #         resolve: &__MODULE__.resolve_failing_thing/3
-  #       ]
-  #     },
-  #     query: %{
-  #       bad_resolution: [
-  #         resolve: &__MODULE__.resolve_bad/3
-  #       ],
-  #       number: [
-  #         resolve: &__MODULE__.resolve_number/3
-  #       ],
-  #       thing_by_context: [
-  #         resolve: &__MODULE__.resolve_things_by_context/3
-  #       ],
-  #       things: [
-  #         resolve: &__MODULE__.resolve_things/3
-  #       ],
-  #       thing: [
-  #         resolve: &__MODULE__.resolve_thing/3
-  #       ],
-  #       deprecated_thing: [
-  #         resolve: &__MODULE__.resolve_thing/3
-  #       ],
-  #       deprecated_thing_with_reason: [
-  #         resolve: &__MODULE__.resolve_thing/3
-  #       ]
-  #     }
-  #   }
-  # end
-
 
   # fallback
   def hydrate(_node, _ancestors) do
