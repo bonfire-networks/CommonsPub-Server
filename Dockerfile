@@ -79,7 +79,7 @@ RUN apk add --update --no-cache \
     build-base \
     curl \
     gettext 
-    # why are git and build-base needed here?
+# why are git and build-base needed here?
 
 # install s6
 RUN curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz | tar xfz - -C / 
@@ -90,7 +90,7 @@ COPY --from=caddy-builder /install/caddy /usr/bin/caddy
 
 
 # install nginx
-RUN apk add --update --no-cache nginx && \
+RUN apk add --update --no-cache nginx nginx-mod-http-lua && \
     chown -R nginx:www-data /var/lib/nginx
 # redirect logs to st output
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
