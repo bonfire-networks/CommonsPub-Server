@@ -5,7 +5,10 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
   alias MoodleNet.Follows.{Follow, FollowerCount, FollowerCountsQueries}
-  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{
+    Fields, FieldsFlow, Flow, PageFlow, PagesFlow,
+    ResolvePages,
+  }
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
   import Absinthe.Resolution.Helpers, only: [batch: 3]
@@ -50,9 +53,15 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def followers_edge(%{id: id}, %{}=page_opts, info) do
-    vals = [&Ecto.ULID.cast/1]
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followers_edge, page_opts, id, info, vals, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_followers_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_followers_edge({page_opts, info}, ids) do
@@ -80,7 +89,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [context_id: ids, user: user],
-        data_filters: [order: [desc: :created]],
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end

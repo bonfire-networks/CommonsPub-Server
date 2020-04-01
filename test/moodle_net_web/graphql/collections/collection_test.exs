@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
   import Grumble
+  import Zest
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "collection" do
@@ -199,16 +200,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         before: :resources_before,
         limit: :resources_limit,
       }
-
-      # for conn <- conns do
-      #   coll2 = assert_collection(coll, grumble_post_key(q, conn, "collection", vars))
-      #   assert %{"resources" => res2, "resourceCount" => count} = coll2
-      #   assert count == 5
-      #   edges = assert_page(res2, 5, 5, false, false, &(&1["id"]))
-      #   for {re, re2} <- Enum.zip(res, edges.edges) do
-      #     assert_resource(re, re2)
-      #   end
-      # end
     end
 
   end
@@ -220,14 +211,37 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       lucy = fake_user!(%{is_instance_admin: true})
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      some_randomer_follows!(23, coll)
-      q = collection_query(fields: [:follower_count, followers: page_fields(follow_fields())])
-      vars = %{collection_id: coll.id}
-      conns = [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy), json_conn()]
-      for conn <- conns do
-        coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
-        assert coll2.follower_count == 24 # 23 + creator
-        assert_page(coll2.followers, 10, 24, false, true, &[&1.id])
+      {:ok, bob_follow} = Follows.one(context_id: coll.id, creator_id: bob.id)
+      follows = some_randomer_follows!(26, coll) ++ [bob_follow]
+      params = [
+        followers_after: list_type(:cursor),
+        followers_before: list_type(:cursor),
+        followers_limit: :int,
+      ]
+      query = collection_query(
+        params: params,
+        fields: [:follower_count, followers_subquery()]
+      )
+      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
+      each conns, fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{collection_id: coll.id},
+          connection: conn,
+          parent_key: :collection,
+          child_key: :followers,
+          count_key: :follower_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: coll,
+          child_data: follows,
+          assert_parent: &assert_collection/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :followers_after,
+          before: :followers_before,
+          limit: :followers_limit,
+        }
       end
     end
 
