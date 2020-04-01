@@ -8,7 +8,6 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
-  import Zest
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "collection" do
@@ -171,8 +170,10 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(bob, comm)
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       conn = json_conn()
-      res = some_fake_resources!(3, users, [coll])
-      query = collection_query(fields: [:resource_count, resources: page_fields(resource_fields())])
+      res = some_fake_resources!(3, users, [coll]) # 27
+      query = collection_query(
+        fields: [:resource_count, resources: page_fields(resource_fields())]
+      )
 
       child_page_test %{
         query: query,
@@ -183,11 +184,11 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         count_key: :resource_count,
         default_limit: 10,
         total_count: 27,
-        data: coll,
+        parent_data: coll,
         child_data: res,
-        parent_assert_fn: &assert_collection/2,
-        child_assert_fn: &assert_resource/2,
-        cursor_fn: &(&1["id"]),
+        assert_parent: &assert_collection/2,
+        assert_child: &assert_resource/2,
+        cursor_fn: &[&1.id],
         after: :resources_after,
         before: :resources_before,
         limit: :resources_limit,
@@ -332,7 +333,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert %{threads: threads} = coll2
-        _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
+        _threads = assert_page(threads, 10, 25, false, true, &[&1["id"]])
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
         # end)

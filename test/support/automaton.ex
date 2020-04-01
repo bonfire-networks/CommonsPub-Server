@@ -59,9 +59,10 @@ defmodule MoodleNetWeb.Test.Automaton do
       count_key: count_key,
       default_limit: default_limit,
       total_count: total,
-      data: data,
-      parent_assert_fn: parent_assert_fn,
-      child_assert_fn: child_assert_fn,
+      parent_data: parent_data,
+      child_data: child_data,
+      assert_parent: assert_parent,
+      assert_child: assert_child,
       cursor_fn: cursor_fn,
       after: aft,
       before: bef,
@@ -71,9 +72,9 @@ defmodule MoodleNetWeb.Test.Automaton do
     default_vars = Map.get(opts, :vars, %{})
     assert is_map(default_vars)
     # test the first page with default limit
-    parent = parent_assert_fn.(grumble_post_key(query, conn, parent_key, default_vars))
-    # page1 = query_page(query, conn, parent_key, default_vars, 10, total, false, true, cursor_fn)
-    # each(data, page1.edges, assert_fn)
+    parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, default_vars))
+    page1 = assert_page(parent[child_key], default_limit, total, false, true, cursor_fn)
+    each(child_data, page1.edges, assert_child)
     # # test the first page with explicit limit
     # vars = Map.merge(default_vars, %{limit => 11})
     # page_1 = query_page(query, conn, key, vars, 11, total, false, true, cursor_fn)
@@ -101,6 +102,9 @@ defmodule MoodleNetWeb.Test.Automaton do
     |> assert_page(count, total, prev, next, cursor_fn)
   end
 
-
+  # defp query_child_page(query, conn, vars, parent_key, child_key, parent_assert, parent_data, child_assert) do
+  #   parent = parent_assert(grumble_post_key(query, conn, parent_key, vars)
+      
+  # end
 
 end

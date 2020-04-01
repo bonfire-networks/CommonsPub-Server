@@ -8,27 +8,51 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.GraphQL.{FieldsFlow, Flow, Page, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{
+    FieldsFlow,
+    Flow,
+    Page,
+    PageFlow,
+    PagesFlow,
+    ResolveField,
+    ResolveRootPage,
+  }
 
   def community(%{community_id: id}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_collection,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_community(info, id) do
     Communities.one([:default, id: id, user: GraphQL.current_user(info)])
   end
 
   def communities(%{}=page_opts, info) do
-    vals = [&is_integer/1, &Ecto.ULID.cast/1]
-    opts = %{default_limit: 10}
-    Flow.root_page(__MODULE__, :fetch_communities, page_opts, info, vals, opts)
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_communities,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # followers
+      }
+    )
   end
 
   def fetch_communities(page_opts, info) do
-    user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
         queries: Communities.Queries,
         query: Community,
         cursor_fn: Communities.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [:default, user: user],
+        base_filters: [:default, user: GraphQL.current_user(info)],
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )

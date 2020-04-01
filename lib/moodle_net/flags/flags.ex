@@ -81,10 +81,11 @@ defmodule MoodleNet.Flags do
   end
 
   defp federate(%Flag{is_local: true} = flag) do
-    MoodleNet.FeedPublisher.publish(%{
+    :ok = MoodleNet.FeedPublisher.publish(%{
       "context_id" => flag.context_id,
       "user_id" => flag.creator_id,
-    })
+                                          })
+    {:ok, flag}
   end
 
   defp federate(_), do: :ok
