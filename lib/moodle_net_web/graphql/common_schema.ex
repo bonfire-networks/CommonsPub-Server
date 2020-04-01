@@ -33,8 +33,8 @@ defmodule MoodleNetWeb.GraphQL.CommonSchema do
   object :page_info do
     field :start_cursor, list_of(non_null(:cursor))
     field :end_cursor, list_of(non_null(:cursor))
-    field :has_previous_page, non_null(:boolean)
-    field :has_next_page, non_null(:boolean)
+    field :has_previous_page, :boolean
+    field :has_next_page, :boolean
   end
 
   union :delete_context do

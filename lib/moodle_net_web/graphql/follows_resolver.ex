@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
       %PagesFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [context_id: ids, user: user],
@@ -77,7 +77,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
       %PageFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [context_id: ids, user: user],
         data_filters: [order: [desc: :created]],

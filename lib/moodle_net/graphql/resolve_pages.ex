@@ -23,16 +23,16 @@ defmodule MoodleNet.GraphQL.ResolvePages do
       fetcher: fetcher,
       context: context,
       page_opts: page_opts,
-      batch_opts: batch_opts,
-      single_opts: single_opts,
       info: info,
       cursor_validators: validators,
+      batch_opts: batch_opts,
+      single_opts: single_opts,
     }
   ) do
     info2 = Map.take(info, [:context])
     if GraphQL.in_list?(info) do
       with {:ok, page_opts} <- GraphQL.limit_page_opts(page_opts, batch_opts) do
-          batch {module, fetcher, {page_opts, info2}}, context, Pages.getter(context)
+        batch {module, fetcher, {page_opts, info2}}, context, Pages.getter(context)
       end
     else
       with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, validators, single_opts) do

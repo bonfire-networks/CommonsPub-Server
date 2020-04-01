@@ -90,8 +90,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def resources_edge(%Collection{id: id}, %{}=page_opts, info) do
-    ResolvePage.run(
-      %ResolvePage{
+    ResolvePages.run(
+      %ResolvePages{
         module: __MODULE__,
         fetcher: :fetch_resources_edge,
         context: id,
@@ -107,7 +107,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       %PagesFlow{
         queries: Resources.Queries,
         query: Resource,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.collection_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, collection_id: ids],
@@ -123,7 +123,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       %PageFlow{
         queries: Resources.Queries,
         query: Resource,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [:deleted, user: user, collection_id: id],
         data_filters: [page: [desc: [created: page_opts]]],

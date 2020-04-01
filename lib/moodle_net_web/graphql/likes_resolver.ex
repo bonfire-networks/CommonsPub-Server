@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
       %PagesFlow{
         queries: Likes.Queries,
         query: Like,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, context_id: ids],
@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
       %PageFlow{
         queries: Likes.Queries,
         query: Like,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [:deleted, user: user, context_id: ids],
         data_filters: [page: [desc: [created: page_opts]]],
@@ -92,7 +92,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
       %PagesFlow{
         queries: Likes.Queries,
         query: Like,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, creator_id: ids],
@@ -108,7 +108,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
       %PageFlow{
         queries: Likes.Queries,
         query: Like,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [:deleted, user: user, creator_id: ids],
         data_filters: [page: [desc: [created: page_opts]]],

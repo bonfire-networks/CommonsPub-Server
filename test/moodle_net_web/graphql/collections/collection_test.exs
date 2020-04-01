@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
+  import Grumble
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "collection" do
@@ -171,10 +172,15 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       conn = json_conn()
       res = some_fake_resources!(3, users, [coll]) # 27
+      params = [
+        resources_after: list_type(:cursor),
+        resources_before: list_type(:cursor),
+        resources_limit: :int,
+      ]
       query = collection_query(
-        fields: [:resource_count, resources: page_fields(resource_fields())]
+        params: params,
+        fields: [:resource_count, resources_subquery()]
       )
-
       child_page_test %{
         query: query,
         vars: %{collection_id: coll.id},

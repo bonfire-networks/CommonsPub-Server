@@ -29,7 +29,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
       %PagesFlow{
         queries: Flags.Queries,
         query: Flag,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, creator_id: ids],
@@ -45,7 +45,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
       %PageFlow{
         queries: Flags.Queries,
         query: Flag,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [:deleted, user: user, context_id: ids],
         data_filters: [page: [desc: [created: page_opts]]],
