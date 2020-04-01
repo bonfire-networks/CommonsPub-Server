@@ -251,7 +251,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       conn = user_conn(user)
       q = user_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
       vars = %{user_id: user.id}
-      assert resp = gruff_post_key(q, conn, :user, vars)
+      assert resp = grumble_post_key(q, conn, :user, vars)
       IO.inspect(resp)
     end
   end
