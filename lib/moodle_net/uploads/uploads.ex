@@ -31,6 +31,7 @@ defmodule MoodleNet.Uploads do
   end
 
   defp insert_content(upload_def, uploader, file, attrs) do
+    # FIXME: delegate to Storage
     if is_remote_file?(file) do
       insert_content_mirror(uploader, file, attrs)
     else

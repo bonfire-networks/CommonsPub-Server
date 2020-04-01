@@ -241,6 +241,21 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   end
 
+  describe "user.icon" do
+    test "works" do
+      user = fake_user!()
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{})
+      assert {:ok, user} = MoodleNet.Users.update(user, %{icon_id: upload.id})
+
+      conn = user_conn(user)
+      q = user_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      vars = %{user_id: user.id}
+      assert resp = gruff_post_key(q, conn, :user, vars)
+      IO.inspect(resp)
+    end
+  end
+
   # describe "comments" do
   #   @tag :skip
   #   test "placeholder" do

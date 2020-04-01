@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def user_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         location website icon image follower_count liker_count is_local is_public
+         location website follower_count liker_count is_local is_public
          is_disabled created_at updated_at __typename)a
   end
 
@@ -47,20 +47,20 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def community_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username
-         name summary icon image is_local
-         is_public is_disabled created_at updated_at __typename)a
+        name summary is_local is_public is_disabled
+        created_at updated_at __typename)a
   end
 
   def collection_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         icon resource_count is_local
-         is_public is_disabled created_at updated_at __typename)a
+        resource_count is_local is_public is_disabled created_at
+        updated_at __typename)a
   end
 
   def resource_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url name summary icon url license is_local
+      ~w(id canonical_url name summary license is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 

@@ -220,5 +220,4 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
     end
 
   end
-
 end

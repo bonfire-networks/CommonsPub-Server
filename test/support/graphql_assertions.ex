@@ -322,8 +322,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        summary: &assert_binary/1,
        location: &assert_binary/1,
        website: &assert_url/1,
-       icon: &assert_url/1,
-       image: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -356,7 +354,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_users_eq(%User{}=user, %{}=user2) do
     assert_maps_eq user.actor, user2, :assert_user, [:canonical_url, :preferred_username]
     assert_maps_eq user, user2, :assert_user,
-      [:id, :name, :summary, :location, :website, :icon, :image]
+      [:id, :name, :summary, :location, :website]
     assert_created_at(user, user2)
     assert_updated_at(user, user2)
     assert user2.is_public == true
@@ -368,7 +366,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_user_input(%{}=user, %{}=user2) do
     user2 = assert_user(user2)
     assert_maps_eq user, user2,
-      [:name, :summary, :location, :website, :icon, :image],
+      [:name, :summary, :location, :website],
       [:preferred_username]
     user2
   end
@@ -381,8 +379,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        display_username: &assert_display_username/1,
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       image: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -411,7 +407,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_maps_eq comm.actor, comm2, :assert_community,
       [:canonical_url, :preferred_username]
     assert_maps_eq comm, comm2, :assert_community,
-      [:id, :name, :summary, :icon, :image]
+      [:id, :name, :summary]
     assert comm2.is_public == not is_nil(comm.published_at)
     assert comm2.is_disabled == not is_nil(comm.disabled_at)
     assert comm2.is_local == is_nil(comm.actor.peer_id)
@@ -421,7 +417,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_community_input(%{}=comm, %{}=comm2) do
     comm2 = assert_community(comm2)
     assert_maps_eq comm, comm2,
-      [:name, :summary, :icon, :image],
+      [:name, :summary],
       [:preferred_username]
     comm2
   end
@@ -434,7 +430,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        display_username: &assert_display_username/1,
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -468,7 +463,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_maps_eq coll.actor, coll2, :assert_collection,
       [:canonical_url, :preferred_username]
     assert_maps_eq coll, coll2, :assert_collection,
-      [:id, :name, :summary, :icon]
+      [:id, :name, :summary]
       [:liker_count, :resource_count] # follower_count
     coll2
   end
@@ -476,7 +471,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_collection_input(%{}=coll, %{}=coll2) do
     coll2 = assert_collection(coll2)
     assert_maps_eq coll, coll2,
-      [:name, :summary, :icon, :image],
+      [:name, :summary],
       [:preferred_username]
     coll2
   end
@@ -487,8 +482,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        canonical_url: assert_optional(&assert_url/1),
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       url: &assert_url/1,
        license: &assert_binary/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
@@ -509,7 +502,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   def assert_resources_eq(%Resource{}=res, %{}=res2) do
     assert_maps_eq res, res2, :assert_resource,
-      [:id, :canonical_url, :name, :summary, :icon, :url, :license],
+      [:id, :canonical_url, :name, :summary, :license],
       [:follower_count, :liker_count, :resource_count]
     assert not is_nil(res.published_at) == res2.is_public
     assert not is_nil(res.disabled_at) == res2.is_disabled
@@ -519,7 +512,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   def assert_resource_input(%{}=res, %{}=res2) do
     res2 = assert_resource(res2)
-    assert_maps_eq res, res2, [:name, :summary, :icon, :url, :license]
+    assert_maps_eq res, res2, [:name, :summary, :license]
     res2
   end
 
@@ -533,8 +526,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        canonical_url: assert_optional(&assert_url/1),
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       url: &assert_url/1,
        license: &assert_binary/1,
        is_local: &assert_boolean/1,
        is_hidden: &assert_boolean/1,
