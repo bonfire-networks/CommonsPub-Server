@@ -254,14 +254,34 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       lucy = fake_user!(%{is_instance_admin: true})
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      some_randomer_likes!(23, coll)
-      q = collection_query(fields: [:liker_count, likers: page_fields(like_fields())])
+      likes = some_randomer_likes!(27, coll)
+      params = [
+        likers_after: list_type(:cursor),
+        likers_before: list_type(:cursor),
+        likers_limit: :int,
+      ]
+      query = collection_query(params: params, fields: [:liker_count, likers_subquery()])
       vars = %{collection_id: coll.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      for conn <- conns do
-        coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
-        assert coll2.liker_count == 23
-        assert_page(coll2.likers, 10, 23, false, true, &[&1.id])
+      each conns, fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{collection_id: coll.id},
+          connection: conn,
+          parent_key: :collection,
+          child_key: :likers,
+          count_key: :liker_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: coll,
+          child_data: likes,
+          assert_parent: &assert_collection/2,
+          assert_child: &assert_like/2,
+          cursor_fn: &[&1.id],
+          after: :likers_after,
+          before: :likers_before,
+          limit: :likers_limit,
+        }
       end
     end
 
