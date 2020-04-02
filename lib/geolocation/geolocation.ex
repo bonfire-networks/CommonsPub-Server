@@ -1,4 +1,4 @@
-defmodule ValueFlows.Geolocation do
+defmodule Geolocation do
 
   use MoodleNet.Common.Schema
   
@@ -8,7 +8,7 @@ defmodule ValueFlows.Geolocation do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias ValueFlows.Geolocation
+  alias Geolocation
 
   @type t :: %__MODULE__{}
 

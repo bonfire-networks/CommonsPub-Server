@@ -1,4 +1,4 @@
-defmodule ValueFlows.Geolocation.Migrations do
+defmodule Geolocation.Migrations do
 
   use Ecto.Migration
 

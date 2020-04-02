@@ -46,7 +46,7 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  community: Community
+  inScopeOf: [ScopeContext!]
 }
 
 

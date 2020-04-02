@@ -68,9 +68,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # optional modules:
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
+  import_types Geolocation.GraphQL
   import_types ValueFlows.Util.GraphQL
   import_types ValueFlows.Measurement.GraphQL
-  import_types ValueFlows.Geolocation.GraphQL
   import_types ValueFlows.Agent.GraphQL
   import_types ValueFlows.Knowledge.GraphQL
   import_types ValueFlows.Observation.GraphQL
@@ -169,9 +169,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   end
 
+
+  # hydate Geolocation schema with resolvers
+  def hydrate(%Absinthe.Blueprint{}, _) do
+    Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+  end
+
   # hydate VF schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
-    ValueFlows.GraphQL.Hydrate.hydrate(blueprint: %Absinthe.Blueprint{})
+    ValueFlows.GraphQL.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
   end
 
   # fallback

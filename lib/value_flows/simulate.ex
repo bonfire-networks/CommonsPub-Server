@@ -5,7 +5,7 @@ defmodule ValueFlows.Simulate do
   @moduledoc false
 
   alias MoodleNet.Test.Fake
-  alias ValueFlows.Geolocations
+  alias Geolocation.Geolocations
 
   @doc "A unit"
   def unit_name(), do: Faker.Util.pick(["kilo", "liter"])

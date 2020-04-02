@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Geolocation.GraphQL do
+defmodule Geolocation.GraphQL do
   alias MoodleNet.{
     Activities,
     Communities,
@@ -20,9 +20,9 @@ defmodule ValueFlows.Geolocation.GraphQL do
   alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
-  alias ValueFlows.Geolocation
-  alias ValueFlows.Geolocations
-  alias ValueFlows.Geolocations.Queries
+  alias Geolocation
+  alias Geolocation.Geolocations
+  alias Geolocation.Queries
 
   # SDL schema import
 
@@ -30,7 +30,7 @@ defmodule ValueFlows.Geolocation.GraphQL do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/value_flows/graphql/schemas/geolocation.gql"
+  import_sdl path: "lib/geolocation/geolocation.gql"
 
   ## resolvers
 

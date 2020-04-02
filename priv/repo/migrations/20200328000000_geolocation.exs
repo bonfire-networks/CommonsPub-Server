@@ -1,8 +1,8 @@
-defmodule MoodleNet.Repo.Migrations.VF do
+defmodule MoodleNet.Repo.Migrations.Geolocation do
     use Ecto.Migration
 
     def change do
-        ValueFlows.Migrations.change()
+        Geolocation.Migrations.change()
     end
 
     # def up do
