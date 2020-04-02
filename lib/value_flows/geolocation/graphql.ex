@@ -1,7 +1,30 @@
-# MoodleNet: Connecting and empowering educators worldwide
-# Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule ValueFlows.Geolocation.GraphQL do
+  alias MoodleNet.{
+    Activities,
+    Communities,
+    GraphQL,
+    Repo,
+  }
+  alias MoodleNet.GraphQL.{
+    Flow,
+    FieldsFlow,
+    PageFlow,
+    PagesFlow,
+    ResolveField,
+    ResolvePage,
+    ResolvePages,
+    ResolveRootPage,
+  }
+  # alias MoodleNet.Resources.Resource
+  alias MoodleNet.Common.Enums
+  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+
+  alias ValueFlows.Geolocation
+  alias ValueFlows.Geolocations
+  alias ValueFlows.Geolocations.Queries
+
+  # SDL schema import
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
@@ -9,52 +32,49 @@ defmodule ValueFlows.Geolocation.GraphQL do
 
   import_sdl path: "lib/value_flows/graphql/schemas/geolocation.gql"
 
-  alias MoodleNet.{
-    Activities,
-    Communities,
-    GraphQL,
-    Repo,
-  }
-  alias MoodleNet.GraphQL.{Flow, FieldsFlow, PageFlow, PagesFlow}
-  alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
-  alias ValueFlows.Geolocation
-  alias ValueFlows.Geolocations
-  alias ValueFlows.Geolocations.Queries
-
   ## resolvers
 
   def geolocation(%{id: id}, info) do
-    Flow.field(__MODULE__, :fetch_geolocation, id, info)
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_geolocation,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def geolocations(page_opts, info) do
-    vals = [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1] # popularity
-    opts = %{default_limit: 10}
-    ret = Flow.root_page(__MODULE__, :fetch_geolocations, page_opts, info, vals, opts)
-    ret
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_geolocations,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
+      }
+    )
   end
 
   ## fetchers
 
   def fetch_geolocation(info, id) do
-    user = GraphQL.current_user(info)
     Geolocations.one(
-      user: user,
+      user: GraphQL.current_user(info),
       id: id,
       preload: :actor
     )
   end
 
   def fetch_geolocations(page_opts, info) do
-    user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
         queries: Geolocations.Queries,
         query: Geolocation,
         cursor_fn: Geolocations.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: user],
+        base_filters: [user: GraphQL.current_user(info)],
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
@@ -125,18 +145,19 @@ defmodule ValueFlows.Geolocation.GraphQL do
         geolocation = Repo.preload(geolocation, :community)
         cond do
           user.local_user.is_instance_admin ->
-	    Geolocations.update(geolocation, changes)
+        Geolocations.update(geolocation, changes)
 
           geolocation.creator_id == user.id ->
-	    Geolocations.update(geolocation, changes)
+        Geolocations.update(geolocation, changes)
 
           geolocation.community.creator_id == user.id ->
-	    Geolocations.update(geolocation, changes)
+        Geolocations.update(geolocation, changes)
 
           true -> GraphQL.not_permitted("update")
         end
       end
     end)
   end
+
 
 end

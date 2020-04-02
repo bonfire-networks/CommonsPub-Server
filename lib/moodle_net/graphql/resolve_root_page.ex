@@ -14,6 +14,7 @@ defmodule MoodleNet.GraphQL.ResolveRootPage do
   ]
 
   alias MoodleNet.GraphQL.ResolveRootPage
+  alias MoodleNet.GraphQL
 
   def run(
     %ResolveRootPage{
