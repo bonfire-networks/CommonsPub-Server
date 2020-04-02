@@ -86,6 +86,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def grumble_post_data(query, conn, vars \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
+    # IO.puts("query: " <> query)
     # IO.inspect(vars: vars)
     query = %{
       query: query,
@@ -114,7 +115,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       variables: vars,
       operationName: name,
     }
-   Map.fetch!(gql_post_200(conn, query), :errors)
+   Map.fetch!(gql_post_200(conn, query), "errors")
   end
 
   @doc false

@@ -34,33 +34,33 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def thread_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url follower_count is_local
+      ~w(id canonical_url is_local
          is_public is_hidden created_at updated_at __typename)a
   end
 
   def comment_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url content liker_count is_local
+      ~w(id canonical_url content is_local
          is_public is_hidden created_at updated_at __typename)a
   end
 
   def community_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username
-         name summary icon image collection_count follower_count liker_count is_local
+         name summary icon image is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
   def collection_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         icon resource_count follower_count liker_count is_local
+         icon resource_count is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
   def resource_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url name summary icon url license liker_count is_local
+      ~w(id canonical_url name summary icon url license is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
