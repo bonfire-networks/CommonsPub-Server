@@ -70,7 +70,7 @@ defmodule Geolocation.GraphQL do
   def fetch_geolocations(page_opts, info) do
     PageFlow.run(
       %PageFlow{
-        queries: Geolocations.Queries,
+        queries: Queries,
         query: Geolocation,
         cursor_fn: Geolocations.cursor(:followers),
         page_opts: page_opts,
