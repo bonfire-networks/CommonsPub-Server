@@ -1,12 +1,12 @@
-defmodule Taxonomy.Locales do
+defmodule Locale.Locales do
   import Ecto.Query
   alias Ecto.Changeset
   alias MoodleNet.{Common, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   # alias MoodleNet.Users.User
-  alias Taxonomy.Locale
-  alias Taxonomy.Locales.Queries
+  alias Locale
+  alias Locale.Queries
 
   def one(filters), do: Repo.single(Queries.query(Locale, filters))
 
