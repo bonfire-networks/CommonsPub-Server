@@ -4,7 +4,7 @@ defmodule ValueFlows.GraphQL.Hydrate do
     ActorsResolver
   }
 
-  def hydrate(%Absinthe.Blueprint{}) do
+  def hydrate(blueprint) do
     %{
       spatial_thing: %{
         canonical_url: [

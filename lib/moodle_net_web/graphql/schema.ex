@@ -171,7 +171,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # hydate VF schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
-    ValueFlows.GraphQL.Hydrate.hydrate(%Absinthe.Blueprint{})
+    ValueFlows.GraphQL.Hydrate.hydrate(blueprint: %Absinthe.Blueprint{})
   end
 
   # fallback
