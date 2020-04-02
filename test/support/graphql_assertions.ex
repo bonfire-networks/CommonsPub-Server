@@ -82,15 +82,15 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_field(object, key, test) when is_map(object) and is_function(test, 1) do
     scope [assert_field: key] do
       assert %{^key => value} = object
-      test.(value)
+      Map.put(object, key, test.(value))
     end
   end
 
   def assert_optional_field(object, key, test) when is_map(object) and is_function(test, 1) do
     scope [assert_field: key] do
       case object do
-        %{^key => value} -> test.(value)
-        _ -> nil
+        %{^key => value} -> Map.put(object, key, test.(value))
+        _ -> object
       end
     end
   end
@@ -100,12 +100,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     object = ConnHelpers.uncamel_map(object)
     scope [{name, object}] do
       object = Enum.reduce(required, object, fn {key, test}, acc ->
-        val = assert_field(object, key, test)
-        Map.put(acc, key, val)
+        assert_field(object, key, test)
       end)
       Enum.reduce(optional, object, fn {key, test}, acc ->
-        val = assert_optional_field(object, key, test)
-        Map.put(acc, key, val)
+        assert_optional_field(object, key, test)
       end)
     end
   end
@@ -313,6 +311,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        follower_count: &assert_non_neg/1,
        like_count: &assert_non_neg/1,
        liker_count: &assert_non_neg/1,
+       follows: assert_page(&assert_follow/1),
+       followers: assert_page(&assert_follow/1),
        likes: assert_page(&assert_like/1),
        likers: assert_page(&assert_like/1),
        my_like: assert_optional(&assert_like/1),
