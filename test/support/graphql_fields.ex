@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.GraphQLFields do
 
-  import Gruff
+  import Grumble
 
   def page_info_fields do
     ~w(start_cursor end_cursor has_previous_page has_next_page __typename)a
   end
   
   def page_fields(edge_fields) do
-    page_info = Gruff.field(:page_info, fields: page_info_fields())
-    edges = Gruff.field(:edges, fields: edge_fields)
+    page_info = Grumble.field(:page_info, fields: page_info_fields())
+    edges = Grumble.field(:edges, fields: edge_fields)
     [:total_count, page_info, edges]
   end
 
@@ -34,33 +34,33 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def thread_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url follower_count is_local
+      ~w(id canonical_url is_local
          is_public is_hidden created_at updated_at __typename)a
   end
 
   def comment_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url content liker_count is_local
+      ~w(id canonical_url content is_local
          is_public is_hidden created_at updated_at __typename)a
   end
 
   def community_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username
-         name summary icon image collection_count follower_count liker_count is_local
+         name summary icon image is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
   def collection_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         icon resource_count follower_count liker_count is_local
+         icon resource_count is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
   def resource_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url name summary icon url license liker_count is_local
+      ~w(id canonical_url name summary icon url license is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
@@ -306,7 +306,12 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def flags_subquery(options \\ []) do
-    page_subquery(:flags, &flag_fields/1, options)
+    args = [
+      after: var(:flags_after),
+      before: var(:flags_before),
+      limit: var(:flags_limit),
+    ]
+    page_subquery(:flags, &flag_fields/1, [{:args, args} | options])
   end
 
   def create_flag_mutation(options \\ []) do
@@ -344,7 +349,12 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def features_subquery(options \\ []) do
-    page_subquery(:features, &feature_fields/1, options)
+    args = [
+      after: var(:features_after),
+      before: var(:features_before),
+      limit: var(:features_limit),
+    ]
+    page_subquery(:features, &feature_fields/1, [{:args, args} | options])
   end
 
   ### follows
@@ -357,12 +367,13 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     gen_subquery(:follow_id, :follow, &follow_fields/1, options)
   end
 
-  def follows_query(options \\ []) do
-    gen_query(:follows, &follows_subquery/1, options)
-  end
-
-  def follows_subquery(options \\ []) do
-    page_subquery(:follows, &follow_fields/1, options)
+  def followers_subquery(options \\ []) do
+    args = [
+      after: var(:followers_after),
+      before: var(:followers_before),
+      limit: var(:followers_limit),
+    ]
+    page_subquery(:followers, &follow_fields/1, [{:args, args} | options])
   end
 
   def create_follow_mutation(options \\ []) do
@@ -398,11 +409,21 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def likers_subquery(options \\ []) do
-    page_subquery(:likers, &like_fields/1, options)
+    args = [
+      after: var(:likers_after),
+      before: var(:likers_before),
+      limit: var(:likers_limit),
+    ]
+    page_subquery(:likers, &like_fields/1, [{:args, args} | options])
   end
 
   def likes_subquery(options \\ []) do
-    page_subquery(:likes, &like_fields/1, options)
+    args = [
+      after: var(:likes_after),
+      before: var(:likes_before),
+      limit: var(:likes_limit),
+    ]
+    page_subquery(:likes, &like_fields/1, [{:args, args} | options])
   end
 
   def create_like_mutation(options \\ []) do
@@ -436,7 +457,12 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def resources_subquery(options \\ []) do
-    page_subquery(:resources, &resource_fields/1, options)
+    args = [
+      after: var(:resources_after),
+      before: var(:resources_before),
+      limit: var(:resources_limit),
+    ]
+    page_subquery(:resources, &resource_fields/1, [{:args, args} | options ])
   end
 
   def create_resource_mutation(options \\ []) do

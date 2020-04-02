@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
+  alias MoodleNetWeb.Test.ConnHelpers
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
@@ -16,718 +17,660 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Users.User
   alias Ecto.ULID
   import ExUnit.Assertions
+  import Zest
+
+  def assert_binary(val), do: assert(is_binary(val)) && val
+
+  def assert_boolean(val), do: assert(is_boolean(val)) && val
+
+  def assert_int(val), do: assert(is_integer(val)) && val
+
+  def assert_non_neg(val), do: assert_int(val) && assert(val >= 0) && val
+
+  def assert_pos(val), do: assert_int(val) && assert(val > 0) && val
+
+  def assert_email(val), do: assert_binary(val)
+
+  def assert_url(val), do: assert_binary(val)
+
+  def assert_username(val), do: assert_binary(val)
+  def assert_display_username(val), do: assert_binary(val)
 
   def assert_cursor(x) when is_binary(x) or is_integer(x), do: x
-  def assert_cursors(x) when is_list(x), do: Enum.all?(x, &assert_cursor/1)
+
+  def assert_cursors(x) when is_list(x), do: Enum.all?(x, &assert_cursor/1) && x
+
+  def assert_ulid(ulid) do
+    assert is_binary(ulid)
+    assert {:ok, val} = Ecto.ULID.cast(ulid)
+    val
+  end
+
+  def assert_uuid(uuid) do
+    assert is_binary(uuid)
+    assert {:ok, val} = Ecto.UUID.cast(uuid)
+    val
+  end
+
+  def assert_datetime(%DateTime{}=time), do: time
+  def assert_datetime(time) do
+    assert is_binary(time)
+    assert {:ok, val, 0} = DateTime.from_iso8601(time)
+    val
+  end
+
+  def assert_list() do
+    fn l -> assert(is_list(l)) && l end
+  end
+
+  def assert_list(of) when is_function(of, 1) do
+    fn l -> assert(is_list(l)) && Enum.map(l, of) end
+  end
+
+  def assert_list(of, size) when is_function(of, 1) and is_integer(size) and size >= 0 do
+    fn l -> assert(is_list(l)) && assert(Enum.count(l) == size) && Enum.map(l, of) end
+  end
+
+  def assert_optional(map_fn) do
+    fn o -> if is_nil(o), do: nil, else: map_fn.(o) end
+  end
+
+  def assert_eq(val1) do
+    fn val2 -> assert(val1 == val2) && val2 end
+  end
+
+  def assert_field(object, key, test) when is_map(object) and is_function(test, 1) do
+    scope [assert_field: key] do
+      assert %{^key => value} = object
+      test.(value)
+    end
+  end
+
+  def assert_optional_field(object, key, test) when is_map(object) and is_function(test, 1) do
+    scope [assert_field: key] do
+      case object do
+        %{^key => value} -> test.(value)
+        _ -> nil
+      end
+    end
+  end
+
+  def assert_object(%{}=object, name, required, optional \\ [])
+  when is_atom(name) and is_list(required) and is_list(optional) do
+    object = ConnHelpers.uncamel_map(object)
+    scope [{name, object}] do
+      object = Enum.reduce(required, object, fn {key, test}, acc ->
+        val = assert_field(object, key, test)
+        Map.put(acc, key, val)
+      end)
+      Enum.reduce(optional, object, fn {key, test}, acc ->
+        val = assert_optional_field(object, key, test)
+        Map.put(acc, key, val)
+      end)
+    end
+  end
+
+  def assert_maps_eq(left, right, name) do
+    assert_maps_eq(left, right, name, Map.keys(left), [])
+  end
+
+  def assert_maps_eq(left, right, name, required) do
+    assert_maps_eq(left, right, name, required, [])
+  end
+
+  def assert_maps_eq(%{}=left, %{}=right, name, required, optional)
+  when is_list(required) and is_list(optional) do
+    scope [{name, {left, right}}] do
+      each required, fn key ->
+        assert %{^key => left_val} = left
+        assert %{^key => right_val} = right
+        assert left_val == right_val
+      end
+      each optional, fn key ->
+        case left do
+          %{^key => left_val} ->
+            assert %{^key => right_val} = right
+            assert left_val == right_val
+          _ -> nil
+        end
+      end
+      right
+    end
+  end
 
   def assert_location(loc) do
-    assert %{"column" => col, "line" => line} = loc
-    assert is_integer(col) and col >= 0
-    assert is_integer(line) and line >= 1
+    assert_object loc, :assert_location,
+      column: &assert_non_neg/1,
+      line: &assert_pos/1
   end
 
   def assert_not_logged_in(errs, path) do
     assert [err] = errs
-    assert %{"code" => code, "message" => message} = err
-    assert %{"path" => path2, "locations" => [loc]} = err
-    assert code == "needs_login"
-    assert message == "You need to log in first."
-    assert path == path2
-    assert_location(loc)
+    assert_object err, :assert_not_logged_in,
+      code: assert_eq("needs_login"),
+      message: assert_eq("You need to log in first."),
+      path: assert_eq(path),
+      locations: assert_list(&assert_location/1, 1)
   end
 
   def assert_not_permitted(errs, path, verb \\ "do") do
     assert [err] = errs
-    assert %{"code" => code, "message" => message} = err
-    assert %{"path" => ^path, "locations" => [loc]} = err
-    assert code == "unauthorized"
-    assert message == "You do not have permission to #{verb} this."
-    assert_location(loc)
+    assert_object err, :assert_not_permitted,
+      code: assert_eq("unauthorized"),
+      message: assert_eq("You do not have permission to #{verb} this."),
+      path: assert_eq(path),
+      locations: assert_list(&assert_location/1, 1)
   end
 
   def assert_not_found(errs, path) do
     assert [err] = errs
-    assert %{"code" => code, "message" => message} = err
-    assert %{"path" => ^path, "locations" => [loc]} = err
-    assert code == "not_found"
-    assert message == "Not found"
-    assert_location(loc)
+    assert_object err, :assert_not_found,
+      code: assert_eq("not_found"),
+      message: assert_eq("Not found"),
+      path: assert_eq(path),
+      locations: assert_list(&assert_location/1, 1)
   end
 
   def assert_invalid_credential(errs, path) do
     assert [err] = errs
-    assert %{"code" => code, "message" => message} = err
-    assert %{"path" => ^path, "locations" => [loc]} = err
-    assert code == "invalid_credential"
-    assert message == "We couldn't find an account with these details"
-    assert_location(loc)
+    assert_object err, :assert_invalid_credential,
+      code: assert_eq("invalid_credential"),
+      message: assert_eq("We couldn't find an account with these details"),
+      path: assert_eq(path),
+      locations: assert_list(&assert_location/1, 1)
   end
 
-  def assert_page_info(page) do
-    assert %{"startCursor" => start, "endCursor" => ends} = page
-    assert %{"hasPreviousPage" => prev, "hasNextPage" => next} = page
-    # assert_cursors(start)
-    # assert_cursors(ends)
-    assert is_boolean(prev) or is_nil(prev)
-    assert is_boolean(next) or is_nil(next)
-    %{
-      start_cursor: start,
-      end_cursor: ends,
-      has_previous_page: prev,
-      has_next_page: next,
-    }
-    |> Map.merge(page)
+  def assert_page_info(page_info) do
+    assert_object page_info, :assert_page_info,
+      start_cursor: assert_optional(&assert_cursors/1),
+      end_cursor: assert_optional(&assert_cursors/1),
+      has_previous_page: assert_optional(&assert_boolean/1),
+      has_next_page: assert_optional(&assert_boolean/1)
   end
 
-  def assert_page(list, returned_count, total_count, prev?, next?, cursor_fn) do
-    assert %{"edges" => edges, "totalCount" => count, "pageInfo" => page} = list
-    assert is_list(edges)
-    assert is_integer(count)
-    page_info = assert_page_info(page)
-    if edges == [] do
-      assert is_nil(page_info.start_cursor)
-      assert is_nil(page_info.end_cursor)
-    else
-      start_cursor = cursor_fn.(List.first(edges))
-      end_cursor = cursor_fn.(List.last(edges))
-      # assert_cursors(start_cursor)
-      # assert_cursors(end_cursor)
-      # assert start_cursor == page_info.start_cursor
-      # assert end_cursor == page_info.end_cursor
+  def assert_page() do
+    fn page ->
+      page = assert_object page, :assert_page,
+        edges: assert_list(),
+        total_count: &assert_non_neg/1,
+        page_info: &assert_page_info/1
+      if page.edges == [] do
+        assert is_nil(page.page_info.start_cursor)
+        assert is_nil(page.page_info.end_cursor)
+      end
+      page
     end
-    assert Enum.count(edges) == returned_count
-    assert total_count == count
-    assert prev? == page_info.has_previous_page
-    assert next? == page_info.has_next_page
-    %{page_info: page_info, total_count: count, edges: edges}
-    |> Map.merge(page_info)
-    |> Map.merge(list)
+  end
+
+  def assert_page(of) when is_function(of, 1) do
+    fn page ->
+      page = assert_object page, :assert_page,
+        edges: assert_list(of),
+        total_count: &assert_non_neg/1,
+        page_info: &assert_page_info/1
+      if page.edges == [] do
+        assert is_nil(page.page_info.start_cursor)
+        assert is_nil(page.page_info.end_cursor)
+      end
+      page
+    end
+  end
+
+  # def assert_pages_eq(page, page2) do
+  #   assert page.edges
+  #   assert page.page_info.has_previous_page == prev?
+  #   assert page.page_info.has_next_page == next?
+  #   page
+  # end
+
+  def assert_page(page, returned_count, total_count, prev?, next?, cursor_fn) do
+    page = assert_object page, :assert_page,
+      edges: assert_list(&(&1), returned_count),
+      total_count: assert_eq(total_count),
+      page_info: &assert_page_info/1
+    if page.edges == [] do
+      assert is_nil(page.page_info.start_cursor)
+      assert is_nil(page.page_info.end_cursor)
+    else
+      assert page.page_info.start_cursor == cursor_fn.(List.first(page.edges))
+      assert page.page_info.end_cursor == cursor_fn.(List.last(page.edges))
+    end
+    assert page.page_info.has_previous_page == prev?
+    assert page.page_info.has_next_page == next?
+    page
   end
 
   def assert_language(lang) do
-    assert %{"id" => id, "isoCode2" => c2, "isoCode3" => c3} = lang
-    assert is_binary(id)
-    assert is_binary(c2)
-    assert is_binary(c3)
-    assert %{"englishName" => name, "localName" => naam} = lang
-    assert is_binary(name)
-    assert is_binary(naam)
-    # assert %{"createdAt" => created, "updatedAt" => updated} = lang
-    # assert is_binary(created)
-    # assert is_binary(updated)
+    assert_object lang, :assert_language, []
+      # id: &assert_binary/1,
+      # iso_code2: &assert_binary/1,
+      # iso_code3: &assert_binary/1,
+      # english_name: &assert_binary/1,
+      # local_name: &assert_binary/1
+      # created_at: &assert_datetime/1,
+      # updated_at: &assert_datetime/1
   end
 
   def assert_country(country), do: assert_language(country)
 
   def assert_auth_payload(ap) do
-    assert %{"token" => token, "me" => me} = ap
-    assert is_binary(token)
-    me = assert_me(me)
-    assert %{"__typename" => "AuthPayload"} = ap
-    Map.merge(ap, %{token: token, me: me})
+    assert_object ap, :assert_auth_payload,
+      token: &assert_uuid/1,
+      me: &assert_me/1,
+      typename: assert_eq("AuthPayload")
   end
 
   def assert_me(me) do
-    assert %{"email" => email} = me
-    assert is_binary(email)
-    assert %{"wantsEmailDigest" => wants_email} = me
-    assert is_boolean(wants_email)
-    assert %{"wantsNotifications" => wants_notif} = me
-    assert is_boolean(wants_notif)
-    assert %{"isConfirmed" => confirmed} = me
-    assert %{"isInstanceAdmin" => admin} = me
-    assert %{"user" => user} = me
-    user = assert_user(user)
-    assert is_boolean(admin)
-    assert %{"__typename" => "Me"} = me
-    %{email: email,
-      wants_email_digest: wants_email,
-      wants_notifications: wants_notif,
-      is_confirmed: confirmed,
-      is_instance_admin: admin,
-      user: user}
-    |> Map.merge(me)
+    assert_object me, :assert_me,
+      email: &assert_email/1,
+      wants_email_digest: &assert_boolean/1,
+      wants_notifications: &assert_boolean/1,
+      is_confirmed: &assert_boolean/1,
+      is_instance_admin: &assert_boolean/1,
+      user: &assert_user/1,
+      typename: assert_eq("Me")
   end
 
   def assert_me(%User{}=user, %{}=me) do
-    me = assert_me(me)
-    assert user.local_user.email == me.email
-    assert user.local_user.wants_email_digest == me.wants_email_digest
-    assert user.local_user.wants_notifications == me.wants_notifications
-    user2 = me.user
-    assert user.id == user2.id
-    assert user.actor.preferred_username == user2.preferred_username
-    assert user.name == user2.name
-    assert user.summary == user2.summary
-    assert user.location == user2.location
-    assert user.website == user2.website
-    assert user.icon == user2.icon
-    assert user.image == user2.image
+    assert_mes_eq(user, assert_me(me))
+  end
+
+  def assert_mes_eq(%User{}=user, %{}=me) do
+    assert_maps_eq user.local_user, me, :assert_me,
+      [:email, :wants_email_digest, :wants_notifications]
+    assert_user(user, me.user)
     me
   end
 
-  def assert_me(%{}=user, %{}=me) do
+  def assert_me_input(%{}=user, %{}=me) do
     me = assert_me(me)
-    assert user["email"] == me.email or user["email"] == nil
-    assert user["wantsEmailDigest"] == me.wants_email_digest
-    assert user["wantsNotifications"] == me.wants_notifications
-    user2 = me.user
-    assert user["preferredUsername"] == user2.preferred_username or user["preferredUsername"] == nil
-    assert user["name"] == user2.name
-    assert user["summary"] == user2.summary
-    assert user["location"] == user2.location
-    assert user["website"] == user2.website
-    assert user["icon"] == user2.icon
-    assert user["image"] == user2.image
+    assert_maps_eq user, me, :assert_me_input,
+      [:wants_email_digest, :wants_notifications], [:email]
+    assert_user_input user, me.user
     me
   end
-
 
   def assert_user(user) do
-    assert %{"id" => id, "canonicalUrl" => url} = user
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url) or is_nil(url)
-    assert %{"preferredUsername" => username} = user
-    assert is_binary(username)
-    assert %{"name" => name, "summary" => summary} = user
-    assert is_binary(name)
-    assert is_binary(summary) or is_nil(summary)
-    assert %{"location" => loc, "website" => website} = user
-    assert is_binary(loc) or is_nil(loc)
-    assert is_binary(website) or is_nil(website)
-    assert %{"icon" => icon, "image" => image} = user
-    assert is_binary(icon) or is_nil(icon)
-    assert is_binary(image) or is_nil(image)
-    assert %{"isLocal" => local, "isPublic" => public} = user
-    assert %{"isDisabled" => disabled} = user
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(disabled)
-    assert %{"createdAt" => created} = user
-    assert %{"updatedAt" => updated} = user
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert %{"followerCount" => follower_count} = user
-    assert %{"likerCount" => liker_count} = user
-    assert is_integer(follower_count) and follower_count >= 0
-    assert is_integer(liker_count) and liker_count >= 0
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "User"} = user
-    %{id: id,
-      canonical_url: url,
-      preferred_username: username,
-      name: name,
-      summary: summary,
-      location: loc,
-      website: website,
-      icon: icon,
-      image: image,
-      follower_count: follower_count,
-      liker_count: liker_count,
-      is_local: local,
-      is_public: public,
-      is_disabled: disabled,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(user)
+    assert_object user, :assert_user,
+      [id: &assert_ulid/1,
+       canonical_url: &assert_url/1,
+       preferred_username: &assert_username/1,
+       display_username: &assert_display_username/1,
+       name: &assert_binary/1,
+       summary: &assert_binary/1,
+       location: &assert_binary/1,
+       website: &assert_url/1,
+       icon: &assert_url/1,
+       image: &assert_url/1,
+       is_local: &assert_boolean/1,
+       is_disabled: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("User"),
+      ],
+      [follow_count: &assert_non_neg/1,
+       follower_count: &assert_non_neg/1,
+       like_count: &assert_non_neg/1,
+       liker_count: &assert_non_neg/1,
+       likes: assert_page(&assert_like/1),
+       likers: assert_page(&assert_like/1),
+       my_like: assert_optional(&assert_like/1),
+       my_follow: assert_optional(&assert_follow/1),
+       my_flag: assert_optional(&assert_flag/1),
+      ]
   end
+
   def assert_user(%User{}=user, %{}=user2) do
-    user2 = assert_user(user2)
-    assert user.id == user2.id
-    assert user.actor.canonical_url == user2.canonical_url
-    assert user.actor.preferred_username == user2.preferred_username
-    assert user.name == user2.name
-    assert user.summary == user2.summary
-    assert user.location == user2.location
-    assert user.website == user2.website
-    assert user.icon == user2.icon
-    assert user.image == user2.image
+    assert_users_eq(user, assert_user(user2))
+  end
+
+  def assert_users_eq(%User{}=user, %{}=user2) do
+    assert_maps_eq user.actor, user2, :assert_user, [:canonical_url, :preferred_username]
+    assert_maps_eq user, user2, :assert_user,
+      [:id, :name, :summary, :location, :website, :icon, :image, :updated_at]
     assert ULID.timestamp(user.id) == {:ok, user2.created_at}
-    assert user.updated_at == user2.updated_at
     assert user2.is_public == true
     assert user2.is_disabled == false
     assert user2.is_local == true
     user2
   end
 
+  def assert_user_input(%{}=user, %{}=user2) do
+    user2 = assert_user(user2)
+    assert_maps_eq user, user2,
+      [:name, :summary, :location, :website, :icon, :image],
+      [:preferred_username]
+    user2
+  end
+
   def assert_community(comm) do
-    assert %{"id" => id, "canonicalUrl" => url} = comm
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"preferredUsername" => username} = comm
-    assert is_binary(username)
-    assert %{"name" => name, "summary" => summary} = comm
-    assert is_binary(name)
-    assert is_binary(summary)
-    assert %{"icon" => icon, "image" => image} = comm
-    assert is_binary(icon)
-    assert is_binary(image)
-    assert %{"isLocal" => local, "isPublic" => public} = comm
-    assert %{"isDisabled" => disabled} = comm
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(disabled)
-    assert %{"createdAt" => created} = comm
-    assert %{"updatedAt" => updated} = comm
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert %{"collectionCount" => collection_count} = comm
-    assert %{"followerCount" => follower_count} = comm
-    assert %{"likerCount" => liker_count} = comm
-    assert is_integer(collection_count) and collection_count >= 0
-    assert is_integer(follower_count) and follower_count >= 0
-    assert is_integer(liker_count) and liker_count >= 0
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Community"} = comm
-    %{id: id,
-      canonical_url: url,
-      preferred_username: username,
-      name: name,
-      summary: summary,
-      icon: icon,
-      image: image,
-      is_local: local,
-      is_public: public,
-      is_disabled: disabled,
-      liker_count: liker_count,
-      follower_count: follower_count,
-      collection_count: collection_count,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(comm)
+    assert_object comm, :assert_community,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       preferred_username: &assert_username/1,
+       display_username: &assert_display_username/1,
+       name: &assert_binary/1,
+       summary: &assert_binary/1,
+       icon: &assert_url/1,
+       image: &assert_url/1,
+       is_local: &assert_boolean/1,
+       is_disabled: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Community"),
+      ],
+      [collection_count: &assert_non_neg/1,
+       # follower_count: &assert_non_neg/1,
+       liker_count: &assert_non_neg/1,
+       my_like: assert_optional(&assert_like/1),
+       my_follow: assert_optional(&assert_follow/1),
+       my_flag: assert_optional(&assert_flag/1),
+      ]
   end
 
   def assert_community(%Community{}=comm, %{}=comm2) do
-    comm2 = assert_community(comm2)
-    assert comm.id == comm2.id
-    assert comm.actor.canonical_url == comm2.canonical_url
-    assert comm.actor.preferred_username == comm2.preferred_username
-    assert comm.name == comm2.name
-    assert comm.summary == comm2.summary
-    assert comm.icon == comm2.icon
-    assert comm.image == comm2.image
-    assert is_nil(comm.actor.peer_id) == comm2.is_local
-    assert not is_nil(comm.published_at) == comm2.is_public
-    assert not is_nil(comm.disabled_at) == comm2.is_disabled
-    assert ULID.timestamp(comm.id) == {:ok, comm2.created_at}
-    assert comm.updated_at == comm2.updated_at
+    assert_communities_eq(comm, assert_community(comm2))
+  end
+
+  def assert_communities_eq(%Community{}=comm, %{}=comm2) do
+    assert_maps_eq comm.actor, comm2, :assert_community,
+      [:canonical_url, :preferred_username]
+    assert_maps_eq comm, comm2, :assert_community,
+      [:id, :name, :summary, :icon, :image, :updated_at]
+    assert comm2.is_public == not is_nil(comm.published_at)
+    assert comm2.is_disabled == not is_nil(comm.disabled_at)
+    assert comm2.is_local == is_nil(comm.actor.peer_id)
     comm2
   end
-  # input
-  def assert_community(%{}=comm, %{}=comm2) do
+
+  def assert_community_input(%{}=comm, %{}=comm2) do
     comm2 = assert_community(comm2)
-    if comm["preferredUsername"] do
-      assert comm["preferredUsername"] == comm2.preferred_username
-    end
-    assert comm["name"] == comm2.name
-    assert comm["summary"] == comm2.summary
-    assert comm["icon"] == comm2.icon
+    assert_maps_eq comm, comm2,
+      [:name, :summary, :icon, :image],
+      [:preferred_username]
     comm2
   end
 
   def assert_collection(coll) do
-    assert %{"id" => id, "canonicalUrl" => url} = coll
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"preferredUsername" => username} = coll
-    assert is_binary(username)
-    assert %{"name" => name, "summary" => summary} = coll
-    assert is_binary(name)
-    assert is_binary(summary)
-    assert %{"icon" => icon} = coll
-    assert is_binary(icon)
-    assert %{"isLocal" => local, "isPublic" => public} = coll
-    assert %{"isDisabled" => disabled} = coll
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(disabled)
-    assert %{"createdAt" => created} = coll
-    assert %{"updatedAt" => updated} = coll
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert %{"followerCount" => follower_count} = coll
-    assert %{"likerCount" => liker_count} = coll
-    assert is_integer(follower_count) and follower_count >= 0
-    assert is_integer(liker_count) and liker_count >= 0
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Collection"} = coll
-    %{id: id,
-      canonical_url: url,
-      preferred_username: username,
-      name: name,
-      summary: summary,
-      icon: icon,
-      is_local: local,
-      is_public: public,
-      is_disabled: disabled,
-      follower_count: follower_count,
-      liker_count: liker_count,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(coll)
+    assert_object coll, :assert_collection,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       preferred_username: &assert_username/1,
+       display_username: &assert_display_username/1,
+       name: &assert_binary/1,
+       summary: &assert_binary/1,
+       icon: &assert_url/1,
+       is_local: &assert_boolean/1,
+       is_disabled: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Collection"),
+      ],
+      [community: &assert_community/1,
+       my_like: assert_optional(&assert_like/1),
+       my_follow: assert_optional(&assert_follow/1),
+       my_flag: assert_optional(&assert_flag/1),
+       flags: assert_page(&assert_flag/1),
+       # follower_count: &assert_non_neg/1,
+       followers: assert_page(&assert_follow/1),
+       liker_count: &assert_non_neg/1,
+       likers: assert_page(&assert_like/1),
+       resource_count: &assert_non_neg/1,
+       resources: assert_page(&assert_resource/1),
+      ]
   end
 
   def assert_collection(%Collection{}=coll, %{}=coll2) do
-    coll2 = assert_collection(coll2)
-    assert coll.id == coll2.id
-    assert coll.actor.canonical_url == coll2.canonical_url
-    assert coll.actor.preferred_username == coll2.preferred_username
-    assert coll.name == coll2.name
-    assert coll.summary == coll2.summary
-    assert coll.icon == coll2.icon
-    assert is_nil(coll.actor.peer_id) == coll2.is_local
-    assert not is_nil(coll.published_at) == coll2.is_public
-    assert not is_nil(coll.disabled_at) == coll2.is_disabled
-    assert ULID.timestamp(coll.id) == {:ok, coll2.created_at}
-    assert coll.updated_at == coll2.updated_at
+    assert_collections_eq(coll, assert_collection(coll2))
+  end
+
+  def assert_collections_eq(%Collection{}=coll, %{}=coll2) do
+    assert_maps_eq coll.actor, coll2, :assert_collection,
+      [:canonical_url, :preferred_username]
+    assert_maps_eq coll, coll2, :assert_collection,
+      [:id, :name, :summary, :icon, :updated_at],
+      [:liker_count, :resource_count] # follower_count
     coll2
   end
-  # input
-  def assert_collection(%{}=coll, %{}=coll2) do
+
+  def assert_collection_input(%{}=coll, %{}=coll2) do
     coll2 = assert_collection(coll2)
-    if coll["preferredUsername"] do
-      assert coll["preferredUsername"] == coll2.preferred_username
-    end
-    assert coll["name"] == coll2.name
-    assert coll["summary"] == coll2.summary
-    assert coll["icon"] == coll2.icon
+    assert_maps_eq coll, coll2,
+      [:name, :summary, :icon, :image],
+      [:preferred_username]
     coll2
   end
 
   def assert_resource(resource) do
-    assert %{"id" => id, "canonicalUrl" => canon_url} = resource
-    assert is_binary(id)
-    assert is_binary(canon_url) or is_nil(canon_url)
-    assert %{"name" => name, "summary" => summary} = resource
-    assert is_binary(id)
-    assert is_binary(name)
-    assert is_binary(summary)
-    assert %{"icon" => icon} = resource
-    assert is_binary(icon)
-    assert %{"url" => url, "license" => license} = resource
-    assert is_binary(url) or is_nil(url)
-    assert is_binary(license)
-    assert %{"isLocal" => local, "isPublic" => public} = resource
-    assert %{"isDisabled" => disabled} = resource
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(disabled)
-    assert %{"createdAt" => created} = resource
-    assert %{"updatedAt" => updated} = resource
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Resource"} = resource
-    %{id: id,
-      canonical_url: canon_url,
-      name: name,
-      summary: summary,
-      icon: icon,
-      url: url,
-      license: license,
-      is_local: local,
-      is_public: public,
-      is_disabled: disabled,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(resource)
+    assert_object resource, :assert_resource,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       name: &assert_binary/1,
+       summary: &assert_binary/1,
+       icon: &assert_url/1,
+       url: &assert_url/1,
+       license: &assert_binary/1,
+       is_local: &assert_boolean/1,
+       is_disabled: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Resource"),
+      ]
   end
 
   def assert_resource(%Resource{}=res, %{}=res2) do
-    res2 = assert_resource(res2)
-    assert res.id == res2.id
-    assert res.canonical_url == res2.canonical_url
-    assert res.name == res2.name
-    assert res.summary == res2.summary
-    assert res.icon == res2.icon
-    assert res.url == res2.url
-    assert res.license == res2.license
+    assert_resources_eq(res, assert_resource(res2))
+  end
+
+  def assert_resources_eq(%Resource{}=res, %{}=res2) do
+    assert_maps_eq res, res2, :assert_resource,
+      [:id, :canonical_url, :name, :summary, :icon, :url, :license, :updated_at],
+      [:follower_count, :liker_count, :resource_count]
     assert not is_nil(res.published_at) == res2.is_public
     assert not is_nil(res.disabled_at) == res2.is_disabled
     assert ULID.timestamp(res.id) == {:ok, res2.created_at}
-    assert res.updated_at == res2.updated_at
     res2
   end
-  def assert_resource(%{}=res, %{}=res2) do
+
+  def assert_resource_input(%{}=res, %{}=res2) do
     res2 = assert_resource(res2)
-    assert res["name"] == res2.name
-    assert res["summary"] == res2.summary
-    assert res["icon"] == res2.icon
-    assert res["url"] == res2.url
-    assert res["license"] == res2.license
+    assert_maps_eq res, res2, [:name, :summary, :icon, :url, :license]
     res2
   end
 
   def assert_copied_resource(%Resource{}=res, %{}=res2) do
-    res2 = assert_resource(res2)
-    assert res.name == res2.name
-    assert res.summary == res2.summary
-    assert res.icon == res2.icon
-    assert res.url == res2.url
-    assert res.license == res2.license
-    res2
+    assert_resource_input(res, res2)
   end
 
   def assert_thread(thread) do
-    assert %{"id" => id, "canonicalUrl" => url} = thread
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"isLocal" => local, "isPublic" => public} = thread
-    assert %{"isHidden" => hidden} = thread
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(hidden)
-    assert %{"createdAt" => created} = thread
-    assert %{"updatedAt" => updated} = thread
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert %{"followerCount" => follower_count} = thread
-    assert is_integer(follower_count) and follower_count >= 0
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Thread"} = thread
-    %{id: id,
-      canonical_url: url,
-      is_local: local,
-      is_public: public,
-      is_hidden: hidden,
-      follower_count: follower_count,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(thread)
+    assert_object thread, :assert_thread,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       name: &assert_binary/1,
+       summary: &assert_binary/1,
+       icon: &assert_url/1,
+       url: &assert_url/1,
+       license: &assert_binary/1,
+       is_local: &assert_boolean/1,
+       is_hidden: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Thread"),
+      ],
+      [follower_count: &assert_non_neg/1,
+      ]
   end
 
   def assert_thread(%Thread{}=thread, %{}=thread2) do
-    thread2 = assert_thread(thread2)
-    assert thread.id == thread2.id
-    assert thread.canonical_url == thread2.canonical_url
-    assert thread.is_local == thread2.is_local
-    assert is_nil(thread.published_at) == not thread2.is_public
-    assert thread.is_hidden == thread2.is_hidden
+    assert_threads_eq(thread, assert_thread(thread2))
+  end
+
+  def assert_threads_eq(%Thread{}=thread, %{}=thread2) do
+    assert_maps_eq thread, thread2, :assert_thread,
+      [:id, :canonical_url, :updated_at, :is_local],
+      [:follower_count]
+    assert not is_nil(thread.published_at) == thread2.is_public
+    assert not is_nil(thread.hidden_at) == thread2.is_hidden
     assert ULID.timestamp(thread.id) == {:ok, thread2.created_at}
-    assert thread.updated_at == thread2.updated_at
     thread2
   end
+
   
   def assert_comment(comment) do
-    assert %{"id" => id, "canonicalUrl" => url} = comment
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"content" => content} = comment
-    assert is_binary(content)
-    assert %{"isLocal" => local, "isPublic" => public} = comment
-    assert %{"isHidden" => hidden} = comment
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert is_boolean(hidden)
-    assert %{"createdAt" => created} = comment
-    assert %{"updatedAt" => updated} = comment
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert %{"likerCount" => liker_count} = comment
-    assert is_integer(liker_count) and liker_count >= 0
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Comment"} = comment
-    %{id: id,
-      canonical_url: url,
-      content: content,
-      is_local: local,
-      is_public: public,
-      is_hidden: hidden,
-      liker_count: liker_count,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(comment)
+    assert_object comment, :assert_comment,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       content: &assert_binary/1,
+       is_local: &assert_boolean/1,
+       is_hidden: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Comment"),
+      ],
+      [liker_count: &assert_non_neg/1,
+      ]
   end
 
   def assert_comment(%Comment{}=comment, %{}=comment2) do
-    comment2 = assert_comment(comment2)
-    assert comment.id == comment2.id
-    assert comment.canonical_url == comment2.canonical_url
-    assert comment.content == comment2.content
-    assert comment.is_local == comment2.is_local
-    assert is_nil(comment.published_at) == not comment2.is_public
-    assert is_nil(comment.hidden_at) == not comment2.is_hidden
+    assert_comments_eq(comment, assert_comment(comment2))
+  end
+
+  def assert_comments_eq(%Comment{}=comment, %{}=comment2) do
+    assert_maps_eq comment, comment2, :assert_comment,
+      [:id, :canonical_url, :content, :updated_at, :is_local],
+      [:liker_count]
+    assert not is_nil(comment.published_at) == comment2.is_public
+    assert not is_nil(comment.hidden_at) == comment2.is_hidden
     assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
-    assert comment.updated_at == comment2.updated_at
     comment2
   end
 
   def assert_feature(feature) do
-    assert %{"id" => id, "canonicalUrl" => url} = feature
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"isLocal" => local} = feature
-    assert is_boolean(local)
-    assert %{"createdAt" => created} = feature
-    assert is_binary(created)
-    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
-    assert %{"__typename" => "Feature"} = feature
-    %{id: id,
-      canonical_url: url,
-      is_local: local,
-      created_at: created_at}
-    |> Map.merge(feature)
+    assert_object feature, :assert_feature,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       is_local: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Feature"),
+      ]
   end
 
   def assert_feature(%Feature{}=feature, %{}=feature2) do
-    feature2 = assert_feature(feature2)
-    assert feature.id == feature2.id
-    assert feature.canonical_url == feature2.canonical_url
-    assert feature.is_local == feature2.is_local
+    assert_features_eq(feature, assert_feature(feature2))
+  end
+
+  def assert_features_eq(%Feature{}=feature, %{}=feature2) do
+    assert_maps_eq feature, feature2, :assert_feature,
+      [:id, :canonical_url, :updated_at, :is_local]
     assert ULID.timestamp(feature.id) == {:ok, feature2.created_at}
     feature2
   end
 
   def assert_flag(flag) do
-    assert %{"id" => id, "canonicalUrl" => url} = flag
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"message" => message, "isResolved" => resolved} = flag
-    assert is_binary(message)
-    assert is_boolean(resolved)
-    assert %{"isLocal" => local} = flag #, "isPublic" => public} = flag
-    assert is_boolean(local)
-    # assert is_boolean(public)
-    assert %{"createdAt" => created} = flag
-    assert %{"updatedAt" => updated} = flag
-    assert is_binary(created)
-    assert is_binary(updated)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Flag"} = flag
-    %{id: id,
-      canonical_url: url,
-      message: message,
-      is_resolved: resolved,
-      is_local: local,
-      # is_public: public,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(flag)
+    assert_object flag, :assert_flag,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       message: &assert_binary/1,
+       is_local: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Flag"),
+      ]
   end
 
   def assert_flag(%Flag{}=flag, %{}=flag2) do
-    flag2 = assert_flag(flag2)
-    assert flag.id == flag2.id
-    assert flag.canonical_url == flag2.canonical_url
-    assert flag.message == flag2.message
-    assert not is_nil(flag.is_resolved) == flag2.is_resolved
-    assert flag.is_local == flag2.is_local
-    # assert flag.is_public == flag2.is_public
+    assert_flags_eq(flag, assert_flag(flag2))
+  end
+
+  def assert_flags_eq(%Flag{}=flag, %{}=flag2) do
+    assert_maps_eq flag, flag2, :assert_flag,
+      [:id, :canonical_url, :message, :updated_at, :is_local]
     assert ULID.timestamp(flag.id) == {:ok, flag2.created_at}
-    assert flag.updated_at == flag2.updated_at
     flag2
   end
 
   def assert_follow(follow) do
-    assert %{"id" => id, "canonicalUrl" => url} = follow
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"isLocal" => local, "isPublic" => public} = follow
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert %{"createdAt" => created} = follow
-    assert is_binary(created)
-    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
-    assert %{"updatedAt" => updated} = follow
-    assert is_binary(updated)
-    assert {:ok, updated_at,0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Follow"} = follow
-    %{id: id,
-      canonical_url: url,
-      is_local: local,
-      is_public: public,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(follow)
+    assert_object follow, :assert_follow,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       is_local: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Follow"),
+      ]
   end
 
   def assert_follow(%Follow{}=follow, %{}=follow2) do
-    follow2 = assert_follow(follow2)
-    assert follow.id == follow2.id
-    assert follow.canonical_url == follow2.canonical_url
-    assert follow.is_local == follow2.is_local
-    assert not is_nil(follow.published_at) == follow2.is_public
+    assert_follows_eq(follow, assert_follow(follow2))
+  end
+
+  def assert_follows_eq(%Follow{}=follow, %{}=follow2) do
+    assert_maps_eq follow, follow2, :assert_follow,
+      [:id, :canonical_url, :updated_at, :is_local]
     assert ULID.timestamp(follow.id) == {:ok, follow2.created_at}
-    assert follow.updated_at == follow2.updated_at
+    assert not is_nil(follow.published_at) == follow2.is_public
     follow2
   end
 
   def assert_like(like) do
-    assert %{"id" => id, "canonicalUrl" => url} = like
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"isLocal" => local, "isPublic" => public} = like
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert %{"createdAt" => created} = like
-    assert is_binary(created)
-    assert {:ok, created_at, 0} = DateTime.from_iso8601(created)
-    assert %{"updatedAt" => updated} = like
-    assert is_binary(updated)
-    assert {:ok, updated_at, 0} = DateTime.from_iso8601(updated)
-    assert %{"__typename" => "Like"} = like
-    %{id: id,
-      canonical_url: url,
-      is_local: local,
-      is_public: public,
-      created_at: created_at,
-      updated_at: updated_at }
-    |> Map.merge(like)
+    assert_object like, :assert_like,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       is_local: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       updated_at: &assert_datetime/1,
+       typename: assert_eq("Like"),
+      ]
   end
 
   def assert_like(%Like{}=like, %{}=like2) do
-    like2 = assert_like(like2)
-    assert like.id == like2.id
-    assert like.canonical_url == like2.canonical_url
-    assert like.is_local == like2.is_local
-    assert is_nil(like.published_at) != like2.is_public
+    assert_likes_eq(like, assert_like(like2))
+  end
+
+  def assert_likes_eq(%Like{}=like, %{}=like2) do
+    assert_maps_eq like, like2, :assert_like,
+      [:id, :canonical_url, :updated_at, :is_local]
     assert ULID.timestamp(like.id) == {:ok, like2.created_at}
-    assert like.updated_at == like2.updated_at
+    assert not is_nil(like.published_at) == like2.is_public
     like2
   end
 
 
   def assert_activity(activity) do
-    assert %{"id" => id, "canonicalUrl" => url} = activity
-    assert is_binary(id)
-    assert is_binary(url) or is_nil(url)
-    assert %{"verb" => verb} = activity
-    assert is_binary(verb)
-    assert %{"isLocal" => local, "isPublic" => public} = activity
-    assert is_boolean(local)
-    assert is_boolean(public)
-    assert %{"createdAt" => created} = activity
-    assert is_binary(created)
-    assert {:ok, created_at,0} = DateTime.from_iso8601(created)
-    assert %{"__typename" => "Activity"} = activity
-    %{id: id,
-      canonical_url: url,
-      verb: verb,
-      is_local: local,
-      is_public: public,
-      created_at: created_at }
-    |> Map.merge(activity)
+    assert_object activity, :assert_activity,
+      [id: &assert_ulid/1,
+       canonical_url: assert_optional(&assert_url/1),
+       verb: &assert_binary/1,
+       is_local: &assert_boolean/1,
+       is_public: &assert_boolean/1,
+       created_at: &assert_datetime/1,
+       typename: assert_eq("Activity"),
+      ]
   end
+
   def assert_activity(%Activity{}=activity, %{}=activity2) do
-    activity2 = assert_activity(activity2)
-    assert activity.id == activity2.id
-    assert activity.canonical_url == activity2.canonical_url
-    assert activity.verb == activity2.verb
-    assert activity.is_local == activity2.is_local
-    assert activity.is_public == activity2.is_public
+    assert_activities_eq(activity, assert_activity(activity2))
+  end
+
+  def assert_activities_eq(%Activity{}=activity, %{}=activity2) do
+    assert_maps_eq activity, activity2, :assert_activity,
+      [:id, :canonical_url, :updated_at, :verb, :is_local]
+    assert not is_nil(activity.published_at) == activity2.is_public
     assert ULID.timestamp(activity.id) == {:ok, activity2.created_at}
     activity2
   end
 
   def assert_flag_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -735,33 +678,30 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       "Resource" -> assert_resource(thing)
       "User" -> assert_user(thing)
     end
-    |> Map.put(:type, type)
   end
 
   def assert_like_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
       "Resource" -> assert_resource(thing)
       "User" -> assert_user(thing)
     end
-    |> Map.put(:type, type)
   end
 
   def assert_follow_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Community" -> assert_community(thing)
       "Thread" -> assert_thread(thing)
       "User" -> assert_user(thing)
     end
-    |> Map.put(:type, type)
   end
 
   def assert_tagging_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -770,71 +710,68 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       "Thread" -> assert_thread(thing)
       "User" -> assert_user(thing)
     end
-    |> Map.put(:type, type)
   end
 
   def assert_activity_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
       "Community" -> assert_community(thing)
       "Resource" -> assert_resource(thing)
     end
-    |> Map.put(:type, type)
   end
 
   def assert_thread_context(thing) do
-    assert %{"__typename" => type} = thing
+    assert %{typename: type} = thing
     case type do
       "Collection" -> assert_collection(thing)
       "Community" -> assert_community(thing)
       "Flag" -> assert_flag(thing)
       "Resource" -> assert_resource(thing)
     end
-    |> Map.put(:type, type)
   end
 
   # def assert_tag_category(cat) do
-  #   assert %{"id" => id, "canonicalUrl" => url} = cat
+  #   assert %{"id: id, "canonicalUrl: url} = cat
   #   assert is_binary(id)
   #   assert is_binary(url) or is_nil(url)
-  #   assert %{"id" => id, "name" => name} = cat
+  #   assert %{"id: id, "name: name} = cat
   #   assert is_binary(id)
   #   assert is_binary(name)
-  #   assert %{"isLocal" => local, "isPublic" => public} = cat
+  #   assert %{"isLocal: local, "isPublic: public} = cat
   #   assert is_boolean(local)
   #   assert is_boolean(public)
-  #   assert %{"createdAt" => created} = cat
+  #   assert %{"createdAt: created} = cat
   #   assert is_binary(created)
-  #   assert %{"__typename" => "TagCategory"} = cat
+  #   assert %{"__typename: "TagCategory"} = cat
   # end
 
   # def assert_tag(tag) do
-  #   assert %{"id" => id, "canonicalUrl" => url} = tag
+  #   assert %{"id: id, "canonicalUrl: url} = tag
   #   assert is_binary(id)
   #   assert is_binary(url) or is_nil(url)
-  #   assert %{"id" => id, "name" => name} = tag
+  #   assert %{"id: id, "name: name} = tag
   #   assert is_binary(id)
   #   assert is_binary(name)
-  #   assert %{"isLocal" => local, "isPublic" => public} = tag
+  #   assert %{"isLocal: local, "isPublic: public} = tag
   #   assert is_boolean(local)
   #   assert is_boolean(public)
-  #   assert %{"createdAt" => created} = tag
+  #   assert %{"createdAt: created} = tag
   #   assert is_binary(created)
-  #   assert %{"__typename" => "Tag"} = tag
+  #   assert %{"__typename: "Tag"} = tag
   # end
 
   # def assert_tagging(tag) do
-  #   assert %{"id" => id, "canonicalUrl" => url} = tag
+  #   assert %{"id: id, "canonicalUrl: url} = tag
   #   assert is_binary(id)
   #   assert is_binary(url) or is_nil(url)
-  #   assert %{"isLocal" => local, "isPublic" => public} = tag
+  #   assert %{"isLocal: local, "isPublic: public} = tag
   #   assert is_boolean(local)
   #   assert is_boolean(public)
-  #   assert %{"createdAt" => created} = tag
+  #   assert %{"createdAt: created} = tag
   #   assert is_binary(created)
-  #   assert %{"__typename" => "Tagging"} = tag
+  #   assert %{"__typename: "Tagging"} = tag
   # end
 
   # def assert_block(block) do

@@ -22,6 +22,7 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
   import MoodleNet.Test.Trendy
+  import Zest
 
   def fake_register_email_domain_access!(domain \\ Fake.domain())
   when is_binary(domain) do
@@ -117,6 +118,10 @@ defmodule MoodleNet.Test.Faking do
 
   def some_fake_communities!(opts \\ %{}, some_arg, users) do
     flat_pam(users, &some(some_arg, fn -> fake_community!(&1, opts) end))
+  end
+
+  def some_fake_resources!(opts \\ %{}, some_arg, users, collections) do
+    flat_pam_product_some(users, collections, some_arg, &fake_resource!(&1, &2, opts))
   end
 
   def some_fake_collections!(opts \\ %{}, some_arg, users, communities) do

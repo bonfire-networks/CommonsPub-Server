@@ -8,8 +8,10 @@ defmodule MoodleNet.Test.Trendy do
   about when functions are run relative to their result order.
   """
 
+  import Zest
+
   @compile {:inline, repeat_for_count: 4, noccat: 2, flat_pam: 3, flat_pam_product: 4}
-  @compile {:inline, flat_pam_product2: 4, piz: 4, each: 3}
+  @compile {:inline, flat_pam_product2: 4, piz: 4}
 
   def repeat(_list, 0), do: []
   def repeat(list, 1), do: list
@@ -31,6 +33,7 @@ defmodule MoodleNet.Test.Trendy do
 
   defp repeat_for_count([], template, acc, count),
     do: repeat_for_count(template, template, acc, count)
+
 
   @doc """
   A very fast list prepend where the reverse of the left list is
@@ -138,15 +141,6 @@ defmodule MoodleNet.Test.Trendy do
 
   defp unpiz([], as, bs), do: {as, bs}
   defp unpiz([{a, b} | abs], as, bs), do: unpiz(abs, [a | as], [b | bs])
-
-  @doc """
-  Like piz, except discards the results
-  """
-  def each([ a | as ], [b | bs], fun) do
-    fun.(a,b)
-    each(as, bs, fun)
-  end
-  def each(_, _, _), do: nil
 
   @doc """
   Drops the first drop elements of as and each with bs using fun.

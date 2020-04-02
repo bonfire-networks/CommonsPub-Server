@@ -10,7 +10,16 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Repo,
     Resources,
   }
-  alias MoodleNet.GraphQL.{Flow, FieldsFlow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{
+    Flow,
+    FieldsFlow,
+    PageFlow,
+    PagesFlow,
+    ResolveField,
+    ResolvePage,
+    ResolvePages,
+    ResolveRootPage,
+  }
   alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
@@ -19,36 +28,46 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   ## resolvers
 
   def collection(%{collection_id: id}, info) do
-    Flow.field(__MODULE__, :fetch_collection, id, info)
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_collection,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def collections(page_opts, info) do
-    vals = [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1] # popularity
-    opts = %{default_limit: 10}
-    ret = Flow.root_page(__MODULE__, :fetch_collections, page_opts, info, vals, opts)
-    ret
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_collections,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
+      }
+    )
   end
 
   ## fetchers
 
   def fetch_collection(info, id) do
-    user = GraphQL.current_user(info)
     Collections.one(
-      user: user,
+      user: GraphQL.current_user(info),
       id: id,
       preload: :actor
     )
   end
 
   def fetch_collections(page_opts, info) do
-    user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
         queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: user],
+        base_filters: [user: GraphQL.current_user(info)],
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
@@ -71,8 +90,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def resources_edge(%Collection{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_resources_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_resources_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_resources_edge({page_opts, info}, ids) do
@@ -81,7 +107,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       %PagesFlow{
         queries: Resources.Queries,
         query: Resource,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.collection_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, collection_id: ids],
@@ -97,7 +123,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
       %PageFlow{
         queries: Resources.Queries,
         query: Resource,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [:deleted, user: user, collection_id: id],
         data_filters: [page: [desc: [created: page_opts]]],

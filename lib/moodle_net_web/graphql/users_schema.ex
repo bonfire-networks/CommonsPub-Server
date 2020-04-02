@@ -200,7 +200,12 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     #   resolve &LocalisationResolver.primary_language/3
     # end
 
-    @desc "Total number of followers, including those we can't see"
+    @desc "Total number of things the user follows, including privately"
+    field :follow_count, :integer do
+      resolve &FollowsResolver.follow_count_edge/3
+    end
+
+    @desc "Total number of followers, including private follows"
     field :follower_count, :integer do
       resolve &FollowsResolver.follower_count_edge/3
     end
@@ -252,15 +257,15 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       arg :limit, :integer
       arg :before, list_of(:cursor)
       arg :after, list_of(:cursor)
-      resolve &UsersResolver.likes_edge/3
+      resolve &LikesResolver.likes_edge/3
     end
 
-    @desc "The likes a user has created"
+    @desc "The likes a user has from other people"
     field :likers, :likes_page do
       arg :limit, :integer
       arg :before, list_of(:cursor)
       arg :after, list_of(:cursor)
-      resolve &UsersResolver.likes_edge/3
+      resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Comments the user has made, most recently created first"

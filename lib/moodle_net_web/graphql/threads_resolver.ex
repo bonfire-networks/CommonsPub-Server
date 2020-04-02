@@ -4,17 +4,37 @@
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
-  alias MoodleNet.GraphQL.{Flow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{
+    Flow,
+    PageFlow,
+    PagesFlow,
+    ResolveField,
+    ResolvePage,
+    ResolvePages,
+  }
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.{Comment, Comments, Thread}
   
-  def thread(%{thread_id: id}, info), do: Threads.one(id: id, user: info.context.current_user)
+  def thread(%{thread_id: id}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_thread,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_thread(info, id) do
+    Threads.one(id: id, user: GraphQL.current_user(info))
+  end
 
   # edges
   
   def threads_edge(%{id: id}, %{}=page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_threads_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_threads_edge, page_opts, id, info, [&Ecto.ULID.cast/1], opts)
   end
 
   def fetch_threads_edge({page_opts, info}, ids) do

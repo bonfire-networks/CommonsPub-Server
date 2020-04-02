@@ -123,11 +123,11 @@ defmodule MoodleNet.Flags.Queries do
     |> page(page_opts, [desc: :created])
   end
 
-  defp page(q, %{after: id, limit: limit}, [desc: :created]) do
+  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
     filter(q, id: {:lte, id}, limit: limit + 2)
   end
 
-  defp page(q, %{before: id, limit: limit}, [desc: :created]) do
+  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
     filter(q, id: {:gte, id}, limit: limit + 2)
   end
 

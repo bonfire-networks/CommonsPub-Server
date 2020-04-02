@@ -25,7 +25,6 @@ defmodule MoodleNet.GraphQL.Page do
 
   # there were results and we must check for the previous page marker
   defp paginate([e|es]=edges, %{after: a, limit: limit}, cursor_fn) do
-    # IO.inspect(edges: Enum.count(edges), limit: limit, after: a)
     if cursor_fn.(e) == a,
       do: paginate_after(true, es, limit, cursor_fn),
       else: paginate_after(nil, Enum.take(edges, limit+1), limit, cursor_fn)
@@ -33,7 +32,6 @@ defmodule MoodleNet.GraphQL.Page do
 
   # there were results and we must check for the next page marker
   defp paginate(edges, %{before: b, limit: limit}, cursor_fn) do
-    # IO.inspect(edges: Enum.count(edges), limit: limit, before: b)
     if cursor_fn.(List.last(edges)) == b,
       do: paginate_before(true, :lists.droplast(edges), limit, cursor_fn),
       else: paginate_before(nil, Enum.slice(edges, -(limit-1)..-1), limit, cursor_fn)

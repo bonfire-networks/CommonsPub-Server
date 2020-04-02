@@ -42,20 +42,6 @@ defmodule MoodleNet.GraphQL.Flow do
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   @doc """
-  Encapsulates the flow for resolving a field in the absence of
-  multiple parents.
-  """
-  @spec field(
-    module :: atom,
-    callback :: atom,
-    context :: term,
-    info :: map
-  ) :: term
-  def field(module, callback, context, info) do
-    apply(module, callback, [info, context])
-  end
-
-  @doc """
   Encapsulates the flow for resolving a field in the presence of
   potentially multiple parents.
   """
@@ -78,31 +64,6 @@ defmodule MoodleNet.GraphQL.Flow do
     batch {module, callback, Map.take(info, [:context])}, context, getter
   end
 
-  @doc """
-  Encapsulates the flow of resolving a page in the absence of
-  parents.
-  """
-  @spec root_page(
-    module :: atom,
-    callback :: atom,
-    page_opts :: map,
-    info :: map,
-    cursor_validators :: list
-  ) :: term
-  @spec root_page(
-    module :: atom,
-    callback :: atom,
-    page_opts :: map,
-    info :: map,
-    cursor_validators :: list,
-    opts :: Keyword.t
-  ) :: term
-  def root_page(module, callback, page_opts, info, cursor_validators, opts \\ %{}) do
-    with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, cursor_validators, opts) do
-      info2 = Map.take(info, [:context])
-      apply(module, callback, [page_opts, info2])
-    end
-  end
 
   @doc """
   Encapsulates the flow of resolving a page in the presence of a
@@ -149,3 +110,12 @@ defmodule MoodleNet.GraphQL.Flow do
   end
 
 end
+
+# defmodule MoodleNet.GraphQL.ResolveFields do
+#   alias 
+#   @enforce_keys [:module, :fetcher, :context, :info]
+#   defstruct [
+#     :module, :callback, :context, :info,
+# end
+
+

@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.Test.Automaton do
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.ConnHelpers
+  import Zest
 
   def root_page_test(
     %{query: query,
@@ -18,85 +19,133 @@ defmodule MoodleNetWeb.Test.Automaton do
       data: data,
       assert_fn: assert_fn,
       cursor_fn: cursor_fn,
+      limit: limit,
+      after: aft,
+      before: bef,
     }=opts
   ) do
-    default_vars = Map.get(opts, :vars, %{})
-    limit = Map.get(opts, :limit, :limit)
-    aft = Map.get(opts, :after, :after)
-    bef = Map.get(opts, :before, :before)
-    assert is_map(default_vars)
-    # test the first page with default limit
-    page1 = query_page(query, conn, key, default_vars, 10, total, false, true, cursor_fn)
-    each(data, page1.edges, assert_fn)
-    # test the first page with explicit limit
-    vars = Map.merge(default_vars, %{limit => 11})
-    page_1 = query_page(query, conn, key, vars, 11, total, false, true, cursor_fn)
-    each(data, page_1.edges, assert_fn)
-    # test the second page with explicit limit
-    vars = Map.merge(default_vars, %{limit => 9, aft => page_1.end_cursor})
-    page2 = query_page(query, conn, key, vars, 9, total, true, true, cursor_fn)
-    drop_each(data, page2.edges, 11, assert_fn)
-    # test the third page with explicit limit
-    vars = Map.merge(default_vars, %{limit => 7, aft => page2.end_cursor})
-    page3 = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
-    drop_each(data, page3.edges, 20, assert_fn)
-    # test the second page without explicit limit
-    vars = Map.merge(default_vars, %{aft => page1.end_cursor})
-    page_2 = query_page(query, conn, key, vars, 10, total, true, true, cursor_fn)
-    drop_each(data, page_2.edges, 10, assert_fn)
-    # test the third page without explicit limit
-    vars = Map.merge(default_vars, %{aft => page_2.end_cursor})
-    page_3 = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
-    drop_each(data, page_3.edges, 20, assert_fn)
+    vars = Map.get(opts, :vars, %{})
+    assert is_map(vars)
+
+    page1 = scope [page: 1, limit: :default] do
+      page = query_page(query, conn, key, vars, 10, total, false, true, cursor_fn)
+      each(data, page.edges, assert_fn)
+      page
+    end
+
+    page_1 = scope [page: 1, limit: 11] do
+      vars = Map.merge(vars, %{limit => 11})
+      page = query_page(query, conn, key, vars, 11, total, false, true, cursor_fn)
+      each(data, page.edges, assert_fn)
+      page
+    end
+
+    page2 = scope [page: 2, limit: 9, after: 10] do
+      vars = Map.merge(vars, %{limit => 9, aft => page_1.page_info.end_cursor})
+      page = query_page(query, conn, key, vars, 9, total, true, true, cursor_fn)
+      drop_each(data, page.edges, 11, assert_fn)
+      page
+    end
+
+    page3 = scope [page: 3, limit: 7, after: 20] do
+      vars = Map.merge(vars, %{limit => 7, aft => page2.page_info.end_cursor})
+      page = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
+      drop_each(data, page.edges, 20, assert_fn)
+      page
+    end
+
+    page_2 = scope [page: 2, limit: :default, after: 10] do
+      vars = Map.merge(vars, %{aft => page1.page_info.end_cursor})
+      page = query_page(query, conn, key, vars, 10, total, true, true, cursor_fn)
+      drop_each(data, page.edges, 10, assert_fn)
+      page
+    end
+
+    _page_3 = scope [page: 3, limit: :default, after: 20] do
+      vars = Map.merge(vars, %{aft => page_2.page_info.end_cursor})
+      page = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
+      drop_each(data, page.edges, 20, assert_fn)
+      page
+    end
   end
 
-  # def child_page_test(
-  #   %{query: query,
-  #     connection: conn,
-  #     parent_key: parent_key,
-  #     child_key: child_key,
-  #     count_key: count_key,
-  #     default_limit: default_limit,
-  #     total_count: total,
-  #     data: data,
-  #     parent_assert_fn: parent_assert_fn,
-  #     child_assert_fn: child_assert_fn,
-  #     cursor_fn: cursor_fn,
-  #     after: aft,
-  #     before: bef,
-  #     limit: limit,
-  #   }=opts
-  # ) do
-  #   default_vars = Map.get(opts, :vars, %{})
-  #   assert is_map(default_vars)
-  #   # test the first page with default limit
-  #   page1 = query_page(query, conn, key, default_vars, 10, total, false, true, cursor_fn)
-  #   # each(data, page1.edges, assert_fn)
-  #   # # test the first page with explicit limit
-  #   # vars = Map.merge(default_vars, %{limit => 11})
-  #   # page_1 = query_page(query, conn, key, vars, 11, total, false, true, cursor_fn)
-  #   # each(data, page_1.edges, assert_fn)
-  #   # # test the second page with explicit limit
-  #   # vars = Map.merge(default_vars, %{limit => 9, aft => page_1.end_cursor})
-  #   # page2 = query_page(query, conn, key, vars, 9, total, true, true, cursor_fn)
-  #   # drop_each(data, page2.edges, 11, assert_fn)
-  #   # # test the third page with explicit limit
-  #   # vars = Map.merge(default_vars, %{limit => 7, aft => page2.end_cursor})
-  #   # page3 = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
-  #   # drop_each(data, page3.edges, 20, assert_fn)
-  #   # # test the second page without explicit limit
-  #   # vars = Map.merge(default_vars, %{aft => page1.end_cursor})
-  #   # page_2 = query_page(query, conn, key, vars, 10, total, true, true, cursor_fn)
-  #   # drop_each(data, page_2.edges, 10, assert_fn)
-  #   # # test the third page without explicit limit
-  #   # vars = Map.merge(default_vars, %{aft => page_2.end_cursor})
-  #   # page_3 = query_page(query, conn, key, vars, 7, total, true, false, cursor_fn)
-  #   # drop_each(data, page_3.edges, 20, assert_fn)
-  # end
+  def child_page_test(
+    %{query: query,
+      connection: conn,
+      parent_key: parent_key,
+      child_key: child_key,
+      count_key: count_key,
+      default_limit: default_limit,
+      total_count: total,
+      parent_data: parent_data,
+      child_data: child_data,
+      assert_parent: assert_parent,
+      assert_child: assert_child,
+      cursor_fn: cursor_fn,
+      after: aft,
+      before: bef,
+      limit: limit,
+    }=opts
+  ) do
+    vars = Map.get(opts, :vars, %{})
+    assert is_map(vars)
+
+    page1 = scope [page: 1, limit: :default] do
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], default_limit, total, false, true, cursor_fn)
+      each(child_data, page.edges, assert_child)
+      page
+    end
+
+    page_1 = scope [page: 1, limit: 11] do
+      vars = Map.put(vars, limit, 11)
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], 11, total, false, true, cursor_fn)
+      each(child_data, page.edges, assert_child)
+      page
+    end
+
+    page2 = scope [page: 2, limit: 9, after: 11] do
+      vars = Map.merge(vars, %{limit => 9, aft => page_1.page_info.end_cursor})
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], 9, total, true, true, cursor_fn) #TODO s/nil/true/
+      drop_each(child_data, page.edges, 11, assert_child)
+      page
+    end
+
+    page3 = scope [page: 3, limit: 7, after: 20] do
+      vars = Map.merge(vars, %{limit => 7, aft => page2.page_info.end_cursor})
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], 7, total, true, false, cursor_fn)
+      drop_each(child_data, page.edges, 20, assert_child)
+      page
+    end
+
+    page_2 = scope [page: 2, limit: :default, after: 10] do
+      vars = Map.merge(vars, %{aft => page1.page_info.end_cursor})
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], 10, total, true, true, cursor_fn)
+      drop_each(child_data, page.edges, 10, assert_child)
+      page
+    end
+
+    _page_3 = scope [page: 3, limit: :default, after: 20] do
+      vars = Map.merge(vars, %{aft => page_2.page_info.end_cursor})
+      parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
+      page = assert_page(parent[child_key], 7, total, true, false, cursor_fn)
+      drop_each(child_data, page.edges, 20, assert_child)
+      page
+    end
+  end
 
   defp query_page(query, conn, key, vars, count, total, prev, next, cursor_fn) do
-    gruff_post_key(query, conn, key, vars)
+    grumble_post_key(query, conn, key, vars)
     |> assert_page(count, total, prev, next, cursor_fn)
   end
+
+  # defp query_child_page(query, conn, vars, parent_key, child_key, parent_assert, parent_data, child_assert) do
+  #   parent = parent_assert(grumble_post_key(query, conn, parent_key, vars)
+      
+  # end
 
 end

@@ -3,12 +3,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.UsersTest do
   use MoodleNetWeb.ConnCase, async: true
-  alias MoodleNet.Test.Fake
+  import MoodleNetWeb.Test.Automaton
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Access, Users}
+  import Grumble
+  import Zest
+  alias MoodleNet.Test.Fake
 
   describe "username_available" do
 
@@ -17,9 +19,9 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       q = username_available_query()
       for conn <- [json_conn(), user_conn(alice)] do
         vars = %{username: Fake.preferred_username()}
-        assert true == gruff_post_key(q, conn, :username_available, vars)
+        assert true == grumble_post_key(q, conn, :username_available, vars)
         vars = %{username: alice.actor.preferred_username}
-        assert false == gruff_post_key(q, conn, :username_available, vars)
+        assert false == grumble_post_key(q, conn, :username_available, vars)
       end
     end
 
@@ -30,12 +32,12 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     test "works for a logged in user" do
       alice = fake_user!()
       q = me_query()
-      me = gruff_post_key(q, user_conn(alice), :me)
+      me = grumble_post_key(q, user_conn(alice), :me)
       assert_me(alice, me)
     end
 
     test "does not work for a guest" do
-      assert_not_logged_in(gruff_post_errors(me_query(), json_conn()), ["me"])
+      assert_not_logged_in(grumble_post_errors(me_query(), json_conn()), ["me"])
     end
 
   end
@@ -47,7 +49,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       lucy = fake_admin!()
       q = user_query()
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
-        user = gruff_post_key(q, conn, :user, %{user_id: alice.id})
+        user = grumble_post_key(q, conn, :user, %{user_id: alice.id})
         assert_user(alice, user)
       end
     end
@@ -70,8 +72,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_follow: follow_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
-        user = assert_user(bob, gruff_post_key(q, conn, :user, vars))
-        assert user["myFollow"] == nil
+        user = assert_user(bob, grumble_post_key(q, conn, :user, vars))
+        assert user.my_follow == nil
       end
     end
 
@@ -82,8 +84,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       q = user_query(fields: [my_follow: follow_fields()])
       for user <- [alice, lucy] do
         follow = follow!(user, bob)
-        user2 = assert_user(bob, gruff_post_key(q, user_conn(user), :user, vars))
-        assert_follow(follow, user2["myFollow"])
+        user2 = assert_user(bob, grumble_post_key(q, user_conn(user), :user, vars))
+        assert_follow(follow, user2.my_follow)
       end
     end
 
@@ -97,8 +99,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_like: like_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
-        user = assert_user(bob, gruff_post_key(q, conn, :user, vars))
-        assert user["myLike"] == nil
+        user = assert_user(bob, grumble_post_key(q, conn, :user, vars))
+        assert user.my_like == nil
       end
     end
 
@@ -109,14 +111,14 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       q = user_query(fields: [my_like: like_fields()])
       for user <- [alice, lucy] do
         like = like!(user, bob)
-        user2 = assert_user(bob, gruff_post_key(q, user_conn(user), :user, vars))
-        assert_like(like, user2["myLike"])
+        user2 = assert_user(bob, grumble_post_key(q, user_conn(user), :user, vars))
+        assert_like(like, user2.my_like)
       end
     end
 
   end
 
-  describe "followed_communities" do
+  describe "user.followed_communities" do
 
     test "works for anyone" do
       [alice, bob, eve] = some_fake_users!(%{}, 3)
@@ -128,8 +130,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       vars = %{user_id: eve.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
-        user = assert_user(eve, gruff_post_key(q, conn, :user, vars))
-        follows2 = assert_page(user["followedCommunities"], 2, 2, false, false, &(&1["id"]))
+        user = assert_user(eve, grumble_post_key(q, conn, :user, vars))
+        follows2 = assert_page(user.followed_communities, 2, 2, false, false, &[&1.id])
         each(follows, follows2, &assert_follow/2)
       end
     end
@@ -149,8 +151,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       vars = %{user_id: eve.id}
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
       for conn <- conns do
-        user = assert_user(eve, gruff_post_key(q, conn, :user, vars))
-        follows2 = assert_page(user["followedCollections"], 2, 2, false, false, &(&1["id"]))
+        user = assert_user(eve, grumble_post_key(q, conn, :user, vars))
+        follows2 = assert_page(user.followed_collections, 2, 2, false, false, &[&1.id])
         each(follows, follows2, &assert_follow/2)
       end
     end
@@ -163,24 +165,77 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
     end
   end
 
+  describe "user.likers" do
+
+    test "works for anyone for a public user" do
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
+      likes = some_randomer_likes!(27, alice)
+      params = [
+        likers_after: list_type(:cursor),
+        likers_before: list_type(:cursor),
+        likers_limit: :int,
+      ]
+      query = user_query(fields: [:liker_count, likers_subquery()], params: params)
+      conns = pam([alice, bob, lucy], &user_conn/1)
+      each [json_conn() | conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: alice.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :likers,
+          count_key: :liker_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: alice,
+          child_data: likes,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_like/2,
+          cursor_fn: &[&1.id],
+          after: :likers_after,
+          before: :likers_before,
+          limit: :likers_limit,
+        }
+      end
+    end
+
+  end
+
   describe "user.likes" do
 
-    @tag :skip # like_count view
     test "works for anyone for a public user" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
+      [alice, bob, dave, eve] = some_fake_users!(4)
       lucy = fake_user!(%{is_instance_admin: true})
-      comm = fake_community!(alice)
-      coll = fake_collection!(bob, comm)
-      some_randomer_likes!(23, coll)
-      likes = Enum.map([comm, coll, bob], &like!(alice, &1))
-      q = user_query(fields: [:like_count, likes: page_fields(like_fields())])
-      vars = %{user_id: alice.id}
+      comms = some_fake_communities!(9, [bob])
+      colls = some_fake_collections!(2, [dave], comms) #
+      likes = pam(colls ++ comms, &like!(alice, &1))
+      params = [
+        likes_after: list_type(:cursor),
+        likes_before: list_type(:cursor),
+        likes_limit: :int,
+      ]
+      query = user_query(fields: [:like_count, likes_subquery()], params: params)
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      for conn <- conns do
-        user = assert_user(alice, gruff_post_key(q, conn, :user, vars))
-        likes2 = assert_page(user["likes"], 3, 3, false, true, &(&1["id"]))
-        assert Enum.count(likes2) == 3
-        piz(likes, likes2, &assert_like/2)
+      each conns, fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: alice.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :likes,
+          count_key: :like_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: alice,
+          child_data: likes,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_like/2,
+          cursor_fn: &[&1.id],
+          after: :likes_after,
+          before: :likes_before,
+          limit: :likes_limit,
+        }
       end
     end
 
@@ -253,214 +308,5 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
   #     end
   #   end
   # end
-
-
-  ### mutations
-
-
-  describe "create_user" do
-
-    test "Works for a guest with good inputs" do
-      reg = Fake.registration_input()
-      assert {:ok, _} = Access.create_register_email(reg["email"])
-      q = create_user_mutation()
-      me = gruff_post_key(q, json_conn(), :create_user, %{user: reg})
-      assert_me(reg, me)
-    end
-
-    test "Does not work for a logged in user" do
-      alice = fake_user!()
-      reg = Fake.registration_input()
-      assert {:ok, _} = Access.create_register_email(reg["email"])
-      q = create_user_mutation()
-      assert_not_permitted(gruff_post_errors(q, user_conn(alice), %{user: reg}), ["createUser"])
-    end
-
-    @tag :skip # returns wrong format on error :/
-    test "Does not work for a taken preferred username" do
-      alice = fake_user!()
-      reg = Fake.registration_input(%{"preferredUsername" => alice.actor.preferred_username})
-      assert {:ok, _} = Access.create_register_email(reg["email"])
-      q = create_user_mutation()
-      gruff_post_errors(q, json_conn(), %{user: reg})
-    end
-
-    @tag :skip # returns wrong format on error :/
-    test "Does not work for a taken email" do
-      alice = fake_user!()
-      reg = Fake.registration_input(%{"email" => alice.local_user.email})
-      assert {:ok, _} = Access.create_register_email(reg["email"])
-      q = create_user_mutation()
-      gruff_post_errors(q, json_conn(), %{user: reg})
-    end
-
-  end
-
-  describe "update_user" do
-
-    test "Works for a logged in user" do
-      alice = fake_user!()
-      conn = user_conn(alice)
-      profile = Fake.profile_update_input()
-      q = update_profile_mutation()
-      vars = %{profile: profile}
-      me = gruff_post_key(q, conn, :update_profile, vars)
-      assert_me(profile, me)
-    end
-
-    test "Does not work for a guest" do
-      q = update_profile_mutation()
-      vars = %{profile: Fake.profile_update_input()}
-      assert_not_logged_in(gruff_post_errors(q, json_conn(), vars), ["updateProfile"])
-    end
-
-  end
-
-  describe "delete_self" do
-
-    test "Works for a logged in user" do
-      alice = fake_user!()
-      conn = user_conn(alice)
-      q = delete_self_mutation()
-      assert true == gruff_post_key(q, conn, :delete_self, %{i_am_sure: true})
-    end
-
-    test "Does not work if you are unsure" do
-      alice = fake_user!()
-      conn = user_conn(alice)
-      q = delete_self_mutation()
-      gruff_post_errors(q, conn)
-    end
-
-    test "Does not work for a guest" do
-      q = delete_self_mutation()
-      assert_not_logged_in(gruff_post_errors(q, json_conn(), %{i_am_sure: true}), ["deleteSelf"])
-    end
-
-  end
-
-  describe "reset_password_request" do
-
-    test "Works for a guest" do
-      alice = fake_user!()
-      q = reset_password_request_mutation()
-      vars = %{email: alice.local_user.email}
-      assert true == gruff_post_key(q, json_conn(), :reset_password_request, vars)
-      # TODO: check that an email is sent
-    end
-
-    test "Does not work for a user" do
-      alice = fake_user!()
-      conn = user_conn(alice)
-      q = reset_password_request_mutation()
-      vars = %{email: alice.local_user.email}
-      assert_not_permitted(gruff_post_errors(q, conn, vars), ["resetPasswordRequest"])
-      # TODO: check that an email is not sent
-    end
-
-    test "Does not work for an invalid email" do
-      q = reset_password_request_mutation()
-      vars = %{email: Fake.email()}
-      assert_not_found(gruff_post_errors(q, json_conn(), vars), ["resetPasswordRequest"])
-    end
-
-  end
-
-  describe "reset_password" do
-
-    test "Works for a guest with a valid token" do
-      alice = fake_user!()
-      assert {:ok, %{id: token}} = Users.request_password_reset(alice)
-      q = reset_password_mutation()
-      vars = %{token: token, password: "password"}
-      auth = assert_auth_payload(gruff_post_key(q, json_conn(), :reset_password, vars))
-      assert_me(alice, auth.me)
-    end
-
-    test "Does not work with a used token" do
-      alice = fake_user!()
-      assert {:ok, %{id: token}} = Users.request_password_reset(alice)
-      q = reset_password_mutation()
-      vars = %{token: token, password: "password"}
-      auth = assert_auth_payload(gruff_post_key(q, json_conn(), :reset_password, vars))
-      assert_me(alice, auth.me)
-      gruff_post_errors(q, json_conn(), vars)
-    end
-    
-    test "Does not work for a user" do
-      alice = fake_user!()
-      conn = user_conn(alice)
-      assert {:ok, %{id: token}} = Users.request_password_reset(alice)
-      q = reset_password_mutation()
-      vars = %{token: token, password: "password"}
-      assert_not_permitted(gruff_post_errors(q, conn, vars), ["resetPassword"])
-    end
-
-  end
-
-  describe "confirm_email" do
-
-    test "Works for a guest with a valid token" do
-      alice = fake_user!()
-      [token] = alice.local_user.email_confirm_tokens
-      q = confirm_email_mutation()
-      vars = %{token: token.id}
-      conn = json_conn()
-      auth = assert_auth_payload(gruff_post_key(q, conn, :confirm_email, vars))
-      assert_me(alice, auth.me)
-    end
-
-    test "Does not work with an authenticated user" do
-      alice = fake_user!()
-      [token] = alice.local_user.email_confirm_tokens
-      q = confirm_email_mutation()
-      vars = %{token: token.id}
-      conn = user_conn(alice)
-      assert_not_permitted(gruff_post_errors(q, conn, vars), ["confirmEmail"])
-    end
-
-    test "Fails with an invalid token" do
-      q = confirm_email_mutation()
-      vars = %{token: Fake.uuid()}
-      assert_not_found(gruff_post_errors(q, json_conn(), vars), ["confirmEmail"])
-    end
-
-  end
-
-  describe "create_session" do
-
-    test "Works with a valid email and password" do
-      alice = fake_user!(%{password: "password"},confirm_email: true)
-      q = create_session_mutation()
-      vars = %{email: alice.local_user.email, password: "password"}
-      auth = assert_auth_payload(gruff_post_key(q, json_conn(), :create_session, vars))
-      assert_me(alice, auth.me)
-    end
-
-    test "Does not work with an unconfirmed email" do
-      alice = fake_user!(%{password: "password"}, confirm_email: false)
-      q = create_session_mutation()
-      vars = %{email: alice.local_user.email, password: "password"}
-      gruff_post_errors(q, json_conn(), vars)
-    end
-
-  end
-
-  describe "delete_session" do
-
-    test "Works with a logged in user" do
-      user = fake_user!(%{password: "password"}, confirm_email: true)
-      assert {:ok, token} = Access.create_token(user, "password")
-      conn = token_conn(token)
-      q = delete_session_mutation()
-      assert true == gruff_post_key(q, conn, :delete_session)
-    end
-
-    test "Does not work for a guest" do
-      q = delete_session_mutation()
-      assert_not_logged_in(gruff_post_errors(q, json_conn()), ["deleteSession"])
-    end
-
-  end
 
 end

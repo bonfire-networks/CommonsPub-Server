@@ -105,6 +105,14 @@ defmodule MoodleNet.Resources.Queries do
     where q, [resource: r], r.id == ^id
   end
 
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [resource: r], r.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [resource: r], r.id <= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [resource: r], r.id in ^ids
   end
@@ -165,25 +173,27 @@ defmodule MoodleNet.Resources.Queries do
     |> page(page_opts, [desc: :created])
   end
 
-  defp page(q, %{after: id, limit: limit}, [desc: :created]) do
-    filter(q, id: {:lte, id}, limit: limit + 2)
-  end
-
-  defp page(q, %{before: id, limit: limit}, [desc: :created]) do
-    filter(q, id: {:gte, id}, limit: limit + 2)
-  end
-
   def filter(q, {:page, [asc: [created: page_opts]]}) do
     q
     |> filter(order: [asc: :created])
     |> page(page_opts, [asc: :created])
   end
 
-  defp page(q, %{after: id, limit: limit}, [asc: :created]) do
+
+  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
+    IO.inspect(after: id, limit: limit)
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
     filter(q, id: {:gte, id}, limit: limit + 2)
   end
 
-  defp page(q, %{before: id, limit: limit}, [asc: :created]) do
+  defp page(q, %{after: [id], limit: limit}, [asc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: [id], limit: limit}, [asc: :created]) do
     filter(q, id: {:lte, id}, limit: limit + 2)
   end
 
