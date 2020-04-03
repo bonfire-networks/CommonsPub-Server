@@ -6,9 +6,17 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
 
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.ConnHelpers
+  import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import Grumble
   alias MoodleNet.Uploads.Storage
+  alias MoodleNet.Test.Fake
+
+  @image_file %Plug.Upload{
+    path: "test/fixtures/images/150.png",
+    filename: "150.png",
+    content_type: "image/png"
+  }
 
   def upload_fields(extra \\ []) do
     [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]] ++ extra
@@ -28,11 +36,21 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
     |> gen_submutation(mutation_name, &upload_fields/1, options)
   end
 
-  def assert_valid_url(url) do
-    uri = URI.parse(url)
-    assert uri.scheme
-    assert uri.host
-    assert uri.path
+
+  def assert_content(content) do
+    assert content["id"]
+    assert_url content["url"]
+  end
+
+  def assert_content_upload(content, file) do
+    assert content["mediaType"] == file.content_type
+    assert content["upload"]["path"]
+    assert content["upload"]["size"] > 0
+  end
+
+  def assert_content_mirror(content, url) do
+    assert content["mirror"]["url"] == url
+    assert content["mirror"]["url"] == content["url"]
   end
 
   setup_all do
@@ -42,26 +60,30 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   end
 
   describe "upload_icon" do
-    test "for an existing object" do
+    test "as an upload" do
       user = fake_user!()
-      file = %Plug.Upload{
-        path: "test/fixtures/images/150.png",
-        filename: "150.png",
-        content_type: "image/jpg" # intentionally incorrect
-      }
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
-      assert content = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: file})
-      assert content["id"]
-      assert content["mediaType"] == "image/png"
-      assert content["url"] =~ "#{user.id}/#{file.filename}"
-      assert_valid_url content["url"]
+      assert content = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+      assert_content(content)
+      assert_content_upload(content, @image_file)
+      assert content["url"] =~ "#{user.id}/#{@image_file.filename}"
       refute content["mirror"]["url"]
-      assert content["upload"]["size"]
 
       assert {:ok, user} = MoodleNet.Users.one(id: user.id)
       assert user.icon_id == content["id"]
+    end
+
+    test "as a mirror" do
+      user = fake_user!()
+      query = upload_mutation(:upload_icon)
+      conn = user_conn(user)
+
+      url = Fake.url()
+      assert content = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: url})
+      assert_content(content)
+      assert_content_mirror(content, url)
     end
 
     test "fails with an invalid file extension" do
@@ -97,22 +119,15 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
     test "for an existing object" do
       user = fake_user!()
       comm = fake_community!(user)
-      file = %Plug.Upload{
-        path: "test/fixtures/images/150.png",
-        filename: "150.png",
-        content_type: "image/png"
-      }
       query = upload_mutation(:upload_image)
       conn = user_conn(user)
 
       assert content =
-        grumble_post_key(query, conn, :upload_image, %{context_id: comm.id}, %{upload: file})
+        grumble_post_key(query, conn, :upload_image, %{context_id: comm.id}, %{upload: @image_file})
 
-      assert content["id"]
-      assert content["url"] =~ "#{user.id}/#{file.filename}"
-      assert content["mediaType"] == "image/png"
-      assert_valid_url content["url"]
-      assert content["upload"]["size"]
+      assert_content(content)
+      assert_content_upload(content, @image_file)
+      assert content["url"] =~ "#{user.id}/#{@image_file.filename}"
 
       assert {:ok, comm} = MoodleNet.Communities.one(id: comm.id)
       assert comm.image_id == content["id"]
@@ -155,22 +170,15 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       res = fake_resource!(user, coll)
-      file = %Plug.Upload{
-        path: "test/fixtures/images/150.png",
-        filename: "150.png",
-        content_type: "image/png"
-      }
       query = upload_mutation(:upload_resource)
       conn = user_conn(user)
 
       assert content =
-        grumble_post_key(query, conn, :upload_resource, %{context_id: res.id}, %{upload: file})
+        grumble_post_key(query, conn, :upload_resource, %{context_id: res.id}, %{upload: @image_file})
 
-      assert content["id"]
-      assert content["url"] =~ "#{user.id}/#{file.filename}"
-      assert content["mediaType"] == "image/png"
-      assert_valid_url content["url"]
-      assert content["upload"]["size"]
+      assert_content(content)
+      assert_content_upload(content, @image_file)
+      assert content["url"] =~ "#{user.id}/#{@image_file.filename}"
 
       assert {:ok, res} = MoodleNet.Resources.one(id: res.id)
       assert res.content_id == content["id"]
@@ -228,9 +236,37 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   end
 
   describe "content.uploader" do
+    test "returns the uploader for a content item" do
+      user = fake_user!()
+      query = upload_mutation(:upload_icon, fields: [uploader: [:id]])
+      conn = user_conn(user)
 
+      assert %{"uploader" => uploader} =
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+
+      assert uploader["id"] == user.id
+    end
   end
 
   describe "content.url" do
+    test "returns the remote URL for an upload" do
+      user = fake_user!()
+      query = upload_mutation(:upload_icon)
+      conn = user_conn(user)
+
+      assert content =
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+      assert_url content["url"]
+    end
+
+    test "returns the remote URL for a mirror" do
+      user = fake_user!()
+      query = upload_mutation(:upload_icon)
+      conn = user_conn(user)
+
+      assert content =
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: Fake.url()})
+      assert_content(content)
+    end
   end
 end
