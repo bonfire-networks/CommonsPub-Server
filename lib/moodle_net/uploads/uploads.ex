@@ -23,24 +23,25 @@ defmodule MoodleNet.Uploads do
   @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
-    Repo.transact_with(fn ->
-      with {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
-           {:ok, url} <- remote_url(content) do
-        {:ok, %{ content | url: url }}
-      end
-    end)
+    with {:ok, file} <- allow_extension(upload_def, file),
+          {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
+          {:ok, url} <- remote_url(content) do
+      {:ok, %{ content | url: url }}
+    end
   end
 
   defp insert_content(upload_def, uploader, file, attrs) do
     # FIXME: delegate to Storage
-    if is_remote_file?(file) do
-      insert_content_mirror(uploader, file, attrs)
-    else
-      insert_content_upload(upload_def, uploader, file, attrs)
-    end
+    Repo.transact_with(fn ->
+      if is_remote_file?(file) do
+        insert_content_mirror(uploader, file, attrs)
+      else
+        insert_content_upload(upload_def, uploader, file, attrs)
+      end
+    end)
   end
 
-  defp insert_content_mirror(uploader, %{url: url}, attrs) do
+  defp insert_content_mirror(uploader, %{url: url} = file, attrs) do
     with {:ok, file_info} <- TwinkleStar.from_uri(url),
          {:ok, mirror} <- Repo.insert(ContentMirror.changeset(%{url: url})),
          attrs = file_info_to_content(file_info, attrs),
@@ -71,14 +72,6 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  defp is_remote_file?(args), do: Map.has_key?(args, :url)
-
-  defp file_info_to_content(file_info, attrs) do
-    attrs
-    |> Map.put(:media_type, file_info.media_type)
-    |> Map.put(:metadata, file_info[:metadata])
-  end
-
   @doc """
   Attempt to fetch a remotely accessible URL for the associated file in an upload.
   """
@@ -107,5 +100,48 @@ defmodule MoodleNet.Uploads do
     end)
 
     with {:ok, v} <- resp, do: v
+  end
+
+  defp is_remote_file?(%{url: url}), do: is_remote_file?(url)
+
+  defp is_remote_file?(url) when is_binary(url) do
+    uri = URI.parse(url)
+    not (is_nil(uri.scheme) or is_nil(uri.host) or is_nil(uri.path))
+   end
+
+  defp is_remote_file?(_other), do: false
+
+  defp file_info_to_content(file_info, attrs) do
+    attrs
+    |> Map.put(:media_type, file_info.media_type)
+    |> Map.put(:metadata, file_info[:metadata])
+  end
+
+  defp allow_extension(upload_def, %{filename: filename} = file) do
+    case upload_def.allowed_extensions() do
+      :all ->
+        {:ok, file}
+
+      allowed ->
+        if MoodleNet.File.has_extension?(filename, allowed) do
+          {:ok, file}
+        else
+          {:error, :extension_denied}
+        end
+    end
+  end
+
+  defp allow_extension(upload_def, %{url: url} = file) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{path: path} when is_binary(path) ->
+        file = file
+        |> Map.put(:filename, Path.basename(path))
+        |> Map.put(:url, URI.encode(url))
+
+        allow_extension(upload_def, file)
+
+      _other ->
+        {:error, :invalid_url}
+    end
   end
 end

@@ -102,7 +102,6 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
     end
 
     # FIXME
-    @tag :skip
     test "mirror fails with an invalid file extension" do
       user = fake_user!()
       file = %{url: "https://raw.githubusercontent.com/antoniskalou/format_parser.ex/master/README.md"}
@@ -129,7 +128,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
 
     test "mirror fails with a 404 link" do
       user = fake_user!()
-      file = %{url: "http://example.org/missing.pdf"}
+      file = %{url: "http://example.org/missing.png"}
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
