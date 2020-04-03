@@ -23,9 +23,10 @@ defmodule MoodleNet.Uploads do
   @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
-    with {:ok, file} <- allow_extension(upload_def, file),
-          {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
-          {:ok, url} <- remote_url(content) do
+    with {:ok, file} <- parse_file(file),
+         {:ok, file} <- allow_extension(upload_def, file),
+         {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
+         {:ok, url} <- remote_url(content) do
       {:ok, %{ content | url: url }}
     end
   end
@@ -117,6 +118,26 @@ defmodule MoodleNet.Uploads do
     |> Map.put(:metadata, file_info[:metadata])
   end
 
+  defp parse_file(%{url: url, path: path}) when is_binary(url) and is_binary(path) do
+    {:error, :both_url_and_path_should_not_be_set}
+  end
+
+  defp parse_file(%{url: url} = file) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{path: path} when is_binary(path) ->
+        file = file
+        |> Map.put(:filename, Path.basename(path))
+        |> Map.put(:url, URI.encode(url))
+
+        {:ok, file}
+
+      _other ->
+        {:error, :invalid_url}
+    end
+  end
+
+  defp parse_file(file), do: {:ok, file}
+
   defp allow_extension(upload_def, %{filename: filename} = file) do
     case upload_def.allowed_extensions() do
       :all ->
@@ -128,20 +149,6 @@ defmodule MoodleNet.Uploads do
         else
           {:error, :extension_denied}
         end
-    end
-  end
-
-  defp allow_extension(upload_def, %{url: url} = file) when is_binary(url) do
-    case URI.parse(url) do
-      %URI{path: path} when is_binary(path) ->
-        file = file
-        |> Map.put(:filename, Path.basename(path))
-        |> Map.put(:url, URI.encode(url))
-
-        allow_extension(upload_def, file)
-
-      _other ->
-        {:error, :invalid_url}
     end
   end
 end
