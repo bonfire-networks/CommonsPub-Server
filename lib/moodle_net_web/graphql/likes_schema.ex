@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.LikesSchema do
     end
 
     @desc "The thing that is liked"
-    field :context, :like_context do
+    field :context, non_null(:like_context) do
       resolve &CommonResolver.context_edge/3
     end
   end
