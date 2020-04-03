@@ -391,7 +391,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        typename: assert_eq("Community"),
       ],
       [collection_count: &assert_non_neg/1,
-       # follower_count: &assert_non_neg/1,
+       collections: assert_page(&assert_collection/1),
+       followers: assert_page(&assert_follow/1),
+       likers: assert_page(&assert_like/1),
        liker_count: &assert_non_neg/1,
        my_like: assert_optional(&assert_like/1),
        my_follow: assert_optional(&assert_follow/1),
@@ -565,7 +567,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     thread2
   end
 
-  
+
   def assert_comment(comment) do
     assert_object comment, :assert_comment,
       [id: &assert_ulid/1,
