@@ -376,6 +376,15 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     page_subquery(:followers, &follow_fields/1, [{:args, args} | options])
   end
 
+  def follows_subquery(options \\ []) do
+    args = [
+      after: var(:follows_after),
+      before: var(:follows_before),
+      limit: var(:follows_limit),
+    ]
+    page_subquery(:follows, &follow_fields/1, [{:args, args} | options])
+  end
+
   def create_follow_mutation(options \\ []) do
     [context_id: type!(:string)]
     |> gen_mutation(&create_follow_submutation/1, options)

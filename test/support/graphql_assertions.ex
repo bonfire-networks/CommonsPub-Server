@@ -59,6 +59,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     val
   end
 
+  def assert_datetime(%DateTime{}=dt, %DateTime{}=du) do
+    assert :eq == DateTime.compare(dt, du)
+    du
+  end
+
+  def assert_datetime(%DateTime{}=dt, other) when is_binary(other) do
+    dt = String.replace(DateTime.to_iso8601(dt), "T", " ")
+    assert dt == other
+    dt
+  end
+
   def assert_created_at(%{id: id}, %{created_at: created}) do
     scope [assert: :created_at] do
       assert {:ok, ts} = ULID.timestamp(id)
@@ -70,11 +81,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     scope [assert: :created_at] do
       assert_datetime(left, right)
     end
-  end
-
-  def assert_datetime(%DateTime{}=dt, other) when is_binary(other) do
-    dt = String.replace(DateTime.to_iso8601(dt), "T", " ")
-    assert dt == other
   end
 
   def assert_list() do
@@ -118,10 +124,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     object = ConnHelpers.uncamel_map(object)
     scope [{name, object}] do
       object = Enum.reduce(required, object, fn {key, test}, acc ->
-        assert_field(object, key, test)
+        assert_field(acc, key, test)
       end)
       Enum.reduce(optional, object, fn {key, test}, acc ->
-        assert_optional_field(object, key, test)
+        assert_optional_field(acc, key, test)
       end)
     end
   end
@@ -339,6 +345,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_user(%User{}=user, %{id: _}=user2) do
+    assert_users_eq(user, user2)
+  end
+
   def assert_user(%User{}=user, %{}=user2) do
     assert_users_eq(user, assert_user(user2))
   end
@@ -387,6 +397,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        my_follow: assert_optional(&assert_follow/1),
        my_flag: assert_optional(&assert_flag/1),
       ]
+  end
+
+  def assert_community(%Community{}=comm, %{id: _}=comm2) do
+    assert_communities_eq(comm, comm2)
   end
 
   def assert_community(%Community{}=comm, %{}=comm2) do
@@ -442,6 +456,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_collection(%Collection{}=coll, %{id: _}=coll2) do
+    assert_collections_eq(coll, coll2)
+  end
+
   def assert_collection(%Collection{}=coll, %{}=coll2) do
     assert_collections_eq(coll, assert_collection(coll2))
   end
@@ -479,6 +497,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        updated_at: &assert_datetime/1,
        typename: assert_eq("Resource"),
       ]
+  end
+
+  def assert_resource(%Resource{}=res, %{id: _}=res2) do
+    assert_resources_eq(res, res2)
   end
 
   def assert_resource(%Resource{}=res, %{}=res2) do
@@ -525,6 +547,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_thread(%Thread{}=thread, %{id: _}=thread2) do
+    assert_threads_eq(thread, thread2)
+  end
+
   def assert_thread(%Thread{}=thread, %{}=thread2) do
     assert_threads_eq(thread, assert_thread(thread2))
   end
@@ -556,6 +582,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_comment(%Comment{}=comment, %{id: _}=comment2) do
+    assert_comments_eq(comment, comment2)
+  end
+
   def assert_comment(%Comment{}=comment, %{}=comment2) do
     assert_comments_eq(comment, assert_comment(comment2))
   end
@@ -585,6 +615,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_features_eq(feature, assert_feature(feature2))
   end
 
+  def assert_feature(%Feature{}=feature, %{id: _}=feature2) do
+    assert_features_eq(feature, feature2)
+  end
+
   def assert_features_eq(%Feature{}=feature, %{}=feature2) do
     assert_maps_eq feature, feature2, :assert_feature,
       [:id, :canonical_url, :is_local]
@@ -602,6 +636,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        updated_at: &assert_datetime/1,
        typename: assert_eq("Flag"),
       ]
+  end
+
+  def assert_flag(%Flag{}=flag, %{id: _}=flag2) do
+    assert_flags_eq(flag, flag2)
   end
 
   def assert_flag(%Flag{}=flag, %{}=flag2) do
@@ -625,6 +663,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        updated_at: &assert_datetime/1,
        typename: assert_eq("Follow"),
       ]
+  end
+
+  def assert_follow(%Follow{}=follow, %{id: _}=follow2) do
+    assert_follows_eq(follow, follow2)
   end
 
   def assert_follow(%Follow{}=follow, %{}=follow2) do
@@ -651,6 +693,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_like(%Like{}=like, %{id: _}=like2) do
+    assert_likes_eq(like, like2)
+  end
   def assert_like(%Like{}=like, %{}=like2) do
     assert_likes_eq(like, assert_like(like2))
   end
@@ -676,6 +721,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_activity(%Activity{}=activity, %{id: _}=activity2) do
+    assert_activities_eq(activity, activity2)
+  end
   def assert_activity(%Activity{}=activity, %{}=activity2) do
     assert_activities_eq(activity, assert_activity(activity2))
   end
