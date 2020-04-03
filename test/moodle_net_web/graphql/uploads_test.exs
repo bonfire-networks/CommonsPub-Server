@@ -10,13 +10,13 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   import MoodleNetWeb.Test.GraphQLFields
   import Grumble
   alias MoodleNet.Uploads.Storage
-  alias MoodleNet.Test.Fake
 
-  @image_file %Plug.Upload{
+  @image_file %{
     path: "test/fixtures/images/150.png",
     filename: "150.png",
     content_type: "image/png"
   }
+  @image_url "https://upload.wikimedia.org/wikipedia/commons/e/e9/South_African_Airlink_Boeing_737-200_Advanced_Smith.jpg"
 
   def upload_fields(extra \\ []) do
     [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]] ++ extra
@@ -60,12 +60,13 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   end
 
   describe "upload_icon" do
-    test "as an upload" do
+    test "for an upload" do
       user = fake_user!()
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
-      assert content = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+      assert content =
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: @image_file})
       assert_content(content)
       assert_content_upload(content, @image_file)
       assert content["url"] =~ "#{user.id}/#{@image_file.filename}"
@@ -75,20 +76,20 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert user.icon_id == content["id"]
     end
 
-    test "as a mirror" do
+    test "for a mirror" do
       user = fake_user!()
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
-      url = Fake.url()
-      assert content = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: url})
+      params = %{context_id: user.id, upload: %{url: @image_url}}
+      assert content = grumble_post_key(query, conn, :upload_icon, params)
       assert_content(content)
-      assert_content_mirror(content, url)
+      assert_content_mirror(content, get_in(params, [:upload, :url]))
     end
 
-    test "fails with an invalid file extension" do
+    test "upload fails with an invalid file extension" do
       user = fake_user!()
-      file = %Plug.Upload{
+      file = %{
         path: "test/fixtures/not-a-virus.exe",
         filename: "not-a-virus.exe",
         content_type: "application/executable"
@@ -97,12 +98,24 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "extension_denied"}] =
-        grumble_post_errors(query, conn, %{context_id: user.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: user.id, upload: file})
     end
 
-    test "fails with a missing file" do
+    # FIXME
+    @tag :skip
+    test "mirror fails with an invalid file extension" do
       user = fake_user!()
-      file = %Plug.Upload{
+      file = %{url: "https://raw.githubusercontent.com/antoniskalou/format_parser.ex/master/README.md"}
+      query = upload_mutation(:upload_icon)
+      conn = user_conn(user)
+
+      assert [%{"message" => "extension_denied"}] =
+        grumble_post_errors(query, conn, %{context_id: user.id, upload: file})
+    end
+
+    test "upload fails with a missing file" do
+      user = fake_user!()
+      file = %{
         path: "missing.png",
         filename: "missing.png",
         content_type: "image/png"
@@ -111,19 +124,29 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "enoent"}] =
-        grumble_post_errors(query, conn, %{context_id: user.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: user.id, upload: file})
+    end
+
+    test "mirror fails with a 404 link" do
+      user = fake_user!()
+      file = %{url: "http://example.org/missing.pdf"}
+      query = upload_mutation(:upload_icon)
+      conn = user_conn(user)
+
+      assert [%{"message" => "enoent"}] =
+        grumble_post_errors(query, conn, %{context_id: user.id, upload: file})
     end
   end
 
   describe "upload_image" do
-    test "for an existing object" do
+    test "for an upload" do
       user = fake_user!()
       comm = fake_community!(user)
       query = upload_mutation(:upload_image)
       conn = user_conn(user)
 
       assert content =
-        grumble_post_key(query, conn, :upload_image, %{context_id: comm.id}, %{upload: @image_file})
+        grumble_post_key(query, conn, :upload_image, %{context_id: comm.id, upload: @image_file})
 
       assert_content(content)
       assert_content_upload(content, @image_file)
@@ -133,10 +156,25 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       assert comm.image_id == content["id"]
     end
 
+    test "for a mirror" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      query = upload_mutation(:upload_image)
+      conn = user_conn(user)
+
+      params = %{context_id: comm.id, upload: %{url: @image_url}}
+      assert content = grumble_post_key(query, conn, :upload_image, params)
+      assert_content(content)
+      assert_content_mirror(content, get_in(params, [:upload, :url]))
+
+      assert {:ok, comm} = MoodleNet.Communities.one(id: comm.id)
+      assert comm.image_id == content["id"]
+    end
+
     test "fails with an invalid file extension" do
       user = fake_user!()
       comm = fake_community!(user)
-      file = %Plug.Upload{
+      file = %{
         path: "test/fixtures/not-a-virus.exe",
         filename: "not-a-virus.exe",
         content_type: "application/executable"
@@ -145,13 +183,13 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "extension_denied"}] =
-        grumble_post_errors(query, conn, %{context_id: comm.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: comm.id, upload: file})
     end
 
     test "fails with an missing file" do
       user = fake_user!()
       comm = fake_community!(user)
-      file = %Plug.Upload{
+      file = %{
         path: "missing.png",
         filename: "missing.png",
         content_type: "image/png"
@@ -160,7 +198,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "enoent"}] =
-        grumble_post_errors(query, conn, %{context_id: comm.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: comm.id, upload: file})
     end
   end
 
@@ -174,7 +212,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert content =
-        grumble_post_key(query, conn, :upload_resource, %{context_id: res.id}, %{upload: @image_file})
+        grumble_post_key(query, conn, :upload_resource, %{context_id: res.id, upload: @image_file})
 
       assert_content(content)
       assert_content_upload(content, @image_file)
@@ -189,7 +227,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       res = fake_resource!(user, coll)
-      file = %Plug.Upload{
+      file = %{
         path: "test/fixtures/very-important.pdf",
         filename: "150.png",
         content_type: "image/png"
@@ -197,7 +235,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       query = upload_mutation(:upload_resource)
       conn = user_conn(user)
 
-      assert grumble_post_key(query, conn, :upload_resource, %{context_id: res.id}, %{upload: file})
+      assert grumble_post_key(query, conn, :upload_resource, %{context_id: res.id, upload: file})
     end
 
     test "fails with an invalid file extension" do
@@ -205,7 +243,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       res = fake_resource!(user, coll)
-      file = %Plug.Upload{
+      file = %{
         path: "test/fixtures/not-a-virus.exe",
         filename: "not-a-virus.exe",
         content_type: "application/executable"
@@ -214,7 +252,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "extension_denied"}] =
-        grumble_post_errors(query, conn, %{context_id: res.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: res.id, upload: file})
     end
 
     test "fails with an missing file" do
@@ -222,7 +260,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       comm = fake_community!(user)
       coll = fake_collection!(user, comm)
       res = fake_resource!(user, coll)
-      file = %Plug.Upload{
+      file = %{
         path: "missing.png",
         filename: "missing.png",
         content_type: "image/png"
@@ -231,7 +269,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert [%{"message" => "enoent"}] =
-        grumble_post_errors(query, conn, %{context_id: res.id}, %{upload: file})
+        grumble_post_errors(query, conn, %{context_id: res.id, upload: file})
     end
   end
 
@@ -242,7 +280,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert %{"uploader" => uploader} =
-        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: @image_file})
 
       assert uploader["id"] == user.id
     end
@@ -255,7 +293,7 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       conn = user_conn(user)
 
       assert content =
-        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: @image_file})
+        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: @image_file})
       assert_url content["url"]
     end
 
@@ -264,9 +302,10 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
-      assert content =
-        grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: Fake.url()})
+      params = %{context_id: user.id, upload: %{url: @image_url}}
+      assert content = grumble_post_key(query, conn, :upload_icon, params)
       assert_content(content)
+      assert_content_mirror(content, get_in(params, [:upload, :url]))
     end
   end
 end

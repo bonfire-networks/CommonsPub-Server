@@ -4,6 +4,7 @@
 defmodule MoodleNet.Uploads do
 
   alias Ecto.Changeset
+  alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Changeset.Common
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
@@ -39,12 +40,15 @@ defmodule MoodleNet.Uploads do
     end
   end
 
-  defp insert_content_mirror(uploader, url, attrs) do
+  defp insert_content_mirror(uploader, %{url: url}, attrs) do
     with {:ok, file_info} <- TwinkleStar.from_uri(url),
-          {:ok, mirror} <- Repo.insert(ContentMirror.changeset(%{url: url})),
-          attrs = file_info_to_content(file_info, attrs),
-          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
+         {:ok, mirror} <- Repo.insert(ContentMirror.changeset(%{url: url})),
+         attrs = file_info_to_content(file_info, attrs),
+         {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
       {:ok, %{ content | content_mirror: mirror }}
+    else
+      # match behaviour of uploads
+      {:error, {:request_failed, 404}} -> {:error, :enoent}
     end
   end
 
@@ -62,14 +66,12 @@ defmodule MoodleNet.Uploads do
         e ->
           # rollback file changes on failure
           Storage.delete(file_info.path)
-        e
+          e
       end
     end
   end
 
-  defp is_remote_file?(file) when is_binary(file), do: not is_nil(URI.parse(file).scheme)
-  defp is_remote_file?(%{url: url}), do: is_remote_file?(url)
-  defp is_remote_file?(_), do: false
+  defp is_remote_file?(args), do: Map.has_key?(args, :url)
 
   defp file_info_to_content(file_info, attrs) do
     attrs
