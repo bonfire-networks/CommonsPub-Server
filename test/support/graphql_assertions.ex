@@ -336,12 +336,19 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ],
       [follow_count: &assert_non_neg/1,
        follower_count: &assert_non_neg/1,
+
        like_count: &assert_non_neg/1,
        liker_count: &assert_non_neg/1,
+
        follows: assert_page(&assert_follow/1),
        followers: assert_page(&assert_follow/1),
+       collection_follows: assert_page(&assert_follow/1),
+       community_follows: assert_page(&assert_follow/1),
+       user_follows: assert_page(&assert_follow/1),
+
        likes: assert_page(&assert_like/1),
        likers: assert_page(&assert_like/1),
+
        my_like: assert_optional(&assert_like/1),
        my_follow: assert_optional(&assert_follow/1),
        my_flag: assert_optional(&assert_flag/1),

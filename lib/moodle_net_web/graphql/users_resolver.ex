@@ -121,12 +121,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_confirmed_edge(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
-  def followed_collections_edge(%{id: id}, page_opts, info) do
+  def collection_follows_edge(%{id: id}, page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_collections_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_collection_follows_edge, page_opts, id, info, opts)
   end
 
-  def fetch_followed_collections_edge({page_opts, info}, ids) do
+  def fetch_collection_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
     PagesFlow.run(
       %PagesFlow{
@@ -142,7 +142,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_followed_collections_edge(page_opts, info, ids) do
+  def fetch_collection_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
@@ -156,21 +156,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def collection_edge(%{context_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_collection_edge, id, info)
-  end
-
-  def fetch_collection_edge(_, ids) do
-    {:ok, edges} = Collections.fields(&(&1.id), [:default, id: ids, preload: :actor])
-    edges
-  end
-
-  def followed_communities_edge(%{id: id}, %{}=page_opts, info) do
+  def community_follows_edge(%{id: id}, %{}=page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_communities_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_community_follows_edge, page_opts, id, info, opts)
   end
 
-  def fetch_followed_communities_edge({page_opts, info}, ids) do
+  def fetch_community_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
     PagesFlow.run(
       %PagesFlow{
@@ -186,7 +177,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_followed_communities_edge(page_opts, info, ids) do
+  def fetch_community_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{
@@ -200,23 +191,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def community_edge(%{context_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_community_edge, id, info)
-  end
-
-  def fetch_community_edge(_, ids) do
-    {:ok, edges} = Communities.fields(&(&1.id), [:default, id: ids])
-    edges
-  end
-
   ## followed users
   
-  def followed_users_edge(%{id: id}, %{}=page_opts, info) do
+  def user_follows_edge(%{id: id}, %{}=page_opts, info) do
     opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_users_edge, page_opts, id, info, opts)
+    Flow.pages(__MODULE__, :fetch_user_follows_edge, page_opts, id, info, opts)
   end
 
-  def fetch_followed_users_edge({page_opts, info}, ids) do
+  def fetch_user_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
     PagesFlow.run(
       %PagesFlow{
@@ -232,7 +214,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_followed_users_edge(page_opts, info, ids) do
+  def fetch_user_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
     PageFlow.run(
       %PageFlow{

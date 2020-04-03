@@ -228,6 +228,14 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     end
 
     @desc "Subscriptions users have to the collection"
+    field :follows, :follows_page do
+      arg :limit, :integer
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &FollowsResolver.follows_edge/3
+    end
+
+    @desc "Subscriptions users have to the collection"
     field :followers, :follows_page do
       arg :limit, :integer
       arg :before, list_of(:cursor)
@@ -235,28 +243,28 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &FollowsResolver.followers_edge/3
     end
 
-    @desc "The communities a user is following, most recently followed first"
-    field :followed_communities, :followed_communities_page do
+    @desc "The collections a user is following, most recently followed first"
+    field :collection_follows, :follows_page do
       arg :limit, :integer
       arg :before, list_of(:cursor)
       arg :after, list_of(:cursor)
-      resolve &UsersResolver.followed_communities_edge/3
+      resolve &UsersResolver.collection_follows_edge/3
     end
 
-    @desc "The collections a user is following, most recently followed first"
-    field :followed_collections, :followed_collections_page do
+    @desc "The communities a user is following, most recently followed first"
+    field :community_follows, :follows_page do
       arg :limit, :integer
       arg :before, list_of(:cursor)
       arg :after, list_of(:cursor)
-      resolve &UsersResolver.followed_collections_edge/3
+      resolve &UsersResolver.community_follows_edge/3
     end
 
     @desc "The users a user is following, most recently followed first"
-    field :followed_users, :followed_users_page do
+    field :user_follows, :follows_page do
       arg :limit, :integer
       arg :before, list_of(:cursor)
       arg :after, list_of(:cursor)
-      resolve &UsersResolver.followed_users_edge/3
+      resolve &UsersResolver.users_follows_edge/3
     end
 
     @desc "The likes a user has created"
@@ -310,51 +318,6 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   #     resolve &CommonResolver.tagged/3
   #   end
 
-  end
-
-  object :followed_community do
-    field :follow, non_null(:follow) do
-      resolve &UsersResolver.follow_edge/3
-    end
-    field :community, non_null(:community) do
-      resolve &UsersResolver.community_edge/3
-    end
-  end
-
-  object :followed_communities_page do
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:followed_community)))
-    field :total_count, non_null(:integer)
-  end
-
-  object :followed_collection do
-    field :follow, non_null(:follow) do
-      resolve &UsersResolver.follow_edge/3
-    end
-    field :collection, non_null(:collection) do
-      resolve &UsersResolver.collection_edge/3
-    end
-  end
-
-  object :followed_collections_page do
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:followed_collection)))
-    field :total_count, non_null(:integer)
-  end
-
-  object :followed_user do
-    field :follow, non_null(:follow) do
-      resolve &UsersResolver.follow_edge/3
-    end
-    field :user, non_null(:user) do
-      resolve &UsersResolver.user_edge/3
-    end
-  end
-
-  object :followed_users_page do
-    field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:followed_user)))
-    field :total_count, non_null(:integer)
   end
 
   input_object :registration_input do

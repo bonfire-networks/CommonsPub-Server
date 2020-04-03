@@ -15,8 +15,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection" do
 
     test "works for the owner, randoms, admins and guests" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(alice, comm)
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
@@ -38,8 +38,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.my_like" do
 
     test "is nil for a guest or a non-liking user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -52,8 +52,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     end
 
     test "works for a liking user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -71,8 +71,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.my_follow" do
 
     test "is nil for a guest or a non-following user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -85,8 +85,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     end
 
     test "works for a following user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -108,8 +108,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.my_flag" do
 
     test "is nil for a guest or a non-flagging user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -122,15 +122,15 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     end
 
      test "works for a flagging user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
       q = collection_query(fields: [my_flag: flag_fields()])
       for user <- [alice, bob, lucy] do
-        {:ok, flag} = Flags.create(user, coll, %{is_local: true, message: "bad"})
-        coll2 = grumble_post_key(q, user_conn(user), :collection, vars)
+        flag = flag!(user, coll)
+        coll2 = assert_collection(coll, grumble_post_key(q, user_conn(user), :collection, vars))
         coll2 = assert_collection(coll, coll2)
         assert_flag(flag, coll2.my_flag)
       end
@@ -147,8 +147,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.community" do
 
     test "works for anyone" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       vars = %{collection_id: coll.id}
@@ -166,7 +166,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
 
     test "works for anyone for a public collection" do
       [alice, bob, eve] = some_fake_users!(3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       users = some_fake_users!(9)
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
@@ -207,8 +207,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.followers" do
 
     test "works for anyone for a public collection" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       {:ok, bob_follow} = Follows.one(context_id: coll.id, creator_id: bob.id)
@@ -250,8 +250,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   describe "collection.likers" do
 
     test "works for anyone for a public collection" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       likes = some_randomer_likes!(27, coll)
