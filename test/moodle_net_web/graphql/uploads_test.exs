@@ -44,11 +44,15 @@ defmodule MoodleNetWeb.GraphQL.UploadsTest do
   describe "upload_icon" do
     test "for an existing object" do
       user = fake_user!()
-      file = File.read!("test/fixtures/images/150.png")
+      file = %Plug.Upload{
+        path: "test/fixtures/images/150.png",
+        filename: "150.png",
+        content_type: "image/png"
+      }
       query = upload_mutation(:upload_icon)
       conn = user_conn(user)
 
-      assert upload = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id, upload: file})
+      assert upload = grumble_post_key(query, conn, :upload_icon, %{context_id: user.id}, %{upload: file})
       assert upload["id"]
       assert upload["url"] =~ "#{user.id}/#{file.filename}"
       assert_valid_url upload["url"]
