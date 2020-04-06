@@ -62,7 +62,7 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
-  @update_cast ~w(name summary icon image is_disabled is_public inbox_id outbox_id)a
+  @update_cast ~w(name summary icon_id image_id is_disabled is_public inbox_id outbox_id)a
   def update_changeset(%Community{} = community, fields) do
     community
     |> Changeset.cast(fields, @update_cast)

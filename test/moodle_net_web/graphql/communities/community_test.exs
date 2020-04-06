@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.ConnHelpers
   import Grumble
+  import Zest
   alias MoodleNet.{Flags, Follows, Likes}
 
   describe "community" do
@@ -349,5 +350,42 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     end
   end
 
+  describe "community.icon" do
+    test "works" do
+      user = fake_user!()
+      comm = fake_community!(user)
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.IconUploader, user,
+        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{icon_id: upload.id})
+
+      conn = user_conn(user)
+      q = community_query(fields: [icon: [:id, :url, upload: [:path]]])
+      assert resp = grumble_post_key(q, conn, :community, %{community_id: comm.id})
+      assert resp["icon"]["id"] == comm.image_id
+      assert_url resp["icon"]["url"]
+    end
+  end
+
+  describe "community.image" do
+    test "works" do
+      user = fake_user!()
+      comm = fake_community!(user)
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.ImageUploader, user,
+        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{image_id: upload.id})
+
+      conn = user_conn(user)
+      q = community_query(fields: [image: [:id, :url, upload: [:path]]])
+      assert resp = grumble_post_key(q, conn, :community, %{community_id: comm.id})
+      assert resp["image"]["id"] == comm.image_id
+      assert_url resp["image"]["url"]
+    end
+  end
 end
 

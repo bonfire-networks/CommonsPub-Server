@@ -252,11 +252,28 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
       conn = user_conn(user)
       q = user_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
-      vars = %{user_id: user.id}
-      assert resp = grumble_post_key(q, conn, :user, vars)
+      assert resp = grumble_post_key(q, conn, :user, %{user_id: user.id})
       assert resp["icon"]["id"] == user.icon_id
       assert_url resp["icon"]["url"]
       assert resp["icon"]["upload"]
+    end
+  end
+
+  describe "user.image" do
+    test "works" do
+      user = fake_user!()
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.ImageUpload, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, user} = MoodleNet.Users.update(user, %{image_id: upload.id})
+
+      conn = user_conn(user)
+      q = user_query(fields: [image: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :user, %{user_id: user.id})
+      assert resp["image"]["id"] == user.image_id
+      assert_url resp["image"]["url"]
+      assert resp["image"]["upload"]
     end
   end
 
