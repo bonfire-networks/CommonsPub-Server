@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def page_info_fields do
     ~w(start_cursor end_cursor has_previous_page has_next_page __typename)a
   end
-  
+
   def page_fields(edge_fields) do
     page_info = Grumble.field(:page_info, fields: page_info_fields())
     edges = Grumble.field(:edges, fields: edge_fields)
@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   #   id isoCode2 isoCode3 englishName localName createdAt updatedAt __typename
   #   """
   # end
-  
+
   def gen_query(param_name, field_fn, options) do
     params = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
@@ -189,6 +189,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     object_spread(:collection, fields: collection_fields(fields))
   end
 
+  @spec collection_query(any) :: none
   def collection_query(options \\ []) do
     gen_query(:collection_id, &collection_subquery/1, options)
   end

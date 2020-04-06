@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   alias MoodleNet.Access.Token
   alias MoodleNet.Users.User
   import ExUnit.Assertions
-  
+
   @endpoint MoodleNetWeb.Endpoint
 
   def conn(), do: ConnTest.build_conn()
@@ -60,8 +60,8 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     |> Conn.fetch_query_params()
     |> Conn.fetch_session()
     |> Controller.fetch_flash()
-  end    
-    
+  end
+
   def gql_post(conn, query, code) do
     ConnTest.post(conn, "/api/graphql", query)
     |> ConnTest.json_response(code)
@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   @doc false
   def camel(atom) when is_atom(atom), do: camel(Atom.to_string(atom))
   def camel(binary) when is_binary(binary), do: Recase.to_camel(binary)
-    
+
   @doc false
   def uncamel_map(%{}=map) do
     Enum.reduce(map, %{}, fn {k,v}, acc -> Map.put(acc, uncamel(k), v) end)
