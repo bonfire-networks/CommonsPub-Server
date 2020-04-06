@@ -292,7 +292,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     # this test could do better to verify against the actual data
     test "empty for a guest or non-flagging user" do
       [alice, bob, eve, mallory] = some_fake_users!(%{}, 4)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       flag!(eve, coll)
@@ -310,7 +310,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     # this test could do better to verify against the actual data
     test "not empty for a flagging user, collection owner, community owner or admin" do
       [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
       flag!(eve, coll)

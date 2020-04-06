@@ -230,41 +230,41 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "Subscriptions users have to the collection"
     field :follows, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FollowsResolver.follows_edge/3
     end
 
     @desc "Subscriptions users have to the collection"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "The collections a user is following, most recently followed first"
     field :collection_follows, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &UsersResolver.collection_follows_edge/3
     end
 
     @desc "The communities a user is following, most recently followed first"
     field :community_follows, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &UsersResolver.community_follows_edge/3
     end
 
     @desc "The users a user is following, most recently followed first"
     field :user_follows, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
-      resolve &UsersResolver.users_follows_edge/3
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &UsersResolver.user_follows_edge/3
     end
 
     @desc "The likes a user has created"

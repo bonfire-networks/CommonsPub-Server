@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     )
   end
 
-  def follows_edge(%{id: id}, %{}=page_opts, info) do
+  def follows_edge(%User{id: id}, %{}=page_opts, info) do
     ResolvePages.run(
       %ResolvePages{
         module: __MODULE__,
@@ -94,7 +94,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         query: Follow,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [context_id: ids, user: user],
+        base_filters: [creator_id: ids, user: user],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )

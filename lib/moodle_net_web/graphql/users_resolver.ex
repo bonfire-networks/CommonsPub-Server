@@ -18,7 +18,13 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Repo,
     Users,
   }
-  alias MoodleNet.GraphQL.{Flow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{
+    Flow,
+    PageFlow,
+    PagesFlow,
+    ResolvePage,
+    ResolvePages,
+  }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.Follow
@@ -34,41 +40,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       {:ok, Me.new(user)}
     end
-  end
-
-  def likes_edge(%{id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_likes_edge, page_opts, id, info, opts)
-  end
-
-  def fetch_likes_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
-        queries: Likes.Queries,
-        query: Like,
-        cursor_fn: &(&1.id),
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [user: user, context_id: ids],
-        data_filters: [order: :timeline_desc],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
-
-  def fetch_likes_edge(page_opts, info, ids) do
-    user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
-        queries: Likes.Queries,
-        query: Like,
-        cursor_fn: &(&1.id),
-        page_opts: page_opts,
-        base_filters: [user: user, context_id: ids],
-        data_filters: [order: :timeline_desc],
-       }
-    )
   end
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
@@ -122,8 +93,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
   def collection_follows_edge(%{id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_collection_follows_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_collection_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_collection_follows_edge({page_opts, info}, ids) do
@@ -132,11 +110,11 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %PagesFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id],
       }
     )
@@ -148,17 +126,24 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %PageFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
 
   def community_follows_edge(%{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_community_follows_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_community_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_community_follows_edge({page_opts, info}, ids) do
@@ -171,7 +156,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id]
       }
     )
@@ -183,10 +168,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %PageFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
-        data_filters: [order: :timeline_desc],
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
@@ -194,8 +179,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   ## followed users
   
   def user_follows_edge(%{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_user_follows_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_user_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_user_follows_edge({page_opts, info}, ids) do
@@ -204,7 +196,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %PagesFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: User],
@@ -220,7 +212,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %PageFlow{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &(&1.id),
+        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: User],
         data_filters: [page: [desc: [created: page_opts]]],

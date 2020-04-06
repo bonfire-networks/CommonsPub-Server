@@ -24,12 +24,12 @@ defmodule MoodleNet.Likes.LikeCountsQueries do
 
   # by field values
 
-  def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [like_count: l], l.context_id == ^id
+  def filter(q, {:creator_id, id}) when is_binary(id) do
+    where q, [like_count: l], l.creator_id == ^id
   end
 
-  def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [like_count: l], l.context_id in ^ids
+  def filter(q, {:creator_id, ids}) when is_list(ids) do
+    where q, [like_count: l], l.creator_id in ^ids
   end
 
 end
