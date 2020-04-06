@@ -390,4 +390,23 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
     end
   end
 
+  describe "collection.icon" do
+    test "works" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, coll} = MoodleNet.Collections.update(coll, %{icon_id: upload.id})
+
+      conn = user_conn(user)
+      q = collection_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :collection, %{collection_id: coll.id})
+      assert resp["icon"]["id"] == coll.icon_id
+      assert_url resp["icon"]["url"]
+      assert resp["icon"]["upload"]
+    end
+  end
 end
