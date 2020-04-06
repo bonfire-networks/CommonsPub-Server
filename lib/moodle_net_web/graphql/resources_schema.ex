@@ -64,12 +64,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :summary, :string
 
     @desc "An avatar url"
-    field :icon_id, :content do
+    field :icon, :content do
       resolve &UploadResolver.icon_content_edge/3
     end
 
     @desc "A link to an external resource"
-    field :content_id, :content do
+    field :content, :content do
       resolve &UploadResolver.resource_content_edge/3
     end
 

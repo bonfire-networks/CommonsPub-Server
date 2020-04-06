@@ -7,6 +7,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
+  import Zest
 
   describe "resource" do
 
@@ -218,6 +219,49 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
       flags2 = assert_page(flags2, 3, 3, false, false, &(&1["id"])).edges
       each(flags, flags2, &assert_flag/2)
     end
+  end
 
+  describe "resource.icon" do
+    test "works" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.ResourceUploader, user,
+        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, res} = MoodleNet.Resources.update(res, %{icon_id: upload.id})
+
+      conn = user_conn(user)
+      q = resource_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :resource, %{resource_id: res.id})
+      assert resp["icon"]["id"] == res.icon_id
+      assert_url resp["icon"]["url"]
+      assert resp["icon"]["upload"]
+    end
+  end
+
+  describe "resource.content" do
+    test "works" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      res = fake_resource!(user, coll)
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.ResourceUploader, user,
+        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, res} = MoodleNet.Resources.update(res, %{content_id: upload.id})
+
+      conn = user_conn(user)
+      q = resource_query(fields: [content: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :resource, %{resource_id: res.id})
+      assert resp["content"]["id"] == res.content_id
+      assert_url resp["content"]["url"]
+      assert resp["content"]["upload"]
+    end
   end
 end
