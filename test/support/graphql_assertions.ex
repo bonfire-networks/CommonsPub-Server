@@ -398,6 +398,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        my_like: assert_optional(&assert_like/1),
        my_follow: assert_optional(&assert_follow/1),
        my_flag: assert_optional(&assert_flag/1),
+       flags: assert_page(&assert_flag/1)
       ]
   end
 

@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       %PageFlow{
         queries: Collections.Queries,
         query: Collection,
-        cursor_fn: &(&1.id),
+        cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
         base_filters: [community_id: ids, user: user],
         data_filters: [page: [desc: [followers: page_opts]]],

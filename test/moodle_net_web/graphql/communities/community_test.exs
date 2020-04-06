@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNetWeb.Test.Automaton
   import Grumble
   import Zest
-  alias MoodleNet.{Flags, Follows, Likes}
+  alias MoodleNet.{Flags, Follows, Likes, Collections}
 
 
   describe "community" do
@@ -36,38 +36,6 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   #   end
   # end
 
-  describe "collection.my_like" do
-
-    test "is nil for a guest or a non-liking user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
-      comm = fake_community!(alice)
-      coll = fake_collection!(bob, comm)
-      vars = %{collection_id: coll.id}
-      q = collection_query(fields: [my_like: like_fields()])
-      for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        coll2 = grumble_post_key(q, conn, :collection, vars)
-        coll2 = assert_collection(coll, coll2)
-        assert coll2.my_like == nil
-      end
-    end
-
-    test "works for a liking user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
-      comm = fake_community!(alice)
-      coll = fake_collection!(bob, comm)
-      vars = %{collection_id: coll.id}
-      q = collection_query(fields: [my_like: like_fields()])
-      for user <- [alice, bob, lucy] do
-        {:ok, like} = Likes.create(user, coll, %{is_local: true})
-        coll2 = grumble_post_key(q, user_conn(user), :collection, vars)
-        coll2 = assert_collection(coll, coll2)
-        assert_like(like, coll2.my_like)
-      end
-    end
-
-  end
 
   describe "community.my_like" do
 
@@ -193,8 +161,9 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       ]
       q = community_query(
         params: params,
-        fields: [:collection_count, collections_subquery()]
-      )
+        fields: [collections_subquery(fields: [:follower_count])]
+        )
+
       child_page_test %{
         query: q,
         vars: %{community_id: comm.id},
@@ -208,7 +177,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         child_data: colls,
         assert_parent: &assert_community/2,
         assert_child: &assert_collection/2,
-        cursor_fn: &[&1.id],
+        cursor_fn: Collections.cursor(:followers),
         after: :collections_after,
         before: :collections_before,
         limit: :collections_limit,
@@ -259,88 +228,134 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
   end
 
-  # describe "community.likers" do
+  describe "community.likers" do
 
-  #   test "works for anyone for a public community" do
-  #     [alice, bob] = some_fake_users!(2)
-  #     lucy = fake_user!(%{is_instance_admin: true})
-  #     comm = fake_community!(alice)
-  #     some_randomer_likes!(23, comm)
-  #     q = community_query(fields: [:liker_count, likers: page_fields(like_fields())])
-  #     vars = %{"communityId" => comm.id}
-  #     conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
-  #     for conn <- conns do
-  #       comm2 = grumble_post_key(q, conn, "community", vars)
-  #       comm2 = assert_community(comm, comm2)
-  #       assert %{"likers" => likes, "likerCount" => count} = comm2
-  #       assert count == 23
-  #       edges = assert_page(likes, 10, 23, false, true, &(&1["id"]))
-  #       for edge <- edges.edges, do: assert_like(edge)
-  #     end
-  #   end
+    test "works for anyone for a public community" do
+      [alice, bob, eve] = some_fake_users!(%{}, 3)
+      lucy = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      likes = some_randomer_likes!(27, comm)
+      params = [
+        likers_after: list_type(:cursor),
+        likers_before: list_type(:cursor),
+        likers_limit: :int,
+      ]
+      query = community_query(params: params, fields: [:liker_count, likers_subquery()])
+      vars = %{community_id: comm.id}
+      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
+      each conns, fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{community_id: comm.id},
+          connection: conn,
+          parent_key: :community,
+          child_key: :likers,
+          count_key: :liker_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: comm,
+          child_data: likes,
+          assert_parent: &assert_community/2,
+          assert_child: &assert_like/2,
+          cursor_fn: &[&1.id],
+          after: :likers_after,
+          before: :likers_before,
+          limit: :likers_limit,
+        }
+      end
 
-  # end
+    end
 
-  # describe "community.flags" do
+  end
 
-  #   test "empty for a guest or non-flagging user" do
-  #     [alice, bob, eve] = some_fake_users!(3)
-  #     lucy = fake_user!(%{is_instance_admin: true})
-  #     comm = fake_community!(alice)
-  #     flag!(bob, comm)
-  #     flag!(lucy, comm)
-  #     q = community_query(fields: [flags: page_fields(flag_fields())])
-  #     vars = %{"communityId" => comm.id}
-  #     conns = [user_conn(eve), json_conn()]
-  #     for conn <- conns do
-  #       comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
-  #       assert %{"flags" => flags} = comm2
-  #       assert_page(flags, 0, 0, false, false, &(&1["id"]))
-  #     end
-  #   end
+  describe "community.flags" do
 
-  #   # TODO: alice should also see all
-  #   test "not empty for a flagging user, community owner, community owner or admin" do
-  #     [alice, bob] = some_fake_users!(2)
-  #     lucy = fake_user!(%{is_instance_admin: true})
-  #     comm = fake_community!(alice)
-  #     flag!(bob, comm)
-  #     some_randomer_flags!(23, comm)
-  #     q = community_query(fields: [flags: page_fields(flag_fields())])
-  #     vars = %{"communityId" => comm.id}
+    test "empty for a guest or non-flagging user" do
+      [alice, bob, eve] = some_fake_users!(%{}, 3)
+      lucy = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      flag!(bob, comm)
+      flag!(lucy, comm)
+      q = community_query(fields: [flags: page_fields(flag_fields())])
+      vars = %{community_id: comm.id}
+      conns = [user_conn(eve), json_conn()]
+      for conn <- conns do
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
+        assert_page(comm2.flags, 0, 0, false, false, &[&1.id])
+      end
+    end
 
-  #     comm2 = assert_community(grumble_post_key(q, user_conn(bob), "community", vars))
-  #     assert %{"flags" => flags} = comm2
-  #     edges = assert_page(flags, 1, 1, false, false, &(&1["id"]))
-  #     for edge <- edges.edges, do: assert_flag(edge)
+    # TODO: Bob should also see all
+    test "not empty for a flagging user, community owner, community owner or admin" do
+      [alice, bob] = some_fake_users!(%{}, 2)
+      lucy = fake_user!(%{is_instance_admin: true})
+      comm = fake_community!(alice)
+      flag!(bob, comm)
+      flag!(lucy, comm)
+      q = community_query(fields: [flags: page_fields(flag_fields())])
+      vars = %{community_id: comm.id}
 
-  #     for conn <- [user_conn(lucy)] do
-  #       comm2 = assert_community(grumble_post_key(q, conn, "community", vars))
-  #       assert %{"flags" => flags} = comm2
-  #       edges = assert_page(flags, 10, 24, false, true, &(&1["id"]))
-  #       for edge <- edges.edges, do: assert_flag(edge)
-  #     end
-  #   end
+      comm2 = assert_community(comm, grumble_post_key(q, user_conn(bob), :community, vars))
 
-  # end
+      for conn <- [user_conn(lucy)] do
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
+        assert_page(comm2.flags, 2, 2, false, false, &[&1.id])
+      end
+    end
+
+  end
 
   # # TODO: the last comment view is clearly broken *sigh*
 
-  # describe "community.threads" do
+  describe "community.threads" do
 
-  #   test "works for anyone when there are no threads" do
-  #     [alice, bob] = some_fake_users!(2)
-  #     lucy = fake_admin!()
-  #     comm = fake_community!(alice)
-  #     q = community_query(fields: [threads_subquery(fields: [comments_subquery()])])
-  #     vars = %{"communityId" => comm.id}
-  #     for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
-  #       comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
-  #       assert %{"threads" => threads} = comm2
-  #       assert_page(threads, 0, 0, false, false, &(&1.id))
-  #     end
-  #   end
+    test "works for anyone when there are no threads" do
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
+      comm = fake_community!(alice)
+      q = community_query(fields: [threads_subquery(fields: [comments_subquery()])])
+      vars = %{community_id: comm.id}
+      for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
+        assert %{threads: threads} = comm2
+        assert_page(comm2.threads, 0, 0, false, false, &(&1.id))
+      end
+    end
 
+    test "works for anyone when there are threads" do
+      [alice, bob] = some_fake_users!(%{}, 2)
+      lucy = fake_admin!()
+      comm = fake_community!(alice)
+      randomers = some_fake_users!(5)
+      many_randomers = repeat_for_count(randomers, 25)
+      threads_and_initials = flat_pam_some(randomers, 5, fn user ->
+        thread = fake_thread!(user, comm)
+        comment = fake_comment!(user, thread)
+        {thread, comment}
+      end)
+      threads_and_replies =
+      zip(many_randomers, threads_and_initials, fn user, {thread, initial} ->
+        reply = fake_reply!(user, thread, initial)
+        {thread, reply}
+      end)
+      _ = zip(many_randomers, threads_and_replies, fn user, {thread, comment} ->
+        fake_reply!(user, thread, comment)
+      end)
+      {_thraeds, _initials} = unpiz(threads_and_initials)
+      q = community_query(fields: [threads_subquery(fields: [comments_subquery(args: [limit: 1])])])
+      vars = %{community_id: comm.id}
+      for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
+        assert %{threads: threads} = comm2
+        _threads = assert_page(threads, 10, 25, false, true, &[&1["id"]])
+        # initials2 = Enum.flat_map(threads.edges, fn thread ->
+        #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
+        # end)
+        # assert Enum.count(initials2) == 10
+        # each(Enum.reverse(initials), initials2, &assert_comment/2)
+      end
+    end
+  end
   #   test "works for anyone when there are threads" do
   #     alice = fake_user!()
   #     lucy = fake_admin!()
