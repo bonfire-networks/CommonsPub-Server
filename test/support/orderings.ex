@@ -6,11 +6,11 @@ defmodule MoodleNetWeb.Test.Orderings do
   defp id(%{id: id}), do: id
   defp updated_at(%{updated_at: upd}), do: upd
 
-  defp follower_count(item) do
-    if fc = Map.get(item, :follower_count),
-      do: Map.get(fc, :count, 0),
-      else: 0
-  end
+  defp follower_count(%{}=item), do: follower_count_2(Map.get(item, :follower_count))
+
+  defp follower_count_2(nil), do: 0
+  defp follower_count_2(x) when is_integer(x), do: x
+  defp follower_count_2(%{}=x), do: Map.get(x, :count, 0)
 
   def stable_sort_by(coll, []), do: coll
   def stable_sort_by(coll, [{fun, sort} | sorts]) do

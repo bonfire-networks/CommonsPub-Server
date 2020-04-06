@@ -213,7 +213,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       before: var(:collections_before),
       limit: var(:collections_limit),
     ]
-    page_subquery(:collections, &collection_fields/1, [ {:args, args} | options ])
+    page_subquery :collections,
+      &[ :follower_count | collection_fields(&1)],
+      [ {:args, args} | options ]
   end
 
   def create_collection_mutation(options \\ []) do
@@ -267,7 +269,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       before: var(:communities_before),
       limit: var(:communities_limit),
     ]
-    page_subquery(:communities, &community_fields/1, [ {:args, args} | options ])
+    page_subquery :communities,
+      &[ :follower_count | community_fields(&1)],
+      [ {:args, args} | options ]
   end
 
   def create_community_mutation(options \\ []) do

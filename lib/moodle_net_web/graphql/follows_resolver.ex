@@ -100,6 +100,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     )
   end
 
+  def follower_count_edge(%{follower_count: c}, _, info) when is_integer(c), do: {:ok, c}
+
   def follower_count_edge(%{id: id}, _, info) do
     Flow.fields __MODULE__, :fetch_follower_count_edge, id, info, default: 0
   end

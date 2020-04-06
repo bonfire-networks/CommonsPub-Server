@@ -36,6 +36,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert uri.scheme
     assert uri.host
     assert uri.path
+    url
   end
 
   def assert_username(val), do: assert_binary(val)

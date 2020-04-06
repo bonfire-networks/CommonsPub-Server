@@ -15,14 +15,6 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     PageFlow,
     PagesFlow,
     ResolveField,
-    ResolveRootPage,
-  }
-  alias MoodleNet.GraphQL.{
-    Flow,
-    FieldsFlow,
-    PageFlow,
-    PagesFlow,
-    ResolveField,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -64,8 +56,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         query: Community,
         cursor_fn: Communities.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [:default, user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
       }
     )
   end
