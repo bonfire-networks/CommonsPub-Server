@@ -108,7 +108,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # dev/test only
-      {:zest, "~> 0.1.0", only: [:dev, :test]},
+      {:zest, "~> 0.1.1", only: [:dev, :test]},
       {:grumble, "~> 0.1.0", only: [:dev, :test]},
       {:faker, "~> 0.12"},                          # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
