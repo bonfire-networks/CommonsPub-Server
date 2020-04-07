@@ -270,32 +270,32 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "The likes a user has created"
     field :likes, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likes_edge/3
     end
 
     @desc "The likes a user has from other people"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Comments the user has made, most recently created first"
     field :comments, :comments_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &UsersResolver.comments_edge/3
     end
 
     @desc "Activities of the user, most recently created first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &UsersResolver.outbox_edge/3
     end
 
@@ -305,16 +305,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     """
     field :inbox, :activities_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &UsersResolver.inbox_edge/3
     end
 
   #   @desc "Taggings the user has created"
   #   field :tagged, :taggings_page do
   #     arg :limit, :integer
-  #     arg :before, list_of(:cursor)
-  #     arg :after, list_of(:cursor)
+  #     arg :before, list_of(non_null(:cursor))
+  #     arg :after, list_of(non_null(:cursor))
   #     resolve &CommonResolver.tagged/3
   #   end
 

@@ -23,8 +23,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Get list of communities, most followed first"
     field :communities, non_null(:communities_page) do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.communities/2
     end
 
@@ -148,8 +148,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "The communities a user has joined, most recently joined first"
     field :collections, :collections_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.collections_edge/3
     end
 
@@ -160,8 +160,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     """
     field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &ThreadsResolver.threads_edge/3
     end
 
@@ -178,24 +178,24 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Likes users have given the community"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likers_edge/3
     end
 
    @desc "Users following the community, most recently followed first"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Flags users have made about the community, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FlagsResolver.flags_edge/3
     end
 
@@ -210,8 +210,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Activities in the community, most recently created first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.outbox_edge/3
     end
 

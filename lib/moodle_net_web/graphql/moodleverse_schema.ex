@@ -24,8 +24,8 @@ defmodule MoodleNetWeb.GraphQL.MoodleverseSchema do
     # """
     # field :outbox, :activities_page do
     #   arg :limit, :integer
-    #   arg :before, list_of(:cursor)
-    #   arg :after, list_of(:cursor)
+    #   arg :before, list_of(non_null(:cursor))
+    #   arg :after, list_of(non_null(:cursor))
     #   resolve &MoodleverseResolver.outbox/3
     # end
 
