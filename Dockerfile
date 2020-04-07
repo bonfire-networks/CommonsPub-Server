@@ -33,7 +33,8 @@ RUN if [ "$WEBSERVER_CHOICE" = "caddy" ]; then echo "Build Caddy" && go get -v g
 
 # Step 2 - Build our app
 FROM elixir:1.10.2-alpine as builder 
-# make sure to update the version in .gitlab-ci.yml and Dockerfile.dev as well when switching Elixir version 
+# when changing Elixir version, make sure to update the `ALPINE_VERSION` 
+# as well as the Elixir version in .gitlab-ci.yml and Dockerfile.dev 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
 
