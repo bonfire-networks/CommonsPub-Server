@@ -88,7 +88,7 @@ defmodule MoodleNet.Flags do
     {:ok, flag}
   end
 
-  defp federate(_), do: :ok
+  defp federate(flag), do: {:ok, flag}
 
   defp insert_activity(flagger, flag, verb) do
     Activities.create(flagger, flag, %{verb: verb, is_local: flag.is_local})
