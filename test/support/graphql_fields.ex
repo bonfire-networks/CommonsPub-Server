@@ -81,6 +81,10 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     extra ++ ~w(id canonical_url is_local is_public created_at updated_at __typename)a
   end
 
+  def geolocation_fields(extra \\ []) do
+    extra ++ ~w(id name mappable_address lat long alt note canonical_url display_username __typename)a
+  end
+
   def followed_collection_fields(extra \\ []) do
     extra ++ [follow: follow_fields, collection: collection_fields()]
   end
@@ -662,4 +666,15 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     id canonicalUrl isLocal createdAt __typename
     """
   end
+
+  ### geolocation
+
+  def geolocation_subquery(options \\ []) do
+    gen_subquery(:id, :spatial_thing, &geolocation_fields/1, options)
+  end
+
+  def geolocation_query(options \\ []) do
+    gen_query(:id, &geolocation_subquery/1, options)
+  end
+
 end
