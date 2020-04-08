@@ -25,11 +25,11 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &Geolocation.GraphQL.geolocations/2
         ]
       },
-      # mutation: %{
-      #   failing_thing: [
-      #     resolve: &__MODULE__.resolve_failing_thing/3
-      #   ]
-      # }
+      geolocation_mutation: %{
+        create_spatial_thing: [
+          resolve: &Geolocation.GraphQL.create_geolocation/2
+        ]
+      }
     }
   end
 
