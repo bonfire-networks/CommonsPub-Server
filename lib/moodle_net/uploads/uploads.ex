@@ -80,6 +80,15 @@ defmodule MoodleNet.Uploads do
   def remote_url(%Content{content_upload: upload, content_upload_id: id}) when is_binary(id),
     do: Storage.remote_url(upload.path)
 
+  def remote_url_from_id(content_id) when is_binary(content_id) do
+    case __MODULE__.one(id: content_id) do
+      {:ok, content} -> remote_url(content)
+      _ -> nil
+    end
+  end
+
+  def remote_url_from_id(_), do: nil
+
   @doc """
   Delete an upload, removing it from indexing, but the files remain available.
   """
