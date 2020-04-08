@@ -42,6 +42,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :create_collection, :collection do
       arg :community_id, non_null(:string)
       arg :collection, non_null(:collection_input)
+      arg :icon, :upload_input
       resolve &CollectionsResolver.create_collection/2
     end
 
@@ -49,6 +50,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :update_collection, :collection do
       arg :collection_id, non_null(:string)
       arg :collection, non_null(:collection_update_input)
+      arg :icon, :upload_input
       resolve &CollectionsResolver.update_collection/2
     end
 

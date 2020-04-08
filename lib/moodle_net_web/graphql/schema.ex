@@ -141,7 +141,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :resources_mutations
     import_fields :threads_mutations
     import_fields :users_mutations
-    import_fields :upload_mutations
 
     # ValueFlows
     import_fields :measurement_mutation

@@ -41,6 +41,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Create a community"
     field :create_community, :community do
       arg :community, non_null(:community_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &CommunitiesResolver.create_community/2
     end
 
@@ -48,6 +50,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :update_community, :community do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_update_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &CommunitiesResolver.update_community/2
     end
 
