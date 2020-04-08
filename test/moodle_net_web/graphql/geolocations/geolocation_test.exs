@@ -14,6 +14,7 @@ defmodule MoodleNetWeb.GraphQL.Geolocation.GeolocationTest do
     import Zest
 
     import Geolocation.Faking
+    import Geolocation.Test
 #     # alias MoodleNet.{Flags, Follows, Likes}
 
 

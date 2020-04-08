@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
-  alias Geolocation
+
 
   alias Ecto.ULID
   import ExUnit.Assertions
@@ -743,39 +743,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert not is_nil(activity.published_at) == activity2.is_public
     assert_created_at(activity, activity2)
     activity2
-  end
-
-  ### Geolocation assertion
-
-  def assert_geolocation(geo) do
-    assert_object geo, :assert_geolocation,
-      [id: &assert_ulid/1,
-       canonical_url: assert_optional(&assert_url/1),
-       display_username: &assert_display_username/1,
-       name: &assert_binary/1,
-       note: &assert_binary/1,
-       mappable_address: assert_optional(&assert_binary/1),
-       lat: assert_optional(&assert_binary/1),
-       long: assert_optional(&assert_binary/1),
-       alt: assert_optional(&assert_binary/1),
-
-       typename: assert_eq("SpatialThing"),
-      ]
-  end
-
-  def assert_geolocation(%Geolocation{}=geo, %{id: _}=geo2) do
-    assert_geolocations_eq(geo, geo2)
-  end
-
-  def assert_geolocation(%Geolocation{}=geo, %{}=geo2) do
-    assert_geolocations_eq(geo, assert_geolocation(geo2))
-  end
-
-
-  def assert_geolocations_eq(%Geolocation{}=geo, %{}=geo2) do
-    assert_maps_eq geo, geo2, :assert_geolocation,
-      [:id, :canonical_url, :note, :mappable_address, :display_username, :name, :alt, :lat, :long]
-    geo2
   end
 
 
