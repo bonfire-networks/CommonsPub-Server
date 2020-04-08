@@ -280,6 +280,14 @@ defmodule ActivityPub.Actor do
   defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
+    icon_url = MoodleNet.Uploads.remote_url_from_id(actor.icon_id)
+
+    image_url =
+      if not Map.has_key?(actor, :resources) do
+        MoodleNet.Uploads.remote_url_from_id(actor.image_id)
+      else
+        nil
+      end
 
     type =
       case actor do
@@ -298,8 +306,8 @@ defmodule ActivityPub.Actor do
       "preferredUsername" => actor.actor.preferred_username,
       "name" => actor.name,
       "summary" => Map.get(actor, :summary),
-      "icon" => maybe_create_image_object(Map.get(actor, :icon)),
-      "image" => maybe_create_image_object(Map.get(actor, :image))
+      "icon" => maybe_create_image_object(icon_url),
+      "image" => maybe_create_image_object(image_url)
     }
 
     data =
@@ -457,10 +465,13 @@ defmodule ActivityPub.Actor do
   end
 
   def update_actor_data_by_ap_id(ap_id, data) do
-      ap_id
-      |> Object.get_cached_by_ap_id()
-      |> Ecto.Changeset.change(%{data: data, updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)})
-      |> Object.update_and_set_cache()
+    ap_id
+    |> Object.get_cached_by_ap_id()
+    |> Ecto.Changeset.change(%{
+      data: data,
+      updated_at: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    })
+    |> Object.update_and_set_cache()
   end
 
   defp deactivated?(%Object{} = actor) do
