@@ -2,11 +2,12 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
-  alias MoodleNet.{Collections, GraphQL, Repo, Resources}
+  alias MoodleNet.{Collections, GraphQL, Repo, Resources, Uploads}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Uploads.{IconUploader, ResourceUploader}
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def resource(%{resource_id: id}, info) do
@@ -44,12 +45,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     fields
   end
 
-  def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
+  def create_resource(%{resource: attrs, collection_id: collection_id, content: content_file}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
+        with {:ok, content} <- Uploads.store(ResourceUploader, user, content_file, %{}),
+             {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
+             attrs = Map.put(attrs, :content_id, content.id),
              {:ok, resource} <- Resources.create(user, collection, attrs) do
-          {:ok, %{ resource | collection: collection } }
+          {:ok, %{ resource | collection: collection, content: content } }
         end
       end)
     end

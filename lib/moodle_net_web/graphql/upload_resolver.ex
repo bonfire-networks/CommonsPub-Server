@@ -26,12 +26,12 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
     user = GraphQL.current_user(info)
-      with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
-           parent = Pointers.follow!(parent_ptr),
-           {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
-           {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
-        {:ok, upload}
-      end
+    with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
+          parent = Pointers.follow!(parent_ptr),
+          {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
+          {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
+      {:ok, upload}
+    end
   end
 
   def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}

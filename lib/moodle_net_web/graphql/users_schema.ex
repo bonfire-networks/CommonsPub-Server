@@ -46,12 +46,16 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "Create a user"
     field :create_user, :me do
       arg :user, non_null(:registration_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &UsersResolver.create_user/2
     end
 
     @desc "Update a profile"
     field :update_profile, :me do
       arg :profile, non_null(:update_profile_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &UsersResolver.update_profile/2
     end
 
