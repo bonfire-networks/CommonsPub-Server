@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.PageFlow do
+defmodule MoodleNet.GraphQL.FetchPage do
   @enforce_keys [:queries, :query, :cursor_fn, :page_opts]
   defstruct [
     :queries,
@@ -17,9 +17,9 @@ defmodule MoodleNet.GraphQL.PageFlow do
   ]
 
   alias MoodleNet.Repo
-  alias MoodleNet.GraphQL.{Page, PageFlow}
+  alias MoodleNet.GraphQL.{Page, FetchPage}
 
-  @type t :: %PageFlow{
+  @type t :: %FetchPage{
     queries: atom,
     query: atom,
     cursor_fn: (term -> term),
@@ -33,7 +33,7 @@ defmodule MoodleNet.GraphQL.PageFlow do
   }
 
   def run(
-    %PageFlow{
+    %FetchPage{
       queries: queries,
       query: query,
       cursor_fn: cursor_fn,

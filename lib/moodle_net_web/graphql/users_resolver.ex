@@ -20,8 +20,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   }
   alias MoodleNet.GraphQL.{
     Flow,
-    PageFlow,
-    PagesFlow,
+    FetchPage,
+    FetchPages,
     ResolvePage,
     ResolvePages,
   }
@@ -58,8 +58,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_comments_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: CommentsQueries,
         query: Comment,
         cursor_fn: &(&1.id),
@@ -74,8 +74,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_comments_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: CommentsQueries,
         query: Comment,
         cursor_fn: &(&1.id),
@@ -106,8 +106,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_collection_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -122,8 +122,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_collection_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -148,8 +148,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_community_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &(&1.id),
@@ -164,8 +164,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_community_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -192,8 +192,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_user_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -208,8 +208,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_user_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],

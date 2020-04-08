@@ -9,11 +9,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{
-    FieldsFlow,
+    FetchFields,
     Flow,
     Page,
-    PageFlow,
-    PagesFlow,
+    FetchPage,
+    FetchPages,
     ResolveField,
     ResolvePage,
     ResolvePages,
@@ -50,8 +50,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def fetch_communities(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Communities.Queries,
         query: Community,
         cursor_fn: Communities.cursor(:followers),
@@ -67,8 +67,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def fetch_collection_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: Collections.Queries,
         query: Collection,
         group_fn: &elem(&1, 0),
@@ -98,8 +98,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   def fetch_collections_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
@@ -114,8 +114,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   def fetch_collections_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),

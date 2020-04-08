@@ -12,9 +12,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   }
   alias MoodleNet.GraphQL.{
     Flow,
-    FieldsFlow,
-    PageFlow,
-    PagesFlow,
+    FetchFields,
+    FetchPage,
+    FetchPages,
     ResolveField,
     ResolvePage,
     ResolvePages,
@@ -61,8 +61,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_collections(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
@@ -78,8 +78,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_resource_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: Resources.Queries,
         query: Resource,
         group_fn: &elem(&1, 0),
@@ -103,8 +103,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def fetch_resources_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Resources.Queries,
         query: Resource,
         cursor_fn: &[&1.id],
@@ -119,8 +119,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   def fetch_resources_edge(page_opts, info, id) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Resources.Queries,
         query: Resource,
         cursor_fn: &[&1.id],

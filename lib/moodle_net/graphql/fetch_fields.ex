@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.GraphQL.FieldsFlow do
+defmodule MoodleNet.GraphQL.FetchFields do
   @enforce_keys [:queries, :query, :group_fn]
   defstruct [
     :queries,
@@ -12,9 +12,9 @@ defmodule MoodleNet.GraphQL.FieldsFlow do
   ]
 
   alias MoodleNet.Repo
-  alias MoodleNet.GraphQL.{Fields, FieldsFlow}
+  alias MoodleNet.GraphQL.{Fields, FetchFields}
 
-  @type t :: %FieldsFlow{
+  @type t :: %FetchFields{
     queries: atom,
     query: atom,
     group_fn: (term -> term),
@@ -23,7 +23,7 @@ defmodule MoodleNet.GraphQL.FieldsFlow do
   }
 
   def run(
-    %FieldsFlow{
+    %FetchFields{
       queries: queries,
       query: query,
       group_fn: group_fn,
