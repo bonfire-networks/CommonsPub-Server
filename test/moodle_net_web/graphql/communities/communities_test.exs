@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   describe "communities" do
 
     test "works for a guest" do
-      users = some_fake_users!(%{}, 9)
+      users = some_fake_users!(9)
       communities = some_fake_communities!(3, users) # 27
       root_page_test %{
         query: communities_query(),

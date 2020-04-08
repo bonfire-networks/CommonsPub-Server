@@ -15,47 +15,71 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   import_types Absinthe.Plug.Types
 
+  # FIXME: handle if url AND path are set
+  input_object :upload_input do
+    field :url, :string
+    field :path, :string
+    field :filename, :string
+    field :content_type, :string
+  end
+
   object :upload_mutations do
     @desc "Upload a small icon, also known as an avatar."
-    field :upload_icon, type: :file_upload do
+    field :upload_icon, type: :content do
       arg(:context_id, non_null(:id))
-      arg(:upload, non_null(:upload))
+      # FIXME: allow url's
+      arg(:upload, non_null(:upload_input))
       resolve(&UploadResolver.upload_icon/2)
     end
 
     @desc "Upload a large image, also known as a header."
-    field :upload_image, type: :file_upload do
+    field :upload_image, type: :content do
       arg(:context_id, non_null(:id))
-      arg(:upload, non_null(:upload))
+      arg(:upload, non_null(:upload_input))
       resolve(&(UploadResolver.upload_image/2))
     end
 
-    field :upload_resource, type: :file_upload do
+    field :upload_resource, type: :content do
       arg(:context_id, non_null(:id))
-      arg(:upload, non_null(:upload))
+      arg(:upload, non_null(:upload_input))
       resolve(&UploadResolver.upload_resource/2)
     end
   end
 
   @desc "An uploaded file, may contain metadata."
-  object :file_upload do
+  object :content do
     field(:id, non_null(:id))
-    field(:url, non_null(:string))
-    field(:size, non_null(:integer))
     field(:media_type, non_null(:string))
     field(:metadata, :file_metadata)
+
+    field(:url, non_null(:string)) do
+      resolve(&UploadResolver.remote_url/3)
+    end
 
     field(:is_public, non_null(:boolean)) do
       resolve(&UploadResolver.is_public/3)
     end
 
-    field(:parent, :upload_parent) do
-      resolve(&UploadResolver.parent/3)
-    end
-
     field(:uploader, :user) do
       resolve(&UploadResolver.uploader/3)
     end
+
+    field(:mirror, :content_mirror) do
+      resolve(&UploadResolver.content_mirror/3)
+    end
+
+    field(:upload, :content_upload) do
+      resolve(&UploadResolver.content_upload/3)
+    end
+  end
+
+  object :content_mirror do
+    field(:url, :string)
+  end
+
+  object :content_upload do
+    field(:path, :string)
+    field(:size, :integer)
   end
 
   @desc """
@@ -87,18 +111,5 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
     field(:num_color_palette, :integer)
     field(:color_planes, :integer)
     field(:bits_per_pixel, :integer)
-  end
-
-  @desc "Supported parents of a file upload."
-  union :upload_parent do
-    description "A parent of an upload"
-    types [:collection, :comment, :community, :resource, :user]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Comment{},    _ -> :comment
-      %Community{},  _ -> :community
-      %Resource{},   _ -> :resource
-      %User{},       _ -> :user
-    end
   end
 end

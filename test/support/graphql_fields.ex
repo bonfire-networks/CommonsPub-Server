@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def page_info_fields do
     ~w(start_cursor end_cursor has_previous_page has_next_page __typename)a
   end
-  
+
   def page_fields(edge_fields) do
     page_info = Grumble.field(:page_info, fields: page_info_fields())
     edges = Grumble.field(:edges, fields: edge_fields)
@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def user_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         location website icon image follower_count liker_count is_local is_public
+         location website follower_count liker_count is_local is_public
          is_disabled created_at updated_at __typename)a
   end
 
@@ -47,20 +47,20 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def community_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username
-         name summary icon image is_local
-         is_public is_disabled created_at updated_at __typename)a
+        name summary is_local is_public is_disabled
+        created_at updated_at __typename)a
   end
 
   def collection_fields(extra \\ []) do
     extra ++
       ~w(id canonical_url preferred_username display_username name summary
-         icon resource_count is_local
-         is_public is_disabled created_at updated_at __typename)a
+        resource_count is_local is_public is_disabled created_at
+        updated_at __typename)a
   end
 
   def resource_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url name summary icon url license is_local
+      ~w(id canonical_url name summary license is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 
@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   #   id isoCode2 isoCode3 englishName localName createdAt updatedAt __typename
   #   """
   # end
-  
+
   def gen_query(param_name, field_fn, options) do
     params = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
@@ -189,6 +189,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     object_spread(:collection, fields: collection_fields(fields))
   end
 
+  @spec collection_query(any) :: none
   def collection_query(options \\ []) do
     gen_query(:collection_id, &collection_subquery/1, options)
   end
@@ -212,7 +213,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       before: var(:collections_before),
       limit: var(:collections_limit),
     ]
-    page_subquery(:collections, &collection_fields/1, [ {:args, args} | options ])
+    page_subquery :collections,
+      &[ :follower_count | collection_fields(&1)],
+      [ {:args, args} | options ]
   end
 
   def create_collection_mutation(options \\ []) do
@@ -266,7 +269,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       before: var(:communities_before),
       limit: var(:communities_limit),
     ]
-    page_subquery(:communities, &community_fields/1, [ {:args, args} | options ])
+    page_subquery :communities,
+      &[ :follower_count | community_fields(&1)],
+      [ {:args, args} | options ]
   end
 
   def create_community_mutation(options \\ []) do
@@ -374,6 +379,42 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       limit: var(:followers_limit),
     ]
     page_subquery(:followers, &follow_fields/1, [{:args, args} | options])
+  end
+
+  def follows_subquery(options \\ []) do
+    args = [
+      after: var(:follows_after),
+      before: var(:follows_before),
+      limit: var(:follows_limit),
+    ]
+    page_subquery(:follows, &follow_fields/1, [{:args, args} | options])
+  end
+
+  def collection_follows_subquery(options \\ []) do
+    args = [
+      after: var(:collection_follows_after),
+      before: var(:collection_follows_before),
+      limit: var(:collection_follows_limit),
+    ]
+    page_subquery(:collection_follows, &follow_fields/1, [{:args, args} | options])
+  end
+
+  def community_follows_subquery(options \\ []) do
+    args = [
+      after: var(:community_follows_after),
+      before: var(:community_follows_before),
+      limit: var(:community_follows_limit),
+    ]
+    page_subquery(:community_follows, &follow_fields/1, [{:args, args} | options])
+  end
+
+  def user_follows_subquery(options \\ []) do
+    args = [
+      after: var(:user_follows_after),
+      before: var(:user_follows_before),
+      limit: var(:user_follows_limit),
+    ]
+    page_subquery(:user_follows, &follow_fields/1, [{:args, args} | options])
   end
 
   def create_follow_mutation(options \\ []) do

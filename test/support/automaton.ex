@@ -74,7 +74,6 @@ defmodule MoodleNetWeb.Test.Automaton do
       connection: conn,
       parent_key: parent_key,
       child_key: child_key,
-      count_key: count_key,
       default_limit: default_limit,
       total_count: total,
       parent_data: parent_data,
@@ -88,11 +87,13 @@ defmodule MoodleNetWeb.Test.Automaton do
     }=opts
   ) do
     vars = Map.get(opts, :vars, %{})
+    count_key = Map.get(opts, :count_key)
     assert is_map(vars)
 
     page1 = scope [page: 1, limit: :default] do
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], default_limit, total, false, true, cursor_fn)
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       each(child_data, page.edges, assert_child)
       page
     end
@@ -101,6 +102,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       vars = Map.put(vars, limit, 11)
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 11, total, false, true, cursor_fn)
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       each(child_data, page.edges, assert_child)
       page
     end
@@ -109,6 +111,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       vars = Map.merge(vars, %{limit => 9, aft => page_1.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 9, total, true, true, cursor_fn) #TODO s/nil/true/
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       drop_each(child_data, page.edges, 11, assert_child)
       page
     end
@@ -117,6 +120,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       vars = Map.merge(vars, %{limit => 7, aft => page2.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 7, total, true, false, cursor_fn)
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       drop_each(child_data, page.edges, 20, assert_child)
       page
     end
@@ -125,6 +129,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       vars = Map.merge(vars, %{aft => page1.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 10, total, true, true, cursor_fn)
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       drop_each(child_data, page.edges, 10, assert_child)
       page
     end
@@ -133,6 +138,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       vars = Map.merge(vars, %{aft => page_2.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 7, total, true, false, cursor_fn)
+      if not is_nil(count_key), do: assert(parent[count_key] == total)
       drop_each(child_data, page.edges, 20, assert_child)
       page
     end

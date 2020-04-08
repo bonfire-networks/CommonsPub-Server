@@ -31,7 +31,13 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   def assert_email(val), do: assert_binary(val)
 
-  def assert_url(val), do: assert_binary(val)
+  def assert_url(url) do
+    uri = URI.parse(url)
+    assert uri.scheme
+    assert uri.host
+    assert uri.path
+    url
+  end
 
   def assert_username(val), do: assert_binary(val)
   def assert_display_username(val), do: assert_binary(val)
@@ -59,6 +65,30 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     val
   end
 
+  def assert_datetime(%DateTime{}=dt, %DateTime{}=du) do
+    assert :eq == DateTime.compare(dt, du)
+    du
+  end
+
+  def assert_datetime(%DateTime{}=dt, other) when is_binary(other) do
+    dt = String.replace(DateTime.to_iso8601(dt), "T", " ")
+    assert dt == other
+    dt
+  end
+
+  def assert_created_at(%{id: id}, %{created_at: created}) do
+    scope [assert: :created_at] do
+      assert {:ok, ts} = ULID.timestamp(id)
+      assert_datetime(ts, created)
+    end
+  end
+
+  def assert_updated_at(%{updated_at: left}, %{updated_at: right}) do
+    scope [assert: :created_at] do
+      assert_datetime(left, right)
+    end
+  end
+
   def assert_list() do
     fn l -> assert(is_list(l)) && l end
   end
@@ -82,15 +112,15 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_field(object, key, test) when is_map(object) and is_function(test, 1) do
     scope [assert_field: key] do
       assert %{^key => value} = object
-      test.(value)
+      Map.put(object, key, test.(value))
     end
   end
 
   def assert_optional_field(object, key, test) when is_map(object) and is_function(test, 1) do
     scope [assert_field: key] do
       case object do
-        %{^key => value} -> test.(value)
-        _ -> nil
+        %{^key => value} -> Map.put(object, key, test.(value))
+        _ -> object
       end
     end
   end
@@ -100,12 +130,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     object = ConnHelpers.uncamel_map(object)
     scope [{name, object}] do
       object = Enum.reduce(required, object, fn {key, test}, acc ->
-        val = assert_field(object, key, test)
-        Map.put(acc, key, val)
+        assert_field(acc, key, test)
       end)
       Enum.reduce(optional, object, fn {key, test}, acc ->
-        val = assert_optional_field(object, key, test)
-        Map.put(acc, key, val)
+        assert_optional_field(acc, key, test)
       end)
     end
   end
@@ -300,8 +328,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        summary: &assert_binary/1,
        location: &assert_binary/1,
        website: &assert_url/1,
-       icon: &assert_url/1,
-       image: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -311,14 +337,27 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ],
       [follow_count: &assert_non_neg/1,
        follower_count: &assert_non_neg/1,
+
        like_count: &assert_non_neg/1,
        liker_count: &assert_non_neg/1,
+
+       follows: assert_page(&assert_follow/1),
+       followers: assert_page(&assert_follow/1),
+       collection_follows: assert_page(&assert_follow/1),
+       community_follows: assert_page(&assert_follow/1),
+       user_follows: assert_page(&assert_follow/1),
+
        likes: assert_page(&assert_like/1),
        likers: assert_page(&assert_like/1),
+
        my_like: assert_optional(&assert_like/1),
        my_follow: assert_optional(&assert_follow/1),
        my_flag: assert_optional(&assert_flag/1),
       ]
+  end
+
+  def assert_user(%User{}=user, %{id: _}=user2) do
+    assert_users_eq(user, user2)
   end
 
   def assert_user(%User{}=user, %{}=user2) do
@@ -328,8 +367,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_users_eq(%User{}=user, %{}=user2) do
     assert_maps_eq user.actor, user2, :assert_user, [:canonical_url, :preferred_username]
     assert_maps_eq user, user2, :assert_user,
-      [:id, :name, :summary, :location, :website, :icon, :image, :updated_at]
-    assert ULID.timestamp(user.id) == {:ok, user2.created_at}
+      [:id, :name, :summary, :location, :website]
+    assert_created_at(user, user2)
+    assert_updated_at(user, user2)
     assert user2.is_public == true
     assert user2.is_disabled == false
     assert user2.is_local == true
@@ -339,7 +379,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_user_input(%{}=user, %{}=user2) do
     user2 = assert_user(user2)
     assert_maps_eq user, user2,
-      [:name, :summary, :location, :website, :icon, :image],
+      [:name, :summary, :location, :website],
       [:preferred_username]
     user2
   end
@@ -352,8 +392,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        display_username: &assert_display_username/1,
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       image: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -362,12 +400,19 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        typename: assert_eq("Community"),
       ],
       [collection_count: &assert_non_neg/1,
-       # follower_count: &assert_non_neg/1,
+       collections: assert_page(&assert_collection/1),
+       followers: assert_page(&assert_follow/1),
+       likers: assert_page(&assert_like/1),
        liker_count: &assert_non_neg/1,
        my_like: assert_optional(&assert_like/1),
        my_follow: assert_optional(&assert_follow/1),
        my_flag: assert_optional(&assert_flag/1),
+       flags: assert_page(&assert_flag/1)
       ]
+  end
+
+  def assert_community(%Community{}=comm, %{id: _}=comm2) do
+    assert_communities_eq(comm, comm2)
   end
 
   def assert_community(%Community{}=comm, %{}=comm2) do
@@ -378,7 +423,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_maps_eq comm.actor, comm2, :assert_community,
       [:canonical_url, :preferred_username]
     assert_maps_eq comm, comm2, :assert_community,
-      [:id, :name, :summary, :icon, :image, :updated_at]
+      [:id, :name, :summary]
     assert comm2.is_public == not is_nil(comm.published_at)
     assert comm2.is_disabled == not is_nil(comm.disabled_at)
     assert comm2.is_local == is_nil(comm.actor.peer_id)
@@ -388,7 +433,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_community_input(%{}=comm, %{}=comm2) do
     comm2 = assert_community(comm2)
     assert_maps_eq comm, comm2,
-      [:name, :summary, :icon, :image],
+      [:name, :summary],
       [:preferred_username]
     comm2
   end
@@ -401,7 +446,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        display_username: &assert_display_username/1,
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
        is_public: &assert_boolean/1,
@@ -423,6 +467,10 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_collection(%Collection{}=coll, %{id: _}=coll2) do
+    assert_collections_eq(coll, coll2)
+  end
+
   def assert_collection(%Collection{}=coll, %{}=coll2) do
     assert_collections_eq(coll, assert_collection(coll2))
   end
@@ -431,7 +479,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_maps_eq coll.actor, coll2, :assert_collection,
       [:canonical_url, :preferred_username]
     assert_maps_eq coll, coll2, :assert_collection,
-      [:id, :name, :summary, :icon, :updated_at],
+      [:id, :name, :summary]
       [:liker_count, :resource_count] # follower_count
     coll2
   end
@@ -439,7 +487,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   def assert_collection_input(%{}=coll, %{}=coll2) do
     coll2 = assert_collection(coll2)
     assert_maps_eq coll, coll2,
-      [:name, :summary, :icon, :image],
+      [:name, :summary],
       [:preferred_username]
     coll2
   end
@@ -450,8 +498,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        canonical_url: assert_optional(&assert_url/1),
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       url: &assert_url/1,
        license: &assert_binary/1,
        is_local: &assert_boolean/1,
        is_disabled: &assert_boolean/1,
@@ -462,23 +508,27 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_resource(%Resource{}=res, %{id: _}=res2) do
+    assert_resources_eq(res, res2)
+  end
+
   def assert_resource(%Resource{}=res, %{}=res2) do
     assert_resources_eq(res, assert_resource(res2))
   end
 
   def assert_resources_eq(%Resource{}=res, %{}=res2) do
     assert_maps_eq res, res2, :assert_resource,
-      [:id, :canonical_url, :name, :summary, :icon, :url, :license, :updated_at],
+      [:id, :canonical_url, :name, :summary, :license],
       [:follower_count, :liker_count, :resource_count]
     assert not is_nil(res.published_at) == res2.is_public
     assert not is_nil(res.disabled_at) == res2.is_disabled
-    assert ULID.timestamp(res.id) == {:ok, res2.created_at}
+    assert_created_at(res, res2)
     res2
   end
 
   def assert_resource_input(%{}=res, %{}=res2) do
     res2 = assert_resource(res2)
-    assert_maps_eq res, res2, [:name, :summary, :icon, :url, :license]
+    assert_maps_eq res, res2, [:name, :summary, :license]
     res2
   end
 
@@ -492,8 +542,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        canonical_url: assert_optional(&assert_url/1),
        name: &assert_binary/1,
        summary: &assert_binary/1,
-       icon: &assert_url/1,
-       url: &assert_url/1,
        license: &assert_binary/1,
        is_local: &assert_boolean/1,
        is_hidden: &assert_boolean/1,
@@ -506,21 +554,25 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_thread(%Thread{}=thread, %{id: _}=thread2) do
+    assert_threads_eq(thread, thread2)
+  end
+
   def assert_thread(%Thread{}=thread, %{}=thread2) do
     assert_threads_eq(thread, assert_thread(thread2))
   end
 
   def assert_threads_eq(%Thread{}=thread, %{}=thread2) do
     assert_maps_eq thread, thread2, :assert_thread,
-      [:id, :canonical_url, :updated_at, :is_local],
+      [:id, :canonical_url, :is_local],
       [:follower_count]
     assert not is_nil(thread.published_at) == thread2.is_public
     assert not is_nil(thread.hidden_at) == thread2.is_hidden
-    assert ULID.timestamp(thread.id) == {:ok, thread2.created_at}
+    assert_created_at(thread, thread2)
     thread2
   end
 
-  
+
   def assert_comment(comment) do
     assert_object comment, :assert_comment,
       [id: &assert_ulid/1,
@@ -537,17 +589,21 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_comment(%Comment{}=comment, %{id: _}=comment2) do
+    assert_comments_eq(comment, comment2)
+  end
+
   def assert_comment(%Comment{}=comment, %{}=comment2) do
     assert_comments_eq(comment, assert_comment(comment2))
   end
 
   def assert_comments_eq(%Comment{}=comment, %{}=comment2) do
     assert_maps_eq comment, comment2, :assert_comment,
-      [:id, :canonical_url, :content, :updated_at, :is_local],
+      [:id, :canonical_url, :content, :is_local],
       [:liker_count]
     assert not is_nil(comment.published_at) == comment2.is_public
     assert not is_nil(comment.hidden_at) == comment2.is_hidden
-    assert ULID.timestamp(comment.id) == {:ok, comment2.created_at}
+    assert_created_at(comment, comment2)
     comment2
   end
 
@@ -566,10 +622,14 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_features_eq(feature, assert_feature(feature2))
   end
 
+  def assert_feature(%Feature{}=feature, %{id: _}=feature2) do
+    assert_features_eq(feature, feature2)
+  end
+
   def assert_features_eq(%Feature{}=feature, %{}=feature2) do
     assert_maps_eq feature, feature2, :assert_feature,
-      [:id, :canonical_url, :updated_at, :is_local]
-    assert ULID.timestamp(feature.id) == {:ok, feature2.created_at}
+      [:id, :canonical_url, :is_local]
+    assert_created_at(feature, feature2)
     feature2
   end
 
@@ -585,14 +645,18 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_flag(%Flag{}=flag, %{id: _}=flag2) do
+    assert_flags_eq(flag, flag2)
+  end
+
   def assert_flag(%Flag{}=flag, %{}=flag2) do
     assert_flags_eq(flag, assert_flag(flag2))
   end
 
   def assert_flags_eq(%Flag{}=flag, %{}=flag2) do
     assert_maps_eq flag, flag2, :assert_flag,
-      [:id, :canonical_url, :message, :updated_at, :is_local]
-    assert ULID.timestamp(flag.id) == {:ok, flag2.created_at}
+      [:id, :canonical_url, :message, :is_local]
+    assert_created_at(flag, flag2)
     flag2
   end
 
@@ -608,14 +672,18 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_follow(%Follow{}=follow, %{id: _}=follow2) do
+    assert_follows_eq(follow, follow2)
+  end
+
   def assert_follow(%Follow{}=follow, %{}=follow2) do
     assert_follows_eq(follow, assert_follow(follow2))
   end
 
   def assert_follows_eq(%Follow{}=follow, %{}=follow2) do
     assert_maps_eq follow, follow2, :assert_follow,
-      [:id, :canonical_url, :updated_at, :is_local]
-    assert ULID.timestamp(follow.id) == {:ok, follow2.created_at}
+      [:id, :canonical_url, :is_local]
+    assert_created_at(follow, follow2)
     assert not is_nil(follow.published_at) == follow2.is_public
     follow2
   end
@@ -632,14 +700,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_like(%Like{}=like, %{id: _}=like2) do
+    assert_likes_eq(like, like2)
+  end
   def assert_like(%Like{}=like, %{}=like2) do
     assert_likes_eq(like, assert_like(like2))
   end
 
   def assert_likes_eq(%Like{}=like, %{}=like2) do
     assert_maps_eq like, like2, :assert_like,
-      [:id, :canonical_url, :updated_at, :is_local]
-    assert ULID.timestamp(like.id) == {:ok, like2.created_at}
+      [:id, :canonical_url, :is_local]
+    assert_created_at(like, like2)
     assert not is_nil(like.published_at) == like2.is_public
     like2
   end
@@ -657,15 +728,18 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
+  def assert_activity(%Activity{}=activity, %{id: _}=activity2) do
+    assert_activities_eq(activity, activity2)
+  end
   def assert_activity(%Activity{}=activity, %{}=activity2) do
     assert_activities_eq(activity, assert_activity(activity2))
   end
 
   def assert_activities_eq(%Activity{}=activity, %{}=activity2) do
     assert_maps_eq activity, activity2, :assert_activity,
-      [:id, :canonical_url, :updated_at, :verb, :is_local]
+      [:id, :canonical_url, :verb, :is_local]
     assert not is_nil(activity.published_at) == activity2.is_public
-    assert ULID.timestamp(activity.id) == {:ok, activity2.created_at}
+    assert_created_at(activity, activity2)
     activity2
   end
 

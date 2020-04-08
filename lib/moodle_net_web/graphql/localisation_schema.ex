@@ -12,8 +12,8 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   @desc "Get list of languages we know about"
   #   field :languages, non_null(:languages_page) do
   #     arg :limit, :integer
-  #     arg :before, list_of(:cursor)
-  #     arg :after, list_of(:cursor)
+  #     arg :before, list_of(non_null(:cursor))
+  #     arg :after, list_of(non_null(:cursor))
   #     resolve &LocalisationResolver.languages/2
   #   end
 
@@ -30,8 +30,8 @@ defmodule MoodleNetWeb.GraphQL.LocalisationSchema do
   #   @desc "Get list of languages we know about"
   #   field :countries, non_null(:countries_page) do
   #     arg :limit, :integer
-  #     arg :before, list_of(:cursor)
-  #     arg :after, list_of(:cursor)
+  #     arg :before, list_of(non_null(:cursor))
+  #     arg :after, list_of(non_null(:cursor))
   #     resolve &LocalisationResolver.countries/2
   #   end
 

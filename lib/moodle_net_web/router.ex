@@ -90,17 +90,6 @@ defmodule MoodleNetWeb.Router do
     resources("/apps", AppController, only: [:create])
   end
 
-  pipeline :media do
-    plug(:accepts, ["html"])
-    plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
-  end
-
-  scope MoodleNet.MediaProxy.media_path(), MoodleNetWeb do
-    pipe_through(:media)
-    get("/:sig/:url/*rest", MediaProxyController, :remote)
-  end
-
   pipeline :well_known do
     plug(:accepts, ["json", "jrd+json"])
   end

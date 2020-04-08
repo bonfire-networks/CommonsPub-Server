@@ -65,7 +65,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
     end
 
     @desc "The thing that is being flagged"
-    field :context, :flag_context do
+    field :context, non_null(:flag_context) do
       resolve &CommonResolver.context_edge/3
     end
 

@@ -75,11 +75,9 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_ecto, "~> 4.0"},
       {:floki, "~> 0.24.0", override: true},
       # File storage
-      {:belt, git: "https://gitlab.com/kalouantonis/belt"},
+      {:belt, git: "https://github.com/commonspub/belt"},
       # File format parsing
-      {:format_parser, git: "https://github.com/antoniskalou/format_parser.ex"},
-      # File metadata extraction
-      {:twinkle_star, git: "https://github.com/antoniskalou/twinkle_star"},
+      {:twinkle_star, git: "https://github.com/commonspub/twinkle_star"},
       # database
       {:ecto, "~> 3.3.4", override: true},
       {:ecto_sql, "~> 3.3.4", override: true},

@@ -68,7 +68,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "is nil for a guest or a non-following user or instance admin" do
       [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_follow: follow_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
@@ -79,7 +79,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "works for a following user or instance admin" do
       [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_follow: follow_fields()])
       for user <- [alice, lucy] do
@@ -95,7 +95,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "is nil for a guest or a non-liking user or instance admin" do
       [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_like: like_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
@@ -106,7 +106,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "works for a liking user or instance admin" do
       [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       vars = %{user_id: bob.id}
       q = user_query(fields: [my_like: like_fields()])
       for user <- [alice, lucy] do
@@ -118,52 +118,200 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
   end
 
-  describe "user.followed_communities" do
+  describe "user.collection_follows" do
 
     test "works for anyone" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
-      comm = fake_community!(alice)
-      comm2 = fake_community!(bob)
-      follows = Enum.map([comm, comm2], &follow!(eve, &1))
-      q = user_query(fields: [followed_communities: page_fields(followed_community_fields())])
-      vars = %{user_id: eve.id}
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      for conn <- conns do
-        user = assert_user(eve, grumble_post_key(q, conn, :user, vars))
-        follows2 = assert_page(user.followed_communities, 2, 2, false, false, &[&1.id])
-        each(follows, follows2, &assert_follow/2)
+      [alice, bob, dave, eve] = some_fake_users!(4)
+      lucy = fake_admin!()
+      comms = some_fake_communities!(3, [alice, bob, dave]) # 9
+      colls = some_fake_collections!(1, [alice, bob, dave], comms) # 27
+      follows = pam(colls, &follow!(eve, &1))
+      params = [
+        collection_follows_after: list_type(:cursor),
+        collection_follows_before: list_type(:cursor),
+        collection_follows_limit: :int,
+      ]
+      query = user_query(fields: [collection_follows_subquery()], params: params)
+      user_conns = pam([alice, bob, dave, eve, lucy], &user_conn/1)
+      each [json_conn() | user_conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: eve.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :collection_follows,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: eve,
+          child_data: follows,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :collection_follows_after,
+          before: :collection_follows_before,
+          limit: :collection_follows_limit,
+        }
       end
     end
 
   end
 
-  describe "user.followed_collections" do
+  describe "user.community_follows" do
 
     test "works for anyone" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
-      comm = fake_community!(alice)
-      coll = fake_collection!(alice, comm)
-      coll2 = fake_collection!(bob, comm)
-      follows = Enum.map([coll, coll2], &follow!(eve, &1))
-      q = user_query(fields: [followed_collections: page_fields(followed_collection_fields())])
-      vars = %{user_id: eve.id}
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      for conn <- conns do
-        user = assert_user(eve, grumble_post_key(q, conn, :user, vars))
-        follows2 = assert_page(user.followed_collections, 2, 2, false, false, &[&1.id])
-        each(follows, follows2, &assert_follow/2)
+      [alice, bob, dave, eve] = some_fake_users!(4)
+      lucy = fake_admin!()
+      comms = some_fake_communities!(9, [alice, bob, dave])
+      follows = pam(comms, &follow!(eve, &1))
+      params = [
+        community_follows_after: list_type(:cursor),
+        community_follows_before: list_type(:cursor),
+        community_follows_limit: :int,
+      ]
+      query = user_query(fields: [community_follows_subquery()], params: params)
+      user_conns = pam([alice, bob, dave, eve, lucy], &user_conn/1)
+      each [json_conn() | user_conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: eve.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :community_follows,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: eve,
+          child_data: follows,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :community_follows_after,
+          before: :community_follows_before,
+          limit: :community_follows_limit,
+        }
       end
     end
 
   end
 
-  describe "user.followed_users" do
-    @tag :skip
-    test "placeholder" do
+  describe "user.user_follows" do
+
+    test "works for anyone" do
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
+      users = some_fake_users!(25) ++ [lucy, bob]
+      follows = pam(users, &follow!(alice, &1))
+      params = [
+        user_follows_after: list_type(:cursor),
+        user_follows_before: list_type(:cursor),
+        user_follows_limit: :int,
+      ]
+      query = user_query(fields: [user_follows_subquery()], params: params)
+      user_conns = pam([alice, bob, lucy], &user_conn/1)
+      each [json_conn() | user_conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: alice.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :user_follows,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: alice,
+          child_data: follows,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :user_follows_after,
+          before: :user_follows_before,
+          limit: :user_follows_limit,
+        }
+      end
     end
+
   end
+
+  describe "user.follows" do
+
+    test "works for anyone for a public user" do
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
+      users = [bob | some_fake_users!(26)]
+      follows = pam(users, &follow!(alice, &1))
+      params = [
+        follows_after: list_type(:cursor),
+        follows_before: list_type(:cursor),
+        follows_limit: :int,
+      ]
+      query = user_query(
+        params: params,
+        fields: [:follow_count, follows_subquery()]
+      )
+      user_conns = pam([alice, bob, eve, lucy], &user_conn/1)
+      each [json_conn() | user_conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: alice.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :follows,
+          count_key: :follow_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: alice,
+          child_data: follows,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :follows_after,
+          before: :follows_before,
+          limit: :follows_limit,
+        }
+      end
+    end
+
+  end
+
+  describe "user.followers" do
+
+    test "works for anyone for a public user" do
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
+      bob_follow = follow!(bob, alice)
+      follows = some_randomer_follows!(26, alice) ++ [bob_follow]
+      params = [
+        followers_after: list_type(:cursor),
+        followers_before: list_type(:cursor),
+        followers_limit: :int,
+      ]
+      query = user_query(
+        params: params,
+        fields: [:follower_count, followers_subquery()]
+      )
+      user_conns = pam([alice, bob, eve, lucy], &user_conn/1)
+      each [json_conn() | user_conns], fn conn ->
+        child_page_test %{
+          query: query,
+          vars: %{user_id: alice.id},
+          connection: conn,
+          parent_key: :user,
+          child_key: :followers,
+          count_key: :follower_count,
+          default_limit: 10,
+          total_count: 27,
+          parent_data: alice,
+          child_data: follows,
+          assert_parent: &assert_user/2,
+          assert_child: &assert_follow/2,
+          cursor_fn: &[&1.id],
+          after: :followers_after,
+          before: :followers_before,
+          limit: :followers_limit,
+        }
+      end
+    end
+
+  end
+
 
   describe "user.likers" do
 
@@ -206,7 +354,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
 
     test "works for anyone for a public user" do
       [alice, bob, dave, eve] = some_fake_users!(4)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comms = some_fake_communities!(9, [bob])
       colls = some_fake_collections!(2, [dave], comms) #
       likes = pam(colls ++ comms, &like!(alice, &1))
@@ -230,7 +378,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           parent_data: alice,
           child_data: likes,
           assert_parent: &assert_user/2,
-          assert_child: &assert_like/2,
+          assert_child: &assert_likes_eq/2,
           cursor_fn: &[&1.id],
           after: :likes_after,
           before: :likes_before,
@@ -239,6 +387,42 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       end
     end
 
+  end
+
+  describe "user.icon" do
+    test "works" do
+      user = fake_user!()
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, user} = MoodleNet.Users.update(user, %{icon_id: upload.id})
+
+      conn = user_conn(user)
+      q = user_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :user, %{user_id: user.id})
+      assert resp["icon"]["id"] == user.icon_id
+      assert_url resp["icon"]["url"]
+      assert resp["icon"]["upload"]
+    end
+  end
+
+  describe "user.image" do
+    test "works" do
+      user = fake_user!()
+
+      assert {:ok, upload} = MoodleNet.Uploads.upload(
+        MoodleNet.Uploads.ImageUpload, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+      )
+      assert {:ok, user} = MoodleNet.Users.update(user, %{image_id: upload.id})
+
+      conn = user_conn(user)
+      q = user_query(fields: [image: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])
+      assert resp = grumble_post_key(q, conn, :user, %{user_id: user.id})
+      assert resp["image"]["id"] == user.image_id
+      assert_url resp["image"]["url"]
+      assert resp["image"]["upload"]
+    end
   end
 
   # describe "comments" do

@@ -15,9 +15,9 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   describe "collections" do
 
     test "works for a guest" do
-      users = some_fake_users!(%{}, 3)
-      communities = some_fake_communities!(%{}, 3, users) # 9
-      collections = some_fake_collections!(%{}, 1, users, communities) # 27
+      users = some_fake_users!(3)
+      communities = some_fake_communities!(3, users) # 9
+      collections = some_fake_collections!(1, users, communities) # 27
       root_page_test %{
         query: collections_query(),
         connection: json_conn(),

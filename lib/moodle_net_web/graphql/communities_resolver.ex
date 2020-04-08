@@ -15,14 +15,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     PageFlow,
     PagesFlow,
     ResolveField,
+    ResolvePage,
+    ResolvePages,
     ResolveRootPage,
   }
-
   def community(%{community_id: id}, info) do
     ResolveField.run(
       %ResolveField{
         module: __MODULE__,
-        fetcher: :fetch_collection,
+        fetcher: :fetch_community,
         context: id,
         info: info,
       }
@@ -30,7 +31,10 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def fetch_community(info, id) do
-    Communities.one([:default, id: id, user: GraphQL.current_user(info)])
+    Communities.one([
+      :default,
+      id: id,
+      user: GraphQL.current_user(info)])
   end
 
   def communities(%{}=page_opts, info) do
@@ -52,8 +56,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         query: Community,
         cursor_fn: Communities.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [:default, user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
       }
     )
   end
@@ -74,11 +78,23 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     )
   end
 
-  def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
   def collections_edge(%Community{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_collections_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
+
+  # def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
+  # def collections_edge(%Community{id: id}, %{}=page_opts, info) do
+  #   opts = %{default_limit: 10}
+  #   Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
+  # end
 
   def fetch_collections_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
@@ -102,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
       %PageFlow{
         queries: Collections.Queries,
         query: Collection,
-        cursor_fn: &(&1.id),
+        cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
         base_filters: [community_id: ids, user: user],
         data_filters: [page: [desc: [followers: page_opts]]],

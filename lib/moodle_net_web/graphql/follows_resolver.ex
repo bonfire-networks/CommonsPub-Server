@@ -4,7 +4,13 @@
 defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   alias MoodleNet.{Follows, GraphQL, Repo}
-  alias MoodleNet.Follows.{Follow, FollowerCount, FollowerCountsQueries}
+  alias MoodleNet.Follows.{
+    Follow,
+    FollowCount,
+    FollowCountsQueries,
+    FollowerCount,
+    FollowerCountsQueries,
+  }
   alias MoodleNet.GraphQL.{
     Fields, FieldsFlow, Flow, PageFlow, PagesFlow,
     ResolvePages,
@@ -35,6 +41,66 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         fields
     end
   end
+
+  def follow_count_edge(%{id: id}, _, info) do
+    Flow.fields __MODULE__, :fetch_follow_count_edge, id, info, default: 0
+  end
+
+  def fetch_follow_count_edge(_, ids) do
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: FollowCountsQueries,
+        query: FollowCount,
+        group_fn: &(&1.creator_id),
+        map_fn: &(&1.count),
+        filters: [creator_id: ids],
+      }
+    )
+  end
+
+  def follows_edge(%User{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_follows_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        group_fn: &(&1.creator_id),
+        page_opts: page_opts,
+        base_filters: [creator_id: ids, user: user],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id],
+      }
+    )
+  end
+
+  def fetch_follows_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        page_opts: page_opts,
+        base_filters: [creator_id: ids, user: user],
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
+    )
+  end
+
+  def follower_count_edge(%{follower_count: c}, _, info) when is_integer(c), do: {:ok, c}
 
   def follower_count_edge(%{id: id}, _, info) do
     Flow.fields __MODULE__, :fetch_follower_count_edge, id, info, default: 0

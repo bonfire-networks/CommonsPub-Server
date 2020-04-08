@@ -1,14 +1,14 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Likes.LikeCountsQueries do
+defmodule MoodleNet.Follows.FollowCountsQueries do
 
-  alias MoodleNet.Likes.LikeCount
+  alias MoodleNet.Follows.FollowCount
 
   import Ecto.Query
 
-  def query(LikeCount) do
-    from l in LikeCount, as: :like_count
+  def query(FollowCount) do
+    from f in FollowCount, as: :follow_count
   end
 
   def query(query, filters), do: filter(query(query), filters)
@@ -25,11 +25,11 @@ defmodule MoodleNet.Likes.LikeCountsQueries do
   # by field values
 
   def filter(q, {:creator_id, id}) when is_binary(id) do
-    where q, [like_count: l], l.creator_id == ^id
+    where q, [follow_count: f], f.creator_id == ^id
   end
 
   def filter(q, {:creator_id, ids}) when is_list(ids) do
-    where q, [like_count: l], l.creator_id in ^ids
+    where q, [follow_count: f], f.creator_id in ^ids
   end
 
 end

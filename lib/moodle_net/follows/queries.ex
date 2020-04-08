@@ -15,14 +15,9 @@ defmodule MoodleNet.Follows.Queries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, {jq, join}, _jq), do: join_to(q, join, jq)
 
   def join_to(q, :context, jq) do
     join q, jq, [follow: f], c in assoc(f, :context), as: :pointer
@@ -158,7 +153,7 @@ defmodule MoodleNet.Follows.Queries do
     filter(q, id: {:gte, id}, limit: limit + 2)
   end
 
-  defp page(q, %{limit: limit}, [desc: :created]) do
+  defp page(q, %{limit: limit}, _) do
     filter(q, limit: limit + 1)
   end
 
