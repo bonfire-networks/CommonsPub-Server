@@ -57,10 +57,12 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5.0-rc.3"},
-      {:absinthe_plug, "~> 1.5.0-rc.2"},
+      {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
+      {:absinthe_plug, git: "https://github.com/absinthe-graphql/absinthe_plug"},
       # webserver
       {:cowboy, "~> 2.6"},
+      # {:cowboy, "~> 2.5.0"},
+      # {:cowlib, "~> 2.6.0"},
       {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.8"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
@@ -105,10 +107,19 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
+      # CommonsPub:
+      {:geo_postgis, "~> 3.1"}, # geolocation in postgres 
+      # {:dlex, "~> 0.4", override: true},
+      # {:castore, "~> 0.1.0", optional: true},
+      # {:mint, github: "ericmj/mint", branch: "master"},
+      # {:retrieval, "~> 0.9.1"}, # taxonomy trees
+      #{:redix, "~> 0.10.5"}, # Redis client
+      #{:ex_redi, "~> 0.1.1"}, # RediSearch client
+      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:zest, "~> 0.1.0", only: [:dev, :test]},
       {:grumble, "~> 0.1.0", only: [:dev, :test]},
-      {:faker, "~> 0.12"},                          # fake data generation for moodlenet
+      {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},                     # property testing
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking

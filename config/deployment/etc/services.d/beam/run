@@ -2,4 +2,4 @@
 
 echo "Starting MoodleNet backend..."
 
-exec /opt/app/bin/${APP_NAME} start 
+exec /opt/app/bin/moodle_net start 

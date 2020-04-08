@@ -15,7 +15,7 @@
 .hex
 .\#*
 *~
-*.sql
+*.data.sql
 .cache
 .cargo
 
