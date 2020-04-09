@@ -1,4 +1,4 @@
-defmodule Geolocation.Test do
+defmodule Geolocation.Testing do
 
     import MoodleNetWeb.Test.GraphQLAssertions
     import MoodleNetWeb.Test.GraphQLFields
