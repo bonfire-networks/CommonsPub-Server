@@ -59,7 +59,7 @@ defmodule MoodleNetWeb.Router do
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
-      interface: :simple,
+      interface: :playground,
       json_codec: Jason,
       pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
 

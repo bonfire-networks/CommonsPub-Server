@@ -30,7 +30,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/geolocation/geolocation.gql"
+  import_sdl path: "lib/value_flows/graphql/schemas/planning.gql"
 
   ## resolvers
 
@@ -81,14 +81,14 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
 
-  def community_edge(%Intent{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
-  end
+  # def community_edge(%Intent{community_id: id}, _, info) do
+  #   Flow.fields __MODULE__, :fetch_community_edge, id, info
+  # end
 
-  def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
-  end
+  # def fetch_community_edge(_, ids) do
+  #   {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
+  #   fields
+  # end
 
   ## finally the mutations...
 

@@ -3,7 +3,7 @@ defmodule Action do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
-  import Ecto.Enum
+  # import Ecto.Enum
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
@@ -11,13 +11,13 @@ defmodule Action do
   alias MoodleNet.Communities.Community
   alias Action
 
-  defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
+  # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
 
   @type t :: %__MODULE__{}
 
   table_schema "vf_actions" do
     field(:input_output, :string)
-    field(:label, :label_enum)
+    field(:label, :string)
     field(:pairs_with, :string)
     field(:resource_effect, :string)
 
