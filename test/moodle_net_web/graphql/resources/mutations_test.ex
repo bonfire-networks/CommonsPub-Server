@@ -19,9 +19,11 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       q = create_resource_mutation()
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         ri = Fake.resource_input()
-        ci = Fake.content_upload_input()
+        ci = Fake.content_input()
 
         vars = %{collection_id: coll.id, resource: ri}
+
+        # FIXME: grumbe_post_* should deal with uploads
         {vars, files} =
           case ci[:upload] do
             %Plug.Upload{} = upload ->
@@ -30,8 +32,8 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
             _ ->
               {Map.put(vars, :content, ci), %{}}
           end
-        IO.inspect({vars, files})
-        assert_resource(ri, grumble_post_key(q, conn, :create_resource, vars, files))
+
+        assert_resource(grumble_post_key(q, conn, :create_resource, vars, files))
       end
     end
 

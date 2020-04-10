@@ -4,7 +4,8 @@
 defmodule MoodleNet.Uploads.IconUploader do
   use MoodleNet.Uploads.Definition
 
-  def allowed_extensions, do: ~w(gif jpg jpeg png)
+  def allowed_media_types,
+    do: ~w(image/png image/jpeg image/svg+xml image/gif)
 
   def transform(_file), do: :skip
 end
