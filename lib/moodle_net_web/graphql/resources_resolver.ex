@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def create_resource(%{resource: attrs, collection_id: collection_id, content: content_file}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, content} <- Uploads.store(ResourceUploader, user, content_file, %{}),
+        with {:ok, content} <- Uploads.upload(ResourceUploader, user, content_file, %{}),
              {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
              attrs = Map.put(attrs, :content_id, content.id),
              {:ok, resource} <- Resources.create(user, collection, attrs) do

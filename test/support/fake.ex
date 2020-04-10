@@ -12,6 +12,11 @@ defmodule MoodleNet.Test.Fake do
   @integer_min -32768
   @integer_max 32767
 
+  @file_fixtures [
+    "test/fixtures/images/150.png",
+    "test/fixtures/very-important.pdf",
+  ]
+
   @doc "Returns true"
   def truth(), do: true
   @doc "Returns false"
@@ -27,6 +32,10 @@ defmodule MoodleNet.Test.Fake do
   def neg_integer(), do: Faker.random_between(@integer_min, 0)
   @doc "Generates a random url"
   def url(), do: Faker.Internet.url() <> "/"
+  @doc "Picks a path from a set of available files."
+  def path(), do: Faker.Util.pick(@file_fixtures)
+  @doc "Generate a random content type"
+  def content_type(), do: Faker.File.mime_type()
   @doc "Picks a name"
   def name(), do: Faker.Company.name()
   @doc "Generates a random password string"
@@ -339,4 +348,26 @@ defmodule MoodleNet.Test.Fake do
   # def community_role(base \\ %{}) do
   #   base
   # end
+
+  def content_mirror_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:url, &url/0)
+  end
+
+  def content_upload_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:upload, fn ->
+      path = path()
+      %Plug.Upload{
+        path: path,
+        filename: Path.basename(path),
+        content_type: content_type(),
+      }
+    end)
+  end
+
+  def content_input(base \\ %{}) do
+    gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    gen.(base)
+  end
 end

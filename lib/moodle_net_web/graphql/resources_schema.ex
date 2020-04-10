@@ -32,6 +32,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :create_resource, :resource do
       arg :collection_id, non_null(:string)
       arg :resource, non_null(:resource_input)
+      arg :content, non_null(:upload_input)
+      arg :icon, :upload_input
       resolve &ResourcesResolver.create_resource/2
     end
 

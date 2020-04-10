@@ -24,7 +24,7 @@ defmodule MoodleNet.Uploads do
           {:ok, Content.t()} | {:error, Changeset.t()}
   def upload(upload_def, %User{} = uploader, file, attrs) do
     with {:ok, file} <- parse_file(file),
-         {:ok, file} <- allow_extension(upload_def, file),
+         :ok <- allow_media_type(upload_def, file),
          {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
          {:ok, url} <- remote_url(content) do
       {:ok, %{ content | url: url }}
@@ -32,36 +32,34 @@ defmodule MoodleNet.Uploads do
   end
 
   defp insert_content(upload_def, uploader, file, attrs) do
+    attrs = Map.merge(file, attrs)
+
     # FIXME: delegate to Storage
     Repo.transact_with(fn ->
       if is_remote_file?(file) do
-        insert_content_mirror(uploader, file, attrs)
+        insert_content_mirror(uploader, attrs)
       else
-        insert_content_upload(upload_def, uploader, file, attrs)
+        insert_content_upload(upload_def, uploader, attrs)
       end
     end)
   end
 
-  defp insert_content_mirror(uploader, %{url: url} = file, attrs) do
-    with {:ok, file_info} <- TwinkleStar.from_uri(url),
-         {:ok, mirror} <- Repo.insert(ContentMirror.changeset(%{url: url})),
-         attrs = file_info_to_content(file_info, attrs),
+  defp insert_content_mirror(uploader, %{url: _} = attrs) do
+    with {:ok, mirror} <- Repo.insert(ContentMirror.changeset(attrs)),
          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
       {:ok, %{ content | content_mirror: mirror }}
-    else
-      # match behaviour of uploads
-      {:error, {:request_failed, 404}} -> {:error, :enoent}
     end
   end
 
-  defp insert_content_upload(upload_def, uploader, file, attrs) do
+  defp insert_content_upload(upload_def, uploader, attrs) do
     storage_opts = [scope: uploader.id]
 
-    with {:ok, file_info} <- Storage.store(upload_def, file, storage_opts) do
-      upload_attrs = %{path: file_info.path, size: file_info.info.size}
+    with {:ok, file_info} <- Storage.store(upload_def, attrs, storage_opts) do
+      attrs = attrs
+      |> Map.put(:path, file_info.path)
+      |> Map.put(:size, file_info.info.size)
 
-      with {:ok, upload} <- Repo.insert(ContentUpload.changeset(upload_attrs)),
-            attrs = file_info_to_content(file_info, attrs),
+      with {:ok, upload} <- Repo.insert(ContentUpload.changeset(attrs)),
             {:ok, content} <- Repo.insert(Content.upload_changeset(upload, uploader, attrs)) do
         {:ok, %{ content | content_upload: upload }}
       else
@@ -112,40 +110,37 @@ defmodule MoodleNet.Uploads do
 
   defp is_remote_file?(_other), do: false
 
-  defp file_info_to_content(file_info, attrs) do
-    attrs
-    |> Map.put(:media_type, file_info.media_type)
-    |> Map.put(:metadata, file_info[:metadata])
-  end
-
-  defp parse_file(%{url: url, path: path}) when is_binary(url) and is_binary(path) do
-    {:error, :both_url_and_path_should_not_be_set}
+  defp parse_file(%{url: url, upload: upload}) when is_binary(url) and not is_nil(upload) do
+    {:error, :both_url_and_upload_should_not_be_set}
   end
 
   defp parse_file(%{url: url} = file) when is_binary(url) do
-    case URI.parse(url) do
-      %URI{path: path} when is_binary(path) ->
-        file = file
-        |> Map.put(:filename, Path.basename(path))
-        |> Map.put(:url, URI.encode(url))
-
-        {:ok, file}
-
-      _other ->
-        {:error, :invalid_url}
+    with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+      {:ok, Map.merge(file, file_info)}
+    else
+      # match behaviour of uploads
+      {:error, {:request_failed, 404}} -> {:error, :enoent}
     end
   end
 
-  defp parse_file(file), do: {:ok, file}
+  defp parse_file(%{upload: %{path: path} = file}) do
+    with {:ok, file_info} <- TwinkleStar.from_filepath(path) do
+      file = file
+      |> Map.from_struct()
+      |> Map.merge(file_info)
 
-  defp allow_extension(upload_def, %{filename: filename} = file) do
-    case upload_def.allowed_extensions() do
+      {:ok, file}
+    end
+  end
+
+  defp allow_media_type(upload_def, %{media_type: media_type}) do
+    case upload_def.allowed_media_types() do
       :all ->
-        {:ok, file}
+        :ok
 
       allowed ->
-        if MoodleNet.File.has_extension?(filename, allowed) do
-          {:ok, file}
+        if media_type in allowed do
+          :ok
         else
           {:error, :extension_denied}
         end
