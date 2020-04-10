@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Planning.GraphQL do
+defmodule ValueFlows.Planning.Intent.GraphQL do
   alias MoodleNet.{
     Activities,
     Communities,
@@ -88,42 +88,6 @@ defmodule ValueFlows.Planning.GraphQL do
   def fetch_community_edge(_, ids) do
     {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
     fields
-  end
-
-  def last_activity_edge(_, _, _info) do
-    {:ok, DateTime.utc_now()}
-  end
-
-  def outbox_edge(%Intent{outbox_id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
-  end
-
-  def fetch_outbox_edge({page_opts, info}, id) do
-    user = info.context.current_user
-    {:ok, box} = Activities.page(
-      &(&1.id),
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-    box
-  end
-
-  def fetch_outbox_edge(page_opts, info, id) do
-    user = info.context.current_user
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Intents)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
   ## finally the mutations...
