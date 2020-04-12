@@ -18,7 +18,7 @@ services:
         source: .
         target: /opt/app
   db:
-    image: postgres:9.6.6-alpine
+    image: postgres:9.6-alpine
     # volumes:
     #   - "./volumes/postgres:/var/lib/postgresql/data"
     ports:
