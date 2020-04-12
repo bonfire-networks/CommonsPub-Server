@@ -12,6 +12,8 @@ defmodule ValueFlows.Simulate do
   def unit_symbol(), do: Faker.Util.pick(["kg", "m"])
 
 
+  def agent_type(), do: Faker.Util.pick([:person, :organization])
+
   ### Start fake data functions
 
   ## ValueFlows
@@ -29,6 +31,7 @@ defmodule ValueFlows.Simulate do
     |> Map.put_new_lazy(:name, &Fake.name/0)
     |> Map.put_new_lazy(:note, &Fake.summary/0)
     |> Map.put_new_lazy(:image, &Fake.image/0)
+    |> Map.put_new_lazy(:agent_type, &agent_type/0)
   end
 
   def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
