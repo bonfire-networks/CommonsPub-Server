@@ -117,7 +117,7 @@ defmodule MoodleNet.Mixfile do
       #{:ex_redi, "~> 0.1.1"}, # RediSearch client
       # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
-      {:zest, "~> 0.1.0", only: [:dev, :test]},
+      {:zest, "~> 0.1.1", only: [:dev, :test]},
       {:grumble, "~> 0.1.0", only: [:dev, :test]},
       {:faker, "~> 0.12"},                  # fake data generation for moodlenet
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
