@@ -42,21 +42,6 @@ defmodule MoodleNet.GraphQL.Flow do
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   @doc """
-  Encapsulates the flow for resolving a field in the absence of
-  multiple parents.
-  """
-  @spec field(
-    module :: atom,
-    callback :: atom,
-    context :: term,
-    info :: map
-  ) :: term
-  def field(module, callback, context, info) do
-    user = info.context.current_user
-    apply(module, callback, [user, context])
-  end
-
-  @doc """
   Encapsulates the flow for resolving a field in the presence of
   potentially multiple parents.
   """
@@ -74,44 +59,25 @@ defmodule MoodleNet.GraphQL.Flow do
     opts :: Keyword.t
   ) :: term
   def fields(module, callback, context, info, opts \\ []) do
-    user = info.context.current_user
     default = Keyword.get(opts, :default, nil)
     getter = Keyword.get(opts, :getter, Fields.getter(context, default))
-    batch {module, callback, user}, context, getter
+    batch {module, callback, Map.take(info, [:context])}, context, getter
   end
 
-  @doc """
-  Encapsulates the flow of resolving a page in the absence of
-  parents.
-  """
-  @spec root_page(
-    module :: atom,
-    callback :: atom,
-    page_opts :: map,
-    info :: map
-  ) :: term
-  @spec root_page(
-    module :: atom,
-    callback :: atom,
-    page_opts :: map,
-    info :: map,
-    opts :: Keyword.t
-  ) :: term
-  def root_page(module, callback, page_opts, info, opts \\ []) do
-    with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, GraphQL.current_user(info)])
-    end
-  end
 
   @doc """
   Encapsulates the flow of resolving a page in the presence of a
   single parent. We also currently use this as a stopgap while we
   finish implementing some things, trading speed for correctness.
   """
-  def page(module, callback, page_opts, key, info, opts) do
-    user = info.context.current_user
-    with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, opts) do
-      apply(module, callback, [page_opts, user, key])
+  def page(module, callback, page_opts, key, info, cursor_validators, opts \\ %{}) do
+    with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, cursor_validators, opts) do
+      info2 = Map.take(info, [:context])
+      case apply(module, callback, [page_opts, info2, key]) do
+        {:ok, good} -> {:ok, good}
+        {:error, bad} -> {:error, bad}
+        good -> {:ok, good}
+      end
     end
   end
 
@@ -119,19 +85,19 @@ defmodule MoodleNet.GraphQL.Flow do
   Encapsulates the flow of resolving pages in the presence of
   potentially many parents.
   """
-  def pages(module, callback, page_opts, key, info, opts) do
-    pages(module, callback, page_opts, key, info, opts, opts)
+  def pages(module, callback, page_opts, key, info, cursor_validators, opts \\ %{}) do
+    pages(module, callback, page_opts, key, info, cursor_validators, opts, opts)
   end
 
-  def pages(module, callback, page_opts, key, info, batch_opts, single_opts) do
-    user = info.context.current_user
+  def pages(module, callback, page_opts, key, info, cursor_validators, batch_opts, single_opts) do
+    info2 = Map.take(info, [:context])
     if GraphQL.in_list?(info) do
       with {:ok, page_opts} <- GraphQL.limit_page_opts(page_opts, batch_opts) do
-        batch {module, callback, {page_opts, user}}, key, Pages.getter(key)
+        batch {module, callback, {page_opts, info2}}, key, Pages.getter(key)
       end
     else
-      with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, single_opts) do
-        apply(module, callback, [page_opts, user, key])
+      with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts, cursor_validators, single_opts) do
+        apply(module, callback, [page_opts, info2, key])
       end
     end
   end
@@ -144,3 +110,12 @@ defmodule MoodleNet.GraphQL.Flow do
   end
 
 end
+
+# defmodule MoodleNet.GraphQL.ResolveFields do
+#   alias 
+#   @enforce_keys [:module, :fetcher, :context, :info]
+#   defstruct [
+#     :module, :callback, :context, :info,
+# end
+
+

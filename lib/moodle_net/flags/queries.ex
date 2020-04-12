@@ -53,6 +53,14 @@ defmodule MoodleNet.Flags.Queries do
     where q, [flag: f], f.id == ^id
   end
 
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [flag: f], f.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [flag: f], f.id <= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [flag: f], f.id in ^ids
   end
@@ -89,6 +97,10 @@ defmodule MoodleNet.Flags.Queries do
     order_by q, [flag: f], [desc: f.id]
   end
 
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [flag: f], [desc: f.id]
+  end
+
   def filter(q, {:group_count, key}) when is_atom(key) do
     filter(q, group: key, count: key)
   end
@@ -99,6 +111,28 @@ defmodule MoodleNet.Flags.Queries do
 
   def filter(q, {:count, key}) when is_atom(key) do
     select q, [flag: f], {field(f, ^key), count(f.id)}
+  end
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+  end
+
+  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{limit: limit}, [desc: :created]) do
+    filter(q, limit: limit + 1)
   end
 
 end

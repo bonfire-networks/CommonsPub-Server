@@ -10,7 +10,9 @@ defmodule MoodleNet.Communities do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
-  
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
+
   @doc """
   Retrieves a single community by arbitrary filters.
   Used by:

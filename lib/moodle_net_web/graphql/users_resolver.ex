@@ -10,7 +10,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Access,
     Activities,
     Actors,
-    Batching,
     Collections,
     Communities,
     Follows,
@@ -19,11 +18,17 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Repo,
     Users,
   }
-  alias MoodleNet.Batching.{Edges, EdgesPages}
+  alias MoodleNet.GraphQL.{
+    Flow,
+    PageFlow,
+    PagesFlow,
+    ResolvePage,
+    ResolvePages,
+  }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.GraphQL.Flow
-  alias MoodleNet.Threads.Comments
+  alias MoodleNet.Follows.Follow
+  alias MoodleNet.Threads.{Comment, Comments, CommentsQueries}
   alias MoodleNet.Users.{Me, User}
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
@@ -37,79 +42,48 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def likes_edge(%{id: id}, page_opts, %{context: %{current_user: user}}=info) do
-    if GraphQL.in_list?(info) do
-      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
-        batch {__MODULE__, :batch_likes_edge, {page_opts,user}}, id, EdgesPages.getter(id)
-      end
-    else
-      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
-        single_likes_edge(page_opts, user, id)
-      end
-    end
-  end
-
-  def single_likes_edge(page_opts, user, ids) do
-    Likes.page(
-      &(&1.id),
-      page_opts,
-      [user: user, context_id: ids],
-      [order: :timeline_desc]
-    )
-  end
-
-  def batch_likes_edge({page_opts, user}, ids) do
-    {:ok, edges} = Likes.pages(
-      &(&1.id),
-      &(&1.creator_id),
-      page_opts,
-      [user: user, context_id: ids],
-      [order: :timeline_desc],
-      [group_count: :context_id]
-    )
-    edges
-  end
-
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
-  def user(%{user_id: id}, %{context: %{current_user: user}}) do
-    Users.one([:default, id: id, user: user])
+  def user(%{user_id: id}, info) do
+    Users.one([:default, id: id, user: GraphQL.current_user(info)])
   end
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
 
   def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
 
-  def comments_edge(%User{id: id}, page_opts, %{context: %{current_user: user}}=info) do
-    if GraphQL.in_list?(info) do
-      with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
-        batch {__MODULE__, :batch_comments_edge, {page_opts,user}}, id, EdgesPages.getter(id)
-      end
-    else
-      with {:ok, page_opts} <- Batching.full_page_opts(page_opts) do
-        single_comments_edge(page_opts, user, id)
-      end
-    end
+  def comments_edge(%User{id: id}, page_opts, info) do
+    opts = %{default_limit: 10}
+    Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
   end
 
-  def single_comments_edge(page_opts, %User{}=user, ids) do
-    Comments.pages(
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids],
-      [order: :timeline_desc]
+  def fetch_comments_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: CommentsQueries,
+        query: Comment,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.creator_id),
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids],
+        data_filters: [order: :timeline_desc],
+        count_filters: [group_count: :creator_id],
+      }
     )
   end
 
-  def batch_comments_edge({page_opts,%User{}=user}, ids) do
-    {:ok, pages} = Comments.pages(
-      &(&1.id),
-      &(&1.creator_id),
-      page_opts,
-      [user: user, creator_id: ids],
-      [order: :timeline_desc],
-      [group_count: :creator_id]
+  def fetch_comments_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: CommentsQueries,
+        query: Comment,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids],
+        data_filters: [order: :timeline_desc],
+      }
     )
-    pages
   end
 
   def email_edge(me, _, _), do: {:ok, me.user.local_user.email}
@@ -118,101 +92,131 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def is_confirmed_edge(me, _, _), do: {:ok, not is_nil(me.user.local_user.confirmed_at)}
   def is_instance_admin_edge(me, _, _), do: {:ok, me.user.local_user.is_instance_admin}
 
-  def followed_collections_edge(%{id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_collections_edge, page_opts, id, info, opts)
-  end
-
-  def fetch_followed_collections_edge({page_opts, user}, ids) do
-    {:ok, edges} = Follows.pages(
-      &(&1.id),
-      &(&1.creator_id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: Collection],
-      [order: :timeline_desc],
-      [group_count: :context_id]
-    )
-    edges
-  end
-
-  def fetch_followed_collections_edge(page_opts, user, ids) do
-    Follows.page(
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: Collection],
-      [order: :timeline_desc]
+  def collection_follows_edge(%{id: id}, page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_collection_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
     )
   end
 
-  def collection_edge(%{context_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_collection_edge, id, info)
-  end
-
-  def fetch_collection_edge(_, ids) do
-    {:ok, edges} = Collections.fields(&(&1.id), [:default, id: ids, preload: :actor])
-    edges
-  end
-
-  def followed_communities_edge(%{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_communities_edge, page_opts, id, info, opts)
-  end
-
-  def fetch_followed_communities_edge({page_opts, user}, ids) do
-    {:ok, edges} = Follows.pages(
-      &(&1.creator_id),
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: Community],
-      [order: :timeline_desc, preload: :context],
-      [group_count: :context_id]
-    )
-    edges
-  end
-
-  def fetch_followed_communities_edge(page_opts, user, ids) do
-    Follows.page(
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: Community],
-      [order: :timeline_desc]
+  def fetch_collection_follows_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        group_fn: &(&1.creator_id),
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id],
+      }
     )
   end
 
-  def community_edge(%{context_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_community_edge, id, info)
+  def fetch_collection_follows_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
+    )
   end
 
-  def fetch_community_edge(_, ids) do
-    {:ok, edges} = Communities.fields(&(&1.id), [:default, id: ids])
-    edges
+  def community_follows_edge(%{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_community_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_community_follows_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &(&1.id),
+        group_fn: &(&1.creator_id),
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: Community],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id]
+      }
+    )
+  end
+
+  def fetch_community_follows_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: Community],
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
+    )
   end
 
   ## followed users
   
-  def followed_users_edge(%{id: id}, %{}=page_opts, %{context: %{current_user: user}}=info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_followed_users_edge, page_opts, id, info, opts)
-  end
-
-  def fetch_followed_users_edge({page_opts, user}, ids) do
-    {:ok, edges} = Follows.pages(
-      &(&1.creator_id),
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: User],
-      [order: :timeline_desc],
-      [group_count: :context_id]
+  def user_follows_edge(%{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_user_follows_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
     )
-    edges
   end
 
-  def fetch_followed_users_edge(page_opts, user, ids) do
-    Follows.page(
-      &(&1.id),
-      page_opts,
-      [user: user, creator_id: ids, join: :context, table: User],
-      [order: :timeline_desc]
+  def fetch_user_follows_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        group_fn: &(&1.creator_id),
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: User],
+        data_filters: [page: [desc: [created: page_opts]]],
+        count_filters: [group_count: :context_id]
+      }
+    )
+  end
+
+  def fetch_user_follows_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Follows.Queries,
+        query: Follow,
+        cursor_fn: &[&1.id],
+        page_opts: page_opts,
+        base_filters: [user: user, creator_id: ids, join: :context, table: User],
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
     )
   end
 
@@ -226,19 +230,19 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def outbox_edge(%User{outbox_id: id}, page_opts, %{context: %{current_user: user}}=_info) do
+  def outbox_edge(%User{outbox_id: id}, page_opts, info) do
     # if GraphQL.in_list?(info) do
     #   with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
     #     batch {__MODULE__, :batch_outbox_edge, {page_opts, user}}, id, EdgesPages.getter(id)
     #   end
     # else
       with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts) do
-        single_outbox_edge(page_opts, user, id)
+        single_outbox_edge(page_opts, info, id)
       end
     # end
   end
 
-  def single_outbox_edge(page_opts, _user, id) do
+  def single_outbox_edge(page_opts, _info, id) do
     Activities.page(
       &(&1.id),
       page_opts,
@@ -256,7 +260,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Flow.fields(__MODULE__, :fetch_creator_edge, id, info)
   end
 
-  def fetch_creator_edge(user, ids) do
+  def fetch_creator_edge(info, ids) do
+    user = GraphQL.current_user(info)
     {:ok, users} = Users.fields(&(&1.id), [:default, id: ids, user: user])
     users
   end

@@ -1,19 +1,38 @@
+
 # The version of Alpine to use for the final image
-# This should match the version of Alpine that the `elixir:1.9.4-alpine` image uses
+# This should match the version of Alpine that the current elixir image (in Step 2) uses
 # To find this you need to:
 # 1. Locate the dockerfile for the elixir image to get the erlang image version
-#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.9/alpine/Dockerfile
+#    e.g. https://github.com/c0b/docker-elixir/blob/master/1.10/alpine/Dockerfile
 # 2. Locate the dockerfile for the corresponding erlang image
 #    e.g. https://github.com/erlang/docker-erlang-otp/blob/master/22/alpine/Dockerfile
-ARG ALPINE_VERSION=3.10
+ARG ALPINE_VERSION=3.11
 
-# The following are build arguments used to change variable parts of the image.
+# The following are build arguments used to change variable parts of the image, they should be set as env variables.
 # The name of your application/release (required)
 ARG APP_NAME
 # The version of the application we are building (required)
 ARG APP_VSN
+# What web server to use: either "caddy" (with built-in SSL), or "nginx" (roll your own SSL)
+ARG WEBSERVER_CHOICE="nginx"
 
-FROM elixir:1.9.4-alpine as builder 
+
+# Step 1 - Maybe build Caddy webserver
+FROM abiosoft/caddy:builder as caddy-builder
+
+# What web server to use: either "caddy" (with built-in SSL), or "nginx" (roll your own SSL)
+ARG WEBSERVER_CHOICE
+ARG version="1.0.5"
+ARG plugins="cors,realip,expires,cache,cgi"
+
+RUN echo "Using ${WEBSERVER_CHOICE} web server..."
+
+# build Caddy only if specified in the env var
+RUN if [ "$WEBSERVER_CHOICE" = "caddy" ]; then echo "Build Caddy" && go get -v github.com/abiosoft/parent && VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh; else echo "Skip Caddy" && mkdir /install && touch /install/caddy; fi
+
+
+# Step 2 - Build our app
+FROM elixir:1.10.2-alpine as builder 
 # make sure to update the version in .gitlab-ci.yml and Dockerfile.dev as well when switching Elixir version 
 
 ENV HOME=/opt/app/ TERM=xterm MIX_ENV=prod
@@ -31,16 +50,8 @@ COPY . .
 
 RUN mix release
 
-FROM abiosoft/caddy:builder as caddy-builder
 
-ARG version="1.0.3"
-ARG plugins="git,cors,realip,expires,cache,cgi"
-
-# process wrapper
-RUN go get -v github.com/abiosoft/parent
-
-RUN VERSION=${version} PLUGINS=${plugins} ENABLE_TELEMETRY=false /bin/sh /usr/bin/builder.sh
-
+# Step 3 - Prepare the server image
 # From this line onwards, we're in a new image, which will be the image used in production
 FROM alpine:${ALPINE_VERSION}
 
@@ -48,7 +59,15 @@ FROM alpine:${ALPINE_VERSION}
 ARG APP_NAME
 ARG APP_VSN
 ARG APP_BUILD
+ARG PROXY_FRONTEND_URL
 
+ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
+
+ENV ACME_AGREE="true"
+
+ENV S6_OVERLAY_VERSION=v1.22.1.0 
+
+# Essentials
 RUN apk add --update --no-cache \
     ca-certificates \
     git \
@@ -57,29 +76,40 @@ RUN apk add --update --no-cache \
     openssl-dev \
     tzdata \
     bash \
-    build-base
+    build-base \
+    curl \
+    gettext 
+# why are git and build-base needed here?
 
-ENV APP_NAME=${APP_NAME} APP_VSN=${APP_VSN} APP_REVISION=${APP_VSN}-${APP_BUILD}
+# install s6
+RUN curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz | tar xfz - -C / 
 
-ENV ACME_AGREE="true"
+
+# maybe install caddy 
+COPY --from=caddy-builder /install/caddy /usr/bin/caddy
+
+
+# install nginx
+RUN apk add --update --no-cache nginx nginx-mod-http-lua && \
+    chown -R nginx:www-data /var/lib/nginx
+# redirect logs to st output
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
+
+
+# copy s6 and web server config
+COPY config/deployment/ /
+
 
 WORKDIR /opt/app
 
-# install caddy
-COPY --from=caddy-builder /install/caddy /usr/bin/caddy
-# validate caddy install
-RUN /usr/bin/caddy -version
-RUN /usr/bin/caddy -plugins
 
 # install app 
 COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app
 
 # prepare to run
-COPY config/Caddyfile /opt/app/Caddyfile
-COPY config/shutdown-instance.sh /opt/app/shutdown-instance.sh
-RUN chmod +x /opt/app/shutdown-instance.sh
-
-ARG PROXY_FRONTEND_URL
+RUN chmod +x /utils/shutdown-instance.sh
 
 # start
-CMD trap 'exit' INT; if [ ! -z "$PROXY_FRONTEND_URL" ] ; then echo "Start MoodleNet backend + Caddy proxy..." && caddy --conf /opt/app/Caddyfile ; else echo "Start MoodleNet backend..." && /opt/app/bin/moodle_net start ; fi
+ENTRYPOINT ["/init"]
+CMD []

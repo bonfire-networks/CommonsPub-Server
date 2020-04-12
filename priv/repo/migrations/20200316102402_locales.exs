@@ -19,14 +19,14 @@ defmodule MoodleNet.Repo.Migrations.Locales do
 
   def up do
 
-    try_dotsql_execute("lib/taxonomy/migrations/locales.schema.sql")
+    try_dotsql_execute("lib/locales/migrations/locales.schema.sql")
     try_dotsql_execute("uploads/db_data/locales.data.sql")
 
   end
 
   def down do
 
-    try_dotsql_execute("lib/taxonomy/migrations/locales.down.sql")
+    try_dotsql_execute("lib/locales/migrations/locales.down.sql")
 
   end
 

@@ -5,59 +5,7 @@ defmodule MoodleNet.Test.Fake do
   @moduledoc """
   A library of functions that generate fake data suitable for tests
   """
-  @doc """
-  Reruns a faker until a predicate passes.
-  Default limit is 10 tries.
-  """
-  def such_that(faker, name, test, limit \\ 10)
-
-  def such_that(faker, name, test, limit)
-      when is_integer(limit) and limit > 0 do
-    fake = faker.()
-
-    if test.(fake),
-      do: fake,
-      else: such_that(faker, name, test, limit - 1)
-  end
-
-  def such_that(_faker, name, _test, _limit) do
-    throw({:tries_exceeded, name})
-  end
-
-  @doc """
-  Reruns a faker until an unseen value has been generated.
-  Default limit is 10 tries.
-  Stores seen things in the process dict (yes, *that* process dict)
-  """
-  def unused(faker, name, limit \\ 10)
-  def unused(_faker, name, 0), do: throw({:error, {:tries_exceeded, name}})
-
-  def unused(faker, name, limit) when is_integer(limit) do
-    used = get_used(name)
-    fake = such_that(faker, name, &(&1 not in used))
-    forbid(name, [fake])
-    fake
-  end
-
-  @doc """
-  Partner to `unused`. Adds a list of values to the list of used
-  values under a key.
-  """
-  def forbid(name, values) when is_list(values) do
-    set_used(name, values ++ get_used(name))
-  end
-
-  @doc """
-  Returns the next unused integer id for `name` starting from `start`.
-  Permits jumping by artificially increasing start - if start is
-  higher than the last used id, it will return start and set it as the
-  last used id
-  """
-  def sequential(name, start) when is_integer(start) do
-    val = nextval(get_seq(name, start - 1), start)
-    set_seq(name, val)
-    val
-  end
+  import Zest.Faking
 
   # Basic data
 
@@ -131,9 +79,9 @@ defmodule MoodleNet.Test.Fake do
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def preferred_username(), do: unused(&Faker.Pokemon.name/0, :preferred_username)
   @doc "Picks a random canonical url and makes it unique"
-  def canonical_url(), do: Faker.Internet.url() <> ulid()
+  def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
 
   # models
 
@@ -193,8 +141,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:website, &website/0)
     |> Map.put_new_lazy(:location, &location/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
@@ -210,8 +156,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("location", &location/0)
     |> Map.put_new_lazy("website", &website/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
@@ -223,8 +167,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("location", &location/0)
     |> Map.put_new_lazy("website", &website/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
@@ -235,8 +177,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
@@ -249,8 +189,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
   end
 
   def community_update_input(base \\ %{}) do
@@ -258,8 +196,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
   end
 
   def collection(base \\ %{}) do
@@ -267,7 +203,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
@@ -285,7 +220,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
   end
 
   def resource(base \\ %{}) do
@@ -293,8 +227,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:url, &url/0)
     |> Map.put_new_lazy(:license, &license/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
@@ -305,8 +237,6 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &website/0)
-    |> Map.put_new_lazy("url", &url/0)
     |> Map.put_new_lazy("license", &license/0)
     # |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
@@ -371,7 +301,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:message, &paragraph/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
   end
-    
+
   def follow(base \\ %{}) do
     base
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
@@ -403,27 +333,4 @@ defmodule MoodleNet.Test.Fake do
   # def community_role(base \\ %{}) do
   #   base
   # end
-
-  # def
-
-  # Support for `unused/3`
-
-  @doc false
-  def used_key(name), do: {__MODULE__, {:used, name}}
-  @doc false
-  def get_used(name), do: Process.get(used_key(name), [])
-  @doc false
-  def set_used(name, used) when is_list(used), do: Process.put(used_key(name), used)
-
-  # support for `sequential/2`
-
-  defp nextval(id, start)
-  defp nextval(nil, start), do: start
-  defp nextval(id, start) when id < start, do: start
-  defp nextval(id, _), do: id + 1
-
-  defp seq_key(name), do: {__MODULE__, {:seq, name}}
-  defp get_seq(name, default), do: Process.get(seq_key(name), default)
-  defp set_seq(name, seq) when is_integer(seq), do: Process.put(seq_key(name), seq)
-
 end

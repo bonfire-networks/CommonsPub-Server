@@ -8,12 +8,11 @@ defmodule MoodleNet.Uploads.Storage do
 
   @spec store(upload_def :: any, file :: file_source()) :: {:ok, file_info()} | {:error, term}
   def store(upload_def, file, opts \\ []) do
-    with {:ok, file} <- allow_extension(upload_def, file),
-         {:ok, media_type} <- get_media_type(file),
+    with {:ok, media_type} <- get_media_type(file),
          {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
          {:ok, metadata} <- get_metadata(file) do
       {:ok,
-       %{id: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
+       %{path: file_info.identifier, info: file_info, media_type: media_type, metadata: metadata}}
     end
   end
 
@@ -51,23 +50,5 @@ defmodule MoodleNet.Uploads.Storage do
   defp get_metadata(%{path: _path}) do
     # TODO
     {:ok, %{}}
-  end
-
-  defp allow_extension(upload_def, path) when is_binary(path) do
-    allow_extension(upload_def, %{path: path, filename: Path.basename(path)})
-  end
-
-  defp allow_extension(upload_def, %{filename: filename} = file) do
-    case upload_def.allowed_extensions() do
-      :all ->
-        {:ok, file}
-
-      allowed ->
-        if MoodleNet.File.has_extension?(filename, allowed) do
-          {:ok, file}
-        else
-          {:error, :extension_denied}
-        end
-    end
   end
 end

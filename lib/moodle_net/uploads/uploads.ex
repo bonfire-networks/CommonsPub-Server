@@ -4,72 +4,70 @@
 defmodule MoodleNet.Uploads do
 
   alias Ecto.Changeset
+  alias MoodleNet.Common.NotFoundError
+  alias MoodleNet.Changeset.Common
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.{Upload, Storage, Queries}
+  alias MoodleNet.Uploads.{Content, ContentUpload, ContentMirror, Storage, Queries}
 
-  @doc """
-  Return a list of uploads associated with any parent, assuming it is a pointer.
-  """
-  @spec list_by_parent(parent :: any) :: [Upload.t()]
-  def list_by_parent(%{id: id} = _parent), do: Repo.all(list_by_parent_q(id))
+  def one(filters), do: Repo.single(Queries.query(Content, filters))
 
-  defp list_by_parent_q(id) do
-    Queries.query(Upload, [:private, :deleted, parent_id: id])
-  end
-
-  @spec list_by_uploader(User.t()) :: [Upload.t()]
-  def list_by_uploader(%User{id: id}), do: Repo.all(list_by_uploader_q(id))
-
-  defp list_by_uploader_q(id) do
-    Queries.query(Upload, [:private, :deleted, uploader_id: id])
-  end
-
-  @doc """
-  Attempt to retrieve an upload by its ID.
-  """
-  @spec fetch(id :: binary) :: {:ok, Upload.t()} | {:error, Changeset.t()}
-  def fetch(id), do: Repo.fetch(Upload, id)
-
-  @doc """
-  Attempt to retrieve an upload by its storage path.
-  """
-  @spec fetch_by_path(path :: binary) :: {:ok, Upload.t()} | {:error, Changeset.t()}
-  def fetch_by_path(path), do: Repo.fetch_by(Upload, path: path)
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Content, filters))}
 
   @doc """
   Attempt to store a file, returning an upload, for any parent item that
   participates in the meta abstraction, providing the actor responsible for
   the upload.
   """
-  @spec upload(upload_def :: any, parent :: any, uploader :: User.t(), file :: any, attrs :: map) ::
-          {:ok, Upload.t()} | {:error, Changeset.t()}
-  def upload(upload_def, %{id: _id} = parent, %User{} = uploader, file, attrs) do
-    storage_opts = [scope: parent.id]
+  @spec upload(upload_def :: any, uploader :: User.t(), file :: any, attrs :: map) ::
+          {:ok, Content.t()} | {:error, Changeset.t()}
+  def upload(upload_def, %User{} = uploader, file, attrs) do
+    with {:ok, file} <- parse_file(file),
+         {:ok, file} <- allow_extension(upload_def, file),
+         {:ok, content} <- insert_content(upload_def, uploader, file, attrs),
+         {:ok, url} <- remote_url(content) do
+      {:ok, %{ content | url: url }}
+    end
+  end
+
+  defp insert_content(upload_def, uploader, file, attrs) do
+    # FIXME: delegate to Storage
+    Repo.transact_with(fn ->
+      if is_remote_file?(file) do
+        insert_content_mirror(uploader, file, attrs)
+      else
+        insert_content_upload(upload_def, uploader, file, attrs)
+      end
+    end)
+  end
+
+  defp insert_content_mirror(uploader, %{url: url} = file, attrs) do
+    with {:ok, file_info} <- TwinkleStar.from_uri(url),
+         {:ok, mirror} <- Repo.insert(ContentMirror.changeset(%{url: url})),
+         attrs = file_info_to_content(file_info, attrs),
+         {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
+      {:ok, %{ content | content_mirror: mirror }}
+    else
+      # match behaviour of uploads
+      {:error, {:request_failed, 404}} -> {:error, :enoent}
+    end
+  end
+
+  defp insert_content_upload(upload_def, uploader, file, attrs) do
+    storage_opts = [scope: uploader.id]
 
     with {:ok, file_info} <- Storage.store(upload_def, file, storage_opts) do
-      attrs =
-        attrs
-        |> Map.put(:path, file_info.id)
-        |> Map.put(:media_type, file_info.media_type)
-        |> Map.put(:size, file_info.info.size)
-        |> Map.put(:metadata, file_info.metadata)
+      upload_attrs = %{path: file_info.path, size: file_info.info.size}
 
-      result =
-        Repo.transact_with(fn ->
-          with {:ok, pointer} <- Pointers.one(id: parent.id) do
-            Repo.insert(Upload.create_changeset(pointer, uploader, attrs))
-          end
-        end)
-
-      with {:ok, upload} <- result,
-           {:ok, url} <- remote_url(upload) do
-        {:ok, %{upload | url: url}}
+      with {:ok, upload} <- Repo.insert(ContentUpload.changeset(upload_attrs)),
+            attrs = file_info_to_content(file_info, attrs),
+            {:ok, content} <- Repo.insert(Content.upload_changeset(upload, uploader, attrs)) do
+        {:ok, %{ content | content_upload: upload }}
       else
         e ->
           # rollback file changes on failure
-          Storage.delete(file_info.id)
+          Storage.delete(file_info.path)
           e
       end
     end
@@ -78,28 +76,79 @@ defmodule MoodleNet.Uploads do
   @doc """
   Attempt to fetch a remotely accessible URL for the associated file in an upload.
   """
-  def remote_url(%Upload{} = upload), do: Storage.remote_url(upload.path)
+  def remote_url(%Content{content_mirror: mirror, content_mirror_id: id}) when is_binary(id),
+    do: {:ok, mirror.url}
+
+  def remote_url(%Content{content_upload: upload, content_upload_id: id}) when is_binary(id),
+    do: Storage.remote_url(upload.path)
 
   @doc """
   Delete an upload, removing it from indexing, but the files remain available.
   """
-  @spec soft_delete(Upload.t()) :: {:ok, Upload.t()} | {:error, Changeset.t()}
-  def soft_delete(%Upload{} = upload) do
-    upload
-    |> Upload.soft_delete_changeset()
-    |> Repo.update()
-  end
+  @spec soft_delete(Content.t()) :: {:ok, Content.t()} | {:error, Changeset.t()}
+  def soft_delete(%Content{} = content), do: MoodleNet.Common.soft_delete(content)
 
   @doc """
   Delete an upload, removing any associated files.
   """
-  @spec hard_delete(Upload.t()) :: :ok | {:error, Changeset.t()}
-  def hard_delete(%Upload{} = upload) do
-    result = Repo.transaction(fn ->
-      with {:ok, upload} <- Repo.delete(upload),
-          do: Storage.delete(upload.path)
+  @spec hard_delete(Content.t()) :: :ok | {:error, Changeset.t()}
+  def hard_delete(%Content{} = content) do
+    resp = Repo.transaction(fn ->
+      with {:ok, content} <- Repo.delete(content),
+           {:ok, _} <- Storage.delete(content.content_upload.path) do
+        :ok
+      end
     end)
 
-    with {:ok, _} <- result, do: :ok
+    with {:ok, v} <- resp, do: v
+  end
+
+  defp is_remote_file?(%{url: url}), do: is_remote_file?(url)
+
+  defp is_remote_file?(url) when is_binary(url) do
+    uri = URI.parse(url)
+    not (is_nil(uri.scheme) or is_nil(uri.host) or is_nil(uri.path))
+   end
+
+  defp is_remote_file?(_other), do: false
+
+  defp file_info_to_content(file_info, attrs) do
+    attrs
+    |> Map.put(:media_type, file_info.media_type)
+    |> Map.put(:metadata, file_info[:metadata])
+  end
+
+  defp parse_file(%{url: url, path: path}) when is_binary(url) and is_binary(path) do
+    {:error, :both_url_and_path_should_not_be_set}
+  end
+
+  defp parse_file(%{url: url} = file) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{path: path} when is_binary(path) ->
+        file = file
+        |> Map.put(:filename, Path.basename(path))
+        |> Map.put(:url, URI.encode(url))
+
+        {:ok, file}
+
+      _other ->
+        {:error, :invalid_url}
+    end
+  end
+
+  defp parse_file(file), do: {:ok, file}
+
+  defp allow_extension(upload_def, %{filename: filename} = file) do
+    case upload_def.allowed_extensions() do
+      :all ->
+        {:ok, file}
+
+      allowed ->
+        if MoodleNet.File.has_extension?(filename, allowed) do
+          {:ok, file}
+        else
+          {:error, :extension_denied}
+        end
+    end
   end
 end

@@ -16,12 +16,6 @@ help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build_without_cache: init ## Build the Docker image
-	@echo docker build \
-		--no-cache \
-		--build-arg APP_NAME=$(APP_NAME) \
-		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -31,11 +25,6 @@ build_without_cache: init ## Build the Docker image
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 build: init ## Build the Docker image using previous cache
-	@echo docker build \
-		--build-arg APP_NAME=$(APP_NAME) \
-		--build-arg APP_VSN=$(APP_VSN) \
-		--build-arg APP_BUILD=$(APP_BUILD) \
-		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
@@ -50,15 +39,13 @@ push: init tag_latest ## Add latest tag to last build and push
 tag_latest: init ## Add latest tag to last build 
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	
+
 tag_stable: init ## Tag stable, latest and version tags to the last build 
-	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
-	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):latest
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
 	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):stable
-	
+
 push_stable: init tag_stable ## Tag stable, latest and version tags to the last build and push
 	@echo docker push $(APP_DOCKER_REPO):stable
 	@docker push $(APP_DOCKER_REPO):stable
@@ -71,7 +58,7 @@ hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
 	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
 	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
-	
+
 hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
 	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
 
@@ -135,9 +122,8 @@ good-tests: init
                  test/moodle_net_web/plugs/ \
                  test/moodle_net_web/graphql/{users,temporary}_test.exs \
 
+vf-tests: init
+	mix test lib/value_flows/{geolocation}/tests.ex 
+
 run: init ## Run the app in Docker
-	docker run\
-		--env-file $(APP_DOTENV) \
-		--expose 4000 -p 4000:4000 \
-		--link db \
-		--rm -it $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+	docker-compose up 

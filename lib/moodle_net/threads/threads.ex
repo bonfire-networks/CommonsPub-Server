@@ -8,6 +8,12 @@ defmodule MoodleNet.Threads do
   alias MoodleNet.Threads.{Thread, Queries}
   alias MoodleNet.Users.User
 
+  def cursor(:created), do: &[&1.id]
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+
+  def test_cursor(:created), do: &[&1["id"]]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
+
   def one(filters), do: Repo.single(Queries.query(Thread, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}

@@ -15,7 +15,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, bob)
       q = flag_query()
       for conn <- [json_conn(), user_conn(bob), user_conn(eve)] do
-        gruff_post_errors(q, conn, %{flag_id: flag.id})
+        grumble_post_errors(q, conn, %{flag_id: flag.id})
       end
     end
 
@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, bob)
       q = flag_query()
       conn = user_conn(alice)
-      assert_flag(flag, gruff_post_key(q, conn, :flag, %{flag_id: flag.id}))
+      assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
     end
   end
 
@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, bob)
       q = flag_query(fields: [creator: user_fields()])
       for conn <- [user_conn(alice), user_conn(lucy)] do
-        flag2 = assert_flag(flag, gruff_post_key(q, conn, :flag, %{flag_id: flag.id}))
+        flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
         assert %{"creator" => creator} = flag2
         assert_user(alice, creator)
       end
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, bob)
       q = flag_query(fields: [context: [user_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
-        flag2 = assert_flag(flag, gruff_post_key(q, conn, :flag, %{flag_id: flag.id}))
+        flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
         assert %{"context" => context} = flag2
         assert_user(bob, context)
       end
@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, bob)
       q = flag_query(fields: [context: [community_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
-        flag2 = assert_flag(flag, gruff_post_key(q, conn, :flag, %{flag_id: flag.id}))
+        flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
         assert %{"context" => context} = flag2
         assert_community(bob, context)
       end
@@ -77,7 +77,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       flag = flag!(alice, eve)
       q = flag_query(fields: [context: [collection_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
-        flag2 = assert_flag(flag, gruff_post_key(q, conn, :flag, %{flag_id: flag.id}))
+        flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
         assert %{"context" => context} = flag2
         assert_collection(eve, context)
       end

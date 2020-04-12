@@ -6,61 +6,123 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   Performs the GraphQL Community queries.
   """
   alias MoodleNet.{Activities, Collections, Communities, GraphQL, Repo}
-  alias MoodleNet.Common.Enums
-  alias MoodleNet.GraphQL.{Flow, Page}
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.GraphQL.{
+    FieldsFlow,
+    Flow,
+    Page,
+    PageFlow,
+    PagesFlow,
+    ResolveField,
+    ResolvePage,
+    ResolvePages,
+    ResolveRootPage,
+  }
+  def community(%{community_id: id}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_community,
+        context: id,
+        info: info,
+      }
+    )
+  end
 
-  def community(%{community_id: id}, %{context: %{current_user: user}}) do
-    Communities.one([:default, id: id, user: user])
+  def fetch_community(info, id) do
+    Communities.one([
+      :default,
+      id: id,
+      user: GraphQL.current_user(info)])
   end
 
   def communities(%{}=page_opts, info) do
-    Flow.root_page(__MODULE__, :fetch_communities, page_opts, info, %{default_limit: 10})
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_communities,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # followers
+      }
+    )
   end
 
-  def fetch_communities(page_opts, user) do
-    Communities.page(
-      &(&1.id),
-      page_opts,
-      [:default, user: user],
-      [join: :follower_count, order: :list]
+  def fetch_communities(page_opts, info) do
+    PageFlow.run(
+      %PageFlow{
+        queries: Communities.Queries,
+        query: Community,
+        cursor_fn: Communities.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
+      }
     )
   end
 
   def collection_count_edge(%Community{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info,
-      getter: &Flow.get_tuple_item(&1, id, 1, 0)
+    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info, default: 0
   end
 
   def fetch_collection_count_edge(_, ids) do
-    {:ok, counts} = Collections.many(community_id: ids, group_count: :community_id)
-    Enums.group(counts, fn {id, _} -> id end)
-  end
-
-  def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
-  def collections_edge(%Community{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
-  end
-
-  def fetch_collections_edge({page_opts, user}, ids) do
-    {:ok, pages} = Collections.pages(
-      &(&1.community_id),
-      &(&1.id),
-      page_opts,
-      [community_id: ids, user: user],
-      [page: [followers_desc: page_opts]],
-      [group_count: :community_id]
+    FieldsFlow.run(
+      %FieldsFlow{
+        queries: Collections.Queries,
+        query: Collection,
+        group_fn: &elem(&1, 0),
+        map_fn: &elem(&1, 1),
+        filters: [community_id: ids, group_count: :community_id],
+      }
     )
-    pages
   end
 
-  def fetch_collections_edge(page_opts, user, ids) do
-    Collections.page(
-      &(&1.id),
-      page_opts,
-      [community_id: ids, user: user],
-      [page: [followers_desc: page_opts]]
+  def collections_edge(%Community{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_collections_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  # def collections_edge(%Community{collections: cs}, _, _info) when is_list(cs), do: {:ok, cs}
+  # def collections_edge(%Community{id: id}, %{}=page_opts, info) do
+  #   opts = %{default_limit: 10}
+  #   Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
+  # end
+
+  def fetch_collections_edge({page_opts, info}, ids) do
+    user = GraphQL.current_user(info)
+    PagesFlow.run(
+      %PagesFlow{
+        queries: Collections.Queries,
+        query: Collection,
+        cursor_fn: Collections.cursor(:followers),
+        group_fn: &(&1.community_id),
+        page_opts: page_opts,
+        base_filters: [community_id: ids, user: user],
+        data_filters: [page: [desc: [followers: page_opts]]],
+        count_filters: [group_count: :community_id]
+      }
+    )
+  end
+
+  def fetch_collections_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    PageFlow.run(
+      %PageFlow{
+        queries: Collections.Queries,
+        query: Collection,
+        cursor_fn: Collections.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [community_id: ids, user: user],
+        data_filters: [page: [desc: [followers: page_opts]]],
+      }
     )
   end
 
@@ -74,7 +136,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
 
   ### def fetch_outbox_edge({page_opts, user}, id) do
 
-  def fetch_outbox_edge(page_opts, _user, id) do
+  def fetch_outbox_edge(page_opts, _info, id) do
     Activities.page(
       &(&1.id),
       page_opts,

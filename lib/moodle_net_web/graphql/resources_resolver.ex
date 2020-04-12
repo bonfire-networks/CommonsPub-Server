@@ -9,8 +9,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.Resources.Resource
   import Absinthe.Resolution.Helpers, only: [batch: 3]
 
-  def resource(%{resource_id: id}, %{context: %{current_user: user}}) do
-    Resources.one(user: user, id: id)
+  def resource(%{resource_id: id}, info) do
+    Resources.one(id: id, user: GraphQL.current_user(info))
   end
 
   def is_local_edge(%{collection: %Collection{actor: %Actor{peer_id: peer_id}}}, _, _) do
@@ -45,10 +45,10 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def create_resource(%{resource: attrs, collection_id: collection_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, collection} <- Collections.one([:default, user: current_user, id: collection_id]),
-             {:ok, resource} <- Resources.create(current_user, collection, attrs) do
+        with {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
+             {:ok, resource} <- Resources.create(user, collection, attrs) do
           {:ok, %{ resource | collection: collection } }
         end
       end)
@@ -56,15 +56,15 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def update_resource(%{resource: changes, resource_id: resource_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, resource} <- resource(%{resource_id: resource_id}, info) do
           resource = Repo.preload(resource, [collection: :community])
           permitted? =
-            current_user.local_user.is_instance_admin or
-            resource.creator_id == current_user.id or
-            resource.collection.creator_id == current_user.id or
-            resource.collection.community.creator_id == current_user.id
+            user.local_user.is_instance_admin or
+            resource.creator_id == user.id or
+            resource.collection.creator_id ==user.id or
+            resource.collection.community.creator_id == user.id
 
           if permitted?,
             do: Resources.update(resource, changes),
@@ -75,12 +75,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def copy_resource(%{resource_id: resource_id, collection_id: collection_id}, info) do
-    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, collection} <- Collections.one([:default, id: collection_id, user: current_user]),
+        with {:ok, collection} <- Collections.one([:default, id: collection_id, user: user]),
              {:ok, resource} <- resource(%{resource_id: resource_id}, info),
              attrs = Map.take(resource, ~w(name summary icon url license)a) do
-          Resources.create(current_user, collection, attrs)
+          Resources.create(user, collection, attrs)
         end
       end)
     end

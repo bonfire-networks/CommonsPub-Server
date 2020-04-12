@@ -15,14 +15,9 @@ defmodule MoodleNet.Follows.Queries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, {jq, join}, _jq), do: join_to(q, join, jq)
 
   def join_to(q, :context, jq) do
     join q, jq, [follow: f], c in assoc(f, :context), as: :pointer
@@ -99,6 +94,14 @@ defmodule MoodleNet.Follows.Queries do
     where q, [follow: f], f.id == ^id
   end
 
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [follow: f], f.id <= ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [follow: f], f.id >= ^id
+  end
+
   ## by foreign field
 
   def filter(q, {:table_id, ids}), do: PointersQueries.filter(q, table_id: ids)
@@ -107,7 +110,9 @@ defmodule MoodleNet.Follows.Queries do
 
   ## by order
 
-  def filter(q, {:order, :timeline_desc}) do
+  def filter(q, {:order, :timeline_desc}), do: filter(q, {:order, [desc: :created]})
+
+  def filter(q, {:order, [desc: :created]}) do
     order_by q, [follow: f], [desc: f.id]
   end
 
@@ -129,6 +134,27 @@ defmodule MoodleNet.Follows.Queries do
     preload q, [pointer: p], [context: p]
   end
 
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
 
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+  end
+
+
+  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{limit: limit}, _) do
+    filter(q, limit: limit + 1)
+  end
 
 end

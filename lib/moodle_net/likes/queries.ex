@@ -58,6 +58,14 @@ defmodule MoodleNet.Likes.Queries do
     where q, [like: l], l.id == ^id
   end
 
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [like: l], l.id <= ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [like: l], l.id >= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [like: l], l.id in ^ids
   end
@@ -82,6 +90,10 @@ defmodule MoodleNet.Likes.Queries do
     order_by q, [like: l], [desc: l.id]
   end
 
+  def filter(q, {:order, [desc: :created]}) do
+    order_by q, [like: l], [desc: l.id]
+  end
+
   def filter(q, {:group_count, key}) when is_atom(key) do
     filter(q, group: key, count: key)
   end
@@ -92,6 +104,28 @@ defmodule MoodleNet.Likes.Queries do
 
   def filter(q, {:count, key}) when is_atom(key) do
     select q, [like: l], {field(l, ^key), count(l.id)}
+  end
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+  end
+
+  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:lte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
+    filter(q, id: {:gte, id}, limit: limit + 2)
+  end
+
+  defp page(q, %{limit: limit}, [desc: :created]) do
+    filter(q, limit: limit + 1)
   end
 
 end

@@ -6,41 +6,28 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.Cursor
+  alias Absinthe.Blueprint.Input
 
   scalar :cursor, name: "Cursor" do
     description """
-    Used for pagination. Is actually a string, integer or list of string and/or integer
+    An opaque position marker for pagination. Paginated queries return
+    a PageInfo struct with start and end cursors (which are actually
+    lists of Cursor for ...reasons...). You can then issue queries
+    requesting results `before` the `start` or `after` the `end`
+    cursors to request the previous or next page respectively.
+
+    Is actually a string or integer. May be extended in future.
     """
     serialize &encode/1
     parse &decode/1
   end
 
-  # def validate_one(%Absinthe.Blueprint.Input.String{value: value}), do: true
-  # def validate_one(%Absinthe.Blueprint.Input.Integer{value: value}), do: true
-  # def validate_one(%Absinthe.Blueprint.Input.Null{}), do: true
-  # def validate_one(other) do
-  #   IO.inspect(other: other)
-  #   false
-  # end
-
-  def validate(x) do
-    IO.inspect(validate: x)
-    true
-  end
-
-  # def validate(many) when is_list(many) do
-  #   IO.inspect(many: many)
-  #   Enum.all?(many, &validate_one/1)
-  # end
-  # def validate(%Absinthe.Blueprint.Input.Variable{}) do
-  #   IO.inspect(:variable)
-  #   true
-  # end
-  # def validate(one), do: validate_one(one)
-
-  defp decode(input) do
-    if validate(input), do: {:ok, input}, else: {:error, :invalid_cursor}
-  end
+  @spec decode(Input.String.t) :: {:ok, binary}
+  @spec decode(Input.Integer.t) :: {:ok, integer}
+  @spec decode(term) :: {:error, :bad_parse}
+  defp decode(%Input.String{value: value}=s), do: {:ok, value}
+  defp decode(%Input.Integer{value: value}=i), do: {:ok, value}
+  defp decode(alien), do: {:error, :bad_parse}
 
   defp encode(value), do: value
 

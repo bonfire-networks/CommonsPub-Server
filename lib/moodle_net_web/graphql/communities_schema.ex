@@ -15,6 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     LikesResolver,
     ThreadsResolver,
     UsersResolver,
+    UploadResolver,
   }
 
   object :communities_queries do
@@ -22,8 +23,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Get list of communities, most followed first"
     field :communities, non_null(:communities_page) do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.communities/2
     end
 
@@ -76,9 +77,14 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Possibly biographical information"
     field :summary, :string
     @desc "An avatar url"
-    field :icon, :string
+    field :icon, :content do
+      resolve &UploadResolver.icon_content_edge/3
+    end
+
     @desc "A header background image url"
-    field :image, :string
+    field :image, :content do
+      resolve &UploadResolver.image_content_edge/3
+    end
 
     @desc "Whether the community is local to the instance"
     field :is_local, non_null(:boolean) do
@@ -142,8 +148,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "The communities a user has joined, most recently joined first"
     field :collections, :collections_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.collections_edge/3
     end
 
@@ -154,8 +160,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     """
     field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &ThreadsResolver.threads_edge/3
     end
 
@@ -172,24 +178,24 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Likes users have given the community"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likers_edge/3
     end
 
    @desc "Users following the community, most recently followed first"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Flags users have made about the community, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FlagsResolver.flags_edge/3
     end
 
@@ -204,8 +210,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Activities in the community, most recently created first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.outbox_edge/3
     end
 
@@ -221,16 +227,12 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
-    field :image, :string
     # field :primary_language_id, :string
   end
 
   input_object :community_update_input do
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
-    field :image, :string
     # field :primary_language_id, :string
   end
 

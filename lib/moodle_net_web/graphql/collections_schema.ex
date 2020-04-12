@@ -15,6 +15,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     LikesResolver,
     ThreadsResolver,
     UsersResolver,
+    UploadResolver,
   }
 
   object :collections_queries do
@@ -28,8 +29,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Get list of collections, most recent activity first"
     field :collections, non_null(:collections_page) do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CollectionsResolver.collections/2
     end
 
@@ -79,8 +80,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :name, non_null(:string)
     @desc "Possibly biographical information"
     field :summary, :string
+
     @desc "An avatar url"
-    field :icon, :string
+    field :icon, :content do
+      resolve &UploadResolver.icon_content_edge/3
+    end
 
     @desc "Whether the collection is local to the instance"
     field :is_local, non_null(:boolean) do
@@ -149,8 +153,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "The resources in the collection, most recently created last"
     field :resources, :resources_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CollectionsResolver.resources_edge/3
     end
 
@@ -167,32 +171,32 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "Subscriptions users have to the collection"
     field :followers, :follows_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FollowsResolver.followers_edge/3
     end
 
     @desc "Likes users have made of the collection"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the collection, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :taggings, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, list_of(:cursor)
-    #   arg :after, list_of(:cursor)
+    #   arg :before, list_of(non_null(:cursor))
+    #   arg :after, list_of(non_null(:cursor))
     #   resolve &CommonResolver.taggings_edge/3
     # end
 
@@ -202,16 +206,16 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     """
     field :threads, :threads_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &ThreadsResolver.threads_edge/3
     end
 
     @desc "Activities on the collection, most recent first"
     field :outbox, :activities_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &CollectionsResolver.outbox_edge/3
     end
 
@@ -227,14 +231,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :preferred_username, non_null(:string)
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
     # field :primary_language_id, :string
   end
 
   input_object :collection_update_input do
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
     # field :primary_language_id, :string
   end
 

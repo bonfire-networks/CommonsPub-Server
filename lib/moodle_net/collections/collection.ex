@@ -13,6 +13,7 @@ defmodule MoodleNet.Collections.Collection do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.Content
 
   @type t :: %__MODULE__{}
 
@@ -27,7 +28,7 @@ defmodule MoodleNet.Collections.Collection do
     has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)
-    field(:icon, :string)
+    belongs_to(:icon, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true, default: false)
@@ -37,7 +38,7 @@ defmodule MoodleNet.Collections.Collection do
   end
 
   @required ~w(name is_public)a
-  @cast @required ++ ~w(summary icon is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
         %User{} = creator,

@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
         ci = Fake.collection_input()
         vars = %{"collection" => ci, "communityId" => comm.id}
         q = create_collection_mutation()
-        coll = gruff_post_key(q, conn, "createCollection", vars)
+        coll = grumble_post_key(q, conn, "createCollection", vars)
         assert_collection(ci, coll)
       end
     end
@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
       ci = Fake.collection_input()
       q = create_collection_mutation()
       vars = %{"collection" => ci, "communityId" => comm.id}
-      assert err = gruff_post_errors(q, json_conn(), vars)
+      assert err = grumble_post_errors(q, json_conn(), vars)
     end
 
   end
@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
         ci = Fake.collection_update_input()
         vars = %{"collection" => ci, "collectionId" => coll.id}
         q = update_collection_mutation()
-        coll = gruff_post_key(q, conn, "updateCollection", vars)
+        coll = grumble_post_key(q, conn, "updateCollection", vars)
         assert_collection(Map.put(ci, "preferredUsername", coll["preferredUsername"]), coll)
       end
     end
@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
         ci = Fake.collection_update_input()
         vars = %{"collection" => ci, "collectionId" => coll.id}
         q = update_collection_mutation()
-        gruff_post_errors(q, conn, vars)
+        grumble_post_errors(q, conn, vars)
       end
     end
 

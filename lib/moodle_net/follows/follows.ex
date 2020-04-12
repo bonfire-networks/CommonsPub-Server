@@ -59,11 +59,12 @@ defmodule MoodleNet.Follows do
         case one([:deleted, creator_id: follower.id, context_id: followed.id]) do
           {:ok, _} ->
             {:error, AlreadyFollowingError.new("user")}
-  
+
           _ ->
             with {:ok, follow} <- insert(follower, followed, fields),
                  :ok <- subscribe(follower, followed, follow),
-                 :ok <- publish(follower, followed, follow, :created, opts) do
+                 :ok <- publish(follower, followed, follow, :created, opts),
+                 :ok <- federate(follow, opts) do
               {:ok, %{follow | ctx: followed}}
             end
         end

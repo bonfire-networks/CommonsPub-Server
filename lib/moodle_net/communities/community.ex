@@ -18,6 +18,7 @@ defmodule MoodleNet.Communities.Community do
   alias MoodleNet.Flags.Flag
   # alias MoodleNet.Localisation.Language
   alias MoodleNet.Users.User
+  alias MoodleNet.Uploads.Content
 
   table_schema "mn_community" do
     belongs_to(:actor, Actor)
@@ -30,8 +31,8 @@ defmodule MoodleNet.Communities.Community do
     has_one(:follower_count, CommunityFollowerCount)
     field(:name, :string)
     field(:summary, :string)
-    field(:icon, :string)
-    field(:image, :string)
+    belongs_to(:icon, Content)
+    belongs_to(:image, Content)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:is_public, :boolean, virtual: true)
@@ -46,7 +47,7 @@ defmodule MoodleNet.Communities.Community do
 
   @create_required ~w(name)a
   @create_cast @create_required ++
-    ~w(is_disabled is_public summary icon image inbox_id outbox_id)a
+    ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
 
   def create_changeset(%User{} = creator, %Actor{} = actor, fields) do
     %Community{}
@@ -61,7 +62,7 @@ defmodule MoodleNet.Communities.Community do
     |> common_changeset()
   end
 
-  @update_cast ~w(name summary icon image is_disabled is_public inbox_id outbox_id)a
+  @update_cast ~w(name summary icon_id image_id is_disabled is_public inbox_id outbox_id)a
   def update_changeset(%Community{} = community, fields) do
     community
     |> Changeset.cast(fields, @update_cast)

@@ -79,10 +79,11 @@ defmodule MoodleNet.Likes do
         case one([:deleted, context_id: liked.id, creator_id: liker.id]) do
           {:ok, _} ->
             {:error, AlreadyLikedError.new("user")}
-  
+
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
-                 :ok <- publish(liker, liked, like, "created") do
+                 :ok <- publish(liker, liked, like, "created"),
+                 :ok <- federate(like) do
               {:ok, like}
             end
         end
