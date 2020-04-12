@@ -2,7 +2,7 @@
 
 if [ ! -z "$PROXY_FRONTEND_URL" ]; then
 
- echo "Starting MoodleNet backend + web server proxy..."
+ echo "Starting web server proxy..."
 
  if [ "$WEBSERVER_CHOICE" = "caddy" ]; then
 
