@@ -15,6 +15,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
+
+
   alias Ecto.ULID
   import ExUnit.Assertions
   import Zest
@@ -742,6 +744,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     assert_created_at(activity, activity2)
     activity2
   end
+
 
   def assert_flag_context(thing) do
     assert %{typename: type} = thing

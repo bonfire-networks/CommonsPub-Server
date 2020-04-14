@@ -16,5 +16,8 @@ defmodule ValueFlows.Util.GraphQL do
   #   field :has_next_page, non_null(:boolean)
   # end
 
+  def parse_cool_scalar(value), do: {:ok, value}
+  def serialize_cool_scalar(%{value: value}), do: value
+
 
 end

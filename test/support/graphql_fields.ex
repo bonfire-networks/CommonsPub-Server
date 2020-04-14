@@ -81,6 +81,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     extra ++ ~w(id canonical_url is_local is_public created_at updated_at __typename)a
   end
 
+
   def followed_collection_fields(extra \\ []) do
     extra ++ [follow: follow_fields, collection: collection_fields()]
   end
@@ -662,4 +663,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     id canonicalUrl isLocal createdAt __typename
     """
   end
+
+
+
 end

@@ -10,11 +10,16 @@
 #
 ##
 
+ enum AgentType {
+      Person
+      Organization
+    }
+
 """
 A person or group or organization with economic agency.
 """
-# interface Agent { # FIXME: this is meant to be an interface which Person & Organization implement, but was causing an Absinthe error
-type Agent {
+interface Agent { # FIXME: this is meant to be an interface which Person & Organization implement, but was causing an Absinthe error
+# type Agent {
   id: ID!
 
   "An informal or formal textual identifier for an agent. Does not imply uniqueness."
@@ -44,13 +49,16 @@ type Agent {
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
+
+  agentType: AgentType 
+
 }
 
 
 """
 A natural person.
 """
-type Person { # implements Agent {
+type Person implements Agent {
   id: ID!
 
   "The name that this agent will be referred to by."
@@ -81,12 +89,15 @@ type Person { # implements Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
+    agentType: AgentType 
+
+
 }
 
 """
 A formal or informal group, or legal organization.
 """
-type Organization { # implements Agent {
+type Organization implements Agent {
   id: ID!
 
   # :TODO: define how people can create further typing of Organization
@@ -119,6 +130,9 @@ type Organization { # implements Agent {
   plans(filter: agentPlanSearchParams): [Plan!]
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
+
+    agentType: AgentType 
+
 }
 
 # Relationships between agents
