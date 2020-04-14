@@ -32,6 +32,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
             _ ->
               {Map.put(vars, :content, ci), %{}}
           end
+        IO.inspect({vars, files})
 
         assert_resource(grumble_post_key(q, conn, :create_resource, vars, files))
       end

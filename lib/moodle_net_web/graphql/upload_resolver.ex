@@ -9,22 +9,19 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Content
 
-  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
-  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
-  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
+  def upload(%{icon: params}, info) do
+    do_upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
+  end
 
-  defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
+  def upload(%{image: params}, info) do
+    do_upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
+  end
 
-  def upload_icon(params, info),
-    do: upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
+  def upload(%{content: params}, info) do
+    do_upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
+  end
 
-  def upload_image(params, info),
-    do: upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
-
-  def upload_resource(params, info),
-    do: upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
-
-  defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
+  defp do_upload(params, info, field_name, upload_def) when is_atom(field_name) do
     user = GraphQL.current_user(info)
     with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
           parent = Pointers.follow!(parent_ptr),
@@ -33,6 +30,12 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
       {:ok, upload}
     end
   end
+
+  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
+  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
+  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
+
+  defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
 
   def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 

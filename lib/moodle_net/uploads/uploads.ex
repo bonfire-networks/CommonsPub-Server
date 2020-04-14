@@ -44,7 +44,7 @@ defmodule MoodleNet.Uploads do
     end)
   end
 
-  defp insert_content_mirror(uploader, %{url: _} = attrs) do
+  defp insert_content_mirror(uploader, %{url: url} = attrs) when is_binary(url) do
     with {:ok, mirror} <- Repo.insert(ContentMirror.changeset(attrs)),
          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
       {:ok, %{ content | content_mirror: mirror }}
@@ -105,7 +105,7 @@ defmodule MoodleNet.Uploads do
 
   defp is_remote_file?(url) when is_binary(url) do
     uri = URI.parse(url)
-    not (is_nil(uri.scheme) or is_nil(uri.host) or is_nil(uri.path))
+    not (is_nil(uri.scheme) or is_nil(uri.host))
    end
 
   defp is_remote_file?(_other), do: false
@@ -134,7 +134,6 @@ defmodule MoodleNet.Uploads do
   end
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    IO.inspect(media_type)
     case upload_def.allowed_media_types() do
       :all ->
         :ok

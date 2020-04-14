@@ -17,6 +17,13 @@ defmodule MoodleNet.Test.Fake do
     "test/fixtures/very-important.pdf",
   ]
 
+  @url_fixtures [
+    "https://duckduckgo.com",
+    "https://moodle.com/moodlenet",
+    "https://en.wikipedia.org/wiki/Boeing_727#Specifications",
+    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg",
+  ]
+
   @doc "Returns true"
   def truth(), do: true
   @doc "Returns false"
@@ -34,6 +41,8 @@ defmodule MoodleNet.Test.Fake do
   def url(), do: Faker.Internet.url() <> "/"
   @doc "Picks a path from a set of available files."
   def path(), do: Faker.Util.pick(@file_fixtures)
+  @doc "Picks a remote url from a set of available ones."
+  def content_url(), do: Faker.Util.pick(@url_fixtures)
   @doc "Generate a random content type"
   def content_type(), do: Faker.File.mime_type()
   @doc "Picks a name"
@@ -351,7 +360,7 @@ defmodule MoodleNet.Test.Fake do
 
   def content_mirror_input(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:url, &url/0)
+    |> Map.put_new_lazy(:url, &content_url/0)
   end
 
   def content_upload_input(base \\ %{}) do
