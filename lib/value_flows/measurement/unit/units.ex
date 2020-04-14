@@ -139,6 +139,7 @@ defmodule ValueFlows.Measurement.Unit.Units do
     Repo.transact_with(fn ->
       unit = Repo.preload(unit, :community)
       IO.inspect(unit)
+
       with {:ok, unit} <- Repo.update(ValueFlows.Measurement.Unit.update_changeset(unit, attrs)) do
           #  :ok <- publish(unit, :updated) do
           #   IO.inspect("unit")
