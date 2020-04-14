@@ -1,7 +1,7 @@
 defmodule ValueFlows.Migrations do
 
     def change do
-        # ValueFlows.Agent.Migrations.change()
+        ValueFlows.Measurement.Migrations.change()
     end
     
 end

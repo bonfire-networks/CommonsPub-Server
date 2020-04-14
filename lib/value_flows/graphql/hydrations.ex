@@ -6,6 +6,7 @@ defmodule ValueFlows.GraphQL.Hydrations do
 
   def hydrate(blueprint) do
     # one line per VF module
+    ValueFlows.Util.Hydration.hydrate(blueprint)
     ValueFlows.Measurement.Hydration.hydrate(blueprint)
     ValueFlows.Agent.Hydration.hydrate(blueprint)
   end
