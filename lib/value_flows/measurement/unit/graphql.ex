@@ -102,6 +102,7 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   # end
 
   def create_unit(%{unit: attrs, in_scope_of_community_id: id}, info) do
+    IO.inspect(attrs)
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do

@@ -72,6 +72,8 @@ defmodule ValueFlows.Measurement.Unit.Units do
   @spec create(User.t(), attrs :: map) :: {:ok, Unit.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
+    IO.inspect(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, item} <- insert_unit(creator, attrs) do
           #  act_attrs = %{verb: "created", is_local: true},

@@ -5,12 +5,13 @@ defmodule ValueFlows.Hydrations do
   }
 
   def hydrate(blueprint) do
-    IO.inspect("hydrate VF")
 
     # one line per VF module
-    ValueFlows.Util.Hydration.hydrate(blueprint)
-    ValueFlows.Measurement.Hydration.hydrate(blueprint)
-    ValueFlows.Agent.Hydration.hydrate(blueprint)
+    hb = ValueFlows.Util.Hydration.hydrate(blueprint) 
+    hb = Map.merge(hb, ValueFlows.Agent.Hydration.hydrate(blueprint)) 
+    hb = Map.merge(hb, ValueFlows.Measurement.Hydration.hydrate(blueprint)) 
+    # |> ValueFlows.Planning.Intent.Hydration.hydrate(blueprint)
+    hb
   end
 
 

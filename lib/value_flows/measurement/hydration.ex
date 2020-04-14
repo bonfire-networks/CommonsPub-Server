@@ -1,7 +1,6 @@
 defmodule ValueFlows.Measurement.Hydration do
 
   def hydrate(blueprint) do
-    IO.inspect("hydrate measure")
     %{
       measurement_query: %{
         units: [
