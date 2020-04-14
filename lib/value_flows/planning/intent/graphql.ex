@@ -67,18 +67,18 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  def fetch_intents(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
-        queries: Queries,
-        query: Intent,
-        cursor_fn: Intents.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
-  end
+  # def fetch_intents(page_opts, info) do
+  #   PageFlow.run(
+  #     %PageFlow{
+  #       queries: Queries,
+  #       query: Intent,
+  #       cursor_fn: Intents.cursor(:followers),
+  #       page_opts: page_opts,
+  #       base_filters: [user: GraphQL.current_user(info)],
+  #       data_filters: [page: [desc: [followers: page_opts]]],
+  #     }
+  #   )
+  # end
 
 
   # def community_edge(%Intent{community_id: id}, _, info) do

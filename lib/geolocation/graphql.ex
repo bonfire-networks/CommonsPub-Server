@@ -67,18 +67,18 @@ defmodule Geolocation.GraphQL do
     )
   end
 
-  def fetch_geolocations(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
-        queries: Queries,
-        query: Geolocation,
-        cursor_fn: Geolocations.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
-  end
+  # def fetch_geolocations(page_opts, info) do
+  #   PageFlow.run(
+  #     %PageFlow{
+  #       queries: Queries,
+  #       query: Geolocation,
+  #       cursor_fn: Geolocations.cursor(:followers),
+  #       page_opts: page_opts,
+  #       base_filters: [user: GraphQL.current_user(info)],
+  #       data_filters: [page: [desc: [followers: page_opts]]],
+  #     }
+  #   )
+  # end
 
 
   def community_edge(%Geolocation{community_id: id}, _, info) do

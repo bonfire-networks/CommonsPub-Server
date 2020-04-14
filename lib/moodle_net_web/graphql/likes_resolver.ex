@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
-  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{Fields, FetchFields, Flow, FetchPage, FetchPages}
   alias MoodleNet.Likes.{
     Like,
     LikeCount,
@@ -41,8 +41,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likers_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -57,8 +57,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -75,8 +75,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def fetch_liker_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: LikerCountsQueries,
         query: LikerCount,
         group_fn: &(&1.context_id),
@@ -94,8 +94,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likes_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -110,8 +110,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likes_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -127,8 +127,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def fetch_like_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: LikeCountsQueries,
         query: LikeCount,
         group_fn: &(&1.creator_id),

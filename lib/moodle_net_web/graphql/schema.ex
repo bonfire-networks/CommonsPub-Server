@@ -161,11 +161,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve &MiscSchema.fetch_web_metadata/2
     end
 
-  #   @desc "Fetch an AS2 object from URL"
-  #   field :fetch_object, type: :fetched_object do
-  #     arg :url, non_null(:string)
-  #     resolve &MiscSchema.fetch_object/2
-  #   end
+    # for debugging purposes only:
+    # @desc "Fetch an AS2 object from URL"
+    # field :fetch_object, type: :fetched_object do
+    #   arg :url, non_null(:string)
+    #   resolve &MiscSchema.fetch_object/2
+    # end
 
   end
 

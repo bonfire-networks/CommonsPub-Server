@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     FollowerCountsQueries,
   }
   alias MoodleNet.GraphQL.{
-    Fields, FieldsFlow, Flow, PageFlow, PagesFlow,
+    Fields, FetchFields, Flow, FetchPage, FetchPages,
     ResolvePages,
   }
   alias MoodleNet.Meta.Pointers
@@ -47,8 +47,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def fetch_follow_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: FollowCountsQueries,
         query: FollowCount,
         group_fn: &(&1.creator_id),
@@ -72,8 +72,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   def fetch_follows_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -88,8 +88,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   def fetch_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -107,8 +107,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def fetch_follower_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: FollowerCountsQueries,
         query: FollowerCount,
         group_fn: &(&1.context_id),
@@ -132,8 +132,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   def fetch_followers_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],
@@ -148,8 +148,8 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
 
   def fetch_followers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Follows.Queries,
         query: Follow,
         cursor_fn: &[&1.id],

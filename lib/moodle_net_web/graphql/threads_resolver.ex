@@ -6,8 +6,8 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   alias MoodleNet.{GraphQL, Repo, Threads}
   alias MoodleNet.GraphQL.{
     Flow,
-    PageFlow,
-    PagesFlow,
+    FetchPage,
+    FetchPages,
     ResolveField,
     ResolvePage,
     ResolvePages,
@@ -39,8 +39,8 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   def fetch_threads_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Threads.Queries,
         query: Thread,
         cursor_fn: &(&1.id),
@@ -55,8 +55,8 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   def fetch_threads_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Threads.Queries,
         query: Thread,
         cursor_fn: &(&1.id),
