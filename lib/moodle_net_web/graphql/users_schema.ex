@@ -153,6 +153,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     @desc "A valid URL"
     field :website, :string
 
+    @desc "A JSON document containing more info beyond the default fields"
+    field :extra_info, :json
+
     @desc "An avatar url"
     field :icon, :content do
       resolve &UploadResolver.icon_content_edge/3
@@ -331,6 +334,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     # field :primary_language_id, :string
     field :wants_email_digest, non_null(:boolean)
     field :wants_notifications, non_null(:boolean)
+    field :extra_info, :json
   end
 
   input_object :update_profile_input do
@@ -341,6 +345,7 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     # field :primary_language_id, :string
     field :wants_email_digest, :boolean
     field :wants_notifications, :boolean
+    field :extra_info, :json
   end
 
   input_object :login_input do
