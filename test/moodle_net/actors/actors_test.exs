@@ -53,13 +53,13 @@ defmodule MoodleNet.ActorsTest do
       end)
     end
 
-    test "drops invalid characters from preferred_username" do
-      Repo.transaction(fn ->
-        attrs = Fake.actor(%{preferred_username: "actor&name"})
-        assert {:ok, actor} = Actors.create(attrs)
-        assert actor.preferred_username == "actorname"
-      end)
-    end
+    # test "drops invalid characters from preferred_username" do
+    #  Repo.transaction(fn ->
+    #    attrs = Fake.actor(%{preferred_username: "actor&name"})
+    #    assert {:ok, actor} = Actors.create(attrs)
+    #    assert actor.preferred_username == "actorname"
+    #  end)
+    # end
 
     test "doesn't drop allowed characters from preferred_username" do
       Repo.transaction(fn ->

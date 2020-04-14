@@ -46,7 +46,7 @@ defmodule MoodleNet.Actors do
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, fix_preferred_username(Map.get(attrs, :preferred_username)))
+    # attrs = Map.put(attrs, :preferred_username, fix_preferred_username(Map.get(attrs, :preferred_username)))
     Repo.insert(Actor.create_changeset(attrs))
   end
 

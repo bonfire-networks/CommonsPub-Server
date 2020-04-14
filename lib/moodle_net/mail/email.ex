@@ -12,27 +12,27 @@ defmodule MoodleNet.Mail.Email do
   def welcome(user, token) do
     url = email_confirmation_url(user.id, token.id)
     base_email(user)
-    |> subject(gettext("Welcome to MoodleNet"))
+    |> subject(gettext("Welcome to")<>" "<>Application.fetch_env!(:moodle_net, :app_name))
     |> render(:welcome, user: user, url: url)
   end
 
   def reset_password_request(user, token) do
     url = reset_password_url(token.id)
     base_email(user)
-    |> subject(gettext("Did you forget your MoodleNet password?"))
+    |> subject(gettext("Did you forget your password?"))
     |> render(:reset_password_request, user: user, url: url)
   end
 
   def password_reset(user) do
     base_email(user)
-    |> subject(gettext("Your MoodleNet password has been reset"))
+    |> subject(gettext("Your password has been reset"))
     |> render(:password_reset)
   end
 
   defp base_email(user) do
     new_email()
     |> to(user.local_user.email)
-    |> from(reply_to_email())
+    |> from(Application.fetch_env!(:moodle_net, :app_name)<>" <"<>reply_to_email()<>">")
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
 

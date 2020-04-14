@@ -65,9 +65,13 @@ defmodule MoodleNet.ReleaseTasks do
     start_apps()
     start_repos()
 
-    Enum.each(@repos, &rollback_repo/1)
+    rollback_repos()
 
     stop_services()
+  end
+
+  def rollback_repos() do
+    Enum.each(@repos, &rollback_repo/1)
   end
 
   defp rollback_repo(repo) do
@@ -182,5 +186,10 @@ defmodule MoodleNet.ReleaseTasks do
     priv_dir = "#{:code.priv_dir(app)}"
 
     Path.join([priv_dir, repo_underscore, filename])
+  end
+
+  def soft_delete_community(id) do
+       {:ok, community} = MoodleNet.Communities.one(id: id)
+       {:ok, community} = MoodleNet.Communities.soft_delete(community)
   end
 end
