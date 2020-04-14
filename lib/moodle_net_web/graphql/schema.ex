@@ -173,7 +173,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
     Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    ValueFlows.GraphQL.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
+    ValueFlows.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
   end
 
   # fallback

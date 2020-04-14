@@ -21,8 +21,8 @@ defmodule ValueFlows.Agent.Hydration do
         person: [
           resolve: &ValueFlows.Agent.GraphQL.user/2
         ],
-        person2: [
-          resolve: &MoodleNetWeb.GraphQL.UsersResolver.user/2
+        all_people: [
+          resolve: &ValueFlows.Agent.GraphQL.users/2
         ],
       },
       # mutation: %{
