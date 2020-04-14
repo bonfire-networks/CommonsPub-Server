@@ -16,6 +16,9 @@ defmodule ValueFlows.Measurement.Hydration do
       measurement_mutation: %{
         create_unit: [
           resolve: &ValueFlows.Measurement.Unit.GraphQL.create_unit/2
+        ],
+        update_unit: [
+          resolve: &ValueFlows.Measurement.Unit.GraphQL.update_unit/2
         ]
 
       }

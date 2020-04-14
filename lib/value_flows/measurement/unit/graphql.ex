@@ -73,7 +73,7 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
         queries: Queries,
         query: Unit,
         page_opts: page_opts,
-        cursor_fn: &(&1.id), 
+        cursor_fn: &(&1.id),
         base_filters: [user: GraphQL.current_user(info)],
       }
     )
@@ -117,18 +117,20 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   def update_unit(%{unit: changes, unit_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, unit} <- unit(%{unit_id: id}, info) do
+           {:ok, unit} <- unit(%{id: id}, info) do
         unit = Repo.preload(unit, :community)
+        IO.inspect(unit)
         cond do
           user.local_user.is_instance_admin ->
-        Units.update(unit, changes)
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
 
           unit.creator_id == user.id ->
-        Units.update(unit, changes)
-
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
           unit.community.creator_id == user.id ->
-        Units.update(unit, changes)
-
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
           true -> GraphQL.not_permitted("update")
         end
       end
