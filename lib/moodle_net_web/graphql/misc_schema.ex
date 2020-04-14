@@ -7,8 +7,6 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   """
   use Absinthe.Schema.Notation
 
-  alias ActivityPub.Fetcher
-
   object :web_metadata do
     field(:url, :string)
     field(:title, :string)
@@ -37,7 +35,7 @@ defmodule MoodleNetWeb.GraphQL.MiscSchema do
   end
 
   def fetch_object(%{url: url}, _info) do
-    with {:ok, object} <- Fetcher.fetch_object_from_id(url) do
+    with {:ok, object} <- ActivityPub.Fetcher.fetch_object_from_id(url) do
       ret = %{
         id: object.id,
         data: object.data,

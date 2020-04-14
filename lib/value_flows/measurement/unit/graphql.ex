@@ -67,17 +67,18 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     )
   end
 
-  def fetch_units(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
-        queries: Queries,
-        query: Unit,
-        page_opts: page_opts,
-        cursor_fn: &(&1.id), 
-        base_filters: [user: GraphQL.current_user(info)],
-      }
-    )
-  end
+  # FIXME
+  # def fetch_units(page_opts, info) do
+  #   PageFlow.run(
+  #     %PageFlow{
+  #       queries: Queries,
+  #       query: Unit,
+  #       page_opts: page_opts,
+  #       cursor_fn: &(&1.id), 
+  #       base_filters: [user: GraphQL.current_user(info)],
+  #     }
+  #   )
+  # end
 
 
   def community_edge(%Unit{community_id: id}, _, info) do
