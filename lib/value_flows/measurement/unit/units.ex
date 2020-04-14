@@ -72,6 +72,8 @@ defmodule ValueFlows.Measurement.Unit.Units do
   @spec create(User.t(), attrs :: map) :: {:ok, Unit.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
+    IO.inspect(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, item} <- insert_unit(creator, attrs) do
           #  act_attrs = %{verb: "created", is_local: true},
@@ -136,10 +138,14 @@ defmodule ValueFlows.Measurement.Unit.Units do
   def update(%Unit{} = unit, attrs) do
     Repo.transact_with(fn ->
       unit = Repo.preload(unit, :community)
-      with {:ok, unit} <- Repo.update(ValueFlows.Measurement.Unit.update_changeset(unit, attrs)),
-           :ok <- publish(unit, :updated) do
-        {:ok,  unit }
-      end
+      IO.inspect(unit)
+
+      with {:ok, unit} <- Repo.update(ValueFlows.Measurement.Unit.update_changeset(unit, attrs)) do
+          #  :ok <- publish(unit, :updated) do
+          #   IO.inspect("unit")
+          #   IO.inspect(unit)
+            {:ok,  unit }
+       end
     end)
   end
 

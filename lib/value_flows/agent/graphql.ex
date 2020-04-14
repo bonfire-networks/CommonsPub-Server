@@ -28,6 +28,14 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # proper resolvers
 
+  def users(%{}, info) do
+    {:ok, users} = MoodleNet.Users.many([:default, user: MoodleNet.GraphQL.current_user(info)])
+    
+    {:ok, 
+      Enum.map(users, & &1 |> ValueFlows.Util.maybe_put(:note, &1.summary))
+    }
+  end
+
 
   def user(%{id: id}, info) do
     {:ok, u} = MoodleNet.Users.one([:default, id: id, user: MoodleNet.GraphQL.current_user(info)])
@@ -38,8 +46,5 @@ defmodule ValueFlows.Agent.GraphQL do
     }
   end
 
-  # def users(%{}, info) do
-  #   Enum.map(users, & %{note: &1.summary, provider_id: &1.id})
-  # end
 
 end
