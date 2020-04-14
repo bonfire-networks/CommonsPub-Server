@@ -28,6 +28,9 @@ config :moodle_net,
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"), # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url) # env variable for URL of frontend, otherwise assume proxied behind same host as backend
 
+config :moodle_net, MoodleNet.Users,
+  public_registration: System.get_env("INVITE_ONLY", "true") # enable signups?
+
 upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
 upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
 

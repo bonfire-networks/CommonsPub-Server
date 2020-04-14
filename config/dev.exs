@@ -87,6 +87,9 @@ config :moodle_net, :ap_base_path,
 config :moodle_net, :frontend_base_url,
   System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
 
+config :moodle_net, MoodleNet.Users,
+  public_registration: true # enable open signups in dev
+
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
 config :moodle_net, MoodleNet.Mail.MailService,
