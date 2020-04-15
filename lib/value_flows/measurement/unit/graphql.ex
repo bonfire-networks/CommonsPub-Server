@@ -6,11 +6,21 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     GraphQL,
     Repo,
   }
+  # alias MoodleNet.GraphQL.{
+  #   Flow,
+  #   FieldsFlow,
+  #   PageFlow,
+  #   PagesFlow,
+  #   ResolveField,
+  #   ResolvePage,
+  #   ResolvePages,
+  #   ResolveRootPage,
+  # }
   alias MoodleNet.GraphQL.{
     Flow,
-    FieldsFlow,
-    PageFlow,
-    PagesFlow,
+    FetchFields,
+    FetchPage,
+    FetchPages,
     ResolveField,
     ResolvePage,
     ResolvePages,
@@ -68,17 +78,17 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   end
 
   # FIXME
-  # def fetch_units(page_opts, info) do
-  #   PageFlow.run(
-  #     %PageFlow{
-  #       queries: Queries,
-  #       query: Unit,
-  #       page_opts: page_opts,
-  #       cursor_fn: &(&1.id), 
-  #       base_filters: [user: GraphQL.current_user(info)],
-  #     }
-  #   )
-  # end
+  def fetch_units(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Queries,
+        query: Unit,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+      }
+    )
+  end
 
 
   def community_edge(%Unit{community_id: id}, _, info) do
