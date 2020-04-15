@@ -18,7 +18,7 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
   end
 
   @doc """
-  Retrieves a Page of features according to various filters
+  Retrieves a Page according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
@@ -30,7 +30,7 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
   end
 
   @doc """
-  Retrieves a Pages of features according to various filters
+  Retrieves Pages according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
