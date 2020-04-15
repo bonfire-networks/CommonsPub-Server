@@ -42,4 +42,7 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
     Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
   end
 
+  def hard_delete(access) do
+    Repo.delete(access)
+  end
 end

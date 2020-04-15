@@ -43,6 +43,16 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
     |> gen_submutation(:create_register_email_access, &email_access_fields/1, options)
   end
 
+  def delete_email_mutation(options \\ []) do
+    [id: type!(:string)]
+    |> gen_mutation(&delete_email_submutation/1, options)
+  end
+
+  def delete_email_submutation(options \\ []) do
+    [id: var(:id)]
+    |> gen_submutation(:delete_register_email_access, &email_access_fields/1, options)
+  end
+
   def domain_access_fields(extra \\ []) do
     [:domain, :created_at] ++ extra
   end
@@ -65,6 +75,16 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
   def register_domain_submutation(options \\ []) do
     [domain: var(:domain)]
     |> gen_submutation(:create_register_email_domain_access, &domain_access_fields/1, options)
+  end
+
+  def delete_domain_mutation(options \\ []) do
+    [id: type!(:string)]
+    |> gen_mutation(&delete_domain_submutation/1, options)
+  end
+
+  def delete_domain_submutation(options \\ []) do
+    [id: var(:id)]
+    |> gen_submutation(:delete_register_email_domain_access, &domain_access_fields/1, options)
   end
 
   describe "register_email" do
@@ -94,6 +114,40 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailAccess"]
                }
              ] = grumble_post_errors(q, conn, %{email: email_access.email})
+    end
+
+    test "deletes an email" do
+      user = fake_admin!()
+      conn = user_conn(user)
+
+      assert {:ok, email_access} = Access.create_register_email(Fake.email())
+
+      q = delete_email_mutation()
+
+      assert deleted_access =
+               grumble_post_key(q, conn, :delete_register_email_access, %{id: email_access.id})
+
+      assert email_access.email == deleted_access["email"]
+      assert {:error, _} = Access.find_register_email(email_access.email)
+    end
+
+    test "errors when deleter is not an admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      assert {:ok, email_access} = Access.create_register_email(Fake.email())
+
+      q = delete_email_mutation()
+
+      assert [
+               %{
+                 "code" => "unauthorized",
+                 "locations" => [%{"column" => 3, "line" => 2}],
+                 "message" => "You do not have permission to do this.",
+                 "path" => ["deleteRegisterEmailAccess"],
+                 "status" => 403
+               }
+             ] = grumble_post_errors(q, conn, %{id: email_access.id})
     end
 
     test "retrieves page of emails" do
@@ -137,6 +191,42 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailDomainAccess"]
                }
              ] = grumble_post_errors(q, conn, %{domain: domain_access.domain})
+    end
+
+    test "deletes a domain" do
+      user = fake_admin!()
+      conn = user_conn(user)
+
+      assert {:ok, domain_access} = Access.create_register_email_domain(Fake.domain())
+
+      q = delete_domain_mutation()
+
+      assert deleted_access =
+               grumble_post_key(q, conn, :delete_register_email_domain_access, %{
+                 id: domain_access.id
+               })
+
+      assert domain_access.domain == deleted_access["domain"]
+      assert {:error, _} = Access.find_register_email_domain(domain_access.domain)
+    end
+
+    test "errors when deleter is not an admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      assert {:ok, domain_access} = Access.create_register_email_domain(Fake.domain())
+
+      q = delete_domain_mutation()
+
+      assert [
+               %{
+                 "code" => "unauthorized",
+                 "locations" => [%{"column" => 3, "line" => 2}],
+                 "message" => "You do not have permission to do this.",
+                 "path" => ["deleteRegisterEmailDomainAccess"],
+                 "status" => 403
+               }
+             ] = grumble_post_errors(q, conn, %{id: domain_access.id})
     end
 
     test "retrieves page of domains" do

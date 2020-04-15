@@ -46,4 +46,18 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
       {:error, _} -> {:error, "Domain already whitelisted"}
     end
   end
+
+  def delete_register_email_access(%{id: id}, info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+         {:ok, access} <- RegisterEmailAccesses.one(id: id) do
+      RegisterEmailAccesses.hard_delete(access)
+    end
+  end
+
+  def delete_register_email_domain_access(%{id: id}, info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+         {:ok, access} <- RegisterEmailDomainAccesses.one(id: id) do
+      RegisterEmailDomainAccesses.hard_delete(access)
+    end
+  end
 end
