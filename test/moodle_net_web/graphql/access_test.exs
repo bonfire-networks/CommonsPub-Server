@@ -23,6 +23,16 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
     gen_subquery(:register_emails, &email_access_fields/1, options)
   end
 
+  def register_emails_page_query(options \\ []) do
+    :limit
+    |> gen_query(&register_emails_page_subquery/1, options)
+  end
+
+  def register_emails_page_subquery(options \\ []) do
+    :limit
+    |> page_subquery(:register_email_accesses, &email_access_fields/1, options)
+  end
+
   def register_email_mutation(options \\ []) do
     [email: type!(:string)]
     |> gen_mutation(&register_email_submutation/1, options)
@@ -35,6 +45,16 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
 
   def domain_access_fields(extra \\ []) do
     [:domain, :created_at] ++ extra
+  end
+
+  def register_domain_page_query(options \\ []) do
+    :limit
+    |> gen_query(&register_domain_page_subquery/1, options)
+  end
+
+  def register_domain_page_subquery(options \\ []) do
+    :limit
+    |> page_subquery(:register_email_domain_accesses, &domain_access_fields/1, options)
   end
 
   def register_domain_mutation(options \\ []) do
@@ -75,6 +95,19 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                }
              ] = grumble_post_errors(q, conn, %{email: email_access.email})
     end
+
+    test "retrieves page of emails" do
+      user = fake_admin!()
+      conn = user_conn(user)
+
+      for email <- [Fake.email(), Fake.email(), Fake.email()] do
+        Access.create_register_email(email)
+      end
+
+      q = register_emails_page_query()
+      assert page = grumble_post_key(q, conn, :register_email_accesses, %{limit: 10})
+      assert page["totalCount"] == 3
+    end
   end
 
   describe "register_domain" do
@@ -104,6 +137,19 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailDomainAccess"]
                }
              ] = grumble_post_errors(q, conn, %{domain: domain_access.domain})
+    end
+
+    test "retrieves page of domains" do
+      user = fake_admin!()
+      conn = user_conn(user)
+
+      for domain <- [Fake.domain(), Fake.domain(), Fake.domain()] do
+        Access.create_register_email_domain(domain)
+      end
+
+      q = register_domain_page_query()
+      assert page = grumble_post_key(q, conn, :register_email_domain_accesses, %{limit: 10})
+      assert page["totalCount"] == 3
     end
   end
 end
