@@ -107,6 +107,7 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 0.11"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
+      {:blunder_absinthe, "~> 1.4"}, # error handling on API
       # CommonsPub:
       {:geo_postgis, "~> 3.1"}, # geolocation in postgres 
       # {:dlex, "~> 0.4", override: true},

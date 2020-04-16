@@ -43,6 +43,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
+  def middleware(middleware, field, _object) do
+    Blunder.Absinthe.add_error_handling(middleware, field, [timeout_ms: 3_000, wrap_all_resolvers: true])
+  end
+
   import_types ActivitiesSchema
   import_types AdminSchema
   import_types BlocksSchema
