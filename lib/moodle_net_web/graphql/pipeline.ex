@@ -5,7 +5,8 @@ defmodule MoodleNetWeb.GraphQL.Pipeline do
 
   def default_pipeline(config, opts) do
     Absinthe.Plug.default_pipeline(config, opts)
-    # |> Pipeline.insert_before(Phase.Document.Result, Arguments.Debug)
+    |> Pipeline.replace(Phase.Document.Execution.Resolution, MoodleNetWeb.GraphQL.Phase.ExecutionResolution)
+    # |> Pipeline.insert_before(Phase.Document.Result, MoodleNetWeb.GraphQL.Phase.Debug)
     # |> Pipeline.insert_before(Phase.Document.Arguments.Parse, Arguments.Parse)
     # |> Pipeline.insert_before(Phase.Document.Arguments.Parse, Arguments.Debug)
     # |> Pipeline.insert_after(Phase.Document.Arguments.Parse, Arguments.Debug)

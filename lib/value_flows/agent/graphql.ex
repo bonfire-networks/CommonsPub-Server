@@ -22,27 +22,23 @@ defmodule ValueFlows.Agent.GraphQL do
   # support for inteface type
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
+  def agent_resolve_type(%{agent_type: nil}, _), do: :person
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
 
   # proper resolvers
 
-  def users(%{}, info) do
-    {:ok, users} = MoodleNet.Users.many([:default, user: MoodleNet.GraphQL.current_user(info)])
-    
+  def people(%{}, info) do
     {:ok, 
-      Enum.map(users, & &1 |> ValueFlows.Util.maybe_put(:note, &1.summary))
+      ValueFlows.Agent.People.people(signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
 
 
-  def user(%{id: id}, info) do
-    {:ok, u} = MoodleNet.Users.one([:default, id: id, user: MoodleNet.GraphQL.current_user(info)])
-    
+  def person(%{id: id}, info) do    
     {:ok, 
-      u 
-      |> ValueFlows.Util.maybe_put(:note, u.summary)
+    ValueFlows.Agent.People.person(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
 
