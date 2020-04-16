@@ -573,17 +573,17 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
-  def assert_resource(%{}=res, %{id: _}=res2) do
+  def assert_resource(%Resource{}=res, %{id: _}=res2) do
     assert_resources_eq(res, res2)
   end
 
-  def assert_resource(%{}=res, %{}=res2) do
+  def assert_resource(%Resource{}=res, %{}=res2) do
     assert_resources_eq(res, assert_resource(res2))
   end
 
-  def assert_resources_eq(%{}=res, %{}=res2) do
+  def assert_resources_eq(%Resource{}=res, %{}=res2) do
     assert_maps_eq res, res2, :assert_resource,
-      [:id, :canonical_url, :name, :summary, :license, :content_id, :icon_id],
+      [:id, :canonical_url, :name, :summary, :license],
       [:follower_count, :liker_count, :resource_count]
     assert not is_nil(res.published_at) == res2.is_public
     assert not is_nil(res.disabled_at) == res2.is_disabled

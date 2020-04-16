@@ -17,10 +17,16 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
       comm = fake_community!(alice)
       for conn <- conns do
         ci = Fake.collection_input()
-        vars = %{collection: ci, community_id: comm.id}
-        q = create_collection_mutation()
+        vars = %{
+          collection: ci,
+          community_id: comm.id,
+          icon: "https://via.placeholder.com/150.png",
+        }
+        q = create_collection_mutation(fields: [icon: [:url]])
+
         coll = grumble_post_key(q, conn, :create_collection, vars)
         assert_collection_created(ci, coll)
+        assert_url(coll["icon"]["url"])
       end
     end
 
@@ -45,7 +51,11 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
       conns = [user_conn(alice), user_conn(bob), user_conn(lucy)]
       for conn <- conns do
         ci = Fake.collection_update_input()
-        vars = %{collection: ci, collection_id: coll.id}
+        vars = %{
+          collection: ci,
+          collection_id: coll.id,
+          icon: "https://via.placeholder.com/50.png"
+        }
         q = update_collection_mutation()
         coll = grumble_post_key(q, conn, :update_collection, vars)
         assert_collection_updated(ci, coll)

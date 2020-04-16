@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.Collections.{Collection, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNetWeb.GraphQL.{CommunitiesResolver, UploadResolver}
   import Ecto.Query
 
   ## resolvers
@@ -205,32 +205,35 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
 
   ## finally the mutations...
 
-  def create_collection(%{collection: attrs, community_id: id}, info) do
+  def create_collection(%{collection: attrs, community_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, uploads} <- UploadResolver.upload(params, info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
-        attrs = Map.merge(attrs, %{is_public: true})
+        attrs = attrs
+        |> Map.put(:is_public, true)
+        |> update_with_uploads(uploads)
+
         Collections.create(user, community, attrs)
       end
     end)
   end
 
-  def update_collection(%{collection: changes, collection_id: id}, info) do
+  def update_collection(%{collection: changes, collection_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, collection} <- collection(%{collection_id: id}, info) do
         collection = Repo.preload(collection, :community)
-        cond do
-          user.local_user.is_instance_admin ->
-	    Collections.update(collection, changes)
+        permitted? = user.local_user.is_instance_admin or
+          collection.creator_id == user.id or
+          collection.community.creator_id == user.id
 
-          collection.creator_id == user.id ->
-	    Collections.update(collection, changes)
-
-          collection.community.creator_id == user.id ->
-	    Collections.update(collection, changes)
-
-          true -> GraphQL.not_permitted("update")
+        if permitted? do
+          with {:ok, uploads} <- UploadResolver.upload(params, info) do
+            Collections.update(collection, update_with_uploads(changes, uploads))
+          end
+        else
+          GraphQL.not_permitted("update")
         end
       end
     end)
@@ -258,4 +261,12 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   #   |> GraphQL.response(info)
   # end
 
+  defp update_with_uploads(attrs, uploads) do
+    Enum.reduce(uploads, attrs, fn
+      {:icon, icon}, acc ->
+        acc
+        |> Map.delete(:icon)
+        |> Map.put(:icon_id, icon.id)
+    end)
+  end
 end
