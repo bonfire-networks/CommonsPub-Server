@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
       resolve &AdminResolver.resolve_flag/2
     end
 
-    @desc "Sends an email einvite"
+    @desc "Sends an email invite"
     field :send_invite, :boolean do
       arg :email, non_null(:string)
       resolve &AdminResolver.send_invite/2
