@@ -5,7 +5,7 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
 
   alias MoodleNet.Repo
   alias MoodleNet.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
-  alias MoodleNet.Common.Contexts
+  alias MoodleNet.Batching.EdgesPage
 
   def one(filters) do
     RegisterEmailDomainAccessesQueries.query(RegisterEmailDomainAccess, filters)
@@ -17,23 +17,16 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
     {:ok, Repo.all(query)}
   end
 
-  @doc """
-  Retrieves a Page according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page RegisterEmailDomainAccessesQueries, RegisterEmailDomainAccess,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
+  def edges_page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  when is_function(cursor_fn, 1) do
+    {data_q, count_q} = RegisterEmailDomainAccessesQueries.queries(RegisterEmailDomainAccess, base_filters, data_filters, count_filters)
+    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, EdgesPage.new(data, count, cursor_fn, page_opts)}
+    end
   end
 
-  def create(domain) do
-    Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
+  def create(email) do
+    Repo.insert(RegisterEmailDomainAccess.create_changeset(%{email: email}))
   end
-
-  def hard_delete(access) do
-    Repo.delete(access)
-  end
+  
 end
