@@ -51,6 +51,8 @@ interface Agent { # FIXME: this is meant to be an interface which Person & Organ
   intents(filter: agentIntentSearchParams): [Intent!]
 
   agentType: AgentType 
+  canonicalUrl: String
+  displayUsername: String
 
 }
 
@@ -89,8 +91,9 @@ type Person implements Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
-    agentType: AgentType 
-
+  agentType: AgentType 
+  canonicalUrl: String
+  displayUsername: String
 
 }
 
@@ -131,7 +134,9 @@ type Organization implements Agent {
   commitments(filter: agentCommitmentSearchParams): [Commitment!]
   intents(filter: agentIntentSearchParams): [Intent!]
 
-    agentType: AgentType 
+  agentType: AgentType 
+  canonicalUrl: String
+  displayUsername: String
 
 }
 
