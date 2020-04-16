@@ -116,6 +116,23 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
              ] = grumble_post_errors(q, conn, %{email: email_access.email})
     end
 
+    test "fails if user is not an admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      q = register_email_mutation()
+
+      assert [
+               %{
+                 "code" => "unauthorized",
+                 "locations" => [%{"column" => 3, "line" => 2}],
+                 "message" => "You do not have permission to do this.",
+                 "path" => ["createRegisterEmailAccess"],
+                 "status" => 403
+               }
+             ] = grumble_post_errors(q, conn, %{email: Fake.email()})
+    end
+
     test "deletes an email" do
       user = fake_admin!()
       conn = user_conn(user)
@@ -162,6 +179,19 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       assert page = grumble_post_key(q, conn, :register_email_accesses, %{limit: 10})
       assert page["totalCount"] == 3
     end
+
+    test "returns an empty page if user is not admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      for email <- [Fake.email(), Fake.email(), Fake.email()] do
+        Access.create_register_email(email)
+      end
+
+      q = register_emails_page_query()
+      assert page = grumble_post_key(q, conn, :register_email_accesses, %{limit: 10})
+      assert page["totalCount"] == 0
+    end
   end
 
   describe "register_domain" do
@@ -191,6 +221,23 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
                  "path" => ["createRegisterEmailDomainAccess"]
                }
              ] = grumble_post_errors(q, conn, %{domain: domain_access.domain})
+    end
+
+    test "fails if user is not an admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      q = register_domain_mutation()
+
+      assert [
+               %{
+                 "code" => "unauthorized",
+                 "locations" => [%{"column" => 3, "line" => 2}],
+                 "message" => "You do not have permission to do this.",
+                 "path" => ["createRegisterEmailDomainAccess"],
+                 "status" => 403
+               }
+             ] = grumble_post_errors(q, conn, %{domain: Fake.domain})
     end
 
     test "deletes a domain" do
@@ -240,6 +287,19 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       q = register_domain_page_query()
       assert page = grumble_post_key(q, conn, :register_email_domain_accesses, %{limit: 10})
       assert page["totalCount"] == 3
+    end
+
+    test "returns an empty page if user is not an admin" do
+      user = fake_user!()
+      conn = user_conn(user)
+
+      for domain <- [Fake.domain(), Fake.domain(), Fake.domain()] do
+        Access.create_register_email_domain(domain)
+      end
+
+      q = register_domain_page_query()
+      assert page = grumble_post_key(q, conn, :register_email_domain_accesses, %{limit: 10})
+      assert page["totalCount"] == 0
     end
   end
 end

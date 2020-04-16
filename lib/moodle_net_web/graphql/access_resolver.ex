@@ -34,7 +34,11 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
          {:ok, access} <- RegisterEmailAccesses.create(email) do
       {:ok, access}
     else
-      {:error, _} -> {:error, "Email already whitelisted"}
+      {:error, %MoodleNet.Access.NotPermittedError{} = message} ->
+        {:error, message}
+
+      {:error, _} ->
+        {:error, "Email already whitelisted"}
     end
   end
 
@@ -43,7 +47,11 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
          {:ok, access} <- RegisterEmailDomainAccesses.create(domain) do
       {:ok, access}
     else
-      {:error, _} -> {:error, "Domain already whitelisted"}
+      {:error, %MoodleNet.Access.NotPermittedError{} = message} ->
+        {:error, message}
+
+      {:error, _} ->
+        {:error, "Domain already whitelisted"}
     end
   end
 
