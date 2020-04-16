@@ -27,17 +27,6 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
       cursor_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  @doc """
-  Retrieves Pages according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages RegisterEmailAccessQueries, RegisterEmailAccess,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
   def create(email) do
     Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
   end
