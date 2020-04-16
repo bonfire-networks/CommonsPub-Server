@@ -8,6 +8,7 @@ defmodule MoodleNet.Mail.EmailTest do
 
   alias MoodleNet.Mail.Email
   import MoodleNet.Test.Faking
+  alias MoodleNet.Test.Fake
 
   setup do
     {:ok, %{user: fake_user!()}}
@@ -34,5 +35,11 @@ defmodule MoodleNet.Mail.EmailTest do
   test "password_reset/1", %{user: user} do
     email = Email.password_reset(user)
     assert email.to == user.local_user.email
+  end
+
+  test "invite/1" do
+    address = Fake.email()
+    email = Email.invite(address)
+    assert email.to == address
   end
 end

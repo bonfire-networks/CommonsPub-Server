@@ -29,9 +29,23 @@ defmodule MoodleNet.Mail.Email do
     |> render(:password_reset)
   end
 
+  def invite(email) do
+    url = invite_url(email)
+    base_email_by_address(email)
+    |> subject(gettext("You have been invited to MoodleNet!"))
+    |> render(:invite, url: url)
+  end
+
   defp base_email(user) do
     new_email()
     |> to(user.local_user.email)
+    |> from(reply_to_email())
+    |> put_layout({MoodleNetWeb.LayoutView, :email})
+  end
+
+  defp base_email_by_address(email) do
+    new_email()
+    |> to(email)
     |> from(reply_to_email())
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
@@ -40,6 +54,8 @@ defmodule MoodleNet.Mail.Email do
     do: frontend_url("confirm-email/#{token}")
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
+
+  defp invite_url(email), do: frontend_url("signup?email=#{email}")
 
   # Note that the base url is expected to end without a slash (/)
   defp frontend_url(path) do

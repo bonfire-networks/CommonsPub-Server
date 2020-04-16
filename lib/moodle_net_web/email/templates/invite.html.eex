@@ -1,0 +1,9 @@
+<p><%= gettext("Hello! You've been invited to join MoodleNet") %></p>
+
+<p><%= gettext("To sign up, please click the invite link:") %></p>
+
+<br>
+<a href="<%= @url %>"><%= gettext("Signup link") %></a>
+<br>
+
+<p><%= gettext("Alternatively, copy and paste this link into your browser:") <> " #{@url}" %></p>

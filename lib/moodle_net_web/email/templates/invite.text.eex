@@ -1,0 +1,5 @@
+<%= gettext("Hello") <> "," %>
+
+<%= gettext("You've been invited to join MoodleNet, to sign up, please follow the invite link:") %>
+
+<%= @url %>
