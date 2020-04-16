@@ -54,8 +54,8 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       q = update_resource_mutation()
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         ri = Fake.resource_input()
-        vars = %{resource_id: resource.id, resource: ri}
-        assert_resource(ri, grumble_post_key(q, conn, :update_resource, vars))
+        vars = %{resource_id: resource.id, resource: ri, content: Fake.content_input()}
+        assert_resource(grumble_post_key(q, conn, :update_resource, vars))
       end
     end
 

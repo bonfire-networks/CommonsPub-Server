@@ -220,12 +220,12 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def create_collection_mutation(options \\ []) do
-    [collection: type!(:collection_input), community_id: type!(:string)]
+    [collection: type!(:collection_input), community_id: type!(:string), icon: type(:upload_input)]
     |> gen_mutation(&create_collection_submutation/1, options)
   end
 
   def create_collection_submutation(options \\ []) do
-    [collection: var(:collection), community_id: var(:community_id)]
+    [collection: var(:collection), community_id: var(:community_id), icon: var(:icon)]
     |> gen_submutation(:create_collection, &collection_fields/1, options)
   end
 
@@ -528,12 +528,22 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def update_resource_mutation(options \\ []) do
-    [resource_id: type!(:string), resource: type!(:resource_input)]
+    [
+      resource_id: type!(:string),
+      resource: type!(:resource_input),
+      content: type(:upload_input),
+      icon: type(:upload_input),
+    ]
     |> gen_mutation(&update_resource_submutation/1, options)
   end
 
   def update_resource_submutation(options \\ []) do
-    [resource_id: var(:resource_id), resource: var(:resource)]
+    [
+      resource_id: var(:resource_id),
+      resource: var(:resource),
+      content: var(:content),
+      icon: var(:icon),
+    ]
     |> gen_submutation(:update_resource, &resource_fields/1, options)
   end
 

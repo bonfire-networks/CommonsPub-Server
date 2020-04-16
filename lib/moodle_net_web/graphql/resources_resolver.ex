@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     end
   end
 
-  def update_resource(%{resource: changes, resource_id: resource_id}, info) do
+  def update_resource(%{resource: changes, resource_id: resource_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, resource} <- resource(%{resource_id: resource_id}, info) do
@@ -71,9 +71,13 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
             resource.collection.creator_id ==user.id or
             resource.collection.community.creator_id == user.id
 
-          if permitted?,
-            do: Resources.update(resource, changes),
-            else: GraphQL.not_permitted()
+          if permitted? do
+            with {:ok, uploads} <- UploadResolver.upload(params, info) do
+              Resources.update(resource, update_with_uploads(changes, uploads))
+            end
+          else
+            GraphQL.not_permitted()
+          end
         end
       end)
     end
