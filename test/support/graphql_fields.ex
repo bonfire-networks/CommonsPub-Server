@@ -508,12 +508,22 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def create_resource_mutation(options \\ []) do
-    [collection_id: type!(:string), resource: type!(:resource_input), content: type!(:upload_input)]
+    [
+      collection_id: type!(:string),
+      resource: type!(:resource_input),
+      content: type!(:upload_input),
+      icon: type(:upload_input),
+    ]
     |> gen_mutation(&create_resource_submutation/1, options)
   end
 
   def create_resource_submutation(options \\ []) do
-    [collection_id: var(:collection_id), resource: var(:resource), content: var(:content)]
+    [
+      collection_id: var(:collection_id),
+      resource: var(:resource),
+      content: var(:content),
+      icon: var(:icon),
+    ]
     |> gen_submutation(:create_resource, &resource_fields/1, options)
   end
 

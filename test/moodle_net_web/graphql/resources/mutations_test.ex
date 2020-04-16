@@ -18,10 +18,13 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       coll = fake_collection!(bob, comm)
       q = create_resource_mutation()
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
-        ri = Fake.resource_input()
-        ci = Fake.content_input()
-
-        vars = %{collection_id: coll.id, resource: ri, content: ci, test: ci}
+        vars = %{
+          collection_id: coll.id,
+          resource: Fake.resource_input(),
+          content: Fake.content_input(),
+          icon: %{url: "https://via.placeholder.com/150.png"},
+          image: %{url: "https://via.placeholder.com/150.png"},
+        }
         assert_resource(grumble_post_key(q, conn, :create_resource, vars))
       end
     end

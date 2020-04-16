@@ -2,13 +2,15 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
+
   alias MoodleNet.{Collections, GraphQL, Repo, Resources, Uploads}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Uploads.{IconUploader, ResourceUploader}
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
+  alias MoodleNetWeb.GraphQL.UploadResolver
 
   def resource(%{resource_id: id}, info) do
     Resources.one(id: id, user: GraphQL.current_user(info))
@@ -45,12 +47,12 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
     fields
   end
 
-  def create_resource(%{resource: attrs, collection_id: collection_id, content: content_file}, info) do
+  def create_resource(%{resource: attrs, collection_id: collection_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, content} <- Uploads.upload(ResourceUploader, user, content_file, %{}),
+        with {:ok, %{content: content} = uploads} <- UploadResolver.upload(params, info),
              {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
-             attrs = Map.put(attrs, :content_id, content.id),
+             attrs = update_with_uploads(attrs, uploads),
              {:ok, resource} <- Resources.create(user, collection, attrs) do
           {:ok, %{ resource | collection: collection, content: content } }
         end
@@ -91,4 +93,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 
+  defp update_with_uploads(attrs, uploads) do
+    Enum.reduce(uploads, attrs, fn
+      {:content, content}, acc ->
+        acc
+        |> Map.delete(:content)
+        |> Map.put(:content_id, content.id)
+
+      {:icon, icon}, acc ->
+        acc
+        |> Map.delete(:icon)
+        |> Map.put(:icon_id, icon.id)
+    end)
+  end
 end

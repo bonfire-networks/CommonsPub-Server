@@ -9,25 +9,37 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Content
 
-  def upload(%{icon: params}, info) do
-    do_upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
+  @uploader_fields %{
+    content: MoodleNet.Uploads.ResourceUploader,
+    image: MoodleNet.Uploads.ImageUploader,
+    icon: MoodleNet.Uploads.IconUploader
+  }
+
+  def upload(%{} = params, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      params
+      |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
+      |> case do
+        {:error, _} = e -> e
+        val -> {:ok, Enum.into(val, %{})}
+      end
+    end
   end
 
-  def upload(%{image: params}, info) do
-    do_upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
-  end
+  defp do_upload(user, {field_name, content_input}, acc) do
+    uploader = @uploader_fields[field_name]
 
-  def upload(%{content: params}, info) do
-    do_upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
-  end
+    if uploader do
+      case Uploads.upload(uploader, user, content_input, %{}) do
+        {:ok, content} ->
+          {:cont, Map.put(acc, field_name, content)}
 
-  defp do_upload(params, info, field_name, upload_def) when is_atom(field_name) do
-    user = GraphQL.current_user(info)
-    with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
-          parent = Pointers.follow!(parent_ptr),
-          {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
-          {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
-      {:ok, upload}
+        {:error, reason} ->
+          # FIXME: delete other successful files on failure
+          {:halt, {:error, reason}}
+      end
+    else
+      {:cont, acc}
     end
   end
 
@@ -37,19 +49,12 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
 
-  def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
+  def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
   def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id)
 
-  def remote_url(%Content{}=upload, _, _info), do: Uploads.remote_url(upload)
+  def remote_url(%Content{} = upload, _, _info), do: Uploads.remote_url(upload)
 
   def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
   def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
-
-  defp update_parent_field(parent, field_name, %Content{id: id} = content) do
-    parent
-    |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(field_name, id)
-    |> Repo.update()
-  end
 end
