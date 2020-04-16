@@ -1,5 +1,5 @@
 # this code is taken from absinthe
-defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Debug do
+defmodule MoodleNetWeb.GraphQL.Phase.Debug do
   @moduledoc false
 
   # Special handling for types that are lying about being scalar
