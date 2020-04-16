@@ -8,7 +8,6 @@ defmodule ValueFlows.Measurement.Measure do
   alias ValueFlows.Measurement.Measure
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
   alias ValueFlows.Measurement.Unit
 
   @type t :: %__MODULE__{}
@@ -24,7 +23,6 @@ defmodule ValueFlows.Measurement.Measure do
 
     belongs_to(:hasUnit, Unit)
     belongs_to(:creator, User)
-    belongs_to(:community, Community)
 
     timestamps()
   end
@@ -47,7 +45,6 @@ defmodule ValueFlows.Measurement.Measure do
 
   def create_changeset(
       %User{} = creator,
-      %Community{} = community,
       attrs
     ) do
   %ValueFlows.Measurement.Measure{}
@@ -55,7 +52,6 @@ defmodule ValueFlows.Measurement.Measure do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    community_id: community.id,
     is_public: true
   )
   |> common_changeset()

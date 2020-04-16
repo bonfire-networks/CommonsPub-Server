@@ -26,7 +26,6 @@ defmodule ValueFlows.Measurement.Migrations do
       add :hasNumericalValue, :float
 
       add :unit_id, references("vf_unit", on_delete: :delete_all)
-      add :community_id, references("mn_community", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
 
       add :published_at, :timestamptz

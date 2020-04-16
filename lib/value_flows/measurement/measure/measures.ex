@@ -85,11 +85,11 @@ defmodule ValueFlows.Measurement.Measure.Measures do
     end)
   end
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+  @spec create(User.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs) when is_map(attrs) do
 
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_measure(creator, community, attrs) do
+      with {:ok, item} <- insert_measure(creator, attrs) do
           #  act_attrs = %{verb: "created", is_local: true},
           #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
           #  :ok <- publish(creator, community, item, activity, :created),
@@ -104,40 +104,40 @@ defmodule ValueFlows.Measurement.Measure.Measures do
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
-  defp insert_measure(creator, community, attrs) do
-    cs = ValueFlows.Measurement.Measure.create_changeset(creator, community, attrs)
+  defp insert_measure(creator, attrs) do
+    cs = ValueFlows.Measurement.Measure.create_changeset(creator, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
-  defp publish(creator, community, measure, activity, :created) do
-    feeds = [
-      community.outbox_id, creator.outbox_id,
-      measure.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(measure.id, creator.id)
-    end
-  end
-  defp publish(measure, :updated) do
-    ap_publish(measure.id, measure.creator_id) # TODO: wrong if edited by admin
-  end
-  defp publish(measure, :deleted) do
-    ap_publish(measure.id, measure.creator_id) # TODO: wrong if edited by admin
-  end
+  # defp publish(creator, measure, activity, :created) do
+  #   feeds = [
+  #     community.outbox_id, creator.outbox_id,
+  #     measure.outbox_id, Feeds.instance_outbox_id(),
+  #   ]
+  #   with :ok <- FeedActivities.publish(activity, feeds) do
+  #     ap_publish(measure.id, creator.id)
+  #   end
+  # end
+  # defp publish(measure, :updated) do
+  #   ap_publish(measure.id, measure.creator_id) # TODO: wrong if edited by admin
+  # end
+  # defp publish(measure, :deleted) do
+  #   ap_publish(measure.id, measure.creator_id) # TODO: wrong if edited by admin
+  # end
 
-  defp ap_publish(context_id, user_id) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
-  end
-  defp ap_publish(_, _, _), do: :ok
+  # defp ap_publish(context_id, user_id) do
+  #   MoodleNet.FeedPublisher.publish(%{
+  #     "context_id" => context_id,
+  #     "user_id" => user_id,
+  #   })
+  # end
+  # defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Measure{}, attrs :: map) :: {:ok, ValueFlows.Measurement.Measure.t()} | {:error, Changeset.t()}
   def update(%Measure{} = measure, attrs) do
     Repo.transact_with(fn ->
-      measure = Repo.preload(measure, :community)
+      measure = Repo.preload(measure)
       IO.inspect(measure)
 
       with {:ok, measure} <- Repo.update(ValueFlows.Measurement.Measure.update_changeset(measure, attrs)) do
