@@ -178,6 +178,17 @@ defmodule Organisation.GraphQL.Resolver do
 
   ## finally the mutations...
 
+  def create_organisation(%{organisation: attrs, community_id: id}, info) do 
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
+        attrs = Map.merge(attrs, %{is_public: true})
+        Organisations.create(user, community, attrs)
+      end
+    end)
+  end
+
+
   def create_organisation(%{organisation: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
@@ -187,15 +198,6 @@ defmodule Organisation.GraphQL.Resolver do
     end)
   end
 
-  def create_organisation(%{organisation: attrs, community_id: id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
-        attrs = Map.merge(attrs, %{is_public: true})
-        Organisations.create(user, community, attrs)
-      end
-    end)
-  end
 
   def update_organisation(%{organisation: changes, organisation_id: id}, info) do
     Repo.transact_with(fn ->

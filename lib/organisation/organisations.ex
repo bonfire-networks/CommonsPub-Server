@@ -65,8 +65,8 @@ defmodule Organisation.Organisations do
   end
 
   ## mutations
-  defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: coll_username}) do
-    comm_username <> coll_username
+  defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: org_username}) do
+    comm_username <> org_username
   end
 
   defp prepend_comm_username(_community, _attr), do: nil
@@ -76,13 +76,13 @@ defmodule Organisation.Organisations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_organisation(creator, actor, coll_attrs),
+           {:ok, org_attrs} <- create_boxes(actor, attrs),
+           {:ok, org} <- insert_organisation(creator, actor, org_attrs),
            act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(creator, coll, activity, :created) do
-          #  {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do #FIXME
-        {:ok, coll}
+           {:ok, activity} <- Activities.create(creator, org, act_attrs),
+           :ok <- publish(creator, org, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do 
+        {:ok, org}
       end
     end)
   end
@@ -92,13 +92,13 @@ defmodule Organisation.Organisations do
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
-           {:ok, coll_attrs} <- create_boxes(actor, attrs),
-           {:ok, coll} <- insert_organisation(creator, community, actor, coll_attrs),
+           {:ok, org_attrs} <- create_boxes(actor, attrs),
+           {:ok, org} <- insert_organisation_with_community(creator, community, actor, org_attrs),
            act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
-           :ok <- publish(creator, community, coll, activity, :created) do
-          #  {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do #FIXME
-        {:ok, coll}
+           {:ok, activity} <- Activities.create(creator, org, act_attrs),
+           :ok <- publish(creator, community, org, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
+        {:ok, org}
       end
     end)
   end
@@ -122,12 +122,12 @@ defmodule Organisation.Organisations do
 
   defp insert_organisation(creator, actor, attrs) do
     cs = Organisation.create_changeset(creator, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
+    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor }}
   end
 
-  defp insert_organisation(creator, community, actor, attrs) do
-    cs = Organisation.create_changeset(creator, community, actor, attrs)
-    with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
+  defp insert_organisation_with_community(creator, community, actor, attrs) do
+    cs = Organisation.create_changeset_with_community(creator, community, actor, attrs)
+    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor }}
   end
 
   defp publish(creator, organisation, activity, :created) do

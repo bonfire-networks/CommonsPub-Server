@@ -59,7 +59,7 @@ defmodule Organisation do
   |> common_changeset()
   end
 
-  def create_changeset(
+  def create_changeset_with_community(
         %User{} = creator,
         %Community{} = community,
         %Actor{} = actor,

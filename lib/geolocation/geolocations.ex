@@ -67,26 +67,40 @@ defmodule Geolocation.Geolocations do
   end
 
   ## mutations
-  # defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: item_username}) do
-  #   comm_username <> item_username
-  # end
-
-  # defp prepend_comm_username(_community, _attr), do: nil
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-    # preferred_username = prepend_comm_username(community, attrs)
-    # attrs = Map.put(attrs, :preferred_username, preferred_username)
+
+    attrs = Map.put(attrs, :preferred_username, attrs.name)
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs) do
-          #  act_attrs = %{verb: "created", is_local: true},
-          #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-          #  :ok <- publish(creator, community, item, activity, :created),
-          #  {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
-          # do
+           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs), #do
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, item, act_attrs),
+           :ok <- publish(creator, community, item, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
+          do
+            {:ok, item}
+          end
+    end)
+  end
+
+  @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs) when is_map(attrs) do
+
+    attrs = Map.put(attrs, :preferred_username, attrs.name)
+
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, item_attrs} <- create_boxes(actor, attrs),
+           {:ok, item} <- insert_geolocation(creator, actor, item_attrs), #do
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, item, act_attrs),
+           :ok <- publish(creator, item, activity, :created),
+           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
+          do
             {:ok, item}
           end
     end)
@@ -114,9 +128,23 @@ defmodule Geolocation.Geolocations do
     with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
   end
 
+  defp insert_geolocation(creator, actor, attrs) do
+    cs = Geolocation.create_changeset(creator, actor, attrs)
+    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
+  end
+
   defp publish(creator, community, geolocation, activity, :created) do
     feeds = [
       community.outbox_id, creator.outbox_id,
+      geolocation.outbox_id, Feeds.instance_outbox_id(),
+    ]
+    with :ok <- FeedActivities.publish(activity, feeds) do
+      ap_publish(geolocation.id, creator.id, geolocation.actor.peer_id)
+    end
+  end
+  defp publish(creator, geolocation, activity, :created) do
+    feeds = [
+      creator.outbox_id,
       geolocation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do

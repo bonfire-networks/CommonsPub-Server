@@ -3,5 +3,5 @@ defmodule MoodleNet.Repo.Migrations.Measure do
 
   def change do
     ValueFlows.Measurement.Migrations.change_measure()
-end
+  end
 end

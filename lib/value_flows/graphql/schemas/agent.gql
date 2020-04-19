@@ -137,6 +137,7 @@ type Organization implements Agent {
   agentType: AgentType 
   canonicalUrl: String
   displayUsername: String
+  inScopeOf: Community
 
 }
 

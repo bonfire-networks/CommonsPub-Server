@@ -42,5 +42,18 @@ defmodule ValueFlows.Agent.GraphQL do
     }
   end
 
+  def organizations(%{}, info) do # TODO: pagination
+    {:ok, 
+      ValueFlows.Agent.Organizations.organizations(signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
+
+  def organization(%{id: id}, info) do    
+    {:ok, 
+    ValueFlows.Agent.Organizations.organization(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
 
 end
