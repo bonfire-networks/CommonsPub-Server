@@ -59,7 +59,7 @@ config :moodle_net, Flags,
   valid_contexts: [Collection, Comment, Community, Resource, User]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation]
 
 config :moodle_net, Likes,
   valid_contexts: [Collection, Community, Comment, Resource, User]

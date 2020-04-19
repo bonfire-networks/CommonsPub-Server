@@ -106,7 +106,7 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   def filter(q, :private) do
-    where q, [community: c], not is_nil(c.published_at)
+    where q, [community: c], is_nil(c.id) or not is_nil(c.published_at)
   end
 
   # by field values

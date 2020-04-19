@@ -59,6 +59,23 @@ defmodule Geolocation do
     |> common_changeset()
   end
 
+  def create_changeset(
+    %User{} = creator,
+    %Actor{} = actor,
+    attrs
+  ) do
+  %Geolocation{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      creator_id: creator.id,
+      actor_id: actor.id,
+      is_public: true
+    )
+    |> common_changeset()
+  end
+
+
   def update_changeset(%Geolocation{} = geolocation, attrs) do
     geolocation
     |> Changeset.cast(attrs, @cast)

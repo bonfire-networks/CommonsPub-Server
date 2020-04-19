@@ -43,10 +43,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
-  def middleware(middleware, field, _object) do
-    Blunder.Absinthe.add_error_handling(middleware, field, [timeout_ms: 3_000, wrap_all_resolvers: true])
-  end
-
   import_types ActivitiesSchema
   import_types AdminSchema
   import_types BlocksSchema
@@ -70,6 +66,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UploadSchema
 
   # optional modules:
+  import_types Organisation.GraphQL.Schema
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Geolocation.GraphQL
@@ -105,6 +102,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :resources_queries
     import_fields :threads_queries
     import_fields :users_queries
+
+    import_fields :organisations_queries
 
     # Taxonomy
     import_fields :locales_queries
@@ -144,9 +143,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_mutations
     import_fields :upload_mutations
 
+    import_fields :organisations_mutations
+
+    import_fields :geolocation_mutation
+
     # ValueFlows
     import_fields :measurement_mutation
-    import_fields :geolocation_mutation
     import_fields :agent_mutation
     import_fields :knowledge_mutation
     import_fields :observation_mutation
@@ -177,8 +179,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
-    Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    ValueFlows.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
+    hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+    hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
+    hb
   end
 
   # fallback

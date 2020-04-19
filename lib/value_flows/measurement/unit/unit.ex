@@ -39,7 +39,8 @@ defmodule ValueFlows.Measurement.Unit do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id
+      creator_id: creator.id,
+      is_public: true
     )
     |> common_changeset()
   end
