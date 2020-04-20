@@ -125,9 +125,7 @@ defmodule MoodleNet.Uploads do
 
   defp parse_file(%{upload: %{path: path} = file}) do
     with {:ok, file_info} <- TwinkleStar.from_filepath(path) do
-      file = file
-      |> Map.from_struct()
-      |> Map.merge(file_info)
+      file = Map.merge(file, file_info)
 
       {:ok, file}
     end
