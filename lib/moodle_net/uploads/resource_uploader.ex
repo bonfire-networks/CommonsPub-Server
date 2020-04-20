@@ -6,7 +6,7 @@ defmodule MoodleNet.Uploads.ResourceUploader do
 
   # TODO: move to config
   def allowed_media_types,
-    do: ~w(text/plain text/html text/rtf text/csv) ++
+    do: ~w(text/plain text/html text/markdown text/rtf text/csv) ++
       # App formats
       ~w(application/rtf application/pdf application/zip) ++
       ~w(application/x-bittorrent application/x-tex) ++
