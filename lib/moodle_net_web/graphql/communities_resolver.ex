@@ -175,7 +175,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   def create_community(%{community: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(params, info) do
-      Communities.create(user, update_with_uploads(attrs, uploads))
+      Communities.create(user, Map.merge(attrs, uploads))
     end
   end
 
@@ -186,7 +186,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cond do
           user.local_user.is_instance_admin or community.creator_id == user.id ->
             with {:ok, uploads} <- UploadResolver.upload(params, info),
-              do: Communities.update(community, update_with_uploads(changes, uploads))
+              do: Communities.update(community, Map.merge(changes, uploads))
 
           is_nil(community.published_at) -> GraphQL.not_found()
 
@@ -211,18 +211,4 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   |> GraphQL.response(info)
   # end
 
-
-  defp update_with_uploads(attrs, uploads) do
-    Enum.reduce(uploads, attrs, fn
-      {:image, image}, acc ->
-        acc
-        |> Map.delete(:image)
-        |> Map.put(:image_id, image.id)
-
-      {:icon, icon}, acc ->
-        acc
-        |> Map.delete(:icon)
-        |> Map.put(:icon_id, icon.id)
-    end)
-  end
 end

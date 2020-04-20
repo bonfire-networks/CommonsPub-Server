@@ -50,11 +50,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def create_resource(%{resource: attrs, collection_id: collection_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, %{content: content} = uploads} <- UploadResolver.upload(params, info),
+        with {:ok, uploads} <- UploadResolver.upload(params, info),
              {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
-             attrs = update_with_uploads(attrs, uploads),
+             attrs = Map.merge(attrs, uploads),
              {:ok, resource} <- Resources.create(user, collection, attrs) do
-          {:ok, %{ resource | collection: collection, content: content } }
+          {:ok, %{ resource | collection: collection } }
         end
       end)
     end
@@ -73,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
           if permitted? do
             with {:ok, uploads} <- UploadResolver.upload(params, info) do
-              Resources.update(resource, update_with_uploads(changes, uploads))
+              Resources.update(resource, Map.merge(changes, uploads))
             end
           else
             GraphQL.not_permitted()
