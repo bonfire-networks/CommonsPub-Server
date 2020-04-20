@@ -14,6 +14,7 @@ alias MoodleNet.{
   Likes,
   Threads,
   Users,
+  Uploads,
 }
 alias MoodleNet.Blocks.Block
 alias MoodleNet.Collections.Collection
@@ -74,6 +75,35 @@ config :moodle_net, Users,
   public_registration: false,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+
+image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
+
+config :moodle_net, Uploads.ResourceUploader,
+  allowed_media_types: ~w(text/plain text/html text/markdown text/rtf text/csv) ++
+      # App formats
+      ~w(application/rtf application/pdf application/zip) ++
+      ~w(application/x-bittorrent application/x-tex) ++
+      # Docs
+      ~w(application/epub+zip application/vnd.amazon.mobi8-ebook) ++
+      ~w(application/postscript application/msword) ++
+      ~w(application/powerpoint application/mspowerpoint application/vnd.ms-powerpoint application/x-mspowerpoint) ++
+      ~w(application/excel application/x-excel application/vnd.ms-excel) ++
+      ~w(application/vnd.oasis.opendocument.chart application/vnd.oasis.opendocument.formula) ++
+      ~w(application/vnd.oasis.opendocument.graphics application/vnd.oasis.opendocument.image) ++
+      ~w(application/vnd.oasis.opendocument.presentation application/vnd.oasis.opendocument.spreadsheet) ++
+      ~w(application/vnd.oasis.opendocument.text) ++
+      # Images
+      image_media_types ++
+      # Audio
+      ~w(audio/mp3 audio/m4a audio/wav audio/flac audio/ogg) ++
+      # Video
+      ~w(video/avi video/webm video/mp4)
+
+config :moodle_net, Uploads.IconUploader,
+  allowed_media_types: image_media_types
+
+config :moodle_net, Uploads.ImageUploader,
+  allowed_media_types: image_media_types
 
  # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
