@@ -9,20 +9,6 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
   import MoodleNetWeb.Test.GraphQLFields
   import Grumble
 
-  def invite_fields(extra \\ []) do
-    [] ++ extra
-  end
-
-  def invite_mutation(options \\ []) do
-    [email: type!(:string)]
-    |> gen_mutation(&invite_submutation/1, options)
-  end
-
-  def invite_submutation(options \\ []) do
-    [email: var(:email)]
-    |> gen_submutation(:send_invite, &invite_fields/1, options)
-  end
-
   describe "invites" do
     test "sends an invite" do
       user = fake_admin!()

@@ -95,6 +95,10 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     extra ++ ~w(is canonical_url verb is_local is_public created_at __typename)a
   end
 
+  def invite_fields(extra \\ []) do
+    [] ++ extra
+  end
+
   # def tag_category_basics() do
   #   """
   #   id canonicalUrl name
@@ -438,6 +442,18 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:createFollowByURL, &follow_fields/1, options)
   end
 
+
+  ### invites
+
+  def invite_mutation(options \\ []) do
+    [email: type!(:string)]
+    |> gen_mutation(&invite_submutation/1, options)
+  end
+
+  def invite_submutation(options \\ []) do
+    [email: var(:email)]
+    |> gen_submutation(:send_invite, &invite_fields/1, options)
+  end
 
   ### likes
 
