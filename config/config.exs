@@ -27,12 +27,9 @@ alias MoodleNet.Users.User
 
 # stuff you might need to change to be viable
 
-config :moodle_net, app_name: "MoodleNet"
+config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
 
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
-
-config :moodle_net, :app_name,
-  System.get_env("APP_NAME", "MoodleNet")
 
 # stuff you might want to change for your use case
 
