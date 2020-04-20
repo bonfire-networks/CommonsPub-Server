@@ -53,7 +53,7 @@ defmodule MoodleNet.Mail.Email do
   defp email_confirmation_url(_id, token),
     do: frontend_url("confirm-email/#{token}")
 
-  def app_name(), do: Application.config(:moodle_net, :app_name)
+  def app_name(), do: Application.get_env(:moodle_net, :app_name)
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
 

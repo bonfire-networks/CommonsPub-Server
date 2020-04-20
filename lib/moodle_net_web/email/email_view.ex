@@ -9,6 +9,6 @@ defmodule MoodleNetWeb.EmailView do
   """
   use MoodleNetWeb, :view
 
-  def app_name(), do: Application.config(:moodle_net, :app_name)
+  def app_name(), do: Application.get_env(:moodle_net, :app_name)
 
 end
