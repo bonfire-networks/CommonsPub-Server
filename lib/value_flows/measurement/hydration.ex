@@ -1,20 +1,25 @@
 defmodule ValueFlows.Measurement.Hydration do
 
   def hydrate(blueprint) do
+    IO.inspect("hydrate measure")
     %{
       measurement_query: %{
+        units: [
+          resolve: &ValueFlows.Measurement.Unit.GraphQL.units/2
+        ],
         all_units: [
-          resolve: &ValueFlows.Measurement.GraphQL.all_units/3
+          resolve: &ValueFlows.Measurement.Unit.GraphQL.all_units/2
         ],
         unit: [
-          resolve: &ValueFlows.Measurement.GraphQL.unit/2
+          resolve: &ValueFlows.Measurement.Unit.GraphQL.unit/2
         ]
       },
-      # mutation: %{
-      #   failing_thing: [
-      #     resolve: &__MODULE__.resolve_failing_thing/3
-      #   ]
-      # }
+      measurement_mutation: %{
+        create_unit: [
+          resolve: &ValueFlows.Measurement.Unit.GraphQL.create_unit/2
+        ]
+
+      }
     }
   end
 

@@ -339,6 +339,4 @@ defmodule MoodleNet.Test.Fake do
   # def community_role(base \\ %{}) do
   #   base
   # end
-
-
 end

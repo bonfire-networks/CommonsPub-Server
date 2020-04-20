@@ -70,13 +70,13 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Geolocation.GraphQL
   import_types ValueFlows.Util.GraphQL
-  import_types ValueFlows.Measurement.GraphQL
+  import_types ValueFlows.Measurement.Unit.GraphQL
   import_types ValueFlows.Agent.GraphQL
   import_types ValueFlows.Knowledge.GraphQL
   import_types ValueFlows.Observation.GraphQL
   import_types ValueFlows.Recipe.GraphQL
   import_types ValueFlows.Plan.GraphQL
-  import_types ValueFlows.Planning.GraphQL
+  import_types ValueFlows.Planning.Intent.GraphQL
   import_types ValueFlows.Proposal.GraphQL
   import_types ValueFlows.Scenario.GraphQL
   import_types ValueFlows.Agreement.GraphQL
@@ -161,11 +161,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
       resolve &MiscSchema.fetch_web_metadata/2
     end
 
-  #   @desc "Fetch an AS2 object from URL"
-  #   field :fetch_object, type: :fetched_object do
-  #     arg :url, non_null(:string)
-  #     resolve &MiscSchema.fetch_object/2
-  #   end
+    # for debugging purposes only:
+    # @desc "Fetch an AS2 object from URL"
+    # field :fetch_object, type: :fetched_object do
+    #   arg :url, non_null(:string)
+    #   resolve &MiscSchema.fetch_object/2
+    # end
 
   end
 
@@ -173,10 +174,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
     Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-  end
-
-  # hydate VF schema with resolvers
-  def hydrate(%Absinthe.Blueprint{}, _) do
     ValueFlows.GraphQL.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
   end
 

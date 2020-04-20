@@ -1,7 +1,7 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Simulate do
+defmodule Geolocation.Faking do
   @moduledoc false
 
   alias MoodleNet.Test.Fake
@@ -12,50 +12,9 @@ defmodule ValueFlows.Simulate do
   def unit_symbol(), do: Faker.Util.pick(["kg", "m"])
 
 
-  def agent_type(), do: Faker.Util.pick([:person, :organization])
-
   ### Start fake data functions
 
-  ## ValueFlows
-
-  def unit(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:id, &Fake.uuid/0) # todo: these can't both be right
-    |> Map.put_new_lazy(:label, &unit_name/0)
-    |> Map.put_new_lazy(:symbol, &unit_symbol/0)
-  end
-
-  def agent(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:id, &Fake.uuid/0)
-    |> Map.put_new_lazy(:name, &Fake.name/0)
-    |> Map.put_new_lazy(:note, &Fake.summary/0)
-    |> Map.put_new_lazy(:image, &Fake.image/0)
-    |> Map.put_new_lazy(:agent_type, &agent_type/0)
-  end
-
-  def inc_dec(), do: Faker.Util.pick(["increment", "decrement"])
-
-  def action(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:id, &Fake.uuid/0)
-    |> Map.put_new_lazy(:label, &Fake.name/0)
-    |> Map.put_new_lazy(:resourceEffect, &inc_dec/0)
-
-  end
-
-  def intent(base \\ %{}) do
-    base
-    |> Map.put_new_lazy(:id, &Fake.uuid/0)
-    |> Map.put_new_lazy(:name, &Fake.name/0)
-    |> Map.put_new_lazy(:resource_classified_as, &Fake.website/0)
-    |> Map.put_new_lazy(:note, &Fake.summary/0)
-    |> Map.put_new_lazy(:image, &Fake.icon/0)
-    # |> Map.put_new_lazy(:has_beginning, &Fake.past_datetime/0)
-    |> Map.put_new_lazy(:action, &action/0)
-    |> Map.put_new_lazy(:provider, &agent/0)
-    |> Map.put_new_lazy(:receiver, &agent/0)
-  end
+  ## Geolocation
 
   def geolocation(base \\ %{}) do
     base
@@ -69,7 +28,7 @@ defmodule ValueFlows.Simulate do
   end
 
   def geolocation!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, geolocation} = Geolocations.create(user, community, geolocation(overrides)) 
+    {:ok, geolocation} = Geolocations.create(user, community, geolocation(overrides))
     geolocation
   end
 
@@ -114,5 +73,5 @@ defmodule ValueFlows.Simulate do
     |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
   end
 
-  
+
 end

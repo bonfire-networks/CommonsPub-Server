@@ -97,6 +97,9 @@ config :moodle_net, :frontend_base_url,
 config :moodle_net, :app_name,
   System.get_env("APP_NAME", "MoodleNet")
 
+config :moodle_net, MoodleNet.Users,
+  public_registration: true # enable open signups in dev
+
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
 config :moodle_net, MoodleNet.Mail.MailService,
