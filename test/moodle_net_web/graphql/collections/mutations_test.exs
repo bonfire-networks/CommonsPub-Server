@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
         vars = %{
           collection: ci,
           community_id: comm.id,
-          icon: "https://via.placeholder.com/150.png",
+          icon: %{url: "https://via.placeholder.com/150.png"},
         }
         q = create_collection_mutation(fields: [icon: [:url]])
 
@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
         vars = %{
           collection: ci,
           collection_id: coll.id,
-          icon: "https://via.placeholder.com/50.png"
+          icon: %{url: "https://via.placeholder.com/50.png"}
         }
         q = update_collection_mutation()
         coll = grumble_post_key(q, conn, :update_collection, vars)
