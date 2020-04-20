@@ -1,4 +1,4 @@
-<p><%= gettext("Hello! You've been invited to join MoodleNet") %></p>
+<p><%= gettext("Hello! You've been invited to join %{app_name}", app_name: app_name()) %></p>
 
 <p><%= gettext("To sign up, please click the invite link:") %></p>
 

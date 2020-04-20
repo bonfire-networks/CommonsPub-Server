@@ -32,7 +32,7 @@ defmodule MoodleNet.Mail.Email do
   def invite(email) do
     url = invite_url(email)
     base_email_by_address(email)
-    |> subject(gettext("You have been invited to MoodleNet!"))
+    |> subject(gettext("You have been invited to %{app_name}!", app_name: app_name()))
     |> render(:invite, url: url)
   end
 
@@ -52,6 +52,8 @@ defmodule MoodleNet.Mail.Email do
 
   defp email_confirmation_url(_id, token),
     do: frontend_url("confirm-email/#{token}")
+
+  def app_name(), do: Application.config(:moodle_net, :app_name)
 
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
 
