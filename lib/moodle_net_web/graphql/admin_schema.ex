@@ -15,17 +15,22 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
   end
 
   object :admin_mutations do
-    
     @desc "Close a flag"
     field :resolve_flag, :flag do
       arg :flag_id, non_null(:string)
       resolve &AdminResolver.resolve_flag/2
     end
 
+    @desc "Sends an email invite"
+    field :send_invite, :boolean do
+      arg :email, non_null(:string)
+      resolve &AdminResolver.send_invite/2
+    end
+
   end
 
   object :admin do
-    
+
   end
 
 end
