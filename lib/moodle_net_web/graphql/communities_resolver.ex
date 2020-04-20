@@ -19,6 +19,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     ResolvePages,
     ResolveRootPage,
   }
+  alias MoodleNetWeb.GraphQL.UploadResolver
+
   def community(%{community_id: id}, info) do
     ResolveField.run(
       %ResolveField{
@@ -170,22 +172,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   ### mutations
 
 
-  def create_community(%{community: attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      Communities.create(user, attrs)
+  def create_community(%{community: attrs} = params, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, uploads} <- UploadResolver.upload(params, info) do
+      Communities.create(user, update_with_uploads(attrs, uploads))
     end
   end
 
-  def update_community(%{community: changes, community_id: id}, info) do
+  def update_community(%{community: changes, community_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- community(%{community_id: id}, info) do
         cond do
-          user.local_user.is_instance_admin ->
-            Communities.update(community, changes)
-
-          community.creator_id == user.id ->
-            Communities.update(community, changes)
+          user.local_user.is_instance_admin or community.creator_id == user.id ->
+            with {:ok, uploads} <- UploadResolver.upload(params, info),
+              do: Communities.update(community, update_with_uploads(changes, uploads))
 
           is_nil(community.published_at) -> GraphQL.not_found()
 
@@ -211,4 +212,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   # end
 
 
+  defp update_with_uploads(attrs, uploads) do
+    Enum.reduce(uploads, attrs, fn
+      {:image, image}, acc ->
+        acc
+        |> Map.delete(:image)
+        |> Map.put(:image_id, image.id)
+
+      {:icon, icon}, acc ->
+        acc
+        |> Map.delete(:icon)
+        |> Map.put(:icon_id, icon.id)
+    end)
+  end
 end
