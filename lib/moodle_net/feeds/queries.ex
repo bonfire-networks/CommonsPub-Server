@@ -20,8 +20,12 @@ defmodule MoodleNet.Feeds.Queries do
 
   ## by field values
 
+  def filter(q, {:id, id}) when is_binary(id) do
+    where q, [feed: f], f.id == ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [collection: c], c.id in ^ids
+    where q, [feed: f], f.id in ^ids
   end
 
 end
