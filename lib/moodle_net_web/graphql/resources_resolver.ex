@@ -67,7 +67,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
           resource = Repo.preload(resource, [collection: :community])
           permitted? =
             user.local_user.is_instance_admin or
-            resource.creator_id == user.id or
             resource.collection.creator_id ==user.id or
             resource.collection.community.creator_id == user.id
 
@@ -96,18 +95,4 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
-
-  defp update_with_uploads(attrs, uploads) do
-    Enum.reduce(uploads, attrs, fn
-      {:content, content}, acc ->
-        acc
-        |> Map.delete(:content)
-        |> Map.put(:content_id, content.id)
-
-      {:icon, icon}, acc ->
-        acc
-        |> Map.delete(:icon)
-        |> Map.put(:icon_id, icon.id)
-    end)
-  end
 end
