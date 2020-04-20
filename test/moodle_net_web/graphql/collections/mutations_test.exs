@@ -43,12 +43,12 @@ defmodule MoodleNetWeb.GraphQL.Collections.MutationsTest do
 
   describe "update_collection" do
 
-    test "works for the community owner, collection owner or admin" do
+    test "works for the community owner  or admin" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy)]
+      conns = [user_conn(alice), user_conn(lucy)]
       for conn <- conns do
         ci = Fake.collection_update_input()
         vars = %{
