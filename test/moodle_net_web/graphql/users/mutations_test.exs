@@ -16,7 +16,11 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
       reg = Fake.registration_input()
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
-      me = grumble_post_key(q, json_conn(), :create_user, %{user: reg})
+      me = grumble_post_key(q, json_conn(), :create_user, %{
+        user: reg,
+        icon: Fake.content_input(),
+        image: Fake.content_input(),
+      })
       assert_me_created(reg, me)
     end
 
