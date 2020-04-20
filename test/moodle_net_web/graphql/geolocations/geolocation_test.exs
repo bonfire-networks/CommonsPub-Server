@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNetWeb.GraphQL.Geolocation.GeolocationTest do
+defmodule MoodleNetWeb.GraphQL.Geolocations.GeolocationTest do
     # @tag :skip
     use MoodleNetWeb.ConnCase, async: true
     import MoodleNetWeb.Test.Automaton
@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.GraphQL.Geolocation.GeolocationTest do
     import Zest
 
     import Geolocation.Faking
-    import Geolocation.Testing
+    import MoodleNet.Test.Geolocation
 #     # alias MoodleNet.{Flags, Follows, Likes}
 
 
