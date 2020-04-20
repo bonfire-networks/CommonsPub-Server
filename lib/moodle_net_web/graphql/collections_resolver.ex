@@ -208,7 +208,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   def create_collection(%{collection: attrs, community_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, uploads} <- UploadResolver.upload(params, info),
+           {:ok, uploads} <- UploadResolver.upload(user, params, info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
         attrs = attrs
         |> Map.put(:is_public, true)
@@ -228,7 +228,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
           collection.community.creator_id == user.id
 
         if permitted? do
-          with {:ok, uploads} <- UploadResolver.upload(params, info) do
+          with {:ok, uploads} <- UploadResolver.upload(user, params, info) do
             Collections.update(collection, Map.merge(changes, uploads))
           end
         else

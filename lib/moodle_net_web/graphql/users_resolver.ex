@@ -280,17 +280,19 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def create_user(%{user: attrs} = params, info) do
     extra = %{is_public: true}
-    with :ok <- GraphQL.guest_only(info),
-         {:ok, uploads} <- UploadResolver.upload(params, info),
-         attrs = Map.merge(attrs, uploads),
-         {:ok, user} <- Users.register(Map.merge(attrs, extra)) do
-      {:ok, Me.new(user)}
-    end
+    Repo.transact_with(fn ->
+      with :ok <- GraphQL.guest_only(info),
+           {:ok, user} <- Users.register(Map.merge(attrs, extra)),
+           {:ok, uploads} <- UploadResolver.upload(user, params, info),
+           {:ok, user} <- Users.update(user, uploads) do
+        {:ok, Me.new(user)}
+      end
+    end)
   end
 
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, uploads} <- UploadResolver.upload(params, info),
+         {:ok, uploads} <- UploadResolver.upload(user, params, info),
          attrs = Map.merge(params, uploads),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}

@@ -397,7 +397,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       coll = fake_collection!(user, comm)
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        MoodleNet.Uploads.IconUploader, user,
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, coll} = MoodleNet.Collections.update(coll, %{icon_id: upload.id})
 

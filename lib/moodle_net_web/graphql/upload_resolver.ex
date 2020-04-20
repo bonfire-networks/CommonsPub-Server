@@ -15,14 +15,12 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     icon: MoodleNet.Uploads.IconUploader
   }
 
-  def upload(%{} = params, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      params
-      |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
-      |> case do
-        {:error, _} = e -> e
-        val -> {:ok, Enum.into(val, %{})}
-      end
+  def upload(user, %{} = params, info) do
+    params
+    |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
+    |> case do
+      {:error, _} = e -> e
+      val -> {:ok, Enum.into(val, %{})}
     end
   end
 

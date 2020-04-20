@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def create_resource(%{resource: attrs, collection_id: collection_id} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, uploads} <- UploadResolver.upload(params, info),
+        with {:ok, uploads} <- UploadResolver.upload(user, params, info),
              {:ok, collection} <- Collections.one([:default, user: user, id: collection_id]),
              attrs = Map.merge(attrs, uploads),
              {:ok, resource} <- Resources.create(user, collection, attrs) do
@@ -71,7 +71,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
             resource.collection.community.creator_id == user.id
 
           if permitted? do
-            with {:ok, uploads} <- UploadResolver.upload(params, info) do
+            with {:ok, uploads} <- UploadResolver.upload(user, params, info) do
               Resources.update(resource, Map.merge(changes, uploads))
             end
           else
