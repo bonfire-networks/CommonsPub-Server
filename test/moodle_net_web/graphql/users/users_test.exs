@@ -394,7 +394,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        MoodleNet.Uploads.IconUploader, user,
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, user} = MoodleNet.Users.update(user, %{icon_id: upload.id})
 
@@ -412,7 +413,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.ImageUpload, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        MoodleNet.Uploads.ImageUploader, user,
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, user} = MoodleNet.Users.update(user, %{image_id: upload.id})
 
