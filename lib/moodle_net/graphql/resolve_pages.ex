@@ -32,10 +32,10 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   end
 
   defp run_limit(rp, info, opts) do
-    async(fn ->
+    # async(fn ->
       GraphQL.limit_page_opts(rp.page_opts, opts)
       |> run_callback(info, rp)
-    end)
+    # end)
   end
 
   defp run_callback({:ok, page_opts}, info, rp) do

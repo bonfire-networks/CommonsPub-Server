@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   @moduledoc "Root GraphQL Schema"
   use Absinthe.Schema
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver,
+    AccessSchema,
     ActivitiesSchema,
     AdminSchema,
     BlocksSchema,
@@ -43,6 +43,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
+  import_types AccessSchema
   import_types ActivitiesSchema
   import_types AdminSchema
   import_types BlocksSchema
@@ -85,6 +86,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
 
   query do
+    import_fields :access_queries
     import_fields :activities_queries
     import_fields :blocks_queries
     import_fields :collections_queries
@@ -125,6 +127,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
   mutation do
+    import_fields :access_mutations
     import_fields :admin_mutations
     import_fields :blocks_mutations
     import_fields :collections_mutations
