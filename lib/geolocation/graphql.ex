@@ -8,12 +8,10 @@ defmodule Geolocation.GraphQL do
   }
   alias MoodleNet.GraphQL.{
     Flow,
-    FieldsFlow,
-    PageFlow,
-    PagesFlow,
-    ResolveField,
     ResolvePage,
     ResolvePages,
+    ResolveField,
+    ResolveFields,
     ResolveRootPage,
   }
   # alias MoodleNet.Resources.Resource
@@ -68,16 +66,16 @@ defmodule Geolocation.GraphQL do
   end
 
   def fetch_geolocations(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
-        queries: Queries,
-        query: Geolocation,
-        cursor_fn: Geolocations.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
+    # ResolvePage.run(
+    #   %ResolvePage{
+    #     queries: Queries,
+    #     query: Geolocation,
+    #     cursor_fn: Geolocations.cursor(:followers),
+    #     page_opts: page_opts,
+    #     base_filters: [user: GraphQL.current_user(info)],
+    #     data_filters: [page: [desc: [followers: page_opts]]],
+    #   }
+    # )
   end
 
 
@@ -95,8 +93,15 @@ defmodule Geolocation.GraphQL do
   end
 
   def outbox_edge(%Geolocation{outbox_id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_outbox_edge({page_opts, info}, id) do

@@ -79,7 +79,13 @@ defmodule MoodleNet.Test.Fake do
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Pokemon.name/0, :preferred_username)
+  def preferred_username() do
+    unused(
+      fn -> String.replace(Faker.Pokemon.name(), ~r([^a-zA-Z0-9]), "") end,
+      :preferred_username
+    )
+  end
+
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
 

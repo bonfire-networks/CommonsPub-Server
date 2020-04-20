@@ -52,8 +52,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
 
   def comments_edge(%User{id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_comments_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_comments_edge({page_opts, info}, ids) do

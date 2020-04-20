@@ -189,7 +189,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         parent_key: :collection,
         child_key: :resources,
         count_key: :resource_count,
-        default_limit: 10,
+        default_limit: 5,
         total_count: 27,
         parent_data: coll,
         child_data: res,
@@ -231,7 +231,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
           parent_key: :collection,
           child_key: :followers,
           count_key: :follower_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: coll,
           child_data: follows,
@@ -271,7 +271,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
           parent_key: :collection,
           child_key: :likers,
           count_key: :liker_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: coll,
           child_data: likes,
@@ -373,7 +373,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert %{threads: threads} = coll2
-        _threads = assert_page(threads, 10, 25, false, true, &[&1["id"]])
+        _threads = assert_page(threads, 5, 25, false, true, &[&1["id"]])
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
         # end)

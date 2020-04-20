@@ -131,7 +131,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def outbox_edge(%Community{outbox_id: id}, page_opts, info) do
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, id, info, %{default_limit: 10})
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   ### def fetch_outbox_edge({page_opts, user}, id) do

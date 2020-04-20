@@ -153,7 +153,7 @@ defmodule MoodleNet.Test.Trendy do
   If count_or_range is a positive range, a random number from this
   range is selected and that value used as a count
   """
-  def some(count_or_range \\ 2, fun)
+  def some(count_or_range \\ 1, fun)
 
   def some(count, fun)
   when is_function(fun, 0)
@@ -174,12 +174,12 @@ defmodule MoodleNet.Test.Trendy do
   end
 
 
-  def flat_pam_some(as, some_arg \\ 2, fun)
+  def flat_pam_some(as, some_arg \\ 1, fun)
   def flat_pam_some(as, some_arg, fun) do
     flat_pam(as, &some(some_arg, fn -> fun.(&1) end))
   end
 
-  def flat_pam_product_some(as, bs, some_arg \\ 2, fun)
+  def flat_pam_product_some(as, bs, some_arg \\ 1, fun)
   def flat_pam_product_some(as, bs, some_arg, fun) do
     flat_pam_product(as, bs, fn a, b ->
       some(some_arg, fn -> fun.(a, b) end)

@@ -160,7 +160,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       ]
       q = community_query(
         params: params,
-        fields: [collections_subquery(fields: [:follower_count])]
+        fields: [:collection_count, collections_subquery(fields: [:follower_count])]
         )
 
       child_page_test %{
@@ -170,7 +170,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         parent_key: :community,
         child_key: :collections,
         count_key: :collection_count,
-        default_limit: 10,
+        default_limit: 5,
         total_count: 27,
         parent_data: comm,
         child_data: colls,
@@ -211,7 +211,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           parent_key: :community,
           child_key: :followers,
           count_key: :follower_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: comm,
           child_data: follows,
@@ -250,7 +250,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
           parent_key: :community,
           child_key: :likers,
           count_key: :liker_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: comm,
           child_data: likes,
@@ -346,11 +346,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert %{threads: threads} = comm2
-        _threads = assert_page(threads, 10, 25, false, true, &[&1["id"]])
+        _threads = assert_page(threads, 5, 25, false, true, &[&1["id"]])
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
         # end)
-        # assert Enum.count(initials2) == 10
+        # assert Enum.count(initials2) == 5
         # each(Enum.reverse(initials), initials2, &assert_comment/2)
       end
     end
@@ -383,11 +383,11 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   #     # for conn <- [json_conn(), user_conn(alice), user_conn(lucy)] do
   #     #   comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
   #     #   assert %{"threads" => threads} = comm2
-  #     #   # _threads = assert_page(threads, 10, 25, false, true, &(&1["id"]))
+  #     #   # _threads = assert_page(threads, 5, 25, false, true, &(&1["id"]))
   #     #   # initials2 = Enum.flat_map(threads.edges, fn thread ->
   #     #   #   assert_page(thread["comments"], 1, 3, false, true, &(&1["id"])).edges
   #     #   # end)
-  #     #   # assert Enum.count(initials2) == 10
+  #     #   # assert Enum.count(initials2) == 5
   #     #   # each(Enum.reverse(initials), initials2, &assert_comment/2)
   #     # end
   #   end

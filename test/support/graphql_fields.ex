@@ -203,7 +203,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       collections_after: list_type(:cursor),
       collections_before: list_type(:cursor),
       collections_limit: :int,
-    ]
+    ] ++ Keyword.get(options, :params, [])
     gen_query(&collections_subquery/1, [ {:params, params} | options ])
   end
 

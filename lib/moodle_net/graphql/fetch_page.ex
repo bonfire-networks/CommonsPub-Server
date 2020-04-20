@@ -2,12 +2,12 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.FetchPage do
-  @enforce_keys [:queries, :query, :cursor_fn, :page_opts]
+  @enforce_keys [:queries, :query, :page_opts]
   defstruct [
     :queries,
     :query,
-    :cursor_fn,
     :page_opts,
+    cursor_fn: &__MODULE__.default_cursor/1,
     base_filters: [],
     data_filters: [],
     count_filters: [],
@@ -19,10 +19,13 @@ defmodule MoodleNet.GraphQL.FetchPage do
   alias MoodleNet.Repo
   alias MoodleNet.GraphQL.{Page, FetchPage}
 
+  @doc false
+  def default_cursor(x), do: [x.id]
+
   @type t :: %FetchPage{
     queries: atom,
     query: atom,
-    cursor_fn: (term -> term),
+    cursor_fn: (term -> [term]),
     page_opts: map,
     base_filters: list,
     data_filters: list,

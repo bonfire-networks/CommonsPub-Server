@@ -61,8 +61,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       q = follow_query(fields: [creator: user_fields()])
       conn = json_conn()
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
-      assert %{"creator" => creator} = follow2
-      assert_user(alice, creator)
+      assert_user(alice, follow2.creator)
     end
   end
 
@@ -74,8 +73,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       q = follow_query(fields: [context: [user_spread()]])
       conn = json_conn()
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
-      assert %{"context" => context} = follow2
-      assert_user(bob, context)
+      assert_user(bob, follow2.context)
     end
 
     test "works for guest with a community follow" do
@@ -85,8 +83,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       conn = json_conn()
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
-      assert %{"context" => context} = follow2
-      assert_community(bob, context)
+      assert_community(bob, follow2.context)
     end
 
     test "works for guest with a collection follow" do
@@ -97,8 +94,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       conn = json_conn()
       {:ok, follow} = Follows.one(creator_id: alice.id, context_id: eve.id)
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
-      assert %{"context" => context} = follow2
-      assert_collection(eve, context)
+      assert_collection(eve, follow2.context)
     end
   end
 

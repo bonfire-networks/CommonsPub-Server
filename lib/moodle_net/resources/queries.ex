@@ -10,7 +10,16 @@ defmodule MoodleNet.Resources.Queries do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
-  defguard is_join_qualifier(x) when x in [:inner, :left, :right, :cross, :full, :inner_lateral, :left_lateral]
+  # the commented out ones are supported in postgres but not yet ecto
+  @join_qualifiers [
+    :inner, :inner_join, :inner_lateral, :inner_lateral_join,
+    :left, :left_join, :left_lateral, :left_lateral_join,
+    :right, :right_join, # :right_lateral, :right_lateral_join,
+    :cross, :cross_join, # :cross_lateral, :cross_lateral_join,
+    :full, :full_join, #:full_lateral, :full_lateral_join
+  ]
+
+  defguard is_join_qualifier(x) when x in @join_qualifiers
 
   def query(Resource) do
     from r in Resource, as: :resource

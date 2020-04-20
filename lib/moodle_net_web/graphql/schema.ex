@@ -32,11 +32,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   require Logger
 
   alias MoodleNetWeb.GraphQL.Middleware.CollapseErrors
-  alias Absinthe.Middleware.Batch
+  alias Absinthe.Middleware.{Async, Batch}
 
   # @pipeline_modifier OverridePhase
 
-  def plugins, do: [Batch]
+  def plugins, do: [Async, Batch]
 
   def middleware(middleware, _field, _object) do
     # [{MoodleNetWeb.GraphQL.Middleware.Debug, :start}] ++
