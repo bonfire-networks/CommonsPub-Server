@@ -93,16 +93,11 @@ defmodule MoodleNet.Test.Fake do
   @doc "Generates a random domain name"
   def domain(), do: unused(&Faker.Internet.domain_name/0, :domain)
   @doc "Generates the first half of an email address"
-  def email_user(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def email_user(), do: unused(&Faker.Internet.user_name/0, :email_user)
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username() do
-    unused(
-      fn -> String.replace(Faker.Pokemon.name(), ~r([^a-zA-Z0-9]), "") end,
-      :preferred_username
-    )
-  end
+  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
 
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
