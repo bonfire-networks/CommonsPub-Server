@@ -52,11 +52,14 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/graphql" do
+
+    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
+
     pipe_through :graphql
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
-      interface: :simple,
+      interface: :playground,
       json_codec: Jason,
       pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
 
@@ -85,17 +88,6 @@ defmodule MoodleNetWeb.Router do
     post("/revoke", OAuthController, :token_revoke)
 
     resources("/apps", AppController, only: [:create])
-  end
-
-  pipeline :media do
-    plug(:accepts, ["html"])
-    plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
-  end
-
-  scope MoodleNet.MediaProxy.media_path(), MoodleNetWeb do
-    pipe_through(:media)
-    get("/:sig/:url/*rest", MediaProxyController, :remote)
   end
 
   pipeline :well_known do
@@ -139,6 +131,11 @@ defmodule MoodleNetWeb.Router do
 
     post "/actors/:username/inbox", ActivityPubController, :inbox
     post "/shared_inbox", ActivityPubController, :inbox
+  end
+
+  scope "/taxonomy" do
+    get "/", Taxonomy.Utils, :test
+
   end
 
   scope "/" do

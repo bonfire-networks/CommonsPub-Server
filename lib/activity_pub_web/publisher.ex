@@ -92,7 +92,7 @@ defmodule ActivityPubWeb.Publisher do
 
   defp maybe_federate_to_mothership(recipients, activity) do
     if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public do
-      recipients ++ ["https://mothership.moodle.net/pub/shared_inbox"]
+      recipients ++ [System.get_env("MOTHERSHIP_AP_INBOX_URL", "https://mothership.moodle.net/pub/shared_inbox" )]
     else
       recipients
     end

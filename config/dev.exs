@@ -60,7 +60,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 
 # Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+config :logger, :console, format: "[$level] $message\n", truncate: :infinity, level: :debug
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
@@ -69,23 +69,36 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
+# # For using with Ecto with Postgis
+# Postgrex.Types.define(MoodleNet.PostgresTypes,
+#   [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
+#   json: Poison)
+
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
+  types: MoodleNet.PostgresTypes,
   username: System.get_env("DATABASE_USER", "postgres"),
   password: System.get_env("DATABASE_PASS", "postgres"),
   database: System.get_env("DATABASE_NAME", "moodle_net_dev"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
-config :moodle_net, :base_url,
-  System.get_env("BASE_URL", "http://localhost:4000")
+base_url = System.get_env("BASE_URL", "http://localhost:4000")
+
+config :moodle_net, :base_url, base_url
 
 config :moodle_net, :ap_base_path,
   System.get_env("AP_BASE_PATH", "/pub")
 
 config :moodle_net, :frontend_base_url,
   System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
+
+config :moodle_net, :app_name,
+  System.get_env("APP_NAME", "MoodleNet")
+
+config :moodle_net, MoodleNet.Users,
+  public_registration: true # enable open signups in dev
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
@@ -101,9 +114,8 @@ config :moodle_net, MoodleNet.OAuth,
 
 config :moodle_net, MoodleNet.Uploads,
   directory: "uploads",
-  base_url: "/uploads/"
+  base_url: base_url <> "/uploads/"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn
 
-config :logger, truncate: :infinity

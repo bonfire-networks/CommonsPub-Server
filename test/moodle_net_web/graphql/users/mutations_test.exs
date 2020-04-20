@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
       assert {:ok, _} = Access.create_register_email(reg["email"])
       q = create_user_mutation()
       me = grumble_post_key(q, json_conn(), :create_user, %{user: reg})
-      assert_me(reg, me)
+      assert_me_created(reg, me)
     end
 
     test "Does not work for a logged in user" do
@@ -57,7 +57,7 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
       q = update_profile_mutation()
       vars = %{profile: profile}
       me = grumble_post_key(q, conn, :update_profile, vars)
-      assert_me(profile, me)
+      assert_me_updated(profile, me)
     end
 
     test "Does not work for a guest" do

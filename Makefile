@@ -1,10 +1,10 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
-APP_NAME=moodle_net
+APP_NAME=MoodleNet
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
-APP_DOCKER_REPO=moodlenet/moodlenet
+APP_DOCKER_REPO=commonspub/server
 APP_DEV_CONTAINER="$(APP_NAME)_dev"
 APP_VSN ?= `grep 'version:' mix.exs | cut -d '"' -f2`
 APP_BUILD ?= `git rev-parse --short HEAD`
@@ -121,6 +121,9 @@ good-tests: init
                  test/moodle_net/{communities,localisation,meta,peers,resources,users} \
                  test/moodle_net_web/plugs/ \
                  test/moodle_net_web/graphql/{users,temporary}_test.exs \
+
+vf-tests: init
+	mix test lib/value_flows/{geolocation}/tests.ex 
 
 run: init ## Run the app in Docker
 	docker-compose up 

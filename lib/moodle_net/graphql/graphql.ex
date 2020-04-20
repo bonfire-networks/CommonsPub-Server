@@ -6,14 +6,18 @@ defmodule MoodleNet.GraphQL do
   alias Absinthe.Resolution
   alias Ecto.Changeset
   alias MoodleNet.GraphQL.{Page, PageOpts}
+  alias MoodleNet.Common.Enums
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
   def reverse_path(info) do
     Enum.reverse(Resolution.path(info))
   end
 
-  # If there is a list anywhere further up the query, we're in a list
+  @doc "Are we in a list (recursively)?"
   def in_list?(info), do: Enum.any?(Resolution.path(info), &is_integer/1)
+
+  @doc "How many lists are we in (recursively)?"
+  def list_depth(info), do: Enums.count_where(Resolution.path(info), &is_integer/1)
 
   def parent_name(resolution) do
     resolution.path
@@ -126,31 +130,29 @@ defmodule MoodleNet.GraphQL do
 
   def not_found(), do: {:error, NotFoundError.new()}
 
-  @bad_cursor_error {:error, %{message: "Bad cursor"}}
-
   def cast_ulid(str) when is_binary(str) do
-    with :error <- Ecto.ULID.cast(str), do: @bad_cursor_error
+    with :error <- Ecto.ULID.cast(str), do: not_found()
   end
-  def cast_ulid(_), do: @bad_cursor_error
+  def cast_ulid(_), do: not_found()
 
   def cast_posint(int) when is_integer(int) and int > 0, do: {:ok, int}
-  def cast_posint(_), do: @bad_cursor_error
+  def cast_posint(_), do: not_found()
 
   def cast_nonnegint(int) when is_integer(int) and int >= 0, do: {:ok, int}
-  def cast_nonnegint(_), do: @bad_cursor_error
+  def cast_nonnegint(_), do: not_found()
 
   def cast_int_ulid_id([int, ulid]) when is_integer(int) and is_binary(ulid) do
-    with :error <- Ecto.ULID.cast(ulid), do: @bad_cursor_error
+    with :error <- Ecto.ULID.cast(ulid), do: not_found()
   end
-  def cast_int_ulid_id(_), do: @bad_cursor_error
+  def cast_int_ulid_id(_), do: not_found()
 
   def validate_cursor([], []), do: :ok
   def validate_cursor([p | ps], [v | vs]) do
     if predicated(p, v),
       do: :ok,
-      else: @bad_cursor_error
+      else: not_found()
   end  
-  def validate_cursor(_, _), do: @bad_cursor_error
+  def validate_cursor(_, _), do: not_found()
 
 
   def predicated(fun) when is_function(fun, 1), do: &predicate_result(fun.(&1))

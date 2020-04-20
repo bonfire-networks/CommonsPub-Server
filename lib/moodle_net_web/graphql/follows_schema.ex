@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsSchema do
     end
 
     @desc "The thing that is being followed"
-    field :context, :follow_context do
+    field :context, non_null(:follow_context) do
       resolve &CommonResolver.context_edge/3
     end
   end

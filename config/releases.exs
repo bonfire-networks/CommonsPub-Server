@@ -12,6 +12,7 @@ hostname = System.fetch_env!("HOSTNAME")
 desc = System.fetch_env("INSTANCE_DESCRIPTION")
 port = String.to_integer(System.get_env("PORT", "4000"))
 base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
+app_name = System.get_env("APP_NAME", "MoodleNet")
 
 config :moodle_net, MoodleNet.Instance,
   hostname: hostname,
@@ -25,8 +26,12 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 config :moodle_net,
   base_url: base_url,
+  app_name: app_name,
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"), # env variable to customise the ActivityPub URL prefix (needs to be changed at compile time)
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", base_url) # env variable for URL of frontend, otherwise assume proxied behind same host as backend
+
+config :moodle_net, MoodleNet.Users,
+  public_registration: System.get_env("INVITE_ONLY", "true") # enable signups?
 
 upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
 upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
@@ -38,13 +43,15 @@ config :moodle_net, MoodleNet.Uploads,
 mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
 mail_domain = System.get_env("MAIL_DOMAIN")
 mail_key = System.get_env("MAIL_KEY")
+mail_reply_to = System.get_env("MAIL_FROM")
 
 if not is_nil(mail_key) do
   config :moodle_net, MoodleNet.Mail.MailService,
     adapter: Bamboo.MailgunAdapter,
     domain: mail_domain,
     api_key: mail_key,
-    base_uri: mail_base_uri
+    base_uri: mail_base_uri,
+    reply_to: mail_reply_to
 end
 
 sentry_dsn = System.get_env("SENTRY_DSN")

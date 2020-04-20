@@ -6,6 +6,12 @@ defmodule MoodleNet.Common.Enums do
 
   @compile {:inline, group: 3}
 
+  def count_where(collection, function) do
+    Enum.reduce(collection, 0, fn item, count ->
+      if function.(item), do: count + 1, else: count
+    end)
+  end
+
   @doc """
   Like group_by, except children are required to be unique (will throw
   otherwise!) and the resulting map does not wrap each item in a list
@@ -28,7 +34,7 @@ defmodule MoodleNet.Common.Enums do
     do: group_map(list, %{}, fun)
 
 
-  defp group_map([x | xs], acc, fun), do: group(xs, group_map_item(fun.(x), acc), fun)
+  defp group_map([x | xs], acc, fun), do: group_map(xs, group_map_item(fun.(x), acc), fun)
   defp group_map([], acc, _), do: acc
 
 

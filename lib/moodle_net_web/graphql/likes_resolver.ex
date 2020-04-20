@@ -3,8 +3,21 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
-  alias MoodleNet.GraphQL.{Fields, FieldsFlow, Flow, PageFlow, PagesFlow}
-  alias MoodleNet.Likes.{Like, LikeCount, LikerCount, LikerCountsQueries}
+  alias MoodleNet.GraphQL.{
+    Fields,
+    FetchFields,
+    FetchPage,
+    FetchPages,
+    Flow,
+    ResolvePages,
+  }
+  alias MoodleNet.Likes.{
+    Like,
+    LikeCount,
+    LikeCountsQueries,
+    LikerCount,
+    LikerCountsQueries,
+  }
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
 
@@ -28,15 +41,21 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def likers_edge(%{id: id}, %{}=page_opts, info) do
-    vals = [&Ecto.ULID.cast/1]
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_likers_edge, page_opts, id, info, vals, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_likers_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_likers_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -51,8 +70,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -69,8 +88,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def fetch_liker_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: LikerCountsQueries,
         query: LikerCount,
         group_fn: &(&1.context_id),
@@ -81,18 +100,23 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def likes_edge(%{id: id}, %{}=page_opts, info) do
-    vals = [&Ecto.ULID.cast/1]
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_likes_edge, page_opts, id, info, vals, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_likes_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_likes_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Likes.Queries,
         query: Like,
-        cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [:deleted, user: user, creator_id: ids],
@@ -104,8 +128,8 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def fetch_likes_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Likes.Queries,
         query: Like,
         cursor_fn: &[&1.id],
@@ -117,17 +141,17 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def like_count_edge(%{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_liker_count_edge, id, info, default: 0
+    Flow.fields __MODULE__, :fetch_like_count_edge, id, info, default: 0
   end
 
   def fetch_like_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: LikeCountsQueries,
         query: LikeCount,
-        group_fn: &(&1.context_id),
+        group_fn: &(&1.creator_id),
         map_fn: &(&1.count),
-        filters: [context_id: ids],
+        filters: [creator_id: ids],
       }
     )
   end

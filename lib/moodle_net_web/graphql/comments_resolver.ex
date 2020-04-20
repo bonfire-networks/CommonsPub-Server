@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.Flow
+  alias MoodleNet.GraphQL.{Flow, FetchFields, FetchPage, FetchPages, ResolveFields, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
@@ -17,30 +17,42 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   end
 
   def comments_edge(%Thread{id: id}, %{}=page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_comments_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
-  def fetch_comments_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    {:ok, edges} = Comments.pages(
-      &(&1.thread_id),
-      &(&1.id),
-      page_opts,
-      [user: user, thread_id: ids],
-      [order: :timeline_asc],
-      [group_count: :thread_id]
-    )
-    edges
-  end
+  # def fetch_comments_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: CommentsQueries,
+  #       query: Comment,
+  #       group_fn: &(&1.thread_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, thread_id: ids],
+  #       data_filters: [order: :timeline_asc],
+  #       count_filters: [group_count: :thread_id],
+  #     }
+  #   )
+  # end
 
   def fetch_comments_edge(page_opts, info, id) do
     user = GraphQL.current_user(info)
-    Comments.page(
-      &(&1.id),
-      page_opts,
-      [user: user, thread_id: id],
-      [order: :timeline_asc]
+    FetchPage.run(
+      %FetchPage{
+        queries: Threads.CommentsQueries,
+        query: Comment,
+        page_opts: page_opts,
+        base_filters: [user: user, thread_id: id],
+        data_filters: [order: :timeline_asc],
+      }
     )
   end
 
@@ -49,9 +61,16 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     Flow.fields(__MODULE__, :fetch_in_reply_to_edge, id, info)
   end
 
-  def fetch_in_reply_to_edge(user, ids) do
-    {:ok, fields} = Comments.fields(&(&1.id), id: ids, user: user)
-    fields
+  def fetch_in_reply_to_edge(info, ids) do
+    user = GraphQL.current_user(info) 
+    FetchFields.run(
+      %FetchFields{
+        queries: CommentsQueries,
+        query: Comment,
+        group_fn: &(&1.id),
+        filters: [id: ids, user: user],
+      }
+    )
   end
 
   def thread_edge(%Comment{thread: %Thread{}=thread}, _, _info), do: {:ok, thread}

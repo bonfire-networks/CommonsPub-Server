@@ -28,5 +28,7 @@ alias MoodleNet.{
 }
 alias MoodleNet.Meta.Pointers
 alias MoodleNet.Threads.Comments
+
+alias ValueFlows.Planning.{Intent}
 import MoodleNet.Test.Faking
 IO.puts("[.iex.exs] aliased {MN, MNW, MN.*, MNW.*}\n")

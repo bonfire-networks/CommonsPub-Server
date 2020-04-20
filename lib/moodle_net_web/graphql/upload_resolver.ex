@@ -7,45 +7,46 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias Ecto.Changeset
   alias MoodleNet.{GraphQL, Uploads, Users, Repo}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Uploads.Upload
+  alias MoodleNet.Uploads.Content
 
-  # @allowed_field_names ~w(icon image url)a
+  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
+  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
+  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
+
+  defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
 
   def upload_icon(params, info),
-    do: upload(params, info, :icon, MoodleNet.Uploads.IconUploader)
+    do: upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
 
   def upload_image(params, info),
-    do: upload(params, info, :image, MoodleNet.Uploads.ImageUploader)
+    do: upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
 
   def upload_resource(params, info),
-    do: upload(params, info, :url, MoodleNet.Uploads.ResourceUploader)
+    do: upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
 
   defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user(info),
-           {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
+    user = GraphQL.current_user(info)
+      with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
            parent = Pointers.follow!(parent_ptr),
-           {:ok, upload} <- Uploads.upload(upload_def, parent, user, params.upload, params),
-           {:ok, _parent} <- update_parent_field(parent, field_name, upload.url) do
-        {:ok, %{upload | parent: parent_ptr}}
+           {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
+           {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
+        {:ok, upload}
       end
-    end)
   end
 
-  def is_public(%Upload{}=upload, _, _info), do: not is_nil(upload.published_at)
+  def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
-  def parent(%Upload{parent_id: id}, _, _info) do
-    with {:ok, pointer} <- Pointers.one(id: id) do
-      {:ok, Pointers.follow!(pointer)}
-    end
-  end
+  def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id)
 
-  def uploader(%Upload{uploader_id: id}, _, _info), do: Users.one(id: id)
+  def remote_url(%Content{}=upload, _, _info), do: Uploads.remote_url(upload)
 
-  defp update_parent_field(parent, field_name, val) do
+  def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
+  def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
+
+  defp update_parent_field(parent, field_name, %Content{id: id} = content) do
     parent
     |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(field_name, val)
+    |> Changeset.put_change(field_name, id)
     |> Repo.update()
   end
 end

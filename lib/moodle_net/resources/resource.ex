@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources.Resource do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_disabled: 1, validate_http_url: 2]
+    only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
@@ -15,14 +15,14 @@ defmodule MoodleNet.Resources.Resource do
   table_schema "mn_resource" do
     belongs_to(:creator, User)
     belongs_to(:collection, Collection)
+    belongs_to(:content, Content)
+    belongs_to(:icon, Content)
     # belongs_to(:primary_language, Language, type: :binary)
     field(:canonical_url, :string)
     field(:name, :string)
     field(:summary, :string)
-    field(:url, :string)
     field(:license, :string)
     field(:author, :string)
-    field(:icon, :string)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
@@ -32,7 +32,7 @@ defmodule MoodleNet.Resources.Resource do
   end
 
   @required ~w(name)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon url author)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id content_id author)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
@@ -60,7 +60,6 @@ defmodule MoodleNet.Resources.Resource do
     changeset
     |> change_disabled()
     |> change_public()
-    |> validate_http_url(:url)
   end
 
 end

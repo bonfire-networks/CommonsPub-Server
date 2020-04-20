@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   alias MoodleNet.{Flags, GraphQL, Repo}
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{Flow, PageFlow, PagesFlow}
+  alias MoodleNet.GraphQL.{Flow, FetchPage, FetchPages, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
 
@@ -16,17 +16,23 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
   end
 
   def flags_edge(%{id: id}, %{}=page_opts, info) do
-    vals = [&Ecto.ULID.cast/1]
     with {:ok, %User{}} <- GraphQL.current_user_or_empty_page(info) do
-      opts = %{default_limit: 10}
-      Flow.pages(__MODULE__, :fetch_flags_edge, page_opts, id, info, vals, opts)
+      ResolvePages.run(
+        %ResolvePages{
+          module: __MODULE__,
+          fetcher: :fetch_flags_edge,
+          context: id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
     end
   end
 
   def fetch_flags_edge({page_opts, info}, ids) do
     user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
+    FetchPages.run(
+      %FetchPages{
         queries: Flags.Queries,
         query: Flag,
         cursor_fn: &[&1.id],
@@ -41,8 +47,8 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   def fetch_flags_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Flags.Queries,
         query: Flag,
         cursor_fn: &[&1.id],

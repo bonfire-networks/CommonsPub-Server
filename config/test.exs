@@ -35,7 +35,9 @@ config :phoenix_integration,
 config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.TestAdapter
 
-config :moodle_net,
+
+  config :moodle_net,
+  app_name: "MoodleNet",
   base_url: "http://localhost:4001",
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
   frontend_base_url: System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")

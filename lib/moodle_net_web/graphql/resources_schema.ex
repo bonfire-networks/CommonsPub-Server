@@ -13,6 +13,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     LikesResolver,
     ResourcesResolver,
     UsersResolver,
+    UploadResolver,
   }
 
   object :resources_queries do
@@ -63,10 +64,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :summary, :string
 
     @desc "An avatar url"
-    field :icon, :string
+    field :icon, :content do
+      resolve &UploadResolver.icon_content_edge/3
+    end
 
     @desc "A link to an external resource"
-    field :url, :string
+    field :content, :content do
+      resolve &UploadResolver.resource_content_edge/3
+    end
 
     @desc "What license is it available under?"
     field :license, :string
@@ -162,24 +167,24 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     @desc "Users who like the resource, most recently liked first"
     field :likers, :likes_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &LikesResolver.likers_edge/3
     end
 
     @desc "Flags users have made about the resource, most recently created first"
     field :flags, :flags_page do
       arg :limit, :integer
-      arg :before, list_of(:cursor)
-      arg :after, list_of(:cursor)
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &FlagsResolver.flags_edge/3
     end
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :tags, :taggings_page do
     #   arg :limit, :integer
-    #   arg :before, list_of(:cursor)
-    #   arg :after, list_of(:cursor)
+    #   arg :before, list_of(non_null(:cursor))
+    #   arg :after, list_of(non_null(:cursor))
     #   resolve &CommonResolver.tags_edge/3
     # end
 
@@ -188,8 +193,6 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   input_object :resource_input do
     field :name, non_null(:string)
     field :summary, :string
-    field :icon, :string
-    field :url, :string
     field :license, :string
     # field :primary_language_id, :string
     field :author, :string

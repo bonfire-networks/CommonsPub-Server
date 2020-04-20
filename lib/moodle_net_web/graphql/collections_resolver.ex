@@ -12,9 +12,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   }
   alias MoodleNet.GraphQL.{
     Flow,
-    FieldsFlow,
-    PageFlow,
-    PagesFlow,
+    FetchFields,
+    FetchPage,
+    FetchPages,
     ResolveField,
     ResolvePage,
     ResolvePages,
@@ -24,6 +24,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  import Ecto.Query
 
   ## resolvers
 
@@ -61,8 +62,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_collections(page_opts, info) do
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Collections.Queries,
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
@@ -78,8 +79,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_resource_count_edge(_, ids) do
-    FieldsFlow.run(
-      %FieldsFlow{
+    FetchFields.run(
+      %FetchFields{
         queries: Resources.Queries,
         query: Resource,
         group_fn: &elem(&1, 0),
@@ -101,26 +102,45 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
-  def fetch_resources_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    PagesFlow.run(
-      %PagesFlow{
-        queries: Resources.Queries,
-        query: Resource,
-        cursor_fn: &[&1.id],
-        group_fn: &(&1.collection_id),
-        page_opts: page_opts,
-        base_filters: [:deleted, user: user, collection_id: ids],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :collection_id],
-      }
-    )
-  end
+  # def fetch_resources_edge({page_opts, info}, ids) do
+  #   limit = page_opts.limit
+  #   user = GraphQL.current_user(info)
+  #   base_query = from c in Collection, where: c.id in ^ids
+  #   data_query = from c in subquery(base_query), as: :collection,
+  #     inner_lateral_join: r in ^subquery(
+  #       from r in Resource, as: :resource,
+  #       where: r.collection_id == parent_as(:collection).id,
+  #       order_by: [desc: r.id],
+  #       limit: ^limit
+  #     ),
+  #     select: %Resource{
+  #       id: r.id, creator_id: r.creator_id, collection_id: r.collection_id,
+  #       content_id: r.content_id, icon_id: r.icon_id, name: r.name,
+  #       summary: r.summary, license: r.license, author: r.author,
+  #       published_at: r.published_at, disabled_at: r.disabled_at,
+  #       deleted_at: r.deleted_at, updated_at: r.updated_at,
+  #     }
+
+  #   count_query = Resources.Queries.query Resource,
+  #     collection_id: ids,
+  #     group_count: :collection_id
+    
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       cursor_fn: &[&1.id],
+  #       group_fn: &(&1.collection_id),
+  #       page_opts: page_opts,
+  #       base_filters: [:deleted, user: user, collection_id: ids],
+  #       data_query: data_query,
+  #       count_query: count_query,
+  #     }
+  #   )
+  # end
 
   def fetch_resources_edge(page_opts, info, id) do
     user = GraphQL.current_user(info)
-    PageFlow.run(
-      %PageFlow{
+    FetchPage.run(
+      %FetchPage{
         queries: Resources.Queries,
         query: Resource,
         cursor_fn: &[&1.id],
@@ -145,8 +165,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def outbox_edge(%Collection{outbox_id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_outbox_edge({page_opts, info}, id) do

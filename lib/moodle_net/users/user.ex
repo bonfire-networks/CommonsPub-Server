@@ -14,6 +14,7 @@ defmodule MoodleNet.Users.User do
   alias MoodleNet.Users.{LocalUser, User}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
+  alias MoodleNet.Uploads.Content
 
   table_schema "mn_user" do
     belongs_to(:actor, Actor)
@@ -27,20 +28,21 @@ defmodule MoodleNet.Users.User do
     field(:summary, :string)
     field(:location, :string)
     field(:website, :string)
-    field(:icon, :string)
-    field(:image, :string)
+    belongs_to(:icon, Content)
+    belongs_to(:image, Content)
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     field(:stale_error, :string, virtual: true)
+    field(:extra_info, :map)
     timestamps()
   end
 
   @register_required ~w(name)a
   @register_cast @register_required ++
-    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
+    ~w(name summary location website extra_info icon_id image_id is_public is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
   def register_changeset(%Actor{id: id}, %{} = attrs) do
@@ -57,7 +59,7 @@ defmodule MoodleNet.Users.User do
   end
 
   @update_cast [] ++
-    ~w(name summary location website icon image is_public is_disabled inbox_id outbox_id)a
+    ~w(name summary location website extra_info icon_id image_id is_public is_disabled inbox_id outbox_id)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do

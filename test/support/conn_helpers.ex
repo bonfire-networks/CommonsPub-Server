@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   alias MoodleNet.Access.Token
   alias MoodleNet.Users.User
   import ExUnit.Assertions
-  
+
   @endpoint MoodleNetWeb.Endpoint
 
   def conn(), do: ConnTest.build_conn()
@@ -60,8 +60,8 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     |> Conn.fetch_query_params()
     |> Conn.fetch_session()
     |> Controller.fetch_flash()
-  end    
-    
+  end
+
   def gql_post(conn, query, code) do
     ConnTest.post(conn, "/api/graphql", query)
     |> ConnTest.json_response(code)
@@ -83,7 +83,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
     end
   end
 
-  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test") do
+  def grumble_post_data(query, conn, vars \\ %{}, files \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
@@ -93,19 +93,19 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       variables: vars,
       operationName: name,
     }
-    gql_post_data(conn, query)
+    gql_post_data(conn, extract_files(query, files))
   end
 
-  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
+  def grumble_post_key(query, conn, key, vars \\ %{}, files \\ %{}, name \\ "test") do
     key = camel(key)
-    assert %{^key => val} = grumble_post_data(query, conn, vars, name)
+    assert %{^key => val} = grumble_post_data(query, conn, vars, files, name)
     val
   end
 
   def gql_post_errors(conn \\ json_conn(), query),
     do: Map.fetch!(gql_post_200(conn, query), :errors)
 
-  def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
+  def grumble_post_errors(query, conn, vars \\ %{}, files \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.inspect(query: query)
@@ -115,7 +115,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       variables: vars,
       operationName: name,
     }
-   Map.fetch!(gql_post_200(conn, query), "errors")
+   Map.fetch!(gql_post_200(conn, extract_files(query, files)), "errors")
   end
 
   @doc false
@@ -126,7 +126,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   @doc false
   def camel(atom) when is_atom(atom), do: camel(Atom.to_string(atom))
   def camel(binary) when is_binary(binary), do: Recase.to_camel(binary)
-    
+
   @doc false
   def uncamel_map(%{}=map) do
     Enum.reduce(map, %{}, fn {k,v}, acc -> Map.put(acc, uncamel(k), v) end)
@@ -137,4 +137,19 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def uncamel("__typeName"), do: :typename
   def uncamel(bin) when is_binary(bin), do: String.to_existing_atom(Recase.to_snake(bin))
 
+  defp extract_files(%{variables: vars} = query, files) do
+    new_vars =
+      for {field_key, _} <- files, into: %{} do
+        {field_key, Atom.to_string(field_key)}
+      end
+
+    new_files =
+      for {field_key, file} <- files, into: %{} do
+        {Atom.to_string(field_key), file}
+      end
+
+    query
+    |> Map.put(:variables, Map.merge(vars, new_vars))
+    |> Map.merge(new_files)
+  end
 end

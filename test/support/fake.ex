@@ -79,9 +79,15 @@ defmodule MoodleNet.Test.Fake do
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Pokemon.name/0, :preferred_username)
+  def preferred_username() do
+    unused(
+      fn -> String.replace(Faker.Pokemon.name(), ~r([^a-zA-Z0-9]), "") end,
+      :preferred_username
+    )
+  end
+
   @doc "Picks a random canonical url and makes it unique"
-  def canonical_url(), do: Faker.Internet.url() <> ulid()
+  def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
 
   # models
 
@@ -141,8 +147,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:website, &website/0)
     |> Map.put_new_lazy(:location, &location/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.merge(actor(base))
@@ -158,8 +162,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("location", &location/0)
     |> Map.put_new_lazy("website", &website/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
@@ -171,8 +173,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("location", &location/0)
     |> Map.put_new_lazy("website", &website/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
@@ -183,8 +183,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:image, &image/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
@@ -197,8 +195,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
   end
 
   def community_update_input(base \\ %{}) do
@@ -206,8 +202,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
-    |> Map.put_new_lazy("image", &image/0)
   end
 
   def collection(base \\ %{}) do
@@ -215,7 +209,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy(:primary_language_id, &ulid/0)
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
     |> Map.put_new_lazy(:is_featured, &bool/0)
@@ -233,7 +226,6 @@ defmodule MoodleNet.Test.Fake do
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &icon/0)
   end
 
   def resource(base \\ %{}) do
@@ -241,8 +233,6 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy(:name, &name/0)
     |> Map.put_new_lazy(:summary, &summary/0)
     |> Map.put_new_lazy(:canonical_url, &canonical_url/0)
-    |> Map.put_new_lazy(:icon, &icon/0)
-    |> Map.put_new_lazy(:url, &url/0)
     |> Map.put_new_lazy(:license, &license/0)
     |> Map.put_new_lazy(:is_local, &truth/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
@@ -253,8 +243,6 @@ defmodule MoodleNet.Test.Fake do
     base
     |> Map.put_new_lazy("name", &name/0)
     |> Map.put_new_lazy("summary", &summary/0)
-    |> Map.put_new_lazy("icon", &website/0)
-    |> Map.put_new_lazy("url", &url/0)
     |> Map.put_new_lazy("license", &license/0)
     # |> Map.put_new_lazy("freeAccess", &maybe_bool/0)
     # |> Map.put_new_lazy("publicAccess", &maybe_bool/0)
@@ -351,6 +339,4 @@ defmodule MoodleNet.Test.Fake do
   # def community_role(base \\ %{}) do
   #   base
   # end
-
-
 end

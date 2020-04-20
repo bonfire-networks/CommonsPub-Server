@@ -26,6 +26,8 @@ alias MoodleNet.Users.User
 
 # stuff you might need to change to be viable
 
+config :moodle_net, app_name: "MoodleNet"
+
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
 # stuff you might want to change for your use case
