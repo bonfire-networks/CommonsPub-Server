@@ -98,9 +98,9 @@ same steps as option 2, except:
    will need to export the following variables in the environment to
    match the configuration of your database:
    * `DATABASE_HOST`
-   * `DATABASE_USER`
-   * `DATABASE_PASS`
-   * `DATABASE_NAME`
+   * `POSTGRES_USER`
+   * `POSTGRES_PASSWORD`
+   * `POSTGRES_DB`
 
 2. You will not need to run `make dev-db-up`
 

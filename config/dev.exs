@@ -78,9 +78,9 @@ config :phoenix, :plug_init_mode, :runtime
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
   types: MoodleNet.PostgresTypes,
-  username: System.get_env("DATABASE_USER", "postgres"),
-  password: System.get_env("DATABASE_PASS", "postgres"),
-  database: System.get_env("DATABASE_NAME", "moodle_net_dev"),
+  username: System.get_env("POSTGRES_USER", "postgres"),
+  password: System.get_env("POSTGRES_PASSWORD", "postgres"),
+  database: System.get_env("POSTGRES_DB", "moodle_net_dev"),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 10
 
