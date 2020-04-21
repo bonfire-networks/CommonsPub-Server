@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
   def fetch_register_email_accesses(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
-        queries: Access.RegisterEmailAccessQueries,
+        queries: Access.RegisterEmailAccessesQueries,
         query: Access.RegisterEmailAccesses,
         page_opts: page_opts,
       }
@@ -46,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
   def fetch_register_email_domain_accesses(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
-        queries: Access.RegisterEmailDomainAccessQueries,
+        queries: Access.RegisterEmailDomainAccessesQueries,
         query: Access.RegisterEmailDomainAccesses,
         page_opts: page_opts,
       }
