@@ -4,6 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.AccessResolver do
 
   alias MoodleNet.{Access, GraphQL}
+  alias MoodleNet.Access.{RegisterEmailAccesses, RegisterEmailDomainAccesses}
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
   alias MoodleNet.Users.User
 
@@ -24,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
     FetchPage.run(
       %FetchPage{
         queries: Access.RegisterEmailAccessesQueries,
-        query: Access.RegisterEmailAccess,
+        query: RegisterEmailAccess,
         page_opts: page_opts,
       }
     )
@@ -47,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
     FetchPage.run(
       %FetchPage{
         queries: Access.RegisterEmailDomainAccessesQueries,
-        query: Access.RegisterEmailDomainAccess,
+        query: RegisterEmailDomainAccess,
         page_opts: page_opts,
       }
     )
