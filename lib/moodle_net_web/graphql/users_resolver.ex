@@ -23,6 +23,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Flow,
     FetchPage,
     FetchPages,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
   }
@@ -228,13 +229,20 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def inbox_edge(%User{id: id}=user, page_opts, info) do
-    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
-      if id == current_user.id do
-        Users.inbox(user, page_opts)
-      else
-        GraphQL.not_permitted()
-      end
+  def inbox_edge(%User{}=user, page_opts, info) do
+    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
+         :ok <- GraphQL.not_in_list_or_empty_page(info),
+         :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
+      Repo.transact_with(fn ->
+        with {:ok, subs} <- Users.feed_subscriptions(user) do
+          ids = [user.inbox_id | Enum.map(subs, &(&1.feed_id))]
+          Activities.page(
+            &(&1.id),
+            page_opts,
+            [:deleted, feed: ids, table: Users.default_inbox_query_contexts()]
+          )
+        end
+      end)
     end
   end
 
@@ -265,7 +273,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def follow_edge(follow, _, _), do: {:ok, follow}
 
   def creator_edge(%{creator_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_creator_edge, id, info)
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_creator_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_creator_edge(info, ids) do

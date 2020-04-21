@@ -3,19 +3,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.ResolveFields do
   @moduledoc """
-  Encapsulates the flow for resolving a field in the absence of
-  multiple parents.
+  Encapsulates the flow for resolving a field for potentially multiple
+  parents.
   """
+
+  alias MoodleNet.GraphQL.{Fields, ResolveFields}
+  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   @enforce_keys [:module, :fetcher, :context, :info]
   defstruct [
     :module, :fetcher, :context, :info,
     default: nil,
-    getter_fn: &__MODULE__.default_getter/2,
+    getter_fn: &Fields.getter/2,
   ]
-
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
-  alias MoodleNet.GraphQL.ResolveFields
 
   @type getter :: (%{term => term} -> term)
 
@@ -42,4 +42,6 @@ defmodule MoodleNet.GraphQL.ResolveFields do
       context, getter.(context, default)
   end
   
+  def default_getter(context, default), do: Fields.getter(context, default)
+
 end

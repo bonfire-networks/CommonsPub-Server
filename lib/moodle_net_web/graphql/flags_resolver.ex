@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   alias MoodleNet.{Flags, GraphQL, Repo}
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{Flow, FetchPage, FetchPages, ResolvePages}
+  alias MoodleNet.GraphQL.{FetchPage, FetchPages, ResolveFields, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
 
@@ -63,7 +63,14 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   def my_flag_edge(%{id: id}, _, info) do
     with {:ok, %User{}} <- GraphQL.current_user_or(info, nil) do
-      Flow.fields __MODULE__, :fetch_my_flag_edge, id, info
+      ResolveFields.run(
+        %ResolveFields{
+          module: __MODULE__,
+          fetcher: :fetch_my_flag_edge,
+          context: id,
+          info: info,
+        }
+      )
     end
   end
 

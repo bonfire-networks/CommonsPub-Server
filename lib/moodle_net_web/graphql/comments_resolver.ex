@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{Flow, FetchFields, FetchPage, FetchPages, ResolveFields, ResolvePages}
+  alias MoodleNet.GraphQL.{FetchFields, FetchPage, FetchPages, ResolveFields, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
@@ -58,7 +58,14 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   def in_reply_to_edge(%Comment{reply_to_id: nil}, _, _info), do: {:ok, nil}
   def in_reply_to_edge(%Comment{reply_to_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_in_reply_to_edge, id, info)
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_in_reply_to_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_in_reply_to_edge(info, ids) do
@@ -75,7 +82,14 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   def thread_edge(%Comment{thread: %Thread{}=thread}, _, _info), do: {:ok, thread}
   def thread_edge(%Comment{thread_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_thread_edge, id, info)
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_thread_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_thread_edge(user, ids) do

@@ -10,11 +10,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{
     FetchFields,
-    Flow,
     Page,
     FetchPage,
     FetchPages,
     ResolveField,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -65,7 +65,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def collection_count_edge(%Community{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_collection_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_collection_count_edge(_, ids) do

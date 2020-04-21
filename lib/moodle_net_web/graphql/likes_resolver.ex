@@ -8,7 +8,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     FetchFields,
     FetchPage,
     FetchPages,
-    Flow,
+    ResolveFields,
     ResolvePages,
   }
   alias MoodleNet.Likes.{
@@ -29,7 +29,14 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
   def my_like_edge(%{id: id}, _, info) do
     with {:ok, %User{}} <- GraphQL.current_user_or(info, nil) do
-      Flow.fields __MODULE__, :fetch_my_like_edge, id, info
+      ResolveFields.run(
+        %ResolveFields{
+          module: __MODULE__,
+          fetcher: :fetch_my_like_edge,
+          context: id,
+          info: info,
+        }
+      )
     end
   end
 
@@ -84,7 +91,15 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
 
 
   def liker_count_edge(%{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_liker_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_liker_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_liker_count_edge(_, ids) do
@@ -141,7 +156,15 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   end
 
   def like_count_edge(%{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_like_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_like_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_like_count_edge(_, ids) do

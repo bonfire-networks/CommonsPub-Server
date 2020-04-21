@@ -11,11 +11,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Resources,
   }
   alias MoodleNet.GraphQL.{
-    Flow,
     FetchFields,
     FetchPage,
     FetchPages,
     ResolveField,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -75,7 +75,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def resource_count_edge(%Collection{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_resource_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_resource_count_edge(_, ids) do
@@ -152,7 +160,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def community_edge(%Collection{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_community_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_community_edge(_, ids) do

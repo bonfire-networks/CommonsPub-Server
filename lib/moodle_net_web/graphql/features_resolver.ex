@@ -6,7 +6,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
   Performs the GraphQL Community queries.
   """
   alias MoodleNet.{Features, GraphQL}
-  alias MoodleNet.GraphQL.{Flow, FetchFields}
+  alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
   alias MoodleNet.Meta.Pointers
 
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
@@ -20,7 +20,15 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
   end
 
   def feature_count_edge(%{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_feature_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_feature_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_feature_count_edge(_, ids) do

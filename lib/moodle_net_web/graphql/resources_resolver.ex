@@ -6,8 +6,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
   alias MoodleNet.{Collections, GraphQL, Repo, Resources, Uploads}
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.GraphQL.Flow
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.GraphQL.ResolveFields
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Uploads.{IconUploader, ResourceUploader}
   alias MoodleNetWeb.GraphQL.UploadResolver
@@ -39,7 +39,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
   def collection_edge(%Resource{collection: %Collection{}=c}, _, _info), do: {:ok, c}
   def collection_edge(%Resource{collection_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_collection_edge, id, info
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_collection_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_collection_edge(_, ids) do
