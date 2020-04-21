@@ -39,13 +39,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   describe "community.my_like" do
 
     test "is nil for a guest or a non-liking user or instance admin" do
-      [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob] = some_fake_users!(2)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_like: like_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        comm2 = grumble_post_key(q, conn, "community", vars)
+        comm2 = grumble_post_key(q, conn, :community, vars)
         comm2 = assert_community(comm, comm2)
         assert comm2.my_like == nil
       end
@@ -53,13 +53,13 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     test "works for a liking user or instance admin" do
       [alice, bob] = some_fake_users!(2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_like: like_fields()])
       for user <- [alice, bob, lucy] do
         {:ok, like} = Likes.create(user, comm, %{is_local: true})
-        comm2 = grumble_post_key(q, user_conn(user), "community", vars)
+        comm2 = grumble_post_key(q, user_conn(user), :community, vars)
         comm2 = assert_community(comm, comm2)
         assert_like(like, comm2.my_like)
       end
@@ -71,29 +71,29 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     test "is nil for a guest or a non-following user or instance admin" do
       [alice, bob] = some_fake_users!(2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_follow: follow_fields()])
       for conn <- [json_conn(), user_conn(bob), user_conn(lucy)] do
-        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert comm2.my_follow == nil
       end
     end
 
     test "works for a following user or instance admin" do
       [alice, bob] = some_fake_users!(2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_follow: follow_fields()])
-      comm2 = grumble_post_key(q, user_conn(alice), "community", vars)
+      comm2 = grumble_post_key(q, user_conn(alice), :community, vars)
       comm2 = assert_community(comm, comm2)
       assert_follow(comm2.my_follow)
 
       for user <- [bob, lucy] do
         {:ok, follow} = Follows.create(user, comm, %{is_local: true})
-        comm2 = assert_community(comm, grumble_post_key(q, user_conn(user), "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, user_conn(user), :community, vars))
         assert_follow(follow, comm2.my_follow)
       end
     end
@@ -104,25 +104,25 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     test "is nil for a guest or a non-flagging user or instance admin" do
       [alice, bob] = some_fake_users!(2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_flag: flag_fields()])
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
-        comm2 = assert_community(comm, grumble_post_key(q, conn, "community", vars))
+        comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert comm2.my_flag == nil
       end
     end
 
     test "works for a flagging user or instance admin" do
       [alice, bob] = some_fake_users!(2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!(%{is_instance_admin: true})
       comm = fake_community!(alice)
-      vars = %{"communityId" => comm.id}
+      vars = %{community_id: comm.id}
       q = community_query(fields: [my_flag: flag_fields()])
       for user <- [alice, bob, lucy] do
-        {:ok, flag} = Flags.create(user, comm, %{is_local: true, message: "bad"})
-        comm2 = grumble_post_key(q, user_conn(user), "community", vars)
+        flag = flag!(user, comm)
+        comm2 = grumble_post_key(q, user_conn(user), :community, vars)
         comm2 = assert_community(comm, comm2)
         assert_flag(flag, comm2.my_flag)
       end
@@ -137,7 +137,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       comm = fake_community!(alice)
       q = community_query(fields: [creator: user_fields()])
       conn = json_conn()
-      comm2 = grumble_post_key(q, conn, :community, %{"communityId" => comm.id})
+      comm2 = grumble_post_key(q, conn, :community, %{community_id: comm.id})
       comm2 = assert_community(comm, comm2)
       assert %{creator: creator} = comm2
       assert_user(alice, creator)
@@ -149,7 +149,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
 
     test "works for anyone for a public community" do
       [alice, bob, eve] = users = some_fake_users!(3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       colls = order_follower_count(some_fake_collections!(9, users, [comm])) # 24
       conn = json_conn()
@@ -188,8 +188,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   describe "community.followers" do
 
     test "works for anyone for a public community" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       {:ok, bob_follow} = Follows.one(context_id: comm.id, creator_id: alice.id)
       follows = some_randomer_follows!(26, comm) ++ [bob_follow]
@@ -230,8 +230,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   describe "community.likers" do
 
     test "works for anyone for a public community" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       likes = some_randomer_likes!(27, comm)
       params = [
@@ -270,8 +270,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   describe "community.flags" do
 
     test "empty for a guest or non-flagging user" do
-      [alice, bob, eve] = some_fake_users!(%{}, 3)
-      lucy = fake_user!(%{is_instance_admin: true})
+      [alice, bob, eve] = some_fake_users!(3)
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       flag!(bob, comm)
       flag!(lucy, comm)
@@ -287,7 +287,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
     # TODO: Bob should also see all
     test "not empty for a flagging user, community owner, community owner or admin" do
       [alice, bob] = some_fake_users!(%{}, 2)
-      lucy = fake_user!(%{is_instance_admin: true})
+      lucy = fake_admin!()
       comm = fake_community!(alice)
       flag!(bob, comm)
       flag!(lucy, comm)
