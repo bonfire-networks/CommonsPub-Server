@@ -140,7 +140,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           connection: conn,
           parent_key: :user,
           child_key: :collection_follows,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: eve,
           child_data: follows,
@@ -177,7 +177,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           connection: conn,
           parent_key: :user,
           child_key: :community_follows,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: eve,
           child_data: follows,
@@ -214,7 +214,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           connection: conn,
           parent_key: :user,
           child_key: :user_follows,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: alice,
           child_data: follows,
@@ -255,7 +255,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           parent_key: :user,
           child_key: :follows,
           count_key: :follow_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: alice,
           child_data: follows,
@@ -296,7 +296,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           parent_key: :user,
           child_key: :followers,
           count_key: :follower_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: alice,
           child_data: follows,
@@ -334,7 +334,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           parent_key: :user,
           child_key: :likers,
           count_key: :liker_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: alice,
           child_data: likes,
@@ -373,7 +373,7 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
           parent_key: :user,
           child_key: :likes,
           count_key: :like_count,
-          default_limit: 10,
+          default_limit: 5,
           total_count: 27,
           parent_data: alice,
           child_data: likes,
@@ -394,7 +394,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.IconUploader, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        MoodleNet.Uploads.IconUploader, user,
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, user} = MoodleNet.Users.update(user, %{icon_id: upload.id})
 
@@ -412,7 +413,8 @@ defmodule MoodleNetWeb.GraphQL.UsersTest do
       user = fake_user!()
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
-        MoodleNet.Uploads.ImageUpload, user, %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        MoodleNet.Uploads.ImageUploader, user,
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, user} = MoodleNet.Users.update(user, %{image_id: upload.id})
 

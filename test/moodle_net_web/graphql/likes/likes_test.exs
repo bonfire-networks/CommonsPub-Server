@@ -48,8 +48,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
       q = like_query(fields: [creator: user_fields()])
       conn = json_conn()
       like2 = assert_like(like, grumble_post_key(q, conn, :like, %{like_id: like.id}))
-      assert %{"creator" => creator} = like2
-      assert_user(alice, creator)
+      assert_user(alice, like2.creator)
     end
   end
 
@@ -61,8 +60,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
       q = like_query(fields: [context: [user_spread()]])
       conn = json_conn()
       like2 = assert_like(like, grumble_post_key(q, conn, :like, %{like_id: like.id}))
-      assert %{"context" => context} = like2
-      assert_user(bob, context)
+      assert_user(bob, like2.context)
     end
 
     @tag :skip # community likes are blocked at present
@@ -73,8 +71,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
       q = like_query(fields: [context: [community_spread()]])
       conn = json_conn()
       like2 = assert_like(like, grumble_post_key(q, conn, :like, %{like_id: like.id}))
-      assert %{"context" => context} = like2
-      assert_community(bob, context)
+      assert_community(bob, like2.context)
     end
 
     test "works for guest with a collection like" do
@@ -85,8 +82,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
       q = like_query(fields: [context: [collection_spread()]])
       conn = json_conn()
       like2 = assert_like(like, grumble_post_key(q, conn, :like, %{like_id: like.id}))
-      assert %{"context" => context} = like2
-      assert_collection(eve, context)
+      assert_collection(eve, like2.context)
     end
 
   end

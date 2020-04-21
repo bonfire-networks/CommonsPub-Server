@@ -10,6 +10,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     ActorsResolver,
     CollectionsResolver,
     CommonResolver,
+    FeaturesResolver,
     FlagsResolver,
     FollowsResolver,
     LikesResolver,
@@ -42,6 +43,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :create_collection, :collection do
       arg :community_id, non_null(:string)
       arg :collection, non_null(:collection_input)
+      arg :icon, :upload_input
       resolve &CollectionsResolver.create_collection/2
     end
 
@@ -49,6 +51,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :update_collection, :collection do
       arg :collection_id, non_null(:string)
       arg :collection, non_null(:collection_update_input)
+      arg :icon, :upload_input
       resolve &CollectionsResolver.update_collection/2
     end
 
@@ -143,6 +146,11 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     @desc "The community the collection belongs to"
     field :community, :community do
       resolve &CollectionsResolver.community_edge/3
+    end
+
+    @desc "The total number of times this collection has been featured"
+    field :feature_count, :integer do
+      resolve &FeaturesResolver.feature_count_edge/3
     end
 
     @desc "The total number of resources in the collection, including private ones"

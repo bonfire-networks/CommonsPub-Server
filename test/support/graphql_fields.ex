@@ -95,6 +95,10 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     extra ++ ~w(is canonical_url verb is_local is_public created_at __typename)a
   end
 
+  def invite_fields(extra \\ []) do
+    [] ++ extra
+  end
+
   # def tag_category_basics() do
   #   """
   #   id canonicalUrl name
@@ -204,7 +208,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
       collections_after: list_type(:cursor),
       collections_before: list_type(:cursor),
       collections_limit: :int,
-    ]
+    ] ++ Keyword.get(options, :params, [])
     gen_query(&collections_subquery/1, [ {:params, params} | options ])
   end
 
@@ -220,12 +224,12 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def create_collection_mutation(options \\ []) do
-    [collection: type!(:collection_input), community_id: type!(:string)]
+    [collection: type!(:collection_input), community_id: type!(:string), icon: type(:upload_input)]
     |> gen_mutation(&create_collection_submutation/1, options)
   end
 
   def create_collection_submutation(options \\ []) do
-    [collection: var(:collection), community_id: var(:community_id)]
+    [collection: var(:collection), community_id: var(:community_id), icon: var(:icon)]
     |> gen_submutation(:create_collection, &collection_fields/1, options)
   end
 
@@ -439,6 +443,18 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
 
+  ### invites
+
+  def invite_mutation(options \\ []) do
+    [email: type!(:string)]
+    |> gen_mutation(&invite_submutation/1, options)
+  end
+
+  def invite_submutation(options \\ []) do
+    [email: var(:email)]
+    |> gen_submutation(:send_invite, &invite_fields/1, options)
+  end
+
   ### likes
 
 
@@ -508,22 +524,42 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   end
 
   def create_resource_mutation(options \\ []) do
-    [collection_id: type!(:string), resource: type!(:resource_input)]
+    [
+      collection_id: type!(:string),
+      resource: type!(:resource_input),
+      content: type!(:upload_input),
+      icon: type(:upload_input),
+    ]
     |> gen_mutation(&create_resource_submutation/1, options)
   end
 
   def create_resource_submutation(options \\ []) do
-    [collection_id: var(:collection_id), resource: var(:resource)]
+    [
+      collection_id: var(:collection_id),
+      resource: var(:resource),
+      content: var(:content),
+      icon: var(:icon),
+    ]
     |> gen_submutation(:create_resource, &resource_fields/1, options)
   end
 
   def update_resource_mutation(options \\ []) do
-    [resource_id: type!(:string), resource: type!(:resource_input)]
+    [
+      resource_id: type!(:string),
+      resource: type!(:resource_input),
+      content: type(:upload_input),
+      icon: type(:upload_input),
+    ]
     |> gen_mutation(&update_resource_submutation/1, options)
   end
 
   def update_resource_submutation(options \\ []) do
-    [resource_id: var(:resource_id), resource: var(:resource)]
+    [
+      resource_id: var(:resource_id),
+      resource: var(:resource),
+      content: var(:content),
+      icon: var(:icon),
+    ]
     |> gen_submutation(:update_resource, &resource_fields/1, options)
   end
 

@@ -11,6 +11,7 @@ defmodule MoodleNet.Access do
   alias Ecto.{Changeset, UUID}
   alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
+
   alias MoodleNet.Access.{
     InvalidCredentialError,
     NoAccessError,
@@ -20,13 +21,14 @@ defmodule MoodleNet.Access do
     TokenExpiredError,
     TokenNotFoundError,
     UserDisabledError,
-    UserEmailNotConfirmedError,
+    UserEmailNotConfirmedError
   }
+
   alias MoodleNet.Users.{LocalUser, User}
   import Ecto.Query
 
-  @type access :: RegisterEmailDomainAccess.t | RegisterEmailAccess.t
-  @type token  :: Token.t
+  @type access :: RegisterEmailDomainAccess.t() | RegisterEmailAccess.t()
+  @type token :: Token.t()
 
   @spec create_register_email_domain(domain :: binary) ::
           {:ok, RegisterEmailDomainAccess.t()} | {:error, Changeset.t()}
@@ -58,20 +60,32 @@ defmodule MoodleNet.Access do
   @doc "Removes an access entry or token from the database"
   def hard_delete(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete(w)
   def hard_delete(%RegisterEmailAccess{} = w), do: Common.hard_delete(w)
-  def hard_delete(%Token{}=token), do: Common.hard_delete(token)
+  def hard_delete(%Token{} = token), do: Common.hard_delete(token)
 
   @spec hard_delete!(access | token) :: access
   @doc "Removes an access entry or token from the database or throws DeletionError"
   def hard_delete!(%RegisterEmailDomainAccess{} = w), do: Common.hard_delete!(w)
   def hard_delete!(%RegisterEmailAccess{} = w), do: Common.hard_delete!(w)
-  def hard_delete!(%Token{}=token), do: Common.hard_delete(token)
-
+  def hard_delete!(%Token{} = token), do: Common.hard_delete(token)
 
   @spec find_register_email(email :: binary()) ::
           {:ok, RegisterEmailAccess.t()} | {:error, NotFoundError.t()}
   @doc "Looks up a RegisterEmailAccess by email"
   def find_register_email(email),
     do: find_response(Repo.get_by(RegisterEmailAccess, email: email))
+
+  @spec find_or_add_register_email(email :: binary()) ::
+          {:ok, RegisterEmailAccess.t()} | {:error, Changeset.t()}
+  @doc "Looks up a RegisterEmailAccess by email and creates it if it doesn't exist"
+  def find_or_add_register_email(email) do
+    case find_register_email(email) do
+      {:ok, email} ->
+        {:ok, email}
+
+      {:error, _} ->
+        create_register_email(email)
+    end
+  end
 
   @spec find_register_email_domain(domain :: binary()) ::
           {:ok, RegisterEmailDomainAccess.t()} | {:error, NotFoundError.t()}
@@ -112,7 +126,8 @@ defmodule MoodleNet.Access do
 
   Note: does not validate the validity of the token, you must do that afterwards.
   """
-  @spec fetch_token_and_user(token :: binary) :: {:ok, %Token{}} | {:error, TokenNotFoundError.t}
+  @spec fetch_token_and_user(token :: binary) ::
+          {:ok, %Token{}} | {:error, TokenNotFoundError.t()}
   def fetch_token_and_user(token) when is_binary(token) do
     case UUID.cast(token) do
       {:ok, token} -> Repo.single(fetch_token_and_user_query(token))
@@ -122,12 +137,18 @@ defmodule MoodleNet.Access do
 
   defp fetch_token_and_user_query(token) do
     import Ecto.Query, only: [from: 2]
-    from t in Token,
+
+    from(t in Token,
       where: t.id == ^token,
       preload: [user: [:local_user, :actor]]
+    )
   end
 
-  @type token_create_error :: %InvalidCredentialError{} | %UserDisabledError{} | %UserEmailNotConfirmedError{} | Changeset.t{}
+  @type token_create_error ::
+          %InvalidCredentialError{}
+          | %UserDisabledError{}
+          | %UserEmailNotConfirmedError{}
+          | Changeset.t({})
   @doc """
   Creates a token for a user if the conditions are met:
   * The password is correct
@@ -136,12 +157,12 @@ defmodule MoodleNet.Access do
 
   In all of these cases, a password check will be performed.
   """
-  @spec create_token(User.t, binary) :: {:ok, Token.t} | {:error, token_create_error}
+  @spec create_token(User.t(), binary) :: {:ok, Token.t()} | {:error, token_create_error}
 
   def create_token(%User{local_user: %LocalUser{}} = user, password) do
     if Argon2.verify_pass(password, user.local_user.password_hash) do
       with :ok <- verify_user(user) do
-	Repo.insert(Token.create_changeset(user))
+        Repo.insert(Token.create_changeset(user))
       end
     else
       {:error, InvalidCredentialError.new()}
@@ -150,21 +171,23 @@ defmodule MoodleNet.Access do
 
   # not really unsafe but don't use me outside of tests
   @doc false
-  def unsafe_put_token(%User{}=user), do: Repo.insert(Token.create_changeset(user))
+  def unsafe_put_token(%User{} = user), do: Repo.insert(Token.create_changeset(user))
 
   @doc false
   def verify_user(%User{disabled_at: dis})
-  when not is_nil(dis), do: {:error, UserDisabledError.new()}
+      when not is_nil(dis),
+      do: {:error, UserDisabledError.new()}
 
   def verify_user(%User{local_user: %LocalUser{confirmed_at: confirmed}})
-  when is_nil(confirmed), do: {:error, UserEmailNotConfirmedError.new()}
+      when is_nil(confirmed),
+      do: {:error, UserEmailNotConfirmedError.new()}
 
   def verify_user(%User{local_user: %LocalUser{}}), do: :ok
 
   @doc "Ensures that a token is valid (not expired)"
   def verify_token(token, now \\ DateTime.utc_now())
 
-  def verify_token(%Token{}=token, %DateTime{}=now) do
+  def verify_token(%Token{} = token, %DateTime{} = now) do
     if :gt == DateTime.compare(token.expires_at, now),
       do: :ok,
       else: {:error, TokenExpiredError.new()}

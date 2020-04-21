@@ -16,11 +16,18 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      q = create_resource_mutation()
+      q = create_resource_mutation(fields: [content: [:url], icon: [:url]])
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
-        ri = Fake.resource_input()
-        vars = %{collection_id: coll.id, resource: ri}
-        assert_resource(ri, grumble_post_key(q, conn, :create_resource, vars))
+        vars = %{
+          collection_id: coll.id,
+          resource: Fake.resource_input(),
+          content: Fake.content_input(),
+          icon: %{url: "https://via.placeholder.com/150.png"},
+        }
+        res = grumble_post_key(q, conn, :create_resource, vars)
+        assert_resource(res)
+        assert res["content"]["url"]
+        assert res["icon"]["url"]
       end
     end
 
@@ -31,7 +38,8 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       q = create_resource_mutation()
       conn = json_conn()
       ri = Fake.resource_input()
-      vars = %{collection_id: coll.id, resource: ri}
+      ci = Fake.content_input()
+      vars = %{collection_id: coll.id, resource: ri, content: ci}
       assert_not_logged_in(grumble_post_errors(q, conn, vars), ["createResource"])
     end
 
@@ -48,8 +56,8 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       q = update_resource_mutation()
       for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
         ri = Fake.resource_input()
-        vars = %{resource_id: resource.id, resource: ri}
-        assert_resource(ri, grumble_post_key(q, conn, :update_resource, vars))
+        vars = %{resource_id: resource.id, resource: ri, content: Fake.content_input()}
+        assert_resource(grumble_post_key(q, conn, :update_resource, vars))
       end
     end
 

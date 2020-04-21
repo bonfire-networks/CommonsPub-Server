@@ -4,10 +4,12 @@
 defmodule MoodleNet.Uploads.ResourceUploader do
   use MoodleNet.Uploads.Definition
 
-  def allowed_extensions,
-    do: ~w(pdf rtf docx doc odt ott xls xlsx ods ots csv ppt pps pptx odp otp) ++
-      ~w(odg otg odc ogg mp3 m4a wav mp4 flv avi gif jpg jpeg png svg webm) ++
-      ~w(eps tex mbz epub mobi torrent)
+  def allowed_media_types do
+    :moodle_net
+    |> Application.fetch_env!(__MODULE__)
+    |> Keyword.fetch!(:allowed_media_types)
+  end
+
 
   def transform(_file), do: :skip
 end

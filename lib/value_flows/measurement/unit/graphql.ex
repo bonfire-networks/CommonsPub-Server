@@ -17,11 +17,8 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   #   ResolveRootPage,
   # }
   alias MoodleNet.GraphQL.{
-    Flow,
-    FetchFields,
-    FetchPage,
-    FetchPages,
     ResolveField,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -92,7 +89,14 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
 
 
   def community_edge(%Unit{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_community_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_community_edge(_, ids) do

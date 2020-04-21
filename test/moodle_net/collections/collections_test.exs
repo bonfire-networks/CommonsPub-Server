@@ -16,79 +16,6 @@ defmodule MoodleNet.CollectionsTest do
     {:ok, %{user: user, community: community, collection: collection}}
   end
 
-  describe "count_for_list" do
-    test "returns the number of public items", context do
-      all = for _ <- 1..4 do
-        user = fake_user!()
-        comm = fake_community!(user)
-        fake_collection!(user, comm)
-      end ++ [context.collection]
-      deleted = Enum.reduce(all, [], fn coll, acc ->
-        if Fake.bool() do
-          {:ok, coll} = Collections.soft_delete(coll)
-          [coll | acc]
-        else
-          acc
-        end
-      end)
-
-      assert Enum.count(all) - Enum.count(deleted) == Collections.count_for_list()
-    end
-  end
-
-  describe "many" do
-    test "returns a list of non-deleted collections", context do
-      all = for _ <- 1..4 do
-        user = fake_user!()
-        comm = fake_community!(user)
-        fake_collection!(user, comm)
-      end ++ [context.collection]
-      deleted = Enum.reduce(all, [], fn coll, acc ->
-        if Fake.bool() do
-          {:ok, coll} = Collections.soft_delete(coll)
-          [coll | acc]
-        else
-          acc
-        end
-      end)
-      {:ok, fetched} = Collections.many(:deleted)
-
-      assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
-      for coll <- fetched do
-        assert coll.actor
-        assert coll.follower_count
-        refute coll.deleted_at
-      end
-    end
-
-    test "ignores collections that have a deleted community", context do
-      assert {:ok, comm} = Communities.soft_delete(context.community)
-
-      # one of the collections is in context
-      for _ <- 1..4 do
-        user = fake_user!()
-        fake_collection!(user, comm)
-      end
-
-      {:ok, fetched} = Collections.many(:deleted)
-      assert Enum.empty?(fetched)
-    end
-
-    test "returns a list of collections in a community", context do
-      collections = for _ <- 1..4 do
-        user = fake_user!()
-        fake_collection!(user, context.community)
-      end ++ [context.collection]
-
-      # create a one outside of the community
-      user = fake_user!()
-      fake_collection!(user, fake_community!(user))
-
-      {:ok, fetched} = Collections.many(community_id: context.community.id)
-      assert Enum.count(collections) == Enum.count(fetched)
-    end
-  end
-
   describe "one" do
     test "returns a collection by ID", context do
       assert {:ok, coll} = Collections.one(id: context.collection.id)
@@ -102,6 +29,7 @@ defmodule MoodleNet.CollectionsTest do
       assert {:error, %NotFoundError{}} = Collections.one([:deleted, id: context.collection.id])
     end
 
+    @tag :skip
     test "fails when the parent community has been deleted", context do
       assert collection = fake_collection!(context.user, context.community)
       assert {:ok, _} = Communities.soft_delete(context.community)
@@ -137,7 +65,6 @@ defmodule MoodleNet.CollectionsTest do
       attrs = Fake.collection()
       assert {:ok, updated_collection} = Collections.update(collection, attrs)
       assert updated_collection.name == attrs.name
-      assert updated_collection.actor.preferred_username == attrs.preferred_username
     end
   end
 

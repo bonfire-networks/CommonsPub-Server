@@ -79,8 +79,12 @@ defmodule MoodleNet.Mixfile do
       # File format parsing
       {:twinkle_star, git: "https://github.com/commonspub/twinkle_star"},
       # database
-      {:ecto, "~> 3.3.4", override: true},
-      {:ecto_sql, "~> 3.3.4", override: true},
+      # {:ecto, "~> 3.3.4", override: true},
+      # {:ecto_sql, "~> 3.3.4", override: true},
+      {:ecto, git: "https://github.com/elixir-ecto/ecto",
+       branch: "master", override: true},
+      {:ecto_sql, git: "https://github.com/elixir-ecto/ecto_sql",
+       branch: "master", override: true},
       {:postgrex, "~> 0.14"},
       {:ecto_ulid,
        git: "https://github.com/irresponsible/ecto-ulid",
@@ -104,7 +108,8 @@ defmodule MoodleNet.Mixfile do
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
-      {:oban, "~> 0.11"}, # job queue
+      # {:oban, "~> 1.2"}, # job queue
+      {:oban, git: "https://github.com/sorentwo/oban", branch: "master"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:

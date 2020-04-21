@@ -17,7 +17,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
       for conn <- [user_conn(alice), user_conn(lucy)] do
         ci = Fake.community_input()
         comm = grumble_post_key(q, conn, :create_community, %{community: ci})
-        assert_community(ci, comm)
+        assert_community_created(ci, comm)
       end
     end
 
@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.GraphQL.Communities.MutationsTest do
         ci = Fake.community_update_input()
         vars = %{community: ci, community_id: comm.id}
         comm = grumble_post_key(q, conn, :update_community, vars)
-        assert_community(ci, comm)
+        assert_community_updated(ci, comm)
       end
     end
 

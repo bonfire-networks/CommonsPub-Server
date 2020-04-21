@@ -37,23 +37,6 @@ defmodule MoodleNet.Users do
   end
 
   @doc """
-  Retrieves a Page of users according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page Queries, User,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages Queries, User,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
   2. Inserts user (because the access check isn't very good at crap emails yet)
@@ -285,20 +268,8 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def inbox(%User{inbox_id: inbox_id}=user, page_opts) do
-    Repo.transact_with(fn ->
-      with {:ok, subs} <- feed_subscriptions(user) do
-        ids = [inbox_id | Enum.map(subs, &(&1.feed_id))]
-        Activities.page(
-          &(&1.id),
-          page_opts,
-          [:deleted, feed: ids, table: default_inbox_query_contexts()]
-        )
-      end
-    end)
-  end
-
-  defp default_inbox_query_contexts() do
+  @doc false
+  def default_inbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_inbox_query_contexts)
   end

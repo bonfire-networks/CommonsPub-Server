@@ -12,6 +12,18 @@ defmodule MoodleNet.Test.Fake do
   @integer_min -32768
   @integer_max 32767
 
+  @file_fixtures [
+    "test/fixtures/images/150.png",
+    "test/fixtures/very-important.pdf",
+  ]
+
+  @url_fixtures [
+    "https://duckduckgo.com",
+    "https://moodle.com/moodlenet",
+    "https://en.wikipedia.org/wiki/Boeing_727#Specifications",
+    "https://upload.wikimedia.org/wikipedia/commons/5/57/B-727_Iberia_%28cropped%29.jpg",
+  ]
+
   @doc "Returns true"
   def truth(), do: true
   @doc "Returns false"
@@ -27,6 +39,12 @@ defmodule MoodleNet.Test.Fake do
   def neg_integer(), do: Faker.random_between(@integer_min, 0)
   @doc "Generates a random url"
   def url(), do: Faker.Internet.url() <> "/"
+  @doc "Picks a path from a set of available files."
+  def path(), do: Faker.Util.pick(@file_fixtures)
+  @doc "Picks a remote url from a set of available ones."
+  def content_url(), do: Faker.Util.pick(@url_fixtures)
+  @doc "Generate a random content type"
+  def content_type(), do: Faker.File.mime_type()
   @doc "Picks a name"
   def name(), do: Faker.Company.name()
   @doc "Generates a random password string"
@@ -75,11 +93,12 @@ defmodule MoodleNet.Test.Fake do
   @doc "Generates a random domain name"
   def domain(), do: unused(&Faker.Internet.domain_name/0, :domain)
   @doc "Generates the first half of an email address"
-  def email_user(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+  def email_user(), do: unused(&Faker.Internet.user_name/0, :email_user)
   @doc "Picks a unique random url for an ap endpoint"
   def ap_url_base(), do: unused(&url/0, :ap_url_base)
   @doc "Picks a unique preferred_username"
-  def preferred_username(), do: unused(&Faker.Pokemon.name/0, :preferred_username)
+  def preferred_username(), do: unused(&Faker.Internet.user_name/0, :preferred_username)
+
   @doc "Picks a random canonical url and makes it unique"
   def canonical_url(), do: Faker.Internet.url() <> "/" <> ulid()
 
@@ -333,4 +352,26 @@ defmodule MoodleNet.Test.Fake do
   # def community_role(base \\ %{}) do
   #   base
   # end
+
+  def content_mirror_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:url, &content_url/0)
+  end
+
+  def content_upload_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy(:upload, fn ->
+      path = path()
+      %Plug.Upload{
+        path: path,
+        filename: Path.basename(path),
+        content_type: content_type(),
+      }
+    end)
+  end
+
+  def content_input(base \\ %{}) do
+    gen = Faker.Util.pick([&content_mirror_input/1, &content_upload_input/1])
+    gen.(base)
+  end
 end

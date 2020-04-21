@@ -138,6 +138,14 @@ defmodule MoodleNet.Activities.Queries do
     where q, [activity: a], a.creator_id in ^ids
   end
 
+  def filter(q, {:context_id, id}) when is_binary(id) do
+    where q, [activity: a], a.context_id == ^id
+  end
+
+  def filter(q, {:context_id, ids}) when is_list(ids) do
+    where q, [activity: a], a.context_id in ^ids
+  end
+
   def filter(q, {:table_id, id}) when is_binary(id) do
     where q, [context: c], c.table_id == ^id
   end

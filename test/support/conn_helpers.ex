@@ -77,45 +77,45 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}
       %{"data" => data} -> data
-        IO.inspect(client_received: data)
+        # IO.inspect(client_received: data)
         data
       other -> throw {:horribly_wrong, other}
     end
   end
 
-  def grumble_post_data(query, conn, vars \\ %{}, files \\ %{}, name \\ "test") do
+  def grumble_post_data(query, conn, vars \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.puts("query: " <> query)
     # IO.inspect(vars: vars)
-    query = %{
+    query = extract_files(%{
       query: query,
       variables: vars,
       operationName: name,
-    }
-    gql_post_data(conn, extract_files(query, files))
+    })
+    gql_post_data(conn, query)
   end
 
-  def grumble_post_key(query, conn, key, vars \\ %{}, files \\ %{}, name \\ "test") do
+  def grumble_post_key(query, conn, key, vars \\ %{}, name \\ "test") do
     key = camel(key)
-    assert %{^key => val} = grumble_post_data(query, conn, vars, files, name)
+    assert %{^key => val} = grumble_post_data(query, conn, vars, name)
     val
   end
 
   def gql_post_errors(conn \\ json_conn(), query),
     do: Map.fetch!(gql_post_200(conn, query), :errors)
 
-  def grumble_post_errors(query, conn, vars \\ %{}, files \\ %{}, name \\ "test") do
+  def grumble_post_errors(query, conn, vars \\ %{}, name \\ "test") do
     query = Grumble.PP.to_string(query)
     vars = camel_map(vars)
     # IO.inspect(query: query)
     # IO.inspect(vars: vars)
-    query = %{
+    query = extract_files(%{
       query: query,
       variables: vars,
       operationName: name,
-    }
-   Map.fetch!(gql_post_200(conn, extract_files(query, files)), "errors")
+    })
+   Map.fetch!(gql_post_200(conn, query), "errors")
   end
 
   @doc false
@@ -137,19 +137,52 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
   def uncamel("__typeName"), do: :typename
   def uncamel(bin) when is_binary(bin), do: String.to_existing_atom(Recase.to_snake(bin))
 
-  defp extract_files(%{variables: vars} = query, files) do
-    new_vars =
-      for {field_key, _} <- files, into: %{} do
-        {field_key, Atom.to_string(field_key)}
-      end
+  def extract_files(%{variables: vars} = query) do
+    case extract_file_vars(vars) do
+      {[], []} ->
+        query
 
-    new_files =
-      for {field_key, file} <- files, into: %{} do
-        {Atom.to_string(field_key), file}
-      end
+      {new_files, new_vars} ->
+        query
+        |> Map.update!(:variables, &Map.merge(&1, new_vars))
+        |> Map.merge(new_files)
+    end
+  end
 
-    query
-    |> Map.put(:variables, Map.merge(vars, new_vars))
-    |> Map.merge(new_files)
+  defp extract_file_vars(vars, path \\ []) do
+    {new_files, new_vars} = Enum.flat_map_reduce(vars, %{}, fn {key, val}, acc ->
+      path = path ++ [key]
+
+      case val do
+        %Plug.Upload{} = file ->
+          file_key = Enum.join(path, "_")
+
+          {
+            %{String.to_atom(file_key) => file},
+            put_in_map(acc, path, file_key),
+          }
+
+        inner when is_map(inner) ->
+          {files, vars} = extract_file_vars(inner, path)
+          {files, Map.merge(acc, vars)}
+
+        _other ->
+          {%{}, acc}
+      end
+    end)
+
+    {Enum.into(new_files, %{}), new_vars}
+  end
+
+  defp put_in_map(%{} = map, [key], val) do
+    Map.put(map, key, val)
+  end
+
+  defp put_in_map(%{} = map, [key | path], val) when is_list(path) do
+    {_, ret} = Map.get_and_update(map, key, fn existing ->
+      {val, put_in_map(existing || %{}, path, val)}
+    end)
+
+    ret
   end
 end

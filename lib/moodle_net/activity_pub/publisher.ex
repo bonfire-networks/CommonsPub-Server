@@ -59,17 +59,21 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def create_resource(resource) do
     with {:ok, collection} <- ActivityPub.Actor.get_cached_by_local_id(resource.collection_id),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
+         content_url <- MoodleNet.Uploads.remote_url_from_id(resource.content_id),
+         icon_url <- MoodleNet.Uploads.remote_url_from_id(resource.icon_id),
+         resource <- MoodleNet.Repo.preload(resource, :content),
          object <- %{
            "name" => resource.name,
-           "url" => resource.url,
-           "icon" => Map.get(resource, :icon),
+           "url" => content_url,
+           "icon" => icon_url,
            "actor" => actor.ap_id,
            "attributedTo" => actor.ap_id,
            "context" => collection.ap_id,
            "summary" => Map.get(resource, :summary),
            "type" => "Document",
            "tag" => resource.license,
-           "author" => Utils.create_author_object(resource)
+           "author" => Utils.create_author_object(resource),
+           "mediaType" => resource.content.media_type
          },
          params = %{
            actor: actor,

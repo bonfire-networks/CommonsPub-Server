@@ -64,13 +64,15 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
   end
 
   describe "creating remote actors" do
-    test "creating actors work" do
-      actor = insert(:actor)
+    test "create remote actor with an icon" do
+      actor = insert(:actor, %{data: %{"icon" => "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"}})
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
       assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
       assert created_actor.actor.preferred_username == username
+      created_actor = MoodleNet.Repo.preload(created_actor, [icon: [:content_mirror]])
+      assert created_actor.icon.content_mirror.url == "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"
     end
 
     test "crete remote actor with blank name" do
@@ -146,13 +148,13 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
       object = %{
         "name" => "resource",
-        "url" => "https://resource.com",
+        "url" => "http://releases.ubuntu.com/19.10/ubuntu-19.10-desktop-amd64.iso.torrent",
         "actor" => actor.ap_id,
         "attributedTo" => actor.ap_id,
         "context" => collection.ap_id,
         "type" => "Document",
         "tag" => "GPL-v3",
-        "summary" => "this is a resource",
+        "summary" => "I use arch btw",
         "icon" => "https://icon.store/picture.png",
         "author" => %{
           "name" => "Author McAuthorface",

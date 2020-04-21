@@ -15,35 +15,9 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
 
   import_types Absinthe.Plug.Types
 
-  # FIXME: handle if url AND path are set
   input_object :upload_input do
     field :url, :string
-    field :path, :string
-    field :filename, :string
-    field :content_type, :string
-  end
-
-  object :upload_mutations do
-    @desc "Upload a small icon, also known as an avatar."
-    field :upload_icon, type: :content do
-      arg(:context_id, non_null(:id))
-      # FIXME: allow url's
-      arg(:upload, non_null(:upload_input))
-      resolve(&UploadResolver.upload_icon/2)
-    end
-
-    @desc "Upload a large image, also known as a header."
-    field :upload_image, type: :content do
-      arg(:context_id, non_null(:id))
-      arg(:upload, non_null(:upload_input))
-      resolve(&(UploadResolver.upload_image/2))
-    end
-
-    field :upload_resource, type: :content do
-      arg(:context_id, non_null(:id))
-      arg(:upload, non_null(:upload_input))
-      resolve(&UploadResolver.upload_resource/2)
-    end
+    field :upload, :upload
   end
 
   @desc "An uploaded file, may contain metadata."

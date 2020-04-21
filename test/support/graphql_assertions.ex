@@ -37,7 +37,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     uri = URI.parse(url)
     assert uri.scheme
     assert uri.host
-    assert uri.path
     url
   end
 
@@ -301,7 +300,7 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       typename: assert_eq("Me")
   end
 
-  def assert_me(%User{}=user, %{}=me) do
+  def assert_me(user, %{}=me) do
     assert_mes_eq(user, assert_me(me))
   end
 
@@ -312,18 +311,26 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     me
   end
 
-  def assert_me_input(%{}=user, %{}=me) do
+  def assert_me_created(%{}=user, %{}=me) do
+    user = assert_user_created(user)
     me = assert_me(me)
-    assert_maps_eq user, me, :assert_me_input,
-      [:wants_email_digest, :wants_notifications], [:email]
-    assert_user_input user, me.user
-    me
+    assert_maps_eq user, me, :assert_me_created,
+      [:email, :wants_email_digest, :wants_notifications]
+    %{ me | user: assert_user_created(user, me.user) }
+  end
+
+  def assert_me_updated(%{}=user, %{}=me) do
+    user = assert_user_updated(user)
+    me = assert_me(me)
+    assert_maps_eq user, me, :assert_me_updated, [],
+      [:wants_email_digest, :wants_notifications]
+    %{ me | user: assert_user_updated(user, me.user) }
   end
 
   def assert_user(user) do
     assert_object user, :assert_user,
       [id: &assert_ulid/1,
-       canonical_url: &assert_url/1,
+       canonical_url: assert_optional(&assert_url/1),
        preferred_username: &assert_username/1,
        display_username: &assert_display_username/1,
        name: &assert_binary/1,
@@ -378,11 +385,37 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     user2
   end
 
-  def assert_user_input(%{}=user, %{}=user2) do
+  def assert_user_created(%{}=user) do
+    assert_object user, :assert_user_created, [preferred_username: &assert_username/1],
+      [ name: &assert_binary/1,
+        summary: &assert_binary/1,
+        location: &assert_binary/1,
+        website: &assert_url/1 ]
+  end
+
+  def assert_user_created(%{}=user, %{}=user2) do
+    user = assert_user_created(user)
     user2 = assert_user(user2)
-    assert_maps_eq user, user2,
-      [:name, :summary, :location, :website],
-      [:preferred_username]
+    assert_maps_eq user, user2, [:preferred_username],
+      [:name, :summary, :location, :website]
+    user2
+  end
+
+  def assert_user_updated(%{}=user) do
+    assert_object user, :assert_user_updated, [],
+      [ wants_email_digest: &assert_boolean/1,
+        wants_notifications: &assert_boolean/1,
+        name: &assert_binary/1,
+        summary: &assert_binary/1,
+        location: &assert_binary/1,
+        website: &assert_url/1 ]
+  end
+
+  def assert_user_updated(%{}=user, %{}=user2) do
+    user = assert_user_updated(user)
+    user2 = assert_user(user2)
+    assert_maps_eq user, user2, [],
+      [:name, :summary, :location, :website]
     user2
   end
 
@@ -413,10 +446,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
       ]
   end
 
-  def assert_community(%Community{}=comm, %{id: _}=comm2) do
-    assert_communities_eq(comm, comm2)
-  end
-
   def assert_community(%Community{}=comm, %{}=comm2) do
     assert_communities_eq(comm, assert_community(comm2))
   end
@@ -432,11 +461,28 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     comm2
   end
 
-  def assert_community_input(%{}=comm, %{}=comm2) do
+  def assert_community_created(%{}=comm) do
+    assert_object comm, :assert_community_created,
+      [ preferred_username: &assert_username/1 ],
+      [ name: &assert_binary/1, summary: &assert_binary/1 ]
+  end
+
+  def assert_community_created(%{}=comm, %{}=comm2) do
+    comm = assert_community_created(comm)
     comm2 = assert_community(comm2)
-    assert_maps_eq comm, comm2,
-      [:name, :summary],
-      [:preferred_username]
+    assert_maps_eq comm, comm2, [:preferred_username], [:name, :summary]
+    comm2
+  end
+
+  def assert_community_updated(%{}=comm) do
+    assert_object comm, :assert_community_updated, [],
+      [ name: &assert_binary/1, summary: &assert_binary/1 ]
+  end
+
+  def assert_community_updated(%{}=comm, %{}=comm2) do
+    comm = assert_community_updated(comm)
+    comm2 = assert_community(comm2)
+    assert_maps_eq comm, comm2, [:name, :summary]
     comm2
   end
 
@@ -486,11 +532,28 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     coll2
   end
 
-  def assert_collection_input(%{}=coll, %{}=coll2) do
+  def assert_collection_created(%{}=coll) do
+    assert_object coll, :assert_collection_created,
+      [ preferred_username: &assert_username/1 ],
+      [ name: &assert_binary/1, summary: &assert_binary/1 ]
+  end
+
+  def assert_collection_created(%{}=coll, %{}=coll2) do
+    coll = assert_collection_created(coll)
     coll2 = assert_collection(coll2)
-    assert_maps_eq coll, coll2,
-      [:name, :summary],
-      [:preferred_username]
+    assert_maps_eq coll, coll2, [:preferred_username], [:name, :summary]
+    coll2
+  end
+
+  def assert_collection_updated(%{}=coll) do
+    assert_object coll, :assert_collection_updated, [],
+      [ name: &assert_binary/1, summary: &assert_binary/1 ]
+  end
+
+  def assert_collection_updated(%{}=coll, %{}=coll2) do
+    coll = assert_collection_updated(coll)
+    coll2 = assert_collection(coll2)
+    assert_maps_eq coll, coll2, [:name, :summary]
     coll2
   end
 
@@ -577,18 +640,16 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   def assert_comment(comment) do
     assert_object comment, :assert_comment,
-      [id: &assert_ulid/1,
-       canonical_url: assert_optional(&assert_url/1),
-       content: &assert_binary/1,
-       is_local: &assert_boolean/1,
-       is_hidden: &assert_boolean/1,
-       is_public: &assert_boolean/1,
-       created_at: &assert_datetime/1,
-       updated_at: &assert_datetime/1,
-       typename: assert_eq("Comment"),
-      ],
-      [liker_count: &assert_non_neg/1,
-      ]
+      [ id: &assert_ulid/1,
+        canonical_url: assert_optional(&assert_url/1),
+        content: &assert_binary/1,
+        is_local: &assert_boolean/1,
+        is_hidden: &assert_boolean/1,
+        is_public: &assert_boolean/1,
+        created_at: &assert_datetime/1,
+        updated_at: &assert_datetime/1,
+        typename: assert_eq("Comment") ],
+      [ liker_count: &assert_non_neg/1 ]
   end
 
   def assert_comment(%Comment{}=comment, %{id: _}=comment2) do
@@ -615,7 +676,6 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        canonical_url: assert_optional(&assert_url/1),
        is_local: &assert_boolean/1,
        created_at: &assert_datetime/1,
-       updated_at: &assert_datetime/1,
        typename: assert_eq("Feature"),
       ]
   end
@@ -671,7 +731,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
        created_at: &assert_datetime/1,
        updated_at: &assert_datetime/1,
        typename: assert_eq("Follow"),
-      ]
+      ],
+    [context: &assert_follow_context/1]
   end
 
   def assert_follow(%Follow{}=follow, %{id: _}=follow2) do
@@ -745,9 +806,12 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     activity2
   end
 
+  def typeof(%{typename: typename}), do: typename
+  def typeof(%{"__typename" => typename}), do: typename
 
-  def assert_flag_context(thing) do
-    assert %{typename: type} = thing
+  def assert_flag_context(thing), do: assert_flag_context(thing, typeof(thing))
+
+  def assert_flag_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -757,8 +821,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  def assert_like_context(thing) do
-    assert %{typename: type} = thing
+  def assert_like_context(thing), do: assert_like_context(thing, typeof(thing))
+
+  def assert_like_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -767,8 +832,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  def assert_follow_context(thing) do
-    assert %{typename: type} = thing
+  def assert_follow_context(thing), do: assert_follow_context(thing, typeof(thing))
+
+  def assert_follow_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Community" -> assert_community(thing)
@@ -777,8 +843,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  def assert_tagging_context(thing) do
-    assert %{typename: type} = thing
+  def assert_tagging_context(thing), do: assert_tagging_context(thing, typeof(thing))
+
+  def assert_tagging_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -789,8 +856,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  def assert_activity_context(thing) do
-    assert %{typename: type} = thing
+  def assert_activity_context(thing), do: assert_activity_context(thing, typeof(thing))
+
+  def assert_activity_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Comment" -> assert_comment(thing)
@@ -799,8 +867,9 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
     end
   end
 
-  def assert_thread_context(thing) do
-    assert %{typename: type} = thing
+  def assert_thread_context(thing), do: assert_thread_context(thing, typeof(thing))
+
+  def assert_thread_context(thing, type) do
     case type do
       "Collection" -> assert_collection(thing)
       "Community" -> assert_community(thing)
@@ -852,6 +921,11 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
   # end
 
   # def assert_block(block) do
+  # end
+
+  # def assert_block_context(thing), do: assert_block_context(thing, typeof(thing))
+
+  # def assert_block_context(thing, type) do
   # end
 
 end

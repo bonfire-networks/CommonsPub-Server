@@ -11,6 +11,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     CommonResolver,
     CommunitiesResolver,
     FlagsResolver,
+    FeaturesResolver,
     FollowsResolver,
     LikesResolver,
     ThreadsResolver,
@@ -41,6 +42,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     @desc "Create a community"
     field :create_community, :community do
       arg :community, non_null(:community_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &CommunitiesResolver.create_community/2
     end
 
@@ -48,6 +51,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
     field :update_community, :community do
       arg :community_id, non_null(:string)
       arg :community, non_null(:community_update_input)
+      arg :icon, :upload_input
+      arg :image, :upload_input
       resolve &CommunitiesResolver.update_community/2
     end
 
@@ -151,6 +156,11 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       arg :before, list_of(non_null(:cursor))
       arg :after, list_of(non_null(:cursor))
       resolve &CommunitiesResolver.collections_edge/3
+    end
+
+    @desc "The total number of times this community has been featured"
+    field :feature_count, :integer do
+      resolve &FeaturesResolver.feature_count_edge/3
     end
 
     @desc """

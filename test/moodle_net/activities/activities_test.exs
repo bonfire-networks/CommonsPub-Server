@@ -18,79 +18,6 @@ defmodule MoodleNet.ActivitiesTest do
     {:ok, %{user: user, context: comm}}
   end
 
-  describe "many" do
-    test "returns a list of activities for a context", %{context: context} do
-      # When we create a community, it inserts an activity to link to outboxes
-      assert [creation] = Activities.many(context_id: context.id)
-      known =
-      for _ <- 1..5 do
-        user = fake_user!()
-        fake_activity!(user, context)
-      end
-      {:ok, found} = Activities.many(context_id: context.id)
-      assert Enum.count(found) == 1 + Enum.count(known)
-    end
-
-    test "can return a list of activities for a user", %{user: user} do
-      # When we create a community, it inserts 2 activities to link to outboxes
-      assert {:ok, [_, _]} = Activities.many(user: user)
-      found =
-        for _ <- 1..5 do
-          context = fake_community!(fake_user!())
-          fake_activity!(user, context)
-        end
-
-      assert {:ok, fetched} = Activities.many(user: user)
-      assert Enum.count(fetched) == 1 + Enum.count(found)
-    end
-
-    test "can return a list of activities for a user that excludes unpublished activities", %{user: user} do
-      # When we create a community, it inserts 2 activities to link to outboxes
-      assert {:ok, [_, _]} = Activities.many(user: user)
-      found =
-        for _ <- 1..5 do
-          context = fake_community!(fake_user!())
-          fake_activity!(user, context)
-        end
-
-      unpublished =
-        Enum.reduce(found, [], fn activity, acc ->
-          if Fake.bool() do
-            {:ok, activity} = Activities.update(activity, %{is_public: false})
-            [activity | acc]
-          else
-            acc
-          end
-        end)
-
-      assert {:ok, fetched} = Activities.many(user: user)
-      assert 1 + Enum.count(found) - Enum.count(unpublished) == Enum.count(fetched)
-    end
-
-    test "excludes deleted activities", %{user: user} do
-      # When we create a community, it inserts 2 activities to link to outboxes
-      assert {:ok, [_, _]} = Activities.many(user: user)
-      found =
-        for _ <- 1..5 do
-          context = fake_community!(fake_user!())
-          fake_activity!(user, context)
-        end
-
-      deleted =
-        Enum.reduce(found, [], fn activity, acc ->
-          if Fake.bool() do
-            {:ok, activity} = Activities.soft_delete(activity)
-            [activity | acc]
-          else
-            acc
-          end
-        end)
-
-      assert {:ok, fetched} = Activities.many(user: user)
-      assert 1 + Enum.count(found) - Enum.count(deleted) == Enum.count(fetched)
-    end
-  end
-
   describe "one" do
     test "can return an activity by ID", %{user: user, context: context} do
       activity = fake_activity!(user, context)
@@ -158,4 +85,5 @@ defmodule MoodleNet.ActivitiesTest do
       assert activity.deleted_at
     end
   end
+
 end
