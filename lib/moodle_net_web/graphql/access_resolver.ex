@@ -2,32 +2,58 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.AccessResolver do
-  alias MoodleNet.GraphQL
-  alias MoodleNet.Access.{RegisterEmailAccesses, RegisterEmailDomainAccesses}
 
-  def register_email_accesses(args, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      RegisterEmailAccesses.page(
-        & &1.id,
-        args,
-        []
+  alias MoodleNet.Access
+  alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
+  alias MoodleNet.Users.User
+
+  def register_email_accesses(page_opts, info) do
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
+      ResolveRootPage.run(
+        %ResolveRootPage{
+          module: __MODULE__,
+          fetcher: :fetch_register_email_accesses,
+          page_opts: page_opts,
+          info: info,
+        }
       )
-    else
-      _ -> {:ok, GraphQL.empty_page()}
     end
   end
 
-  def register_email_domain_accesses(args, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      RegisterEmailDomainAccesses.page(
-        & &1.id,
-        args,
-        []
+  def fetch_register_email_accesses(page_opts, _info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Access.RegisterEmailAccessQueries,
+        query: Access.RegisterEmailAccesses,
+        page_opts: page_opts,
+      }
+    )
+  end
+
+  def register_email_domain_accesses(page_opts, info) do
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
+      ResolveRootPage.run(
+        %ResolveRootPage{
+          module: __MODULE__,
+          fetcher: :fetch_register_email_domain_accesses,
+          page_opts: page_opts,
+          info: info,
+        }
       )
-    else
-      _ -> {:ok, GraphQL.empty_page()}
     end
   end
+
+  def fetch_register_email_domain_accesses(page_opts, _info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Access.RegisterEmailDomainAccessQueries,
+        query: Access.RegisterEmailDomainAccesses,
+        page_opts: page_opts,
+      }
+    )
+  end
+
+  ### mutations
 
   def create_register_email_access(%{email: email}, info) do
     with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),

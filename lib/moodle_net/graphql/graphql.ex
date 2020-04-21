@@ -31,13 +31,16 @@ defmodule MoodleNet.GraphQL do
     |> Enum.map(& &1.schema_node.identifier)
   end
 
-  def admin_or_not_permitted(%Resolution{}=info) do
+  def admin_or_not_permitted(info), do: admin_or(info, &not_permitted/0)
+
+  def admin_or_empty_page(info), do: admin_or(info, &empty_page/0)
+
+  def admin_or(%Resolution{}=info, value) do
     case info.context.current_user do
       match_admin() -> {:ok, info.context.current_user}
-      _ -> not_permitted()
+      _ -> lazy(value)
     end
   end
-
   def equals_or(l, r, good, bad), do: lazy_bool_or(l == r, good, bad)
 
   def equals_or_not_permitted(l, r), do: equals_or(l, r, :ok, &empty_page/0)
