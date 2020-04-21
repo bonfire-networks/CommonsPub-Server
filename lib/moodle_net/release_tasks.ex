@@ -55,10 +55,12 @@ defmodule MoodleNet.ReleaseTasks do
   end
 
   def startup_migrations() do
-    start_repos()
-    # create_repos()
-    migrate_repos()
-    stop_repos()
+    if System.get_env("AUTORUN_DB_MIGRATIONS") == "true" do
+      start_repos()
+      # create_repos()
+      migrate_repos()
+      stop_repos()
+    end
   end
 
   def rollback_db() do
