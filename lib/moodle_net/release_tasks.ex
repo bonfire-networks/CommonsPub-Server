@@ -194,4 +194,14 @@ defmodule MoodleNet.ReleaseTasks do
        {:ok, community} = MoodleNet.Communities.one(id: id)
        {:ok, community} = MoodleNet.Communities.soft_delete(community)
   end
+
+  def make_instance_admin(username) do
+    {:ok, u} = MoodleNet.Users.one([:default, username: username])
+    MoodleNet.Users.make_instance_admin(u)
+  end
+
+  def unmake_instance_admin(username) do
+    {:ok, u} = MoodleNet.Users.one([:default, username: username])
+    MoodleNet.Users.unmake_instance_admin(u)
+  end
 end

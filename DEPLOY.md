@@ -202,3 +202,5 @@ See [`config/releases.exs`](config/releases.exs) for all used variables. Conside
 By default, the backend listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
 The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+
+Once you've signed up, you may want to make yourself an instance admin, by running this in the iex console: `MoodleNet.ReleaseTasks.make_instance_admin("your_username")`
