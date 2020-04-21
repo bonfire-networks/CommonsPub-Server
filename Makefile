@@ -79,7 +79,10 @@ dev-deps: init ## Prepare dev dependencies
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
 
-dev-db: init ## Create or reset the dev DB
+dev-db: init ## Create the dev DB
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
+
+dev-db-reset: init ## Reset the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.reset
 
 dev-db-migrate: init ## Run migrations on dev DB
@@ -97,7 +100,7 @@ dev-psql: init ## Run postgres (without Docker)
 dev-test-psql: init ## Run postgres for tests (without Docker)
 	psql -h localhost -U postgres "$(APP_NAME)_test"
 
-dev-setup: dev-deps dev-db ## Prepare dependencies and DB for dev
+dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
 dev: init ## Run the app in dev 
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
