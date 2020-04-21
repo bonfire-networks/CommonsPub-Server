@@ -65,7 +65,7 @@ defmodule ActivityPub.Object do
     Cachex.put(:ap_object_cache, "ap_id:#{ap_id}", object)
 
     if object.mn_pointer_id do
-      Cachex.put(:ap_object_cache, "ap_id:#{ap_id}", object)
+      Cachex.put(:ap_object_cache, "pointer_id:#{object.mn_pointer_id}", object)
     end
 
     {:ok, object}

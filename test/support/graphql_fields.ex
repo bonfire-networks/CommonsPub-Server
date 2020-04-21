@@ -455,6 +455,18 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:send_invite, &invite_fields/1, options)
   end
 
+  ### deactivates
+
+  def deactivation_mutation(options \\ []) do
+    [id: type!(:string)]
+    |> gen_mutation(&deactivation_submutation/1, options)
+  end
+
+  def deactivation_submutation(options \\ []) do
+    [id: var(:id)]
+    |> gen_submutation(:deactivate_user, &user_fields/1, options)
+  end
+
   ### likes
 
 

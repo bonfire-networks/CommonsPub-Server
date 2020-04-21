@@ -4,11 +4,11 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
 
   @shortdoc "Deactivate a remote actor, disabling incoming federation from it"
 
-  @usage "mix moodle_net.deactivate_actor ACTOR_URI"
+  @usage "mix moodle_net.deactivate_actor [undo] ACTOR_URI"
 
   @moduledoc """
   This mix task is useful for disabling abusive actors without rejecting their entire instance.
-  To reactivate an actor simply run the task for that actor URI again.
+  To reactivate an actor, type "undo" before the actor URI.
 
   Usage:
 
@@ -34,15 +34,28 @@ defmodule Mix.Tasks.MoodleNet.DeactivateActor do
 
   defp mix_shell?, do: :erlang.function_exported(Mix, :shell, 0)
 
+  def run(["undo" | arg]) do
+    start_app()
+
+    ap_id = hd(arg)
+
+    with {:ok, actor} <- Actor.get_cached_by_ap_id(ap_id) do
+      {:ok, _actor_object} = Actor.reactivate(actor)
+
+      shell_info("Activation status of #{ap_id}: activated")
+    else
+      _ ->
+        shell_error("No actor #{ap_id}")
+    end
+  end
+
   def run([ap_id | _]) do
     start_app()
 
     with {:ok, actor} <- Actor.get_cached_by_ap_id(ap_id) do
-      {:ok, actor_object} = Actor.toggle_active(actor)
+      {:ok, _actor_object} = Actor.deactivate(actor)
 
-      shell_info(
-        "Activation status of #{ap_id}: #{if(actor_object.data["deactivated"], do: "de", else: "")}activated"
-      )
+      shell_info("Activation status of #{ap_id}: deactivated")
     else
       _ ->
         shell_error("No actor #{ap_id}")
