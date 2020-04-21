@@ -7,7 +7,6 @@ defmodule Geolocation.GraphQL do
     Repo,
   }
   alias MoodleNet.GraphQL.{
-    Flow,
     ResolvePage,
     ResolvePages,
     ResolveField,
@@ -80,7 +79,14 @@ defmodule Geolocation.GraphQL do
 
 
   def community_edge(%Geolocation{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_community_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_community_edge(_, ids) do
