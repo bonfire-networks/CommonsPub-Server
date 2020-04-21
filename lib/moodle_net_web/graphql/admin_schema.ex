@@ -27,6 +27,10 @@ defmodule MoodleNetWeb.GraphQL.AdminSchema do
       resolve &AdminResolver.send_invite/2
     end
 
+    field :deactivate_user, :user do
+      arg :id, non_null(:string)
+      resolve &AdminResolver.deactivate_user/2
+    end
   end
 
   object :admin do
