@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.AccessResolver do
 
-  alias MoodleNet.Access
+  alias MoodleNet.{Access, GraphQL}
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
   alias MoodleNet.Users.User
 
