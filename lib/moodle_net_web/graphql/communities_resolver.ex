@@ -10,15 +10,17 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{
     FetchFields,
-    Flow,
     Page,
     FetchPage,
     FetchPages,
     ResolveField,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
   }
+  alias MoodleNetWeb.GraphQL.UploadResolver
+
   def community(%{community_id: id}, info) do
     ResolveField.run(
       %ResolveField{
@@ -63,7 +65,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def collection_count_edge(%Community{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_collection_count_edge, id, info, default: 0
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_collection_count_edge,
+        context: id,
+        info: info,
+        default: 0,
+      }
+    )
   end
 
   def fetch_collection_count_edge(_, ids) do
@@ -131,7 +141,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def outbox_edge(%Community{outbox_id: id}, page_opts, info) do
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, id, info, %{default_limit: 10})
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   ### def fetch_outbox_edge({page_opts, user}, id) do
@@ -162,22 +180,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   ### mutations
 
 
-  def create_community(%{community: attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      Communities.create(user, attrs)
+  def create_community(%{community: attrs} = params, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, uploads} <- UploadResolver.upload(user, params, info) do
+      Communities.create(user, Map.merge(attrs, uploads))
     end
   end
 
-  def update_community(%{community: changes, community_id: id}, info) do
+  def update_community(%{community: changes, community_id: id} = params, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- community(%{community_id: id}, info) do
         cond do
-          user.local_user.is_instance_admin ->
-            Communities.update(community, changes)
-
-          community.creator_id == user.id ->
-            Communities.update(community, changes)
+          user.local_user.is_instance_admin or community.creator_id == user.id ->
+            with {:ok, uploads} <- UploadResolver.upload(user, params, info),
+              do: Communities.update(community, Map.merge(changes, uploads))
 
           is_nil(community.published_at) -> GraphQL.not_found()
 
@@ -201,6 +218,5 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   end)
   #   |> GraphQL.response(info)
   # end
-
 
 end

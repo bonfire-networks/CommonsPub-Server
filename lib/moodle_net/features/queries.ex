@@ -85,7 +85,21 @@ defmodule MoodleNet.Features.Queries do
 
   def filter(q, {:order, :timeline_desc}), do: order_by(q, [feature: f], desc: f.id)
 
+
+  def filter(q, {:group_count, key}) when is_atom(key) do
+    filter(q, group: key, count: key)
+  end
+
+  def filter(q, {:group, key}) when is_atom(key) do
+    group_by q, [feature: f], field(f, ^key)
+  end
+
+  def filter(q, {:count, key}) when is_atom(key) do
+    select q, [feature: f], {field(f, ^key), count(f.id)}
+  end
+
   ## by prefetch
+
   def filter(q, {:preload, preload}), do: prefetch(q, preload)
 end
 

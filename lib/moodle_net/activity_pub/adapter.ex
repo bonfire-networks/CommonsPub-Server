@@ -41,6 +41,24 @@ defmodule MoodleNet.ActivityPub.Adapter do
   defp maybe_fix_image_object(%{"url" => url}), do: url
   defp maybe_fix_image_object(_), do: nil
 
+  defp maybe_create_image_object(url, _actor) when is_nil(url), do: nil
+
+  defp maybe_create_image_object(url, actor) do
+    case MoodleNet.Uploads.upload(MoodleNet.Uploads.ImageUploader, actor, %{url: url}, %{}) do
+      {:ok, upload} -> upload.id
+      {:error, _} -> nil
+    end
+  end
+
+  defp maybe_create_icon_object(url, _actor) when is_nil(url), do: nil
+
+  defp maybe_create_icon_object(url, actor) do
+    case MoodleNet.Uploads.upload(MoodleNet.Uploads.IconUploader, actor, %{url: url}, %{}) do
+      {:ok, upload} -> upload.id
+      {:error, _} -> nil
+    end
+  end
+
   # TODO: Add error handling lol
   def create_remote_actor(actor, username) do
     uri = URI.parse(actor["id"])
@@ -63,12 +81,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
         _ -> actor["name"]
       end
 
+    icon_url = maybe_fix_image_object(actor["icon"])
+    image_url = maybe_fix_image_object(actor["image"])
+
     create_attrs = %{
       preferred_username: username,
       name: name,
       summary: actor["summary"],
-      icon: maybe_fix_image_object(actor["icon"]),
-      image: maybe_fix_image_object(actor["image"]),
       is_public: true,
       is_local: false,
       is_disabled: false,
@@ -91,11 +110,26 @@ defmodule MoodleNet.ActivityPub.Adapter do
           MoodleNet.Collections.create(creator, community, create_attrs)
       end
 
+    icon_id = maybe_create_icon_object(icon_url, created_actor)
+    image_id = maybe_create_image_object(image_url, created_actor)
+
+    {:ok, updated_actor} =
+      case created_actor do
+        %MoodleNet.Users.User{} ->
+          Users.update_remote(created_actor, %{icon_id: icon_id, image_id: image_id})
+
+        %MoodleNet.Communities.Community{} ->
+          Communities.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+
+        %MoodleNet.Collections.Collection{} ->
+          Collections.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+      end
+
     object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
 
     ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
     Indexer.maybe_index_object(created_actor)
-    {:ok, created_actor}
+    {:ok, updated_actor}
   end
 
   def update_local_actor(actor, params) do
@@ -113,8 +147,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon: maybe_fix_image_object(data["icon"]),
-           image: maybe_fix_image_object(data["image"])
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
+           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
          {:ok, _} <- MoodleNet.Users.update_remote(actor, params) do
       :ok
@@ -127,8 +161,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon: maybe_fix_image_object(data["icon"]),
-           image: maybe_fix_image_object(actor["image"])
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
+           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
          {:ok, _} <- MoodleNet.Communities.update(actor, params) do
       :ok
@@ -141,7 +175,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon: maybe_fix_image_object(data["icon"])
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor)
          },
          {:ok, _} <- MoodleNet.Collections.update(actor, params) do
       :ok
@@ -240,6 +274,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, collection} <- get_actor_by_username(ap_collection.username),
          {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
+         {:ok, content} <-
+           MoodleNet.Uploads.upload(
+             MoodleNet.Uploads.ResourceUploader,
+             actor,
+             %{url: object.data["url"]},
+             %{is_public: true}
+           ),
          attrs <- %{
            is_public: true,
            is_local: false,
@@ -247,7 +288,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            name: object.data["name"],
            canonical_url: object.data["id"],
            summary: object.data["summary"],
-           url: object.data["url"],
+           content_id: content.id,
            license: object.data["tag"],
            icon: object.data["icon"],
            author: Utils.get_author(object.data["author"])

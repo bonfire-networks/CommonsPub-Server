@@ -29,6 +29,13 @@ defmodule MoodleNet.Mail.Email do
     |> render(:password_reset)
   end
 
+  def invite(email) do
+    url = invite_url(email)
+    base_email_by_address(email)
+    |> subject(gettext("You have been invited to %{app_name}!", app_name: app_name()))
+    |> render(:invite, url: url)
+  end
+
   defp base_email(user) do
     new_email()
     |> to(user.local_user.email)
@@ -36,10 +43,21 @@ defmodule MoodleNet.Mail.Email do
     |> put_layout({MoodleNetWeb.LayoutView, :email})
   end
 
+  defp base_email_by_address(email) do
+    new_email()
+    |> to(email)
+    |> from(reply_to_email())
+    |> put_layout({MoodleNetWeb.LayoutView, :email})
+  end
+
   defp email_confirmation_url(_id, token),
     do: frontend_url("confirm-email/#{token}")
 
+  def app_name(), do: Application.get_env(:moodle_net, :app_name)
+
   defp reset_password_url(token), do: frontend_url("reset/#{token}")
+
+  defp invite_url(email), do: frontend_url("signup?email=#{email}")
 
   # Note that the base url is expected to end without a slash (/)
   defp frontend_url(path) do

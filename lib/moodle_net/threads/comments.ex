@@ -28,24 +28,6 @@ defmodule MoodleNet.Threads.Comments do
     {:ok, ret}
   end
 
-  @doc """
-  Retrieves a Page of comments according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    Contexts.page CommentsQueries, Comment,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages CommentsQueries, Comment,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
   defp publish(creator, thread, comment, activity, :created) do
     feeds = context_feeds(thread.context.pointed) ++ [
       creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),

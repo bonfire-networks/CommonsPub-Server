@@ -36,14 +36,14 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       q = flag_query(fields: [creator: user_fields()])
       for conn <- [user_conn(alice), user_conn(lucy)] do
         flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
-        assert %{"creator" => creator} = flag2
-        assert_user(alice, creator)
+        assert_user(alice, flag2.creator)
       end
     end
 
   end
 
   describe "flag.context" do
+
     test "works for the flagger or an admin with a user flag" do
       [alice, bob] = some_fake_users!(2)
       lucy = fake_admin!()
@@ -51,8 +51,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       q = flag_query(fields: [context: [user_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
         flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
-        assert %{"context" => context} = flag2
-        assert_user(bob, context)
+        assert_user(bob, flag2.context)
       end
     end
 
@@ -64,8 +63,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       q = flag_query(fields: [context: [community_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
         flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
-        assert %{"context" => context} = flag2
-        assert_community(bob, context)
+        assert_community(bob, flag2.context)
       end
     end
 
@@ -78,10 +76,10 @@ defmodule MoodleNetWeb.GraphQL.FlagsTest do
       q = flag_query(fields: [context: [collection_spread()]])
       for conn <- [user_conn(alice), user_conn(lucy)] do
         flag2 = assert_flag(flag, grumble_post_key(q, conn, :flag, %{flag_id: flag.id}))
-        assert %{"context" => context} = flag2
-        assert_collection(eve, context)
+        assert_collection(eve, flag2.context)
       end
     end
+
   end
 
   # # defp assert_already_flagged(errs, path) do

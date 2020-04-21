@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   alias MoodleNet.Activities
   alias MoodleNet.Activities.Activity
-  alias MoodleNet.GraphQL.{Fields, Flow}
+  alias MoodleNet.GraphQL.{Fields, ResolveFields}
   alias MoodleNet.Meta.Pointers
   
   def activity(%{activity_id: id}, %{context: %{current_user: user}}) do
@@ -12,7 +12,14 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   end
 
   def context_edge(%Activity{context: context}, _, info) do
-    Flow.fields(__MODULE__, :fetch_context_edge, context, info)
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_context_edge,
+        context: context,
+        info: info,
+      }
+    )
   end
 
   def fetch_context_edge(_, contexts) do

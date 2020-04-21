@@ -2,13 +2,15 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.GraphQL.FetchPages do
-  @enforce_keys [:queries, :query, :cursor_fn, :group_fn, :page_opts]
+  @enforce_keys [:group_fn, :page_opts]
   defstruct [
     :queries,
     :query,
-    :cursor_fn,
     :group_fn,
     :page_opts,
+    :data_query,
+    :count_query,
+    cursor_fn: &__MODULE__.default_cursor/1,
     base_filters: [],
     data_filters: [],
     count_filters: [],
@@ -19,12 +21,17 @@ defmodule MoodleNet.GraphQL.FetchPages do
   alias MoodleNet.Repo
   alias MoodleNet.GraphQL.{Page, Pages, FetchPages}
 
+  @doc false
+  def default_cursor(x), do: [x.id]
+
   @type t :: %FetchPages{
     queries: atom,
     query: atom,
-    cursor_fn: (term -> term),
+    cursor_fn: (term -> [term]),
     group_fn: (term -> term),
     page_opts: map,
+    data_query: Ecto.Queryable.t | nil,
+    count_query: Ecto.Queryable.t | nil,
     base_filters: list,
     data_filters: list,
     count_filters: list,
@@ -34,22 +41,16 @@ defmodule MoodleNet.GraphQL.FetchPages do
 
   def run(
     %FetchPages{
-      queries: queries,
-      query: query,
       cursor_fn: cursor_fn,
       group_fn: group_fn,
       page_opts: page_opts,
-      base_filters: base_filters,
-      data_filters: data_filters,
-      count_filters: count_filters,
+      data_query: data_query,
+      count_query: count_query,
       map_fn: map_fn,
       map_counts_fn: map_counts_fn,
     }
   ) do
-    base_q = apply(queries, :query, [query, base_filters])
-    data_q = apply(queries, :filter, [base_q, data_filters])
-    count_q = apply(queries, :filter, [base_q, count_filters])
-    {:ok, [data, counts]} = Repo.transact_many(all: data_q, all: count_q)
+    {:ok, [data, counts]} = Repo.transact_many(all: data_query, all: count_query)
     data = group_data(data, group_fn, map_fn)
     counts = group_counts(counts, map_counts_fn)
     Pages.new(data, counts, cursor_fn, page_opts)

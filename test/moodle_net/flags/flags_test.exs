@@ -44,61 +44,6 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
-  describe "flags_by/1" do
-    test "returns a list of flags for an user", %{user: flagger} do
-      things = for _ <- 1..3, do: fake_meta!()
-
-      for thing <- things do
-        assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
-      end
-
-      flags = Flags.list_by(flagger)
-      assert Enum.count(flags) == 3
-
-      for flag <- flags do
-        assert flag.creator_id == flagger.id
-        assert Enum.any?(things, fn thing -> thing.id == flag.context_id end)
-      end
-    end
-  end
-
-  describe "flags_of/1" do
-    test "returns a list of flags by users for any meta object", _ do
-      thing = fake_meta!()
-      users = for _ <- 1..3, do: fake_user!()
-
-      for user <- users do
-        assert {:ok, flag} = Flags.create(user, thing, Fake.flag())
-      end
-
-      flags = Flags.list_of(thing)
-      assert Enum.count(flags) == 3
-
-      for flag <- flags do
-        assert flag.context_id == thing.id
-        assert Enum.any?(users, fn user -> user.id == flag.creator_id end)
-      end
-    end
-  end
-
-  describe "flags_of_community/1" do
-    test "returns a list of flags for a community", %{user: flagger} do
-      things = for _ <- 1..3, do: fake_meta!()
-      community = fake_community!(fake_user!())
-
-      for thing <- things do
-        assert {:ok, flag} = Flags.create(flagger, thing, community, Fake.flag())
-      end
-
-      flags = Flags.list_in_community(community)
-      assert Enum.count(flags) == 3
-
-      for flag <- flags do
-        assert flag.community_id == community.id
-      end
-    end
-  end
-
   describe "resolve_flag/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()

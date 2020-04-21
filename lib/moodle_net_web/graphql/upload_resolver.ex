@@ -9,44 +9,53 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Uploads.Content
 
+  @uploader_fields %{
+    content: MoodleNet.Uploads.ResourceUploader,
+    image: MoodleNet.Uploads.ImageUploader,
+    icon: MoodleNet.Uploads.IconUploader
+  }
+
+  def upload(user, %{} = params, info) do
+    params
+    |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
+    |> case do
+      {:error, _} = e -> e
+      val -> {:ok, Enum.into(val, %{})}
+    end
+  end
+
+  defp do_upload(user, {field_name, content_input}, acc) do
+    uploader = @uploader_fields[field_name]
+
+    if uploader do
+      case Uploads.upload(uploader, user, content_input, %{}) do
+        {:ok, content} ->
+          field_id_name = String.to_existing_atom("#{field_name}_id")
+
+          {:cont, Map.put(acc, field_id_name, content.id)}
+
+        {:error, reason} ->
+          # FIXME: delete other successful files on failure
+          {:halt, {:error, reason}}
+      end
+    else
+      {:cont, acc}
+    end
+  end
+
   def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
   def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
   def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
 
-  defp content_edge(id), do: Uploads.one([:deleted, :private, id: id])
+  defp content_edge(id) when is_binary(id), do: Uploads.one([:deleted, :private, id: id])
+  defp content_edge(_), do: {:ok, nil}
 
-  def upload_icon(params, info),
-    do: upload(params, info, :icon_id, MoodleNet.Uploads.IconUploader)
-
-  def upload_image(params, info),
-    do: upload(params, info, :image_id, MoodleNet.Uploads.ImageUploader)
-
-  def upload_resource(params, info),
-    do: upload(params, info, :content_id, MoodleNet.Uploads.ResourceUploader)
-
-  defp upload(params, info, field_name, upload_def) when is_atom(field_name) do
-    user = GraphQL.current_user(info)
-      with {:ok, parent_ptr} <- Pointers.one(id: params.context_id),
-           parent = Pointers.follow!(parent_ptr),
-           {:ok, upload} <- Uploads.upload(upload_def, user, params.upload, params),
-           {:ok, _parent} <- update_parent_field(parent, field_name, upload) do
-        {:ok, upload}
-      end
-  end
-
-  def is_public(%Content{}=upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
+  def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
   def uploader(%Content{uploader_id: id}, _, _info), do: Users.one(id: id)
 
-  def remote_url(%Content{}=upload, _, _info), do: Uploads.remote_url(upload)
+  def remote_url(%Content{} = upload, _, _info), do: Uploads.remote_url(upload)
 
   def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
   def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
-
-  defp update_parent_field(parent, field_name, %Content{id: id} = content) do
-    parent
-    |> Changeset.cast(%{}, [])
-    |> Changeset.put_change(field_name, id)
-    |> Repo.update()
-  end
 end

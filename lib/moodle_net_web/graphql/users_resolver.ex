@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   Performs the GraphQL User queries.
   """
   alias MoodleNetWeb.GraphQL
+  alias MoodleNetWeb.GraphQL.UploadResolver
   alias MoodleNet.{
     Access,
     Activities,
@@ -22,6 +23,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     Flow,
     FetchPage,
     FetchPages,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
   }
@@ -52,8 +54,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
 
   def comments_edge(%User{id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_comments_edge, page_opts, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_comments_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_comments_edge({page_opts, info}, ids) do
@@ -220,13 +229,20 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def inbox_edge(%User{id: id}=user, page_opts, info) do
-    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info) do
-      if id == current_user.id do
-        Users.inbox(user, page_opts)
-      else
-        GraphQL.not_permitted()
-      end
+  def inbox_edge(%User{}=user, page_opts, info) do
+    with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
+         :ok <- GraphQL.not_in_list_or_empty_page(info),
+         :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
+      Repo.transact_with(fn ->
+        with {:ok, subs} <- Users.feed_subscriptions(user) do
+          ids = [user.inbox_id | Enum.map(subs, &(&1.feed_id))]
+          Activities.page(
+            &(&1.id),
+            page_opts,
+            [:deleted, feed: ids, table: Users.default_inbox_query_contexts()]
+          )
+        end
+      end)
     end
   end
 
@@ -257,7 +273,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def follow_edge(follow, _, _), do: {:ok, follow}
 
   def creator_edge(%{creator_id: id}, _, info) do
-    Flow.fields(__MODULE__, :fetch_creator_edge, id, info)
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_creator_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_creator_edge(info, ids) do
@@ -270,16 +293,22 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   ### Mutations
 
-  def create_user(%{user: attrs}, info) do
+  def create_user(%{user: attrs} = params, info) do
     extra = %{is_public: true}
-    with :ok <- GraphQL.guest_only(info),
-         {:ok, user} <- Users.register(Map.merge(attrs, extra)) do
-      {:ok, Me.new(user)}
-    end
+    Repo.transact_with(fn ->
+      with :ok <- GraphQL.guest_only(info),
+           {:ok, user} <- Users.register(Map.merge(attrs, extra)),
+           {:ok, uploads} <- UploadResolver.upload(user, params, info),
+           {:ok, user} <- Users.update(user, uploads) do
+        {:ok, Me.new(user)}
+      end
+    end)
   end
 
-  def update_profile(%{profile: attrs}, info) do
+  def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, uploads} <- UploadResolver.upload(user, params, info),
+         attrs = Map.merge(attrs, uploads),
          {:ok, user} <- Users.update(user, attrs) do
       {:ok, Me.new(user)}
     end

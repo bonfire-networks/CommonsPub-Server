@@ -7,13 +7,10 @@ defmodule Geolocation.GraphQL do
     Repo,
   }
   alias MoodleNet.GraphQL.{
-    Flow,
-    FetchFields,
-    FetchPage,
-    FetchPages,
-    ResolveField,
     ResolvePage,
     ResolvePages,
+    ResolveField,
+    ResolveFields,
     ResolveRootPage,
   }
   # alias MoodleNet.Resources.Resource
@@ -81,7 +78,14 @@ defmodule Geolocation.GraphQL do
   end
 
   def community_edge(%Geolocation{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_community_edge,
+        context: id,
+        info: info,
+      }
+    )
   end
 
   def fetch_community_edge(_, ids) do
@@ -94,8 +98,15 @@ defmodule Geolocation.GraphQL do
   end
 
   def outbox_edge(%Geolocation{outbox_id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
   end
 
   def fetch_outbox_edge({page_opts, info}, id) do
