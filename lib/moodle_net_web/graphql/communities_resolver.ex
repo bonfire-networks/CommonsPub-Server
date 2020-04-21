@@ -141,38 +141,30 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def outbox_edge(%Community{outbox_id: id}, page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_outbox_edge,
-        context: id,
+    with :ok <- GraphQL.not_in_list_or_empty_page(info) do
+      ResolvePage.run(
+        %ResolvePage{
+          module: __MODULE__,
+          fetcher: :fetch_outbox_edge,
+          context: id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
+    end
+  end
+
+  def fetch_outbox_edge(page_opts, info, id) do
+    tables = Communities.default_outbox_query_contexts()
+    FetchPage.run(
+      %FetchPage{
+        queries: Activities.Queries,
+        query: Activities.Activity,
         page_opts: page_opts,
-        info: info,
-      }
+        base_filters: [:deleted, feed: id, table: tables]
+      }          
     )
   end
-
-  ### def fetch_outbox_edge({page_opts, user}, id) do
-
-  def fetch_outbox_edge(page_opts, _info, id) do
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      [join: :feed_activity,
-       feed_id: id,
-       table: default_outbox_query_contexts(),
-       distinct: [desc: :id], # this does the actual ordering *sigh*
-       order: :timeline_desc] # this is here because ecto has made questionable choices
-    )
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Communities)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
-
-  # def batch_outbox_edge({page_opts, user}, ids) do
-  # end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
 

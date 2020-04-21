@@ -173,7 +173,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     FetchPage.run(
       %FetchPage{
         queries: Follows.Queries,
-        query: Follow,
+        query: Follows.Follow,
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
         data_filters: [page: [desc: [created: page_opts]]],
@@ -229,41 +229,59 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
          :ok <- GraphQL.not_in_list_or_empty_page(info),
          :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
-      fetch_inbox_edge(page_opts, info, current_user)
+      ResolvePage.run(
+        %ResolvePage{
+          module: __MODULE__,
+          fetcher: :fetch_inbox_edge,
+          context: user.inbox_id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
     end
   end
 
-  def fetch_inbox_edge(page_opts, _info, user) do
-    tables = Users.default_inbox_query_contexts()
-    Repo.transact_with fn ->
-      with {:ok, subs} <- Users.feed_subscriptions(user) do
-        ids = [user.inbox_id | Enum.map(subs, &(&1.feed_id))]
-        FetchPage.run(
-          %FetchPage{
-            queries: Activities.Queries,
-            query: Activity,
-            page_opts: page_opts,
-            base_filters: [:deleted, feed: ids, table: tables],
-          }          
-        )
+  def fetch_inbox_edge(page_opts, info, id) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      tables = Users.default_inbox_query_contexts()
+      Repo.transact_with fn ->
+        with {:ok, subs} <- Users.feed_subscriptions(user) do
+          ids = [id | Enum.map(subs, &(&1.feed_id))]
+          FetchPage.run(
+            %FetchPage{
+              queries: Activities.Queries,
+              query: Activities.Activity,
+              page_opts: page_opts,
+              base_filters: [:deleted, feed: ids, table: tables],
+            }          
+          )
+        end
       end
     end
   end
 
   def outbox_edge(%User{outbox_id: id}=user, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
-      fetch_outbox_edge(page_opts, info, id)
+      ResolvePage.run(
+        %ResolvePage{
+          module: __MODULE__,
+          fetcher: :fetch_outbox_edge,
+          context: id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
     end
   end
 
-  def fetch_outbox_edge(page_opts, _info, ids) do
+  def fetch_outbox_edge(page_opts, info, id) do
     tables = Users.default_outbox_query_contexts()
     FetchPage.run(
       %FetchPage{
         queries: Activities.Queries,
-        query: Activity,
+        query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: ids, table: tables]
+        base_filters: [:deleted, feed: id, table: tables]
       }          
     )
   end

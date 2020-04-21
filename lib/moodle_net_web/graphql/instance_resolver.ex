@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Activities, Features, Instance}
+  alias MoodleNet.{Activities, Features, GraphQL, Instance}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def outbox_edge(_, page_opts, _info) do
+  def outbox_edge(_, page_opts, info) do
     feed_id = MoodleNet.Feeds.instance_outbox_id()
     tables = Instance.default_outbox_query_contexts()
     FetchPage.run(
