@@ -274,6 +274,13 @@ defmodule MoodleNet.Users do
     |> Keyword.fetch!(:default_inbox_query_contexts)
   end
 
+  @doc false
+  def default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, Users)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+  
+
   def feed_subscriptions(%User{id: id}) do
     FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
   end

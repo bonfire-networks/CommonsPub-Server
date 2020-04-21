@@ -9,7 +9,7 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   defstruct [
     :module, :fetcher, :context, :page_opts, :info,
     cursor_validators: [&Ecto.ULID.cast/1],
-    single_opts: %{default_limit: 5, max_limit: 10},
+    single_opts: %{default_limit: 5, max_limit: 15},
     batch_opts: %{default_limit: 3, max_limit: 5},
     deep_opts: %{default_limit: 3, max_limit: 3},
   ]

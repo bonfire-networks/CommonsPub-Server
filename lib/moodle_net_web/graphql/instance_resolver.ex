@@ -3,39 +3,72 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Features, Instance}
+  alias MoodleNet.{Activities, Features, Instance}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
 
   def instance(_, _info) do
     {:ok, %{hostname: Instance.hostname(), description: Instance.description()}}
   end
 
-  def featured_communities(_, _args, _info) do
-    page_opts = %{}
-    Features.page(
-      &(&1.id),
-      page_opts,
-      [join: :context, table: Community],
-      [order: :timeline_desc, preload: :context],
-      []
+  def featured_communities(_, page_opts, info) do
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_featured_communities,
+        page_opts: page_opts,
+        info: info,
+      }
     )
   end
 
-  def featured_collections(_, _args, _info) do
-    page_opts = %{}
-    Features.page(
-      &(&1.id),
-      page_opts,
-      [join: :context, table: Collection],
-      [order: :timeline_desc, preload: :context],
-      []
+  def fetch_featured_communities(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Features.Queries,
+        query: Features.Feature,
+        page_opts: page_opts,
+        base_filters: [:deleted, join: :context, table: Community],
+        data_filters: [order: :timeline_desc, preload: :context],
+      }
     )
   end
 
-  def outbox_edge(_, _, _info) do
-    page_opts = %{}
-    Instance.outbox(page_opts)
+  def featured_collections(_, page_opts, info) do
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_featured_collections,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_featured_collections(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Features.Queries,
+        query: Features.Feature,
+        page_opts: page_opts,
+        base_filters: [:deleted, join: :context, table: Collection],
+        data_filters: [order: :timeline_desc, preload: :context],
+      }
+    )
+  end
+
+  def outbox_edge(_, page_opts, _info) do
+    feed_id = MoodleNet.Feeds.instance_outbox_id()
+    tables = Instance.default_outbox_query_contexts()
+    FetchPage.run(
+      %FetchPage{
+        queries: Activities.Queries,
+        query: Activities.Activity,
+        page_opts: page_opts,
+        base_filters: [:deleted, feed: feed_id, table: tables]
+      }          
+    )
   end
 
 end

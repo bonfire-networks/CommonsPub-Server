@@ -118,8 +118,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     FetchPages.run(
       %FetchPages{
         queries: Follows.Queries,
-        query: Follow,
-        cursor_fn: &[&1.id],
+        query: Follows.Follow,
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
@@ -134,8 +133,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     FetchPage.run(
       %FetchPage{
         queries: Follows.Queries,
-        query: Follow,
-        cursor_fn: &[&1.id],
+        query: Follows.Follow,
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
         data_filters: [page: [desc: [created: page_opts]]],
@@ -160,8 +158,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     FetchPages.run(
       %FetchPages{
         queries: Follows.Queries,
-        query: Follow,
-        cursor_fn: &(&1.id),
+        query: Follows.Follow,
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
@@ -177,7 +174,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       %FetchPage{
         queries: Follows.Queries,
         query: Follow,
-        cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [user: user, creator_id: ids, join: :context, table: Community],
         data_filters: [page: [desc: [created: page_opts]]],
@@ -233,40 +229,42 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
          :ok <- GraphQL.not_in_list_or_empty_page(info),
          :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
-      Repo.transact_with(fn ->
-        with {:ok, subs} <- Users.feed_subscriptions(user) do
-          ids = [user.inbox_id | Enum.map(subs, &(&1.feed_id))]
-          Activities.page(
-            &(&1.id),
-            page_opts,
-            [:deleted, feed: ids, table: Users.default_inbox_query_contexts()]
-          )
-        end
-      end)
+      fetch_inbox_edge(page_opts, info, current_user)
     end
   end
 
-  def outbox_edge(%User{outbox_id: id}, page_opts, info) do
-    # if GraphQL.in_list?(info) do
-    #   with {:ok, page_opts} <- Batching.limit_page_opts(page_opts) do
-    #     batch {__MODULE__, :batch_outbox_edge, {page_opts, user}}, id, EdgesPages.getter(id)
-    #   end
-    # else
-      with {:ok, page_opts} <- GraphQL.full_page_opts(page_opts) do
-        single_outbox_edge(page_opts, info, id)
+  def fetch_inbox_edge(page_opts, _info, user) do
+    tables = Users.default_inbox_query_contexts()
+    Repo.transact_with fn ->
+      with {:ok, subs} <- Users.feed_subscriptions(user) do
+        ids = [user.inbox_id | Enum.map(subs, &(&1.feed_id))]
+        FetchPage.run(
+          %FetchPage{
+            queries: Activities.Queries,
+            query: Activity,
+            page_opts: page_opts,
+            base_filters: [:deleted, feed: ids, table: tables],
+          }          
+        )
       end
-    # end
+    end
   end
 
-  def single_outbox_edge(page_opts, _info, id) do
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      [join: :feed_activity,
-       feed_id: id,
-       table: default_outbox_query_contexts(),
-       distinct: [desc: :id], # this does the actual ordering *sigh*
-       order: :timeline_desc] # this is here because ecto has made questionable choices
+  def outbox_edge(%User{outbox_id: id}=user, page_opts, info) do
+    with :ok <- GraphQL.not_in_list_or_empty_page(info) do
+      fetch_outbox_edge(page_opts, info, id)
+    end
+  end
+
+  def fetch_outbox_edge(page_opts, _info, ids) do
+    tables = Users.default_outbox_query_contexts()
+    FetchPage.run(
+      %FetchPage{
+        queries: Activities.Queries,
+        query: Activity,
+        page_opts: page_opts,
+        base_filters: [:deleted, feed: ids, table: tables]
+      }          
     )
   end
 
@@ -377,11 +375,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         end
       end)
     end
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Users)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
 end
