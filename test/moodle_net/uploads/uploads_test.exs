@@ -21,7 +21,7 @@ defmodule MoodleNet.UploadsTest do
         MoodleNet.Uploads.ResourceUploader
       ])
 
-    Uploads.upload(upload_def, user, file, %{})
+    Uploads.upload(upload_def, user, %{upload: file}, %{})
   end
 
   def strip(upload), do: Map.drop(upload, [:is_public, :url])
