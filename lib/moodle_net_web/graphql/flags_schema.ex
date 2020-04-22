@@ -18,6 +18,13 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
       resolve &FlagsResolver.flag/2
     end
 
+    field :flags, :flags_page do
+      arg :limit, :integer
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &FlagsResolver.flags/2
+    end
+
   end
 
   object :flags_mutations do
@@ -86,7 +93,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsSchema do
       %User{},       _ -> :user
     end
   end
-  
+
   object :flags_page do
     field :page_info, non_null(:page_info)
     field :edges, non_null(list_of(non_null(:flag)))
