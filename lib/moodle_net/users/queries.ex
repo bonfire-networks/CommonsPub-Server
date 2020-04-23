@@ -17,13 +17,6 @@ defmodule MoodleNet.Users.Queries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, :local_user, jq) do
@@ -54,8 +47,7 @@ defmodule MoodleNet.Users.Queries do
 
   def filter(q, :default) do
     q
-    |> filter([:deleted, join: :local_user])
-    |> preload([local_user: u], [local_user: u])
+    |> filter([:deleted, join: :local_user, preload: :local_user])
   end
 
   ## by join
@@ -130,5 +122,12 @@ defmodule MoodleNet.Users.Queries do
   def filter(q, {:order, :timeline_desc}) do
     order_by q, [user: u], [desc: u.id]
   end
+
+  ## preload
+
+  def filter(q, {:preload, :local_user}) do
+    preload(q, [local_user: u], [local_user: u])
+  end
+
 end
 

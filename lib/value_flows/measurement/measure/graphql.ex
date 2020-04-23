@@ -2,22 +2,11 @@
 defmodule ValueFlows.Measurement.Measure.GraphQL do
   alias MoodleNet.{
     Activities,
-    Communities,
+    # Communities,
     GraphQL,
     Repo,
   }
-  # alias MoodleNet.GraphQL.{
-  #   Flow,
-  #   FieldsFlow,
-  #   PageFlow,
-  #   PagesFlow,
-  #   ResolveField,
-  #   ResolvePage,
-  #   ResolvePages,
-  #   ResolveRootPage,
-  # }
   alias MoodleNet.GraphQL.{
-    Flow,
     FetchFields,
     FetchPage,
     FetchPages,
@@ -28,7 +17,7 @@ defmodule ValueFlows.Measurement.Measure.GraphQL do
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  # alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Simulate
   alias ValueFlows.Measurement.Measure
@@ -56,7 +45,7 @@ defmodule ValueFlows.Measurement.Measure.GraphQL do
     )
   end
 
-  def units(page_opts, info) do
+  def measures(page_opts, info) do
     ResolveRootPage.run(
       %ResolveRootPage{
         module: __MODULE__,
@@ -91,32 +80,13 @@ defmodule ValueFlows.Measurement.Measure.GraphQL do
   end
 
 
-  # def community_edge(%Measure{community_id: id}, _, info) do
-  #   Flow.fields __MODULE__, :fetch_community_edge, id, info
-  # end
-
-  # def fetch_community_edge(_, ids) do
-  #   {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-  #   fields
-  # end
 
   ## finally the mutations...
 
-  # def create_unit(%{measure: attrs}, info) do
-  #   IO.inspect("gql create_unit")
-  #   Repo.transact_with(fn ->
-  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-  #       # attrs = Map.merge(attrs, %{is_public: true})
-  #       Units.create(user, attrs)
-  #     end
-  #   end)
-  # end
-
-  def create_unit(%{measure: attrs, in_scope_of_community_id: id}, info) do
+  def create_measure(%{measure: attrs}, info) do
     IO.inspect(attrs)
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-          #  {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
         attrs = Map.merge(attrs, %{is_public: true})
         {:ok, u} = Units.create(user, attrs)
         IO.inspect(u)
@@ -125,12 +95,11 @@ defmodule ValueFlows.Measurement.Measure.GraphQL do
     end)
   end
 
-  def update_unit(%{measure: changes, unit_id: id}, info) do
+  def update_measure(%{measure: changes, measure_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, measure} <- measure(%{id: id}, info) do
-        measure = Repo.preload(measure, :community)
-        IO.inspect(measure)
+        # IO.inspect(measure)
         cond do
           user.local_user.is_instance_admin ->
             {:ok, u} = Units.update(measure, changes)
@@ -147,11 +116,11 @@ defmodule ValueFlows.Measurement.Measure.GraphQL do
 
 
   # TEMP
-  def all_units(_, _, _) do
+  def all_measures(_, _, _) do
     {:ok, Simulate.long_list(&Simulate.measure/0)}
   end
 
-  def a_unit(%{id: id}, info) do
+  def a_measure(%{id: id}, info) do
     {:ok, Simulate.measure()}
   end
 

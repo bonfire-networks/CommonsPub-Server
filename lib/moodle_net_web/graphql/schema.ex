@@ -73,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types ValueFlows.Util.GraphQL
   import_types ValueFlows.Measurement.Unit.GraphQL
   import_types ValueFlows.Agent.GraphQL
-  import_types ValueFlows.Knowledge.GraphQL
+  import_types ValueFlows.Knowledge.Action.GraphQL
   import_types ValueFlows.Observation.GraphQL
   import_types ValueFlows.Recipe.GraphQL
   import_types ValueFlows.Plan.GraphQL

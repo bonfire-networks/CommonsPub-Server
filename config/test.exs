@@ -10,9 +10,11 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   http: [port: 4001],
   server: true
 
-# Print only warnings and errors during test
+# Logging
+
 config :logger, level: :warn
 # config :logger, level: :debug
+# config :moodle_net, MoodleNet.Repo, log: false
 
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
@@ -35,8 +37,7 @@ config :phoenix_integration,
 config :moodle_net, MoodleNet.Mail.MailService,
   adapter: Bamboo.TestAdapter
 
-
-  config :moodle_net,
+config :moodle_net,
   app_name: "MoodleNet",
   base_url: "http://localhost:4001",
   ap_base_path: System.get_env("AP_BASE_PATH", "/pub"),
