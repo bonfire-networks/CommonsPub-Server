@@ -12,6 +12,8 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
+    FetchPage,
+    FetchPages,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
@@ -65,17 +67,17 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   end
 
   # FIXME
-  # def fetch_units(page_opts, info) do
-  #   PageFlow.run(
-  #     %PageFlow{
-  #       queries: Queries,
-  #       query: Unit,
-  #       page_opts: page_opts,
-  #       cursor_fn: &(&1.id), 
-  #       base_filters: [user: GraphQL.current_user(info)],
-  #     }
-  #   )
-  # end
+  def fetch_units(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Queries,
+        query: Unit,
+        cursor_fn: &(&1.id),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+      }
+    )
+  end
 
 
   def community_edge(%Unit{community_id: id}, _, info) do
@@ -107,6 +109,7 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   # end
 
   def create_unit(%{unit: attrs, in_scope_of_community_id: id}, info) do
+    IO.inspect(attrs)
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
@@ -118,21 +121,35 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     end)
   end
 
+  def create_unit(%{unit: attrs}, info) do # without community scope
+    IO.inspect(attrs)
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+        attrs = Map.merge(attrs, %{is_public: true})
+        {:ok, u} = Units.create(user, attrs)
+        IO.inspect(u)
+        {:ok, %{unit: u}}
+      end
+    end)
+  end
+
   def update_unit(%{unit: changes, unit_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, unit} <- unit(%{unit_id: id}, info) do
+           {:ok, unit} <- unit(%{id: id}, info) do
         unit = Repo.preload(unit, :community)
+        IO.inspect(unit)
         cond do
           user.local_user.is_instance_admin ->
-        Units.update(unit, changes)
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
 
           unit.creator_id == user.id ->
-        Units.update(unit, changes)
-
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
           unit.community.creator_id == user.id ->
-        Units.update(unit, changes)
-
+            {:ok, u} = Units.update(unit, changes)
+            {:ok, %{unit: u}}
           true -> GraphQL.not_permitted("update")
         end
       end

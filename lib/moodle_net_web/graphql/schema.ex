@@ -43,7 +43,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     middleware ++ [CollapseErrors]
   end
 
-  import_types AccessSchema
   import_types ActivitiesSchema
   import_types AdminSchema
   import_types BlocksSchema
@@ -67,13 +66,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UploadSchema
 
   # optional modules:
+  import_types Organisation.GraphQL.Schema
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Geolocation.GraphQL
   import_types ValueFlows.Util.GraphQL
   import_types ValueFlows.Measurement.Unit.GraphQL
   import_types ValueFlows.Agent.GraphQL
-  import_types ValueFlows.Knowledge.GraphQL
+  import_types ValueFlows.Knowledge.Action.GraphQL
   import_types ValueFlows.Observation.GraphQL
   import_types ValueFlows.Recipe.GraphQL
   import_types ValueFlows.Plan.GraphQL
@@ -86,7 +86,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
 
   query do
-    import_fields :access_queries
     import_fields :activities_queries
     import_fields :blocks_queries
     import_fields :collections_queries
@@ -103,6 +102,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :resources_queries
     import_fields :threads_queries
     import_fields :users_queries
+
+    import_fields :organisations_queries
 
     # Taxonomy
     import_fields :locales_queries
@@ -127,7 +128,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
   mutation do
-    import_fields :access_mutations
     import_fields :admin_mutations
     import_fields :blocks_mutations
     import_fields :collections_mutations
@@ -142,9 +142,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_mutations
     import_fields :users_mutations
 
+    import_fields :organisations_mutations
+
+    import_fields :geolocation_mutation
+
     # ValueFlows
     import_fields :measurement_mutation
-    import_fields :geolocation_mutation
     import_fields :agent_mutation
     import_fields :knowledge_mutation
     import_fields :observation_mutation
@@ -175,8 +178,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
-    Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    ValueFlows.GraphQL.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})
+    hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+    hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
+    hb
   end
 
   # fallback

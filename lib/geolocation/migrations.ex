@@ -1,6 +1,11 @@
 defmodule Geolocation.Migrations do
 
   use Ecto.Migration
+  alias MoodleNet.Repo
+  alias Ecto.ULID
+
+  @meta_tables [] ++ ~w(vf_spatial_things) 
+
 
   def change do
     create table(:vf_spatial_things) do
@@ -27,4 +32,24 @@ defmodule Geolocation.Migrations do
     end
 
   end
+
+  def add_pointer do
+    tables = Enum.map(@meta_tables, fn name ->
+        %{"id" => ULID.bingenerate(), "table" => name}
+      end)
+      {_, _} = Repo.insert_all("mn_table", tables)
+      tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
+        Map.put(acc, table, id)
+    end)
+
+    for table <- @meta_tables do
+        :ok = execute """
+        create trigger "insert_pointer_#{table}"
+        before insert on "#{table}"
+        for each row
+        execute procedure insert_pointer()
+        """
+    end
+  end
+
 end

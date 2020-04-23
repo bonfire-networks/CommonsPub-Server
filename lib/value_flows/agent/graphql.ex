@@ -22,24 +22,38 @@ defmodule ValueFlows.Agent.GraphQL do
   # support for inteface type
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
+  def agent_resolve_type(%{agent_type: nil}, _), do: :person
 
   # def person_is_type_of(_), do: true
   # def organization_is_type_of(_), do: true
 
   # proper resolvers
 
-
-  def user(%{id: id}, info) do
-    {:ok, u} = MoodleNet.Users.one([:default, id: id, user: MoodleNet.GraphQL.current_user(info)])
-    
+  def people(%{}, info) do
     {:ok, 
-      u 
-      |> ValueFlows.Util.maybe_put(:note, u.summary)
+      ValueFlows.Agent.People.people(signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
 
-  # def users(%{}, info) do
-  #   Enum.map(users, & %{note: &1.summary, provider_id: &1.id})
-  # end
+
+  def person(%{id: id}, info) do    
+    {:ok, 
+    ValueFlows.Agent.People.person(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
+  def organizations(%{}, info) do # TODO: pagination
+    {:ok, 
+      ValueFlows.Agent.Organizations.organizations(signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
+
+  def organization(%{id: id}, info) do    
+    {:ok, 
+    ValueFlows.Agent.Organizations.organization(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
 
 end

@@ -12,14 +12,16 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
+    FetchPage,
+    FetchPages,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
-  # alias Geolocation
-  # alias Geolocation.Geolocations
-  # alias Geolocation.Queries
+  alias ValueFlows.Planning.Intent
+  alias ValueFlows.Planning.Intent.Intents
+  alias ValueFlows.Planning.Intent.Queries
 
   # SDL schema import
 
@@ -64,35 +66,35 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     )
   end
 
-  # def fetch_intents(page_opts, info) do
-  #   PageFlow.run(
-  #     %PageFlow{
-  #       queries: Queries,
-  #       query: Intent,
-  #       cursor_fn: Intents.cursor(:followers),
-  #       page_opts: page_opts,
-  #       base_filters: [user: GraphQL.current_user(info)],
-  #       data_filters: [page: [desc: [followers: page_opts]]],
-  #     }
-  #   )
-  # end
+  def fetch_intents(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Queries,
+        query: Intent,
+        # cursor_fn: Intents.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+        # data_filters: [page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
 
 
-  # def community_edge(%Intent{community_id: id}, _, info) do
-    # ResolveFields.run(
-    #   %ResolveFields{
-    #     module: __MODULE__,
-    #     fetcher: :fetch_community_edge,
-    #     context: id,
-    #     info: info,
-    #   }
-    # )
-  # end
+  def community_edge(%Intent{community_id: id}, _, info) do
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_community_edge,
+        context: id,
+        info: info,
+      }
+    )
+  end
 
-  # def fetch_community_edge(_, ids) do
-  #   {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-  #   fields
-  # end
+  def fetch_community_edge(_, ids) do
+    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
+    fields
+  end
 
   ## finally the mutations...
 

@@ -2,7 +2,7 @@ defmodule MoodleNet.Repo.Migrations.ValueFlows do
     use Ecto.Migration
 
     def change do
-        ValueFlows.Migrations.change()
+        ValueFlows.Measurement.Migrations.change()
     end
 
     # def up do

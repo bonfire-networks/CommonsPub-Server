@@ -145,7 +145,7 @@ defmodule MoodleNet.Follows do
     end
   end
 
-  defp valid_contexts() do
+  def valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
