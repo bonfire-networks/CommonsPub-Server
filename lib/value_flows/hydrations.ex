@@ -10,7 +10,8 @@ defmodule ValueFlows.Hydrations do
     hb = ValueFlows.Util.Hydration.hydrate(blueprint) 
     hb = Map.merge(hb, ValueFlows.Agent.Hydration.hydrate(blueprint)) 
     hb = Map.merge(hb, ValueFlows.Measurement.Hydration.hydrate(blueprint)) 
-    # |> ValueFlows.Planning.Intent.Hydration.hydrate(blueprint)
+    hb = Map.merge(hb, ValueFlows.Knowledge.Hydration.hydrate(blueprint)) 
+    hb = Map.merge(hb, ValueFlows.Planning.Hydration.hydrate(blueprint)) 
     hb
   end
 

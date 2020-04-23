@@ -6,16 +6,6 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     GraphQL,
     Repo,
   }
-  # alias MoodleNet.GraphQL.{
-  #   Flow,
-  #   FieldsFlow,
-  #   PageFlow,
-  #   PagesFlow,
-  #   ResolveField,
-  #   ResolvePage,
-  #   ResolvePages,
-  #   ResolveRootPage,
-  # }
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,

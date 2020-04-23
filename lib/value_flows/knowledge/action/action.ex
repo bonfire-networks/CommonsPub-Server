@@ -1,4 +1,4 @@
-defmodule Action do
+defmodule ValueFlows.Knowledge.Action do
 
   use MoodleNet.Common.Schema
 
@@ -9,7 +9,7 @@ defmodule Action do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias Action
+  alias ValueFlows.Knowledge.Action
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
 

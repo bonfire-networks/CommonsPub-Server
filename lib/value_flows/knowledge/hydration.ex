@@ -1,4 +1,4 @@
-defmodule ValueFlows.Knowledge.Action.Hydration do
+defmodule ValueFlows.Knowledge.Hydration do
 
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver
@@ -17,15 +17,15 @@ defmodule ValueFlows.Knowledge.Action.Hydration do
       #     resolve: &Geolocation.GraphQL.community_edge/3
       #   ],
       # },
-      action_query: %{
+      knowledge_query: %{
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
         ],
         all_actions: [
-          resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/3
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ]
       },
-      action_mutation: %{
+      knowledge_mutation: %{
         create_intent: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
         ]

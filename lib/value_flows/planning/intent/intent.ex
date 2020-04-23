@@ -1,4 +1,17 @@
-defmodule Intent do
+# TODO:
+# AgentRelationship
+# AgentRelationshipRole
+# ResourceSpecification
+# Action
+# Proposal
+# ProposedIntent
+# Intent
+# ProposedTo(maybe?)
+# Process
+# ProcessSpecification
+# SpatialThing
+
+defmodule ValueFlows.Planning.Intent do
 
   use MoodleNet.Common.Schema
 
@@ -8,53 +21,68 @@ defmodule Intent do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias Intent
+  alias ValueFlows.Planning.Intent
 
   @type t :: %__MODULE__{}
 
   table_schema "vf_intents" do
-    # belongs_to(:action, Action)
+
     field(:name, :string)
     field(:note, :string)
+    belongs_to(:image, Content)
+
+    # belongs_to(:provider, User) # TODO - use pointer like context?
+    # belongs_to(:receiver, User)
+
     has_one(:available_quantity, Measure)
-    field(:deletable, :boolean)
-    # belongs_to(:agreed_in, Agreement )
-    # belongs_to(:atLocation, Geolocation)
     has_one(:resource_quantity, Measure)
     has_one(:effort_quantity, Measure)
+
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
     field(:has_point_in_time, :utc_datetime_usec)
-    # belongs_to(:image, Content)
-    # belongs_to(:input_of, Process)
-    # belongs_to(:output_of, Process)
-    # belongs_to(:provider, User)
-    # belongs_to(:receiver, User)
-    # belongs_to(:published_in, ProposedIntent)
-    field(:resource_classified_as, {:array, :string})
+    field(:due, :utc_datetime_usec)
+    
+    field(:resource_classified_as, {:array, :string}) # array of URI
     # belongs_to(:resource_conforms_to, ResourceSpecification)
     # belongs_to(:resource_inventoried_as, EconomicResource)
-    # belongs_to(:satisfied_by, Satisfaction)
+
+    belongs_to(:atLocation, Geolocation)
+
+    belongs_to(:action, Action)
+
+    # belongs_to(:input_of, Process)
+    # belongs_to(:output_of, Process)
+
+    # belongs_to(:agreed_in, Agreement)
+
+    # inverse relationships 
+    # has_many(:published_in, ProposedIntent)
+    # has_many(:satisfied_by, Satisfaction)
+
+    belongs_to(:creator, User)
+    belongs_to(:community, Community) # optional community as scope
+
     field(:finished, :boolean, default: false)
-    # belongs_to(:in_scope_of, Community)
+    # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
 
-    belongs_to(:actor, Actor)
-
-    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
-    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
-    field(:follower_count, :any, virtual: true) # because it's keyed by pointer
+    field(:is_public, :boolean, virtual: true)
+    field(:published_at, :utc_datetime_usec)
+    field(:is_disabled, :boolean, virtual: true, default: false)
+    field(:disabled_at, :utc_datetime_usec)
+    field(:deleted_at, :utc_datetime_usec)
 
     timestamps()
   end
   
   
   @required ~w(name is_public)a
-  @cast @required ++ ~w(note mappable_address point alt is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(note is_disabled)a
 
   def create_changeset(
         %User{} = creator,
         %Community{} = community,
-        %Actor{} = actor,
+        # %Actor{} = actor,
         attrs
       ) do
     %Geolocation{}
@@ -63,7 +91,7 @@ defmodule Intent do
     |> Changeset.change(
       creator_id: creator.id,
       community_id: community.id,
-      actor_id: actor.id,
+      # actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()
