@@ -43,15 +43,17 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def fetch_my_follow_edge(info, ids) do
-    case GraphQL.current_user(info) do
-      nil -> nil
-      user ->
-        {:ok, fields} = Follows.fields(
-        &(&1.context_id),
-        [:deleted, creator_id: user.id, context_id: ids])
-        fields
-    end
+    fetch_my_follow_edge(GraphQL.current_user(info), info, ids)
   end
+
+  def fetch_my_follow_edge(nil, _, _), do: nil
+  def fetch_my_follow_edge(user, info, ids) do
+    {:ok, fields} = Follows.fields(
+      &(&1.context_id),
+      [:deleted, creator_id: user.id, context_id: ids])
+    fields
+  end
+  
 
   def follow_count_edge(%{id: id}, _, info) do
     ResolveFields.run(

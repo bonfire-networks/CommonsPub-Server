@@ -6,24 +6,6 @@ defmodule MoodleNet.Instance do
 
   alias MoodleNet.{Activities, Feeds}
   
-  def outbox(page_opts) do
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      join: :feed_activity,
-      feed_id: Feeds.instance_outbox_id(),
-      distinct: [desc: :id],
-      order: :timeline_desc,
-      table: default_outbox_query_contexts()      
-    )
-  end
-
-  defp default_outbox_query_contexts(config \\ config()) do
-    Keyword.fetch!(config, :default_outbox_query_contexts)
-  end
-
-  defp config(), do: Application.fetch_env!(:moodle_net, __MODULE__)
-
   def hostname(config \\ config()) do
     Keyword.fetch!(config, :hostname)
   end
@@ -33,6 +15,13 @@ defmodule MoodleNet.Instance do
   end
 
   def base_url(), do: Application.fetch_env!(:moodle_net, :base_url)
+
+  @doc false
+  def default_outbox_query_contexts(config \\ config()) do
+    Keyword.fetch!(config, :default_outbox_query_contexts)
+  end
+
+  defp config(), do: Application.fetch_env!(:moodle_net, __MODULE__)
 
 end
 

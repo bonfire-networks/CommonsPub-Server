@@ -31,18 +31,21 @@ defmodule MoodleNet.GraphQL do
     |> Enum.map(& &1.schema_node.identifier)
   end
 
-  def admin_or_not_permitted(%Resolution{}=info) do
+  def admin_or_not_permitted(info), do: admin_or(info, &not_permitted/0)
+
+  def admin_or_empty_page(info), do: admin_or(info, &empty_page/0)
+
+  def admin_or(%Resolution{}=info, value) do
     case info.context.current_user do
       match_admin() -> {:ok, info.context.current_user}
-      _ -> not_permitted()
+      _ -> lazy(value)
     end
   end
+  def equals_or(l, r, good, bad), do: lazy_bool_or(l == r, good, bad)
 
-  def equals_or(l, r, val), do: lazy_or((l == r) or nil && :ok, val)
+  def equals_or_not_permitted(l, r), do: equals_or(l, r, :ok, &empty_page/0)
 
-  def equals_or_not_permitted(l, r), do: equals_or(l, r, &empty_page/0)
-
-  def not_in_list_or(info, value), do: lazy_or(in_list?(info) or nil && :ok, value)
+  def not_in_list_or(info, value), do: lazy_bool_or(not in_list?(info), :ok, value)
 
   def not_in_list_or_empty_page(info), do: not_in_list_or(info, &empty_page/0)
 
@@ -56,11 +59,17 @@ defmodule MoodleNet.GraphQL do
 
   def current_user_or_not_found(info), do: current_user_or(info, &not_found/0)
 
-  defp lazy_or(nil, lazy) when is_function(lazy, 0), do: lazy_or(nil, lazy.())
-  defp lazy_or(nil, {:ok, value}), do: {:ok, value}
-  defp lazy_or(nil, {:error, value}), do: {:error, value}
-  defp lazy_or(nil, value), do: {:ok, value}
+  defp lazy_or(nil, lazy), do: lazy(lazy)
   defp lazy_or(value, _), do: {:ok, value}
+
+  defp lazy_bool_or(false, _good, bad), do: lazy(bad)
+  defp lazy_bool_or(true, good, _bad), do: lazy(good)
+
+  defp lazy(lazy) when is_function(lazy, 0), do: lazy(lazy.())
+  defp lazy(:ok), do: :ok
+  defp lazy({:ok, value}), do: {:ok, value}
+  defp lazy({:error, value}), do: {:error, value}
+  defp lazy(value), do: {:ok, value}
 
   def guest_only(%Resolution{}=info) do
     case current_user(info) do

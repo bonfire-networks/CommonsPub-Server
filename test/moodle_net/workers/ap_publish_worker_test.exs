@@ -12,7 +12,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
 
       object = %{
         "name" => "resource",
-        "url" => "https://resource.com",
+        "url" => "http://www.guidetojapanese.org/grammar_guide.pdf",
         "actor" => actor.ap_id,
         "attributedTo" => actor.ap_id,
         "context" => collection.ap_id,

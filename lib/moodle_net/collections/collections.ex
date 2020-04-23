@@ -156,4 +156,10 @@ defmodule MoodleNet.Collections do
     end)
   end
 
+  @doc false
+  def default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+
 end

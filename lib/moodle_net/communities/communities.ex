@@ -157,7 +157,8 @@ defmodule MoodleNet.Communities do
   #   |> Keyword.fetch!(:default_inbox_query_contexts)
   # end
 
-  defp default_outbox_query_contexts() do
+  @doc false
+  def default_outbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end

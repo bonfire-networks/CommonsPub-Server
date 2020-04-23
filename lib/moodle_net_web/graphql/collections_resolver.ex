@@ -180,42 +180,29 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def outbox_edge(%Collection{outbox_id: id}, page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_outbox_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-      }
-    )
-  end
-
-  def fetch_outbox_edge({page_opts, info}, id) do
-    user = info.context.current_user
-    {:ok, box} = Activities.page(
-      &(&1.id),
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-    box
+    with :ok <- GraphQL.not_in_list_or_empty_page(info) do
+      ResolvePage.run(
+        %ResolvePage{
+          module: __MODULE__,
+          fetcher: :fetch_outbox_edge,
+          context: id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
+    end
   end
 
   def fetch_outbox_edge(page_opts, info, id) do
-    user = info.context.current_user
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
+    tables = Collections.default_outbox_query_contexts()
+    FetchPage.run(
+      %FetchPage{
+        queries: Activities.Queries,
+        query: Activities.Activity,
+        page_opts: page_opts,
+        base_filters: [:deleted, feed: id, table: tables]
+      }          
     )
-  end
-
-  defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Collections)
-    |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
   ## finally the mutations...

@@ -478,10 +478,20 @@ defmodule ActivityPub.Actor do
     actor.data["deactivated"] == true
   end
 
-  def toggle_active(%Actor{local: false} = actor) do
+  def deactivate(%Actor{local: false} = actor) do
     new_data =
       actor.data
-      |> Map.put("deactivated", !actor.deactivated)
+      |> Map.put("deactivated", true)
+
+    update_actor_data_by_ap_id(actor.ap_id, new_data)
+    # Return Actor
+    set_cache(get_by_ap_id(actor.ap_id))
+  end
+
+  def reactivate(%Actor{local: false} = actor) do
+    new_data =
+      actor.data
+      |> Map.put("deactivated", false)
 
     update_actor_data_by_ap_id(actor.ap_id, new_data)
     # Return Actor

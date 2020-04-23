@@ -97,6 +97,8 @@ defmodule MoodleNet.Algolia.Indexer do
         {:error, _} -> nil
       end
 
+    url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
+
     %{
       "index_mothership_object_id" => resource.id,
       "name" => resource.name,
@@ -113,7 +115,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
       "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
-      "url" => resource.url
+      "url" => url
     }
   end
 
