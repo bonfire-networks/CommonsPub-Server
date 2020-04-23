@@ -22,6 +22,8 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
+    FetchPage,
+    FetchPages,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums

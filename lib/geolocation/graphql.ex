@@ -12,6 +12,8 @@ defmodule Geolocation.GraphQL do
     ResolveField,
     ResolveFields,
     ResolveRootPage,
+    FetchPage,
+    FetchPages,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
