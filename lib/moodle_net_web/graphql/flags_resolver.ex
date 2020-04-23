@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
   end
 
   def flags(%{} = page_opts, info) do
-    # with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
       ResolveRootPage.run(
         %ResolveRootPage{
           module: __MODULE__,
@@ -25,9 +25,9 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
           info: info
         }
       )
-    #   else
-     #    {:error, _} -> GraphQL.empty_page()
-    # end
+    else
+      {:error, _} -> GraphQL.empty_page()
+    end
   end
 
   def fetch_flags(page_opts, _info) do
