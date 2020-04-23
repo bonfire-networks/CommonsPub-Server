@@ -146,7 +146,11 @@ defmodule MoodleNet.Uploads do
   end
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    case upload_def.allowed_media_types() do
+    media_types = :moodle_net
+    |> Application.fetch_env!(upload_def)
+    |> Keyword.fetch!(:allowed_media_types)
+
+    case media_types do
       :all ->
         :ok
 
