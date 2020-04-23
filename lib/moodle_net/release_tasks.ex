@@ -76,11 +76,19 @@ defmodule MoodleNet.ReleaseTasks do
     Enum.each(@repos, &rollback_repo/1)
   end
 
+  def rollback_repos(step) do
+    Enum.each(@repos, &rollback_repo(&1, step))
+  end
+
   defp rollback_repo(repo) do
+    rollback_repo(repo, 1)
+  end
+
+  defp rollback_repo(repo, step) do
     app = Keyword.get(repo.config, :otp_app)
     Logger.info("Running rollback for #{app}")
     migrations_path = priv_path_for(repo, "migrations")
-    Ecto.Migrator.run(repo, migrations_path, :down, step: 1)
+    Ecto.Migrator.run(repo, migrations_path, :down, step: step)
   end
 
   def empty_db() do

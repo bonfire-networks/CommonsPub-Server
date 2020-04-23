@@ -22,18 +22,19 @@ defmodule ValueFlows.Planning.Migrations do
       # has_one(:resource_quantity, Measure)
       # has_one(:effort_quantity, Measure)
 
-      add :resource_classified_as, :array # array of URI
+      add :resource_classified_as, {:array, :string} # array of URI
       
       # # belongs_to(:resource_conforms_to, ResourceSpecification)
       # # belongs_to(:resource_inventoried_as, EconomicResource)
   
-      # belongs_to(:atLocation, Geolocation)
+      add :at_location_id, references(:geolocation)
   
-      # belongs_to(:action, Action)
+      add :action_id, references(:vf_action)
 
-      # belongs_to(:community, Community) # optional community as scope
+      # optional community as scope
+      add :community_id, references("mn_community", on_delete: :nilify_all)
 
-      # field(:finished, :boolean, default: false)
+      add :finished, :boolean, default: false
       # # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
   
       # belongs_to(:input_of, Process)
@@ -58,6 +59,9 @@ defmodule ValueFlows.Planning.Migrations do
 
     end
 
+  end
+
+  def add_intent_pointer do
     tables = Enum.map(@meta_tables, fn name ->
         %{"id" => ULID.bingenerate(), "table" => name}
       end)

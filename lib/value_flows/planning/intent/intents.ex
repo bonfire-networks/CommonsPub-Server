@@ -70,20 +70,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- publish(creator, item, activity, :created)
-          do
-            {:ok, item}
-          end
-    end)
-  end
-
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
 
@@ -92,6 +78,20 @@ defmodule ValueFlows.Planning.Intent.Intents do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
            :ok <- publish(creator, community, item, activity, :created)
+          do
+            {:ok, item}
+          end
+    end)
+  end
+
+  @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs) when is_map(attrs) do
+
+    Repo.transact_with(fn ->
+      with {:ok, item} <- insert_unit(creator, attrs),
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+           :ok <- publish(creator, item, activity, :created)
           do
             {:ok, item}
           end

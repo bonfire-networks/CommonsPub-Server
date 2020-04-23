@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Measurement.Unit.GraphQL do
+defmodule Measurement.Unit.GraphQL do
   alias MoodleNet.{
     Activities,
     Communities,
@@ -20,9 +20,9 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Simulate
-  alias ValueFlows.Measurement.Unit
-  alias ValueFlows.Measurement.Unit.Units
-  alias ValueFlows.Measurement.Unit.Queries
+  alias Measurement.Unit
+  alias Measurement.Unit.Units
+  alias Measurement.Unit.Queries
 
   # SDL schema import
 
@@ -30,7 +30,7 @@ defmodule ValueFlows.Measurement.Unit.GraphQL do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/value_flows/graphql/schemas/measurement.gql"
+  import_sdl path: "lib/measurement/measurement.gql"
 
   ## resolvers
 

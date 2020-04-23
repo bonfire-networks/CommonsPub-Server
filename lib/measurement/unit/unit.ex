@@ -1,4 +1,4 @@
-defmodule ValueFlows.Measurement.Unit do
+defmodule Measurement.Unit do
 
   use MoodleNet.Common.Schema
   
@@ -8,7 +8,7 @@ defmodule ValueFlows.Measurement.Unit do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
-  alias ValueFlows.Measurement.Unit
+  alias Measurement.Unit
 
   @type t :: %__MODULE__{}
 
@@ -35,7 +35,7 @@ defmodule ValueFlows.Measurement.Unit do
         %User{} = creator,
         attrs
       ) do
-    %ValueFlows.Measurement.Unit{}
+    %Measurement.Unit{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -50,7 +50,7 @@ defmodule ValueFlows.Measurement.Unit do
       %Community{} = community,
       attrs
     ) do
-  %ValueFlows.Measurement.Unit{}
+  %Measurement.Unit{}
   |> Changeset.cast(attrs, @cast)
   |> Changeset.validate_required(@required)
   |> Changeset.change(
@@ -61,7 +61,7 @@ defmodule ValueFlows.Measurement.Unit do
   |> common_changeset()
   end
 
-  def update_changeset(%ValueFlows.Measurement.Unit{} = unit, attrs) do
+  def update_changeset(%Measurement.Unit{} = unit, attrs) do
     unit
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

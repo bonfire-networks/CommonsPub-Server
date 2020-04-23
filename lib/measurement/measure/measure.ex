@@ -1,14 +1,14 @@
-defmodule ValueFlows.Measurement.Measure do
+defmodule Measurement.Measure do
 
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias ValueFlows.Measurement.Measure
+  alias Measurement.Measure
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
-  alias ValueFlows.Measurement.Unit
+  alias Measurement.Unit
 
   @type t :: %__MODULE__{}
 
@@ -34,7 +34,7 @@ defmodule ValueFlows.Measurement.Measure do
         %User{} = creator,
         attrs
       ) do
-    %ValueFlows.Measurement.Measure{}
+    %Measurement.Measure{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -47,7 +47,7 @@ defmodule ValueFlows.Measurement.Measure do
       %User{} = creator,
       attrs
     ) do
-  %ValueFlows.Measurement.Measure{}
+  %Measurement.Measure{}
   |> Changeset.cast(attrs, @cast)
   |> Changeset.validate_required(@required)
   |> Changeset.change(
@@ -57,7 +57,7 @@ defmodule ValueFlows.Measurement.Measure do
   |> common_changeset()
   end
 
-  def update_changeset(%ValueFlows.Measurement.Measure{} = measure, attrs) do
+  def update_changeset(%Measurement.Measure{} = measure, attrs) do
     measure
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

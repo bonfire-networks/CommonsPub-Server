@@ -1,12 +1,12 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Measurement.Measure.Measures do
+defmodule Measurement.Measure.Measures do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias ValueFlows.Measurement.Measure
-  alias ValueFlows.Measurement.Measure.Queries
+  alias Measurement.Measure
+  alias Measurement.Measure.Queries
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
@@ -100,12 +100,12 @@ defmodule ValueFlows.Measurement.Measure.Measures do
   end
 
   defp insert_measure(creator, attrs) do
-    cs = ValueFlows.Measurement.Measure.create_changeset(creator, attrs)
+    cs = Measurement.Measure.create_changeset(creator, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
   defp insert_measure(creator, attrs) do
-    cs = ValueFlows.Measurement.Measure.create_changeset(creator, attrs)
+    cs = Measurement.Measure.create_changeset(creator, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
@@ -134,13 +134,13 @@ defmodule ValueFlows.Measurement.Measure.Measures do
   # defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Measure{}, attrs :: map) :: {:ok, ValueFlows.Measurement.Measure.t()} | {:error, Changeset.t()}
+  @spec update(%Measure{}, attrs :: map) :: {:ok, Measurement.Measure.t()} | {:error, Changeset.t()}
   def update(%Measure{} = measure, attrs) do
     Repo.transact_with(fn ->
       measure = Repo.preload(measure)
       IO.inspect(measure)
 
-      with {:ok, measure} <- Repo.update(ValueFlows.Measurement.Measure.update_changeset(measure, attrs)) do
+      with {:ok, measure} <- Repo.update(Measurement.Measure.update_changeset(measure, attrs)) do
           #  :ok <- publish(measure, :updated) do
           #   IO.inspect("measure")
           #   IO.inspect(measure)

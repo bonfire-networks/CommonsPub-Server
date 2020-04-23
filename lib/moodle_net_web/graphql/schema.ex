@@ -71,13 +71,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Geolocation.GraphQL
   import_types ValueFlows.Util.GraphQL
-  import_types ValueFlows.Measurement.Unit.GraphQL
+
+  import_types Measurement.Unit.GraphQL
+  
   import_types ValueFlows.Agent.GraphQL
   import_types ValueFlows.Knowledge.Action.GraphQL
+  import_types ValueFlows.Planning.Intent.GraphQL
   import_types ValueFlows.Observation.GraphQL
   import_types ValueFlows.Recipe.GraphQL
   import_types ValueFlows.Plan.GraphQL
-  import_types ValueFlows.Planning.Intent.GraphQL
   import_types ValueFlows.Proposal.GraphQL
   import_types ValueFlows.Scenario.GraphQL
   import_types ValueFlows.Agreement.GraphQL
@@ -179,6 +181,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
     hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+    hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
     hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
     hb
   end

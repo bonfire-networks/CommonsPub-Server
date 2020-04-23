@@ -25,7 +25,7 @@ defmodule ValueFlows.Planning.Intent do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_intents" do
+  table_schema "vf_intent" do
 
     field(:name, :string)
     field(:note, :string)
@@ -47,7 +47,7 @@ defmodule ValueFlows.Planning.Intent do
     # belongs_to(:resource_conforms_to, ResourceSpecification)
     # belongs_to(:resource_inventoried_as, EconomicResource)
 
-    belongs_to(:atLocation, Geolocation)
+    belongs_to(:at_location, Geolocation)
 
     belongs_to(:action, Action)
 
@@ -91,6 +91,24 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.change(
       creator_id: creator.id,
       community_id: community.id,
+      # actor_id: actor.id,
+      is_public: true
+    )
+    |> common_changeset()
+  end
+
+  def create_changeset(
+      %User{} = creator,
+      # %Community{} = community,
+      # %Actor{} = actor,
+      attrs
+    ) do
+    %Geolocation{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      creator_id: creator.id,
+      # community_id: community.id,
       # actor_id: actor.id,
       is_public: true
     )

@@ -15,7 +15,7 @@ defmodule ValueFlows.Knowledge.Action do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_actions" do
+  table_schema "vf_action" do
     field(:input_output, :string)
     field(:label, :string)
     field(:pairs_with, :string)

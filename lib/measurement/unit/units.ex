@@ -1,12 +1,12 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Measurement.Unit.Units do
+defmodule Measurement.Unit.Units do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias ValueFlows.Measurement.Unit
-  alias ValueFlows.Measurement.Unit.Queries
+  alias Measurement.Unit
+  alias Measurement.Unit.Queries
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
@@ -98,12 +98,12 @@ defmodule ValueFlows.Measurement.Unit.Units do
   end
 
   defp insert_unit(creator, attrs) do
-    cs = ValueFlows.Measurement.Unit.create_changeset(creator, attrs)
+    cs = Measurement.Unit.create_changeset(creator, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
   defp insert_unit(creator, community, attrs) do
-    cs = ValueFlows.Measurement.Unit.create_changeset(creator, community, attrs)
+    cs = Measurement.Unit.create_changeset(creator, community, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
@@ -141,13 +141,13 @@ defmodule ValueFlows.Measurement.Unit.Units do
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Unit{}, attrs :: map) :: {:ok, ValueFlows.Measurement.Unit.t()} | {:error, Changeset.t()}
+  @spec update(%Unit{}, attrs :: map) :: {:ok, Measurement.Unit.t()} | {:error, Changeset.t()}
   def update(%Unit{} = unit, attrs) do
     Repo.transact_with(fn ->
       unit = Repo.preload(unit, :community)
       IO.inspect(unit)
 
-      with {:ok, unit} <- Repo.update(ValueFlows.Measurement.Unit.update_changeset(unit, attrs)) do
+      with {:ok, unit} <- Repo.update(Measurement.Unit.update_changeset(unit, attrs)) do
           #  :ok <- publish(unit, :updated) do
           #   IO.inspect("unit")
           #   IO.inspect(unit)

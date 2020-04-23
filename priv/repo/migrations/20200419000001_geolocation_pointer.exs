@@ -1,7 +1,7 @@
-defmodule MoodleNet.Repo.Migrations.GeolocationPointer do
+defmodule MoodleNet.Repo.Migrations.Geolocation.Pointer do
     use Ecto.Migration
 
-    def change do
+    def up do
       Geolocation.Migrations.add_pointer()
     end
 end

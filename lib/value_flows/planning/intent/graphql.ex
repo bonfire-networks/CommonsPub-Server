@@ -108,6 +108,15 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
+  def create_intent(%{intent: attrs}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+        attrs = Map.merge(attrs, %{is_public: true})
+        Intents.create(user, attrs)
+      end
+    end)
+  end
+
   def update_intent(%{intent: changes, intent_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),

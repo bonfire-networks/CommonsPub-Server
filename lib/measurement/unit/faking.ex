@@ -1,14 +1,14 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule ValueFlows.Measurement.Unit.Faking do
+defmodule Measurement.Unit.Faking do
   @moduledoc false
 
   alias MoodleNet.Test.Fake
-  alias ValueFlows.Measurement.Unit.Units
+  alias Measurement.Unit.Units
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias ValueFlows.Measurement.Unit
+  alias Measurement.Unit
   import MoodleNet.Test.Trendy
 
   import Grumble
