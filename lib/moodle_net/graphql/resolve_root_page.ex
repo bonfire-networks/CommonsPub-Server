@@ -10,7 +10,7 @@ defmodule MoodleNet.GraphQL.ResolveRootPage do
   defstruct [
     :module, :fetcher, :page_opts, :info,
     cursor_validators: [&Ecto.ULID.cast/1],
-    paging_opts: %{default_limit: 10},
+    paging_opts: %{default_limit: 5, max_limit: 15},
   ]
 
   alias MoodleNet.GraphQL

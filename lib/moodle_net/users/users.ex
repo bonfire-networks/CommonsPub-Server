@@ -268,12 +268,6 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  @doc false
-  def default_inbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:default_inbox_query_contexts)
-  end
-
   def feed_subscriptions(%User{id: id}) do
     FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
   end
@@ -296,5 +290,18 @@ defmodule MoodleNet.Users do
   def preload_local_user(%User{} = user, opts \\ []) do
     Repo.preload(user, :local_user, opts)
   end
+
+  @doc false
+  def default_inbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_inbox_query_contexts)
+  end
+
+  @doc false
+  def default_outbox_query_contexts() do
+    Application.fetch_env!(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:default_outbox_query_contexts)
+  end
+
 
 end

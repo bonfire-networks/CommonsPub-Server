@@ -92,7 +92,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     )
   end
 
-  def fetch_thread_edge(user, ids) do
+  def fetch_thread_edge(info, ids) do
+    user = GraphQL.current_user(info)
     {:ok, fields} = Threads.fields(&(&1.id), id: ids, user: user)
     fields
   end

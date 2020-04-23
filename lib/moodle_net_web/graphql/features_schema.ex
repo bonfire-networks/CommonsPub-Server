@@ -15,6 +15,12 @@ defmodule MoodleNetWeb.GraphQL.FeaturesSchema do
       resolve &FeaturesResolver.feature/2
     end
 
+    field :features, :features_page do
+      arg :limit, :integer
+      arg :before, list_of(:cursor)
+      arg :after, list_of(:cursor)
+      resolve &FeaturesResolver.features/2
+    end
   end
 
   object :features_mutations do

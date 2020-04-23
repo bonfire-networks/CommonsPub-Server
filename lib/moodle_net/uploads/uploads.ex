@@ -129,6 +129,9 @@ defmodule MoodleNet.Uploads do
     else
       # match behaviour of uploads
       {:error, {:request_failed, 404}} -> {:error, :enoent}
+      {:error, {:request_failed, 403}} -> {:error, :forbidden}
+      {:error, :bad_request} -> {:error, :bad_request}
+      {:error, {:tls_alert, _}} -> {:error, :tls_alert}
     end
   end
 

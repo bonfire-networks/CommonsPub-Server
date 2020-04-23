@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
 
   alias MoodleNet.{Flags, GraphQL, Repo}
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{FetchPage, FetchPages, ResolveFields, ResolvePages}
+  alias MoodleNet.GraphQL.{FetchPage, FetchPages, ResolveFields, ResolveRootPage, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
 
@@ -13,6 +13,34 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     with {:ok, %User{}=user} <- GraphQL.current_user_or_not_found(info) do
       Flags.one(id: id, user: user)
     end
+  end
+
+  def flags(%{} = page_opts, info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
+      ResolveRootPage.run(
+        %ResolveRootPage{
+          module: __MODULE__,
+          fetcher: :fetch_flags,
+          page_opts: page_opts,
+          info: info
+        }
+      )
+    else
+      {:error, _} -> GraphQL.empty_page()
+    end
+  end
+
+  def fetch_flags(page_opts, _info) do
+      FetchPage.run(
+        %FetchPage{
+          queries: Flags.Queries,
+          query: Flag,
+          cursor_fn: &[&1.id],
+          page_opts: page_opts,
+          base_filters: [:deleted],
+          data_filters: [page: [desc: [created: page_opts]]],
+        }
+      )
   end
 
   def flags_edge(%{id: id}, %{}=page_opts, info) do
