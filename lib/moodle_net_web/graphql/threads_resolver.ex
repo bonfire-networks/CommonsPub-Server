@@ -42,7 +42,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         info: info,
       }
     )
-
   end
 
   def fetch_threads_edge({page_opts, info}, ids) do
