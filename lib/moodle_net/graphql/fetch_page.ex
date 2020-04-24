@@ -56,6 +56,7 @@ defmodule MoodleNet.GraphQL.FetchPage do
     # IO.inspect(data: data, count: count)
     data = map_data(map_fn, data)
     count = map_count(map_count_fn, count)
+    # IO.inspect(mapped_data: data, mapped_count: count)
     ret = Page.new(data, count, cursor_fn, page_opts)
     {:ok, ret}
   end
