@@ -35,8 +35,6 @@ defmodule MoodleNet.Application do
     # and does not need it to start up
     children = [
       supervisor(Repo, []),
-      worker(LanguageService, []),
-      worker(CountryService, []),
       worker(TableService, []),
       supervisor(Endpoint, []),
       {Oban, Application.get_env(:moodle_net, Oban)},
