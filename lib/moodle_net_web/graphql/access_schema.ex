@@ -25,12 +25,12 @@ defmodule MoodleNetWeb.GraphQL.AccessSchema do
 
   object :access_mutations do
     
-    field :create_register_email_access, :boolean do
+    field :create_register_email_access, non_null(:register_email_access) do
       arg :email, non_null(:string)
       resolve &AccessResolver.create_register_email_access/2
     end
 
-    field :create_register_email_domain_access, :boolean do
+    field :create_register_email_domain_access, non_null(:register_email_domain_access) do
       arg :domain, non_null(:string)
       resolve &AccessResolver.create_register_email_domain_access/2
     end
