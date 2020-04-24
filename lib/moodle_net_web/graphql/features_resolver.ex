@@ -6,16 +6,32 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
   Performs the GraphQL Community queries.
   """
   alias MoodleNet.{Features, GraphQL}
-  alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
+  alias MoodleNet.GraphQL.{FetchFields, ResolveFields, ResolveRootPage, FetchPage}
   alias MoodleNet.Meta.Pointers
 
   def feature(%{feature_id: id}, _info), do: Features.one(id: id)
 
-  def features(_args, _info) do
-    Features.page(
-      &(&1.id),
-      [],
-      [join: :context, order: :timeline_desc, prefetch: :context]
+  def features(%{} = page_opts, info) do
+    with {:ok, _user} <- GraphQL.current_user_or_empty_page(info) do
+      ResolveRootPage.run(
+          %ResolveRootPage{
+            module: __MODULE__,
+            fetcher: :fetch_features,
+            page_opts: page_opts,
+            info: info
+          }
+        )
+    end
+  end
+
+  def fetch_features(page_opts, _info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Features.Queries,
+        query: Features.Feature,
+        cursor_fn: &[&1.id],
+        page_opts: page_opts
+      }
     )
   end
 

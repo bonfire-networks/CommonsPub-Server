@@ -18,6 +18,7 @@ defmodule ValueFlows.Util.GraphQL do
 
   def parse_cool_scalar(value), do: {:ok, value}
   def serialize_cool_scalar(%{value: value}), do: value
+  def serialize_cool_scalar(value), do: value
 
 
 end

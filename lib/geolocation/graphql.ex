@@ -12,6 +12,8 @@ defmodule Geolocation.GraphQL do
     ResolveField,
     ResolveFields,
     ResolveRootPage,
+    FetchPage,
+    FetchPages,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
@@ -64,19 +66,18 @@ defmodule Geolocation.GraphQL do
     )
   end
 
-  # def fetch_geolocations(page_opts, info) do
-  #   PageFlow.run(
-  #     %PageFlow{
-  #       queries: Queries,
-  #       query: Geolocation,
-  #       cursor_fn: Geolocations.cursor(:followers),
-  #       page_opts: page_opts,
-  #       base_filters: [user: GraphQL.current_user(info)],
-  #       data_filters: [page: [desc: [followers: page_opts]]],
-  #     }
-  #   )
-  # end
-
+  def fetch_geolocations(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Queries,
+        query: Geolocation,
+        cursor_fn: Geolocations.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
 
   def community_edge(%Geolocation{community_id: id}, _, info) do
     ResolveFields.run(
@@ -139,7 +140,7 @@ defmodule Geolocation.GraphQL do
 
   ## finally the mutations...
 
-  def create_geolocation(%{geolocation: attrs, in_scope_of_community_id: id}, info) do
+  def create_geolocation(%{spatial_thing: attrs, in_scope_of_community_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
@@ -149,7 +150,16 @@ defmodule Geolocation.GraphQL do
     end)
   end
 
-  def update_geolocation(%{geolocation: changes, geolocation_id: id}, info) do
+  def create_geolocation(%{spatial_thing: attrs}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+        attrs = Map.merge(attrs, %{is_public: true})
+        Geolocations.create(user, attrs)
+      end
+    end)
+  end
+
+  def update_geolocation(%{spatial_thing: changes, geolocation_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, geolocation} <- geolocation(%{geolocation_id: id}, info) do
