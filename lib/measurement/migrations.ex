@@ -1,28 +1,37 @@
-defmodule Geolocation.Migrations do
-
+defmodule Measurement.Migrations do
   use Ecto.Migration
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(geolocation) 
-
+  @meta_tables [] ++ ~w(unit measure) 
 
   def change do
-    create table(:geolocation) do
+    create table(:unit) do
 
-      add :name, :string
-      add :note, :text
-      add :mappable_address, :string
-      add :point, :point
-      # add :lat, :float
-      # add :long, :float
-      add :alt, :float
+      add :label, :string
+      add :symbol, :string
 
-      add :actor_id, references("mn_actor", on_delete: :delete_all)
       add :community_id, references("mn_community", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
-      add :inbox_id, references("mn_feed", on_delete: :nilify_all)
-      add :outbox_id, references("mn_feed", on_delete: :nilify_all)
+
+      add :published_at, :timestamptz
+      add :deleted_at, :timestamptz
+      add :disabled_at, :timestamptz
+
+      timestamps(inserted_at: false, type: :utc_datetime_usec)
+
+    end
+
+  end
+
+  def change_measure do
+    create table(:measure) do
+
+      add :hasNumericalValue, :float
+
+      add :unit_id, references("unit", on_delete: :delete_all)
+      add :creator_id, references("mn_user", on_delete: :nilify_all)
+
       add :published_at, :timestamptz
       add :deleted_at, :timestamptz
       add :disabled_at, :timestamptz
@@ -51,5 +60,6 @@ defmodule Geolocation.Migrations do
         """
     end
   end
+
 
 end

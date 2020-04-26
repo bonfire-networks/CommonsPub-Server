@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ReleaseTasks do
-    require Logger
+  require Logger
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
@@ -76,11 +76,19 @@ defmodule MoodleNet.ReleaseTasks do
     Enum.each(@repos, &rollback_repo/1)
   end
 
+  def rollback_repos(step) do
+    Enum.each(@repos, &rollback_repo(&1, step))
+  end
+
   defp rollback_repo(repo) do
+    rollback_repo(repo, 1)
+  end
+
+  defp rollback_repo(repo, step) do
     app = Keyword.get(repo.config, :otp_app)
     Logger.info("Running rollback for #{app}")
     migrations_path = priv_path_for(repo, "migrations")
-    Ecto.Migrator.run(repo, migrations_path, :down, step: 1)
+    Ecto.Migrator.run(repo, migrations_path, :down, step: step)
   end
 
   def empty_db() do
@@ -204,4 +212,10 @@ defmodule MoodleNet.ReleaseTasks do
     {:ok, u} = MoodleNet.Users.one([:default, username: username])
     MoodleNet.Users.unmake_instance_admin(u)
   end
+
+  def remove_meta_table(table) do
+    import Ecto.Query
+    {rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
+  end
+  
 end

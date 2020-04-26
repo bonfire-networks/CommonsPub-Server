@@ -34,19 +34,18 @@ type SpatialThing {
   note: String
 
   ##############################################################################
-  # inverse relationships and queries
-
-  agents: [Agent!]
-  economicResources: [EconomicResource!]
-  economicEvents: [EconomicEvent!]
-  commitments: [Commitment!]
-  intents: [Intent!]
+  # inverse relationships and queries - FIXME
+  # agents: [Agent!]
+  # economicResources: [EconomicResource!]
+  # economicEvents: [EconomicEvent!]
+  # commitments: [Commitment!]
+  # intents: [Intent!]
 
   ## CommonsPub-specific
 
   canonicalUrl: String
   displayUsername: String
-  inScopeOf: [ScopeContext!]
+  # inScopeOf: [AccountingScope!]
 }
 
 
@@ -106,8 +105,8 @@ type SpatialThingsPage{
 
 type GeolocationQuery {
   spatialThing(id: ID): SpatialThing
-  allSpatialThings(start: ID, limit: Int): [SpatialThing!]
-  spatialThings(limit: Int, before: [Cursor], after: [Cursor]): [SpatialThingsPage!]
+  spatialThings(start: ID, limit: Int): [SpatialThing!]
+  spatialThingsPages(limit: Int, before: [Cursor], after: [Cursor]): [SpatialThingsPage!]
 }
 
 type GeolocationMutation {
