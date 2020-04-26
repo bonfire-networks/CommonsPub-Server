@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ReleaseTasks do
-    require Logger
+  require Logger
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
@@ -212,4 +212,10 @@ defmodule MoodleNet.ReleaseTasks do
     {:ok, u} = MoodleNet.Users.one([:default, username: username])
     MoodleNet.Users.unmake_instance_admin(u)
   end
+
+  def remove_meta_table(table) do
+    import Ecto.Query
+    {rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
+  end
+  
 end
