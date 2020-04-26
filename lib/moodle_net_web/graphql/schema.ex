@@ -66,13 +66,14 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UsersSchema
   import_types UploadSchema
 
-  # Extension Modules
+  # optional modules:
   import_types Organisation.GraphQL.Schema
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Measurement.Unit.GraphQL
   import_types Geolocation.GraphQL
-  # import_types ValueFlows.Schema
+
+  import_types ValueFlows.Schema
 
   query do
     import_fields :access_queries
@@ -93,14 +94,30 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_queries
     import_fields :users_queries
 
-    # Extension Modules
     import_fields :organisations_queries
+
+    # Taxonomy
     import_fields :locales_queries
     import_fields :tags_queries
     import_fields :tags_queries
+
     import_fields :measurement_query
     import_fields :geolocation_query
-    # import_fields :value_flows_query
+
+    # ValueFlows
+    import_fields :value_flows_query
+
+    # import_fields :agent_query
+    # import_fields :knowledge_query
+    # import_fields :observation_query
+    # import_fields :recipe_query
+    # import_fields :plan_query
+    # import_fields :planning_query
+    # import_fields :proposal_query
+    # import_fields :scenario_query
+    # import_fields :agreement_query
+    # import_fields :claim_query
+
 
   end
 
@@ -120,11 +137,24 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_mutations
     import_fields :users_mutations
 
-    # Extension Modules
     import_fields :organisations_mutations
+
     import_fields :geolocation_mutation
     import_fields :measurement_mutation
-    # import_fields :value_flows_mutation
+
+    # ValueFlows
+    import_fields :value_flows_mutation
+    # import_fields :agent_mutation
+    # import_fields :knowledge_mutation
+    # import_fields :observation_mutation
+    # import_fields :recipe_mutation
+    # import_fields :plan_mutation
+    # import_fields :planning_mutation
+    # import_fields :proposal_mutation
+    # import_fields :scenario_mutation
+    # import_fields :agreement_mutation
+    # import_fields :appreciation_mutation
+    # import_fields :claim_mutation
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
@@ -146,7 +176,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   def hydrate(%Absinthe.Blueprint{}, _) do
     hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
     hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    # hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
+    hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
     hb
   end
 
