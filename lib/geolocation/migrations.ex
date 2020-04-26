@@ -4,11 +4,11 @@ defmodule Geolocation.Migrations do
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(geolocation) 
+  @meta_tables [] ++ ~w(vf_spatial_things) 
 
 
   def change do
-    create table(:geolocation) do
+    create table(:vf_spatial_things) do
 
       add :name, :string
       add :note, :text
