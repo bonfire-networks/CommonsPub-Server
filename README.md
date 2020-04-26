@@ -12,13 +12,52 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 
 ---
 
-## Documentation index
+## Documentation 
 
 Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/CommonsPub/Client/-/blob/develop/README.md#deploying).
 
 Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/develop/DEPLOY.md).
 
 Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/develop/HACKING.md).
+
+---
+
+## Forks and branches
+
+### Flavours 
+
+Flavours of CommonsPub are made up of a combination of extensions and probably some custom branding. Each flavour is regularly merged back-and-forth with its own repository.
+
+- `develop` - Contains the generic flavour of **CommonsPub** (currently packaged with all extensions). 
+- `flavour/moodlenet` - The original [MoodleNet](https://gitlab.com/moodlenet/backend) flavour. 
+- `flavour/zenpub` - WIP (ZenPub)[https://github.com/dyne/zenpub/] flavour, which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
+
+### Extensions
+
+- `extension/activitypub` - Implementation of the [ActivityPub](http://activitypub.rocks/) federation protocol.
+- `extension/valueflows` - WIP implementation of the [ValueFlows](https://valueflo.ws/) economic vocabulary, to power distributed economic networks for the next economy.
+- `extension/organisation` - Adds functionality for organisations to maintain a shared profile.
+- `extension/taxonomy` - WIP to enable user-maintained taxonomies and tagging objects with tree-based categories. 
+- `extension/measurement` - Various units and measures for indicating amounts (incl duration).
+- `extension/locales` - Extensive schema of languages/countries/etc. The data is also open and shall be made available oustide the repo.
+- `extension/geolocation` - Shared 'spatial things' database for tagging objects with a location.
+
+### Commit & merge workflow
+
+Please commit your WIP to extension branches (or new feature/fix branches as needed). Do not commit directly to `develop` or any of the flavours. 
+
+Once done, merge your branch into `develop`.
+
+Once tested and working, if you've made improvements to core functionality or relevant extensions (currently all except for `extension/valueflows`), also merge your branch into `flavour/moodlenet`.
+
+Please **avoid mixing flavours!** For example, DO NOT merge from `develop`-->`flavour/moodlenet`. (The only exception to this rule being that we DO merge changes from `flavour/moodlenet`-->`develop` since upstream MoodleNet development is still happening directly in core modules.)
+
+Regularly merge-request changes from `flavour/moodlenet` to [MoodleNet](https://gitlab.com/moodlenet/backend)'s `develop` branch.
+
+Regularly merge changes from [MoodleNet](https://gitlab.com/moodlenet/backend)'s `develop` branch to `flavour/moodlenet`.
+
+
+---
 
 ## Copyright and License
 
