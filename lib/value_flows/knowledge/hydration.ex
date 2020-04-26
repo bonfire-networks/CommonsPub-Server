@@ -21,7 +21,7 @@ defmodule ValueFlows.Knowledge.Hydration do
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
         ],
-        all_actions: [
+        actions: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ]
       },

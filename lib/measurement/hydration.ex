@@ -6,7 +6,7 @@ defmodule Measurement.Hydration do
         units: [
           resolve: &Measurement.Unit.GraphQL.units/2
         ],
-        all_units: [
+        units_pages: [
           resolve: &Measurement.Unit.GraphQL.all_units/2
         ],
         unit: [

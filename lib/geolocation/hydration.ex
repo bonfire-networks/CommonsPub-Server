@@ -21,7 +21,7 @@ defmodule Geolocation.GraphQL.Hydration do
         spatial_thing: [
           resolve: &Geolocation.GraphQL.geolocation/2
         ],
-        spatial_things: [
+        spatial_things_pages: [
           resolve: &Geolocation.GraphQL.geolocations/2
         ]
       },

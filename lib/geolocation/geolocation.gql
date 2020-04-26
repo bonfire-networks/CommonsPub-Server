@@ -46,7 +46,7 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  inScopeOf: [ScopeContext!]
+  # inScopeOf: [AccountingScope!]
 }
 
 
@@ -106,8 +106,8 @@ type SpatialThingsPage{
 
 type GeolocationQuery {
   spatialThing(id: ID): SpatialThing
-  allSpatialThings(start: ID, limit: Int): [SpatialThing!]
-  spatialThings(limit: Int, before: [Cursor], after: [Cursor]): [SpatialThingsPage!]
+  spatialThings(start: ID, limit: Int): [SpatialThing!]
+  spatialThingsPages(limit: Int, before: [Cursor], after: [Cursor]): [SpatialThingsPage!]
 }
 
 type GeolocationMutation {

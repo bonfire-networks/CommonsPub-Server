@@ -10,7 +10,7 @@ defmodule ValueFlows.Planning.Hydration do
         intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.intent/2
         ],
-        all_intents: [
+        intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
         ]
       },

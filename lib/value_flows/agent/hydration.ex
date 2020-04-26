@@ -34,7 +34,7 @@ defmodule ValueFlows.Agent.Hydration do
       #   is_type_of: &ValueFlows.Agent.GraphQL.organization_is_type_of/2
       # ],
       agent_query: %{
-        all_agents: [
+        agents: [
           resolve: &ValueFlows.Agent.GraphQL.all_agents/3
         ],
         agent: [
@@ -44,13 +44,13 @@ defmodule ValueFlows.Agent.Hydration do
         person: [
           resolve: &ValueFlows.Agent.GraphQL.person/2
         ],
-        all_people: [
+        people: [
           resolve: &ValueFlows.Agent.GraphQL.people/2
         ],
        organization: [
           resolve: &ValueFlows.Agent.GraphQL.organization/2
         ],
-        all_organizations: [
+        organizations: [
           resolve: &ValueFlows.Agent.GraphQL.organizations/2
         ],
       },

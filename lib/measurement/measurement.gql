@@ -53,6 +53,9 @@ type Unit {
 
   "A standard display symbol for a unit of measure."
   symbol: String!
+
+  # inScopeOf: [AccountingScope!]
+
 }
 
 
@@ -112,8 +115,8 @@ type UnitsPage{
 
 type MeasurementQuery {
   unit(id: ID): Unit
-  allUnits(start: ID, limit: Int): [Unit!]
-  units(limit: Int, before: [Cursor], after: [Cursor]): [UnitsPage!]
+  units(start: ID, limit: Int): [Unit!]
+  unitsPages(limit: Int, before: [Cursor], after: [Cursor]): [UnitsPage!]
 
 }
 

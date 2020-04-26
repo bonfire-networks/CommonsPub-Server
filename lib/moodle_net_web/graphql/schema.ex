@@ -69,6 +69,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types Organisation.GraphQL.Schema
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
+  import_types Measurement.Unit.GraphQL
   import_types Geolocation.GraphQL
 
   import_types ValueFlows.Schema
@@ -98,9 +99,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :tags_queries
     import_fields :tags_queries
 
+    import_fields :measurement_query
+    import_fields :geolocation_query
+
     # ValueFlows
-    # import_fields :measurement_query
-    # import_fields :geolocation_query
+    import_fields :value_flows_query
+
     # import_fields :agent_query
     # import_fields :knowledge_query
     # import_fields :observation_query
@@ -133,9 +137,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :organisations_mutations
 
     import_fields :geolocation_mutation
+    import_fields :measurement_mutation
 
     # ValueFlows
-    import_fields :measurement_mutation
+    import_fields :value_flows_mutation
     # import_fields :agent_mutation
     # import_fields :knowledge_mutation
     # import_fields :observation_mutation
