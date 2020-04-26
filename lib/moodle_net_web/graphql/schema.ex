@@ -107,18 +107,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # ValueFlows
     import_fields :value_flows_query
 
-    # import_fields :agent_query
-    # import_fields :knowledge_query
-    # import_fields :observation_query
-    # import_fields :recipe_query
-    # import_fields :plan_query
-    # import_fields :planning_query
-    # import_fields :proposal_query
-    # import_fields :scenario_query
-    # import_fields :agreement_query
-    # import_fields :claim_query
-
-
   end
 
   mutation do
@@ -144,17 +132,6 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # ValueFlows
     import_fields :value_flows_mutation
-    # import_fields :agent_mutation
-    # import_fields :knowledge_mutation
-    # import_fields :observation_mutation
-    # import_fields :recipe_mutation
-    # import_fields :plan_mutation
-    # import_fields :planning_mutation
-    # import_fields :proposal_mutation
-    # import_fields :scenario_mutation
-    # import_fields :agreement_mutation
-    # import_fields :appreciation_mutation
-    # import_fields :claim_mutation
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do
@@ -174,10 +151,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
-    hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
-    hb
+    hydrated = %{}
+    hydrated = Map.merge(hydrated, Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{}))
+    hydrated = Map.merge(hydrated, Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{}))
+    hydrated = Map.merge(hydrated, ValueFlows.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})) 
+    hydrated
   end
 
   # fallback
