@@ -25,14 +25,14 @@ Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gi
 ## Forks and branches
 
 ### Flavours 
-
-Flavours of CommonsPub are made up of a combination of extensions and probably some custom branding. Each flavour is regularly merged back-and-forth with its own repository.
+CommonsPub comes in different flavours, which are made up of a combination of extensions and probably some custom branding. Each flavour has its own branch in the [CommonsPub repo](https://gitlab.com/CommonsPub/Server) regularly merged back-and-forth with its own repository.
 
 - `develop` - Contains the generic flavour of **CommonsPub** (currently packaged with all extensions). 
 - `flavour/moodlenet` - The original [MoodleNet](https://gitlab.com/moodlenet/backend) flavour. 
-- `flavour/zenpub` - WIP (ZenPub)[https://github.com/dyne/zenpub/] flavour, which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
+- `flavour/zenpub` - WIP [ZenPub](https://github.com/dyne/zenpub/) flavour, which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
 
 ### Extensions
+New functionality is being developed in seperate namespaces in order to make the software more modular (there are future plans for a plugin system). Each "extension" has its own branch in the [CommonsPub repo](https://gitlab.com/CommonsPub/Server):
 
 - `extension/activitypub` - Implementation of the [ActivityPub](http://activitypub.rocks/) federation protocol.
 - `extension/valueflows` - WIP implementation of the [ValueFlows](https://valueflo.ws/) economic vocabulary, to power distributed economic networks for the next economy.
