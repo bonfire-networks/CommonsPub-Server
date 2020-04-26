@@ -57,20 +57,20 @@ defmodule ValueFlows.Hydrations do
         people: [
           resolve: &ValueFlows.Agent.GraphQL.people/2
         ],
-       organization: [
+        organization: [
           resolve: &ValueFlows.Agent.GraphQL.organization/2
         ],
-       organizations: [
+        organizations: [
           resolve: &ValueFlows.Agent.GraphQL.organizations/2
         ],
 
       # Knowledge
-      action: [
-        resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
-      ],
-      actions: [
-        resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
-      ],
+        action: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
+        ],
+        actions: [
+          resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
+        ],
 
       # Planning
         intent: [

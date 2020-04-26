@@ -85,7 +85,7 @@ defmodule ValueFlows.Planning.Intent do
         # %Actor{} = actor,
         attrs
       ) do
-    %Geolocation{}
+    %Intent{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -103,7 +103,7 @@ defmodule ValueFlows.Planning.Intent do
       # %Actor{} = actor,
       attrs
     ) do
-    %Geolocation{}
+    %Intent{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -115,8 +115,8 @@ defmodule ValueFlows.Planning.Intent do
     |> common_changeset()
   end
 
-  def update_changeset(%Geolocation{} = geolocation, attrs) do
-    geolocation
+  def update_changeset(%Intent{} = intent, attrs) do
+    intent
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end

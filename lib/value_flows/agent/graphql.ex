@@ -10,6 +10,7 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # import_sdl path: "lib/value_flows/graphql/schemas/agent.gql"
 
+
   # fake data
   def all_agents(_, _, _) do
     {:ok, Simulate.long_list(&Simulate.agent/0)}

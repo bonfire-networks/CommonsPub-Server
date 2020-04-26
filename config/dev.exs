@@ -2,7 +2,7 @@ import Config
 
 # config :logger, level: :warn
 config :logger, level: :debug
-config :moodle_net, MoodleNet.Repo, log: false
+config :moodle_net, MoodleNet.Repo, log: :debug
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
