@@ -3,7 +3,7 @@
 accounting, planning. Extended from the default of `Person | Organization` #
 TODO: add Instance 
 """
-union AccountingScope = Person | Organization | ExternalType | ExternalType
+union AccountingScope = Person | Organization | Community | Collection
 
 """
 An action verb defining the kind of event, commitment, or intent.
