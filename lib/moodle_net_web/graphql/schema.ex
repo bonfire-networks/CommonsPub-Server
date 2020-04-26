@@ -70,22 +70,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types Taxonomy.GraphQL.LocalesSchema
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Geolocation.GraphQL
-  import_types ValueFlows.Util.GraphQL
 
-  import_types Measurement.Unit.GraphQL
-  
-  import_types ValueFlows.Agent.GraphQL
-  import_types ValueFlows.Knowledge.Action.GraphQL
-  import_types ValueFlows.Planning.Intent.GraphQL
-  import_types ValueFlows.Observation.GraphQL
-  import_types ValueFlows.Recipe.GraphQL
-  import_types ValueFlows.Plan.GraphQL
-  import_types ValueFlows.Proposal.GraphQL
-  import_types ValueFlows.Scenario.GraphQL
-  import_types ValueFlows.Agreement.GraphQL
-  import_types ValueFlows.Appreciation.GraphQL
-  import_types ValueFlows.Claim.GraphQL
-
+  import_types ValueFlows.Schema
 
   query do
     import_fields :activities_queries
@@ -113,18 +99,18 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :tags_queries
 
     # ValueFlows
-    import_fields :measurement_query
-    import_fields :geolocation_query
-    import_fields :agent_query
-    import_fields :knowledge_query
-    import_fields :observation_query
-    import_fields :recipe_query
-    import_fields :plan_query
-    import_fields :planning_query
-    import_fields :proposal_query
-    import_fields :scenario_query
-    import_fields :agreement_query
-    import_fields :claim_query
+    # import_fields :measurement_query
+    # import_fields :geolocation_query
+    # import_fields :agent_query
+    # import_fields :knowledge_query
+    # import_fields :observation_query
+    # import_fields :recipe_query
+    # import_fields :plan_query
+    # import_fields :planning_query
+    # import_fields :proposal_query
+    # import_fields :scenario_query
+    # import_fields :agreement_query
+    # import_fields :claim_query
 
 
   end
@@ -150,17 +136,17 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # ValueFlows
     import_fields :measurement_mutation
-    import_fields :agent_mutation
-    import_fields :knowledge_mutation
-    import_fields :observation_mutation
-    import_fields :recipe_mutation
-    import_fields :plan_mutation
-    import_fields :planning_mutation
-    import_fields :proposal_mutation
-    import_fields :scenario_mutation
-    import_fields :agreement_mutation
-    import_fields :appreciation_mutation
-    import_fields :claim_mutation
+    # import_fields :agent_mutation
+    # import_fields :knowledge_mutation
+    # import_fields :observation_mutation
+    # import_fields :recipe_mutation
+    # import_fields :plan_mutation
+    # import_fields :planning_mutation
+    # import_fields :proposal_mutation
+    # import_fields :scenario_mutation
+    # import_fields :agreement_mutation
+    # import_fields :appreciation_mutation
+    # import_fields :claim_mutation
 
     @desc "Fetch metadata from webpage"
     field :fetch_web_metadata, :web_metadata do

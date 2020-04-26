@@ -7,7 +7,7 @@ defmodule ValueFlows.Claim.GraphQL do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/value_flows/graphql/schemas/claim.gql"
+  # import_sdl path: "lib/value_flows/graphql/schemas/claim.gql"
 
 
 end

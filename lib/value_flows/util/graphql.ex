@@ -7,7 +7,7 @@ defmodule ValueFlows.Util.GraphQL do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   require Logger
 
-  import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
+  # import_sdl path: "lib/value_flows/graphql/schemas/util.gql"
 
   # object :page_info do
   #   field :start_cursor, list_of(non_null(:cursor))
