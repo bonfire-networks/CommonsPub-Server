@@ -22,8 +22,8 @@ defmodule MoodleNet.GraphQL.ResolveRootPage do
       module: module,
       fetcher: fetcher,
       page_opts: page_opts,
-      paging_opts: opts,
       info: info,
+      paging_opts: opts,
       cursor_validators: validators,
     }
   ) do

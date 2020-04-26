@@ -16,13 +16,6 @@ defmodule MoodleNet.Threads.Queries do
     filter(query(query), filters)
   end
   
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, table_or_tables, jq \\ :left)
 
   ## many
@@ -36,7 +29,9 @@ defmodule MoodleNet.Threads.Queries do
   end
 
   def join_to(q, :follower_count, jq) do
-    join q, jq, [thread: t], c in FollowerCount, as: :follower_count
+    join q, jq, [thread: t],
+      c in FollowerCount, as: :follower_count,
+      on: t.id == c.context_id
   end
 
   @doc "Filter the query according to arbitrary criteria"

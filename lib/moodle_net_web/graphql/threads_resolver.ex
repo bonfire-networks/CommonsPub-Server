@@ -42,7 +42,6 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         info: info,
       }
     )
-
   end
 
   def fetch_threads_edge({page_opts, info}, ids) do
@@ -78,7 +77,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   ## mutations
 
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user(info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, pointer} = Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
