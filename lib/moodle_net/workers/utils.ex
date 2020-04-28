@@ -20,30 +20,30 @@ defmodule MoodleNet.Workers.Utils do
       configure_logger(module)
       fun.(arg)
     rescue
-      cause -> debug_exception(module, cause, job, __STACKTRACE__)
+      cause ->
+        debug_exception(module, cause, job, __STACKTRACE__)
+        {:error, cause}
     catch
-      cause -> debug_throw(module, cause, job, __STACKTRACE__)
+      cause ->
+        debug_throw(module, cause, job, __STACKTRACE__)
+        {:error, cause}
     end
   end
 
-  defp debug_exception(module, exception, job, stacktrace) do
-    if Mix.env == :dev do
-      debug_log(job, stacktrace)
-      # IO.inspect(raised: exception)
-    else
+  if Mix.env == :dev do
+    defp debug_exception(module, exception, job, stacktrace),
+      do: debug_log(job, stacktrace)
+
+    defp debug_throw(module, thrown, job, stacktrace),
+      do: debug_log(job, stacktrace)
+    end
+  else
+    defp debug_exception(module, exception, job, stacktrace) do
       sentry_raised(module, exception, job, stacktrace)
     end
-    {:error, exception}
-  end
 
-  defp debug_throw(module, thrown, job, stacktrace) do
-    if Mix.env == :dev do
-      debug_log(job, stacktrace)
-      # IO.inspect(thrown: thrown)
-    else
-      sentry_thrown(module, thrown, job, stacktrace)
-    end
-    {:error, thrown}
+    defp debug_throw(module, thrown, job, stacktrace),
+      do: sentry_thrown(module, exception, job, stacktrace)
   end
 
   defp sentry_raised(module, exception, job, stacktrace) do
