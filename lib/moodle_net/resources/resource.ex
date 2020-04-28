@@ -32,8 +32,8 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @required ~w(name)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id content_id author)a
+  @required ~w(name content_id)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id author)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
