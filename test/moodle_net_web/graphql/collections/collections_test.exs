@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
       each [json_conn() | conns], fn conn ->
         colls2 = grumble_post_key(q, conn, :collections, vars)
-        colls2 = assert_page(colls2, 5, 5, false, false, Collections.test_cursor(:followers))
+        colls2 = assert_page(colls2, 5, 9, false, true, Collections.test_cursor(:followers))
         each colls, colls2.edges, fn coll, coll2 ->
           coll2 = assert_collection(coll, coll2)
           assert coll2.resource_count == 3
