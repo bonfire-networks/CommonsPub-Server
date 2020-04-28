@@ -13,35 +13,6 @@ defmodule MoodleNet.Flags do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Flag, filters))}
 
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    {:ok, fields} = many(filters)
-    {:ok, Fields.new(fields, group_fn)}
-  end
-
-  @doc """
-  Retrieves an Page of flags according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page Queries, Flag,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  @doc """
-  Retrieves a Pages of flags according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(group_fn, cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages_all Queries, Flag,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
   defp valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
