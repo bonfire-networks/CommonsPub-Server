@@ -36,14 +36,13 @@ defmodule MoodleNet.Workers.Utils do
 
     defp debug_throw(module, thrown, job, stacktrace),
       do: debug_log(job, stacktrace)
-    end
   else
     defp debug_exception(module, exception, job, stacktrace) do
       sentry_raised(module, exception, job, stacktrace)
     end
 
     defp debug_throw(module, thrown, job, stacktrace),
-      do: sentry_thrown(module, exception, job, stacktrace)
+      do: sentry_thrown(module, thrown, job, stacktrace)
   end
 
   defp sentry_raised(module, exception, job, stacktrace) do
