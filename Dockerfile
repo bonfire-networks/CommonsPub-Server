@@ -87,9 +87,7 @@ RUN set -eux; \
 
 # install nginx
 RUN apk add --update --no-cache nginx nginx-mod-http-lua && \
-  chown -R nginx:www-data /var/lib/nginx && \
-  chown -R root:nginx /var/run/s6/services/ && chmod g+w -R /var/run/s6/services/ 
-# ^ to enable shutdown-instance script
+  chown -R nginx:www-data /var/lib/nginx 
 
 # redirect logs to st output
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
@@ -99,9 +97,10 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
 # copy s6 and web server config
 COPY config/deployment/ /
 
+# to enable shutdown-instance script
+RUN chown -R root:nginx /etc/services.d && chmod g+w -R /etc/services.d
 
 WORKDIR /opt/app
-
 
 # install app 
 COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app
