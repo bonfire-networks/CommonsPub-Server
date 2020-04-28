@@ -2,9 +2,9 @@ import Config
 require Logger
 
 config :moodle_net, MoodleNet.Repo,
-  username: System.fetch_env!("POSTGRES_USER"),
-  password: System.fetch_env!("POSTGRES_PASSWORD"),
-  database: System.fetch_env!("POSTGRES_DB"),
+  username: System.get_env("POSTGRES_USER", System.get_env("DATABASE_USER", "postgres")),
+  password: System.get_env("POSTGRES_PASSWORD", System.get_env("DATABASE_PASS", "postgres")),
+  database: System.get_env("POSTGRES_DB", System.get_env("DATABASE_NAME", "postgres")),
   hostname: System.get_env("DATABASE_HOST", "localhost"),
   pool_size: 15
 
