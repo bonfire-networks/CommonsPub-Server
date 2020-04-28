@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Units.UnitsTest do
+defmodule Measurement.UnitsTest do
   # @tag :skip
   use MoodleNetWeb.ConnCase, async: true
   import MoodleNetWeb.Test.Automaton
@@ -16,7 +16,7 @@ defmodule Measurement.Units.UnitsTest do
   import Grumble
   import Zest
 
-  import Measurement.Units.Faking 
+  import Measurement.Test.Faking
 
   describe "units" do
 

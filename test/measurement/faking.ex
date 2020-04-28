@@ -1,18 +1,18 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Units.Faking  do
+defmodule Measurement.Test.Faking do
   @moduledoc false
 
   alias MoodleNet.Test.Fake
-  alias Measurement.Unit.Units
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  alias Measurement.Unit
   import MoodleNet.Test.Trendy
 
   import Grumble
 
+  alias Measurement.Unit
+  alias Measurement.Unit.Units
 
   @doc "A unit"
   def unit_name(), do: Faker.Util.pick(["kilo", "liter"])
