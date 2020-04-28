@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
       %FetchPages{
         queries: Threads.Queries,
         query: Thread,
-        cursor_fn: &(&1.id),
+        cursor_fn: Threads.cursor(:followers),
         group_fn: &(&1.context_id),
         page_opts: page_opts,
         base_filters: [user: user, context_id: ids],
