@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
         query: collections_query(),
         connection: json_conn(),
         return_key: :collections,
-        default_limit: 10,
+        default_limit: 5,
         total_count: 27,
         data: order_follower_count(collections),
         assert_fn: &assert_collection/2,
@@ -63,7 +63,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
       conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
       each [json_conn() | conns], fn conn ->
         colls2 = grumble_post_key(q, conn, :collections, vars)
-        colls2 = assert_page(colls2, 9, 9, false, false, Collections.test_cursor(:followers))
+        colls2 = assert_page(colls2, 5, 5, false, false, Collections.test_cursor(:followers))
         each colls, colls2.edges, fn coll, coll2 ->
           coll2 = assert_collection(coll, coll2)
           assert coll2.resource_count == 3

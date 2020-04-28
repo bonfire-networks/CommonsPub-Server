@@ -12,13 +12,6 @@ defmodule MoodleNet.Access.RegisterEmailAccessesQueries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
@@ -34,6 +27,14 @@ defmodule MoodleNet.Access.RegisterEmailAccessesQueries do
     where q, [register_email_access: r], r.id == ^id
   end
 
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [register_email_access: r], r.id <= ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [register_email_access: r], r.id >= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [register_email_access: r], r.id in ^ids
   end
@@ -46,8 +47,24 @@ defmodule MoodleNet.Access.RegisterEmailAccessesQueries do
     where q, [register_email_access: r], r.email in ^emails
   end
 
-  def filter(q, {:order, :timeline_desc}) do
+  def filter(q, {:order, [desc: :created]}) do
     order_by q, [register_email_access: r], [desc: r.id]
+  end
+
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:page, [desc: [created: %{after: [id], limit: l}]]}) do
+    filter(q, id: {:lte, id}, limit: l + 2, order: [desc: :created])
+  end
+
+  def filter(q, {:page, [desc: [created: %{before: [id], limit: l}]]}) do
+    filter(q, id: {:gte, id}, limit: l + 2, order: [desc: :created])
+  end
+
+  def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
+    filter(q, limit: l + 1, order: [desc: :created])
   end
 
 end

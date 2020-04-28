@@ -110,7 +110,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       assert [
                %{
                  "locations" => [%{"column" => 3, "line" => 2}],
-                 "message" => "Email already whitelisted",
+                 "message" => "Email already allowlisted",
                  "path" => ["createRegisterEmailAccess"]
                }
              ] = grumble_post_errors(q, conn, %{email: email_access.email})
@@ -219,7 +219,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       assert [
                %{
                  "locations" => [%{"column" => 3, "line" => 2}],
-                 "message" => "Domain already whitelisted",
+                 "message" => "Domain already allowlisted",
                  "path" => ["createRegisterEmailDomainAccess"]
                }
              ] = grumble_post_errors(q, conn, %{domain: domain_access.domain})

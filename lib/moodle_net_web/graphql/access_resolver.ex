@@ -4,9 +4,10 @@
 defmodule MoodleNetWeb.GraphQL.AccessResolver do
   alias MoodleNet.{Access, GraphQL}
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
+  alias MoodleNet.Users.User
 
   def register_email_accesses(page_opts, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
       ResolveRootPage.run(%ResolveRootPage{
         module: __MODULE__,
         fetcher: :fetch_register_email_accesses,
@@ -14,21 +15,22 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
         paging_opts: %{default_limit: 10, max_limit: 50},
         info: info
       })
-    else
-      _ -> {:ok, GraphQL.empty_page()}
     end
   end
 
   def fetch_register_email_accesses(page_opts, _info) do
-    FetchPage.run(%FetchPage{
-      queries: Access.RegisterEmailAccessesQueries,
-      query: Access.RegisterEmailAccess,
-      page_opts: page_opts
-    })
+    FetchPage.run(
+      %FetchPage{
+        queries: Access.RegisterEmailAccessesQueries,
+        query: Access.RegisterEmailAccess,
+        page_opts: page_opts,
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
+    )
   end
 
   def register_email_domain_accesses(page_opts, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
       ResolveRootPage.run(%ResolveRootPage{
         module: __MODULE__,
         fetcher: :fetch_register_email_domain_accesses,
@@ -36,44 +38,30 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
         paging_opts: %{default_limit: 10, max_limit: 50},
         info: info
       })
-    else
-      _ -> {:ok, GraphQL.empty_page()}
     end
   end
 
   def fetch_register_email_domain_accesses(page_opts, _info) do
-    FetchPage.run(%FetchPage{
-      queries: Access.RegisterEmailDomainAccessesQueries,
-      query: Access.RegisterEmailDomainAccess,
-      page_opts: page_opts
-    })
+    FetchPage.run(
+      %FetchPage{
+        queries: Access.RegisterEmailDomainAccessesQueries,
+        query: Access.RegisterEmailDomainAccess,
+        page_opts: page_opts,
+        data_filters: [page: [desc: [created: page_opts]]],
+      }
+    )
   end
 
   ### mutations
 
   def create_register_email_access(%{email: email}, info) do
     with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
-         {:ok, access} <- Access.RegisterEmailAccesses.create(email) do
-      {:ok, access}
-    else
-      {:error, %MoodleNet.Access.NotPermittedError{} = message} ->
-        {:error, message}
-
-      {:error, _} ->
-        {:error, "Email already whitelisted"}
-    end
+      do: Access.RegisterEmailAccesses.create(email)
   end
 
   def create_register_email_domain_access(%{domain: domain}, info) do
     with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
-         {:ok, access} <- Access.RegisterEmailDomainAccesses.create(domain) do
-      {:ok, access}
-    else
-      {:error, %MoodleNet.Access.NotPermittedError{} = message} ->
-        {:error, message}
-
-      {:error, _} ->
-        {:error, "Domain already whitelisted"}
-    end
+      do: Access.RegisterEmailDomainAccesses.create(domain)
   end
+
 end
