@@ -112,7 +112,12 @@ defmodule MoodleNet.Meta.TableService do
   defp schema_reduce(table, module, acc), do: Map.put(acc, table, module)
 
   # Error if there was no matching schema, otherwise add it to the entry
-  defp pair_schema(entry, nil), do: throw {:missing_schema, entry.table}
+  defp pair_schema(entry, nil) do
+    # uncomment the following line if you want to auto-remove defunct tables from your meta table
+    # MoodleNet.ReleaseTasks.remove_meta_table(entry.table) 
+    throw {:missing_schema, entry.table}
+  end
+
   defp pair_schema(entry, schema), do: %{ entry | schema: schema }
 
   defp populate_table(entries) do
