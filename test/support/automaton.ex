@@ -6,7 +6,6 @@ defmodule MoodleNetWeb.Test.Automaton do
   import ExUnit.Assertions
   import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.ConnHelpers
   import Zest
 
@@ -116,7 +115,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       page
     end
 
-    page3 = scope [page: 3, limit: 10, after: 19] do
+    _page3 = scope [page: 3, limit: 10, after: 19] do
       vars = Map.merge(vars, %{limit => 10, aft => page2.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], 8, total, true, false, cursor_fn)

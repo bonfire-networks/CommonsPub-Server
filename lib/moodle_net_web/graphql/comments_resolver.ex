@@ -72,7 +72,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
     user = GraphQL.current_user(info) 
     FetchFields.run(
       %FetchFields{
-        queries: CommentsQueries,
+        queries: Threads.CommentsQueries,
         query: Comment,
         group_fn: &(&1.id),
         filters: [id: ids, user: user],
@@ -121,7 +121,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   defp validate_thread_context(_), do: GraphQL.not_permitted("create")
 
   def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info) do
-    with {:ok, user} <- GraphQL.current_user(info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
         with {:ok, thread} <- Threads.one([:hidden, :deleted, :private, id: thread_id]),
              {:ok, parent} <- Comments.one([:hidden, :deleted, :private, id: reply_to]),
