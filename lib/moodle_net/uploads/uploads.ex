@@ -132,6 +132,7 @@ defmodule MoodleNet.Uploads do
       {:error, {:request_failed, 403}} -> {:error, :forbidden}
       {:error, :bad_request} -> {:error, :bad_request}
       {:error, {:tls_alert, _}} -> {:error, :tls_alert}
+      {:error, other} -> {:error, other}
     end
   end
 
@@ -144,6 +145,8 @@ defmodule MoodleNet.Uploads do
       {:ok, file}
     end
   end
+
+  defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
     media_types = :moodle_net
