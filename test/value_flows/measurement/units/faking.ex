@@ -1,7 +1,7 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Measurement.Unit.Faking do
+defmodule Measurement.Units.Faking  do
   @moduledoc false
 
   alias MoodleNet.Test.Fake

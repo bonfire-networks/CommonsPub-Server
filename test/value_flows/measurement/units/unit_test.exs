@@ -13,7 +13,7 @@ defmodule Measurement.Units.UnitTest do
   import Grumble
   import Zest
 
-  import Measurement.Unit.Faking
+  import Measurement.Units.Faking 
 
 
   describe "unit" do
