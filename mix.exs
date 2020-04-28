@@ -11,14 +11,14 @@ defmodule MoodleNet.Mixfile do
       version: "0.9.6-dev",
       elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
       releases: releases(),
       name: "MoodleNet",
       homepage_url: "http://new.moodle.net",
-      source_url: "https://gitlab.com/moodlenet/servers/federated",
+      source_url: "https://gitlab.com/moodlenet/backend",
       docs: [
         main: "readme", # The first page to display from the docs
         logo: "assets/static/images/moodlenet-logo.png",
@@ -101,6 +101,7 @@ defmodule MoodleNet.Mixfile do
       {:telemetry, "~> 0.4.0"}, # stats
       {:sentry, "~> 7.1", runtime: sentry?()}, # production only
       # Misc
+      {:protocol_ex, "~> 0.3.0"},
       {:jason, "~> 1.1"},    # json
       {:gettext, "~> 0.17"}, # localisation
       {:recase, "~> 0.2"},   # camel/snake/kebabification
