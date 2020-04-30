@@ -110,6 +110,9 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # @desc "???"
     # field :educational_use, list_of(non_null(:string))
 
+    @desc "A JSON document containing more info beyond the default fields"
+    field :extra_info, :json
+
     @desc "Whether the resource is local to the instance"
     field :is_local, non_null(:boolean) do
       resolve &ResourcesResolver.is_local_edge/3
@@ -200,6 +203,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     field :license, :string
     # field :primary_language_id, :string
     field :author, :string
+    field :extra_info, :json
   end
 
   object :resources_page do

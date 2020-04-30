@@ -42,6 +42,7 @@ defmodule MoodleNet.Communities.Community do
     field(:is_local, :boolean, virtual: true)
     has_many(:collections, Collection)
     has_many(:flags, Flag)
+    field(:extra_info, :map)
     timestamps()
   end
 
