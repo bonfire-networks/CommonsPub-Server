@@ -227,7 +227,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
       )
       when not is_nil(in_reply_to) do
-    with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
+    with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to), # This will fail if the reply isn't in database
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),

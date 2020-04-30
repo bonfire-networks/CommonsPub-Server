@@ -5,11 +5,13 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
+  import ProtocolEx
   alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
   alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Common.Contexts
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Mail.{Email, MailService}
+  alias MoodleNet.Meta.Pointable
 
   alias MoodleNet.Users.{
     EmailConfirmToken,
@@ -303,5 +305,8 @@ defmodule MoodleNet.Users do
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
+  defimpl_ex UserPointable, User, for: Pointable do
+    def queries_module(_), do: Queries
+  end
 
 end

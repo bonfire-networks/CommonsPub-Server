@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
+  import ProtocolEx
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.Contexts
@@ -10,7 +11,7 @@ defmodule MoodleNet.Threads.Comments do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias MoodleNet.Meta.{Pointable, Pointer, Pointers}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
@@ -196,6 +197,10 @@ defmodule MoodleNet.Threads.Comments do
          :ok <- publish(comment, :deleted) do
       {:ok, deleted}
     end
+  end
+
+  defimpl_ex CommentPointable, Comment, for: Pointable do
+    def queries_module(_), do: CommentsQueries
   end
 
 end

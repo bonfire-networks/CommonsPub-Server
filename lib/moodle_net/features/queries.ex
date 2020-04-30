@@ -14,13 +14,6 @@ defmodule MoodleNet.Features.Queries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, specs, jq) when is_list(specs) do
@@ -35,12 +28,9 @@ defmodule MoodleNet.Features.Queries do
     join q, jq, [feature: f], c in assoc(f, :creator), as: :user
   end
 
-  def prefetch(q, :context), do: preload(q, [pointer: c], context: c)
-  def prefetch(q, :creator), do: preload(q, [user: u], creator: u)
-
   ### filter/2
 
-  ## by many
+  ## many
 
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
@@ -63,6 +53,14 @@ defmodule MoodleNet.Features.Queries do
     where q, [feature: f], f.id == ^id
   end
 
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [feature: f], f.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [feature: f], f.id <= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [feature: f], f.id in ^ids
   end
@@ -75,16 +73,17 @@ defmodule MoodleNet.Features.Queries do
     where q, [feature: f], f.context_id in ^ids
   end
 
-  ## by foreign field
+  ## foreign fields
 
   def filter(q, {:table_id, ids}), do: PointersQueries.filter(q, table_id: ids)
 
   def filter(q, {:table, tables}), do: PointersQueries.filter(q, table: tables)
 
-  ## by ordering
+  ## ordering
 
-  def filter(q, {:order, :timeline_desc}), do: order_by(q, [feature: f], desc: f.id)
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [feature: f], desc: f.id)
 
+  ## grouping and counting
 
   def filter(q, {:group_count, key}) when is_atom(key) do
     filter(q, group: key, count: key)
@@ -98,8 +97,28 @@ defmodule MoodleNet.Features.Queries do
     select q, [feature: f], {field(f, ^key), count(f.id)}
   end
 
-  ## by prefetch
+  ## limit
 
-  def filter(q, {:preload, preload}), do: prefetch(q, preload)
+  def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
+
+  ## preload
+
+  def filter(q, {:preload, :context}), do: preload(q, [pointer: c], context: c)
+  def filter(q, {:preload, :creator}), do: preload(q, [user: u], creator: u)
+
+  ## pagination
+
+  def filter(q, {:page, [desc: [created: %{after: a, limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 2, id: {:lte, a})
+  end
+
+  def filter(q, {:page, [desc: [created: %{before: b, limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 2, id: {:gte, b})
+  end
+
+  def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 1)
+  end
+
 end
 

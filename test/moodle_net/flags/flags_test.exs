@@ -6,7 +6,7 @@ defmodule MoodleNet.CommonTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Blocks, Common, Features, Flags, Follows, Likes}
+  alias MoodleNet.Flags
   alias MoodleNet.Test.Fake
 
   setup do
@@ -20,7 +20,7 @@ defmodule MoodleNet.CommonTest do
     resource = fake_resource!(user, collection)
     thread = fake_thread!(user, resource)
     comment = fake_comment!(user, thread)
-    Faker.Util.pick([user, community, collection, resource, thread, comment])
+    Faker.Util.pick([user, community, collection, resource, comment])
   end
 
   describe "flag/3" do

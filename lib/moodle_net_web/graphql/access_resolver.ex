@@ -2,21 +2,19 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.AccessResolver do
-  
   alias MoodleNet.{Access, GraphQL}
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
+  alias MoodleNet.Users.User
 
   def register_email_accesses(page_opts, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      ResolveRootPage.run(
-        %ResolveRootPage{
-          module: __MODULE__,
-          fetcher: :fetch_register_email_accesses,
-          page_opts: page_opts,
-          paging_opts: %{default_limit: 10, max_limit: 50},
-          info: info,
-        }
-      )
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
+      ResolveRootPage.run(%ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_register_email_accesses,
+        page_opts: page_opts,
+        paging_opts: %{default_limit: 10, max_limit: 50},
+        info: info
+      })
     end
   end
 
@@ -26,21 +24,20 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
         queries: Access.RegisterEmailAccessesQueries,
         query: Access.RegisterEmailAccess,
         page_opts: page_opts,
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
 
   def register_email_domain_accesses(page_opts, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      ResolveRootPage.run(
-        %ResolveRootPage{
-          module: __MODULE__,
-          fetcher: :fetch_register_email_domain_accesses,
-          page_opts: page_opts,
-          paging_opts: %{default_limit: 10, max_limit: 50},
-          info: info,
-        }
-      )
+    with {:ok, %User{}} <- GraphQL.admin_or_empty_page(info) do
+      ResolveRootPage.run(%ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_register_email_domain_accesses,
+        page_opts: page_opts,
+        paging_opts: %{default_limit: 10, max_limit: 50},
+        info: info
+      })
     end
   end
 
@@ -50,6 +47,7 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
         queries: Access.RegisterEmailDomainAccessesQueries,
         query: Access.RegisterEmailDomainAccess,
         page_opts: page_opts,
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
@@ -57,14 +55,13 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
   ### mutations
 
   def create_register_email_access(%{email: email}, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      Access.RegisterEmailAccesses.create(email)
-    end
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+      do: Access.RegisterEmailAccesses.create(email)
   end
+
   def create_register_email_domain_access(%{domain: domain}, info) do
-    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info) do
-      Access.RegisterEmailDomainAccesses.create(domain)
-    end
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+      do: Access.RegisterEmailDomainAccesses.create(domain)
   end
 
 end
