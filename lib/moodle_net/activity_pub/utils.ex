@@ -63,7 +63,7 @@ defmodule MoodleNet.ActivityPub.Utils do
         with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id) do
           actor.mn_pointer_id
         else
-          nil -> nil
+          _ -> nil
         end
 
       %ActivityPub.Object{} = object ->

@@ -2,6 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
+  import ProtocolEx
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.GraphQL.Fields
@@ -11,7 +12,7 @@ defmodule MoodleNet.Follows do
     Follow,
     Queries,
   }
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias MoodleNet.Meta.{Pointable, Pointer, Pointers}
   alias MoodleNet.Users.{LocalUser, User}
   alias Ecto.Changeset
 
@@ -148,6 +149,10 @@ defmodule MoodleNet.Follows do
   def valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
+  end
+
+  defimpl_ex FollowPointable, Follow, for: Pointable do
+    def queries_module(_), do: Queries
   end
 
 end

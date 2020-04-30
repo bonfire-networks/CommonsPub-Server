@@ -94,7 +94,7 @@ defmodule ActivityPub.Fetcher do
            "type" => "Create",
            "to" => data["to"],
            "cc" => data["cc"],
-           "actor" => data["actor"],
+           "actor" => data["actor"] || data["attributedTo"],
            "object" => data
          },
          {:ok, activity} <- Transmogrifier.handle_incoming(params),
@@ -105,7 +105,7 @@ defmodule ActivityPub.Fetcher do
 
   defp insert_object(data), do: Transmogrifier.handle_object(data)
 
-  def get_actor(%{"actor" => nil, "attributedTo" => actor} = _data), do: actor
+  def get_actor(%{"attributedTo" => actor} = _data), do: actor
 
   def get_actor(%{"actor" => actor} = _data), do: actor
 

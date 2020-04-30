@@ -55,50 +55,52 @@ ENV S6_OVERLAY_VERSION=v1.22.1.0
 
 # Essentials
 RUN apk add --update --no-cache \
-    ca-certificates \
-    git \
-    mailcap \
-    openssh-client \
-    openssl-dev \
-    tzdata \
-    bash \
-    build-base \
-    curl \
-    gettext 
+  ca-certificates \
+  git \
+  mailcap \
+  openssh-client \
+  openssl-dev \
+  tzdata \
+  bash \
+  build-base \
+  curl \
+  gettext 
 # why are git and build-base needed here?
 
 # install s6
 RUN set -eux; \
-    ARCH="$(apk --print-arch)"; echo ${ARCH}; \
-    case "${ARCH}" in \
-       amd64|x86_64) \
-         curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz | tar xfz - -C / \
-         ;; \
-       i386) \
-         curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-x86.tar.gz | tar xfz - -C / \
-         ;; \
-       armv7) \
-         curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-arm.tar.gz | tar xfz - -C / \
-         ;; \
-       *) \
-         curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.gz | tar xfz - -C / \
-         ;; \
-    esac; 
+  ARCH="$(apk --print-arch)"; echo ${ARCH}; \
+  case "${ARCH}" in \
+  amd64|x86_64) \
+  curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-amd64.tar.gz | tar xfz - -C / \
+  ;; \
+  i386) \
+  curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-x86.tar.gz | tar xfz - -C / \
+  ;; \
+  armv7) \
+  curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-arm.tar.gz | tar xfz - -C / \
+  ;; \
+  *) \
+  curl -sSL https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${ARCH}.tar.gz | tar xfz - -C / \
+  ;; \
+  esac; 
 
 # install nginx
 RUN apk add --update --no-cache nginx nginx-mod-http-lua && \
-    chown -R nginx:www-data /var/lib/nginx
+  chown -R nginx:www-data /var/lib/nginx 
+
 # redirect logs to st output
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
+  ln -sf /dev/stderr /var/log/nginx/error.log
 
 
 # copy s6 and web server config
 COPY config/deployment/ /
 
+# to enable shutdown-instance script
+RUN chown -R root:nginx /etc/services.d && chmod g+w -R /etc/services.d
 
 WORKDIR /opt/app
-
 
 # install app 
 COPY --from=builder /opt/app/_build/prod/rel/moodle_net /opt/app

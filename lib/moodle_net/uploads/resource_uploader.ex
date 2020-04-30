@@ -4,12 +4,5 @@
 defmodule MoodleNet.Uploads.ResourceUploader do
   use MoodleNet.Uploads.Definition
 
-  def allowed_media_types do
-    :moodle_net
-    |> Application.fetch_env!(__MODULE__)
-    |> Keyword.fetch!(:allowed_media_types)
-  end
-
-
   def transform(_file), do: :skip
 end
