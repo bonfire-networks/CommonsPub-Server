@@ -11,19 +11,21 @@ defmodule MoodleNet.Mixfile do
       version: "0.9.6-dev",
       elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
       releases: releases(),
       name: "MoodleNet",
       homepage_url: "http://new.moodle.net",
-      source_url: "https://gitlab.com/moodlenet/servers/federated",
+      source_url: "https://gitlab.com/moodlenet/backend",
       docs: [
         main: "readme", # The first page to display from the docs
         logo: "assets/static/images/moodlenet-logo.png",
         extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"] # extra pages to include
-      ]
+      ],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test]
     ]
   end
 
@@ -101,6 +103,7 @@ defmodule MoodleNet.Mixfile do
       {:telemetry, "~> 0.4.0"}, # stats
       {:sentry, "~> 7.1", runtime: sentry?()}, # production only
       # Misc
+      {:protocol_ex, "~> 0.3.0"},
       {:jason, "~> 1.1"},    # json
       {:gettext, "~> 0.17"}, # localisation
       {:recase, "~> 0.2"},   # camel/snake/kebabification
@@ -113,7 +116,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:
-      {:geo_postgis, "~> 3.1"}, # geolocation in postgres 
+      {:geo_postgis, "~> 3.1"}, # geolocation in postgres
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
@@ -128,7 +131,8 @@ defmodule MoodleNet.Mixfile do
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},                     # property testing
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}, # doc gen
+      {:excoveralls, "~> 0.10", only: :test} # test coverage statistics
     ]
   end
 

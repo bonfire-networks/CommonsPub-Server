@@ -27,6 +27,6 @@ defmodule MoodleNet.Access.RegisterEmailAccess do
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)
     |> validate_email(:email)
-    |> Changeset.unique_constraint(:email, name: "mn_access_register_email")
+    |> Changeset.unique_constraint(:email, name: "mn_access_register_email_email_index")
   end
 end
