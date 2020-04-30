@@ -29,8 +29,8 @@ Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gi
 CommonsPub comes in different flavours, which are made up of a combination of extensions and probably some custom branding. Each flavour has its own branch in the [CommonsPub repo](https://gitlab.com/CommonsPub/Server) regularly merged back-and-forth with its own repository.
 
 - `flavour/commonspub` - Contains the generic flavour of **CommonsPub** (currently packaged with all extensions except for `extension/valueflows`). 
-- `flavour/moodlenet` - The original [MoodleNet](https://gitlab.com/moodlenet/backend) flavour (with no extensions). 
-- `flavour/zenpub` - WIP [ZenPub](https://github.com/dyne/zenpub/) flavour, which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
+- `flavour/moodlenet` - The original [MoodleNet](https://gitlab.com/moodlenet/backend) flavour (with only  `extension/activitypub`). 
+- `flavour/zenpub` - WIP [ZenPub](https://github.com/dyne/zenpub/) flavour (with all extensions), which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
 
 ### Extensions
 
@@ -46,12 +46,23 @@ New functionality is being developed in seperate namespaces in order to make the
 
 ### Commit & merge workflow
 
-Please commit your WIP to extension branches (or new feature/fix branches as needed). Avoid commiting directly to `flavour/commonspub` or any of the flavours. Once done, merge your branch into `flavour/commonspub`.
+Please commit your work to the appropriate extension branches (and your WIP to new feature/fix branches as needed). 
 
-If you make changes to core functionality, merge those (and only those) into `flavour/moodlenet`.
+Avoid commiting directly to `flavour/commonspub` or any of the flavours. 
 
-Please **avoid mixing flavours!** 
-For example, DO NOT merge from `flavour/commonspub`-->`flavour/moodlenet`. (The only exception to this rule being that we DO merge changes from `flavour/moodlenet`-->`flavour/commonspub` since upstream MoodleNet development is still happening directly in core modules.)
+#### Merging completed work
+
+If you made changes to an extension used by a flavour, merge it into the appropriate flavour branche(s).
+
+If you made changes to core functionality (`MoodleNet[Web].*` namespaces), merge those (and only those) into `flavour/moodlenet`.
+
+#### Please **avoid mixing flavours!** 
+
+For example, DO NOT merge from `flavour/commonspub`-->`flavour/moodlenet`. 
+
+The only exception to this rule being that we DO merge changes from `flavour/moodlenet`-->`flavour/commonspub` since upstream MoodleNet development is still happening directly in core modules.
+
+#### Merging with upstream 
 
 Regularly merge-request changes from `flavour/moodlenet` to [MoodleNet](https://gitlab.com/moodlenet/backend)'s `develop` branch.
 
