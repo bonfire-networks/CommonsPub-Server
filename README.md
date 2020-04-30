@@ -28,7 +28,7 @@ Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gi
 
 CommonsPub comes in different flavours, which are made up of a combination of extensions and probably some custom branding. Each flavour has its own branch in the [CommonsPub repo](https://gitlab.com/CommonsPub/Server) regularly merged back-and-forth with its own repository.
 
-- `flavour/commonspub` - Contains the generic flavour of **CommonsPub** (currently packaged with all extensions except for `extension/valueflows`). 
+- `flavour/commonspub` - Contains the generic flavour of [CommonsPub](http://commonspub.org) (currently packaged with all extensions except for `extension/valueflows`). 
 - `flavour/moodlenet` - The original [MoodleNet](https://gitlab.com/moodlenet/backend) flavour (with only  `extension/activitypub`). 
 - `flavour/zenpub` - WIP [ZenPub](https://github.com/dyne/zenpub/) flavour (with all extensions), which will use [ZenRoom](https://zenroom.org/) for public key signing and end-to-end encryption.
 
