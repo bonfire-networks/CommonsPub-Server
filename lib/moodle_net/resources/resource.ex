@@ -28,6 +28,7 @@ defmodule MoodleNet.Resources.Resource do
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
+    field(:extra_info, :map)
     timestamps()
   end
 
