@@ -5,6 +5,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
   alias MoodleNet.GraphQL
+  alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{Fields, ResolveFields}
@@ -16,7 +17,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
@@ -86,6 +86,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     end
   end
 
+  # access
+  defp do_delete(%RegisterEmailAccess{}=r), do: MoodleNet.Common.soft_delete(r)
+  defp do_delete(%RegisterEmailDomainAccess{}=r), do: MoodleNet.Common.soft_delete(r)
   defp do_delete(%Community{}=c), do: MoodleNet.Communities.soft_delete(c)
   defp do_delete(%Collection{}=c), do: MoodleNet.Collections.soft_delete(c)
   defp do_delete(%Resource{}=r), do: MoodleNet.Resources.soft_delete(r)
@@ -109,7 +112,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     user.local_user.is_instance_admin or allow_user_delete?(user, context)
   end
 
-  defp allow_user_delete?(user, %{__struct__: type, creator_id: creator_id} = context) do
+  defp allow_user_delete?(user, %type{creator_id: creator_id} = _context) do
     type in [Flag, Like, Follow, Thread, Comment] and creator_id == user.id
   end
 

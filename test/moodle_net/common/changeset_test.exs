@@ -43,7 +43,7 @@ defmodule MoodleNet.Common.ChangesetTest do
       invalid = [
         "//elixir-lang.org/",
         "ftp://elixir-lang.org",
-        "http:///test"
+        # "http:///test"
       ]
 
       for url <- invalid do

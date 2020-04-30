@@ -109,10 +109,22 @@ defmodule MoodleNet.Communities.Queries do
     where q, [community: c], is_nil(c.id) or not is_nil(c.published_at)
   end
 
+  def filter(q, {:limit, limit}) do
+    limit(q, ^limit)
+  end
+
   # by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [community: c], c.id == ^id
+  end
+
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [community: c], c.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [community: c], c.id <= ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
@@ -164,10 +176,6 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   defp page(q, %{limit: limit}, [desc: :followers]), do: filter(q, limit: limit + 1)
-
-  def filter(q, {:limit, limit}) do
-    limit(q, ^limit)
-  end
 
   @doc """
   Orders by:

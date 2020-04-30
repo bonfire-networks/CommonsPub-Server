@@ -2,13 +2,13 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes do
-
+  import ProtocolEx
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias MoodleNet.Meta.{Pointable, Pointer, Pointers}
   alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
@@ -110,5 +110,9 @@ defmodule MoodleNet.Likes do
   defp valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
+  end
+
+  defimpl_ex LikePointable, Like, for: Pointable do
+    def queries_module(_), do: Queries
   end
 end

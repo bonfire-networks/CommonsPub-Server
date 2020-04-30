@@ -16,7 +16,9 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
   end
 
   def create(email) do
-    Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
+    changeset = RegisterEmailAccess.create_changeset(%{email: email})
+    with {:error, _changeset} <- Repo.insert(changeset),
+      do: {:error, "Email already allowlisted"}
   end
   
 end

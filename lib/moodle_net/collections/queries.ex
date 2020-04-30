@@ -21,13 +21,6 @@ defmodule MoodleNet.Collections.Queries do
 
   def query(q, filters), do: filter(query(q), filters)
   
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, spec, join_qualifier \\ :left)
 
   def join_to(q, specs, jq) when is_list(specs) do
@@ -180,23 +173,6 @@ defmodule MoodleNet.Collections.Queries do
 
   def filter(q, {:limit, limit}) do
     limit(q, ^limit)
-  end
-
-  def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
-    limit = limit + 2
-    q
-    |> where([collection: c], c.id >= ^a)
-    |> limit(^limit)
-  end
-
-  def filter(q, {:paginate_id, %{before: b, limit: limit}}) do
-    q
-    |> where([collection: c], c.id <= ^b)
-    |> filter(limit: limit + 2)
-  end
-
-  def filter(q, {:paginate_id, %{limit: limit}}) do
-    filter(q, limit: limit + 1)
   end
 
   def filter(q, {:page, [desc: [followers: page_opts]]}) do

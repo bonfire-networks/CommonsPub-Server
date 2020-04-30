@@ -82,7 +82,9 @@ defmodule MoodleNet.Uploads do
 
   def remote_url_from_id(content_id) when is_binary(content_id) do
     case __MODULE__.one(id: content_id) do
-      {:ok, content} -> remote_url(content)
+      {:ok, content} ->
+        {:ok, url} = remote_url(content)
+        url
       _ -> nil
     end
   end
@@ -132,6 +134,7 @@ defmodule MoodleNet.Uploads do
       {:error, {:request_failed, 403}} -> {:error, :forbidden}
       {:error, :bad_request} -> {:error, :bad_request}
       {:error, {:tls_alert, _}} -> {:error, :tls_alert}
+      {:error, other} -> {:error, other}
     end
   end
 
@@ -145,8 +148,14 @@ defmodule MoodleNet.Uploads do
     end
   end
 
+  defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
+
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    case upload_def.allowed_media_types() do
+    media_types = :moodle_net
+    |> Application.fetch_env!(upload_def)
+    |> Keyword.fetch!(:allowed_media_types)
+
+    case media_types do
       :all ->
         :ok
 

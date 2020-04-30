@@ -2,6 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
+  import ProtocolEx
   alias Ecto.Changeset
   alias Ecto.Association.NotLoaded
   alias MoodleNet.{Activities, Common, Collections, Feeds, Repo}
@@ -9,6 +10,7 @@ defmodule MoodleNet.Resources do
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.FeedActivities
+  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Resources.{Resource, Queries}
   alias MoodleNet.Users.User
 
@@ -135,4 +137,10 @@ defmodule MoodleNet.Resources do
       _ -> false
     end
   end
+
+  defimpl_ex ResourcePointable, Resource, for: Pointable do
+    def queries_module(_), do: Queries
+  end
+
+
 end
