@@ -82,7 +82,9 @@ defmodule MoodleNet.Uploads do
 
   def remote_url_from_id(content_id) when is_binary(content_id) do
     case __MODULE__.one(id: content_id) do
-      {:ok, content} -> remote_url(content)
+      {:ok, content} ->
+        {:ok, url} = remote_url(content)
+        url
       _ -> nil
     end
   end
