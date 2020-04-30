@@ -5,13 +5,14 @@ defmodule MoodleNet.Activities.Activity do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1]
-
+  alias MoodleNet.Activities
+  alias MoodleNet.Activities.Activity
   alias MoodleNet.Feeds.FeedActivity
   alias MoodleNet.Users.User
   alias MoodleNet.Meta.Pointer
   alias Ecto.Changeset
 
-  @type t :: %__MODULE__{}
+  @type t :: %Activity{}
 
   table_schema "mn_activity" do
     belongs_to(:creator, User)
@@ -31,7 +32,7 @@ defmodule MoodleNet.Activities.Activity do
 
   def create_changeset(%User{id: creator_id}, %{id: context_id}, %{}=attrs)
   when is_binary(creator_id) and is_binary(context_id) do
-    %__MODULE__{}
+    %Activity{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.change(
       creator_id: creator_id,
@@ -42,7 +43,7 @@ defmodule MoodleNet.Activities.Activity do
     |> common_changeset()
   end
 
-  def update_changeset(%__MODULE__{} = activity, attrs) do
+  def update_changeset(%Activity{} = activity, attrs) do
     activity
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
@@ -52,4 +53,5 @@ defmodule MoodleNet.Activities.Activity do
     changeset
     |> change_public()
   end
+
 end

@@ -18,7 +18,9 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
   end
 
   def create(domain) do
-    Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
+    changeset = RegisterEmailDomainAccess.create_changeset(%{domain: domain})
+    with {:error, _changeset} <- Repo.insert(changeset),
+      do: {:error, "Domain already allowlisted"}
   end
   
 end

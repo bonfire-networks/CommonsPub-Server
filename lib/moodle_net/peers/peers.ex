@@ -12,9 +12,10 @@ defmodule MoodleNet.Peers do
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
   """
+  import ProtocolEx
   alias MoodleNet.{Common, Meta, Peers, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Meta.{Pointable, Pointer}
   alias MoodleNet.Peers.{Peer, Queries}
 
   # Querying
@@ -62,4 +63,9 @@ defmodule MoodleNet.Peers do
   @spec hard_delete!(Peer.t()) :: Peer.t()
   @doc "Deletes an entry from the database, or throws a DeletionError"
   def hard_delete!(%Peer{} = peer), do: Common.hard_delete!(peer)
+
+  defimpl_ex PeerPointable, Peer, for: Pointable do
+    def queries_module(_), do: Queries
+  end
+
 end

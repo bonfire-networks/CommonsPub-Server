@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
         query: communities_query(),
         connection: json_conn(),
         return_key: :communities,
-        default_limit: 10,
+        default_limit: 5,
         total_count: 27,
         data: order_follower_count(communities),
         assert_fn: &assert_community/2,
