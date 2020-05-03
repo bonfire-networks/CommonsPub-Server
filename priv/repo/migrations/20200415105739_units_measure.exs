@@ -4,4 +4,5 @@ defmodule MoodleNet.Repo.Migrations.Units.Measure do
   def change do
     Measurement.Migrations.change_measure()
   end
+  
 end
