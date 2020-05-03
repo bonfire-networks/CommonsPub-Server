@@ -48,6 +48,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
       on: c.id == f.context_id and f.creator_id == ^follower_id
   end
 
+  # def join_to(q, :provider, jq) do
+  #   join q, jq, [follow: f], c in assoc(f, :provider), as: :pointer
+  # end
+
+  # def join_to(q, :receiver, jq) do
+  #   join q, jq, [follow: f], c in assoc(f, :receiver), as: :pointer
+  # end
+
+
   # def join_to(q, :follower_count, jq) do
   #   join q, jq, [intent: c],
   #     f in FollowerCount, on: c.id == f.context_id,
@@ -66,6 +75,7 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, :default) do
     filter q, [:deleted]
+    # filter q, [:deleted, {:preload, :provider}, {:preload, :receiver}]
   end
 
   ## by join
@@ -209,5 +219,13 @@ defmodule ValueFlows.Planning.Intent.Queries do
   # end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
+
+  # def filter(q, {:preload, :provider}) do
+  #   preload q, [pointer: p], [provider: p]
+  # end
+
+  # def filter(q, {:preload, :receiver}) do
+  #   preload q, [pointer: p], [receiver: p]
+  # end
 
 end

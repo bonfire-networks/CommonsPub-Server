@@ -17,10 +17,10 @@ defmodule ValueFlows.Agent.Organizations do
 
 
   def organization(id: id, signed_in_user: signed_in_user) do
-    {:ok, u} = Organisation.Organisations.one([:default, id: id, user: signed_in_user])
-    
-    u 
-      |> actor_to_organization
+    case Organisation.Organisations.one([:default, id: id, user: signed_in_user]) do
+      {:ok, item} -> item |> actor_to_organization
+      {:error, error} -> {:error, error}
+    end
   end
 
   def actor_to_organization(u) do

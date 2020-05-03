@@ -12,7 +12,7 @@ defmodule Measurement.Unit do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_unit" do
+  table_schema "measurement_unit" do
     field :label, :string
     field :symbol, :string
 

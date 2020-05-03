@@ -12,7 +12,7 @@ defmodule Geolocation do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_spatial_things" do
+  table_schema "geolocation" do
     field :name, :string
     # field :lat, :float # TODO: turn into virtual fields based on `point`
     # field :long, :float

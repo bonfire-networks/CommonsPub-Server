@@ -1,9 +1,11 @@
 defmodule ValueFlows.Hydrations do
 
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver
+    ActorsResolver,
+    CommonResolver,
   }
 
+  
   def hydrate(blueprint) do
 
     agent_fields = %{
@@ -40,12 +42,21 @@ defmodule ValueFlows.Hydrations do
       #   is_type_of: &ValueFlows.Agent.GraphQL.organization_is_type_of/2
       # ],
 
+      intent: %{
+        provider: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_provider_edge/3
+        ],
+        receiver: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
+        ]
+      },
+
       # start Query resolvers
       value_flows_query: %{
       
       # Agents:
         agents: [
-          resolve: &ValueFlows.Agent.GraphQL.all_agents/3
+          resolve: &ValueFlows.Agent.GraphQL.all_agents/2
         ],
         agent: [
           resolve: &ValueFlows.Agent.GraphQL.agent/2,
