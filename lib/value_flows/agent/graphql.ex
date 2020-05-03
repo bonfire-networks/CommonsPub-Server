@@ -12,13 +12,13 @@ defmodule ValueFlows.Agent.GraphQL do
 
 
   # fake data
-  def all_agents(_, _, _) do
-    {:ok, Simulate.long_list(&Simulate.agent/0)}
-  end
+  # def all_agents(_, _) do
+  #   {:ok, Simulate.long_list(&Simulate.agent/0)}
+  # end
 
-  def agent(%{id: id}, info) do
-    {:ok, Simulate.agent()}
-  end
+  # def agent(%{id: id}, info) do
+  #   {:ok, Simulate.agent()}
+  # end
 
   # support for inteface type
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
@@ -30,7 +30,7 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # proper resolvers
 
-  def people(%{}, info) do
+  def people(%{}, info) do # TODO: pagination
     {:ok, 
       ValueFlows.Agent.People.people(signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
@@ -39,7 +39,7 @@ defmodule ValueFlows.Agent.GraphQL do
 
   def person(%{id: id}, info) do    
     {:ok, 
-    ValueFlows.Agent.People.person(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+      ValueFlows.Agent.People.person(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
 
@@ -52,9 +52,21 @@ defmodule ValueFlows.Agent.GraphQL do
 
   def organization(%{id: id}, info) do    
     {:ok, 
-    ValueFlows.Agent.Organizations.organization(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+      ValueFlows.Agent.Organizations.organization(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
+
+  def all_agents(%{}, info) do
+    {:ok, 
+      ValueFlows.Agent.Agents.agents(signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+  end
+
+    def agent(%{id: id}, info) do
+      {:ok, 
+      ValueFlows.Agent.Agents.agent(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+    }
+    end
 
 
 end

@@ -45,7 +45,7 @@ defmodule ValueFlows.Hydrations do
       
       # Agents:
         agents: [
-          resolve: &ValueFlows.Agent.GraphQL.all_agents/3
+          resolve: &ValueFlows.Agent.GraphQL.all_agents/2
         ],
         agent: [
           resolve: &ValueFlows.Agent.GraphQL.agent/2,

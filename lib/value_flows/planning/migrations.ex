@@ -27,7 +27,7 @@ defmodule ValueFlows.Planning.Migrations do
       # # belongs_to(:resource_conforms_to, ResourceSpecification)
       # # belongs_to(:resource_inventoried_as, EconomicResource)
   
-      add :at_location_id, references(:vf_spatial_things)
+      add :at_location_id, references(:geolocation)
   
       add :action_id, references(:vf_action)
 
