@@ -22,6 +22,9 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     field :hostname, non_null(:string)
     # field :name, :string
     field :description, :string
+
+    @desc "A JSON document containing more info beyond the default fields"
+    field :extra_info, :json
     
     field :featured_collections, :features_page do
       resolve &InstanceResolver.featured_collections/3
