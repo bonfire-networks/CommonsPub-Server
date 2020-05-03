@@ -1,5 +1,5 @@
 
-DROP TABLE IF EXISTS "taxonomy_tags";
+DROP TABLE IF EXISTS "taxonomy_tags" CASCADE;
 CREATE TABLE "taxonomy_tags" (
     "id" integer NOT NULL,
     "label" character varying,
@@ -11,7 +11,7 @@ CREATE TABLE "taxonomy_tags" (
 CREATE INDEX "tag_5e6faac5245d8" ON "taxonomy_tags" USING btree ("parent_tag_id");
 
 
-DROP TABLE IF EXISTS "taxonomy_tags_related";
+DROP TABLE IF EXISTS "taxonomy_tags_related" CASCADE;
 CREATE TABLE "taxonomy_tags_related" (
     "tag_id" integer,
     "related_tag_id" integer,
