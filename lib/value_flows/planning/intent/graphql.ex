@@ -5,6 +5,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Communities,
     GraphQL,
     Repo,
+    User
   }
   alias MoodleNet.GraphQL.{
     ResolveField,
@@ -116,7 +117,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
-        attrs = Map.merge(attrs, %{is_public: true})
+        attrs = Map.merge(attrs, %{is_public: true, provider_id: attrs.provider})
         Intents.create(user, community, attrs)
       end
     end)
@@ -125,7 +126,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   def create_intent(%{intent: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-        attrs = Map.merge(attrs, %{is_public: true})
+        attrs = Map.merge(attrs, %{is_public: true, provider_id: attrs.provider})
         Intents.create(user, attrs)
       end
     end)
@@ -152,5 +153,18 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
+
+  defp validate_agent(pointer) do
+    if Pointers.table!(pointer).schema in valid_contexts() do
+      :ok
+    else
+      GraphQL.not_permitted()
+    end
+  end
+
+  defp valid_contexts() do
+    [User, Organisation]
+    # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
+  end
 
 end

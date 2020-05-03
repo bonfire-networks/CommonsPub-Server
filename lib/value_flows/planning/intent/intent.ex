@@ -1,15 +1,14 @@
-# TODO:
+# relations TODO:
+# SpatialThing WIP
+# Action WIP
 # AgentRelationship
 # AgentRelationshipRole
 # ResourceSpecification
-# Action
 # Proposal
 # ProposedIntent
-# Intent
 # ProposedTo(maybe?)
 # Process
 # ProcessSpecification
-# SpatialThing
 
 defmodule ValueFlows.Planning.Intent do
 

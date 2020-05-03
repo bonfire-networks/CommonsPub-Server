@@ -87,6 +87,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
   @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
+    IO.inspect(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, item} <- insert_unit(creator, attrs),
            act_attrs = %{verb: "created", is_local: true},
