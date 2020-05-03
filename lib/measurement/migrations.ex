@@ -3,10 +3,10 @@ defmodule Measurement.Migrations do
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(vf_unit vf_measure) 
+  @meta_tables [] ++ ~w(measurement_unit measurement) 
 
   def change do
-    create table(:vf_unit) do
+    create table(:measurement_unit) do
 
       add :label, :string
       add :symbol, :string
@@ -25,11 +25,11 @@ defmodule Measurement.Migrations do
   end
 
   def change_measure do
-    create table(:vf_measure) do
+    create table(:measurement) do
 
       add :hasNumericalValue, :float
 
-      add :unit_id, references("vf_unit", on_delete: :delete_all)
+      add :unit_id, references("measurement_unit", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
 
       add :published_at, :timestamptz

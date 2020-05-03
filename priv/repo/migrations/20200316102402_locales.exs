@@ -3,7 +3,7 @@ defmodule MoodleNet.Repo.Migrations.Locales do
 
   def up do
 
-    IO.inspect(:application.get_key(:moodle_net, :modules), limit: :infinity)
+    # IO.inspect(:application.get_key(:moodle_net, :modules), limit: :infinity)
 
     Locales.Migrations.up()
 

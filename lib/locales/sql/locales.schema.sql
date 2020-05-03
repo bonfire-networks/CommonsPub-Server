@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS "countries";
+DROP TABLE IF EXISTS "countries" CASCADE;
 CREATE TABLE "countries" (
     "id" character(2) DEFAULT '' NOT NULL,
     "name_eng" character varying(100),
@@ -33,7 +33,7 @@ COMMENT ON TABLE "countries" IS 'Countries';
 
 
 
-DROP TABLE IF EXISTS "languages";
+DROP TABLE IF EXISTS "languages" CASCADE;
 CREATE TABLE "languages" (
     "id" character(3) NOT NULL,
     "main_name" character varying(150) NOT NULL,
@@ -68,7 +68,7 @@ CREATE INDEX "languages_sub_name" ON "languages" USING btree ("sub_name");
 COMMENT ON TABLE "languages" IS 'Languages';
 
 
-DROP TABLE IF EXISTS "continents";
+DROP TABLE IF EXISTS "continents" CASCADE;
 CREATE TABLE "continents" (
     "id" character(2) DEFAULT '' NOT NULL,
     CONSTRAINT "idx_17457_primary" PRIMARY KEY ("id")
@@ -79,7 +79,7 @@ COMMENT ON TABLE "continents" IS 'Continents';
 
 
 
-DROP TABLE IF EXISTS "timezones";
+DROP TABLE IF EXISTS "timezones" CASCADE;
 CREATE TABLE "timezones" (
     "id" character varying(50) DEFAULT '' NOT NULL,
     "utc_offset" character varying(10),
@@ -108,7 +108,7 @@ COMMENT ON TABLE "timezones" IS 'Timezones';
 
 
 
-DROP TABLE IF EXISTS "currencies";
+DROP TABLE IF EXISTS "currencies" CASCADE;
 CREATE TABLE "currencies" (
     "id" character varying(3) NOT NULL,
     "currency_name" character varying(150),
@@ -122,7 +122,7 @@ COMMENT ON TABLE "currencies" IS 'Currencies';
 
 
 
-DROP TABLE IF EXISTS "continent_names";
+DROP TABLE IF EXISTS "continent_names" CASCADE;
 CREATE TABLE "continent_names" (
     "continent_id" character(2),
     "continent_name" character varying(20),
@@ -137,7 +137,7 @@ CREATE INDEX "idx_17466_locale" ON "continent_names" USING btree ("locale");
 COMMENT ON TABLE "continent_names" IS 'Continents - Names';
 
 
-DROP TABLE IF EXISTS "continents_countries";
+DROP TABLE IF EXISTS "continents_countries" CASCADE;
 CREATE TABLE "continents_countries" (
     "continent_id" character(2),
     "country_id" character(2),
@@ -153,7 +153,7 @@ COMMENT ON TABLE "continents_countries" IS 'Continents - Countries';
 
 
 
-DROP TABLE IF EXISTS "country_areas";
+DROP TABLE IF EXISTS "country_areas" CASCADE;
 CREATE TABLE "country_areas" (
     "id" character varying(7) DEFAULT '' NOT NULL,
     "country_id" character(2),
@@ -175,7 +175,7 @@ CREATE INDEX "idx_17493_country_id_3letter" ON "country_areas" USING btree ("cou
 COMMENT ON TABLE "country_areas" IS 'Countries - Areas';
 
 
-DROP TABLE IF EXISTS "country_names";
+DROP TABLE IF EXISTS "country_names" CASCADE;
 CREATE TABLE "country_names" (
     "country_id" character(2) DEFAULT '',
     "name_alt" character varying(250),
@@ -193,7 +193,7 @@ CREATE INDEX "idx_17503_locale" ON "country_names" USING btree ("locale");
 
 
 
-DROP TABLE IF EXISTS "currencies_countries";
+DROP TABLE IF EXISTS "currencies_countries" CASCADE;
 CREATE TABLE "currencies_countries" (
     "currency_id" character varying(3),
     "country_id" character(2),
@@ -207,7 +207,7 @@ CREATE INDEX "idx_17515_country_id" ON "currencies_countries" USING btree ("coun
 COMMENT ON TABLE "currencies_countries" IS 'Currencies - Countries';
 
 
-DROP TABLE IF EXISTS "language_accents";
+DROP TABLE IF EXISTS "language_accents" CASCADE;
 DROP SEQUENCE IF EXISTS language_accents_id_seq;
 CREATE SEQUENCE language_accents_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
 
@@ -228,7 +228,7 @@ CREATE INDEX "idx_17537_language_id" ON "language_accents" USING btree ("languag
 COMMENT ON TABLE "language_accents" IS 'Languages - Accents';
 
 
-DROP TABLE IF EXISTS "language_dialects";
+DROP TABLE IF EXISTS "language_dialects" CASCADE;
 DROP SEQUENCE IF EXISTS language_dialects_id_seq;
 CREATE SEQUENCE language_dialects_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 1 CACHE 1;
 
@@ -251,7 +251,7 @@ CREATE INDEX "idx_17546_name_alt" ON "language_dialects" USING btree ("dialect_n
 COMMENT ON TABLE "language_dialects" IS 'Languages - Dialects';
 
 
-DROP TABLE IF EXISTS "language_names";
+DROP TABLE IF EXISTS "language_names" CASCADE;
 CREATE TABLE "language_names" (
     "language_id" character varying(3) NOT NULL,
     "name_alt" character varying(75) NOT NULL,
@@ -270,7 +270,7 @@ CREATE INDEX "idx_17552_name_alt" ON "language_names" USING btree ("name_alt");
 COMMENT ON TABLE "language_names" IS 'Languages - Names';
 
 
-DROP TABLE IF EXISTS "languages_countries";
+DROP TABLE IF EXISTS "languages_countries" CASCADE;
 CREATE TABLE "languages_countries" (
     "language_id" character(3) NOT NULL,
     "country_id" character(2) NOT NULL,
@@ -286,7 +286,7 @@ COMMENT ON TABLE "languages_countries" IS 'Languages - Countries';
 
 
 
-DROP TABLE IF EXISTS "countries_dialects";
+DROP TABLE IF EXISTS "countries_dialects" CASCADE;
 CREATE TABLE "countries_dialects" (
     "country_id" character(2) NOT NULL,
     "language_id" character(3) NOT NULL,
