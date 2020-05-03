@@ -4,7 +4,7 @@
 defmodule Taxonomy.GraphQL.LocalesResolver do
   @moduledoc "GraphQL Language and Country queries"
   alias MoodleNet.{GraphQL}
-  alias Taxonomy.{Locales}
+  alias Locales
 
   def languages(_, info) do
     Locales.nodes_page(
