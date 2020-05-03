@@ -62,11 +62,11 @@ defmodule ValueFlows.Agent.GraphQL do
     }
   end
 
-    def agent(%{id: id}, info) do
-      {:ok, 
-      ValueFlows.Agent.Agents.agent(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
-    }
-    end
+  def agent(%{id: id}, info) do
+    {:ok, 
+    ValueFlows.Agent.Agents.agent(id: id, signed_in_user: MoodleNet.GraphQL.current_user(info))
+  }
+  end
 
 
 end

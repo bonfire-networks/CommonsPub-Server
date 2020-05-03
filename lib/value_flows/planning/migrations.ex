@@ -15,12 +15,14 @@ defmodule ValueFlows.Planning.Migrations do
 
       add :image_id, references(:mn_content)
 
-      # # belongs_to(:provider, User) # TODO - use pointer like context?
-      # # belongs_to(:receiver, User)
+      # belongs_to(:provider, Pointer) # TODO - use pointer like context?
+      # belongs_to(:receiver, Pointer)
+      add :provider_id, references("mn_pointer", on_delete: :nilify_all)
+      add :receiver_id, references("mn_pointer", on_delete: :nilify_all)
   
-      # has_one(:available_quantity, Measure)
-      # has_one(:resource_quantity, Measure)
-      # has_one(:effort_quantity, Measure)
+      add :available_quantity, references("measurement", on_delete: :nilify_all)
+      add :resource_quantity, references("measurement", on_delete: :nilify_all)
+      add :effort_quantity, references("measurement", on_delete: :nilify_all)
 
       add :resource_classified_as, {:array, :string} # array of URI
       

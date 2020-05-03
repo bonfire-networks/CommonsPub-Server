@@ -14,6 +14,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     ResolveRootPage,
     FetchPage,
     FetchPages,
+    CommonResolver,
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
@@ -62,7 +63,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.one(
       user: GraphQL.current_user(info),
       id: id,
-      preload: :actor
+      preload: :provider
     )
   end
 
@@ -71,6 +72,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
       %FetchPage{
         queries: Queries,
         query: Intent,
+        # preload: :provider,
         # cursor_fn: Intents.cursor(:followers),
         page_opts: page_opts,
         base_filters: [user: GraphQL.current_user(info)],
@@ -96,9 +98,21 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     fields
   end
 
+  def fetch_provider_edge(%{provider: id}, _, info) do
+    # IO.inspect(id)
+    # Repo.preload(team_users: :user)
+    CommonResolver.context_edge(%{context_id: id}, nil, info)
+  end
+
+  def fetch_receiver_edge(%{receiver: id}, _, info) do
+    CommonResolver.context_edge(%{context_id: id}, nil, info)
+  end
+
+
   ## finally the mutations...
 
-  def create_intent(%{intent: attrs, in_scope_of_community_id: id}, info) do
+  def create_intent(%{intent: attrs, in_scope_of_community_id: id}, info) do 
+    # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do

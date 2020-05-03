@@ -31,8 +31,8 @@ defmodule ValueFlows.Planning.Intent do
     field(:note, :string)
     belongs_to(:image, Content)
 
-    # belongs_to(:provider, User) # TODO - use pointer like context?
-    # belongs_to(:receiver, User)
+    belongs_to(:provider, Pointer) # TODO - use pointer like context?
+    belongs_to(:receiver, Pointer)
 
     has_one(:available_quantity, Measure)
     has_one(:resource_quantity, Measure)
