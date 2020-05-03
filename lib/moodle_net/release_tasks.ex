@@ -203,6 +203,11 @@ defmodule MoodleNet.ReleaseTasks do
        {:ok, community} = MoodleNet.Communities.soft_delete(community)
   end
 
+  def user_set_email_confirmed(username) do
+    {:ok, u} = MoodleNet.Users.one([:default, username: username])
+    MoodleNet.Users.confirm_email(u)
+  end
+
   def make_instance_admin(username) do
     {:ok, u} = MoodleNet.Users.one([:default, username: username])
     MoodleNet.Users.make_instance_admin(u)
