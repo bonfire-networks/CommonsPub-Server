@@ -101,9 +101,6 @@ COPY config/deployment/ /
 # to enable shutdown-instance script
 RUN chown -R root:nginx /etc/services.d && chmod g+w -R /etc/services.d
 
-RUN chown -R root:nginx /var/run/s6/services
-
-
 WORKDIR /opt/app
 
 # install app 
