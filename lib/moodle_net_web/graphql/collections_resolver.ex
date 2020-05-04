@@ -69,7 +69,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
         base_filters: [:deleted, user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
       }
     )
   end
