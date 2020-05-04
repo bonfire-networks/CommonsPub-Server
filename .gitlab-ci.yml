@@ -40,7 +40,7 @@ unit-testing:
     - mix compile --force
     - mix ecto.create
     - mix ecto.migrate
-    - mix coveralls --preload-modules || true
+    - mix coveralls --preload-modules
 
 locales-and-docs:
   stage: test # deploy documentation (stage should be changed 'deploy' when tests are fixed)
@@ -61,7 +61,7 @@ locales-and-docs:
   - develop
 
 staging-build-and-push:
-  stage: deploy # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:
