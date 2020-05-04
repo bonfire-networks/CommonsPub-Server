@@ -200,7 +200,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: id, table: tables]
+        base_filters: [:deleted, feed: id, table: tables],
+        data_filters: [page: [desc: [created: page_opts]]],
       }          
     )
   end
