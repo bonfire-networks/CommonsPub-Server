@@ -47,8 +47,6 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         page_opts: page_opts,
         info: info,
         cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
-        base_filters: [:deleted],
-        data_filters: [preload: :actor],
       }
     )
   end
@@ -70,7 +68,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
+        base_filters: [:deleted, user: GraphQL.current_user(info)],
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
