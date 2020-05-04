@@ -47,6 +47,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         page_opts: page_opts,
         info: info,
         cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
+        base_filters: [:deleted],
+        data_filters: [preload: :actor],
       }
     )
   end
