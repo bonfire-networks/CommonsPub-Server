@@ -34,6 +34,7 @@ defmodule MoodleNet.Collections.Collection do
     field(:is_disabled, :boolean, virtual: true, default: false)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
+    field(:extra_info, :map)
     timestamps()
   end
 

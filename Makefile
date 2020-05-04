@@ -82,6 +82,9 @@ dev-db-up: init ## Start the dev DB
 dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
 
+dev-db-rollback: init ## Reset the dev DB
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.rollback
+
 dev-db-reset: init ## Reset the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.reset
 

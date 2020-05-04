@@ -89,6 +89,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
       resolve &UploadResolver.icon_content_edge/3
     end
 
+    @desc "A JSON document containing more info beyond the default fields"
+    field :extra_info, :json
+
     @desc "Whether the collection is local to the instance"
     field :is_local, non_null(:boolean) do
       resolve &ActorsResolver.is_local_edge/3
@@ -240,12 +243,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsSchema do
     field :name, non_null(:string)
     field :summary, :string
     # field :primary_language_id, :string
+    field :extra_info, :json
   end
 
   input_object :collection_update_input do
     field :name, non_null(:string)
     field :summary, :string
     # field :primary_language_id, :string
+    field :extra_info, :json
   end
 
 end

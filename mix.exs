@@ -23,7 +23,9 @@ defmodule MoodleNet.Mixfile do
         main: "readme", # The first page to display from the docs
         logo: "assets/static/images/moodlenet-logo.png",
         extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"] # extra pages to include
-      ]
+      ],
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test]
     ]
   end
 
@@ -114,7 +116,7 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:
-      {:geo_postgis, "~> 3.1"}, # geolocation in postgres 
+      {:geo_postgis, "~> 3.1"}, # geolocation in postgres
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
@@ -129,7 +131,8 @@ defmodule MoodleNet.Mixfile do
       {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
       {:stream_data, "~> 0.4"},                     # property testing
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false} # doc gen
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}, # doc gen
+      {:excoveralls, "~> 0.10", only: :test} # test coverage statistics
     ]
   end
 
