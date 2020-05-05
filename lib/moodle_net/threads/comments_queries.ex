@@ -126,7 +126,7 @@ defmodule MoodleNet.Threads.CommentsQueries do
   def filter(q, {:page, [{order, [{field, page_opts}]}]}) do
     q
     |> filter(order: [{order, field}])
-    |> page(page_opts, [{order, fields}])
+    |> page(page_opts, [{order, field}])
   end
 
   defp page(q, %{after: cursor, limit: limit}, [asc: :created]) do
