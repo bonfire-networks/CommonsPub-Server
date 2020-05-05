@@ -502,7 +502,7 @@ defmodule ActivityPub.Actor do
     with {:ok, actor} <- get_cached_by_local_id(actor.creator_id) do
       actor.ap_id
     else
-      {:error, nil} -> nil
+      {:error, _} -> nil
     end
   end
 
@@ -510,7 +510,7 @@ defmodule ActivityPub.Actor do
     with {:ok, actor} <- get_cached_by_local_id(actor.community_id) do
       actor.ap_id
     else
-      {:error, nil} -> nil
+      {:error, _} -> nil
     end
   end
 end
