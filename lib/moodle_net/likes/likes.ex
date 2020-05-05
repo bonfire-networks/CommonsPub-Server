@@ -32,9 +32,10 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  defp ap_publish(user, %Like{is_local: true} = like) do
-    MoodleNet.FeedPublisher.publish(%{"context_id" => like.context_id, "user_id" => user.id})
+  defp ap_publish(%Like{is_local: true} = like) do
+    MoodleNet.FeedPublisher.publish(%{"context_id" => like.context_id, "user_id" => like.creator_id})
   end
+
   defp ap_publish(_), do: :ok
 
   @doc """
@@ -55,7 +56,7 @@ defmodule MoodleNet.Likes do
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
                  :ok <- publish(liker, liked, like, "created"),
-                 :ok <- ap_publish(liker, like) do
+                 :ok <- ap_publish(like) do
               {:ok, like}
             end
         end
