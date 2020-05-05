@@ -129,7 +129,15 @@ defmodule MoodleNet.Threads.CommentsQueries do
     |> page(page_opts, [desc: :created])
   end
 
+  defp page(q, %{after: cursor, limit: limit}, [asc: :created]) do
+    filter q, id: {:gte, cursor}, limit: limit + 2
+  end
+
   defp page(q, %{after: cursor, limit: limit}, [desc: :created]) do
+    filter q, id: {:lte, cursor}, limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [asc: :created]) do
     filter q, id: {:lte, cursor}, limit: limit + 2
   end
 

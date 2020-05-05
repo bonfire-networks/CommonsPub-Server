@@ -51,7 +51,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         query: Comment,
         page_opts: page_opts,
         base_filters: [user: user, thread_id: id],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [asc: [created: page_opts]]],
       }
     )
   end
