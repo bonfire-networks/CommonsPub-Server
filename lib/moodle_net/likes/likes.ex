@@ -8,7 +8,7 @@ defmodule MoodleNet.Likes do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
-  alias MoodleNet.Meta.{Pointable, Pointer, Pointers}
+  alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
@@ -32,10 +32,9 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  defp ap_publish(%Like{is_local: true} = like) do
-    MoodleNet.FeedPublisher.publish(%{"context_id" => like.id, "user_id" => like.creator_id})
+  defp ap_publish(user, %Like{is_local: true} = like) do
+    MoodleNet.FeedPublisher.publish(%{"context_id" => like.context_id, "user_id" => user.id})
   end
-
   defp ap_publish(_), do: :ok
 
   @doc """
@@ -56,7 +55,7 @@ defmodule MoodleNet.Likes do
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
                  :ok <- publish(liker, liked, like, "created"),
-                 :ok <- ap_publish(like) do
+                 :ok <- ap_publish(liker, like) do
               {:ok, like}
             end
         end

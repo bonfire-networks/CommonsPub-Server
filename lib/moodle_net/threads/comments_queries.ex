@@ -123,21 +123,13 @@ defmodule MoodleNet.Threads.CommentsQueries do
     limit(q, ^limit)
   end
 
-  def filter(q, {:page, [{order, [{field, page_opts}]}]}) do
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
     q
-    |> filter(order: [{order, field}])
-    |> page(page_opts, [{order, field}])
-  end
-
-  defp page(q, %{after: cursor, limit: limit}, [asc: :created]) do
-    filter q, id: {:gte, cursor}, limit: limit + 2
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
   end
 
   defp page(q, %{after: cursor, limit: limit}, [desc: :created]) do
-    filter q, id: {:lte, cursor}, limit: limit + 2
-  end
-
-  defp page(q, %{before: cursor, limit: limit}, [asc: :created]) do
     filter q, id: {:lte, cursor}, limit: limit + 2
   end
 
@@ -146,5 +138,4 @@ defmodule MoodleNet.Threads.CommentsQueries do
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
 end
