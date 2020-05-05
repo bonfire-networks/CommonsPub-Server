@@ -4,5 +4,6 @@ echo "Starting MoodleNet backend..."
 
 # This is horrific but we need to chown it with sufficient permissions
 chown -R root:nginx /var/run/s6/services
+chmod -R g+w /var/run/s6/services
 
 exec /opt/app/bin/moodle_net start 
