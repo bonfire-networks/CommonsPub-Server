@@ -76,7 +76,7 @@ defmodule MoodleNet.Meta.Pointers do
   def preload!(%{__struct__: _}=pointed, _), do: pointed
 
   defp preload_collate(loaded, pointers),
-    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.fetch!(loaded, p.id) } end)
+    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.get(loaded, p.id) } end)
 
   defp preload_load(pointers, opts) do
     force = Keyword.get(opts, :force, false)
