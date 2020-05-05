@@ -55,7 +55,7 @@ defmodule MoodleNet.ReleaseTasks do
   end
 
   def startup_migrations() do
-    if not is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
+    if is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
       start_repos()
       # create_repos()
       migrate_repos()
