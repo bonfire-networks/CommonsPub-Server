@@ -102,6 +102,9 @@ config :moodle_net, Uploads.IconUploader,
 config :moodle_net, Uploads.ImageUploader,
   allowed_media_types: image_media_types
 
+config :moodle_net, Uploads,
+  max_file_size: 20_000_000 # default to 20mb
+
  # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
   # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
