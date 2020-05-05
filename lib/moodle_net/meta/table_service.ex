@@ -104,7 +104,7 @@ defmodule MoodleNet.Meta.TableService do
     index = Enum.reduce(Introspection.ecto_schema_modules() ,%{}, fn module, acc ->
       schema_reduce(Introspection.ecto_schema_table(module), module, acc)
     end)
-    Enum.map(entries, &pair_schema(&1, Map.get(index, &1.table)))
+    Enum.reduce(entries, [], &pair_schema(&1, Map.get(index, &1.table), &2))
   end
 
   # Drop an entry where the table does not exist
@@ -112,14 +112,13 @@ defmodule MoodleNet.Meta.TableService do
   defp schema_reduce(table, module, acc), do: Map.put(acc, table, module)
 
   # Error if there was no matching schema, otherwise add it to the entry
-  defp pair_schema(entry, nil) do
+  defp pair_schema(_entry, nil, acc), do: acc
     # uncomment the following line if you want to auto-remove defunct tables from your meta table
     # MoodleNet.ReleaseTasks.remove_meta_table(entry.table) 
     # throw {:missing_schema, entry.table}
-    acc
-  end
+  # end
 
-  defp pair_schema(entry, schema), do: %{ entry | schema: schema }
+  defp pair_schema(entry, schema, acc), do: [%{ entry | schema: schema } | acc]
 
   defp populate_table(entries) do
     :ets.new(@table_name, [:named_table])
