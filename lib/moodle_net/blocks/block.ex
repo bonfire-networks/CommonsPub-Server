@@ -3,15 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks.Block do
   use MoodleNet.Common.Schema
-
   import MoodleNet.Common.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1]
-  import ProtocolEx
-
   alias Ecto.Changeset
   alias MoodleNet.Blocks
   alias MoodleNet.Blocks.Block
-  alias MoodleNet.Meta.{Pointable, Pointer}
+  alias MoodleNet.Meta.{Pointer}
   alias MoodleNet.Users.User
 
   @type t :: %Block{}
@@ -62,5 +59,13 @@ defmodule MoodleNet.Blocks.Block do
     |> change_muted()
     |> change_synced_timestamp(:is_blocked, :blocked_at)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Blocks
+
+  def queries_module, do: Blocks.Queries
+
+  def follow_filters, do: []
 
 end

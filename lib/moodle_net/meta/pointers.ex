@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
 
-  alias MoodleNet.Meta.{Pointable, Pointer, PointersQueries, TableService}
+  alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
   alias MoodleNet.Peers
   alias MoodleNet.Repo
 
@@ -102,8 +102,8 @@ defmodule MoodleNet.Meta.Pointers do
     loader(TableService.lookup_schema!(schema), filters)
   end
   defp loader(schema, filters) do
-    module = Pointable.queries_module(schema)
-    filters = Pointable.extra_filters(schema) ++ filters
+    module = apply(schema, :queries_module, [])
+    filters = apply(schema, :follow_filters, []) ++ filters
     {:ok, Repo.all(apply(module, :query, [schema, filters]))}
   end
 

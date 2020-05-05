@@ -154,7 +154,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
          followed = Pointers.follow!(follow.context),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
-        MoodleNet.Follows.undo(follow)
+        MoodleNet.Follows.soft_delete(follow)
         {:error, "account is private"}
       else
         # FIXME: insert pointer in AP database, insert cannonical URL in MN database

@@ -135,7 +135,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, follow_activity} = Publisher.follow(follow)
-      {:ok, unfollow} = Follows.undo(follow)
+      {:ok, unfollow} = Follows.soft_delete(follow)
 
       assert {:ok, unfollow_activity} = Publisher.unfollow(unfollow)
       assert unfollow_activity.data["object"]["id"] == follow_activity.data["id"]

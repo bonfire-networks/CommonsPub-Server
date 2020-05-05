@@ -15,13 +15,6 @@ defmodule MoodleNet.Threads.CommentsQueries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   def join_to(q, rel, jq \\ :left)
   def join_to(q, :thread, jq) do
     join q, jq, [comment: c], t in assoc(c, :thread), as: :thread
@@ -70,6 +63,14 @@ defmodule MoodleNet.Threads.CommentsQueries do
     where q, [comment: c], c.id == ^id
   end
 
+  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
+    where q, [comment: c], c.id >= ^id
+  end
+
+  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
+    where q, [comment: c], c.id <= ^id
+  end
+
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [comment: c], c.id in ^ids
   end
@@ -98,11 +99,11 @@ defmodule MoodleNet.Threads.CommentsQueries do
     where q, [comment: c], c.creator_id in ^ids
   end
 
-  def filter(q, {:order, :timeline_asc}) do
+  def filter(q, {:order, [asc: :created]}) do
     order_by(q, [comment: c], [asc: c.id])
   end
 
-  def filter(q, {:order, :timeline_desc}) do
+  def filter(q, {:order, [desc: :created]}) do
     order_by(q, [comment: c], [desc: c.id])
   end
   
@@ -118,4 +119,23 @@ defmodule MoodleNet.Threads.CommentsQueries do
     select(q, [comment: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:limit, limit}) when is_integer(limit) and limit > 0 do
+    limit(q, ^limit)
+  end
+
+  def filter(q, {:page, [desc: [created: page_opts]]}) do
+    q
+    |> filter(order: [desc: :created])
+    |> page(page_opts, [desc: :created])
+  end
+
+  defp page(q, %{after: cursor, limit: limit}, [desc: :created]) do
+    filter q, id: {:lte, cursor}, limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [desc: :created]) do
+    filter q, id: {:gte, cursor}, limit: limit + 2
+  end
+
+  defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 end

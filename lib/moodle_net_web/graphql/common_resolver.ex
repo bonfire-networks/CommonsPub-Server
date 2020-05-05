@@ -79,7 +79,8 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
          {:ok, pointer} <- Pointers.one(id: id) do
       context = Pointers.follow!(pointer)
       if allow_delete?(user, context) do
-        do_delete(context)
+        apply(context.__struct__, :context_module, [])
+        |> apply(:soft_delete, [context])
       else
         GraphQL.not_permitted("delete")
       end
@@ -87,17 +88,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
 
   # access
-  defp do_delete(%RegisterEmailAccess{}=r), do: MoodleNet.Common.soft_delete(r)
-  defp do_delete(%RegisterEmailDomainAccess{}=r), do: MoodleNet.Common.soft_delete(r)
-  defp do_delete(%Community{}=c), do: MoodleNet.Communities.soft_delete(c)
-  defp do_delete(%Collection{}=c), do: MoodleNet.Collections.soft_delete(c)
-  defp do_delete(%Resource{}=r), do: MoodleNet.Resources.soft_delete(r)
-  defp do_delete(%Comment{}=c), do: MoodleNet.Threads.Comments.soft_delete(c)
-  defp do_delete(%Feature{}=f), do: MoodleNet.Features.soft_delete(f)
-  defp do_delete(%Thread{}=t), do: MoodleNet.Threads.soft_delete(t)
-  defp do_delete(%Follow{}=f), do: MoodleNet.Follows.undo(f)
-  defp do_delete(%Flag{}=f), do: MoodleNet.Flags.resolve(f)
-  defp do_delete(%Like{}=l), do: MoodleNet.Likes.undo(l)
 
   defp do_delete(%User{}=u) do
     with {:ok, u} <- MoodleNet.Users.one([:default, id: u.id]) do

@@ -2,12 +2,12 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Flags do
-  import ProtocolEx
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Common.Contexts
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
-  alias MoodleNet.Meta.{Pointable, Pointers, Table}
+  alias MoodleNet.Meta.{Pointers, Table}
   alias MoodleNet.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Flag, filters))
@@ -41,26 +41,22 @@ defmodule MoodleNet.Flags do
 
   defp really_create(flagger, flagged, community, fields) do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
-         {:ok, activity} <- insert_activity(flagger, flag, "created") do
-      publish(flagger, flagged, flag, community, "created")
-      federate(flag)
+         {:ok, activity} <- insert_activity(flagger, flag, "created"),
+         # :ok <- publish(flagger, flagged, flag, community, "created"),
+         :ok <- ap_publish(flagger, flag) do
+      {:ok, flag}
     end
   end
 
-  # TODO: different for remote/local?
-  defp publish(flagger, flagged, flag, community, verb) do
-    {:ok, flag}
-  end
+  defp publish(flagger, flagged, flag, community, verb), do: :ok
 
-  defp federate(%Flag{is_local: true} = flag) do
-    :ok = MoodleNet.FeedPublisher.publish(%{
-      "context_id" => flag.context_id,
-      "user_id" => flag.creator_id,
-                                          })
-    {:ok, flag}
-  end
+  defp ap_publish(%Flag{creator_id: id}=flag), do: ap_publish(%{id: id}, flag)
 
-  defp federate(flag), do: {:ok, flag}
+  # defp ap_publish(user, %Flag{is_local: true} = flag) do
+  #   FeedPublisher.publish(%{"context_id" => flag.id, "user_id" => user.id})
+  # end
+
+  defp ap_publish(_, _), do: :ok
 
   defp insert_activity(flagger, flag, verb) do
     Activities.create(flagger, flag, %{verb: verb, is_local: flag.is_local})
@@ -70,17 +66,13 @@ defmodule MoodleNet.Flags do
     Repo.insert(Flag.create_changeset(flagger, community, flagged, fields))
   end
 
-  def resolve(%Flag{} = flag) do
+  def soft_delete(%Flag{} = flag) do
     Repo.transact_with(fn ->
       with {:ok, flag} <- Common.soft_delete(flag),
-        :ok <- federate(flag) do
+           :ok <- ap_publish(flag) do
         {:ok, flag}
       end
     end)
-  end
-
-  defimpl_ex FlagPointable, Flag, for: Pointable do
-    def queries_module(_), do: Queries
   end
 
 end

@@ -2,14 +2,13 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
-  import ProtocolEx
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page, Pages}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Communities.{Community, Queries}
+  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
@@ -72,7 +71,8 @@ defmodule MoodleNet.Communities do
            act_attrs = %{verb: "created", is_local: is_nil(actor.peer_id)},
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
-           :ok <- publish(creator, comm, activity, :created) do
+           :ok <- publish(creator, comm, activity, :created),
+           :ok <- ap_publish(creator, comm) do
         {:ok, comm}
       end
     end)
@@ -103,24 +103,18 @@ defmodule MoodleNet.Communities do
 
   defp publish(creator, community, activity, :created) do
     feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(community.id, creator.id, community.actor.peer_id)
-    end
+    FeedActivities.publish(activity, feeds)
   end
-  defp publish(community, :updated) do
-    ap_publish(community.id, community.creator_id, community.actor.peer_id) # TODO: wrong if edited by admin
-  end
-  defp publish(community, :deleted) do
-    ap_publish(community.id, community.creator_id, community.actor.peer_id) # TODO: wrong if edited by admin
-  end
+  defp publish(community, :updated), do: :ok
+  defp publish(community, :deleted), do: :ok
 
-  defp ap_publish(context_id, user_id, nil) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
+  ### HACK FIXME
+  defp ap_publish(%{creator_id: id}=community), do: ap_publish(%{id: id}, community)
+
+  defp ap_publish(user, %{actor: %{peer_id: nil}}=community) do
+    FeedPublisher.publish(%{ "context_id" => community.id, "user_id" => user.id })
   end
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
@@ -128,8 +122,9 @@ defmodule MoodleNet.Communities do
       with {:ok, comm} <- Repo.update(Community.update_changeset(community, attrs)),
            {:ok, actor} <- Actors.update(community.actor, attrs),
            community <- %{ comm | actor: actor },
-           :ok <- publish(community, :updated)  do
-        {:ok, %{ comm | actor: actor}}
+           :ok <- publish(community, :updated),
+           :ok <- ap_publish(community) do 
+        {:ok, community}
       end
     end)
   end
@@ -148,7 +143,8 @@ defmodule MoodleNet.Communities do
   def soft_delete(%Community{} = community) do
     Repo.transact_with(fn ->
       with {:ok, community} <- Common.soft_delete(community),
-           :ok <- publish(community, :deleted) do
+           :ok <- publish(community, :deleted),
+           :ok <- ap_publish(community) do
         {:ok, community}
       end
     end)
@@ -163,11 +159,6 @@ defmodule MoodleNet.Communities do
   def default_outbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
-
-  defimpl_ex CommunityPointable, Community, for: Pointable do
-    def queries_module(_), do: Queries
-    def extra_filters(_), do: [:default]
   end
 
 end

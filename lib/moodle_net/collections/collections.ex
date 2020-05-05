@@ -2,17 +2,17 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  import ProtocolEx
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
+  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
+
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
   @doc """
@@ -30,40 +30,6 @@ defmodule MoodleNet.Collections do
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
-
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    {:ok, fields} = many(filters)
-    {:ok, Fields.new(fields, group_fn)}
-  end
-
-  @doc """
-  Retrieves an Page of collections according to various filters
-
-  Used by:
-  * GraphQL resolver single-parent resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(Collection, base_filters)
-    data_q = Queries.filter(base_q, data_filters)
-    count_q = Queries.filter(base_q, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
-    end
-  end
-
-  @doc """
-  Retrieves an Pages of collections according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Collection,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
 
   ## mutations
   defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: coll_username}) do
@@ -84,6 +50,7 @@ defmodule MoodleNet.Collections do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community, coll, activity, :created),
+           :ok <- ap_publish(creator, coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
         {:ok, coll}
       end
@@ -117,24 +84,18 @@ defmodule MoodleNet.Collections do
       community.outbox_id, creator.outbox_id,
       collection.outbox_id, Feeds.instance_outbox_id(),
     ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(collection.id, creator.id, collection.actor.peer_id)
-    end
+    FeedActivities.publish(activity, feeds)
   end
-  defp publish(collection, :updated) do
-    ap_publish(collection.id, collection.creator_id, collection.actor.peer_id) # TODO: wrong if edited by admin
-  end
-  defp publish(collection, :deleted) do
-    ap_publish(collection.id, collection.creator_id, collection.actor.peer_id) # TODO: wrong if edited by admin
-  end
+  defp publish(collection, :updated), do: :ok
+  defp publish(collection, :deleted), do: :ok
 
-  defp ap_publish(context_id, user_id, nil) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
+  ### HACK FIXME
+  defp ap_publish(%{creator_id: id}=collection), do: ap_publish(%{id: id}, collection)
+
+  defp ap_publish(user, %{actor: %{peer_id: nil}}=collection) do
+    FeedPublisher.publish(%{"context_id" => collection.id, "user_id" => user.id})
   end
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
@@ -143,8 +104,10 @@ defmodule MoodleNet.Collections do
       collection = Repo.preload(collection, :community)
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
            {:ok, actor} <- Actors.update(collection.actor, attrs),
-           :ok <- publish(collection, :updated) do
-        {:ok, %{ collection | actor: actor }}
+           collection = %{collection | actor: actor},
+           :ok <- publish(collection, :updated),
+           :ok <- ap_publish(collection) do
+        {:ok, collection}
       end
     end)
   end
@@ -152,7 +115,8 @@ defmodule MoodleNet.Collections do
   def soft_delete(%Collection{} = collection) do
     Repo.transact_with(fn ->
       with {:ok, collection} <- Common.soft_delete(collection),
-           :ok <- publish(collection, :deleted) do
+           :ok <- publish(collection, :deleted),
+           :ok <- ap_publish(collection) do 
         {:ok, collection}
       end
     end)
@@ -162,11 +126,6 @@ defmodule MoodleNet.Collections do
   def default_outbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
-
-  defimpl_ex CollectionPointable, Collection, for: Pointable do
-    def queries_module(_), do: Queries
-    def extra_filters(_), do: [:default]
   end
 
 end

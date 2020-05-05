@@ -9,6 +9,7 @@ defmodule MoodleNet.Resources.Resource do
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Resources
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
@@ -62,5 +63,13 @@ defmodule MoodleNet.Resources.Resource do
     |> change_disabled()
     |> change_public()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Resources
+
+  def queries_module, do: Resources.Queries
+
+  def follow_filters, do: []
 
 end
