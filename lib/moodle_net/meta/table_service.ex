@@ -115,7 +115,8 @@ defmodule MoodleNet.Meta.TableService do
   defp pair_schema(entry, nil) do
     # uncomment the following line if you want to auto-remove defunct tables from your meta table
     # MoodleNet.ReleaseTasks.remove_meta_table(entry.table) 
-    throw {:missing_schema, entry.table}
+    # throw {:missing_schema, entry.table}
+    acc
   end
 
   defp pair_schema(entry, schema), do: %{ entry | schema: schema }
