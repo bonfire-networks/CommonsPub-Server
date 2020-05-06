@@ -61,7 +61,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
          content_url <- MoodleNet.Uploads.remote_url_from_id(resource.content_id),
          icon_url <- MoodleNet.Uploads.remote_url_from_id(resource.icon_id),
-         resource <- MoodleNet.Repo.preload(resource, :content),
          object <- %{
            "name" => resource.name,
            "url" => content_url,
