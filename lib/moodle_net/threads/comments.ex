@@ -20,38 +20,6 @@ defmodule MoodleNet.Threads.Comments do
 
   def many(filters \\ []), do: {:ok, Repo.all(CommentsQueries.query(Comment, filters))}
 
-  defp publish(creator, thread, comment, activity, :created) do
-    feeds = context_feeds(thread.context.pointed) ++ [
-      creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    FeedActivities.publish(activity, feeds)
-  end
-  defp publish(comment, :updated), do: :ok
-  defp publish(comment, :deleted), do: :ok
-
-  defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
-
-  defp ap_publish(user, %{is_local: true}=comment) do
-    FeedPublisher.publish(%{"context_id" => comment.id, "user_id" => user.id})
-  end
-  defp ap_publish(_, _), do: :ok
-
-  defp context_feeds(%Resource{}=resource) do
-    r = Repo.preload(resource, [collection: [:community]])
-    [r.collection.outbox_id, r.collection.community.outbox_id]
-  end
-
-  defp context_feeds(%Collection{}=collection) do
-    c = Repo.preload(collection, [:community])
-    [c.outbox_id, c.community.outbox_id]
-  end
-
-  defp context_feeds(%Community{outbox_id: id}), do: [id]
-  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
-  defp context_feeds(_), do: []
-
-  # Comments
-
   @doc """
   Return a list of public, non-deleted, unhidden comments contained in a thread.
 
@@ -170,12 +138,48 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   @spec soft_delete(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete(%Comment{is_local: true} = comment) do
+  def soft_delete(%Comment{} = comment) do
     with {:ok, deleted} <- Common.soft_delete(comment),
          :ok <- publish(comment, :deleted),
          :ok <- ap_publish(comment) do
       {:ok, deleted}
     end
   end
+
+  def soft_delete_by(filters) do
+    CommentsQueries.query(Comment)
+    |> CommentsQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp publish(creator, thread, comment, activity, :created) do
+    feeds = context_feeds(thread.context.pointed) ++ [
+      creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
+    ]
+    FeedActivities.publish(activity, feeds)
+  end
+  defp publish(comment, :updated), do: :ok
+  defp publish(comment, :deleted), do: :ok
+
+  defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
+
+  defp ap_publish(user, %{is_local: true}=comment) do
+    FeedPublisher.publish(%{"context_id" => comment.id, "user_id" => user.id})
+  end
+  defp ap_publish(_, _), do: :ok
+
+  defp context_feeds(%Resource{}=resource) do
+    r = Repo.preload(resource, [collection: [:community]])
+    [r.collection.outbox_id, r.collection.community.outbox_id]
+  end
+
+  defp context_feeds(%Collection{}=collection) do
+    c = Repo.preload(collection, [:community])
+    [c.outbox_id, c.community.outbox_id]
+  end
+
+  defp context_feeds(%Community{outbox_id: id}), do: [id]
+  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+  defp context_feeds(_), do: []
 
 end
