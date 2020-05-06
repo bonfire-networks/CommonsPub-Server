@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ResourcesTest do
-  use MoodleNet.DataCase, async: true
+  use MoodleNet.DataCase
   import MoodleNet.Test.Faking
   alias MoodleNet.{Collections, Resources, Repo}
   alias MoodleNet.Users.User

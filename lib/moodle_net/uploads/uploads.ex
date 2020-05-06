@@ -125,16 +125,24 @@ defmodule MoodleNet.Uploads do
     {:error, :both_url_and_upload_should_not_be_set}
   end
 
-  defp parse_file(%{url: url} = file) when is_binary(url) do
-    with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+  if Mix.env == :test do
+    # FIXME: seriously don't do this, send help
+    defp parse_file(%{url: url} = file) when is_binary(url) do
+      {:ok, file_info} = MoodleNet.MockFileParser.from_uri(url)
       {:ok, Map.merge(file, file_info)}
-    else
-      # match behaviour of uploads
-      {:error, {:request_failed, 404}} -> {:error, :enoent}
+    end
+  else
+    defp parse_file(%{url: url} = file) when is_binary(url) do
+      with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+        {:ok, Map.merge(file, file_info)}
+      else
+        # match behaviour of uploads
+        {:error, {:request_failed, 404}} -> {:error, :enoent}
       {:error, {:request_failed, 403}} -> {:error, :forbidden}
-      {:error, :bad_request} -> {:error, :bad_request}
+        {:error, :bad_request} -> {:error, :bad_request}
       {:error, {:tls_alert, _}} -> {:error, :tls_alert}
-      {:error, other} -> {:error, other}
+        {:error, other} -> {:error, other}
+      end
     end
   end
 
