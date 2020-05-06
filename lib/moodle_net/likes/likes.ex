@@ -33,7 +33,7 @@ defmodule MoodleNet.Likes do
   end
 
   defp ap_publish(%Like{is_local: true} = like) do
-    MoodleNet.FeedPublisher.publish(%{"context_id" => like.context_id, "user_id" => like.creator_id})
+    MoodleNet.FeedPublisher.publish(%{"context_id" => like.id, "user_id" => like.creator_id})
   end
 
   defp ap_publish(_), do: :ok
