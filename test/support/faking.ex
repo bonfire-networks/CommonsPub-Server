@@ -14,6 +14,7 @@ defmodule MoodleNet.Test.Faking do
     Features,
     Likes,
     Peers,
+    Uploads,
     Users,
     Localisation,
     Resources,
@@ -80,6 +81,16 @@ defmodule MoodleNet.Test.Faking do
     token
   end
 
+  def fake_content!(%User{}=user, overrides) do
+    {:ok, content} = Uploads.upload(
+      MoodleNet.Uploads.ResourceUploader,
+      user,
+      Fake.content_input(overrides),
+      %{}
+    )
+    content
+  end
+
   def fake_community!(user, overrides \\ %{})
   def fake_community!(%User{}=user, %{}=overrides) do
     {:ok, community} = Communities.create(user, Fake.community(overrides))
@@ -92,7 +103,11 @@ defmodule MoodleNet.Test.Faking do
   end
 
   def fake_resource!(user, collection, overrides \\ %{}) when is_map(overrides) do
-    {:ok, resource} = Resources.create(user, collection, Fake.resource(overrides))
+    attrs = overrides
+    |> Fake.resource()
+    |> Map.put(:content_id, fake_content!(user, overrides).id)
+
+    {:ok, resource} = Resources.create(user, collection, attrs)
     resource
   end
 
