@@ -171,8 +171,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
+    FetchFields.run(
+      %FetchFields{
+        queries: Communities.Queries,
+        query: Communities.Community,
+        group_fn: &(&1.id),
+        filters: [:default, id: ids],
+      }
+    )
   end
 
   def last_activity_edge(_, _, _info) do
