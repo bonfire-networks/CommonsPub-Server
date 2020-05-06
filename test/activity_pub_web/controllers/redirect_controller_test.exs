@@ -34,7 +34,7 @@ defmodule ActivityPub.RedirectControllerTest do
       collection = fake_collection!(user, community)
       resource = fake_resource!(user, collection)
 
-      MoodleNet.ActivityPub.Publisher.create_resource(resource)
+      Oban.drain_queue(:mn_ap_publish)
       ap_resource = ActivityPub.Object.get_by_pointer_id(resource.id)
 
       resp =
