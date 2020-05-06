@@ -33,7 +33,7 @@ defmodule ActivityPubWeb.RedirectController do
 
           case mn_object do
             %Comment{} ->
-              redirect(conn, external: frontend_base <> "/threads/" <> mn_object.thread_id)
+              redirect(conn, external: frontend_base <> "/thread/" <> mn_object.thread_id)
 
             %Resource{} ->
               redirect(conn,

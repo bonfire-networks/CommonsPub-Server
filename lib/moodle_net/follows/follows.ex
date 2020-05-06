@@ -65,7 +65,7 @@ defmodule MoodleNet.Follows do
             with {:ok, follow} <- insert(follower, followed, fields),
                  :ok <- subscribe(follower, followed, follow),
                  :ok <- publish(follower, followed, follow, :created),
-                 :ok <- ap_publish(follow, opts) do
+                 :ok <- ap_publish(follower, follow) do
               {:ok, %{follow | ctx: followed}}
             end
         end
@@ -87,9 +87,9 @@ defmodule MoodleNet.Follows do
   end
 
   defp ap_publish(%{creator_id: id}=follow), do: ap_publish(%{id: id}, follow)
-    
+
   defp ap_publish(user, %Follow{is_local: true} = follow) do
-    FeedPublisher.publish(%{"context_id" => follow.context_id, "user_id" => user.id})
+    FeedPublisher.publish(%{"context_id" => follow.id, "user_id" => user.id})
   end
   defp ap_publish(_, _), do: :ok
 
