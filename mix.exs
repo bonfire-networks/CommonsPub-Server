@@ -132,7 +132,8 @@ defmodule MoodleNet.Mixfile do
       {:stream_data, "~> 0.4"},                     # property testing
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}, # doc gen
-      {:excoveralls, "~> 0.10", only: :test} # test coverage statistics
+      {:excoveralls, "~> 0.10", only: :test}, # test coverage statistics
+      {:mock, "~> 0.3.3", only: :test} # module mocking
     ]
   end
 

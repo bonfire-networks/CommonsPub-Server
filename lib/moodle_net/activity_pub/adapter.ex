@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Collections, Communities, Repo, Resources, Threads, Users}
+  alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
   alias MoodleNet.Algolia.Indexer
   alias MoodleNet.Meta.Pointers
@@ -424,13 +424,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
       case object.data["formerType"] do
         "Note" ->
           with {:ok, comment} <- Comments.one(id: object.mn_pointer_id),
-               {:ok, _} <- Comments.soft_delete(comment) do
+               {:ok, _} <- Common.soft_delete(comment) do
             :ok
           end
 
         "Document" ->
           with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
-               {:ok, _} <- Resources.soft_delete(resource) do
+               {:ok, _} <- Common.soft_delete(resource) do
             :ok
           end
       end
