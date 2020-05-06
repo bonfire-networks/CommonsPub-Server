@@ -247,25 +247,4 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  # def delete(%{collection_id: id}, info) do
-  #   # Repo.transact_with(fn ->
-  #   #   with {:ok, user} <- GraphQL.current_user(info),
-  #   #        {:ok, actor} <- Users.fetch_actor(user),
-  #   #        {:ok, collection} <- Collections.fetch(id) do
-  #   #     collection = Repo.preload(collection, :community)
-  #   # 	permitted =
-  #   # 	  user.is_instance_admin or
-  #   #       collection.creator_id == actor.id or
-  #   #       collection.community.creator_id == actor.id
-  #   # 	if permitted do
-  #   # 	  with {:ok, _} <- Collections.soft_delete(collection), do: {:ok, true}
-  #   # 	else
-  #   # 	  GraphQL.not_permitted()
-  #   #     end
-  #   #   end
-  #   # end)
-  #   # |> GraphQL.response(info)
-  #   {:ok, true}
-  #   |> GraphQL.response(info)
-  # end
 end
