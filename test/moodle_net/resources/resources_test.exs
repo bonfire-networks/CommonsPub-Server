@@ -30,7 +30,8 @@ defmodule MoodleNet.ResourcesTest do
   describe "create" do
     test "creates a new resource given valid attributes", context do
       Repo.transaction(fn ->
-        attrs = Fake.resource()
+        content = fake_content!(context.user)
+        attrs = Fake.resource() |> Map.put(:content_id, content.id)
 
         assert {:ok, resource} =
                  Resources.create(
@@ -40,6 +41,7 @@ defmodule MoodleNet.ResourcesTest do
                  )
 
         assert resource.name == attrs[:name]
+        assert resource.content_id == content.id
       end)
     end
 
