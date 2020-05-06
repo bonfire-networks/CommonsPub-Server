@@ -113,6 +113,12 @@ defmodule MoodleNet.Follows do
     end)
   end
 
+  def soft_delete_by(filters) do
+    Queries.query(Follow)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
   def soft_delete(%Follow{is_local: false} = follow) do
     Common.soft_delete(follow)
   end

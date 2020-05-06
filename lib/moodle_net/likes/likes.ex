@@ -80,6 +80,12 @@ defmodule MoodleNet.Likes do
     end)
   end
 
+  def soft_delete_by(filters) do
+    Queries.query(Like)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
   defp valid_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)

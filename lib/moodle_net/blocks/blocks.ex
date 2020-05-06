@@ -29,4 +29,10 @@ defmodule MoodleNet.Blocks do
   @spec delete(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete(%Block{} = block), do: Common.soft_delete(block)
 
+  def soft_delete_by(filters) do
+    Queries.query(Block)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
 end

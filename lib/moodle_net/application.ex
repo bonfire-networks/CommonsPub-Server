@@ -7,7 +7,7 @@ defmodule MoodleNet.Application do
   """
   use Application
   alias MoodleNet.Repo
-  alias MoodleNet.Localisation.{CountryService, LanguageService}
+  # alias MoodleNet.Localisation.{CountryService, LanguageService}
   alias MoodleNet.Meta.TableService
   alias MoodleNetWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]

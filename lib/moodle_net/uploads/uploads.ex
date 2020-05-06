@@ -9,7 +9,15 @@ defmodule MoodleNet.Uploads do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.{Content, ContentUpload, ContentMirror, Storage, Queries}
+  alias MoodleNet.Uploads.{
+    Content,
+    ContentUpload,
+    ContentUploadQueries,
+    ContentMirror,
+    ContentMirrorQueries,
+    Storage,
+    Queries,
+  }
 
   def one(filters), do: Repo.single(Queries.query(Content, filters))
 
@@ -91,6 +99,24 @@ defmodule MoodleNet.Uploads do
 
   def remote_url_from_id(_), do: nil
 
+  def update_by(filters, updates) do
+    Queries.query(Content)
+    |> Queries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  def update_by(ContentMirror, filters, updates) do
+    ContentMirrorQueries.query(ContentMirror)
+    |> ContentMirrorQueries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  def update_by(ContentUpload, filters, updates) do
+    ContentUploadQueries.query(ContentUpload)
+    |> ContentUploadQueries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
   @doc """
   Delete an upload, removing it from indexing, but the files remain available.
   """
@@ -110,6 +136,38 @@ defmodule MoodleNet.Uploads do
     end)
 
     with {:ok, v} <- resp, do: v
+  end
+
+  def hard_delete() do
+    {_, work} = delete_by(deleted: true)
+    {mirrors, uploads} = Enum.reduce(work, {[],[]}, fn item, {mirrors, uploads} ->
+      case item do
+        %{content_mirror_id: nil, content_upload_id: nil} -> {mirrors, uploads}
+        %{content_mirror_id: m, content_upload_id: nil} -> {[ m | mirrors ], uploads}
+        %{content_mirror_id: nil, content_upload_id: u} -> {mirrors, [ u | uploads ]}
+        %{content_mirror_id: m, content_upload_id: u} -> {[ m | mirrors ], [ u | uploads ]}
+      end
+    end)
+    delete_by(ContentMirror, id: mirrors)
+    delete_by(ContentUpload, id: uploads)
+  end
+  
+  defp delete_by(filters) do
+    Queries.query(Content)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp delete_by(ContentMirror, filters) do
+    ContentMirrorQueries.query(ContentMirror)
+    |> ContentMirrorQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp delete_by(ContentUpload, filters) do
+    ContentUploadQueries.query(ContentUpload)
+    |> ContentUploadQueries.filter(filters)
+    |> Repo.delete_all()
   end
 
   defp is_remote_file?(%{url: url}), do: is_remote_file?(url)
@@ -175,4 +233,5 @@ defmodule MoodleNet.Uploads do
         end
     end
   end
+
 end

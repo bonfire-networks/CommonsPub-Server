@@ -63,6 +63,12 @@ defmodule MoodleNet.Threads do
     end)
   end
 
+  def soft_delete_by(filters) do
+    Queries.query(Thread)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
   # defp context_feeds(%Resource{}=resource) do
   #   r = Repo.preload(resource, [collection: [:community]])
   #   [r.collection.outbox_id, r.collection.community.outbox_id]

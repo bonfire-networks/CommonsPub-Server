@@ -16,26 +16,6 @@ defmodule MoodleNet.Communities.Queries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
-  def join_to(q, spec, join_qualifier \\ :left)
-
-  def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [community: c], f in Follow, as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-  end
-
-  def join_to(q, :follower_count, jq) do
-    join q, jq, [community: c],
-      fc in FollowerCount, on: c.id == fc.context_id,
-      as: :follower_count
-  end
-
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
@@ -196,6 +176,17 @@ defmodule MoodleNet.Communities.Queries do
     |> select([community: c], {field(c, ^key), count(c.id)})
   end
 
+  defp join_to(q, spec, join_qualifier \\ :left)
 
+  defp join_to(q, {:follow, follower_id}, jq) do
+    join q, jq, [community: c], f in Follow, as: :follow,
+      on: c.id == f.context_id and f.creator_id == ^follower_id
+  end
+
+  defp join_to(q, :follower_count, jq) do
+    join q, jq, [community: c],
+      fc in FollowerCount, on: c.id == fc.context_id,
+      as: :follower_count
+  end
 
 end

@@ -247,6 +247,12 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  def soft_delete_by(filters) do
+    Queries.query(User)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def make_instance_admin(%User{} = user) do
     cs = LocalUser.make_instance_admin_changeset(user.local_user)

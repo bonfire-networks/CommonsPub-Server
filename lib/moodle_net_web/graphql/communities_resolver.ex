@@ -163,7 +163,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         page_opts: page_opts,
         base_filters: [:deleted, feed: id, table: tables],
         data_filters: [page: [desc: [created: page_opts]]],
-      }          
+      }
     )
   end
 

@@ -21,4 +21,10 @@ defmodule MoodleNet.Feeds.FeedSubscriptions do
     |> Repo.insert()
   end
 
+  def soft_delete_by(filters) do
+    FeedSubscriptionsQueries.query(FeedSubscription)
+    |> FeedSubscriptionsQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
 end

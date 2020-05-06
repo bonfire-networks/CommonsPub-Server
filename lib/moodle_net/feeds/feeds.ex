@@ -22,4 +22,10 @@ defmodule MoodleNet.Feeds do
 
   def create(), do: Repo.insert(Feed.create_changeset())
 
+  def soft_delete_by(filters) do
+    Queries.query(Feed)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
 end

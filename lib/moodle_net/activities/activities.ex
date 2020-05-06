@@ -58,7 +58,19 @@ defmodule MoodleNet.Activities do
   def update(%Activity{} = activity, %{} = attrs),
     do: Repo.update(Activity.update_changeset(activity, attrs))
 
+  def update_by(filters, updates) do
+    Queries.query(Activity)
+    |> Queries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  defp update_by_result({count, _}), do: {:ok, count}
+
   @spec soft_delete(Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
   def soft_delete(%Activity{} = activity), do: Common.soft_delete(activity)
+
+  def soft_delete_by(filters) do
+    update_by([:delete, select: :id] ++ filters, deleted_at: DateTime.utc_now())
+  end
 
 end

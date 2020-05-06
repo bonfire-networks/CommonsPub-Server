@@ -3,10 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
   alias Ecto.Changeset
-  alias Ecto.Association.NotLoaded
-  alias MoodleNet.{Activities, Common, Collections, Feeds, Repo}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.GraphQL.Fields
+  alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
@@ -50,13 +47,16 @@ defmodule MoodleNet.Resources do
     Activities.create(creator, resource, attrs)
   end
 
-  defp publish(_creator, collection, resource, activity, :created) do
+  defp publish(_creator, collection, _resource, activity, :created) do
     community = Repo.preload(collection, :community).community
     feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
-  defp publish(resource, :updated), do: :ok
-  defp publish(resource, :deleted), do: :ok
+  defp publish(_resource, :updated), do: :ok
+  defp publish(resource, :deleted) do
+    Activities.update_by([context_id: resource.id], deleted_at: DateTime.utc_now())
+    :ok
+  end
 
   defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
 
@@ -87,6 +87,12 @@ defmodule MoodleNet.Resources do
          :ok <- ap_publish(resource) do
       {:ok, deleted}
     end
+  end
+
+  def soft_delete_by(filters) do
+    Queries.query(Resource)
+    |> Queries.filter([:delete | filters])
+    |> Repo.update_all()
   end
 
   ### behaviour callbacks

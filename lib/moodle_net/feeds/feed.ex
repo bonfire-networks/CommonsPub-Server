@@ -8,6 +8,7 @@ defmodule MoodleNet.Feeds.Feed do
   alias MoodleNet.Feeds
 
   table_schema "mn_feed" do
+    field :deleted_at, :utc_datetime_usec
   end
 
   @doc "Creates a new feed in the database"

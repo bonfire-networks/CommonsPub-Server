@@ -27,15 +27,17 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
         fetcher: :fetch_collection_edge,
         context: id,
         info: info,
-        getter_fn: fn edges ->
-          ret =
-            edges
-            |> Map.get(id, %{})
-            |> Map.get(:actor, %{})
-            |> Map.get(:peer_id)
-            |> is_nil()
-          {:ok, ret}
-        end
+        getter_fn: fn _context, _default ->
+          fn edges ->
+            ret =
+              edges
+              |> Map.get(id, %{})
+              |> Map.get(:actor, %{})
+              |> Map.get(:peer_id)
+              |> is_nil()
+            {:ok, ret}
+          end
+        end,
       }
     )
   end

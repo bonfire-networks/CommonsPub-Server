@@ -75,4 +75,10 @@ defmodule MoodleNet.Flags do
     end)
   end
 
+  def soft_delete_by(filters) do
+    Queries.query(Flag)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
 end

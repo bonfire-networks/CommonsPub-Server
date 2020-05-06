@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
-  alias MoodleNet.GraphQL.{Fields, Page}
-  alias MoodleNet.Common.Contexts
   alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
   alias MoodleNet.FeedPublisher
@@ -120,6 +118,22 @@ defmodule MoodleNet.Collections do
         {:ok, collection}
       end
     end)
+  end
+
+  def soft_delete(%Collection{} = collection) do
+    Repo.transact_with(fn ->
+      with {:ok, collection} <- Common.soft_delete(collection),
+           :ok <- publish(collection, :deleted),
+           :ok <- ap_publish(collection) do 
+        {:ok, collection}
+      end
+    end)
+  end
+
+  def soft_delete_by(filters) do
+    Queries.query(Collection)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
   end
 
   @doc false
