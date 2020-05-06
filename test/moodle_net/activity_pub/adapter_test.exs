@@ -333,8 +333,8 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
     test "comment deletes" do
       actor = fake_user!()
       commented_actor = fake_user!()
-      thread = fake_thread!(actor, commented_actor)
-      comment = fake_comment!(actor, thread)
+      thread = fake_thread!(actor, commented_actor, %{is_local: false})
+      comment = fake_comment!(actor, thread, %{is_local: false})
       {:ok, activity} = MoodleNet.ActivityPub.Publisher.comment(comment)
       object = ActivityPub.Object.get_by_ap_id(activity.data["object"])
       ActivityPub.delete(object, false)

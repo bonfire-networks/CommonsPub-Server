@@ -39,12 +39,12 @@ defmodule MoodleNet.ActivityPub.Publisher do
            } do
         ActivityPub.create(params, comment.id)
       else
-        _e -> :error
+        e -> {:error, e}
       end
     rescue
-      _ -> :error
+      e -> {:error, e}
     catch
-      _ -> :error
+      e -> {:error, e}
     end
   end
 
@@ -52,7 +52,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     with %ActivityPub.Object{} = object <- ActivityPub.Object.get_cached_by_pointer_id(comment.id) do
       ActivityPub.delete(object)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -90,7 +90,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
       {:ok, activity}
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -139,7 +139,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
       {:ok, activity}
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -161,7 +161,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
         ActivityPub.follow(follower, followed)
       end
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -173,7 +173,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       ActivityPub.unfollow(follower, followed)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -186,7 +186,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
       # FIXME: insert pointer in AP database, insert cannonical URL in MN database
       ActivityPub.block(blocker, blocked)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -198,7 +198,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, blocked} <- Actor.get_or_fetch_by_username(blocked.actor.preferred_username) do
       ActivityPub.unblock(blocker, blocked)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -210,7 +210,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
       object = Utils.get_object(liked)
       ActivityPub.like(liker, object)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -222,7 +222,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
       object = Utils.get_object(liked)
       ActivityPub.unlike(liker, object)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -270,7 +270,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
         flag.id
       )
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
@@ -288,7 +288,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
       ActivityPub.update(params)
       ActivityPub.Actor.set_cache(actor)
     else
-      _e -> :error
+      e -> {:error, e}
     end
   end
 
