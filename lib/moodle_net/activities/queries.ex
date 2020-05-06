@@ -181,4 +181,10 @@ defmodule MoodleNet.Activities.Queries do
     filter(q, order: [desc: :created], limit: l + 1)
   end
 
+  ## preload
+
+  def filter(q, {:preload, :context}) do
+    preload q, [context: c], [context: c]
+  end
+
 end
