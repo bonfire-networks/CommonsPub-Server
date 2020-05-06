@@ -22,6 +22,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
 
     test "it federates a reply to a comment" do
       actor = fake_user!()
+      reply_actor = fake_user!()
       commented_actor = fake_user!()
       thread = fake_thread!(actor, commented_actor, %{is_local: true})
       comment = fake_comment!(actor, thread)
@@ -29,13 +30,15 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
       Publisher.comment(comment)
 
       {:ok, reply} =
-        MoodleNet.Threads.Comments.create_reply(actor, thread, comment, %{
+        MoodleNet.Threads.Comments.create_reply(reply_actor, thread, comment, %{
           content: "test",
           is_local: true
         })
 
       assert {:ok, activity} = Publisher.comment(reply)
       assert activity.object.data["inReplyTo"]
+      assert activity.data["actor"] not in activity.object.data["to"]
+      assert length(activity.object.data["to"]) == 3
     end
 
     test "it deletes a comment" do
