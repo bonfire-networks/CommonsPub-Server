@@ -227,17 +227,19 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
       )
       when not is_nil(in_reply_to) do
-    with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to), # This will fail if the reply isn't in database
+    # This will fail if the reply isn't in database
+    with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, _} <-
+         {:ok, comment} <-
            Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
              canonical_url: object.data["id"]
            }) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: comment.id})
       :ok
     else
       {:error, e} -> {:error, e}
@@ -253,13 +255,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
          parent = Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
-         {:ok, _} <-
+         {:ok, comment} <-
            Comments.create(actor, thread, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
              canonical_url: object.data["id"]
            }) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: comment.id})
       :ok
     else
       {:error, e} -> {:error, e}
@@ -295,6 +298,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          },
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: resource.id})
       Indexer.maybe_index_object(resource)
       :ok
     else
