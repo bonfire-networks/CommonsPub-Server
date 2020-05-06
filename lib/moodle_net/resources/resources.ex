@@ -60,9 +60,10 @@ defmodule MoodleNet.Resources do
 
   defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
 
-  defp ap_publish(user, %{collection: %{actor: %{peer_id: nil}}}=resource) do
+  defp ap_publish(%User{} = user, %Resource{} = resource) do
     FeedPublisher.publish(%{"context_id" => resource.id, "user_id" => user.id})
   end
+
   defp ap_publish(_, _), do: :ok
 
   defp insert_resource(creator, collection, attrs) do
