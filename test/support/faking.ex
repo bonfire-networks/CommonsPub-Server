@@ -81,7 +81,7 @@ defmodule MoodleNet.Test.Faking do
     token
   end
 
-  def fake_content!(%User{}=user, overrides) do
+  def fake_content!(%User{}=user, overrides \\ %{}) do
     {:ok, content} = Uploads.upload(
       MoodleNet.Uploads.ResourceUploader,
       user,
