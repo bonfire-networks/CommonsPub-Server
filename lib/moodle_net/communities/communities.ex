@@ -2,13 +2,11 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Communities do
-  import ProtocolEx
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.Communities.{Community, Queries}
   alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   ### Cursor generators
@@ -76,6 +74,21 @@ defmodule MoodleNet.Communities do
     end
   end
 
+  defp publish(creator, community, activity, :created) do
+    feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
+    FeedActivities.publish(activity, feeds)
+  end
+  defp publish(community, :updated), do: :ok
+  defp publish(community, :deleted), do: :ok
+
+  ### HACK FIXME
+  defp ap_publish(%{creator_id: id}=community), do: ap_publish(%{id: id}, community)
+
+  defp ap_publish(user, %{actor: %{peer_id: nil}}=community) do
+    FeedPublisher.publish(%{ "context_id" => community.id, "user_id" => user.id })
+  end
+  defp ap_publish(_, _), do: :ok
+
   @spec update(%Community{}, attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def update(%Community{} = community, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
@@ -115,26 +128,5 @@ defmodule MoodleNet.Communities do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
-
-  # Feeds
-  defp publish(creator, community, activity, :created) do
-    feeds = [community.outbox_id, creator.outbox_id, Feeds.instance_outbox_id()]
-    FeedActivities.publish(activity, feeds)
-  end
-  defp publish(_community, :updated), do: :ok
-  defp publish(community, :deleted) do
-    # Activities
-    :ok
-  end
-
-  
-
-  ### HACK FIXME
-  defp ap_publish(%{creator_id: id}=community), do: ap_publish(%{id: id}, community)
-
-  defp ap_publish(user, %{actor: %{peer_id: nil}}=community) do
-    FeedPublisher.publish(%{ "context_id" => community.id, "user_id" => user.id })
-  end
-  defp ap_publish(_, _), do: :ok
 
 end

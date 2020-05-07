@@ -11,7 +11,7 @@ defmodule MoodleNet.Mixfile do
       version: "0.9.6-dev",
       elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
+      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
