@@ -7,17 +7,19 @@ defmodule MoodleNet.Repo.Migrations.RemoveUnusedFromMoodleNet do
 
     # Taxonomy.Migrations.down()
 
-    # Geolocation
-    drop_if_exists table("vf_spatial_things")
+    # MoodleNet.ReleaseTasks.remove_meta_table("vf_spatial_things")
 
-    # Measurement
-    drop_if_exists table("vf_measure")
-    drop_if_exists table("vf_unit")
+    # MoodleNet.ReleaseTasks.remove_meta_table("vf_measure")
+    # MoodleNet.ReleaseTasks.remove_meta_table("vf_unit")
 
-    MoodleNet.ReleaseTasks.remove_meta_table("vf_spatial_things")
+    # # Geolocation
+    # :ok = execute "drop table if exists vf_spatial_things cascade"
 
-    MoodleNet.ReleaseTasks.remove_meta_table("vf_measure")
-    MoodleNet.ReleaseTasks.remove_meta_table("vf_unit")
+    # # Measurement
+    # :ok = execute "drop table if exists vf_measure cascade"
+    # :ok = execute "drop table if exists vf_unit cascade"
+
+
 
   end
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
 
-  alias MoodleNet.Meta.{Pointable, Pointer, PointersQueries, TableService}
+  alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
   alias MoodleNet.Peers
   alias MoodleNet.Repo
 

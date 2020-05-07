@@ -2,13 +2,12 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Flags do
-  import ProtocolEx
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Common.Contexts
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
-  alias MoodleNet.Meta.{Pointable, Pointers, Table}
+  alias MoodleNet.Meta.{Pointers, Table}
   alias MoodleNet.Users.User
 
   def one(filters), do: Repo.single(Queries.query(Flag, filters))
@@ -74,12 +73,6 @@ defmodule MoodleNet.Flags do
         {:ok, flag}
       end
     end)
-  end
-
-  def soft_delete_by(filters) do
-    Queries.query(Flag)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
   end
 
 end
