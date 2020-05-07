@@ -147,8 +147,8 @@ defmodule Measurement.Unit.Units do
       unit = Repo.preload(unit, :community)
       with {:ok, unit} <- Repo.update(Measurement.Unit.update_changeset(unit, attrs)) do
           #  :ok <- publish(unit, :updated) do
-            {:ok,  unit }
-       end
+         {:ok,  unit}
+      end
     end)
   end
 
