@@ -123,6 +123,11 @@ defmodule ActivityPubWeb.ActivityPubController do
     json(conn, "ok")
   end
 
+  # heck u mastodon
+  def inbox(conn, %{"type" => "Delete"}) do
+    json(conn, "ok")
+  end
+
   def inbox(conn, params) do
     headers = Enum.into(conn.req_headers, %{})
 

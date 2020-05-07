@@ -17,7 +17,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
       with object_ap_id = Utils.get_object_ap_id(context),
            {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
-           {to, cc} <- Utils.determine_recipients(actor, context),
+           {to, cc} <- Utils.determine_recipients(actor, context, comment),
            object = %{
              "content" => comment.content,
              "to" => to,

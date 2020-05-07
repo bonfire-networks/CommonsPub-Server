@@ -42,7 +42,7 @@ defmodule MoodleNet.Activities.Queries do
       feed_id: id,
       distinct: [desc: :id], # this does the actual ordering
       order: [desc: :created], # this is here because ecto knows better than me oslt
-      join_to: :context,
+      join: :context,
       preload: :context
   end
 
@@ -61,7 +61,7 @@ defmodule MoodleNet.Activities.Queries do
   def filter(q, {:user, _}), do: filter(q, ~w(deleted private)a)
 
   ## status
-  
+
   def filter(q, :deleted) do
     where q, [activity: a], is_nil(a.deleted_at)
   end
@@ -179,6 +179,12 @@ defmodule MoodleNet.Activities.Queries do
   end
   def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
     filter(q, order: [desc: :created], limit: l + 1)
+  end
+
+  ## preload
+
+  def filter(q, {:preload, :context}) do
+    preload q, [context: c], [context: c]
   end
 
 end
