@@ -83,9 +83,10 @@ defmodule ActivityPub.Utils do
 
   def make_like_data(
         %{data: %{"id" => ap_id}} = actor,
-        %{data: %{"actor" => object_actor_id, "id" => id}} = object,
+        %{data: %{"id" => id}} = object,
         activity_id
       ) do
+    object_actor_id = ActivityPub.Fetcher.get_actor(object.data)
     {:ok, object_actor} = Actor.get_cached_by_ap_id(object_actor_id)
 
     to =
