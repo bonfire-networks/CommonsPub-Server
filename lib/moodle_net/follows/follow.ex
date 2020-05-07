@@ -7,8 +7,9 @@ defmodule MoodleNet.Follows.Follow do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_muted: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
+  alias MoodleNet.Follows
   alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Users.User
 
   @type t :: %__MODULE__{}
 
@@ -57,5 +58,13 @@ defmodule MoodleNet.Follows.Follow do
     |> change_public()
     |> change_muted()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Follows
+
+  def queries_module, do: Follows.Queries
+
+  def follow_filters, do: []
 
 end

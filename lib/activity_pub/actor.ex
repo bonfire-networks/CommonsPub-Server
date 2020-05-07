@@ -251,6 +251,14 @@ defmodule ActivityPub.Actor do
     end
   end
 
+  def get_by_local_id!(id) do
+    with {:ok, actor} <- get_cached_by_local_id(id) do
+      actor
+    else
+      {:error, _e} -> nil
+    end
+  end
+
   @doc false
   def set_public_key(%{data: data} = actor) do
     {:ok, entity} = Actor.ensure_keys_present(actor)
@@ -502,7 +510,7 @@ defmodule ActivityPub.Actor do
     with {:ok, actor} <- get_cached_by_local_id(actor.creator_id) do
       actor.ap_id
     else
-      {:error, nil} -> nil
+      {:error, _} -> nil
     end
   end
 
@@ -510,7 +518,7 @@ defmodule ActivityPub.Actor do
     with {:ok, actor} <- get_cached_by_local_id(actor.community_id) do
       actor.ap_id
     else
-      {:error, nil} -> nil
+      {:error, _} -> nil
     end
   end
 end

@@ -54,4 +54,12 @@ defmodule MoodleNet.Activities.Activity do
     |> change_public()
   end
 
+  ### behaviour callbacks
+
+  def context_module, do: Activities
+
+  def queries_module, do: Activities.Queries
+
+  def follow_filters, do: []
+
 end

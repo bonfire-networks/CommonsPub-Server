@@ -6,7 +6,6 @@ defmodule MoodleNet.Blocks do
   alias Ecto.Changeset
   alias MoodleNet.{Blocks, Common, Repo}
   alias MoodleNet.Blocks.{Block, Queries}
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
   
   @spec find(User.t(), %{id: binary}) :: {:ok, Block.t()} | {:error, NotFoundError.t()}
@@ -31,8 +30,10 @@ defmodule MoodleNet.Blocks do
   @spec delete(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete(%Block{} = block), do: Common.soft_delete(block)
 
-  defimpl_ex BlockPointable, Block, for: Pointable do
-    def queries_module(_), do: Queries
+  def soft_delete_by(filters) do
+    Queries.query(Block)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
   end
 
 end

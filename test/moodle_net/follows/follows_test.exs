@@ -57,13 +57,13 @@ defmodule MoodleNet.FollowsTest do
     end
   end
 
-  describe "undo_follow/1" do
+  describe "soft_delete/1" do
     test "removes a follower from a followed object", %{user: follower} do
       followed = fake_followable!()
       assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
       refute follow.deleted_at
 
-      assert {:ok, follow} = Follows.undo(follow)
+      assert {:ok, follow} = Follows.soft_delete(follow)
       assert follow.deleted_at
     end
   end
