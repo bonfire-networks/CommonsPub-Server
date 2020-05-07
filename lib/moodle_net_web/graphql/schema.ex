@@ -68,10 +68,10 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # Extension Modules
   import_types Organisation.GraphQL.Schema
-  import_types Taxonomy.GraphQL.LocalesSchema
-  import_types Taxonomy.GraphQL.TagsSchema
-  import_types Measurement.Unit.GraphQL
-  import_types Geolocation.GraphQL
+  # import_types Taxonomy.GraphQL.LocalesSchema
+  # import_types Taxonomy.GraphQL.TagsSchema
+  # import_types Measurement.Unit.GraphQL
+  # import_types Geolocation.GraphQL
   # import_types ValueFlows.Schema
 
   query do
@@ -95,11 +95,11 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # Extension Modules
     import_fields :organisations_queries
-    import_fields :locales_queries
-    import_fields :tags_queries
-    import_fields :tags_queries
-    import_fields :measurement_query
-    import_fields :geolocation_query
+    # import_fields :locales_queries
+    # import_fields :tags_queries
+    # import_fields :tags_queries
+    # import_fields :measurement_query
+    # import_fields :geolocation_query
     # import_fields :value_flows_query
 
   end
@@ -122,8 +122,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # Extension Modules
     import_fields :organisations_mutations
-    import_fields :geolocation_mutation
-    import_fields :measurement_mutation
+    # import_fields :geolocation_mutation
+    # import_fields :measurement_mutation
     # import_fields :value_flows_mutation
 
     @desc "Fetch metadata from webpage"
@@ -143,12 +143,12 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
 
   # hydate Geolocation schema with resolvers
-  def hydrate(%Absinthe.Blueprint{}, _) do
-    hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    # hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
-    hb
-  end
+  # def hydrate(%Absinthe.Blueprint{}, _) do
+  #   hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+  #   hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+  #   # hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
+  #   hb
+  # end
 
   # fallback
   def hydrate(_node, _ancestors) do

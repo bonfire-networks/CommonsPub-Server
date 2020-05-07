@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   alias MoodleNet.{Collections, GraphQL, Repo, Resources, Uploads}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.GraphQL.ResolveFields
+  alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Uploads.{IconUploader, ResourceUploader}
   alias MoodleNetWeb.GraphQL.UploadResolver
@@ -19,22 +19,27 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   def is_local_edge(%{collection: %Collection{actor: %Actor{peer_id: peer_id}}}, _, _) do
     {:ok, is_nil(peer_id)}
   end
-  def is_local_edge(%{collection_id: id}, _, _) do
-    batch {__MODULE__, :fetch_is_local_edge}, id,
-      fn edges ->
-        ret =
-          edges
-          |> Map.get(id, %{})
-          |> Map.get(:actor, %{})
-          |> Map.get(:peer_id)
-          |> is_nil()
-        {:ok, ret}
-      end
-  end
 
-  def fetch_is_local_edge(_, ids) do
-    {:ok, fields} = Collections.fields(&(&1.id), [:default, id: ids])
-    fields
+  def is_local_edge(%{collection_id: id}, _, info) do
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_collection_edge,
+        context: id,
+        info: info,
+        getter_fn: fn _context, _default ->
+          fn edges ->
+            ret =
+              edges
+              |> Map.get(id, %{})
+              |> Map.get(:actor, %{})
+              |> Map.get(:peer_id)
+              |> is_nil()
+            {:ok, ret}
+          end
+        end,
+      }
+    )
   end
 
   def collection_edge(%Resource{collection: %Collection{}=c}, _, _info), do: {:ok, c}
@@ -50,8 +55,14 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
   end
 
   def fetch_collection_edge(_, ids) do
-    {:ok, fields} = Collections.fields(&(&1.id), [:default, id: ids])
-    fields
+    FetchFields.run(
+      %FetchFields{
+        queries: Collections.Queries,
+        query: Collection,
+        group_fn: &(&1.id),
+        filters: [:default, id: ids],
+      }
+    )
   end
 
   def create_resource(%{resource: attrs, collection_id: collection_id} = params, info) do

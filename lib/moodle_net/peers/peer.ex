@@ -15,6 +15,7 @@ defmodule MoodleNet.Peers.Peer do
     only: [validate_http_url: 2, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
+  alias MoodleNet.Peers
   alias MoodleNet.Peers.Peer
 
   table_schema "mn_peer" do
@@ -42,4 +43,13 @@ defmodule MoodleNet.Peers.Peer do
     |> Changeset.cast(fields, @cast)
     |> change_synced_timestamp(:is_disabled, :disabled_at)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Peers
+
+  def queries_module, do: Peers.Queries
+
+  def follow_filters, do: []
+
 end

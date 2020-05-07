@@ -75,8 +75,10 @@ defmodule MoodleNet.Meta.Pointers do
   end
   def preload!(%{__struct__: _}=pointed, _), do: pointed
 
-  defp preload_collate(loaded, pointers),
-    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.fetch!(loaded, p.id) } end)
+  defp preload_collate(loaded, pointers), do: Enum.map(pointers, &collate(loaded, &1))
+
+  defp collate(_, nil), do: nil
+  defp collate(loaded, %{}=p), do: %{ p | pointed: Map.get(loaded, p.id, %{}) }
 
   defp preload_load(pointers, opts) do
     force = Keyword.get(opts, :force, false)
@@ -102,8 +104,8 @@ defmodule MoodleNet.Meta.Pointers do
     loader(TableService.lookup_schema!(schema), filters)
   end
   defp loader(schema, filters) do
-    module = Pointable.queries_module(schema)
-    filters = Pointable.extra_filters(schema) ++ filters
+    module = apply(schema, :queries_module, [])
+    filters = apply(schema, :follow_filters, []) ++ filters
     {:ok, Repo.all(apply(module, :query, [schema, filters]))}
   end
 

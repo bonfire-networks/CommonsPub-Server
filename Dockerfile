@@ -97,9 +97,6 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
 # copy s6 and web server config
 COPY config/deployment/ /
 
-# to enable shutdown-instance script
-RUN chown -R root:nginx /etc/services.d && chmod g+w -R /etc/services.d
-
 WORKDIR /opt/app
 
 # install app 

@@ -2,24 +2,23 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Activities.Queries do
-  @enforce_keys ~w(query)a
-  defstruct @enforce_keys
 
-  use MoodleNet.Common.Metadata
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Meta.TableService
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
   def query(Activity) do
-    from a in Activity, as: :activity,
-      join: c in assoc(a, :context), as: :context,
-      preload: [context: c]
+    from a in Activity, as: :activity
   end
 
   def query(q, filters), do: filter(query(q), filters)
 
   def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, :context, jq) do
+    join q, jq, [activity: a], c in assoc(a, :context), as: :context
+  end
 
   def join_to(q, :feed_activity, jq) do
     join q, jq, [activity: a], fa in assoc(a, :feed_activities), as: :feed_activity
@@ -41,8 +40,10 @@ defmodule MoodleNet.Activities.Queries do
     filter q,
       join: :feed_activity,
       feed_id: id,
-      distinct: [desc: :id], # this does the actual ordering *sigh*
-      order: [desc: :created]  # this is here because ecto knows better than me oslt
+      distinct: [desc: :id], # this does the actual ordering
+      order: [desc: :created], # this is here because ecto knows better than me oslt
+      join: :context,
+      preload: :context
   end
 
   ## by join
@@ -60,7 +61,6 @@ defmodule MoodleNet.Activities.Queries do
   def filter(q, {:user, _}), do: filter(q, ~w(deleted private)a)
 
   ## status
-  
   def filter(q, :deleted) do
     where q, [activity: a], is_nil(a.deleted_at)
   end
@@ -161,6 +161,13 @@ defmodule MoodleNet.Activities.Queries do
 
   def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
 
+  def filter(q, {:select, :id}), do: select(q, [activity: a], [a.id])
+
+  def filter(q, :delete) do
+    now = DateTime.utc_now()
+    update(q, set: [deleted_at: ^now])
+  end
+
   ## pagination
 
   def filter(q, {:page, [desc: [created: %{after: [a], limit: l}]]}) do
@@ -171,6 +178,12 @@ defmodule MoodleNet.Activities.Queries do
   end
   def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
     filter(q, order: [desc: :created], limit: l + 1)
+  end
+
+  ## preload
+
+  def filter(q, {:preload, :context}) do
+    preload q, [context: c], [context: c]
   end
 
 end
