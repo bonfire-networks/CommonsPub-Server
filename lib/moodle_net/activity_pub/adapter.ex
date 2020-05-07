@@ -219,7 +219,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def handle_activity(activity) do
-    APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id})
+    APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id, "activity" => activity.data})
   end
 
   def handle_create(
