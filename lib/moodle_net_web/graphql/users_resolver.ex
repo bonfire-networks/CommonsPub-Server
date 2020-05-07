@@ -242,7 +242,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   end
 
   def fetch_inbox_edge(page_opts, info, id) do
-    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+    with {:ok, %User{}=user} <- GraphQL.current_user_or_empty_page(info) do
       tables = Users.default_inbox_query_contexts()
       Repo.transact_with fn ->
         with {:ok, subs} <- Users.feed_subscriptions(user) do
@@ -253,14 +253,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
               query: Activities.Activity,
               page_opts: page_opts,
               base_filters: [:deleted, feed: ids, table: tables],
-            }          
+              data_filters: [page: [desc: [created: page_opts]]],
+            }
           )
         end
       end
     end
   end
 
-  def outbox_edge(%User{outbox_id: id}=user, page_opts, info) do
+  def outbox_edge(%User{outbox_id: id}, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
       ResolvePage.run(
         %ResolvePage{
@@ -274,14 +275,15 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def fetch_outbox_edge(page_opts, info, id) do
+  def fetch_outbox_edge(page_opts, _info, id) do
     tables = Users.default_outbox_query_contexts()
     FetchPage.run(
       %FetchPage{
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: id, table: tables]
+        base_filters: [:deleted, feed: id, table: tables],
+        data_filters: [page: [desc: [created: page_opts]]],
       }          
     )
   end

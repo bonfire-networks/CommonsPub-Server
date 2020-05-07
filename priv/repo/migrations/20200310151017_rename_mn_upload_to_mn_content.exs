@@ -11,6 +11,9 @@ defmodule MoodleNet.Repo.Migrations.RenameMnUploadToMnContent do
   """
 
   def up do
+
+    :ok = execute "delete from mn_upload" # clean up old uploads - may cause data loss
+
     rename table(:mn_upload), to: table(:mn_content)
 
     # change plain URL's to reference uploads

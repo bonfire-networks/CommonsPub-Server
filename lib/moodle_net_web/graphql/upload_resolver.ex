@@ -4,9 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
-  alias Ecto.Changeset
-  alias MoodleNet.{GraphQL, Uploads, Users, Repo}
-  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.{Uploads, Users}
   alias MoodleNet.Uploads.Content
 
   @uploader_fields %{
@@ -15,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     icon: MoodleNet.Uploads.IconUploader
   }
 
-  def upload(user, %{} = params, info) do
+  def upload(user, %{} = params, _info) do
     params
     |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
     |> case do
@@ -43,9 +41,9 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end
   end
 
-  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id)
-  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id)
-  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id)
+  def icon_content_edge(%{icon_id: id}, _, _info), do: content_edge(id)
+  def image_content_edge(%{image_id: id}, _, _info), do: content_edge(id)
+  def resource_content_edge(%{content_id: id}, _, _info), do: content_edge(id)
 
   defp content_edge(id) when is_binary(id), do: Uploads.one([:deleted, :private, id: id])
   defp content_edge(_), do: {:ok, nil}

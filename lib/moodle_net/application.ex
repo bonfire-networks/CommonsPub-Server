@@ -7,7 +7,7 @@ defmodule MoodleNet.Application do
   """
   use Application
   alias MoodleNet.Repo
-  alias MoodleNet.Localisation.{CountryService, LanguageService}
+  # alias MoodleNet.Localisation.{CountryService, LanguageService}
   alias MoodleNet.Meta.TableService
   alias MoodleNetWeb.Endpoint
   import Supervisor.Spec, only: [supervisor: 2, worker: 2]
@@ -27,7 +27,7 @@ defmodule MoodleNet.Application do
 
     {:ok, _} = Logger.add_backend(Sentry.LoggerBackend)
     :ok = Oban.Telemetry.attach_default_logger(:debug)
-    :ok = :telemetry.attach("oban-logger", [:oban, :failure], &MoodleNet.Workers.ObanLogger.handle_event/4, nil)
+    :ok = :telemetry.attach("oban-logger", [:oban, :job, :exception], &MoodleNet.Workers.ObanLogger.handle_event/4, nil)
 
     # TODO: better supervision tree. LS, CS and TS only need repo on
     # startup, never need restarting, but they should require repo to

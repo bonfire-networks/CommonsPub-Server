@@ -4,6 +4,7 @@
 defmodule MoodleNet.Features.Feature do
   use MoodleNet.Common.Schema
   alias Ecto.Changeset
+  alias MoodleNet.Features
   alias MoodleNet.Features.Feature
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
@@ -34,5 +35,13 @@ defmodule MoodleNet.Features.Feature do
     feat
     |> Changeset.cast(attrs, @update_cast)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Features
+
+  def queries_module, do: Features.Queries
+
+  def follow_filters, do: []
 
 end

@@ -8,10 +8,10 @@ defmodule MoodleNet.Threads.Thread do
 
   alias Ecto.Changeset
   alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Meta
   alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Users.User
+  alias MoodleNet.Threads
   alias MoodleNet.Threads.{Comment, FollowerCount, LastComment, Thread}
+  alias MoodleNet.Users.User
 
   table_schema "mn_thread" do
     belongs_to(:creator, User)
@@ -59,4 +59,13 @@ defmodule MoodleNet.Threads.Thread do
     |> change_synced_timestamp(:is_locked, :locked_at)
     |> change_synced_timestamp(:is_public, :published_at)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Threads
+
+  def queries_module, do: Threads.Queries
+
+  def follow_filters, do: []
+
 end

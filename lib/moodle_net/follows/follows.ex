@@ -6,6 +6,7 @@ defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
   alias MoodleNet.Common.Contexts
   alias MoodleNet.GraphQL.Fields
+  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
@@ -64,8 +65,8 @@ defmodule MoodleNet.Follows do
           _ ->
             with {:ok, follow} <- insert(follower, followed, fields),
                  :ok <- subscribe(follower, followed, follow),
-                 :ok <- publish(follower, followed, follow, :created, opts),
-                 :ok <- federate(follow, opts) do
+                 :ok <- publish(follower, followed, follow, :created),
+                 :ok <- ap_publish(follower, follow) do
               {:ok, %{follow | ctx: followed}}
             end
         end
@@ -79,29 +80,19 @@ defmodule MoodleNet.Follows do
     Repo.insert(Follow.create_changeset(follower, followed, fields))
   end
 
-  defp publish(creator, followed, %Follow{} = follow, :created, opts) do
-    if Keyword.get(opts, :publish, true) do
-      attrs = %{verb: "created", is_local: follow.is_local}
-      with {:ok, activity} <- Activities.create(creator, follow, attrs) do
-        FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
-      end
-    else
-      :ok
+  defp publish(creator, followed, %Follow{} = follow, :created) do
+    attrs = %{verb: "created", is_local: follow.is_local}
+    with {:ok, activity} <- Activities.create(creator, follow, attrs) do
+      FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
     end
   end
 
-  defp federate(follow, opts \\ [])
-  defp federate(%Follow{is_local: true} = follow, opts) do
-    if Keyword.get(opts, :federate, true) do
-      MoodleNet.FeedPublisher.publish(%{
-        "context_id" => follow.context_id,
-        "user_id" => follow.creator_id,
-      })
-    else
-      :ok
-    end
+  defp ap_publish(%{creator_id: id}=follow), do: ap_publish(%{id: id}, follow)
+
+  defp ap_publish(user, %Follow{is_local: true} = follow) do
+    FeedPublisher.publish(%{"context_id" => follow.id, "user_id" => user.id})
   end
-  defp federate(_, _), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   @spec update(Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def update(%Follow{} = follow, fields) do
@@ -112,18 +103,24 @@ defmodule MoodleNet.Follows do
     end)
   end
 
-  @spec undo(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def undo(%Follow{is_local: true} = follow) do
+  @spec soft_delete(Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
+  def soft_delete(%Follow{is_local: true} = follow) do
     Repo.transact_with(fn ->
       with {:ok, _} <- unsubscribe(follow),
            {:ok, follow} <- Common.soft_delete(follow),
-           :ok <- federate(follow) do
+           :ok <- ap_publish(follow) do
         {:ok, follow}
       end
     end)
   end
 
-  def undo(%Follow{is_local: false} = follow) do
+  def soft_delete_by(filters) do
+    Queries.query(Follow)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  def soft_delete(%Follow{is_local: false} = follow) do
     Common.soft_delete(follow)
   end
 

@@ -43,6 +43,7 @@ defmodule MoodleNet.Uploads.Content do
     %__MODULE__{}
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@create_required)
+    |> Changeset.validate_length(:media_type, max: 256)
     |> Changeset.change(
       is_public: true,
       uploader_id: uploader.id

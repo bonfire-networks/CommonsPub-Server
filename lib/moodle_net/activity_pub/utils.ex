@@ -3,20 +3,42 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNet.ActivityPub.Utils do
+  alias ActivityPub.Actor
+  alias MoodleNet.Threads.Comments
   @public_uri "https://www.w3.org/ns/activitystreams#Public"
 
-  def determine_recipients(actor, parent) do
-    case ActivityPub.Actor.get_cached_by_local_id(parent.id) do
-      {:ok, parent_actor} ->
-        to = [parent_actor.ap_id, @public_uri]
-        cc = [actor.data["followers"]]
-        {to, cc}
+  def determine_recipients(actor, parent, comment) do
+    {to, cc} =
+      case ActivityPub.Actor.get_cached_by_local_id(parent.id) do
+        {:ok, parent_actor} ->
+          to = [parent_actor.ap_id, @public_uri]
+          cc = [actor.data["followers"]]
+          {to, cc}
 
-      _ ->
-        to = [@public_uri]
-        cc = [actor.data["followers"]]
-        {to, cc}
-    end
+        _ ->
+          to = [@public_uri]
+          cc = [actor.data["followers"]]
+          {to, cc}
+      end
+
+    # this doesn't feel very robust
+    to =
+      unless is_nil(get_in_reply_to(comment)) do
+        participants =
+          Comments.list_comments_in_thread(comment.thread)
+          |> Enum.map(fn comment -> comment.creator_id end)
+          |> Enum.map(&ActivityPub.Actor.get_by_local_id!/1)
+          |> Enum.filter(fn actor -> actor end)
+          |> Enum.map(fn actor -> actor.ap_id end)
+
+        participants ++ to
+        |> Enum.dedup()
+        |> List.delete(Map.get(Actor.get_by_local_id!(actor.id), :ap_id))
+      else
+        to
+      end
+
+    {to, cc}
   end
 
   def get_in_reply_to(comment) do

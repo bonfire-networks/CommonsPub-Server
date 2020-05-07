@@ -51,7 +51,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         query: Comment,
         page_opts: page_opts,
         base_filters: [user: user, thread_id: id],
-        data_filters: [order: :timeline_asc],
+        data_filters: [page: [asc: [created: page_opts]]],
       }
     )
   end
@@ -94,8 +94,14 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
 
   def fetch_thread_edge(info, ids) do
     user = GraphQL.current_user(info)
-    {:ok, fields} = Threads.fields(&(&1.id), id: ids, user: user)
-    fields
+    FetchFields.run(
+      %FetchFields{
+        queries: Threads.Queries,
+        query: Thread,
+        group_fn: &(&1.id),
+        filters: [id: ids, user: user],
+      }
+    )
   end
 
   ## mutations
