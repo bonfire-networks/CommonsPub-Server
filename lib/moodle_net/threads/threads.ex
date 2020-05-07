@@ -2,12 +2,10 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads do
-  import ProtocolEx
   alias MoodleNet.{Common, Feeds, Repo}
   alias MoodleNet.Common.Contexts
   # alias MoodleNet.FeedPublisher
   alias MoodleNet.GraphQL.Fields
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Threads.{Thread, Queries}
   alias MoodleNet.Users.User
 
@@ -100,9 +98,5 @@ defmodule MoodleNet.Threads do
   #   FeedPublisher.publish(%{"context_id" => thread.id, "user_id" => user.id})
   # end
   defp ap_publish(_, _), do: :ok
-
-  defimpl_ex ThreadPointable, Thread, for: Pointable do
-    def queries_module(_), do: Queries
-  end
 
 end

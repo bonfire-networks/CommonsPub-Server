@@ -2,13 +2,11 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Resources do
-  import ProtocolEx
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Resources.{Resource, Queries}
   alias MoodleNet.Users.User
 
@@ -49,23 +47,19 @@ defmodule MoodleNet.Resources do
     Activities.create(creator, resource, attrs)
   end
 
-  defp publish(_creator, collection, _resource, activity, :created) do
+  defp publish(_creator, collection, resource, activity, :created) do
     community = Repo.preload(collection, :community).community
     feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
-  defp publish(_resource, :updated), do: :ok
-  defp publish(resource, :deleted) do
-    Activities.update_by([context_id: resource.id], deleted_at: DateTime.utc_now())
-    :ok
-  end
+  defp publish(resource, :updated), do: :ok
+  defp publish(resource, :deleted), do: :ok
 
   defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
 
-  defp ap_publish(%User{} = user, %Resource{} = resource) do
+  defp ap_publish(user, %{collection: %{actor: %{peer_id: nil}}}=resource) do
     FeedPublisher.publish(%{"context_id" => resource.id, "user_id" => user.id})
   end
-
   defp ap_publish(_, _), do: :ok
 
   defp insert_resource(creator, collection, attrs) do
@@ -89,12 +83,6 @@ defmodule MoodleNet.Resources do
          :ok <- ap_publish(resource) do
       {:ok, deleted}
     end
-  end
-
-  def soft_delete_by(filters) do
-    Queries.query(Resource)
-    |> Queries.filter([:delete | filters])
-    |> Repo.update_all()
   end
 
   ### behaviour callbacks

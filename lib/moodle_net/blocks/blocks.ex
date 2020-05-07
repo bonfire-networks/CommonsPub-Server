@@ -2,7 +2,6 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks do
-  import ProtocolEx
   alias Ecto.Changeset
   alias MoodleNet.{Blocks, Common, Repo}
   alias MoodleNet.Blocks.{Block, Queries}
@@ -29,11 +28,5 @@ defmodule MoodleNet.Blocks do
 
   @spec delete(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete(%Block{} = block), do: Common.soft_delete(block)
-
-  def soft_delete_by(filters) do
-    Queries.query(Block)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
 
 end

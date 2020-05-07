@@ -6,7 +6,6 @@ defmodule MoodleNet.Activities do
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Activities.{Activity, Queries}
   alias MoodleNet.Common.Contexts
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
@@ -69,9 +68,5 @@ defmodule MoodleNet.Activities do
 
   @spec soft_delete(Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
   def soft_delete(%Activity{} = activity), do: Common.soft_delete(activity)
-
-  def soft_delete_by(filters) do
-    update_by([:delete, select: :id] ++ filters, deleted_at: DateTime.utc_now())
-  end
 
 end
