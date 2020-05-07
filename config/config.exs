@@ -122,6 +122,7 @@ config :moodle_net, :mrf_simple,
 config :moodle_net, Oban,
   repo: MoodleNet.Repo,
   prune: {:maxlen, 100_000},
+  poll_interval: 5_000,
   queues: [
     federator_incoming: 50,
     federator_outgoing: 50,
