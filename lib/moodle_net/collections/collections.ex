@@ -2,13 +2,11 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Collections do
-  import ProtocolEx
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.Collections.{Collection,  Queries}
   alias MoodleNet.Communities.Community
   alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
@@ -142,11 +140,6 @@ defmodule MoodleNet.Collections do
   def default_outbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
-  end
-
-  defimpl_ex CollectionPointable, Collection, for: Pointable do
-    def queries_module(_), do: Queries
-    def extra_filters(_), do: [:default]
   end
 
 end
