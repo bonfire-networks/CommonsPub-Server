@@ -12,6 +12,7 @@ defmodule MoodleNet.Communities.Community do
     ]
   alias Ecto.Changeset
   alias MoodleNet.Actors.Actor
+  alias MoodleNet.Communities
   alias MoodleNet.Communities.{Community, CommunityFollowerCount}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Feeds.Feed
@@ -76,4 +77,13 @@ defmodule MoodleNet.Communities.Community do
     |> change_disabled()
     # |> validate_language_code(:primary_language)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Communities
+
+  def queries_module, do: Communities.Queries
+
+  def follow_filters, do: [:default]
+
 end

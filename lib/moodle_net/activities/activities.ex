@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Activities do
 
-  import ProtocolEx
   alias MoodleNet.{Activities, Common, Repo}
   alias MoodleNet.Activities.{Activity, Queries}
   alias MoodleNet.Common.Contexts
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Users.User
 
   def one(filters \\ []), do: Repo.single(Queries.query(Activity, filters))
@@ -60,11 +58,15 @@ defmodule MoodleNet.Activities do
   def update(%Activity{} = activity, %{} = attrs),
     do: Repo.update(Activity.update_changeset(activity, attrs))
 
+  def update_by(filters, updates) do
+    Queries.query(Activity)
+    |> Queries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  defp update_by_result({count, _}), do: {:ok, count}
+
   @spec soft_delete(Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
   def soft_delete(%Activity{} = activity), do: Common.soft_delete(activity)
-
-  defimpl_ex ActivityPointable, Activity, for: Pointable do
-    def queries_module(_), do: Activities.Queries
-  end
 
 end

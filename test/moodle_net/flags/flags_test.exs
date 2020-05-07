@@ -44,13 +44,13 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
-  describe "resolve_flag/1" do
+  describe "soft_delete/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()
       assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       refute flag.deleted_at
 
-      assert {:ok, flag} = Flags.resolve(flag)
+      assert {:ok, flag} = Flags.soft_delete(flag)
       assert flag.deleted_at
     end
   end

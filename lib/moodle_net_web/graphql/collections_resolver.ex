@@ -68,8 +68,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [:deleted, user: GraphQL.current_user(info)],
+        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
       }
     )
   end
@@ -171,8 +171,14 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   end
 
   def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
+    FetchFields.run(
+      %FetchFields{
+        queries: Communities.Queries,
+        query: Communities.Community,
+        group_fn: &(&1.id),
+        filters: [:default, id: ids],
+      }
+    )
   end
 
   def last_activity_edge(_, _, _info) do
@@ -200,7 +206,8 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: id, table: tables]
+        base_filters: [:deleted, feed: id, table: tables],
+        data_filters: [page: [desc: [created: page_opts]]],
       }          
     )
   end
@@ -240,25 +247,4 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end)
   end
 
-  # def delete(%{collection_id: id}, info) do
-  #   # Repo.transact_with(fn ->
-  #   #   with {:ok, user} <- GraphQL.current_user(info),
-  #   #        {:ok, actor} <- Users.fetch_actor(user),
-  #   #        {:ok, collection} <- Collections.fetch(id) do
-  #   #     collection = Repo.preload(collection, :community)
-  #   # 	permitted =
-  #   # 	  user.is_instance_admin or
-  #   #       collection.creator_id == actor.id or
-  #   #       collection.community.creator_id == actor.id
-  #   # 	if permitted do
-  #   # 	  with {:ok, _} <- Collections.soft_delete(collection), do: {:ok, true}
-  #   # 	else
-  #   # 	  GraphQL.not_permitted()
-  #   #     end
-  #   #   end
-  #   # end)
-  #   # |> GraphQL.response(info)
-  #   {:ok, true}
-  #   |> GraphQL.response(info)
-  # end
 end

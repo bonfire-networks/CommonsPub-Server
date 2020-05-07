@@ -2,11 +2,10 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads do
-  import ProtocolEx
   alias MoodleNet.{Common, Feeds, Repo}
   alias MoodleNet.Common.Contexts
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.GraphQL.Fields
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Threads.{Thread, Queries}
   alias MoodleNet.Users.User
 
@@ -20,32 +19,6 @@ defmodule MoodleNet.Threads do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}
 
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    fields =
-      Queries.query(Thread, filters)
-      |> Repo.all()
-      |> Fields.new(group_fn)
-    {:ok, fields}
-  end
-
-  @doc """
-  Retrieves an EdgesPages of comments according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page Queries, Thread,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  def pages(group_fn, cursor_fn, %{}=page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ []) do
-    Contexts.pages Queries, Thread,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
   @spec create(User.t, context :: any, map) :: {:ok, Thread.t} | {:error, Changeset.t}
   def create(%User{} = creator, context, attrs) do
     Repo.transact_with(fn ->
@@ -54,7 +27,8 @@ defmodule MoodleNet.Threads do
            {:ok, thread} <- insert(creator, context, attrs),
            # act_attrs = %{verb: "created", is_local: thread.is_local},
            # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-           :ok <- publish(creator, thread, context, :created) do
+           # :ok <- publish(creator, thread, context, :created),
+           :ok <- ap_publish(creator, thread) do
         {:ok, thread}
       end
     end)
@@ -71,7 +45,8 @@ defmodule MoodleNet.Threads do
   def update(%Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)),
-           :ok <- publish(thread, :updated) do
+           # :ok <- publish(thread, :updated),
+           :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)
@@ -81,10 +56,17 @@ defmodule MoodleNet.Threads do
   def soft_delete(%Thread{} = thread) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Common.soft_delete(thread),
-           :ok <- publish(thread, :deleted) do
+           # :ok <- publish(thread, :deleted),
+           :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)
+  end
+
+  def soft_delete_by(filters) do
+    Queries.query(Thread)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
   end
 
   # defp context_feeds(%Resource{}=resource) do
@@ -101,28 +83,20 @@ defmodule MoodleNet.Threads do
   # defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   # defp context_feeds(_), do: []
 
-  defp publish(creator, thread, _context, :created) do
-    # with :ok <- FeedActivities.publish(feeds, activity) do
-      ap_publish(thread.id, creator.id, thread.is_local)
-    # end
-  end
-  defp publish(thread, :updated) do
-    ap_publish(thread.id, thread.creator_id, thread.is_local) # TODO: wrong if edited by admin
-  end
-  defp publish(thread, :deleted) do
-    ap_publish(thread.id, thread.creator_id, thread.is_local) # TODO: wrong if edited by admin
-  end
+  # defp publish(creator, thread, _context, :created) do
+  #   with {:ok, activity} <- Activities.create(creator, thread, attrs) do
+  #     FeedActivities.publish(feeds, activity)
+  #   end
+  # end
+  # defp publish(thread, :updated), do: :ok
+  # defp publish(thread, :deleted), do: :ok
 
-  defp ap_publish(context_id, user_id, true) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
-  end
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(%{creator_id: id} = thread), do: ap_publish(%{id: id}, thread)
 
-  defimpl_ex ThreadPointable, Thread, for: Pointable do
-    def queries_module(_), do: Queries
-  end
+  # defp ap_publish(user, thread) do
+  #   # There is no AP type for a thread yet
+  #   FeedPublisher.publish(%{"context_id" => thread.id, "user_id" => user.id})
+  # end
+  defp ap_publish(_, _), do: :ok
 
 end

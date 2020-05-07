@@ -5,11 +5,10 @@ defmodule MoodleNet.Likes.Like do
   @doc """
   A Like is an indication that an user enjoyed some content or wants
   to find it again later.
-
-  Likes participate in the meta system and must be created from a pointer
   """
   use MoodleNet.Common.Schema
   import MoodleNet.Common.Changeset, only: [change_public: 1]
+  alias MoodleNet.Likes
   alias MoodleNet.Likes.Like
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
@@ -50,5 +49,13 @@ defmodule MoodleNet.Likes.Like do
     |> Changeset.cast(fields, @update_cast)
     |> change_public()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Likes
+
+  def queries_module, do: Likes.Queries
+
+  def follow_filters, do: []
 
 end

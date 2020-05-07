@@ -24,13 +24,17 @@ defmodule MoodleNetWeb.Endpoint do
 
   plug(MoodleNetWeb.Plugs.Static)
 
+  max_file_size = :moodle_net
+  |> Application.fetch_env!(MoodleNet.Uploads)
+  |> Keyword.fetch!(:max_file_size)
+
   plug(
     Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Jason,
-    length: 10_000_000,
-    body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []}
+    body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []},
+    length: max_file_size,
   )
 
   plug(Plug.MethodOverride)

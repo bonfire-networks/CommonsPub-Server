@@ -12,7 +12,7 @@ defmodule Measurement.Measure do
 
   @type t :: %__MODULE__{}
 
-  table_schema "vf_measure" do
+  table_schema "measurement" do
     field :hasNumericalValue, :float
 
     field(:is_public, :boolean, virtual: true)

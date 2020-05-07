@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Feeds do
 
-  import ProtocolEx
   alias MoodleNet.Feeds.{Feed, Queries}
-  alias MoodleNet.Meta.Pointable
   alias MoodleNet.Repo
   
   def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
@@ -23,9 +21,5 @@ defmodule MoodleNet.Feeds do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feed, filters))}
 
   def create(), do: Repo.insert(Feed.create_changeset())
-
-  defimpl_ex FeedPointable, Feed, for: Pointable do
-    def queries_module(_), do: Queries
-  end
 
 end

@@ -65,31 +65,6 @@ defmodule MoodleNetWeb.Router do
 
   end
 
-  scope "/api/v1" do
-    resources("/users", MoodleNetWeb.Accounts.UserController, only: [:create])
-    resources("/sessions", MoodleNetWeb.Accounts.SessionController, only: [:create])
-  end
-
-  scope "/api/v1" do
-    pipe_through(:ensure_authenticated)
-
-    resources("/sessions", MoodleNetWeb.Accounts.SessionController,
-      only: [:delete],
-      singleton: true
-    )
-  end
-
-  @doc """
-  Serve OAuth flows
-  """
-  scope "/oauth", MoodleNetWeb.OAuth do
-    post("/authorize", OAuthController, :create_authorization)
-    post("/token", OAuthController, :token_exchange)
-    post("/revoke", OAuthController, :token_revoke)
-
-    resources("/apps", AppController, only: [:create])
-  end
-
   pipeline :well_known do
     plug(:accepts, ["json", "jrd+json"])
   end

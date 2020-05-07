@@ -20,6 +20,7 @@ defmodule MoodleNet.Uploads.ContentMirror do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
+    |> Changeset.validate_length(:url, max: 4096)
     |> validate_http_url(:url)
   end
 end
