@@ -42,25 +42,4 @@ defmodule Mix.Tasks.MoodleNet.TaskTest do
       refute actor.deactivated
     end
   end
-
-
-  describe "running update_canonical_urls" do
-    test "works" do
-      user = fake_user!()
-      community = fake_community!(user, %{canonical_url: nil})
-      collection = fake_collection!(user, community, %{canonical_url: nil})
-      resource = fake_resource!(user, collection, %{canonical_url: nil})
-
-      # Resource needs to be published for its canonical URL to be set
-      Oban.drain_queue(:mn_ap_publish)
-      Mix.Tasks.MoodleNet.GenerateCanonicalUrls.run([])
-
-      {:ok, community} = MoodleNet.Communities.one([:default, id: community.id])
-      assert String.starts_with?(community.actor.canonical_url, "http://localhost:4001/pub/actors/")
-      {:ok, collection} = MoodleNet.Collections.one([:default, id: collection.id])
-      assert String.starts_with?(collection.actor.canonical_url, "http://localhost:4001/pub/actors/")
-      {:ok, resource} = MoodleNet.Resources.one(id: resource.id)
-      assert String.starts_with?(resource.canonical_url, "http://localhost:4001/pub/objects")
-    end
-  end
 end

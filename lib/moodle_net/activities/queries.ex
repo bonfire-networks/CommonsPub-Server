@@ -2,25 +2,23 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Activities.Queries do
-  @enforce_keys ~w(query)a
-  defstruct @enforce_keys
 
-  use MoodleNet.Common.Metadata
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Meta.TableService
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  @default_limit 25
   def query(Activity) do
-    from a in Activity, as: :activity,
-      join: c in assoc(a, :context), as: :context,
-      preload: [context: c]
+    from a in Activity, as: :activity
   end
 
   def query(q, filters), do: filter(query(q), filters)
 
   def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, :context, jq) do
+    join q, jq, [activity: a], c in assoc(a, :context), as: :context
+  end
 
   def join_to(q, :feed_activity, jq) do
     join q, jq, [activity: a], fa in assoc(a, :feed_activities), as: :feed_activity
@@ -29,8 +27,6 @@ defmodule MoodleNet.Activities.Queries do
   ### filter/2
 
   @doc "Filters the query according to arbitrary filters"
-  @will_break_when :privacy # we must figure out how to handle
-                            # determining whether the user can see it
 
   ## by many
 
@@ -44,8 +40,10 @@ defmodule MoodleNet.Activities.Queries do
     filter q,
       join: :feed_activity,
       feed_id: id,
-      distinct: [desc: :id], # this does the actual ordering *sigh*
-      order: :timeline_desc  # this is here because ecto knows better than me oslt
+      distinct: [desc: :id], # this does the actual ordering
+      order: [desc: :created], # this is here because ecto knows better than me oslt
+      join: :context,
+      preload: :context
   end
 
   ## by join
@@ -54,7 +52,7 @@ defmodule MoodleNet.Activities.Queries do
 
   def filter(q, {:join,rel}), do: join_to(q, rel)
 
-  ## by user
+  ## user
 
   def filter(q, {:user, match_admin()}) do
     filter(q, :deleted)
@@ -62,8 +60,7 @@ defmodule MoodleNet.Activities.Queries do
 
   def filter(q, {:user, _}), do: filter(q, ~w(deleted private)a)
 
-  ## by status
-  
+  ## status
   def filter(q, :deleted) do
     where q, [activity: a], is_nil(a.deleted_at)
   end
@@ -72,11 +69,7 @@ defmodule MoodleNet.Activities.Queries do
     where q, [activity: a], not is_nil(a.published_at)
   end
 
-  ## by limit
-
-  def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
-
-  ## by field values
+  ## field values
 
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [activity: a], a.id == ^id
@@ -160,52 +153,37 @@ defmodule MoodleNet.Activities.Queries do
 
   ## ordering
 
-  def filter(q, {:order, :timeline_asc}) do
-    order_by q, [activity: a], [asc: a.id]
-  end
-
-  def filter(q, {:order, :timeline_desc}) do
+  def filter(q, {:order, [desc: :created]}) do
     order_by q, [activity: a], [desc: a.id]
   end
 
-  ## by pagination
+  ## limit
 
-  @min_limit 1
-  @max_limit 100
-  @default_limit 25
-  def filter(q, {:paginate, {:timeline_desc, %{after: a}=opts}}) do
-    lim = 2 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim, id: {:lte, lim})
+  def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
+
+  def filter(q, {:select, :id}), do: select(q, [activity: a], [a.id])
+
+  def filter(q, :delete) do
+    now = DateTime.utc_now()
+    update(q, set: [deleted_at: ^now])
   end
 
-  def filter(q, {:paginate, {:timeline_desc, %{before: a}=opts}}) do
-    lim = 2 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim, id: {:gte, lim})
-  end 
+  ## pagination
 
-  def filter(q, {:paginate, {:timeline_desc, %{}=opts}}) do
-    lim = 1 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim)
+  def filter(q, {:page, [desc: [created: %{after: [a], limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 2, id: {:lte, a})
+  end
+  def filter(q, {:page, [desc: [created: %{before: [b], limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 2, id: {:gte, b})
+  end
+  def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
+    filter(q, order: [desc: :created], limit: l + 1)
   end
 
-  defp get_limit(%{limit: n}) when is_integer(n) do
-    cond do
-      n < @min_limit -> @min_limit
-      n > @max_limit -> @max_limit
-      true -> n
-    end
-  end
-  defp get_limit(%{}), do: @default_limit
+  ## preload
 
-
-  ### dynamic filters
-
-  def dyn_filter(:deleted) do
-    dynamic([activity: a], is_nil(a.deleted_at))
-  end
-
-  def dyn_filter(:private) do
-    dynamic([activity: a], not is_nil(a.published_at))
+  def filter(q, {:preload, :context}) do
+    preload q, [context: c], [context: c]
   end
 
 end

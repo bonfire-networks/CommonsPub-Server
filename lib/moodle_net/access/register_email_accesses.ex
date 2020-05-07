@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Access.RegisterEmailAccesses do
 
-  alias MoodleNet.Repo
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailAccessesQueries}
-  alias MoodleNet.Batching.EdgesPage
 
   def one(filters) do
     Repo.single(RegisterEmailAccessesQueries.query(RegisterEmailAccess, filters))
@@ -16,7 +15,11 @@ defmodule MoodleNet.Access.RegisterEmailAccesses do
   end
 
   def create(email) do
-    Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
+    changeset = RegisterEmailAccess.create_changeset(%{email: email})
+    with {:error, _changeset} <- Repo.insert(changeset),
+      do: {:error, "Email already allowlisted"}
   end
-  
+
+  def soft_delete(%RegisterEmailAccess{}=it), do: Common.soft_delete(it)
+
 end

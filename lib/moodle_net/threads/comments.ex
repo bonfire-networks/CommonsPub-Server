@@ -3,14 +3,16 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
+  import ProtocolEx
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Common.Contexts
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
+  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.Meta.{Pointer, Pointers}
+  alias MoodleNet.Meta.{Pointable, Pointer, Pointers}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
@@ -18,54 +20,6 @@ defmodule MoodleNet.Threads.Comments do
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(CommentsQueries.query(Comment, filters))}
-
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    ret =
-      CommentsQueries.query(Comment, filters)
-      |> Repo.all()
-      |> Fields.new(group_fn)
-    {:ok, ret}
-  end
-
-  defp publish(creator, thread, comment, activity, :created) do
-    feeds = context_feeds(thread.context.pointed) ++ [
-      creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(comment.id, creator.id, comment.is_local)
-    end
-  end
-  defp publish(comment, :updated) do
-    ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
-  end
-  defp publish(comment, :deleted) do
-    ap_publish(comment.id, comment.creator_id, comment.is_local) # TODO: wrong if edited by admin
-  end
-
-  defp ap_publish(context_id, user_id, true) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
-  end
-  defp ap_publish(_, _, _), do: :ok
-
-  defp context_feeds(%Resource{}=resource) do
-    r = Repo.preload(resource, [collection: [:community]])
-    [r.collection.outbox_id, r.collection.community.outbox_id]
-  end
-
-  defp context_feeds(%Collection{}=collection) do
-    c = Repo.preload(collection, [:community])
-    [c.outbox_id, c.community.outbox_id]
-  end
-
-  defp context_feeds(%Community{outbox_id: id}), do: [id]
-  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
-  defp context_feeds(_), do: []
-
-  # Comments
 
   @doc """
   Return a list of public, non-deleted, unhidden comments contained in a thread.
@@ -118,7 +72,8 @@ defmodule MoodleNet.Threads.Comments do
            thread = preload_ctx(thread),
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-           :ok <- publish(creator, thread, comment, activity, :created) do
+           :ok <- publish(creator, thread, comment, activity, :created),
+           :ok <- ap_publish(creator, comment) do
         {:ok, %{ comment | thread: thread }}
       end
     end)
@@ -149,7 +104,8 @@ defmodule MoodleNet.Threads.Comments do
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                thread = preload_ctx(thread),
-               :ok <- publish(creator, thread, comment, activity, :created) do
+               :ok <- publish(creator, thread, comment, activity, :created),
+               :ok <- ap_publish(creator, comment) do
             {:ok, comment}
           end
         end)
@@ -174,28 +130,57 @@ defmodule MoodleNet.Threads.Comments do
   end
 
   @spec update(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-
-  def update(%Comment{is_local: false} = comment, attrs) do
-    Repo.update(Comment.update_changeset(comment, attrs))
-  end
-
-  def update(%Comment{is_local: true} = comment, attrs) do
+  def update(%Comment{}=comment, attrs) do
     with {:ok, updated} <- Repo.update(Comment.update_changeset(comment, attrs)),
-         :ok <- publish(comment, :updated) do
+         :ok <- publish(comment, :updated),
+         :ok <- ap_publish(comment) do
       {:ok, updated}
     end
   end
 
   @spec soft_delete(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete(%Comment{is_local: false} = comment) do
-    Common.soft_delete(comment)
-  end
-
-  def soft_delete(%Comment{is_local: true} = comment) do
+  def soft_delete(%Comment{} = comment) do
     with {:ok, deleted} <- Common.soft_delete(comment),
-         :ok <- publish(comment, :deleted) do
+         :ok <- publish(comment, :deleted),
+         :ok <- ap_publish(comment) do
       {:ok, deleted}
     end
   end
+
+  def soft_delete_by(filters) do
+    CommentsQueries.query(Comment)
+    |> CommentsQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp publish(creator, thread, comment, activity, :created) do
+    feeds = context_feeds(thread.context.pointed) ++ [
+      creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
+    ]
+    FeedActivities.publish(activity, feeds)
+  end
+  defp publish(comment, :updated), do: :ok
+  defp publish(comment, :deleted), do: :ok
+
+  defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
+
+  defp ap_publish(user, %{is_local: true}=comment) do
+    FeedPublisher.publish(%{"context_id" => comment.id, "user_id" => user.id})
+  end
+  defp ap_publish(_, _), do: :ok
+
+  defp context_feeds(%Resource{}=resource) do
+    r = Repo.preload(resource, [collection: [:community]])
+    [r.collection.outbox_id, r.collection.community.outbox_id]
+  end
+
+  defp context_feeds(%Collection{}=collection) do
+    c = Repo.preload(collection, [:community])
+    [c.outbox_id, c.community.outbox_id]
+  end
+
+  defp context_feeds(%Community{outbox_id: id}), do: [id]
+  defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
+  defp context_feeds(_), do: []
 
 end

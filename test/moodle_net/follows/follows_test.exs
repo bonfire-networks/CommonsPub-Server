@@ -21,41 +21,6 @@ defmodule MoodleNet.FollowsTest do
     Faker.Util.pick([user, community, collection, thread])
   end
 
-  describe "many/1" do
-    test "returns a list of follows for a user", %{user: follower} do
-      follows =
-        for _ <- 1..5 do
-          followed = fake_followable!()
-          assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
-          follow
-        end
-
-      {:ok, fetched} = Follows.many(creator_id: follower.id)
-
-      assert Enum.count(fetched) == Enum.count(follows)
-    end
-
-    test "returns a list of follows for an item" do
-      followed = fake_followable!()
-
-      follows =
-        for _ <- 1..5 do
-          follower = fake_user!()
-          assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
-          follow
-        end
-
-      {:ok, fetched} = Follows.many(context_id: followed.id)
-
-      assert Enum.count(fetched) == Enum.count(follows)
-
-      for follow <- fetched do
-        assert follow.context
-        assert follow.creator
-      end
-    end
-  end
-
   describe "follow/3" do
     test "creates a follow for anything with an outbox", %{user: follower} do
       followed = fake_followable!()
@@ -92,13 +57,13 @@ defmodule MoodleNet.FollowsTest do
     end
   end
 
-  describe "undo_follow/1" do
+  describe "soft_delete/1" do
     test "removes a follower from a followed object", %{user: follower} do
       followed = fake_followable!()
       assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
       refute follow.deleted_at
 
-      assert {:ok, follow} = Follows.undo(follow)
+      assert {:ok, follow} = Follows.soft_delete(follow)
       assert follow.deleted_at
     end
   end

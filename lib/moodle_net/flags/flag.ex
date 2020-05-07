@@ -11,8 +11,9 @@ defmodule MoodleNet.Flags.Flag do
 
   import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
 
-  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Flags
   alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
   alias Ecto.Changeset
 
@@ -49,5 +50,13 @@ defmodule MoodleNet.Flags.Flag do
     |> Changeset.put_change(:community_id, id)
     |> Changeset.foreign_key_constraint(:community_id)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Flags
+
+  def queries_module, do: Flags.Queries
+
+  def follow_filters, do: []
 
 end

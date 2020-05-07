@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
 
-  alias MoodleNet.Repo
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Access.{RegisterEmailDomainAccess, RegisterEmailDomainAccessesQueries}
-  alias MoodleNet.Batching.EdgesPage
 
   def one(filters) do
     RegisterEmailDomainAccessesQueries.query(RegisterEmailDomainAccess, filters)
@@ -18,7 +17,11 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccesses do
   end
 
   def create(domain) do
-    Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
+    changeset = RegisterEmailDomainAccess.create_changeset(%{domain: domain})
+    with {:error, _changeset} <- Repo.insert(changeset),
+      do: {:error, "Domain already allowlisted"}
   end
   
+  def soft_delete(%RegisterEmailDomainAccess{}=it), do: Common.soft_delete(it)
+
 end

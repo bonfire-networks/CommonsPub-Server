@@ -71,6 +71,8 @@ defmodule Organisation.Migrations do
       drop index(:mn_organisation, :primary_language_id)
       drop table(:mn_organisation)
 
+      MoodleNet.ReleaseTasks.remove_meta_table("organisation")
+
   end
 
 end

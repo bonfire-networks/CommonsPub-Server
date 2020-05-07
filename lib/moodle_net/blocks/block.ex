@@ -3,15 +3,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks.Block do
   use MoodleNet.Common.Schema
-
   import MoodleNet.Common.Changeset,
     only: [change_public: 1, change_synced_timestamp: 3, change_muted: 1]
-
   alias Ecto.Changeset
-  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Blocks
+  alias MoodleNet.Blocks.Block
+  alias MoodleNet.Meta.{Pointer}
   alias MoodleNet.Users.User
 
-  @type t :: %__MODULE__{}
+  @type t :: %Block{}
 
   table_schema "mn_block" do
     belongs_to(:creator, User)
@@ -32,7 +32,7 @@ defmodule MoodleNet.Blocks.Block do
   @required_cast ~w(is_local is_public is_blocked)a
 
   def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
-    %__MODULE__{}
+    %Block{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@required_cast)
     |> Changeset.change(
@@ -47,7 +47,7 @@ defmodule MoodleNet.Blocks.Block do
 
   @update_cast ~w(is_public is_muted is_blocked)a
 
-  def update_changeset(%__MODULE__{} = block, fields) do
+  def update_changeset(%Block{} = block, fields) do
     block
     |> Changeset.cast(fields, @update_cast)
     |> common_changeset()
@@ -59,5 +59,13 @@ defmodule MoodleNet.Blocks.Block do
     |> change_muted()
     |> change_synced_timestamp(:is_blocked, :blocked_at)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Blocks
+
+  def queries_module, do: Blocks.Queries
+
+  def follow_filters, do: []
 
 end

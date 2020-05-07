@@ -34,8 +34,8 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def thread_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url is_local
-         is_public is_hidden created_at updated_at __typename)a
+      ~w(id canonical_url is_local is_public is_hidden created_at
+        follower_count updated_at __typename)a
   end
 
   def comment_fields(extra \\ []) do

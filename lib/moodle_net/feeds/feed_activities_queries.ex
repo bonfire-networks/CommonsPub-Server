@@ -19,16 +19,21 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
+  def join_to(q, rel, jq \\ :left)
+
+  def join_to(q, :activity, jq) do
+    join q, jq, [feed_activity: fa], a in assoc(fa, :activity), as: :activity
+  end
+
+  def join_to(q, :context, jq) do
+    join q, jq, [activity: a], c in assoc(a, :context), as: :context
+  end
+
+  def join_to(q, :feed, jq) do
+    join q, jq, [feed_activity: fa], f in assoc(fa, :feed), as: :feed
   end
 
   ### filter/2
-
-  @will_break_when :privacy # determine when a user can see items
 
   ## by many
 
@@ -36,41 +41,18 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
 
+  ## by join
+
+  def filter(q, {:join, {rel, jq}}), do: join_to(q, rel, jq)
+
+  def filter(q, {:join, rel}), do: join_to(q, rel)
+
   ## by user
 
   def filter(q, {:user, match_admin()}), do: Activities.Queries.filter(q, :deleted)
 
   # Guest or ordinary user are currently not treated differently
   def filter(q, {:user, _}), do: Activities.Queries.filter(q, ~w(deleted private))
-
-  ## by pagination
-
-  @min_limit 1
-  @max_limit 100
-  @default_limit 25
-  def filter(q, {:paginate, {:timeline_desc, %{after: a}=opts}}) do
-    lim = 2 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim, id: {:lte, lim})
-  end
-
-  def filter(q, {:paginate, {:timeline_desc, %{before: a}=opts}}) do
-    lim = 2 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim, id: {:gte, lim})
-  end 
-
-  def filter(q, {:paginate, {:timeline_desc, %{}=opts}}) do
-    lim = 1 + get_limit(opts)
-    filter(q, order: :timeline_desc, limit: lim)
-  end
-
-  defp get_limit(%{limit: n}) when is_integer(n) do
-    cond do
-      n < @min_limit -> @min_limit
-      n > @max_limit -> @max_limit
-      true -> n
-    end
-  end
-  defp get_limit(%{}), do: @default_limit
 
   ## by limit
 
@@ -128,6 +110,11 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
     where q, [context: c], c.table_id in ^ids
   end
 
+  def filter(q, :hard_delete) do
+    q
+    |> filter(join: :activity, join: :feed)
+    |> where([activity: a, feed: f], not is_nil(a.deleted_at) or not is_nil(f.deleted_at))
+  end
   ## by order
 
   def filter(q, {:order, :timeline_desc}) do

@@ -12,14 +12,15 @@ defmodule MoodleNet.BlocksTest do
   setup do
     {:ok, %{user: fake_user!()}}
   end
+
   def fake_meta!() do
     user = fake_user!()
     community = fake_community!(user)
     collection = fake_collection!(user, community)
-    resource = fake_resource!(user, collection)
-    thread = fake_thread!(user, resource)
+    # resource = fake_resource!(user, collection)
+    thread = fake_thread!(user, collection)
     comment = fake_comment!(user, thread)
-    Faker.Util.pick([user, community, collection, resource, thread, comment])
+    Faker.Util.pick([user, community, collection, thread, comment])
   end
 
   describe "block/3" do

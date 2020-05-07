@@ -12,6 +12,7 @@ defmodule MoodleNet.Peers.Queries do
   def filter(q, filter_or_filters)
 
   ## by many
+
   def filter(q, filters) when is_list(filters) do
     Enum.reduce(filters, q, &filter(&2, &1))
   end
@@ -34,4 +35,5 @@ defmodule MoodleNet.Peers.Queries do
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [peer: p], p.id in ^ids
   end
+
 end

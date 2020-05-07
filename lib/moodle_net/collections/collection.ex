@@ -7,6 +7,7 @@ defmodule MoodleNet.Collections.Collection do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
+  alias MoodleNet.Collections
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
@@ -34,6 +35,7 @@ defmodule MoodleNet.Collections.Collection do
     field(:is_disabled, :boolean, virtual: true, default: false)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
+    field(:extra_info, :map)
     timestamps()
   end
 
@@ -69,4 +71,13 @@ defmodule MoodleNet.Collections.Collection do
     |> change_public()
     |> change_disabled()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Collections
+
+  def queries_module, do: Collections.Queries
+
+  def follow_filters, do: [:default]
+
 end

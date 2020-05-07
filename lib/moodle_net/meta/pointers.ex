@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
 
-  alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
+  alias MoodleNet.Meta.{Pointable, Pointer, PointersQueries, TableService}
   alias MoodleNet.Peers
   alias MoodleNet.Repo
 
@@ -75,8 +75,10 @@ defmodule MoodleNet.Meta.Pointers do
   end
   def preload!(%{__struct__: _}=pointed, _), do: pointed
 
-  defp preload_collate(loaded, pointers),
-    do: Enum.map(pointers, fn p -> %{ p | pointed: Map.fetch!(loaded, p.id) } end)
+  defp preload_collate(loaded, pointers), do: Enum.map(pointers, &collate(loaded, &1))
+
+  defp collate(_, nil), do: nil
+  defp collate(loaded, %{}=p), do: %{ p | pointed: Map.get(loaded, p.id, %{}) }
 
   defp preload_load(pointers, opts) do
     force = Keyword.get(opts, :force, false)
@@ -98,50 +100,13 @@ defmodule MoodleNet.Meta.Pointers do
     Enum.reduce(items, acc, &Map.put(&2, &1.id, &1))
   end
 
-  alias MoodleNet.{
-    Activities,
-    Blocks,
-    Collections,
-    Communities,
-    Features,
-    Feeds,
-    Flags,
-    Follows,
-    Likes,
-    Resources,
-    Threads,
-    Users,
-  }
-  alias MoodleNet.Activities.Activity
-  alias MoodleNet.Blocks.Block
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Features.Feature
-  alias MoodleNet.Feeds.Feed
-  alias MoodleNet.Flags.Flag
-  alias MoodleNet.Follows.Follow
-  alias MoodleNet.Likes.Like
-  alias MoodleNet.Peers.Peer
-  alias MoodleNet.Threads.{Comment, Comments, Thread}
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Users.User
-
   defp loader(schema, filters) when not is_atom(schema) do
     loader(TableService.lookup_schema!(schema), filters)
   end
+  defp loader(schema, filters) do
+    module = apply(schema, :queries_module, [])
+    filters = apply(schema, :follow_filters, []) ++ filters
+    {:ok, Repo.all(apply(module, :query, [schema, filters]))}
+  end
 
-  defp loader(Activity, filters), do: Activities.many(filters)
-  defp loader(Block, filters), do: Blocks.many(filters)
-  defp loader(Collection, filters), do: Collections.many([:default | filters])
-  defp loader(Comment, filters), do: Comments.many(filters)
-  defp loader(Community, filters), do: Communities.many([:default | filters])
-  defp loader(Feature, filters), do: Features.many(filters)
-  defp loader(Feed, filters), do: Feeds.many(filters)
-  defp loader(Flag, filters), do: Flags.many(filters)
-  defp loader(Follow, filters), do: Follows.many(filters)
-  defp loader(Like, filters), do: Likes.many(filters)
-  defp loader(Peer, filters), do: Peers.many(filters)
-  defp loader(Resource, filters), do: Resources.many(filters)
-  defp loader(Thread, filters), do: Threads.many(filters)
-  defp loader(User, filters), do: Users.many(filters)
 end

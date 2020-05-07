@@ -6,7 +6,7 @@ defmodule MoodleNet.CommonTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Blocks, Common, Features, Flags, Follows, Likes}
+  alias MoodleNet.Flags
   alias MoodleNet.Test.Fake
 
   setup do
@@ -20,7 +20,7 @@ defmodule MoodleNet.CommonTest do
     resource = fake_resource!(user, collection)
     thread = fake_thread!(user, resource)
     comment = fake_comment!(user, thread)
-    Faker.Util.pick([user, community, collection, resource, thread, comment])
+    Faker.Util.pick([user, community, collection, resource, comment])
   end
 
   describe "flag/3" do
@@ -44,13 +44,13 @@ defmodule MoodleNet.CommonTest do
     end
   end
 
-  describe "resolve_flag/1" do
+  describe "soft_delete/1" do
     test "soft deletes a flag", %{user: flagger} do
       thing = fake_meta!()
       assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       refute flag.deleted_at
 
-      assert {:ok, flag} = Flags.resolve(flag)
+      assert {:ok, flag} = Flags.soft_delete(flag)
       assert flag.deleted_at
     end
   end

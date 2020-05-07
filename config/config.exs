@@ -102,6 +102,9 @@ config :moodle_net, Uploads.IconUploader,
 config :moodle_net, Uploads.ImageUploader,
   allowed_media_types: image_media_types
 
+config :moodle_net, Uploads,
+  max_file_size: System.get_env("UPLOAD_LIMIT", "20000000") # default to 20mb
+
  # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
   # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
@@ -212,6 +215,8 @@ config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
+
+config :moodle_net, :env, Mix.env
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
