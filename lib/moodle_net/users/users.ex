@@ -5,11 +5,13 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
+  import ProtocolEx
   alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
   alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Common.Contexts
   alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Mail.{Email, MailService}
+  alias MoodleNet.Meta.Pointable
 
   alias MoodleNet.Users.{
     EmailConfirmToken,
@@ -228,8 +230,9 @@ defmodule MoodleNet.Users do
     cs = LocalUser.soft_delete_changeset(user.local_user)
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
-           {:ok, local_user} <- Repo.update(cs) do
-        user = preload_actor(%{ user | local_user: local_user})
+           {:ok, local_user} <- Repo.update(cs),
+           user = preload_actor(%{ user | local_user: local_user}),
+           :ok <- ap_publish(user) do
         {:ok, user}
       end
     end)
@@ -244,6 +247,12 @@ defmodule MoodleNet.Users do
         {:ok, user}
       end
     end)
+  end
+
+  def soft_delete_by(filters) do
+    Queries.query(User)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
   end
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
@@ -291,6 +300,10 @@ defmodule MoodleNet.Users do
     Repo.preload(user, :local_user, opts)
   end
 
+  defp ap_publish(user) do
+    :ok
+  end
+
   @doc false
   def default_inbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
@@ -302,6 +315,5 @@ defmodule MoodleNet.Users do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
-
 
 end

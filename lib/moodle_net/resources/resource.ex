@@ -9,6 +9,7 @@ defmodule MoodleNet.Resources.Resource do
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
+  alias MoodleNet.Resources
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User
 
@@ -28,11 +29,12 @@ defmodule MoodleNet.Resources.Resource do
     field(:is_disabled, :boolean, virtual: true)
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
+    field(:extra_info, :map)
     timestamps()
   end
 
-  @required ~w(name)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id content_id author)a
+  @required ~w(name content_id)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id author)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
@@ -61,5 +63,13 @@ defmodule MoodleNet.Resources.Resource do
     |> change_disabled()
     |> change_public()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Resources
+
+  def queries_module, do: Resources.Queries
+
+  def follow_filters, do: []
 
 end

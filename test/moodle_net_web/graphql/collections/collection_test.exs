@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNet.Test.Faking
   import Grumble
   import Zest
-  alias MoodleNet.{Flags, Follows, Likes}
+  alias MoodleNet.{Flags, Follows, Likes, Threads}
 
   describe "collection" do
 
@@ -373,7 +373,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       for conn <- [json_conn(), user_conn(bob), user_conn(alice), user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert %{threads: threads} = coll2
-        _threads = assert_page(threads, 5, 25, false, true, &[&1["id"]])
+        _threads = assert_page(threads, 5, 25, false, true, Threads.test_cursor(:followers))
         # initials2 = Enum.flat_map(threads.edges, fn thread ->
         #   assert_page(thread["comments"], 1, 3, nil, true, &(&1["id"])).edges
         # end)

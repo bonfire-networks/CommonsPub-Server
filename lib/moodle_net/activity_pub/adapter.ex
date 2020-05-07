@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.ActivityPub.Adapter do
-  alias MoodleNet.{Collections, Communities, Repo, Resources, Threads, Users}
+  alias MoodleNet.{Collections, Communities, Common, Repo, Resources, Threads, Users}
   alias MoodleNet.ActivityPub.Utils
   alias MoodleNet.Algolia.Indexer
   alias MoodleNet.Meta.Pointers
@@ -227,17 +227,19 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Note", "inReplyTo" => in_reply_to}} = object
       )
       when not is_nil(in_reply_to) do
+    # This will fail if the reply isn't in database
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
-         {:ok, _} <-
+         {:ok, comment} <-
            Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
              canonical_url: object.data["id"]
            }) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: comment.id})
       :ok
     else
       {:error, e} -> {:error, e}
@@ -253,13 +255,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
          parent = Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
-         {:ok, _} <-
+         {:ok, comment} <-
            Comments.create(actor, thread, %{
              is_public: object.public,
              content: object.data["content"],
              is_local: false,
              canonical_url: object.data["id"]
            }) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: comment.id})
       :ok
     else
       {:error, e} -> {:error, e}
@@ -295,6 +298,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          },
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do
+      ActivityPub.Object.update(object, %{mn_pointer_id: resource.id})
       Indexer.maybe_index_object(resource)
       :ok
     else
@@ -344,7 +348,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
            MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
-         {:ok, _} <- MoodleNet.Follows.undo(follow) do
+         {:ok, _} <- MoodleNet.Follows.soft_delete(follow) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -424,13 +428,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
       case object.data["formerType"] do
         "Note" ->
           with {:ok, comment} <- Comments.one(id: object.mn_pointer_id),
-               {:ok, _} <- Comments.soft_delete(comment) do
+               {:ok, _} <- Common.soft_delete(comment) do
             :ok
           end
 
         "Document" ->
           with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
-               {:ok, _} <- Resources.soft_delete(resource) do
+               {:ok, _} <- Common.soft_delete(resource) do
             :ok
           end
       end

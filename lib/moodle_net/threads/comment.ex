@@ -8,6 +8,7 @@ defmodule MoodleNet.Threads.Comment do
     only: [change_public: 1, change_synced_timestamp: 3]
 
   alias Ecto.Changeset
+  alias MoodleNet.Threads
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Users.User
 
@@ -58,5 +59,13 @@ defmodule MoodleNet.Threads.Comment do
     |> change_public()
     |> change_synced_timestamp(:is_hidden, :hidden_at)
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Threads.Comments
+
+  def queries_module, do: Threads.CommentsQueries
+
+  def follow_filters, do: []
 
 end

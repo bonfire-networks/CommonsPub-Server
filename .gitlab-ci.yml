@@ -16,7 +16,7 @@ cache:
     - .pip
 
 stages:
-  - build
+  # - build
   - test
   - deploy
 
@@ -25,11 +25,11 @@ before_script:
   - make manual-deps
   - pip --cache-dir=.pip install -U pip # upgrade pip
   
-build:
-  stage: build
-  script:
-    - mix deps.get
-    - mix compile --force
+# build:
+#   stage: build
+#   script:
+#     - mix deps.get
+#     - mix compile --force
     
 unit-testing:
   stage: test
@@ -37,9 +37,10 @@ unit-testing:
   - name: postgres:9.6.6
     command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
   script:
+    - mix compile --force
     - mix ecto.create
     - mix ecto.migrate
-    - mix test --trace --preload-modules
+    - mix coveralls --preload-modules
 
 locales-and-docs:
   stage: test # deploy documentation (stage should be changed 'deploy' when tests are fixed)
@@ -60,7 +61,7 @@ locales-and-docs:
   - develop
 
 staging-build-and-push:
-  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  stage: deploy # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:
@@ -76,7 +77,7 @@ staging-build-and-push:
   - develop
 
 stable-build-and-push:
-  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  stage: deploy # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:

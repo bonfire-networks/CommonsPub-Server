@@ -9,7 +9,15 @@ defmodule MoodleNet.Uploads do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
-  alias MoodleNet.Uploads.{Content, ContentUpload, ContentMirror, Storage, Queries}
+  alias MoodleNet.Uploads.{
+    Content,
+    ContentUpload,
+    ContentUploadQueries,
+    ContentMirror,
+    ContentMirrorQueries,
+    Storage,
+    Queries,
+  }
 
   def one(filters), do: Repo.single(Queries.query(Content, filters))
 
@@ -82,12 +90,32 @@ defmodule MoodleNet.Uploads do
 
   def remote_url_from_id(content_id) when is_binary(content_id) do
     case __MODULE__.one(id: content_id) do
-      {:ok, content} -> remote_url(content)
+      {:ok, content} ->
+        {:ok, url} = remote_url(content)
+        url
       _ -> nil
     end
   end
 
   def remote_url_from_id(_), do: nil
+
+  def update_by(filters, updates) do
+    Queries.query(Content)
+    |> Queries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  def update_by(ContentMirror, filters, updates) do
+    ContentMirrorQueries.query(ContentMirror)
+    |> ContentMirrorQueries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  def update_by(ContentUpload, filters, updates) do
+    ContentUploadQueries.query(ContentUpload)
+    |> ContentUploadQueries.filter(filters)
+    |> Repo.update_all(updates)
+  end
 
   @doc """
   Delete an upload, removing it from indexing, but the files remain available.
@@ -110,6 +138,38 @@ defmodule MoodleNet.Uploads do
     with {:ok, v} <- resp, do: v
   end
 
+  def hard_delete() do
+    {_, work} = delete_by(deleted: true)
+    {mirrors, uploads} = Enum.reduce(work, {[],[]}, fn item, {mirrors, uploads} ->
+      case item do
+        %{content_mirror_id: nil, content_upload_id: nil} -> {mirrors, uploads}
+        %{content_mirror_id: m, content_upload_id: nil} -> {[ m | mirrors ], uploads}
+        %{content_mirror_id: nil, content_upload_id: u} -> {mirrors, [ u | uploads ]}
+        %{content_mirror_id: m, content_upload_id: u} -> {[ m | mirrors ], [ u | uploads ]}
+      end
+    end)
+    delete_by(ContentMirror, id: mirrors)
+    delete_by(ContentUpload, id: uploads)
+  end
+  
+  defp delete_by(filters) do
+    Queries.query(Content)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp delete_by(ContentMirror, filters) do
+    ContentMirrorQueries.query(ContentMirror)
+    |> ContentMirrorQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
+  defp delete_by(ContentUpload, filters) do
+    ContentUploadQueries.query(ContentUpload)
+    |> ContentUploadQueries.filter(filters)
+    |> Repo.delete_all()
+  end
+
   defp is_remote_file?(%{url: url}), do: is_remote_file?(url)
 
   defp is_remote_file?(url) when is_binary(url) do
@@ -123,15 +183,24 @@ defmodule MoodleNet.Uploads do
     {:error, :both_url_and_upload_should_not_be_set}
   end
 
-  defp parse_file(%{url: url} = file) when is_binary(url) do
-    with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+  if Mix.env == :test do
+    # FIXME: seriously don't do this, send help
+    defp parse_file(%{url: url} = file) when is_binary(url) do
+      {:ok, file_info} = MoodleNet.MockFileParser.from_uri(url)
       {:ok, Map.merge(file, file_info)}
-    else
-      # match behaviour of uploads
-      {:error, {:request_failed, 404}} -> {:error, :enoent}
+    end
+  else
+    defp parse_file(%{url: url} = file) when is_binary(url) do
+      with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+        {:ok, Map.merge(file, file_info)}
+      else
+        # match behaviour of uploads
+        {:error, {:request_failed, 404}} -> {:error, :enoent}
       {:error, {:request_failed, 403}} -> {:error, :forbidden}
-      {:error, :bad_request} -> {:error, :bad_request}
+        {:error, :bad_request} -> {:error, :bad_request}
       {:error, {:tls_alert, _}} -> {:error, :tls_alert}
+        {:error, other} -> {:error, other}
+      end
     end
   end
 
@@ -145,8 +214,14 @@ defmodule MoodleNet.Uploads do
     end
   end
 
+  defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
+
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    case upload_def.allowed_media_types() do
+    media_types = :moodle_net
+    |> Application.fetch_env!(upload_def)
+    |> Keyword.fetch!(:allowed_media_types)
+
+    case media_types do
       :all ->
         :ok
 
@@ -158,4 +233,5 @@ defmodule MoodleNet.Uploads do
         end
     end
   end
+
 end

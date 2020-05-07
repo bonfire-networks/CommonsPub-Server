@@ -55,7 +55,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   defp publish(context) do
-    Logger.warn("Unsupported type for AP publisher: #{context.id}")
+    Logger.warn("Unsupported type for AP publisher: #{context.id}, #{context.__struct__}")
 
     :ignored
   end
