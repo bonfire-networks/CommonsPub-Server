@@ -145,12 +145,8 @@ defmodule Measurement.Unit.Units do
   def update(%Unit{} = unit, attrs) do
     Repo.transact_with(fn ->
       unit = Repo.preload(unit, :community)
-      IO.inspect(unit)
-
       with {:ok, unit} <- Repo.update(Measurement.Unit.update_changeset(unit, attrs)) do
           #  :ok <- publish(unit, :updated) do
-          #   IO.inspect("unit")
-          #   IO.inspect(unit)
             {:ok,  unit }
        end
     end)
