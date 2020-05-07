@@ -55,6 +55,19 @@ defmodule MoodleNet.Feeds.FeedActivities do
     end
   end
 
+  def update_by(filters, updates \\ []) do
+    FeedActivitiesQueries.query(FeedActivity)
+    |> FeedActivitiesQueries.filter(filters)
+    |> Repo.update_all(updates)
+  end
+
+  @doc false
+  def hard_delete() do
+    FeedActivitiesQueries.query(FeedActivity)
+    |> FeedActivitiesQueries.filter(:hard_delete)
+    |> Repo.delete_all()
+  end
+
   @doc "Publish an activity to the feeds with the given ids"
   @spec publish(Activity.t, feed_ids :: [binary]) :: :ok
   def publish(activity, feed_ids) when is_list(feed_ids) do

@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.ExecutionResolution do
 
   defp debug_exception(msg, exception, stacktrace, kind) do
     debug_log(msg, exception, stacktrace, kind)
-    if Application.get_env(:moodle_net, :env) or System.get_env("SENTRY_ENV") == "next" do
+    if Application.get_env(:moodle_net, :env) == :dev or System.get_env("SENTRY_ENV") == "next" do
       {:error, msg 
         <> ": " 
         <> Exception.format_banner(kind, exception, stacktrace)

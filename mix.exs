@@ -103,7 +103,7 @@ defmodule MoodleNet.Mixfile do
       {:telemetry, "~> 0.4.0"}, # stats
       {:sentry, "~> 7.1", runtime: sentry?()}, # production only
       # Misc
-      {:protocol_ex, "~> 0.3.0"},
+      # {:protocol_ex, "~> 0.3.0"},
       {:jason, "~> 1.1"},    # json
       {:gettext, "~> 0.17"}, # localisation
       {:recase, "~> 0.2"},   # camel/snake/kebabification
@@ -121,8 +121,8 @@ defmodule MoodleNet.Mixfile do
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
       # {:retrieval, "~> 0.9.1"}, # taxonomy trees
-      #{:redix, "~> 0.10.5"}, # Redis client
-      #{:ex_redi, "~> 0.1.1"}, # RediSearch client
+      # {:redix, "~> 0.10.5"}, # Redis client
+      # {:ex_redi, "~> 0.1.1"}, # RediSearch client
       # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:zest, "~> 0.1.1", only: [:dev, :test]},
@@ -132,7 +132,8 @@ defmodule MoodleNet.Mixfile do
       {:stream_data, "~> 0.4"},                     # property testing
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
       {:ex_doc, "~> 0.21", only: :dev, runtime: false}, # doc gen
-      {:excoveralls, "~> 0.10", only: :test} # test coverage statistics
+      {:excoveralls, "~> 0.10", only: :test}, # test coverage statistics
+      {:mock, "~> 0.3.3", only: :test} # module mocking
     ]
   end
 

@@ -64,7 +64,7 @@ defmodule MoodleNet.UploadsTest do
     end
 
     test "fails when the file has a disallowed extension" do
-      file = %{path: "test/fixtures/not-a-virus.exe", filename: "not-a-virus.exe"}
+      file = %{path: "test/fixtures/empty.fbx", filename: "empty.fbx"}
       assert {:error, :extension_denied} = fake_upload(file)
     end
 

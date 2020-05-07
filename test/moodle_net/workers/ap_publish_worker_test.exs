@@ -65,6 +65,15 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
   end
 
   describe "true locality checks" do
+    test "it does federate local comments" do
+      user = fake_user!()
+      community = fake_community!(user)
+      thread = fake_thread!(user, community)
+      comment = fake_comment!(user, thread, %{is_local: true})
+
+      assert {:ok, _} = APPublishWorker.perform(%{"context_id" => comment.id}, %{})
+    end
+
     test "it does federate local resources" do
       user = fake_user!()
       community = fake_community!(user)
@@ -80,6 +89,14 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, _} = APPublishWorker.perform(%{"context_id" => community.id}, %{})
     end
 
+    test "it does federate local collections" do
+      user = fake_user!()
+      community = fake_community!(user)
+      collection = fake_collection!(user, community)
+
+      assert {:ok, _} = APPublishWorker.perform(%{"context_id" => collection.id}, %{})
+    end
+
     test "it does federate local follows" do
       user = fake_user!()
       community = fake_user!() |> fake_community!()
@@ -88,5 +105,44 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, _} = APPublishWorker.perform(%{"context_id" => follow.id}, %{})
     end
 
+    test "it does federate local likes" do
+      user = fake_user!()
+      community = fake_community!(user)
+      user2 = fake_user!()
+      thread = fake_thread!(user2, community)
+      comment = fake_comment!(user2, thread, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+
+      {:ok, like} = MoodleNet.Likes.create(user, comment, %{is_local: true})
+      assert {:ok, _, _} = APPublishWorker.perform(%{"context_id" => like.id}, %{})
+    end
+  end
+
+  describe "deletes" do
+    test "it federates an undo follow activity" do
+      user = fake_user!()
+      community = fake_user!() |> fake_community!()
+      {:ok, follow} = MoodleNet.Follows.create(user, community, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, deleted_follow} = MoodleNet.Follows.soft_delete(follow)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => deleted_follow.id}, %{})
+      assert activity.data["type"] == "Undo"
+    end
+
+    test "it federates an undo like activity do" do
+      user = fake_user!()
+      community = fake_community!(user)
+      user2 = fake_user!()
+      thread = fake_thread!(user2, community)
+      comment = fake_comment!(user2, thread, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, like} = MoodleNet.Likes.create(user, comment, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, deleted_like} = MoodleNet.Likes.soft_delete(like)
+
+      assert {:ok, activity, _, _} = APPublishWorker.perform(%{"context_id" => deleted_like.id}, %{})
+      assert activity.data["type"] == "Undo"
+    end
   end
 end

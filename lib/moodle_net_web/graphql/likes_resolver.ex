@@ -43,8 +43,14 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
   def fetch_my_like_edge(_info, []), do: %{}
   def fetch_my_like_edge(info, ids) do
     user = GraphQL.current_user(info)
-    {:ok, likes} = Likes.fields(&(&1.context_id), [:deleted, creator_id: user.id, context_id: ids])
-    likes
+    FetchFields.run(
+      %FetchFields{
+        queries: Likes.Queries,
+        query: Like,
+        group_fn: &(&1.context_id),
+        filters: [:deleted, creator_id: user.id, context_id: ids],
+      }
+    )
   end
 
   def likers_edge(%{id: id}, %{}=page_opts, info) do

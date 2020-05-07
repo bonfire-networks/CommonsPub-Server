@@ -11,10 +11,11 @@ defmodule MoodleNet.Users.User do
     only: [change_synced_timestamp: 3, change_public: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.{LocalUser, User}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Uploads.Content
+  alias MoodleNet.Users
+  alias MoodleNet.Users.{LocalUser, User}
 
   table_schema "mn_user" do
     belongs_to(:actor, Actor)
@@ -76,5 +77,13 @@ defmodule MoodleNet.Users.User do
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> change_public()
   end
+
+  ### behaviour callbacks
+
+  def context_module, do: Users
+
+  def queries_module, do: Users.Queries
+
+  def follow_filters, do: []
 
 end

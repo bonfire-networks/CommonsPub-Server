@@ -55,7 +55,7 @@ defmodule MoodleNet.ReleaseTasks do
   end
 
   def startup_migrations() do
-    if System.get_env("AUTORUN_DB_MIGRATIONS") == "true" do
+    if is_nil(System.get_env("DISABLE_DB_AUTOMIGRATION")) do
       start_repos()
       # create_repos()
       migrate_repos()
@@ -201,6 +201,11 @@ defmodule MoodleNet.ReleaseTasks do
   def soft_delete_community(id) do
        {:ok, community} = MoodleNet.Communities.one(id: id)
        {:ok, community} = MoodleNet.Communities.soft_delete(community)
+  end
+
+  def user_set_email_confirmed(username) do
+    {:ok, u} = MoodleNet.Users.one([:default, username: username])
+    MoodleNet.Users.confirm_email(u)
   end
 
   def make_instance_admin(username) do
