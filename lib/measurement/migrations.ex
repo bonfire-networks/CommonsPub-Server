@@ -42,6 +42,22 @@ defmodule Measurement.Migrations do
 
   end
 
+  def rename_measure_and_fields do
+    rename table(:measurement), to: table(:measurement_measure)
+
+    :ok = execute(
+      # Up
+      """
+    alter table measurement_measure
+    rename column "hasNumericalValue" to has_numerical_value;
+    """,
+      # Down
+    """
+    alter table measurement_measure
+    rename column has_numerical_value to "hasNumericalValue";
+    """)
+  end
+
   def add_pointer do
     tables = Enum.map(@meta_tables, fn name ->
         %{"id" => ULID.bingenerate(), "table" => name}
