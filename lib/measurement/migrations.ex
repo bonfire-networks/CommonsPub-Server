@@ -1,7 +1,6 @@
 defmodule Measurement.Migrations do
   use Ecto.Migration
   alias MoodleNet.Repo
-  alias Ecto.ULID
 
   @meta_tables [] ++ ~w(measurement_unit measurement)
 
@@ -42,27 +41,32 @@ defmodule Measurement.Migrations do
 
   end
 
-  def rename_measure_and_fields do
+  def rename_measure_and_fields(:up) do
     MoodleNet.Meta.Migration.remove_meta_table("measurement")
 
     rename table(:measurement), to: table(:measurement_measure)
 
     flush() # make sure rename happens first
 
-    :ok = execute(
-      # Up
-      """
-      alter table measurement_measure
-      rename column "hasNumericalValue" to has_numerical_value;
-      """,
-      # Down
-      """
-      alter table measurement_measure
-      rename column has_numerical_value to "hasNumericalValue";
-      """
-    )
+    :ok = execute("""
+    alter table measurement_measure
+    rename column "hasNumericalValue" to has_numerical_value;
+    """)
 
     MoodleNet.Meta.Migration.insert_meta_table("measurement_measure")
+  end
+
+  def rename_measure_and_fields(:down) do
+    MoodleNet.Meta.Migration.remove_meta_table("measurement_measure")
+
+    rename table(:measurement_measure), to: table(:measurement)
+
+    :ok = execute("""
+    alter table measurement
+    rename column has_numerical_value to "hasNumericalValue";
+    """)
+
+    MoodleNet.Meta.Migration.insert_meta_table("measurement")
   end
 
   def add_pointer do
