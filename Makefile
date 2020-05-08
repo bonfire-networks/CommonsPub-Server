@@ -1,6 +1,6 @@
 .PHONY: help dev-exports dev-build dev-deps dev-db dev-test-db dev-test dev-setup dev
 
-APP_NAME=moodlenet
+APP_NAME=commonspub
 APP_DOTENV=config/docker.env
 APP_DEV_DOTENV=config/docker.dev.env
 APP_DEV_DOCKERCOMPOSE=docker-compose.dev.yml
