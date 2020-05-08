@@ -3,7 +3,7 @@ defmodule Measurement.Migrations do
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(measurement_unit measurement) 
+  @meta_tables [] ++ ~w(measurement_unit measurement)
 
   def change do
     create table(:measurement_unit) do
@@ -43,39 +43,29 @@ defmodule Measurement.Migrations do
   end
 
   def rename_measure_and_fields do
+    MoodleNet.Meta.Migration.remove_meta_table("measurement")
+
     rename table(:measurement), to: table(:measurement_measure)
+
+    flush() # make sure rename happens first
 
     :ok = execute(
       # Up
       """
-    alter table measurement_measure
-    rename column "hasNumericalValue" to has_numerical_value;
-    """,
+      alter table measurement_measure
+      rename column "hasNumericalValue" to has_numerical_value;
+      """,
       # Down
-    """
-    alter table measurement_measure
-    rename column has_numerical_value to "hasNumericalValue";
-    """)
+      """
+      alter table measurement_measure
+      rename column has_numerical_value to "hasNumericalValue";
+      """
+    )
+
+    MoodleNet.Meta.Migration.insert_meta_table("measurement_measure")
   end
 
   def add_pointer do
-    tables = Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-      {_, _} = Repo.insert_all("mn_table", tables)
-      tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-    end)
-
-    for table <- @meta_tables do
-        :ok = execute """
-        create trigger "insert_pointer_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure insert_pointer()
-        """
-    end
+    for table <- @meta_tables, do: MoodleNet.Meta.Migration.insert_meta_table(table)
   end
-
-
 end

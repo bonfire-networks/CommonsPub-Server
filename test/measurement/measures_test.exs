@@ -22,7 +22,10 @@ defmodule Measurement.MeasuresTest do
   end
 
   describe "create" do
-    
+    test "creates a new measure" do
+      user = fake_user!()
+      {:ok, measure} = Measures.create(user, %{has_numerical_value: 15})
+    end
   end
 
   describe "update" do

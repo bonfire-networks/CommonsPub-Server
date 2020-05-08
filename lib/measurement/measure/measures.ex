@@ -85,29 +85,29 @@ defmodule Measurement.Measure.Measures do
     end)
   end
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
+  # @spec create(User.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
+  # def create(%User{} = creator, attrs) when is_map(attrs) do
 
-    Repo.transact_with(fn ->
-      with {:ok, item} <- insert_measure(creator, attrs) do
-          #  act_attrs = %{verb: "created", is_local: true},
-          #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-          #  :ok <- publish(creator, community, item, activity, :created),
-          # do
-            {:ok, item}
-          end
-    end)
-  end
-
-  defp insert_measure(creator, attrs) do
-    cs = Measurement.Measure.create_changeset(creator, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
-  end
+  #   Repo.transact_with(fn ->
+  #     with {:ok, item} <- insert_measure(creator, attrs) do
+  #         #  act_attrs = %{verb: "created", is_local: true},
+  #         #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+  #         #  :ok <- publish(creator, community, item, activity, :created),
+  #         # do
+  #           {:ok, item}
+  #         end
+  #   end)
+  # end
 
   defp insert_measure(creator, attrs) do
     cs = Measurement.Measure.create_changeset(creator, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
+
+  # defp insert_measure(creator, attrs) do
+  #   cs = Measurement.Measure.create_changeset(creator, attrs)
+  #   with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+  # end
 
   # defp publish(creator, measure, activity, :created) do
   #   feeds = [
