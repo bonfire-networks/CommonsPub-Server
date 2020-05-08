@@ -5,7 +5,7 @@ defmodule Measurement.Measure.Measures do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias Measurement.Measure
+  alias Measurement.{Measure, Unit}
   alias Measurement.Measure.Queries
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
@@ -71,43 +71,37 @@ defmodule Measurement.Measure.Measures do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    IO.inspect(attrs)
-
     Repo.transact_with(fn ->
       with {:ok, item} <- insert_measure(creator, attrs) do
           #  act_attrs = %{verb: "created", is_local: true},
           #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
           #  :ok <- publish(creator, item, activity, :created),
           # do
-            {:ok, item}
-          end
+        {:ok, item}
+      end
     end)
   end
 
-  # @spec create(User.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
-  # def create(%User{} = creator, attrs) when is_map(attrs) do
-
-  #   Repo.transact_with(fn ->
-  #     with {:ok, item} <- insert_measure(creator, attrs) do
-  #         #  act_attrs = %{verb: "created", is_local: true},
-  #         #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-  #         #  :ok <- publish(creator, community, item, activity, :created),
-  #         # do
-  #           {:ok, item}
-  #         end
-  #   end)
-  # end
-
-  defp insert_measure(creator, attrs) do
-    cs = Measurement.Measure.create_changeset(creator, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+  @spec create(User.t(), Unit.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %Unit{} = unit, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, item} <- insert_measure(creator, unit, attrs) do
+          #  act_attrs = %{verb: "created", is_local: true},
+          #  {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+          #  :ok <- publish(creator, community, item, activity, :created),
+          # do
+        {:ok, item}
+      end
+    end)
   end
 
-  # defp insert_measure(creator, attrs) do
-  #   cs = Measurement.Measure.create_changeset(creator, attrs)
-  #   with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
-  # end
+  defp insert_measure(creator, attrs) do
+    Repo.insert(Measurement.Measure.create_changeset(creator, attrs))
+  end
+
+  defp insert_measure(creator, unit, attrs) do
+    Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs))
+  end
 
   # defp publish(creator, measure, activity, :created) do
   #   feeds = [
@@ -137,15 +131,10 @@ defmodule Measurement.Measure.Measures do
   @spec update(%Measure{}, attrs :: map) :: {:ok, Measurement.Measure.t()} | {:error, Changeset.t()}
   def update(%Measure{} = measure, attrs) do
     Repo.transact_with(fn ->
-      measure = Repo.preload(measure)
-      IO.inspect(measure)
-
       with {:ok, measure} <- Repo.update(Measurement.Measure.update_changeset(measure, attrs)) do
           #  :ok <- publish(measure, :updated) do
-          #   IO.inspect("measure")
-          #   IO.inspect(measure)
-            {:ok,  measure }
-       end
+        {:ok,  measure }
+      end
     end)
   end
 

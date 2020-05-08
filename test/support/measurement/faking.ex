@@ -4,14 +4,16 @@
 defmodule Measurement.Test.Faking do
   @moduledoc false
 
-  alias MoodleNet.Test.Fake
+  import ExUnit.Assertions
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
 
   import Grumble
 
-  alias Measurement.Unit
+  alias MoodleNet.Test.Fake
+  alias Measurement.{Measure, Unit}
+  alias Measurement.Measure.Measures
   alias Measurement.Unit.Units
 
   @doc "A unit"
@@ -33,7 +35,14 @@ defmodule Measurement.Test.Faking do
     |> Map.merge(Fake.actor(base))
   end
 
-  def fake_unit!(user, community, overrides \\ %{}) when is_map(overrides) do
+  def fake_unit!(user, community \\ nil, overrides \\ %{})
+
+  def fake_unit!(user, community, overrides) when is_nil(community) do
+    {:ok, unit} = Units.create(user, unit(overrides))
+    unit
+  end
+
+  def fake_unit!(user, community, overrides) do
     {:ok, unit} = Units.create(user, community, unit(overrides))
     unit
   end
@@ -104,4 +113,47 @@ defmodule Measurement.Test.Faking do
   def some_fake_units!(opts \\ %{}, some_arg, users, communities) do
     flat_pam_product_some(users, communities, some_arg, &fake_unit!(&1, &2, opts))
   end
+
+  ## Measures
+  def measure(overrides \\ %{}) do
+    overrides
+    |> Map.put_new_lazy(:has_numerical_value, &Fake.integer/0)
+    |> Map.put_new_lazy(:is_public, &Fake.truth/0)
+  end
+
+  def fake_measure!(user, unit \\ nil, overrides \\ %{})
+  def fake_measure!(user, unit, overrides) when is_nil(unit) do
+    {:ok, measure} = Measures.create(user, measure(overrides))
+    measure
+  end
+
+  def fake_measure!(user, unit, overrides) do
+    {:ok, measure} = Measures.create(user, unit, measure(overrides))
+    measure
+  end
+
+  def assert_float(val), do: assert(is_float(val)) && val
+
+  def assert_measure(%Measure{} = measure) do
+    assert_measure(Map.from_struct(measure))
+  end
+
+  def assert_measure(measure) do
+    assert_object measure, :assert_measure,
+      [id: &assert_ulid/1,
+       has_numerical_value: &assert_float/1,
+       published_at: assert_optional(&assert_datetime/1),
+       disabled_at: assert_optional(&assert_datetime/1),
+      ]
+  end
+
+  def assert_measure(%Measure{}=measure, %{}=measure2) do
+    assert_measures_eq(measure, assert_measure(measure2))
+  end
+
+  def assert_measures_eq(%Measure{}=measure, %{}=measure2) do
+    assert_maps_eq measure, measure2, :assert_measure,
+      [:has_numerical_value, :published_at, :disabled_at]
+  end
+
 end
