@@ -78,6 +78,6 @@ defmodule MoodleNet.Collections.Collection do
 
   def queries_module, do: Collections.Queries
 
-  def follow_filters, do: [:default]
+  def follow_filters, do: [join: :actor, preload: :actor]
 
 end

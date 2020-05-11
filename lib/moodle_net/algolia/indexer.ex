@@ -36,7 +36,7 @@ defmodule MoodleNet.Algolia.Indexer do
 
   def format_object(%Community{} = community) do
     follower_count =
-      case FollowerCounts.one(context_id: community.id) do
+      case FollowerCounts.one(context: community.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
@@ -64,7 +64,7 @@ defmodule MoodleNet.Algolia.Indexer do
     collection = MoodleNet.Repo.preload(collection, community: [:actor])
 
     follower_count =
-      case FollowerCounts.one(context_id: collection.id) do
+      case FollowerCounts.one(context: collection.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
@@ -92,7 +92,7 @@ defmodule MoodleNet.Algolia.Indexer do
     resource = Repo.preload(resource, collection: [actor: [], community: [actor: []]])
 
     likes_count =
-      case LikerCounts.one(context_id: resource.id) do
+      case LikerCounts.one(context: resource.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end

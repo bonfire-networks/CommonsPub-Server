@@ -4,8 +4,7 @@
 defmodule MoodleNet.ResourcesTest do
   use MoodleNet.DataCase
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Collections, Resources, Repo}
-  alias MoodleNet.Users.User
+  alias MoodleNet.{Resources, Repo}
   alias MoodleNet.Test.Fake
 
   setup do

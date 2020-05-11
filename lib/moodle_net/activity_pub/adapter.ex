@@ -347,7 +347,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
-           MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
+           MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id),
          {:ok, _} <- MoodleNet.Follows.soft_delete(follow) do
       :ok
     else

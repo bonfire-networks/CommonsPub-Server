@@ -105,7 +105,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
       Repo.transact_with(fn ->
         with {:ok, collection} <- Collections.one([:default, id: collection_id, user: user]),
              {:ok, resource} <- resource(%{resource_id: resource_id}, info),
-             attrs = Map.take(resource, ~w(name summary icon url license)a) do
+             attrs = Map.take(resource, ~w(content_id name summary icon url license)a) do
           Resources.create(user, collection, attrs)
         end
       end)

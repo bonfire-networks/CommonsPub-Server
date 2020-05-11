@@ -57,7 +57,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     Collections.one(
       user: GraphQL.current_user(info),
       id: id,
-      preload: :actor
+      join: :actor, preload: :actor
     )
   end
 
@@ -68,8 +68,9 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [:deleted, user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
+        base_filters: [ deleted: false, user: GraphQL.current_user(info) ],
+        data_filters: [ join: :actor, preload: :actor,
+                        page: [desc: [followers: page_opts]] ],
       }
     )
   end
@@ -93,7 +94,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Resource,
         group_fn: &elem(&1, 0),
         map_fn: &elem(&1, 1),
-        filters: [collection_id: ids, group_count: :collection_id],
+        filters: [collection: ids, group_count: :collection_id],
       }
     )
   end
@@ -153,7 +154,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Resource,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, collection_id: id],
+        base_filters: [deleted: false, user: user, collection: id],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -206,7 +207,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: id, table: tables],
+        base_filters: [deleted: false, feed_timeline: id, table: tables],
         data_filters: [page: [desc: [created: page_opts]]],
       }          
     )

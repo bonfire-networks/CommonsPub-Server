@@ -53,7 +53,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         cursor_fn: Threads.cursor(:followers),
         group_fn: &(&1.context_id),
         page_opts: page_opts,
-        base_filters: [user: user, context_id: ids],
+        base_filters: [user: user, context: ids],
         data_filters: [page: [desc: [followers: page_opts]]],
         count_filters: [group_count: :context_id],
       }
@@ -68,7 +68,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
         query: Thread,
         cursor_fn: Threads.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: user, context_id: ids],
+        base_filters: [user: user, context: ids],
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )

@@ -45,7 +45,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
   def image_content_edge(%{image_id: id}, _, _info), do: content_edge(id)
   def resource_content_edge(%{content_id: id}, _, _info), do: content_edge(id)
 
-  defp content_edge(id) when is_binary(id), do: Uploads.one([:deleted, :private, id: id])
+  defp content_edge(id) when is_binary(id), do: Uploads.one(deleted: false, published: true, id: id)
   defp content_edge(_), do: {:ok, nil}
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}

@@ -58,10 +58,6 @@ defmodule MoodleNet.Actors do
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor), do: Repo.delete(actor)
 
-  def soft_delete_by(filters) do
-    Queries.query(Actor)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Actor, filters), updates)
 
 end

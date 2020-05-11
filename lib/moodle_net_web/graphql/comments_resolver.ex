@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         queries: Threads.CommentsQueries,
         query: Comment,
         page_opts: page_opts,
-        base_filters: [user: user, thread_id: id],
+        base_filters: [user: user, thread: id],
         data_filters: [page: [asc: [created: page_opts]]],
       }
     )

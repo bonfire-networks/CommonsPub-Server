@@ -13,28 +13,11 @@ defmodule MoodleNet.Collections do
 
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
-  @doc """
-  Retrieves a single collection by arbitrary filters.
-  Used by:
-  * GraphQL Item queries
-  * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
-  """
+  @doc "Retrieves a single collection by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Collection, filters))
 
-  @doc """
-  Retrieves a list of collections by arbitrary filters.
-  Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
-  """
+  @doc "Retrieves a list of collections by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Collection, filters))}
-
-  ## mutations
-  defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: coll_username}) do
-    comm_username <> coll_username
-  end
-
-  defp prepend_comm_username(_community, _attr), do: nil
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
@@ -77,24 +60,6 @@ defmodule MoodleNet.Collections do
     with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
   end
 
-  defp publish(creator, community, collection, activity, :created) do
-    feeds = [
-      community.outbox_id, creator.outbox_id,
-      collection.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    FeedActivities.publish(activity, feeds)
-  end
-  defp publish(collection, :updated), do: :ok
-  defp publish(collection, :deleted), do: :ok
-
-  ### HACK FIXME
-  defp ap_publish(%{creator_id: id}=collection), do: ap_publish(%{id: id}, collection)
-
-  defp ap_publish(user, %{actor: %{peer_id: nil}}=collection) do
-    FeedPublisher.publish(%{"context_id" => collection.id, "user_id" => user.id})
-  end
-  defp ap_publish(_, _), do: :ok
-
   # TODO: take the user who is performing the update
   @spec update(%Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%Collection{} = collection, attrs) do
@@ -120,26 +85,28 @@ defmodule MoodleNet.Collections do
     end)
   end
 
-  def soft_delete(%Collection{} = collection) do
-    Repo.transact_with(fn ->
-      with {:ok, collection} <- Common.soft_delete(collection),
-           :ok <- publish(collection, :deleted),
-           :ok <- ap_publish(collection) do 
-        {:ok, collection}
-      end
-    end)
-  end
-
-  def soft_delete_by(filters) do
-    Queries.query(Collection)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
-
   @doc false
   def default_outbox_query_contexts() do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
+
+  defp publish(creator, community, collection, activity, :created) do
+    feeds = [
+      community.outbox_id, creator.outbox_id,
+      collection.outbox_id, Feeds.instance_outbox_id(),
+    ]
+    FeedActivities.publish(activity, feeds)
+  end
+  defp publish(_collection, :updated), do: :ok
+  defp publish(_collection, :deleted), do: :ok
+
+  ### HACK FIXME
+  defp ap_publish(%{creator_id: id}=collection), do: ap_publish(%{id: id}, collection)
+
+  defp ap_publish(user, %{actor: %{peer_id: nil}}=collection) do
+    FeedPublisher.publish(%{"context_id" => collection.id, "user_id" => user.id})
+  end
+  defp ap_publish(_, _), do: :ok
 
 end

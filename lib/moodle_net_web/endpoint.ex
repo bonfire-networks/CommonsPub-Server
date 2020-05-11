@@ -28,14 +28,12 @@ defmodule MoodleNetWeb.Endpoint do
   |> Application.fetch_env!(MoodleNet.Uploads)
   |> Keyword.fetch!(:max_file_size)
 
-  plug(
-    Plug.Parsers,
+  plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
     json_decoder: Jason,
     body_reader: {MoodleNetWeb.Plugs.DigestPlug, :read_body, []},
-    length: max_file_size,
-  )
+    length: max_file_size
 
   plug(Plug.MethodOverride)
   plug(Plug.Head)

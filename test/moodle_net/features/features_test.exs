@@ -6,10 +6,7 @@ defmodule MoodleNet.FeaturesTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Features
-  alias MoodleNet.Meta.Pointers
 
   def fake_featurable!() do
     user = fake_user!()
@@ -55,7 +52,7 @@ defmodule MoodleNet.FeaturesTest do
       assert {:ok, feat2} = Features.one(id: feat.id)
       assert Map.delete(feat, :context) == Map.delete(feat2, :context)
       assert {:ok, _} = Features.soft_delete(feat)
-      assert {:error, _} = Features.one([:deleted, id: feat.id])
+      assert {:error, _} = Features.one(deleted: false, id: feat.id)
     end
   end
 end

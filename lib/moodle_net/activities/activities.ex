@@ -13,30 +13,6 @@ defmodule MoodleNet.Activities do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Activity, filters))}
 
   @doc """
-  Retrieves a Page of feed activities according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.page Queries, Activity,
-      cursor_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  @doc """
-  Retrieves a Page of feed activities according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Activity,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
-  end
-
-  @doc """
   Create a new activity related to any context that participates in the meta
   abstraction.
   """
@@ -58,19 +34,9 @@ defmodule MoodleNet.Activities do
   def update(%Activity{} = activity, %{} = attrs),
     do: Repo.update(Activity.update_changeset(activity, attrs))
 
-  def update_by(filters, updates) do
-    Queries.query(Activity)
-    |> Queries.filter(filters)
-    |> Repo.update_all(updates)
-  end
-
-  defp update_by_result({count, _}), do: {:ok, count}
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Activity, filters), updates)
 
   @spec soft_delete(Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
   def soft_delete(%Activity{} = activity), do: Common.soft_delete(activity)
-
-  def soft_delete_by(filters) do
-    update_by([:delete, select: :id] ++ filters, deleted_at: DateTime.utc_now())
-  end
 
 end

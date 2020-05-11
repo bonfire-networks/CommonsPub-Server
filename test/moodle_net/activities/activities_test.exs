@@ -9,7 +9,6 @@ defmodule MoodleNet.ActivitiesTest do
   alias MoodleNet.Activities
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Test.Fake
 
   setup do
@@ -28,13 +27,13 @@ defmodule MoodleNet.ActivitiesTest do
     test "can ignore activities that are unpublished", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.update(activity, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Activities.one([:private, id: activity.id])
+      assert {:error, %NotFoundError{}} = Activities.one(published: true, id: activity.id)
     end
 
     test "can ignore activities that are deleted", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.soft_delete(activity)
-      assert {:error, %NotFoundError{}} = Activities.one([:deleted, id: activity.id])
+      assert {:error, %NotFoundError{}} = Activities.one(deleted: false, id: activity.id)
     end
 
     test "can return an activity by ID regardless of published or deleted status", %{

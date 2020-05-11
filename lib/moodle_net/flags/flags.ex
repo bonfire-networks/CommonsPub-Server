@@ -29,7 +29,7 @@ defmodule MoodleNet.Flags do
     %Table{schema: table} = Pointers.table!(flagged)
     if table in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([:deleted, creator_id: flagger.id, context_id: flagged.id]) do
+        case one([deleted: false, creator: flagger.id, context: flagged.id]) do
           {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
           _ -> really_create(flagger, flagged, community, fields)
         end
@@ -75,10 +75,6 @@ defmodule MoodleNet.Flags do
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(Flag)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Flag, filters), updates)
 
 end

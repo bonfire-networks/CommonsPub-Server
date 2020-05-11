@@ -27,15 +27,6 @@ defmodule MoodleNet.Users do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(User, filters))}
 
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    ret =
-      Queries.query(User, filters)
-      |> Repo.all()
-      |> Fields.new(group_fn)
-    {:ok, ret}
-  end
-
   @doc """
   Registers a user:
   1. Splits attrs into actor and user fields
@@ -117,7 +108,8 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
-           {:ok, user} <- one([:default, local_user_id: token.local_user_id]) do
+           {:ok, user} <- one( join: :actor, join: :local_user, preload: :all,
+                               local_user: token.local_user_id ) do
         confirm_email(user)
       end
     end)
@@ -175,7 +167,7 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(ResetPasswordToken, token),
            :ok <- validate_token(token, :reset_at, now),
            {:ok, local_user} <- Repo.fetch(LocalUser, token.local_user_id),
-           {:ok, user} <- Repo.fetch_by(User, local_user_id: local_user.id),
+           {:ok, user} <- one(preset: :local_user, local_user: token.local_user_id),
            {:ok, _token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- Repo.update(LocalUser.update_changeset(local_user, %{password: password})) do
         user = preload_actor(%{ user | local_user: local_user })
@@ -245,12 +237,6 @@ defmodule MoodleNet.Users do
         {:ok, user}
       end
     end)
-  end
-
-  def soft_delete_by(filters) do
-    Queries.query(User)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
   end
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}

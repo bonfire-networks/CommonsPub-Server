@@ -6,8 +6,6 @@ defmodule MoodleNet.CommonTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Blocks, Common, Features, Flags, Follows, Likes}
-  alias MoodleNet.Test.Fake
 
   setup do
     {:ok, %{user: fake_user!()}}

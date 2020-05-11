@@ -9,23 +9,13 @@ defmodule MoodleNet.Feeds do
   def instance_outbox_id(), do: "10CA11NSTANCE00TB0XFEED1D0"
   def instance_inbox_id(),  do: "10CA11NSTANCE1NB0XFEED1D00"
 
-  @doc """
-  Retrieves a single feed by arbitrary filters.
-  Used by:
-  * GraphQL Item queries
-  * ActivityPub integration
-  * Various parts of the codebase that need to query for communities (inc. tests)
-  """
+  @doc "Retrieves a single feed by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Feed, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Feed, filters))}
 
   def create(), do: Repo.insert(Feed.create_changeset())
 
-  def soft_delete_by(filters) do
-    Queries.query(Feed)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters), do: Repo.update_all(Queries.query(Feed, filters))
 
 end

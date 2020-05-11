@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.AdminResolver do
   alias ActivityPub.Actor
-  alias MoodleNet.GraphQL
   alias MoodleNet.Mail.{Email, MailService}
-  alias MoodleNet.Access
-  alias MoodleNet.Adapter
+  alias MoodleNet.{Access, Adapter, GraphQL, Users}
 
   def admin(_, _info), do: {:ok, %{}}
 
@@ -18,8 +16,8 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
     with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
          {:ok, actor} <- Actor.get_cached_by_local_id(id),
          {:ok, actor} <- Actor.deactivate(actor),
-         {:ok, user} <- MoodleNet.Users.one(id: id),
-         {:ok, user} <- MoodleNet.Users.update_remote(user, %{is_disabled: true}) do
+         {:ok, user} <- find(id),
+         {:ok, user} <- Users.update_remote(user, %{is_disabled: true}) do
       {:ok, user}
     end
   end
@@ -36,4 +34,10 @@ defmodule MoodleNetWeb.GraphQL.AdminResolver do
       {:error, message} -> {:error, message}
     end
   end
+
+  defp find(id) do
+    Users.one(id: id, join: :actor, join: :local_user, preload: :all)
+  end
+
+
 end

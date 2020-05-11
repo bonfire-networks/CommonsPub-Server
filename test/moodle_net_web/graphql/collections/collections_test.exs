@@ -5,12 +5,11 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionsTest do
   use MoodleNetWeb.ConnCase, async: true
   alias MoodleNet.Collections
   import MoodleNet.Test.Faking
-  import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.Orderings
   import MoodleNetWeb.Test.Automaton
-  import MoodleNet.Common.Enums
+  # import MoodleNet.Common.Enums
   import Grumble
   import Zest
 

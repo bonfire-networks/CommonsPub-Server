@@ -21,6 +21,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   }
   alias MoodleNet.GraphQL.{
     Flow,
+    FetchFields,
     FetchPage,
     FetchPages,
     ResolveFields,
@@ -47,7 +48,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
   def user(%{user_id: id}, info) do
-    Users.one([:default, id: id, user: GraphQL.current_user(info)])
+    Users.one join: :actor, preload: :actor,
+      id: id, user: GraphQL.current_user(info)
   end
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
 
@@ -74,7 +76,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         cursor_fn: &(&1.id),
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids],
+        base_filters: [user: user, creator: ids],
         data_filters: [order: :timeline_desc],
         count_filters: [group_count: :creator_id],
       }
@@ -89,7 +91,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Comment,
         cursor_fn: &(&1.id),
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids],
+        base_filters: [user: user, creator: ids],
         data_filters: [order: :timeline_desc],
       }
     )
@@ -121,7 +123,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follows.Follow,
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
+        base_filters: [user: user, creator: ids, join: :context, table: Collection],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id],
       }
@@ -135,7 +137,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         queries: Follows.Queries,
         query: Follows.Follow,
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: Collection],
+        base_filters: [ user: user, creator: ids, join: :context, table: Collection],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -161,7 +163,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follows.Follow,
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: Community],
+        base_filters: [user: user, creator: ids, join: :context, table: Community],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id]
       }
@@ -175,7 +177,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         queries: Follows.Queries,
         query: Follows.Follow,
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: Community],
+        base_filters: [user: user, creator: ids, join: :context, table: Community],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -204,7 +206,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         cursor_fn: &[&1.id],
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: User],
+        base_filters: [user: user, creator: ids, join: :context, table: User],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id]
       }
@@ -219,7 +221,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follow,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [user: user, creator_id: ids, join: :context, table: User],
+        base_filters: [user: user, creator: ids, join: :context, table: User],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -303,8 +305,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_creator_edge(info, ids) do
     user = GraphQL.current_user(info)
-    {:ok, users} = Users.fields(&(&1.id), [:default, id: ids, user: user])
-    users
+    FetchFields.run(
+      %FetchFields{
+        queries: Users.Queries,
+        query: User,
+        group_fn: &(&1.id),
+        filters: [id: ids, user: user, join: :actor, preload: :actor],
+      }
+    )
   end
 
   def last_activity_edge(_parent,_,_info), do: {:ok, DateTime.utc_now()}
@@ -372,7 +380,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def reset_password_request(%{email: email}, info) do
     with :ok <- GraphQL.guest_only(info),
-         {:ok, user} <- Users.one([:default, email: email]),
+         {:ok, user} <- Users.one(preset: :local_user, email: email),
          {:ok, _token} <- Users.request_password_reset(user) do
       {:ok, true}
     end

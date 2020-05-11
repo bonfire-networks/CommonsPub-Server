@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       cursor_fn: cursor_fn,
       limit: limit,
       after: aft,
-      before: bef,
+      before: _bef,
     }=opts
   ) do
     vars = Map.get(opts, :vars, %{})
@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       page
     end
 
-    page2 = scope [page: 2, limit: default_limit - 1, after: default_limit] do
+    _page2 = scope [page: 2, limit: default_limit - 1, after: default_limit] do
       vars = Map.merge(vars, %{limit => default_limit-1, aft => page_1.page_info.end_cursor})
       page = query_page(query, conn, key, vars, default_limit-1, total, true, true, cursor_fn)
       drop_each(data, page.edges, default_limit, assert_fn)
@@ -53,7 +53,7 @@ defmodule MoodleNetWeb.Test.Automaton do
     #   page
     # end
 
-    page_2 = scope [page: 2, limit: :default, after: default_limit] do
+    _page_2 = scope [page: 2, limit: :default, after: default_limit] do
       vars = Map.merge(vars, %{aft => page1.page_info.end_cursor})
       page = query_page(query, conn, key, vars, default_limit, total, true, true, cursor_fn)
       drop_each(data, page.edges, default_limit, assert_fn)
@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       assert_child: assert_child,
       cursor_fn: cursor_fn,
       after: aft,
-      before: bef,
+      before: _bef,
       limit: limit,
     }=opts
   ) do
@@ -106,7 +106,7 @@ defmodule MoodleNetWeb.Test.Automaton do
       page
     end
 
-    page2 = scope [page: 2, limit: default_limit - 1, after: default_limit] do
+    _page2 = scope [page: 2, limit: default_limit - 1, after: default_limit] do
       vars = Map.merge(vars, %{limit => default_limit - 1, aft => page_1.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], default_limit - 1, total, true, true, cursor_fn) #TODO s/nil/true/
@@ -124,7 +124,7 @@ defmodule MoodleNetWeb.Test.Automaton do
     #   page
     # end
 
-    page_2 = scope [page: 2, limit: :default, after: default_limit] do
+    _page_2 = scope [page: 2, limit: :default, after: default_limit] do
       vars = Map.merge(vars, %{aft => page1.page_info.end_cursor})
       parent = assert_parent.(parent_data, grumble_post_key(query, conn, parent_key, vars))
       page = assert_page(parent[child_key], default_limit, total, true, true, cursor_fn)
