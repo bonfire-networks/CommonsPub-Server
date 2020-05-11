@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.ActivitiesResolver do
   end
 
   def fetch_context_edge(_, contexts) do
-    Fields.new(Pointers.follow!(contexts), &(&1.id))
+    Fields.new(Pointers.follow!(contexts), &Map.get(&1, :id))
   end
 
 end
