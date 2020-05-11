@@ -5,7 +5,6 @@ defmodule MoodleNet.Feeds.FeedActivities do
 
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
-  alias MoodleNet.GraphQL.{Page, Pages}
   alias Ecto.ULID
   
 

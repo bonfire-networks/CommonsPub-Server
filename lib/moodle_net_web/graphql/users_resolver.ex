@@ -5,22 +5,17 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   @moduledoc """
   Performs the GraphQL User queries.
   """
-  alias MoodleNetWeb.GraphQL
   alias MoodleNetWeb.GraphQL.UploadResolver
   alias MoodleNet.{
     Access,
     Activities,
     Actors,
-    Collections,
-    Communities,
     Follows,
     GraphQL,
-    Likes,
     Repo,
     Users,
   }
   alias MoodleNet.GraphQL.{
-    Flow,
     FetchFields,
     FetchPage,
     FetchPages,
@@ -31,9 +26,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.Follow
-  alias MoodleNet.Threads.{Comment, Comments, CommentsQueries}
+  alias MoodleNet.Threads.{Comment, CommentsQueries}
   alias MoodleNet.Users.{Me, User}
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def username_available(%{username: username}, _info) do
     {:ok, Actors.is_username_available?(username)}

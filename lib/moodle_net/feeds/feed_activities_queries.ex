@@ -55,7 +55,7 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
 
   def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
 
-  def filter(q, {:distinct, field}), do: distinct(q, [feed_activity: fa], fa.activity_id)
+  def filter(q, {:distinct, field}), do: distinct(q, [feed_activity: fa], field(fa, ^field))
 
   def filter(q, {:order, [desc: :created]}), do: order_by(q, [feed_activity: fa], [desc: fa.id])
 

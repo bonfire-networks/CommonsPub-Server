@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads do
   alias MoodleNet.{Common, Feeds, Repo}
-  alias MoodleNet.Common.Contexts
   # alias MoodleNet.FeedPublisher
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Threads.{Thread, Queries}
   alias MoodleNet.Users.User
 

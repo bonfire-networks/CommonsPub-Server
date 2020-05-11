@@ -13,18 +13,15 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
   alias MoodleNet.GraphQL.{
     FetchFields,
     FetchPage,
-    FetchPages,
     ResolveField,
     ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
   }
-  alias MoodleNet.Collections.{Collection, Queries}
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Common.Enums
   alias MoodleNetWeb.GraphQL.{CommunitiesResolver, UploadResolver}
-  import Ecto.Query
 
   ## resolvers
 
@@ -200,7 +197,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     end
   end
 
-  def fetch_outbox_edge(page_opts, info, id) do
+  def fetch_outbox_edge(page_opts, _info, id) do
     tables = Collections.default_outbox_query_contexts()
     FetchPage.run(
       %FetchPage{

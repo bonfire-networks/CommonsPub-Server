@@ -5,12 +5,9 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
-  alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
+  alias MoodleNet.{Access, Actors, Feeds, Repo}
   alias MoodleNet.Feeds.FeedSubscriptions
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Mail.{Email, MailService}
-
   alias MoodleNet.Users.{
     EmailConfirmToken,
     LocalUser,
@@ -284,7 +281,7 @@ defmodule MoodleNet.Users do
     Repo.preload(user, :local_user, opts)
   end
 
-  defp ap_publish(user) do
+  defp ap_publish(_user) do
     :ok
   end
 

@@ -5,7 +5,6 @@ defmodule MoodleNet.Resources.Queries do
 
   import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
-  alias MoodleNet.{Collections, Communities}
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Users.User

@@ -4,7 +4,7 @@
 defmodule MoodleNet.Follows.Queries do
 
   alias MoodleNet.Follows.Follow
-  alias MoodleNet.Meta.{PointersQueries, TableService}
+  alias MoodleNet.Meta.TableService
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query

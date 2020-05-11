@@ -4,7 +4,7 @@
 defmodule MoodleNet.Flags.Queries do
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Meta.TableService
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
   import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
 

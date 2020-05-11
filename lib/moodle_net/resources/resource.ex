@@ -11,6 +11,7 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Uploads.Content
   alias MoodleNet.Users.User
 
   table_schema "mn_resource" do

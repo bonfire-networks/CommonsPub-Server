@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{FetchFields, FetchPage, FetchPages, ResolveFields, ResolvePages}
+  alias MoodleNet.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}

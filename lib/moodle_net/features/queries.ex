@@ -4,7 +4,7 @@
 defmodule MoodleNet.Features.Queries do
 
   alias MoodleNet.Features.Feature
-  alias MoodleNet.Meta.{PointersQueries, TableService}
+  alias MoodleNet.Meta.TableService
 
   import Ecto.Query
 

@@ -48,7 +48,7 @@ defmodule MoodleNet.Localisation.LanguageService do
   def lookup(key) when is_binary(key),
     do: lookup_result(key, :ets.lookup(@table_name, key))
 	  
-  defp lookup_result(key, []), do: {:error, LanguageNotFoundError.new()}
+  defp lookup_result(_key, []), do: {:error, LanguageNotFoundError.new()}
   defp lookup_result(_, [{_,v}]), do: {:ok, v}
 
   @spec lookup!(iso2_code :: binary) :: Language.t
@@ -98,8 +98,8 @@ defmodule MoodleNet.Localisation.LanguageService do
 
   import Ecto.Query, only: [from: 2]
 
-  defp q() do
-    from l in Language, order_by: [asc: l.id]
-  end
+  # defp q() do
+  #   from l in Language, order_by: [asc: l.id]
+  # end
 
 end

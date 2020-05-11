@@ -16,6 +16,6 @@ defmodule MoodleNet.Feeds do
 
   def create(), do: Repo.insert(Feed.create_changeset())
 
-  def update_by(filters), do: Repo.update_all(Queries.query(Feed, filters))
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Feed, filters), updates)
 
 end

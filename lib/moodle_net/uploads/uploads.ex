@@ -4,9 +4,6 @@
 defmodule MoodleNet.Uploads do
 
   alias Ecto.Changeset
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Changeset.Common
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{

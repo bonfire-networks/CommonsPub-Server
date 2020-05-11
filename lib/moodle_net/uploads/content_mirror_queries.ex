@@ -11,9 +11,9 @@ defmodule MoodleNet.Uploads.ContentMirrorQueries do
   def query(q, filters), do: filter(query(q), filters)
 
   defp join_to(q, rel, jq \\ :left)
-  defp join_to(q, rels, jq) when is_list(rels), do: Enum.reduce(rels, q, &join_to(&2, &1))
-  defp join_to(q, {table, jq}, _), do: join_to(q, table, jq)
+  defp join_to(q, rels, jq) when is_list(rels), do: Enum.reduce(rels, q, &join_to(&2, &1, jq))
   defp join_to(q, :content, jq), do: join(q, jq, [mirror: m], c in assoc(m, :content), as: :content)
+  defp join_to(q, {table, jq}, _), do: join_to(q, table, jq)
 
 
   def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))

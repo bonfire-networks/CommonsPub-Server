@@ -76,7 +76,7 @@ defmodule MoodleNet.Meta.TableService do
     Enum.map(ids, fn t ->
       cond do
         is_binary(t) -> t # cheat to save some lookups
-        is_atom(t) -> TableService.lookup_id!(t)
+        is_atom(t) -> lookup_id!(t)
       end
     end)
   end

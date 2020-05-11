@@ -23,7 +23,6 @@ defmodule MoodleNet.Test.Faking do
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
   import MoodleNet.Test.Trendy
-  import Zest
 
   def fake_register_email_domain_access!(domain \\ Fake.domain())
   when is_binary(domain) do

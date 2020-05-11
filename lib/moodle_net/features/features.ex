@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Features do
   alias MoodleNet.{Common, Features, GraphQL, Repo}
-  alias MoodleNet.Common.Contexts
   alias MoodleNet.Features.{Feature, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User

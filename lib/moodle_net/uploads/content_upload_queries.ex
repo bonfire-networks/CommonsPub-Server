@@ -13,7 +13,7 @@ defmodule MoodleNet.Uploads.ContentUploadQueries do
   def query(q, filters), do: filter(query(q), filters)
 
   defp join_to(q, rel, jq \\ :left)
-  defp join_to(q, rels, jq) when is_list(rels), do: Enum.reduce(rels, q, &join_to(&2, &1))
+  defp join_to(q, rels, jq) when is_list(rels), do: Enum.reduce(rels, q, &join_to(&2, &1, jq))
 
   defp join_to(q, {table, jq}, _), do: join_to(q, table, jq)
   defp join_to(q, :content, jq), do: join(q, jq, [upload: u], c in assoc(u, :content), as: :content)

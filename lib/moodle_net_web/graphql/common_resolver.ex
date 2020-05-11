@@ -5,14 +5,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   alias Ecto.ULID
   alias MoodleNet.GraphQL
-  alias MoodleNet.Access.{RegisterEmailAccess, RegisterEmailDomainAccess}
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{Fields, ResolveFields}
-  alias MoodleNet.Resources.Resource
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
-  alias MoodleNet.Features.Feature
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Meta.Pointers
@@ -86,16 +81,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       end
     end
   end
-
-  # access
-
-  defp do_delete(%User{}=u) do
-    with {:ok, u} <- MoodleNet.Users.one([:default, id: u.id]) do
-      MoodleNet.Users.soft_delete(u)
-    end
-  end
-
-  defp do_delete(_), do: GraphQL.not_permitted("delete")
 
   # FIXME: boilerplate code
   defp allow_delete?(user, context) do

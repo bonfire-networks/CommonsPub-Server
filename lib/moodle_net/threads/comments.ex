@@ -5,8 +5,6 @@ defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Access.NotPermittedError
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.FeedPublisher
@@ -152,14 +150,14 @@ defmodule MoodleNet.Threads.Comments do
     |> Repo.delete_all()
   end
 
-  defp publish(creator, thread, comment, activity, :created) do
+  defp publish(creator, thread, _comment, activity, :created) do
     feeds = context_feeds(thread.context.pointed) ++ [
       creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
     ]
     FeedActivities.publish(activity, feeds)
   end
-  defp publish(comment, :updated), do: :ok
-  defp publish(comment, :deleted), do: :ok
+  defp publish(_comment, :updated), do: :ok
+  defp publish(_comment, :deleted), do: :ok
 
   defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
 

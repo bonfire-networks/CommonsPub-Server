@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.AdminResolver do
   alias ActivityPub.Actor
   alias MoodleNet.Mail.{Email, MailService}
-  alias MoodleNet.{Access, Adapter, GraphQL, Users}
+  alias MoodleNet.{Access, GraphQL, Users}
 
   def admin(_, _info), do: {:ok, %{}}
 

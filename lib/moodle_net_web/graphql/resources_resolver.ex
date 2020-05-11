@@ -2,14 +2,11 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
-
-  alias MoodleNet.{Collections, GraphQL, Repo, Resources, Uploads}
+  alias MoodleNet.{Collections, GraphQL, Repo, Resources}
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Collections.Collection
   alias MoodleNet.GraphQL.{FetchFields, ResolveFields}
   alias MoodleNet.Resources.Resource
-  alias MoodleNet.Uploads.{IconUploader, ResourceUploader}
   alias MoodleNetWeb.GraphQL.UploadResolver
 
   def resource(%{resource_id: id}, info) do

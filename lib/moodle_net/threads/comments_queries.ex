@@ -14,12 +14,16 @@ defmodule MoodleNet.Threads.CommentsQueries do
   def query(query, filters), do: filter(query(query), filters)
 
   defp join_to(q, rel, jq \\ :left)
+  defp join_to(q, joins, jq) when is_list(joins), do: Enum.reduce(joins, q, &join_to(&2, &1, jq))
   defp join_to(q, :thread, jq), do: join(q, jq, [comment: c], t in assoc(c, :thread), as: :thread)
+  defp join_to(q, {jq, join}, _), do: join_to(q, join, jq)
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
   def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
+
+  def filter(q, {:join, join}), do: join_to(q, join)
 
   def filter(q, {:user, nil}), do: filter(q, deleted: false, published: true)
   def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)

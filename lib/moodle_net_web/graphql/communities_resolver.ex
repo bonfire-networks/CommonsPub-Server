@@ -151,7 +151,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     end
   end
 
-  def fetch_outbox_edge(page_opts, info, id) do
+  def fetch_outbox_edge(page_opts, _info, id) do
     tables = Communities.default_outbox_query_contexts()
     FetchPage.run(
       %FetchPage{

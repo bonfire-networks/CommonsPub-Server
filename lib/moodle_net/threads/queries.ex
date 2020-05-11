@@ -5,7 +5,7 @@ defmodule MoodleNet.Threads.Queries do
 
   alias MoodleNet.Threads.{LastComment, Thread}
   alias MoodleNet.Follows.FollowerCount
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
   import Ecto.Query
   import MoodleNet.Common.Query, only: [match_admin: 0]
 

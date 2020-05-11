@@ -4,7 +4,6 @@
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
   alias MoodleNet.GraphQL.{
-    Fields,
     FetchFields,
     FetchPage,
     FetchPages,

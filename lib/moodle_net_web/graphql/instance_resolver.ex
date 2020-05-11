@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def fetch_featured_communities(page_opts, info) do
+  def fetch_featured_communities(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
         queries: Features.Queries,
@@ -46,7 +46,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def fetch_featured_collections(page_opts, info) do
+  def fetch_featured_collections(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
         queries: Features.Queries,
@@ -58,7 +58,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def outbox_edge(_, page_opts, info) do
+  def outbox_edge(_, page_opts, _info) do
     feed_id = MoodleNet.Feeds.instance_outbox_id()
     tables = Instance.default_outbox_query_contexts()
     FetchPage.run(

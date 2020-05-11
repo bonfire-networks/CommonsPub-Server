@@ -5,15 +5,13 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   alias MoodleNet.{GraphQL, Repo, Threads}
   alias MoodleNet.GraphQL.{
-    Flow,
     FetchPage,
     FetchPages,
     ResolveField,
-    ResolvePage,
     ResolvePages,
   }
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Threads.{Comment, Comments, Thread}
+  alias MoodleNet.Threads.{Comments, Thread}
   
   def thread(%{thread_id: id}, info) do
     ResolveField.run(

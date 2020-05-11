@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks do
   alias Ecto.Changeset
-  alias MoodleNet.{Blocks, Common, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Blocks.{Block, Queries}
   alias MoodleNet.Users.User
   
