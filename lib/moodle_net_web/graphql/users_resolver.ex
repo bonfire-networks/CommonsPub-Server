@@ -248,7 +248,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
               queries: Activities.Queries,
               query: Activities.Activity,
               page_opts: page_opts,
-              base_filters: [deleted: false, feed: ids, table: tables],
+              base_filters: [deleted: false, feed_timeline: ids, table: tables],
               data_filters: [page: [desc: [created: page_opts]]],
             }
           )
@@ -278,7 +278,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [deleted: false, feed: id, table: tables],
+        base_filters: [deleted: false, feed_timeline: id, table: tables],
         data_filters: [page: [desc: [created: page_opts]]],
       }          
     )

@@ -259,7 +259,7 @@ defmodule MoodleNet.Users do
   end
 
   def feed_subscriptions(%User{id: id}) do
-    FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
+    FeedSubscriptions.many(deleted: false, disabled: false, activated: true, subscriber: id)
   end
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val

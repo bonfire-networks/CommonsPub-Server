@@ -66,7 +66,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [deleted: false, feed: feed_id, table: tables],
+        base_filters: [deleted: false, feed_timeline: feed_id, table: tables],
         data_filters: [page: [desc: [created: page_opts]]],
       }          
     )
