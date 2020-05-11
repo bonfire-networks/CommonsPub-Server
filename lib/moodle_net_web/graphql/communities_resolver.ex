@@ -159,7 +159,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         query: Activities.Activity,
         page_opts: page_opts,
         base_filters: [deleted: false, feed_timeline: id, table: tables],
-        data_filters: [page: [desc: [created: page_opts]], join: :context, preload: :context],
+        data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
