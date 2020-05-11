@@ -9,12 +9,7 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  def query(FeedActivity) do
-    from f in FeedActivity, as: :feed_activity,
-      join: a in assoc(f, :activity), as: :activity,
-      join: c in assoc(a, :context), as: :context,
-      preload: [activity: {a, context: c}]
-  end
+  def query(FeedActivity), do: from(f in FeedActivity, as: :feed_activity)
 
   def query(query, filters), do: filter(query(query), filters)
 

@@ -31,8 +31,8 @@ defmodule MoodleNet.Activities.Queries do
       feed: id,
       distinct: [desc: :id], # this does the actual ordering
       order: [desc: :created], # this is here because ecto knows better than me oslt
-      join: :context,
-      preload: :context
+      deleted: false,
+      join: :context
   end
 
   def filter(q, {:join, {rel, jq}}), do: join_to(q, rel, jq)

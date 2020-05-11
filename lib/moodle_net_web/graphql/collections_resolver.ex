@@ -205,7 +205,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
         query: Activities.Activity,
         page_opts: page_opts,
         base_filters: [deleted: false, feed_timeline: id, table: tables],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
       }          
     )
   end
