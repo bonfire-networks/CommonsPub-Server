@@ -112,14 +112,14 @@ defmodule MoodleNet.Threads.CommentsTest do
     test "returns not found if the parent thread is hidden", context do
       thread = fake_thread!(context.user, context.parent, %{is_hidden: true})
       comment = fake_comment!(context.user, thread, %{is_hidden: false})
-      assert {:error, %NotFoundError{}} = Comments.one([:hidden, id: comment.id])
+      assert {:error, %NotFoundError{}} = Comments.one(hidden: false, id: comment.id)
     end
 
     @tag :skip
     test "returns not found if the parent thread is deleted", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
       assert {:ok, _} = Comments.soft_delete(context.thread)
-      assert {:error, %NotFoundError{}} = Comments.one([:deleted, id: comment.id])
+      assert {:error, %NotFoundError{}} = Comments.one(deleted: false, id: comment.id)
     end
   end
 
