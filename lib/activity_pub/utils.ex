@@ -97,7 +97,7 @@ defmodule ActivityPub.Utils do
       end
 
     cc =
-      (object.data["to"] ++ (object.data["cc"] || []))
+      ((object.data["to"] || []) ++ (object.data["cc"] || []))
       |> List.delete(ap_id)
       |> List.delete(object_actor.data["followers"])
 

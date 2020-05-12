@@ -12,6 +12,7 @@ defmodule MoodleNet.Algolia.Indexer do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Follows.FollowerCounts
   alias MoodleNet.Likes.LikerCounts
+  alias MoodleNet.Uploads
 
   defp check_envs() do
     System.get_env("ALGOLIA_ID") &&
@@ -41,22 +42,24 @@ defmodule MoodleNet.Algolia.Indexer do
         {:error, _} -> nil
       end
 
+    icon = Uploads.remote_url_from_id(community.icon_id)
+    image = Uploads.remote_url_from_id(community.image_id)
+
     %{
       "index_mothership_object_id" => community.id,
       "canonicalUrl" => community.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
       },
-      "icon" => Map.get(community, :icon),
-      "image" => Map.get(community, :image),
+      "icon" => icon,
+      "image" => image,
       "name" => community.name,
       "preferredUsername" => community.actor.preferred_username,
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => URI.parse(community.actor.canonical_url).host,
       "createdAt" => community.published_at,
-      "objectID" =>
-        :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
     }
   end
 
@@ -69,13 +72,15 @@ defmodule MoodleNet.Algolia.Indexer do
         {:error, _} -> nil
       end
 
+    icon = Uploads.remote_url_from_id(collection.icon_id)
+
     %{
       "index_mothership_object_id" => collection.id,
       "canonicalUrl" => collection.actor.canonical_url,
       "followers" => %{
         "totalCount" => follower_count
       },
-      "icon" => Map.get(collection, :icon),
+      "icon" => icon,
       "name" => collection.name,
       "preferredUsername" => collection.actor.preferred_username,
       "summary" => Map.get(collection, :summary),
@@ -83,8 +88,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(collection.actor.canonical_url).host,
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
-      "objectID" =>
-        :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
     }
   end
 
@@ -97,6 +101,7 @@ defmodule MoodleNet.Algolia.Indexer do
         {:error, _} -> nil
       end
 
+    icon = Uploads.remote_url_from_id(resource.icon_id)
     url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
 
     %{
@@ -104,7 +109,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "name" => resource.name,
       "canonicalUrl" => resource.canonical_url,
       "createdAt" => resource.published_at,
-      "icon" => Map.get(resource, :icon),
+      "icon" => icon,
       "licence" => Map.get(resource, :licence),
       "likes" => %{
         "totalCount" => likes_count
