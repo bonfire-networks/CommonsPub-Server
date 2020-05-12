@@ -120,7 +120,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
       "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
-      "url" => url
+      "url" => url,
+      "author" => Map.get(resource, :author)
     }
   end
 
