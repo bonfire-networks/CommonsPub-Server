@@ -273,9 +273,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Document", "actor" => actor}} = object
       ) do
-    with {:ok, ap_collection} <- ActivityPub.Actor.get_by_ap_id(context),
+    with {:ok, ap_collection} <- ActivityPub.Actor.get_or_fetch_by_ap_id(context),
          {:ok, collection} <- get_actor_by_username(ap_collection.username),
-         {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
+         {:ok, ap_actor} <- ActivityPub.Actor.get_cached_by_ap_id(actor),
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          {:ok, content} <-
            MoodleNet.Uploads.upload(
