@@ -11,39 +11,34 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   # FIXME: this will break if parent is an object that isn't in AP database or doesn't have a pointer_id filled
   def comment(comment) do
-    try do
-      comment = Repo.preload(comment, thread: :context)
-      context = Pointers.follow!(comment.thread.context)
+    comment = Repo.preload(comment, thread: :context)
+    context = Pointers.follow!(comment.thread.context)
 
-      with object_ap_id = Utils.get_object_ap_id(context),
-           {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
-           {to, cc} <- Utils.determine_recipients(actor, context, comment),
-           object = %{
-             "content" => comment.content,
-             "to" => to,
-             "cc" => cc,
-             "actor" => actor.ap_id,
-             "attributedTo" => actor.ap_id,
-             "type" => "Note",
-             "inReplyTo" => Utils.get_in_reply_to(comment),
-             "context" => object_ap_id
-           },
-           params = %{
-             actor: actor,
-             to: to,
-             object: object,
-             context: object_ap_id,
-             additional: %{
-               "cc" => cc
-             }
-           } do
-        ActivityPub.create(params, comment.id)
-      else
-        e -> {:error, e}
-      end
-    rescue
-      e -> {:error, e}
-    catch
+    with nil <- ActivityPub.Object.get_by_pointer_id(comment.id),
+         object_ap_id <- Utils.get_object_ap_id(context),
+         {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
+         {to, cc} <- Utils.determine_recipients(actor, context, comment),
+         object = %{
+           "content" => comment.content,
+           "to" => to,
+           "cc" => cc,
+           "actor" => actor.ap_id,
+           "attributedTo" => actor.ap_id,
+           "type" => "Note",
+           "inReplyTo" => Utils.get_in_reply_to(comment),
+           "context" => object_ap_id
+         },
+         params = %{
+           actor: actor,
+           to: to,
+           object: object,
+           context: object_ap_id,
+           additional: %{
+             "cc" => cc
+           }
+         } do
+      ActivityPub.create(params, comment.id)
+    else
       e -> {:error, e}
     end
   end
