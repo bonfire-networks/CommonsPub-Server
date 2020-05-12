@@ -7,7 +7,7 @@ defmodule MoodleNet.MetadataScraper do
   @moduledoc """
   Given a url, it downloads the html metadata
   """
-  @furlex_media_types ~w(text/html)
+  @furlex_media_types ~w(text/html application/xml+xhtml)
   @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do

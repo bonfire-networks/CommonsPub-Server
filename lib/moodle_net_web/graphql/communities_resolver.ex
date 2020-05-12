@@ -33,10 +33,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   end
 
   def fetch_community(info, id) do
-    Communities.one([
-      :default,
-      id: id,
-      user: GraphQL.current_user(info)])
+    Communities.one([:default, id: id, user: GraphQL.current_user(info)])
   end
 
   def communities(%{}=page_opts, info) do
@@ -59,7 +56,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cursor_fn: Communities.cursor(:followers),
         page_opts: page_opts,
         base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [page: [desc: [followers: page_opts]], preload: :actor],
+        data_filters: [:default, page: [desc: [followers: page_opts]]],
       }
     )
   end
@@ -83,7 +80,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         query: Collection,
         group_fn: &elem(&1, 0),
         map_fn: &elem(&1, 1),
-        filters: [community_id: ids, group_count: :community_id],
+        filters: [community: ids, group_count: :community_id],
       }
     )
   end
@@ -115,8 +112,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cursor_fn: Collections.cursor(:followers),
         group_fn: &(&1.community_id),
         page_opts: page_opts,
-        base_filters: [community_id: ids, user: user],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [community: ids, user: user],
+        data_filters: [:default, page: [desc: [followers: page_opts]]],
         count_filters: [group_count: :community_id]
       }
     )
@@ -130,8 +127,8 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         query: Collection,
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [community_id: ids, user: user],
-        data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [community: ids, user: user],
+        data_filters: [:default, page: [desc: [followers: page_opts]]],
       }
     )
   end
@@ -154,15 +151,15 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     end
   end
 
-  def fetch_outbox_edge(page_opts, info, id) do
+  def fetch_outbox_edge(page_opts, _info, id) do
     tables = Communities.default_outbox_query_contexts()
     FetchPage.run(
       %FetchPage{
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: id, table: tables],
-        data_filters: [page: [desc: [created: page_opts]]],
+        base_filters: [deleted: false, feed_timeline: id, table: tables],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
       }
     )
   end

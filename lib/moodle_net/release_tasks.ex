@@ -200,7 +200,7 @@ defmodule MoodleNet.ReleaseTasks do
 
   def soft_delete_community(id) do
        {:ok, community} = MoodleNet.Communities.one(id: id)
-       {:ok, community} = MoodleNet.Communities.soft_delete(community)
+       {:ok, _community} = MoodleNet.Communities.soft_delete(community)
   end
 
   def user_set_email_confirmed(username) do
@@ -220,7 +220,7 @@ defmodule MoodleNet.ReleaseTasks do
 
   def remove_meta_table(table) do
     import Ecto.Query
-    {rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
+    {_rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
   end
   
 end

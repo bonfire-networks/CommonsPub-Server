@@ -5,7 +5,6 @@ defmodule MoodleNet.Feeds.FeedActivities do
 
   alias MoodleNet.{Repo, Feeds}
   alias MoodleNet.Feeds.{FeedActivity, FeedActivitiesQueries}
-  alias MoodleNet.GraphQL.{Page, Pages}
   alias Ecto.ULID
   
 
@@ -25,47 +24,13 @@ defmodule MoodleNet.Feeds.FeedActivities do
   """
   def many(filters), do: {:ok, Repo.all(FeedActivitiesQueries.query(FeedActivity, filters))}
 
-  @doc """
-  Retrieves an EdgesPage of feed activities according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, page_opts, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, Page.new(data, count, cursor_fn, page_opts)}
-    end
-  end
-
-  @doc """
-  Retrieves an EdgesPages of feed activities according to various filters
-
-  Used by:
-  * GraphQL resolver bulk resolution
-  """
-  def pages(cursor_fn, group_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def pages(cursor_fn, group_fn, base_filters, data_filters, count_filters)
-  when is_function(cursor_fn, 1) and is_function(group_fn, 1) do
-    {data_q, count_q} = FeedActivitiesQueries.queries(FeedActivity, base_filters, data_filters, count_filters)
-    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, all: count_q) do
-      {:ok, Pages.new(data, counts, cursor_fn, group_fn)}
-    end
-  end
-
   def update_by(filters, updates \\ []) do
-    FeedActivitiesQueries.query(FeedActivity)
-    |> FeedActivitiesQueries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(FeedActivitiesQueries.query(FeedActivity, filters), updates)
   end
 
   @doc false
   def hard_delete() do
-    FeedActivitiesQueries.query(FeedActivity)
-    |> FeedActivitiesQueries.filter(:hard_delete)
-    |> Repo.delete_all()
+    Repo.delete_all(FeedActivitiesQueries.query(FeedActivity, :hard_delete))
   end
 
   @doc "Publish an activity to the feeds with the given ids"

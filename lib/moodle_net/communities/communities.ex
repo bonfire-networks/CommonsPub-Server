@@ -17,20 +17,10 @@ defmodule MoodleNet.Communities do
 
   ### Queries
 
-  @doc """
-  Retrieves a single community by arbitrary filters.
-  Used by:
-  * GraphQL Item queries
-  * ActivityPub integration
-  * Various parts of the codebase that need to query for communities (inc. tests)
-  """
+  @doc "Retrieves a single community by arbitrary filters."
   def one(filters), do: Repo.single(Queries.query(Community, filters))
 
-  @doc """
-  Retrieves a list of communities by arbitrary filters.
-  Used by:
-  * Various parts of the codebase that need to query for communities (inc. tests)
-  """
+  @doc "Retrieves a list of communities by arbitrary filters."
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Community, filters))}
 
   ### Mutations
@@ -97,11 +87,7 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(Community)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters), do: Repo.delete_all(Queries.query(Community, filters))
 
   # defp default_inbox_query_contexts() do
   #   Application.fetch_env!(:moodle_net, __MODULE__)
@@ -120,7 +106,7 @@ defmodule MoodleNet.Communities do
     FeedActivities.publish(activity, feeds)
   end
   defp publish(_community, :updated), do: :ok
-  defp publish(community, :deleted) do
+  defp publish(_community, :deleted) do
     # Activities
     :ok
   end

@@ -4,9 +4,6 @@
 defmodule MoodleNet.Uploads do
 
   alias Ecto.Changeset
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Changeset.Common
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{
@@ -121,7 +118,19 @@ defmodule MoodleNet.Uploads do
   Delete an upload, removing it from indexing, but the files remain available.
   """
   @spec soft_delete(Content.t()) :: {:ok, Content.t()} | {:error, Changeset.t()}
-  def soft_delete(%Content{} = content), do: MoodleNet.Common.soft_delete(content)
+  def soft_delete(%Content{} = content) do
+    MoodleNet.Common.soft_delete(content)
+  end
+
+  # def soft_delete_by(filters) do
+    
+  # end
+
+  # def soft_delete_by(ContentMirror, filters) do
+  # end
+
+  # def soft_delete_by(ContentUpload, filters) do
+  # end
 
   @doc """
   Delete an upload, removing any associated files.
@@ -138,6 +147,7 @@ defmodule MoodleNet.Uploads do
     with {:ok, v} <- resp, do: v
   end
 
+  @doc false # Sweep deleted content
   def hard_delete() do
     {_, work} = delete_by(deleted: true)
     {mirrors, uploads} = Enum.reduce(work, {[],[]}, fn item, {mirrors, uploads} ->

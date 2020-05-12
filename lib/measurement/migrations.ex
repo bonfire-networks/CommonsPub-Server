@@ -47,7 +47,7 @@ defmodule Measurement.Migrations do
         %{"id" => ULID.bingenerate(), "table" => name}
       end)
       {_, _} = Repo.insert_all("mn_table", tables)
-      tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
+      _tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
         Map.put(acc, table, id)
     end)
 

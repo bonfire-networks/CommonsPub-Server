@@ -6,7 +6,6 @@ defmodule MoodleNet.CommunitiesTest do
 
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Communities
   alias MoodleNet.Communities.Community
@@ -22,7 +21,7 @@ defmodule MoodleNet.CommunitiesTest do
           acc
         end
       end)
-      {:ok, fetched} = Communities.many(:deleted)
+      {:ok, fetched} = Communities.many(deleted: false)
 
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
       for comm <- fetched do
@@ -44,7 +43,8 @@ defmodule MoodleNet.CommunitiesTest do
     test "fails if the community has been removed" do
       community = fake_user!() |> fake_community!()
       assert {:ok, community} = Communities.soft_delete(community)
-      assert {:error, %NotFoundError{}} = Communities.one([:deleted, id: community.id])
+      assert {:error, %NotFoundError{}} =
+        Communities.one(deleted: false, id: community.id)
     end
 
     # Everything is public currently
@@ -58,13 +58,6 @@ defmodule MoodleNet.CommunitiesTest do
       assert {:error, %NotFoundError{}} = Communities.one(id: Fake.ulid())
     end
 
-    test "returns a community regardless of its privacy" do
-      community = fake_user!() |> fake_community!(%{is_public: false})
-      assert {:ok, community} = Communities.soft_delete(community)
-      assert {:ok, community = %Community{}} = Communities.one([:private, id: community.id])
-      assert community.actor
-      assert community.creator
-    end
   end
 
   describe "Communities.create/3" do
@@ -88,7 +81,6 @@ defmodule MoodleNet.CommunitiesTest do
   describe "Communities.update/2" do
 
     @tag :skip
-    @for_moot true
     test "works for the creator of the community" do
       # assert user = fake_user!()
       # assert community = fake_community!(user)
@@ -98,7 +90,6 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     @tag :skip
-    @for_moot true
     test "works for an instance admin" do
       # assert user = fake_user!()
       # assert community = fake_community!(user)

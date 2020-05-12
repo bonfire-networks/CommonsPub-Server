@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Blocks do
   alias Ecto.Changeset
-  alias MoodleNet.{Blocks, Common, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Blocks.{Block, Queries}
   alias MoodleNet.Users.User
   
@@ -13,7 +13,7 @@ defmodule MoodleNet.Blocks do
   end
 
   defp find_q(blocker_id, blocked_id) do
-    Queries.query(Block, [:deleted, creator_id: blocker_id, context_id: blocked_id])
+    Queries.query(Block, [deleted: false, creator: blocker_id, context: blocked_id])
   end
 
   @spec create(User.t(), any, map) :: {:ok, Block.t()} | {:error, Changeset.t()}
@@ -29,10 +29,6 @@ defmodule MoodleNet.Blocks do
   @spec delete(Block.t()) :: {:ok, Block.t()} | {:error, Changeset.t()}
   def delete(%Block{} = block), do: Common.soft_delete(block)
 
-  def soft_delete_by(filters) do
-    Queries.query(Block)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Block, filters), updates)
 
 end

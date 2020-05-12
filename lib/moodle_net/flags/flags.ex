@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Flags do
   alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Common.Contexts
   # alias MoodleNet.FeedPublisher
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
   alias MoodleNet.Meta.{Pointers, Table}
   alias MoodleNet.Users.User
@@ -29,7 +27,7 @@ defmodule MoodleNet.Flags do
     %Table{schema: table} = Pointers.table!(flagged)
     if table in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([:deleted, creator_id: flagger.id, context_id: flagged.id]) do
+        case one([deleted: false, creator: flagger.id, context: flagged.id]) do
           {:ok, _} -> {:error, AlreadyFlaggedError.new(flagged.id)}
           _ -> really_create(flagger, flagged, community, fields)
         end
@@ -41,14 +39,15 @@ defmodule MoodleNet.Flags do
 
   defp really_create(flagger, flagged, community, fields) do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
-         {:ok, activity} <- insert_activity(flagger, flag, "created"),
-         # :ok <- publish(flagger, flagged, flag, community, "created"),
+         {:ok, _activity} <- insert_activity(flagger, flag, "created"),
+         :ok <- publish(flagger, flagged, flag, community, :created),
          :ok <- ap_publish(flagger, flag) do
       {:ok, flag}
     end
   end
 
-  defp publish(flagger, flagged, flag, community, verb), do: :ok
+  # TODO ?
+  defp publish(_flagger, _flagged, _flag, _community, :created), do: :ok
 
   defp ap_publish(%Flag{creator_id: id}=flag), do: ap_publish(%{id: id}, flag)
 
@@ -75,10 +74,6 @@ defmodule MoodleNet.Flags do
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(Flag)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Flag, filters), updates)
 
 end

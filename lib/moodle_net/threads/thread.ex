@@ -10,7 +10,7 @@ defmodule MoodleNet.Threads.Thread do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Threads
-  alias MoodleNet.Threads.{Comment, FollowerCount, LastComment, Thread}
+  alias MoodleNet.Threads.{FollowerCount, LastComment, Thread}
   alias MoodleNet.Users.User
 
   table_schema "mn_thread" do

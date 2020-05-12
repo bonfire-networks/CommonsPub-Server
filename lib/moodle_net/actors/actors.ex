@@ -37,12 +37,6 @@ defmodule MoodleNet.Actors do
     end
   end
 
-  defp fix_preferred_username(username) when is_nil(username), do: nil
-
-  defp fix_preferred_username(username) do
-    String.replace(username, @replacement_regex, "")
-  end
-
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
@@ -58,10 +52,6 @@ defmodule MoodleNet.Actors do
   @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
   def delete(%Actor{} = actor), do: Repo.delete(actor)
 
-  def soft_delete_by(filters) do
-    Queries.query(Actor)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
-  end
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Actor, filters), updates)
 
 end

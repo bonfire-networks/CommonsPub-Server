@@ -58,7 +58,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       {:ok, _} = ActivityPub.follow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
-      {:ok, follow} = MoodleNet.Follows.one(creator_id: follower.id, context_id: followed.id)
+      {:ok, follow} = MoodleNet.Follows.one(creator: follower.id, context: followed.id)
 
       assert :ignored = APPublishWorker.perform(%{"context_id" => follow.id, "verb" => "create"}, %{})
     end

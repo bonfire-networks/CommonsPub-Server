@@ -26,14 +26,16 @@ defmodule MoodleNet.CollectionsTest do
 
     test "fails when it has been deleted", context do
       assert {:ok, collection} = Collections.soft_delete(context.collection)
-      assert {:error, %NotFoundError{}} = Collections.one([:deleted, id: context.collection.id])
+      assert {:error, %NotFoundError{}} =
+        Collections.one(deleted: false, id: context.collection.id)
     end
 
     @tag :skip
     test "fails when the parent community has been deleted", context do
       assert collection = fake_collection!(context.user, context.community)
       assert {:ok, _} = Communities.soft_delete(context.community)
-      assert {:error, %NotFoundError{}} = Collections.one([:deleted, id: context.collection.id])
+      assert {:error, %NotFoundError{}} =
+        Collections.one(deleted: false, id: context.collection.id)
     end
 
     test "fails with a missing ID" do

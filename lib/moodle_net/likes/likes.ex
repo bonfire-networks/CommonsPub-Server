@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes do
   alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
@@ -49,7 +47,7 @@ defmodule MoodleNet.Likes do
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
     if ctx in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([:deleted, context_id: liked.id, creator_id: liker.id]) do
+        case one(deleted: false, context: liked.id, creator: liker.id) do
           {:ok, _} ->
             {:error, AlreadyLikedError.new("user")}
 
@@ -66,9 +64,10 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  def update(%Like{} = like, fields) do
-    Repo.update(Like.update_changeset(like, fields))
-  end
+  def update(%Like{} = like, fields), do: Repo.update(Like.update_changeset(like, fields))
+
+  @doc false
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Like, filters), updates)
 
   @spec soft_delete(Like.t()) :: {:ok, Like.t()} | {:error, any}
   def soft_delete(%Like{} = like) do
@@ -78,12 +77,6 @@ defmodule MoodleNet.Likes do
         {:ok, like}
       end
     end)
-  end
-
-  def soft_delete_by(filters) do
-    Queries.query(Like)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
   end
 
   defp valid_contexts() do

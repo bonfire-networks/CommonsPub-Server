@@ -47,25 +47,6 @@ defmodule MoodleNet.Resources do
     Activities.create(creator, resource, attrs)
   end
 
-  defp publish(_creator, collection, _resource, activity, :created) do
-    community = Repo.preload(collection, :community).community
-    feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
-    FeedActivities.publish(activity, feeds)
-  end
-  defp publish(_resource, :updated), do: :ok
-  defp publish(resource, :deleted) do
-    Activities.update_by([context_id: resource.id], deleted_at: DateTime.utc_now())
-    :ok
-  end
-
-  defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
-
-  defp ap_publish(%User{} = user, %Resource{} = resource) do
-    FeedPublisher.publish(%{"context_id" => resource.id, "user_id" => user.id})
-  end
-
-  defp ap_publish(_, _), do: :ok
-
   defp insert_resource(creator, collection, attrs) do
     Repo.insert(Resource.create_changeset(creator, collection, attrs))
   end
@@ -79,6 +60,8 @@ defmodule MoodleNet.Resources do
     end
   end
 
+  def update_by(filters, updates), do: Repo.update_all(Queries.query(Resource, filters), updates)
+
   @spec soft_delete(Resource.t()) :: {:ok, Resource.t()} | {:error, Changeset.t()}
   def soft_delete(%Resource{} = resource) do
     resource = Repo.preload(resource, [collection: [:actor]])
@@ -89,18 +72,23 @@ defmodule MoodleNet.Resources do
     end
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(Resource)
-    |> Queries.filter([:delete | filters])
-    |> Repo.update_all()
+  defp publish(_creator, collection, _resource, activity, :created) do
+    community = Repo.preload(collection, :community).community
+    feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
+    FeedActivities.publish(activity, feeds)
+  end
+  defp publish(_resource, :updated), do: :ok
+  defp publish(resource, :deleted) do
+    Activities.update_by([context: resource.id], deleted_at: DateTime.utc_now())
+    :ok
   end
 
-  ### behaviour callbacks
+  defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
 
-  def context_module, do: Users
+  defp ap_publish(%User{} = user, %Resource{} = resource) do
+    FeedPublisher.publish(%{"context_id" => resource.id, "user_id" => user.id})
+  end
 
-  def queries_module, do: Users.Queries
-
-  def follow_filters, do: []
+  defp ap_publish(_, _), do: :ok
 
 end

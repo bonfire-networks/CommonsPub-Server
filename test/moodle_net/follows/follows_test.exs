@@ -6,7 +6,7 @@ defmodule MoodleNet.FollowsTest do
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
   import MoodleNet.Test.Faking
-  alias MoodleNet.{Blocks, Common, Features, Flags, Follows, Likes}
+  alias MoodleNet.Follows
   alias MoodleNet.Test.Fake
 
   setup do

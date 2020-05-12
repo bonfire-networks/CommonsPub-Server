@@ -23,13 +23,13 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def fetch_featured_communities(page_opts, info) do
+  def fetch_featured_communities(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
         queries: Features.Queries,
         query: Features.Feature,
         page_opts: page_opts,
-        base_filters: [:deleted, join: :context, table: Community],
+        base_filters: [deleted: false, join: :context, table: Community],
         data_filters: [page: [desc: [created: page_opts]], preload: :context]
       }
     )
@@ -46,19 +46,19 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
     )
   end
 
-  def fetch_featured_collections(page_opts, info) do
+  def fetch_featured_collections(page_opts, _info) do
     FetchPage.run(
       %FetchPage{
         queries: Features.Queries,
         query: Features.Feature,
         page_opts: page_opts,
-        base_filters: [:deleted, join: :context, table: Collection],
+        base_filters: [deleted: false, join: :context, table: Collection],
         data_filters: [page: [desc: [created: page_opts]], preload: :context]
       }
     )
   end
 
-  def outbox_edge(_, page_opts, info) do
+  def outbox_edge(_, page_opts, _info) do
     feed_id = MoodleNet.Feeds.instance_outbox_id()
     tables = Instance.default_outbox_query_contexts()
     FetchPage.run(
@@ -66,7 +66,7 @@ defmodule MoodleNetWeb.GraphQL.InstanceResolver do
         queries: Activities.Queries,
         query: Activities.Activity,
         page_opts: page_opts,
-        base_filters: [:deleted, feed: feed_id, table: tables],
+        base_filters: [deleted: false, feed_timeline: feed_id, table: tables],
         data_filters: [page: [desc: [created: page_opts]]],
       }          
     )
