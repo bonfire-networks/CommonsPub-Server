@@ -225,7 +225,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
   end
 
   describe "resource.icon" do
-    @tag :skip
     test "works" do
       user = fake_user!()
       comm = fake_community!(user)
@@ -234,7 +233,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
         MoodleNet.Uploads.ResourceUploader, user,
-        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, res} = MoodleNet.Resources.update(user, res, %{icon_id: upload.id})
 
@@ -248,7 +247,6 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
   end
 
   describe "resource.content" do
-    @tag :skip
     test "works" do
       user = fake_user!()
       comm = fake_community!(user)
@@ -257,7 +255,7 @@ defmodule MoodleNetWeb.GraphQL.ResourceTest do
 
       assert {:ok, upload} = MoodleNet.Uploads.upload(
         MoodleNet.Uploads.ResourceUploader, user,
-        %{path: "test/fixtures/images/150.png", filename: "150.png"}, %{}
+        %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
       assert {:ok, res} = MoodleNet.Resources.update(user, res, %{content_id: upload.id})
 
