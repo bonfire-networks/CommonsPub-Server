@@ -91,14 +91,23 @@ defmodule ActivityPubWeb.Publisher do
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
 
   defp maybe_federate_to_mothership(recipients, activity) do
+    mothership_inbox =
+      cond do
+        System.get_env("MOTHERSHIP_AP_INBOX_URL") ->
+          System.get_env("MOTHERSHIP_AP_INBOX_URL")
+
+        System.get_env("REACT_APP_MOTHERSHIP_ENV") == "moodlenet_mothership_next" ->
+          "https://mothership.next.moodle.net/pub/shared_inbox"
+
+        true ->
+          "https://mothership.moodle.net/pub/shared_inbox"
+      end
+
     if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public and
          activity.data["type"] in ["Create", "Update", "Delete"] do
       recipients ++
         [
-          System.get_env(
-            "MOTHERSHIP_AP_INBOX_URL",
-            "https://mothership.moodle.net/pub/shared_inbox"
-          )
+          mothership_inbox
         ]
     else
       recipients
