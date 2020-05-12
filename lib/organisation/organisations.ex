@@ -10,6 +10,7 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -81,7 +82,7 @@ defmodule Organisation.Organisations do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, org, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do 
+           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
         {:ok, org}
       end
     end)
@@ -136,7 +137,7 @@ defmodule Organisation.Organisations do
       organisation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(organisation.id, creator.id, organisation.actor.peer_id)
+      ap_publish("create", organisation)
     end
   end
 
@@ -146,24 +147,22 @@ defmodule Organisation.Organisations do
       organisation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(organisation.id, creator.id, organisation.actor.peer_id)
+      ap_publish("create", organisation)
     end
   end
 
   defp publish(organisation, :updated) do
-    ap_publish(organisation.id, organisation.creator_id, organisation.actor.peer_id) # TODO: wrong if edited by admin
+    ap_publish("update", organisation) # TODO: wrong if edited by admin
   end
   defp publish(organisation, :deleted) do
-    ap_publish(organisation.id, organisation.creator_id, organisation.actor.peer_id) # TODO: wrong if edited by admin
+    ap_publish("delete", organisation) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(context_id, user_id, nil) do
-    MoodleNet.FeedPublisher.publish(%{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
+  defp ap_publish(verb, %{actor: %{peer_id: nil} = organisation}) do
+    APPublishWorker.enqueue(verb, %{"context_id" => organisation.id})
+    :ok
   end
-  defp ap_publish(_, _, _), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(%Organisation{}, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
