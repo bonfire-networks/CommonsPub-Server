@@ -40,14 +40,40 @@ defmodule MoodleNet.Flags do
   defp really_create(flagger, flagged, community, fields) do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
          {:ok, _activity} <- insert_activity(flagger, flag, "created"),
-         :ok <- publish(flagger, flagged, flag, community, :created),
+         :ok <- publish(flagger, flagged, flag, community),
          :ok <- ap_publish(flagger, flag) do
       {:ok, flag}
     end
   end
 
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Flag, filters), set: updates)
+  end
+
+  def soft_delete(%User{}=user, %Flag{}=flag) do
+    Repo.transact_with(fn ->
+      with {:ok, flag} <- Common.soft_delete(flag),
+           :ok <- chase_delete(user, flag.id),
+           :ok <- ap_publish(flag) do
+        {:ok, flag}
+      end      
+    end)
+  end
+
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    Activities.soft_delete_by(user, context: ids)
+  end  
+
   # TODO ?
-  defp publish(_flagger, _flagged, _flag, _community, :created), do: :ok
+  defp publish(_flagger, _flagged, _flag, _community), do: :ok
 
   defp ap_publish(%Flag{creator_id: id}=flag), do: ap_publish(%{id: id}, flag)
 
@@ -64,16 +90,5 @@ defmodule MoodleNet.Flags do
   defp insert_flag(flagger, flagged, community, fields) do
     Repo.insert(Flag.create_changeset(flagger, community, flagged, fields))
   end
-
-  def soft_delete(%Flag{} = flag) do
-    Repo.transact_with(fn ->
-      with {:ok, flag} <- Common.soft_delete(flag),
-           :ok <- ap_publish(flag) do
-        {:ok, flag}
-      end
-    end)
-  end
-
-  def update_by(filters, updates), do: Repo.update_all(Queries.query(Flag, filters), updates)
 
 end

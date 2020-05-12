@@ -127,6 +127,10 @@ defmodule MoodleNet.Collections.Queries do
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
+  def filter(q, {:select, :delete}) do
+    select(q, [collection: c], %{id: c.id, inbox_id: c.inbox_id, outbox_id: c.outbox_id})
+  end
+
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
     q
     |> filter(join: :follower_count, order: [desc: :followers])

@@ -117,6 +117,8 @@ defmodule MoodleNet.Resources.Queries do
   def filter(q, {:group, key}) when is_atom(key), do: group_by(q, [resource: r], [field(r, ^key)])
   def filter(q, {:count, key}) when is_atom(key), do: select(q, [resource: r], {field(r, ^key), count(r.id)})
 
+  def filter(q, {:select, :id}), do: select(q, [resource: r], r.id)
+
   # pagination
 
   def filter(q, {:page, [desc: [created: %{after: [id], limit: limit}]]}) do

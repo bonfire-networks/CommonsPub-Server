@@ -436,7 +436,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
         %{}
       )
-      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{icon_id: upload.id})
+      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [icon: [:id, :url, upload: [:path]]])
@@ -456,7 +456,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
         %{}
       )
-      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{image_id: upload.id})
+      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{image_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [image: [:id, :url, upload: [:path]]])

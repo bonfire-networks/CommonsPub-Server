@@ -148,7 +148,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
          followed = Pointers.follow!(follow.context),
          {:ok, followed} <- Actor.get_or_fetch_by_username(followed.actor.preferred_username) do
       if followed.data["manuallyApprovesFollowers"] do
-        MoodleNet.Follows.soft_delete(follow)
+        MoodleNet.Follows.soft_delete(follow.creator, follow)
         {:error, "account is private"}
       else
         # FIXME: insert pointer in AP database, insert cannonical URL in MN database
@@ -197,7 +197,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def like(like) do
-    like = Repo.preload(like, :context)
+    like = Repo.preload(like, creator: :actor, context: [])
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)
@@ -209,7 +209,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   end
 
   def unlike(like) do
-    like = Repo.preload(like, :context)
+    like = Repo.preload(like, creator: :actor, context: [])
 
     with {:ok, liker} <- Actor.get_cached_by_local_id(like.creator_id) do
       liked = Pointers.follow!(like.context)

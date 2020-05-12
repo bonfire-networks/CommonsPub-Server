@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads.Comments do
   import Ecto.Query
-  alias MoodleNet.{Activities, Common, Feeds, Repo}
+  alias MoodleNet.{Activities, Common, Feeds, Flags, Repo}
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
@@ -69,7 +69,7 @@ defmodule MoodleNet.Threads.Comments do
            thread = preload_ctx(thread),
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
-           :ok <- publish(creator, thread, comment, activity, :created),
+           :ok <- publish(creator, thread, comment, activity),
            :ok <- ap_publish(creator, comment) do
         {:ok, %{ comment | thread: thread }}
       end
@@ -101,7 +101,7 @@ defmodule MoodleNet.Threads.Comments do
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                thread = preload_ctx(thread),
-               :ok <- publish(creator, thread, comment, activity, :created),
+               :ok <- publish(creator, thread, comment, activity),
                :ok <- ap_publish(creator, comment) do
             {:ok, comment}
           end
@@ -126,38 +126,50 @@ defmodule MoodleNet.Threads.Comments do
     end
   end
 
-  @spec update(Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def update(%Comment{}=comment, attrs) do
+  @spec update(User.t(), Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
+  def update(%User{}, %Comment{}=comment, attrs) do
     with {:ok, updated} <- Repo.update(Comment.update_changeset(comment, attrs)),
-         :ok <- publish(comment, :updated),
          :ok <- ap_publish(comment) do
       {:ok, updated}
     end
   end
 
-  @spec soft_delete(Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
-  def soft_delete(%Comment{} = comment) do
-    with {:ok, deleted} <- Common.soft_delete(comment),
-         :ok <- publish(comment, :deleted),
-         :ok <- ap_publish(comment) do
-      {:ok, deleted}
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(CommentsQueries.query(Comment, filters), set: updates)
+  end
+
+  @spec soft_delete(User.t(), Comment.t()) :: {:ok, Comment.t()} | {:error, Changeset.t()}
+  def soft_delete(%User{}=user, %Comment{} = comment) do
+    Repo.transact_with(fn ->
+      with {:ok, deleted} <- Common.soft_delete(comment),
+           :ok <- chase_delete(user, comment.id),
+           :ok <- ap_publish(comment) do
+        {:ok, deleted}
+      end
+    end)
+  end
+
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    with :ok <- Flags.soft_delete_by(user, context: ids),
+         :ok <- Activities.soft_delete_by(user, context: ids) do
+      :ok
     end
   end
 
-  def soft_delete_by(filters) do
-    CommentsQueries.query(Comment)
-    |> CommentsQueries.filter(filters)
-    |> Repo.delete_all()
-  end
-
-  defp publish(creator, thread, _comment, activity, :created) do
+  defp publish(creator, thread, _comment, activity) do
     feeds = context_feeds(thread.context.pointed) ++ [
       creator.outbox_id, thread.outbox_id, Feeds.instance_outbox_id(),
     ]
     FeedActivities.publish(activity, feeds)
   end
-  defp publish(_comment, :updated), do: :ok
-  defp publish(_comment, :deleted), do: :ok
 
   defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
 

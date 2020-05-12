@@ -11,7 +11,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias MoodleNet.Flags.Flag
   alias MoodleNet.Threads.{Comment, Thread}
   alias MoodleNet.Meta.Pointers
-  alias MoodleNet.Users.User
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
@@ -75,7 +74,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
       context = Pointers.follow!(pointer)
       if allow_delete?(user, context) do
         apply(context.__struct__, :context_module, [])
-        |> apply(:soft_delete, [context])
+        |> apply(:soft_delete, [user, context])
       else
         GraphQL.not_permitted("delete")
       end

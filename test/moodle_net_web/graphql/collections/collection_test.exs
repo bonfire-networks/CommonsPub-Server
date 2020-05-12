@@ -400,7 +400,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         MoodleNet.Uploads.IconUploader, user,
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
-      assert {:ok, coll} = MoodleNet.Collections.update(coll, %{icon_id: upload.id})
+      assert {:ok, coll} = MoodleNet.Collections.update(user, coll, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = collection_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])

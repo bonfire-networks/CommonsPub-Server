@@ -29,13 +29,20 @@ defmodule MoodleNet.Activities do
   @doc """
   Update an already existing activity with the given attributes.
   """
-  @spec update(Activity.t(), map) :: {:ok, Activity.t()} | {:error, Changeset.t()}
-  def update(%Activity{} = activity, %{} = attrs),
+  @spec update(User.t(), Activity.t(), map) :: {:ok, Activity.t()} | {:error, Changeset.t()}
+  def update(%User{}, %Activity{} = activity, %{} = attrs),
     do: Repo.update(Activity.update_changeset(activity, attrs))
 
-  def update_by(filters, updates), do: Repo.update_all(Queries.query(Activity, filters), updates)
+  def update_by(%User{}=user, filters, updates) do
+    Repo.update_all(Queries.query(Activity, filters), set: updates)
+  end
 
-  @spec soft_delete(Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
-  def soft_delete(%Activity{} = activity), do: Common.soft_delete(activity)
+  @spec soft_delete(User.t(), Activity.t()) :: {:ok, Activity.t()} | {:error, Changeset.t()}
+  def soft_delete(%User{}, %Activity{} = activity), do: Common.soft_delete(activity)
+
+  def soft_delete_by(%User{}=user, filters) do
+    update_by(user, [{:deleted, false} | filters], deleted_at: DateTime.utc_now())
+    :ok
+  end
 
 end

@@ -110,4 +110,6 @@ defmodule MoodleNet.Follows.Queries do
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
+  def filter(q, {:select, :id}), do: select(q, [follow: f], f.id)
+
 end

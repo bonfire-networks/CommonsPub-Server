@@ -33,4 +33,6 @@ defmodule MoodleNet.Blocks.Queries do
   def filter(q, {:preload, :context}), do: preload(q, [context: c], context: c)
   def filter(q, {:preload, :creator}), do: preload(q, [user: u], creator: u)
 
+  def filter(q, {:select, :id}), do: select(q, [block: b], b.id)
+
 end

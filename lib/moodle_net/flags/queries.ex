@@ -93,6 +93,6 @@ defmodule MoodleNet.Flags.Queries do
   def filter(q, {:preload, :context}), do: preload(q, [context: c], context: c)
   def filter(q, {:preload, :creator}), do: preload(q, [user: u], creator: u)
 
-  def filter(q, {:select, :id}), do: select(q, [flag: f], %{id: f.id})
+  def filter(q, {:select, :id}), do: select(q, [flag: f], f.id)
 
 end

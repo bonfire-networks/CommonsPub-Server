@@ -50,7 +50,7 @@ defmodule MoodleNet.FlagsTest do
       assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       refute flag.deleted_at
 
-      assert {:ok, flag} = Flags.soft_delete(flag)
+      assert {:ok, flag} = Flags.soft_delete(flagger, flag)
       assert flag.deleted_at
     end
   end

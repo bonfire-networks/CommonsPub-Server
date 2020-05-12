@@ -51,7 +51,7 @@ defmodule MoodleNet.FeaturesTest do
       assert feat.context_id == comm.id
       assert {:ok, feat2} = Features.one(id: feat.id)
       assert Map.delete(feat, :context) == Map.delete(feat2, :context)
-      assert {:ok, _} = Features.soft_delete(feat)
+      assert {:ok, _} = Features.soft_delete(alice, feat)
       assert {:error, _} = Features.one(deleted: false, id: feat.id)
     end
   end

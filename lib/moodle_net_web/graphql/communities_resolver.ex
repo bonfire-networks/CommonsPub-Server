@@ -184,7 +184,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cond do
           user.local_user.is_instance_admin or community.creator_id == user.id ->
             with {:ok, uploads} <- UploadResolver.upload(user, params, info),
-              do: Communities.update(community, Map.merge(changes, uploads))
+              do: Communities.update(user, community, Map.merge(changes, uploads))
 
           is_nil(community.published_at) -> GraphQL.not_found()
 

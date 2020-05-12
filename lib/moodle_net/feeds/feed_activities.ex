@@ -25,12 +25,7 @@ defmodule MoodleNet.Feeds.FeedActivities do
   def many(filters), do: {:ok, Repo.all(FeedActivitiesQueries.query(FeedActivity, filters))}
 
   def update_by(filters, updates \\ []) do
-    Repo.update_all(FeedActivitiesQueries.query(FeedActivity, filters), updates)
-  end
-
-  @doc false
-  def hard_delete() do
-    Repo.delete_all(FeedActivitiesQueries.query(FeedActivity, :hard_delete))
+    Repo.update_all(FeedActivitiesQueries.query(FeedActivity, filters), set: updates)
   end
 
   @doc "Publish an activity to the feeds with the given ids"
