@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Workers.APPublishWorker do
-  use Oban.Worker, queue: "mn_ap_publish", max_attempts: 1
+  use ActivityPub.Workers.WorkerHelper, queue: "mn_ap_publish", max_attempts: 1
 
   require Logger
 
@@ -18,7 +18,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.Threads.Comment
 
   @impl Worker
-  def perform(%{"context_id" => context_id, "verb" => verb}, _job) do
+  def perform(%{"context_id" => context_id, "op" => verb}, _job) do
       Pointers.one!(id: context_id)
       |> Pointers.follow!()
       |> only_local(&publish/2, verb)
