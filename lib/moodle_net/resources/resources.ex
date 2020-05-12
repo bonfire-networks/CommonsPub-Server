@@ -5,10 +5,10 @@ defmodule MoodleNet.Resources do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Common, Feeds, Repo}
   alias MoodleNet.Collections.Collection
-  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Resources.{Resource, Queries}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   @doc """
   Retrieves a single resource by arbitrary filters.
@@ -36,7 +36,7 @@ defmodule MoodleNet.Resources do
            act_attrs = %{verb: "created", is_local: is_nil(collection.actor.peer_id)},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection, resource, activity, :created),
-           :ok <- ap_publish(creator, resource) do
+           :ok <- ap_publish("create", resource) do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)
@@ -55,7 +55,7 @@ defmodule MoodleNet.Resources do
   def update(%Resource{} = resource, attrs) when is_map(attrs) do
     with {:ok, updated} <- Repo.update(Resource.update_changeset(resource, attrs)),
          :ok <- publish(resource, :updated),
-         :ok <- ap_publish(resource) do
+         :ok <- ap_publish("update", resource) do
       {:ok, updated}
     end
   end
@@ -67,7 +67,7 @@ defmodule MoodleNet.Resources do
     resource = Repo.preload(resource, [collection: [:actor]])
     with {:ok, deleted} <- Common.soft_delete(resource),
          :ok <- publish(deleted, :deleted),
-         :ok <- ap_publish(resource) do
+         :ok <- ap_publish("delete", resource) do
       {:ok, deleted}
     end
   end
@@ -83,10 +83,9 @@ defmodule MoodleNet.Resources do
     :ok
   end
 
-  defp ap_publish(%{creator_id: id} = resource), do: ap_publish(%{id: id}, resource)
-
-  defp ap_publish(%User{} = user, %Resource{} = resource) do
-    FeedPublisher.publish(%{"context_id" => resource.id, "user_id" => user.id})
+  defp ap_publish(verb, %Resource{} = resource) do
+    APPublishWorker.enqueue(verb, %{"context_id" => resource.id})
+    :ok
   end
 
   defp ap_publish(_, _), do: :ok

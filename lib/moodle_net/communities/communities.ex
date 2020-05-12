@@ -5,9 +5,9 @@ defmodule MoodleNet.Communities do
   alias Ecto.Changeset
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.Communities.{Community, Queries}
-  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   ### Cursor generators
 
@@ -35,7 +35,7 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            :ok <- publish(creator, comm, activity, :created),
-           :ok <- ap_publish(creator, comm) do
+           :ok <- ap_publish("create", comm) do
         {:ok, comm}
       end
     end)
@@ -71,7 +71,7 @@ defmodule MoodleNet.Communities do
            {:ok, actor} <- Actors.update(community.actor, attrs),
            community <- %{ comm | actor: actor },
            :ok <- publish(community, :updated),
-           :ok <- ap_publish(community) do 
+           :ok <- ap_publish("update", community) do
         {:ok, community}
       end
     end)
@@ -81,7 +81,7 @@ defmodule MoodleNet.Communities do
     Repo.transact_with(fn ->
       with {:ok, community} <- Common.soft_delete(community),
            :ok <- publish(community, :deleted),
-           :ok <- ap_publish(community) do
+           :ok <- ap_publish("delete", community) do
         {:ok, community}
       end
     end)
@@ -111,14 +111,11 @@ defmodule MoodleNet.Communities do
     :ok
   end
 
-  
-
-  ### HACK FIXME
-  defp ap_publish(%{creator_id: id}=community), do: ap_publish(%{id: id}, community)
-
-  defp ap_publish(user, %{actor: %{peer_id: nil}}=community) do
-    FeedPublisher.publish(%{ "context_id" => community.id, "user_id" => user.id })
+  defp ap_publish(%{actor: %{peer_id: nil}} = community, verb) do
+    APPublishWorker.enqueue(verb, %{"context_id" => community.id})
+    :ok
   end
+
   defp ap_publish(_, _), do: :ok
 
 end

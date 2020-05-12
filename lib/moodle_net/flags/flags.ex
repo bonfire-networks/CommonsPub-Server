@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Flags do
   alias MoodleNet.{Activities, Common, Repo}
-  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Flags.{AlreadyFlaggedError, Flag, NotFlaggableError, Queries}
   alias MoodleNet.Meta.{Pointers, Table}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def one(filters), do: Repo.single(Queries.query(Flag, filters))
 
@@ -41,7 +41,7 @@ defmodule MoodleNet.Flags do
     with {:ok, flag} <- insert_flag(flagger, flagged, community, fields),
          {:ok, _activity} <- insert_activity(flagger, flag, "created"),
          :ok <- publish(flagger, flagged, flag, community, :created),
-         :ok <- ap_publish(flagger, flag) do
+         :ok <- ap_publish("create", flag) do
       {:ok, flag}
     end
   end
@@ -49,11 +49,10 @@ defmodule MoodleNet.Flags do
   # TODO ?
   defp publish(_flagger, _flagged, _flag, _community, :created), do: :ok
 
-  defp ap_publish(%Flag{creator_id: id}=flag), do: ap_publish(%{id: id}, flag)
-
-  # defp ap_publish(user, %Flag{is_local: true} = flag) do
-  #   FeedPublisher.publish(%{"context_id" => flag.id, "user_id" => user.id})
-  # end
+  defp ap_publish(verb, %Flag{is_local: true} = flag) do
+    APPublishWorker.enqueue(verb, %{"context_id" => flag.id})
+    :ok
+  end
 
   defp ap_publish(_, _), do: :ok
 
@@ -68,7 +67,7 @@ defmodule MoodleNet.Flags do
   def soft_delete(%Flag{} = flag) do
     Repo.transact_with(fn ->
       with {:ok, flag} <- Common.soft_delete(flag),
-           :ok <- ap_publish(flag) do
+           :ok <- ap_publish("delete", flag) do
         {:ok, flag}
       end
     end)

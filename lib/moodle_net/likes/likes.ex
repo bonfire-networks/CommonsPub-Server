@@ -8,6 +8,7 @@ defmodule MoodleNet.Likes do
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
 
@@ -30,11 +31,12 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  defp ap_publish(%Like{is_local: true} = like) do
-    MoodleNet.FeedPublisher.publish(%{"context_id" => like.id, "user_id" => like.creator_id})
+  defp ap_publish(verb, %Like{is_local: true} = like) do
+    APPublishWorker.enqueue(verb, %{"context_id" => like.id})
+    :ok
   end
 
-  defp ap_publish(_), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
@@ -54,7 +56,7 @@ defmodule MoodleNet.Likes do
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
                  :ok <- publish(liker, liked, like, "created"),
-                 :ok <- ap_publish(like) do
+                 :ok <- ap_publish("create", like) do
               {:ok, like}
             end
         end
@@ -73,7 +75,7 @@ defmodule MoodleNet.Likes do
   def soft_delete(%Like{} = like) do
     Repo.transact_with(fn ->
       with {:ok, like} <- Common.soft_delete(like),
-            :ok <- ap_publish(like) do
+            :ok <- ap_publish("delete", like) do
         {:ok, like}
       end
     end)

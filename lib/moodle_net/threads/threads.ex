@@ -22,11 +22,11 @@ defmodule MoodleNet.Threads do
     Repo.transact_with(fn ->
       with {:ok, feed} <- Feeds.create(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
-           {:ok, thread} <- insert(creator, context, attrs),
+           {:ok, thread} <- insert(creator, context, attrs) do
            # act_attrs = %{verb: "created", is_local: thread.is_local},
            # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
            # :ok <- publish(creator, thread, context, :created),
-           :ok <- ap_publish(creator, thread) do
+           # :ok <- ap_publish(creator, thread) do
         {:ok, thread}
       end
     end)
@@ -42,9 +42,9 @@ defmodule MoodleNet.Threads do
   @spec update(Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def update(%Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)),
+      with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)) do
            # :ok <- publish(thread, :updated),
-           :ok <- ap_publish(thread) do
+           # :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)
@@ -53,9 +53,9 @@ defmodule MoodleNet.Threads do
   @spec soft_delete(Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def soft_delete(%Thread{} = thread) do
     Repo.transact_with(fn ->
-      with {:ok, thread} <- Common.soft_delete(thread),
+      with {:ok, thread} <- Common.soft_delete(thread) do
            # :ok <- publish(thread, :deleted),
-           :ok <- ap_publish(thread) do
+           # :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)
@@ -83,13 +83,13 @@ defmodule MoodleNet.Threads do
   # defp publish(thread, :updated), do: :ok
   # defp publish(thread, :deleted), do: :ok
 
-  defp ap_publish(%{creator_id: id} = thread), do: ap_publish(%{id: id}, thread)
+  # defp ap_publish(%{creator_id: id} = thread), do: ap_publish(%{id: id}, thread)
 
   # defp ap_publish(user, thread) do
   #   # There is no AP type for a thread yet
   #   FeedPublisher.publish(%{"context_id" => thread.id, "user_id" => user.id})
   # end
 
-  defp ap_publish(_, _), do: :ok
+  # defp ap_publish(_, _), do: :ok
 
 end
