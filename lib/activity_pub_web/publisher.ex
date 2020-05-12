@@ -91,8 +91,15 @@ defmodule ActivityPubWeb.Publisher do
     do: (is_map(data["endpoints"]) && Map.get(data["endpoints"], "sharedInbox")) || data["inbox"]
 
   defp maybe_federate_to_mothership(recipients, activity) do
-    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public do
-      recipients ++ [System.get_env("MOTHERSHIP_AP_INBOX_URL", "https://mothership.moodle.net/pub/shared_inbox" )]
+    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public and
+         activity.data["type"] in ["Create", "Update", "Delete"] do
+      recipients ++
+        [
+          System.get_env(
+            "MOTHERSHIP_AP_INBOX_URL",
+            "https://mothership.moodle.net/pub/shared_inbox"
+          )
+        ]
     else
       recipients
     end
@@ -135,7 +142,8 @@ defmodule ActivityPubWeb.Publisher do
   def publish(actor, activity) do
     {:ok, data} = Transmogrifier.prepare_outgoing(activity.data)
     json = Jason.encode!(data)
-    #ActivityPub.maybe_forward_activity(activity)
+
+    # ActivityPub.maybe_forward_activity(activity)
 
     recipients(actor, activity)
     |> Enum.map(fn actor ->
@@ -145,13 +153,13 @@ defmodule ActivityPubWeb.Publisher do
     |> maybe_federate_to_mothership(activity)
     |> Instances.filter_reachable()
     |> Enum.each(fn {inbox, unreachable_since} ->
-    ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
-      inbox: inbox,
-      json: json,
-      actor_username: actor.username,
-      id: activity.data["id"],
-      unreachable_since: unreachable_since
-    })
+      ActivityPubWeb.Federator.Publisher.enqueue_one(__MODULE__, %{
+        inbox: inbox,
+        json: json,
+        actor_username: actor.username,
+        id: activity.data["id"],
+        unreachable_since: unreachable_since
+      })
     end)
   end
 
