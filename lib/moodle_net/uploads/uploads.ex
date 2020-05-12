@@ -240,8 +240,11 @@ defmodule MoodleNet.Uploads do
   end
 
   def max_file_size() do
-    Application.get_env(:moodle_net, __MODULE__)
-    |> Keyword.fetch!(:max_file_size)
+    {size, ""} =
+      Application.get_env(:moodle_net, __MODULE__)
+      |> Keyword.fetch!(:max_file_size)
+      |> Integer.parse()
+    size
   end
 
 end
