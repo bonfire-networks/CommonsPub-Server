@@ -3,13 +3,19 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.InstanceResolver do
 
-  alias MoodleNet.{Activities, Features, GraphQL, Instance}
+  alias MoodleNet.{Activities, Features, GraphQL, Instance, Uploads}
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.GraphQL.{ResolveRootPage, FetchPage}
 
   def instance(_, _info) do
-    {:ok, %{hostname: Instance.hostname(), description: Instance.description()}}
+    {:ok, %{ hostname: Instance.hostname(),
+             description: Instance.description(),
+             upload_icon_types: Uploads.allowed_media_types(Uploads.IconUploader),
+             upload_image_types: Uploads.allowed_media_types(Uploads.ImageUploader),
+             upload_resource_types: Uploads.allowed_media_types(Uploads.ResourceUploader),
+             upload_max_bytes: Uploads.max_file_size(),
+           }}
   end
 
   def featured_communities(_, page_opts, info) do

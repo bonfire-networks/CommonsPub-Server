@@ -97,21 +97,15 @@ defmodule MoodleNet.Uploads do
   def remote_url_from_id(_), do: nil
 
   def update_by(filters, updates) do
-    Queries.query(Content)
-    |> Queries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(Queries.query(Content, filters), set: updates)
   end
 
   def update_by(ContentMirror, filters, updates) do
-    ContentMirrorQueries.query(ContentMirror)
-    |> ContentMirrorQueries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(ContentMirrorQueries.query(ContentMirror, filters), set: updates)
   end
 
   def update_by(ContentUpload, filters, updates) do
-    ContentUploadQueries.query(ContentUpload)
-    |> ContentUploadQueries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(ContentUploadQueries.query(ContentUpload, filters), set: updates)
   end
 
   @doc """
@@ -227,13 +221,9 @@ defmodule MoodleNet.Uploads do
   defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    media_types = :moodle_net
-    |> Application.fetch_env!(upload_def)
-    |> Keyword.fetch!(:allowed_media_types)
-
+    media_types = allowed_media_types(upload_def)
     case media_types do
-      :all ->
-        :ok
+      :all -> :ok
 
       allowed ->
         if media_type in allowed do
@@ -242,6 +232,16 @@ defmodule MoodleNet.Uploads do
           {:error, :extension_denied}
         end
     end
+  end
+
+  def allowed_media_types(upload_def) do
+    Application.get_env(:moodle_net, upload_def)
+    |> Keyword.fetch!(:allowed_media_types)
+  end
+
+  def max_file_size() do
+    Application.get_env(:moodle_net, __MODULE__)
+    |> Keyword.fetch!(:max_file_size)
   end
 
 end
