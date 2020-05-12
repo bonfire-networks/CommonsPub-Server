@@ -95,23 +95,26 @@ defmodule MoodleNet.ActivityPub.Adapter do
       canonical_url: actor["id"]
     }
 
-    {:ok, created_actor} =
+    {:ok, created_actor, creator} =
       case actor["type"] do
         "Person" ->
-          MoodleNet.Users.register(create_attrs)
+          {:ok, created_actor} = MoodleNet.Users.register(create_attrs)
+          {:ok, created_actor, created_actor}
 
         "MN:Community" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
-          MoodleNet.Communities.create(creator, create_attrs)
+          {:ok, created_actor} = MoodleNet.Communities.create(creator, create_attrs)
+          {:ok, created_actor, creator}
 
         "MN:Collection" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
           {:ok, community} = get_actor_by_ap_id(actor["context"])
-          MoodleNet.Collections.create(creator, community, create_attrs)
+          {:ok, created_actor} = MoodleNet.Collections.create(creator, community, create_attrs)
+          {:ok, created_actor, creator}
       end
 
-    icon_id = maybe_create_icon_object(icon_url, created_actor)
-    image_id = maybe_create_image_object(image_url, created_actor)
+    icon_id = maybe_create_icon_object(icon_url, creator)
+    image_id = maybe_create_image_object(image_url, creator)
 
     {:ok, updated_actor} =
       case created_actor do
