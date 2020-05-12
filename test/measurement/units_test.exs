@@ -4,9 +4,6 @@
 defmodule Measurement.UnitsTest do
   use MoodleNetWeb.ConnCase, async: true
 
-  import MoodleNetWeb.Test.Automaton
-  import MoodleNetWeb.Test.GraphQLAssertions
-  import MoodleNetWeb.Test.GraphQLFields
   import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
   import MoodleNetWeb.Test.Orderings

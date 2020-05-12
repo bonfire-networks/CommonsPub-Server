@@ -73,13 +73,12 @@ defmodule Measurement.Unit.Units do
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- publish(creator, item, activity, :created)
-          do
-            {:ok, item}
-          end
+      with {:ok, unit} <- insert_unit(creator, attrs) do
+           # act_attrs = %{verb: "created", is_local: true},
+           # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
+           # :ok <- publish(creator, unit, activity, :created) do
+        {:ok, unit}
+      end
     end)
   end
 
@@ -87,24 +86,21 @@ defmodule Measurement.Unit.Units do
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
 
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, community, attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- publish(creator, community, item, activity, :created)
-          do
-            {:ok, item}
-          end
+      with {:ok, unit} <- insert_unit(creator, community, attrs) do
+           # act_attrs = %{verb: "created", is_local: true},
+           # {:ok, activity} <- Activities.create(creator, unit, act_attrs), #FIXME
+           # :ok <- publish(creator, community, unit, activity, :created) do
+        {:ok, unit}
+      end
     end)
   end
 
   defp insert_unit(creator, attrs) do
-    cs = Measurement.Unit.create_changeset(creator, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+    Repo.insert(Measurement.Unit.create_changeset(creator, attrs))
   end
 
   defp insert_unit(creator, community, attrs) do
-    cs = Measurement.Unit.create_changeset(creator, community, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+    Repo.insert(Measurement.Unit.create_changeset(creator, community, attrs))
   end
 
   defp publish(creator, unit, activity, :created) do
@@ -147,8 +143,8 @@ defmodule Measurement.Unit.Units do
       unit = Repo.preload(unit, :community)
       with {:ok, unit} <- Repo.update(Measurement.Unit.update_changeset(unit, attrs)) do
           #  :ok <- publish(unit, :updated) do
-            {:ok,  unit }
-       end
+         {:ok,  unit}
+      end
     end)
   end
 
