@@ -65,14 +65,23 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
 
   describe "creating remote actors" do
     test "create remote actor with an icon" do
-      actor = insert(:actor, %{data: %{"icon" => "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"}})
+      actor =
+        insert(:actor, %{
+          data: %{
+            "icon" =>
+              "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"
+          }
+        })
+
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
       assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
       assert created_actor.actor.preferred_username == username
-      created_actor = MoodleNet.Repo.preload(created_actor, [icon: [:content_mirror]])
-      assert created_actor.icon.content_mirror.url == "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"
+      created_actor = MoodleNet.Repo.preload(created_actor, icon: [:content_mirror])
+
+      assert created_actor.icon.content_mirror.url ==
+               "https://kawen.space/media/39fb9c0661e7de08b69163fee0eb99dee5fa399f2f75d695667cabfd9281a019.png?name=MKIOQWLTKDFA.png"
     end
 
     test "crete remote actor with blank name" do
@@ -90,14 +99,13 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       host = URI.parse(actor.data["id"]).host
       username = actor.data["preferredUsername"] <> "@" <> host
 
-      assert {:ok, created_actor} =
-        Adapter.create_remote_actor(actor.data, username)
+      assert {:ok, created_actor} = Adapter.create_remote_actor(actor.data, username)
 
-      assert %ActivityPub.Object{} = object =
-        ActivityPub.Object.get_by_pointer_id(created_actor.id)
+      assert %ActivityPub.Object{} =
+               object = ActivityPub.Object.get_by_pointer_id(created_actor.id)
 
       assert {:ok, %MoodleNet.Meta.Pointer{}} =
-        MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
+               MoodleNet.Meta.Pointers.one(id: object.mn_pointer_id)
     end
   end
 
@@ -201,8 +209,9 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       {:ok, _} = ActivityPub.unfollow(follower, ap_followed, nil, false)
       assert %{success: 1, failure: 0} = Oban.drain_queue(:ap_incoming)
       {:ok, follower} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(follower.ap_id)
+
       assert {:error, _} =
-        MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id)
+               MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id)
     end
 
     test "blocks" do
@@ -354,5 +363,52 @@ defmodule MoodleNet.ActivityPub.AdapterTest do
       assert {:error, _} = MoodleNet.Resources.one(deleted: false, id: resource.id)
     end
 
+    test "user updates" do
+      user = actor()
+      update_data = Map.put(user.data, "name", "kawen")
+
+      data = %{
+        "type" => "Update",
+        "object" => update_data,
+        "actor" => user.ap_id
+      }
+
+      ActivityPubWeb.Transmogrifier.handle_incoming(data)
+      Oban.drain_queue(:ap_incoming)
+      {:ok, user} = Adapter.get_actor_by_ap_id(user.ap_id)
+      assert user.name == "kawen"
+    end
+
+    test "comm updates" do
+      comm = community()
+      update_data = Map.put(comm.data, "name", "kawen") |> Map.put("type", "Group")
+
+      data = %{
+        "type" => "Update",
+        "object" => update_data,
+        "actor" => comm.ap_id
+      }
+
+      ActivityPubWeb.Transmogrifier.handle_incoming(data)
+      Oban.drain_queue(:ap_incoming)
+      {:ok, comm} = Adapter.get_actor_by_ap_id(comm.ap_id)
+      assert comm.name == "kawen"
+    end
+
+    test "coll updates" do
+      coll = collection()
+      update_data = Map.put(coll.data, "name", "kawen") |> Map.put("type", "Group")
+
+      data = %{
+        "type" => "Update",
+        "object" => update_data,
+        "actor" => coll.ap_id
+      }
+
+      ActivityPubWeb.Transmogrifier.handle_incoming(data)
+      Oban.drain_queue(:ap_incoming)
+      {:ok, coll} = Adapter.get_actor_by_ap_id(coll.ap_id)
+      assert coll.name == "kawen"
+    end
   end
 end

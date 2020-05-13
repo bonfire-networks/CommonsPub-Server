@@ -223,7 +223,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def handle_activity(activity) do
-    APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id, "activity" => activity.data})
+    APReceiverWorker.enqueue("handle_activity", %{
+      "activity_id" => activity.id,
+      "activity" => activity.data
+    })
   end
 
   def handle_create(
@@ -442,6 +445,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
             :ok
           end
       end
+    end
+  end
+
+  def perform(
+        :handle_activity,
+        %{data: %{"type" => "Update", "object" => %{"id" => ap_id}}} = _activity
+      ) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
+         {:ok, _} <- update_remote_actor(actor) do
+      :ok
     end
   end
 
