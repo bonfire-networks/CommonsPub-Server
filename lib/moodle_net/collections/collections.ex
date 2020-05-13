@@ -21,6 +21,7 @@ defmodule MoodleNet.Collections do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
 
@@ -44,7 +45,7 @@ defmodule MoodleNet.Collections do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community, coll, activity),
-           :ok <- ap_publish(creator, coll),
+           :ok <- ap_publish("create", coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
         {:ok, coll}
       end
@@ -81,7 +82,7 @@ defmodule MoodleNet.Collections do
       with {:ok, collection} <- Repo.update(Collection.update_changeset(collection, attrs)),
            {:ok, actor} <- Actors.update(user, collection.actor, attrs),
            collection = %{collection | actor: actor},
-           :ok <- ap_publish(collection) do
+           :ok <- ap_publish("update", collection) do
         {:ok, collection}
       end
     end)
@@ -96,7 +97,7 @@ defmodule MoodleNet.Collections do
       with {:ok, collection} <- Common.soft_delete(collection),
            %{collection: colls, feed: feeds} = deleted_ids([collection]),
            :ok <- chase_delete(user, colls, feeds),
-           :ok <- ap_publish(collection) do 
+           :ok <- ap_publish("delete", collection) do
         {:ok, collection}
       end
     end)
@@ -156,12 +157,11 @@ defmodule MoodleNet.Collections do
     FeedActivities.publish(activity, feeds)
   end
 
-  ### HACK FIXME
-  defp ap_publish(%{creator_id: id}=collection), do: ap_publish(%{id: id}, collection)
-
-  defp ap_publish(user, %{actor: %{peer_id: nil}}=collection) do
-    FeedPublisher.publish(%{"context_id" => collection.id, "user_id" => user.id})
+  defp ap_publish(verb, %{actor: %{peer_id: nil}}=collection) do
+    APPublishWorker.enqueue(verb, %{"context_id" => collection.id})
+    :ok
   end
+
   defp ap_publish(_, _), do: :ok
 
 end

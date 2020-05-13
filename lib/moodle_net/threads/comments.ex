@@ -7,12 +7,12 @@ defmodule MoodleNet.Threads.Comments do
   alias MoodleNet.Access.NotPermittedError
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
-  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, CommentsQueries, Thread}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def one(filters), do: Repo.single(CommentsQueries.query(Comment, filters))
 
@@ -70,7 +70,7 @@ defmodule MoodleNet.Threads.Comments do
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
            :ok <- publish(creator, thread, comment, activity),
-           :ok <- ap_publish(creator, comment) do
+           :ok <- ap_publish("create", comment) do
         {:ok, %{ comment | thread: thread }}
       end
     end)
@@ -102,7 +102,7 @@ defmodule MoodleNet.Threads.Comments do
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
                thread = preload_ctx(thread),
                :ok <- publish(creator, thread, comment, activity),
-               :ok <- ap_publish(creator, comment) do
+               :ok <- ap_publish("create", comment) do
             {:ok, comment}
           end
         end)
@@ -129,7 +129,7 @@ defmodule MoodleNet.Threads.Comments do
   @spec update(User.t(), Comment.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def update(%User{}, %Comment{}=comment, attrs) do
     with {:ok, updated} <- Repo.update(Comment.update_changeset(comment, attrs)),
-         :ok <- ap_publish(comment) do
+         :ok <- ap_publish("update", comment) do
       {:ok, updated}
     end
   end
@@ -143,7 +143,7 @@ defmodule MoodleNet.Threads.Comments do
     Repo.transact_with(fn ->
       with {:ok, deleted} <- Common.soft_delete(comment),
            :ok <- chase_delete(user, comment.id),
-           :ok <- ap_publish(comment) do
+           :ok <- ap_publish("delete", comment) do
         {:ok, deleted}
       end
     end)
@@ -171,11 +171,11 @@ defmodule MoodleNet.Threads.Comments do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp ap_publish(%{creator_id: id}=comment), do: ap_publish(%{id: id}, comment)
-
-  defp ap_publish(user, %{is_local: true}=comment) do
-    FeedPublisher.publish(%{"context_id" => comment.id, "user_id" => user.id})
+  defp ap_publish(verb, %{is_local: true} = comment) do
+    APPublishWorker.enqueue(verb, %{"context_id" => comment.id})
+    :ok
   end
+
   defp ap_publish(_, _), do: :ok
 
   defp context_feeds(%Resource{}=resource) do

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
-  alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
@@ -12,6 +11,7 @@ defmodule MoodleNet.Follows do
   }
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Workers.APPublishWorker
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Follow, filters))
@@ -39,7 +39,7 @@ defmodule MoodleNet.Follows do
             with {:ok, follow} <- insert(follower, followed, fields),
                  :ok <- subscribe(follower, followed, follow),
                  :ok <- publish(follower, followed, follow),
-                 :ok <- ap_publish(follower, follow) do
+                 :ok <- ap_publish("create", follow) do
               {:ok, %{follow | ctx: followed}}
             end
         end
@@ -60,18 +60,18 @@ defmodule MoodleNet.Follows do
     end
   end
 
-  defp ap_publish(%{creator_id: id}=follow), do: ap_publish(%{id: id}, follow)
-
-  defp ap_publish(user, %Follow{is_local: true} = follow) do
-    FeedPublisher.publish(%{"context_id" => follow.id, "user_id" => user.id})
+  defp ap_publish(verb, %Follow{is_local: true} = follow) do
+    APPublishWorker.enqueue(verb, %{"context_id" => follow.id})
+    :ok
   end
+
   defp ap_publish(_, _), do: :ok
 
   @spec update(User.t(), Follow.t(), map) :: {:ok, Follow.t()} | {:error, Changeset.t()}
   def update(%User{}, %Follow{} = follow, fields) do
     Repo.transact_with(fn ->
       with {:ok, follow} <- Repo.update(Follow.update_changeset(follow, fields)),
-           :ok <- ap_publish(follow) do
+           :ok <- ap_publish("update", follow) do
         {:ok, follow}
       end
     end)
@@ -86,7 +86,7 @@ defmodule MoodleNet.Follows do
     Repo.transact_with(fn ->
       with {:ok, follow} <- Common.soft_delete(follow),
            :ok <- chase_delete(user, [follow.id], [follow.context_id]),
-           :ok <- ap_publish(follow) do
+           :ok <- ap_publish("delete", follow) do
         {:ok, follow}
       end
     end)
@@ -113,7 +113,7 @@ defmodule MoodleNet.Follows do
   defp get_outbox_ids([], acc), do: acc
   defp get_outbox_ids([%{outbox_id: id} | rest], acc), do: get_outbox_ids(rest, [id | acc])
   defp get_outbox_ids([_| rest], acc), do: get_outbox_ids(rest, acc)
-  
+
 
   # we only maintain subscriptions for local users
   defp subscribe(%User{local_user: %LocalUser{}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})

@@ -76,7 +76,7 @@ defmodule MoodleNet.Threads do
     with :ok <- Comments.soft_delete_by(user, thread: ids) do
       Follows.soft_delete_by(user, context: ids)
     end
-  end    
+  end
 
   # defp context_feeds(%Resource{}=resource) do
   #   r = Repo.preload(resource, [collection: [:community]])
