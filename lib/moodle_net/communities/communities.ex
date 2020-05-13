@@ -10,7 +10,6 @@ defmodule MoodleNet.Communities do
     Collections,
     Common,
     Features,
-    FeedPublisher,
     Feeds,
     Flags,
     Follows,

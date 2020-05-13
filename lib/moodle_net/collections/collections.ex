@@ -8,7 +8,6 @@ defmodule MoodleNet.Collections do
     Blocks,
     Common,
     Features,
-    FeedPublisher,
     Feeds,
     Flags,
     Follows,
