@@ -12,6 +12,7 @@ defmodule MoodleNet.Uploads do
     ContentUploadQueries,
     ContentMirror,
     ContentMirrorQueries,
+    ExtensionDenied,
     Storage,
     Queries,
   }
@@ -231,7 +232,7 @@ defmodule MoodleNet.Uploads do
         if media_type in allowed do
           :ok
         else
-          {:error, :extension_denied}
+          {:error, ExtensionDenied.new(media_type)}
         end
     end
   end
