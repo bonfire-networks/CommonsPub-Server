@@ -7,17 +7,18 @@ defmodule MoodleNet.Threads.Thread do
   import MoodleNet.Common.Changeset, only: [change_synced_timestamp: 3]
 
   alias Ecto.Changeset
+  alias MoodleNet.Follows.FollowerCount
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Meta.Pointer
   alias MoodleNet.Threads
-  alias MoodleNet.Threads.{FollowerCount, LastComment, Thread}
+  alias MoodleNet.Threads.{LastComment, Thread}
   alias MoodleNet.Users.User
 
   table_schema "mn_thread" do
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     belongs_to(:outbox, Feed)
-    has_one(:follower_count, FollowerCount)
+    has_one(:follower_count, FollowerCount, foreign_key: :context_id)
     has_one(:last_comment, LastComment)
     field(:ctx, :any, virtual: true)
     field(:canonical_url, :string)

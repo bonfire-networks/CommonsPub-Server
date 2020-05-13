@@ -2,9 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Threads do
-  alias MoodleNet.{Common, Feeds, Repo}
+  alias MoodleNet.{Common, Feeds, Follows, Repo}
   # alias MoodleNet.FeedPublisher
-  alias MoodleNet.Threads.{Thread, Queries}
+  alias MoodleNet.Threads.{Comments, Thread, Queries}
   alias MoodleNet.Users.User
 
   def cursor(:created), do: &[&1.id]
@@ -39,8 +39,8 @@ defmodule MoodleNet.Threads do
   @doc """
   Update the attributes of a thread.
   """
-  @spec update(Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def update(%Thread{} = thread, attrs) do
+  @spec update(User.t(), Thread.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
+  def update(%User{}, %Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)) do
            # :ok <- publish(thread, :updated),
@@ -50,15 +50,32 @@ defmodule MoodleNet.Threads do
     end)
   end
 
-  @spec soft_delete(Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete(%Thread{} = thread) do
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Thread, filters), set: updates)
+  end
+
+  @spec soft_delete(User.t(), Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
+  def soft_delete(%User{}=user, %Thread{} = thread) do
     Repo.transact_with(fn ->
-      with {:ok, thread} <- Common.soft_delete(thread) do
-           # :ok <- publish(thread, :deleted),
-           # :ok <- ap_publish(thread) do
+      with {:ok, thread} <- Common.soft_delete(thread),
+           :ok <- chase_delete(user, thread.id) do
         {:ok, thread}
       end
     end)
+  end
+
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    with :ok <- Comments.soft_delete_by(user, thread: ids) do
+      Follows.soft_delete_by(user, context: ids)
+    end
   end
 
   # defp context_feeds(%Resource{}=resource) do
@@ -74,22 +91,5 @@ defmodule MoodleNet.Threads do
   # defp context_feeds(%Community{outbox_id: id}), do: [id]
   # defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   # defp context_feeds(_), do: []
-
-  # defp publish(creator, thread, _context, :created) do
-  #   with {:ok, activity} <- Activities.create(creator, thread, attrs) do
-  #     FeedActivities.publish(feeds, activity)
-  #   end
-  # end
-  # defp publish(thread, :updated), do: :ok
-  # defp publish(thread, :deleted), do: :ok
-
-  # defp ap_publish(%{creator_id: id} = thread), do: ap_publish(%{id: id}, thread)
-
-  # defp ap_publish(user, thread) do
-  #   # There is no AP type for a thread yet
-  #   FeedPublisher.publish(%{"context_id" => thread.id, "user_id" => user.id})
-  # end
-
-  # defp ap_publish(_, _), do: :ok
 
 end

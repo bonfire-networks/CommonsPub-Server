@@ -25,4 +25,6 @@ defmodule MoodleNet.Feeds.Queries do
   def filter(q, {:deleted, {:gte, %DateTime{}=time}}), do: where(q, [feed: f], f.deleted_at >= ^time)
   def filter(q, {:deleted, {:lte, %DateTime{}=time}}), do: where(q, [feed: f], f.deleted_at <= ^time)
 
+  def filter(q, {:select, :id}), do: select(q, [feed: f], f.id)
+
 end

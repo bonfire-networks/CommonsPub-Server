@@ -46,24 +46,24 @@ defmodule MoodleNet.FollowsTest do
     end
   end
 
-  describe "update_follow/2" do
+  describe "update/2" do
     test "updates the attributes of an existing follow", %{user: follower} do
       followed = fake_followable!()
       assert {:ok, follow} =
         Follows.create(follower, followed, Fake.follow(%{is_public: false}))
       assert {:ok, updated_follow} =
-        Follows.update(follow, Fake.follow(%{is_public: true}))
+        Follows.update(follower, follow, Fake.follow(%{is_public: true}))
       assert follow != updated_follow
     end
   end
 
-  describe "soft_delete/1" do
+  describe "soft_delete/2" do
     test "removes a follower from a followed object", %{user: follower} do
       followed = fake_followable!()
       assert {:ok, follow} = Follows.create(follower, followed, Fake.follow())
       refute follow.deleted_at
 
-      assert {:ok, follow} = Follows.soft_delete(follow)
+      assert {:ok, follow} = Follows.soft_delete(follower, follow)
       assert follow.deleted_at
     end
   end

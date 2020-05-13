@@ -79,6 +79,8 @@ defmodule MoodleNet.Threads.CommentsQueries do
 
   def filter(q, {:limit, limit}) when is_integer(limit) and limit > 0, do: limit(q, ^limit)
 
+  def filter(q, {:select, :id}), do: select(q, [comment: c], c.id)
+
   def filter(q, {:page, [{order, [{field, page_opts}]}]}) do
     q
     |> filter(order: [{order, field}])

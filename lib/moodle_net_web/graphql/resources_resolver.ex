@@ -87,7 +87,7 @@ defmodule MoodleNetWeb.GraphQL.ResourcesResolver do
 
           if permitted? do
             with {:ok, uploads} <- UploadResolver.upload(user, params, info) do
-              Resources.update(resource, Map.merge(changes, uploads))
+              Resources.update(user, resource, Map.merge(changes, uploads))
             end
           else
             GraphQL.not_permitted()

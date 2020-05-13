@@ -22,18 +22,18 @@ defmodule MoodleNet.Threads.CommentsTest do
   end
 
   describe "Threads.one/1" do
-    test "fetches an existing thread", %{thread: thread} do
-      assert {:ok, thread} = Threads.update(thread, %{is_hidden: false})
+    test "fetches an existing thread", %{user: user, thread: thread} do
+      assert {:ok, thread} = Threads.update(user, thread, %{is_hidden: false})
       assert {:ok, _} = Threads.one(id: thread.id)
     end
 
-    test "returns not found if the thread is hidden", %{thread: thread} do
-      assert {:ok, thread} = Threads.update(thread, %{is_hidden: true})
+    test "returns not found if the thread is hidden", %{user: user, thread: thread} do
+      assert {:ok, thread} = Threads.update(user, thread, %{is_hidden: true})
       assert {:error, %NotFoundError{}} = Threads.one(hidden: false, id: thread.id)
     end
 
-    test "returns not found if the thread is deleted", %{thread: thread} do
-      assert {:ok, thread} = Threads.soft_delete(thread)
+    test "returns not found if the thread is deleted", %{user: user, thread: thread} do
+      assert {:ok, thread} = Threads.soft_delete(user, thread)
       assert {:error, %NotFoundError{}} = Threads.one(deleted: false, id: thread.id)
     end
 
@@ -42,12 +42,12 @@ defmodule MoodleNet.Threads.CommentsTest do
     end
 
     @tag :skip
-    test "fetches any thread", %{thread: thread} do
-      assert {:ok, thread} = Threads.update(thread, %{is_hidden: false})
+    test "fetches any thread", %{user: user, thread: thread} do
+      assert {:ok, thread} = Threads.update(user, thread, %{is_hidden: false})
       assert {:ok, thread} = Threads.one(published: true, id: thread.id)
-      assert {:ok, thread} = Threads.update(thread, %{is_hidden: true})
+      assert {:ok, thread} = Threads.update(user, thread, %{is_hidden: true})
       assert {:ok, thread} = Threads.one(published: true, id: thread.id)
-      assert {:ok, thread} = Threads.soft_delete(thread)
+      assert {:ok, thread} = Threads.soft_delete(user, thread)
       assert {:ok, _} = Threads.one(published: true, id: thread.id)
     end
   end
@@ -69,16 +69,16 @@ defmodule MoodleNet.Threads.CommentsTest do
     test "updates a thread with new attributes", %{user: creator, parent: parent} do
       thread = fake_thread!(creator, parent)
       attrs = Fake.thread()
-      assert {:ok, updated_thread} = Threads.update(thread, attrs)
+      assert {:ok, updated_thread} = Threads.update(creator, thread, attrs)
       assert updated_thread != thread
       assert updated_thread.canonical_url == attrs.canonical_url
     end
   end
 
   describe "Threads.soft_delete/1" do
-    test "changes the deleted date for a thread", %{thread: thread} do
+    test "changes the deleted date for a thread", %{user: user, thread: thread} do
       refute thread.deleted_at
-      assert {:ok, thread} = Threads.soft_delete(thread)
+      assert {:ok, thread} = Threads.soft_delete(user, thread)
       assert thread.deleted_at
     end
   end
@@ -98,13 +98,13 @@ defmodule MoodleNet.Threads.CommentsTest do
     @tag :skip
     test "returns not found if the comment is unpublished", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
-      assert {:ok, comment} = Comments.update(comment, %{is_public: false})
+      assert {:ok, comment} = Comments.update(context.user, comment, %{is_public: false})
       assert {:error, %NotFoundError{}} = Comments.one(id: comment.id)
     end
 
     test "returns not found if the comment is deleted", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
-      assert {:ok, comment} = Comments.soft_delete(comment)
+      assert {:ok, comment} = Comments.soft_delete(context.user, comment)
       assert {:error, %NotFoundError{}} = Comments.one(deleted: false, id: comment.id)
     end
 
@@ -118,7 +118,7 @@ defmodule MoodleNet.Threads.CommentsTest do
     @tag :skip
     test "returns not found if the parent thread is deleted", context do
       comment = fake_comment!(context.user, context.thread, %{is_hidden: false})
-      assert {:ok, _} = Comments.soft_delete(context.thread)
+      assert {:ok, _} = Comments.soft_delete(context.user, context.thread)
       assert {:error, %NotFoundError{}} = Comments.one(deleted: false, id: comment.id)
     end
   end
@@ -170,7 +170,7 @@ defmodule MoodleNet.Threads.CommentsTest do
       comment = fake_comment!(creator, thread)
 
       attrs = Fake.comment()
-      assert {:ok, updated_comment} = Comments.update(comment, attrs)
+      assert {:ok, updated_comment} = Comments.update(creator, comment, attrs)
       assert updated_comment != comment
       assert updated_comment.canonical_url == attrs.canonical_url
       assert updated_comment.content == attrs.content
@@ -181,7 +181,7 @@ defmodule MoodleNet.Threads.CommentsTest do
     test "changes the deletion date of the comment", context do
       comment = fake_comment!(context.user, context.thread)
       refute comment.deleted_at
-      assert {:ok, comment} = Comments.soft_delete(comment)
+      assert {:ok, comment} = Comments.soft_delete(context.user, comment)
       assert comment.deleted_at
     end
   end

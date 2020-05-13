@@ -63,7 +63,7 @@ defmodule MoodleNet.ResourcesTest do
       attrs = Fake.resource()
       resource = fake_resource!(context.user, context.collection)
 
-      assert {:ok, updated_resource} = Resources.update(resource, attrs)
+      assert {:ok, updated_resource} = Resources.update(context.user, resource, attrs)
       assert updated_resource != resource
       assert updated_resource.name == attrs[:name]
     end

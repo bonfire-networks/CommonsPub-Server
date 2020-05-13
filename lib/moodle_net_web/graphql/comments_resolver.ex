@@ -143,9 +143,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
          {:ok, comment} <- Comments.one(id: comment_id) do
       cond do
         user.is_local_admin ->
-          Comments.update(comment, changes)
+          Comments.update(user, comment, changes)
         comment.creator_id == user.id ->
-          Comments.update(comment, changes)
+          Comments.update(user, comment, changes)
         true -> GraphQL.not_permitted("update")
       end
     end

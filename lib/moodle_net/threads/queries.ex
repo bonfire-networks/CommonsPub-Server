@@ -112,6 +112,7 @@ defmodule MoodleNet.Threads.Queries do
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
+  def filter(q, {:select, :id}), do: select(q, [thread: t], t.id)
 
   def filter(q, {:page, [desc: [created: page_opts]]}) do
     q

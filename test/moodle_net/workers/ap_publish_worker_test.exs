@@ -124,7 +124,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       community = fake_user!() |> fake_community!()
       {:ok, follow} = MoodleNet.Follows.create(user, community, %{is_local: true})
       Oban.drain_queue(:mn_ap_publish)
-      {:ok, deleted_follow} = MoodleNet.Follows.soft_delete(follow)
+      {:ok, deleted_follow} = MoodleNet.Follows.soft_delete(user, follow)
 
       assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => deleted_follow.id, "op" => "delete"}, %{})
       assert activity.data["type"] == "Undo"
@@ -139,7 +139,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       Oban.drain_queue(:mn_ap_publish)
       {:ok, like} = MoodleNet.Likes.create(user, comment, %{is_local: true})
       Oban.drain_queue(:mn_ap_publish)
-      {:ok, deleted_like} = MoodleNet.Likes.soft_delete(like)
+      {:ok, deleted_like} = MoodleNet.Likes.soft_delete(user, like)
 
       assert {:ok, activity, _, _} = APPublishWorker.perform(%{"context_id" => deleted_like.id, "op" => "delete"}, %{})
       assert activity.data["type"] == "Undo"

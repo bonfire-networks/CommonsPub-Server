@@ -14,8 +14,9 @@ defmodule MoodleNet.Actors do
   @replacement_regex ~r/[^a-zA-Z0-9@._-]/
 
   import Ecto.Query, only: [from: 2]
-  alias MoodleNet.Repo
   alias MoodleNet.Actors.{Actor, Queries}
+  alias MoodleNet.Repo
+  alias MoodleNet.Users.User
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Actor, filters))
@@ -44,14 +45,16 @@ defmodule MoodleNet.Actors do
     Repo.insert(Actor.create_changeset(attrs))
   end
 
-  @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
-  def update(%Actor{} = actor, attrs) when is_map(attrs) do
+  @spec update(user :: User.t(), actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
+  def update(%User{}, %Actor{} = actor, attrs) when is_map(attrs) do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
 
-  @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
-  def delete(%Actor{} = actor), do: Repo.delete(actor)
+  @spec delete(user :: User.t(), actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
+  def delete(%User{}, %Actor{} = actor), do: Repo.delete(actor)
 
-  def update_by(filters, updates), do: Repo.update_all(Queries.query(Actor, filters), updates)
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Actor, filters), set: updates)
+  end
 
 end

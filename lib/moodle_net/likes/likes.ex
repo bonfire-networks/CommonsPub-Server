@@ -66,19 +66,35 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  def update(%Like{} = like, fields), do: Repo.update(Like.update_changeset(like, fields))
+  def update(%User{}, %Like{} = like, fields) do
+    Repo.update(Like.update_changeset(like, fields))
+  end
 
-  @doc false
-  def update_by(filters, updates), do: Repo.update_all(Queries.query(Like, filters), updates)
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Like, filters), set: updates)
+  end
 
-  @spec soft_delete(Like.t()) :: {:ok, Like.t()} | {:error, any}
-  def soft_delete(%Like{} = like) do
+  @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
+  def soft_delete(%User{}=user, %Like{} = like) do
     Repo.transact_with(fn ->
       with {:ok, like} <- Common.soft_delete(like),
-            :ok <- ap_publish("delete", like) do
+           :ok <- chase_delete(user, like.id),
+           :ok <- ap_publish("delete", like) do
         {:ok, like}
       end
     end)
+  end
+
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    Activities.soft_delete_by(user, context: ids)
   end
 
   defp valid_contexts() do

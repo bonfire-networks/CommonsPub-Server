@@ -7,6 +7,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Algolia.Indexer
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
+  alias MoodleNet.Users.User
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
@@ -122,10 +123,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
           Users.update_remote(created_actor, %{icon_id: icon_id, image_id: image_id})
 
         %MoodleNet.Communities.Community{} ->
-          Communities.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+          Communities.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
 
         %MoodleNet.Collections.Collection{} ->
-          Collections.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+          Collections.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
       end
 
     object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
@@ -138,7 +139,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
            MoodleNet.Actors.one(username: actor.data["preferredUsername"]),
-         {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
+         {:ok, local_actor} <- MoodleNet.Actors.update(%User{}, local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
     else
@@ -167,7 +168,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
-         {:ok, _} <- MoodleNet.Communities.update(actor, params) do
+         {:ok, _} <- MoodleNet.Communities.update(%User{}, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -180,7 +181,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: data["summary"],
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor)
          },
-         {:ok, _} <- MoodleNet.Collections.update(actor, params) do
+         {:ok, _} <- MoodleNet.Collections.update(%User{}, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -351,7 +352,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
            MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id),
-         {:ok, _} <- MoodleNet.Follows.soft_delete(follow) do
+         {:ok, _} <- MoodleNet.Follows.soft_delete(follower, follow) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -382,7 +383,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, block} <- MoodleNet.Blocks.find(blocker, blocked),
-         {:ok, _} <- MoodleNet.Blocks.delete(block) do
+         {:ok, _} <- MoodleNet.Blocks.soft_delete(blocker, block) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -419,8 +420,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            {:ok, _} <-
              (case object.data["type"] do
                 "Person" -> MoodleNet.Users.soft_delete_remote(actor)
-                "MN:Community" -> MoodleNet.Communities.soft_delete(actor)
-                "MN:Collection" -> MoodleNet.Collections.soft_delete(actor)
+                "MN:Community" -> MoodleNet.Communities.soft_delete(%User{}, actor)
+                "MN:Collection" -> MoodleNet.Collections.soft_delete(%User{}, actor)
               end) do
         :ok
       else

@@ -11,7 +11,10 @@ defmodule MoodleNet.MetadataScraper do
   @request_opts [follow_redirect: true]
 
   def fetch(url) when is_binary(url) do
-    file_info_res = url |> ensure_http_scheme() |> TwinkleStar.from_uri(@request_opts)
+
+    url = url |> MoodleNet.File.ensure_valid_url() |> URI.to_string
+
+    file_info_res = url |> TwinkleStar.from_uri(@request_opts)
 
     with {:ok, file_info} <- file_info_res do
       data =
@@ -32,14 +35,6 @@ defmodule MoodleNet.MetadataScraper do
       end
     else
       {:error, :furlex_unsupported_format}
-    end
-  end
-
-  defp ensure_http_scheme(url) do
-    case URI.parse(url) do
-      %URI{host: host, scheme: nil} = uri when not is_nil(host) ->
-        %URI{ uri | scheme: "http" }
-      uri -> uri
     end
   end
 
@@ -74,7 +69,7 @@ defmodule MoodleNet.MetadataScraper do
     (get(data, :facebook, "image") || get(data, :twitter, "image") ||
        get(data, :other, "thumbnail_url"))
     |> only_first()
-    |> fix_relative_url(original_url)
+    |> MoodleNet.File.fix_relative_url(original_url)
   end
 
   defp embed_code(data) do
@@ -124,12 +119,4 @@ defmodule MoodleNet.MetadataScraper do
   defp only_first([head | _]), do: head
   defp only_first(arg), do: arg
 
-  defp fix_relative_url("", _), do: nil
-  defp fix_relative_url(url, original_url) when is_binary(url) do
-    case URI.parse(url) do
-      %URI{host: nil} -> URI.merge(original_url, url) |> to_string()
-      _ -> url
-    end
-  end
-  defp fix_relative_url(nil, _), do: nil
 end

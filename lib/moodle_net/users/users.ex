@@ -193,7 +193,7 @@ defmodule MoodleNet.Users do
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user.actor, attrs),
+           {:ok, actor} <- Actors.update(user, user.actor, attrs),
            {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)) do
         user = %{ user | local_user: local_user, actor: actor }
         {:ok, user}
@@ -205,7 +205,7 @@ defmodule MoodleNet.Users do
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user.actor, attrs) do
+           {:ok, actor} <- Actors.update(user, user.actor, attrs) do
         user = %{ user | actor: actor }
         {:ok, user}
       end
