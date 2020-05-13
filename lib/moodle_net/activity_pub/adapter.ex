@@ -60,7 +60,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
-  # TODO: Add error handling lol
+  # TODO: Rewrite this whole thing tbh
   def create_remote_actor(actor, username) do
     uri = URI.parse(actor["id"])
     ap_base = uri.scheme <> "://" <> uri.host
@@ -104,13 +104,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
 
         "MN:Community" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
-          {:ok, created_actor} = MoodleNet.Communities.create(creator, create_attrs)
+          {:ok, created_actor} = MoodleNet.Communities.create_remote(creator, create_attrs)
           {:ok, created_actor, creator}
 
         "MN:Collection" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
           {:ok, community} = get_actor_by_ap_id(actor["context"])
-          {:ok, created_actor} = MoodleNet.Collections.create(creator, community, create_attrs)
+
+          {:ok, created_actor} =
+            MoodleNet.Collections.create_remote(creator, community, create_attrs)
+
           {:ok, created_actor, creator}
       end
 

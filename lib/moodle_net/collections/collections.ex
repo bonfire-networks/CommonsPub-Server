@@ -51,6 +51,20 @@ defmodule MoodleNet.Collections do
     end)
   end
 
+  @spec create_remote(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
+  def create_remote(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Actors.create(attrs),
+           {:ok, coll_attrs} <- create_boxes(actor, attrs),
+           {:ok, coll} <- insert_collection(creator, community, actor, coll_attrs),
+           act_attrs = %{verb: "created", is_local: true},
+           {:ok, activity} <- Activities.create(creator, coll, act_attrs),
+           :ok <- publish(creator, community, coll, activity) do
+        {:ok, coll}
+      end
+    end)
+  end
+
   defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
   defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
 
