@@ -7,7 +7,7 @@ defmodule MoodleNet.UploadsTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
   alias MoodleNet.Uploads
-  alias MoodleNet.Uploads.{ExtensionDenied, Storage}
+  alias MoodleNet.Uploads.{FileDenied, Storage}
 
   @image_file %{path: "test/fixtures/images/150.png", filename: "150.png"}
 
@@ -49,7 +49,7 @@ defmodule MoodleNet.UploadsTest do
 
     test "fails when the file has a disallowed extension" do
       file = %{path: "test/fixtures/empty.fbx", filename: "empty.fbx"}
-      assert {:error, %ExtensionDenied{}} = fake_upload(file)
+      assert {:error, %FileDenied{}} = fake_upload(file)
     end
 
     test "fails when the upload is a missing file" do

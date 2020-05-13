@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.Uploads.ExtensionDenied do
+defmodule MoodleNet.Uploads.FileDenied do
   @enforce_keys [:message, :code, :status]
   defstruct @enforce_keys
 
@@ -11,10 +11,10 @@ defmodule MoodleNet.Uploads.ExtensionDenied do
     status: integer,
   }
 
-  def new(extension) when is_binary(extension) do
+  def new(mime_type) when is_binary(mime_type) do
     %__MODULE__{
-      message: "Files with the format of #{extension} are not allowed",
-      code: "extension_denied",
+      message: "Files with the format of #{mime_type} are not allowed",
+      code: "file_denied",
       status: 415,
     }
   end
