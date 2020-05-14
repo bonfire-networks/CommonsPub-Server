@@ -4,8 +4,6 @@
 defmodule MoodleNet.Instance do
   @moduledoc "A proxy for everything happening on this instance"
 
-  alias MoodleNet.{Activities, Feeds}
-  
   def hostname(config \\ config()) do
     Keyword.fetch!(config, :hostname)
   end

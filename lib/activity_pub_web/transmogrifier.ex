@@ -224,7 +224,7 @@ defmodule ActivityPubWeb.Transmogrifier do
         %{"type" => "Update", "object" => %{"type" => object_type} = object, "actor" => actor_id} =
           data
       )
-      when object_type in ["Person", "Application", "Service", "Organization"] do
+      when object_type in ["Person", "Application", "Service", "Organization", "Group"] do
     with {:ok, _} <- Actor.update_actor_data_by_ap_id(actor_id, object),
          {:ok, actor} <- Actor.get_by_ap_id(actor_id),
          {:ok, _} <- Actor.set_cache(actor) do

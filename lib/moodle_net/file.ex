@@ -5,7 +5,7 @@
 
 defmodule MoodleNet.File do
   @moduledoc """
-  Utilities for working with files.
+  Utilities for working with files and URLs
   """
 
   @doc """
@@ -62,4 +62,20 @@ defmodule MoodleNet.File do
 
     Path.join(System.tmp_dir(), filename)
   end
+
+
+  def ensure_valid_url(uri) when is_binary(uri), do: ensure_valid_url(URI.parse(uri)) 
+  def ensure_valid_url(uri = %URI{scheme: nil}), do: ensure_valid_url("http://#{to_string(uri)}") 
+  def ensure_valid_url(uri = %URI{path: nil}), do: ensure_valid_url("#{to_string(uri)}/") 
+  def ensure_valid_url(uri), do: uri
+
+  def fix_relative_url("", _), do: nil
+  def fix_relative_url(url, original_url) when is_binary(url) do
+    case URI.parse(url) do
+      %URI{host: nil} -> URI.merge(original_url, url) |> to_string()
+      _ -> url
+    end
+  end
+  def fix_relative_url(nil, _), do: nil
+
 end

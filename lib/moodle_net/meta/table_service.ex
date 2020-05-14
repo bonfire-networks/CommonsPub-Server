@@ -71,6 +71,16 @@ defmodule MoodleNet.Meta.TableService do
     end
   end
 
+  @doc false
+  def lookup_ids!(ids) do
+    Enum.map(ids, fn t ->
+      cond do
+        is_binary(t) -> t # cheat to save some lookups
+        is_atom(t) -> lookup_id!(t)
+      end
+    end)
+  end
+
   @spec lookup_schema(table_id()) :: {:ok, atom()} | {:error, TableNotFoundError.t()}
   @doc "Look up a schema module by id, name or schema"
   def lookup_schema(key) do

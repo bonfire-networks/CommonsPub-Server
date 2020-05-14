@@ -6,23 +6,23 @@ defmodule MoodleNet.CommunitiesTest do
 
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
-  alias MoodleNet.Actors.Actor
   alias MoodleNet.Common.NotFoundError
   alias MoodleNet.Communities
   alias MoodleNet.Communities.Community
 
   describe "Communities.many/1" do
     test "returns a list of non-deleted communities" do
-      all = for _ <- 1..5, do: fake_user!() |> fake_community!()
+      user = fake_user!()
+      all = for _ <- 1..5, do: fake_community!(user)
       deleted = Enum.reduce(all, [], fn comm, acc ->
         if Fake.bool() do
-          {:ok, comm} = Communities.soft_delete(comm)
+          {:ok, comm} = Communities.soft_delete(user, comm)
           [comm | acc]
         else
           acc
         end
       end)
-      {:ok, fetched} = Communities.many(:deleted)
+      {:ok, fetched} = Communities.many(deleted: false)
 
       assert Enum.count(all) - Enum.count(deleted) == Enum.count(fetched)
       for comm <- fetched do
@@ -35,16 +35,19 @@ defmodule MoodleNet.CommunitiesTest do
 
   describe "Communities.one/1" do
     test "returns a community by ID when available" do
-      community = fake_user!() |> fake_community!()
+      user = fake_user!()
+      community = fake_community!(user)
       assert {:ok, community = %Community{}} = Communities.one(id: community.id)
       assert community.actor
       assert community.creator
     end
 
     test "fails if the community has been removed" do
-      community = fake_user!() |> fake_community!()
-      assert {:ok, community} = Communities.soft_delete(community)
-      assert {:error, %NotFoundError{}} = Communities.one([:deleted, id: community.id])
+      user = fake_user!()
+      community = fake_community!(user)
+      assert {:ok, community} = Communities.soft_delete(user, community)
+      assert {:error, %NotFoundError{}} =
+        Communities.one(deleted: false, id: community.id)
     end
 
     # Everything is public currently
@@ -58,13 +61,6 @@ defmodule MoodleNet.CommunitiesTest do
       assert {:error, %NotFoundError{}} = Communities.one(id: Fake.ulid())
     end
 
-    test "returns a community regardless of its privacy" do
-      community = fake_user!() |> fake_community!(%{is_public: false})
-      assert {:ok, community} = Communities.soft_delete(community)
-      assert {:ok, community = %Community{}} = Communities.one([:private, id: community.id])
-      assert community.actor
-      assert community.creator
-    end
   end
 
   describe "Communities.create/3" do
@@ -88,7 +84,6 @@ defmodule MoodleNet.CommunitiesTest do
   describe "Communities.update/2" do
 
     @tag :skip
-    @for_moot true
     test "works for the creator of the community" do
       # assert user = fake_user!()
       # assert community = fake_community!(user)
@@ -98,7 +93,6 @@ defmodule MoodleNet.CommunitiesTest do
     end
 
     @tag :skip
-    @for_moot true
     test "works for an instance admin" do
       # assert user = fake_user!()
       # assert community = fake_community!(user)
@@ -110,7 +104,7 @@ defmodule MoodleNet.CommunitiesTest do
     test "works" do
       assert user = fake_user!()
       assert community = fake_community!(user, %{is_public: true})
-      assert {:ok, updated_community} = Communities.update(community, %{is_public: false})
+      assert {:ok, updated_community} = Communities.update(user, community, %{is_public: false})
       assert updated_community.id == community.id
       refute updated_community.is_public
     end
@@ -120,7 +114,7 @@ defmodule MoodleNet.CommunitiesTest do
     test "works" do
       assert user = fake_user!()
       assert community = fake_community!(user)
-      assert {:ok, deleted_community} = Communities.soft_delete(community)
+      assert {:ok, deleted_community} = Communities.soft_delete(user, community)
       assert deleted_community.id == community.id
       assert deleted_community.deleted_at
     end

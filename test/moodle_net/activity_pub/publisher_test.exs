@@ -138,7 +138,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, follow_activity} = Publisher.follow(follow)
-      {:ok, unfollow} = Follows.soft_delete(follow)
+      {:ok, unfollow} = Follows.soft_delete(follower, follow)
 
       assert {:ok, unfollow_activity} = Publisher.unfollow(unfollow)
       assert unfollow_activity.data["object"]["id"] == follow_activity.data["id"]
@@ -192,7 +192,7 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
         })
 
       {:ok, block_activity} = Publisher.block(block)
-      {:ok, unblock} = MoodleNet.Blocks.delete(block)
+      {:ok, unblock} = MoodleNet.Blocks.soft_delete(blocker, block)
 
       assert {:ok, unblock_activity} = Publisher.unblock(unblock)
       assert unblock_activity.data["object"]["id"] == block_activity.data["id"]
