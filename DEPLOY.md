@@ -1,21 +1,19 @@
 # Backend Configuration and Deployment
 
-*These instructions are for setting up the **MoodleNet backend** alone in production. You probably want to start with the following two guides, and only refer back to this document for some more advanced things you might not find in those guides.* 
+*These instructions are for setting up the **backend** alone in production. You probably want to start with the following two guides, and only refer back to this document for some more advanced things you might not find in those guides.* 
 
-- *You probably want to deploy the **MoodleNet frontend and backend together**, in which case please refer to our guide to [Deploying MoodleNet](https://gitlab.com/moodlenet/clients/react/blob/develop/README.md#deploying-moodlenet)!*
+- *You probably want to deploy the **frontend and backend together**, in which case please refer to our guide to deploying (coming soon)*
 
-- *If you want to run the MoodleNet backend in development, please refer to our [Developer FAQ](https://gitlab.com/moodlenet/servers/federated/blob/develop/HACKING.md)!*
+- *If you want to run the backend in development, please refer to our [Developer FAQ](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md)!*
 
 
 ---
 
 ## Step 0 - Configure your database
 
-You must provide a postgresql database for moodlenet data storage. We
-require postgres 9.4 or above.
+You must provide a postgresql database for data storage. We require postgres 9.4 or above.
 
-If you are running in a restricted environment such as Amazon RDS, you
-will need to execute some sql against the database:
+If you are running in a restricted environment such as Amazon RDS, you will need to execute some sql against the database:
 
 ```
 CREATE EXTENSION IF NOT EXISTS citext;
@@ -23,7 +21,7 @@ CREATE EXTENSION IF NOT EXISTS citext;
 
 ## Step 1 - Configure the backend
 
-MoodleNet needs some environment variables to be configured in order to work (a list of which can be found in the file `config/docker.env` in this same repository).
+The app needs some environment variables to be configured in order to work (a list of which can be found in the file `config/docker.env` in this same repository).
 
 In the `config/` directory, there are following default config files:
 
@@ -47,10 +45,9 @@ Do NOT modify the files above. Instead, overload any settings from the above fil
 
 ### Option A - Install using Docker containers (recommended)
 
-A pre-built docker image can be found at: https://hub.docker.com/r/moodlenet/moodlenet/
 
 The easiest way to launch the docker image is using the `docker-compose` tool.
-The `docker-compose.yml` uses `config/docker.env` to launch a `moodlenet` container along with its dependencies, currently that means an extra postgres container. You may want to add a webserver / reverse proxy yourself.
+The `docker-compose.yml` uses `config/docker.env` to launch a container along with its dependencies, currently that means an extra postgres container. You may want to add a webserver / reverse proxy yourself.
 
 #### Install with docker-compose
 
@@ -71,16 +68,13 @@ GNU Make 4.2.1
 2. Clone this repository and change into the directory:
 
 ```sh
-$ git clone https://gitlab.com/moodlenet/servers/federated.git moodlenet-backend
-$ cd moodlenet-backend
+$ git clone git@gitlab.com:CommonsPub/Server.git commonspub-backend
+$ cd commonspub-backend
 ```
 
 3. Build the docker image.
 
-**Skip this step if you want to use the pre-built image provided by MoodleNet on Docker cloud instead.**
-
 ```
-
 $ make build
 
 $ make tag_latest
@@ -126,11 +120,11 @@ For example:
 
 #### Building a Docker image
 
-The [Dockerfile](https://gitlab.com/moodlenet/servers/federated/blob/develop/Dockerfile) uses the [multistage build](https://docs.docker.com/develop/develop-images/multistage-build/) feature to make the image as small as possible. It is a very common release using OTP releases. It generates the release which is later copied into the final image.
+The Dockerfile uses the [multistage build](https://docs.docker.com/develop/develop-images/multistage-build/) feature to make the image as small as possible. It is a very common release using OTP releases. It generates the release which is later copied into the final image.
 
-There is a `Makefile` with two commands:
+There is a `Makefile` with two relavant commands:
 
-* `make build` which builds the docker image in `moodlenet:latest` and `moodlenet:$VERSION-$BUILD`
+* `make build` which builds the docker image in `commonspub/commonspub:latest` and `commonspub/commonspub:$VERSION-$BUILD`
 * `make run` which can be used to run the docker built docker image without `docker-compose`
 
 ---
@@ -201,6 +195,6 @@ See [`config/releases.exs`](config/releases.exs) for all used variables. Conside
 
 By default, the backend listens on port 4000 (TCP), so you can access it on http://localhost:4000/ (if you are on the same machine). In case of an error it will restart automatically.
 
-The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+The frontend is (in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 Once you've signed up, you may want to make yourself an instance admin, by running this in the iex console: `MoodleNet.ReleaseTasks.make_instance_admin("your_username")`

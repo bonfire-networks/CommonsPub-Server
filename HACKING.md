@@ -1,10 +1,10 @@
-# MoodleNet Developer FAQ
+# Developer FAQ
 
-*These instructions are for hacking on the MoodleNet backend. If you wish to deploy MoodleNet in production, please refer to our [Deployment Guide](https://gitlab.com/moodlenet/servers/federated/blob/develop/DEPLOY.md)!*
+*These instructions are for hacking on the backend. If you wish to deploy in production, please refer to our [Deployment Guide](./DEPLOY.md)!*
 
 Hello, potential contributor! :-)
 
-This is a work in progress guide to getting MoodleNet up and running as a developer. Please ask questions in the [public Telegram chat](https://t.me/moodlenet_devs) or via GitLab issues if something is not clear.
+This is a work in progress guide to getting up and running as a developer. Please ask questions in the issue tracker if something is not clear.
 
 Happy hacking!
 
@@ -46,7 +46,7 @@ make dev
 
 #### Forwarded ports
 
-* `4000` - moodlenet http listener
+* `4000` - http listener
 * `5432` - postgres database server
 
 
@@ -56,7 +56,7 @@ Dependencies:
 
 * A recent elixir version (1.8.0+)
 
-MoodleNet takes some configuration in the form of environment
+The app takes some configuration in the form of environment
 variables so we don't need to rebuild the docker images to change the
 configuration. The first task therefore is to export the development
 environment in the current shell:
@@ -109,16 +109,14 @@ same steps as option 2, except:
 
 By default, the back-end listens on port 4000 (TCP), so you can access it on http://localhost:4000/ 
 
-The MoodleNet frontend is a seperate app: https://gitlab.com/moodlenet/clients/react
+The frontend is (in a [seperate repo](https://gitlab.com/CommonsPub/Client).
 
 If you haven't set up transactional emails, while in development, you can access emails (such as signup validation) at `/sent_emails`.
 
 
 ## Documentation
 
-The code is somewhat documented inline. You can read the resulting [Module & Function Documentation](https://new.next.moodle.net/docs/server/api-reference.html#modules) on the project website. 
-
-If you add more documentation (thanks!), you can generate HTML docs (using `Exdoc`) by running `mix docs`. 
+The code is somewhat documented inline. You can generate HTML docs (using `Exdoc`) by running `mix docs`. 
 
 
 ## Internationalisation
@@ -188,19 +186,15 @@ config :moodle_net, MoodleNet.Repo,
 
 ## Hacking
 
-MoodleNet is an unusual piece of software, developed in an unusual
+This is an unusual piece of software, developed in an unusual
 way. It started with requests by Moodle users to be able to share and
 collaborate on educational resources with their peers.
 
-Hacking on moodlenet is actually pretty fun. The codebase has a unique
+Hacking on it is actually pretty fun. The codebase has a unique
 feeling to work with and we've relentlessly refactored to manage the
 ever-growing complexity that a distributed social network
 implies. This said, it is not easy to understand without context,
 which is what this section is here to provide.
-
-I have been on the team for nearly a year now, during which time we
-have gone from a proof of concept to a (nearly) production-grade
-application, despite the entire team being part-time.
 
 ### Design Decisions
 
@@ -215,8 +209,8 @@ Operational goals:
 * Light on resources for small deployments.
 * Scalable for large deployments.
 
-Operationally, there's a tension between wanting to be able to scale
-moodlenet instances and not wanting to burden small instances with
+Operationally, there's a tension between wanting to be able to scale 
+instances and not wanting to burden small instances with
 high resource requirements or difficult setup.
 
 There are no easy answers to this. Our current solution is heavily
@@ -242,6 +236,7 @@ At the top level, there are four seperate namespaces:
 * `MoodleNetWeb` - Phoenix/Absinthe webapp + GraphQL API for `MoodleNet`.
 * `ActivityPub` - ActivityPub federation stack
 * `ActivityPubWeb` - Phoenix webapp / ActivityPub API for `ActivityPub`.
+* There are new namespaces being added for extensions such as Taxonomy, Geolocation, Measurements, ValueFlows, etc.
 
 MoodleNet and MoodleNetWeb are primarily maintained by @jjl with help from @antoniskalou.
 
