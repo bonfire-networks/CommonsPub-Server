@@ -42,30 +42,10 @@ defmodule MoodleNet.Threads.Comments do
     )
   end
 
-  @doc """
-  Return all public, non-deleted, unhidden comments for a user.
-
-  Will fetch comments regardless of whether the user has been deleted.
-  """
-  @spec list_comments_for_user(User.t()) :: [Comment.t()]
-  def list_comments_for_user(%User{} = user),
-    do: Repo.all(list_comments_for_user_q(user.id))
-
-  defp list_comments_for_user_q(user_id) do
-    from(c in Comment,
-      join: u in User,
-      on: c.creator_id == u.id,
-      where: u.id == ^user_id,
-      where: not is_nil(c.published_at),
-      where: is_nil(c.hidden_at),
-      where: is_nil(c.deleted_at)
-    )
-  end
-
-  @spec create(User.t(), Thread.t(), map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
+  @spec create(creator :: User.t(), thread :: Thread.t(), attrs :: map) :: {:ok, Comment.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Thread{} = thread, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, comment} <- insert(thread, creator, attrs),
+      with {:ok, comment} <- insert(creator, thread, attrs),
            thread = preload_ctx(thread),
            act_attrs = %{verb: "created", is_local: comment.is_local},
            {:ok, activity} <- Activities.create(creator, comment, act_attrs),
@@ -96,7 +76,7 @@ defmodule MoodleNet.Threads.Comments do
       true ->
         attrs = Map.put(attrs, :reply_to_id, reply_to.id)
         Repo.transact_with(fn ->
-          with {:ok, comment} <- insert(thread, creator, attrs),
+          with {:ok, comment} <- insert(creator, thread, attrs),
                thread = preload_ctx(thread),
                act_attrs = %{verb: "created", is_local: comment.is_local},
                {:ok, activity} <- Activities.create(creator, comment, act_attrs),
@@ -109,7 +89,7 @@ defmodule MoodleNet.Threads.Comments do
     end
   end
 
-  defp insert(thread, creator, attrs) do
+  defp insert(creator, thread, attrs) do
     Repo.insert(Comment.create_changeset(creator, thread, attrs))
   end
 
@@ -153,7 +133,9 @@ defmodule MoodleNet.Threads.Comments do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids)
+        with :ok <- chase_delete(user, ids) do
+          ap_publish("delete", ids)
+        end
       end), do: :ok
   end
 
@@ -171,6 +153,11 @@ defmodule MoodleNet.Threads.Comments do
     FeedActivities.publish(activity, feeds)
   end
 
+  defp ap_publish(verb, comments) when is_list(comments) do
+    APPublishWorker.batch_enqueue(verb, comments)
+    :ok
+  end
+    
   defp ap_publish(verb, %{is_local: true} = comment) do
     APPublishWorker.enqueue(verb, %{"context_id" => comment.id})
     :ok

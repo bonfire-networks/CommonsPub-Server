@@ -121,9 +121,11 @@ defmodule MoodleNet.Communities do
   def soft_delete_by(%User{}=user, filters) do
     with {:ok, _} <-
       Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :delete} | filters], deleted_at: DateTime.utc_now())
+        {_, ids} = update_by(user, [{:deleted, false}, {:select, :delete} | filters], deleted_at: DateTime.utc_now())
         %{community: community, feed: feed} = deleted_ids(ids)
-        chase_delete(user, community, feed)
+        with :ok <- chase_delete(user, community, feed) do
+          ap_publish("delete", community)
+        end
       end), do: :ok
   end
 
@@ -155,7 +157,9 @@ defmodule MoodleNet.Communities do
 
   defp chase_delete(user, communities, []), do: chase_delete(user, communities)
   defp chase_delete(user, communities, feeds) do
-    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, communities)
+    with :ok <- Feeds.soft_delete_by(user, id: feeds) do
+      chase_delete(user, communities)
+    end
   end
 
   # defp default_inbox_query_contexts() do
@@ -175,7 +179,11 @@ defmodule MoodleNet.Communities do
     FeedActivities.publish(activity, feeds)
   end
 
-  defp ap_publish(%{actor: %{peer_id: nil}} = community, verb) do
+  defp ap_publish(verb, communities) when is_list(communities) do
+    APPublishWorker.batch_enqueue(verb, communities)
+    :ok
+  end
+  defp ap_publish(verb, %{actor: %{peer_id: nil}} = community) do
     APPublishWorker.enqueue(verb, %{"context_id" => community.id})
     :ok
   end
