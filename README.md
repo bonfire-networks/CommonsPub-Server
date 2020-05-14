@@ -14,11 +14,11 @@ This codebase was forked from [MoodleNet](http://moodle.net/), which was origina
 
 ## Documentation 
 
-Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/CommonsPub/Client/-/blob/develop/README.md#deploying).
+Do you wish to try it out (backend+frontend)? Read [How-to Deploy](https://gitlab.com/CommonsPub/Client/-/blob/flavour/commonspub/README.md#deploying).
 
-Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/develop/DEPLOY.md).
+Do you wish to deploy the backend in production? Read our [Backend Deployment Docs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/DEPLOY.md).
 
-Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/develop/HACKING.md).
+Do you wish to hack on the backend? Read our [Backend Developer FAQs](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md).
 
 ---
 

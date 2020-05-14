@@ -2,10 +2,10 @@ defmodule MoodleNet.Repo.Migrations.ReaddOrganisation do
     use Ecto.Migration
 
     def up do
-      Organisation.Migrations.up()
+      # Organisation.Migrations.up()
     end
 
     def down do
-      Organisation.Migrations.down()
+      # Organisation.Migrations.down()
     end
 end
