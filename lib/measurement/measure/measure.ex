@@ -5,7 +5,6 @@ defmodule Measurement.Measure do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Measurement.Measure
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias Measurement.Unit
@@ -35,7 +34,7 @@ defmodule Measurement.Measure do
         %User{} = creator,
         attrs
       ) do
-    %Measurement.Measure{}
+    %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -56,7 +55,7 @@ defmodule Measurement.Measure do
     )
   end
 
-  def update_changeset(%Measurement.Measure{} = measure, attrs) do
+  def update_changeset(%__MODULE__{} = measure, attrs) do
     measure
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

@@ -27,7 +27,7 @@ defmodule Measurement.UnitsTest do
       assert_unit(unit, fetched)
       assert {:ok, fetched} = Units.one(user: user)
       assert_unit(unit, fetched)
-      assert {:ok, fetched} = Units.one(community_id: comm.id)
+      assert {:ok, fetched} = Units.one(context_id: comm.id)
       assert_unit(unit, fetched)
     end
 
@@ -36,7 +36,7 @@ defmodule Measurement.UnitsTest do
     end
   end
 
-  describe "create without community" do
+  describe "create without context" do
     test "creates a new unit" do
       user = fake_user!()
       assert {:ok, unit = %Unit{}} = Units.create(user, unit())
@@ -44,14 +44,14 @@ defmodule Measurement.UnitsTest do
     end
   end
 
-  describe "create with community" do
+  describe "create with context" do
     test "creates a new unit" do
       user = fake_user!()
       comm = fake_community!(user)
 
       assert {:ok, unit = %Unit{}} = Units.create(user, comm, unit())
       assert unit.creator_id == user.id
-      assert unit.community_id == comm.id
+      assert unit.context_id == comm.id
     end
 
     test "fails with invalid attributes" do

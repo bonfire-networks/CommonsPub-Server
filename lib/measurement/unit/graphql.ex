@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Unit.GraphQL do
+  use Absinthe.Schema.Notation
+  require Logger
+
   alias MoodleNet.{
     Activities,
-    Communities,
     GraphQL,
     Repo,
   }
   alias MoodleNet.GraphQL.{
+    CommonResolver,
     ResolveField,
     ResolveFields,
     ResolvePage,
@@ -17,18 +20,12 @@ defmodule Measurement.Unit.GraphQL do
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNet.Meta.Pointers
 
   alias ValueFlows.Simulate
   alias Measurement.Unit
   alias Measurement.Unit.Units
   alias Measurement.Unit.Queries
-
-  # SDL schema import
-
-  use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
-  require Logger
 
   import_sdl path: "lib/measurement/measurement.gql"
 
@@ -79,56 +76,31 @@ defmodule Measurement.Unit.GraphQL do
     )
   end
 
+  def context_edge(params, data, info), do: CommonResolver.context_edge(params, data, info)
 
-  def community_edge(%Unit{community_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_community_edge,
-        context: id,
-        info: info,
-      }
-    )
-  end
-
-  def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
-  end
-
-  ## finally the mutations...
-
-  # def create_unit(%{unit: attrs}, info) do
-  #   IO.inspect("gql create_unit")
-  #   Repo.transact_with(fn ->
-  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-  #       # attrs = Map.merge(attrs, %{is_public: true})
-  #       Units.create(user, attrs)
-  #     end
-  #   end)
+  # def fetch_community_edge(_, ids) do
+  #   {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
+  #   fields
   # end
 
-  def create_unit(%{unit: attrs, in_scope_of_community_id: id}, info) do
-    IO.inspect(attrs)
+  def create_unit(%{unit: attrs, in_scope_of_context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
-        attrs = Map.merge(attrs, %{is_public: true})
-        {:ok, u} = Units.create(user, community, attrs)
-        IO.inspect(u)
-        {:ok, %{unit: u}}
+           {:ok, pointer} <- Pointers.one(id: context_id),
+           context = Pointers.follow!(pointer),
+           attrs = Map.merge(attrs, %{is_public: true}),
+           {:ok, unit} <- Units.create(user, context, attrs) do
+        {:ok, %{unit: unit}}
       end
     end)
   end
 
   def create_unit(%{unit: attrs}, info) do # without community scope
-    IO.inspect(attrs)
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-        attrs = Map.merge(attrs, %{is_public: true})
-        {:ok, u} = Units.create(user, attrs)
-        IO.inspect(u)
-        {:ok, %{unit: u}}
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           attrs = Map.merge(attrs, %{is_public: true}),
+           {:ok, unit} <- Units.create(user, attrs) do
+        {:ok, %{unit: unit}}
       end
     end)
   end
@@ -137,17 +109,13 @@ defmodule Measurement.Unit.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- unit(%{id: id}, info) do
-        unit = Repo.preload(unit, :community)
-        IO.inspect(unit)
+        unit = Repo.preload(unit, :context)
         cond do
           user.local_user.is_instance_admin ->
             {:ok, u} = Units.update(unit, changes)
             {:ok, %{unit: u}}
 
           unit.creator_id == user.id ->
-            {:ok, u} = Units.update(unit, changes)
-            {:ok, %{unit: u}}
-          unit.community.creator_id == user.id ->
             {:ok, u} = Units.update(unit, changes)
             {:ok, %{unit: u}}
           true -> GraphQL.not_permitted("update")
