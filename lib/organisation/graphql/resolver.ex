@@ -4,12 +4,12 @@
 defmodule Organisation.GraphQL.Resolver do
   alias MoodleNet.{
     Activities,
-    Communities,
     GraphQL,
     Repo,
     Resources,
   }
   alias MoodleNet.GraphQL.{
+    CommonResolver,
     Flow,
     FetchFields,
     FetchPage,
@@ -23,7 +23,7 @@ defmodule Organisation.GraphQL.Resolver do
   alias Organisation.{Organisations, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNet.Meta.Pointers
 
   ## resolvers
 
@@ -131,15 +131,6 @@ defmodule Organisation.GraphQL.Resolver do
     )
   end
 
-  def community_edge(%Organisation{community_id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_community_edge, id, info
-  end
-
-  def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
-  end
-
   def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
   end
@@ -178,12 +169,14 @@ defmodule Organisation.GraphQL.Resolver do
 
   ## finally the mutations...
 
-  def create_organisation(%{organisation: attrs, community_id: id}, info) do 
+  def create_organisation(%{organisation: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
+           {:ok, pointer} <- Pointers.one(id: context_id),
+           :ok <- validate_organisation_context(pointer) do
+        context = Pointers.follow!(pointer)
         attrs = Map.merge(attrs, %{is_public: true})
-        Organisations.create(user, community, attrs)
+        Organisations.create(user, context, attrs)
       end
     end)
   end
@@ -203,15 +196,11 @@ defmodule Organisation.GraphQL.Resolver do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, organisation} <- organisation(%{organisation_id: id}, info) do
-        organisation = Repo.preload(organisation, :community)
         cond do
           user.local_user.is_instance_admin ->
 	    Organisations.update(organisation, changes)
 
           organisation.creator_id == user.id ->
-	    Organisations.update(organisation, changes)
-
-          organisation.community.creator_id == user.id ->
 	    Organisations.update(organisation, changes)
 
           true -> GraphQL.not_permitted("update")
@@ -242,4 +231,15 @@ defmodule Organisation.GraphQL.Resolver do
   #   |> GraphQL.response(info)
   # end
 
+  defp validate_organisation_context(pointer) do
+    if Pointers.table!(pointer).schema in valid_contexts() do
+      :ok
+    else
+      GraphQL.not_permitted()
+    end
+  end
+
+  defp valid_contexts do
+    Keyword.fetch!(Application.get_env(:moodle_net, Organisations), :valid_contexts)
+  end
 end

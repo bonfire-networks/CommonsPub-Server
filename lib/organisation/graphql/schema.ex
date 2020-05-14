@@ -143,8 +143,8 @@ defmodule Organisation.GraphQL.Schema do
     end
 
     @desc "The community the organisation belongs to"
-    field :community, :community do
-      resolve &Organisation.GraphQL.Resolver.community_edge/3
+    field :context, :community do
+      resolve &CommonResolver.context_edge/3
     end
 
     @desc "The total number of resources in the organisation, including private ones"

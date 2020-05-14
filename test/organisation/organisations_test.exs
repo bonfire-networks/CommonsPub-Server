@@ -14,6 +14,7 @@ defmodule Organisation.OrganisationsTest do
       org = fake_organisation!(user)
 
       assert {:ok, fetched} = Organisations.one(id: org.id)
+      assert_organisation(fetched)
     end
   end
 
@@ -25,12 +26,12 @@ defmodule Organisation.OrganisationsTest do
       assert org.creator_id == user.id
     end
 
-    test "a user can create an org for a community" do
+    test "a user can create an org for a context" do
       user = fake_user!()
       comm = fake_community!(user)
       assert {:ok, org} = Organisations.create(user, comm, organisation())
       assert_organisation(org)
-      assert org.community_id == comm.id
+      assert org.context_id == comm.id
     end
 
     test "fails with invalid parameters" do

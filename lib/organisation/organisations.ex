@@ -7,7 +7,6 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Common.Contexts
   alias Organisation
   alias Organisation.{Queries}
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
@@ -66,12 +65,6 @@ defmodule Organisation.Organisations do
   end
 
   ## mutations
-  defp prepend_comm_username(%{actor: %{preferred_username: comm_username}}, %{preferred_username: org_username}) do
-    comm_username <> org_username
-  end
-
-  defp prepend_comm_username(_community, _attr), do: nil
-
   @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
@@ -87,15 +80,15 @@ defmodule Organisation.Organisations do
     end)
   end
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
-           {:ok, org} <- insert_organisation_with_community(creator, community, actor, org_attrs),
+           {:ok, org} <- insert_organisation(creator, context, actor, org_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
-           :ok <- publish(creator, community, org, activity, :created),
+           :ok <- publish(creator, context, org, activity, :created),
            {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
         {:ok, org}
       end
@@ -124,9 +117,9 @@ defmodule Organisation.Organisations do
     with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor }}
   end
 
-  defp insert_organisation_with_community(creator, community, actor, attrs) do
-    cs = Organisation.create_changeset_with_community(creator, community, actor, attrs)
-    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor }}
+  defp insert_organisation(creator, context, actor, attrs) do
+    cs = Organisation.create_changeset(creator, actor, context, attrs)
+    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor, context: context }}
   end
 
   defp publish(creator, organisation, activity, :created) do
@@ -172,7 +165,6 @@ defmodule Organisation.Organisations do
   @spec update(User.t(), Organisation.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Organisation{} = organisation, attrs) do
     Repo.transact_with(fn ->
-      organisation = Repo.preload(organisation, :community)
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
            {:ok, actor} <- Actors.update(user, organisation.actor, attrs),
            :ok <- publish(organisation, :updated) do
