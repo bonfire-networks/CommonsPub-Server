@@ -3,13 +3,12 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes do
   alias MoodleNet.{Activities, Common, Repo}
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.FeedPublisher
+  # alias MoodleNet.FeedPublisher
   alias MoodleNet.Feeds.FeedActivities
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Likes.{AlreadyLikedError, Like, NotLikeableError, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def one(filters \\ []), do: Repo.single(Queries.query(Like, filters))
 
@@ -32,11 +31,12 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  defp ap_publish(%Like{is_local: true} = like) do
-    MoodleNet.FeedPublisher.publish(%{"context_id" => like.id, "user_id" => like.creator_id})
+  defp ap_publish(verb, %Like{is_local: true} = like) do
+    APPublishWorker.enqueue(verb, %{"context_id" => like.id})
+    :ok
   end
 
-  defp ap_publish(_), do: :ok
+  defp ap_publish(_, _), do: :ok
 
   @doc """
   NOTE: assumes liked participates in meta, otherwise gives constraint error changeset
@@ -49,14 +49,14 @@ defmodule MoodleNet.Likes do
   def create(%User{} = liker, %{__struct__: ctx} = liked, fields) do
     if ctx in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([:deleted, context_id: liked.id, creator_id: liker.id]) do
+        case one(deleted: false, context: liked.id, creator: liker.id) do
           {:ok, _} ->
             {:error, AlreadyLikedError.new("user")}
 
           _ ->
             with {:ok, like} <- insert(liker, liked, fields),
                  :ok <- publish(liker, liked, like, "created"),
-                 :ok <- ap_publish(like) do
+                 :ok <- ap_publish("create", like) do
               {:ok, like}
             end
         end
@@ -66,24 +66,35 @@ defmodule MoodleNet.Likes do
     end
   end
 
-  def update(%Like{} = like, fields) do
+  def update(%User{}, %Like{} = like, fields) do
     Repo.update(Like.update_changeset(like, fields))
   end
 
-  @spec soft_delete(Like.t()) :: {:ok, Like.t()} | {:error, any}
-  def soft_delete(%Like{} = like) do
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Like, filters), set: updates)
+  end
+
+  @spec soft_delete(User.t(), Like.t()) :: {:ok, Like.t()} | {:error, any}
+  def soft_delete(%User{}=user, %Like{} = like) do
     Repo.transact_with(fn ->
       with {:ok, like} <- Common.soft_delete(like),
-            :ok <- ap_publish(like) do
+           :ok <- chase_delete(user, like.id),
+           :ok <- ap_publish("delete", like) do
         {:ok, like}
       end
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(Like)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    Activities.soft_delete_by(user, context: ids)
   end
 
   defp valid_contexts() do

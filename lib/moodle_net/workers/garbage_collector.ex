@@ -19,13 +19,13 @@ defmodule MoodleNet.Workers.GargageCollector do
   defp mark(%{mark: mark}), do: Enum.reduce(mark, %{}, &mark/2)
 
   defp mark(context, stats) do
-    Map.put(stats, context, timed(fn -> context.mark() end))
+    Map.put(stats, context, phase(fn -> context.mark() end))
   end
 
   defp sweep(%{sweep: sweep}=options), do: Enum.reduce(sweep, %{}, &sweep(options, &1, &2))
 
   defp sweep(%{grace: grace}, context, stats) do
-    Map.put(stats, context, timed(fn -> context.sweep(grace) end))
+    Map.put(stats, context, phase(fn -> context.sweep(grace) end))
   end
 
   defp phase(fun) do
@@ -36,7 +36,7 @@ defmodule MoodleNet.Workers.GargageCollector do
   end
 
   defp option({"mark", v}, opts) when is_list(v), do: Map.put(opts, :mark, Enum.map(v, &module/1))
-  defp option({"sweep", v}, opts) when is_list(v), do: Map.put(opts, :sweep, Enum.map(v, &module/1)
+  defp option({"sweep", v}, opts) when is_list(v), do: Map.put(opts, :sweep, Enum.map(v, &module/1))
   defp option({"grace", v}, opts) when is_integer(v), do: Map.put(opts, :grace, v)
 
   defp module(str), do: String.to_existing_atom(str)

@@ -12,9 +12,8 @@ defmodule MoodleNet.Peers do
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
   """
-  alias MoodleNet.{Common, Meta, Peers, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.{Peer, Queries}
 
   # Querying

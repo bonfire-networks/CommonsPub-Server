@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
   import MoodleNetWeb.Test.Automaton
   import Grumble
   import Zest
-  alias MoodleNet.{Flags, Follows, Likes, Collections, Threads}
+  alias MoodleNet.{Follows, Likes, Collections, Threads}
 
   describe "community" do
 
@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       vars = %{community_id: comm.id}
       for conn <- [json_conn(), user_conn(alice), user_conn(bob), user_conn(lucy)] do
         comm2 = grumble_post_key(community_query(), conn, :community, vars)
-        comm2 = assert_community(comm, comm2)
+        _comm2 = assert_community(comm, comm2)
       end
     end
 
@@ -152,35 +152,37 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       lucy = fake_admin!()
       comm = fake_community!(alice)
       colls = order_follower_count(some_fake_collections!(9, users, [comm])) # 24
-      conn = json_conn()
-      params = [
-        collections_after: list_type(:cursor),
-        collections_before: list_type(:cursor),
-        collections_limit: :int,
-      ]
-      q = community_query(
-        params: params,
-        fields: [:collection_count, collections_subquery(fields: [:follower_count])]
-        )
-
-      child_page_test %{
-        query: q,
-        vars: %{community_id: comm.id},
-        connection: conn,
-        parent_key: :community,
-        child_key: :collections,
-        count_key: :collection_count,
-        default_limit: 5,
-        total_count: 27,
-        parent_data: comm,
-        child_data: colls,
-        assert_parent: &assert_community/2,
-        assert_child: &assert_collection/2,
-        cursor_fn: Collections.cursor(:followers),
-        after: :collections_after,
-        before: :collections_before,
-        limit: :collections_limit,
-      }
+      conns = Enum.map([alice, bob, eve, lucy], &user_conn/1)
+      each [json_conn() | conns], fn conn ->
+        params = [
+          collections_after: list_type(:cursor),
+          collections_before: list_type(:cursor),
+          collections_limit: :int,
+        ]
+        q = community_query(
+          params: params,
+          fields: [:collection_count, collections_subquery(fields: [:follower_count])]
+          )
+  
+        child_page_test %{
+          query: q,
+          vars: %{community_id: comm.id},
+          connection: conn,
+          parent_key: :community,
+          child_key: :collections,
+          count_key: :collection_count,
+          default_limit: 5,
+          total_count: 27,
+          parent_data: comm,
+          child_data: colls,
+          assert_parent: &assert_community/2,
+          assert_child: &assert_collection/2,
+          cursor_fn: Collections.cursor(:followers),
+          after: :collections_after,
+          before: :collections_before,
+          limit: :collections_limit,
+        }
+      end
     end
 
   end
@@ -191,7 +193,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
       comm = fake_community!(alice)
-      {:ok, bob_follow} = Follows.one(context_id: comm.id, creator_id: alice.id)
+      {:ok, bob_follow} = Follows.one(context: comm.id, creator: alice.id)
       follows = some_randomer_follows!(26, comm) ++ [bob_follow]
       params = [
         followers_after: list_type(:cursor),
@@ -202,8 +204,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         params: params,
         fields: [:follower_count, followers_subquery()]
       )
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      each conns, fn conn ->
+      conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
+      each [json_conn() | conns], fn conn ->
         child_page_test %{
           query: query,
           vars: %{community_id: comm.id},
@@ -240,9 +242,8 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         likers_limit: :int,
       ]
       query = community_query(params: params, fields: [:liker_count, likers_subquery()])
-      vars = %{community_id: comm.id}
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), json_conn()]
-      each conns, fn conn ->
+      conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
+      each [json_conn() | conns], fn conn ->
         child_page_test %{
           query: query,
           vars: %{community_id: comm.id},
@@ -277,8 +278,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       flag!(lucy, comm)
       q = community_query(fields: [flags: page_fields(flag_fields())])
       vars = %{community_id: comm.id}
-      conns = [user_conn(eve), json_conn()]
-      for conn <- conns do
+      each [user_conn(eve), json_conn()], fn conn ->
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
         assert_page(comm2.flags, 0, 0, false, false, &[&1.id])
       end
@@ -294,7 +294,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
       q = community_query(fields: [flags: page_fields(flag_fields())])
       vars = %{community_id: comm.id}
 
-      comm2 = assert_community(comm, grumble_post_key(q, user_conn(bob), :community, vars))
+      _comm2 = assert_community(comm, grumble_post_key(q, user_conn(bob), :community, vars))
 
       for conn <- [user_conn(lucy)] do
         comm2 = assert_community(comm, grumble_post_key(q, conn, :community, vars))
@@ -436,7 +436,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
         %{}
       )
-      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{icon_id: upload.id})
+      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [icon: [:id, :url, upload: [:path]]])
@@ -456,7 +456,7 @@ defmodule MoodleNetWeb.GraphQL.CommunityTest do
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}},
         %{}
       )
-      assert {:ok, comm} = MoodleNet.Communities.update(comm, %{image_id: upload.id})
+      assert {:ok, comm} = MoodleNet.Communities.update(user, comm, %{image_id: upload.id})
 
       conn = user_conn(user)
       q = community_query(fields: [image: [:id, :url, upload: [:path]]])

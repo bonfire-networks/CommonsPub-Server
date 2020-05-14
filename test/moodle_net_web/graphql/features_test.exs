@@ -99,7 +99,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesTest do
   #     assert %{"createFeature" => feature} = gql_post_data(conn, %{query: q, mutation: "Test"})
   #     assert feature["id"]
 
-  #     assert {:ok, _} = Features.one(context_id: comm.id)
+  #     assert {:ok, _} = Features.one(context: comm.id)
   #   end
 
   #   test "fails for a normal user" do

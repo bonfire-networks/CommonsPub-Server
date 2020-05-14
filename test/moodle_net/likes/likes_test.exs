@@ -49,7 +49,7 @@ defmodule MoodleNet.LikesTest do
     test "by context ID", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like())
-      assert {:ok, fetched} = Likes.one(context_id: liked.id)
+      assert {:ok, fetched} = Likes.one(context: liked.id)
       assert like_equal?(like, fetched)
     end
 
@@ -63,16 +63,16 @@ defmodule MoodleNet.LikesTest do
     test "private", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like(%{is_public: false}))
-      assert {:ok, fetched} = Likes.one([:private, id: like.id])
+      assert {:ok, fetched} = Likes.one(published: true, id: like.id)
       assert like_equal?(like, fetched)
     end
 
     test "deleted", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like())
-      assert {:ok, like} = Likes.soft_delete(like)
+      assert {:ok, like} = Likes.soft_delete(liker, like)
       assert {:ok, fetched} = Likes.one(id: like.id)
-      assert {:error, %NotFoundError{}} = Likes.one([:deleted, id: like.id])
+      assert {:error, %NotFoundError{}} = Likes.one(deleted: false, id: like.id)
       assert like_equal?(like, fetched)
     end
   end
@@ -90,7 +90,7 @@ defmodule MoodleNet.LikesTest do
 
       gen_likes(3)
 
-      assert {:ok, [fetched]} = Likes.many(creator_id: liker.id)
+      assert {:ok, [fetched]} = Likes.many(creator: liker.id)
       assert like_equal?(like, fetched)
     end
 
@@ -100,17 +100,17 @@ defmodule MoodleNet.LikesTest do
 
       gen_likes(3)
 
-      assert {:ok, [fetched]} = Likes.many(context_id: liked.id)
+      assert {:ok, [fetched]} = Likes.many(context: liked.id)
       assert like_equal?(like, fetched)
     end
 
     test "filter deleted", %{user: liker} do
       liked = fake_meta!()
       {:ok, like} = Likes.create(liker, liked, Fake.like())
-      {:ok, _} = Likes.soft_delete(like)
+      {:ok, _} = Likes.soft_delete(liker, like)
 
       likes = gen_likes(3)
-      assert {:ok, fetched} = Likes.many([:deleted])
+      assert {:ok, fetched} = Likes.many(deleted: false)
       assert Enum.map(likes, &strip/1) == Enum.map(fetched, &strip/1)
     end
 
@@ -141,7 +141,7 @@ defmodule MoodleNet.LikesTest do
     test "changes a like", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like())
-      assert {:ok, updated} = Likes.update(like, Fake.like())
+      assert {:ok, updated} = Likes.update(liker, like, Fake.like())
       refute like_equal?(like, updated)
     end
   end
@@ -151,15 +151,15 @@ defmodule MoodleNet.LikesTest do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like())
       refute like.deleted_at
-      assert {:ok, undoed} = Likes.soft_delete(like)
+      assert {:ok, undoed} = Likes.soft_delete(liker, like)
       assert undoed.deleted_at
     end
 
-    test "fails is already deleted", %{user: liker} do
+    test "fails if already deleted", %{user: liker} do
       liked = fake_meta!()
       assert {:ok, like} = Likes.create(liker, liked, Fake.like())
-      assert {:ok, undoed} = Likes.soft_delete(like)
-      assert {:error, %DeletionError{}} = Likes.soft_delete(undoed)
+      assert {:ok, deleted} = Likes.soft_delete(liker, like)
+      assert {:error, %DeletionError{}} = Likes.soft_delete(liker, deleted)
     end
   end
 
