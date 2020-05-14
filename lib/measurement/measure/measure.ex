@@ -12,8 +12,9 @@ defmodule Measurement.Measure do
 
   @type t :: %__MODULE__{}
 
-  table_schema "measurement" do
-    field :hasNumericalValue, :float
+  table_schema "measurement_measure" do
+    # FIXME: invalid atom naming convention
+    field :has_numerical_value, :float
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -21,13 +22,13 @@ defmodule Measurement.Measure do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
 
-    belongs_to(:hasUnit, Unit)
+    belongs_to(:unit, Unit)
     belongs_to(:creator, User)
 
     timestamps()
   end
 
-  @required ~w(hasNumericalValue)a
+  @required ~w(has_numerical_value)a
   @cast @required ++ ~w()a
 
   def create_changeset(
@@ -38,23 +39,21 @@ defmodule Measurement.Measure do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: creator.id
+      creator_id: creator.id,
+      is_public: true
     )
     |> common_changeset()
   end
 
   def create_changeset(
-      %User{} = creator,
-      attrs
-    ) do
-  %Measurement.Measure{}
-  |> Changeset.cast(attrs, @cast)
-  |> Changeset.validate_required(@required)
-  |> Changeset.change(
-    creator_id: creator.id,
-    is_public: true
-  )
-  |> common_changeset()
+    %User{} = creator,
+    %Unit{} = unit,
+    attrs
+  ) do
+    create_changeset(creator, attrs)
+    |> Changeset.change(
+      unit_id: unit.id
+    )
   end
 
   def update_changeset(%Measurement.Measure{} = measure, attrs) do

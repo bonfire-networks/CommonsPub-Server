@@ -22,7 +22,7 @@ defmodule MoodleNet.Features.Feature do
   @create_cast ~w(is_local canonical_url)a
   @create_required ~w(is_local)a
 
-  def create_changeset(%User{id: creator_id}, %{id: context_id} = context, fields) do
+  def create_changeset(%User{id: creator_id}, %{id: context_id}, fields) do
     %__MODULE__{}
     |> Changeset.cast(fields, @create_cast)
     |> Changeset.validate_required(@create_required)

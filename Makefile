@@ -56,11 +56,12 @@ push_stable: init tag_stable ## Tag stable, latest and version tags to the last 
 
 hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
 	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
-	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
+	@curl https://mothership.next.moodle.net/devops/respawn/$(MAIL_KEY)
 
 hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
 	@curl https://home.moodle.net/devops/respawn/$(MAIL_KEY)
+	@curl https://team.moodle.net/devops/respawn/$(MAIL_KEY)
+	@curl https://mothership.moodle.net/devops/respawn/$(MAIL_KEY)
 
 dev-exports: init ## Load env vars from a dotenv file
 	awk '{print "export " $$0}' $(APP_DEV_DOTENV)

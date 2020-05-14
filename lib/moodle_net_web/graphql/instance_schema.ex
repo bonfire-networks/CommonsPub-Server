@@ -23,6 +23,11 @@ defmodule MoodleNetWeb.GraphQL.InstanceSchema do
     # field :name, :string
     field :description, :string
 
+    field :upload_icon_types, non_null(list_of(non_null(:string)))
+    field :upload_image_types, non_null(list_of(non_null(:string)))
+    field :upload_resource_types, non_null(list_of(non_null(:string)))
+    field :upload_max_bytes, non_null(:integer)
+
     @desc "A JSON document containing more info beyond the default fields"
     field :extra_info, :json
     

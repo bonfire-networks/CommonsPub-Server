@@ -64,4 +64,17 @@ defmodule MoodleNetWeb.GraphQL.AccessResolver do
       do: Access.RegisterEmailDomainAccesses.create(domain)
   end
 
+  def delete_register_email_access(%{id: id}, info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+         {:ok, access} <- Access.RegisterEmailAccesses.one(id: id) do
+      Access.hard_delete(access)
+    end
+  end
+
+  def delete_register_email_domain_access(%{id: id}, info) do
+    with {:ok, _user} <- GraphQL.admin_or_not_permitted(info),
+         {:ok, access} <- Access.RegisterEmailDomainAccesses.one(id: id) do
+      Access.hard_delete(access)
+    end
+  end
 end

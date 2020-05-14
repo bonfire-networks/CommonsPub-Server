@@ -6,7 +6,6 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
   alias MoodleNet.Test.Fake
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
   alias MoodleNet.{Access, Users}
 
