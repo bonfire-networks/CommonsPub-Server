@@ -87,6 +87,7 @@ defmodule Measurement.Unit.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
+           :ok <- validate_unit_context(pointer),
            context = Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, unit} <- Units.create(user, context, attrs) do
@@ -134,6 +135,18 @@ defmodule Measurement.Unit.GraphQL do
     {:ok, Simulate.unit()}
   end
 
+  # context validation
 
+  defp validate_unit_context(pointer) do
+    if Pointers.table!(pointer).schema in valid_contexts() do
+      :ok
+    else
+      GraphQL.not_permitted()
+    end
+  end
+
+  defp valid_contexts do
+    Keyword.fetch!(Application.get_env(:moodle_net, Units), :valid_contexts)
+  end
 end
 
