@@ -15,8 +15,8 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   ]
 
   alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{Pages, ResolvePages}
-  import Absinthe.Resolution.Helpers, only: [async: 1, batch: 3]
+  alias MoodleNet.GraphQL.ResolvePages
+  import Absinthe.Resolution.Helpers, only: [async: 1]
 
   def run(%ResolvePages{info: info}=rp) do
     run(GraphQL.list_depth(info), Map.take(info, [:context]), rp)

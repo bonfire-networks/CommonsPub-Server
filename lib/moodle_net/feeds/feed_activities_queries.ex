@@ -9,119 +9,58 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
 
-  # we will probably never want to not prefetch these
-  def query(FeedActivity) do
-    from f in FeedActivity, as: :feed_activity,
-      join: a in assoc(f, :activity), as: :activity,
-      join: c in assoc(a, :context), as: :context,
-      preload: [activity: {a, context: c}]
-  end
+  def query(FeedActivity), do: from(f in FeedActivity, as: :feed_activity)
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def join_to(q, rel, jq \\ :left)
+  defp join_to(q, rel, jq \\ :left)
+  defp join_to(q, :activity, jq), do: join(q, jq, [feed_activity: fa], a in assoc(fa, :activity), as: :activity)
+  defp join_to(q, :context, jq), do: join(q, jq, [activity: a], c in assoc(a, :context), as: :context)
+  defp join_to(q, :feed, jq), do: join(q, jq, [feed_activity: fa], f in assoc(fa, :feed), as: :feed)
 
-  def join_to(q, :activity, jq) do
-    join q, jq, [feed_activity: fa], a in assoc(fa, :activity), as: :activity
-  end
-
-  def join_to(q, :context, jq) do
+  defp join_to(q, :context, jq) do
     join q, jq, [activity: a], c in assoc(a, :context), as: :context
   end
 
-  def join_to(q, :feed, jq) do
-    join q, jq, [feed_activity: fa], f in assoc(fa, :feed), as: :feed
-  end
-
-  ### filter/2
-
-  ## by many
-
-  def filter(q, filters) when is_list(filters) do
-    Enum.reduce(filters, q, &filter(&2, &1))
-  end
-
-  ## by join
+  def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
   def filter(q, {:join, {rel, jq}}), do: join_to(q, rel, jq)
-
   def filter(q, {:join, rel}), do: join_to(q, rel)
 
-  ## by user
+  def filter(q, {:user, match_admin()}), do: Activities.Queries.filter(q, deleted: false)
+  def filter(q, {:user, _}), do: Activities.Queries.filter(q, deleted: false, published: true)
 
-  def filter(q, {:user, match_admin()}), do: Activities.Queries.filter(q, :deleted)
 
-  # Guest or ordinary user are currently not treated differently
-  def filter(q, {:user, _}), do: Activities.Queries.filter(q, ~w(deleted private))
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [feed_activity: fa], fa.id == ^id)
+  def filter(q, {:id, {:gte, id}}) when is_binary(id), do: where(q, [feed_activity: fa], fa.id >= ^id)
+  def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [feed_activity: fa], fa.id <= ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [feed_activity: fa], fa.id in ^ids)
 
-  ## by limit
+  def filter(q, {:feed, id}) when is_binary(id), do: where(q, [feed_activity: fa], fa.feed_id == ^id)
+  def filter(q, {:feed, ids}) when is_list(ids), do: where(q, [feed_activity: fa], fa.feed_id in ^ids)
+
+  def filter(q, {:activity, id}) when is_binary(id), do: where(q, [feed_activity: fa], fa.activity_id == ^id)
+  def filter(q, {:activity, ids}) when is_list(ids), do: where(q, [feed_activity: fa], fa.activity_id in ^ids)
+
+  def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
+  def filter(q, {:table, table}) when is_atom(table), do: filter(q, {:table, TableService.lookup_id!(table)})
+  def filter(q, {:table, tables}) when is_list(tables) do
+    ids = TableService.lookup_ids!(tables)
+    where(q, [context: c], c.table_id in ^ids)
+  end
+
 
   def filter(q, {:limit, n}) when is_integer(n), do: limit(q, ^n)
 
-  ## by field values
+  def filter(q, {:distinct, field}), do: distinct(q, [feed_activity: fa], field(fa, ^field))
 
-  def filter(q, {:id, id}) when is_binary(id) do
-    where q, [feed_activity: fa], fa.id == ^id
-  end
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [feed_activity: fa], [desc: fa.id])
 
-  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
-    where q, [feed_activity: fa], fa.id >= ^id
-  end
 
-  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
-    where q, [feed_activity: fa], fa.id <= ^id
-  end
-
-  def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [feed_activity: fa], fa.id in ^ids
-  end
-
-  def filter(q, {:feed_id, id}) when is_binary(id) do
-    where q, [feed_activity: fa], fa.feed_id == ^id
-  end
-
-  def filter(q, {:feed_id, ids}) when is_list(ids) do
-    where q, [feed_activity: fa], fa.feed_id in ^ids
-  end
-
-  def filter(q, {:activity_id, id}) when is_binary(id) do
-    where q, [feed_activity: fa], fa.activity_id == ^id
-  end
-
-  def filter(q, {:activity_id, ids}) when is_list(ids) do
-    where q, [feed_activity: fa], fa.activity_id in ^ids
-  end
-
-  def filter(q, {:table_id, id}) when is_binary(id) do
-    where q, [context: c], c.table_id == ^id
-  end
-
-  def filter(q, {:table_id, ids}) when is_list(ids) do
-    where q, [context: c], c.table_id in ^ids
-  end
-
-  def filter(q, {:table, table}) when is_atom(table) do
-    id = TableService.lookup_id!(table)
-    where q, [context: c], c.table_id == ^id
-  end
-
-  def filter(q, {:table, tables}) when is_list(tables) do
-    ids = Enum.map(tables, &TableService.lookup_id!/1)
-    where q, [context: c], c.table_id in ^ids
-  end
-
-  def filter(q, :hard_delete) do
+  def filter(q, :unreachable) do
     q
     |> filter(join: :activity, join: :feed)
     |> where([activity: a, feed: f], not is_nil(a.deleted_at) or not is_nil(f.deleted_at))
   end
-  ## by order
 
-  def filter(q, {:order, :timeline_desc}) do
-    order_by q, [feed_activity: fa], [desc: fa.id]
-  end
-
-  def filter(q, {:distinct, field}) do
-    distinct q, [feed_activity: fa], fa.activity_id
-  end
 end

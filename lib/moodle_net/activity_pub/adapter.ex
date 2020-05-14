@@ -7,6 +7,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Algolia.Indexer
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
+  alias MoodleNet.Users.User
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
@@ -59,7 +60,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     end
   end
 
-  # TODO: Add error handling lol
+  # TODO: Rewrite this whole thing tbh
   def create_remote_actor(actor, username) do
     uri = URI.parse(actor["id"])
     ap_base = uri.scheme <> "://" <> uri.host
@@ -95,23 +96,29 @@ defmodule MoodleNet.ActivityPub.Adapter do
       canonical_url: actor["id"]
     }
 
-    {:ok, created_actor} =
+    {:ok, created_actor, creator} =
       case actor["type"] do
         "Person" ->
-          MoodleNet.Users.register(create_attrs)
+          {:ok, created_actor} = MoodleNet.Users.register(create_attrs)
+          {:ok, created_actor, created_actor}
 
         "MN:Community" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
-          MoodleNet.Communities.create(creator, create_attrs)
+          {:ok, created_actor} = MoodleNet.Communities.create_remote(creator, create_attrs)
+          {:ok, created_actor, creator}
 
         "MN:Collection" ->
           {:ok, creator} = get_actor_by_ap_id(actor["attributedTo"])
           {:ok, community} = get_actor_by_ap_id(actor["context"])
-          MoodleNet.Collections.create(creator, community, create_attrs)
+
+          {:ok, created_actor} =
+            MoodleNet.Collections.create_remote(creator, community, create_attrs)
+
+          {:ok, created_actor, creator}
       end
 
-    icon_id = maybe_create_icon_object(icon_url, created_actor)
-    image_id = maybe_create_image_object(image_url, created_actor)
+    icon_id = maybe_create_icon_object(icon_url, creator)
+    image_id = maybe_create_image_object(image_url, creator)
 
     {:ok, updated_actor} =
       case created_actor do
@@ -119,10 +126,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
           Users.update_remote(created_actor, %{icon_id: icon_id, image_id: image_id})
 
         %MoodleNet.Communities.Community{} ->
-          Communities.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+          Communities.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
 
         %MoodleNet.Collections.Collection{} ->
-          Collections.update(created_actor, %{icon_id: icon_id, image_id: image_id})
+          Collections.update(%User{}, created_actor, %{icon_id: icon_id, image_id: image_id})
       end
 
     object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
@@ -135,7 +142,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
   def update_local_actor(actor, params) do
     with {:ok, local_actor} <-
            MoodleNet.Actors.one(username: actor.data["preferredUsername"]),
-         {:ok, local_actor} <- MoodleNet.Actors.update(local_actor, params),
+         {:ok, local_actor} <- MoodleNet.Actors.update(%User{}, local_actor, params),
          {:ok, local_actor} <- get_actor_by_username(local_actor.preferred_username) do
       {:ok, local_actor}
     else
@@ -164,7 +171,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
-         {:ok, _} <- MoodleNet.Communities.update(actor, params) do
+         {:ok, _} <- MoodleNet.Communities.update(%User{}, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -177,7 +184,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: data["summary"],
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor)
          },
-         {:ok, _} <- MoodleNet.Collections.update(actor, params) do
+         {:ok, _} <- MoodleNet.Collections.update(%User{}, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -219,7 +226,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def handle_activity(activity) do
-    APReceiverWorker.enqueue("handle_activity", %{"activity_id" => activity.id})
+    APReceiverWorker.enqueue("handle_activity", %{
+      "activity_id" => activity.id,
+      "activity" => activity.data
+    })
   end
 
   def handle_create(
@@ -273,9 +283,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Document", "actor" => actor}} = object
       ) do
-    with {:ok, ap_collection} <- ActivityPub.Actor.get_by_ap_id(context),
+    with {:ok, ap_collection} <- ActivityPub.Actor.get_or_fetch_by_ap_id(context),
          {:ok, collection} <- get_actor_by_username(ap_collection.username),
-         {:ok, ap_actor} <- ActivityPub.Actor.get_by_ap_id(actor),
+         {:ok, ap_actor} <- ActivityPub.Actor.get_cached_by_ap_id(actor),
          {:ok, actor} <- get_actor_by_username(ap_actor.username),
          {:ok, content} <-
            MoodleNet.Uploads.upload(
@@ -347,8 +357,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, follower} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, followed} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, follow} <-
-           MoodleNet.Follows.one([:deleted, creator_id: follower.id, context_id: followed.id]),
-         {:ok, _} <- MoodleNet.Follows.soft_delete(follow) do
+           MoodleNet.Follows.one(deleted: false, creator: follower.id, context: followed.id),
+         {:ok, _} <- MoodleNet.Follows.soft_delete(follower, follow) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -379,7 +389,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with {:ok, blocker} <- get_actor_by_ap_id(activity.data["object"]["actor"]),
          {:ok, blocked} <- get_actor_by_ap_id(activity.data["object"]["object"]),
          {:ok, block} <- MoodleNet.Blocks.find(blocker, blocked),
-         {:ok, _} <- MoodleNet.Blocks.delete(block) do
+         {:ok, _} <- MoodleNet.Blocks.soft_delete(blocker, block) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -416,8 +426,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            {:ok, _} <-
              (case object.data["type"] do
                 "Person" -> MoodleNet.Users.soft_delete_remote(actor)
-                "MN:Community" -> MoodleNet.Communities.soft_delete(actor)
-                "MN:Collection" -> MoodleNet.Collections.soft_delete(actor)
+                "MN:Community" -> MoodleNet.Communities.soft_delete(%User{}, actor)
+                "MN:Collection" -> MoodleNet.Collections.soft_delete(%User{}, actor)
               end) do
         :ok
       else
@@ -438,6 +448,16 @@ defmodule MoodleNet.ActivityPub.Adapter do
             :ok
           end
       end
+    end
+  end
+
+  def perform(
+        :handle_activity,
+        %{data: %{"type" => "Update", "object" => %{"id" => ap_id}}} = _activity
+      ) do
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
+         {:ok, _} <- update_remote_actor(actor) do
+      :ok
     end
   end
 

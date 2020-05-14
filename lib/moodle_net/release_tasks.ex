@@ -8,6 +8,7 @@ defmodule MoodleNet.ReleaseTasks do
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
+  alias MoodleNet.Users.User
 
   def create_db() do
     start_apps()
@@ -199,8 +200,13 @@ defmodule MoodleNet.ReleaseTasks do
   end
 
   def soft_delete_community(id) do
-       {:ok, community} = MoodleNet.Communities.one(id: id)
-       {:ok, community} = MoodleNet.Communities.soft_delete(community)
+    {:ok, community} = MoodleNet.Communities.one(id: id)
+    {:ok, _community} = MoodleNet.Communities.soft_delete(%User{}, community)
+  end
+
+  def user_set_email_confirmed(username) do
+    {:ok, u} = MoodleNet.Users.one([:default, username: username])
+    MoodleNet.Users.confirm_email(u)
   end
 
   def user_set_email_confirmed(username) do
@@ -218,9 +224,6 @@ defmodule MoodleNet.ReleaseTasks do
     MoodleNet.Users.unmake_instance_admin(u)
   end
 
-  def remove_meta_table(table) do
-    import Ecto.Query
-    {rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
-  end
-  
+  def remove_meta_table(table),
+    do: MoodleNet.Meta.Migration.remove_meta_table(table)
 end

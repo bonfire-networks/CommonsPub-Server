@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
   import MoodleNet.Test.Faking
   import Grumble
   import Zest
-  alias MoodleNet.{Flags, Follows, Likes, Threads}
+  alias MoodleNet.{Follows, Likes, Threads}
 
   describe "collection" do
 
@@ -170,36 +170,37 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       users = some_fake_users!(9)
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      conn = json_conn()
+      conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
       res = some_fake_resources!(3, users, [coll]) # 27
-      params = [
-        resources_after: list_type(:cursor),
-        resources_before: list_type(:cursor),
-        resources_limit: :int,
-      ]
-      query = collection_query(
-        params: params,
-        fields: [:resource_count, resources_subquery()]
-      )
-      child_page_test %{
-        query: query,
-        vars: %{collection_id: coll.id},
-        connection: conn,
-        parent_key: :collection,
-        child_key: :resources,
-        count_key: :resource_count,
-        default_limit: 5,
-        total_count: 27,
-        parent_data: coll,
-        child_data: res,
-        assert_parent: &assert_collection/2,
-        assert_child: &assert_resource/2,
-        cursor_fn: &[&1.id],
-        after: :resources_after,
-        before: :resources_before,
-        limit: :resources_limit,
-      }
+      each [json_conn() | conns], fn conn ->
+        params = [
+          resources_after: list_type(:cursor),
+          resources_before: list_type(:cursor),
+          resources_limit: :int,
+        ]
+        query = collection_query(
+          params: params,
+          fields: [:resource_count, resources_subquery()]
+        )
+        child_page_test %{
+          query: query,
+          vars: %{collection_id: coll.id},
+          connection: conn,
+          parent_key: :collection,
+          child_key: :resources,
+          count_key: :resource_count,
+          default_limit: 5,
+          total_count: 27,
+          parent_data: coll,
+          child_data: res,
+          assert_parent: &assert_collection/2,
+          assert_child: &assert_resource/2,
+          cursor_fn: &[&1.id],
+          after: :resources_after,
+          before: :resources_before,
+          limit: :resources_limit,
+        }
+      end
     end
 
   end
@@ -211,7 +212,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       lucy = fake_admin!()
       comm = fake_community!(alice)
       coll = fake_collection!(bob, comm)
-      {:ok, bob_follow} = Follows.one(context_id: coll.id, creator_id: bob.id)
+      {:ok, bob_follow} = Follows.one(context: coll.id, creator: bob.id)
       follows = some_randomer_follows!(26, coll) ++ [bob_follow]
       params = [
         followers_after: list_type(:cursor),
@@ -261,9 +262,8 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         likers_limit: :int,
       ]
       query = collection_query(params: params, fields: [:liker_count, likers_subquery()])
-      vars = %{collection_id: coll.id}
-      conns = [user_conn(alice), user_conn(bob), user_conn(lucy), user_conn(eve), json_conn()]
-      each conns, fn conn ->
+      conns = Enum.map([alice, bob, lucy, eve], &user_conn/1)
+      each [json_conn() | conns], fn conn ->
         child_page_test %{
           query: query,
           vars: %{collection_id: coll.id},
@@ -319,7 +319,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
       vars = %{collection_id: coll.id}
 
       coll2 = assert_collection(coll, grumble_post_key(q, user_conn(eve), :collection, vars))
-      page = assert_page(coll2.flags, 1, 1, false, false, &[&1.id])
+      _page = assert_page(coll2.flags, 1, 1, false, false, &[&1.id])
       for conn <- [user_conn(lucy)] do
         coll2 = assert_collection(coll, grumble_post_key(q, conn, :collection, vars))
         assert_page(coll2.flags, 2, 2, false, false, &[&1.id])
@@ -400,7 +400,7 @@ defmodule MoodleNetWeb.GraphQL.Collections.CollectionTest do
         MoodleNet.Uploads.IconUploader, user,
         %{upload: %{path: "test/fixtures/images/150.png", filename: "150.png"}}, %{}
       )
-      assert {:ok, coll} = MoodleNet.Collections.update(coll, %{icon_id: upload.id})
+      assert {:ok, coll} = MoodleNet.Collections.update(user, coll, %{icon_id: upload.id})
 
       conn = user_conn(user)
       q = collection_query(fields: [icon: [:id, :url, :media_type, upload: [:path, :size], mirror: [:url]]])

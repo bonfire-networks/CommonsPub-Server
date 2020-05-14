@@ -4,7 +4,7 @@
 
 Hello, potential contributor! :-)
 
-This is a work in progress guide to getting MoodleNet up and running as a developer. Please ask questions in the issue tracker if something is not clear.
+This is a work in progress guide to getting up and running as a developer. Please ask questions in the issue tracker if something is not clear.
 
 Happy hacking!
 

@@ -5,7 +5,7 @@ services:
     # You can build your own image from the source running:
     # $ make build
     # $ make tag_latest
-    image: "moodlenet/moodlenet:latest"
+    image: "commonspub/commonspub:latest"
     ports:
       - "4000:4000" # you may want to comment this in production
       - "80:80"

@@ -39,7 +39,7 @@ defmodule MoodleNet.Collections.Collection do
     timestamps()
   end
 
-  @required ~w(name is_public)a
+  @required ~w(name is_public creator_id)a
   @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
@@ -50,13 +50,13 @@ defmodule MoodleNet.Collections.Collection do
       ) do
     %Collection{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
       community_id: community.id,
       actor_id: actor.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 
@@ -78,6 +78,6 @@ defmodule MoodleNet.Collections.Collection do
 
   def queries_module, do: Collections.Queries
 
-  def follow_filters, do: [:default]
+  def follow_filters, do: [join: :actor, preload: :actor]
 
 end

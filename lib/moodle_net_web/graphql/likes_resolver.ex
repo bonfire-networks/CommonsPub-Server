@@ -4,7 +4,6 @@
 defmodule MoodleNetWeb.GraphQL.LikesResolver do
   alias MoodleNet.{GraphQL, Likes, Repo}
   alias MoodleNet.GraphQL.{
-    Fields,
     FetchFields,
     FetchPage,
     FetchPages,
@@ -48,7 +47,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         queries: Likes.Queries,
         query: Like,
         group_fn: &(&1.context_id),
-        filters: [:deleted, creator_id: user.id, context_id: ids],
+        filters: [deleted: false, creator: user.id, context: ids],
       }
     )
   end
@@ -74,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, context_id: ids],
+        base_filters: [deleted: false, user: user, context: ids],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id],
       }
@@ -89,7 +88,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         query: Like,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, context_id: ids],
+        base_filters: [deleted: false, user: user, context: ids],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -115,7 +114,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         query: LikerCount,
         group_fn: &(&1.context_id),
         map_fn: &(&1.count),
-        filters: [context_id: ids],
+        filters: [context: ids],
       }
     )
   end
@@ -140,7 +139,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         query: Like,
         group_fn: &(&1.context_id),
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, creator_id: ids],
+        base_filters: [deleted: false, user: user, creator: ids],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :creator_id],
       }
@@ -155,7 +154,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         query: Like,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, creator_id: ids],
+        base_filters: [deleted: false, user: user, creator: ids],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -180,7 +179,7 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
         query: LikeCount,
         group_fn: &(&1.creator_id),
         map_fn: &(&1.count),
-        filters: [creator_id: ids],
+        filters: [creator: ids],
       }
     )
   end

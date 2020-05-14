@@ -1,4 +1,4 @@
-# MoodleNet: Connecting and empowering educators worldwide
+#  MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Organisations do
@@ -10,6 +10,7 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -73,7 +74,6 @@ defmodule Organisation.Organisations do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
@@ -81,7 +81,7 @@ defmodule Organisation.Organisations do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, org, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do 
+           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
         {:ok, org}
       end
     end)
@@ -89,7 +89,6 @@ defmodule Organisation.Organisations do
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
@@ -135,9 +134,9 @@ defmodule Organisation.Organisations do
       creator.outbox_id,
       organisation.outbox_id, Feeds.instance_outbox_id(),
     ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(organisation.id, creator.id, organisation.actor.peer_id)
-    end
+    with :ok <- FeedActivities.publish(activity, feeds),
+         {:ok, _} <- ap_publish("create", organisation.id, creator.id, organisation.actor.peer_id),
+      do: :ok
   end
 
   defp publish(creator, community, organisation, activity, :created) do
@@ -145,20 +144,24 @@ defmodule Organisation.Organisations do
       community.outbox_id, creator.outbox_id,
       organisation.outbox_id, Feeds.instance_outbox_id(),
     ]
-    with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(organisation.id, creator.id, organisation.actor.peer_id)
-    end
+    with :ok <- FeedActivities.publish(activity, feeds),
+         {:ok, _} <- ap_publish("create", organisation.id, creator.id, organisation.actor.peer_id),
+      do: :ok
   end
 
   defp publish(organisation, :updated) do
-    ap_publish(organisation.id, organisation.creator_id, organisation.actor.peer_id) # TODO: wrong if edited by admin
+    # TODO: wrong if edited by admin
+    with {:ok, _} <- ap_publish("update", organisation.id, organisation.creator_id, organisation.actor.peer_id),
+      do: :ok
   end
   defp publish(organisation, :deleted) do
-    ap_publish(organisation.id, organisation.creator_id, organisation.actor.peer_id) # TODO: wrong if edited by admin
+    # TODO: wrong if edited by admin
+    with {:ok, _} <- ap_publish("delete", organisation.id, organisation.creator_id, organisation.actor.peer_id),
+      do: :ok
   end
 
-  defp ap_publish(context_id, user_id, nil) do
-    MoodleNet.FeedPublisher.publish(%{
+  defp ap_publish(verb, context_id, user_id, nil) do
+    APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id,
     })
@@ -166,12 +169,12 @@ defmodule Organisation.Organisations do
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Organisation{}, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def update(%Organisation{} = organisation, attrs) do
+  @spec update(User.t(), Organisation.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Organisation{} = organisation, attrs) do
     Repo.transact_with(fn ->
       organisation = Repo.preload(organisation, :community)
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
-           {:ok, actor} <- Actors.update(organisation.actor, attrs),
+           {:ok, actor} <- Actors.update(user, organisation.actor, attrs),
            :ok <- publish(organisation, :updated) do
         {:ok, %{ organisation | actor: actor }}
       end
