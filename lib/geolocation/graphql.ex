@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.GraphQL do
+
+  use Absinthe.Schema.Notation
+  require Logger
+
   alias MoodleNet.{
     Activities,
-    Communities,
     GraphQL,
     Repo,
   }
@@ -17,7 +20,6 @@ defmodule Geolocation.GraphQL do
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias Geolocation
   alias Geolocation.Geolocations
@@ -25,9 +27,6 @@ defmodule Geolocation.GraphQL do
 
   # SDL schema import
 
-  use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.{CommonResolver}
-  require Logger
 
   import_sdl path: "lib/geolocation/geolocation.gql"
 
@@ -79,21 +78,8 @@ defmodule Geolocation.GraphQL do
     )
   end
 
-  def community_edge(%Geolocation{community_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_community_edge,
-        context: id,
-        info: info,
-      }
-    )
-  end
+  def context_edge(params, data, info), do: CommonResolver.context_edge(params, data, info)
 
-  def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
-  end
 
   def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
@@ -140,12 +126,14 @@ defmodule Geolocation.GraphQL do
 
   ## finally the mutations...
 
-  def create_geolocation(%{spatial_thing: attrs, in_scope_of_community_id: id}, info) do
+  def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
-        attrs = Map.merge(attrs, %{is_public: true})
-        Geolocations.create(user, community, attrs)
+              {:ok, pointer} <- Pointers.one(id: context_id),
+              context = Pointers.follow!(pointer),
+              attrs = Map.merge(attrs, %{is_public: true}),
+              {:ok, g} <- Geolocations.create(user, context, attrs) do
+          {:ok, %{geolocation: g}}
       end
     end)
   end
@@ -163,7 +151,7 @@ defmodule Geolocation.GraphQL do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, geolocation} <- geolocation(%{geolocation_id: id}, info) do
-        geolocation = Repo.preload(geolocation, :community)
+        geolocation = Repo.preload(geolocation, :context)
         cond do
           user.local_user.is_instance_admin ->
         Geolocations.update(geolocation, changes)
@@ -171,8 +159,8 @@ defmodule Geolocation.GraphQL do
           geolocation.creator_id == user.id ->
         Geolocations.update(geolocation, changes)
 
-          geolocation.community.creator_id == user.id ->
-        Geolocations.update(geolocation, changes)
+        #   geolocation.community.creator_id == user.id ->
+        # Geolocations.update(geolocation, changes)
 
           true -> GraphQL.not_permitted("update")
         end

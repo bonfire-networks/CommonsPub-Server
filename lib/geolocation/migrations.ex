@@ -19,7 +19,8 @@ defmodule Geolocation.Migrations do
       add :alt, :float
 
       add :actor_id, references("mn_actor", on_delete: :delete_all)
-      add :community_id, references("mn_community", on_delete: :delete_all)
+      # add :community_id, references("mn_community", on_delete: :delete_all) # replaced with context
+      add :context_id, references("mn_pointer", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :inbox_id, references("mn_feed", on_delete: :nilify_all)
       add :outbox_id, references("mn_feed", on_delete: :nilify_all)

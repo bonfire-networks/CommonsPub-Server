@@ -7,19 +7,20 @@ defmodule Geolocation do
   alias Ecto.Changeset
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
-  alias Geolocation
+  alias MoodleNet.Meta.Pointer
 
   @type t :: %__MODULE__{}
 
   table_schema "geolocation" do
     field :name, :string
-    # field :lat, :float # TODO: turn into virtual fields based on `point`
-    # field :long, :float
+
     field :point, Geo.PostGIS.Geometry
     field :alt, :float # altitude
     field :mappable_address, :string
     field :note, :string
+
+    field(:lat, :float, virtual: true)
+    field(:long, :float, virtual: true)
 
     field(:is_public, :boolean, virtual: true)
     field(:published_at, :utc_datetime_usec)
@@ -29,7 +30,8 @@ defmodule Geolocation do
 
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:community, Community)
+    # belongs_to(:community, Community)
+    belongs_to(:context, Pointer)
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
@@ -43,19 +45,19 @@ defmodule Geolocation do
 
   def create_changeset(
         %User{} = creator,
-        %Community{} = community,
+        %{id: _} = context,
         %Actor{} = actor,
         attrs
       ) do
-    %Geolocation{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      community_id: community.id,
-      actor_id: actor.id,
-      is_public: true
-    )
+      %__MODULE__{}
+        |> Changeset.cast(attrs, @cast)
+        |> Changeset.validate_required(@required)
+        |> Changeset.change(
+          creator_id: creator.id,
+          context_id: context.id,
+          actor_id: actor.id,
+          is_public: true
+      )
     |> common_changeset()
   end
 
@@ -64,7 +66,7 @@ defmodule Geolocation do
     %Actor{} = actor,
     attrs
   ) do
-  %Geolocation{}
+  %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
@@ -76,7 +78,7 @@ defmodule Geolocation do
   end
 
 
-  def update_changeset(%Geolocation{} = geolocation, attrs) do
+  def update_changeset(%__MODULE__{} = geolocation, attrs) do
     geolocation
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()

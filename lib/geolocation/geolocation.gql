@@ -110,7 +110,7 @@ type GeolocationQuery {
 }
 
 type GeolocationMutation {
-  createSpatialThing(spatialThing: SpatialThingCreateParams!, inScopeOfCommunityId: ID): SpatialThingResponse
+  createSpatialThing(spatialThing: SpatialThingCreateParams!, inScopeOf: ID): SpatialThingResponse
   updateSpatialThing(spatialThing: SpatialThingUpdateParams!): SpatialThingResponse
   deleteSpatialThing(id: String!): Boolean
 }
