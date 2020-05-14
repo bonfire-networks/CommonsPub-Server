@@ -456,7 +456,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"type" => "Update", "object" => %{"id" => ap_id}}} = _activity
       ) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_ap_id(ap_id),
-         {:ok, _} <- update_remote_actor(actor) do
+         {:ok, actor} <- update_remote_actor(actor) do
+      Indexer.maybe_index_object(actor)
       :ok
     end
   end

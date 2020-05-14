@@ -35,6 +35,24 @@ defmodule MoodleNet.Algolia.Indexer do
     end
   end
 
+  def maybe_delete_object(object) do
+    if check_envs() && supported_type(object) do
+      object
+      |> get_object_id()
+      |> delete_object()
+    else
+      :ok
+    end
+  end
+
+  def get_object_id(%Resource{} = object) do
+    :crypto.hash(:sha, object.canonical_url) |> Base.encode16()
+  end
+
+  def get_object_id(object) do
+    :crypto.hash(:sha, object.actor.canonical_url) |> Base.encode16()
+  end
+
   def format_object(%Community{} = community) do
     follower_count =
       case FollowerCounts.one(context: community.id) do
@@ -142,6 +160,27 @@ defmodule MoodleNet.Algolia.Indexer do
     else
       {_, message} ->
         Logger.warn("Couldn't index object ID #{object["objectID"]}")
+        Logger.warn(inspect(message))
+        :ok
+    end
+  end
+
+  def delete_object(object_id) do
+    application_id = System.get_env("ALGOLIA_ID")
+    api_key = System.get_env("ALGOLIA_SECRET")
+    index_name = System.get_env("ALGOLIA_INDEX")
+    url = "https://#{application_id}.algolia.net/1/indexes/#{index_name}/#{object_id}"
+
+    headers = [
+      {"X-Algolia-API-Key", api_key},
+      {"X-Algolia-Application-id", application_id}
+    ]
+
+    with {:ok, %{status: code}} when code == 200 <- HTTP.delete(url, "", headers) do
+      :ok
+    else
+      {_, message} ->
+        Logger.warn("Couldn't index object ID #{object_id}")
         Logger.warn(inspect(message))
         :ok
     end
