@@ -78,7 +78,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
   defp get_token_by_header(conn) do
     case Conn.get_req_header(conn, "authorization") do
       ["Bearer " <> token | _] -> {:ok, token} # take the first one if there are multiple
-      [token] -> {:error, MalformedAuthorizationHeaderError.new()}
+      [_token] -> {:error, MalformedAuthorizationHeaderError.new()}
       _ -> {:error, TokenNotFoundError.new()}
     end
   end

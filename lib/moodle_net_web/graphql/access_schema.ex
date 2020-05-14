@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.GraphQL.AccessSchema do
   end
 
   object :access_mutations do
-    
+
     field :create_register_email_access, non_null(:register_email_access) do
       arg :email, non_null(:string)
       resolve &AccessResolver.create_register_email_access/2
@@ -35,6 +35,15 @@ defmodule MoodleNetWeb.GraphQL.AccessSchema do
       resolve &AccessResolver.create_register_email_domain_access/2
     end
 
+    field :delete_register_email_access, :register_email_access do
+      arg :id, non_null(:string)
+      resolve &AccessResolver.delete_register_email_access/2
+    end
+
+    field :delete_register_email_domain_access, :register_email_domain_access do
+      arg :id, non_null(:string)
+      resolve &AccessResolver.delete_register_email_domain_access/2
+    end
   end
 
   object :register_email_access do

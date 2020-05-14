@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Parse do
   alias MoodleNetWeb.GraphQL.Cursor
   use Absinthe.Phase
 
-  def run(input, options \\ []) do
+  def run(input, _options \\ []) do
     result = Blueprint.prewalk(input, &handle_node/1)
     {:ok, result}
   end

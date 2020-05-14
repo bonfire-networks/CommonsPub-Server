@@ -4,14 +4,17 @@
 import Config
 
 alias MoodleNet.{
+  Actors,
   Blocks,
   Collections,
   Communities,
   Features,
+  Feeds,
   Flags,
   Follows,
   Instance,
   Likes,
+  Resources,
   Threads,
   Users,
   Uploads,
@@ -19,11 +22,13 @@ alias MoodleNet.{
 alias MoodleNet.Blocks.Block
 alias MoodleNet.Collections.Collection
 alias MoodleNet.Communities.Community
+alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
 alias MoodleNet.Flags.Flag
 alias MoodleNet.Likes.Like
 alias MoodleNet.Resources.Resource
 alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
+alias MoodleNet.Workers.GarbageCollector
 
 # stuff you might need to change to be viable
 
@@ -32,6 +37,15 @@ config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
 # stuff you might want to change for your use case
+
+config :moodle_net, GarbageCollector,
+  # Contexts which require a mark phase, in execution order
+  mark: [Uploads],
+  # Contexts which need to perform maintainance, in execution order
+  sweep: [ Uploads, FeedActivities, FeedSubscriptions, Feeds, Features,
+           Resources, Collections, Communities, Users, Actors ],
+  # We will not sweep content newer than this
+  grace: 302400 # one week
 
 config :moodle_net, Feeds,
   valid_contexts: [Collection, Comment, Community, Resource, Like],
@@ -122,6 +136,7 @@ config :moodle_net, :mrf_simple,
 config :moodle_net, Oban,
   repo: MoodleNet.Repo,
   prune: {:maxlen, 100_000},
+  poll_interval: 5_000,
   queues: [
     federator_incoming: 50,
     federator_outgoing: 50,

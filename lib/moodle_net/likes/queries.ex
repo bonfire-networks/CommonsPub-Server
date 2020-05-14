@@ -3,129 +3,87 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Likes.Queries do
   alias MoodleNet.Likes.Like
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Meta.TableService
+  alias MoodleNet.Users.User
   import Ecto.Query
+  import MoodleNet.Common.Query, only: [match_admin: 0]
 
-  def query(Like) do
-    from l in Like, as: :like
-  end
+  def query(Like), do: from(l in Like, as: :like)
 
   def query(query, filters), do: filter(query(query), filters)
 
-  def queries(query, _page_opts, base_filters, data_filters, count_filters) do
-    base_q = query(query, base_filters)
-    data_q = filter(base_q, data_filters)
-    count_q = filter(base_q, count_filters)
-    {data_q, count_q}
-  end
-
   @doc "Filter the query according to arbitrary criteria"
-  def filter(q, filter_or_filters)
+  def filter(query, filter_or_filters)
 
-  ## by many
+  def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
-  def filter(q, filters) when is_list(filters) do
-    Enum.reduce(filters, q, &filter(&2, &1))
-  end
-
-  ## by users
-  
-  def filter(q, {:user, %User{local_user: %LocalUser{is_instance_admin: true}}}) do
-    filter(q, :deleted)
-  end
-
+  def filter(q, {:user, nil}), do: filter(q, deleted: false, published: true)
+  def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
   def filter(q, {:user, %User{id: id}}) do
-    where q, [like: l], not is_nil(l.published_at) or l.creator_id == ^id
+    where(q, [like: l], not is_nil(l.published_at) or l.creator_id == ^id)
   end
 
-  def filter(q, {:user, nil}) do # guest
-    filter q, ~w(deleted private)a
+  def filter(q, {:deleted, nil}), do: where(q, [like: l], is_nil(l.deleted_at))
+  def filter(q, {:deleted, :not_nil}), do: where(q, [like: l], not is_nil(l.deleted_at))
+  def filter(q, {:deleted, false}), do: where(q, [like: l], is_nil(l.deleted_at))
+  def filter(q, {:deleted, true}), do: where(q, [like: l], not is_nil(l.deleted_at))
+  def filter(q, {:deleted, {:gte, %DateTime{}=time}}), do: where(q, [like: l], l.deleted_at >= ^time)
+  def filter(q, {:deleted, {:lte, %DateTime{}=time}}), do: where(q, [like: l], l.deleted_at <= ^time)
+
+  def filter(q, {:published, false}), do: where(q, [like: l], is_nil(l.published_at))
+  def filter(q, {:published, true}), do: where(q, [like: l], not is_nil(l.published_at))
+  def filter(q, {:published, nil}), do: where(q, [like: l], is_nil(l.published_at))
+  def filter(q, {:published, :not_nil}), do: where(q, [like: l], not is_nil(l.published_at))
+  def filter(q, {:published, {:gte, %DateTime{}=time}}), do: where(q, [like: l], l.published_at >= ^time)
+  def filter(q, {:published, {:lte, %DateTime{}=time}}), do: where(q, [like: l], l.published_at <= ^time)
+
+  # field values
+
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [like: l], l.id == ^id)
+  def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [like: l], l.id <= ^id)
+  def filter(q, {:id, {:gte, id}}) when is_binary(id), do: where(q, [like: l], l.id >= ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [like: l], l.id in ^ids)
+
+  def filter(q, {:context, id}) when is_binary(id), do: where(q, [like: l], l.context_id == ^id)
+  def filter(q, {:context, ids}) when is_list(ids), do: where(q, [like: l], l.context_id in ^ids)
+
+  def filter(q, {:creator, id}) when is_binary(id), do: where(q, [like: l], l.creator_id == ^id)
+  def filter(q, {:creator, ids}) when is_list(ids), do: where(q, [like: l], l.creator_id in ^ids)
+
+  def filter(q, {:table, id}) when is_binary(id), do: where(q, [context: c], c.table_id == ^id)
+  def filter(q, {:table, table}) when is_atom(table), do: filter(q, {:table, TableService.lookup_id!(table)})
+  def filter(q, {:table, tables}) when is_list(tables) do
+    ids = TableService.lookup_ids!(tables)
+    where(q, [context: c], c.table_id in ^ids)
   end
 
-  ## by status
-  
-  def filter(q, :deleted) do
-    where q, [like: l], is_nil(l.deleted_at)
+  def filter(q, {:page, [desc: [created: %{after: [id], limit: limit}]]}) do
+    filter(q, id: {:lte, id}, limit: limit + 2, order: [desc: :created])
   end
 
-  def filter(q, :private) do
-    where q, [like: l], not is_nil(l.published_at)
+  def filter(q, {:page, [desc: [created: %{before: [id], limit: limit}]]}) do
+    filter(q, id: {:gte, id}, limit: limit + 2, order: [desc: :created])
   end
 
-  # by field values
-
-  def filter(q, {:id, id}) when is_binary(id) do
-    where q, [like: l], l.id == ^id
+  def filter(q, {:page, [desc: [created: %{limit: limit}]]}) do
+    filter(q, limit: limit + 1, order: [desc: :created])
   end
 
-  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
-    where q, [like: l], l.id <= ^id
-  end
 
-  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
-    where q, [like: l], l.id >= ^id
-  end
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [like: l], [desc: l.id])
 
-  def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [like: l], l.id in ^ids
-  end
+  def filter(q, {:group_count, key}) when is_atom(key), do: filter(q, group: key, count: key)
 
-  def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [like: l], l.context_id == ^id
-  end
+  def filter(q, {:group, key}) when is_atom(key), do: group_by(q, [like: l], field(l, ^key))
 
-  def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [like: l], l.context_id in ^ids
-  end
+  def filter(q, {:count, key}) when is_atom(key), do: select(q, [like: l], {field(l, ^key), count(l.id)})
 
-  def filter(q, {:creator_id, id}) when is_binary(id) do
-    where q, [like: l], l.creator_id == ^id
-  end
+  def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
-  def filter(q, {:creator_id, ids}) when is_list(ids) do
-    where q, [like: l], l.creator_id in ^ids
-  end
+  def filter(q, {:preload, :context}), do: preload(q, [context: c], context: c)
+  def filter(q, {:preload, :creator}), do: preload(q, [user: u], creator: u)
 
-  def filter(q, {:order, :timeline_desc}) do
-    order_by q, [like: l], [desc: l.id]
-  end
 
-  def filter(q, {:order, [desc: :created]}) do
-    order_by q, [like: l], [desc: l.id]
-  end
-
-  def filter(q, {:group_count, key}) when is_atom(key) do
-    filter(q, group: key, count: key)
-  end
-
-  def filter(q, {:group, key}) when is_atom(key) do
-    group_by q, [like: l], field(l, ^key)
-  end
-
-  def filter(q, {:count, key}) when is_atom(key) do
-    select q, [like: l], {field(l, ^key), count(l.id)}
-  end
-
-  def filter(q, {:limit, limit}) do
-    limit(q, ^limit)
-  end
-
-  def filter(q, {:page, [desc: [created: page_opts]]}) do
-    q
-    |> filter(order: [desc: :created])
-    |> page(page_opts, [desc: :created])
-  end
-
-  defp page(q, %{after: [id], limit: limit}, [desc: :created]) do
-    filter(q, id: {:lte, id}, limit: limit + 2)
-  end
-
-  defp page(q, %{before: [id], limit: limit}, [desc: :created]) do
-    filter(q, id: {:gte, id}, limit: limit + 2)
-  end
-
-  defp page(q, %{limit: limit}, [desc: :created]) do
-    filter(q, limit: limit + 1)
-  end
+  def filter(q, {:select, :id}), do: select(q, [like: l], %{id: l.id})
 
 end

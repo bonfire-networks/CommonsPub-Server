@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule MoodleNet.CommonTest do
+defmodule MoodleNet.FlagsTest do
   use MoodleNet.DataCase, async: true
   use Oban.Testing, repo: MoodleNet.Repo
   require Ecto.Query
@@ -50,7 +50,7 @@ defmodule MoodleNet.CommonTest do
       assert {:ok, flag} = Flags.create(flagger, thing, Fake.flag())
       refute flag.deleted_at
 
-      assert {:ok, flag} = Flags.soft_delete(flag)
+      assert {:ok, flag} = Flags.soft_delete(flagger, flag)
       assert flag.deleted_at
     end
   end

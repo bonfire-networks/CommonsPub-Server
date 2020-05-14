@@ -12,9 +12,8 @@ defmodule MoodleNet.Peers do
   as the `MoodleNet.Meta.Peer` participates in the Meta abstraction
 
   """
-  alias MoodleNet.{Common, Meta, Peers, Repo}
+  alias MoodleNet.{Common, Repo}
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Peers.{Peer, Queries}
 
   # Querying
@@ -53,14 +52,10 @@ defmodule MoodleNet.Peers do
   @doc "Marks a Peer as deleted in the database or throws a DeletionError"
   def soft_delete!(%Peer{} = peer), do: Common.soft_delete!(peer)
 
-  # Hard deletion - todo chase links
-
-  @spec hard_delete(Peer.t()) :: {:ok, Peer.t()} | {:error, DeletionError.t()}
-  @doc "Deletes a Peer from the database"
-  def hard_delete(%Peer{} = peer), do: Common.hard_delete(peer)
-
-  @spec hard_delete!(Peer.t()) :: Peer.t()
-  @doc "Deletes an entry from the database, or throws a DeletionError"
-  def hard_delete!(%Peer{} = peer), do: Common.hard_delete!(peer)
+  def soft_delete_by(filters) do
+    Queries.query(Peer)
+    |> Queries.filter(filters)
+    |> Repo.delete_all()
+  end
 
 end

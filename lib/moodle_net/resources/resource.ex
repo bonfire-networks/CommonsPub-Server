@@ -11,6 +11,7 @@ defmodule MoodleNet.Resources.Resource do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Resources
   alias MoodleNet.Resources.Resource
+  alias MoodleNet.Uploads.Content
   alias MoodleNet.Users.User
 
   table_schema "mn_resource" do
@@ -33,7 +34,7 @@ defmodule MoodleNet.Resources.Resource do
     timestamps()
   end
 
-  @required ~w(name content_id)a
+  @required ~w(name content_id creator_id)a
   @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id author)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
@@ -41,12 +42,12 @@ defmodule MoodleNet.Resources.Resource do
   def create_changeset(creator, collection, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
     |> Changeset.change(
       collection_id: collection.id,
       creator_id: creator.id,
       is_public: true
     )
+    |> Changeset.validate_required(@required)
     |> common_changeset()
   end
 

@@ -84,6 +84,6 @@ defmodule MoodleNet.Users.User do
 
   def queries_module, do: Users.Queries
 
-  def follow_filters, do: []
+  def follow_filters, do: [join: :actor, preload: :actor]
 
 end

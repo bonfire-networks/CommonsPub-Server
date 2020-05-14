@@ -34,18 +34,14 @@ defmodule MoodleNet.Access do
           {:ok, RegisterEmailDomainAccess.t()} | {:error, Changeset.t()}
   @doc "Permit registration with all emails at the provided domain"
   def create_register_email_domain(domain) do
-    Repo.transact_with(fn ->
-      Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
-    end)
+    Repo.insert(RegisterEmailDomainAccess.create_changeset(%{domain: domain}))
   end
 
   @spec create_register_email(email :: binary) ::
           {:ok, RegisterEmailAccess.t()} | {:error, Changeset.t()}
   @doc "Permit registration with the provided email"
   def create_register_email(email) do
-    Repo.transact_with(fn ->
-      Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
-    end)
+    Repo.insert(RegisterEmailAccess.create_changeset(%{email: email}))
   end
 
   @spec list_register_emails() :: [RegisterEmailAccess.t()]

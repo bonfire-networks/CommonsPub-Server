@@ -8,7 +8,6 @@ defmodule MoodleNetWeb.GraphQL.AdminTest do
   import ActivityPub.Factory
   alias MoodleNet.Test.Fake
   import MoodleNetWeb.Test.GraphQLFields
-  import Grumble
 
   describe "invites" do
     test "sends an invite" do
