@@ -14,7 +14,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &ActorsResolver.display_username_edge/3
         ],
         in_scope_of: [
-          resolve: &Geolocation.GraphQL.community_edge/3
+          resolve: &Geolocation.GraphQL.context_edge/3
         ],
       },
       geolocation_query: %{

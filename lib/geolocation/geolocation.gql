@@ -9,6 +9,8 @@
 #
 ##
 
+union GeoScope = Organisation | Community | Collection #TEMPORARY
+
 """
 A physical mappable location.
 """
@@ -45,7 +47,7 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  # inScopeOf: [AccountingScope!]
+  inScopeOf: [GeoScope]
 }
 
 

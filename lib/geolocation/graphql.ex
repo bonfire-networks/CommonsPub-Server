@@ -8,6 +8,7 @@ defmodule Geolocation.GraphQL do
     Activities,
     GraphQL,
     Repo,
+    Meta.Pointers
   }
   alias MoodleNet.GraphQL.{
     ResolvePage,
@@ -17,6 +18,7 @@ defmodule Geolocation.GraphQL do
     ResolveRootPage,
     FetchPage,
     FetchPages,
+    CommonResolver
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
