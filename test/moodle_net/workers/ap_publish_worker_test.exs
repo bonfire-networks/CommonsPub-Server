@@ -97,14 +97,6 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, _} = APPublishWorker.perform(%{"context_id" => collection.id, "op" => "create"}, %{})
     end
 
-    test "it does federate local collections" do
-      user = fake_user!()
-      community = fake_community!(user)
-      collection = fake_collection!(user, community)
-
-      assert {:ok, _} = APPublishWorker.perform(%{"context_id" => collection.id}, %{})
-    end
-
     test "it does federate local follows" do
       user = fake_user!()
       community = fake_user!() |> fake_community!()
