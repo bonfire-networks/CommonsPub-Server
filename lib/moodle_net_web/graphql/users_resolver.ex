@@ -118,7 +118,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator: ids, join: :context, table: Collection],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
         count_filters: [group_count: :context_id],
       }
     )
@@ -131,8 +131,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         queries: Follows.Queries,
         query: Follows.Follow,
         page_opts: page_opts,
-        base_filters: [ user: user, creator: ids, join: :context, table: Collection],
-        data_filters: [page: [desc: [created: page_opts]]],
+        base_filters: [user: user, creator: ids, join: :context, table: Collection],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
       }
     )
   end
@@ -158,7 +158,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator: ids, join: :context, table: Community],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
         count_filters: [group_count: :context_id]
       }
     )
@@ -172,7 +172,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         query: Follows.Follow,
         page_opts: page_opts,
         base_filters: [user: user, creator: ids, join: :context, table: Community],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
       }
     )
   end
@@ -201,7 +201,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
         base_filters: [user: user, creator: ids, join: :context, table: User],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
         count_filters: [group_count: :context_id]
       }
     )
@@ -216,7 +216,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         cursor_fn: &[&1.id],
         page_opts: page_opts,
         base_filters: [user: user, creator: ids, join: :context, table: User],
-        data_filters: [page: [desc: [created: page_opts]]],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
       }
     )
   end
