@@ -17,6 +17,16 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.Comment
 
+  @moduledoc """
+  Module for publishing ActivityPub activities.
+
+  Intended entry point for this module is the `__MODULE__.enqueue/2` function
+  provided by `ActivityPub.Workers.WorkerHelper` module.
+
+  Note that the `"context_id"` argument refers to the ID of the object being
+  federated and not to the ID of the object context, if present.
+  """
+
   @spec batch_enqueue(String.t(), list(String.t())) :: list(Oban.Job.t())
   @doc """
   Enqueues a number of jobs provided a verb and a list of string IDs.
