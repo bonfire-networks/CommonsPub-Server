@@ -67,7 +67,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UploadSchema
 
   # Extension Modules
-  import_types Organisation.GraphQL.Schema
+  # import_types Organisation.GraphQL.Schema
   # import_types Taxonomy.GraphQL.LocalesSchema
   # import_types Taxonomy.GraphQL.TagsSchema
   # import_types Measurement.Unit.GraphQL
@@ -94,7 +94,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_queries
 
     # Extension Modules
-    import_fields :organisations_queries
+    # import_fields :organisations_queries
     # import_fields :locales_queries
     # import_fields :tags_queries
     # import_fields :tags_queries
@@ -121,7 +121,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_mutations
 
     # Extension Modules
-    import_fields :organisations_mutations
+    # import_fields :organisations_mutations
     # import_fields :geolocation_mutation
     # import_fields :measurement_mutation
     # import_fields :value_flows_mutation

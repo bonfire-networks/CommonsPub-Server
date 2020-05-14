@@ -9,7 +9,7 @@ defmodule Organisation.Migrations do
   def up do
 
     # a organisation is a group actor that is home to resources
-    create table(:mn_organisation) do
+    create_if_not_exists table(:mn_organisation) do
       add :actor_id, references("mn_actor", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :community_id, references("mn_community", on_delete: :nilify_all)
@@ -25,11 +25,11 @@ defmodule Organisation.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    create index(:mn_organisation, :updated_at)
-    create index(:mn_organisation, :actor_id)
-    create index(:mn_organisation, :creator_id)
-    create index(:mn_organisation, :community_id)
-    create index(:mn_organisation, :primary_language_id)
+    create_if_not_exists index(:mn_organisation, :updated_at)
+    create_if_not_exists index(:mn_organisation, :actor_id)
+    create_if_not_exists index(:mn_organisation, :creator_id)
+    create_if_not_exists index(:mn_organisation, :community_id)
+    create_if_not_exists index(:mn_organisation, :primary_language_id)
 
 
     tables = Enum.map(@meta_tables, fn name ->
@@ -62,16 +62,17 @@ defmodule Organisation.Migrations do
 
   def down do
 
-      :ok = execute "drop view mn_organisation_last_activity"
+      :ok = execute "drop view if exists mn_organisation_last_activity"
 
-      drop index(:mn_organisation, :updated_at)
-      drop index(:mn_organisation, :actor_id)
-      drop index(:mn_organisation, :creator_id)
-      drop index(:mn_organisation, :community_id)
-      drop index(:mn_organisation, :primary_language_id)
-      drop table(:mn_organisation)
+      drop_if_exists index(:mn_organisation, :updated_at)
+      drop_if_exists index(:mn_organisation, :actor_id)
+      drop_if_exists index(:mn_organisation, :creator_id)
+      drop_if_exists index(:mn_organisation, :community_id)
+      drop_if_exists index(:mn_organisation, :primary_language_id)
+      drop_if_exists table(:mn_organisation)
 
-      MoodleNet.ReleaseTasks.remove_meta_table("organisation")
+      MoodleNet.ReleaseTasks.remove_meta_table("mn_organisation")
+      MoodleNet.ReleaseTasks.remove_meta_table("organisation") # oops
 
   end
 
