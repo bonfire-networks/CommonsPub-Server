@@ -145,4 +145,15 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert activity.data["type"] == "Undo"
     end
   end
+
+  describe "batch enqueue" do
+    test "works" do
+      require Ecto.Query
+      ids = [Ecto.ULID.generate(), Ecto.ULID.generate(), Ecto.ULID.generate()]
+      APPublishWorker.batch_enqueue("create", ids)
+      res = MoodleNet.Repo.all(Ecto.Query.from(Oban.Job))
+      assert length(res) == 3
+      Enum.map(res, fn job -> assert job.args["op"] == "create" end)
+    end
+  end
 end
