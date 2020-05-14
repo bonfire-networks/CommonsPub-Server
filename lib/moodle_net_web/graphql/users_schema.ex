@@ -32,6 +32,14 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
       resolve &UsersResolver.user/2
     end
 
+    @desc "Get list of known users"
+    field :users, non_null(:users_page) do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &UsersResolver.users/2
+    end
+
   end
 
   object :auth_payload do
@@ -355,6 +363,12 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   input_object :login_input do
     field :email, non_null(:string)
     field :password, non_null(:string)
+  end
+
+  object :users_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:user)))
+    field :total_count, non_null(:integer)
   end
 
 end

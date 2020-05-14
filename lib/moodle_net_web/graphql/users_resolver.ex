@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     ResolveFields,
     ResolvePage,
     ResolvePages,
+    ResolveRootPage,
   }
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
@@ -48,6 +49,32 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   # def user(%{preferred_username: name}, info), do: Users.one(username: name)
 
   def user_edge(%Me{}=me, _, _info), do: {:ok, me.user}
+
+  def users(%{}=page_opts, info) do
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_users,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # followers
+      }
+    )
+  end
+
+  def fetch_users(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Users.Queries,
+        query: User,
+        # cursor_fn: Users.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [:default],
+        # data_filters: [:default, page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
 
   def comments_edge(%User{id: id}, page_opts, info) do
     ResolvePages.run(
