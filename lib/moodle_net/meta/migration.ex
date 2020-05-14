@@ -4,7 +4,6 @@
 defmodule MoodleNet.Meta.Migration do
   import Ecto.Migration
   import Ecto.Query, only: [from: 2]
-  alias Ecto.ULID
   alias MoodleNet.Meta.Table
 
   @moduledoc """

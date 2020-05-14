@@ -24,11 +24,11 @@ defmodule MoodleNet.Follows.FollowerCountsQueries do
 
   # by field values
 
-  def filter(q, {:context_id, id}) when is_binary(id) do
+  def filter(q, {:context, id}) when is_binary(id) do
     where q, [follower_count: f], f.context_id == ^id
   end
 
-  def filter(q, {:context_id, ids}) when is_list(ids) do
+  def filter(q, {:context, ids}) when is_list(ids) do
     where q, [follower_count: f], f.context_id in ^ids
   end
 

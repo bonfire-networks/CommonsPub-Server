@@ -4,9 +4,6 @@
 defmodule MoodleNet.Uploads do
 
   alias Ecto.Changeset
-  alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Changeset.Common
-  alias MoodleNet.Meta.Pointers
   alias MoodleNet.Repo
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{
@@ -15,6 +12,7 @@ defmodule MoodleNet.Uploads do
     ContentUploadQueries,
     ContentMirror,
     ContentMirrorQueries,
+    FileDenied,
     Storage,
     Queries,
   }
@@ -53,6 +51,8 @@ defmodule MoodleNet.Uploads do
   end
 
   defp insert_content_mirror(uploader, %{url: url} = attrs) when is_binary(url) do
+    attrs = %{attrs | url: url |> MoodleNet.File.ensure_valid_url() |> URI.to_string()}
+
     with {:ok, mirror} <- Repo.insert(ContentMirror.changeset(attrs)),
          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
       {:ok, %{ content | content_mirror: mirror }}
@@ -100,28 +100,34 @@ defmodule MoodleNet.Uploads do
   def remote_url_from_id(_), do: nil
 
   def update_by(filters, updates) do
-    Queries.query(Content)
-    |> Queries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(Queries.query(Content, filters), set: updates)
   end
 
   def update_by(ContentMirror, filters, updates) do
-    ContentMirrorQueries.query(ContentMirror)
-    |> ContentMirrorQueries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(ContentMirrorQueries.query(ContentMirror, filters), set: updates)
   end
 
   def update_by(ContentUpload, filters, updates) do
-    ContentUploadQueries.query(ContentUpload)
-    |> ContentUploadQueries.filter(filters)
-    |> Repo.update_all(updates)
+    Repo.update_all(ContentUploadQueries.query(ContentUpload, filters), set: updates)
   end
 
   @doc """
   Delete an upload, removing it from indexing, but the files remain available.
   """
   @spec soft_delete(Content.t()) :: {:ok, Content.t()} | {:error, Changeset.t()}
-  def soft_delete(%Content{} = content), do: MoodleNet.Common.soft_delete(content)
+  def soft_delete(%Content{} = content) do
+    MoodleNet.Common.soft_delete(content)
+  end
+
+  # def soft_delete_by(filters) do
+    
+  # end
+
+  # def soft_delete_by(ContentMirror, filters) do
+  # end
+
+  # def soft_delete_by(ContentUpload, filters) do
+  # end
 
   @doc """
   Delete an upload, removing any associated files.
@@ -138,6 +144,7 @@ defmodule MoodleNet.Uploads do
     with {:ok, v} <- resp, do: v
   end
 
+  @doc false # Sweep deleted content
   def hard_delete() do
     {_, work} = delete_by(deleted: true)
     {mirrors, uploads} = Enum.reduce(work, {[],[]}, fn item, {mirrors, uploads} ->
@@ -174,7 +181,7 @@ defmodule MoodleNet.Uploads do
 
   defp is_remote_file?(url) when is_binary(url) do
     uri = URI.parse(url)
-    not (is_nil(uri.scheme) or is_nil(uri.host))
+    not is_nil(uri.host)
    end
 
   defp is_remote_file?(_other), do: false
@@ -217,21 +224,30 @@ defmodule MoodleNet.Uploads do
   defp parse_file(_invalid), do: {:error, :missing_url_or_upload}
 
   defp allow_media_type(upload_def, %{media_type: media_type}) do
-    media_types = :moodle_net
-    |> Application.fetch_env!(upload_def)
-    |> Keyword.fetch!(:allowed_media_types)
-
+    media_types = allowed_media_types(upload_def)
     case media_types do
-      :all ->
-        :ok
+      :all -> :ok
 
       allowed ->
         if media_type in allowed do
           :ok
         else
-          {:error, :extension_denied}
+          {:error, FileDenied.new(media_type)}
         end
     end
+  end
+
+  def allowed_media_types(upload_def) do
+    Application.get_env(:moodle_net, upload_def)
+    |> Keyword.fetch!(:allowed_media_types)
+  end
+
+  def max_file_size() do
+    {size, ""} =
+      Application.get_env(:moodle_net, __MODULE__)
+      |> Keyword.fetch!(:max_file_size)
+      |> Integer.parse()
+    size
   end
 
 end

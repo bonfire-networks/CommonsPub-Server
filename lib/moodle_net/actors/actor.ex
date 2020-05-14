@@ -14,7 +14,7 @@ defmodule MoodleNet.Actors.Actor do
   @username_regex ~r(^[a-zA-Z0-9@._-]+$)
 
   table_schema "mn_actor" do
-    belongs_to :peer, MoodleNet.Peers.Peer
+    belongs_to :peer, Peer
     has_one :follower_count, ActorFollowerCount
     has_one :user, User
     has_one :community, Community

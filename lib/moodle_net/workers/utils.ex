@@ -30,7 +30,7 @@ defmodule MoodleNet.Workers.Utils do
     end
   end
 
-  if Mix.env == :dev do
+  if Mix.env in [:dev, :test] do
     defp debug_exception(module, exception, job, stacktrace),
       do: debug_log(job, stacktrace)
 

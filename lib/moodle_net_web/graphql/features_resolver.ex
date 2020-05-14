@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.GraphQL.FeaturesResolver do
         query: Features.Feature,
         group_fn: &(&1.context_id),
         map_fn: &(&1.count),
-        filters: [context_id: ids],
+        filters: [context: ids],
       }
     )
   end

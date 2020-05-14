@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
   alias MoodleNet.Flags.Flag
-  alias MoodleNet.GraphQL.{FetchFields, FetchPage, FetchPages, ResolveFields, ResolvePages}
+  alias MoodleNet.GraphQL.{FetchFields, FetchPage, ResolveFields, ResolvePages}
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.{Comment, Comments, Thread}
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
         queries: Threads.CommentsQueries,
         query: Comment,
         page_opts: page_opts,
-        base_filters: [user: user, thread_id: id],
+        base_filters: [user: user, thread: id],
         data_filters: [page: [asc: [created: page_opts]]],
       }
     )
@@ -129,8 +129,8 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
   def create_reply(%{thread_id: thread_id, in_reply_to_id: reply_to, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
-        with {:ok, thread} <- Threads.one([:hidden, :deleted, :private, id: thread_id]),
-             {:ok, parent} <- Comments.one([:hidden, :deleted, :private, id: reply_to]),
+        with {:ok, thread} <- Threads.one(hidden: false, deleted: false, published: true, id: thread_id),
+             {:ok, parent} <- Comments.one(hidden: false, deleted: false, published: true, id: reply_to),
              attrs = Map.put(attrs, :is_local, true) do
           Comments.create_reply(user, thread, parent, attrs)
         end
@@ -143,9 +143,9 @@ defmodule MoodleNetWeb.GraphQL.CommentsResolver do
          {:ok, comment} <- Comments.one(id: comment_id) do
       cond do
         user.is_local_admin ->
-          Comments.update(comment, changes)
+          Comments.update(user, comment, changes)
         comment.creator_id == user.id ->
-          Comments.update(comment, changes)
+          Comments.update(user, comment, changes)
         true -> GraphQL.not_permitted("update")
       end
     end

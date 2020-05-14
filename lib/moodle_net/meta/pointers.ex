@@ -4,7 +4,6 @@
 defmodule MoodleNet.Meta.Pointers do
 
   alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
-  alias MoodleNet.Peers
   alias MoodleNet.Repo
 
   def one(filters), do: Repo.single(PointersQueries.query(Pointer, filters))

@@ -6,7 +6,6 @@ defmodule MoodleNet.Uploads.Content do
   import MoodleNet.Common.Changeset, only: [change_public: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Meta.Pointer
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.{ContentMirror, ContentUpload}
 

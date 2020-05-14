@@ -31,22 +31,12 @@ defmodule MoodleNet.Meta.PointersQueries do
     where q, [pointer: p], p.id in ^ids
   end
 
-  def filter(q, {:table_id, id}) when is_binary(id) do
-    where q, [pointer: p], p.table_id == ^id
-  end
-
-  def filter(q, {:table_id, ids}) when is_list(ids) do
-    where q, [pointer: p], p.table_id in ^ids
-  end
-
-  def filter(q, {:table, table}) when is_atom(table) do
-    id = TableService.lookup_id!(table)
-    where q, [pointer: p], p.table_id == ^id
-  end
+  def filter(q, {:table, id}) when is_binary(id), do: where(q, [pointer: p], p.table_id == ^id)
+  def filter(q, {:table, name}) when is_atom(name), do: filter(q, {:table, TableService.lookup_id!(name)})
 
   def filter(q, {:table, tables}) when is_list(tables) do
-    ids = Enum.map(tables, &TableService.lookup_id!/1)
-    where q, [pointer: p], p.table_id in ^ids
+    tables = TableService.lookup_ids!(tables)
+    where(q, [pointer: p], p.table_id in ^tables)
   end
   
 end
