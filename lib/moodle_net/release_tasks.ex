@@ -224,9 +224,6 @@ defmodule MoodleNet.ReleaseTasks do
     MoodleNet.Users.unmake_instance_admin(u)
   end
 
-  def remove_meta_table(table) do
-    import Ecto.Query
-    {_rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
-  end
-  
+  def remove_meta_table(table),
+    do: MoodleNet.Meta.Migration.remove_meta_table(table)
 end

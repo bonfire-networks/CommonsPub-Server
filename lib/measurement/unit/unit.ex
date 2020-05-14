@@ -29,7 +29,7 @@ defmodule Measurement.Unit do
   end
 
   @required ~w(label symbol)a
-  @cast @required ++ ~w()a
+  @cast @required ++ ~w(is_disabled is_public)a
 
   def create_changeset(
         %User{} = creator,
