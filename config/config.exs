@@ -90,7 +90,7 @@ config :moodle_net, Users,
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Units,
-  valid_contets: [Organisation, Community, Collection]
+  valid_contexts: [Organisation, Community, Collection]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
