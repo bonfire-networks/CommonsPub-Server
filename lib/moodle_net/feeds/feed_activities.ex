@@ -28,12 +28,6 @@ defmodule MoodleNet.Feeds.FeedActivities do
     Repo.update_all(FeedActivitiesQueries.query(FeedActivity, filters), set: updates)
   end
 
-  def update_by(filters, updates \\ []) do
-    FeedActivitiesQueries.query(FeedActivity)
-    |> FeedActivitiesQueries.filter(filters)
-    |> Repo.update_all(updates)
-  end
-
   @doc false
   def hard_delete() do
     FeedActivitiesQueries.query(FeedActivity)

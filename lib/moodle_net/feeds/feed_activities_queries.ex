@@ -18,7 +18,7 @@ defmodule MoodleNet.Feeds.FeedActivitiesQueries do
   defp join_to(q, :context, jq), do: join(q, jq, [activity: a], c in assoc(a, :context), as: :context)
   defp join_to(q, :feed, jq), do: join(q, jq, [feed_activity: fa], f in assoc(fa, :feed), as: :feed)
 
-  def join_to(q, :context, jq) do
+  defp join_to(q, :context, jq) do
     join q, jq, [activity: a], c in assoc(a, :context), as: :context
   end
 
