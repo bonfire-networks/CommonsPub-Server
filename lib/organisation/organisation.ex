@@ -40,7 +40,7 @@ defmodule Organisation do
     timestamps()
   end
 
-  @required ~w(name is_public)a
+  @required ~w(name)a
   @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(

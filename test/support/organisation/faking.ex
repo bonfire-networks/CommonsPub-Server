@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Test.Faking do
   import MoodleNetWeb.Test.GraphQLAssertions
-  alias MoodleNetWeb
+  alias MoodleNet.Test.Fake
   alias Organisation
   alias Organisation.Organisations
 
@@ -11,6 +11,7 @@ defmodule Organisation.Test.Faking do
     base
     |> Map.put_new_lazy(:name, &Fake.name/0)
     |> Map.put_new_lazy(:summary, &Fake.summary/0)
+    |> Map.put_new_lazy(:preferred_username, &Fake.preferred_username/0)
   end
 
   def fake_organisation!(user, overrides \\ %{}) do
