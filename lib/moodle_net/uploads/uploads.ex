@@ -12,6 +12,7 @@ defmodule MoodleNet.Uploads do
     ContentUploadQueries,
     ContentMirror,
     ContentMirrorQueries,
+    FileDenied,
     Storage,
     Queries,
   }
@@ -50,7 +51,7 @@ defmodule MoodleNet.Uploads do
   end
 
   defp insert_content_mirror(uploader, %{url: url} = attrs) when is_binary(url) do
-    url = url |> MoodleNet.File.ensure_valid_url() |> URI.to_string()
+    attrs = %{attrs | url: url |> MoodleNet.File.ensure_valid_url() |> URI.to_string()}
 
     with {:ok, mirror} <- Repo.insert(ContentMirror.changeset(attrs)),
          {:ok, content} <- Repo.insert(Content.mirror_changeset(mirror, uploader, attrs)) do
@@ -231,7 +232,7 @@ defmodule MoodleNet.Uploads do
         if media_type in allowed do
           :ok
         else
-          {:error, :extension_denied}
+          {:error, FileDenied.new(media_type)}
         end
     end
   end
