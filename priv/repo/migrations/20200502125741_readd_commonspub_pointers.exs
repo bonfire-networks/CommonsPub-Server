@@ -3,9 +3,9 @@ defmodule MoodleNet.Repo.Migrations.ReaddCommonspubPointers do
 
   def up do
 
-    Geolocation.Migrations.add_pointer()
+    # Geolocation.Migrations.add_pointer()
 
-    Measurement.Migrations.add_pointer()
+    # Measurement.Migrations.add_pointer()
 
   end
 
