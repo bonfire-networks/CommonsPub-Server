@@ -19,7 +19,7 @@ defmodule Measurement.UnitsTest do
 
   describe "one" do
     test "returns an item if it exists" do
-      user = fake_user!()
+      user = fake_user!(%{is_instance_admin: true})
       comm = fake_community!(user)
       unit = fake_unit!(user, comm)
 
