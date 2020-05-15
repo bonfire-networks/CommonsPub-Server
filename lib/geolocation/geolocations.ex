@@ -159,10 +159,12 @@ defmodule Geolocation.Geolocations do
   end
 
   defp ap_publish(verb, context_id, user_id, nil) do
-    APPublishWorker.enqueue(verb, %{
+    job_result = APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id,
     })
+
+    with {:ok, _} <- job_result, do: :ok
   end
   defp ap_publish(_, _, _), do: :ok
 

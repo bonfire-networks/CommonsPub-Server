@@ -1,18 +1,12 @@
 # Based on code from MoodleNet
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Geolocation.Faking do
+defmodule Geolocation.Test.Faking do
   @moduledoc false
 
+  import MoodleNetWeb.Test.GraphQLAssertions
   alias MoodleNet.Test.Fake
   alias Geolocation.Geolocations
-
-  @doc "A unit"
-  def unit_name(), do: Faker.Util.pick(["kilo", "liter"])
-  def unit_symbol(), do: Faker.Util.pick(["kg", "m"])
-
-
-  ### Start fake data functions
 
   ## Geolocation
 
@@ -23,12 +17,18 @@ defmodule Geolocation.Faking do
     # |> Map.put_new_lazy(:icon, &Fake.icon/0)
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
-    |> Map.put_new_lazy(:is_featured, &Fake.falsehood/0)
     |> Map.merge(Fake.actor(base))
   end
 
-  def geolocation!(user, community, overrides \\ %{}) when is_map(overrides) do
-    {:ok, geolocation} = Geolocations.create(user, community, geolocation(overrides))
+  def fake_geolocation!(user, context \\ nil, overrides  \\ %{})
+
+  def fake_geolocation!(user, context, overrides) when is_nil(context) do
+    {:ok, geolocation} = Geolocations.create(user, geolocation(overrides))
+    geolocation
+  end
+
+  def fake_geolocation!(user, context, overrides) do
+    {:ok, geolocation} = Geolocations.create(user, context, geolocation(overrides))
     geolocation
   end
 
@@ -73,5 +73,20 @@ defmodule Geolocation.Faking do
     |> Map.put(:__struct__, MoodleNet.GraphQL.Edge)
   end
 
+  ## assertions
 
+  def assert_geolocation(%Geolocation{} = geo) do
+    assert_geolocation(Map.from_struct(geo))
+  end
+
+  def assert_geolocation(geo) do
+    assert_object geo, :assert_geolocation,
+      [id: &assert_ulid/1,
+       name: &assert_binary/1,
+       note: assert_optional(&assert_binary/1),
+       published_at: assert_optional(&assert_datetime/1),
+       disabled_at: assert_optional(&assert_datetime/1),
+       deleted_at: assert_optional(&assert_datetime/1),
+      ]
+  end
 end
