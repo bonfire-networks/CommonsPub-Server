@@ -11,7 +11,8 @@ defmodule MoodleNet.Actors do
   * Collections
   """
 
-  @replacement_regex ~r/[^a-zA-Z0-9@._-]/
+  @replacement_regex ~r/[^a-zA-Z0-9-]/
+  @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
   import Ecto.Query, only: [from: 2]
   alias MoodleNet.Actors.{Actor, Queries}
@@ -55,6 +56,16 @@ defmodule MoodleNet.Actors do
 
   def update_by(%User{}, filters, updates) do
     Repo.update_all(Queries.query(Actor, filters), set: updates)
+  end
+
+  def fix_preferred_username(username) when is_nil(username), do: nil
+
+  def fix_preferred_username(username) do
+    String.replace(
+      String.replace(
+        String.replace(username, @wordsplit_regex, "-"), 
+      @replacement_regex, ""),
+    ~r/--+/, "-")
   end
 
 end
