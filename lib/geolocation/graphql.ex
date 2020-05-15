@@ -60,15 +60,13 @@ defmodule Geolocation.GraphQL do
   ## fetchers
 
   def fetch_geolocation(info, id) do
-    Geolocations.one(
-      user: GraphQL.current_user(info),
-      id: id,
-      preload: :actor
-    )
+    with {:ok, geo} <- Geolocations.one(user: GraphQL.current_user(info), id: id, preload: :actor) do
+      {:ok, Geolocations.populate_coordinates(geo)}
+    end
   end
 
   def fetch_geolocations(page_opts, info) do
-    FetchPage.run(
+    page_result = FetchPage.run(
       %FetchPage{
         queries: Queries,
         query: Geolocation,
@@ -78,6 +76,11 @@ defmodule Geolocation.GraphQL do
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
+
+    with {:ok, %{edges: edges} = page} <- page_result do
+      edges = Enum.map(edges, &Geolocations.populate_coordinates/1) 
+      {:ok, %{page | edges: edges}}
+    end
   end
 
   def last_activity_edge(_, _, _info) do
@@ -167,6 +170,4 @@ defmodule Geolocation.GraphQL do
       end
     end)
   end
-
-
 end

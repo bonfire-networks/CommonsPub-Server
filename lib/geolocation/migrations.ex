@@ -8,12 +8,17 @@ defmodule Geolocation.Migrations do
 
 
   def change do
+    :ok = execute(
+      "create extension postgis;",
+      "drop extension postgis;"
+    )
+
     create table(:geolocation) do
 
       add :name, :string
       add :note, :text
       add :mappable_address, :string
-      add :point, :point
+      add :geom, :geometry
       # add :lat, :float
       # add :long, :float
       add :alt, :float

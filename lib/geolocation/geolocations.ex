@@ -191,4 +191,9 @@ defmodule Geolocation.Geolocations do
   #   end)
   # end
 
+  def populate_coordinates(%Geolocation{geom: geom} = geo) do
+    {lat, long} = geo.geom.coordinates
+
+    %{geo | lat: lat, long: long}
+  end
 end

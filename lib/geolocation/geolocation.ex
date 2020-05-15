@@ -14,7 +14,7 @@ defmodule Geolocation do
   table_schema "geolocation" do
     field :name, :string
 
-    field :point, Geo.PostGIS.Geometry
+    field :geom, Geo.PostGIS.Geometry
     field :alt, :float # altitude
     field :mappable_address, :string
     field :note, :string
@@ -40,8 +40,10 @@ defmodule Geolocation do
     timestamps()
   end
 
+  @postgis_srid 4326
+
   @required ~w(name)a
-  @cast @required ++ ~w(note mappable_address point alt is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(note mappable_address lat long geom alt is_disabled inbox_id outbox_id)a
 
   def create_changeset(
         %User{} = creator,
@@ -77,7 +79,6 @@ defmodule Geolocation do
     |> common_changeset()
   end
 
-
   def update_changeset(%__MODULE__{} = geolocation, attrs) do
     geolocation
     |> Changeset.cast(attrs, @cast)
@@ -88,6 +89,17 @@ defmodule Geolocation do
     changeset
     |> change_public()
     |> change_disabled()
+    |> validate_coordinates()
   end
 
+  defp validate_coordinates(changeset) do
+    # TODO: what has precedence?
+    lat = Changeset.get_change(changeset, :lat)
+    long = Changeset.get_change(changeset, :long)
+
+    if not (is_nil(lat) or is_nil(long)) do
+      geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
+      Changeset.change(changeset, geom: geom)
+    end
+  end
 end
