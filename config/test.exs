@@ -57,7 +57,7 @@ config :moodle_net, MoodleNet.OAuth,
 # Do not federate activities during tests
 config :moodle_net, :instance, federating: false
 
-config :moodle_net, Oban, queues: false, prune: :disabled
+config :moodle_net, Oban, queues: false #, prune: :disabled
 
 config :moodle_net, MoodleNet.Uploads,
   directory: "test_uploads",
