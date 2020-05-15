@@ -191,9 +191,9 @@ defmodule Geolocation.Geolocations do
   #   end)
   # end
 
-  def populate_coordinates(%Geolocation{geom: geom} = geo) do
+  def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do
     {lat, long} = geo.geom.coordinates
 
-    %{geo | lat: lat, long: long}
+    %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
 end
