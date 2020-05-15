@@ -30,6 +30,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias Measurement.Unit
+
 # stuff you might need to change to be viable
 
 config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
@@ -86,6 +88,9 @@ config :moodle_net, Users,
   public_registration: false,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
+
+config :moodle_net, Units,
+  valid_contexts: [Organisation, Community, Collection]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
