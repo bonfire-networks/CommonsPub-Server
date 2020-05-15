@@ -147,19 +147,6 @@ defmodule Organisation.GraphQL.Schema do
       resolve &CommonResolver.context_edge/3
     end
 
-    @desc "The total number of resources in the organisation, including private ones"
-    field :resource_count, :integer do
-      resolve &Organisation.GraphQL.Resolver.resource_count_edge/3
-    end
-
-    @desc "The resources in the organisation, most recently created last"
-    field :resources, :resources_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &Organisation.GraphQL.Resolver.resources_edge/3
-    end
-
     @desc "Total number of followers, including those we can't see"
     field :follower_count, :integer do
       resolve &FollowsResolver.follower_count_edge/3

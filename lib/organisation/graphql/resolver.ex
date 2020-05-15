@@ -89,48 +89,6 @@ defmodule Organisation.GraphQL.Resolver do
     )
   end
 
-  def resources_edge(%Organisation{id: id}, %{}=page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_resources_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-      }
-    )
-  end
-
-  def fetch_resources_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Resources.Queries,
-        query: Resource,
-        cursor_fn: &[&1.id],
-        group_fn: &(&1.organisation_id),
-        page_opts: page_opts,
-        base_filters: [:deleted, user: user, organisation_id: ids],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :organisation_id],
-      }
-    )
-  end
-
-  def fetch_resources_edge(page_opts, info, id) do
-    user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: Resources.Queries,
-        query: Resource,
-        cursor_fn: &[&1.id],
-        page_opts: page_opts,
-        base_filters: [:deleted, user: user, organisation_id: id],
-        data_filters: [page: [desc: [created: page_opts]]],
-      }
-    )
-  end
-
   def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
   end

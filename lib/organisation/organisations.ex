@@ -6,7 +6,7 @@ defmodule Organisation.Organisations do
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
   alias Organisation
-  alias Organisation.{Queries}
+  alias Organisation.Queries
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
