@@ -99,7 +99,7 @@ dev-test-db: init ## Create or reset the test DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
 
 dev-test: init ## Run tests
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
 
 dev-psql: init ## Run postgres (without Docker)
 	psql -h localhost -U postgres $(APP_DEV_CONTAINER)
