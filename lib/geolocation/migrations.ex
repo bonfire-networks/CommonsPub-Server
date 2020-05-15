@@ -8,8 +8,9 @@ defmodule Geolocation.Migrations do
 
 
   def change do
+    
     :ok = execute(
-      "create extension postgis;",
+      "create extension IF NOT EXISTS postgis;",
       "drop extension postgis;"
     )
 

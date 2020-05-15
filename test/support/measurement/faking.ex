@@ -132,7 +132,6 @@ defmodule Measurement.Test.Faking do
     measure
   end
 
-  def assert_float(val), do: assert(is_float(val)) && val
 
   def assert_measure(%Measure{} = measure) do
     assert_measure(Map.from_struct(measure))
