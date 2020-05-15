@@ -40,7 +40,7 @@ defmodule Geolocation do
     timestamps()
   end
 
-  @required ~w(name is_public)a
+  @required ~w(name)a
   @cast @required ++ ~w(note mappable_address point alt is_disabled inbox_id outbox_id)a
 
   def create_changeset(

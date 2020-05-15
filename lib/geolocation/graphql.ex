@@ -80,9 +80,6 @@ defmodule Geolocation.GraphQL do
     )
   end
 
-  def context_edge(params, data, info), do: CommonResolver.context_edge(params, data, info)
-
-
   def last_activity_edge(_, _, _info) do
     {:ok, DateTime.utc_now()}
   end
@@ -135,16 +132,17 @@ defmodule Geolocation.GraphQL do
               context = Pointers.follow!(pointer),
               attrs = Map.merge(attrs, %{is_public: true}),
               {:ok, g} <- Geolocations.create(user, context, attrs) do
-          {:ok, %{geolocation: g}}
+          {:ok, %{spatial_thing: g}}
       end
     end)
   end
 
   def create_geolocation(%{spatial_thing: attrs}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-        attrs = Map.merge(attrs, %{is_public: true})
-        Geolocations.create(user, attrs)
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           attrs = Map.merge(attrs, %{is_public: true}),
+           {:ok, g} <- Geolocations.create(user, attrs) do
+        {:ok, %{spatial_thing: g}}
       end
     end)
   end

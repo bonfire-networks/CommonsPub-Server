@@ -76,7 +76,7 @@ defmodule Geolocation.Geolocations do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs), #do
+           {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, context, item, activity, :created),
@@ -95,7 +95,7 @@ defmodule Geolocation.Geolocations do
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, actor, item_attrs), #do
+           {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),

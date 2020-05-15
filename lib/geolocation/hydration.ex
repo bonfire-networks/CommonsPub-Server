@@ -1,7 +1,8 @@
 defmodule Geolocation.GraphQL.Hydration do
 
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver
+    ActorsResolver,
+    CommonResolver,
   }
 
   def hydrate(blueprint) do
@@ -14,7 +15,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &ActorsResolver.display_username_edge/3
         ],
         in_scope_of: [
-          resolve: &Geolocation.GraphQL.context_edge/3
+          resolve: &CommonResolver.context_edge/3
         ],
       },
       geolocation_query: %{
