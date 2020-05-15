@@ -128,10 +128,10 @@ defmodule Measurement.Measure.Measures do
   # defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Measure{}, attrs :: map) :: {:ok, Measurement.Measure.t()} | {:error, Changeset.t()}
+  @spec update(Measure.t(), attrs :: map) :: {:ok, Measure.t()} | {:error, Changeset.t()}
   def update(%Measure{} = measure, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, measure} <- Repo.update(Measurement.Measure.update_changeset(measure, attrs)) do
+      with {:ok, measure} <- Repo.update(Measure.update_changeset(measure, attrs)) do
           #  :ok <- publish(measure, :updated) do
         {:ok,  measure }
       end

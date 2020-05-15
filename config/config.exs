@@ -30,6 +30,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias Measurement.Unit
+
 # stuff you might need to change to be viable
 
 config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
@@ -87,6 +89,9 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
+config :moodle_net, Units,
+  valid_contexts: [Organisation, Community, Collection]
+
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
 config :moodle_net, Uploads.ResourceUploader,
@@ -135,7 +140,7 @@ config :moodle_net, :mrf_simple,
 
 config :moodle_net, Oban,
   repo: MoodleNet.Repo,
-  prune: {:maxlen, 100_000},
+  # prune: {:maxlen, 100_000},
   poll_interval: 5_000,
   queues: [
     federator_incoming: 50,
@@ -186,6 +191,7 @@ config :moodle_net, :instance,
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
 config :moodle_net, MoodleNet.Repo,
+  types: MoodleNet.PostgresTypes,
   migration_primary_key: [name: :id, type: :binary_id]
 
 config :logger, :console,

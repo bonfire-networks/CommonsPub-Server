@@ -19,7 +19,7 @@ services:
         source: ./uploads
         target: /var/www/uploads
   db:
-    image: postgres:9.6-alpine
+    image: postgis/postgis:9.6-3.0-alpine
     # volumes:
     #   - "./volumes/postgres:/var/lib/postgresql/data"
     # ports:

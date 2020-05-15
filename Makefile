@@ -66,11 +66,14 @@ hq_deploy_stable: init ## Used by Moodle HQ to trigger prod deploys to k8s
 dev-exports: init ## Load env vars from a dotenv file
 	awk '{print "export " $$0}' $(APP_DEV_DOTENV)
 
-dev-build: init ## Build the dev image
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build web
+dev-pull: init ## Build the dev image
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
+
+dev-build: init pull ## Build the dev image
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build 
 
 dev-rebuild: init ## Rebuild the dev image (without cache)
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache web
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force
@@ -96,7 +99,7 @@ dev-test-db: init ## Create or reset the test DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
 
 dev-test: init ## Run tests
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix test $(dir)
 
 dev-psql: init ## Run postgres (without Docker)
 	psql -h localhost -U postgres $(APP_DEV_CONTAINER)

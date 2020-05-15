@@ -5,9 +5,9 @@ defmodule Measurement.Unit do
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
+  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Users.User
   alias Measurement.Unit
 
   @type t :: %__MODULE__{}
@@ -23,7 +23,7 @@ defmodule Measurement.Unit do
     field(:deleted_at, :utc_datetime_usec)
 
     belongs_to(:creator, User)
-    belongs_to(:community, Community)
+    belongs_to(:context, Pointer)
 
     timestamps()
   end
@@ -47,7 +47,7 @@ defmodule Measurement.Unit do
 
   def create_changeset(
       %User{} = creator,
-      %Community{} = community,
+      %{id: _} = context,
       attrs
     ) do
   %Measurement.Unit{}
@@ -55,7 +55,7 @@ defmodule Measurement.Unit do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    community_id: community.id,
+    context_id: context.id,
     is_public: true
   )
   |> common_changeset()

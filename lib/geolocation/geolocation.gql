@@ -9,6 +9,8 @@
 #
 ##
 
+union GeoScope = Organisation | Community | Collection #TEMPORARY
+
 """
 A physical mappable location.
 """
@@ -31,7 +33,9 @@ type SpatialThing {
   alt: Float
 
   "A textual description or comment."
-  note: String
+  note: String,
+
+  geom: Json,
 
   ##############################################################################
   # inverse relationships and queries
@@ -46,7 +50,7 @@ type SpatialThing {
 
   canonicalUrl: String
   displayUsername: String
-  # inScopeOf: [AccountingScope!]
+  inScopeOf: [GeoScope]
 }
 
 
@@ -111,7 +115,7 @@ type GeolocationQuery {
 }
 
 type GeolocationMutation {
-  createSpatialThing(spatialThing: SpatialThingCreateParams!, inScopeOfCommunityId: ID): SpatialThingResponse
+  createSpatialThing(spatialThing: SpatialThingCreateParams!, inScopeOf: ID): SpatialThingResponse
   updateSpatialThing(spatialThing: SpatialThingUpdateParams!): SpatialThingResponse
   deleteSpatialThing(id: String!): Boolean
 }
