@@ -193,6 +193,9 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
         context: id,
         page_opts: page_opts,
         info: info,
+        single_opts: %{default_limit: 5, max_limit: 15},
+        batch_opts: %{default_limit: 3, max_limit: 10},
+        deep_opts: %{default_limit: 3, max_limit: 10},
       }
     )
   end
