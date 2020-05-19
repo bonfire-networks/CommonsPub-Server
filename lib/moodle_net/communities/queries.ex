@@ -71,6 +71,13 @@ defmodule MoodleNet.Communities.Queries do
   def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [community: c], c.id <= ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [community: c], c.id in ^ids)
 
+  def filter(q, {:creator, id}) when is_binary(id) do
+    where(q, [community: c], c.creator_id == ^id)
+  end
+  def filter(q, {:creator, ids}) when is_list(ids) do
+    where(q, [community: c], c.creator_id in ^ids)
+  end
+
   def filter(q, {:username, username}) when is_binary(username) do
     where q, [actor: a], a.preferred_username == ^username
   end

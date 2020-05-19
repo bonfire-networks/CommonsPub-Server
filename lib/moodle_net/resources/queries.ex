@@ -102,6 +102,13 @@ defmodule MoodleNet.Resources.Queries do
   def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where q, [resource: r], r.id <= ^id
   def filter(q, {:id, ids}) when is_list(ids), do: where q, [resource: r], r.id in ^ids
 
+  def filter(q, {:creator, id}) when is_binary(id) do
+    where(q, [resource: r], r.creator_id == ^id)
+  end
+  def filter(q, {:creator, ids}) when is_list(ids) do
+    where(q, [resource: r], r.creator_id in ^ids)
+  end
+
   def filter(q, {:collection, id}) when is_binary(id), do: where(q, [resource: r], r.collection_id == ^id)
   def filter(q, {:collection, ids}) when is_list(ids), do: where(q, [resource: r], r.collection_id in ^ids)
 
