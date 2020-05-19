@@ -111,7 +111,7 @@ defmodule MoodleNet.Algolia.Indexer do
   end
 
   def format_object(%Resource{} = resource) do
-    resource = Repo.preload(resource, collection: [actor: [], community: [actor: []]])
+    resource = Repo.preload(resource, [collection: [actor: [], community: [actor: []]], content: []])
 
     likes_count =
       case LikerCounts.one(context: resource.id) do
@@ -120,7 +120,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     icon = Uploads.remote_url_from_id(resource.icon_id)
-    url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
+    url = Uploads.remote_url_from_id(resource.content_id)
 
     %{
       "index_mothership_object_id" => resource.id,
@@ -139,7 +139,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "collection" => format_object(resource.collection),
       "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
       "url" => url,
-      "author" => Map.get(resource, :author)
+      "author" => Map.get(resource, :author),
+      "mediaType" => resource.content.media_type
     }
   end
 
