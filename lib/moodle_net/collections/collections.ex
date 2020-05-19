@@ -87,7 +87,6 @@ defmodule MoodleNet.Collections do
     with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
   end
 
-  # TODO: take the user who is performing the update
   @spec update(User.t(), %Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%User{}=user, %Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
