@@ -198,7 +198,7 @@ defmodule MoodleNet.Uploads do
     end
   else
     defp parse_file(%{url: url} = file) when is_binary(url) do
-      with {:ok, file_info} <- TwinkleStar.from_uri(url) do
+      with {:ok, file_info} <- TwinkleStar.from_uri(url, follow_redirect: true) do
         {:ok, Map.merge(file, file_info)}
       else
         # match behaviour of uploads
