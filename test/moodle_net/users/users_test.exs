@@ -210,7 +210,7 @@ defmodule MoodleNet.UsersTest do
     test "updates the deletion timestamp" do
       user = fake_user!()
       refute user.deleted_at
-      assert {:ok, user} = Users.soft_delete(user)
+      assert {:ok, user} = Users.soft_delete(user, user)
       assert user = Users.preload(user)
       assert user.deleted_at
       assert user.local_user.deleted_at
