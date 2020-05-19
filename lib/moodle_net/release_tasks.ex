@@ -8,6 +8,7 @@ defmodule MoodleNet.ReleaseTasks do
 
   @start_apps [:moodle_net]
   @repos Application.get_env(:moodle_net, :ecto_repos, [])
+  alias MoodleNet.{Actors, Repo}
   alias MoodleNet.Users.User
 
   def create_db() do
@@ -221,7 +222,18 @@ defmodule MoodleNet.ReleaseTasks do
 
   def remove_meta_table(table) do
     import Ecto.Query
-    {_rows_deleted, _} = from(x in MoodleNet.Meta.Table, where: x.table == ^table) |> MoodleNet.Repo.delete_all
+    {_rows_deleted, _} =
+      Repo.delete_all(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
   end
   
+  def reserve_actor_usernames() do
+    import Ecto.Query
+    hashes = Repo.all(from(x in Actors.NameReservation, select: x.id))
+    set = MapSet.new(hashes)
+    from(x in Actors.Actor, select: x.preferred_username)
+    |> Repo.all()
+    |> Enum.filter(&(not MapSet.member?(set, :crypto.hash(:sha256, &1))))
+    |> Enum.each(&Actors.reserve_username/1)
+  end
+
 end
