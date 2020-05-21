@@ -8,7 +8,9 @@ defmodule Geolocation.GraphQL do
     Activities,
     GraphQL,
     Repo,
-    Meta.Pointers
+    Meta.Pointers,
+    Communities.Community,
+    Collections.Collection,
   }
   alias MoodleNet.GraphQL.{
     ResolvePage,
@@ -26,6 +28,7 @@ defmodule Geolocation.GraphQL do
   alias Geolocation
   alias Geolocation.Geolocations
   alias Geolocation.Queries
+  alias Organisation
 
   # SDL schema import
 
@@ -56,6 +59,10 @@ defmodule Geolocation.GraphQL do
       }
     )
   end
+
+  def resolve_type(%Community{}, _), do: :community
+  def resolve_type(%Collection{}, _), do: :collection
+  def resolve_type(%Organisation{}, _), do: :organisation
 
   ## fetchers
 

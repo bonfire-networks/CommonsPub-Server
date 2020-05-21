@@ -24,11 +24,7 @@ defmodule Geolocation.GraphQL.Hydration do
 
         geo_scope: [
           types: [:collection, :community, :organisation],
-          resolve_type: fn
-            %Collection{}, _ -> :collection
-            %Community{}, _ -> :community
-            %Organisation{}, _ -> :organisation
-          end
+          resolve_type: &Geolocation.GraphQL.resolve_type/2,
         ]
       },
       geolocation_query: %{

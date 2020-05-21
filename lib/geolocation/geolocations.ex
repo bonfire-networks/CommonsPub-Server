@@ -22,7 +22,7 @@ defmodule Geolocation.Geolocations do
   * ActivityPub integration
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Geolocation, filters))
+  def one(filters), do: IO.inspect(Repo.single(Queries.query(Geolocation, filters)))
 
   @doc """
   Retrieves a list of collections by arbitrary filters.

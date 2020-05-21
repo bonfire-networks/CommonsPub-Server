@@ -30,7 +30,6 @@ defmodule Geolocation do
 
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    # belongs_to(:community, Community)
     belongs_to(:context, Pointer)
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
