@@ -92,7 +92,7 @@ image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 config :moodle_net, Uploads.ResourceUploader,
   allowed_media_types: ~w(text/plain text/html text/markdown text/rtf text/csv) ++
       # App formats
-      ~w(application/rtf application/pdf application/zip) ++
+      ~w(application/rtf application/pdf application/zip application/gzip) ++
       ~w(application/x-bittorrent application/x-tex) ++
       # Docs
       ~w(application/epub+zip application/vnd.amazon.mobi8-ebook) ++
