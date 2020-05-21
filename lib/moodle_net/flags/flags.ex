@@ -54,7 +54,7 @@ defmodule MoodleNet.Flags do
     Repo.transact_with(fn ->
       with {:ok, flag} <- Common.soft_delete(flag),
            :ok <- chase_delete(user, flag.id),
-           :ok <- ap_publish("create", flag) do
+           :ok <- ap_publish("delete", flag) do
         {:ok, flag}
       end
     end)
@@ -64,7 +64,9 @@ defmodule MoodleNet.Flags do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids)
+        with :ok <- chase_delete(user, ids) do
+          ap_publish("delete", ids)
+        end
       end), do: :ok
   end
 
@@ -74,6 +76,11 @@ defmodule MoodleNet.Flags do
 
   # TODO ?
   defp publish(_flagger, _flagged, _flag, _community), do: :ok
+
+  defp ap_publish(verb, flags) when is_list(flags) do
+    APPublishWorker.batch_enqueue(verb, flags)
+    :ok
+  end
 
   defp ap_publish(verb, %Flag{is_local: true} = flag) do
     APPublishWorker.enqueue(verb, %{"context_id" => flag.id})

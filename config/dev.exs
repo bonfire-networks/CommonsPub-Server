@@ -73,15 +73,11 @@ config :phoenix, :stacktrace_depth, 20
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# # For using with Ecto with Postgis
-# Postgrex.Types.define(MoodleNet.PostgresTypes,
-#   [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
-#   json: Poison)
 
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
   adapter: Ecto.Adapters.Postgres,
-  types: MoodleNet.PostgresTypes,
+  # types: MoodleNet.PostgresTypes,
   username: System.get_env("POSTGRES_USER", "postgres"),
   password: System.get_env("POSTGRES_PASSWORD", "postgres"),
   database: System.get_env("POSTGRES_DB", "moodle_net_dev"),
@@ -113,9 +109,12 @@ config :moodle_net, MoodleNet.OAuth,
   website: "https://moodlenet.dev.local/",
   scopes: "read,write,follow"
 
+{:ok, cwd} = File.cwd()
+
 config :moodle_net, MoodleNet.Uploads,
-  directory: "uploads",
-  base_url: base_url <> "/uploads/"
+  directory: cwd <> "/uploads",
+  path: "/uploads",
+  base_url: base_url <> "/uploads"
 
 config :moodle_net, MoodleNet.Workers.ActivityWorker,
   log_level: :warn

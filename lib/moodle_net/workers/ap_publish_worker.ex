@@ -17,11 +17,29 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.Comment
 
+  @moduledoc """
+  Module for publishing ActivityPub activities.
+
+  Intended entry point for this module is the `__MODULE__.enqueue/2` function
+  provided by `ActivityPub.Workers.WorkerHelper` module.
+
+  Note that the `"context_id"` argument refers to the ID of the object being
+  federated and not to the ID of the object context, if present.
+  """
+
+  @spec batch_enqueue(String.t(), list(String.t())) :: list(Oban.Job.t())
+  @doc """
+  Enqueues a number of jobs provided a verb and a list of string IDs.
+  """
+  def batch_enqueue(verb, ids) do
+    Enum.map(ids, fn id -> enqueue(verb, %{"context_id" => id}) end)
+  end
+
   @impl Worker
   def perform(%{"context_id" => context_id, "op" => verb}, _job) do
-      Pointers.one!(id: context_id)
-      |> Pointers.follow!()
-      |> only_local(&publish/2, verb)
+    Pointers.one!(id: context_id)
+    |> Pointers.follow!()
+    |> only_local(&publish/2, verb)
   end
 
   defp publish(%Collection{} = collection, "create"), do: Publisher.create_collection(collection)
@@ -67,7 +85,9 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   defp publish(context, verb) do
-    Logger.warn("Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}")
+    Logger.warn(
+      "Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}"
+    )
 
     :ignored
   end
@@ -77,8 +97,9 @@ defmodule MoodleNet.Workers.APPublishWorker do
          {:ok, actor} <- MoodleNet.Actors.one(id: collection.actor_id),
          true <- is_nil(actor.peer_id) do
       commit_fn.(context, verb)
-    else _ ->
-      :ignored
+    else
+      _ ->
+        :ignored
     end
   end
 

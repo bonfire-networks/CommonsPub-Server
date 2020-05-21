@@ -34,11 +34,13 @@ config :moodle_net, MoodleNet.Users,
   public_registration: !System.get_env("INVITE_ONLY", "true") # enable signups?
 
 upload_dir = System.get_env("UPLOAD_DIR", "/var/www/uploads")
-upload_url = System.get_env("UPLOAD_URL", base_url <> "/uploads/")
+upload_path = System.get_env("UPLOAD_PATH", "/uploads")
+upload_url = System.get_env("UPLOAD_URL", base_url <> upload_path <> "/")
 
 config :moodle_net, MoodleNet.Uploads,
-  base_url: upload_url,
-  directory: upload_dir
+  directory: upload_dir,
+  path: upload_path,
+  base_url: upload_url
 
 mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
 mail_domain = System.get_env("MAIL_DOMAIN")
