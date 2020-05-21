@@ -13,11 +13,11 @@ git push
 echo "Check out flavour/commonspub branch"
 git checkout flavour/commonspub
 
-echo "Merge MoodleNet to CommonsPub, without commiting yet"
-git merge --no-ff --no-commit flavour/moodlenet
+echo "Merge MoodleNet to CommonsPub, without commiting yet" 
+git merge --no-ff --no-commit --strategy-option theirs flavour/moodlenet
 
 echo "Restore files which we don't want overwritten (add any core files that should be different in CommonsPub to the below line in the script)"
-for file in cpub-merge-from-upstream.sh cpub-merge-from-branch.sh README.md DEPLOY.md HACKING.md config/docker.env config/docker.dev.env Makefile docker-compose.yml docker-compose.pi.yml .gitlab-ci.yml 
+for file in cpub-merge-from-upstream.sh cpub-merge-from-branch.sh README.md DEPLOY.md HACKING.md config/docker.env config/docker.dev.env Makefile docker-compose.yml docker-compose.pi.yml .gitlab-ci.yml mix.lock
 do
     git reset HEAD ${file}
     git checkout -- ${file}
