@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Organisation.Queries do
 
-  alias MoodleNet.Communities
+  alias MoodleNet.Users
   alias Organisation
   alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
@@ -34,12 +34,12 @@ defmodule Organisation.Queries do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
 
-  def join_to(q, :community, jq) do
-    join q, jq, [organisation: c], c2 in assoc(c, :community), as: :community
+  def join_to(q, :context, jq) do
+    join q, jq, [organisation: c], c2 in assoc(c, :context), as: :context
   end
 
-  def join_to(q, {:community_follow, follower_id}, jq) do
-    join q, jq, [community: c], f in Follow, as: :community_follow,
+  def join_to(q, {:context_follow, follower_id}, jq) do
+    join q, jq, [context: c], f in Follow, as: :context_follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
   end
 
@@ -79,18 +79,18 @@ defmodule Organisation.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([:community, follow: id, community_follow: id])
-    |> where([community: c, community_follow: f], is_nil(c.id) or not is_nil(c.published_at) or not is_nil(f.id))
+    |> join_to([:context, follow: id, context_follow: id])
+    |> where([context: c, context_follow: f], is_nil(c.id) or not is_nil(c.published_at) or not is_nil(f.id))
     |> where([organisation: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
-    |> Communities.Queries.filter(~w(deleted disabled)a)
+    |> Users.Queries.filter(~w(deleted disabled)a)
   end
 
   def filter(q, {:user, nil}) do
     q
-    |> join_to(:community)
+    |> join_to(:context)
     |> filter(~w(disabled private)a)
-    |> Communities.Queries.filter(~w(deleted disabled private)a)
+    |> Users.Queries.filter(~w(deleted disabled private)a)
   end
 
   ## by status
@@ -129,11 +129,11 @@ defmodule Organisation.Queries do
     where q, [organisation: c], c.id in ^ids
   end
 
-  def filter(q, {:community_id, id}) when is_binary(id) do
-    where q, [organisation: c], c.community_id == ^id
+  def filter(q, {:context_id, id}) when is_binary(id) do
+    where q, [organisation: c], c.context_id == ^id
   end
 
-  def filter(q, {:community_id, ids}) when is_list(ids) do
+  def filter(q, {:context_id, ids}) when is_list(ids) do
     where q, [organisation: c], c.community_id in ^ids
   end
 

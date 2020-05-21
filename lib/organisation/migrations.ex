@@ -12,7 +12,7 @@ defmodule Organisation.Migrations do
     create_if_not_exists table(:mn_organisation) do
       add :actor_id, references("mn_actor", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
-      add :community_id, references("mn_community", on_delete: :nilify_all)
+      add :context_id, references("mn_pointer", on_delete: :nilify_all)
       add :primary_language_id, references("mn_language", on_delete: :nilify_all)
       add :inbox_id, references("mn_feed", on_delete: :nilify_all)
       add :outbox_id, references("mn_feed", on_delete: :nilify_all)
@@ -28,7 +28,7 @@ defmodule Organisation.Migrations do
     create_if_not_exists index(:mn_organisation, :updated_at)
     create_if_not_exists index(:mn_organisation, :actor_id)
     create_if_not_exists index(:mn_organisation, :creator_id)
-    create_if_not_exists index(:mn_organisation, :community_id)
+    create_if_not_exists index(:mn_organisation, :context_id)
     create_if_not_exists index(:mn_organisation, :primary_language_id)
 
 

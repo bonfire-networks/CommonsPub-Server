@@ -30,8 +30,6 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
-alias Measurement.Unit
-
 # stuff you might need to change to be viable
 
 config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
@@ -237,7 +235,7 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
-config :moodle_net, :env, Mix.env
+config :moodle_net, :env, Mix.env()
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
