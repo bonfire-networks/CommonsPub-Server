@@ -32,7 +32,7 @@ echo "Please check if everything looks good (including resolving any merge confl
 read answer
 if echo "$answer" | grep -iq "^c" ; then
     echo "Merging and pushing..."
-    git commit -m "merged from upstream"
+    git commit -m "merged branch ${FROM_BRANCH} to ${CUR_BRANCH}"
     git push
 else 
     echo "Aborting the merge."
