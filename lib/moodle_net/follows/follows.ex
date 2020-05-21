@@ -60,6 +60,11 @@ defmodule MoodleNet.Follows do
     end
   end
 
+  defp ap_publish(verb, follows) when is_list(follows) do
+    APPublishWorker.batch_enqueue(verb, follows)
+    :ok
+  end
+
   defp ap_publish(verb, %Follow{is_local: true} = follow) do
     APPublishWorker.enqueue(verb, %{"context_id" => follow.id})
     :ok
@@ -96,7 +101,9 @@ defmodule MoodleNet.Follows do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids, [])
+        with :ok <- chase_delete(user, ids, []) do
+          ap_publish("delete", ids)
+        end
       end), do: :ok
   end
 
