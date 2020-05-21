@@ -57,7 +57,7 @@ defmodule Geolocation.Test.Faking do
   ## graphql queries
 
   def geolocation_fields(extra \\ []) do
-    extra ++ ~w(id name mappable_address lat long alt note geom __typename)a
+    extra ++ ~w(id name mappable_address lat long alt note geom)a
   end
 
   def geolocation_query(options \\ []) do

@@ -99,6 +99,8 @@ defmodule Geolocation do
     if not (is_nil(lat) or is_nil(long)) do
       geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
       Changeset.change(changeset, geom: geom)
+    else
+      changeset
     end
   end
 end

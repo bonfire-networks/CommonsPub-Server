@@ -12,8 +12,9 @@ defmodule Geolocation.GraphQLTest do
       geo = fake_geolocation!(user)
 
       q = geolocation_query()
+      IO.puts(Grumble.PP.to_string(q))
       conn = user_conn(user)
-      assert_geolocation(grumble_post_key(q, conn, :geolocation, %{id: geo.id}))
+      assert_geolocation(grumble_post_key(q, conn, :spatial_thing, %{id: geo.id}))
     end
   end
 
@@ -25,7 +26,7 @@ defmodule Geolocation.GraphQLTest do
 
       q = geolocation_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      assert resp = grumble_post_key(q, conn, :geolocation, %{id: geo.id})
+      assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
       assert resp["context"]["__typename"] == "Community"
     end
 
@@ -35,12 +36,9 @@ defmodule Geolocation.GraphQLTest do
 
       q = geolocation_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      assert resp = grumble_post_key(q, conn, :geolocation, %{id: geo.id})
+      assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
       assert is_nil(resp["context"])
     end
-  end
-
-  describe "geolocation.creator" do
   end
 
   describe "geolocations" do

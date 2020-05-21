@@ -38,6 +38,7 @@ defmodule Geolocation.GraphQL do
   ## resolvers
 
   def geolocation(%{id: id}, info) do
+    IO.puts("GEOLOCATION")
     ResolveField.run(
       %ResolveField{
         module: __MODULE__,
