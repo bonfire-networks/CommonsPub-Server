@@ -17,7 +17,7 @@ echo "...Merging MoodleNet to CommonsPub, without commiting yet"
 git merge --no-ff --no-commit --strategy-option theirs flavour/moodlenet
 
 echo "...Restoring files which we don't want overwritten (add any core files that should be different in CommonsPub to the below line in the script)"
-for file in cpub-merge-from-upstream.sh cpub-merge-from-branch.sh README.md DEPLOY.md HACKING.md config/docker.env config/docker.dev.env Makefile docker-compose.yml docker-compose.pi.yml .gitlab-ci.yml mix.lock priv/repo/migrations/20200316102402_locales.exs priv/repo/migrations/20200317103503_taxonomy.exs priv/repo/migrations/20200415105739_units_measure.exs priv/repo/migrations/20200419000000_units_pointer.exs priv/repo/migrations/20200419000001_geolocation_pointer.exs
+for file in cpub-merge-from-upstream.sh cpub-merge-from-branch.sh README.md DEPLOY.md HACKING.md config/docker.env config/docker.dev.env Makefile docker-compose.yml docker-compose.pi.yml .gitlab-ci.yml mix.lock priv/repo/migrations/20200316102402_locales.exs priv/repo/migrations/20200317103503_taxonomy.exs priv/repo/migrations/20200415105739_units_measure.exs priv/repo/migrations/20200419000000_units_pointer.exs priv/repo/migrations/20200419000001_geolocation_pointer.exs priv/repo/migrations/20200410000000_units.exs priv/repo/migrations/20200328000000_geolocation.exs
 do
     git reset HEAD ${file}
     git checkout -- ${file}
