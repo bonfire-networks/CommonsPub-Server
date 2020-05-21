@@ -31,6 +31,11 @@ defmodule MoodleNet.Likes do
     end
   end
 
+  defp ap_publish(verb, likes) when is_list(likes) do
+    APPublishWorker.batch_enqueue(verb, likes)
+    :ok
+  end
+
   defp ap_publish(verb, %Like{is_local: true} = like) do
     APPublishWorker.enqueue(verb, %{"context_id" => like.id})
     :ok
@@ -89,7 +94,9 @@ defmodule MoodleNet.Likes do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids)
+        with :ok <- chase_delete(user, ids) do
+          ap_publish("delete", ids)
+        end
       end), do: :ok
   end
 

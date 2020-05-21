@@ -63,8 +63,6 @@ defmodule MoodleNet.Mixfile do
       {:absinthe_plug, git: "https://github.com/absinthe-graphql/absinthe_plug"},
       # webserver
       {:cowboy, "~> 2.6"},
-      # {:cowboy, "~> 2.5.0"},
-      # {:cowlib, "~> 2.6.0"},
       {:plug_cowboy, "~> 2.1"},
       {:plug, "~> 1.8"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
@@ -91,8 +89,9 @@ defmodule MoodleNet.Mixfile do
       {:ecto_ulid,
        git: "https://github.com/irresponsible/ecto-ulid",
        branch: "moodlenet"},
-      # Password hashing
-      {:argon2_elixir, "~> 2.0"},
+      # crypto
+      {:cloak_ecto, "~> 1.0"}, # Username reservation
+      {:argon2_elixir, "~> 2.0"}, # Password hashing
       # Outbound HTTP
       {:hackney, "~> 1.15.2"},
       {:tesla, "~> 1.2"},

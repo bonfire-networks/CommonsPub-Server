@@ -27,6 +27,16 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccessesQueries do
   def filter(q, {:page, [desc: [created: %{after: [id], limit: l}]]}) do
     filter(q, id: {:lte, id}, limit: l + 2, order: [desc: :created])
   end
+  def filter(q, {:page, [desc: [created: %{limit: l}]]}), do: filter(q, limit: l + 1, order: [desc: :created])
+
+
+  def filter(q, {:count, key}) when is_atom(key), do: select(q, [reda: r], {field(r, ^key), count(r.id)})
+
+  def filter(q, {:limit, limit}), do: limit(q, ^limit)
+
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [reda: r], [desc: r.id])
+
+  ## pagination
 
   def filter(q, {:page, [desc: [created: %{before: [id], limit: l}]]}) do
     filter(q, id: {:gte, id}, limit: l + 2, order: [desc: :created])
@@ -39,19 +49,5 @@ defmodule MoodleNet.Access.RegisterEmailDomainAccessesQueries do
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
 
   def filter(q, {:order, [desc: :created]}), do: order_by(q, [reda: r], [desc: r.id])
-
-  ## pagination
-
-  def filter(q, {:page, [desc: [created: %{after: [id], limit: l}]]}) do
-    filter(q, id: {:lte, id}, limit: l + 2, order: [desc: :created])
-  end
-
-  def filter(q, {:page, [desc: [created: %{before: [id], limit: l}]]}) do
-    filter(q, id: {:gte, id}, limit: l + 2, order: [desc: :created])
-  end
-
-  def filter(q, {:page, [desc: [created: %{limit: l}]]}) do
-    filter(q, limit: l + 1, order: [desc: :created])
-  end
 
 end

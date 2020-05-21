@@ -17,6 +17,7 @@ defmodule MoodleNet.Users do
     Queries,
     User,
   }
+  alias MoodleNet.Workers.APPublishWorker
 
   alias Ecto.Changeset
 
@@ -115,8 +116,10 @@ defmodule MoodleNet.Users do
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
            {:ok, user} <- one( join: :actor, join: :local_user, preload: :all,
-                               local_user: token.local_user_id ) do
-        confirm_email(user)
+                               local_user: token.local_user_id ),
+           {:ok, user} <- confirm_email(user),
+           :ok <- ap_publish("create", user) do
+        {:ok, user}
       end
     end)
   end
@@ -198,12 +201,17 @@ defmodule MoodleNet.Users do
     end
   end
 
+  def update_by(filters, updates) do
+    Repo.update_all(Queries.query(User, filters), set: updates)
+  end
+
   @spec update(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
            {:ok, actor} <- Actors.update(user, user.actor, attrs),
-           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)) do
+           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
+           :ok <- ap_publish("update", user) do
         user = %{ user | local_user: local_user, actor: actor }
         {:ok, user}
       end
@@ -228,7 +236,7 @@ defmodule MoodleNet.Users do
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
            {:ok, local_user} <- Repo.update(cs),
            user = preload_actor(%{ user | local_user: local_user}),
-           :ok <- ap_publish(user) do
+           :ok <- ap_publish("delete", user) do
         {:ok, user}
       end
     end)
@@ -245,10 +253,21 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(User)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
+  @delete_by_filters [select: :delete, deleted: false]
+
+  def soft_delete_by(%User{}, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
+        # %{collection: collection, feed: feed} = deleted_ids(ids)
+        with :ok <- chase_delete(ids) do
+          ap_publish("delete", ids)
+        end
+      end), do: :ok
+  end
+
+  defp chase_delete(_ids) do
+    :ok
   end
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
@@ -296,9 +315,17 @@ defmodule MoodleNet.Users do
     Repo.preload(user, :local_user, opts)
   end
 
-  defp ap_publish(_user) do
+  defp ap_publish(verb, users) when is_list(users) do
+    APPublishWorker.batch_enqueue(verb, users)
     :ok
   end
+
+  defp ap_publish(verb, %{actor: %{peer_id: nil}}=user) do
+    APPublishWorker.enqueue(verb, %{"context_id" => user.id})
+    :ok
+  end
+
+  defp ap_publish(_, _), do: :ok
 
   @doc false
   def default_inbox_query_contexts() do

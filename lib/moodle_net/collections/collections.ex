@@ -88,7 +88,6 @@ defmodule MoodleNet.Collections do
     with {:ok, coll} <- Repo.insert(cs), do: {:ok, %{ coll | actor: actor }}
   end
 
-  # TODO: take the user who is performing the update
   @spec update(User.t(), %Collection{}, attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def update(%User{}=user, %Collection{} = collection, attrs) do
     Repo.transact_with(fn ->
@@ -117,12 +116,16 @@ defmodule MoodleNet.Collections do
     end)
   end
 
+  @delete_by_filters [select: :delete, deleted: false]
+
   def soft_delete_by(%User{}=user, filters) do
     with {:ok, _} <-
       Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :delete} | filters], deleted_at: DateTime.utc_now())
+        {_, ids} = update_by(user, @delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
         %{collection: collection, feed: feed} = deleted_ids(ids)
-        chase_delete(user, collection, feed)
+        with :ok <- chase_delete(user, collection, feed) do
+          ap_publish("delete", collection)
+        end
       end), do: :ok
   end
 
@@ -169,6 +172,11 @@ defmodule MoodleNet.Collections do
       collection.outbox_id, Feeds.instance_outbox_id(),
     ]
     FeedActivities.publish(activity, feeds)
+  end
+
+  defp ap_publish(verb, collections) when is_list(collections) do
+    APPublishWorker.batch_enqueue(verb, collections)
+    :ok
   end
 
   defp ap_publish(verb, %{actor: %{peer_id: nil}}=collection) do

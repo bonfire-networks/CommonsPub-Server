@@ -108,11 +108,6 @@ defmodule MoodleNetWeb.Router do
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
-  scope "/taxonomy" do
-    get "/", Taxonomy.Utils, :test
-
-  end
-
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo

@@ -89,6 +89,7 @@ RUN set -eux; \
 RUN apk add --update --no-cache nginx nginx-mod-http-lua && \
   chown -R nginx:www-data /var/lib/nginx 
 
+
 # redirect logs to st output
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
   ln -sf /dev/stderr /var/log/nginx/error.log
