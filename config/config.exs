@@ -87,6 +87,9 @@ config :moodle_net, Users,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
+config :moodle_net, Units,
+  valid_contexts: [Organisation, Community, Collection]
+
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
 config :moodle_net, Uploads.ResourceUploader,
@@ -186,6 +189,7 @@ config :moodle_net, :instance,
 config :moodle_net, ecto_repos: [MoodleNet.Repo]
 
 config :moodle_net, MoodleNet.Repo,
+  types: MoodleNet.PostgresTypes,
   migration_primary_key: [name: :id, type: :binary_id]
 
 config :logger, :console,
@@ -231,7 +235,7 @@ config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!
 
-config :moodle_net, :env, Mix.env
+config :moodle_net, :env, Mix.env()
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

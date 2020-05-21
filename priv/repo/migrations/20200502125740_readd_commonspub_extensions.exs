@@ -3,10 +3,10 @@ defmodule MoodleNet.Repo.Migrations.ReaddCommonspubExtensions do
 
   def change do
 
-    Geolocation.Migrations.change()
+    # Geolocation.Migrations.change()
 
-    Measurement.Migrations.change()
-    Measurement.Migrations.change_measure()
+    # Measurement.Migrations.change()
+    # Measurement.Migrations.change_measure()
 
   end
 

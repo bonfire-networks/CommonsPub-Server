@@ -121,7 +121,7 @@ type MeasurementQuery {
 }
 
 type MeasurementMutation {
-  createUnit(unit: UnitCreateParams, inScopeOfCommunityID: ID): UnitResponse
+  createUnit(unit: UnitCreateParams, inScopeOfContextID: ID): UnitResponse
   updateUnit(unit: UnitUpdateParams, unitId: ID): UnitResponse
   deleteUnit(id: String!): Boolean
 }

@@ -28,13 +28,6 @@ defmodule MoodleNet.Feeds.FeedActivities do
     Repo.update_all(FeedActivitiesQueries.query(FeedActivity, filters), set: updates)
   end
 
-  @doc false
-  def hard_delete() do
-    FeedActivitiesQueries.query(FeedActivity)
-    |> FeedActivitiesQueries.filter(:hard_delete)
-    |> Repo.delete_all()
-  end
-
   @doc "Publish an activity to the feeds with the given ids"
   @spec publish(Activity.t, feed_ids :: [binary]) :: :ok
   def publish(activity, feed_ids) when is_list(feed_ids) do

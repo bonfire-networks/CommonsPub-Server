@@ -81,7 +81,9 @@ defmodule MoodleNet.Resources do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids)
+        with :ok <- chase_delete(user, ids) do
+          ap_publish("delete", ids)
+        end
       end), do: :ok
   end
 
@@ -96,10 +98,16 @@ defmodule MoodleNet.Resources do
 
   defp publish(_creator, collection, _resource, activity) do
     community = Repo.preload(collection, :community).community
-    feeds = [collection.outbox_id, community.outbox_id, Feeds.instance_outbox_id()]
+    feeds = [collection.outbox_id, Feeds.instance_outbox_id()]
     FeedActivities.publish(activity, feeds)
   end
 
+  defp ap_publish(verb, resources) when is_list(resources) do
+    APPublishWorker.batch_enqueue(verb, resources)
+    :ok
+  end
+
+  # todo: detect if local
   defp ap_publish(verb, %Resource{} = resource) do
     APPublishWorker.enqueue(verb, %{"context_id" => resource.id})
     :ok

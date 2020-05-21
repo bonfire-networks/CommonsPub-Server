@@ -1,8 +1,12 @@
 defmodule Geolocation.GraphQL.Hydration do
-
   alias MoodleNetWeb.GraphQL.{
-    ActorsResolver
+    ActorsResolver,
+    CommonResolver,
   }
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
+
+  alias Organisation
 
   def hydrate(blueprint) do
     %{
@@ -14,8 +18,18 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &ActorsResolver.display_username_edge/3
         ],
         in_scope_of: [
-          resolve: &Geolocation.GraphQL.community_edge/3
+          resolve: &CommonResolver.context_edge/3,
+
         ],
+
+        geo_scope: [
+          types: [:collection, :community, :organisation],
+          resolve_type: fn
+            %Collection{}, _ -> :collection
+            %Community{}, _ -> :community
+            %Organisation{}, _ -> :organisation
+          end
+        ]
       },
       geolocation_query: %{
         spatial_thing: [
@@ -29,7 +43,7 @@ defmodule Geolocation.GraphQL.Hydration do
         create_spatial_thing: [
           resolve: &Geolocation.GraphQL.create_geolocation/2
         ]
-      }
+      },
     }
   end
 
