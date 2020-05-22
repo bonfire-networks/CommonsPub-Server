@@ -10,12 +10,13 @@ defmodule Taxonomy.GraphQL.TagsSchema do
   object :tags_queries do
 
     @desc "Get list of tags we know about"
-    field :tags, non_null(:tags_nodes) do
+    field :tags, non_null(:tags_page) do
       arg :limit, :integer
-      arg :before, :string
-      arg :after, :string
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
       resolve &TagsResolver.tags/2
     end
+
 
     field :tag, :tag do
       arg :tag_id, non_null(:string)
@@ -32,21 +33,10 @@ defmodule Taxonomy.GraphQL.TagsSchema do
     field(:parent_tag_id, :integer)
   end
 
-  object :tags_nodes do
+  object :tags_page do
     field :page_info, non_null(:page_info)
-    field :nodes, list_of(:tag)
+    field :edges, non_null(list_of(non_null(:tag)))
     field :total_count, non_null(:integer)
-  end
-
-  object :tags_edges do
-    field :page_info, non_null(:page_info)
-    field :edges, list_of(:tags_edge)
-    field :total_count, non_null(:integer)
-  end
-
-  object :tags_edge do
-    field :cursor, non_null(:string)
-    field :node, :tag
   end
 
 
