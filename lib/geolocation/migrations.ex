@@ -8,7 +8,6 @@ defmodule Geolocation.Migrations do
 
 
   def change do
-    
     :ok = execute(
       "create extension IF NOT EXISTS postgis;",
       "drop extension postgis;"
@@ -20,8 +19,6 @@ defmodule Geolocation.Migrations do
       add :note, :text
       add :mappable_address, :string
       add :geom, :geometry
-      # add :lat, :float
-      # add :long, :float
       add :alt, :float
 
       add :actor_id, references("mn_actor", on_delete: :delete_all)
@@ -35,9 +32,7 @@ defmodule Geolocation.Migrations do
       add :disabled_at, :timestamptz
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
-
     end
-
   end
 
   def add_pointer do

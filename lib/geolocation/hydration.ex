@@ -19,16 +19,10 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3,
-
+          # resolve_type: &__MODULE__.resolve_context_type/2,
         ],
-
         geo_scope: [
-          types: [:collection, :community, :organisation],
-          resolve_type: fn
-            %Collection{}, _ -> :collection
-            %Community{}, _ -> :community
-            %Organisation{}, _ -> :organisation
-          end
+          resolve_type: &__MODULE__.resolve_context_type/2,
         ]
       },
       geolocation_query: %{
@@ -42,12 +36,19 @@ defmodule Geolocation.GraphQL.Hydration do
       geolocation_mutation: %{
         create_spatial_thing: [
           resolve: &Geolocation.GraphQL.create_geolocation/2
+        ],
+        update_spatial_thing: [
+          resolve: &Geolocation.GraphQL.update_geolocation/2
         ]
       },
+      # geo_scope: [
+      #   resolve_type: &__MODULE__.resolve_context_type/2,
+      # ]
     }
   end
 
-
-
-
+  def resolve_context_type(%Community{}, _), do: :community
+  def resolve_context_type(%Collection{}, _), do: :collection
+  def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%{}, _), do: :community
 end
