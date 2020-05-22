@@ -195,4 +195,6 @@ defmodule Geolocation.Geolocations do
 
     %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
   end
+
+  def populate_coordinates(%Geolocation{} = geo), do: geo
 end
