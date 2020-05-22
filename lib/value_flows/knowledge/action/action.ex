@@ -7,8 +7,6 @@ defmodule ValueFlows.Knowledge.Action do
 
   alias Ecto.Changeset
   alias MoodleNet.Users.User
-  alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
   alias ValueFlows.Knowledge.Action
 
   # defenum label_enum, work: 0, produce: 1, consume: 2, use: 3, consume: 4, transfer: 5
@@ -16,16 +14,26 @@ defmodule ValueFlows.Knowledge.Action do
   @type t :: %__MODULE__{}
 
   table_schema "vf_action" do
-    field(:input_output, :string)
-    field(:label, :string)
-    field(:pairs_with, :string)
-    field(:resource_effect, :string)
+
+    field(:label, :string) # A unique verb which defines the action.
+
+    field(:input_output, :string) # Denotes if a process input or output, or not related to a process.
+    # enum: "input", "output", "notApplicable"
+
+    field(:pairs_with, :string) # The action that should be included on the other direction of the process, for example accept with modify.
+    # possible values: "notApplicable" (null), or any of the actions (foreign key)
+    # TODO: do we want to do this as an actual Action (optional)? In the VF spec they are NamedIndividuals defined in the spec, including "notApplicable".
+
+    field(:resource_effect, :string) # The effect of an economic event on a resource, increment, decrement, no effect, or decrement resource and increment 'to' resource
+    # enum: "increment", "decrement", "noEffect", "decrementIncrement"
+
+    field(:note, :string) # description of the action (not part of VF)
 
     timestamps()
   end
 
   @required ~w(label resource_effect)a
-  @cast @required ++ ~w(input_output pairs_with)a
+  @cast @required ++ ~w(input_output pairs_with note)a
 
   def create_changeset(attrs) do
     %Action{}
@@ -42,8 +50,6 @@ defmodule ValueFlows.Knowledge.Action do
 
   defp common_changeset(changeset) do
     changeset
-    |> change_public()
-    |> change_disabled()
   end
 
 end

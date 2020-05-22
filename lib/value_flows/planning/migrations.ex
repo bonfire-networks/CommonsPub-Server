@@ -9,7 +9,7 @@ defmodule ValueFlows.Planning.Migrations do
     create table(:vf_intent) do
 
       add :name, :string
-      add :note, :string
+      add :note, :text
 
       add :creator_id, references("mn_user", on_delete: :nilify_all)
 
