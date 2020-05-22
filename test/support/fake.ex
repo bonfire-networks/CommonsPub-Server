@@ -28,7 +28,6 @@ defmodule MoodleNet.Test.Fake do
   def truth(), do: true
   @doc "Returns false"
   def falsehood(), do: false
-
   @doc "Generates a random boolean"
   def bool(), do: Faker.Util.pick([true, false])
   @doc "Generate a random signed integer"

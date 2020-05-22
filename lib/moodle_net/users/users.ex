@@ -5,12 +5,9 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
-  alias MoodleNet.{Access, Activities, Actors, Feeds, Repo}
+  alias MoodleNet.{Access, Actors, Feeds, Repo}
   alias MoodleNet.Feeds.FeedSubscriptions
-  alias MoodleNet.Common.Contexts
-  alias MoodleNet.GraphQL.Fields
   alias MoodleNet.Mail.{Email, MailService}
-
   alias MoodleNet.Users.{
     EmailConfirmToken,
     LocalUser,
@@ -20,21 +17,22 @@ defmodule MoodleNet.Users do
     Queries,
     User,
   }
+  alias MoodleNet.Workers.APPublishWorker
 
   alias Ecto.Changeset
+
+  ### Cursor generators
+
+  def cursor(:created), do: &[&1.id]
+  def cursor(:followers), do: &[&1.follower_count, &1.id]
+
+  def test_cursor(:created), do: &[&1["id"]]
+  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
+
 
   def one(filters), do: Repo.single(Queries.query(User, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(User, filters))}
-
-  def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    ret =
-      Queries.query(User, filters)
-      |> Repo.all()
-      |> Fields.new(group_fn)
-    {:ok, ret}
-  end
 
   @doc """
   Registers a user:
@@ -117,8 +115,11 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(EmailConfirmToken, token),
            :ok <- validate_token(token, :confirmed_at, now),
            {:ok, _} <- Repo.update(EmailConfirmToken.claim_changeset(token)),
-           {:ok, user} <- one([:default, local_user_id: token.local_user_id]) do
-        confirm_email(user)
+           {:ok, user} <- one( join: :actor, join: :local_user, preload: :all,
+                               local_user: token.local_user_id ),
+           {:ok, user} <- confirm_email(user),
+           :ok <- ap_publish("create", user) do
+        {:ok, user}
       end
     end)
   end
@@ -175,7 +176,7 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.fetch(ResetPasswordToken, token),
            :ok <- validate_token(token, :reset_at, now),
            {:ok, local_user} <- Repo.fetch(LocalUser, token.local_user_id),
-           {:ok, user} <- Repo.fetch_by(User, local_user_id: local_user.id),
+           {:ok, user} <- one(preset: :local_user, local_user: token.local_user_id),
            {:ok, _token} <- Repo.update(ResetPasswordToken.claim_changeset(token)),
            {:ok, _} <- Repo.update(LocalUser.update_changeset(local_user, %{password: password})) do
         user = preload_actor(%{ user | local_user: local_user })
@@ -200,12 +201,17 @@ defmodule MoodleNet.Users do
     end
   end
 
+  def update_by(filters, updates) do
+    Repo.update_all(Queries.query(User, filters), set: updates)
+  end
+
   @spec update(User.t(), map) :: {:ok, User.t()} | {:error, Changeset.t()}
   def update(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user.actor, attrs),
-           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)) do
+           {:ok, actor} <- Actors.update(user, user.actor, attrs),
+           {:ok, local_user} <- Repo.update(LocalUser.update_changeset(user.local_user, attrs)),
+           :ok <- ap_publish("update", user) do
         user = %{ user | local_user: local_user, actor: actor }
         {:ok, user}
       end
@@ -216,7 +222,7 @@ defmodule MoodleNet.Users do
   def update_remote(%User{} = user, attrs) do
     Repo.transact_with(fn ->
       with {:ok, user} <- Repo.update(User.update_changeset(user, attrs)),
-           {:ok, actor} <- Actors.update(user.actor, attrs) do
+           {:ok, actor} <- Actors.update(user, user.actor, attrs) do
         user = %{ user | actor: actor }
         {:ok, user}
       end
@@ -230,7 +236,7 @@ defmodule MoodleNet.Users do
       with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
            {:ok, local_user} <- Repo.update(cs),
            user = preload_actor(%{ user | local_user: local_user}),
-           :ok <- ap_publish(user) do
+           :ok <- ap_publish("delete", user) do
         {:ok, user}
       end
     end)
@@ -247,10 +253,21 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  def soft_delete_by(filters) do
-    Queries.query(User)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
+  @delete_by_filters [select: :delete, deleted: false]
+
+  def soft_delete_by(%User{}, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
+        # %{collection: collection, feed: feed} = deleted_ids(ids)
+        with :ok <- chase_delete(ids) do
+          ap_publish("delete", ids)
+        end
+      end), do: :ok
+  end
+
+  defp chase_delete(_ids) do
+    :ok
   end
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
@@ -276,7 +293,7 @@ defmodule MoodleNet.Users do
   end
 
   def feed_subscriptions(%User{id: id}) do
-    FeedSubscriptions.many([:deleted, :disabled, :inactive, subscriber_id: id])
+    FeedSubscriptions.many(deleted: false, disabled: false, activated: true, subscriber: id)
   end
 
   def is_admin(%User{local_user: %LocalUser{is_instance_admin: val}}), do: val
@@ -298,9 +315,17 @@ defmodule MoodleNet.Users do
     Repo.preload(user, :local_user, opts)
   end
 
-  defp ap_publish(user) do
+  defp ap_publish(verb, users) when is_list(users) do
+    APPublishWorker.batch_enqueue(verb, users)
     :ok
   end
+
+  defp ap_publish(verb, %{actor: %{peer_id: nil}}=user) do
+    APPublishWorker.enqueue(verb, %{"context_id" => user.id})
+    :ok
+  end
+
+  defp ap_publish(_, _), do: :ok
 
   @doc false
   def default_inbox_query_contexts() do

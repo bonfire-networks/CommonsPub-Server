@@ -3,7 +3,6 @@ defmodule Mix.Tasks.MoodleNet.TaskTest do
 
   alias ActivityPub.Actor
 
-  import MoodleNet.Test.Faking
   import ActivityPub.Factory
 
   setup_all do

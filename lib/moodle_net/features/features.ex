@@ -2,8 +2,7 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Features do
-  alias MoodleNet.{Common, Features, GraphQL, Repo}
-  alias MoodleNet.Common.Contexts
+  alias MoodleNet.{Activities, Common, Features, GraphQL, Repo}
   alias MoodleNet.Features.{Feature, Queries}
   alias MoodleNet.Meta.{Pointer, Pointers}
   alias MoodleNet.Users.User
@@ -29,17 +28,37 @@ defmodule MoodleNet.Features do
     end
   end
 
-  def soft_delete(%Feature{} = feature), do: Common.soft_delete(feature)
-
-  def soft_delete_by(filters) do
-    Queries.query(Feature)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Feature, filters), set: updates)
   end
 
+  def soft_delete(%User{}=user, %Feature{} = feature) do
+    Repo.transact_with(fn ->
+      with {:ok, feature} <- Common.soft_delete(feature),
+           :ok <- chase_delete(user, feature.id) do
+           # :ok <- ap_publish(feature) do
+        {:ok, feature}
+      end      
+    end)
+  end
+
+  def soft_delete_by(%User{}=user, filters) do
+    with {:ok, _} <-
+      Repo.transact_with(fn ->
+        {_, ids} = update_by(user, [{:deleted, false}, {:select, :id} | filters], deleted_at: DateTime.utc_now())
+        chase_delete(user, ids)
+      end), do: :ok
+  end
+
+  defp chase_delete(user, ids) do
+    Activities.soft_delete_by(user, context: ids)
+  end  
+  
   defp get_valid_contexts() do
     Application.fetch_env!(:moodle_net, Features)
     |> Keyword.fetch!(:valid_contexts)
   end
+
+  # defp ap_publish(_), do: :ok
 
 end

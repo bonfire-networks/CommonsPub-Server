@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
           query: Flag,
           cursor_fn: &[&1.id],
           page_opts: page_opts,
-          base_filters: [:deleted],
+          base_filters: [deleted: false],
           data_filters: [page: [desc: [created: page_opts]]],
         }
       )
@@ -73,7 +73,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
         cursor_fn: &[&1.id],
         group_fn: &(&1.context_id),
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, creator_id: ids],
+        base_filters: [deleted: false, user: user, creator: ids],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :creator_id],
       }
@@ -88,7 +88,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
         query: Flag,
         cursor_fn: &[&1.id],
         page_opts: page_opts,
-        base_filters: [:deleted, user: user, context_id: ids],
+        base_filters: [deleted: false, user: user, context: ids],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
@@ -109,7 +109,6 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     end
   end
 
-  def fetch_my_flag_edge(_info, []), do: %{}
   def fetch_my_flag_edge(info, ids) do
     with %User{}=user <- GraphQL.current_user(info) do
       FetchFields.run(
@@ -117,7 +116,7 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
           queries: Flags.Queries,
           query: Flag,
           group_fn: &(&1.context_id),
-          filters: [:deleted, creator_id: user.id, context_id: ids]
+          filters: [deleted: false, creator: user.id, context: ids]
         }
       )
     end

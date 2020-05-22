@@ -83,11 +83,11 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
 
   def followed_collection_fields(extra \\ []) do
-    extra ++ [follow: follow_fields, collection: collection_fields()]
+    extra ++ [follow: follow_fields(), collection: collection_fields()]
   end
 
   def followed_community_fields(extra \\ []) do
-    extra ++ [follow: follow_fields, community: community_fields()]
+    extra ++ [follow: follow_fields(), community: community_fields()]
   end
 
 
@@ -667,7 +667,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     |> gen_submutation(:create_session, &auth_payload_fields/1, options)
   end
 
-  def reset_password_request_mutation(options \\ []) do
+  def reset_password_request_mutation(_options \\ []) do
     mutation name: :test,
       params: [email: type!(:string)],
       fields: [field(:reset_password_request, args: [email: var(:email)])]
@@ -702,7 +702,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
     field(:delete_self, args: [i_am_sure: var(:i_am_sure)])
   end
 
-  def delete_session_mutation(options \\ []) do
+  def delete_session_mutation(_options \\ []) do
     mutation(name: :test, fields: [:delete_session])
   end
 

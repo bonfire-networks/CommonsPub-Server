@@ -12,6 +12,7 @@ defmodule MoodleNet.Algolia.Indexer do
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Follows.FollowerCounts
   alias MoodleNet.Likes.LikerCounts
+  alias MoodleNet.Uploads
 
   defp check_envs() do
     System.get_env("ALGOLIA_ID") &&
@@ -34,12 +35,33 @@ defmodule MoodleNet.Algolia.Indexer do
     end
   end
 
+  def maybe_delete_object(object) do
+    if check_envs() && supported_type(object) do
+      object
+      |> get_object_id()
+      |> delete_object()
+    else
+      :ok
+    end
+  end
+
+  def get_object_id(%Resource{} = object) do
+    :crypto.hash(:sha, object.canonical_url) |> Base.encode16()
+  end
+
+  def get_object_id(object) do
+    :crypto.hash(:sha, object.actor.canonical_url) |> Base.encode16()
+  end
+
   def format_object(%Community{} = community) do
     follower_count =
-      case FollowerCounts.one(context_id: community.id) do
+      case FollowerCounts.one(context: community.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
+
+    icon = Uploads.remote_url_from_id(community.icon_id)
+    image = Uploads.remote_url_from_id(community.image_id)
 
     %{
       "index_mothership_object_id" => community.id,
@@ -47,16 +69,15 @@ defmodule MoodleNet.Algolia.Indexer do
       "followers" => %{
         "totalCount" => follower_count
       },
-      "icon" => Map.get(community, :icon),
-      "image" => Map.get(community, :image),
+      "icon" => icon,
+      "image" => image,
       "name" => community.name,
       "preferredUsername" => community.actor.preferred_username,
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
       "index_instance" => URI.parse(community.actor.canonical_url).host,
       "createdAt" => community.published_at,
-      "objectID" =>
-        :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
     }
   end
 
@@ -64,10 +85,12 @@ defmodule MoodleNet.Algolia.Indexer do
     collection = MoodleNet.Repo.preload(collection, community: [:actor])
 
     follower_count =
-      case FollowerCounts.one(context_id: collection.id) do
+      case FollowerCounts.one(context: collection.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
+
+    icon = Uploads.remote_url_from_id(collection.icon_id)
 
     %{
       "index_mothership_object_id" => collection.id,
@@ -75,7 +98,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "followers" => %{
         "totalCount" => follower_count
       },
-      "icon" => Map.get(collection, :icon),
+      "icon" => icon,
       "name" => collection.name,
       "preferredUsername" => collection.actor.preferred_username,
       "summary" => Map.get(collection, :summary),
@@ -83,28 +106,28 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(collection.actor.canonical_url).host,
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
-      "objectID" =>
-        :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
     }
   end
 
   def format_object(%Resource{} = resource) do
-    resource = Repo.preload(resource, collection: [actor: [], community: [actor: []]])
+    resource = Repo.preload(resource, [collection: [actor: [], community: [actor: []]], content: []])
 
     likes_count =
-      case LikerCounts.one(context_id: resource.id) do
+      case LikerCounts.one(context: resource.id) do
         {:ok, struct} -> struct.count
         {:error, _} -> nil
       end
 
-    url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
+    icon = Uploads.remote_url_from_id(resource.icon_id)
+    url = Uploads.remote_url_from_id(resource.content_id)
 
     %{
       "index_mothership_object_id" => resource.id,
       "name" => resource.name,
       "canonicalUrl" => resource.canonical_url,
       "createdAt" => resource.published_at,
-      "icon" => Map.get(resource, :icon),
+      "icon" => icon,
       "licence" => Map.get(resource, :licence),
       "likes" => %{
         "totalCount" => likes_count
@@ -115,7 +138,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
       "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
-      "url" => url
+      "url" => url,
+      "author" => Map.get(resource, :author),
+      "mediaType" => resource.content.media_type
     }
   end
 
@@ -136,6 +161,27 @@ defmodule MoodleNet.Algolia.Indexer do
     else
       {_, message} ->
         Logger.warn("Couldn't index object ID #{object["objectID"]}")
+        Logger.warn(inspect(message))
+        :ok
+    end
+  end
+
+  def delete_object(object_id) do
+    application_id = System.get_env("ALGOLIA_ID")
+    api_key = System.get_env("ALGOLIA_SECRET")
+    index_name = System.get_env("ALGOLIA_INDEX")
+    url = "https://#{application_id}.algolia.net/1/indexes/#{index_name}/#{object_id}"
+
+    headers = [
+      {"X-Algolia-API-Key", api_key},
+      {"X-Algolia-Application-id", application_id}
+    ]
+
+    with {:ok, %{status: code}} when code == 200 <- HTTP.delete(url, "", headers) do
+      :ok
+    else
+      {_, message} ->
+        Logger.warn("Couldn't index object ID #{object_id}")
         Logger.warn(inspect(message))
         :ok
     end

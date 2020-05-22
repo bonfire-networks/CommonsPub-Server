@@ -5,111 +5,71 @@ defmodule MoodleNet.Communities.Queries do
 
   alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.{Follow, FollowerCount}
-  alias MoodleNet.Users.{LocalUser, User}
+  alias MoodleNet.Users.User
+  import MoodleNet.Common.Query, only: [match_admin: 0]
 
   import Ecto.Query
 
-  def query(Community) do
-    from c in Community, as: :community,
-    join: a in assoc(c, :actor), as: :actor
-  end
+  def query(Community), do: from(c in Community, as: :community)
 
   def query(query, filters), do: filter(query(query), filters)
 
+  defp join_to(q, spec, join_qualifier \\ :left)
+  defp join_to(q, :actor, jq), do: join(q, jq, [community: c], assoc(c, :actor), as: :actor)
+
+  defp join_to(q, {:follow, follower_id}, jq) do
+    join q, jq, [community: c], f in Follow, as: :follow,
+      on: c.id == f.context_id and f.creator_id == ^follower_id
+  end
+
+  defp join_to(q, :follower_count, jq) do
+    join(q, jq, [community: c], fc in FollowerCount, as: :follower_count, on: c.id == fc.context_id)
+  end
+
+
   @doc "Filter the query according to arbitrary criteria"
-  def filter(q, filter_or_filters)
+  def filter(query, filter_or_filters)
 
-  ## by many
+  def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
-  def filter(q, filters) when is_list(filters) do
-    Enum.reduce(filters, q, &filter(&2, &1))
-  end
-
-  ## special
-
-  def filter(q, :default) do
-    filter q, [:deleted, preload: :actor]
-  end
-
-  ## by join
+  def filter(q, :default), do: filter q, [deleted: false, join: :actor, preload: :actor]
 
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
 
-  ## by order
-
-  def filter(q, {:order, :list}), do: list(q)
-
-  def filter(q, {:order, [asc: :created]}) do
-    order_by q, [community: c], asc: c.id
-  end
-
-  def filter(q, {:order, [desc: :created]}) do
-    order_by q, [community: c], desc: c.id
-  end
-
-  def filter(q, {:order, [asc: :followers]}) do
-    order_by q, [community: c, follower_count: fc],
-      asc: coalesce(fc.count, 0),
-      desc: c.id # most recent
-  end
-
-  def filter(q, {:order, [desc: :followers]}) do
-    order_by q, [community: c, follower_count: fc],
-      desc: coalesce(fc.count, 0),
-      desc: c.id
-  end
-
-  ## by users
-  
-  def filter(q, {:user, %User{local_user: %LocalUser{is_instance_admin: true}}}) do
-    filter(q, :deleted)
-  end
-
+  def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
+  def filter(q, {:user, nil}), do: filter(q, deleted: false, disabled: false, published: true)
   def filter(q, {:user, %User{id: id}}) do
     join_to(q, {:follow, id})
     |> where([follow: f, community: c], not is_nil(c.published_at) or not is_nil(f.id))
   end
-
-  def filter(q, {:user, nil}) do # guest
-    filter q, ~w(deleted disabled private)a
-  end
-
-  ## by status
   
-  def filter(q, :deleted) do
-    where q, [community: c], is_nil(c.deleted_at)
-  end
+  def filter(q, {:deleted, nil}), do: where(q, [community: c], is_nil(c.deleted_at))
+  def filter(q, {:deleted, :not_nil}), do: where(q, [community: c], not is_nil(c.deleted_at))
+  def filter(q, {:deleted, false}), do: where(q, [community: c], is_nil(c.deleted_at))
+  def filter(q, {:deleted, true}), do: where(q, [community: c], not is_nil(c.deleted_at))
+  def filter(q, {:deleted, {:gte, %DateTime{}=time}}), do: where(q, [community: c], c.deleted_at >= ^time)
+  def filter(q, {:deleted, {:lte, %DateTime{}=time}}), do: where(q, [community: c], c.deleted_at <= ^time)
 
-  def filter(q, :disabled) do
-    where q, [community: c], is_nil(c.disabled_at)
-  end
+  def filter(q, {:disabled, nil}), do: where(q, [community: c], is_nil(c.disabled_at))
+  def filter(q, {:disabled, :not_nil}), do: where(q, [community: c], not is_nil(c.disabled_at))
+  def filter(q, {:disabled, false}), do: where(q, [community: c], is_nil(c.disabled_at))
+  def filter(q, {:disabled, true}), do: where(q, [community: c], not is_nil(c.disabled_at))
+  def filter(q, {:disabled, {:gte, %DateTime{}=time}}), do: where(q, [community: c], c.disabled_at >= ^time)
+  def filter(q, {:disabled, {:lte, %DateTime{}=time}}), do: where(q, [community: c], c.disabled_at <= ^time)
 
-  def filter(q, :private) do
-    where q, [community: c], is_nil(c.id) or not is_nil(c.published_at)
-  end
+  def filter(q, {:published, nil}), do: where(q, [community: c], is_nil(c.published_at))
+  def filter(q, {:published, :not_nil}), do: where(q, [community: c], not is_nil(c.published_at))
+  def filter(q, {:published, false}), do: where(q, [community: c], is_nil(c.published_at))
+  def filter(q, {:published, true}), do: where(q, [community: c], not is_nil(c.published_at))
+  def filter(q, {:published, {:gte, %DateTime{}=time}}), do: where(q, [community: c], c.published_at >= ^time)
+  def filter(q, {:published, {:lte, %DateTime{}=time}}), do: where(q, [community: c], c.published_at <= ^time)
 
-  def filter(q, {:limit, limit}) do
-    limit(q, ^limit)
-  end
 
-  # by field values
-
-  def filter(q, {:id, id}) when is_binary(id) do
-    where q, [community: c], c.id == ^id
-  end
-
-  def filter(q, {:id, {:gte, id}}) when is_binary(id) do
-    where q, [community: c], c.id >= ^id
-  end
-
-  def filter(q, {:id, {:lte, id}}) when is_binary(id) do
-    where q, [community: c], c.id <= ^id
-  end
-
-  def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [community: c], c.id in ^ids
-  end
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [community: c], c.id == ^id)
+  def filter(q, {:id, {:gte, id}}) when is_binary(id), do: where(q, [community: c], c.id >= ^id)
+  def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [community: c], c.id <= ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [community: c], c.id in ^ids)
 
   def filter(q, {:username, username}) when is_binary(username) do
     where q, [actor: a], a.preferred_username == ^username
@@ -119,22 +79,34 @@ defmodule MoodleNet.Communities.Queries do
     where q, [actor: a], a.preferred_username in ^usernames
   end
 
-  def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
+  def filter(q, {:cursor, [followers: {:gte, [count, id]}]}) when is_integer(count) and is_binary(id) do
     where q,[community: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
   end
 
-  def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
+  def filter(q, {:cursor, [followers: {:lte, [count, id]}]}) when is_integer(count) and is_binary(id) do
     where q,[community: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
   end
 
-  ## by preload
 
-  def filter(q, {:preload, :actor}) do
-    preload q, [actor: a], [actor: a]
+  def filter(q, {:limit, limit}), do: limit(q, ^limit)
+
+  def filter(q, {:preload, :actor}), do: preload(q, [actor: a], [actor: a])
+
+  def filter(q, {:order, [asc: :created]}), do: order_by(q, [community: c], asc: c.id)
+  def filter(q, {:order, [desc: :created]}), do: order_by(q, [community: c], desc: c.id)
+
+  def filter(q, {:order, [asc: :followers]}) do
+    order_by(q, [community: c, follower_count: fc], asc: coalesce(fc.count, 0), desc: c.id)
+  end
+
+  def filter(q, {:order, [desc: :followers]}) do
+    order_by(q, [community: c, follower_count: fc], desc: coalesce(fc.count, 0), desc: c.id)
+  end
+
+  def filter(q, {:select, :delete}) do
+    select(q, [community: c], %{id: c.id, inbox_id: c.inbox_id, outbox_id: c.outbox_id})
   end
 
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
@@ -147,6 +119,14 @@ defmodule MoodleNet.Communities.Queries do
     )
   end
 
+  defp page(q, %{after: cursor, limit: limit}, [asc: :followers]) do
+    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  end
+
+  defp page(q, %{before: cursor, limit: limit}, [asc: :followers]) do
+    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  end
+
   defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
     filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
   end
@@ -156,37 +136,5 @@ defmodule MoodleNet.Communities.Queries do
   end
 
   defp page(q, %{limit: limit}, [desc: :followers]), do: filter(q, limit: limit + 1)
-
-  @doc """
-  Orders by:
-  * Most followers
-  * Most recently updated (TODO recent activity)
-  * Community ULID (Most recently created + jitter)
-  """
-  def list(q) do
-    order_by q, [community: c, follower_count: f],
-      desc: coalesce(f.count, 0),
-      desc: c.updated_at,
-      desc: c.id
-  end
-
-  def group_count(q, key) do
-    q
-    |> group_by([community: c], field(c, ^key))
-    |> select([community: c], {field(c, ^key), count(c.id)})
-  end
-
-  defp join_to(q, spec, join_qualifier \\ :left)
-
-  defp join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [community: c], f in Follow, as: :follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-  end
-
-  defp join_to(q, :follower_count, jq) do
-    join q, jq, [community: c],
-      fc in FollowerCount, on: c.id == fc.context_id,
-      as: :follower_count
-  end
 
 end

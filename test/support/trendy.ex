@@ -9,6 +9,7 @@ defmodule MoodleNet.Test.Trendy do
   """
 
   import Zest
+  alias MoodleNet.Common.Enums
 
   @compile {:inline, repeat_for_count: 4, noccat: 2, flat_pam: 3, flat_pam_product: 4}
   @compile {:inline, flat_pam_product2: 4, piz: 4}
@@ -19,12 +20,9 @@ defmodule MoodleNet.Test.Trendy do
     Enum.reduce(2..times, list, fn _, acc -> list ++ acc end)
   end
 
-  
-  def repeat_for_count(list, 0), do: []
+  def repeat_for_count(_list, 0), do: []
   def repeat_for_count(list, count)
-  when is_integer(count) and count > 0 do
-    repeat_for_count(list, list, [], count)
-  end
+  when is_integer(count) and count > 0, do: repeat_for_count(list, list, [], count)
 
   defp repeat_for_count(_working, _template, acc, 0), do: acc
 

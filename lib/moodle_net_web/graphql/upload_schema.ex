@@ -7,12 +7,6 @@ defmodule MoodleNetWeb.GraphQL.UploadSchema do
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.UploadResolver
 
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Resources.Resource
-  alias MoodleNet.Threads.Comment
-  alias MoodleNet.Users.User
-
   import_types Absinthe.Plug.Types
 
   input_object :upload_input do

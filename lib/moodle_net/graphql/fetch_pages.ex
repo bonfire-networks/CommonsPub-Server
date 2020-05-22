@@ -19,7 +19,7 @@ defmodule MoodleNet.GraphQL.FetchPages do
   ]
 
   alias MoodleNet.Repo
-  alias MoodleNet.GraphQL.{Page, Pages, FetchPages}
+  alias MoodleNet.GraphQL.{Pages, FetchPages}
 
   @doc false
   def default_cursor(x), do: [x.id]

@@ -94,6 +94,7 @@ defmodule MoodleNet.ActorsTest do
   describe "update" do
     test "updates an existing actor with valid attributes" do
       Repo.transaction(fn ->
+        user = fake_user!()
         original_attrs = Fake.actor()
         assert {:ok, actor} = Actors.create(original_attrs)
 
@@ -102,7 +103,7 @@ defmodule MoodleNet.ActorsTest do
           |> Map.take(~w(preferred_username signing_key)a)
           |> Fake.actor()
 
-        assert {:ok, actor} = Actors.update(actor, updated_attrs)
+        assert {:ok, actor} = Actors.update(user, actor, updated_attrs)
         assert_actor_equal(actor, updated_attrs)
       end)
     end

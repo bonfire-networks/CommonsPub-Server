@@ -9,7 +9,6 @@ defmodule MoodleNet.ActivitiesTest do
   alias MoodleNet.Activities
   alias MoodleNet.Activities.Activity
   alias MoodleNet.Common.NotFoundError
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Test.Fake
 
   setup do
@@ -27,14 +26,14 @@ defmodule MoodleNet.ActivitiesTest do
 
     test "can ignore activities that are unpublished", %{user: user, context: context} do
       activity = fake_activity!(user, context)
-      assert {:ok, activity} = Activities.update(activity, %{is_public: false})
-      assert {:error, %NotFoundError{}} = Activities.one([:private, id: activity.id])
+      assert {:ok, activity} = Activities.update(user, activity, %{is_public: false})
+      assert {:error, %NotFoundError{}} = Activities.one(published: true, id: activity.id)
     end
 
     test "can ignore activities that are deleted", %{user: user, context: context} do
       activity = fake_activity!(user, context)
-      assert {:ok, activity} = Activities.soft_delete(activity)
-      assert {:error, %NotFoundError{}} = Activities.one([:deleted, id: activity.id])
+      assert {:ok, activity} = Activities.soft_delete(user, activity)
+      assert {:error, %NotFoundError{}} = Activities.one(deleted: false, id: activity.id)
     end
 
     test "can return an activity by ID regardless of published or deleted status", %{
@@ -43,9 +42,9 @@ defmodule MoodleNet.ActivitiesTest do
     } do
       activity = fake_activity!(user, context)
       assert {:ok, activity} = Activities.one(id: activity.id)
-      assert {:ok, activity} = Activities.update(activity, %{is_public: false})
+      assert {:ok, activity} = Activities.update(user, activity, %{is_public: false})
       assert {:ok, activity} = Activities.one(id: activity.id)
-      assert {:ok, activity} = Activities.soft_delete(activity)
+      assert {:ok, activity} = Activities.soft_delete(user, activity)
       assert {:ok, _} = Activities.one(id: activity.id)
     end
   end
@@ -70,7 +69,7 @@ defmodule MoodleNet.ActivitiesTest do
     test "updates an activity with new attributes", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       assert attrs = Fake.activity()
-      assert {:ok, updated_activity} = Activities.update(activity, attrs)
+      assert {:ok, updated_activity} = Activities.update(user, activity, attrs)
       assert updated_activity != activity
       assert updated_activity.verb == attrs.verb
       assert updated_activity.canonical_url == attrs.canonical_url
@@ -81,7 +80,7 @@ defmodule MoodleNet.ActivitiesTest do
     test "changes the deletion date of an activity", %{user: user, context: context} do
       activity = fake_activity!(user, context)
       refute activity.deleted_at
-      assert {:ok, activity} = Activities.soft_delete(activity)
+      assert {:ok, activity} = Activities.soft_delete(user, activity)
       assert activity.deleted_at
     end
   end

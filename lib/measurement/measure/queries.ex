@@ -5,7 +5,6 @@ defmodule Measurement.Measure.Queries do
 
   alias Measurement.Measure
   alias Measurement.Measure.Measures
-  alias MoodleNet.Follows.{Follow, FollowerCount}
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -34,12 +33,6 @@ defmodule Measurement.Measure.Queries do
   end
 
 
-  # def join_to(q, :follower_count, jq) do
-  #   join q, jq, [measure: c],
-  #     f in FollowerCount, on: c.id == f.context_id,
-  #     as: :follower_count
-  # end
-
   ### filter/2
 
   ## by many
@@ -65,7 +58,7 @@ defmodule Measurement.Measure.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> where([measure: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> where([measure: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)
   end
 
@@ -89,18 +82,6 @@ defmodule Measurement.Measure.Queries do
   end
 
   ## by field values
-
-  def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[measure: c, follower_count: fc],
-      (fc.count == ^count and c.id >= ^id) or fc.count > ^count
-  end
-
-  def filter(q, {:cursor, [count, id]})
-  when is_integer(count) and is_binary(id) do
-    where q,[measure: c, follower_count: fc],
-      (fc.count == ^count and c.id <= ^id) or fc.count < ^count
-  end
 
   def filter(q, {:id, id}) when is_binary(id) do
     where q, [measure: c], c.id == ^id
@@ -162,24 +143,6 @@ defmodule Measurement.Measure.Queries do
   def filter(q, {:paginate_id, %{limit: limit}}) do
     filter(q, limit: limit + 1)
   end
-
-  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
-  #   q
-  #   |> filter(join: :follower_count, order: [desc: :followers])
-  #   |> page(page_opts, [desc: :followers])
-  #   |> select(
-  #     [measure: c,  follower_count: fc],
-  #     %{c | follower_count: coalesce(fc.count, 0)}
-  #   )
-  # end
-
-  # defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-  #   filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
-  # end
-
-  # defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-  #   filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
-  # end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
 

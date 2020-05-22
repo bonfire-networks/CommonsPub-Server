@@ -4,32 +4,21 @@
 defmodule MoodleNet.Likes.LikeCountsQueries do
 
   alias MoodleNet.Likes.LikeCount
-
   import Ecto.Query
 
-  def query(LikeCount) do
-    from l in LikeCount, as: :like_count
-  end
+  def query(LikeCount), do: from(l in LikeCount, as: :like_count)
 
   def query(query, filters), do: filter(query(query), filters)
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
-  ## by many
+  def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
-  def filter(q, filters) when is_list(filters) do
-    Enum.reduce(filters, q, &filter(&2, &1))
-  end
+  def filter(q, {:creator, id}) when is_binary(id), do: where(q, [like_count: l], l.creator_id == ^id)
+  def filter(q, {:creator, ids}) when is_list(ids), do: where(q, [like_count: l], l.creator_id in ^ids)
 
-  # by field values
-
-  def filter(q, {:creator_id, id}) when is_binary(id) do
-    where q, [like_count: l], l.creator_id == ^id
-  end
-
-  def filter(q, {:creator_id, ids}) when is_list(ids) do
-    where q, [like_count: l], l.creator_id in ^ids
-  end
+  def filter(q, {:count, {:gte, cnt}}) when is_integer(cnt) and cnt > 0, do: where(q, [like_count: l], l.count >= ^cnt)
+  def filter(q, {:count, {:lte, cnt}}) when is_integer(cnt) and cnt > 0, do: where(q, [like_count: l], l.count <= ^cnt)
 
 end

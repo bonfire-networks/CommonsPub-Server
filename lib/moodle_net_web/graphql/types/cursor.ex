@@ -5,7 +5,6 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
   defstruct [data: nil, normalized: nil, raw: nil, errors: [], flags: %{}]
 
   use Absinthe.Schema.Notation
-  alias MoodleNetWeb.GraphQL.Cursor
   alias Absinthe.Blueprint.Input
 
   scalar :cursor, name: "Cursor" do
@@ -25,9 +24,9 @@ defmodule MoodleNetWeb.GraphQL.Cursor do
   @spec decode(Input.String.t) :: {:ok, binary}
   @spec decode(Input.Integer.t) :: {:ok, integer}
   @spec decode(term) :: {:error, :bad_parse}
-  defp decode(%Input.String{value: value}=s), do: {:ok, value}
-  defp decode(%Input.Integer{value: value}=i), do: {:ok, value}
-  defp decode(alien), do: {:error, :bad_parse}
+  defp decode(%Input.String{value: value}), do: {:ok, value}
+  defp decode(%Input.Integer{value: value}), do: {:ok, value}
+  defp decode(_alien), do: {:error, :bad_parse}
 
   defp encode(value), do: value
 

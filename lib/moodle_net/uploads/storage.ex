@@ -7,7 +7,7 @@ defmodule MoodleNet.Uploads.Storage do
   @type file_id :: binary
 
   @spec store(upload_def :: any, file :: file_source()) :: {:ok, file_info()} | {:error, term}
-  def store(upload_def, file, opts \\ []) do
+  def store(_upload_def, file, opts \\ []) do
     with {:ok, media_type} <- get_media_type(file),
          {:ok, file_info} <- upload_provider() |> Belt.store(file, opts),
          {:ok, metadata} <- get_metadata(file) do

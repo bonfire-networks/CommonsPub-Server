@@ -47,7 +47,7 @@ defmodule MoodleNet.Communities.Community do
     timestamps()
   end
 
-  @create_required ~w(name)a
+  @create_required ~w(name creator_id)a
   @create_cast @create_required ++
     ~w(is_disabled is_public summary icon_id image_id inbox_id outbox_id)a
 

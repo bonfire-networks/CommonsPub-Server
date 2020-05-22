@@ -4,7 +4,6 @@
 defmodule MoodleNetWeb.Test.Orderings do
 
   defp id(%{id: id}), do: id
-  defp updated_at(%{updated_at: upd}), do: upd
 
   defp follower_count(%{}=item), do: follower_count_2(Map.get(item, :follower_count))
 

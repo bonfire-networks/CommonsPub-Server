@@ -12,7 +12,6 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     FollowerCountsQueries,
   }
   alias MoodleNet.GraphQL.{
-    Fields,
     FetchFields,
     FetchPage,
     FetchPages,
@@ -21,7 +20,6 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   }
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Users.User
-  import Absinthe.Resolution.Helpers, only: [batch: 3]
 
   def follow(%{follow_id: id}, info) do
     Follows.one(id: id, user: GraphQL.current_user(info))
@@ -47,11 +45,15 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
   end
 
   def fetch_my_follow_edge(nil, _, _), do: nil
-  def fetch_my_follow_edge(user, info, ids) do
-    {:ok, fields} = Follows.fields(
-      &(&1.context_id),
-      [:deleted, creator_id: user.id, context_id: ids])
-    fields
+  def fetch_my_follow_edge(user, _info, ids) do
+    FetchFields.run(
+      %FetchFields{
+        queries: Follows.Queries,
+        query: Follow,
+        group_fn: &(&1.context_id),
+        filters: [deleted: false, creator: user.id, context: ids],
+      }
+    )
   end
   
 
@@ -74,7 +76,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         query: FollowCount,
         group_fn: &(&1.creator_id),
         map_fn: &(&1.count),
-        filters: [creator_id: ids],
+        filters: [creator: ids],
       }
     )
   end
@@ -99,7 +101,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         query: Follow,
         group_fn: &(&1.creator_id),
         page_opts: page_opts,
-        base_filters: [creator_id: ids, user: user],
+        base_filters: [creator: ids, user: user],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id],
       }
@@ -113,13 +115,13 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         queries: Follows.Queries,
         query: Follow,
         page_opts: page_opts,
-        base_filters: [creator_id: ids, user: user],
+        base_filters: [creator: ids, user: user],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )
   end
 
-  def follower_count_edge(%{follower_count: c}, _, info) when is_integer(c), do: {:ok, c}
+  def follower_count_edge(%{follower_count: c}, _, _info) when is_integer(c), do: {:ok, c}
 
   def follower_count_edge(%{id: id}, _, info) do
     ResolveFields.run(
@@ -140,7 +142,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         query: FollowerCount,
         group_fn: &(&1.context_id),
         map_fn: &(&1.count),
-        filters: [context_id: ids],
+        filters: [context: ids],
       }
     )
   end
@@ -165,7 +167,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         query: Follow,
         group_fn: &(&1.context_id),
         page_opts: page_opts,
-        base_filters: [context_id: ids, user: user],
+        base_filters: [context: ids, user: user],
         data_filters: [page: [desc: [created: page_opts]]],
         count_filters: [group_count: :context_id],
       }
@@ -179,7 +181,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
         queries: Follows.Queries,
         query: Follow,
         page_opts: page_opts,
-        base_filters: [context_id: ids, user: user],
+        base_filters: [context: ids, user: user],
         data_filters: [page: [desc: [created: page_opts]]],
       }
     )

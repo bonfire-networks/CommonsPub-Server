@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.FlagInvalid do
 
   defp handle_node(node), do: node
 
-  defp check_child(node, %{flags: %{invalid: _}}=mid, flag) do
+  defp check_child(node, %{flags: %{invalid: _}}, flag) do
     case node.input_value.data do
       %Cursor{} -> node
       _ -> flag_invalid(node, flag)

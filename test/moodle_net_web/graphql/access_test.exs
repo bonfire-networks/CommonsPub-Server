@@ -133,7 +133,6 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
              ] = grumble_post_errors(q, conn, %{email: Fake.email()})
     end
 
-    @tag :skip
     test "deletes an email" do
       user = fake_admin!()
       conn = user_conn(user)
@@ -149,7 +148,6 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       assert {:error, _} = Access.find_register_email(email_access.email)
     end
 
-    @tag :skip
     test "errors when deleter is not an admin" do
       user = fake_user!()
       conn = user_conn(user)
@@ -242,7 +240,6 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
              ] = grumble_post_errors(q, conn, %{domain: Fake.domain})
     end
 
-    @tag :skip
     test "deletes a domain" do
       user = fake_admin!()
       conn = user_conn(user)
@@ -260,7 +257,6 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
       assert {:error, _} = Access.find_register_email_domain(domain_access.domain)
     end
 
-    @tag :skip
     test "errors when deleter is not an admin" do
       user = fake_user!()
       conn = user_conn(user)

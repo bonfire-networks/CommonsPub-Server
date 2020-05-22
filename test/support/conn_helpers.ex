@@ -76,7 +76,7 @@ defmodule MoodleNetWeb.Test.ConnHelpers do
         throw {:additional_errors, errors}
       %{"errors" => errors} ->
         throw {:unexpected_errors, errors}
-      %{"data" => data} -> data
+      %{"data" => data} ->
         # IO.inspect(client_received: data)
         data
       other -> throw {:horribly_wrong, other}

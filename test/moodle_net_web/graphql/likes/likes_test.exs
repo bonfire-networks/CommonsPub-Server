@@ -94,7 +94,7 @@ defmodule MoodleNetWeb.GraphQL.LikesTest do
       q = create_like_mutation()
       vars = %{context_id: bob.id}
       like2 = grumble_post_key(q, conn, :create_like, vars)
-      {:ok, like} = Likes.one(creator_id: alice.id, context_id: bob.id)
+      {:ok, like} = Likes.one(creator: alice.id, context: bob.id)
       assert_like(like, like2)
     end
   end

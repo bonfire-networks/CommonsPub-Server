@@ -48,7 +48,7 @@ defmodule MoodleNetWeb.GraphQL.Phase.Arguments.Data do
     %{node | value: input.data}
   end
 
-  def handle_node(%Value{data: %Cursor{data: data}}=node) do
+  def handle_node(%Value{data: %Cursor{data: _data}}=node) do
     # IO.inspect(data: data)
     node
   end

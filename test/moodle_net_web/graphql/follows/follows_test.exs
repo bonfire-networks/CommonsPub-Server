@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
     test "works for guest for a public follow of a community" do
       alice = fake_user!()
       bob = fake_community!(alice, %{is_local: true})
-      {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
+      {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       q = follow_query()
       conn = json_conn()
       follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       alice = fake_user!()
       bob = fake_community!(alice, %{is_local: true})
       _celia = fake_collection!(alice, bob, %{is_local: true})
-      {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
+      {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       q = follow_query()
       conn = json_conn()
       follow2 = grumble_post_key(q, conn, :follow, %{follow_id: follow.id})
@@ -81,7 +81,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       bob = fake_community!(alice)
       q = follow_query(fields: [context: [community_spread()]])
       conn = json_conn()
-      {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
+      {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert_community(bob, follow2.context)
     end
@@ -92,7 +92,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       eve = fake_collection!(alice, bob)
       q = follow_query(fields: [context: [collection_spread()]])
       conn = json_conn()
-      {:ok, follow} = Follows.one(creator_id: alice.id, context_id: eve.id)
+      {:ok, follow} = Follows.one(creator: alice.id, context: eve.id)
       follow2 = assert_follow(follow, grumble_post_key(q, conn, :follow, %{follow_id: follow.id}))
       assert_collection(eve, follow2.context)
     end
@@ -104,7 +104,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       conn = user_conn(alice)
       q = create_follow_mutation()
       follow2 = assert_follow(grumble_post_key(q, conn, :create_follow, %{context_id: bob.id}))
-      {:ok, follow} = Follows.one(creator_id: alice.id, context_id: bob.id)
+      {:ok, follow} = Follows.one(creator: alice.id, context: bob.id)
       assert_follow(follow, follow2)
     end
 
@@ -117,7 +117,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsTest do
       vars = %{url: @remote_actor}
       follow2 = grumble_post_key(q, conn, :follow_remote_actor, vars)
       {:ok, followed} = MoodleNet.ActivityPub.Adapter.get_actor_by_ap_id(@remote_actor)
-      {:ok, follow} = Follows.one(creator_id: actor.id, context_id: followed.id)
+      {:ok, follow} = Follows.one(creator: actor.id, context: followed.id)
       assert_follow(follow, follow2)
     end
 

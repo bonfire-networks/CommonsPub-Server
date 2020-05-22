@@ -31,6 +31,8 @@ defmodule MoodleNetWeb.Test.GraphQLAssertions do
 
   def assert_pos(val), do: assert_int(val) && assert(val > 0) && val
 
+  def assert_float(val), do: assert(is_float(val)) && val
+
   def assert_email(val), do: assert_binary(val)
 
   def assert_url(url) do

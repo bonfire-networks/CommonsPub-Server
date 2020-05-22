@@ -11,57 +11,65 @@ defmodule MoodleNet.Actors do
   * Collections
   """
 
-  @replacement_regex ~r/[^a-zA-Z0-9@._-]/
+  @replacement_regex ~r/[^a-zA-Z0-9-]/
+  @wordsplit_regex ~r/[\t\n \_\|\(\)\#\@\.\,\;\[\]\/\\\}\{\=\*\&\<\>\:]/
 
-  import Ecto.Query, only: [from: 2]
+  alias MoodleNet.Actors.{Actor, NameReservation, Queries}
   alias MoodleNet.Repo
-  alias MoodleNet.Actors.{Actor, Queries}
+  alias MoodleNet.Users.User
   alias Ecto.Changeset
 
   def one(filters), do: Repo.single(Queries.query(Actor, filters))
 
-  # a username remains taken forever and regardless of publicity
-  defp is_username_available_q(username) do
-    from(a in Actor,
-      where: a.preferred_username == ^username,
-      where: is_nil(a.peer_id)
-    )
-  end
-
   @doc "true if the provided preferred_username is available to register"
   @spec is_username_available?(username :: binary) :: boolean()
   def is_username_available?(username) when is_binary(username) do
-    case Repo.single(is_username_available_q(username)) do
-      {:ok, _} -> false
-      _ -> true
-    end
+    is_nil(Repo.get(NameReservation, username))
   end
 
-  defp fix_preferred_username(username) when is_nil(username), do: nil
-
-  defp fix_preferred_username(username) do
-    String.replace(username, @replacement_regex, "")
+  @doc "Inserts a username reservation if it has not already been reserved"
+  def reserve_username(username) when is_binary(username) do
+    Repo.insert(NameReservation.changeset(username))
   end
 
   @doc "creates a new actor from the given attrs"
   @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def create(attrs) when is_map(attrs) do
     # attrs = Map.put(attrs, :preferred_username, fix_preferred_username(Map.get(attrs, :preferred_username)))
-    Repo.insert(Actor.create_changeset(attrs))
+    Repo.transact_with(fn ->
+      with {:ok, actor} <- Repo.insert(Actor.create_changeset(attrs)) do
+        if is_nil(actor.peer_id) do
+          case reserve_username(attrs.preferred_username) do
+            {:ok, _} -> {:ok, actor}
+            _ -> {:error, "Username already taken"}
+          end
+        else
+          {:ok, actor}
+        end
+      end
+    end)
   end
 
-  @spec update(actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
-  def update(%Actor{} = actor, attrs) when is_map(attrs) do
+  @spec update(user :: User.t(), actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
+  def update(%User{}, %Actor{} = actor, attrs) when is_map(attrs) do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
 
-  @spec delete(actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
-  def delete(%Actor{} = actor), do: Repo.delete(actor)
+  @spec delete(user :: User.t(), actor :: Actor.t()) :: {:ok, Actor.t()} | {:error, term}
+  def delete(%User{}, %Actor{} = actor), do: Repo.delete(actor)
 
-  def soft_delete_by(filters) do
-    Queries.query(Actor)
-    |> Queries.filter(filters)
-    |> Repo.delete_all()
+  def update_by(%User{}, filters, updates) do
+    Repo.update_all(Queries.query(Actor, filters), set: updates)
+  end
+
+  def fix_preferred_username(username) when is_nil(username), do: nil
+
+  def fix_preferred_username(username) do
+    String.replace(
+      String.replace(
+        String.replace(username, @wordsplit_regex, "-"), 
+      @replacement_regex, ""),
+    ~r/--+/, "-")
   end
 
 end
