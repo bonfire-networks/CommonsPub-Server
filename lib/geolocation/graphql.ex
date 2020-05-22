@@ -158,7 +158,7 @@ defmodule Geolocation.GraphQL do
     end)
   end
 
-  def update_geolocation(%{spatial_thing: changes, geolocation_id: id}, info) do
+  def update_geolocation(%{spatial_thing: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, geolocation} <- geolocation(%{geolocation_id: id}, info) do

@@ -12,7 +12,6 @@ defmodule Geolocation.GraphQLTest do
       geo = fake_geolocation!(user)
 
       q = geolocation_query()
-      IO.puts(Grumble.PP.to_string(q))
       conn = user_conn(user)
       assert_geolocation(grumble_post_key(q, conn, :spatial_thing, %{id: geo.id}))
     end
@@ -42,18 +41,38 @@ defmodule Geolocation.GraphQLTest do
   end
 
   describe "geolocations" do
-
   end
 
   describe "create_geolocation" do
+    test "creates a new geolocation" do
+      user = fake_user!()
 
+      q = create_geolocation_mutation()
+      conn = user_conn(user)
+      vars = %{spatial_thing: geolocation_input()}
+      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars))
+    end
+
+    test "creates a new geolocation with a context" do
+      user = fake_user!()
+      comm = fake_community!(user)
+
+      q = create_geolocation_mutation(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      vars = %{spatial_thing: geolocation_input(), in_scope_of: comm.id}
+      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars))
+    end
   end
 
   describe "update_geolocation" do
+    test "updates an existing geolocation" do
+      user = fake_user!()
+      geo = fake_geolocation!(user)
 
-  end
-
-  describe "delete_geolocation" do
-
+      q = update_geolocation_mutation()
+      conn = user_conn(user)
+      vars = %{spatial_thing: geolocation_input()}
+      assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars))
+    end
   end
 end
