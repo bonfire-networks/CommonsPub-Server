@@ -372,7 +372,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def delete(%{i_am_sure: true}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-         {:ok, _} <- Users.soft_delete(user) do
+         {:ok, _} <- Users.soft_delete(user, user) do
       {:ok, true}
     end
   end

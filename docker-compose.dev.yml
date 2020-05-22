@@ -11,6 +11,7 @@ services:
       - config/docker.dev.env
     depends_on:
       - db
+      - search
       # - redis
       # - dgraph
     volumes:
@@ -35,3 +36,9 @@ services:
   #     - "8001:8000"
   #     - "8080:8080"
   #     - "9080:9080"
+  search:
+    image: getmeili/meilisearch
+    ports:
+      - "7700:7700"
+    volumes:
+      - "./data/search:/data.ms"

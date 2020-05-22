@@ -68,8 +68,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   # Extension Modules
   import_types Organisation.GraphQL.Schema
-  # import_types Taxonomy.GraphQL.LocalesSchema
-  # import_types Taxonomy.GraphQL.TagsSchema
+  import_types Taxonomy.GraphQL.LocalesSchema
+  import_types Taxonomy.GraphQL.TagsSchema
   import_types Measurement.Unit.GraphQL
   import_types Geolocation.GraphQL
   # import_types ValueFlows.Schema
@@ -95,9 +95,8 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # Extension Modules
     import_fields :organisations_queries
-    # import_fields :locales_queries
-    # import_fields :tags_queries
-    # import_fields :tags_queries
+    import_fields :locales_queries
+    import_fields :tags_queries
     import_fields :measurement_query
     import_fields :geolocation_query
     # import_fields :value_flows_query

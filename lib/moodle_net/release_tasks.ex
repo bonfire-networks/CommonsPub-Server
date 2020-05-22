@@ -226,14 +226,4 @@ defmodule MoodleNet.ReleaseTasks do
       Repo.delete_all(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
   end
   
-  def reserve_actor_usernames() do
-    import Ecto.Query
-    hashes = Repo.all(from(x in Actors.NameReservation, select: x.id))
-    set = MapSet.new(hashes)
-    from(x in Actors.Actor, select: x.preferred_username)
-    |> Repo.all()
-    |> Enum.filter(&(not MapSet.member?(set, :crypto.hash(:sha256, &1))))
-    |> Enum.each(&Actors.reserve_username/1)
-  end
-
 end

@@ -29,7 +29,8 @@ defmodule MoodleNet.Algolia.Indexer do
     if check_envs() && supported_type(object) do
       object
       |> format_object()
-      |> push_object()
+      |> Search.Indexer.push_object("mothership")
+      # |> push_object()
     else
       :ok
     end

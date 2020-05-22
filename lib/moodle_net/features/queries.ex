@@ -36,6 +36,13 @@ defmodule MoodleNet.Features.Queries do
   def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [feature: f], f.id <= ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [feature: f], f.id in ^ids)
 
+  def filter(q, {:creator, id}) when is_binary(id) do
+    where(q, [feature: f], f.creator_id == ^id)
+  end
+  def filter(q, {:creator, ids}) when is_list(ids) do
+    where(q, [feature: f], f.creator_id in ^ids)
+  end
+
   def filter(q, {:context, id}) when is_binary(id), do: where(q, [feature: f], f.context_id == ^id)
   def filter(q, {:context, ids}) when is_list(ids), do: where(q, [feature: f], f.context_id in ^ids)
 

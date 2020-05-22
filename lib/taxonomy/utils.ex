@@ -23,13 +23,13 @@ defmodule Taxonomy.Utils do
     Regex.replace(~r/[^a-zA-Z0-9]/u, upper_case_first_letter_of_words(str), "")
   end
 
-  defp upper_case_first_letter_of_words(str) do
+  def upper_case_first_letter_of_words(str) do
     words = ~w(#{str})
     Enum.into(words, [], fn(word) -> first_char_to_uppercase(word) end)
     |> to_string
   end
 
-  defp first_char_to_uppercase(word) do
+  def first_char_to_uppercase(word) do
     code_points = String.codepoints(word)
     first = List.first(code_points)
     code_points
