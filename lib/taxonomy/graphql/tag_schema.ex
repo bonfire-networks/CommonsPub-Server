@@ -31,6 +31,12 @@ defmodule Taxonomy.GraphQL.TagsSchema do
     field(:label, :string)
     field(:description, :string)
     field(:parent_tag_id, :integer)
+
+    @desc "The parent tag (in a tree-based taxonomy)"
+    field :parent_tag, :tag do
+      resolve &TagsResolver.parent_tag/3
+    end
+
   end
 
   object :tags_page do
@@ -75,17 +81,6 @@ defmodule Taxonomy.GraphQL.TagsSchema do
 
 #   end
 
-#   object :tag_categories_edges do
-#     field :page_info, non_null(:page_info)
-#     field :edges, list_of(:tag_categories_edge)
-#     field :total_count, non_null(:integer)
-#   end
-
-#   object :tag_categories_edge do
-#     field :cursor, non_null(:string)
-#     field :node, :tag_category
-#   end
-
 
   # @desc "A category is a grouping mechanism for tags"
   # object :tag_category do
@@ -122,15 +117,6 @@ defmodule Taxonomy.GraphQL.TagsSchema do
 
   # end
 
-  # object :tag_categories_edges do
-  #   field :page_info, non_null(:page_info)
-  #   field :edges, list_of(:tag_categories_edge)
-  #   field :total_count, non_null(:integer)
-  # end
 
-  # object :tag_categories_edge do
-  #   field :cursor, non_null(:string)
-  #   field :node, :tag_category
-  # end
 
 end

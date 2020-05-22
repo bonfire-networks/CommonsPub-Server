@@ -11,6 +11,7 @@ defmodule Taxonomy.GraphQL.TagsResolver do
     FetchPage,
     FetchPages,
     ResolveField,
+    ResolveFields,
     ResolvePage,
     ResolvePages,
     ResolveRootPage,
@@ -59,6 +60,28 @@ defmodule Taxonomy.GraphQL.TagsResolver do
         page_opts: page_opts,
         # base_filters: [user: GraphQL.current_user(info)],
         # data_filters: [page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
+
+  def parent_tag(%Tag{parent_tag_id: id}, _, info) do
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_parent_tag,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_parent_tag(_, ids) do
+    FetchFields.run(
+      %FetchFields{
+        queries: Tags.Queries,
+        query: Tag,
+        group_fn: &(&1.id),
+        filters: [id: ids],
       }
     )
   end
