@@ -41,6 +41,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
+  # def search_follows(%Me{user: %User{}}, _, ) do
+  #   # Follows.many(
+  # end
+
+  def search_follows(_, _, _), do: {:ok, []}
+
   def user(%{user_id: id}, info) do
     Users.one join: :actor, preload: :actor,
       id: id, user: GraphQL.current_user(info)

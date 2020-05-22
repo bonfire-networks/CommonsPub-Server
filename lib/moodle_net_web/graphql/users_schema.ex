@@ -126,11 +126,30 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
     field :is_instance_admin, non_null(:boolean) do
       resolve &UsersResolver.is_instance_admin_edge/3
     end
+
+    @desc """
+    I hope to go away soon, but in the interim I return just enough
+    information about the collections and communities a user follows
+    to match them up to the search results in the frontend
+    """
+    field :search_follows, non_null(list_of(non_null(:search_follow))) do
+      resolve &UsersResolver.search_follows/3
+    end
+  end
+
+  @desc """
+  I hope to go away soon, but in the interim I am a subset of a
+  collection or community the user follows.
+  """
+  object :search_follow do
+    field :community_id, :string
+    field :collection_id, :string
+    field :canonical_url, non_null(:string)
   end
 
   @desc "User profile information"
   object :user do
-    @desc "An instance-local UUID identifying the user"
+    @desc "An instance-local ULID identifying the user"
     field :id, non_null(:id)
 
     @desc "A url for the user, may be to a remote instance"
