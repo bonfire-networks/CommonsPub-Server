@@ -59,9 +59,6 @@ defmodule Geolocation.Test.Faking do
        note: assert_optional(&assert_binary/1),
        lat: assert_optional(&assert_float/1),
        long: assert_optional(&assert_float/1),
-       published_at: assert_optional(&assert_datetime/1),
-       disabled_at: assert_optional(&assert_datetime/1),
-       deleted_at: assert_optional(&assert_datetime/1),
       ]
   end
 

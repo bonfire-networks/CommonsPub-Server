@@ -17,7 +17,7 @@ defmodule Geolocation.GraphQLTest do
     end
   end
 
-  describe "geolocation.context" do
+  describe "geolocation.in_scope_of" do
     test "returns the context of the geolocation" do
       user = fake_user!()
       comm = fake_community!(user)

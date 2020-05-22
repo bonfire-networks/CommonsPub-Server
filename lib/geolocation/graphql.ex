@@ -9,8 +9,6 @@ defmodule Geolocation.GraphQL do
     GraphQL,
     Repo,
     Meta.Pointers,
-    Communities.Community,
-    Collections.Collection,
   }
   alias MoodleNet.GraphQL.{
     ResolvePage,
@@ -38,7 +36,6 @@ defmodule Geolocation.GraphQL do
   ## resolvers
 
   def geolocation(%{id: id}, info) do
-    IO.puts("GEOLOCATION")
     ResolveField.run(
       %ResolveField{
         module: __MODULE__,
@@ -60,10 +57,6 @@ defmodule Geolocation.GraphQL do
       }
     )
   end
-
-  def resolve_type(%Community{}, _), do: :community
-  def resolve_type(%Collection{}, _), do: :collection
-  def resolve_type(%Organisation{}, _), do: :organisation
 
   ## fetchers
 
