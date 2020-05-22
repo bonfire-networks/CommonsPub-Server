@@ -34,7 +34,7 @@ defmodule MoodleNetWeb do
         namespace: MoodleNetWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
+      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1, view_template: 1]
 
       import MoodleNetWeb.ErrorHelpers
       import MoodleNetWeb.Gettext

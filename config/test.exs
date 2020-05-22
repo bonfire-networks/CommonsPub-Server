@@ -58,6 +58,6 @@ config :moodle_net, :instance, federating: false
 config :moodle_net, Oban, queues: false, prune: :disabled
 
 config :moodle_net, MoodleNet.Uploads,
-  directory: System.cwd!() <> "/test_uploads",
+  directory: File.cwd!() <> "/test_uploads",
   path: "/uploads",
   base_url: "http://localhost:4001/uploads/"

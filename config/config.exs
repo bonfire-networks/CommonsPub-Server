@@ -161,7 +161,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
-  pubsub: [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: MoodleNet.PubSub,
   secure_cookie_flag: true
 
 version =
