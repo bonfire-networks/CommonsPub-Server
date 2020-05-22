@@ -42,18 +42,28 @@ config :moodle_net, MoodleNet.Uploads,
   path: upload_path,
   base_url: upload_url
 
-mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
-mail_domain = System.get_env("MAIL_DOMAIN")
-mail_key = System.get_env("MAIL_KEY")
-mail_reply_to = System.get_env("MAIL_FROM")
+mail_domain = System.fetch_env!("MAIL_DOMAIN")
+mail_reply_to = System.fetch_env!("MAIL_FROM")
+
+config :moodle_net, MoodleNet.Mail.MailService,
+  domain: mail_domain,
+  reply_to: mail_reply_to
+
+case System.get_env("MAIL_BACKEND") do
+  "mailgun" ->
+    mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
+    mail_key = System.get_env("MAIL_KEY")
+    
+  _ ->
+end
+
+
 
 if not is_nil(mail_key) do
   config :moodle_net, MoodleNet.Mail.MailService,
     adapter: Bamboo.MailgunAdapter,
-    domain: mail_domain,
     api_key: mail_key,
     base_uri: mail_base_uri,
-    reply_to: mail_reply_to
 end
 
 sentry_dsn = System.get_env("SENTRY_DSN")
