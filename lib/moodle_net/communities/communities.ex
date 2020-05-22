@@ -143,7 +143,7 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  defp chase_delete(user, communities) do
+  defp chase_delete(user, communities, []) do
     with :ok <- Activities.soft_delete_by(user, context: communities),
          :ok <- Blocks.soft_delete_by(user, context: communities),
          :ok <- Collections.soft_delete_by(user, community: communities),
@@ -155,12 +155,8 @@ defmodule MoodleNet.Communities do
       :ok
     end
   end
-
-  defp chase_delete(user, communities, []), do: chase_delete(user, communities)
   defp chase_delete(user, communities, feeds) do
-    with :ok <- Feeds.soft_delete_by(user, id: feeds) do
-      chase_delete(user, communities)
-    end
+    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, communities, [])
   end
 
   # defp default_inbox_query_contexts() do

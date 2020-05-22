@@ -69,9 +69,6 @@ defmodule MoodleNet.Users.User do
     |> common_changeset()
   end
 
-  def soft_delete_changeset(%User{} = user),
-    do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
-
   defp common_changeset(changeset) do
     changeset
     |> change_synced_timestamp(:is_disabled, :disabled_at)
