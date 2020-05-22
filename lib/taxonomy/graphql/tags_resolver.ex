@@ -45,9 +45,8 @@ defmodule Taxonomy.GraphQL.TagsResolver do
 
   def fetch_tag(info, id) do
     Tags.one(
-      user: GraphQL.current_user(info),
+      # user: GraphQL.current_user(info),
       id: id,
-      preload: :actor
     )
   end
 
