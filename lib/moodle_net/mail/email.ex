@@ -6,6 +6,7 @@ defmodule MoodleNet.Mail.Email do
   Email Bamboo module
   """
   import MoodleNetWeb.Gettext
+  alias MoodleNet.Users.User
   use Bamboo.Phoenix, view: MoodleNetWeb.EmailView
 
   def welcome(user, token) do
