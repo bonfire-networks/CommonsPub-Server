@@ -29,8 +29,6 @@ defmodule Geolocation.Test.Faking do
     |> Map.put_new_lazy("note", &Fake.summary/0)
     |> Map.put_new_lazy("lat", &Fake.integer/0)
     |> Map.put_new_lazy("long", &Fake.integer/0)
-    |> Map.put_new_lazy("isPublic", &Fake.truth/0)
-    |> Map.put_new_lazy("isDisabled", &Fake.falsehood/0)
   end
 
   def fake_geolocation!(user, context \\ nil, overrides  \\ %{})

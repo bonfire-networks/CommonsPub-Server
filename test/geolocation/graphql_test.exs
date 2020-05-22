@@ -26,7 +26,7 @@ defmodule Geolocation.GraphQLTest do
       q = geolocation_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
-      assert resp["context"]["__typename"] == "Community"
+      assert resp["inScopeOf"]["__typename"] == "Community"
     end
 
     test "returns nil if there is no context" do
