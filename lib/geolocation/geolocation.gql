@@ -9,7 +9,7 @@
 #
 ##
 
-union GeoScope = Organisation | Community | Collection #TEMPORARY
+union GeoScope
 
 """
 A physical mappable location.
