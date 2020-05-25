@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
-  alias MoodleNet.GraphQL.{Fields, ResolveFields}
+  alias MoodleNet.GraphQL.{FetchFields, Fields, ResolveFields}
   alias MoodleNet.{Uploads, Users}
   alias MoodleNet.Uploads.Content
 
@@ -57,11 +57,15 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     )
   end
 
-  def content_edge(_id, _info), do: {:ok, nil}
-
   def fetch_content_edge(_, ids) do
-    {:ok, uploads} = Uploads.many(deleted: false, published: true, id: ids)
-    Fields.new(uploads, &Map.get(&1, :id))
+    FetchFields.run(
+      %FetchFields{
+        queries: Uploads.Queries,
+        query: Content,
+        group_fn: &(&1.id),
+        filters: [deleted: false, published: true, id: ids],
+      }
+    )
   end
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
