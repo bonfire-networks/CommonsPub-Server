@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule MoodleNetWeb.GraphQL.UploadResolver do
+  alias MoodleNet.GraphQL.{Fields, ResolveFields}
   alias MoodleNet.{Uploads, Users}
   alias MoodleNet.Uploads.Content
 
@@ -41,12 +42,27 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
     end
   end
 
-  def icon_content_edge(%{icon_id: id}, _, _info), do: content_edge(id)
-  def image_content_edge(%{image_id: id}, _, _info), do: content_edge(id)
-  def resource_content_edge(%{content_id: id}, _, _info), do: content_edge(id)
+  def icon_content_edge(%{icon_id: id}, _, info), do: content_edge(id, info)
+  def image_content_edge(%{image_id: id}, _, info), do: content_edge(id, info)
+  def resource_content_edge(%{content_id: id}, _, info), do: content_edge(id, info)
 
-  defp content_edge(id) when is_binary(id), do: Uploads.one(deleted: false, published: true, id: id)
-  defp content_edge(_), do: {:ok, nil}
+  def content_edge(id, info) when is_binary(id) do
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_content_edge,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def content_edge(_id, _info), do: {:ok, nil}
+
+  def fetch_content_edge(_, ids) do
+    {:ok, uploads} = Uploads.many(deleted: false, published: true, id: ids)
+    Fields.new(uploads, &Map.get(&1, :id))
+  end
 
   def is_public(%Content{} = upload, _, _info), do: {:ok, not is_nil(upload.published_at)}
 
