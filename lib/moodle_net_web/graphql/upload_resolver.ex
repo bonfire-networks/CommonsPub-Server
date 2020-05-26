@@ -77,4 +77,5 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def content_upload(%Content{content_upload: upload}, _, _info), do: {:ok, upload}
   def content_mirror(%Content{content_mirror: mirror}, _, _info), do: {:ok, mirror}
+
 end

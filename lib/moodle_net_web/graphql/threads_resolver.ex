@@ -42,21 +42,21 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
     )
   end
 
-  def fetch_threads_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Threads.Queries,
-        query: Thread,
-        cursor_fn: Threads.cursor(:followers),
-        group_fn: &(&1.context_id),
-        page_opts: page_opts,
-        base_filters: [user: user, context: ids],
-        data_filters: [page: [desc: [followers: page_opts]]],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
+  # def fetch_threads_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Threads.Queries,
+  #       query: Thread,
+  #       cursor_fn: Threads.cursor(:followers),
+  #       group_fn: &(&1.context_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, context: ids],
+  #       data_filters: [page: [desc: [followers: page_opts]]],
+  #       count_filters: [group_count: :context_id],
+  #     }
+  #   )
+  # end
 
   def fetch_threads_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)

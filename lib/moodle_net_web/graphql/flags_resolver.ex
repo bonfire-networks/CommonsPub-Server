@@ -64,21 +64,21 @@ defmodule MoodleNetWeb.GraphQL.FlagsResolver do
     end
   end
 
-  def fetch_flags_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Flags.Queries,
-        query: Flag,
-        cursor_fn: &[&1.id],
-        group_fn: &(&1.context_id),
-        page_opts: page_opts,
-        base_filters: [deleted: false, user: user, creator: ids],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :creator_id],
-      }
-    )
-  end
+  # def fetch_flags_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Flags.Queries,
+  #       query: Flag,
+  #       cursor_fn: &[&1.id],
+  #       group_fn: &(&1.context_id),
+  #       page_opts: page_opts,
+  #       base_filters: [deleted: false, user: user, creator: ids],
+  #       data_filters: [page: [desc: [created: page_opts]]],
+  #       count_filters: [group_count: :creator_id],
+  #     }
+  #   )
+  # end
 
   def fetch_flags_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
