@@ -40,5 +40,4 @@ defmodule MoodleNet.Uploads.Queries do
   def filter(q, {:uploader, id}) when is_binary(id), do: where(q, [content: c], c.uploader_id == ^id)
   def filter(q, {:uploader, ids}) when is_list(ids), do: where(q, [content: c], c.uploader_id in ^ids)
 
-
 end
