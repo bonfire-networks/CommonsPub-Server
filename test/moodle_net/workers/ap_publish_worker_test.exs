@@ -146,6 +146,38 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
     end
   end
 
+  describe "updates" do
+    test "users" do
+      user = fake_user!()
+      {:ok, user} = MoodleNet.Users.update(user, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => user.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
+
+    test "communities" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      {:ok, comm} = MoodleNet.Communities.update(user, comm, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comm.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
+
+    test "collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      {:ok, coll} = MoodleNet.Collections.update(user, coll, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
+  end
+
   describe "batch enqueue" do
     test "works" do
       require Ecto.Query
