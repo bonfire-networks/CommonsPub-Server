@@ -103,7 +103,7 @@ defmodule MoodleNet.Mixfile do
       # {:protocol_ex, "~> 0.3.0"},
       {:jason, "~> 1.2"},    # json
       {:gettext, "~> 0.18"}, # localisation
-      {:recase, "~> 0.2"},   # camel/snake/kebabification
+      {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex, git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
@@ -111,15 +111,6 @@ defmodule MoodleNet.Mixfile do
       {:oban, "~> 1.2.0"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
-      # CommonsPub:
-      {:geo_postgis, "~> 3.1"}, # geolocation in postgres
-      # {:dlex, "~> 0.4", override: true},
-      # {:castore, "~> 0.1.0", optional: true},
-      # {:mint, github: "ericmj/mint", branch: "master"},
-      # {:retrieval, "~> 0.9.1"}, # taxonomy trees
-      # {:redix, "~> 0.10.5"}, # Redis client
-      # {:ex_redi, "~> 0.1.1"}, # RediSearch client
-      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:zest, "~> 0.1.1", only: [:dev, :test]},
