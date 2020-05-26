@@ -39,6 +39,7 @@ unit-testing:
   - name: postgres:9.6.6
     command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
   script:
+    - make dev-l8n-download # pull latest localised PO files from transifex to be used by backend
     - mix compile --force
     - mix ecto.create
     - mix ecto.migrate
