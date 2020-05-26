@@ -44,12 +44,16 @@ defmodule MoodleNet.Follows.Queries do
   def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
   def filter(q, {:join, rel}), do: join_to(q, rel)
 
-  def filter(q, {:preset, :search_follows}) do
+  # TODO: but what? (it's a bit horrible)
+  def filter(q, {:preset, {:search_follows, uid}}) do
     q
     |> filter(deleted: false, published: true, join: :community, join: :collection)
-    |> where([community: c, collection: d], not (is_nil(c.canonical_url) and is_nil(d.canonical_url)))
-    |> select([community: c, collection: d],
-      %{community_id: c.id, collection_id: d.id, canonical_url: coalesce(c.canonical_url, d.canonical_url)}
+    |> join(:left, [community: c, collection: d], a in Actor, as: :actor, on: c.actor_id == a.id or d.actor_id == a.id)
+    |> where([actor: a], not is_nil(a.canonical_url))
+    |> select([community: c, collection: d, actor: a],
+    %{ community_id: c.id, collection_id: d.id,
+       canonical_url: a.canonical_url,
+       is_creator: c.creator_id == ^uid or d.creator_id == ^uid }
     )
   end
 

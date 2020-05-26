@@ -41,8 +41,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
-  def search_follows(%Me{user: %User{}}, _, _) do
-    Follows.many(preset: :search_follows)
+  def search_follows(%Me{user: %User{id: id}}, _, _) do
+    Follows.many(preset: {:search_follows, id})
   end
 
   def search_follows(_, _, _), do: {:ok, []}
