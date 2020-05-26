@@ -71,7 +71,7 @@ l8n-upload:
   - master
 
 staging-build-and-push:
-  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  stage: deploy # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:
