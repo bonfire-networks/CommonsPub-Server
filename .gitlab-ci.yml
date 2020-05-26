@@ -76,12 +76,10 @@ staging-build-and-push:
     name: docker:stable
   services:
   - docker:stable-dind
-  before_script: # override the default in this case
-    - apk add --update --no-cache build-base cmake git curl
-    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - make dev-l8n-download # pull all the latest localised PO files from transifex to be used by frontend
     - make build
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Push to Docker Hub or skip if login details missing..."; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
@@ -93,12 +91,10 @@ stable-build-and-push:
     name: docker:stable
   services:
   - docker:stable-dind
-  before_script: # override the default in this case
-    - apk add --update --no-cache build-base cmake git curl
-    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
     - make dev-l8n-download # pull all the latest localised PO files from transifex to be used by frontend
     - make build
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Push to Docker Hub or skip if login details missing..."; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
