@@ -144,6 +144,33 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, activity, _, _} = APPublishWorker.perform(%{"context_id" => deleted_like.id, "op" => "delete"}, %{})
       assert activity.data["type"] == "Undo"
     end
+
+    test "users" do
+      user = fake_user!()
+      {:ok, user} = MoodleNet.Users.soft_delete(user, user)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => user.id, "op" => "delete"}, %{})
+      assert activity["type"] == "Delete"
+    end
+
+    test "communities" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      {:ok, comm} = MoodleNet.Communities.soft_delete(user, comm)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comm.id, "op" => "delete"}, %{})
+      assert activity["type"] == "Delete"
+    end
+
+    test "collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      {:ok, coll} = MoodleNet.Collections.soft_delete(user, coll)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "delete"}, %{})
+      assert activity["type"] == "Delete"
+    end
   end
 
   describe "updates" do

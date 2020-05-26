@@ -290,8 +290,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
   def delete_actor(actor) do
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id) do
       ActivityPub.delete(actor)
-      # FIXME: currently the cache will get re-set when the delete activity is being federated
-      ActivityPub.Actor.invalidate_cache(actor)
     end
   end
 end

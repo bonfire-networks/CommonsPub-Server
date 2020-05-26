@@ -89,6 +89,10 @@ defmodule MoodleNet.Workers.APPublishWorker do
     Publisher.update_actor(actor)
   end
 
+  defp publish(%{__struct__: type} = actor, "delete") when type in [User, Community, Collection] do
+    Publisher.delete_actor(actor)
+  end
+
   defp publish(context, verb) do
     Logger.warn(
       "Unsupported action for AP publisher: #{context.id}, #{verb} #{context.__struct__}"
