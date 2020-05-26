@@ -53,7 +53,7 @@ defmodule MoodleNet.Actors do
   @doc """
   creates a new actor from the given attrs with an automatically generated username
   """
-  @spec create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
+  @spec auto_create(attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
   def auto_create(attrs) when is_map(attrs) do
     attrs
     |> Map.update(:preferred_username, nil, &atomise_username/1)

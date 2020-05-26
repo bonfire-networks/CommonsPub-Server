@@ -329,7 +329,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   ### Mutations
 
   def create_user(%{user: attrs} = params, info) do
-    extra = %{is_public: true}
+    extra = %{is_public: true, peer_id: nil}
     Repo.transact_with(fn ->
       with :ok <- GraphQL.guest_only(info),
            {:ok, user} <- Users.register(Map.merge(attrs, extra)),
