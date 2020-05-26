@@ -56,6 +56,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
       }
     )
   end
+  def content_edge(_, _), do: {:ok, nil}
 
   def fetch_content_edge(_, ids) do
     FetchFields.run(

@@ -21,8 +21,9 @@ defmodule MoodleNetWeb.Plugs.Static do
 
   def call(conn, opts) do
     config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
-    at = Keyword.fetch!(config, :base_url)
+    at = Keyword.fetch!(config, :path)
     from = Keyword.fetch!(config, :directory)
+    IO.inspect(static_from: from)
     more = %{at: at, from: from}
     opts = Map.merge(opts, more)
     Static.call(conn, opts)
