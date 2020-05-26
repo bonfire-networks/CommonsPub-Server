@@ -279,8 +279,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
            actor: actor.ap_id,
            local: true
          } do
-      ActivityPub.update(params)
       ActivityPub.Actor.set_cache(actor)
+      ActivityPub.update(params)
     else
       e -> {:error, e}
     end

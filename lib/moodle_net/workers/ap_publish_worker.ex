@@ -16,6 +16,7 @@ defmodule MoodleNet.Workers.APPublishWorker do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Threads.Comment
+  alias MoodleNet.Users.User
 
   @moduledoc """
   Module for publishing ActivityPub activities.
@@ -82,6 +83,10 @@ defmodule MoodleNet.Workers.APPublishWorker do
 
   defp publish(%Like{} = like, "delete") do
     Publisher.unlike(like)
+  end
+
+  defp publish(%{__struct__: type} = actor, "update") when type in [User, Community, Collection] do
+    Publisher.update_actor(actor)
   end
 
   defp publish(context, verb) do

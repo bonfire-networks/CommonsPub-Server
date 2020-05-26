@@ -19,12 +19,14 @@ stages:
   # - build
   - test
   - deploy
+  - extras
 
 before_script:
   - apk add --update --no-cache build-base cmake curl git rust cargo py-pip
   - make manual-deps
   - pip --cache-dir=.pip install -U pip # upgrade pip
-  
+  - pip --cache-dir=.pip install transifex-client # install transifex cli
+
 # build:
 #   stage: build
 #   script:
@@ -42,12 +44,9 @@ unit-testing:
     - mix ecto.migrate
     - mix coveralls --preload-modules
 
-locales-and-docs:
-  stage: test # deploy documentation (stage should be changed 'deploy' when tests are fixed)
+docs:
+  stage: extras # deploy documentation 
   script:
-    - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
-    - mix gettext.extract # extract strings to be localised
-    - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
     - MIX_ENV=dev mix deps.get
     - MIX_ENV=dev mix docs
     - mv doc public # serve as GitLab Pages artifact
@@ -60,17 +59,27 @@ locales-and-docs:
   only:
   - develop
 
+l8n-upload:
+  stage: extras # send new strings to be localised to transifex
+  script:
+    - make dev-l8n-extract # extract strings to be localised
+    - if [ ! -z "$TX_TOKEN" ]; then tx push --source --no-interactive ; else echo "Skipping..."; fi # then push latest English PO file to transifex for translators (only need to run this once per new commit)
+  artifacts:
+    paths:
+    - public
+  only:
+  - master
+
 staging-build-and-push:
-  stage: test # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
+  stage: deploy # deploy staging docker image (stage should be changed 'deploy' when tests are fixed)
   image:
     name: docker:stable
   services:
   - docker:stable-dind
-  before_script: # override the default in this case
-    - apk add --update --no-cache build-base cmake git curl
-    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
+    - make dev-l8n-download # pull all the latest localised PO files from transifex to be used by frontend
     - make build
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push ; else echo "Push to Docker Hub or skip if login details missing..."; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_staging ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
@@ -82,11 +91,10 @@ stable-build-and-push:
     name: docker:stable
   services:
   - docker:stable-dind
-  before_script: # override the default in this case
-    - apk add --update --no-cache build-base cmake git curl
-    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
+    - make dev-l8n-download # pull all the latest localised PO files from transifex to be used by frontend
     - make build
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Push to Docker Hub or skip if login details missing..."; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
