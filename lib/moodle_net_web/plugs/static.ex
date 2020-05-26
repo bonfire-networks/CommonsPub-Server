@@ -6,9 +6,6 @@ defmodule MoodleNetWeb.Plugs.Static do
   alias Plug.Static
 
   def init(opts) do
-    config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
-    from = Keyword.fetch!(config, :directory)
-    at = Keyword.fetch!(config, :path)
     %{
       gzip?: Keyword.get(opts, :gzip, false),
       brotli?: Keyword.get(opts, :brotli, false),
@@ -18,13 +15,14 @@ defmodule MoodleNetWeb.Plugs.Static do
       et_generation: Keyword.get(opts, :etag_generation, nil),
       headers: Keyword.get(opts, :headers, %{}),
       content_types: Keyword.get(opts, :content_types, %{}),
-      from: from,
-      at: Plug.Router.Utils.split(at),
     }
-    
   end
 
   def call(conn, opts) do
+    config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
+    from = Keyword.fetch!(config, :directory)
+    at = Plug.Router.Utils.split(Keyword.fetch!(config, :path))
+    opts = Map.merge(opts, %{from: from, at: at})
     Static.call(conn, opts)
   end
 
