@@ -144,7 +144,9 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   object :search_follow do
     field :community_id, :string
     field :collection_id, :string
+    field :follow_id, non_null(:string)
     field :canonical_url, non_null(:string)
+    field :is_creator, non_null(:boolean)
   end
 
   @desc "User profile information"

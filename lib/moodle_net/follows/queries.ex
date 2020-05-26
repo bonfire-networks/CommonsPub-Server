@@ -51,11 +51,11 @@ defmodule MoodleNet.Follows.Queries do
     |> filter(deleted: false, published: true, join: :community, join: :collection)
     |> join(:left, [community: c, collection: d], a in Actor, as: :actor, on: c.actor_id == a.id or d.actor_id == a.id)
     |> where([actor: a], not is_nil(a.canonical_url))
-    |> select([community: c, collection: d, actor: a],
-    %{ community_id: c.id, collection_id: d.id,
-       canonical_url: a.canonical_url,
-       is_creator: c.creator_id == ^uid or d.creator_id == ^uid }
-    )
+    |> select([follow: f, community: c, collection: d, actor: a],
+      %{ community_id: c.id, collection_id: d.id, follow_id: f.id,
+         canonical_url: a.canonical_url,
+         is_creator: c.creator_id == ^uid or d.creator_id == ^uid,
+      })
   end
 
   def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
