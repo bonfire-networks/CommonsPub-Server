@@ -28,7 +28,7 @@ defmodule ActivityPubWeb.Publisher do
   """
   def publish_one(%{inbox: inbox, json: json, actor: %Actor{} = actor, id: id} = params) do
     Logger.info("Federating #{id} to #{inbox}")
-    host = URI.parse(inbox).host
+    %{host: host, path: path} = URI.parse(inbox)
 
     digest = "SHA-256=" <> (:crypto.hash(:sha256, json) |> Base.encode64())
 
@@ -38,6 +38,7 @@ defmodule ActivityPubWeb.Publisher do
 
     signature =
       ActivityPub.Signature.sign(actor, %{
+        "(request-target)": "post #{path}",
         host: host,
         "content-length": byte_size(json),
         digest: digest,
