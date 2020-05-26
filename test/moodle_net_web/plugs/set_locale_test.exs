@@ -10,13 +10,13 @@ defmodule MoodleNetWeb.Plugs.SetLocaleTest do
     conn =
       html_conn()
       |> plugged()
-      |> Conn.put_req_header("accept-language", "es_MX, en-gb;q=0.8, en;q=0.7")
+      |> Conn.put_req_header("accept-language", "es_MX, es, en-gb;q=0.8, en;q=0.7")
       |> SetLocale.call(nil)
 
     assert "es_MX" == Gettext.get_locale(MoodleNetWeb.Gettext)
 
     conn
-    |> Conn.put_req_header("accept-language", "de, en-gb;q=0.8")
+    |> Conn.put_req_header("accept-language", "xyz, en-gb;q=0.8")
     |> SetLocale.call(nil)
 
     assert "en" == Gettext.get_locale(MoodleNetWeb.Gettext)
