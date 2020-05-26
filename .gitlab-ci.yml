@@ -25,7 +25,7 @@ before_script:
   - apk add --update --no-cache build-base cmake curl git rust cargo py-pip
   - make manual-deps
   - pip --cache-dir=.pip install -U pip # upgrade pip
-  - if [ ! -z "$TX_TOKEN" ]; then pip --cache-dir=.pip install transifex-client ; else echo "Skipping..."; fi # install transifex cli
+  - pip --cache-dir=.pip install transifex-client # install transifex cli
 
 # build:
 #   stage: build
