@@ -51,3 +51,6 @@ priv/repo/structure.sql
 
 # Generated test files
 /test_uploads/
+
+# localised strings
+priv/gettext/*/LC_MESSAGES

@@ -118,6 +118,15 @@ dev-stop: init ## Stop the dev app
 dev-down: init ## Remove the dev app
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) down
 
+dev-l8n-extract: init ## Extract localisable strings from codebase
+	mix gettext.extract
+
+dev-l8n-download: init ## Download localised strings from Transifex (requires the tx cli tool)
+	tx pull --all --force --no-interactive
+
+dev-l8n-compile: init ## Force recompile localised strings from PO files
+	mix compile.gettext
+
 manual-deps: init ## Prepare dependencies (without Docker)
 	mix local.hex --force
 	mix local.rebar --force
