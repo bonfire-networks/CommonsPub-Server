@@ -95,7 +95,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
     coll_url = MoodleNet.Config.get!(:frontend_base_url) <> "/collections/" <> resource.collection_id <> "/resources"
 
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
-    content <- "<p>I've published a resource \"#{resource.name}\" #{url} to #{resource.collection.name}</p><p>View it on MoodleNet! #{coll_url}</p>",
+    content <- "<p>I've published a resource <a href=\"#{url}\">\"#{resource.name}\"</a> to #{resource.collection.name}</p><p><a href=\"#{coll_url}\">View it on MoodleNet!</a></p>",
     object = %{
       "content" => content,
       "to" => [@public_uri],
@@ -103,8 +103,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
       "actor" => actor.ap_id,
       "attributedTo" => actor.ap_id,
       "type" => "Note",
-      "context" => ActivityPub.Utils.generate_context_id(),
-      "tag" => ["resource"]
+      "context" => ActivityPub.Utils.generate_context_id()
+      # "tag" => ["resource"]
     },
     params = %{
       actor: actor,
