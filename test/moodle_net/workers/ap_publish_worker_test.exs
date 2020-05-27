@@ -171,6 +171,30 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "delete"}, %{})
       assert activity.data["type"] == "Delete"
     end
+
+    test "comments" do
+      user = fake_user!()
+      community = fake_community!(user)
+      thread = fake_thread!(user, community)
+      comment = fake_comment!(user, thread, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, comment} = MoodleNet.Threads.Comments.soft_delete(user, comment)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comment.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+
+    test "resources" do
+      user = fake_user!()
+      community = fake_community!(user)
+      collection = fake_collection!(user, community)
+      resource = fake_resource!(user, collection)
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, resource} = MoodleNet.Resources.soft_delete(user, resource)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => resource.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
   end
 
   describe "updates" do
