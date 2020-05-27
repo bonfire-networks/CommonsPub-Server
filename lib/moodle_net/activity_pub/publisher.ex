@@ -82,9 +82,40 @@ defmodule MoodleNet.ActivityPub.Publisher do
       Ecto.Changeset.change(resource, %{canonical_url: activity.object.data["id"]})
       |> Repo.update()
 
+      create_resource_note(resource)
       {:ok, activity}
     else
       e -> {:error, e}
+    end
+  end
+
+  defp create_resource_note(resource) do
+    url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
+    resource = MoodleNet.Repo.preload(resource, [collection: []])
+    coll_url = MoodleNet.Config.get!(:frontend_base_url) <> "/collections/" <> resource.collection_id <> "/resources"
+
+    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
+    content <- "<p>I've published a resource \"#{resource.name}\" #{url} to #{resource.collection.name}</p><p>View it on MoodleNet! #{coll_url}</p>",
+    object = %{
+      "content" => content,
+      "to" => [@public_uri],
+      "cc" => [actor.data["followers"]],
+      "actor" => actor.ap_id,
+      "attributedTo" => actor.ap_id,
+      "type" => "Note",
+      "context" => ActivityPub.Utils.generate_context_id(),
+      "tag" => ["resource"]
+    },
+    params = %{
+      actor: actor,
+      to: [@public_uri],
+      object: object,
+      context: ActivityPub.Utils.generate_context_id(),
+      additional: %{
+        "cc" => [actor.data["followers"]]
+      }
+    } do
+    ActivityPub.create(params)
     end
   end
 
