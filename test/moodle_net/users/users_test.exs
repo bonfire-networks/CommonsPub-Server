@@ -102,6 +102,19 @@ defmodule MoodleNet.UsersTest do
       end)
     end
 
+    test "fails if the email is already taken" do
+      Repo.transaction(fn ->
+        assert user = fake_user!()
+
+        attrs =
+          %{email: user.local_user.email}
+          |> Fake.user()
+          |> Fake.actor()
+
+        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+      end)
+    end
+
     test "fails if given invalid attributes" do
       Repo.transaction(fn ->
         invalid_attrs = Map.delete(Fake.user(), :email)
