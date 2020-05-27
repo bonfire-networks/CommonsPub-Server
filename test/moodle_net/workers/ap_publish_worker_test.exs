@@ -150,7 +150,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       {:ok, user} = MoodleNet.Users.soft_delete(user, user)
 
       assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => user.id, "op" => "delete"}, %{})
-      assert activity["type"] == "Delete"
+      assert activity.data["type"] == "Delete"
     end
 
     test "communities" do
@@ -159,7 +159,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       {:ok, comm} = MoodleNet.Communities.soft_delete(user, comm)
 
       assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comm.id, "op" => "delete"}, %{})
-      assert activity["type"] == "Delete"
+      assert activity.data["type"] == "Delete"
     end
 
     test "collections" do
@@ -169,7 +169,7 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       {:ok, coll} = MoodleNet.Collections.soft_delete(user, coll)
 
       assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "delete"}, %{})
-      assert activity["type"] == "Delete"
+      assert activity.data["type"] == "Delete"
     end
   end
 
