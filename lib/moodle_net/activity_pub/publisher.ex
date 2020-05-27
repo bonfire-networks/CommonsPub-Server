@@ -92,7 +92,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   defp create_resource_note(resource) do
     url = MoodleNet.Uploads.remote_url_from_id(resource.content_id)
     resource = MoodleNet.Repo.preload(resource, [collection: []])
-    coll_url = MoodleNet.Config.get!(:frontend_base_url) <> "/collections/" <> resource.collection_id <> "/resources"
+    coll_url = MoodleNet.Config.get!(:frontend_base_url) <> "/collections/" <> resource.collection_id
 
     with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
     content <- "<p>I've published a resource <a href=\"#{url}\">\"#{resource.name}\"</a> to #{resource.collection.name}</p><p><a href=\"#{coll_url}\">View it on MoodleNet!</a></p>",
