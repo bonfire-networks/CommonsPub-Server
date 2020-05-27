@@ -339,7 +339,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end
     end)
   end
-
+  
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),
