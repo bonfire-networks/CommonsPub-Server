@@ -10,10 +10,8 @@ defmodule MoodleNet.AccessTest do
   alias MoodleNet.Test.Fake
   alias MoodleNet.Access
   alias MoodleNet.Access.{
-    Token,
     TokenExpiredError,
     TokenNotFoundError,
-    UserDisabledError,
     UserEmailNotConfirmedError,
     RegisterEmailDomainAccess,
     RegisterEmailAccess,

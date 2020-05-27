@@ -6,8 +6,8 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
   alias MoodleNet.Test.Fake
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
-  import MoodleNet.Test.Trendy
   import MoodleNet.Test.Faking
+  import Zest
 
   describe "create_resource" do
 
@@ -47,6 +47,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
 
   describe "update_resource" do
 
+    @tag :skip
     test "works for the resource, collection or community creator or an admin" do
       [alice, bob, eve] = some_fake_users!(3)
       lucy = fake_admin!()
@@ -54,7 +55,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
       coll = fake_collection!(bob, comm)
       resource = fake_resource!(eve, coll)
       q = update_resource_mutation()
-      for conn <- [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)] do
+      each [user_conn(alice), user_conn(bob), user_conn(eve), user_conn(lucy)], fn conn ->
         ri = Fake.resource_input()
         vars = %{resource_id: resource.id, resource: ri, content: Fake.content_input()}
         assert_resource(grumble_post_key(q, conn, :update_resource, vars))
@@ -77,6 +78,7 @@ defmodule MoodleNetWeb.GraphQL.Resources.MutationsTest do
 
   describe "copy_resource" do
 
+    @tag :skip
     test "works for a user" do
       [alice, bob] = some_fake_users!(2)
       comm = fake_community!(alice)

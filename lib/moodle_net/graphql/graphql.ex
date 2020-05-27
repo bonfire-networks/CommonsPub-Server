@@ -4,8 +4,7 @@
 defmodule MoodleNet.GraphQL do
 
   alias Absinthe.Resolution
-  alias Ecto.Changeset
-  alias MoodleNet.GraphQL.{Page, PageOpts}
+  alias MoodleNet.GraphQL.Page
   alias MoodleNet.Common.Enums
   import MoodleNet.Common.Query, only: [match_admin: 0]
 
@@ -160,7 +159,7 @@ defmodule MoodleNet.GraphQL do
   def validate_cursor([], []), do: :ok
   def validate_cursor([p | ps], [v | vs]) do
     if predicated(p, v),
-      do: :ok,
+      do: validate_cursor(ps, vs),
       else: not_found()
   end  
   def validate_cursor(_, _), do: not_found()

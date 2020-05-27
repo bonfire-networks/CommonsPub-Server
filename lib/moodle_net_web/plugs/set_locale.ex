@@ -30,9 +30,8 @@ defmodule MoodleNetWeb.Plugs.SetLocale do
 
   defp validate_locale(_locale), do: nil
 
-  @doc """
-  Taken from set_locale plug written by Gerard de Brieder: https://github.com/smeevil/set_locale/blob/fd35624e25d79d61e70742e42ade955e5ff857b8/lib/headers.ex
-  """
+  #  Taken from set_locale plug written by Gerard de Brieder:
+  #  https://github.com/smeevil/set_locale/blob/fd35624e25d79d61e70742e42ade955e5ff857b8/lib/headers.ex
   defp locale_from_header(conn) do
     conn
     |> extract_accept_language()

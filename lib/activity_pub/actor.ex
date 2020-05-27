@@ -392,7 +392,7 @@ defmodule ActivityPub.Actor do
 
   def get_followings(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(creator_id: actor.id)
+    {:ok, follows} = MoodleNet.Follows.many(creator: actor.id)
 
     followers =
       follows
@@ -404,7 +404,7 @@ defmodule ActivityPub.Actor do
 
   def get_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(context_id: actor.id)
+    {:ok, follows} = MoodleNet.Follows.many(context: actor.id)
 
     followers =
       follows
@@ -416,7 +416,7 @@ defmodule ActivityPub.Actor do
 
   def get_external_followers(actor) do
     {:ok, actor} = Adapter.get_actor_by_id(actor.mn_pointer_id)
-    {:ok, follows} = MoodleNet.Follows.many(context_id: actor.id)
+    {:ok, follows} = MoodleNet.Follows.many(context: actor.id)
 
     followers =
       follows

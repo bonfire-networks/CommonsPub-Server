@@ -8,18 +8,22 @@ defmodule Geolocation.Migrations do
 
 
   def change do
+    :ok = execute(
+      "create extension IF NOT EXISTS postgis;",
+      "drop extension postgis;"
+    )
+
     create table(:geolocation) do
 
       add :name, :string
       add :note, :text
       add :mappable_address, :string
-      add :point, :point
-      # add :lat, :float
-      # add :long, :float
+      add :geom, :geometry
       add :alt, :float
 
       add :actor_id, references("mn_actor", on_delete: :delete_all)
-      add :community_id, references("mn_community", on_delete: :delete_all)
+      # add :community_id, references("mn_community", on_delete: :delete_all) # replaced with context
+      add :context_id, references("mn_pointer", on_delete: :delete_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :inbox_id, references("mn_feed", on_delete: :nilify_all)
       add :outbox_id, references("mn_feed", on_delete: :nilify_all)
@@ -28,9 +32,7 @@ defmodule Geolocation.Migrations do
       add :disabled_at, :timestamptz
 
       timestamps(inserted_at: false, type: :utc_datetime_usec)
-
     end
-
   end
 
   def add_pointer do

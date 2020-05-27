@@ -9,26 +9,21 @@ defmodule Organisation do
   alias Ecto.Changeset
   alias Organisation
   alias MoodleNet.Actors.Actor
-  alias MoodleNet.Communities.Community
-  alias MoodleNet.Collections.Collection
-  alias MoodleNet.Resources.Resource
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
+  alias MoodleNet.Meta.Pointer
 
   @type t :: %__MODULE__{}
 
   table_schema "mn_organisation" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:community, Community)
+    belongs_to(:context, Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)
     field(:follower_count, :any, virtual: true) # because it's keyed by pointer
-    has_many(:collections, Collection)
-    has_many(:communities, Community)
-    has_many(:resources, Resource)
     field(:name, :string)
     field(:summary, :string)
     belongs_to(:icon, Content)
@@ -40,7 +35,7 @@ defmodule Organisation do
     timestamps()
   end
 
-  @required ~w(name is_public)a
+  @required ~w(name)a
   @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
@@ -59,10 +54,10 @@ defmodule Organisation do
   |> common_changeset()
   end
 
-  def create_changeset_with_community(
+  def create_changeset(
         %User{} = creator,
-        %Community{} = community,
         %Actor{} = actor,
+        %{id: _} = context,
         attrs
       ) do
     %Organisation{}
@@ -70,7 +65,7 @@ defmodule Organisation do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      community_id: community.id,
+      context_id: context.id,
       actor_id: actor.id,
       is_public: true
     )

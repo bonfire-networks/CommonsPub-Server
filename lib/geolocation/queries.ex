@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Queries do
 
-  alias MoodleNet.Communities
   alias Geolocation
   alias Geolocation.Geolocations
   alias MoodleNet.Follows.{Follow, FollowerCount}
+  alias MoodleNet.Users
   alias MoodleNet.Users.User
   import MoodleNet.Common.Query, only: [match_admin: 0]
   import Ecto.Query
@@ -35,12 +35,12 @@ defmodule Geolocation.Queries do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
 
-  def join_to(q, :community, jq) do
-    join q, jq, [geolocation: c], c2 in assoc(c, :community), as: :community
+  def join_to(q, :context, jq) do
+    join q, jq, [geolocation: c], c2 in assoc(c, :context), as: :context
   end
 
-  def join_to(q, {:community_follow, follower_id}, jq) do
-    join q, jq, [community: c], f in Follow, as: :community_follow,
+  def join_to(q, {:context_follow, follower_id}, jq) do
+    join q, jq, [context: c], f in Follow, as: :context_follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
   end
 
@@ -78,20 +78,12 @@ defmodule Geolocation.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
+  def filter(q, {:user, nil}), do: filter(q, ~w(disabled private))
+
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([:community, follow: id, community_follow: id])
-    |> where([community: c, community_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> join_to({:follow, id})
     |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> filter(~w(disabled)a)
-    |> Communities.Queries.filter(~w(deleted disabled)a)
-  end
-
-  def filter(q, {:user, nil}) do
-    q
-    |> join_to(:community)
-    |> filter(~w(disabled private)a)
-    |> Communities.Queries.filter(~w(deleted disabled private)a)
   end
 
   ## by status
@@ -130,12 +122,12 @@ defmodule Geolocation.Queries do
     where q, [geolocation: c], c.id in ^ids
   end
 
-  def filter(q, {:community_id, id}) when is_binary(id) do
-    where q, [geolocation: c], c.community_id == ^id
+  def filter(q, {:context_id, id}) when is_binary(id) do
+    where q, [geolocation: c], c.context_id == ^id
   end
 
-  def filter(q, {:community_id, ids}) when is_list(ids) do
-    where q, [geolocation: c], c.community_id in ^ids
+  def filter(q, {:context_id, ids}) when is_list(ids) do
+    where q, [geolocation: c], c.context_id in ^ids
   end
 
   def filter(q, {:username, username}) when is_binary(username) do

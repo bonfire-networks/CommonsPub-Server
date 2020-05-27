@@ -59,9 +59,6 @@ defmodule MoodleNet.Users.LocalUser do
     |> common_changeset()
   end
 
-  def soft_delete_changeset(%LocalUser{} = local_user),
-    do: MoodleNet.Common.Changeset.soft_delete_changeset(local_user)
-
   @instance_admin_update_cast_attrs [
     :is_instance_admin,
     :is_confirmed,

@@ -27,7 +27,7 @@ defmodule ActivityPubWeb.NodeinfoController do
   end
 
   def user_count() do
-    {:ok, users} = MoodleNet.Users.many(:remote)
+    {:ok, users} = MoodleNet.Users.many(preset: :actor, peer: :not_nil)
     length(users)
   end
 

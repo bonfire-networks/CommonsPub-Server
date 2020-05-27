@@ -4,7 +4,6 @@
 defmodule MoodleNetWeb.GraphQL.CommunitiesTest do
   use MoodleNetWeb.ConnCase, async: true
   import MoodleNet.Test.Faking
-  import MoodleNet.Test.Trendy
   import MoodleNetWeb.Test.GraphQLAssertions
   import MoodleNetWeb.Test.GraphQLFields
   import MoodleNetWeb.Test.Orderings

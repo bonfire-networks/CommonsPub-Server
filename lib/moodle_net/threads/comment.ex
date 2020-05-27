@@ -27,7 +27,7 @@ defmodule MoodleNet.Threads.Comment do
     timestamps()
   end
 
-  @required ~w(content is_local)a
+  @required ~w(content is_local creator_id)a
   @cast @required ++ ~w(canonical_url is_hidden is_public reply_to_id)a
 
   @spec create_changeset(User.t(), Thread.t(), map) :: Changeset.t()

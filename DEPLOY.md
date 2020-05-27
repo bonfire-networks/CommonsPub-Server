@@ -2,9 +2,9 @@
 
 *These instructions are for setting up the **backend** alone in production. You probably want to start with the following two guides, and only refer back to this document for some more advanced things you might not find in those guides.* 
 
-- *You probably want to deploy the **frontend and backend together**, in which case please refer to our guide to [Deploying MoodleNet](https://gitlab.com/moodlenet/clients/react/blob/develop/README.md#deploying-moodlenet)!*
+- *You probably want to deploy the **frontend and backend together**, in which case please refer to our guide to deploying (coming soon)*
 
-- *If you want to run the backend in development, please refer to our [Developer FAQ](https://gitlab.com/moodlenet/servers/federated/blob/develop/HACKING.md)!*
+- *If you want to run the backend in development, please refer to our [Developer FAQ](https://gitlab.com/CommonsPub/Server/blob/flavour/commonspub/HACKING.md)!*
 
 
 ---
@@ -45,7 +45,6 @@ Do NOT modify the files above. Instead, overload any settings from the above fil
 
 ### Option A - Install using Docker containers (recommended)
 
-A pre-built docker image can be found at: https://hub.docker.com/r/moodlenet/moodlenet/
 
 The easiest way to launch the docker image is using the `docker-compose` tool.
 The `docker-compose.yml` uses `config/docker.env` to launch a container along with its dependencies, currently that means an extra postgres container. You may want to add a webserver / reverse proxy yourself.

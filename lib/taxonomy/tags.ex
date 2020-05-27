@@ -8,23 +8,39 @@ defmodule Taxonomy.Tags do
   alias Taxonomy.Tag
   alias Taxonomy.Tags.Queries
 
+  def cursor(), do: &[&1.id]
+  def test_cursor(), do: &[&1["id"]]
+
   def one(filters), do: Repo.single(Queries.query(Tag, filters))
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Tag, filters))}
 
-  def nodes_page(cursor_fn, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  when is_function(cursor_fn, 1) do
-    {data_q, count_q} = Queries.queries(Tag, base_filters, data_filters, count_filters)
-    with {:ok, [data, count]} <- Repo.transact_many(all: data_q, count: count_q) do
-      {:ok, NodesPage.new(data, count, cursor_fn)}
+  @doc """
+  Retrieves an Page of tags according to various filters
+
+  Used by:
+  * GraphQL resolver single-parent resolution
+  """
+  def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+    base_q = Queries.query(Tag, base_filters)
+    data_q = Queries.filter(base_q, data_filters)
+    count_q = Queries.filter(base_q, count_filters)
+    with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
+      {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
 
-  def edges(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
-    {:ok, edges} = many(filters)
-    {:ok, Edges.new(edges, group_fn)}
-  end
+  @doc """
+  Retrieves an Pages of tags according to various filters
 
+  Used by:
+  * GraphQL resolver bulk resolution
+  """
+  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
+    Contexts.pages Queries, Tag,
+      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+  end
 
 end

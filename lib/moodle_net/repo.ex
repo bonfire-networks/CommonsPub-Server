@@ -61,6 +61,7 @@ defmodule MoodleNet.Repo do
   def transact_with(fun) do
     transaction(fn ->
       case fun.() do
+        :ok -> :ok
         {:ok, v} -> v
         {:error, reason} -> rollback(reason)
       end

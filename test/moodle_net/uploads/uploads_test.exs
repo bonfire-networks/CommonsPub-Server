@@ -7,7 +7,7 @@ defmodule MoodleNet.UploadsTest do
   import MoodleNet.Test.Faking
   alias MoodleNet.Test.Fake
   alias MoodleNet.Uploads
-  alias MoodleNet.Uploads.Storage
+  alias MoodleNet.Uploads.{FileDenied, Storage}
 
   @image_file %{path: "test/fixtures/images/150.png", filename: "150.png"}
 
@@ -18,29 +18,13 @@ defmodule MoodleNet.UploadsTest do
       Faker.Util.pick([
         MoodleNet.Uploads.IconUploader,
         MoodleNet.Uploads.ImageUploader,
-        MoodleNet.Uploads.ResourceUploader
+        MoodleNet.Uploads.ResourceUploader,
       ])
 
     Uploads.upload(upload_def, user, %{upload: file}, %{})
   end
 
   def strip(upload), do: Map.drop(upload, [:is_public, :url])
-
-  # describe "list_by_parent" do
-  #   test "returns a list of uploads for a parent" do
-  #     uploads =
-  #       for _ <- 1..5 do
-  #         user = fake_user!()
-
-  #         {:ok, upload} =
-  #           Uploads.upload(MoodleNet.Uploads.IconUploader, user, @image_file, %{})
-
-  #         upload
-  #       end
-
-  #     assert Enum.count(uploads) == Enum.count(Uploads.list_by_parent(comm))
-  #   end
-  # end
 
   describe "one" do
     test "returns an upload for an existing ID" do
@@ -65,7 +49,7 @@ defmodule MoodleNet.UploadsTest do
 
     test "fails when the file has a disallowed extension" do
       file = %{path: "test/fixtures/empty.fbx", filename: "empty.fbx"}
-      assert {:error, :extension_denied} = fake_upload(file)
+      assert {:error, %FileDenied{}} = fake_upload(file)
     end
 
     test "fails when the upload is a missing file" do

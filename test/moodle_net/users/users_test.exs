@@ -27,21 +27,23 @@ defmodule MoodleNet.UsersTest do
   describe "one/1" do
     test "by id" do
       user = fake_user!()
-      assert {:ok, fetched} = Users.one(id: user.id)
+      assert {:ok, fetched} = Users.one(preset: :actor, id: user.id)
       assert fetched.id == user.id
       assert fetched.actor.preferred_username
     end
 
     test "by username" do
       user = fake_user!()
-      assert {:ok, fetched} = Users.one(username: user.actor.preferred_username)
+      assert {:ok, fetched} =
+        Users.one(preset: :actor, username: user.actor.preferred_username)
       assert fetched.id == user.id
       assert fetched.actor.preferred_username
     end
 
     test "by email" do
       user = fake_user!()
-      assert {:ok, fetched} = Users.one([:default, email: user.local_user.email])
+      assert {:ok, fetched} =
+        Users.one(preset: :local_user, email: user.local_user.email)
       assert fetched.id == user.id
       assert fetched.actor.preferred_username
     end
@@ -208,7 +210,7 @@ defmodule MoodleNet.UsersTest do
     test "updates the deletion timestamp" do
       user = fake_user!()
       refute user.deleted_at
-      assert {:ok, user} = Users.soft_delete(user)
+      assert {:ok, user} = Users.soft_delete(user, user)
       assert user = Users.preload(user)
       assert user.deleted_at
       assert user.local_user.deleted_at

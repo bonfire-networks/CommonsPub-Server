@@ -39,18 +39,18 @@ defmodule MoodleNet.BlocksTest do
     test "updates the attributes of an existing block", %{user: blocker} do
       blocked = fake_meta!()
       assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
-      assert {:ok, updated_block} = Blocks.update(block, Fake.block(%{is_blocked: true}))
+      assert {:ok, updated_block} = Blocks.update(blocker, block, Fake.block(%{is_blocked: true}))
       assert block != updated_block
     end
   end
 
-  describe "delete_block/1" do
+  describe "soft_delete/1" do
     test "removes a block", %{user: blocker} do
       blocked = fake_meta!()
       assert {:ok, block} = Blocks.create(blocker, blocked, Fake.block(%{is_blocked: false}))
       refute block.deleted_at
 
-      assert {:ok, block} = Blocks.delete(block)
+      assert {:ok, block} = Blocks.soft_delete(blocker, block)
       assert block.deleted_at
     end
   end

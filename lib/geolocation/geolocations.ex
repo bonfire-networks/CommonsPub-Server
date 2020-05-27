@@ -7,9 +7,9 @@ defmodule Geolocation.Geolocations do
   alias MoodleNet.Common.Contexts
   alias Geolocation
   alias Geolocation.Queries
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
+  alias MoodleNet.Workers.APPublishWorker
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -68,18 +68,18 @@ defmodule Geolocation.Geolocations do
 
   ## mutations
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
+  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, context, attrs) when is_map(attrs) do
 
-    attrs = Map.put(attrs, :preferred_username, attrs.name)
+    attrs = Map.put(attrs, :preferred_username, Actors.fix_preferred_username(attrs[:name]))
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, community, actor, item_attrs), #do
+           {:ok, item} <- insert_geolocation(creator, context, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
-           :ok <- publish(creator, community, item, activity, :created),
+           :ok <- publish(creator, context, item, activity, :created),
            {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
           do
             {:ok, item}
@@ -89,13 +89,12 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    attrs = Map.put(attrs, :preferred_username, attrs.name)
+    attrs = Map.put(attrs, :preferred_username, Actors.fix_preferred_username(attrs[:name]))
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, item_attrs} <- create_boxes(actor, attrs),
-           {:ok, item} <- insert_geolocation(creator, actor, item_attrs), #do
+           {:ok, item} <- insert_geolocation(creator, actor, item_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),
@@ -123,8 +122,8 @@ defmodule Geolocation.Geolocations do
     end
   end
 
-  defp insert_geolocation(creator, community, actor, attrs) do
-    cs = Geolocation.create_changeset(creator, community, actor, attrs)
+  defp insert_geolocation(creator, context, actor, attrs) do
+    cs = Geolocation.create_changeset(creator, context, actor, attrs)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
   end
 
@@ -133,13 +132,13 @@ defmodule Geolocation.Geolocations do
     with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
   end
 
-  defp publish(creator, community, geolocation, activity, :created) do
+  defp publish(creator, context, geolocation, activity, :created) do
     feeds = [
-      community.outbox_id, creator.outbox_id,
+      context.outbox_id, creator.outbox_id,
       geolocation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(geolocation.id, creator.id, geolocation.actor.peer_id)
+      ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
     end
   end
   defp publish(creator, geolocation, activity, :created) do
@@ -148,35 +147,38 @@ defmodule Geolocation.Geolocations do
       geolocation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(geolocation.id, creator.id, geolocation.actor.peer_id)
+      ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
     end
   end
   defp publish(geolocation, :updated) do
-    ap_publish(geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+    ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
   end
   defp publish(geolocation, :deleted) do
-    ap_publish(geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+    ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(context_id, user_id, nil) do
-    MoodleNet.FeedPublisher.publish(%{
+  defp ap_publish(verb, context_id, user_id, nil) do
+    job_result = APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id,
     })
+
+    with {:ok, _} <- job_result, do: :ok
   end
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Geolocation{}, attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(%Geolocation{} = geolocation, attrs) do
-    Repo.transact_with(fn ->
-      geolocation = Repo.preload(geolocation, :community)
-      with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
-           {:ok, actor} <- Actors.update(geolocation.actor, attrs),
-           :ok <- publish(geolocation, :updated) do
-        {:ok, %{ geolocation | actor: actor }}
-      end
-    end)
+  @spec update(User.t(), Geolocation.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
+    Repo.update(Geolocation.update_changeset(geolocation, attrs)) #FIXME publish updates
+    # Repo.transact_with(fn ->
+    #   geolocation = Repo.preload(geolocation, :community)
+    #   with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
+    #        {:ok, actor} <- Actors.update(user, geolocation.actor, attrs),
+    #        :ok <- publish(geolocation, :updated) do 
+    #     {:ok, %{ geolocation | actor: actor }}
+    #   end
+    # end)
   end
 
   # def soft_delete(%Geolocation{} = geolocation) do
@@ -188,4 +190,11 @@ defmodule Geolocation.Geolocations do
   #   end)
   # end
 
+  def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do
+    {lat, long} = geo.geom.coordinates
+
+    %{geo | lat: lat, long: long, geom: Geo.JSON.encode!(geom)}
+  end
+
+  def populate_coordinates(%Geolocation{} = geo), do: geo
 end

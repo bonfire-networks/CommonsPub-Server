@@ -4,9 +4,6 @@
 /db
 /deps
 /*.ez
-/uploads/*
-!/uploads/index.html
-/test/uploads
 /.elixir_ls
 /doc 
 /assets/node_modules
@@ -51,3 +48,9 @@ priv/repo/structure.sql
 
 # Generated test files
 /test_uploads/
+
+#Date
+/uploads/*
+!/uploads/index.html
+/test/uploads
+/data/*
