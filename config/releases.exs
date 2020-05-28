@@ -89,7 +89,7 @@ mail_smtp = fn ->
                        server: server,
                        hostname: domain,
                        port: 1025,
-                       username: username,
+                       username: user,
                        password: password,
                        tls: :always,
                        allowed_tls_versions: [:"tlsv1.2"],
