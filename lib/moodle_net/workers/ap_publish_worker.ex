@@ -37,6 +37,23 @@ defmodule MoodleNet.Workers.APPublishWorker do
   end
 
   @impl Worker
+  def perform(%{"context_id" => context_id, "op" => "delete"}, _job) do
+    object =
+      with {:error, _e} <- MoodleNet.Users.one(join: :actor, preload: :actor, id: context_id),
+           {:error, _e} <- MoodleNet.Communities.one(join: :actor, preload: :actor, id: context_id),
+           {:error, _e} <- MoodleNet.Collections.one(join: :actor, preload: :actor, id: context_id) do
+        {:error, "not found"}
+      end
+
+      case object do
+        {:ok, object} -> only_local(object, &publish/2, "delete")
+        _ ->
+          Pointers.one!(id: context_id)
+          |> Pointers.follow!()
+          |> only_local(&publish/2, "delete")
+      end
+  end
+
   def perform(%{"context_id" => context_id, "op" => verb}, _job) do
     Pointers.one!(id: context_id)
     |> Pointers.follow!()
@@ -85,8 +102,18 @@ defmodule MoodleNet.Workers.APPublishWorker do
     Publisher.unlike(like)
   end
 
-  defp publish(%{__struct__: type} = actor, "update") when type in [User, Community, Collection] do
+  defp publish(%{__struct__: type} = actor, "update")
+       when type in [User, Community, Collection] do
     Publisher.update_actor(actor)
+  end
+
+  defp publish(%{__struct__: type} = actor, "delete")
+       when type in [User, Community, Collection] do
+    Publisher.delete_actor(actor)
+  end
+
+  defp publish(%{__struct__: type} = object, "delete") when type in [Comment, Resource] do
+    Publisher.delete_comment_or_resource(object)
   end
 
   defp publish(context, verb) do

@@ -114,4 +114,10 @@ defmodule MoodleNet.ActivityPub.Utils do
   def get_author(%{"name" => name}), do: name
 
   def get_author(author) when is_binary(author), do: author
+
+  def generate_object_ap_id(object) do
+    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
+
+    "#{MoodleNetWeb.base_url()}#{ap_base_path}/objects/#{object.id}"
+  end
 end

@@ -61,6 +61,7 @@ defmodule MoodleNet.Mixfile do
     [ # graphql
       {:absinthe, "~> 1.5"},
       {:absinthe_plug, "~> 1.5"},
+      {:absinthe_error_payload, "~> 1.0"},
       # webserver
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},

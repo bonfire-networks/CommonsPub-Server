@@ -34,8 +34,8 @@ defmodule MoodleNet.Collections do
 
   @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Collection.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-    # preferred_username = prepend_comm_username(community, attrs)
-    # attrs = Map.put(attrs, :preferred_username, preferred_username)
+
+    attrs = Actors.prepare_username(attrs)
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
@@ -45,6 +45,7 @@ defmodule MoodleNet.Collections do
            {:ok, activity} <- Activities.create(creator, coll, act_attrs),
            :ok <- publish(creator, community, coll, activity),
            :ok <- ap_publish("create", coll),
+           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(coll),
            {:ok, _follow} <- Follows.create(creator, coll, %{is_local: true}) do
         {:ok, coll}
       end
