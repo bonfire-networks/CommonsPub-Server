@@ -31,7 +31,6 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
       assert_not_permitted(grumble_post_errors(q, user_conn(alice), %{user: reg}), ["createUser"])
     end
 
-    @tag :skip # returns wrong format on error :/
     test "Does not work for a taken preferred username" do
       alice = fake_user!()
       reg = Fake.registration_input(%{"preferredUsername" => alice.actor.preferred_username})
@@ -40,7 +39,6 @@ defmodule MoodleNetWeb.GraphQL.Users.MutationsTest do
       grumble_post_errors(q, json_conn(), %{user: reg})
     end
 
-    @tag :skip # returns wrong format on error :/
     test "Does not work for a taken email" do
       alice = fake_user!()
       reg = Fake.registration_input(%{"email" => alice.local_user.email})

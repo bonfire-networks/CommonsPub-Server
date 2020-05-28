@@ -95,7 +95,7 @@ image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 config :moodle_net, Uploads.ResourceUploader,
   allowed_media_types: ~w(text/plain text/html text/markdown text/rtf text/csv) ++
       # App formats
-      ~w(application/rtf application/pdf application/zip) ++
+      ~w(application/rtf application/pdf application/zip application/gzip) ++
       ~w(application/x-bittorrent application/x-tex) ++
       # Docs
       ~w(application/epub+zip application/vnd.amazon.mobi8-ebook) ++
@@ -164,7 +164,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
   protocol: "https",
   secret_key_base: "aK4Abxf29xU9TTDKre9coZPUgevcVCFQJe/5xP/7Lt4BEif6idBIbjupVbOrbKxl",
   render_errors: [view: MoodleNetWeb.ErrorView, accepts: ["json", "activity+json"]],
-  pubsub: [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2],
+  pubsub_server: MoodleNet.PubSub,
   secure_cookie_flag: true
 
 version =

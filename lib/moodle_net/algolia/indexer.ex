@@ -26,12 +26,18 @@ defmodule MoodleNet.Algolia.Indexer do
   defp supported_type(_), do: false
 
   def maybe_index_object(object) do
-    if check_envs() && supported_type(object) do
+    if !is_nil(check_envs()) and supported_type(object) do # if Algolia is configured, use that
       object
       |> format_object()
-      |> push_object()
-    else
-      :ok
+      |> push_object() 
+    else # otherwise use CommonsPub Search extension, powered by Meili
+      if supported_type(object) do
+        object
+        |> format_object()
+        |> Search.Indexing.maybe_index_object
+      else
+        Search.Indexing.maybe_index_object(object) 
+      end
     end
   end
 
@@ -60,12 +66,16 @@ defmodule MoodleNet.Algolia.Indexer do
         {:error, _} -> nil
       end
 
+    IO.inspect(community)
+
     icon = Uploads.remote_url_from_id(community.icon_id)
     image = Uploads.remote_url_from_id(community.image_id)
+    # url = community.actor.canonical_url 
+    url = MoodleNet.Config.get!(:frontend_base_url) <> "/communities/" <> community.actor.id #TEMP
 
     %{
       "index_mothership_object_id" => community.id,
-      "canonicalUrl" => community.actor.canonical_url,
+      "canonicalUrl" => url,
       "followers" => %{
         "totalCount" => follower_count
       },
@@ -75,9 +85,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "preferredUsername" => community.actor.preferred_username,
       "summary" => Map.get(community, :summary),
       "index_type" => "Community",
-      "index_instance" => URI.parse(community.actor.canonical_url).host,
+      "index_instance" => URI.parse(url).host,
       "createdAt" => community.published_at,
-      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, url) |> Base.encode16()
     }
   end
 
@@ -91,10 +101,13 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     icon = Uploads.remote_url_from_id(collection.icon_id)
+    # url = collection.actor.canonical_url
+    url = MoodleNet.Config.get!(:frontend_base_url) <> "/collections/" <> collection.actor.id #TEMP
+
 
     %{
       "index_mothership_object_id" => collection.id,
-      "canonicalUrl" => collection.actor.canonical_url,
+      "canonicalUrl" => url,
       "followers" => %{
         "totalCount" => follower_count
       },
@@ -103,10 +116,10 @@ defmodule MoodleNet.Algolia.Indexer do
       "preferredUsername" => collection.actor.preferred_username,
       "summary" => Map.get(collection, :summary),
       "index_type" => "Collection",
-      "index_instance" => URI.parse(collection.actor.canonical_url).host,
+      "index_instance" => URI.parse(url).host,
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
-      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
+      "objectID" => :crypto.hash(:sha, url) |> Base.encode16()
     }
   end
 
@@ -121,11 +134,13 @@ defmodule MoodleNet.Algolia.Indexer do
 
     icon = Uploads.remote_url_from_id(resource.icon_id)
     url = Uploads.remote_url_from_id(resource.content_id)
+    # canonical_url = resource.canonical_url
+    canonical_url = url
 
     %{
       "index_mothership_object_id" => resource.id,
       "name" => resource.name,
-      "canonicalUrl" => resource.canonical_url,
+      "canonicalUrl" => canonical_url,
       "createdAt" => resource.published_at,
       "icon" => icon,
       "licence" => Map.get(resource, :licence),
@@ -135,9 +150,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "summary" => Map.get(resource, :summary),
       "updatedAt" => resource.updated_at,
       "index_type" => "Resource",
-      "index_instance" => URI.parse(resource.canonical_url).host,
+      "index_instance" => URI.parse(canonical_url).host,
       "collection" => format_object(resource.collection),
-      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
+      "objectID" => :crypto.hash(:sha, canonical_url) |> Base.encode16(),
       "url" => url,
       "author" => Map.get(resource, :author),
       "mediaType" => resource.content.media_type

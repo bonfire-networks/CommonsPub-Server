@@ -24,8 +24,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
   end
 
   def register_emails_page_query(options \\ []) do
-    :limit
-    |> gen_query(&register_emails_page_subquery/1, options)
+    gen_query(:limit, &register_emails_page_subquery/1, [{:param_type, :int} | options])
   end
 
   def register_emails_page_subquery(options \\ []) do
@@ -58,8 +57,7 @@ defmodule MoodleNetWeb.GraphQL.AccessTest do
   end
 
   def register_domain_page_query(options \\ []) do
-    :limit
-    |> gen_query(&register_domain_page_subquery/1, options)
+    gen_query(:limit, &register_domain_page_subquery/1, [{:param_type, :int} | options])
   end
 
   def register_domain_page_subquery(options \\ []) do

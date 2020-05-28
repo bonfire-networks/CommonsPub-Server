@@ -38,13 +38,12 @@ type SpatialThing {
   geom: Json,
 
   ##############################################################################
-  # inverse relationships and queries
-
-  agents: [Agent!]
-  economicResources: [EconomicResource!]
-  economicEvents: [EconomicEvent!]
-  commitments: [Commitment!]
-  intents: [Intent!]
+  # inverse relationships and queries - FIXME
+  # agents: [Agent!]
+  # economicResources: [EconomicResource!]
+  # economicEvents: [EconomicEvent!]
+  # commitments: [Commitment!]
+  # intents: [Intent!]
 
   ## CommonsPub-specific
 

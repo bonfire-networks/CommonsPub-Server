@@ -241,7 +241,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["attributedTo"] || object.data["actor"]),
+         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, comment} <-
            Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
@@ -263,7 +263,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = Pointers.follow!(pointer),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["attributedTo"] || object.data["actor"]),
+         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
          {:ok, comment} <-
            Comments.create(actor, thread, %{

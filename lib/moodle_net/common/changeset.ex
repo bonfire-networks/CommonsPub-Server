@@ -170,7 +170,8 @@ defmodule MoodleNet.Common.Changeset do
         end
       :error ->
         case Changeset.fetch_field(changeset, bool_field) do
-          {:ok, _} -> changeset
+          {:changes, _} -> changeset
+          {:data, _} -> changeset
           :error ->
             cs = Changeset.put_change(changeset, bool_field, default)
             change_synced_timestamps(cs, bool_field, on_field, off_field, default)

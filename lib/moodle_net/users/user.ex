@@ -43,40 +43,52 @@ defmodule MoodleNet.Users.User do
 
   @register_required ~w(name)a
   @register_cast @register_required ++
-    ~w(name summary location website extra_info icon_id image_id is_public is_disabled inbox_id outbox_id)a
+    ~w(id name summary location website extra_info icon_id image_id is_public)a  ++
+    ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Create a changeset for registration"
-  def register_changeset(%Actor{id: id}, %{} = attrs) do
+  def register_changeset(%Actor{id: id, peer_id: peer_id}, %{} = attrs) do
     %User{}
     |> Changeset.cast(attrs, @register_cast)
     |> Changeset.validate_required(@register_required)
     |> Changeset.change(actor_id: id)
     |> common_changeset()
+    |> local_changeset(is_nil(peer_id))
   end
 
   def local_register_changeset(%Actor{} = actor, %LocalUser{id: id}, %{} = attrs) do
     register_changeset(actor, attrs)
     |> Changeset.put_change(:local_user_id, id)
+    |> local_changeset(true)
   end
 
   @update_cast [] ++
-    ~w(name summary location website extra_info icon_id image_id is_public is_disabled inbox_id outbox_id)a
+    ~w(name summary location website extra_info icon_id image_id is_public)a ++
+    ~w(is_disabled inbox_id outbox_id)a
 
   @doc "Update the attributes for a user"
   def update_changeset(%User{} = user, attrs) do
     user
     |> Changeset.cast(attrs, @update_cast)
     |> common_changeset()
+    |> local_changeset(is_nil(Map.get(user, :actor, %{}).peer_id))
   end
-
-  def soft_delete_changeset(%User{} = user),
-    do: MoodleNet.Common.Changeset.soft_delete_changeset(user)
 
   defp common_changeset(changeset) do
     changeset
     |> change_synced_timestamp(:is_disabled, :disabled_at)
     |> change_public()
   end
+
+  defp local_changeset(changeset, true) do
+    changeset
+    |> Changeset.validate_length(:name, max: 140)
+    |> Changeset.validate_length(:summary, max: 1024)
+    |> Changeset.validate_length(:location, max: 140)
+    |> Changeset.validate_length(:website, max: 255)
+  end
+  defp local_changeset(changeset, false), do: changeset
+
 
   ### behaviour callbacks
 

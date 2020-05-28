@@ -5,7 +5,23 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
-  alias MoodleNet.{Access, Actors, Feeds, Repo}
+  alias MoodleNet.{
+    Access,
+    Activities,
+    Actors,
+    Blocks,
+    Common,
+    Communities,
+    Collections,
+    Features,
+    Feeds,
+    Flags,
+    Follows,
+    Likes,
+    Repo,
+    Resources,
+    Threads,
+  }
   alias MoodleNet.Feeds.FeedSubscriptions
   alias MoodleNet.Mail.{Email, MailService}
   alias MoodleNet.Users.{
@@ -21,14 +37,8 @@ defmodule MoodleNet.Users do
 
   alias Ecto.Changeset
 
-  ### Cursor generators
-
-  def cursor(:created), do: &[&1.id]
-  def cursor(:followers), do: &[&1.follower_count, &1.id]
-
-  def test_cursor(:created), do: &[&1["id"]]
-  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
-
+  @deleted_user_id "REA11YVERYDE1ETED1DENT1TY1"
+  def deleted_user_id(), do: @deleted_user_id
 
   def one(filters), do: Repo.single(Queries.query(User, filters))
 
@@ -229,25 +239,42 @@ defmodule MoodleNet.Users do
     end)
   end
 
-  @spec soft_delete(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{} = user) do
-    cs = LocalUser.soft_delete_changeset(user.local_user)
+  @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
+  # local user
+  def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- Repo.update(User.soft_delete_changeset(user)),
-           {:ok, local_user} <- Repo.update(cs),
-           user = preload_actor(%{ user | local_user: local_user}),
+      with {:ok, user2} <- Common.soft_delete(user),
+           {:ok, local_user} <- Common.soft_delete(user.local_user),
+           %{user: users, feed: feeds} = deleted_ids([user2]),
+           :ok <- chase_delete(deleter, users, feeds),
            :ok <- ap_publish("delete", user) do
+        user = %{ user2 | local_user: local_user, actor: user.actor}
         {:ok, user}
       end
     end)
   end
 
+  # remote user
+  def soft_delete(_deleter, %User{local_user: nil} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, user2} <- Common.soft_delete(user),
+          %{user: users, feed: feeds} = deleted_ids([user2]),
+           :ok <- chase_delete(user, users, feeds),
+           :ok <- ap_publish("delete", user) do
+        user = %{ user2 | actor: user.actor }
+        {:ok, user}
+      end
+    end)
+  end
+
+  # remote user, called by activitypub
   @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete_remote(%User{} = user) do
-    cs = User.soft_delete_changeset(user)
     Repo.transact_with(fn ->
-      with {:ok, user} <- Repo.update(cs) do
-        user = preload_actor(user)
+      with {:ok, user2} <- Common.soft_delete(user),
+          %{user: users, feed: feeds} = deleted_ids([user2]),
+           :ok <- chase_delete(user, users, feeds) do
+        user = %{ user2 | actor: user.actor }
         {:ok, user}
       end
     end)
@@ -255,19 +282,54 @@ defmodule MoodleNet.Users do
 
   @delete_by_filters [select: :delete, deleted: false]
 
-  def soft_delete_by(%User{}, filters) do
+  def soft_delete_by(%User{}=user, filters) do
     with {:ok, _} <-
       Repo.transact_with(fn ->
         {_, ids} = update_by(@delete_by_filters ++ filters, deleted_at: DateTime.utc_now())
-        # %{collection: collection, feed: feed} = deleted_ids(ids)
-        with :ok <- chase_delete(ids) do
+        %{user: users, feed: feeds} = deleted_ids(ids)
+        with :ok <- chase_delete(user, users, feeds) do
           ap_publish("delete", ids)
         end
       end), do: :ok
   end
 
-  defp chase_delete(_ids) do
-    :ok
+  defp deleted_ids(records) do
+    Enum.reduce(records, %{user: [], feed: []}, fn
+      %{id: id, inbox_id: nil, outbox_id: nil}, acc ->
+        Map.put(acc, :user, [id | acc.user])
+      %{id: id, inbox_id: nil, outbox_id: o}, acc ->
+        Map.merge(acc, %{user: [id | acc.user], feed: [o | acc.feed]})
+      %{id: id, inbox_id: i, outbox_id: nil}, acc ->
+        Map.merge(acc, %{user: [id | acc.user], feed: [i | acc.feed]})
+      %{id: id, inbox_id: i, outbox_id: o}, acc ->
+        Map.merge(acc, %{user: [id | acc.user], feed: [i, o | acc.feed]})
+    end)
+  end
+
+
+  # TODO: some of these queries could be combined if we modified the queries modules
+  defp chase_delete(user, users, []) do
+    with :ok <- Activities.soft_delete_by(user, creator: users), # Not yet required but ok
+         :ok <- Activities.soft_delete_by(user, context: users),
+         :ok <- Blocks.soft_delete_by(user, creator: users),
+         :ok <- Blocks.soft_delete_by(user, context: users),
+         :ok <- Flags.soft_delete_by(user, context: users),
+         :ok <- Follows.soft_delete_by(user, creator: users),
+         :ok <- Follows.soft_delete_by(user, context: users),
+         :ok <- Likes.soft_delete_by(user, creator: users),
+         :ok <- Likes.soft_delete_by(user, context: users),
+         :ok <- Threads.Comments.soft_delete_by(user, creator: users) do
+      # Give away some things to the deleted user
+      Communities.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      Collections.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      Resources.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      Features.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      Flags.update_by(user, [creator: users], creator_id: @deleted_user_id)
+      :ok
+    end
+  end
+  defp chase_delete(user, users, feeds) do
+    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, users, [])
   end
 
   @spec make_instance_admin(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
