@@ -81,7 +81,7 @@ defmodule MoodleNet.Users do
 
       user
       |> Email.welcome(token)
-      |> MailService.deliver_now()
+      |> MailService.deliver_later()
 
       {:ok, user}
     end
