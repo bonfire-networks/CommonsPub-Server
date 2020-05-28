@@ -105,7 +105,7 @@ end
 case System.get_env("MAIL_BACKEND") do
   "mailgun" -> mail_mailgun.()
   "smtp" -> mail_smtp.()
-  _ -> mail_blackhole.()
+  _ -> mail_mailgun.() # mail_blackhole.("MAIL_BACKEND")
 end
 
 ## Sentry
