@@ -82,4 +82,12 @@ defmodule MoodleNet.Actors do
     |> String.replace(~r/--+/, "-")
   end
 
+  def prepare_username(%{"preferred_username" => _} = attrs) do
+    Map.put(attrs, :preferred_username, atomise_username(attrs[:preferred_username]))
+  end
+
+  def prepare_username(attrs) do # if not username set, autocreate from name
+    Map.put(attrs, :preferred_username, atomise_username(attrs[:name]))
+  end
+
 end
