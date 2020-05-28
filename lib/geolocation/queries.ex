@@ -82,8 +82,15 @@ defmodule Geolocation.Queries do
 
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to({:follow, id})
+    |> join_to(follow: id)
     |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> filter(~w(disabled)a)
+  end
+
+  def filter(q, {:user, nil}) do
+    q
+    |> join_to(:context)
+    |> filter(~w(disabled private)a)
   end
 
   ## by status

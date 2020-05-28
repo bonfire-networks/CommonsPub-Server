@@ -77,20 +77,14 @@ defmodule Organisation.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
-  def filter(q, {:user, %User{id: id}}) do
+  def filter(q, {:user, %User{id: id} = user}) do
     q
-    |> join_to([:context, follow: id, context_follow: id])
-    |> where([context: c, context_follow: f], is_nil(c.id) or not is_nil(c.published_at) or not is_nil(f.id))
+    |> join_to(follow: id)
     |> where([organisation: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
-    |> filter(~w(disabled)a)
-    |> Users.Queries.filter(~w(deleted disabled)a)
   end
 
   def filter(q, {:user, nil}) do
-    q
-    |> join_to(:context)
-    |> filter(~w(disabled private)a)
-    |> Users.Queries.filter(~w(deleted disabled private)a)
+    filter(q, ~w(deleted disabled private)a)
   end
 
   ## by status
@@ -174,6 +168,10 @@ defmodule Organisation.Queries do
 
   def filter(q, {:preload, :actor}) do
     preload q, [actor: a], actor: a
+  end
+
+  def filter(q, {:preload, :context}) do
+    preload q, [context: c], context: c
   end
 
   # pagination

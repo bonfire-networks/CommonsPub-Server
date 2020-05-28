@@ -26,13 +26,18 @@ defmodule MoodleNet.Algolia.Indexer do
   defp supported_type(_), do: false
 
   def maybe_index_object(object) do
-    if check_envs() && supported_type(object) do
+    if check_envs() and supported_type(object) do # if Algolia is configured, use that
       object
       |> format_object()
-      |> Search.Indexer.push_object("mothership")
-      # |> push_object()
-    else
-      :ok
+      |> push_object() 
+    else # otherwise use CommonsPub Search extension, powered by Meili
+      if supported_type(object) do
+        object
+        |> format_object()
+        |> Search.Indexing.maybe_index_object
+      else
+        Search.Indexing.maybe_index_object(object) 
+      end
     end
   end
 
