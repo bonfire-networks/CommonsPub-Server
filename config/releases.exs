@@ -70,7 +70,7 @@ end
 
 mail_smtp = fn ->
   case System.get_env("MAIL_SERVER") do
-    nil -> blackhole.("MAIL_SERVER")
+    nil -> mail_blackhole.("MAIL_SERVER")
     server ->
       case System.get_env("MAIL_DOMAIN") do
         nil -> mail_blackhole.("MAIL_DOMAIN")
