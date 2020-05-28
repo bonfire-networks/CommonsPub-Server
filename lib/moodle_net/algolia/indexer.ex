@@ -34,9 +34,9 @@ defmodule MoodleNet.Algolia.Indexer do
       if supported_type(object) do
         object
         |> format_object()
-        |> Search.Indexer.maybe_index_object
+        |> Search.Indexing.maybe_index_object
       else
-        Search.Indexer.maybe_index_object(object) 
+        Search.Indexing.maybe_index_object(object) 
       end
     end
   end
