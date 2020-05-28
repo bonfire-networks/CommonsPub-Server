@@ -78,7 +78,7 @@ defmodule MoodleNet.Users do
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
       user = %{user | actor: actor, local_user: %{ local_user | email_confirm_tokens: [token]}}
-
+      Logger.info("Minted confirmation token for user: #{token.id}")
       user
       |> Email.welcome(token)
       |> MailService.deliver_later()
