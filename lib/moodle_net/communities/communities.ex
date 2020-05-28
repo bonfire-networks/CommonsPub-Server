@@ -40,6 +40,9 @@ defmodule MoodleNet.Communities do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
+
+    attrs = Actors.prepare_username(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm_attrs} <- create_boxes(actor, attrs),
@@ -48,7 +51,8 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            :ok <- publish(creator, comm, activity),
-           :ok <- ap_publish("create", comm) do
+           :ok <- ap_publish("create", comm),
+           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(comm) do
         {:ok, comm}
       end
     end)
