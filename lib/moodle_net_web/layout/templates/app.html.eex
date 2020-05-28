@@ -9,7 +9,7 @@
   <body>
     <div class="container">
       <%= render "alerts.html", assigns %>
-      <%= render @view_module, @view_template, assigns %>
+      <%= @inner_content %>
     </div>
   </body>
 </html>

@@ -1,4 +1,7 @@
 # Message Rewrite Facility
+
+**WARNING: Due to how MoodleNet currently handles its configuration, MRF is only usable if you're building your own docker image.**
+
 The Message Rewrite Facility (MRF) is a subsystem that is implemented as a series of hooks that allows the administrator to rewrite or discard messages.
 
 Possible uses include:

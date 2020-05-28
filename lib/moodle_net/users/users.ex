@@ -240,7 +240,8 @@ defmodule MoodleNet.Users do
   end
 
   @spec soft_delete(User.t(), User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
-  def soft_delete(deleter, %User{} = user) do
+  # local user
+  def soft_delete(deleter, %User{local_user: %LocalUser{}} = user) do
     Repo.transact_with(fn ->
       with {:ok, user2} <- Common.soft_delete(user),
            {:ok, local_user} <- Common.soft_delete(user.local_user),
@@ -253,6 +254,20 @@ defmodule MoodleNet.Users do
     end)
   end
 
+  # remote user
+  def soft_delete(_deleter, %User{local_user: nil} = user) do
+    Repo.transact_with(fn ->
+      with {:ok, user2} <- Common.soft_delete(user),
+          %{user: users, feed: feeds} = deleted_ids([user2]),
+           :ok <- chase_delete(user, users, feeds),
+           :ok <- ap_publish("delete", user) do
+        user = %{ user2 | actor: user.actor }
+        {:ok, user}
+      end
+    end)
+  end
+
+  # remote user, called by activitypub
   @spec soft_delete_remote(User.t()) :: {:ok, User.t()} | {:error, Changeset.t()}
   def soft_delete_remote(%User{} = user) do
     Repo.transact_with(fn ->

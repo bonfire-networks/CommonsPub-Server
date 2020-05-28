@@ -144,6 +144,89 @@ defmodule Moodlenet.Workers.APPpublishWorkerTest do
       assert {:ok, activity, _, _} = APPublishWorker.perform(%{"context_id" => deleted_like.id, "op" => "delete"}, %{})
       assert activity.data["type"] == "Undo"
     end
+
+    test "users" do
+      user = fake_user!()
+      {:ok, user} = MoodleNet.Users.soft_delete(user, user)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => user.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+
+    test "communities" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      {:ok, comm} = MoodleNet.Communities.soft_delete(user, comm)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comm.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+
+    test "collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      {:ok, coll} = MoodleNet.Collections.soft_delete(user, coll)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+
+    test "comments" do
+      user = fake_user!()
+      community = fake_community!(user)
+      thread = fake_thread!(user, community)
+      comment = fake_comment!(user, thread, %{is_local: true})
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, comment} = MoodleNet.Threads.Comments.soft_delete(user, comment)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comment.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+
+    test "resources" do
+      user = fake_user!()
+      community = fake_community!(user)
+      collection = fake_collection!(user, community)
+      resource = fake_resource!(user, collection)
+      Oban.drain_queue(:mn_ap_publish)
+      {:ok, resource} = MoodleNet.Resources.soft_delete(user, resource)
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => resource.id, "op" => "delete"}, %{})
+      assert activity.data["type"] == "Delete"
+    end
+  end
+
+  describe "updates" do
+    test "users" do
+      user = fake_user!()
+      {:ok, user} = MoodleNet.Users.update(user, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => user.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
+
+    test "communities" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      {:ok, comm} = MoodleNet.Communities.update(user, comm, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => comm.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
+
+    test "collections" do
+      user = fake_user!()
+      comm = fake_community!(user)
+      coll = fake_collection!(user, comm)
+      {:ok, coll} = MoodleNet.Collections.update(user, coll, %{name: "Cool Name"})
+
+      assert {:ok, activity} = APPublishWorker.perform(%{"context_id" => coll.id, "op" => "update"}, %{})
+      assert activity.data["type"] == "Update"
+      assert activity.data["object"]["name"] == "Cool Name"
+    end
   end
 
   describe "batch enqueue" do

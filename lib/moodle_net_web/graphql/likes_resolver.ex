@@ -64,21 +64,21 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     )
   end
 
-  def fetch_likers_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Likes.Queries,
-        query: Like,
-        cursor_fn: &[&1.id],
-        group_fn: &(&1.context_id),
-        page_opts: page_opts,
-        base_filters: [deleted: false, user: user, context: ids],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
+  # def fetch_likers_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Likes.Queries,
+  #       query: Like,
+  #       cursor_fn: &[&1.id],
+  #       group_fn: &(&1.context_id),
+  #       page_opts: page_opts,
+  #       base_filters: [deleted: false, user: user, context: ids],
+  #       data_filters: [page: [desc: [created: page_opts]]],
+  #       count_filters: [group_count: :context_id],
+  #     }
+  #   )
+  # end
 
   def fetch_likers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -131,20 +131,20 @@ defmodule MoodleNetWeb.GraphQL.LikesResolver do
     )
   end
 
-  def fetch_likes_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Likes.Queries,
-        query: Like,
-        group_fn: &(&1.context_id),
-        page_opts: page_opts,
-        base_filters: [deleted: false, user: user, creator: ids],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :creator_id],
-      }
-    )
-  end
+  # def fetch_likes_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Likes.Queries,
+  #       query: Like,
+  #       group_fn: &(&1.context_id),
+  #       page_opts: page_opts,
+  #       base_filters: [deleted: false, user: user, creator: ids],
+  #       data_filters: [page: [desc: [created: page_opts]]],
+  #       count_filters: [group_count: :creator_id],
+  #     }
+  #   )
+  # end
 
   def fetch_likes_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)

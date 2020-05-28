@@ -135,9 +135,9 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
   def gen_query(param_name, field_fn, options) do
     params = Keyword.get(options, :params, [])
     name = Keyword.get(options, :name, "test")
-    id_type = Keyword.get(options, :id_type, :string)
+    param_type = Keyword.get(options, :param_type, type!(:string))
     query name: name, params: params,
-      param: param(param_name, type!(id_type)),
+      param: param(param_name, param_type),
       field: field_fn.(options)
   end
 

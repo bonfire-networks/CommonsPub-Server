@@ -38,7 +38,7 @@ defmodule ActivityPubWeb.RedirectController do
             %Resource{} ->
               redirect(conn,
                 external:
-                  frontend_base <> "/collections/" <> mn_object.collection_id <> "/resources"
+                  frontend_base <> "/collections/" <> mn_object.collection_id
               )
 
             _ ->
