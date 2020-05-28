@@ -217,7 +217,7 @@ defmodule Organisation.GraphQL.Schema do
   end
 
   input_object :organisation_input do
-    field :preferred_username, non_null(:string)
+    field :preferred_username, :string
     field :name, non_null(:string)
     field :summary, :string
     # field :primary_language_id, :string

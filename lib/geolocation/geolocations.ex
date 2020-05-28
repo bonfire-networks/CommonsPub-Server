@@ -71,7 +71,7 @@ defmodule Geolocation.Geolocations do
   @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
 
-    attrs = Map.put(attrs, :preferred_username, Actors.fix_preferred_username(attrs[:name]))
+    attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
@@ -89,7 +89,8 @@ defmodule Geolocation.Geolocations do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    attrs = Map.put(attrs, :preferred_username, Actors.fix_preferred_username(attrs[:name]))
+    
+    attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),

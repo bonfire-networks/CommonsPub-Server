@@ -12,10 +12,10 @@ defmodule Search.Indexing do
         push_object(%{ uid: index_name})
     end
 
-    # index something in an unknown index
+    # index something with an unspecified index 
     def maybe_index_object(object) do
       IO.inspect(object)
-      # index_objects([object], index_name)
+      index_object(object, "search")
     end
 
     # index something in an existing index
@@ -45,7 +45,7 @@ defmodule Search.Indexing do
           {"X-Meili-API-Key", api_key},
         ]
       # else
-      #   headers = [] #FIXME
+      #   headers = [] #FIXME 
       # end
 
       json = Jason.encode!(object)
