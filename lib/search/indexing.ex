@@ -11,9 +11,18 @@ defmodule Search.Indexing do
     def create_index(index_name) do
         push_object(%{ uid: index_name})
     end
+    
+    # index something coming from old Algolia indexer
+    def maybe_index_object(%{"index_mothership_object_id" => _} = object) do      
+      index_for_search(Map.put(object, "id", object["index_mothership_object_id"]))
+    end
 
-    # index something with an unspecified index 
-    def maybe_index_object(object) do
+    def maybe_index_object(object) do # index something with an unspecified index 
+      index_for_search(object)
+    end
+
+
+    def index_for_search(object) do  # add to general instance search index
       IO.inspect(object)
       index_object(object, "search")
     end

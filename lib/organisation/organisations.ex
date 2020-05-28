@@ -64,20 +64,13 @@ defmodule Organisation.Organisations do
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  def fix_username(%{"preferred_username" => _} = attrs) do
-    Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:preferred_username]))
-  end
 
-  def fix_username(attrs) do
-    # username is not in params
-    Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
-  end
 
   ## mutations
   @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
-    attrs = fix_username(attrs)
+    attrs = Actors.prepare_username(attrs)
 
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
@@ -97,7 +90,7 @@ defmodule Organisation.Organisations do
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
 
-      attrs = fix_username(attrs)
+      attrs = Actors.prepare_username(attrs)
 
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
