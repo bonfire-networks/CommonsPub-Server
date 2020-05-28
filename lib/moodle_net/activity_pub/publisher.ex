@@ -18,7 +18,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
          object_ap_id <- Utils.get_object_ap_id(context),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
          {to, cc} <- Utils.determine_recipients(actor, context, comment),
+         ap_id <- Utils.generate_object_ap_id(comment),
          object = %{
+           "id" => ap_id,
            "content" => comment.content,
            "to" => to,
            "cc" => cc,
@@ -56,7 +58,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
          content_url <- MoodleNet.Uploads.remote_url_from_id(resource.content_id),
          icon_url <- MoodleNet.Uploads.remote_url_from_id(resource.icon_id),
+         ap_id <- Utils.generate_object_ap_id(resource),
          object <- %{
+           "id" => ap_id,
            "name" => resource.name,
            "url" => content_url,
            "icon" => icon_url,
