@@ -49,7 +49,10 @@ priv/repo/structure.sql
 # Generated test files
 /test_uploads/
 
-#Date
+# localised strings
+priv/gettext/*/LC_MESSAGES
+
+#Data
 /uploads/*
 !/uploads/index.html
 /test/uploads
