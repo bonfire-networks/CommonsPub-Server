@@ -40,11 +40,13 @@ defmodule Search.Indexing do
 
       url = "http://#{search_instance}/indexes"<>index_path
 
-      if api_key do
+      # if api_key do
         headers = [
           {"X-Meili-API-Key", api_key},
         ]
-      end
+      # else
+      #   headers = [] #FIXME
+      # end
 
       json = Jason.encode!(object)
   

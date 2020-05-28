@@ -71,6 +71,7 @@ defmodule Organisation.Organisations do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
            {:ok, org} <- insert_organisation(creator, actor, org_attrs),
+           {:ok, index} <- Search.Indexing.maybe_index_object(org), # add to search index
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, org, activity, :created),
@@ -86,6 +87,7 @@ defmodule Organisation.Organisations do
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
            {:ok, org} <- insert_organisation(creator, context, actor, org_attrs),
+           {:ok, index} <- Search.Indexing.maybe_index_object(org), # add to search index
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, context, org, activity, :created),
