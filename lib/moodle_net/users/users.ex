@@ -5,6 +5,7 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
+  require Logger
   alias MoodleNet.{
     Access,
     Activities,
