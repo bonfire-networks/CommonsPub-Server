@@ -7,9 +7,15 @@ defmodule Search.Indexer do
   
     alias ActivityPub.HTTP
 
-    # create new index
+    # create a new index
     def create_index(index_name) do
         push_object(%{ uid: index_name})
+    end
+
+    # index something in an unknown index
+    def maybe_index_object(object) do
+      IO.inspect(object)
+      # index_objects([object], index_name)
     end
 
     # index something in an existing index
@@ -17,7 +23,9 @@ defmodule Search.Indexer do
         index_objects([object], index_name)
     end
 
+    # index several things in an existing index
     def index_objects(object, index_name) do
+        create_index(index_name) # FIXME - should create the index only once
         push_object(object, "/"<>index_name<>"/documents")
     end
 
@@ -28,14 +36,15 @@ defmodule Search.Indexer do
     defp push_object(object, index_path) do
             
       search_instance = System.get_env("SEARCH_MEILI_INSTANCE", "search:7700")
-      #api_key = System.get_env("ALGOLIA_SECRET")
+      api_key = System.get_env("SEARCH_MEILI_SECRET")
 
       url = "http://#{search_instance}/indexes"<>index_path
-  
-      headers = [
-        # {"X-Algolia-API-Key", api_key},
-        # {"X-Algolia-Application-id", application_id}
-      ]
+
+      if api_key do
+        headers = [
+          {"X-Meili-API-Key", api_key},
+        ]
+      end
 
       json = Jason.encode!(object)
   
