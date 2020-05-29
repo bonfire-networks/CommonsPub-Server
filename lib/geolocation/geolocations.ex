@@ -14,7 +14,6 @@ defmodule Geolocation.Geolocations do
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
-
   @doc """
   Retrieves a single collection by arbitrary filters.
   Used by:
@@ -32,11 +31,10 @@ defmodule Geolocation.Geolocations do
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Geolocation, filters))}
 
   def fields(group_fn, filters \\ [])
-  when is_function(group_fn, 1) do
+      when is_function(group_fn, 1) do
     {:ok, fields} = many(filters)
     {:ok, Fields.new(fields, group_fn)}
   end
-
 
   @doc """
   Retrieves an Page of geolocations according to various filters
@@ -45,10 +43,12 @@ defmodule Geolocation.Geolocations do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(Geolocation, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -60,17 +60,33 @@ defmodule Geolocation.Geolocations do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Geolocation,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      Geolocation,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
   ## mutations
 
-  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), context :: any, attrs :: map) ::
+          {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
-
     attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
@@ -80,16 +96,14 @@ defmodule Geolocation.Geolocations do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, context, item, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
-          do
-            {:ok, populate_coordinates(item)}
-          end
+           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
+        {:ok, populate_coordinates(item)}
+      end
     end)
   end
 
   @spec create(User.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
-    
     attrs = Map.put(attrs, :preferred_username, Actors.atomise_username(attrs[:name]))
 
     Repo.transact_with(fn ->
@@ -99,10 +113,9 @@ defmodule Geolocation.Geolocations do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs),
            :ok <- publish(creator, item, activity, :created),
-           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
-          do
-            {:ok, populate_coordinates(item)}
-          end
+           {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) do
+        {:ok, populate_coordinates(item)}
+      end
     end)
   end
 
@@ -125,53 +138,65 @@ defmodule Geolocation.Geolocations do
 
   defp insert_geolocation(creator, context, actor, attrs) do
     cs = Geolocation.create_changeset(creator, context, actor, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
+    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{item | actor: actor}}
   end
 
   defp insert_geolocation(creator, actor, attrs) do
     cs = Geolocation.create_changeset(creator, actor, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{ item | actor: actor }}
+    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{item | actor: actor}}
   end
 
   defp publish(creator, context, geolocation, activity, :created) do
     feeds = [
-      context.outbox_id, creator.outbox_id,
-      geolocation.outbox_id, Feeds.instance_outbox_id(),
+      context.outbox_id,
+      creator.outbox_id,
+      geolocation.outbox_id,
+      Feeds.instance_outbox_id()
     ]
+
     with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
     end
   end
+
   defp publish(creator, geolocation, activity, :created) do
     feeds = [
       creator.outbox_id,
-      geolocation.outbox_id, Feeds.instance_outbox_id(),
+      geolocation.outbox_id,
+      Feeds.instance_outbox_id()
     ]
+
     with :ok <- FeedActivities.publish(activity, feeds) do
       ap_publish("create", geolocation.id, creator.id, geolocation.actor.peer_id)
     end
   end
+
   defp publish(geolocation, :updated) do
-    ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+    # TODO: wrong if edited by admin
+    ap_publish("update", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
   end
+
   defp publish(geolocation, :deleted) do
-    ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id) # TODO: wrong if edited by admin
+    # TODO: wrong if edited by admin
+    ap_publish("delete", geolocation.id, geolocation.creator_id, geolocation.actor.peer_id)
   end
 
   defp ap_publish(verb, context_id, user_id, nil) do
-    job_result = APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
+    job_result =
+      APPublishWorker.enqueue(verb, %{
+        "context_id" => context_id,
+        "user_id" => user_id
+      })
 
     with {:ok, _} <- job_result, do: :ok
   end
+
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(User.t(), Geolocation.t(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  @spec update(User.t(), Geolocation.t(), attrs :: map) ::
+          {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Geolocation{} = geolocation, attrs) do
-    Repo.update(Geolocation.update_changeset(geolocation, attrs)) #FIXME publish updates
     # Repo.transact_with(fn ->
     #   geolocation = Repo.preload(geolocation, :community)
     #   with {:ok, geolocation} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)),
@@ -180,6 +205,10 @@ defmodule Geolocation.Geolocations do
     #     {:ok, %{ geolocation | actor: actor }}
     #   end
     # end)
+
+    with {:ok, item} <- Repo.update(Geolocation.update_changeset(geolocation, attrs)) do
+      {:ok, populate_coordinates(item)}
+    end
   end
 
   # def soft_delete(%Geolocation{} = geolocation) do

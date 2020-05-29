@@ -71,7 +71,7 @@ defmodule Geolocation.GraphQLTest do
 
       q = update_geolocation_mutation()
       conn = user_conn(user)
-      vars = %{id: geo.id, spatial_thing: geolocation_input()}
+      vars = %{spatial_thing: Map.put(geolocation_input(), "id", geo.id)}
       assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
     end
   end
