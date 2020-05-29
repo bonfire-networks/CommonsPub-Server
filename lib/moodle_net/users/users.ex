@@ -82,7 +82,7 @@ defmodule MoodleNet.Users do
       Logger.info("Minted confirmation token for user: #{token.id}")
       user
       |> Email.welcome(token)
-      |> MailService.deliver_later()
+      |> MailService.maybe_deliver_later()
 
       {:ok, user}
     end
@@ -170,7 +170,7 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.insert(cs) do
         user
         |> Email.reset_password_request(token)
-        |> MailService.deliver_now()
+        |> MailService.maybe_deliver_later()
 
         {:ok, token}
       end
@@ -193,7 +193,7 @@ defmodule MoodleNet.Users do
         user = preload_actor(%{ user | local_user: local_user })
         user
         |> Email.password_reset()
-        |> MailService.deliver_now()
+        |> MailService.maybe_deliver_later()
         {:ok, user}
       end
     end)
