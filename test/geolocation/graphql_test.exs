@@ -50,7 +50,7 @@ defmodule Geolocation.GraphQLTest do
       q = create_geolocation_mutation()
       conn = user_conn(user)
       vars = %{spatial_thing: geolocation_input()}
-      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars))
+      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"])
     end
 
     test "creates a new geolocation with a context" do
@@ -60,7 +60,7 @@ defmodule Geolocation.GraphQLTest do
       q = create_geolocation_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       vars = %{spatial_thing: geolocation_input(), in_scope_of: comm.id}
-      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars))
+      assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"])
     end
   end
 
@@ -71,8 +71,8 @@ defmodule Geolocation.GraphQLTest do
 
       q = update_geolocation_mutation()
       conn = user_conn(user)
-      vars = %{spatial_thing: geolocation_input()}
-      assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars))
+      vars = %{id: geo.id, spatial_thing: geolocation_input()}
+      assert_geolocation(grumble_post_key(q, conn, :update_spatial_thing, vars)["spatialThing"])
     end
   end
 end

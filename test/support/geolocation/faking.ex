@@ -62,8 +62,12 @@ defmodule Geolocation.Test.Faking do
 
   ## graphql queries
 
-  def geolocation_fields(extra \\ []) do
+  def geolocation_query_fields(extra \\ []) do
     extra ++ ~w(id name mappable_address lat long alt note geom)a
+  end
+
+  def geolocation_mutation_fields(extra \\ []) do
+    [spatial_thing: extra ++ ~w(id name mappable_address lat long alt note geom)a]
   end
 
   def geolocation_query(options \\ []) do
@@ -72,7 +76,7 @@ defmodule Geolocation.Test.Faking do
   end
 
   def geolocation_subquery(options \\ []) do
-    gen_subquery(:id, :spatial_thing, &geolocation_fields/1, options)
+    gen_subquery(:id, :spatial_thing, &geolocation_query_fields/1, options)
   end
 
   def create_geolocation_mutation(options \\ []) do
@@ -82,7 +86,7 @@ defmodule Geolocation.Test.Faking do
 
   def create_geolocation_submutation(options \\ []) do
     [spatial_thing: var(:spatial_thing)]
-    |> gen_submutation(:create_spatial_thing, &geolocation_fields/1, options)
+    |> gen_submutation(:create_spatial_thing, &geolocation_mutation_fields/1, options)
   end
 
   def update_geolocation_mutation(options \\ []) do
@@ -92,6 +96,6 @@ defmodule Geolocation.Test.Faking do
 
   def update_geolocation_submutation(options \\ []) do
     [spatial_thing: var(:spatial_thing)]
-    |> gen_submutation(:update_spatial_thing, &geolocation_fields/1, options)
+    |> gen_submutation(:update_spatial_thing, &geolocation_mutation_fields/1, options)
   end
 end

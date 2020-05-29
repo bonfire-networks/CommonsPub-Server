@@ -82,7 +82,7 @@ defmodule Geolocation.Geolocations do
            :ok <- publish(creator, context, item, activity, :created),
            {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
           do
-            {:ok, item}
+            {:ok, populate_coordinates(item)}
           end
     end)
   end
@@ -101,7 +101,7 @@ defmodule Geolocation.Geolocations do
            :ok <- publish(creator, item, activity, :created),
            {:ok, _follow} <- Follows.create(creator, item, %{is_local: true}) 
           do
-            {:ok, item}
+            {:ok, populate_coordinates(item)}
           end
     end)
   end
