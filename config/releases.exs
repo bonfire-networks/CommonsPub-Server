@@ -90,7 +90,7 @@ mail_smtp = fn ->
                        adapter: Bamboo.SMTPAdapter,
                        server: server,
                        hostname: domain,
-                       port: 1025,
+                       port: 587,
                        username: user,
                        password: password,
                        tls: :always,
