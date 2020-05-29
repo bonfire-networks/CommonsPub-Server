@@ -36,7 +36,7 @@ defmodule Geolocation.GraphQLTest do
       q = geolocation_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
-      assert is_nil(resp["context"])
+      assert is_nil(resp["inScopeOf"])
     end
   end
 

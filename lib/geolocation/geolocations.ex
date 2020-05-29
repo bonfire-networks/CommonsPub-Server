@@ -138,7 +138,9 @@ defmodule Geolocation.Geolocations do
 
   defp insert_geolocation(creator, context, actor, attrs) do
     cs = Geolocation.create_changeset(creator, context, actor, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, %{item | actor: actor}}
+    with {:ok, item} <- Repo.insert(cs) do
+      {:ok, %{item | actor: actor, context: context}}
+    end
   end
 
   defp insert_geolocation(creator, actor, attrs) do

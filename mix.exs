@@ -59,7 +59,7 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5"},
+      {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
       # webserver

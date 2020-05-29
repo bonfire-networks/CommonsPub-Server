@@ -11,10 +11,6 @@ defmodule Geolocation.GraphQL.Hydration do
 
   def hydrate(blueprint) do
     %{
-      geo_scope: %{
-        types: [:community, :collection, :organisation],
-        resolve_type: &__MODULE__.resolve_context_type/2
-      },
       spatial_thing: %{
         canonical_url: [
           resolve: &ActorsResolver.canonical_url_edge/3
@@ -24,8 +20,7 @@ defmodule Geolocation.GraphQL.Hydration do
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
-          # resolve_type: &__MODULE__.resolve_context_type/2,
-        ]
+        ],
       },
       geolocation_query: %{
         spatial_thing: [
@@ -42,10 +37,10 @@ defmodule Geolocation.GraphQL.Hydration do
         update_spatial_thing: [
           resolve: &Geolocation.GraphQL.update_geolocation/2
         ]
-      }
-      # geo_scope: [
-      #   resolve_type: &__MODULE__.resolve_context_type/2,
-      # ]
+      },
+      geo_scope: [
+        resolve_type: &__MODULE__.resolve_context_type/2
+      ],
     }
   end
 
