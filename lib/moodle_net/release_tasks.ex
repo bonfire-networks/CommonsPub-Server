@@ -209,21 +209,21 @@ defmodule MoodleNet.ReleaseTasks do
 
   def user_set_email_confirmed(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one([:default, username: username])
+      {:ok, u} = Users.one(preset: :local_user, username: username)
       Users.confirm_email(u)
     end)
   end
 
   def make_instance_admin(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one([:default, username: username])
+      {:ok, u} = Users.one(preset: :local_user, username: username)
       Users.make_instance_admin(u)
     end)
   end
 
   def unmake_instance_admin(username) do
     Repo.transact_with(fn ->
-      {:ok, u} = Users.one([:default, username: username])
+      {:ok, u} = Users.one(preset: :local_user, username: username)
       Users.unmake_instance_admin(u)
     end)
   end
