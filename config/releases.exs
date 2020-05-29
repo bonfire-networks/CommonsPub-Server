@@ -45,7 +45,7 @@ config :moodle_net, MoodleNet.Uploads,
 mail_blackhole = fn(var) ->
   IO.puts("WARNING: The environment variable #{var} was not set or was set incorrectly, mail will NOT be sent.")
   config :moodle_net, MoodleNet.Mail.MailService,
-    adapter: Bamboo.LocalAdapter,
+    adapter: Bamboo.LocalAdapter
 end
 
 mail_mailgun = fn ->
