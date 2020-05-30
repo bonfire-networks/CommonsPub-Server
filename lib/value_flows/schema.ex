@@ -16,7 +16,14 @@ defmodule ValueFlows.Schema do
     field :total_count, non_null(:integer)
   end
 
-  object :value_flows_query_extra do
+  @desc "A page of agents"
+  object :agents_page do
+    field :page_info, non_null(:page_info)
+    field :edges, non_null(list_of(non_null(:agent)))
+    field :total_count, non_null(:integer)
+  end
+
+  object :value_flows_extra_queries do
 
     @desc "Get paginated list of intents"
     field :intents_pages, non_null(:intents_page) do
@@ -24,6 +31,30 @@ defmodule ValueFlows.Schema do
       arg :before, list_of(non_null(:cursor))
       arg :after, list_of(non_null(:cursor))
       resolve &ValueFlows.Planning.Intent.GraphQL.all_intents/2
+    end
+
+    # @desc "Get paginated list of agents"
+    # field :agents_pages, non_null(:agents_page) do
+    #   arg :limit, :integer
+    #   arg :before, list_of(non_null(:cursor))
+    #   arg :after, list_of(non_null(:cursor))
+    #   resolve &ValueFlows.Planning.Intent.GraphQL.agents/2
+    # end
+
+    @desc "Get paginated list of people"
+    field :people_pages, non_null(:agents_page) do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &ValueFlows.Agent.GraphQL.people/2
+    end
+
+    @desc "Get paginated list of organizations"
+    field :organizations_pages, non_null(:agents_page) do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &ValueFlows.Agent.GraphQL.organizations/2
     end
 
   end

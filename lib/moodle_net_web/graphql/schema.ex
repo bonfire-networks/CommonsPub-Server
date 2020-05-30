@@ -106,7 +106,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
     # ValueFlows
     import_fields :value_flows_query
-    import_fields :value_flows_query_extra
+    import_fields :value_flows_extra_queries
 
   end
 
