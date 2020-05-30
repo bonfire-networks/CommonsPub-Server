@@ -309,7 +309,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do
       ActivityPub.Object.update(object, %{mn_pointer_id: resource.id})
-      Indexer.maybe_index_object(resource)
+      # Indexer.maybe_index_object(resource) # now being called in MoodleNet.Resources.create
       :ok
     else
       {:error, e} -> {:error, e}
