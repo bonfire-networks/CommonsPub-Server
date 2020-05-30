@@ -5,6 +5,7 @@ defmodule MoodleNet.Users do
   @doc """
   A Context for dealing with Users.
   """
+  require Logger
   alias MoodleNet.{
     Access,
     Activities,
@@ -78,10 +79,10 @@ defmodule MoodleNet.Users do
          {:ok, user} <- Repo.insert(User.local_register_changeset(actor, local_user, attrs2)),
          {:ok, token} <- create_email_confirm_token(local_user) do
       user = %{user | actor: actor, local_user: %{ local_user | email_confirm_tokens: [token]}}
-
+      Logger.info("Minted confirmation token for user: #{token.id}")
       user
       |> Email.welcome(token)
-      |> MailService.deliver_now()
+      |> MailService.maybe_deliver_later()
 
       {:ok, user}
     end
@@ -169,7 +170,7 @@ defmodule MoodleNet.Users do
       with {:ok, token} <- Repo.insert(cs) do
         user
         |> Email.reset_password_request(token)
-        |> MailService.deliver_now()
+        |> MailService.maybe_deliver_later()
 
         {:ok, token}
       end
@@ -192,7 +193,7 @@ defmodule MoodleNet.Users do
         user = preload_actor(%{ user | local_user: local_user })
         user
         |> Email.password_reset()
-        |> MailService.deliver_now()
+        |> MailService.maybe_deliver_later()
         {:ok, user}
       end
     end)
