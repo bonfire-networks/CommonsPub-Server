@@ -125,8 +125,8 @@ config :moodle_net, Uploads,
  # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
   # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
   # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
-config :moodle_net, MoodleNet.Mail.MailService,
-  adapter: Bamboo.MailgunAdapter
+# config :moodle_net, MoodleNet.Mail.MailService,
+#   adapter: Bamboo.MailgunAdapter
 
 config :moodle_net, :mrf_simple,
   media_removal: [],
@@ -178,7 +178,7 @@ config :moodle_net, :instance,
   version: version,
   name: "MoodleNet",
   email: "moodlenet-moderators@moodle.com",
-  description: "An instance of MoodleNet, a federated server for educators",
+  description: "An instance of MoodleNet, a federated educational commons",
   federation_publisher_modules: [ActivityPubWeb.Publisher],
   federation_reachability_timeout_days: 7,
   federating: true,

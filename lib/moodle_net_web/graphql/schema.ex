@@ -141,10 +141,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
 
-  # hydate Geolocation schema with resolvers
   def hydrate(%Absinthe.Blueprint{}, _) do
     hb = Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
-    hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
+    # hb = Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{})
     # hb = Map.merge(hb, ValueFlows.Hydrations.hydrate(hb)) 
     hb
   end

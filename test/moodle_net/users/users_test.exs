@@ -102,6 +102,19 @@ defmodule MoodleNet.UsersTest do
       end)
     end
 
+    test "fails if the username is already taken with a different capitalisation" do
+      Repo.transaction(fn ->
+        assert user = fake_user!()
+
+        attrs =
+          %{preferred_username: String.upcase(user.actor.preferred_username)}
+          |> Fake.user()
+          |> Fake.actor()
+
+        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+      end)
+    end
+
     test "fails if the email is already taken" do
       Repo.transaction(fn ->
         assert user = fake_user!()
