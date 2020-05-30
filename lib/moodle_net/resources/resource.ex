@@ -5,7 +5,7 @@ defmodule MoodleNet.Resources.Resource do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_disabled: 1]
+    only: [change_public: 1, change_disabled: 1, cast_object: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Collections.Collection
@@ -42,6 +42,7 @@ defmodule MoodleNet.Resources.Resource do
   def create_changeset(creator, collection, attrs) do
     %Resource{}
     |> Changeset.cast(attrs, @cast)
+    |> cast_object()
     |> Changeset.change(
       collection_id: collection.id,
       creator_id: creator.id,
