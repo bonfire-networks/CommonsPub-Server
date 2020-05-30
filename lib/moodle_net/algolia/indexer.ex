@@ -45,12 +45,16 @@ defmodule MoodleNet.Algolia.Indexer do
     end
   end
 
-  def get_object_id(%Resource{} = object) do
-    :crypto.hash(:sha, object.canonical_url) |> Base.encode16()
+  def hash_url(url) do
+    :crypto.hash(:sha, url) |> Base.encode16()
   end
 
-  def get_object_id(object) do
-    :crypto.hash(:sha, object.actor.canonical_url) |> Base.encode16()
+  def get_object_id(%Resource{} = object) do
+    hash_url(object.canonical_url)
+  end
+
+  def get_object_id(object) do # FIXME, this should only apply specificaly to actors
+    hash_url(object.actor.canonical_url)
   end
 
   def format_object(%Community{} = community) do
@@ -62,6 +66,7 @@ defmodule MoodleNet.Algolia.Indexer do
 
     icon = Uploads.remote_url_from_id(community.icon_id)
     image = Uploads.remote_url_from_id(community.image_id)
+    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(community)
 
     %{
       "index_mothership_object_id" => community.id,
@@ -77,7 +82,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_type" => "Community",
       "index_instance" => URI.parse(community.actor.canonical_url).host,
       "createdAt" => community.published_at,
-      "objectID" => :crypto.hash(:sha, community.actor.canonical_url) |> Base.encode16()
+      "objectID" => hash_url(url)
     }
   end
 
@@ -91,6 +96,7 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     icon = Uploads.remote_url_from_id(collection.icon_id)
+    url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(collection)
 
     %{
       "index_mothership_object_id" => collection.id,
@@ -106,7 +112,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_instance" => URI.parse(collection.actor.canonical_url).host,
       "createdAt" => collection.published_at,
       "community" => format_object(collection.community),
-      "objectID" => :crypto.hash(:sha, collection.actor.canonical_url) |> Base.encode16()
+      "objectID" => hash_url(url)
     }
   end
 
@@ -120,7 +126,9 @@ defmodule MoodleNet.Algolia.Indexer do
       end
 
     icon = Uploads.remote_url_from_id(resource.icon_id)
-    url = Uploads.remote_url_from_id(resource.content_id)
+    resource_url = Uploads.remote_url_from_id(resource.content_id)
+    
+    canonical_url = MoodleNet.ActivityPub.Utils.get_object_canonical_url(resource)
 
     %{
       "index_mothership_object_id" => resource.id,
@@ -137,8 +145,8 @@ defmodule MoodleNet.Algolia.Indexer do
       "index_type" => "Resource",
       "index_instance" => URI.parse(resource.canonical_url).host,
       "collection" => format_object(resource.collection),
-      "objectID" => :crypto.hash(:sha, resource.canonical_url) |> Base.encode16(),
-      "url" => url,
+      "objectID" => hash_url(canonical_url),
+      "url" => resource_url,
       "author" => Map.get(resource, :author),
       "mediaType" => resource.content.media_type
     }

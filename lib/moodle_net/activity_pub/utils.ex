@@ -115,9 +115,33 @@ defmodule MoodleNet.ActivityPub.Utils do
 
   def get_author(author) when is_binary(author), do: author
 
+  @doc "Generate canonical URL for local object"
   def generate_object_ap_id(object) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
     "#{MoodleNetWeb.base_url()}#{ap_base_path}/objects/#{object.id}"
   end
+
+  @doc "Get canonical URL if set, or generate one"
+
+  def get_actor_canonical_url(%{actor: actor}) do
+    get_actor_canonical_url(actor)
+  end
+
+  def get_actor_canonical_url(%{canonical_url: canonical_url}) do
+    canonical_url
+  end
+
+  def get_actor_canonical_url(actor) do
+    ActivityPub.Utils.actor_url(actor)
+  end
+
+  def get_object_canonical_url(%{canonical_url: canonical_url}) do
+    canonical_url
+  end
+
+  def get_object_canonical_url(object) do
+    ActivityPub.Utils.object_url(object)
+  end
+
 end
