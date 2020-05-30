@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.GraphQL.ThreadsSchema do
   object :thread do
     @desc "An instance-local UUID identifying the thread"
     field :id, non_null(:string)
-    @desc "A url for the user, may be to a remote instance"
+    @desc "A url for the thread, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "Whether the thread is local to the instance"
