@@ -20,7 +20,7 @@ defmodule Taxonomy.Migrations do
   def up do
 
     try_dotsql_execute("lib/taxonomy/sql/tags.schema.sql")
-    try_dotsql_execute("uploads/db_data/tags.data.sql")
+    try_dotsql_execute("data/sql/tags.data.sql")
 
 
   end

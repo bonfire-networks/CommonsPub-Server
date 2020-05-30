@@ -21,7 +21,7 @@ defmodule Locales.Migrations do
   def up do
 
     try_dotsql_execute("lib/locales/sql/locales.schema.sql")
-    try_dotsql_execute("uploads/db_data/locales.data.sql")
+    try_dotsql_execute("data/sql/locales.data.sql")
 
   end
 
