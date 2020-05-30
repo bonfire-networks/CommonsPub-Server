@@ -40,7 +40,7 @@ defmodule MoodleNetWeb.GraphQL.FollowsSchema do
   object :follow do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
-    @desc "A url for the flag, may be to a remote instance"
+    @desc "A url for the follow, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "Whether the follow is local to the instance"

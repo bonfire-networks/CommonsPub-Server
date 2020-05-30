@@ -56,15 +56,15 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
   end
 
   object :resource do
-    @desc "An instance-local UUID identifying the user"
+    @desc "An instance-local UUID identifying the resource"
     field :id, non_null(:string)
-    @desc "A url for the user, may be to a remote instance"
+    @desc "A url for the resource, may be to a remote instance"
     field :canonical_url, :string
 
     @desc "A name field"
     field :name, non_null(:string)
 
-    @desc "Possibly biographical information"
+    @desc "Description"
     field :summary, :string
 
     @desc "An avatar url"
