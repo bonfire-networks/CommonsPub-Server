@@ -5,8 +5,8 @@ CREATE TABLE "taxonomy_tags" (
     "label" character varying,
     "parent_tag_id" integer,
     "description" text,
-    CONSTRAINT "tag_pkey" PRIMARY KEY ("id")
-    CONSTRAINT "tag_parent" FOREIGN KEY (parent_tag_id) REFERENCES taxonomy_tags(id) ON UPDATE CASCADE ON DELETE SET NULL NOT DEFERRABLE,
+    CONSTRAINT "tag_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "tag_parent" FOREIGN KEY (parent_tag_id) REFERENCES taxonomy_tags(id) ON UPDATE CASCADE ON DELETE SET NULL NOT DEFERRABLE
 ) WITH (oids = false);
 
 CREATE INDEX "taxonomy_tags_parent_tag_id_index" ON "taxonomy_tags" USING btree ("parent_tag_id");
