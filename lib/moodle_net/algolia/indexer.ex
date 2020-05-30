@@ -30,16 +30,16 @@ defmodule MoodleNet.Algolia.Indexer do
       object
       |> format_object()
       |> push_object() 
-    # else 
-    #   if(Code.ensure_compiled?(Search.Indexing)) do # otherwise index using CommonsPub Search extension (if available)
-    #     if supported_type(object) do
-    #       object
-    #       |> format_object()
-    #       |> Search.Indexing.maybe_index_object
-    #     else
-    #       Search.Indexing.maybe_index_object(object) 
-    #     end
-    #   end
+    else 
+      if(Code.ensure_compiled?(Search.Indexing)) do # otherwise index using CommonsPub Search extension (if available)
+        if supported_type(object) do
+          object
+          |> format_object()
+          |> Search.Indexing.maybe_index_object
+        else
+          Search.Indexing.maybe_index_object(object) 
+        end
+      end
     end
   end
 
