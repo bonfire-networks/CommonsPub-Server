@@ -54,13 +54,13 @@ defmodule Measurement.Test.Faking do
   end
 
   def unit_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
     gen_query(:id, &unit_subquery/1, options)
   end
 
   def unit_fields(extra \\ []) do
     extra ++ ~w(id label symbol __typename)a
   end
-
 
   def units_query(options \\ []) do
     params = [
@@ -81,7 +81,6 @@ defmodule Measurement.Test.Faking do
       &[ :follower_count | unit_fields(&1)],
       [ {:args, args} | options ]
   end
-
 
   ### Unit assertion
 

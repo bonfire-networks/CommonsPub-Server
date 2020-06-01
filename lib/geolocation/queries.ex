@@ -90,12 +90,6 @@ defmodule Geolocation.Queries do
     |> filter(~w(disabled)a)
   end
 
-  def filter(q, {:user, nil}) do
-    q
-    |> join_to(:context)
-    |> filter(~w(disabled private)a)
-  end
-
   ## by status
 
   def filter(q, :deleted) do
