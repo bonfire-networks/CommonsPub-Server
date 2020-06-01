@@ -42,19 +42,75 @@ config :moodle_net, MoodleNet.Uploads,
   path: upload_path,
   base_url: upload_url
 
-mail_base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
-mail_domain = System.get_env("MAIL_DOMAIN")
-mail_key = System.get_env("MAIL_KEY")
-mail_reply_to = System.get_env("MAIL_FROM")
-
-if not is_nil(mail_key) do
+mail_blackhole = fn(var) ->
+  IO.puts("WARNING: The environment variable #{var} was not set or was set incorrectly, mail will NOT be sent.")
   config :moodle_net, MoodleNet.Mail.MailService,
-    adapter: Bamboo.MailgunAdapter,
-    domain: mail_domain,
-    api_key: mail_key,
-    base_uri: mail_base_uri,
-    reply_to: mail_reply_to
+    adapter: Bamboo.LocalAdapter
 end
+
+mail_mailgun = fn ->
+  base_uri = System.get_env("MAIL_BASE_URI", "https://api.mailgun.net/v3")
+  case System.get_env("MAIL_KEY") do
+    nil -> mail_blackhole.("MAIL_KEY")
+    key ->
+      case System.get_env("MAIL_DOMAIN") do
+        nil -> mail_blackhole.("MAIL_DOMAIN")
+        domain ->
+          case System.get_env("MAIL_FROM") do
+            nil -> mail_blackhole.("MAIL_FROM")
+            from ->
+              config :moodle_net, MoodleNet.Mail.MailService,
+                adapter: Bamboo.MailgunAdapter,
+                api_key: key,
+                base_uri: base_uri,
+                domain: domain,
+                reply_to: from
+          end
+      end
+  end
+end
+
+mail_smtp = fn ->
+  case System.get_env("MAIL_SERVER") do
+    nil -> mail_blackhole.("MAIL_SERVER")
+    server ->
+      case System.get_env("MAIL_DOMAIN") do
+        nil -> mail_blackhole.("MAIL_DOMAIN")
+        domain ->
+          case System.get_env("MAIL_USER") do
+            nil -> mail_blackhole.("MAIL_USER") 
+            user ->
+              case System.get_env("MAIL_PASSWORD") do
+                nil -> mail_blackhole.("MAIL_PASSWORD") 
+                password ->
+                  case System.get_env("MAIL_FROM") do
+                    nil -> mail_blackhole.("MAIL_FROM")
+                    _ ->
+                     config :moodle_net, MoodleNet.Mail.MailService,
+                       adapter: Bamboo.SMTPAdapter,
+                       server: server,
+                       hostname: domain,
+                       port: 587,
+                       username: user,
+                       password: password,
+                       tls: :always,
+                       allowed_tls_versions: [:"tlsv1.2"],
+                       ssl: false,
+                       retries: 1,
+                       auth: :always
+                  end
+              end
+          end
+      end
+  end
+end
+case System.get_env("MAIL_BACKEND") do
+  "mailgun" -> mail_mailgun.()
+  "smtp" -> mail_smtp.()
+  _ -> mail_mailgun.() # mail_blackhole.("MAIL_BACKEND")
+end
+
+## Sentry
 
 sentry_dsn = System.get_env("SENTRY_DSN")
 sentry_env = System.get_env("SENTRY_ENV")

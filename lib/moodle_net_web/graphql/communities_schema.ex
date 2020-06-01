@@ -237,7 +237,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
   end
 
   input_object :community_input do
-    field :preferred_username, non_null(:string)
+    field :preferred_username, :string
     field :name, non_null(:string)
     field :summary, :string
     # field :primary_language_id, :string

@@ -4,14 +4,86 @@
 defmodule Taxonomy.GraphQL.TagsResolver do
   @moduledoc "GraphQL tag and Country queries"
   alias MoodleNet.{GraphQL}
-  alias Taxonomy.{Tags}
+  alias MoodleNet.GraphQL.{
+    CommonResolver,
+    Flow,
+    FetchFields,
+    FetchPage,
+    FetchPages,
+    ResolveField,
+    ResolveFields,
+    ResolvePage,
+    ResolvePages,
+    ResolveRootPage,
+  }
 
-  def tags(_, info) do
-    Tags.nodes_page(
-      &(&1.id),
-      [],
-      []
-      )
+  alias Taxonomy.{Tag, Tags}
+
+  def tag(%{tag_id: id}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_tag,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def tags(page_opts, info) do
+    ResolveRootPage.run(
+      %ResolveRootPage{
+        module: __MODULE__,
+        fetcher: :fetch_tags,
+        page_opts: page_opts,
+        info: info,
+        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
+      }
+    )
+  end
+
+  ## fetchers
+
+  def fetch_tag(info, id) do
+    Tags.one(
+      # user: GraphQL.current_user(info),
+      id: id,
+    )
+  end
+
+  def fetch_tags(page_opts, info) do
+    FetchPage.run(
+      %FetchPage{
+        queries: Tags.Queries,
+        query: Tag,
+        # cursor_fn: Tags.cursor,
+        page_opts: page_opts,
+        # base_filters: [user: GraphQL.current_user(info)],
+        # data_filters: [page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
+
+  def parent_tag(%Tag{parent_tag_id: id}, _, info) do
+    ResolveFields.run(
+      %ResolveFields{
+        module: __MODULE__,
+        fetcher: :fetch_parent_tag,
+        context: id,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_parent_tag(_, ids) do
+    FetchFields.run(
+      %FetchFields{
+        queries: Tags.Queries,
+        query: Tag,
+        group_fn: &(&1.id),
+        filters: [id: ids],
+      }
+    )
   end
 
   # def tag(%{tag_id: id}, info) do
