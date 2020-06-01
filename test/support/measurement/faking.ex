@@ -27,12 +27,18 @@ defmodule Measurement.Test.Faking do
 
   def unit(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:label, &Fake.name/0)
-    |> Map.put_new_lazy(:symbol, &Fake.name/0)
+    |> Map.put_new_lazy(:label, &unit_name/0)
+    |> Map.put_new_lazy(:symbol, &unit_symbol/0)
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
     |> Map.put_new_lazy(:is_featured, &Fake.falsehood/0)
     |> Map.merge(Fake.actor(base))
+  end
+
+  def unit_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("label", &unit_name/0)
+    |> Map.put_new_lazy("symbol", &unit_symbol/0)
   end
 
   def fake_unit!(user, community \\ nil, overrides \\ %{})
@@ -59,7 +65,15 @@ defmodule Measurement.Test.Faking do
   end
 
   def unit_fields(extra \\ []) do
-    extra ++ ~w(id label symbol __typename)a
+    extra ++ ~w(id label symbol)a
+  end
+
+  @doc """
+  Same as `unit_fields/1`, but with the parameter being nested inside of
+  another type.
+  """
+  def unit_response_fields(extra \\ []) do
+    [unit: unit_fields(extra)]
   end
 
   def units_query(options \\ []) do
@@ -82,6 +96,26 @@ defmodule Measurement.Test.Faking do
       [ {:args, args} | options ]
   end
 
+  def create_unit_mutation(options \\ []) do
+    [unit: type!(:unit_create_params)]
+    |> gen_mutation(&create_unit_submutation/1, options)
+  end
+
+  def create_unit_submutation(options \\ []) do
+    [unit: var(:unit)]
+    |> gen_submutation(:create_unit, &unit_response_fields/1, options)
+  end
+
+  def update_unit_mutation(options \\ []) do
+    [unit: type!(:unit_update_params)]
+    |> gen_mutation(&update_unit_submutation/1, options)
+  end
+
+  def update_unit_submutation(options \\ []) do
+    [unit: var(:unit)]
+    |> gen_submutation(:update_unit, &unit_response_fields/1, options)
+  end
+
   ### Unit assertion
 
   def assert_unit(unit) do
@@ -89,8 +123,6 @@ defmodule Measurement.Test.Faking do
       [id: &assert_ulid/1,
        label: &assert_binary/1,
        symbol: &assert_binary/1,
-
-       typename: assert_eq("Unit"),
       ]
   end
 

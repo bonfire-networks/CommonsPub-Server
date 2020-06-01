@@ -106,7 +106,7 @@ defmodule Measurement.Unit.GraphQL do
     end)
   end
 
-  def update_unit(%{unit: changes, unit_id: id}, info) do
+  def update_unit(%{unit: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- unit(%{id: id}, info) do

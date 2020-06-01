@@ -1,6 +1,7 @@
 defmodule Measurement.Hydration do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
+  alias MoodleNetWeb.GraphQL.CommonResolver
 
   alias Organisation
 
@@ -23,6 +24,9 @@ defmodule Measurement.Hydration do
         ],
         unit: [
           resolve: &Measurement.Unit.GraphQL.unit/2
+        ],
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3,
         ],
         # measures: [
         #   resolve: &Measurement.Measure.GraphQL.measures/2

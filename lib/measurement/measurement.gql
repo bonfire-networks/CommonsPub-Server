@@ -99,7 +99,10 @@ input UnitUpdateParams {
   label: String
 
   "A standard display symbol for a unit of measure."
-  symbol: String
+  symbol: String,
+
+  "The primary key of the unit to update."
+  id: ID!,
 }
 
 type UnitResponse {
@@ -122,7 +125,7 @@ type MeasurementQuery {
 }
 
 type MeasurementMutation {
-  createUnit(unit: UnitCreateParams, inScopeOfContextID: ID): UnitResponse
-  updateUnit(unit: UnitUpdateParams, unitId: ID): UnitResponse
-  deleteUnit(id: String!): Boolean
+  createUnit(unit: UnitCreateParams!, inScopeOfContextID: ID): UnitResponse
+  updateUnit(unit: UnitUpdateParams!): UnitResponse
+  deleteUnit(id: ID!): Boolean
 }
