@@ -62,4 +62,50 @@ defmodule Measurement.GraphQLTest do
       assert_unit(grumble_post_key(q, conn, :update_unit, vars)["unit"])
     end
   end
+
+  describe "measure" do
+    test "fetches an existing measure by ID" do
+      user = fake_user!()
+      measure = fake_measure!(user)
+
+      q = measure_query()
+      conn = user_conn(user)
+      assert_measure(grumble_post_key(q, conn, :measure, %{id: measure.id}))
+    end
+  end
+
+  describe "create_measure" do
+    test "creates a new measure given valid attributes" do
+      user = fake_user!()
+
+      q = create_measure_mutation()
+      conn = user_conn(user)
+      vars = %{measure: measure_input()}
+      assert_measure(grumble_post_key(q, conn, :create_measure, vars)["measure"])
+    end
+
+    test "creates a new measure with a unit" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+
+      q = create_measure_with_unit_mutation(fields: [has_unit: [:id]])
+      conn = user_conn(user)
+      vars = %{measure: measure_input(), has_unit: unit.id}
+      assert measure = grumble_post_key(q, conn, :create_measure, vars)["measure"]
+      assert_measure(measure)
+      assert measure["hasUnit"]["id"] == unit.id
+    end
+  end
+
+  describe "update_measure" do
+    test "updates an existing measure" do
+      user = fake_user!()
+      measure = fake_measure!(user)
+
+      q = update_measure_mutation()
+      conn = user_conn(user)
+      vars = %{measure: Map.put(measure_input(), "id", measure.id)}
+      assert_measure(grumble_post_key(q, conn, :update_measure, vars)["measure"])
+    end
+  end
 end

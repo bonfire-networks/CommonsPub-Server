@@ -66,6 +66,8 @@ Semantic meaning for measurements: binds a quantity to its measurement unit.
 See http://www.qudt.org/pages/QUDToverviewPage.html
 """
 type Measure {
+  id: ID!
+
   "A number representing the quantity, will be paired with a unit."
   hasNumericalValue: Float!
 
@@ -84,7 +86,7 @@ input IMeasure {
   hasUnit: ID
 }
 
-
+# CommonsPub specifics
 
 input UnitCreateParams {
   "A human readable label for the unit, can be language specific."
@@ -99,10 +101,10 @@ input UnitUpdateParams {
   label: String
 
   "A standard display symbol for a unit of measure."
-  symbol: String,
+  symbol: String
 
   "The primary key of the unit to update."
-  id: ID!,
+  id: ID!
 }
 
 type UnitResponse {
@@ -111,21 +113,49 @@ type UnitResponse {
 
 type UnitsPage{
   page_info: PageInfo
-  edges: [Unit]
+  edges: [Unit!]
   totalCount: Int
 }
 
+input MeasureCreateParams {
+  "A number representing the quantity, will be paired with a unit."
+  hasNumericalValue: Float!
+}
 
+input MeasureUpdateParams {
+  "A number representing the quantity, will be paired with a unit."
+  hasNumericalValue: Float!
+
+  "The primary key of the measure to update."
+  id: ID!
+}
+
+type MeasureResponse {
+  measure: Measure
+}
+
+type MeasuresPage {
+  page_info: PageInfo
+  edges: [Measure!]
+  totalCount: Int
+}
 
 type MeasurementQuery {
   unit(id: ID): Unit
   units(start: ID, limit: Int): [Unit!]
   unitsPages(limit: Int, before: [Cursor], after: [Cursor]): [UnitsPage!]
 
+  measure(id: ID): Measure
+  measures(start: ID, limit: Int): [Measure!]
+  measuresPages(limit: Int, before: [Cursor], after: [Cursor]): [MeasuresPage!]
 }
 
 type MeasurementMutation {
-  createUnit(unit: UnitCreateParams!, inScopeOfContextID: ID): UnitResponse
+  createUnit(unit: UnitCreateParams!, inScopeOf: ID): UnitResponse
   updateUnit(unit: UnitUpdateParams!): UnitResponse
   deleteUnit(id: ID!): Boolean
+
+  createMeasure(measure: MeasureCreateParams!, hasUnit: ID): MeasureResponse
+  updateMeasure(measure: MeasureUpdateParams!): MeasureResponse
+  deleteMeasure(id: ID!): Boolean
 }
