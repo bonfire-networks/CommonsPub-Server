@@ -1,7 +1,19 @@
 defmodule Measurement.Hydration do
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
+
+  alias Organisation
 
   def hydrate(blueprint) do
     %{
+      accounting_scope: [
+        resolve_type: &__MODULE__.resolve_context_type/2,
+      ],
+      unit: %{
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3,
+        ],
+      },
       measurement_query: %{
         units: [
           resolve: &Measurement.Unit.GraphQL.units/2
@@ -35,12 +47,12 @@ defmodule Measurement.Hydration do
         # update_measure: [
         #   resolve: &Measurement.Measure.GraphQL.update_measure/2
         # ]
-
-      }
+      },
     }
   end
 
-
-
-
+  def resolve_context_type(%Community{}, _), do: :community
+  def resolve_context_type(%Collection{}, _), do: :collection
+  def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%{}, _), do: :community
 end

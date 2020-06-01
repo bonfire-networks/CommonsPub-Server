@@ -10,6 +10,8 @@
 #
 ##
 
+union AccountingScope = Organisation | Community | Collection
+
 """
 Defines the unit of time measured in a temporal `Duration`.
 """
@@ -54,8 +56,7 @@ type Unit {
   "A standard display symbol for a unit of measure."
   symbol: String!
 
-  # inScopeOf: [AccountingScope!]
-
+  inScopeOf: AccountingScope
 }
 
 
