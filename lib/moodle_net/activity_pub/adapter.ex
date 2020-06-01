@@ -294,6 +294,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
              %{url: object.data["url"]},
              %{is_public: true}
            ),
+         icon_url <- maybe_fix_image_object(object.data["icon"]),
+         icon_id <- maybe_create_icon_object(icon_url, actor),
          attrs <- %{
            is_public: true,
            is_local: false,
@@ -303,7 +305,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: object.data["summary"],
            content_id: content.id,
            license: object.data["tag"],
-           icon: object.data["icon"],
+           icon_id: icon_id,
            author: Utils.get_author(object.data["author"])
          },
          {:ok, resource} <-
