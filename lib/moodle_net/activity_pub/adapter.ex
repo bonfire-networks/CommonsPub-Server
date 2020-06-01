@@ -135,7 +135,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
 
     ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
-    Indexer.maybe_index_object(created_actor)
+    Indexer.maybe_index_object(updated_actor)
     {:ok, updated_actor}
   end
 
