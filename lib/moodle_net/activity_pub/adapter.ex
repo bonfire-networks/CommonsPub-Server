@@ -165,13 +165,14 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def update_community(actor, data) do
-    with params <- %{
+    with {:ok, creator} <- Users.one([:default, id: actor.creator_id]),
+         params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
-           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator),
+           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), creator)
          },
-         {:ok, _} <- MoodleNet.Communities.update(%User{}, actor, params) do
+         {:ok, _} <- MoodleNet.Communities.update(creator, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
@@ -179,12 +180,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
   end
 
   def update_collection(actor, data) do
-    with params <- %{
+    with {:ok, creator} <- Users.one([:default, id: actor.creator_id]),
+         params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor)
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator)
          },
-         {:ok, _} <- MoodleNet.Collections.update(%User{}, actor, params) do
+         {:ok, _} <- MoodleNet.Collections.update(creator, actor, params) do
       :ok
     else
       {:error, e} -> {:error, e}
