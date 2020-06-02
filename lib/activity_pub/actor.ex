@@ -285,7 +285,7 @@ defmodule ActivityPub.Actor do
 
   defp maybe_create_image_object(_), do: nil
 
-  defp format_local_actor(%{actor: %{peer_id: nil}} = actor) do
+  def format_local_actor(%{actor: %{peer_id: nil}} = actor) do
     ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
     id = MoodleNetWeb.base_url() <> ap_base_path <> "/actors/#{actor.actor.preferred_username}"
     icon_url = MoodleNet.Uploads.remote_url_from_id(actor.icon_id)
@@ -348,7 +348,7 @@ defmodule ActivityPub.Actor do
   end
 
   # Remote actor coming from MN local database
-  defp format_local_actor(actor) do
+  def format_local_actor(actor) do
     actor_object = Object.get_cached_by_pointer_id(actor.id)
     format_remote_actor(actor_object)
   end

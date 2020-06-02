@@ -41,6 +41,9 @@ defmodule MoodleNet.Communities do
 
   @spec create(User.t(), attrs :: map) :: {:ok, Community.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, %{} = attrs) do
+
+    attrs = Actors.prepare_username(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, comm_attrs} <- create_boxes(actor, attrs),
@@ -49,7 +52,8 @@ defmodule MoodleNet.Communities do
            {:ok, activity} <- Activities.create(creator, comm, act_attrs),
            {:ok, _follow} <- Follows.create(creator, comm, %{is_local: true}),
            :ok <- publish(creator, comm, activity),
-           :ok <- ap_publish("create", comm) do
+           :ok <- ap_publish("create", comm),
+           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(comm) do
         {:ok, comm}
       end
     end)
@@ -143,7 +147,7 @@ defmodule MoodleNet.Communities do
     end)
   end
 
-  defp chase_delete(user, communities) do
+  defp chase_delete(user, communities, []) do
     with :ok <- Activities.soft_delete_by(user, context: communities),
          :ok <- Blocks.soft_delete_by(user, context: communities),
          :ok <- Collections.soft_delete_by(user, community: communities),
@@ -155,12 +159,8 @@ defmodule MoodleNet.Communities do
       :ok
     end
   end
-
-  defp chase_delete(user, communities, []), do: chase_delete(user, communities)
   defp chase_delete(user, communities, feeds) do
-    with :ok <- Feeds.soft_delete_by(user, id: feeds) do
-      chase_delete(user, communities)
-    end
+    with :ok <- Feeds.soft_delete_by(user, id: feeds), do: chase_delete(user, communities, [])
   end
 
   # defp default_inbox_query_contexts() do

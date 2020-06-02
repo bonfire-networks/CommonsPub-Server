@@ -135,7 +135,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     object = ActivityPub.Object.get_cached_by_ap_id(actor["id"])
 
     ActivityPub.Object.update(object, %{mn_pointer_id: created_actor.id})
-    Indexer.maybe_index_object(created_actor)
+    Indexer.maybe_index_object(updated_actor)
     {:ok, updated_actor}
   end
 
@@ -241,7 +241,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with parent_id <- Utils.get_pointer_id_by_ap_id(in_reply_to),
          {:ok, parent_comment} <- Comments.one(id: parent_id),
          {:ok, thread} <- Threads.one(id: parent_comment.thread_id),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["attributedTo"] || object.data["actor"]),
+         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, comment} <-
            Comments.create_reply(actor, thread, parent_comment, %{
              is_public: object.public,
@@ -263,7 +263,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
     with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- Pointers.one(id: pointer_id),
          parent = Pointers.follow!(pointer),
-         {:ok, actor} <- get_actor_by_ap_id(object.data["attributedTo"] || object.data["actor"]),
+         {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
          {:ok, comment} <-
            Comments.create(actor, thread, %{
@@ -294,6 +294,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
              %{url: object.data["url"]},
              %{is_public: true}
            ),
+         icon_url <- maybe_fix_image_object(object.data["icon"]),
+         icon_id <- maybe_create_icon_object(icon_url, actor),
          attrs <- %{
            is_public: true,
            is_local: false,
@@ -303,13 +305,13 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: object.data["summary"],
            content_id: content.id,
            license: object.data["tag"],
-           icon: object.data["icon"],
+           icon_id: icon_id,
            author: Utils.get_author(object.data["author"])
          },
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do
       ActivityPub.Object.update(object, %{mn_pointer_id: resource.id})
-      Indexer.maybe_index_object(resource)
+      # Indexer.maybe_index_object(resource) # now being called in MoodleNet.Resources.create
       :ok
     else
       {:error, e} -> {:error, e}

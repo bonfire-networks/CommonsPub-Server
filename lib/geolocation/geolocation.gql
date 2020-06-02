@@ -9,7 +9,8 @@
 #
 ##
 
-union GeoScope = Organisation | Community | Collection #TEMPORARY
+# Dynamically supplied by application
+union GeoScope = Collection | Community | Organisation
 
 """
 A physical mappable location.
@@ -38,19 +39,18 @@ type SpatialThing {
   geom: Json,
 
   ##############################################################################
-  # inverse relationships and queries
-
-  agents: [Agent!]
-  economicResources: [EconomicResource!]
-  economicEvents: [EconomicEvent!]
-  commitments: [Commitment!]
-  intents: [Intent!]
+  # inverse relationships and queries - FIXME
+  # agents: [Agent!]
+  # economicResources: [EconomicResource!]
+  # economicEvents: [EconomicEvent!]
+  # commitments: [Commitment!]
+  # intents: [Intent!]
 
   ## CommonsPub-specific
 
   canonicalUrl: String
   displayUsername: String
-  inScopeOf: [GeoScope]
+  inScopeOf: GeoScope
 }
 
 

@@ -64,9 +64,14 @@ defmodule Organisation.Organisations do
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
+
+
   ## mutations
   @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
+
+    attrs = Actors.prepare_username(attrs)
+
     Repo.transact_with(fn ->
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
@@ -74,6 +79,7 @@ defmodule Organisation.Organisations do
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, org, activity, :created),
+           :ok <- index(org), # add to search index
            {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
         {:ok, org}
       end
@@ -83,12 +89,16 @@ defmodule Organisation.Organisations do
   @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
+
+      attrs = Actors.prepare_username(attrs)
+
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, org_attrs} <- create_boxes(actor, attrs),
            {:ok, org} <- insert_organisation(creator, context, actor, org_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, org, act_attrs),
            :ok <- publish(creator, context, org, activity, :created),
+           :ok <- index(org), # add to search index
            {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
         {:ok, org}
       end
@@ -132,9 +142,9 @@ defmodule Organisation.Organisations do
       do: :ok
   end
 
-  defp publish(creator, community, organisation, activity, :created) do
+  defp publish(creator, org, organisation, activity, :created) do
     feeds = [
-      community.outbox_id, creator.outbox_id,
+      org.outbox_id, creator.outbox_id,
       organisation.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds),
@@ -180,6 +190,41 @@ defmodule Organisation.Organisations do
         {:ok, organisation}
       end
     end)
+  end
+
+  defp index(org) do
+
+    follower_count =
+      case MoodleNet.Follows.FollowerCounts.one(context: org.id) do
+        {:ok, struct} -> struct.count
+        {:error, _} -> nil
+      end
+
+    icon = MoodleNet.Uploads.remote_url_from_id(org.icon_id)
+    # image = MoodleNet.Uploads.remote_url_from_id(org.image_id)
+
+    canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(org)
+
+    object = %{
+      "index_type" => "Organisation",
+      "id" => org.id,
+      "canonicalUrl" => canonical_url,
+      "followers" => %{
+        "totalCount" => follower_count
+      },
+      "icon" => icon,
+      # "image" => image,
+      "name" => org.name,
+      "preferredUsername" => org.actor.preferred_username,
+      "summary" => Map.get(org, :summary),
+      "createdAt" => org.published_at,
+      "index_instance" => URI.parse(canonical_url).host, # home instance of object
+    }
+
+    Search.Indexing.maybe_index_object(object)
+
+    :ok
+
   end
 
 end

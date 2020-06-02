@@ -93,20 +93,20 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     )
   end
 
-  def fetch_follows_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Follows.Queries,
-        query: Follow,
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [creator: ids, user: user],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
+  # def fetch_follows_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Follows.Queries,
+  #       query: Follow,
+  #       group_fn: &(&1.creator_id),
+  #       page_opts: page_opts,
+  #       base_filters: [creator: ids, user: user],
+  #       data_filters: [page: [desc: [created: page_opts]]],
+  #       count_filters: [group_count: :context_id],
+  #     }
+  #   )
+  # end
 
   def fetch_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -159,20 +159,20 @@ defmodule MoodleNetWeb.GraphQL.FollowsResolver do
     )
   end
 
-  def fetch_followers_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Follows.Queries,
-        query: Follow,
-        group_fn: &(&1.context_id),
-        page_opts: page_opts,
-        base_filters: [context: ids, user: user],
-        data_filters: [page: [desc: [created: page_opts]]],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
+  # def fetch_followers_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Follows.Queries,
+  #       query: Follow,
+  #       group_fn: &(&1.context_id),
+  #       page_opts: page_opts,
+  #       base_filters: [context: ids, user: user],
+  #       data_filters: [page: [desc: [created: page_opts]]],
+  #       count_filters: [group_count: :context_id],
+  #     }
+  #   )
+  # end
 
   def fetch_followers_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)

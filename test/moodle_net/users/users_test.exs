@@ -102,6 +102,32 @@ defmodule MoodleNet.UsersTest do
       end)
     end
 
+    test "fails if the username is already taken with a different capitalisation" do
+      Repo.transaction(fn ->
+        assert user = fake_user!()
+
+        attrs =
+          %{preferred_username: String.upcase(user.actor.preferred_username)}
+          |> Fake.user()
+          |> Fake.actor()
+
+        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+      end)
+    end
+
+    test "fails if the email is already taken" do
+      Repo.transaction(fn ->
+        assert user = fake_user!()
+
+        attrs =
+          %{email: user.local_user.email}
+          |> Fake.user()
+          |> Fake.actor()
+
+        assert {:error, %Changeset{} = error} = Users.register(attrs, public_registration: true)
+      end)
+    end
+
     test "fails if given invalid attributes" do
       Repo.transaction(fn ->
         invalid_attrs = Map.delete(Fake.user(), :email)
@@ -210,7 +236,7 @@ defmodule MoodleNet.UsersTest do
     test "updates the deletion timestamp" do
       user = fake_user!()
       refute user.deleted_at
-      assert {:ok, user} = Users.soft_delete(user)
+      assert {:ok, user} = Users.soft_delete(user, user)
       assert user = Users.preload(user)
       assert user.deleted_at
       assert user.local_user.deleted_at

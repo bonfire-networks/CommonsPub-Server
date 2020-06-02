@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Follows.Queries do
 
+  alias MoodleNet.Actors.Actor
+  alias MoodleNet.Collections.Collection
+  alias MoodleNet.Communities.Community
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Meta.TableService
   alias MoodleNet.Users.User
@@ -17,21 +20,44 @@ defmodule MoodleNet.Follows.Queries do
 
   def join_to(q, {jq, join}, _jq), do: join_to(q, join, jq)
 
-  def join_to(q, :context, jq) do
-    join q, jq, [follow: f], c in assoc(f, :context), as: :context
+  def join_to(q, :context, jq), do: join(q, jq, [follow: f], c in assoc(f, :context), as: :context)
+
+  def join_to(q, :community, jq) do
+    join(q, jq, [follow: f], c in Community, as: :community, on: f.context_id == c.id)
   end
+
+  def join_to(q, :collection, jq) do
+    join(q, jq, [follow: f], c in Collection, as: :collection, on: f.context_id == c.id)
+  end
+
+  def join_to(q, :user, jq), do: join(q, jq, [follow: f], u in User, as: :user, on: f.context_id == u.id)
+
+  def join_to(q, :local_user, jq), do: join(q, jq, [user: u], assoc(u, :local_user), as: :local_user)
 
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
   def filter(q, filters) when is_list(filters), do: Enum.reduce(filters, q, &filter(&2, &1))
 
-  def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
+  def filter(q, f) when is_function(f, 1), do: f.(q)
+  def filter(q, {:function, f}) when is_function(f, 1), do: f.(q)
 
+  def filter(q, {:join,{rel, jq}}), do: join_to(q, rel, jq)
   def filter(q, {:join, rel}), do: join_to(q, rel)
 
-  ## by users
-  
+  # TODO: but what? (it's a bit horrible)
+  def filter(q, {:preset, {:search_follows, uid}}) do
+    q
+    |> filter(deleted: false, published: true, join: :community, join: :collection)
+    |> join(:left, [community: c, collection: d], a in Actor, as: :actor, on: c.actor_id == a.id or d.actor_id == a.id)
+    |> where([actor: a], not is_nil(a.canonical_url))
+    |> select([follow: f, community: c, collection: d, actor: a],
+      %{ community_id: c.id, collection_id: d.id, follow_id: f.id,
+         canonical_url: a.canonical_url,
+         is_creator: c.creator_id == ^uid or d.creator_id == ^uid,
+      })
+  end
+
   def filter(q, {:user, match_admin()}), do: filter(q, deleted: false)
   def filter(q, {:user, nil}), do: filter(q, deleted: false, published: true)
   def filter(q, {:user, %User{id: id}}) do
@@ -39,7 +65,6 @@ defmodule MoodleNet.Follows.Queries do
     |> where([follow: f], not is_nil(f.published_at) or f.creator_id == ^id)
     |> filter(deleted: false)
   end
-
 
   def filter(q, {:deleted, nil}), do: where(q, [follow: f], is_nil(f.deleted_at))
   def filter(q, {:deleted, :not_nil}), do: where(q, [follow: f], not is_nil(f.deleted_at))

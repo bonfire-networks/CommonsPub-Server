@@ -9,8 +9,7 @@ defmodule MoodleNetWeb.Plugs.Static do
     %{
       gzip?: Keyword.get(opts, :gzip, false),
       brotli?: Keyword.get(opts, :brotli, false),
-      only: Keyword.get(opts, :only, []),
-      prefix: Keyword.get(opts, :only_matching, []),
+      only_rules: Keyword.get(opts, :only, {[], []}),
       qs_cache: Keyword.get(opts, :cache_control_for_vsn_requests, "public, max-age=31536000"),
       et_cache: Keyword.get(opts, :cache_control_for_etags, "public"),
       et_generation: Keyword.get(opts, :etag_generation, nil),
@@ -21,10 +20,9 @@ defmodule MoodleNetWeb.Plugs.Static do
 
   def call(conn, opts) do
     config = Application.fetch_env!(:moodle_net, MoodleNet.Uploads)
-    at = Keyword.fetch!(config, :base_url)
     from = Keyword.fetch!(config, :directory)
-    more = %{at: at, from: from}
-    opts = Map.merge(opts, more)
+    at = Plug.Router.Utils.split(Keyword.fetch!(config, :path))
+    opts = Map.merge(opts, %{from: from, at: at})
     Static.call(conn, opts)
   end
 

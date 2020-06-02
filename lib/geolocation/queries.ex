@@ -2,7 +2,6 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Geolocation.Queries do
-
   alias Geolocation
   alias Geolocation.Geolocations
   alias MoodleNet.Follows.{Follow, FollowerCount}
@@ -12,16 +11,15 @@ defmodule Geolocation.Queries do
   import Ecto.Query
 
   def query(Geolocation) do
-    from c in Geolocation, as: :geolocation,
-      join: a in assoc(c, :actor), as: :actor
+    from(c in Geolocation, as: :geolocation, join: a in assoc(c, :actor), as: :actor)
   end
 
   def query(:count) do
-    from c in Geolocation, as: :geolocation
+    from(c in Geolocation, as: :geolocation)
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -36,23 +34,28 @@ defmodule Geolocation.Queries do
   end
 
   def join_to(q, :context, jq) do
-    join q, jq, [geolocation: c], c2 in assoc(c, :context), as: :context
+    join(q, jq, [geolocation: c], c2 in assoc(c, :context), as: :context)
   end
 
   def join_to(q, {:context_follow, follower_id}, jq) do
-    join q, jq, [context: c], f in Follow, as: :context_follow,
+    join(q, jq, [context: c], f in Follow,
+      as: :context_follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [geolocation: c], f in Follow, as: :follow,
+    join(q, jq, [geolocation: c], f in Follow,
+      as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
+    )
   end
 
   def join_to(q, :follower_count, jq) do
-    join q, jq, [geolocation: c],
-      f in FollowerCount, on: c.id == f.context_id,
+    join(q, jq, [geolocation: c], f in FollowerCount,
+      on: c.id == f.context_id,
       as: :follower_count
+    )
   end
 
   ### filter/2
@@ -66,7 +69,7 @@ defmodule Geolocation.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted, preload: :actor]
+    filter(q, [:deleted, preload: :actor])
   end
 
   ## by join
@@ -78,86 +81,85 @@ defmodule Geolocation.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
+  def filter(q, {:user, nil}), do: filter(q, ~w(disabled private))
+
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([:context, follow: id, context_follow: id])
-    |> where([context: c, context_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> join_to(follow: id)
     |> where([geolocation: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
-    # |> Users.Queries.filter(~w(deleted disabled)a)
-  end
-
-  def filter(q, {:user, nil}) do
-    q
-    |> join_to(:context)
-    |> filter(~w(disabled private)a)
-    # |> Users.Queries.filter(~w(deleted disabled private)a)
   end
 
   ## by status
-  
+
   def filter(q, :deleted) do
-    where q, [geolocation: c], is_nil(c.deleted_at)
+    where(q, [geolocation: c], is_nil(c.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [geolocation: c], is_nil(c.disabled_at)
+    where(q, [geolocation: c], is_nil(c.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [geolocation: c], not is_nil(c.published_at)
+    where(q, [geolocation: c], not is_nil(c.published_at))
   end
 
   ## by field values
 
   def filter(q, {:cursor, [followers: {:gte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
-    where q,[geolocation: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [geolocation: c, follower_count: fc],
       (fc.count == ^count and c.id >= ^id) or fc.count > ^count
+    )
   end
 
   def filter(q, {:cursor, [followers: {:lte, [count, id]}]})
-  when is_integer(count) and is_binary(id) do
-    where q,[geolocation: c, follower_count: fc],
+      when is_integer(count) and is_binary(id) do
+    where(
+      q,
+      [geolocation: c, follower_count: fc],
       (fc.count == ^count and c.id <= ^id) or fc.count < ^count
+    )
   end
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [geolocation: c], c.id == ^id
+    where(q, [geolocation: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [geolocation: c], c.id in ^ids
+    where(q, [geolocation: c], c.id in ^ids)
   end
 
   def filter(q, {:context_id, id}) when is_binary(id) do
-    where q, [geolocation: c], c.context_id == ^id
+    where(q, [geolocation: c], c.context_id == ^id)
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [geolocation: c], c.context_id in ^ids
+    where(q, [geolocation: c], c.context_id in ^ids)
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where q, [actor: a], a.preferred_username == ^username
+    where(q, [actor: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where q, [actor: a], a.preferred_username in ^usernames
+    where(q, [actor: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
 
   def filter(q, {:order, :followers_desc}) do
-    filter q, order: [desc: :followers]
+    filter(q, order: [desc: :followers])
   end
 
   def filter(q, {:order, [desc: :followers]}) do
-    order_by q, [geolocation: c, follower_count: fc],
+    order_by(q, [geolocation: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -174,7 +176,7 @@ defmodule Geolocation.Queries do
   end
 
   def filter(q, {:preload, :actor}) do
-    preload q, [actor: a], actor: a
+    preload(q, [actor: a], actor: a)
   end
 
   # pagination
@@ -185,6 +187,7 @@ defmodule Geolocation.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([geolocation: c], c.id >= ^a)
     |> limit(^limit)
@@ -203,21 +206,20 @@ defmodule Geolocation.Queries do
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
     q
     |> filter(join: :follower_count, order: [desc: :followers])
-    |> page(page_opts, [desc: :followers])
+    |> page(page_opts, desc: :followers)
     |> select(
       [geolocation: c, actor: a, follower_count: fc],
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
 
-  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end
 
-  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  defp page(q, %{before: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:gte, cursor}], limit: limit + 2)
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
 end

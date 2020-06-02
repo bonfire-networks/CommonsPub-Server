@@ -136,7 +136,10 @@ defmodule MoodleNet.Access do
 
     from(t in Token,
       where: t.id == ^token,
-      preload: [user: [:local_user, :actor]]
+      join: u in assoc(t, :user),
+      join: lu in assoc(u, :local_user),
+      join: a in assoc(u, :actor),
+      preload: [user: {u, local_user: lu, actor: a}]
     )
   end
 

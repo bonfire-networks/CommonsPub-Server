@@ -66,13 +66,13 @@ defmodule ValueFlows.Hydrations do
           resolve: &ValueFlows.Agent.GraphQL.person/2
         ],
         people: [
-          resolve: &ValueFlows.Agent.GraphQL.people/2
+          resolve: &ValueFlows.Agent.GraphQL.all_people/2
         ],
         organization: [
           resolve: &ValueFlows.Agent.GraphQL.organization/2
         ],
         organizations: [
-          resolve: &ValueFlows.Agent.GraphQL.organizations/2
+          resolve: &ValueFlows.Agent.GraphQL.all_organizations/2
         ],
 
       # Knowledge

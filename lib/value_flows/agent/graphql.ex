@@ -20,7 +20,7 @@ defmodule ValueFlows.Agent.GraphQL do
   #   {:ok, Simulate.agent()}
   # end
 
-  # support for inteface type
+  # support for interface type
   def agent_resolve_type(%{agent_type: :person}, _), do: :person
   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
   def agent_resolve_type(%{agent_type: nil}, _), do: :person
@@ -30,7 +30,25 @@ defmodule ValueFlows.Agent.GraphQL do
 
   # proper resolvers
 
-  def people(%{}, info) do # TODO: pagination
+  def people(page_opts, info) do # with pagination
+
+    {:ok, users_pages} = MoodleNetWeb.GraphQL.UsersResolver.users(page_opts, info)
+    
+    people = Enum.map(users_pages.edges, & &1 
+      |> ValueFlows.Agent.People.actor_to_person
+    )
+    
+    people_pages = %{
+      edges: people,
+      page_info: users_pages.page_info,
+      total_count: users_pages.total_count
+    }
+    
+    {:ok, people_pages}
+  
+  end
+
+  def all_people(%{}, info) do # TODO: pagination
     {:ok, 
       ValueFlows.Agent.People.people(signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
@@ -43,12 +61,29 @@ defmodule ValueFlows.Agent.GraphQL do
     }
   end
 
-  def organizations(%{}, info) do # TODO: pagination
+  def organizations(page_opts, info) do # with pagination
+
+    {:ok, orgs_pages} = Organisation.GraphQL.Resolver.organisations(page_opts, info)
+    
+    orgz = Enum.map(orgs_pages.edges, & &1 
+      |> ValueFlows.Agent.Organizations.actor_to_organization
+    )
+
+    orgz_pages = %{
+      edges: orgz,
+      page_info: orgs_pages.page_info,
+      total_count: orgs_pages.total_count
+    }
+
+    {:ok, orgz_pages}
+
+  end
+
+  def all_organizations(%{}, info) do # without pagination
     {:ok, 
       ValueFlows.Agent.Organizations.organizations(signed_in_user: MoodleNet.GraphQL.current_user(info))
     }
   end
-
 
   def organization(%{id: id}, info) do    
     {:ok, 

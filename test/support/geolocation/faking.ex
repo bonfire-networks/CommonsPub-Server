@@ -4,7 +4,9 @@
 defmodule Geolocation.Test.Faking do
   @moduledoc false
 
+  import Grumble
   import MoodleNetWeb.Test.GraphQLAssertions
+  import MoodleNetWeb.Test.GraphQLFields
   alias MoodleNet.Test.Fake
   alias Geolocation.Geolocations
 
@@ -19,6 +21,14 @@ defmodule Geolocation.Test.Faking do
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
     |> Map.merge(Fake.actor(base))
+  end
+
+  def geolocation_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &Fake.name/0)
+    |> Map.put_new_lazy("note", &Fake.summary/0)
+    |> Map.put_new_lazy("lat", &Fake.integer/0)
+    |> Map.put_new_lazy("long", &Fake.integer/0)
   end
 
   def fake_geolocation!(user, context \\ nil, overrides  \\ %{})
@@ -47,9 +57,45 @@ defmodule Geolocation.Test.Faking do
        note: assert_optional(&assert_binary/1),
        lat: assert_optional(&assert_float/1),
        long: assert_optional(&assert_float/1),
-       published_at: assert_optional(&assert_datetime/1),
-       disabled_at: assert_optional(&assert_datetime/1),
-       deleted_at: assert_optional(&assert_datetime/1),
       ]
+  end
+
+  ## graphql queries
+
+  def geolocation_query_fields(extra \\ []) do
+    extra ++ ~w(id name mappable_address lat long alt note geom)a
+  end
+
+  def geolocation_mutation_fields(extra \\ []) do
+    [spatial_thing: extra ++ ~w(id name mappable_address lat long alt note geom)a]
+  end
+
+  def geolocation_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &geolocation_subquery/1, options)
+  end
+
+  def geolocation_subquery(options \\ []) do
+    gen_subquery(:id, :spatial_thing, &geolocation_query_fields/1, options)
+  end
+
+  def create_geolocation_mutation(options \\ []) do
+    [spatial_thing: type!(:spatial_thing_input)]
+    |> gen_mutation(&create_geolocation_submutation/1, options)
+  end
+
+  def create_geolocation_submutation(options \\ []) do
+    [spatial_thing: var(:spatial_thing)]
+    |> gen_submutation(:create_spatial_thing, &geolocation_mutation_fields/1, options)
+  end
+
+  def update_geolocation_mutation(options \\ []) do
+    [spatial_thing: type!(:spatial_thing_input)]
+    |> gen_mutation(&update_geolocation_submutation/1, options)
+  end
+
+  def update_geolocation_submutation(options \\ []) do
+    [spatial_thing: var(:spatial_thing)]
+    |> gen_submutation(:update_spatial_thing, &geolocation_mutation_fields/1, options)
   end
 end

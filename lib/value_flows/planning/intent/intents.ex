@@ -77,6 +77,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       with {:ok, item} <- insert_unit(creator, community, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+           :ok <- index(item),
            :ok <- publish(creator, community, item, activity, :created)
           do
             {:ok, item}
@@ -93,6 +94,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       with {:ok, item} <- insert_unit(creator, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
+           :ok <- index(item), 
            :ok <- publish(creator, item, activity, :created)
           do
             {:ok, item}
@@ -135,7 +137,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
     ap_publish(intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(context_id, user_id) do
+  defp ap_publish(context_id, user_id) do #FIXME
     MoodleNet.FeedPublisher.publish(%{
       "context_id" => context_id,
       "user_id" => user_id,
@@ -167,5 +169,30 @@ defmodule ValueFlows.Planning.Intent.Intents do
   #     end
   #   end)
   # end
+
+  defp index(obj) do
+
+    IO.inspect(obj)
+
+    # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
+    image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
+
+    object = %{
+      "index_type" => "Intent",
+      "id" => obj.id,
+      # "canonicalUrl" => obj.actor.canonical_url,
+      # "icon" => icon,
+      "image" => image,
+      "name" => obj.name,
+      "summary" => Map.get(obj, :note),
+      "createdAt" => obj.published_at,
+      # "index_instance" => URI.parse(obj.actor.canonical_url).host, # home instance of object
+    }
+
+    Search.Indexing.maybe_index_object(object)
+
+    :ok
+
+  end
 
 end
