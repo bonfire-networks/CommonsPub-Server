@@ -40,6 +40,8 @@ defmodule MoodleNet.Mixfile do
        :mime,
        :belt,
        :cachex,
+       :bamboo,
+       :bamboo_smtp,
      ]
     ]
   end
@@ -59,7 +61,7 @@ defmodule MoodleNet.Mixfile do
 
   defp deps do
     [ # graphql
-      {:absinthe, "~> 1.5"},
+      {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
       # webserver
@@ -96,6 +98,7 @@ defmodule MoodleNet.Mixfile do
       {:tesla, "~> 1.2"},
       # Email
       {:bamboo, "~> 1.5"}, # sending
+      {:bamboo_smtp, "~> 2.1.0"}, # generic smtp backend
       {:email_checker, "~> 0.1"}, # checking validity
       # Monitoring
       {:telemetry, "~> 0.4.0"}, # stats

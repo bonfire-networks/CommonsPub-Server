@@ -70,7 +70,8 @@ defmodule MoodleNet.CommunitiesTest do
       assert {:ok, community} = Communities.create(user, attrs)
       assert community.name == attrs.name
       assert community.creator_id == user.id
-      assert community.actor.preferred_username == attrs.preferred_username
+      assert community.actor.preferred_username ==
+        String.replace(String.replace(attrs.preferred_username, ".", "-"), "_", "-")
       assert community.is_public == attrs.is_public
     end
 

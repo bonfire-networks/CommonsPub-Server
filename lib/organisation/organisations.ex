@@ -203,10 +203,12 @@ defmodule Organisation.Organisations do
     icon = MoodleNet.Uploads.remote_url_from_id(org.icon_id)
     # image = MoodleNet.Uploads.remote_url_from_id(org.image_id)
 
+    canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(org)
+
     object = %{
       "index_type" => "Organisation",
       "id" => org.id,
-      "canonicalUrl" => org.actor.canonical_url,
+      "canonicalUrl" => canonical_url,
       "followers" => %{
         "totalCount" => follower_count
       },
@@ -216,7 +218,7 @@ defmodule Organisation.Organisations do
       "preferredUsername" => org.actor.preferred_username,
       "summary" => Map.get(org, :summary),
       "createdAt" => org.published_at,
-      # "index_instance" => URI.parse(org.actor.canonical_url).host, # home instance of object
+      "index_instance" => URI.parse(canonical_url).host, # home instance of object
     }
 
     Search.Indexing.maybe_index_object(object)

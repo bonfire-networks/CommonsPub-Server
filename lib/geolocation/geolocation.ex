@@ -1,7 +1,6 @@
 defmodule Geolocation do
-
   use MoodleNet.Common.Schema
-  
+
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
@@ -12,12 +11,13 @@ defmodule Geolocation do
   @type t :: %__MODULE__{}
 
   table_schema "geolocation" do
-    field :name, :string
+    field(:name, :string)
 
-    field :geom, Geo.PostGIS.Geometry
-    field :alt, :float # altitude
-    field :mappable_address, :string
-    field :note, :string
+    field(:geom, Geo.PostGIS.Geometry)
+    # altitude
+    field(:alt, :float)
+    field(:mappable_address, :string)
+    field(:note, :string)
 
     field(:lat, :float, virtual: true)
     field(:long, :float, virtual: true)
@@ -34,7 +34,8 @@ defmodule Geolocation do
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
-    field(:follower_count, :any, virtual: true) # because it's keyed by pointer
+    # because it's keyed by pointer
+    field(:follower_count, :any, virtual: true)
 
     timestamps()
   end
@@ -50,24 +51,24 @@ defmodule Geolocation do
         %Actor{} = actor,
         attrs
       ) do
-      %__MODULE__{}
-        |> Changeset.cast(attrs, @cast)
-        |> Changeset.validate_required(@required)
-        |> Changeset.change(
-          creator_id: creator.id,
-          context_id: context.id,
-          actor_id: actor.id,
-          is_public: true
-      )
+    %__MODULE__{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.change(
+      creator_id: creator.id,
+      context_id: context.id,
+      actor_id: actor.id,
+      is_public: true
+    )
     |> common_changeset()
   end
 
   def create_changeset(
-    %User{} = creator,
-    %Actor{} = actor,
-    attrs
-  ) do
-  %__MODULE__{}
+        %User{} = creator,
+        %Actor{} = actor,
+        attrs
+      ) do
+    %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(

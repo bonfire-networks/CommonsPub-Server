@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: AGPL-3.0-only
 defmodule Measurement.Measure do
 
   use MoodleNet.Common.Schema

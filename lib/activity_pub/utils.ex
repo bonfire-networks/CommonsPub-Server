@@ -27,18 +27,19 @@ defmodule ActivityPub.Utils do
     DateTime.utc_now() |> DateTime.to_iso8601()
   end
 
-  def generate_context_id do
-    generate_id("contexts")
-  end
+  def generate_context_id, do: generate_id("contexts")
 
-  def generate_object_id do
-    generate_id("objects")
-  end
+  def generate_object_id, do: generate_id("objects")
 
-  def generate_id(type) do
-    ap_base_path = System.get_env("AP_BASE_PATH", "/pub")
 
-    "#{MoodleNetWeb.base_url()}#{ap_base_path}/#{type}/#{UUID.generate()}"
+  def generate_id(type), do: ap_base_url() <> "/#{type}/#{UUID.generate()}"
+
+  def actor_url(%{preferred_username: u}), do: ap_base_url() <> "/actors/" <> u
+
+  def object_url(%{id: id}), do: ap_base_url() <> "/objects/" <> id
+
+  defp ap_base_url() do
+    MoodleNetWeb.base_url() <> System.get_env("AP_BASE_PATH", "/pub")
   end
 
   def make_json_ld_header do

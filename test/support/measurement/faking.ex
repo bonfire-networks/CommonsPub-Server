@@ -27,12 +27,18 @@ defmodule Measurement.Test.Faking do
 
   def unit(base \\ %{}) do
     base
-    |> Map.put_new_lazy(:label, &Fake.name/0)
-    |> Map.put_new_lazy(:symbol, &Fake.name/0)
+    |> Map.put_new_lazy(:label, &unit_name/0)
+    |> Map.put_new_lazy(:symbol, &unit_symbol/0)
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
     |> Map.put_new_lazy(:is_featured, &Fake.falsehood/0)
     |> Map.merge(Fake.actor(base))
+  end
+
+  def unit_input(base \\ %{}) do
+    base
+    |> Map.put_new_lazy("label", &unit_name/0)
+    |> Map.put_new_lazy("symbol", &unit_symbol/0)
   end
 
   def fake_unit!(user, community \\ nil, overrides \\ %{})
@@ -54,13 +60,21 @@ defmodule Measurement.Test.Faking do
   end
 
   def unit_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
     gen_query(:id, &unit_subquery/1, options)
   end
 
   def unit_fields(extra \\ []) do
-    extra ++ ~w(id label symbol __typename)a
+    extra ++ ~w(id label symbol)a
   end
 
+  @doc """
+  Same as `unit_fields/1`, but with the parameter being nested inside of
+  another type.
+  """
+  def unit_response_fields(extra \\ []) do
+    [unit: unit_fields(extra)]
+  end
 
   def units_query(options \\ []) do
     params = [
@@ -82,6 +96,25 @@ defmodule Measurement.Test.Faking do
       [ {:args, args} | options ]
   end
 
+  def create_unit_mutation(options \\ []) do
+    [unit: type!(:unit_create_params)]
+    |> gen_mutation(&create_unit_submutation/1, options)
+  end
+
+  def create_unit_submutation(options \\ []) do
+    [unit: var(:unit)]
+    |> gen_submutation(:create_unit, &unit_response_fields/1, options)
+  end
+
+  def update_unit_mutation(options \\ []) do
+    [unit: type!(:unit_update_params)]
+    |> gen_mutation(&update_unit_submutation/1, options)
+  end
+
+  def update_unit_submutation(options \\ []) do
+    [unit: var(:unit)]
+    |> gen_submutation(:update_unit, &unit_response_fields/1, options)
+  end
 
   ### Unit assertion
 
@@ -90,8 +123,6 @@ defmodule Measurement.Test.Faking do
       [id: &assert_ulid/1,
        label: &assert_binary/1,
        symbol: &assert_binary/1,
-
-       typename: assert_eq("Unit"),
       ]
   end
 
@@ -121,6 +152,62 @@ defmodule Measurement.Test.Faking do
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
   end
 
+  def measure_input(overrides \\ %{}) do
+    overrides
+    |> Map.put_new_lazy("hasNumericalValue", &:rand.uniform/0)
+  end
+
+  def measure_fields(extra \\ []) do
+    extra ++ ~w(id has_numerical_value)a
+  end
+
+  @doc """
+  Same as `measure_fields/1`, but with the parameter being nested inside of
+  another type.
+  """
+  def measure_response_fields(extra \\ []) do
+    [measure: measure_fields(extra)]
+  end
+
+  def measure_subquery(options \\ []) do
+    gen_subquery(:id, :measure, &measure_fields/1, options)
+  end
+
+  def measure_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &measure_subquery/1, options)
+  end
+
+  def create_measure_mutation(options \\ []) do
+    [measure: type!(:measure_create_params)]
+    |> gen_mutation(&create_measure_submutation/1, options)
+  end
+
+  def create_measure_submutation(options \\ []) do
+    [measure: var(:measure)]
+    |> gen_submutation(:create_measure, &measure_response_fields/1, options)
+  end
+
+  def create_measure_with_unit_mutation(options \\ []) do
+    [measure: type!(:measure_create_params), has_unit: type!(:id)]
+    |> gen_mutation(&create_measure_with_unit_submutation/1, options)
+  end
+
+  def create_measure_with_unit_submutation(options \\ []) do
+    [measure: var(:measure), has_unit: var(:has_unit)]
+    |> gen_submutation(:create_measure, &measure_response_fields/1, options)
+  end
+
+  def update_measure_mutation(options \\ []) do
+    [measure: type!(:measure_update_params)]
+    |> gen_mutation(&update_measure_submutation/1, options)
+  end
+
+  def update_measure_submutation(options \\ []) do
+    [measure: var(:measure)]
+    |> gen_submutation(:update_measure, &measure_response_fields/1, options)
+  end
+
   def fake_measure!(user, unit \\ nil, overrides \\ %{})
   def fake_measure!(user, unit, overrides) when is_nil(unit) do
     {:ok, measure} = Measures.create(user, measure(overrides))
@@ -139,11 +226,7 @@ defmodule Measurement.Test.Faking do
 
   def assert_measure(measure) do
     assert_object measure, :assert_measure,
-      [id: &assert_ulid/1,
-       has_numerical_value: &assert_float/1,
-       published_at: assert_optional(&assert_datetime/1),
-       disabled_at: assert_optional(&assert_datetime/1),
-      ]
+      [has_numerical_value: &assert_float/1]
   end
 
   def assert_measure(%Measure{}=measure, %{}=measure2) do

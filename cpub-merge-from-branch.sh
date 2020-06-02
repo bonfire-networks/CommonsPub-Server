@@ -32,8 +32,8 @@ echo "Please check if everything looks good (including resolving any merge confl
 read answer
 if echo "$answer" | grep -iq "^c" ; then
     echo "Merging and pushing..."
-    # git commit -m "merged from upstream"
-    # git push
+    git commit -m "merged from upstream"
+    git push
 else 
     echo "Aborting the merge."
     git merge --abort
