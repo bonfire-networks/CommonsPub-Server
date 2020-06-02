@@ -71,16 +71,16 @@ config :moodle_net, Features,
   valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User]
+  valid_contexts: [Collection, Comment, Community, Resource, User, Organisation, Character]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation, Character]
 
 config :moodle_net, Likes,
-  valid_contexts: [Collection, Community, Comment, Resource, User]
+  valid_contexts: [Collection, Community, Comment, Resource]
 
 config :moodle_net, Threads,
-  valid_contexts: [Collection, Community, Flag, Resource, User]
+  valid_contexts: [Collection, Community, Flag, Resource, User, Organisation, Character]
 
 config :moodle_net, Users,
   public_registration: false,
@@ -89,6 +89,12 @@ config :moodle_net, Users,
 
 config :moodle_net, Units,
   valid_contexts: [Organisation, Community, Collection]
+
+config :moodle_net, Organisation,
+  valid_contexts: [Organisation, Community, Collection]
+
+config :moodle_net, Character,
+  valid_contexts: [Character, Organisation, Community, Collection]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
