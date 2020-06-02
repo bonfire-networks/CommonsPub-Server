@@ -75,21 +75,14 @@ defmodule Measurement.Unit.Queries do
   ## by user
 
   def filter(q, {:user, match_admin()}), do: q
-
+  def filter(q, {:user, nil}), do: filter(q, ~w(disabled private)a)
   def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to([:context, follow: id, context_follow: id])
-    |> where([context: c, context_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> join_to(follow: id)
     |> where([unit: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
     |> filter(~w(disabled)a)
   end
 
-  def filter(q, {:user, nil}) do
-    q
-    |> join_to(:context)
-    |> filter(~w(disabled private)a)
-    |> Users.Queries.filter(~w(deleted disabled private)a)
-  end
 
   ## by status
   

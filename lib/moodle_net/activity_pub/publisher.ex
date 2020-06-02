@@ -18,7 +18,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
          object_ap_id <- Utils.get_object_ap_id(context),
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(comment.creator_id),
          {to, cc} <- Utils.determine_recipients(actor, context, comment),
+         ap_id <- Utils.generate_object_ap_id(comment),
          object = %{
+           "id" => ap_id,
            "content" => comment.content,
            "to" => to,
            "cc" => cc,
@@ -56,7 +58,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
          {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(resource.creator_id),
          content_url <- MoodleNet.Uploads.remote_url_from_id(resource.content_id),
          icon_url <- MoodleNet.Uploads.remote_url_from_id(resource.icon_id),
+         ap_id <- Utils.generate_object_ap_id(resource),
          object <- %{
+           "id" => ap_id,
            "name" => resource.name,
            "url" => content_url,
            "icon" => icon_url,
@@ -279,8 +283,8 @@ defmodule MoodleNet.ActivityPub.Publisher do
            actor: actor.ap_id,
            local: true
          } do
-      ActivityPub.update(params)
       ActivityPub.Actor.set_cache(actor)
+      ActivityPub.update(params)
     else
       e -> {:error, e}
     end
@@ -288,10 +292,9 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
   # Works for Users, Collections, Communities (not MN.Actor)
   def delete_actor(actor) do
-    with {:ok, actor} <- ActivityPub.Actor.get_cached_by_local_id(actor.id) do
+    with actor <- ActivityPub.Actor.format_local_actor(actor) do
+      ActivityPub.Actor.set_cache(actor)
       ActivityPub.delete(actor)
-      # FIXME: currently the cache will get re-set when the delete activity is being federated
-      ActivityPub.Actor.invalidate_cache(actor)
     end
   end
 end

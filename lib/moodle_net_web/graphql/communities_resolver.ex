@@ -103,21 +103,21 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
   #   Flow.pages(__MODULE__, :fetch_collections_edge, page_opts, id, info, opts)
   # end
 
-  def fetch_collections_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Collections.Queries,
-        query: Collection,
-        cursor_fn: Collections.cursor(:followers),
-        group_fn: &(&1.community_id),
-        page_opts: page_opts,
-        base_filters: [community: ids, user: user],
-        data_filters: [:default, page: [desc: [followers: page_opts]]],
-        count_filters: [group_count: :community_id]
-      }
-    )
-  end
+  # def fetch_collections_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Collections.Queries,
+  #       query: Collection,
+  #       cursor_fn: Collections.cursor(:followers),
+  #       group_fn: &(&1.community_id),
+  #       page_opts: page_opts,
+  #       base_filters: [community: ids, user: user],
+  #       data_filters: [:default, page: [desc: [followers: page_opts]]],
+  #       count_filters: [group_count: :community_id],
+  #     }
+  #   )
+  # end
 
   def fetch_collections_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)

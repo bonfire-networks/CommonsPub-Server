@@ -12,7 +12,8 @@ defmodule MoodleNetWeb.ConnCase do
 
   using do
     quote do
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
       import MoodleNetWeb.ConnCase
       import MoodleNetWeb.Test.ConnHelpers
       import MoodleNetWeb.Router.Helpers

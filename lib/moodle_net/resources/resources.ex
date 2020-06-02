@@ -38,7 +38,8 @@ defmodule MoodleNet.Resources do
            act_attrs = %{verb: "created", is_local: is_nil(collection.actor.peer_id)},
            {:ok, activity} <- insert_activity(creator, resource, act_attrs),
            :ok <- publish(creator, collection, resource, activity),
-           :ok <- ap_publish("create", resource) do
+           :ok <- ap_publish("create", resource),
+           :ok <- MoodleNet.Algolia.Indexer.maybe_index_object(resource) do
         {:ok, %Resource{resource | creator: creator}}
       end
     end)

@@ -69,7 +69,7 @@ dev-exports: init ## Load env vars from a dotenv file
 dev-pull: init ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) pull 
 
-dev-build: init dev-pull ## Build the dev image
+dev-build: init pull ## Build the dev image
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build 
 
 dev-rebuild: init ## Rebuild the dev image (without cache)

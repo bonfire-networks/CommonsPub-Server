@@ -42,6 +42,12 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def me(%{token: _, me: me}, _, _), do: {:ok, me}
 
+  def search_follows(%Me{user: %User{id: id}}, _, _) do
+    Follows.many(preset: {:search_follows, id})
+  end
+
+  def search_follows(_, _, _), do: {:ok, []}
+
   def user(%{user_id: id}, info) do
     Users.one join: :actor, preload: :actor,
       id: id, user: GraphQL.current_user(info)
@@ -88,21 +94,21 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_comments_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: CommentsQueries,
-        query: Comment,
-        cursor_fn: &(&1.id),
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids],
-        data_filters: [order: :timeline_desc],
-        count_filters: [group_count: :creator_id],
-      }
-    )
-  end
+  # def fetch_comments_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: CommentsQueries,
+  #       query: Comment,
+  #       cursor_fn: &(&1.id),
+  #       group_fn: &(&1.creator_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, creator: ids],
+  #       data_filters: [order: :timeline_desc],
+  #       count_filters: [group_count: :creator_id],
+  #     }
+  #   )
+  # end
 
   def fetch_comments_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -139,20 +145,20 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_collection_follows_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Follows.Queries,
-        query: Follows.Follow,
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: Collection],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-        count_filters: [group_count: :context_id],
-      }
-    )
-  end
+  # def fetch_collection_follows_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Follows.Queries,
+  #       query: Follows.Follow,
+  #       group_fn: &(&1.creator_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, creator: ids, join: :context, table: Collection],
+  #       data_filters: [page: [desc: [created: page_opts]], preload: :context],
+  #       count_filters: [group_count: :context_id],
+  #     }
+  #   )
+  # end
 
   def fetch_collection_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -182,20 +188,20 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_community_follows_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Follows.Queries,
-        query: Follows.Follow,
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: Community],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-        count_filters: [group_count: :context_id]
-      }
-    )
-  end
+  # def fetch_community_follows_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Follows.Queries,
+  #       query: Follows.Follow,
+  #       group_fn: &(&1.creator_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, creator: ids, join: :context, table: Community],
+  #       data_filters: [page: [desc: [created: page_opts]], preload: :context],
+  #       count_filters: [group_count: :context_id]
+  #     }
+  #   )
+  # end
 
   def fetch_community_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -227,21 +233,21 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     )
   end
 
-  def fetch_user_follows_edge({page_opts, info}, ids) do
-    user = GraphQL.current_user(info)
-    FetchPages.run(
-      %FetchPages{
-        queries: Follows.Queries,
-        query: Follow,
-        cursor_fn: &[&1.id],
-        group_fn: &(&1.creator_id),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids, join: :context, table: User],
-        data_filters: [page: [desc: [created: page_opts]], preload: :context],
-        count_filters: [group_count: :context_id]
-      }
-    )
-  end
+  # def fetch_user_follows_edge({page_opts, info}, ids) do
+  #   user = GraphQL.current_user(info)
+  #   FetchPages.run(
+  #     %FetchPages{
+  #       queries: Follows.Queries,
+  #       query: Follow,
+  #       cursor_fn: &[&1.id],
+  #       group_fn: &(&1.creator_id),
+  #       page_opts: page_opts,
+  #       base_filters: [user: user, creator: ids, join: :context, table: User],
+  #       data_filters: [page: [desc: [created: page_opts]], preload: :context],
+  #       count_filters: [group_count: :context_id]
+  #     }
+  #   )
+  # end
 
   def fetch_user_follows_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
@@ -350,7 +356,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
   ### Mutations
 
   def create_user(%{user: attrs} = params, info) do
-    extra = %{is_public: true}
+    extra = %{is_public: true, peer_id: nil}
     Repo.transact_with(fn ->
       with :ok <- GraphQL.guest_only(info),
            {:ok, user} <- Users.register(Map.merge(attrs, extra)),
@@ -360,7 +366,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       end
     end)
   end
-
+  
   def update_profile(%{profile: attrs} = params, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, uploads} <- UploadResolver.upload(user, params, info),

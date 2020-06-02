@@ -16,6 +16,18 @@ defmodule ActivityPubWeb.Transmogrifier do
   require Logger
 
   @doc """
+  Modifies an incoming AP object (mastodon format) to our internal format.
+  """
+  def fix_object(object) do
+    object
+    |> fix_actor()
+  end
+
+  def fix_actor(%{"attributedTo" => actor} = object) do
+    Map.put(object, "actor", Fetcher.get_actor(%{"actor" => actor}))
+  end
+
+  @doc """
   Translates MN Entity to an AP compatible format
   """
   def prepare_outgoing(%{"type" => "Create", "object" => %{"type" => "Group"}} = data) do
@@ -136,6 +148,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   def handle_incoming(%{"type" => "Create", "object" => object} = data) do
     data = Utils.normalize_params(data)
     {:ok, actor} = Actor.get_or_fetch_by_ap_id(data["actor"])
+    object = fix_object(object)
 
     params = %{
       to: data["to"],

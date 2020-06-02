@@ -36,6 +36,7 @@ defmodule MoodleNet.Application do
     children = [
       supervisor(Repo, []),
       worker(TableService, []),
+      {Phoenix.PubSub, [name: MoodleNet.PubSub, adapter: Phoenix.PubSub.PG2]},
       supervisor(Endpoint, []),
       {Oban, Application.get_env(:moodle_net, Oban)},
       %{
