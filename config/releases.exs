@@ -85,7 +85,7 @@ mail_smtp = fn ->
                 password ->
                   case System.get_env("MAIL_FROM") do
                     nil -> mail_blackhole.("MAIL_FROM")
-                    _ ->
+                    from ->
                      config :moodle_net, MoodleNet.Mail.MailService,
                        adapter: Bamboo.SMTPAdapter,
                        server: server,
@@ -97,7 +97,8 @@ mail_smtp = fn ->
                        allowed_tls_versions: [:"tlsv1.2"],
                        ssl: false,
                        retries: 1,
-                       auth: :always
+                       auth: :always,
+                       reply_to: from
                   end
               end
           end
