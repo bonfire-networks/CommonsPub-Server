@@ -71,13 +71,6 @@ defmodule ActivityPubWeb.Publisher do
   def publish_one(%{actor_username: username} = params) do
     {:ok, actor} = Actor.get_cached_by_username(username)
 
-    # This is kinda stupid but i can't think of a better way of doing it right now
-    activity = Jason.decode!(params.json)
-
-    if activity["type"] == "Delete" do
-      Actor.invalidate_cache(actor)
-    end
-
     params
     |> Map.delete(:actor_username)
     |> Map.put(:actor, actor)

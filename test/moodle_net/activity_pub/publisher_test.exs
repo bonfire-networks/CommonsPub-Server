@@ -334,19 +334,19 @@ defmodule MoodleNet.ActivityPub.PublisherTest do
   describe "deleting actors" do
     test "it works for users" do
       actor = fake_user!()
-      assert {:ok, activity} = Publisher.delete_actor(actor)
+      assert {:ok, activity} = Publisher.delete_user(actor)
     end
 
     test "it works for communities" do
       actor = fake_user!() |> fake_community!()
-      assert {:ok, activity} = Publisher.delete_actor(actor)
+      assert {:ok, activity} = Publisher.delete_comm_or_coll(actor)
     end
 
     test "it works for collections" do
       user = fake_user!()
       comm = fake_community!(user)
       actor = fake_collection!(user, comm)
-      assert {:ok, activity} = Publisher.delete_actor(actor)
+      assert {:ok, activity} = Publisher.delete_comm_or_coll(actor)
     end
   end
 end
