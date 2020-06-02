@@ -5,7 +5,7 @@ defmodule MoodleNet.Threads.Comment do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset,
-    only: [change_public: 1, change_synced_timestamp: 3]
+    only: [change_public: 1, change_synced_timestamp: 3, cast_object: 1]
 
   alias Ecto.Changeset
   alias MoodleNet.Threads
@@ -34,6 +34,7 @@ defmodule MoodleNet.Threads.Comment do
   def create_changeset(creator, thread, attrs) do
     %Comment{}
     |> Changeset.cast(attrs, @cast)
+    |> cast_object()
     |> Changeset.change(
       creator_id: creator.id,
       thread_id: thread.id,

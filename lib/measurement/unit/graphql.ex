@@ -76,14 +76,12 @@ defmodule Measurement.Unit.GraphQL do
     )
   end
 
-  def context_edge(params, data, info), do: CommonResolver.context_edge(params, data, info)
-
   # def fetch_community_edge(_, ids) do
   #   {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
   #   fields
   # end
 
-  def create_unit(%{unit: attrs, in_scope_of_context_id: context_id}, info) do
+  def create_unit(%{unit: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Pointers.one(id: context_id),
@@ -106,11 +104,10 @@ defmodule Measurement.Unit.GraphQL do
     end)
   end
 
-  def update_unit(%{unit: changes, unit_id: id}, info) do
+  def update_unit(%{unit: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- unit(%{id: id}, info) do
-        unit = Repo.preload(unit, :context)
         cond do
           user.local_user.is_instance_admin ->
             {:ok, u} = Units.update(unit, changes)

@@ -23,7 +23,7 @@ defmodule Search.Indexing do
 
 
     def index_for_search(object) do  # add to general instance search index
-      IO.inspect(object)
+      # IO.inspect(object)
       index_object(object, "search")
     end
 

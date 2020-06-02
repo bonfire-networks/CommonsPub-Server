@@ -37,6 +37,7 @@ defmodule MoodleNet.Actors.Actor do
     |> Changeset.cast(attrs, @create_cast)
     |> Changeset.validate_required(@required)
     |> validate_username()
+    |> cast_url()
     |> Changeset.unique_constraint(:preferred_username, # with peer
       name: "mn_actor_preferred_username_peer_id_index"
     )
@@ -54,6 +55,17 @@ defmodule MoodleNet.Actors.Actor do
   defp validate_username(changeset) do
     Changeset.validate_format changeset, :preferred_username,
       username_regex(is_local(changeset))
+  end
+
+  defp cast_url(changeset) do
+    cast_url(changeset, Changeset.get_field(changeset, :canonical_url))
+  end
+
+  defp cast_url(cs, x) when not is_nil(x), do: cs
+  defp cast_url(cs, _) do
+    name = Changeset.get_field(cs, :preferred_username)
+    url = ActivityPub.Utils.actor_url(%{preferred_username: "#{name}"})
+    Changeset.put_change(cs, :canonical_url, url)
   end
 
   defp username_regex(true), do: @local_username_regex
