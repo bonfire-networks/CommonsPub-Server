@@ -155,7 +155,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     hydrated = Map.merge(hydrated, Geolocation.GraphQL.Hydration.hydrate(blueprint: %Absinthe.Blueprint{}))
     hydrated = Map.merge(hydrated, Measurement.Hydration.hydrate(blueprint: %Absinthe.Blueprint{}))
     hydrated = Map.merge(hydrated, ValueFlows.Hydrations.hydrate(blueprint: %Absinthe.Blueprint{})) 
-    hydrated
+    hydrated # FIXME: only the last of the hydrations above actually works
   end
 
   # fallback
