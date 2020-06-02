@@ -7,7 +7,7 @@ defmodule Taxonomy.GraphQL.TagsSchema do
   alias MoodleNetWeb.GraphQL.{CommonResolver}
   alias Taxonomy.GraphQL.{TagsResolver}
 
-  object :tags_queries do
+  object :taxonomy_queries do
 
     @desc "Get list of tags we know about"
     field :tags, non_null(:tags_page) do
@@ -16,7 +16,6 @@ defmodule Taxonomy.GraphQL.TagsSchema do
       arg :after, list_of(non_null(:cursor))
       resolve &TagsResolver.tags/2
     end
-
 
     field :tag, :tag do
       arg :tag_id, non_null(:string)
