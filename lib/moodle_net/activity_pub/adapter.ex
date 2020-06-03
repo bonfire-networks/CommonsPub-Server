@@ -157,8 +157,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
-         {:ok, _} <- MoodleNet.Users.update_remote(actor, params) do
-      :ok
+         {:ok, user} <- MoodleNet.Users.update_remote(actor, params) do
+      {:ok, user}
     else
       {:error, e} -> {:error, e}
     end
@@ -172,8 +172,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), creator)
          },
-         {:ok, _} <- MoodleNet.Communities.update(creator, actor, params) do
-      :ok
+         {:ok, comm} <- MoodleNet.Communities.update(creator, actor, params) do
+      {:ok, comm}
     else
       {:error, e} -> {:error, e}
     end
@@ -186,8 +186,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
            summary: data["summary"],
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator)
          },
-         {:ok, _} <- MoodleNet.Collections.update(creator, actor, params) do
-      :ok
+         {:ok, coll} <- MoodleNet.Collections.update(creator, actor, params) do
+      {:ok, coll}
     else
       {:error, e} -> {:error, e}
     end
