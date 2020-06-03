@@ -8,6 +8,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
@@ -426,10 +428,10 @@ defmodule MoodleNet.ActivityPub.Adapter do
     if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
-             (case object.data["type"] do
-                "Person" -> MoodleNet.Users.soft_delete_remote(actor)
-                "MN:Community" -> MoodleNet.Communities.soft_delete(%User{}, actor)
-                "MN:Collection" -> MoodleNet.Collections.soft_delete(%User{}, actor)
+             (case actor do
+                %User{} -> MoodleNet.Users.soft_delete_remote(actor)
+                %Community{} -> MoodleNet.Communities.soft_delete(%User{}, actor)
+                %Collection{} -> MoodleNet.Collections.soft_delete(%User{}, actor)
               end) do
         Indexer.maybe_delete_object(actor)
         :ok
