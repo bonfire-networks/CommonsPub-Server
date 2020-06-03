@@ -431,6 +431,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
                 "MN:Community" -> MoodleNet.Communities.soft_delete(%User{}, actor)
                 "MN:Collection" -> MoodleNet.Collections.soft_delete(%User{}, actor)
               end) do
+        Indexer.maybe_delete_object(actor)
         :ok
       else
         {:error, e} ->
@@ -447,6 +448,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         "Document" ->
           with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
                {:ok, _} <- Common.soft_delete(resource) do
+            Indexer.maybe_delete_object(resource)
             :ok
           end
       end
