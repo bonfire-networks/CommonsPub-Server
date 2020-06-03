@@ -423,7 +423,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
-    if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
+    if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
              (case object.data["type"] do
