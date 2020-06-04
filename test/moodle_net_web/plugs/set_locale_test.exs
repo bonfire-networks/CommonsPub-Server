@@ -6,6 +6,7 @@ defmodule MoodleNetWeb.Plugs.SetLocaleTest do
   alias MoodleNetWeb.Plugs.SetLocale
   alias Plug.Conn
 
+  @tag :skip
   test "works" do
     conn =
       html_conn()

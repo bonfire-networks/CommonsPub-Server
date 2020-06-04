@@ -107,9 +107,13 @@ defmodule MoodleNet.Workers.APPublishWorker do
     Publisher.update_actor(actor)
   end
 
+  defp publish(%User{} = user, "delete") do
+    Publisher.delete_user(user)
+  end
+
   defp publish(%{__struct__: type} = actor, "delete")
-       when type in [User, Community, Collection] do
-    Publisher.delete_actor(actor)
+       when type in [Community, Collection] do
+    Publisher.delete_comm_or_coll(actor)
   end
 
   defp publish(%{__struct__: type} = object, "delete") when type in [Comment, Resource] do

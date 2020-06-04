@@ -153,7 +153,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesSchema do
       resolve &CommunitiesResolver.collection_count_edge/3
     end
 
-    @desc "The communities a user has joined, most recently joined first"
+    @desc "The collections in this community"
     field :collections, :collections_page do
       arg :limit, :integer
       arg :before, list_of(non_null(:cursor))
