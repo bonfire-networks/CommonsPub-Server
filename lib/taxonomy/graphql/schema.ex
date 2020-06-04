@@ -51,7 +51,7 @@ defmodule Taxonomy.GraphQL.TagsSchema do
 
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
-      resolve &Character.GraphQL.Resolver.character/2
+      resolve &Character.GraphQL.Resolver.character/3
     end
 
   end

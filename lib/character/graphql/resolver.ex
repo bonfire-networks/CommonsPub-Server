@@ -28,6 +28,7 @@ defmodule Character.GraphQL.Resolver do
   ## resolvers
 
   def character(%{character_id: id}, info) do
+    # IO.inspect(id)
     ResolveField.run(
       %ResolveField{
         module: __MODULE__,
@@ -38,7 +39,12 @@ defmodule Character.GraphQL.Resolver do
     )
   end
 
-  def character(%{}, info) do
+  def character(%{character_id: id}, _, info) do
+    character(%{character_id: id}, info)
+  end
+
+  def character(opts, _, info) do
+    # IO.inspect(opts)
     {:ok, nil}
   end
 

@@ -19,7 +19,7 @@ defmodule Taxonomy.Migrations do
   def reference_character do
     
     alter table(:taxonomy_tags) do
-      add :character_id, references(:mn_character, type: :binary_id)
+      add :character_id, references(:mn_character)
     end
   end
 

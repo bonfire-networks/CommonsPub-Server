@@ -19,8 +19,8 @@ defmodule Taxonomy.Tag do
     field(:label, :string)
     field(:description, :string)
     # field(:parent_tag_id, :integer)
-    belongs_to(:parent_tag, Tag)
-    belongs_to(:character, Character, type: :binary_id)
+    belongs_to(:parent_tag, Tag, type: :id)
+    belongs_to(:character, Character, type: Ecto.ULID)
   end
 
   def update_changeset(
