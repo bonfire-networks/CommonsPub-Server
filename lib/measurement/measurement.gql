@@ -83,7 +83,7 @@ input IMeasure {
   hasNumericalValue: Float!
 
   "(`Unit`) A unit of measure."
-  hasUnit: ID
+  hasUnit: ID!
 }
 
 # CommonsPub specifics
@@ -115,23 +115,6 @@ type UnitsPage{
   page_info: PageInfo
   edges: [Unit!]
   totalCount: Int
-}
-
-input MeasureCreateParams {
-  "A number representing the quantity, will be paired with a unit."
-  hasNumericalValue: Float!
-}
-
-input MeasureUpdateParams {
-  "A number representing the quantity, will be paired with a unit."
-  hasNumericalValue: Float!
-
-  "The primary key of the measure to update."
-  id: ID!
-}
-
-type MeasureResponse {
-  measure: Measure
 }
 
 type MeasuresPage {
