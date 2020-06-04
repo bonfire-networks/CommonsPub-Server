@@ -1,17 +1,19 @@
 import Config
 require Logger
 
+fallback_env = fn a, b, c -> System.get_env(a) || System.get_env(b) || c end
+
 config :moodle_net, MoodleNet.Repo,
-  username: System.get_env("POSTGRES_USER", System.get_env("DATABASE_USER", "postgres")),
-  password: System.get_env("POSTGRES_PASSWORD", System.get_env("DATABASE_PASS", "postgres")),
-  database: System.get_env("POSTGRES_DB", System.get_env("DATABASE_NAME", "postgres")),
-  hostname: System.get_env("DATABASE_HOST", "localhost"),
+  username: fallback_env.("POSTGRES_USER",     "DATABASE_USER", "postgres"),
+  password: fallback_env.("POSTGRES_PASSWORD", "DATABASE_PASS", "postgres"),
+  database: fallback_env.("POSTGRES_DB",       "DATABASE_NAME", "postgres"),
+  hostname: fallback_env.("POSTGRES_HOST",     "DATABASE_HOST", "localhost"),
   pool_size: 15
 
 hostname = System.fetch_env!("HOSTNAME")
-desc = System.fetch_env("INSTANCE_DESCRIPTION")
-port = String.to_integer(System.get_env("PORT", "4000"))
-base_url = System.get_env("BASE_URL", "https://" <> System.fetch_env!("HOSTNAME"))
+desc = System.get_env("INSTANCE_DESCRIPTION")
+port = String.to_integer(fallback_env.("HTTP_PORT", "PORT", "4000"))
+base_url = System.get_env("BASE_URL", "https://" <> hostname)
 app_name = System.get_env("APP_NAME", "MoodleNet")
 
 config :moodle_net, MoodleNet.Instance,

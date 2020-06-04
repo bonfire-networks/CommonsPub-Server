@@ -8,6 +8,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.Comments
   alias MoodleNet.Users.User
+  alias MoodleNet.Communities.Community
+  alias MoodleNet.Collections.Collection
   alias MoodleNet.Workers.APReceiverWorker
   require Logger
 
@@ -157,35 +159,37 @@ defmodule MoodleNet.ActivityPub.Adapter do
            icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
            image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
          },
-         {:ok, _} <- MoodleNet.Users.update_remote(actor, params) do
-      :ok
+         {:ok, user} <- MoodleNet.Users.update_remote(actor, params) do
+      {:ok, user}
     else
       {:error, e} -> {:error, e}
     end
   end
 
   def update_community(actor, data) do
-    with params <- %{
+    with {:ok, creator} <- Users.one([:default, id: actor.creator_id]),
+         params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor),
-           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), actor)
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator),
+           image_id: maybe_create_image_object(maybe_fix_image_object(data["image"]), creator)
          },
-         {:ok, _} <- MoodleNet.Communities.update(%User{}, actor, params) do
-      :ok
+         {:ok, comm} <- MoodleNet.Communities.update(creator, actor, params) do
+      {:ok, comm}
     else
       {:error, e} -> {:error, e}
     end
   end
 
   def update_collection(actor, data) do
-    with params <- %{
+    with {:ok, creator} <- Users.one([:default, id: actor.creator_id]),
+         params <- %{
            name: data["name"],
            summary: data["summary"],
-           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), actor)
+           icon_id: maybe_create_icon_object(maybe_fix_image_object(data["icon"]), creator)
          },
-         {:ok, _} <- MoodleNet.Collections.update(%User{}, actor, params) do
-      :ok
+         {:ok, coll} <- MoodleNet.Collections.update(creator, actor, params) do
+      {:ok, coll}
     else
       {:error, e} -> {:error, e}
     end
@@ -283,10 +287,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
         %{data: %{"context" => context}} = _activity,
         %{data: %{"type" => "Document", "actor" => actor}} = object
       ) do
-    with {:ok, ap_collection} <- ActivityPub.Actor.get_or_fetch_by_ap_id(context),
-         {:ok, collection} <- get_actor_by_username(ap_collection.username),
-         {:ok, ap_actor} <- ActivityPub.Actor.get_cached_by_ap_id(actor),
-         {:ok, actor} <- get_actor_by_username(ap_actor.username),
+    with {:ok, collection} <- get_actor_by_ap_id(context),
+         {:ok, actor} <- get_actor_by_ap_id(actor),
          {:ok, content} <-
            MoodleNet.Uploads.upload(
              MoodleNet.Uploads.ResourceUploader,
@@ -423,14 +425,15 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     object = ActivityPub.Object.get_cached_by_ap_id(obj_id)
 
-    if object.data["type"] in ["Person", "MN:Community", "MN:Collection"] do
+    if object.data["type"] in ["Person", "MN:Community", "MN:Collection", "Group"] do
       with {:ok, actor} <- get_actor_by_ap_id(activity.data["object"]),
            {:ok, _} <-
-             (case object.data["type"] do
-                "Person" -> MoodleNet.Users.soft_delete_remote(actor)
-                "MN:Community" -> MoodleNet.Communities.soft_delete(%User{}, actor)
-                "MN:Collection" -> MoodleNet.Collections.soft_delete(%User{}, actor)
+             (case actor do
+                %User{} -> MoodleNet.Users.soft_delete_remote(actor)
+                %Community{} -> MoodleNet.Communities.soft_delete(%User{}, actor)
+                %Collection{} -> MoodleNet.Collections.soft_delete(%User{}, actor)
               end) do
+        Indexer.maybe_delete_object(actor)
         :ok
       else
         {:error, e} ->
@@ -447,6 +450,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
         "Document" ->
           with {:ok, resource} <- Resources.one(id: object.mn_pointer_id),
                {:ok, _} <- Common.soft_delete(resource) do
+            Indexer.maybe_delete_object(resource)
             :ok
           end
       end
