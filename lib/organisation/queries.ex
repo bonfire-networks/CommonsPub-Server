@@ -20,7 +20,7 @@ defmodule Organisation.Queries do
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -206,6 +206,11 @@ defmodule Organisation.Queries do
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
+
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [organisation: c], c.id == ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [organisation: c], c.id in ^ids)
+  def filter(q, {:context, id}) when is_binary(id), do: where(q, [organisation: c], c.context_id == ^id)
+  def filter(q, {:context, ids}) when is_list(ids), do: where(q, [organisation: c], c.context_id in ^ids)
 
   defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
     filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2

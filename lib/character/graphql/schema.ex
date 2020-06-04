@@ -16,6 +16,8 @@ defmodule Character.GraphQL.Schema do
     ThreadsResolver,
     UsersResolver,
     UploadResolver,
+    CommunitiesResolver,
+    CollectionsResolver
   }
 
   alias MoodleNet.{
@@ -69,10 +71,10 @@ defmodule Character.GraphQL.Schema do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
 
-    @desc "The Thing that this Character represents"
-    field :characteristic, :characteristic do
-      resolve &CommonResolver.characteristic_edge/3
-    end
+    # @desc "The Thing that this Character represents"
+    # field :characteristic, :characteristic do
+    #   resolve &CommonResolver.characteristic_edge/3
+    # end
 
     @desc "A friendly name for the type of thing this character represents, eg. Organisation, Location, Topic, Category..."
     field :facet, non_null(:string)
@@ -163,6 +165,56 @@ defmodule Character.GraphQL.Schema do
     @desc "The parent of the character"
     field :context, :community do
       resolve &CommonResolver.context_edge/3
+    end
+
+    @desc "Any communities linked under this character"
+    field :communities, :communities_page do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &CommunitiesResolver.communities_edge/3
+    end
+
+    # @desc "The total number of collections in the community, including private ones"
+    # field :collection_count, :integer do
+    #   resolve &CommunitiesResolver.collection_count_edge/3
+    # end
+
+    @desc "Any organisations created under this character"
+    field :organisations, :organisations_page do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &Organisation.GraphQL.Resolver.organisations_edge/3
+    end
+
+    @desc "Any collections created under this character"
+    field :collections, :collections_page do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &CommunitiesResolver.collections_edge/3
+    end
+
+    # @desc "The total number of resources in the collection, including private ones"
+    # field :resource_count, :integer do
+    #   resolve &CollectionsResolver.resource_count_edge/3
+    # end
+
+    @desc "Any resources posted under this character, most recent last"
+    field :resources, :resources_page do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &CollectionsResolver.resources_edge/3
+    end
+
+    @desc "Any tags linked under this character"
+    field :tags, :tags_page do
+      arg :limit, :integer
+      arg :before, list_of(non_null(:cursor))
+      arg :after, list_of(non_null(:cursor))
+      resolve &Taxonomy.GraphQL.TagsResolver.character_tags_edge/3
     end
 
     @desc "Total number of followers, including those we can't see"

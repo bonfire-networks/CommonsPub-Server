@@ -73,6 +73,32 @@ defmodule Organisation.GraphQL.Resolver do
     )
   end
 
+  def organisations_edge(%{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_organisations_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_organisations_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    FetchPage.run(
+      %FetchPage{
+        queries: Organisation.Queries,
+        query: Organisation,
+        cursor_fn: Organisations.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [context: ids, user: user],
+        data_filters: [:default, page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
+
   def resource_count_edge(%Organisation{id: id}, _, info) do
     Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0
   end
