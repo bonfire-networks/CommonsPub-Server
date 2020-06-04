@@ -72,7 +72,7 @@ type Measure {
   hasNumericalValue: Float!
 
   "A unit of measure."
-  hasUnit: Unit
+  hasUnit: Unit!
 }
 
 """
@@ -154,8 +154,4 @@ type MeasurementMutation {
   createUnit(unit: UnitCreateParams!, inScopeOf: ID): UnitResponse
   updateUnit(unit: UnitUpdateParams!): UnitResponse
   deleteUnit(id: ID!): Boolean
-
-  createMeasure(measure: MeasureCreateParams!, hasUnit: ID): MeasureResponse
-  updateMeasure(measure: MeasureUpdateParams!): MeasureResponse
-  deleteMeasure(id: ID!): Boolean
 }
