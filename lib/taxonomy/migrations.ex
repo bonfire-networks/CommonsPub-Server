@@ -16,6 +16,13 @@ defmodule Taxonomy.Migrations do
     end
   end
 
+  def reference_character do
+    
+    alter table(:taxonomy_tags) do
+      add :character_id, references(:mn_character, type: :binary_id)
+    end
+  end
+
 
   def up do
 
@@ -30,5 +37,6 @@ defmodule Taxonomy.Migrations do
     try_dotsql_execute("lib/taxonomy/sql/tags.down.sql")
 
   end
+
 
 end

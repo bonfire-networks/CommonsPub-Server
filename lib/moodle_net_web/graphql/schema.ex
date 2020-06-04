@@ -127,6 +127,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     # Extension Modules
     import_fields :character_mutations
     import_fields :organisations_mutations
+    import_fields :taxonomy_mutations
     import_fields :geolocation_mutation
     import_fields :measurement_mutation
     # import_fields :value_flows_mutation

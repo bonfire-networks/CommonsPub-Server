@@ -17,9 +17,22 @@ defmodule Taxonomy.GraphQL.TagsSchema do
       resolve &TagsResolver.tags/2
     end
 
+    @desc "Get a tag by ID or label"
     field :tag, :tag do
-      arg :tag_id, non_null(:string)
+      arg :tag_id, :integer
+      arg :character_id, :string
+      # arg :find, :tag_find
       resolve &TagsResolver.tag/2
+    end
+
+  end
+
+  object :taxonomy_mutations do
+
+    @desc "Create a Character to represents this tag in feeds and federation"
+    field :characterise_tag, :tag do
+      arg :tag_id, :integer
+      resolve &TagsResolver.characterise_tag/2
     end
 
   end
@@ -29,11 +42,16 @@ defmodule Taxonomy.GraphQL.TagsSchema do
     # field(:actor, :string)
     field(:label, :string)
     field(:description, :string)
-    field(:parent_tag_id, :integer)
+    # field(:parent_tag_id, :integer)
 
     @desc "The parent tag (in a tree-based taxonomy)"
     field :parent_tag, :tag do
       resolve &TagsResolver.parent_tag/3
+    end
+
+    @desc "The Character that represents this tag in feeds and federation"
+    field :character, :character do
+      resolve &Character.GraphQL.Resolver.character/2
     end
 
   end
@@ -43,6 +61,12 @@ defmodule Taxonomy.GraphQL.TagsSchema do
     field :edges, non_null(list_of(non_null(:tag)))
     field :total_count, non_null(:integer)
   end
+
+  input_object :tag_find do
+    field :label, non_null(:string)
+    field :parent_tag_label, non_null(:string)
+  end
+
 
 
 #  @desc "A category is a grouping mechanism for tags"

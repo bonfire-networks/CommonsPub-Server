@@ -6,12 +6,12 @@ defmodule Taxonomy.Batch do
 
   def batch() do
 
-    Search.Indexer.create_index(@tags_index_name)
+    Search.Indexing.create_index(@tags_index_name)
 
     {:ok, tags} = MoodleNet.Repo.query("WITH RECURSIVE taxonomy_tags_tree AS
     (SELECT id, label, parent_tag_id, CAST(label As varchar(1000)) As label_crumbs, description
     FROM taxonomy_tags
-    WHERE parent_tag_id IS NULL
+    WHERE parent_tag_id =1
     UNION ALL
     SELECT si.id,si.label,
       si.parent_tag_id,
@@ -35,7 +35,7 @@ defmodule Taxonomy.Batch do
       obj = %{ id: id, label: label, label_crumbs: label_crumbs, description: description } 
       IO.inspect(obj)
 
-      Search.Indexer.index_object(obj, @tags_index_name)
+      Search.Indexing.index_object(obj, @tags_index_name)
 
       # results = results ++ [obj]
 

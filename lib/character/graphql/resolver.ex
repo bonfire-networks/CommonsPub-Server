@@ -38,6 +38,10 @@ defmodule Character.GraphQL.Resolver do
     )
   end
 
+  def character(%{}, info) do
+    {:ok, nil}
+  end
+
   def characters(page_opts, info) do
     ResolveRootPage.run(
       %ResolveRootPage{
@@ -127,31 +131,31 @@ defmodule Character.GraphQL.Resolver do
 
   ## finally the mutations...
 
-  def create_character(%{character: attrs, characteristic_id: characteristic_id, context_id: context_id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           :ok <- validate_character_context(pointer),
-           {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
-        characteristic_id = Pointers.follow!(characteristic_pointer)
-        context = Pointers.follow!(pointer)
-        attrs = Map.merge(attrs, %{is_public: true})
-        Characters.create(user, characteristic_pointer, context, attrs)
-      end
-    end)
-  end
+  # def create_character(%{character: attrs, characteristic_id: characteristic_id, context_id: context_id}, info) do
+  #   Repo.transact_with(fn ->
+  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+  #          {:ok, pointer} <- Pointers.one(id: context_id),
+  #          :ok <- validate_character_context(pointer),
+  #          {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
+  #       characteristic_id = Pointers.follow!(characteristic_pointer)
+  #       context = Pointers.follow!(pointer)
+  #       attrs = Map.merge(attrs, %{is_public: true})
+  #       Characters.create(user, characteristic_pointer, context, attrs)
+  #     end
+  #   end)
+  # end
 
 
-  def create_character(%{character: attrs, characteristic_id: characteristic_id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
-        characteristic_id = Pointers.follow!(characteristic_pointer)
-        attrs = Map.merge(attrs, %{is_public: true})
-        Characters.create_with_characteristic(user, characteristic_pointer, attrs)
-      end
-    end)
-  end
+  # def create_character(%{character: attrs, characteristic_id: characteristic_id}, info) do
+  #   Repo.transact_with(fn ->
+  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+  #          {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
+  #       characteristic_id = Pointers.follow!(characteristic_pointer)
+  #       attrs = Map.merge(attrs, %{is_public: true})
+  #       Characters.create_with_characteristic(user, characteristic_pointer, attrs)
+  #     end
+  #   end)
+  # end
 
   def create_character(%{character: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->

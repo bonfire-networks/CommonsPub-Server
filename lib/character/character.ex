@@ -17,10 +17,10 @@ defmodule Character do
   @type t :: %__MODULE__{}
 
   table_schema "mn_character" do
-    belongs_to(:characteristic, Pointer) # points to the Thing that this Character represents
     belongs_to(:actor, Actor) # points to the Actor who plays this Character in the fediverse
     belongs_to(:context, Pointer) # points to the parent Thing of this Character
-    field(:facet, :string) # friendly name for the type of thing this character represents, eg. Organisation, Location, Topic, Category...
+    # belongs_to(:characteristic, Pointer) # points to the Thing that this Character represents
+    field(:facet, :string) # friendly name for the type of thing this character represents, eg. Organisation, Location, Topic, Category, Circle, List...
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
@@ -44,12 +44,12 @@ defmodule Character do
     timestamps()
   end
 
-  @required ~w(name)a
-  @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
+  @required ~w(name facet)a
+  @cast @required ++ ~w(summary extra_info context_id actor_id icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
       %User{} = creator,
-      %{id: _} = characteristic,
+      # %{id: _} = characteristic,
       %Actor{} = actor,
       attrs
     ) do
@@ -58,7 +58,7 @@ defmodule Character do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    characteristic_id: characteristic.id,
+    # characteristic_id: characteristic.id,
     actor_id: actor.id,
     is_public: true
   )
@@ -67,7 +67,7 @@ defmodule Character do
 
   def create_changeset(
         %User{} = creator,
-        %{id: _} = characteristic,
+        # %{id: _} = characteristic,
         %Actor{} = actor,
         %{id: _} = context,
         attrs
@@ -77,7 +77,7 @@ defmodule Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      characteristic_id: characteristic.id,
+      # characteristic_id: characteristic.id,
       context_id: context.id,
       actor_id: actor.id,
       is_public: true

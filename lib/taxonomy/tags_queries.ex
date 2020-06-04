@@ -45,12 +45,16 @@ defmodule Taxonomy.Tags.Queries do
 
   ## by field values
 
-  def filter(q, {:id, id}) when is_binary(id) do
+  def filter(q, {:id, id}) when is_integer(id) do
     where q, [tag: f], f.id == ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
     where q, [tag: f], f.id in ^ids
+  end
+
+  def filter(q, {:label, label}) when is_binary(label) do
+    where q, [tag: f], f.label == ^label
   end
 
 

@@ -4,9 +4,10 @@ defmodule Taxonomy.Tags do
   alias MoodleNet.{Common, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
-  # alias MoodleNet.Users.User
+  alias MoodleNet.Users.User
   alias Taxonomy.Tag
   alias Taxonomy.Tags.Queries
+  alias Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
@@ -43,4 +44,60 @@ defmodule Taxonomy.Tags do
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
+  @doc "Takes a Tag and creates a Character based on it"
+  def characterise(%User{} = user, %Tag{} = tag) do
+    characterise(user, tag, %{}) 
+  end
+
+  @spec characterise(User.t(), Tag.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def characterise(%User{} = user, %Tag{} = tag, attrs) do
+
+    attrs = attrs 
+    |> maybe_put(:name, tag.label)
+    |> maybe_put(:summary, tag.description)
+    |> Map.put(:facet, "Category")
+    # |> maybe_put(:context, tag.parent_tag)
+
+    # IO.inspect(tag)
+    # IO.inspect(attrs)
+
+    Repo.transact_with(fn ->
+      with {:ok, character} <- Characters.create(user, attrs),
+           {:ok, return} <- characterise(user, tag, character, attrs) 
+            do
+              {:ok, return }
+      end
+    end)
+  end
+  
+  @doc "Takes a Tag and a Character and simply links them"
+  @spec characterise(User.t(), Tag.t(), Character.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def characterise(%User{} = user, %Tag{} = tag, %Character{} = character, attrs) do
+    Repo.transact_with(fn ->
+
+      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, character, attrs))
+            # :ok <- publish(tag, :updated) 
+            do
+              {:ok, %{ tag | character: character }}
+      end
+    end)
+  end
+  
+  # TODO: take the user who is performing the update
+  @spec update(User.t(), Tag.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Tag{} = tag, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, attrs)),
+           {:ok, character} <- Character.update(user, tag.character, attrs)
+            # :ok <- publish(tag, :updated) 
+            do
+              {:ok, %{ tag | character: character }}
+      end
+    end)
+  end
+
+  @ doc "conditionally update a map" #TODO move this common module
+  def maybe_put(map, _key, nil), do: map
+  def maybe_put(map, key, value), do: Map.put(map, key, value)
+  
 end

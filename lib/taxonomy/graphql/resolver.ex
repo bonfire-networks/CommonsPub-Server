@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Taxonomy.GraphQL.TagsResolver do
   @moduledoc "GraphQL tag and Country queries"
-  alias MoodleNet.{GraphQL}
+  alias MoodleNet.{GraphQL, Repo}
   alias MoodleNet.GraphQL.{
     CommonResolver,
     Flow,
@@ -30,6 +30,17 @@ defmodule Taxonomy.GraphQL.TagsResolver do
     )
   end
 
+  def tag(%{character_id: character}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_tag_by_character,
+        context: character,
+        info: info,
+      }
+    )
+  end
+
   def tags(page_opts, info) do
     ResolveRootPage.run(
       %ResolveRootPage{
@@ -48,6 +59,13 @@ defmodule Taxonomy.GraphQL.TagsResolver do
     Tags.one(
       # user: GraphQL.current_user(info),
       id: id,
+    )
+  end
+
+  def fetch_tag_by_character(info, character_id) do
+    Tags.one(
+      # user: GraphQL.current_user(info),
+      character_id: character_id
     )
   end
 
@@ -85,6 +103,16 @@ defmodule Taxonomy.GraphQL.TagsResolver do
       }
     )
   end
+
+  def characterise_tag(%{tag_id: id}, info) do
+    Repo.transact_with fn ->
+      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, tag} <- Tags.one(id: id) do
+        Tags.characterise(me, tag)  
+      end
+    end
+  end
+
 
   # def tag(%{tag_id: id}, info) do
   #   {:ok, Fake.tag()}

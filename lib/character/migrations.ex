@@ -66,6 +66,8 @@ defmodule Character.Migrations do
   def down do
 
       :ok = execute "drop view if exists mn_character_last_activity"
+      
+      MoodleNet.ReleaseTasks.remove_meta_table("mn_character")
 
       drop_if_exists index(:mn_character, :updated_at)
       drop_if_exists index(:mn_character, :actor_id)
@@ -73,8 +75,6 @@ defmodule Character.Migrations do
       drop_if_exists index(:mn_character, :community_id)
       drop_if_exists index(:mn_character, :primary_language_id)
       drop_if_exists table(:mn_character)
-
-      MoodleNet.ReleaseTasks.remove_meta_table("mn_character")
 
   end
 
