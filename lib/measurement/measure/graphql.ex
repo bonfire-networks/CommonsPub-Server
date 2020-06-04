@@ -3,6 +3,7 @@ defmodule Measurement.Measure.GraphQL do
   use Absinthe.Schema.Notation
 
   alias MoodleNet.{GraphQL, Repo}
+
   alias MoodleNet.GraphQL.{
     ResolveField,
     ResolveFields,
@@ -11,7 +12,7 @@ defmodule Measurement.Measure.GraphQL do
     ResolveRootPage,
     FetchPage,
     FetchPages,
-    FetchFields,
+    FetchFields
   }
 
   alias Measurement.Measure.Measures
@@ -20,37 +21,31 @@ defmodule Measurement.Measure.GraphQL do
   # resolvers
 
   def measure(%{id: id}, info) do
-    ResolveField.run(
-      %ResolveField{
-        module: __MODULE__,
-        fetcher: :fetch_measure,
-        context: id,
-        info: info
-      }
-    )
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_measure,
+      context: id,
+      info: info
+    })
   end
 
   def measures(page_opts, info) do
-    ResolveRootPage.run(
-      %ResolveRootPage{
-        module: __MODULE__,
-        fetcher: :fetch_measures,
-        page_opts: page_opts,
-        info: info,
-        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1],
-      }
-    )
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_measures,
+      page_opts: page_opts,
+      info: info,
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
   end
 
   def has_unit_edge(%{unit_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_has_unit_edge,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveFields.run(%ResolveFields{
+      module: __MODULE__,
+      fetcher: :fetch_has_unit_edge,
+      context: id,
+      info: info
+    })
   end
 
   # fetchers
@@ -59,52 +54,72 @@ defmodule Measurement.Measure.GraphQL do
     Measures.one([
       :default,
       user: GraphQL.current_user(info),
-      id: id,
+      id: id
     ])
   end
 
   def fetch_measures(page_opts, info) do
-    FetchPage.run(
-      %FetchPage{
-        queries: Measurement.Measure.Queries,
-        query: Measurement.Measure,
-        # cursor_fn: measures.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        data_filters: [:dafault],
-      }
-    )
+    FetchPage.run(%FetchPage{
+      queries: Measurement.Measure.Queries,
+      query: Measurement.Measure,
+      # cursor_fn: measures.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: GraphQL.current_user(info)],
+      data_filters: [:dafault]
+    })
   end
 
   def fetch_has_unit_edge(_, ids) do
-    FetchFields.run(
-      %FetchFields{
-        queries: Measurement.Unit.Queries,
-        query: Measurement.Unit,
-        group_fn: &(&1.id),
-        filters: [:deleted, :private, id: ids]
-      }
-    )
+    FetchFields.run(%FetchFields{
+      queries: Measurement.Unit.Queries,
+      query: Measurement.Unit,
+      group_fn: & &1.id,
+      filters: [:deleted, :private, id: ids]
+    })
   end
 
   # mutations
 
-  def create_measure(%{measure: attrs, has_unit: unit_id}, info) do
+  def create_measures(attrs, info, fields) do
     Repo.transact_with(fn ->
-      IO.inspect(unit_id)
+      attrs
+      |> Map.take(fields)
+      |> map_ok_error(&create_measure/2)
+    end)
+  end
+
+  # TODO: move to a generic module
+  @doc """
+  Iterate over a set of elements in a map calling `func`.
+
+  `func` is expected to return either one of `{:ok, val}` or `{:error, reason}`.
+  If `{:error, reason}` is returned, iteration halts.
+  """
+  @spec map_ok_error(items, func) :: {:ok, any} | {:error, term}
+        when items: [Map.t()],
+             func: (Map.t(), any -> {:ok, any} | {:error, term})
+  def map_ok_error(items, func) do
+    Enum.reduce_while(%{}, fn acc, {field_name, item} ->
+      case func.(acc, item) do
+        {:ok, val} ->
+          {:cont, Map.put(acc, field_name, val)}
+
+        {:error, reason} ->
+          {:halt, {:error, reason}}
+      end
+    end)
+    |> case do
+      {:error, _} = e -> e
+      val -> {:ok, Enum.into(val, %{})}
+    end
+  end
+
+  def create_measure(%{has_unit: unit_id} = attrs, info) do
+    Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- Units.one(user: user, id: unit_id),
            {:ok, measure} <- Measures.create(user, unit, attrs) do
         {:ok, %{measure: %{measure | unit: unit, creator: user}}}
-      end
-    end)
-  end
-
-  def create_measure(%{measure: attrs}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, measure} <- Measures.create(user, attrs) do
-        {:ok, %{measure: %{measure | creator: user}}}
       end
     end)
   end
@@ -122,7 +137,8 @@ defmodule Measurement.Measure.GraphQL do
             {:ok, m} = Measures.update(measure, changes)
             {:ok, %{measure: m}}
 
-          true -> GraphQL.not_permitted("update")
+          true ->
+            GraphQL.not_permitted("update")
         end
       end
     end)

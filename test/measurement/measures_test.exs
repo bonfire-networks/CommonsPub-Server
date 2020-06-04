@@ -21,7 +21,8 @@ defmodule Measurement.MeasuresTest do
   describe "one" do
     test "fetches an existing measure" do
       user = fake_user!()
-      measure = fake_measure!(user)
+      unit = fake_unit!(user)
+      measure = fake_measure!(user, unit)
 
       assert {:ok, fetched} = Measures.one(id: measure.id)
       assert_measure(measure, fetched)
@@ -33,13 +34,6 @@ defmodule Measurement.MeasuresTest do
   describe "create" do
     test "creates a new measure" do
       user = fake_user!()
-      assert {:ok, measure} = Measures.create(user, measure())
-      assert_measure(measure)
-    end
-
-    test "creates a new measure with a unit" do
-      # TODO
-      user = fake_user!()
       unit = fake_unit!(user)
       assert {:ok, measure} = Measures.create(user, unit, measure())
       assert_measure(measure)
@@ -47,14 +41,16 @@ defmodule Measurement.MeasuresTest do
 
     test "fails when missing attributes" do
       user = fake_user!()
-      assert {:error, %Ecto.Changeset{}} = Measures.create(user, %{})
+      unit = fake_unit!(user)
+      assert {:error, %Ecto.Changeset{}} = Measures.create(user, unit, %{})
     end
   end
 
   describe "update" do
     test "updates an existing measure with new content" do
       user = fake_user!()
-      measure = fake_measure!(user)
+      unit = fake_unit!(user)
+      measure = fake_measure!(user, unit)
 
       attrs = measure()
       assert {:ok, updated} = Measures.update(measure, attrs)
