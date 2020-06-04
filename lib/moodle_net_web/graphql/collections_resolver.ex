@@ -96,7 +96,7 @@ defmodule MoodleNetWeb.GraphQL.CollectionsResolver do
     )
   end
 
-  def resources_edge(%Collection{id: id}, %{}=page_opts, info) do
+  def resources_edge(%{id: id}, %{}=page_opts, info) do
     ResolvePages.run(
       %ResolvePages{
         module: __MODULE__,

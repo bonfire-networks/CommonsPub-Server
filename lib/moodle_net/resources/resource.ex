@@ -16,7 +16,8 @@ defmodule MoodleNet.Resources.Resource do
 
   table_schema "mn_resource" do
     belongs_to(:creator, User)
-    belongs_to(:collection, Collection)
+    belongs_to(:collection, Collection) # TODO: replace by context
+    belongs_to(:context, Pointer)
     belongs_to(:content, Content)
     belongs_to(:icon, Content)
     # belongs_to(:primary_language, Language, type: :binary)
