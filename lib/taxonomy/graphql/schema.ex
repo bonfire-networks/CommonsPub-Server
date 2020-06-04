@@ -49,6 +49,11 @@ defmodule Taxonomy.GraphQL.TagsSchema do
       resolve &TagsResolver.parent_tag/3
     end
 
+    @desc "List of child tag (in a tree-based taxonomy)"
+    field :tags, list_of(:tags_page) do
+      resolve &TagsResolver.tag_children/3
+    end
+
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
       resolve &Character.GraphQL.Resolver.character/3

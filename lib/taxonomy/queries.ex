@@ -7,7 +7,12 @@ defmodule Taxonomy.Tags.Queries do
   alias Taxonomy.Tag
 
   def query(Tag) do
-    from u in Tag, as: :tag
+    from t in Tag, as: :tag,
+      left_join: c in assoc(t, :character), as: :character
+  end
+
+  def query(:count) do
+    from c in Tag, as: :tag
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -57,5 +62,26 @@ defmodule Taxonomy.Tags.Queries do
     where q, [tag: f], f.label == ^label
   end
 
+  def filter(q, {:id, id}) when is_binary(id), do: where(q, [tag: c], c.id == ^id)
+  def filter(q, {:id, ids}) when is_list(ids), do: where(q, [tag: c], c.id in ^ids)
+
+  # get children in taxonomy
+  def filter(q, {:parent_tag, id}) when is_integer(id), do: where(q, [tag: t], t.parent_tag_id == ^id)
+  def filter(q, {:parent_tag, ids}) when is_list(ids), do: where(q, [tag: t], t.parent_tag_id in ^ids)
+
+  # get children with character
+  def filter(q, {:context, id}) when is_binary(id), do: where(q, [tag: t, character: c], c.context_id == ^id)
+  def filter(q, {:context, ids}) when is_list(ids), do: where(q, [tag: t, character: c], c.context_id in ^ids)
+
+  # join with character
+  def filter(q, :default) do
+    filter q, [preload: :character]
+  end
+
+  def filter(q, {:preload, :character}) do
+    preload q, [character: c], character: c
+  end
+
+  def filter(q, {:user, user}), do: q
 
 end

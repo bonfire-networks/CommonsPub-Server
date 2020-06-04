@@ -104,6 +104,63 @@ defmodule Taxonomy.GraphQL.TagsResolver do
     )
   end
 
+  @doc "List all child tags"
+  def tag_children(%{id: id}, %{}=page_opts, info) do
+    # IO.inspect(info)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_tags_children,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_tags_children(page_opts, info, id) do
+    user = GraphQL.current_user(info)
+    FetchPage.run(
+      %FetchPage{
+        queries: Tags.Queries,
+        query: Tag,
+        # cursor_fn: Tags.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [parent_tag: id, user: user],
+        # data_filters: [:default, page: [desc: [id: page_opts]]],
+      }
+    )
+  end  
+
+  @doc "List child tags that already have a character"
+  def character_tags_edge(%{id: id}, %{}=page_opts, info) do
+    # IO.inspect(info)
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_character_tags_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_character_tags_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    FetchPage.run(
+      %FetchPage{
+        queries: Tags.Queries,
+        query: Tag,
+        # cursor_fn: Tags.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [context: ids, user: user],
+        # data_filters: [:default, page: [desc: [id: page_opts]]],
+      }
+    )
+  end
+
+
   def characterise_tag(%{tag_id: id}, info) do
     Repo.transact_with fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),

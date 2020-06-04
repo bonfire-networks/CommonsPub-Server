@@ -44,7 +44,7 @@ defmodule Taxonomy.Tags do
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  @doc "Takes a Tag and creates a Character based on it"
+  @doc "Takes an existing Tag and creates a Character based on it"
   def characterise(%User{} = user, %Tag{} = tag) do
     characterise(user, tag, %{}) 
   end
@@ -70,11 +70,10 @@ defmodule Taxonomy.Tags do
     end)
   end
   
-  @doc "Takes a Tag and a Character and simply links them"
+  @doc "Takes an existing Tag and an existing Character and links them"
   @spec characterise(User.t(), Tag.t(), Character.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
   def characterise(%User{} = user, %Tag{} = tag, %Character{} = character, attrs) do
     Repo.transact_with(fn ->
-
       with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, character, attrs))
             # :ok <- publish(tag, :updated) 
             do
