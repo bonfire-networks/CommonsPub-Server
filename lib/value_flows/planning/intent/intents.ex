@@ -70,11 +70,10 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-
+  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %Community{} = community, measures, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, community, attrs),
+      with {:ok, item} <- insert_intent(creator, community, measures, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
            :ok <- index(item),
@@ -85,16 +84,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    IO.inspect(attrs)
-
+  # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, measures, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, attrs),
+      with {:ok, item} <- insert_intent(creator, measures, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- index(item), 
+           :ok <- index(item),
            :ok <- publish(creator, item, activity, :created)
           do
             {:ok, item}
@@ -102,13 +98,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  defp insert_unit(creator, attrs) do
-    cs = ValueFlows.Planning.Intent.create_changeset(creator, attrs)
+  defp insert_intent(creator, measures, attrs) do
+    cs = Intent.create_changeset(creator, attrs)
+    |> Intent.change_measures(measures)
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
-  defp insert_unit(creator, community, attrs) do
-    cs = ValueFlows.Planning.Intent.create_changeset(creator, community, attrs)
+  defp insert_intent(creator, community, measures, attrs) do
+    cs = Intent.create_changeset(creator, community, attrs)
+    |> Intent.change_measures(measures)
+
     with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
   end
 
@@ -118,7 +117,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
       Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(intent.id, creator.id)
+      ap_publish("create", intent.id, creator.id)
     end
   end
   defp publish(creator, community, intent, activity, :created) do
@@ -127,32 +126,32 @@ defmodule ValueFlows.Planning.Intent.Intents do
       Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(intent.id, creator.id)
+      ap_publish("create", intent.id, creator.id)
     end
   end
   defp publish(intent, :updated) do
-    ap_publish(intent.id, intent.creator_id) # TODO: wrong if edited by admin
+    ap_publish("update", intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
   defp publish(intent, :deleted) do
-    ap_publish(intent.id, intent.creator_id) # TODO: wrong if edited by admin
+    ap_publish("delete", intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(context_id, user_id) do #FIXME
-    MoodleNet.FeedPublisher.publish(%{
+  defp ap_publish(verb, context_id, user_id) do #FIXME
+    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id,
     })
+    :ok
   end
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Intent{}, attrs :: map) :: {:ok, ValueFlows.Planning.Intent.t()} | {:error, Changeset.t()}
+  @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def update(%Intent{} = intent, attrs) do
     Repo.transact_with(fn ->
       intent = Repo.preload(intent, :community)
-      IO.inspect(intent)
 
-      with {:ok, intent} <- Repo.update(ValueFlows.Planning.Intent.update_changeset(intent, attrs)) do
+      with {:ok, intent} <- Repo.update(Intent.update_changeset(intent, attrs)) do
           #  :ok <- publish(intent, :updated) do
           #   IO.inspect("intent")
           #   IO.inspect(intent)

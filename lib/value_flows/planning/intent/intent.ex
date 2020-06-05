@@ -33,9 +33,9 @@ defmodule ValueFlows.Planning.Intent do
     belongs_to(:provider, Pointer) # TODO - use pointer like context?
     belongs_to(:receiver, Pointer)
 
-    has_one(:available_quantity, Measure)
-    has_one(:resource_quantity, Measure)
-    has_one(:effort_quantity, Measure)
+    belongs_to(:available_quantity, Measure)
+    belongs_to(:resource_quantity, Measure)
+    belongs_to(:effort_quantity, Measure)
 
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
@@ -73,15 +73,14 @@ defmodule ValueFlows.Planning.Intent do
 
     timestamps()
   end
-  
-  
+
+
   @required ~w(name is_public)a
   @cast @required ++ ~w(note is_disabled)a
 
   def create_changeset(
         %User{} = creator,
         %Community{} = community,
-        # %Actor{} = actor,
         attrs
       ) do
     %Intent{}
@@ -98,8 +97,6 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
       %User{} = creator,
-      # %Community{} = community,
-      # %Actor{} = actor,
       attrs
     ) do
     %Intent{}
@@ -118,6 +115,14 @@ defmodule ValueFlows.Planning.Intent do
     intent
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
+  end
+
+  def change_measures(changeset, measures) when is_map(measures) do
+    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
+      field_name_id = String.to_existing_atom("#{field_name}_id")
+
+      Changeset.change(c, %{field_name_id => measure.id})
+    end)
   end
 
   defp common_changeset(changeset) do

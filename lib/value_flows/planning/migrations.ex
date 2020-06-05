@@ -20,9 +20,9 @@ defmodule ValueFlows.Planning.Migrations do
       add :provider_id, references("mn_pointer", on_delete: :nilify_all)
       add :receiver_id, references("mn_pointer", on_delete: :nilify_all)
   
-      add :available_quantity, references("measurement_measure", on_delete: :nilify_all)
-      add :resource_quantity, references("measurement_measure", on_delete: :nilify_all)
-      add :effort_quantity, references("measurement_measure", on_delete: :nilify_all)
+      add :available_quantity_id, references("measurement_measure", on_delete: :nilify_all)
+      add :resource_quantity_id, references("measurement_measure", on_delete: :nilify_all)
+      add :effort_quantity_id, references("measurement_measure", on_delete: :nilify_all)
 
       add :resource_classified_as, {:array, :string} # array of URI
       

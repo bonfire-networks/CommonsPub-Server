@@ -209,6 +209,11 @@ defmodule Measurement.Test.Faking do
   end
 
   def fake_measure!(user, unit, overrides \\ %{}) do
+    measures = %{
+      resource_quantity: fake_measure!(user, unit),
+      effort_quantity: fake_measure!(user, unit),
+      available_quantity: fake_measure!(user, unit),
+    }
     {:ok, measure} = Measures.create(user, unit, measure(overrides))
     measure
   end

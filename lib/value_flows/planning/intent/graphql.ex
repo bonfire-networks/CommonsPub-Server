@@ -112,22 +112,26 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   ## finally the mutations...
 
+  @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
+
   def create_intent(%{intent: attrs, in_scope_of_community_id: id}, info) do 
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info) do
+           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info),
+           {:ok, measures} <- Measure.GraphQL.create_measures(attrs, info, @measure_fields) do
         attrs = Map.merge(attrs, %{is_public: true, provider_id: attrs.provider})
-        Intents.create(user, community, attrs)
+        Intents.create(user, community, measures, attrs)
       end
     end)
   end
 
   def create_intent(%{intent: attrs}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, measures} <- Measure.GraphQL.create_measures(attrs, info, @measure_fields) do
         attrs = Map.merge(attrs, %{is_public: true, provider_id: attrs.provider})
-        Intents.create(user, attrs)
+        Intents.create(user, measures, attrs)
       end
     end)
   end
