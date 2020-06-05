@@ -87,20 +87,15 @@ defmodule ValueFlows.Planning.Intent.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
-  def filter(q, {:user, %User{id: id}}) do
-    q
-    |> join_to([:community, follow: id, community_follow: id])
-    |> where([community: c, community_follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> where([intent: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
-    |> filter(~w(disabled)a)
-    |> Communities.Queries.filter(~w(deleted disabled)a)
+  def filter(q, {:user, nil}) do
+    filter(q, ~w(disabled private)a)
   end
 
-  def filter(q, {:user, nil}) do
+  def filter(q, {:user, %User{id: id}}) do
     q
-    |> join_to(:community)
-    |> filter(~w(disabled private)a)
-    |> Communities.Queries.filter(~w(deleted disabled private)a)
+    |> join_to([follow: id])
+    |> where([intent: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
+    |> filter(~w(disabled)a)
   end
 
   ## by status

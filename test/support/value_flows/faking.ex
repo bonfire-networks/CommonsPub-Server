@@ -65,6 +65,6 @@ defmodule ValueFlows.Test.Faking do
   def assert_intents_eq(%Intent{}=intent, %{}=intent2) do
     assert_maps_eq intent, intent2, :assert_intent,
       [:name, :note, :finished, :has_beginning, :has_end,
-       :has_point_in_time, :due, :resource_classified_as]
+       :has_point_in_time, :due]
   end
 end
