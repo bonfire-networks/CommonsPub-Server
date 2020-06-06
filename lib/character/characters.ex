@@ -193,24 +193,33 @@ defmodule Character.Characters do
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context, characteristic: characteristic }}
   # end
 
-  @doc "Takes something (using a Pointer as context) and creates a Character based on it"
+  @doc "Takes a Pointer to something and creates a Character based on it"
   def characterise(%User{} = user, %Pointer{} = pointer) do
     thing = Pointers.follow!(pointer)
+    characterise(user, thing)
+  end
+
+  @doc "Takes anything and creates a Character based on it"
+  def characterise(%User{} = user, %{} = thing) do
     # IO.inspect(thing)
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
 
     attrs = characterisation_default(thing_name, thing)
+    # IO.inspect(attrs)
 
-    if(Kernel.function_exported?(thing_context_module, :characterisation, 1)) do
-      attrs = apply(thing_context_module, :characterisation, [attrs])
-    end
+    char_attrs = if(Kernel.function_exported?(thing_context_module, :characterisation, 1)) do
+                    IO.inspect(function_exists_in: thing_context_module)
+                    apply(thing_context_module, :characterisation, [attrs])
+                  else
+                    attrs
+                  end
 
-    IO.inspect(attrs)
+    IO.inspect(char_attrs)
     # characterise(user, pointer, %{}) 
 
     Repo.transact_with(fn ->
-      with {:ok, character} <- create(user, attrs),
+      with {:ok, character} <- create(user, char_attrs),
             # :ok <- {:ok, IO.inspect(character)}, # wtf, without this line character is not set in the next one
            {:ok, thing} <- character_link(thing, character, thing_context_module)
             do
@@ -224,8 +233,8 @@ defmodule Character.Characters do
   def characterisation_default(thing_name, thing) do
     thing 
     |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last) # use Thing name as Character facet/trope
-    |> Map.delete(:id) # avoid reusing IDs
     |> Map.put(:characteristic, thing) # include the linked thing
+    |> Map.delete(:id) # avoid reusing IDs
     |> Map.from_struct |> Map.delete(:__meta__) # convert to map
   end 
 

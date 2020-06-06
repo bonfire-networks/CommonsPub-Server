@@ -74,8 +74,6 @@ defmodule Organisation.Migrations do
       MoodleNet.ReleaseTasks.remove_meta_table("mn_organisation")
       MoodleNet.ReleaseTasks.remove_meta_table("organisation") # oops
 
-      MoodleNet.ReleaseTasks.remove_meta_table("organisation")
-
   end
 
 end

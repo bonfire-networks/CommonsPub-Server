@@ -237,6 +237,7 @@ defmodule MoodleNet.ReleaseTasks do
       Repo.delete_all(from(x in MoodleNet.Meta.Pointer, where: x.table_id == ^tt.id))
     {_rows_deleted, _} =
       Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
+
   end
 
   @deleted_user %{ id: Users.deleted_user_id(),

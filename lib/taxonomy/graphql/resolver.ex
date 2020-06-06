@@ -165,7 +165,7 @@ defmodule Taxonomy.GraphQL.TagsResolver do
     Repo.transact_with fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, tag} <- Tags.one(id: id) do
-        Tags.characterise(me, tag)  
+        Tags.tag_characterise(me, tag)  
       end
     end
   end

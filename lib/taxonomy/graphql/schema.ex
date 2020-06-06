@@ -17,10 +17,10 @@ defmodule Taxonomy.GraphQL.TagsSchema do
       resolve &TagsResolver.tags/2
     end
 
-    @desc "Get a tag by ID or label"
+    @desc "Get a tag by ID "
     field :tag, :tag do
       arg :tag_id, :integer
-      arg :character_id, :string
+      arg :pointer_id, :string
       # arg :find, :tag_find
       resolve &TagsResolver.tag/2
     end
@@ -30,7 +30,7 @@ defmodule Taxonomy.GraphQL.TagsSchema do
   object :taxonomy_mutations do
 
     @desc "Create a Character to represents this tag in feeds and federation"
-    field :characterise_tag, :tag do
+    field :characterise_tag, :character_tropes do
       arg :tag_id, :integer
       resolve &TagsResolver.characterise_tag/2
     end

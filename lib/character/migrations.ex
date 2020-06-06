@@ -10,7 +10,7 @@ defmodule Character.Migrations do
 
     # a character is a group actor that is home to resources
     create_if_not_exists table(:mn_character) do
-      add :characteristic_id, references("mn_pointer", on_delete: :nilify_all) # points to the Thing that this Character represents
+      add :characteristic_id, :uuid # points to the Thing that this Character represents
       add :actor_id, references("mn_actor", on_delete: :delete_all) # points to the Actor who plays this Character in the fediverse
       add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
       add :facet, :string

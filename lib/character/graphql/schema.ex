@@ -317,7 +317,7 @@ defmodule Character.GraphQL.Schema do
 
 
   union :character_tropes do
-    description "Any kind of character"
+    description "Any kind of character" 
     types [:collection, :community, :organisation, :resource, :thread, :comment, :spatial_thing, :tag, :character]
     resolve_type fn
       %Collection{}, _ -> :collection

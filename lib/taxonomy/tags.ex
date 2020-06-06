@@ -45,39 +45,37 @@ defmodule Taxonomy.Tags do
   end
 
   @doc "Takes an existing Tag and creates a Character based on it"
-  def characterise(%User{} = user, %Tag{} = tag) do
-    characterise(user, tag, %{}) 
-  end
-
-  @spec characterise(User.t(), Tag.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
-  def characterise(%User{} = user, %Tag{} = tag, attrs) do
-
-    attrs = attrs 
-    |> maybe_put(:name, tag.label)
-    |> maybe_put(:summary, tag.description)
-    |> Map.put(:facet, "Category")
-    # |> maybe_put(:context, tag.parent_tag)
-
-    # IO.inspect(tag)
-    # IO.inspect(attrs)
+  def tag_characterise(%User{} = user, %Tag{} = tag) do
 
     Repo.transact_with(fn ->
-      with {:ok, character} <- Characters.create(user, attrs),
-           {:ok, return} <- characterise(user, tag, character, attrs) 
+      with {:ok, tag} <- pointerise(tag),
+           {:ok, return} <- Character.Characters.characterise(user, tag) 
             do
               {:ok, return }
       end
     end)
   end
+
+  def characterisation(attrs) do
+
+    IO.inspect(attrs.label)
+    attrs 
+    |> Map.put(:name, attrs.label)
+    |> Map.put(:summary, attrs.description)
+    # |> maybe_put(:context, tag.parent_tag)
+
+  end
   
-  @doc "Takes an existing Tag and an existing Character and links them"
-  @spec characterise(User.t(), Tag.t(), Character.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
-  def characterise(%User{} = user, %Tag{} = tag, %Character{} = character, attrs) do
+  @doc "Takes an existing Tag and adds a Pointer ID"
+  def pointerise(%Tag{} = tag) do
+
+    pointer_id = Ecto.ULID.generate()
+
     Repo.transact_with(fn ->
-      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, character, attrs))
-            # :ok <- publish(tag, :updated) 
+
+      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, %{ pointer_id: pointer_id}))
             do
-              {:ok, %{ tag | character: character }}
+              {:ok, tag }
       end
     end)
   end
