@@ -20,8 +20,8 @@ defmodule Taxonomy.Tag do
     field(:description, :string)
     # field(:parent_tag_id, :integer)
     belongs_to(:parent_tag, Tag, type: :id)
-    field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
-    # belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
+    # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
+    belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     has_one(:character, Character, references: :pointer_id, foreign_key: :characteristic_id)
   end
 

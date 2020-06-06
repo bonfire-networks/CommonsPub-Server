@@ -28,7 +28,9 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def fetch_context_edge(_, ids) do
     {:ok, ptrs} = Pointers.many(id: ids)
     IO.inspect(ptrs)
-    Fields.new(Pointers.follow!(ptrs), &Map.get(&1,:id))
+    ptsd = Pointers.follow!(ptrs)
+    IO.inspect(ptsd)
+    Fields.new(ptsd, &Map.get(&1,:id))
   end
 
   # defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)

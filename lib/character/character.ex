@@ -20,8 +20,9 @@ defmodule Character do
     belongs_to(:actor, Actor) # references the Actor who plays this Character in the fediverse
     belongs_to(:context, Pointer) # points to the parent Thing of this Character
 
-    field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
-    field(:characteristic, :any, virtual: true) 
+    # field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
+    # field(:characteristic, :any, virtual: true) 
+    belongs_to(:characteristic, Pointer) 
 
     field(:facet, :string) # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Geolocation, etc
 
@@ -62,7 +63,7 @@ defmodule Character do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    characteristic_id: attrs.characteristic.pointer_id || attrs.characteristic.id,
+    characteristic_id: Map.get(attrs.characteristic, "pointer_id", Map.get(attrs.characteristic, "id", nil)),
     actor_id: actor.id,
     is_public: true
   )
@@ -81,7 +82,7 @@ defmodule Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      characteristic_id: attrs.characteristic.pointer_id || attrs.characteristic.id,
+      characteristic_id: Map.get(attrs.characteristic, "pointer_id", Map.get(attrs.characteristic, "id", nil)),
       context_id: context.id,
       actor_id: actor.id,
       is_public: true
@@ -100,4 +101,6 @@ defmodule Character do
     |> change_public()
     |> change_disabled()
   end
+
+
 end
