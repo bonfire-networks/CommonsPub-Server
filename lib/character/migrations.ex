@@ -20,6 +20,7 @@ defmodule Character.Migrations do
       add :summary, :text
       add :extra_info, :map
       add :icon_id, references(:mn_content)
+      add :image_id, references(:mn_content)
       # add :primary_language_id, references("languages", on_delete: :nilify_all)
       add :creator_id, references("mn_user", on_delete: :nilify_all)
       add :published_at, :timestamptz

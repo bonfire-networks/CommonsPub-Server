@@ -184,6 +184,15 @@ defmodule Character.GraphQL.Resolver do
     end)
   end
 
+  def characterise(%{context_id: id}, info) do
+    Repo.transact_with fn ->
+      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, pointer} <- Pointers.one(id: id) do
+              Characters.characterise(me, pointer) 
+      end
+    end
+  end
+
   def update_character(%{character: changes, character_id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),

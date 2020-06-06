@@ -83,4 +83,14 @@ defmodule Organisation do
     |> change_public()
     |> change_disabled()
   end
+
+
+  ### behaviour callbacks
+
+  def context_module, do: Organisation.Organisations
+
+  def queries_module, do: Organisation.Queries
+
+  def follow_filters, do: [:default]
+
 end

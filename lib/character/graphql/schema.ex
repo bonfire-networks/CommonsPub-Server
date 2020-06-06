@@ -22,7 +22,10 @@ defmodule Character.GraphQL.Schema do
 
   alias MoodleNet.{
     Communities.Community,
-    Collections.Collection
+    Collections.Collection,
+    Resources.Resource,
+    Threads.Thread,
+    Threads.Comment
   }
 
   alias Character.GraphQL.Resolver
@@ -60,6 +63,12 @@ defmodule Character.GraphQL.Schema do
       arg :character_id, non_null(:string)
       arg :character, non_null(:character_update_input)
       resolve &Character.GraphQL.Resolver.update_character/2
+    end
+
+    @desc "Create a Character to represent something in feeds and federation"
+    field :characterise, :character_tropes do
+      arg :context_id, non_null(:string)
+      resolve &Character.GraphQL.Resolver.characterise/2
     end
 
   end
@@ -100,9 +109,14 @@ defmodule Character.GraphQL.Schema do
     @desc "Possibly biographical information"
     field :summary, :string
 
-    @desc "An avatar url"
+    @desc "An avatar or icon url"
     field :icon, :content do
       resolve &UploadResolver.icon_content_edge/3
+    end
+
+    @desc "A background image url"
+    field :image, :content do
+      resolve &UploadResolver.image_content_edge/3
     end
 
     @desc "A JSON document containing more info beyond the default fields"
@@ -163,7 +177,7 @@ defmodule Character.GraphQL.Schema do
     end
 
     @desc "The parent of the character"
-    field :context, :community do
+    field :context, :character_tropes do
       resolve &CommonResolver.context_edge/3
     end
 
@@ -299,24 +313,29 @@ defmodule Character.GraphQL.Schema do
     # field :primary_language_id, :string
   end
 
-  union :characteristic do
-    description "The Thing that this character represents"
-    types [:collection, :community, :organisation, :character]
-    resolve_type fn
-      %Collection{}, _ -> :collection
-      %Community{},  _ -> :community
-      %Organisation{},       _ -> :organisation
-      %Character{},   _ -> :character
-    end
-  end
+  # union :characteristic do
+  #   description "The Thing that this character represents"
+  #   types [:collection, :community, :organisation, :character]
+  #   resolve_type fn
+  #     %Collection{}, _ -> :collection
+  #     %Community{},  _ -> :community
+  #     %Organisation{},       _ -> :organisation
+  #     %Character{},   _ -> :character
+  #   end
+  # end
 
-  union :character_context do
+  union :character_tropes do
     description "The parent of this character"
-    types [:collection, :community, :organisation, :character]
+    types [:collection, :community, :organisation, :resource, :thread, :comment, :spatial_thing, :tag, :character]
     resolve_type fn
       %Collection{}, _ -> :collection
       %Community{},  _ -> :community
       %Organisation{},       _ -> :organisation
+      %Resource{},   _ -> :resource
+      %Thread{},   _ -> :thread
+      %Comment{},   _ -> :comment
+      %Geolocation{},   _ -> :spatial_thing
+      %Taxonomy.Tag{},   _ -> :tag
       %Character{},   _ -> :character
     end
   end

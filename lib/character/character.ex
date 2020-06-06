@@ -31,6 +31,7 @@ defmodule Character do
     field(:extra_info, :map)
 
     belongs_to(:icon, Content)
+    belongs_to(:image, Content)
     # belongs_to(:primary_language, Language)
 
     belongs_to(:creator, User)

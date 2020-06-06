@@ -10,6 +10,8 @@ defmodule Character.Characters do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
+  alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Meta.Pointers
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -72,7 +74,8 @@ defmodule Character.Characters do
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
     attrs = Actors.prepare_username(attrs)
-    attrs = Map.put(attrs, :alternative_username, attrs[:preferred_username]<>"-"<>attrs.facet)
+    # IO.inspect(attrs)
+    attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
 
     # IO.inspect(attrs)
 
@@ -84,8 +87,9 @@ defmodule Character.Characters do
            {:ok, activity} <- Activities.create(creator, character, act_attrs),
            :ok <- publish(creator, character, activity, :created),
            :ok <- index(character), # add to search index
-           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
-        {:ok, character}
+           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) 
+        do
+          {:ok, character}
       end
     end)
   end
@@ -115,13 +119,14 @@ defmodule Character.Characters do
     Repo.transact_with(fn ->
 
       attrs = Actors.prepare_username(attrs)
+      attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
 
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, character_attrs} <- create_boxes(actor, attrs),
            {:ok, character} <- insert_character_with_context(creator, context, actor, character_attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, character, act_attrs),
-           :ok <- publish(creator, context, character, activity, :created),
+           :ok <- publish(creator, context, character, activity, :created), # FIXME
            :ok <- index(character), # add to search index
            {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
         {:ok, character}
@@ -167,6 +172,7 @@ defmodule Character.Characters do
 
   defp insert_character(creator, actor, attrs) do
     cs = Character.create_changeset(creator, actor, attrs)
+    IO.inspect(cs)
     with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor }}
   end
 
@@ -184,6 +190,49 @@ defmodule Character.Characters do
   #   cs = Character.create_changeset(creator, characteristic, actor, context, attrs)
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context, characteristic: characteristic }}
   # end
+
+  @doc "Takes something (using a Pointer as context) and creates a Character based on it"
+  def characterise(%User{} = user, %Pointer{} = pointer) do
+    thing = Pointers.follow!(pointer)
+    # IO.inspect(thing)
+    thing_name = thing.__struct__
+    thing_context_module = apply(thing_name, :context_module, [])
+
+    attrs = characterisation_default(thing_name, thing)
+
+    if(Kernel.function_exported?(thing_context_module, :characterisation, 1)) do
+      attrs = apply(thing_context_module, :characterisation, [attrs])
+    end
+
+    IO.inspect(attrs)
+    # characterise(user, pointer, %{}) 
+
+    Repo.transact_with(fn ->
+      with {:ok, character} <- create(user, attrs),
+           {:ok, thing} <- character_link(thing, character, thing_context_module)
+            do
+              {:ok, %{ thing | character: character }}
+      end
+    end)
+
+  end
+
+  @doc "Transform the fields of any Thing into those of a character. It is recommended to define a `charactersation/1` function in your Thing's context module which will be used instead if present."
+  def characterisation_default(thing_name, thing) do
+    thing 
+    |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last) # use Thing name as Character facet/trope
+    |> Map.delete(:id) # avoid reusing IDs
+    |> Map.put(:characteristic, thing) # include the linked thing
+    |> Map.from_struct |> Map.delete(:__meta__) # convert to map
+  end 
+
+  def character_link(thing, character, thing_context_module) do
+    if(Kernel.function_exported?(thing_context_module, :character_link, 1)) do
+      apply(thing_context_module, :character_link, [thing, character])
+    else
+      thing
+    end
+  end
 
   defp publish(creator, character, activity, :created) do
     feeds = [
@@ -260,6 +309,7 @@ defmodule Character.Characters do
 
     object = %{
       "index_type" => "Character",
+      "facet" => character.facet,
       "id" => character.id,
       "canonicalUrl" => canonical_url,
       "followers" => %{
@@ -279,5 +329,13 @@ defmodule Character.Characters do
     :ok
 
   end
+
+  #TODO move these to a common module
+
+  @doc "conditionally update a map" 
+  def maybe_put(map, _key, nil), do: map
+  def maybe_put(map, key, value), do: Map.put(map, key, value)
+
+
 
 end
