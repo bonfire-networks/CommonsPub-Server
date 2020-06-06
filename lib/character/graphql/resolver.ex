@@ -9,7 +9,6 @@ defmodule Character.GraphQL.Resolver do
     Resources,
   }
   alias MoodleNet.GraphQL.{
-    CommonResolver,
     Flow,
     FetchFields,
     FetchPage,
@@ -81,6 +80,11 @@ defmodule Character.GraphQL.Resolver do
         data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
+  end
+
+  def characteristic_edge(%Character{characteristic_id: id}, _, info) do
+    IO.inspect(id)
+    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
   end
 
   def resource_count_edge(%Character{id: id}, _, info) do

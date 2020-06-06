@@ -29,6 +29,7 @@ defmodule Character.GraphQL.Schema do
   }
 
   alias Character.GraphQL.Resolver
+  alias Taxonomy.Tag
 
   object :character_queries do
 
@@ -66,7 +67,7 @@ defmodule Character.GraphQL.Schema do
     end
 
     @desc "Create a Character to represent something in feeds and federation"
-    field :characterise, :character_tropes do
+    field :characterise, :character do
       arg :context_id, non_null(:string)
       resolve &Character.GraphQL.Resolver.characterise/2
     end
@@ -80,10 +81,10 @@ defmodule Character.GraphQL.Schema do
     @desc "An instance-local UUID identifying the user"
     field :id, non_null(:string)
 
-    # @desc "The Thing that this Character represents"
-    # field :characteristic, :characteristic do
-    #   resolve &CommonResolver.characteristic_edge/3
-    # end
+    @desc "The Thing that this Character represents"
+    field :characteristic, :character_tropes do
+      resolve &Character.GraphQL.Resolver.characteristic_edge/3
+    end
 
     @desc "A friendly name for the type of thing this character represents, eg. Organisation, Location, Topic, Category..."
     field :facet, non_null(:string)
@@ -313,19 +314,10 @@ defmodule Character.GraphQL.Schema do
     # field :primary_language_id, :string
   end
 
-  # union :characteristic do
-  #   description "The Thing that this character represents"
-  #   types [:collection, :community, :organisation, :character]
-  #   resolve_type fn
-  #     %Collection{}, _ -> :collection
-  #     %Community{},  _ -> :community
-  #     %Organisation{},       _ -> :organisation
-  #     %Character{},   _ -> :character
-  #   end
-  # end
+
 
   union :character_tropes do
-    description "The parent of this character"
+    description "Any kind of character"
     types [:collection, :community, :organisation, :resource, :thread, :comment, :spatial_thing, :tag, :character]
     resolve_type fn
       %Collection{}, _ -> :collection
@@ -335,8 +327,9 @@ defmodule Character.GraphQL.Schema do
       %Thread{},   _ -> :thread
       %Comment{},   _ -> :comment
       %Geolocation{},   _ -> :spatial_thing
-      %Taxonomy.Tag{},   _ -> :tag
+      %Tag{},   _ -> :tag
       %Character{},   _ -> :character
+      # %{},   _ -> :unexpected_character_trope
     end
   end
 

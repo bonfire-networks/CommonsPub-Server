@@ -73,13 +73,14 @@ defmodule Character.Characters do
   @spec create(User.t(), attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
 
-    attrs = Actors.prepare_username(attrs)
-    # IO.inspect(attrs)
-    attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
-
-    # IO.inspect(attrs)
-
     Repo.transact_with(fn ->
+
+      attrs = Actors.prepare_username(attrs)
+      # IO.inspect(attrs)
+      attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
+  
+      # IO.inspect(attrs)
+  
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, character_attrs} <- create_boxes(actor, attrs),
            {:ok, character} <- insert_character(creator, actor, character_attrs),
@@ -116,6 +117,7 @@ defmodule Character.Characters do
 
   @spec create_with_context(User.t(), context :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
   def create_with_context(%User{} = creator, context, attrs) when is_map(attrs) do
+
     Repo.transact_with(fn ->
 
       attrs = Actors.prepare_username(attrs)
@@ -209,9 +211,10 @@ defmodule Character.Characters do
 
     Repo.transact_with(fn ->
       with {:ok, character} <- create(user, attrs),
+            # :ok <- {:ok, IO.inspect(character)}, # wtf, without this line character is not set in the next one
            {:ok, thing} <- character_link(thing, character, thing_context_module)
             do
-              {:ok, %{ thing | character: character }}
+              {:ok, %{ character | characteristic: thing }}
       end
     end)
 
@@ -228,10 +231,10 @@ defmodule Character.Characters do
 
   def character_link(thing, character, thing_context_module) do
     if(Kernel.function_exported?(thing_context_module, :character_link, 1)) do
-      apply(thing_context_module, :character_link, [thing, character])
-    else
-      thing
+      thing = apply(thing_context_module, :character_link, [thing, character])
     end
+
+    {:ok, thing}
   end
 
   defp publish(creator, character, activity, :created) do
@@ -319,7 +322,7 @@ defmodule Character.Characters do
       # "image" => image,
       "name" => character.name,
       "preferredUsername" => character.actor.preferred_username,
-      "summary" => Map.get(character, :summary),
+      "summary" => character.summary,
       "createdAt" => character.published_at,
       "index_instance" => URI.parse(canonical_url).host, # home instance of object
     }

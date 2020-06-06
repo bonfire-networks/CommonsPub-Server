@@ -17,10 +17,10 @@ defmodule Character do
   @type t :: %__MODULE__{}
 
   table_schema "mn_character" do
-    belongs_to(:actor, Actor) # points to the Actor who plays this Character in the fediverse
+    belongs_to(:actor, Actor) # references the Actor who plays this Character in the fediverse
     belongs_to(:context, Pointer) # points to the parent Thing of this Character
-    # belongs_to(:characteristic, Pointer) # points to the Thing that this Character represents
-    field(:facet, :string) # friendly name for the type of thing this character represents, eg. Organisation, Location, Topic, Category, Circle, List...
+    belongs_to(:characteristic, Pointer) # points to the Thing that this Character represents
+    field(:facet, :string) # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Geolocation, etc
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
@@ -46,7 +46,7 @@ defmodule Character do
   end
 
   @required ~w(name facet)a
-  @cast @required ++ ~w(summary extra_info context_id actor_id icon_id is_disabled inbox_id outbox_id)a
+  @cast @required ++ ~w(summary extra_info characteristic_id context_id actor_id icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
       %User{} = creator,
@@ -59,7 +59,7 @@ defmodule Character do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    # characteristic_id: characteristic.id,
+    characteristic_id: attrs.characteristic.id,
     actor_id: actor.id,
     is_public: true
   )
@@ -78,7 +78,7 @@ defmodule Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      # characteristic_id: characteristic.id,
+      characteristic_id: attrs.characteristic.id,
       context_id: context.id,
       actor_id: actor.id,
       is_public: true
