@@ -31,6 +31,19 @@ defmodule Organisation.Migrations do
     create_if_not_exists index(:mn_organisation, :context_id)
     create_if_not_exists index(:mn_organisation, :primary_language_id)
 
+    :ok = execute """
+    create view mn_organisation_last_activity as
+    select mn_organisation.id as organisation_id, max(mn_feed_activity.id) as activity_id
+    from mn_organisation left join mn_feed_activity
+    on mn_organisation.outbox_id = mn_feed_activity.feed_id
+    group by mn_organisation.id
+    """
+
+    up_pointer()
+
+  end
+
+  def up_pointer do
 
     tables = Enum.map(@meta_tables, fn name ->
         %{"id" => ULID.bingenerate(), "table" => name}
@@ -49,15 +62,6 @@ defmodule Organisation.Migrations do
         """
     end
 
-
-    :ok = execute """
-    create view mn_organisation_last_activity as
-    select mn_organisation.id as organisation_id, max(mn_feed_activity.id) as activity_id
-    from mn_organisation left join mn_feed_activity
-    on mn_organisation.outbox_id = mn_feed_activity.feed_id
-    group by mn_organisation.id
-    """
-
   end
 
   def down do
@@ -72,7 +76,16 @@ defmodule Organisation.Migrations do
       drop_if_exists table(:mn_organisation)
 
       MoodleNet.ReleaseTasks.remove_meta_table("mn_organisation")
-      MoodleNet.ReleaseTasks.remove_meta_table("organisation") # oops
+
+  end
+
+  def change_simpler do
+
+    # a organisation is a group actor that is home to resources
+    create_if_not_exists table(:mn_organisation) do
+      add :character_id, references("mn_character", on_delete: :delete_all)
+      add :extra_info, :map
+    end
 
   end
 

@@ -11,12 +11,18 @@ defmodule Organisation.Queries do
   import Ecto.Query
 
   def query(Organisation) do
-    from c in Organisation, as: :organisation,
-      join: a in assoc(c, :actor), as: :actor
+    from o in Organisation, as: :organisation,
+      join: c in assoc(o, :character), as: :character,
+      join: a in assoc(c, :actor), as: :actor,
+      select_merge: %{name: c.name},
+      select_merge: %{summary: c.summary},
+      select_merge: %{updated_at: c.updated_at},
+      select_merge: %{preferred_username: a.preferred_username},
+      select_merge: %{canonical_url: a.canonical_url}
   end
 
   def query(:count) do
-    from c in Organisation, as: :organisation
+    from o in Organisation, as: :organisation
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -90,15 +96,15 @@ defmodule Organisation.Queries do
   ## by status
   
   def filter(q, :deleted) do
-    where q, [organisation: o], is_nil(o.deleted_at)
+    where q, [character: c, organisation: o], is_nil(c.deleted_at)
   end
 
   def filter(q, :disabled) do
-    where q, [organisation: o], is_nil(o.disabled_at)
+    where q, [character: c, organisation: o], is_nil(c.disabled_at)
   end
 
   def filter(q, :private) do
-    where q, [organisation: o], not is_nil(o.published_at) 
+    where q, [character: c, organisation: o], not is_nil(c.published_at) 
   end
 
   ## by field values
@@ -132,11 +138,11 @@ defmodule Organisation.Queries do
   end
 
   def filter(q, {:username, username}) when is_binary(username) do
-    where q, [actor: a], a.preferred_username == ^username
+    where q, [character: c, actor: a], a.preferred_username == ^username
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where q, [actor: a], a.preferred_username in ^usernames
+    where q, [character: c, actor: a], a.preferred_username in ^usernames
   end
 
   ## by ordering
@@ -166,12 +172,20 @@ defmodule Organisation.Queries do
     select(q, [organisation: c], {field(c, ^key), count(c.id)})
   end
 
+  def filter(q, {:preload, :character}) do
+    preload q, [character: c], character: c
+  end
+
   def filter(q, {:preload, :actor}) do
     preload q, [actor: a], actor: a
   end
 
-  def filter(q, {:preload, :context}) do
-    preload q, [context: c], context: c
+  # def filter(q, {:preload, :context}) do
+  #   preload q, [character: c, context: cx], c.context: cx
+  # end
+
+  def filter(q, {:preload, :default}) do
+    preload q, [character: c, actor: a], character: c, actor: a
   end
 
   # pagination
@@ -197,14 +211,19 @@ defmodule Organisation.Queries do
     filter(q, limit: limit + 1)
   end
 
-  def filter(q, {:page, [desc: [followers: page_opts]]}) do
+  # def filter(q, {:page, [desc: [followers: page_opts]]}) do
+  #   q
+  #   |> filter(join: :follower_count, order: [desc: :followers])
+  #   |> page(page_opts, [desc: :followers])
+  #   |> select(
+  #     [organisation: c, actor: a, follower_count: fc],
+  #     %{c | follower_count: coalesce(fc.count, 0), actor: a}
+  #   )
+  # end
+
+  def filter(q, {:page, page_opts}) do
     q
-    |> filter(join: :follower_count, order: [desc: :followers])
-    |> page(page_opts, [desc: :followers])
-    |> select(
-      [organisation: c, actor: a, follower_count: fc],
-      %{c | follower_count: coalesce(fc.count, 0), actor: a}
-    )
+    |> page(page_opts, nil)
   end
 
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [organisation: c], c.id == ^id)

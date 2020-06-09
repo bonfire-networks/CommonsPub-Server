@@ -94,7 +94,8 @@ config :moodle_net, Organisation,
   valid_contexts: [Organisation, Community, Collection]
 
 config :moodle_net, Character,
-  valid_contexts: [Character, Organisation, Community, Collection]
+  valid_contexts: [Character, Organisation, Community, Collection],
+  default_outbox_query_contexts: [Collection, Character, Community, Comment, Community, Resource, Like]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 

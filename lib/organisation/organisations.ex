@@ -10,9 +10,12 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
+  alias Character.{Characters}
 
-  def cursor(:followers), do: &[&1.follower_count, &1.id]
-  def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
+  @facet_name "Organisation"
+
+  def cursor(), do: &[&1.id]
+  def test_cursor(), do: &[&1["id"]]
 
   @doc """
   Retrieves a single organisation by arbitrary filters.
@@ -65,166 +68,49 @@ defmodule Organisation.Organisations do
   end
 
 
-
   ## mutations
-  @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    attrs = Actors.prepare_username(attrs)
-
-    Repo.transact_with(fn ->
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, org_attrs} <- create_boxes(actor, attrs),
-           {:ok, org} <- insert_organisation(creator, actor, org_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, org, act_attrs),
-           :ok <- publish(creator, org, activity, :created),
-           :ok <- index(org), # add to search index
-           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
-        {:ok, org}
-      end
-    end)
-  end
 
   @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
 
-      attrs = Actors.prepare_username(attrs)
-
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, org_attrs} <- create_boxes(actor, attrs),
-           {:ok, org} <- insert_organisation(creator, context, actor, org_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, org, act_attrs),
-           :ok <- publish(creator, context, org, activity, :created),
-           :ok <- index(org), # add to search index
-           {:ok, _follow} <- Follows.create(creator, org, %{is_local: true}) do
+      with {:ok, character} <- Characters.create(creator, attrs, context),
+           {:ok, org} <- insert_organisation(character, attrs) do
         {:ok, org}
       end
     end)
   end
 
-  defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
-  defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
+  @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs) when is_map(attrs) do
+    Repo.transact_with(fn ->
 
-  defp create_local_boxes(attrs) do
-    with {:ok, inbox} <- Feeds.create(),
-         {:ok, outbox} <- Feeds.create() do
-      extra = %{inbox_id: inbox.id, outbox_id: outbox.id}
-      {:ok, Map.merge(attrs, extra)}
-    end
-  end
+      attrs = Map.put(attrs, :facet, @facet_name)
 
-  defp create_remote_boxes(attrs) do
-    with {:ok, outbox} <- Feeds.create() do
-      {:ok, Map.put(attrs, :outbox_id, outbox.id)}
-    end
+      with {:ok, character} <- Characters.create(creator, attrs),
+           {:ok, org} <- insert_organisation(character, attrs) do
+        {:ok, org}
+      end
+    end)
   end
 
-  defp insert_organisation(creator, actor, attrs) do
-    cs = Organisation.create_changeset(creator, actor, attrs)
-    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor }}
+
+  defp insert_organisation(character, attrs) do
+    cs = Organisation.create_changeset(character, attrs)
+    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | character: character }}
   end
 
-  defp insert_organisation(creator, context, actor, attrs) do
-    cs = Organisation.create_changeset(creator, actor, context, attrs)
-    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | actor: actor, context: context }}
-  end
-
-  defp publish(creator, organisation, activity, :created) do
-    feeds = [
-      creator.outbox_id,
-      organisation.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", organisation.id, creator.id, organisation.actor.peer_id),
-      do: :ok
-  end
-
-  defp publish(creator, org, organisation, activity, :created) do
-    feeds = [
-      org.outbox_id, creator.outbox_id,
-      organisation.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", organisation.id, creator.id, organisation.actor.peer_id),
-      do: :ok
-  end
-
-  defp publish(organisation, :updated) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("update", organisation.id, organisation.creator_id, organisation.actor.peer_id),
-      do: :ok
-  end
-  defp publish(organisation, :deleted) do
-    # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("delete", organisation.id, organisation.creator_id, organisation.actor.peer_id),
-      do: :ok
-  end
-
-  defp ap_publish(verb, context_id, user_id, nil) do
-    APPublishWorker.enqueue(verb, %{
-      "context_id" => context_id,
-      "user_id" => user_id,
-    })
-  end
-  defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
   @spec update(User.t(), Organisation.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Organisation{} = organisation, attrs) do
     Repo.transact_with(fn ->
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
-           {:ok, actor} <- Actors.update(user, organisation.actor, attrs),
-           :ok <- publish(organisation, :updated) do
-        {:ok, %{ organisation | actor: actor }}
+           {:ok, character} <- Characters.update(user, attrs) do
+        {:ok, %{ organisation | character: character }}
       end
     end)
   end
 
-  def soft_delete(%Organisation{} = organisation) do
-    Repo.transact_with(fn ->
-      with {:ok, organisation} <- Common.soft_delete(organisation),
-           :ok <- publish(organisation, :deleted) do
-        {:ok, organisation}
-      end
-    end)
-  end
-
-  defp index(org) do
-
-    follower_count =
-      case MoodleNet.Follows.FollowerCounts.one(context: org.id) do
-        {:ok, struct} -> struct.count
-        {:error, _} -> nil
-      end
-
-    icon = MoodleNet.Uploads.remote_url_from_id(org.icon_id)
-    # image = MoodleNet.Uploads.remote_url_from_id(org.image_id)
-
-    canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(org)
-
-    object = %{
-      "index_type" => "Organisation",
-      "id" => org.id,
-      "canonicalUrl" => canonical_url,
-      "followers" => %{
-        "totalCount" => follower_count
-      },
-      "icon" => icon,
-      # "image" => image,
-      "name" => org.name,
-      "preferredUsername" => org.actor.preferred_username,
-      "summary" => Map.get(org, :summary),
-      "createdAt" => org.published_at,
-      "index_instance" => URI.parse(canonical_url).host, # home instance of object
-    }
-
-    Search.Indexing.maybe_index_object(object)
-
-    :ok
-
-  end
 
 end

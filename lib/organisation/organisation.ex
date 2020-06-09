@@ -8,68 +8,42 @@ defmodule Organisation do
 
   alias Ecto.Changeset
   alias Organisation
-  alias MoodleNet.Actors.Actor
+  alias Character
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
   alias MoodleNet.Meta.Pointer
+  alias MoodleNet.Actors.Actor
 
   @type t :: %__MODULE__{}
 
   table_schema "mn_organisation" do
-    belongs_to(:actor, Actor)
-    belongs_to(:creator, User)
-    belongs_to(:context, Pointer)
-    belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
-    belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
-    # belongs_to(:primary_language, Language)
-    field(:follower_count, :any, virtual: true) # because it's keyed by pointer
-    field(:name, :string)
-    field(:summary, :string)
-    belongs_to(:icon, Content)
-    field(:is_public, :boolean, virtual: true)
-    field(:published_at, :utc_datetime_usec)
-    field(:is_disabled, :boolean, virtual: true, default: false)
-    field(:disabled_at, :utc_datetime_usec)
-    field(:deleted_at, :utc_datetime_usec)
-    timestamps()
+    
+    belongs_to(:character, Character)
+
+    # joined fields from Character
+    field(:name, :string, virtual: true) 
+    field(:summary, :string, virtual: true) 
+    field(:updated_at, :utc_datetime_usec, virtual: true)
+    
+    many_to_many(:actor, Actor, join_through: "mn_character") # via Character
+    
+    # joined fields from Actor:
+    field(:preferred_username, :string, virtual: true) 
+    field(:canonical_url, :string, virtual: true) 
+    
+    field(:extra_info, :map)
   end
 
-  @required ~w(name)a
-  @cast @required ++ ~w(summary icon_id is_disabled inbox_id outbox_id)a
-
   def create_changeset(
-      %User{} = creator,
-      %Actor{} = actor,
+      %Character{} = character,
       attrs
     ) do
   %Organisation{}
-  |> Changeset.cast(attrs, @cast)
-  |> Changeset.validate_required(@required)
   |> Changeset.change(
-    creator_id: creator.id,
-    actor_id: actor.id,
-    is_public: true
-  )
-  |> common_changeset()
-  end
-
-  def create_changeset(
-        %User{} = creator,
-        %Actor{} = actor,
-        %{id: _} = context,
-        attrs
-      ) do
-    %Organisation{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      context_id: context.id,
-      actor_id: actor.id,
-      is_public: true
+    character_id: character.id
     )
-    |> common_changeset()
+  |> common_changeset()
   end
 
   def update_changeset(%Organisation{} = organisation, attrs) do
@@ -80,8 +54,6 @@ defmodule Organisation do
 
   defp common_changeset(changeset) do
     changeset
-    |> change_public()
-    |> change_disabled()
   end
 
 

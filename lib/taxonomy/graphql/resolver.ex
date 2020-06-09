@@ -6,7 +6,6 @@ defmodule Taxonomy.GraphQL.TagsResolver do
   alias MoodleNet.{GraphQL, Repo}
   alias MoodleNet.GraphQL.{
     CommonResolver,
-    Flow,
     FetchFields,
     FetchPage,
     FetchPages,

@@ -329,7 +329,7 @@ defmodule Character.GraphQL.Schema do
       %Geolocation{},   _ -> :spatial_thing
       %Tag{},   _ -> :tag
       %Character{},   _ -> :character
-      # %{},   _ -> :unexpected_character_trope
+      # %{},   _ -> :unexpected_character_trope 
     end
   end
 

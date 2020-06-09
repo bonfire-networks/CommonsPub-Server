@@ -82,10 +82,7 @@ defmodule Character.GraphQL.Resolver do
     )
   end
 
-  def characteristic_edge(%Character{characteristic_id: id}, _, info) do
-    IO.inspect(id)
-    MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
-  end
+  def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   def resource_count_edge(%Character{id: id}, _, info) do
     Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0
@@ -107,35 +104,35 @@ defmodule Character.GraphQL.Resolver do
     {:ok, DateTime.utc_now()}
   end
 
-  def outbox_edge(%Character{outbox_id: id}, page_opts, info) do
-    opts = %{default_limit: 10}
-    Flow.pages(__MODULE__, :fetch_outbox_edge, page_opts, info, id, info, opts)
+  def outbox_edge(%{outbox_id: id}, page_opts, info) do
+    with :ok <- GraphQL.not_in_list_or_empty_page(info) do
+      ResolvePage.run(
+        %ResolvePage{
+          module: __MODULE__,
+          fetcher: :fetch_outbox_edge,
+          context: id,
+          page_opts: page_opts,
+          info: info,
+        }
+      )
+    end
   end
 
-  def fetch_outbox_edge({page_opts, info}, id) do
-    user = info.context.current_user
-    {:ok, box} = Activities.page(
-      &(&1.id),
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
-    )
-    box
-  end
-
-  def fetch_outbox_edge(page_opts, info, id) do
-    user = info.context.current_user
-    Activities.page(
-      &(&1.id),
-      page_opts,
-      feed: id,
-      table: default_outbox_query_contexts()
+  def fetch_outbox_edge(page_opts, _info, id) do
+    tables = default_outbox_query_contexts()
+    FetchPage.run(
+      %FetchPage{
+        queries: Activities.Queries,
+        query: Activities.Activity,
+        page_opts: page_opts,
+        base_filters: [deleted: false, feed_timeline: id, table: tables],
+        data_filters: [page: [desc: [created: page_opts]], preload: :context],
+      }          
     )
   end
 
   defp default_outbox_query_contexts() do
-    Application.fetch_env!(:moodle_net, Characters)
+    Application.fetch_env!(:moodle_net, Character)
     |> Keyword.fetch!(:default_outbox_query_contexts)
   end
 
@@ -246,5 +243,10 @@ defmodule Character.GraphQL.Resolver do
 
   defp valid_contexts do
     Keyword.fetch!(Application.get_env(:moodle_net, Characters), :valid_contexts)
+  end
+
+
+  def creator_edge(%{character: %{creator_id: id}}, _, info) do
+    ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
   end
 end

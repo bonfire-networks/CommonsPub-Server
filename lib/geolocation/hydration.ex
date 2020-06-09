@@ -22,7 +22,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &CommonResolver.context_edge/3
         ],
       },
-      geolocation_query: %{
+      geolocation_query: %{ 
         spatial_thing: [
           resolve: &Geolocation.GraphQL.geolocation/2
         ],
