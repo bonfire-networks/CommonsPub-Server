@@ -10,7 +10,7 @@
 #
 ##
 
-union AccountingScope = Organisation | Community | Collection
+union UnitContext = Organisation | Community | Collection
 
 """
 Defines the unit of time measured in a temporal `Duration`.
@@ -56,7 +56,7 @@ type Unit {
   "A standard display symbol for a unit of measure."
   symbol: String!
 
-  inScopeOf: AccountingScope
+  inScopeOf: UnitContext
 }
 
 
@@ -72,7 +72,7 @@ type Measure {
   hasNumericalValue: Float!
 
   "A unit of measure."
-  hasUnit: Unit
+  hasUnit: Unit!
 }
 
 """
@@ -83,7 +83,7 @@ input IMeasure {
   hasNumericalValue: Float!
 
   "(`Unit`) A unit of measure."
-  hasUnit: ID
+  hasUnit: ID!
 }
 
 # CommonsPub specifics
@@ -117,23 +117,6 @@ type UnitsPage{
   totalCount: Int
 }
 
-input MeasureCreateParams {
-  "A number representing the quantity, will be paired with a unit."
-  hasNumericalValue: Float!
-}
-
-input MeasureUpdateParams {
-  "A number representing the quantity, will be paired with a unit."
-  hasNumericalValue: Float!
-
-  "The primary key of the measure to update."
-  id: ID!
-}
-
-type MeasureResponse {
-  measure: Measure
-}
-
 type MeasuresPage {
   page_info: PageInfo
   edges: [Measure!]
@@ -154,8 +137,4 @@ type MeasurementMutation {
   createUnit(unit: UnitCreateParams!, inScopeOf: ID): UnitResponse
   updateUnit(unit: UnitUpdateParams!): UnitResponse
   deleteUnit(id: ID!): Boolean
-
-  createMeasure(measure: MeasureCreateParams!, hasUnit: ID): MeasureResponse
-  updateMeasure(measure: MeasureUpdateParams!): MeasureResponse
-  deleteMeasure(id: ID!): Boolean
 }

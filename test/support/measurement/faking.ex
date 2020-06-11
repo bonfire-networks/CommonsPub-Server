@@ -41,15 +41,15 @@ defmodule Measurement.Test.Faking do
     |> Map.put_new_lazy("symbol", &unit_symbol/0)
   end
 
-  def fake_unit!(user, community \\ nil, overrides \\ %{})
+  def fake_unit!(user, context \\ nil, overrides \\ %{})
 
-  def fake_unit!(user, community, overrides) when is_nil(community) do
+  def fake_unit!(user, context, overrides) when is_nil(context) do
     {:ok, unit} = Units.create(user, unit(overrides))
     unit
   end
 
-  def fake_unit!(user, community, overrides) do
-    {:ok, unit} = Units.create(user, community, unit(overrides))
+  def fake_unit!(user, context, overrides) do
+    {:ok, unit} = Units.create(user, context, unit(overrides))
     unit
   end
 
@@ -208,17 +208,10 @@ defmodule Measurement.Test.Faking do
     |> gen_submutation(:update_measure, &measure_response_fields/1, options)
   end
 
-  def fake_measure!(user, unit \\ nil, overrides \\ %{})
-  def fake_measure!(user, unit, overrides) when is_nil(unit) do
-    {:ok, measure} = Measures.create(user, measure(overrides))
-    measure
-  end
-
-  def fake_measure!(user, unit, overrides) do
+  def fake_measure!(user, unit, overrides \\ %{}) do
     {:ok, measure} = Measures.create(user, unit, measure(overrides))
     measure
   end
-
 
   def assert_measure(%Measure{} = measure) do
     assert_measure(Map.from_struct(measure))

@@ -32,28 +32,19 @@ defmodule Measurement.Measure do
   @cast @required ++ ~w()a
 
   def create_changeset(
-        %User{} = creator,
-        attrs
-      ) do
+    %User{} = creator,
+    %Unit{} = unit,
+    attrs
+  ) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
+      unit_id: unit.id,
       is_public: true
     )
     |> common_changeset()
-  end
-
-  def create_changeset(
-    %User{} = creator,
-    %Unit{} = unit,
-    attrs
-  ) do
-    create_changeset(creator, attrs)
-    |> Changeset.change(
-      unit_id: unit.id
-    )
   end
 
   def update_changeset(%__MODULE__{} = measure, attrs) do
@@ -67,5 +58,4 @@ defmodule Measurement.Measure do
     |> change_public()
     |> change_disabled()
   end
-
 end
