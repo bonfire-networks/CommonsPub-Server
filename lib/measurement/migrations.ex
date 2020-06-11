@@ -26,7 +26,7 @@ defmodule Measurement.Migrations do
 
       add :has_numerical_value, :float
 
-      add :unit_id, references("measurement_unit", on_delete: :delete_all)
+      add :unit_id, references("measurement_unit", on_delete: :delete_all), null: false
       add :creator_id, references("mn_user", on_delete: :nilify_all)
 
       add :published_at, :timestamptz

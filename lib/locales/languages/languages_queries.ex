@@ -1,13 +1,13 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.Queries do
+defmodule Locales.Languages.Queries do
   import Ecto.Query
 
-  alias Locales.Locale
+  alias Locales.Language
 
-  def query(Locale) do
-    from u in Locale, as: :locale
+  def query(Language) do
+    from u in Language, as: :language
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -46,15 +46,15 @@ defmodule Locales.Queries do
   ## by field values
 
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [locale: f], f.id == ^id
+    where q, [language: f], f.id == ^id
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [locale: f], f.id in ^ids
+    where q, [language: f], f.id in ^ids
   end
 
   ## by ordering
 
-  def filter(q, {:order, :speakers}), do: order_by(q, [locale: f], [desc: f.speakers_native_total, desc: f.speakers_native])
+  def filter(q, {:order, :speakers}), do: order_by(q, [language: f], [desc: f.speakers_native_total])
 
 end

@@ -21,7 +21,8 @@ defmodule MoodleNet.Collections.Collection do
   table_schema "mn_collection" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
-    belongs_to(:community, Community)
+    belongs_to(:community, Community) # TODO: replace by context
+    belongs_to(:context, Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     # belongs_to(:primary_language, Language)

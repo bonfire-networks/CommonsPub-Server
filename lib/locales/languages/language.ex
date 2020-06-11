@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Locales.Locale do
+defmodule Locales.Language do
   use Ecto.Schema
 
   alias Ecto.Changeset
@@ -18,8 +18,8 @@ defmodule Locales.Locale do
     field(:parent_language_id, :string)
     field(:main_country_id, :string)
     field(:speakers_mil, :float)
-    field(:speakers_native, :float)
-    field(:speakers_native_total, :float)
+    field(:speakers_native, :integer)
+    field(:speakers_native_total, :integer)
     field(:rtl, :boolean)
   end
 
