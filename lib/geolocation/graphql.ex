@@ -72,7 +72,7 @@ defmodule Geolocation.GraphQL do
         page_opts: page_opts,
         base_filters: [user: GraphQL.current_user(info)],
         data_filters: [page: [desc: [followers: page_opts]]]
-      })Category
+      })
 
     with {:ok, %{edges: edges} = page} <- page_result do
       edges = Enum.map(edges, &Geolocations.populate_coordinates/1)
