@@ -108,7 +108,7 @@ defmodule MoodleNet.Actors do
   end
 
   def prepare_username(attrs) do # if no username set, autocreate from name
-    Map.put(attrs, :preferred_username, atomise_username(attrs.name))
+    Map.put(attrs, :preferred_username, atomise_username(Map.get(attrs, :name)))
   end
 
 end

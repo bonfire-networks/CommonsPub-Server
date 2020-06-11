@@ -27,9 +27,9 @@ defmodule Organisation.Test.Faking do
   def assert_organisation(org) do
     assert_object org, :assert_organisation,
       [id: &assert_ulid/1,
-       summary: &assert_binary/1,
-       published_at: assert_optional(&assert_datetime/1),
-       disabled_at: assert_optional(&assert_datetime/1),
+      #  character.name: &assert_binary/1,
+      #  character.updated_at: assert_optional(&assert_datetime/1),
+      #  disabled_at: assert_optional(&assert_datetime/1),
       ]
   end
 

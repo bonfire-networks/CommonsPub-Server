@@ -10,7 +10,7 @@ defmodule Organisation.Organisations do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
-  alias Character.{Characters}
+  alias Character.Characters
 
   @facet_name "Organisation"
 
@@ -74,9 +74,13 @@ defmodule Organisation.Organisations do
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
 
-      with {:ok, character} <- Characters.create(creator, attrs, context),
-           {:ok, org} <- insert_organisation(character, attrs) do
-        {:ok, org}
+      attrs = Map.put(attrs, :facet, @facet_name)
+
+      with {:ok, character} <- Characters.create(creator, context, attrs),
+           {:ok, org} <- insert_organisation(character, attrs),
+           {:ok, character} <- Characters.thing_link(org, character)
+            do
+        {:ok, %{ org | character: character }}
       end
     end)
   end
@@ -107,7 +111,8 @@ defmodule Organisation.Organisations do
   def update(%User{} = user, %Organisation{} = organisation, attrs) do
     Repo.transact_with(fn ->
       with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
-           {:ok, character} <- Characters.update(user, attrs) do
+           {:ok, character} <- Characters.update(user, organisation.character, attrs) # update linked character too
+      do
         {:ok, %{ organisation | character: character }}
       end
     end)

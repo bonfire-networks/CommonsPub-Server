@@ -44,18 +44,18 @@ defmodule Organisation.Queries do
     join q, jq, [organisation: c], c2 in assoc(c, :context), as: :context
   end
 
-  def join_to(q, {:context_follow, follower_id}, jq) do
-    join q, jq, [context: c], f in Follow, as: :context_follow,
-      on: c.id == f.context_id and f.creator_id == ^follower_id
-  end
+  # def join_to(q, {:context_follow, follower_id}, jq) do
+  #   join q, jq, [context: c], f in Follow, as: :context_follow,
+  #     on: c.id == f.context_id and f.creator_id == ^follower_id
+  # end
 
   def join_to(q, {:follow, follower_id}, jq) do
-    join q, jq, [organisation: c], f in Follow, as: :follow,
+    join q, jq, [organisation: o, character: c], f in Follow, as: :follow,
       on: c.id == f.context_id and f.creator_id == ^follower_id
   end
 
   def join_to(q, :follower_count, jq) do
-    join q, jq, [organisation: c],
+    join q, jq, [organisation: o, character: c],
       f in FollowerCount, on: c.id == f.context_id,
       as: :follower_count
   end
@@ -86,7 +86,7 @@ defmodule Organisation.Queries do
   def filter(q, {:user, %User{id: id} = user}) do
     q
     |> join_to(follow: id)
-    |> where([organisation: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
+    |> where([organisation: o, character: c, follow: f], not is_nil(c.published_at) or not is_nil(f.id))
   end
 
   def filter(q, {:user, nil}) do

@@ -138,32 +138,6 @@ defmodule Character.GraphQL.Resolver do
 
   ## finally the mutations...
 
-  # def create_character(%{character: attrs, characteristic_id: characteristic_id, context_id: context_id}, info) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-  #          {:ok, pointer} <- Pointers.one(id: context_id),
-  #          :ok <- validate_character_context(pointer),
-  #          {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
-  #       characteristic_id = Pointers.follow!(characteristic_pointer)
-  #       context = Pointers.follow!(pointer)
-  #       attrs = Map.merge(attrs, %{is_public: true})
-  #       Characters.create(user, characteristic_pointer, context, attrs)
-  #     end
-  #   end)
-  # end
-
-
-  # def create_character(%{character: attrs, characteristic_id: characteristic_id}, info) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-  #          {:ok, characteristic_pointer} <- Pointers.one(id: characteristic_id) do
-  #       characteristic_id = Pointers.follow!(characteristic_pointer)
-  #       attrs = Map.merge(attrs, %{is_public: true})
-  #       Characters.create_with_characteristic(user, characteristic_pointer, attrs)
-  #     end
-  #   end)
-  # end
-
   def create_character(%{character: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
@@ -171,7 +145,7 @@ defmodule Character.GraphQL.Resolver do
            :ok <- validate_character_context(pointer) do
         context = Pointers.follow!(pointer)
         attrs = Map.merge(attrs, %{is_public: true})
-        Characters.create_with_context(user, context, attrs)
+        Characters.create(user, context, attrs)
       end
     end)
   end
@@ -200,10 +174,10 @@ defmodule Character.GraphQL.Resolver do
            {:ok, character} <- character(%{character_id: id}, info) do
         cond do
           user.local_user.is_instance_admin ->
-	    Characters.update(character, changes)
+	    Characters.update(user, character, changes)
 
           character.creator_id == user.id ->
-	    Characters.update(character, changes)
+	    Characters.update(user, character, changes)
 
           true -> GraphQL.not_permitted("update")
         end

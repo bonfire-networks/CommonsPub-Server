@@ -35,6 +35,8 @@ defmodule Organisation do
     field(:extra_info, :map)
   end
 
+  @cast ~w(extra_info)a
+
   def create_changeset(
       %Character{} = character,
       attrs

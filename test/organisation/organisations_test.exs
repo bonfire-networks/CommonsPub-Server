@@ -23,7 +23,7 @@ defmodule Organisation.OrganisationsTest do
       user = fake_user!()
       assert {:ok, org} = Organisations.create(user, organisation())
       assert_organisation(org)
-      assert org.creator_id == user.id
+      assert org.character.creator_id == user.id
     end
 
     test "a user can create an org for a context" do
@@ -31,7 +31,7 @@ defmodule Organisation.OrganisationsTest do
       comm = fake_community!(user)
       assert {:ok, org} = Organisations.create(user, comm, organisation())
       assert_organisation(org)
-      assert org.context_id == comm.id
+      assert org.character.context_id == comm.id
     end
 
     test "fails with invalid parameters" do
@@ -50,12 +50,12 @@ defmodule Organisation.OrganisationsTest do
     end
   end
 
-  describe "soft_delete" do
-    test "marks an exisitng org as deleted" do
-      org = fake_user!() |> fake_organisation!()
-      assert {:ok, org} = Organisations.soft_delete(org)
-      assert_organisation(org)
-      assert org.deleted_at
-    end
-  end
+  # describe "soft_delete" do
+  #   test "marks an exisitng org as deleted" do
+  #     org = fake_user!() |> fake_organisation!()
+  #     assert {:ok, org} = Organisations.soft_delete(org)
+  #     assert_organisation(org)
+  #     assert org.deleted_at
+  #   end
+  # end
 end

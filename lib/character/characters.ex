@@ -77,8 +77,7 @@ defmodule Character.Characters do
 
       attrs = Actors.prepare_username(attrs)
       # IO.inspect(attrs)
-      attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
-  
+      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
       # IO.inspect(attrs)
   
       with {:ok, actor} <- Actors.create(attrs),
@@ -95,33 +94,13 @@ defmodule Character.Characters do
     end)
   end
 
-
-  # @spec create_with_characteristic(User.t(), characteristic :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
-  # def create_with_characteristic(%User{} = creator, characteristic, attrs) when is_map(attrs) do
-
-  #   attrs = Actors.prepare_username(attrs)
-
-  #   Repo.transact_with(fn ->
-  #     with {:ok, actor} <- Actors.create(attrs),
-  #          {:ok, character_attrs} <- create_boxes(actor, attrs),
-  #          {:ok, character} <- insert_character_with_characteristic(creator, characteristic, actor, character_attrs),
-  #          act_attrs = %{verb: "created", is_local: true},
-  #          {:ok, activity} <- Activities.create(creator, character, act_attrs),
-  #          :ok <- publish(creator, character, activity, :created),
-  #          :ok <- index(character), # add to search index
-  #          {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
-  #       {:ok, character}
-  #     end
-  #   end)
-  # end
-
-  @spec create_with_context(User.t(), context :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
-  def create_with_context(%User{} = creator, context, attrs) when is_map(attrs) do
+  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, context, attrs) when is_map(attrs) do
 
     Repo.transact_with(fn ->
 
       attrs = Actors.prepare_username(attrs)
-      attrs = Map.put(attrs, :alternative_username, attrs.preferred_username<>"-"<>attrs.facet)
+      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
 
       with {:ok, actor} <- Actors.create(attrs),
            {:ok, character_attrs} <- create_boxes(actor, attrs),
@@ -135,25 +114,6 @@ defmodule Character.Characters do
       end
     end)
   end
-
-  # @spec create(User.t(), characteristic :: any, context :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
-  # def create(%User{} = creator, characteristic, context, attrs) when is_map(attrs) do
-  #   Repo.transact_with(fn ->
-
-  #     attrs = Actors.prepare_username(attrs)
-
-  #     with {:ok, actor} <- Actors.create(attrs),
-  #          {:ok, character_attrs} <- create_boxes(actor, attrs),
-  #          {:ok, character} <- insert_character(creator, characteristic, context, actor, character_attrs),
-  #          act_attrs = %{verb: "created", is_local: true},
-  #          {:ok, activity} <- Activities.create(creator, character, act_attrs),
-  #          :ok <- publish(creator, context, character, activity, :created),
-  #          :ok <- index(character), # add to search index
-  #          {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
-  #       {:ok, character}
-  #     end
-  #   end)
-  # end
 
   defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
   defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
@@ -279,9 +239,9 @@ defmodule Character.Characters do
       do: :ok
   end
 
-  defp publish(creator, character, character, activity, :created) do
+  defp publish(creator, character, context, activity, :created) do
     feeds = [
-      character.outbox_id, creator.outbox_id,
+      context.outbox_id, creator.outbox_id,
       character.outbox_id, Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds),
