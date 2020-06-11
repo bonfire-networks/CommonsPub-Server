@@ -30,7 +30,7 @@ defmodule Taxonomy.GraphQL.TagsSchema do
   object :taxonomy_mutations do
 
     @desc "Create a Character to represents this tag in feeds and federation"
-    field :characterise_tag, :character_tropes do
+    field :characterise_tag, :character do
       arg :tag_id, :integer
       resolve &TagsResolver.characterise_tag/2
     end
@@ -38,10 +38,16 @@ defmodule Taxonomy.GraphQL.TagsSchema do
   end
 
   object :tag do
+
+    @doc "The numeric primary key of the tag"
     field(:id, :integer)
-    # field(:actor, :string)
+
+    @doc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
+    field(:pointer_id, :string)
+
     field(:label, :string)
     field(:description, :string)
+
     # field(:parent_tag_id, :integer)
 
     @desc "The parent tag (in a tree-based taxonomy)"
@@ -53,6 +59,8 @@ defmodule Taxonomy.GraphQL.TagsSchema do
     field :tags, list_of(:tags_page) do
       resolve &TagsResolver.tag_children/3
     end
+
+    # field(:actor, :string)
 
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do

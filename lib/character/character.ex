@@ -63,7 +63,7 @@ defmodule Character do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    characteristic_id: map_grandchildren(attrs, "characteristic", "pointer_id", "id"),
+    characteristic_id: characteristic_pointer_id(attrs),
     actor_id: actor.id,
     is_public: true
   )
@@ -82,7 +82,7 @@ defmodule Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      characteristic_id: map_grandchildren(attrs, "characteristic", "pointer_id", "id"),
+      characteristic_id: characteristic_pointer_id(attrs),
       context_id: context.id,
       actor_id: actor.id,
       is_public: true
@@ -93,6 +93,9 @@ defmodule Character do
   def update_changeset(%Character{} = character, attrs) do
     character
     |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      characteristic_id: characteristic_pointer_id(attrs)
+    )
     |> common_changeset()
   end
 
@@ -102,11 +105,15 @@ defmodule Character do
     |> change_disabled()
   end
 
-
-  def map_grandchildren(parent, child, grandchild1, grandchild2) do
+  def characteristic_pointer_id(attrs) do
+    map_a_grandchild(attrs, :characteristic, :pointer_id, :id)
+  end
+  
+  def map_a_grandchild(parent, child, grandchild1, grandchild2) do #ugly, feel free to replace
 
     if(Map.has_key?(parent, child)) do
       child_map = Map.get(parent, child)
+      # IO.inspect(child_map)
       Map.get(child_map, grandchild1, Map.get(child_map, grandchild2, nil))
     end
 

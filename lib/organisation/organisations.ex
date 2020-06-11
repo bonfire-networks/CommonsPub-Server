@@ -88,12 +88,13 @@ defmodule Organisation.Organisations do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, character} <- Characters.create(creator, attrs),
-           {:ok, org} <- insert_organisation(character, attrs) do
-        {:ok, org}
+          {:ok, org} <- insert_organisation(character, attrs),
+          {:ok, character} <- Characters.thing_link(org, character)
+           do
+            {:ok, %{ org | character: character }}
       end
     end)
   end
-
 
   defp insert_organisation(character, attrs) do
     cs = Organisation.create_changeset(character, attrs)

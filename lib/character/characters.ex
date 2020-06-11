@@ -196,7 +196,11 @@ defmodule Character.Characters do
   @doc "Takes a Pointer to something and creates a Character based on it"
   def characterise(%User{} = user, %Pointer{} = pointer) do
     thing = Pointers.follow!(pointer)
-    characterise(user, thing)
+    if(is_nil(thing.character_id)) do
+      characterise(user, thing)
+    else 
+      {:ok, %{ thing.character | characteristic: thing }}
+    end
   end
 
   @doc "Takes anything and creates a Character based on it"
@@ -205,17 +209,9 @@ defmodule Character.Characters do
     thing_name = thing.__struct__
     thing_context_module = apply(thing_name, :context_module, [])
 
-    attrs = characterisation_default(thing_name, thing)
-    # IO.inspect(attrs)
+    char_attrs = characterisation(thing_name, thing, thing_context_module)
 
-    char_attrs = if(Kernel.function_exported?(thing_context_module, :characterisation, 1)) do
-                    IO.inspect(function_exists_in: thing_context_module)
-                    apply(thing_context_module, :characterisation, [attrs])
-                  else
-                    attrs
-                  end
-
-    IO.inspect(char_attrs)
+    # IO.inspect(char_attrs)
     # characterise(user, pointer, %{}) 
 
     Repo.transact_with(fn ->
@@ -229,7 +225,20 @@ defmodule Character.Characters do
 
   end
 
-  @doc "Transform the fields of any Thing into those of a character. It is recommended to define a `charactersation/1` function in your Thing's context module which will be used instead if present."
+  @doc "Transform the fields of any Thing into those of a character. It is recommended to define a `charactersation/1` function (transforming the data similarly to `characterisation_default/2`) in your Thing's context module which will also be executed if present."
+  def characterisation(thing_name, thing, thing_context_module) do
+    attrs = characterisation_default(thing_name, thing)
+    # IO.inspect(attrs)
+
+    if(Kernel.function_exported?(thing_context_module, :characterisation, 1)) do
+      # IO.inspect(function_exists_in: thing_context_module)
+      apply(thing_context_module, :characterisation, [attrs])
+    else
+      attrs
+    end
+  end 
+
+  @doc "Transform the generic fields of anything to be turned into a character."
   def characterisation_default(thing_name, thing) do
     thing 
     |> Map.put(:facet, thing_name |> to_string() |> String.split(".") |> List.last) # use Thing name as Character facet/trope
@@ -238,12 +247,26 @@ defmodule Character.Characters do
     |> Map.from_struct |> Map.delete(:__meta__) # convert to map
   end 
 
-  def character_link(thing, character, thing_context_module) do
+  @doc "Execute `character_link/3` from the character's context module if it exists, which should update the thing and link it to the charecter."
+  defp character_link(thing, character, thing_context_module) do
     if(Kernel.function_exported?(thing_context_module, :character_link, 1)) do
       thing = apply(thing_context_module, :character_link, [thing, character])
     end
 
     {:ok, thing}
+  end
+
+  @doc "Update the character and link it to a thing."
+  def thing_link(thing, character) do
+    Repo.transact_with(fn ->
+
+      # IO.inspect(tl_th: thing)
+      # IO.inspect(tl_char: character)
+
+      with {:ok, character} <- Repo.update(Character.update_changeset(character, %{ characteristic: thing })) do
+        {:ok, character }
+      end
+    end)
   end
 
   defp publish(creator, character, activity, :created) do
@@ -296,6 +319,7 @@ defmodule Character.Characters do
       end
     end)
   end
+  
 
   def soft_delete(%Character{} = character) do
     Repo.transact_with(fn ->

@@ -48,7 +48,7 @@ defmodule Taxonomy.Tags do
   def tag_characterise(%User{} = user, %Tag{} = tag) do
 
     Repo.transact_with(fn ->
-      with {:ok, tag} <- pointerise(tag),
+      with {:ok, tag} <- pointerise(tag), # add a Pointer ID 
            {:ok, return} <- Character.Characters.characterise(user, tag) 
             do
               {:ok, return }
@@ -58,7 +58,7 @@ defmodule Taxonomy.Tags do
 
   def characterisation(attrs) do
 
-    IO.inspect(attrs.label)
+    # IO.inspect(attrs.label)
     attrs 
     |> Map.put(:name, attrs.label)
     |> Map.put(:summary, attrs.description)
@@ -69,15 +69,21 @@ defmodule Taxonomy.Tags do
   @doc "Takes an existing Tag and adds a Pointer ID"
   def pointerise(%Tag{} = tag) do
 
-    pointer_id = Ecto.ULID.generate()
+    if(!is_nil(tag.pointer_id)) do # already has one
+      {:ok, tag }
+    else
 
-    Repo.transact_with(fn ->
+      pointer_id = Ecto.ULID.generate()
 
-      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, %{ pointer_id: pointer_id}))
-            do
-              {:ok, tag }
-      end
-    end)
+      Repo.transact_with(fn ->
+
+        with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, %{ pointer_id: pointer_id}))
+              do
+                {:ok, tag }
+        end
+      end)
+
+    end
   end
   
   # TODO: take the user who is performing the update

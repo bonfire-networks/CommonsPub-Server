@@ -2,7 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Character.GraphQL.FacetsResolvers do
-  @moduledoc "Resolver functions to be called by other modules that extend Character, for fields or foreign keys that are associated with Character rather than directly with that module."
+  
+  @moduledoc "These resolver functions are to be called by other modules that use Character, for fields or foreign keys that are part of the Character table rather than that module's table."
+
   alias MoodleNet.{
     Activities,
     GraphQL,

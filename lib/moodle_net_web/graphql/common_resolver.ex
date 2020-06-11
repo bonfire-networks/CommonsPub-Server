@@ -26,10 +26,11 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   end
   
   def fetch_context_edge(_, ids) do
+    IO.inspect(ids: ids)
     {:ok, ptrs} = Pointers.many(id: ids)
-    IO.inspect(ptrs)
+    IO.inspect(ptrs: ptrs)
     ptsd = Pointers.follow!(ptrs)
-    IO.inspect(ptsd)
+    IO.inspect(ptsd: ptsd)
     Fields.new(ptsd, &Map.get(&1,:id))
   end
 
