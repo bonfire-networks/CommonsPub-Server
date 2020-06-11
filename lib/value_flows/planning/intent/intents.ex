@@ -170,9 +170,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # end
 
   defp index(obj) do
-
-    IO.inspect(obj)
-
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 

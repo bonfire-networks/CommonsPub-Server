@@ -11,7 +11,8 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   describe "one" do
     test "fetches an existing intent by ID" do
       user = fake_user!()
-      intent = fake_intent!(user)
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
 
       assert {:ok, fetched} = Intents.one(id: intent.id)
       assert_intent(intent, fetched)

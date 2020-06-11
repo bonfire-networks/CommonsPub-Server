@@ -26,7 +26,7 @@ defmodule ValueFlows.Test.Faking do
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
   end
 
-  def fake_intent!(user, overrides \\ %{}) do
+  def fake_intent!(user, unit, overrides \\ %{}) do
     measures = %{
       resource_quantity: fake_measure!(user, unit),
       effort_quantity: fake_measure!(user, unit),
