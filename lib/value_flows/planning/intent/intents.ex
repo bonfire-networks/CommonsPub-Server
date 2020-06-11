@@ -146,16 +146,20 @@ defmodule ValueFlows.Planning.Intent.Intents do
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def update(%Intent{} = intent, attrs) do
+  # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
     Repo.transact_with(fn ->
       intent = Repo.preload(intent, :community)
 
-      with {:ok, intent} <- Repo.update(Intent.update_changeset(intent, attrs)) do
+      cs = intent
+      |> Intent.update_changeset(attrs)
+      |> Intent.change_measures(measures)
+
+      with {:ok, intent} <- Repo.update(cs) do
           #  :ok <- publish(intent, :updated) do
           #   IO.inspect("intent")
           #   IO.inspect(intent)
-            {:ok,  intent }
+            {:ok, intent}
        end
     end)
   end

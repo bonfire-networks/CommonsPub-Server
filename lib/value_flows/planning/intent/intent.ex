@@ -21,6 +21,7 @@ defmodule ValueFlows.Planning.Intent do
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
   alias ValueFlows.Planning.Intent
+  alias Measurement.Measure
 
   @type t :: %__MODULE__{}
 
@@ -33,9 +34,9 @@ defmodule ValueFlows.Planning.Intent do
     belongs_to(:provider, Pointer) # TODO - use pointer like context?
     belongs_to(:receiver, Pointer)
 
-    belongs_to(:available_quantity, Measure)
-    belongs_to(:resource_quantity, Measure)
-    belongs_to(:effort_quantity, Measure)
+    belongs_to(:available_quantity, Measure, on_replace: :nilify)
+    belongs_to(:resource_quantity, Measure, on_replace: :nilify)
+    belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
@@ -119,9 +120,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def change_measures(changeset, measures) when is_map(measures) do
     Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
-      field_name_id = String.to_existing_atom("#{field_name}_id")
-
-      Changeset.change(c, %{field_name_id => measure.id})
+      Changeset.put_assoc(c, field_name, measure)
     end)
   end
 

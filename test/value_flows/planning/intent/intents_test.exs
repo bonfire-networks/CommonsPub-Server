@@ -46,6 +46,23 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
   end
 
   describe "update" do
-    
+    test "updates an existing intent" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      measures = %{
+        resource_quantity: fake_measure!(user, unit),
+        # don't update one of them
+        # effort_quantity: fake_measure!(user, unit),
+        available_quantity: fake_measure!(user, unit),
+      }
+      assert {:ok, updated} = Intents.update(intent, measures, intent())
+      assert_intent(updated)
+      assert intent != updated
+      assert intent.effort_quantity_id == updated.effort_quantity_id
+      assert intent.resource_quantity_id != updated.resource_quantity_id
+      assert intent.available_quantity_id != updated.available_quantity_id
+    end
   end
 end
