@@ -64,7 +64,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     Intents.one(
       user: GraphQL.current_user(info),
       id: id,
-      preload: :provider
     )
   end
 

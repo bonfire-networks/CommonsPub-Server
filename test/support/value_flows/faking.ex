@@ -26,6 +26,22 @@ defmodule ValueFlows.Test.Faking do
     |> Map.put_new_lazy(:is_disabled, &Fake.falsehood/0)
   end
 
+  def intent_input(unit, base \\ %{}) do
+    base
+    |> Map.put_new_lazy("name", &Fake.name/0)
+    |> Map.put_new_lazy("note", &Fake.summary/0)
+    |> Map.put_new_lazy("note", &Fake.summary/0)
+    # |> Map.put_new_lazy("has_beginning", &Fake.past_datetime/0)
+    # |> Map.put_new_lazy("has_end", &Fake.future_datetime/0)
+    # |> Map.put_new_lazy("has_point_in_time", &Fake.future_datetime/0)
+    # |> Map.put_new_lazy("due", &Fake.future_datetime/0)
+    |> Map.put_new_lazy("resource_classified_as", fn -> some(1..5, &Fake.url/0) end)
+    |> Map.put_new_lazy("finished", &Fake.bool/0)
+    |> Map.put_new_lazy("available_quantity", fn -> measure_input(unit) end)
+    |> Map.put_new_lazy("resource_quantity", fn -> measure_input(unit) end)
+    |> Map.put_new_lazy("effort_quantity", fn -> measure_input(unit) end)
+  end
+
   def fake_intent!(user, unit, overrides \\ %{}) do
     measures = %{
       resource_quantity: fake_measure!(user, unit),
@@ -66,5 +82,36 @@ defmodule ValueFlows.Test.Faking do
     assert_maps_eq intent, intent2, :assert_intent,
       [:name, :note, :finished, :has_beginning, :has_end,
        :has_point_in_time, :due]
+  end
+
+  ## Graphql
+
+  def intent_fields(extra \\ []) do
+    extra ++
+      ~w(id name note has_beginning has_end has_point_in_time due finished)a ++
+      ~w(resource_classified_as)a
+  end
+
+  def intent_response_fields(extra \\ []) do
+    [intent: intent_fields(extra)]
+  end
+
+  def intent_subquery(options \\ []) do
+    gen_subquery(:id, :intent, &intent_fields/1, options)
+  end
+
+  def intent_query(options \\ []) do
+    options = Keyword.put_new(options, :id_type, :id)
+    gen_query(:id, &intent_subquery/1, options)
+  end
+
+  def create_intent_mutation(options \\ []) do
+    [intent: type!(:intent_create_params)]
+    |> gen_mutation(&create_intent_submutation/1, options)
+  end
+
+  def create_intent_submutation(options \\ []) do
+    [intent: var(:intent)]
+    |> gen_submutation(:create_intent, &intent_response_fields/1, options)
   end
 end
