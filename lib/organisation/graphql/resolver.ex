@@ -147,8 +147,8 @@ defmodule Organisation.GraphQL.Resolver do
   #   #     organisation = Repo.preload(organisation, :community)
   #   # 	permitted =
   #   # 	  user.is_instance_admin or
-  #   #       organisation.creator_id == actor.id or
-  #   #       organisation.community.creator_id == actor.id
+  #   #       organisation.character.creator_id == actor.id or
+  #   #       organisation.character.context.creator_id == actor.id
   #   # 	if permitted do
   #   # 	  with {:ok, _} <- Organisations.soft_delete(organisation), do: {:ok, true}
   #   # 	else

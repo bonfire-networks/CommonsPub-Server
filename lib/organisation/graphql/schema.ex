@@ -82,6 +82,9 @@ defmodule Organisation.GraphQL.Schema do
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, :string 
 
+    @desc "The character associated with this organisation"
+    field :character, :character 
+
     @desc "A preferred username + the host domain"
     field :display_username, :string do
       resolve &ActorsResolver.display_username_edge/3 #FIXME
@@ -99,7 +102,7 @@ defmodule Organisation.GraphQL.Schema do
 
     @desc "Whether the organisation is local to the instance"
     field :is_local, non_null(:boolean) do
-      resolve &FacetsResolvers.is_local_edge/3
+      resolve &ActorsResolver.is_local_edge/3
     end
     @desc "Whether the organisation is public"
     field :is_public, non_null(:boolean) do

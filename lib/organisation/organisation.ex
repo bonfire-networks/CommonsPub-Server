@@ -26,7 +26,7 @@ defmodule Organisation do
     field(:summary, :string, virtual: true) 
     field(:updated_at, :utc_datetime_usec, virtual: true)
     
-    many_to_many(:actor, Actor, join_through: "mn_character") # via Character
+    has_one(:actor, Actor) # joined via Character
     
     # joined fields from Actor:
     field(:preferred_username, :string, virtual: true) 

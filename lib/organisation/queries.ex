@@ -71,7 +71,7 @@ defmodule Organisation.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted, preload: :actor]
+    filter q, [:deleted, preload: :default]
   end
 
   ## by join
