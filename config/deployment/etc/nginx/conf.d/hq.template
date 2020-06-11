@@ -1,0 +1,135 @@
+upstream backend {
+    server 127.0.0.1:${PORT};
+}
+
+
+server {
+    listen 80 default_server;
+    server_name ${HOSTNAME};
+
+    location /uploads {
+        root /var/www;
+    }
+
+    location / {
+
+        set ${DOLLAR}proxy_frontend_url "${PROXY_FRONTEND_URL}";
+        error_page 418 = @proxy_to_frontend;
+        recursive_error_pages on;
+
+        # if you want the webserver in this container to proxy frontend requests to an external URL
+        if (${DOLLAR}proxy_frontend_url) {
+            return 418;
+        }
+
+        # else, serve the frontend from local files
+        index index.html;
+        root /var/www;
+
+        try_files ${DOLLAR}uri /index.html;
+    }
+
+    location @proxy_to_frontend {
+        proxy_pass ${PROXY_FRONTEND_URL};
+        proxy_set_header Host ${FRONTEND_HOSTNAME};
+        proxy_read_timeout 1m; 
+        proxy_set_header  X-Forwarded-For   ${DOLLAR}proxy_add_x_forwarded_for;
+        proxy_set_header  X-Forwarded-Proto ${DOLLAR}scheme;
+        proxy_ssl_verify off;
+        proxy_redirect off;
+        proxy_http_version 1.1;
+        proxy_ssl_protocols TLSv1.2;
+        proxy_ssl_server_name on;
+        proxy_ssl_name ${FRONTEND_HOSTNAME};
+    }
+
+    # proxy backend paths to the BEAM app
+
+    location /api {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+
+        client_max_body_size ${UPLOAD_LIMIT};
+    }
+
+    location /pub {
+        proxy_set_header Host ${DOLLAR}http_host;
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    location /oauth {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    location /.well-known {
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+    }
+
+    # redirect to stats.moodle.org
+
+    rewrite ^/(tours|competencies|boost)/?${DOLLAR} https://archive.moodle.net/${DOLLAR}1 redirect;
+    rewrite ^/stats/? https://stats.moodle.org redirect;
+    rewrite ^/(sites|privacy|moodle-app-privacy)/?${DOLLAR} https://stats.moodle.org/${DOLLAR}1 redirect;
+
+    location = /mod/data/view.php {
+        if (${DOLLAR}arg_id = 17) {
+            return 302 https://archive.moodle.net/tours;
+        }
+
+        if (${DOLLAR}arg_id = 27) {
+            return 302 https://archive.moodle.net/competencies;
+        }
+
+        if (${DOLLAR}arg_id = 28) {
+            return 302 https://archive.moodle.net/boost;
+        }
+    }
+
+    location = /mod/page/view.php {
+        if (${DOLLAR}arg_id = 29) {
+            return 302 https://stats.moodle.org/privacy;
+        }
+
+        if (${DOLLAR}arg_id = 32) {
+            return 302 https://stats.moodle.org/moodle-app-privacy;
+        }
+    }
+
+    location /local/hub/conf {
+       return 404;
+    }
+    location /local/hub/webservice {
+        #proxy_set_header Host ${DOLLAR}http_host;
+        proxy_pass https://stats.moodle.org${DOLLAR}request_uri;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        #proxy_set_header X-Forwarded-Proto ${DOLLAR}fehttps;
+    }
+
+    location /local/hub/siteregistration.php {
+        proxy_pass https://stats.moodle.org$request_uri;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        #proxy_set_header X-Forwarded-Proto ${DOLLAR}fehttps;
+        #proxy_set_header Host ${DOLLAR}http_host;
+    }
+
+    location /local/sitecheck/check.php {
+        proxy_pass https://stats.moodle.org${DOLLAR}request_uri;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        #proxy_set_header X-Forwarded-Proto ${DOLLAR}fehttps;
+        #proxy_set_header Host ${DOLLAR}http_host;
+    }
+
+    location /devops/respawn/${MAIL_KEY} { 
+        # webhook used to trigger shutdown of container and respawn of k8s pod
+        content_by_lua_block {
+            os.execute("/utils/shutdown-instance.sh")
+        } 
+    }
+
+}

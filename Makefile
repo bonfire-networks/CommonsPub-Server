@@ -32,6 +32,14 @@ build: init ## Build the Docker image using previous cache
 		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) .
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
+build_hq: init ## Builds the Docker image for HQ instances
+	@docker build \
+		--build-arg APP_NAME=$(APP_NAME) \
+		--build-arg APP_VSN=$(APP_VSN) \
+		--build-arg APP_BUILD=$(APP_BUILD) \
+		-t $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) -f Dockerfile.hq .
+	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+
 push: init tag_latest ## Add latest tag to last build and push
 	@echo docker push $(APP_DOCKER_REPO):latest
 	@docker push $(APP_DOCKER_REPO):latest
@@ -53,6 +61,14 @@ push_stable: init tag_stable ## Tag stable, latest and version tags to the last 
 	@docker push $(APP_DOCKER_REPO):$(APP_VSN)
 	@echo docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 	@docker push $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
+
+tag_hq: init ## Tags hq image to the last build
+	@echo docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):hq
+	@docker tag $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD) $(APP_DOCKER_REPO):hq
+
+push_hq: init tag_hq # Pushes hq image
+	@echo docker push $(APP_DOCKER_REPO):hq
+	@docker push $(APP_DOCKER_REPO):hq
 
 hq_deploy_staging: init ## Used by Moodle HQ to trigger deploys to k8s
 	@curl https://home.next.moodle.net/devops/respawn/$(MAIL_KEY)
