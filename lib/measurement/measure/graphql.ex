@@ -84,7 +84,7 @@ defmodule Measurement.Measure.GraphQL do
     Repo.transact_with(fn ->
       attrs
       |> Map.take(fields)
-      |> map_ok_error(&create_measure/2)
+      |> map_ok_error(&create_measure(&1, info))
     end)
   end
 
@@ -99,8 +99,8 @@ defmodule Measurement.Measure.GraphQL do
         when items: [Map.t()],
              func: (Map.t(), any -> {:ok, any} | {:error, term})
   def map_ok_error(items, func) do
-    Enum.reduce_while(%{}, fn acc, {field_name, item} ->
-      case func.(acc, item) do
+    Enum.reduce_while(items, %{}, fn {field_name, item}, acc ->
+      case func.(item) do
         {:ok, val} ->
           {:cont, Map.put(acc, field_name, val)}
 
@@ -119,7 +119,7 @@ defmodule Measurement.Measure.GraphQL do
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, unit} <- Units.one(user: user, id: unit_id),
            {:ok, measure} <- Measures.create(user, unit, attrs) do
-        {:ok, %{measure: %{measure | unit: unit, creator: user}}}
+        {:ok, %{measure | unit: unit, creator: user}}
       end
     end)
   end

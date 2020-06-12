@@ -9,6 +9,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
+  alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
 
@@ -99,16 +100,15 @@ defmodule ValueFlows.Planning.Intent.Intents do
   end
 
   defp insert_intent(creator, measures, attrs) do
-    cs = Intent.create_changeset(creator, attrs)
+    Intent.create_changeset(creator, attrs)
     |> Intent.change_measures(measures)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+    |> Repo.insert()
   end
 
   defp insert_intent(creator, community, measures, attrs) do
-    cs = Intent.create_changeset(creator, community, attrs)
+    Intent.create_changeset(creator, community, attrs)
     |> Intent.change_measures(measures)
-
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+    |> Repo.insert()
   end
 
   defp publish(creator, intent, activity, :created) do

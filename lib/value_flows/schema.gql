@@ -1591,7 +1591,7 @@ input IntentCreateParams {
   """
   (`Action`) Relates an intent to a verb, such as consume, produce, work, improve, etc.
   """
-  action: ID!
+  action: ID
 
   """
   An informal or formal textual identifier for an intent. Does not imply uniqueness.
