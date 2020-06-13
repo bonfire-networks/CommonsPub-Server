@@ -1,11 +1,11 @@
-defmodule MoodleNet.Repo.Migrations.ReaddOrganisation do
+defmodule MoodleNet.Repo.Migrations.ReaddCircle do
     use Ecto.Migration
 
     def up do
-      # Organisation.Migrations.up()
+      # Circle.Migrations.up()
     end
 
     def down do
-      # Organisation.Migrations.down()
+      # Circle.Migrations.down()
     end
 end

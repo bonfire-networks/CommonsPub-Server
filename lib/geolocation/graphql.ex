@@ -27,7 +27,7 @@ defmodule Geolocation.GraphQL do
   alias Geolocation
   alias Geolocation.Geolocations
   alias Geolocation.Queries
-  alias Organisation
+  alias Circle
 
   # SDL schema import
 
@@ -130,8 +130,8 @@ defmodule Geolocation.GraphQL do
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
+           context = MoodleNet.Meta.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}

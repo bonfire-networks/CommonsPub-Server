@@ -234,7 +234,7 @@ defmodule MoodleNet.ReleaseTasks do
 
     tt = Repo.one(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
 
-    if(!is_nil(tt.id)) do {_rows_deleted, _} = Repo.delete_all(from(x in MoodleNet.Meta.Pointer, where: x.table_id == ^tt.id)) end
+    if(!is_nil(tt) and !is_nil(tt.id)) do {_rows_deleted, _} = Repo.delete_all(from(x in MoodleNet.Meta.Pointer, where: x.table_id == ^tt.id)) end
 
     {_rows_deleted, _} = Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
 

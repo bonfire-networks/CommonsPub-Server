@@ -6,13 +6,13 @@ defmodule MoodleNet.Repo.Migrations.RemoveMoreUnusedFromMoodleNet do
 
   def up do
 
-    # Organisation.Migrations.down()
+    # Circle.Migrations.down()
 
   end
 
   def down do
 
-    # Organisation.Migrations.up()
+    # Circle.Migrations.up()
 
   end
 

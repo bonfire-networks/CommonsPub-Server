@@ -11,7 +11,7 @@ defmodule MoodleNet.Mixfile do
       version: "0.9.6-dev",
       elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -104,7 +104,7 @@ defmodule MoodleNet.Mixfile do
       {:telemetry, "~> 0.4.0"}, # stats
       {:sentry, "~> 7.1", runtime: sentry?()}, # production only
       # Misc
-      # {:protocol_ex, "~> 0.3.0"},
+      {:protocol_ex, "~> 0.4.3"},
       {:jason, "~> 1.2"},    # json
       {:gettext, "~> 0.18"}, # localisation
       {:recase, "~> 0.5"},   # camel/snake/kebabification
@@ -116,6 +116,8 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:
+      {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
+      {:pointers, path: "uploads/many-pointers"},
       {:geo_postgis, "~> 3.1"}, # geolocation in postgres
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},

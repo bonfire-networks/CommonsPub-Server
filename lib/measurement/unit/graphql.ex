@@ -84,9 +84,9 @@ defmodule Measurement.Unit.GraphQL do
   def create_unit(%{unit: attrs, in_scope_of: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
            :ok <- validate_unit_context(pointer),
-           context = Pointers.follow!(pointer),
+           context = MoodleNet.Meta.Pointers.follow!(pointer),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, unit} <- Units.create(user, context, attrs) do
         {:ok, %{unit: unit}}

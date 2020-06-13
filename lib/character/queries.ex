@@ -128,7 +128,7 @@ defmodule Character.Queries do
   end
 
   def filter(q, {:context_id, ids}) when is_list(ids) do
-    where q, [character: c], c.community_id in ^ids
+    where q, [character: c], c.context_id in ^ids
   end
 
   def filter(q, {:username, username}) when is_binary(username) do

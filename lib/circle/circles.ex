@@ -1,37 +1,37 @@
 #  MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Organisation.Organisations do
+defmodule Circle.Circles do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias Organisation
-  alias Organisation.Queries
+  alias Circle
+  alias Circle.Queries
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
   alias Character.Characters
 
-  @facet_name "Organisation"
+  @facet_name "Circle"
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
   @doc """
-  Retrieves a single organisation by arbitrary filters.
+  Retrieves a single circle by arbitrary filters.
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for organisations (inc. tests)
+  * Various parts of the codebase that need to query for circles (inc. tests)
   """
-  def one(filters), do: Repo.single(Queries.query(Organisation, filters))
+  def one(filters), do: Repo.single(Queries.query(Circle, filters))
 
   @doc """
-  Retrieves a list of organisations by arbitrary filters.
+  Retrieves a list of circles by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for organisations (inc. tests)
+  * Various parts of the codebase that need to query for circles (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Organisation, filters))}
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Circle, filters))}
 
   def fields(group_fn, filters \\ [])
   when is_function(group_fn, 1) do
@@ -40,14 +40,14 @@ defmodule Organisation.Organisations do
   end
 
   @doc """
-  Retrieves an Page of organisations according to various filters
+  Retrieves an Page of circles according to various filters
 
   Used by:
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(Organisation, base_filters)
+    base_q = Queries.query(Circle, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
@@ -56,64 +56,64 @@ defmodule Organisation.Organisations do
   end
 
   @doc """
-  Retrieves an Pages of organisations according to various filters
+  Retrieves an Pages of circles according to various filters
 
   Used by:
   * GraphQL resolver bulk resolution
   """
   def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Organisation,
+    Contexts.pages Queries, Circle,
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
 
   ## mutations
 
-  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Circle.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
 
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, character} <- Characters.create(creator, context, attrs),
-           {:ok, org} <- insert_organisation(character, attrs),
-           {:ok, character} <- Characters.thing_link(org, character)
+           {:ok, circle} <- insert_circle(character, attrs),
+           {:ok, character} <- Characters.thing_link(circle, character)
             do
-        {:ok, %{ org | character: character }}
+        {:ok, %{ circle | character: character }}
       end
     end)
   end
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
+  @spec create(User.t(), attrs :: map) :: {:ok, Circle.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
 
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, character} <- Characters.create(creator, attrs),
-          {:ok, org} <- insert_organisation(character, attrs),
-          {:ok, character} <- Characters.thing_link(org, character)
+          {:ok, circle} <- insert_circle(character, attrs),
+          {:ok, character} <- Characters.thing_link(circle, character)
            do
-            {:ok, %{ org | character: character }}
+            {:ok, %{ circle | character: character }}
       end
     end)
   end
 
-  defp insert_organisation(character, attrs) do
-    cs = Organisation.create_changeset(character, attrs)
-    with {:ok, org} <- Repo.insert(cs), do: {:ok, %{ org | character: character }}
+  defp insert_circle(character, attrs) do
+    cs = Circle.create_changeset(character, attrs)
+    with {:ok, circle} <- Repo.insert(cs), do: {:ok, %{ circle | character: character }}
   end
 
 
   # TODO: take the user who is performing the update
-  @spec update(User.t(), Organisation.t(), attrs :: map) :: {:ok, Organisation.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Organisation{} = organisation, attrs) do
+  @spec update(User.t(), Circle.t(), attrs :: map) :: {:ok, Circle.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %Circle{} = circle, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, organisation} <- Repo.update(Organisation.update_changeset(organisation, attrs)),
-           {:ok, character} <- Characters.update(user, organisation.character, attrs) # update linked character too
+      with {:ok, circle} <- Repo.update(Circle.update_changeset(circle, attrs)),
+           {:ok, character} <- Characters.update(user, circle.character, attrs) # update linked character too
       do
-        {:ok, %{ organisation | character: character }}
+        {:ok, %{ circle | character: character }}
       end
     end)
   end

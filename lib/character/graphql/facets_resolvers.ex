@@ -25,7 +25,7 @@ defmodule Character.GraphQL.FacetsResolvers do
   alias Character.{Characters, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
+  alias Pointers
   alias MoodleNetWeb.GraphQL.{
     CommonResolver,
     FollowsResolver

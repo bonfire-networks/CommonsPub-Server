@@ -10,7 +10,7 @@
 ##
 
 # Dynamically supplied by application
-union GeoScope = Collection | Community | Organisation
+union GeoScope = Collection | Community | Circle
 
 """
 A physical mappable location.

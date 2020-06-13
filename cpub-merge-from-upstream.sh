@@ -24,7 +24,7 @@ do
 done
 
 echo "Do the same for extension modules..."
-for extension in geolocation locales measurement organisation taxonomy value_flows 
+for extension in geolocation locales measurement circle taxonomy value_flows 
 do
 
     echo "Preserve ${extension}..."

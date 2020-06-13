@@ -10,8 +10,8 @@ defmodule Character.Characters do
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
-  alias MoodleNet.Meta.Pointer
-  alias MoodleNet.Meta.Pointers
+  alias Pointers.Pointer
+  alias Pointers
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -155,7 +155,7 @@ defmodule Character.Characters do
 
   @doc "Takes a Pointer to something and creates a Character based on it"
   def characterise(%User{} = user, %Pointer{} = pointer) do
-    thing = Pointers.follow!(pointer)
+    thing = MoodleNet.Meta.Pointers.follow!(pointer)
     if(is_nil(thing.character_id)) do
       characterise(user, thing)
     else 

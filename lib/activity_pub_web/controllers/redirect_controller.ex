@@ -28,8 +28,8 @@ defmodule ActivityPubWeb.RedirectController do
 
       %ActivityPub.Object{} ->
         with pointer_id when not is_nil(pointer_id) <- Map.get(object, :mn_pointer_id),
-             {:ok, pointer} <- Pointers.one(id: pointer_id) do
-          mn_object = Pointers.follow!(pointer)
+             {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
+          mn_object = MoodleNet.Meta.Pointers.follow!(pointer)
 
           case mn_object do
             %Comment{} ->

@@ -262,7 +262,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
       ) do
     with pointer_id <- MoodleNet.ActivityPub.Utils.get_pointer_id_by_ap_id(context),
          {:ok, pointer} <- Pointers.one(id: pointer_id),
-         parent = Pointers.follow!(pointer),
+         parent = MoodleNet.Meta.Pointers.follow!(pointer),
          {:ok, actor} <- get_actor_by_ap_id(object.data["actor"]),
          {:ok, thread} <- Threads.create(actor, parent, %{is_public: true, is_local: false}),
          {:ok, comment} <-
@@ -404,7 +404,7 @@ defmodule MoodleNet.ActivityPub.Adapter do
          %ActivityPub.Object{} = object <-
            ActivityPub.Object.get_cached_by_ap_id(activity.data["object"]),
          {:ok, liked} <- Pointers.one(id: object.mn_pointer_id),
-         liked = Pointers.follow!(liked),
+         liked = MoodleNet.Meta.Pointers.follow!(liked),
          {:ok, _} <-
            MoodleNet.Likes.create(actor, liked, %{
              is_public: true,
@@ -472,8 +472,8 @@ defmodule MoodleNet.ActivityPub.Adapter do
       # Filter nils
       |> Enum.filter(fn object -> object end)
       |> Enum.map(fn object ->
-        Pointers.one!(id: object.mn_pointer_id)
-        |> Pointers.follow!()
+        MoodleNet.Meta.Pointers.one!(id: object.mn_pointer_id)
+        |> MoodleNet.Meta.Pointers.follow!()
       end)
       |> Enum.each(fn object ->
         MoodleNet.Flags.create(actor, object, %{

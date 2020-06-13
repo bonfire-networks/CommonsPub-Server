@@ -4,12 +4,12 @@ defmodule Character.Migrations do
   alias MoodleNet.Repo
   alias Ecto.ULID
 
-  @meta_tables [] ++ ~w(mn_character) 
+  @meta_tables [] ++ ~w(character) 
 
   def up do
 
     # a character is a group actor that is home to resources
-    create_if_not_exists table(:mn_character) do
+    create_if_not_exists table(:character) do
       add :characteristic_id, :uuid # points to the Thing that this Character represents
       add :actor_id, references("mn_actor", on_delete: :delete_all) # points to the Actor who plays this Character in the fediverse
       add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
@@ -29,11 +29,11 @@ defmodule Character.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    create_if_not_exists index(:mn_character, :updated_at)
-    create_if_not_exists index(:mn_character, :actor_id)
-    create_if_not_exists index(:mn_character, :creator_id)
-    create_if_not_exists index(:mn_character, :context_id)
-    # create_if_not_exists index(:mn_character, :primary_language_id)
+    create_if_not_exists index(:character, :updated_at)
+    create_if_not_exists index(:character, :actor_id)
+    create_if_not_exists index(:character, :creator_id)
+    create_if_not_exists index(:character, :context_id)
+    # create_if_not_exists index(:character, :primary_language_id)
 
 
     tables = Enum.map(@meta_tables, fn name ->
@@ -55,27 +55,27 @@ defmodule Character.Migrations do
 
 
     :ok = execute """
-    create view mn_character_last_activity as
-    select mn_character.id as character_id, max(mn_feed_activity.id) as activity_id
-    from mn_character left join mn_feed_activity
-    on mn_character.outbox_id = mn_feed_activity.feed_id
-    group by mn_character.id
+    create view character_last_activity as
+    select character.id as character_id, max(mn_feed_activity.id) as activity_id
+    from character left join mn_feed_activity
+    on character.outbox_id = mn_feed_activity.feed_id
+    group by character.id
     """
 
   end
 
   def down do
 
-      :ok = execute "drop view if exists mn_character_last_activity"
+      :ok = execute "drop view if exists character_last_activity"
       
-      MoodleNet.ReleaseTasks.remove_meta_table("mn_character")
+      MoodleNet.ReleaseTasks.remove_meta_table("character")
 
-      drop_if_exists index(:mn_character, :updated_at)
-      drop_if_exists index(:mn_character, :actor_id)
-      drop_if_exists index(:mn_character, :creator_id)
-      drop_if_exists index(:mn_character, :community_id)
-      drop_if_exists index(:mn_character, :primary_language_id)
-      drop_if_exists table(:mn_character)
+      drop_if_exists index(:character, :updated_at)
+      drop_if_exists index(:character, :actor_id)
+      drop_if_exists index(:character, :creator_id)
+      drop_if_exists index(:character, :community_id)
+      drop_if_exists index(:character, :primary_language_id)
+      drop_if_exists table(:character)
 
   end
 

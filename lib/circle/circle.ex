@@ -1,23 +1,23 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Organisation do
+defmodule Circle do
   use MoodleNet.Common.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Organisation
+  alias Circle
   alias Character
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
   alias MoodleNet.Actors.Actor
 
   @type t :: %__MODULE__{}
 
-  table_schema "mn_organisation" do
+  table_schema "circle" do
     
     belongs_to(:character, Character)
 
@@ -41,15 +41,15 @@ defmodule Organisation do
       %Character{} = character,
       attrs
     ) do
-  %Organisation{}
+  %Circle{}
   |> Changeset.change(
     character_id: character.id
     )
   |> common_changeset()
   end
 
-  def update_changeset(%Organisation{} = organisation, attrs) do
-    organisation
+  def update_changeset(%Circle{} = circle, attrs) do
+    circle
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
   end
@@ -61,9 +61,9 @@ defmodule Organisation do
 
   ### behaviour callbacks
 
-  def context_module, do: Organisation.Organisations
+  def context_module, do: Circle.Circles
 
-  def queries_module, do: Organisation.Queries
+  def queries_module, do: Circle.Queries
 
   def follow_filters, do: [:default]
 

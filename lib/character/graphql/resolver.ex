@@ -22,7 +22,7 @@ defmodule Character.GraphQL.Resolver do
   alias Character.{Characters, Queries}
   alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
-  alias MoodleNet.Meta.Pointers
+  alias Pointers
 
   ## resolvers
 
@@ -141,9 +141,9 @@ defmodule Character.GraphQL.Resolver do
   def create_character(%{character: attrs, context_id: context_id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: context_id),
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
            :ok <- validate_character_context(pointer) do
-        context = Pointers.follow!(pointer)
+        context = MoodleNet.Meta.Pointers.follow!(pointer)
         attrs = Map.merge(attrs, %{is_public: true})
         Characters.create(user, context, attrs)
       end
@@ -162,7 +162,7 @@ defmodule Character.GraphQL.Resolver do
   def characterise(%{context_id: id}, info) do
     Repo.transact_with fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Pointers.one(id: id) do
+           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
               Characters.characterise(me, pointer) 
       end
     end

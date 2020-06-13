@@ -71,16 +71,16 @@ config :moodle_net, Features,
   valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User, Organisation, Character]
+  valid_contexts: [Collection, Comment, Community, Resource, User, Circle, Character]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation, Character]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Circle, Character]
 
 config :moodle_net, Likes,
   valid_contexts: [Collection, Community, Comment, Resource]
 
 config :moodle_net, Threads,
-  valid_contexts: [Collection, Community, Flag, Resource, User, Organisation, Character]
+  valid_contexts: [Collection, Community, Flag, Resource, User, Circle, Character]
 
 config :moodle_net, Users,
   public_registration: false,
@@ -88,13 +88,13 @@ config :moodle_net, Users,
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
 config :moodle_net, Units,
-  valid_contexts: [Organisation, Community, Collection]
+  valid_contexts: [Circle, Community, Collection]
 
-config :moodle_net, Organisation,
-  valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Circle,
+  valid_contexts: [Circle, Community, Collection]
 
 config :moodle_net, Character,
-  valid_contexts: [Character, Organisation, Community, Collection],
+  valid_contexts: [Character, Circle, Community, Collection],
   default_outbox_query_contexts: [Collection, Character, Community, Comment, Community, Resource, Like]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
@@ -243,6 +243,11 @@ config :sentry,
   root_source_code_path: File.cwd!
 
 config :moodle_net, :env, Mix.env()
+
+config :pointers, 
+  schema_pointers_table: "mn_table",
+  schema_pointers: "mn_pointer"
+
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

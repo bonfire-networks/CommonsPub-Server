@@ -55,7 +55,6 @@ defmodule Taxonomy.Migrations do
 
     table = "taxonomy_tags"
     MoodleNet.ReleaseTasks.remove_meta_table(table)
-    :ok = execute "drop trigger insert_pointer_#{table} on #{table}"
 
   end
 

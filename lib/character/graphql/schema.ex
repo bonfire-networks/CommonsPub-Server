@@ -76,7 +76,7 @@ defmodule Character.GraphQL.Schema do
   end
 
   @desc """
-  A character is anything (Person, Group, Organisation, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
+  A character is anything (Person, Group, Circle, Taxonomy Tag, Location, Thread, what-have-you...) which has a feed which can be followed, and can be tagged in other activities
   """
   object :character do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
@@ -88,7 +88,7 @@ defmodule Character.GraphQL.Schema do
       resolve &Character.GraphQL.Resolver.characteristic_edge/3
     end
 
-    @desc "A friendly name for the type of thing this character represents, eg. Organisation, Location, Tag..."
+    @desc "A friendly name for the type of thing this character represents, eg. Circle, Location, Tag..."
     field :facet, non_null(:string)
 
     @desc "A url for the character, may be to a remote instance"
@@ -169,7 +169,7 @@ defmodule Character.GraphQL.Schema do
       resolve &FlagsResolver.my_flag_edge/3
     end
 
-    # @desc "The primary language the community speaks"
+    # @desc "The primary language the character speaks"
     # field :primary_language, :language do
     #   resolve &LocalisationResolver.primary_language/3
     # end
@@ -192,17 +192,17 @@ defmodule Character.GraphQL.Schema do
       resolve &CommunitiesResolver.communities_edge/3
     end
 
-    # @desc "The total number of collections in the community, including private ones"
+    # @desc "The total number of collections in the character, including private ones"
     # field :collection_count, :integer do
     #   resolve &CommunitiesResolver.collection_count_edge/3
     # end
 
-    @desc "Any organisations created under this character"
-    field :organisations, :organisations_page do
+    @desc "Any circles created under this character"
+    field :circles, :circles_page do
       arg :limit, :integer
       arg :before, list_of(non_null(:cursor))
       arg :after, list_of(non_null(:cursor))
-      resolve &Organisation.GraphQL.Resolver.organisations_edge/3
+      resolve &Circle.GraphQL.Resolver.circles_edge/3
     end
 
     @desc "Any collections created under this character"
@@ -321,11 +321,11 @@ defmodule Character.GraphQL.Schema do
   @doc "Types of things that can be characters" #TODO generate this based on available modules and/or config
   union :character_tropes do
     description "Any kind of character" 
-    types [:collection, :community, :organisation, :resource, :thread, :comment, :spatial_thing, :tag, :character]
+    types [:collection, :community, :circle, :resource, :thread, :comment, :spatial_thing, :tag, :character]
     resolve_type fn
       %Collection{}, _ -> :collection
       %Community{},  _ -> :community
-      %Organisation{},       _ -> :organisation
+      %Circle{},       _ -> :circle
       %Resource{},   _ -> :resource
       %Thread{},   _ -> :thread
       %Comment{},   _ -> :comment

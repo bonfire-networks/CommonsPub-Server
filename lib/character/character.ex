@@ -12,11 +12,11 @@ defmodule Character do
   alias MoodleNet.Feeds.Feed
   alias MoodleNet.Users.User
   alias MoodleNet.Uploads.Content
-  alias MoodleNet.Meta.Pointer
+  alias Pointers.Pointer
 
   @type t :: %__MODULE__{}
 
-  table_schema "mn_character" do
+  table_schema "character" do
     belongs_to(:actor, Actor) # references the Actor who plays this Character in the fediverse
     belongs_to(:context, Pointer) # points to the parent Thing of this Character
 
@@ -24,7 +24,7 @@ defmodule Character do
     # field(:characteristic, :any, virtual: true) 
     belongs_to(:characteristic, Pointer) 
 
-    field(:facet, :string) # name for the Thing this character represents (same naming as the singular object module), eg. Organisation, Geolocation, etc
+    field(:facet, :string) # name for the Thing this character represents (same naming as the singular object module), eg. Circle, Geolocation, etc
 
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
