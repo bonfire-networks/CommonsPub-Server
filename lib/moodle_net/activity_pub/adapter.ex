@@ -308,7 +308,9 @@ defmodule MoodleNet.ActivityPub.Adapter do
            content_id: content.id,
            license: object.data["tag"],
            icon_id: icon_id,
-           author: Utils.get_author(object.data["author"])
+           author: Utils.get_author(object.data["author"]),
+           categories: object.data["categories"],
+           tags: object.data["tags"]
          },
          {:ok, resource} <-
            MoodleNet.Resources.create(actor, collection, attrs) do

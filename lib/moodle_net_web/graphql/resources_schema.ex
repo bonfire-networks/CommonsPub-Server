@@ -109,6 +109,11 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # field :learning_resource_type, :string
     # @desc "???"
     # field :educational_use, list_of(non_null(:string))
+    @desc "List of the resource's categories"
+    field :categories, list_of(:string)
+
+    @desc "List of the resource's tags"
+    field :tags, list_of(:string)
 
     @desc "A JSON document containing more info beyond the default fields"
     field :extra_info, :json
@@ -204,6 +209,8 @@ defmodule MoodleNetWeb.GraphQL.ResourcesSchema do
     # field :primary_language_id, :string
     field :author, :string
     field :extra_info, :json
+    field :categories, list_of(:string)
+    field :tags, list_of(:string)
   end
 
   object :resources_page do

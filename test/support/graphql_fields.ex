@@ -60,7 +60,7 @@ defmodule MoodleNetWeb.Test.GraphQLFields do
 
   def resource_fields(extra \\ []) do
     extra ++
-      ~w(id canonical_url name summary license is_local
+      ~w(id canonical_url name summary license categories tags is_local
          is_public is_disabled created_at updated_at __typename)a
   end
 

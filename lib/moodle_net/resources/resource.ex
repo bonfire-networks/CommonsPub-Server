@@ -31,11 +31,13 @@ defmodule MoodleNet.Resources.Resource do
     field(:disabled_at, :utc_datetime_usec)
     field(:deleted_at, :utc_datetime_usec)
     field(:extra_info, :map)
+    field(:categories, {:array, :string}, default: [])
+    field(:tags, {:array, :string}, default: [])
     timestamps()
   end
 
   @required ~w(name content_id creator_id)a
-  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id author)a
+  @cast @required ++ ~w(canonical_url is_public is_disabled license summary icon_id author categories tags)a
 
   @spec create_changeset(User.t(), Collection.t(), map) :: Changeset.t()
   @doc "Creates a changeset for insertion of a resource with the given attributes."
