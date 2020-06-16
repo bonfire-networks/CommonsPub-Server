@@ -99,6 +99,8 @@ stable-build-and-push:
     - make build
     - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_stable ; else echo "Push to Docker Hub or skip if login details missing..."; fi
+    - make build_hq
+    - if [ ! -z "$CI_REGISTRY_PASSWORD" ]; then make push_hq ; else echo "Push to Docker Hub or skip if login details missing..."; fi
     - if [ ! -z "$MAIL_KEY" ]; then make hq_deploy_stable ; else echo "Deploy to Moodle HQ sites or skip if shared key missing..."; fi
   only:
   - master

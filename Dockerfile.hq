@@ -1,0 +1,2 @@
+FROM moodlenet/moodlenet:stable
+COPY /config/deployment/etc/nginx/conf.d/hq.template /etc/nginx/conf.d/mnet.template
