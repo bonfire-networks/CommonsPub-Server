@@ -95,6 +95,7 @@ defmodule ActivityPub.Object do
     object
     |> cast(attrs, [:data, :local, :public, :mn_pointer_id])
     |> validate_required(:data)
+    |> unique_constraint(:data, name: :ap_object__data____id_index)
   end
 
   def update(object, attrs) do
