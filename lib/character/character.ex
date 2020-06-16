@@ -19,7 +19,7 @@ defmodule Character do
   trait_schema("character", :character) do
 
     belongs_to(:actor, Actor) # references the Actor who plays this Character in the fediverse
-    belongs_to(:context, Pointer) # points to the parent Thing of this Character
+    # belongs_to(:context, Pointer) # points to the parent Thing of this Character
 
     # field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
     # field(:characteristic, :any, virtual: true) 
@@ -30,14 +30,6 @@ defmodule Character do
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     field(:follower_count, :any, virtual: true) # because it's keyed by pointer
-
-    field(:name, :string)
-    field(:summary, :string)
-    field(:extra_info, :map)
-
-    belongs_to(:icon, Content)
-    belongs_to(:image, Content)
-    # belongs_to(:primary_language, Language)
 
     belongs_to(:creator, User)
 
@@ -50,8 +42,8 @@ defmodule Character do
     timestamps()
   end
 
-  @required ~w(name facet)a
-  @cast @required ++ ~w(summary extra_info characteristic_id context_id actor_id icon_id is_disabled inbox_id outbox_id)a
+  @required ~w(facet)a
+  @cast @required ++ ~w(actor_id icon_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
       %User{} = creator,
@@ -71,25 +63,25 @@ defmodule Character do
   |> common_changeset()
   end
 
-  def create_changeset(
-        %User{} = creator,
-        # %{id: _} = characteristic,
-        %Actor{} = actor,
-        %{id: _} = context,
-        attrs
-      ) do
-    %Character{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: creator.id,
-      # characteristic_id: characteristic_pointer_id(attrs),
-      context_id: context.id,
-      actor_id: actor.id,
-      is_public: true
-    )
-    |> common_changeset()
-  end
+  # def create_changeset(
+  #       %User{} = creator,
+  #       # %{id: _} = characteristic,
+  #       %Actor{} = actor,
+  #       %{id: _} = context,
+  #       attrs
+  #     ) do
+  #   %Character{}
+  #   |> Changeset.cast(attrs, @cast)
+  #   |> Changeset.validate_required(@required)
+  #   |> Changeset.change(
+  #     creator_id: creator.id,
+  #     # characteristic_id: characteristic_pointer_id(attrs),
+  #     context_id: context.id,
+  #     actor_id: actor.id,
+  #     is_public: true
+  #   )
+  #   |> common_changeset()
+  # end
 
   def update_changeset(%Character{} = character, attrs) do
     character

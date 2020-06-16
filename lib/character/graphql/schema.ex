@@ -106,24 +106,24 @@ defmodule Character.GraphQL.Schema do
       resolve &ActorsResolver.display_username_edge/3
     end
 
-    @desc "A name field"
-    field :name, non_null(:string)
+    # @desc "A name field"
+    # field :name, non_null(:string)
 
-    @desc "Possibly biographical information"
-    field :summary, :string
+    # @desc "Possibly biographical information"
+    # field :summary, :string
 
-    @desc "An avatar or icon url"
-    field :icon, :content do
-      resolve &UploadResolver.icon_content_edge/3
-    end
+    # @desc "An avatar or icon url"
+    # field :icon, :content do
+    #   resolve &UploadResolver.icon_content_edge/3
+    # end
 
-    @desc "A background image url"
-    field :image, :content do
-      resolve &UploadResolver.image_content_edge/3
-    end
+    # @desc "A background image url"
+    # field :image, :content do
+    #   resolve &UploadResolver.image_content_edge/3
+    # end
 
-    @desc "A JSON document containing more info beyond the default fields"
-    field :extra_info, :json
+    # @desc "A JSON document containing more info beyond the default fields"
+    # field :extra_info, :json
 
     @desc "Whether the character is local to the instance"
     field :is_local, non_null(:boolean) do
@@ -239,10 +239,6 @@ defmodule Character.GraphQL.Schema do
       resolve &FollowsResolver.follower_count_edge/3
     end
 
-    @desc "Total number of likers, including those we can't see"
-    field :liker_count, :integer do
-      resolve &LikesResolver.liker_count_edge/3
-    end
 
     @desc "Subscriptions users have to the character"
     field :followers, :follows_page do
@@ -252,21 +248,6 @@ defmodule Character.GraphQL.Schema do
       resolve &FollowsResolver.followers_edge/3
     end
 
-    @desc "Likes users have made of the character"
-    field :likers, :likes_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &LikesResolver.likers_edge/3
-    end
-
-    @desc "Flags users have made about the character, most recently created first"
-    field :flags, :flags_page do
-      arg :limit, :integer
-      arg :before, list_of(non_null(:cursor))
-      arg :after, list_of(non_null(:cursor))
-      resolve &FlagsResolver.flags_edge/3
-    end
 
     # @desc "Tags users have applied to the resource, most recently created first"
     # field :taggings, :taggings_page do

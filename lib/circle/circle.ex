@@ -22,13 +22,17 @@ defmodule Circle do
     
     # belongs_to(:character, Character)
 
-    # joined fields from Character
+    # joined fields from Profile
     field(:name, :string, virtual: true) 
     field(:summary, :string, virtual: true) 
     field(:updated_at, :utc_datetime_usec, virtual: true)
     
+    has_one(:profile, Profile, foreign_key: :id) # joined via Character
+    has_one(:character, Character, foreign_key: :id) # joined via Character
     has_one(:actor, Actor) # joined via Character
-    
+
+    belongs_to(:context, Pointer) # points to the parent Thing of this Character
+
     # joined fields from Actor:
     field(:preferred_username, :string, virtual: true) 
     field(:canonical_url, :string, virtual: true) 

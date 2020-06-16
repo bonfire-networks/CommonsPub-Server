@@ -9,7 +9,7 @@ defmodule Character.Migrations do
     create_trait_table(:character) do
       # add :characteristic_id, :uuid # points to the Thing that this Character represents
       add :actor_id, references("mn_actor", on_delete: :delete_all) # points to the Actor who plays this Character in the fediverse
-      add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
+      # add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
       add :facet, :string
       add :inbox_id, references("mn_feed", on_delete: :nilify_all)
       add :outbox_id, references("mn_feed", on_delete: :nilify_all)

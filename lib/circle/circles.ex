@@ -77,7 +77,8 @@ defmodule Circle.Circles do
 
       attrs = Map.put(attrs, :facet, @facet_name)
 
-      with {:ok, circle} <- insert_circle(attrs),
+      with {:ok, circle} <- insert_circle(attrs, context),
+            :ok <- IO.inspect(circle),
            {:ok, profile} <- Profiles.create(creator, %{ attrs | id: circle.id }),
            {:ok, character} <- Characters.create(creator, %{ attrs | id: circle.id })
           #  {:ok, character} <- Characters.thing_link(circle, character)
@@ -105,9 +106,13 @@ defmodule Circle.Circles do
 
   defp insert_circle(attrs) do
     cs = Circle.create_changeset(attrs)
-    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle)  }
+    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle) }
   end
 
+  defp insert_circle(attrs, context) do
+    cs = Circle.create_changeset(attrs, context)
+    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle)  }
+  end
 
   # TODO: take the user who is performing the update
   @spec update(User.t(), Circle.t(), attrs :: map) :: {:ok, Circle.t()} | {:error, Changeset.t()}

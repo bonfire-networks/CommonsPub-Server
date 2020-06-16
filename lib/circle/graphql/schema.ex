@@ -82,7 +82,10 @@ defmodule Circle.GraphQL.Schema do
     @desc "An instance-unique identifier shared with users and communities"
     field :preferred_username, :string 
 
-    @desc "The character associated with this circle"
+    @desc "The Profile associated with this circle"
+    field :profile, :profile 
+
+    @desc "The Character associated with this circle"
     field :character, :character 
 
     @desc "A preferred username + the host domain"

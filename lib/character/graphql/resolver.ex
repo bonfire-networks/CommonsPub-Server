@@ -138,18 +138,6 @@ defmodule Character.GraphQL.Resolver do
 
   ## finally the mutations...
 
-  def create_character(%{character: attrs, context_id: context_id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: context_id),
-           :ok <- validate_character_context(pointer) do
-        context = MoodleNet.Meta.Pointers.follow!(pointer)
-        attrs = Map.merge(attrs, %{is_public: true})
-        Characters.create(user, context, attrs)
-      end
-    end)
-  end
-
   def create_character(%{character: attrs}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do

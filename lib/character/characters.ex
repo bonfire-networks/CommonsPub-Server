@@ -94,27 +94,6 @@ defmodule Character.Characters do
     end)
   end
 
-  @spec create(User.t(), context :: any, attrs :: map) :: {:ok, Character.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, context, attrs) when is_map(attrs) do
-
-    Repo.transact_with(fn ->
-
-      attrs = Actors.prepare_username(attrs)
-      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
-
-      with {:ok, actor} <- Actors.create(attrs),
-           {:ok, character_attrs} <- create_boxes(actor, attrs),
-           {:ok, character} <- insert_character_with_context(creator, context, actor, character_attrs),
-           act_attrs = %{verb: "created", is_local: true},
-           {:ok, activity} <- Activities.create(creator, character, act_attrs),
-           :ok <- publish(creator, context, character, activity, :created), # FIXME
-           :ok <- index(character), # add to search index
-           {:ok, _follow} <- Follows.create(creator, character, %{is_local: true}) do
-        {:ok, character}
-      end
-    end)
-  end
-
   defp create_boxes(%{peer_id: nil}, attrs), do: create_local_boxes(attrs)
   defp create_boxes(%{peer_id: _}, attrs), do: create_remote_boxes(attrs)
 
@@ -143,10 +122,10 @@ defmodule Character.Characters do
   #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, characteristic: characteristic }}
   # end
 
-  defp insert_character_with_context(creator, context, actor, attrs) do
-    cs = Character.create_changeset(creator, actor, context, attrs)
-    with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context }}
-  end
+  # defp insert_character_with_context(creator, context, actor, attrs) do
+  #   cs = Character.create_changeset(creator, actor, context, attrs)
+  #   with {:ok, character} <- Repo.insert(cs), do: {:ok, %{ character | actor: actor, context: context }}
+  # end
 
   # defp insert_character(creator, characteristic, context, actor, attrs) do
   #   cs = Character.create_changeset(creator, characteristic, actor, context, attrs)
@@ -175,11 +154,11 @@ defmodule Character.Characters do
     # characterise(user, pointer, %{}) 
 
     Repo.transact_with(fn ->
-      with {:ok, character} <- create(user, char_attrs),
+      with {:ok, character} <- create(user, char_attrs)
             # :ok <- {:ok, IO.inspect(character)}, # wtf, without this line character is not set in the next one
-           {:ok, thing} <- character_link(thing, character, thing_context_module)
+          #  {:ok, thing} <- character_link(thing, character, thing_context_module)
             do
-              {:ok, %{ character | characteristic: thing }}
+              {:ok, character }
       end
     end)
 
@@ -207,27 +186,6 @@ defmodule Character.Characters do
     |> Map.from_struct |> Map.delete(:__meta__) # convert to map
   end 
 
-  @doc "Execute `character_link/3` from the character's context module if it exists, which should update the thing and link it to the charecter."
-  defp character_link(thing, character, thing_context_module) do
-    if(Kernel.function_exported?(thing_context_module, :character_link, 1)) do
-      thing = apply(thing_context_module, :character_link, [thing, character])
-    end
-
-    {:ok, thing}
-  end
-
-  @doc "Update the character and link it to a thing."
-  def thing_link(thing, character) do
-    Repo.transact_with(fn ->
-
-      # IO.inspect(tl_th: thing)
-      # IO.inspect(tl_char: character)
-
-      with {:ok, character} <- Repo.update(Character.update_changeset(character, %{ characteristic: thing })) do
-        {:ok, character }
-      end
-    end)
-  end
 
   defp publish(creator, character, activity, :created) do
     feeds = [
@@ -239,15 +197,15 @@ defmodule Character.Characters do
       do: :ok
   end
 
-  defp publish(creator, character, context, activity, :created) do
-    feeds = [
-      context.outbox_id, creator.outbox_id,
-      character.outbox_id, Feeds.instance_outbox_id(),
-    ]
-    with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", character.id, creator.id, character.actor.peer_id),
-      do: :ok
-  end
+  # defp publish(creator, character, context, activity, :created) do
+  #   feeds = [
+  #     context.outbox_id, creator.outbox_id,
+  #     character.outbox_id, Feeds.instance_outbox_id(),
+  #   ]
+  #   with :ok <- FeedActivities.publish(activity, feeds),
+  #        {:ok, _} <- ap_publish("create", character.id, creator.id, character.actor.peer_id),
+  #     do: :ok
+  # end
 
   defp publish(character, :updated) do
     # TODO: wrong if edited by admin

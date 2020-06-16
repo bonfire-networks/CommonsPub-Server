@@ -12,11 +12,12 @@ defmodule Circle.Queries do
 
   def query(Circle) do
     from o in Circle, as: :circle,
+      join: p in assoc(o, :profile), as: :profile,
       join: c in assoc(o, :character), as: :character,
       join: a in assoc(c, :actor), as: :actor,
-      select_merge: %{name: c.name},
-      select_merge: %{summary: c.summary},
-      select_merge: %{updated_at: c.updated_at},
+      select_merge: %{name: p.name},
+      select_merge: %{summary: p.summary},
+      select_merge: %{updated_at: p.updated_at},
       select_merge: %{preferred_username: a.preferred_username},
       select_merge: %{canonical_url: a.canonical_url}
   end

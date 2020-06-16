@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4004:4000"
+      - "4005:4000"
     env_file:
       - config/docker.dev.env
     depends_on:

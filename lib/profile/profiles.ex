@@ -75,11 +75,6 @@ defmodule Profile.Profiles do
 
     Repo.transact_with(fn ->
 
-      attrs = Actors.prepare_username(attrs)
-      # IO.inspect(attrs)
-      # attrs = Map.put(attrs, :alternative_username, Map.get(attrs, :preferred_username)<>"-"<>Map.get(attrs, :facet))
-      # IO.inspect(attrs)
-  
       with {:ok, profile} <- insert_profile(creator, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, profile, act_attrs),
@@ -120,11 +115,9 @@ defmodule Profile.Profiles do
     # add_profile_to(user, pointer, %{}) 
 
     Repo.transact_with(fn ->
-      with {:ok, profile} <- create(user, profile_attrs),
-            # :ok <- {:ok, IO.inspect(profile)}, # wtf, without this line profile is not set in the next one
-           {:ok, thing} <- profile_link(thing, profile, thing_context_module)
+      with {:ok, profile} <- create(user, profile_attrs)
             do
-              {:ok, %{ profile | profileistic: thing }}
+              {:ok, profile }
       end
     end)
 
@@ -152,27 +145,6 @@ defmodule Profile.Profiles do
     |> Map.from_struct |> Map.delete(:__meta__) # convert to map
   end 
 
-  @doc "Execute `profile_link/3` from the profile's context module if it exists, which should update the thing and link it to the profileecter."
-  defp profile_link(thing, profile, thing_context_module) do
-    if(Kernel.function_exported?(thing_context_module, :profile_link, 1)) do
-      thing = apply(thing_context_module, :profile_link, [thing, profile])
-    end
-
-    {:ok, thing}
-  end
-
-  @doc "Update the profile and link it to a thing."
-  def thing_link(thing, profile) do
-    Repo.transact_with(fn ->
-
-      # IO.inspect(tl_th: thing)
-      # IO.inspect(tl_profile: profile)
-
-      with {:ok, profile} <- Repo.update(Profile.update_changeset(profile, %{ profileistic: thing })) do
-        {:ok, profile }
-      end
-    end)
-  end
 
   defp publish(creator, profile, activity, :created) do
     feeds = [
