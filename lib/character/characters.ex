@@ -256,7 +256,7 @@ defmodule Character.Characters do
         {:error, _} -> nil
       end
 
-    icon = MoodleNet.Uploads.remote_url_from_id(character.icon_id)
+    # icon = MoodleNet.Uploads.remote_url_from_id(character.icon_id)
     # image = MoodleNet.Uploads.remote_url_from_id(character.image_id)
 
     canonical_url = MoodleNet.ActivityPub.Utils.get_actor_canonical_url(character)
@@ -269,16 +269,16 @@ defmodule Character.Characters do
       "followers" => %{
         "totalCount" => follower_count
       },
-      "icon" => icon,
+      # "icon" => icon,
       # "image" => image,
-      "name" => character.name,
+      # "name" => character.name,
       "preferredUsername" => character.actor.preferred_username,
-      "summary" => character.summary,
+      # "summary" => character.summary,
       "createdAt" => character.published_at,
       "index_instance" => URI.parse(canonical_url).host, # home instance of object
     }
 
-    Search.Indexing.maybe_index_object(object)
+    # Search.Indexing.maybe_index_object(object)
 
     :ok
 

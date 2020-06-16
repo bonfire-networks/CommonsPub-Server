@@ -149,22 +149,22 @@ defmodule Profile.Profiles do
   defp publish(creator, profile, activity, :created) do
     feeds = [
       creator.outbox_id,
-      profile.outbox_id, Feeds.instance_outbox_id(),
+      Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds),
-         {:ok, _} <- ap_publish("create", profile.id, creator.id, profile.actor.peer_id),
+         {:ok, _} <- ap_publish("create", profile.id, creator.id, nil),
       do: :ok
   end
 
 
   defp publish(profile, :updated) do
     # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("update", profile.id, profile.creator_id, profile.actor.peer_id),
+    with {:ok, _} <- ap_publish("update", profile.id, profile.creator_id, nil),
       do: :ok
   end
   defp publish(profile, :deleted) do
     # TODO: wrong if edited by admin
-    with {:ok, _} <- ap_publish("delete", profile.id, profile.creator_id, profile.actor.peer_id),
+    with {:ok, _} <- ap_publish("delete", profile.id, profile.creator_id, nil),
       do: :ok
   end
 

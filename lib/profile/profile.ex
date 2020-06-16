@@ -38,7 +38,7 @@ defmodule Profile do
   end
 
   @required ~w(id name)a
-  @cast @required ++ ~w(summary extra_info icon_id is_disabled)a
+  @cast @required ++ ~w(summary extra_info image_id icon_id is_disabled)a
 
   def create_changeset(
       %User{} = creator,

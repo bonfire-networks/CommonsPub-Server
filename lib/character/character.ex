@@ -42,8 +42,8 @@ defmodule Character do
     timestamps()
   end
 
-  @required ~w(facet)a
-  @cast @required ++ ~w(actor_id icon_id is_disabled inbox_id outbox_id)a
+  @required ~w(id facet)a
+  @cast @required ++ ~w(actor_id is_disabled inbox_id outbox_id)a
 
   def create_changeset(
       %User{} = creator,

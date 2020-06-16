@@ -78,9 +78,9 @@ defmodule Circle.Circles do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, circle} <- insert_circle(attrs, context),
-            :ok <- IO.inspect(circle),
-           {:ok, profile} <- Profiles.create(creator, %{ attrs | id: circle.id }),
-           {:ok, character} <- Characters.create(creator, %{ attrs | id: circle.id })
+          {:ok, attrs} <- attrs_with_circle(attrs, circle),
+          {:ok, profile} <- Profiles.create(creator, attrs),
+          {:ok, character} <- Characters.create(creator, attrs)
           #  {:ok, character} <- Characters.thing_link(circle, character)
             do
         {:ok, %{ circle | character: character }}
@@ -95,8 +95,9 @@ defmodule Circle.Circles do
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, circle} <- insert_circle(attrs),
-          {:ok, profile} <- Profiles.create(creator, %{ attrs | id: circle.id }),
-          {:ok, character} <- Characters.create(creator, %{ attrs | id: circle.id })
+          {:ok, attrs} <- attrs_with_circle(attrs, circle),
+          {:ok, profile} <- Profiles.create(creator, attrs),
+          {:ok, character} <- Characters.create(creator, attrs)
           # {:ok, character} <- Characters.thing_link(circle, character)
            do
             {:ok, %{ circle | character: character }}
@@ -104,7 +105,14 @@ defmodule Circle.Circles do
     end)
   end
 
+  defp attrs_with_circle(attrs, circle) do
+    attrs = Map.put(attrs, :id, circle.id)
+    IO.inspect(attrs)
+    {:ok, attrs}
+  end
+
   defp insert_circle(attrs) do
+    IO.inspect(attrs)
     cs = Circle.create_changeset(attrs)
     with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle) }
   end
