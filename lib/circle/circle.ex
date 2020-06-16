@@ -43,6 +43,20 @@ defmodule Circle do
   @cast ~w(extra_info)a
 
   def create_changeset(
+      %{id: _} = context,
+      attrs
+    ) do
+  %Circle{}
+  # |> Changeset.change(
+  #   id: Ecto.ULID.generate()
+  #   )
+    |> Changeset.change(
+      context_id: context.id
+    )
+  |> common_changeset()
+  end
+
+  def create_changeset(
       attrs
     ) do
   %Circle{}
