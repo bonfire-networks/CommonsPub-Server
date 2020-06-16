@@ -11,6 +11,7 @@ defmodule Circle.Circles do
   alias MoodleNet.Users.User
   alias MoodleNet.Workers.APPublishWorker
   alias Character.Characters
+  alias Profile.Profiles
 
   @facet_name "Circle"
 
@@ -76,9 +77,10 @@ defmodule Circle.Circles do
 
       attrs = Map.put(attrs, :facet, @facet_name)
 
-      with {:ok, character} <- Characters.create(creator, context, attrs),
-           {:ok, circle} <- insert_circle(character, attrs),
-           {:ok, character} <- Characters.thing_link(circle, character)
+      with {:ok, circle} <- insert_circle(attrs),
+           {:ok, profile} <- Profiles.create(creator, %{ attrs | id: circle.id }),
+           {:ok, character} <- Characters.create(creator, %{ attrs | id: circle.id })
+          #  {:ok, character} <- Characters.thing_link(circle, character)
             do
         {:ok, %{ circle | character: character }}
       end
@@ -91,18 +93,19 @@ defmodule Circle.Circles do
 
       attrs = Map.put(attrs, :facet, @facet_name)
 
-      with {:ok, character} <- Characters.create(creator, attrs),
-          {:ok, circle} <- insert_circle(character, attrs),
-          {:ok, character} <- Characters.thing_link(circle, character)
+      with {:ok, circle} <- insert_circle(attrs),
+          {:ok, profile} <- Profiles.create(creator, %{ attrs | id: circle.id }),
+          {:ok, character} <- Characters.create(creator, %{ attrs | id: circle.id })
+          # {:ok, character} <- Characters.thing_link(circle, character)
            do
             {:ok, %{ circle | character: character }}
       end
     end)
   end
 
-  defp insert_circle(character, attrs) do
-    cs = Circle.create_changeset(character, attrs)
-    with {:ok, circle} <- Repo.insert(cs), do: {:ok, %{ circle | character: character }}
+  defp insert_circle(attrs) do
+    cs = Circle.create_changeset(attrs)
+    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle)  }
   end
 
 

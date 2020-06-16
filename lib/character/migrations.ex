@@ -1,16 +1,13 @@
 defmodule Character.Migrations do
 
   use Ecto.Migration
-  alias MoodleNet.Repo
-  alias Ecto.ULID
-
-  @meta_tables [] ++ ~w(character) 
+  import Pointers.Migration
 
   def up do
 
     # a character is a group actor that is home to resources
-    create_if_not_exists table(:character) do
-      add :characteristic_id, :uuid # points to the Thing that this Character represents
+    create_trait_table(:character) do
+      # add :characteristic_id, :uuid # points to the Thing that this Character represents
       add :actor_id, references("mn_actor", on_delete: :delete_all) # points to the Actor who plays this Character in the fediverse
       add :context_id, references("mn_pointer", on_delete: :nilify_all) # points to the parent Thing of this Character
       add :facet, :string
@@ -36,24 +33,6 @@ defmodule Character.Migrations do
     # create_if_not_exists index(:character, :primary_language_id)
 
 
-    tables = Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-      {_, _} = Repo.insert_all("mn_table", tables)
-      tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-    end)
-
-    for table <- @meta_tables do
-        :ok = execute """
-        create trigger "insert_pointer_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure insert_pointer()
-        """
-    end
-
-
     :ok = execute """
     create view character_last_activity as
     select character.id as character_id, max(mn_feed_activity.id) as activity_id
@@ -68,14 +47,12 @@ defmodule Character.Migrations do
 
       :ok = execute "drop view if exists character_last_activity"
       
-      MoodleNet.ReleaseTasks.remove_meta_table("character")
-
       drop_if_exists index(:character, :updated_at)
       drop_if_exists index(:character, :actor_id)
       drop_if_exists index(:character, :creator_id)
       drop_if_exists index(:character, :community_id)
       drop_if_exists index(:character, :primary_language_id)
-      drop_if_exists table(:character)
+      drop_trait_table(:character)
 
   end
 

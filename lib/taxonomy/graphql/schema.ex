@@ -60,8 +60,7 @@ defmodule Taxonomy.GraphQL.TagsSchema do
       resolve &TagsResolver.tag_children/3
     end
 
-    # field(:actor, :string)
-
+    field(:character_id, :string)
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
       resolve &Character.GraphQL.Resolver.character/3

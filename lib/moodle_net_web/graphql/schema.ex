@@ -67,6 +67,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UploadSchema
 
   # Extension Modules
+  import_types Profile.GraphQL.Schema
   import_types Character.GraphQL.Schema
   import_types Circle.GraphQL.Schema
   import_types Locales.GraphQL.Schema
@@ -95,6 +96,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_queries
 
     # Extension Modules
+    import_fields :profile_queries
     import_fields :character_queries
     import_fields :circles_queries
 
@@ -125,6 +127,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :users_mutations
 
     # Extension Modules
+    import_fields :profile_mutations
     import_fields :character_mutations
     import_fields :circles_mutations
     import_fields :taxonomy_mutations

@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Character do
-  use MoodleNet.Common.Schema
+  use Pointers.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -16,13 +16,14 @@ defmodule Character do
 
   @type t :: %__MODULE__{}
 
-  table_schema "character" do
+  trait_schema("character", :character) do
+
     belongs_to(:actor, Actor) # references the Actor who plays this Character in the fediverse
     belongs_to(:context, Pointer) # points to the parent Thing of this Character
 
     # field(:characteristic_id, Ecto.ULID) # points to the Thing that this Character represents
     # field(:characteristic, :any, virtual: true) 
-    belongs_to(:characteristic, Pointer) 
+    # belongs_to(:characteristic, Pointer) 
 
     field(:facet, :string) # name for the Thing this character represents (same naming as the singular object module), eg. Circle, Geolocation, etc
 
@@ -63,7 +64,7 @@ defmodule Character do
   |> Changeset.validate_required(@required)
   |> Changeset.change(
     creator_id: creator.id,
-    characteristic_id: characteristic_pointer_id(attrs),
+    # characteristic_id: characteristic_pointer_id(attrs),
     actor_id: actor.id,
     is_public: true
   )
@@ -82,7 +83,7 @@ defmodule Character do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      characteristic_id: characteristic_pointer_id(attrs),
+      # characteristic_id: characteristic_pointer_id(attrs),
       context_id: context.id,
       actor_id: actor.id,
       is_public: true
@@ -93,9 +94,9 @@ defmodule Character do
   def update_changeset(%Character{} = character, attrs) do
     character
     |> Changeset.cast(attrs, @cast)
-    |> Changeset.change(
-      characteristic_id: characteristic_pointer_id(attrs)
-    )
+    # |> Changeset.change(
+    #   characteristic_id: characteristic_pointer_id(attrs)
+    # )
     |> common_changeset()
   end
 

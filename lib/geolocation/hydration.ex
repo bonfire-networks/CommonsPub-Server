@@ -11,7 +11,7 @@ defmodule Geolocation.GraphQL.Hydration do
 
   def hydrate(blueprint) do
     %{
-      spatial_thing: %{
+      spatial_thing: %{ 
         canonical_url: [
           resolve: &ActorsResolver.canonical_url_edge/3
         ],

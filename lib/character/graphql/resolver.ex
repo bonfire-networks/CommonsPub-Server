@@ -82,7 +82,7 @@ defmodule Character.GraphQL.Resolver do
     )
   end
 
-  def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
+  # def characteristic_edge(%Character{characteristic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info) 
 
   def resource_count_edge(%Character{id: id}, _, info) do
     Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0

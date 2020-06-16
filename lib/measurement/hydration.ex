@@ -7,7 +7,7 @@ defmodule Measurement.Hydration do
 
   def hydrate(blueprint) do
     %{
-      unit_context: [
+      unit_context: [ 
         resolve_type: &__MODULE__.resolve_context_type/2,
       ],
       unit: %{

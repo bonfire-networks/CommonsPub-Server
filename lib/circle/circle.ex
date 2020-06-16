@@ -2,7 +2,7 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Circle do
-  use MoodleNet.Common.Schema
+  use Pointers.Schema
 
   import MoodleNet.Common.Changeset, only: [change_public: 1, change_disabled: 1]
 
@@ -17,9 +17,10 @@ defmodule Circle do
 
   @type t :: %__MODULE__{}
 
-  table_schema "circle" do
+  # C1RC1E0FPE0P1EAND0RC1RC1ES
+  pointable_schema("circle", "01EAQ0ENYEFY2DZHATQWZ2AEEQ") do
     
-    belongs_to(:character, Character)
+    # belongs_to(:character, Character)
 
     # joined fields from Character
     field(:name, :string, virtual: true) 
@@ -38,13 +39,12 @@ defmodule Circle do
   @cast ~w(extra_info)a
 
   def create_changeset(
-      %Character{} = character,
       attrs
     ) do
   %Circle{}
-  |> Changeset.change(
-    character_id: character.id
-    )
+  # |> Changeset.change(
+  #   id: Ecto.ULID.generate()
+  #   )
   |> common_changeset()
   end
 

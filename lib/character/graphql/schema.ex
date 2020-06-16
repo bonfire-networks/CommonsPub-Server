@@ -82,11 +82,11 @@ defmodule Character.GraphQL.Schema do
     @desc "An instance-local UUID identifying the character. Not to be confused with the associated thing's ID (available under characteristic.id)"
     field :id, non_null(:string)
 
-    @desc "A reference to the thing that this Character represents"
-    field :characteristic_id, :string
-    field :characteristic, :character_tropes do
-      resolve &Character.GraphQL.Resolver.characteristic_edge/3
-    end
+    # @desc "A reference to the thing that this Character represents"
+    # field :characteristic_id, :string
+    # field :characteristic, :character_tropes do
+    #   resolve &Character.GraphQL.Resolver.characteristic_edge/3
+    # end
 
     @desc "A friendly name for the type of thing this character represents, eg. Circle, Location, Tag..."
     field :facet, non_null(:string)
