@@ -32,7 +32,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-delete.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
 
       object =
         data["object"]
@@ -52,14 +52,14 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     test "it errors when note still exists" do
       note_data =
         File.read!("test/fixtures/pleroma_note.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
 
       note = insert(:note, data: note_data)
       activity = insert(:note_activity, %{note: note})
 
       data =
         File.read!("test/fixtures/mastodon-delete.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
 
       object =
         data["object"]
@@ -81,7 +81,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-delete-user.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
 
       {:ok, _} = Transmogrifier.handle_incoming(data)
 
@@ -91,7 +91,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     test "it returns an error for incoming unlikes wihout a like activity" do
       data =
         File.read!("test/fixtures/mastodon-undo-like.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
 
       assert Transmogrifier.handle_incoming(data) == :error
     end
@@ -104,7 +104,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-like.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("object", note_activity.data["object"])
         |> Map.put("actor", delete_actor.data["id"])
 
@@ -124,7 +124,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       like_data =
         File.read!("test/fixtures/mastodon-like.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("object", note_activity.data["object"])
         |> Map.put("actor", delete_actor.data["id"])
 
@@ -132,7 +132,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-undo-like.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("object", like_data)
         |> Map.put("actor", like_data["actor"])
 
@@ -150,7 +150,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-announce.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("actor", announce_actor.data["id"])
         |> Map.put("object", note.data["id"])
 
@@ -174,7 +174,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-announce.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("object", note_activity.data["object"])
         |> Map.put("actor", announce_actor.data["id"])
 
@@ -197,7 +197,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       announce_data =
         File.read!("test/fixtures/mastodon-announce.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("actor", announce_actor.data["id"])
         |> Map.put("object", note_activity.data["object"])
 
@@ -206,7 +206,7 @@ defmodule ActivityPubWeb.TransmogrifierTest do
 
       data =
         File.read!("test/fixtures/mastodon-undo-announce.json")
-        |> Poison.decode!()
+        |> Jason.decode!()
         |> Map.put("object", announce_data)
         |> Map.put("actor", announce_data["actor"])
 
@@ -246,10 +246,10 @@ defmodule ActivityPubWeb.TransmogrifierTest do
     end
 
     test "it works for incoming update activities" do
-      data = File.read!("test/fixtures/mastodon-post-activity.json") |> Poison.decode!()
+      data = File.read!("test/fixtures/mastodon-post-activity.json") |> Jason.decode!()
 
       {:ok, %Object{data: data, local: false}} = Transmogrifier.handle_incoming(data)
-      update_data = File.read!("test/fixtures/mastodon-update.json") |> Poison.decode!()
+      update_data = File.read!("test/fixtures/mastodon-update.json") |> Jason.decode!()
 
       {:ok, actor} = Actor.get_or_fetch_by_ap_id(data["actor"])
 
