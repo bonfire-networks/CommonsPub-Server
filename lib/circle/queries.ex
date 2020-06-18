@@ -186,7 +186,7 @@ defmodule Circle.Queries do
   # end
 
   def filter(q, {:preload, :default}) do
-    preload q, [character: c, actor: a], character: c, actor: a
+    preload q, [profile: p, character: c, actor: a], profile: p, character: c, actor: a
   end
 
   # pagination

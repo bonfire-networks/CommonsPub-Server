@@ -116,8 +116,9 @@ defmodule MoodleNet.Mixfile do
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
       # CommonsPub:
-      {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
-      {:pointers, path: "uploads/many-pointers"},
+      {:pointers, "~> 0.2.1"},
+      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
+      # {:pointers, path: "uploads/many-pointers"},
       {:geo_postgis, "~> 3.1"}, # geolocation in postgres
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},

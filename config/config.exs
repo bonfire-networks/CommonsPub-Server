@@ -245,8 +245,10 @@ config :sentry,
 config :moodle_net, :env, Mix.env()
 
 config :pointers, 
-  schema_pointers_table: "mn_table",
-  schema_pointers: "mn_pointer"
+  table_table: "mn_table",
+  pointer_table: "mn_pointer",
+  trigger_function: "insert_pointer",
+  trigger_prefix: "insert_pointer_"
 
 
 # Import environment specific config. This must remain at the bottom

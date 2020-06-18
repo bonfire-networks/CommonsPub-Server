@@ -83,7 +83,7 @@ defmodule Circle.Circles do
           {:ok, character} <- Characters.create(creator, attrs)
           #  {:ok, character} <- Characters.thing_link(circle, character)
             do
-        {:ok, %{ circle | character: character }}
+        {:ok, %{ circle | character: character, profile: profile }}
       end
     end)
   end
@@ -100,7 +100,7 @@ defmodule Circle.Circles do
           {:ok, character} <- Characters.create(creator, attrs)
           # {:ok, character} <- Characters.thing_link(circle, character)
            do
-            {:ok, %{ circle | character: character }}
+            {:ok, %{ circle | character: character, profile: profile }}
       end
     end)
   end

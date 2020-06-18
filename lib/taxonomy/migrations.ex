@@ -18,46 +18,17 @@ defmodule Taxonomy.Migrations do
     end
   end
 
-  @meta_tables [] ++ ~w(taxonomy_tags) 
+  def remove_pointer do # cleanup deprecated stuff
+    table = "taxonomy_tags"
 
-  def add_pointer do
-    alter table(:taxonomy_tags) do
-      add_if_not_exists :pointer_id, :uuid
-    end
-  end
-
-  def init_pointer do
-
-    tables = Enum.map(@meta_tables, fn name ->
-        %{"id" => ULID.bingenerate(), "table" => name}
-      end)
-      {_, _} = Repo.insert_all("mn_table", tables)
-      tables = Enum.reduce(tables, %{}, fn %{"id" => id, "table" => table}, acc ->
-        Map.put(acc, table, id)
-    end)
-
-    for table <- @meta_tables do
-        :ok = execute """
-        create trigger "insert_pointer_#{table}"
-        before insert on "#{table}"
-        for each row
-        execute procedure insert_pointer()
-        """
-    end
-
-  end
-
-  def remove_pointer do
-
-    alter table(:taxonomy_tags) do
+    alter table(table) do
       remove_if_exists :pointer_id, :uuid
     end
 
-    table = "taxonomy_tags"
+    Pointers.Migration.drop_pointer_trigger(table)
     MoodleNet.ReleaseTasks.remove_meta_table(table)
 
   end
-
 
 
   def up do
