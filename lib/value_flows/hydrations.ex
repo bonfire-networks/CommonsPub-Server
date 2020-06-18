@@ -100,7 +100,10 @@ defmodule ValueFlows.Hydrations do
         ],
         create_action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.create_action/2
-        ]
+        ],
+        update_intent: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
+        ],
       }
     }
   end

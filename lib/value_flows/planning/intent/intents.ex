@@ -149,7 +149,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
   # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
   def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
     Repo.transact_with(fn ->
-      intent = Repo.preload(intent, :community)
+      intent = Repo.preload(intent, [
+        :community, :available_quantity, :resource_quantity, :effort_quantity
+      ])
 
       cs = intent
       |> Intent.update_changeset(attrs)

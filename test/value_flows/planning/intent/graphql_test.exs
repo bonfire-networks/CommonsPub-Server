@@ -55,6 +55,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert {:ok, updated} = Intents.one(id: intent.id)
       assert updated != intent
       assert_intent(updated, resp)
+      assert updated.available_quantity_id != intent.available_quantity_id
     end
   end
 

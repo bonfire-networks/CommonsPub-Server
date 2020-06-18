@@ -88,6 +88,20 @@ defmodule Measurement.Measure.GraphQL do
     end)
   end
 
+  def update_measures(attrs, info, fields) do
+    Repo.transact_with(fn ->
+      attrs
+      |> Map.take(fields)
+      |> map_ok_error(fn
+        %{id: id} = measure when is_binary(id) ->
+          update_measure(measure, info)
+
+        measure ->
+          create_measure(measure, info)
+      end)
+    end)
+  end
+
   # TODO: move to a generic module
   @doc """
   Iterate over a set of elements in a map calling `func`.
@@ -124,7 +138,7 @@ defmodule Measurement.Measure.GraphQL do
     end)
   end
 
-  def update_measure(%{measure: %{id: id} = changes}, info) do
+  def update_measure(%{id: id} = changes, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, measure} <- measure(%{id: id}, info) do

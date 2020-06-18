@@ -137,27 +137,25 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
-  def update_intent(%{intent: changes, intent_id: id}, info) do
+  def update_intent(%{intent: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, intent} <- intent(%{intent_id: id}, info) do
-        intent = Repo.preload(intent, :community)
-        cond do
-          user.local_user.is_instance_admin ->
-        Intents.update(intent, changes)
-
-          intent.creator_id == user.id ->
-        Intents.update(intent, changes)
-
-          intent.community.creator_id == user.id ->
-        Intents.update(intent, changes)
-
-          true -> GraphQL.not_permitted("update")
-        end
+           {:ok, intent} <- intent(%{id: id}, info),
+           :ok <- ensure_update_permission(user, intent),
+           {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
+           {:ok, intent} <- Intents.update(intent, measures, changes) do
+        {:ok, %{intent: intent}}
       end
     end)
   end
 
+  def ensure_update_permission(user, intent) do
+    if user.local_user.is_instance_admin or intent.creator_id == user.id do
+      :ok
+    else
+      GraphQL.not_permitted("update")
+    end
+  end
 
   defp validate_agent(pointer) do
     if Pointers.table!(pointer).schema in valid_contexts() do
