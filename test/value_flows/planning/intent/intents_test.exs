@@ -41,7 +41,18 @@ defmodule ValueFlows.Planning.Intent.IntentsTest do
     end
 
     test "can create an intent with a context" do
-      refute :unimplemented
+      user = fake_user!()
+      unit = fake_unit!(user)
+      another_user = fake_user!()
+      measures = %{
+        resource_quantity: fake_measure!(user, unit),
+        effort_quantity: fake_measure!(user, unit),
+        available_quantity: fake_measure!(user, unit),
+      }
+
+      assert {:ok, intent} = Intents.create(user, another_user, measures, intent())
+      assert_intent(intent)
+      assert intent.context_id == another_user.id
     end
   end
 

@@ -5,6 +5,8 @@ defmodule ValueFlows.Hydrations do
     CommonResolver,
   }
 
+  alias MoodleNet.Users.User
+
   
   def hydrate(blueprint) do
 
@@ -19,7 +21,7 @@ defmodule ValueFlows.Hydrations do
         resolve: &UploadResolver.image_content_edge/3
       ],
       in_scope_of: [
-        resolve: &Organisation.GraphQL.Resolver.community_edge/3
+        resolve: &CommonResolver.context_edge/3
       ],
     }
 
@@ -32,6 +34,9 @@ defmodule ValueFlows.Hydrations do
 
       agent: [
         resolve_type: &ValueFlows.Agent.GraphQL.agent_resolve_type/2,
+      ],
+      accounting_scope: [
+        resolve_type: &__MODULE__.resolve_context_type/2
       ],
       person: agent_fields,
       organization: agent_fields,
@@ -48,7 +53,10 @@ defmodule ValueFlows.Hydrations do
         ],
         receiver: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.fetch_receiver_edge/3
-        ]
+        ],
+        in_scope_of: [
+          resolve: &CommonResolver.context_edge/3
+        ],
       },
 
       # start Query resolvers
@@ -108,5 +116,6 @@ defmodule ValueFlows.Hydrations do
     }
   end
 
-
+  def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%User{}, _), do: :user
 end

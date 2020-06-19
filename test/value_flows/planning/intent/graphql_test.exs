@@ -34,9 +34,17 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert_intent(grumble_post_key(q, conn, :create_intent, vars)["intent"])
     end
 
-    # TODO
-    @tag :skip
     test "creates a new intent given a scope" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      another_user = fake_user!()
+
+      q = create_intent_mutation(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{in_scope_of: another_user.id})}
+      assert resp = grumble_post_key(q, conn, :create_intent, vars)["intent"]
+      assert_intent(resp)
+      assert resp["inScopeOf"]["__typename"] == "User"
     end
   end
 
