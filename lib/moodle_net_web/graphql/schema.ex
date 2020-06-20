@@ -166,7 +166,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     hydrated = Map.merge(hydrated, Geolocation.GraphQL.Hydration.hydrate()) # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
     hydrated = Map.merge(hydrated, Measurement.Hydration.hydrate()) # FIXME: Measurement queries/mutations also return null
     hydrated = Map.merge(hydrated, ValueFlows.Hydrations.hydrate()) # FIXME: only the ValueFlows queries/mutations actually works
-    IO.inspect(merged_hydrations: hydrated) 
+    IO.inspect(merged_hydrations: hydrated) # this does output a merged map of all three hydrations above
     hydrated
   end
 
