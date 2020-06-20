@@ -10,7 +10,7 @@
 ##
 
 # Dynamically supplied by application
-union GeoScope = Collection | Community | Organisation
+union GeoScope = Collection | Community
 
 interface TestingHydrations { # temporary test
   id: ID 
@@ -41,9 +41,9 @@ type SpatialThing {
   alt: Float
 
   "A textual description or comment."
-  note: String,
+  note: String
 
-  geom: Json,
+  geom: Json
 
   ##############################################################################
   # inverse relationships and queries - FIXME

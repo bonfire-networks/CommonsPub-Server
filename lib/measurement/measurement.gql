@@ -10,7 +10,7 @@
 #
 ##
 
-union UnitContext = Organisation | Community | Collection
+union UnitContext = Community | Collection
 
 """
 Defines the unit of time measured in a temporal `Duration`.

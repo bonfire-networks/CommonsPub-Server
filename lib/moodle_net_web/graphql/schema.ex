@@ -67,7 +67,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types UploadSchema
 
   # optional modules:
-  import_types Organisation.GraphQL.Schema
+  # import_types Organisation.GraphQL.Schema
   import_types Locales.GraphQL.Schema
   import_types Taxonomy.GraphQL.TagsSchema
   import_types Measurement.Unit.GraphQL
@@ -94,7 +94,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_queries
     import_fields :users_queries
 
-    import_fields :organisations_queries
+    # import_fields :organisations_queries
 
     # Taxonomy
     import_fields :locales_queries
@@ -125,7 +125,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields :threads_mutations
     import_fields :users_mutations
 
-    import_fields :organisations_mutations
+    # import_fields :organisations_mutations
 
     import_fields :geolocation_mutation
     import_fields :measurement_mutation
@@ -163,11 +163,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
 
   def hydrate(%Absinthe.Blueprint{}, _) do
     hydrated = %{}
-    hydrated = Map.merge(hydrated, Geolocation.GraphQL.Hydration.hydrate()) # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
-    hydrated = Map.merge(hydrated, Measurement.Hydration.hydrate()) # FIXME: Measurement queries/mutations also return null
-    hydrated = Map.merge(hydrated, ValueFlows.Hydrations.hydrate()) # FIXME: only the ValueFlows queries/mutations actually works
+    hydrated = hydrate_merge(hydrated, Geolocation.GraphQL.Hydration.hydrate()) # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
+    hydrated = hydrate_merge(hydrated, Measurement.Hydration.hydrate()) # FIXME: Measurement queries/mutations also return null
+    hydrated = hydrate_merge(hydrated, ValueFlows.Hydrations.hydrate()) # FIXME: only the ValueFlows queries/mutations actually works
     IO.inspect(merged_hydrations: hydrated) # this does output a merged map of all three hydrations above
     hydrated
+  end
+
+  defp hydrate_merge(a, b) do
+    Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
   end
 
   # hydrations fallback

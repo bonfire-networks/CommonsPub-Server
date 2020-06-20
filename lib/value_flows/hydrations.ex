@@ -60,7 +60,7 @@ defmodule ValueFlows.Hydrations do
       },
 
       # start Query resolvers
-      value_flows_query: %{
+      query: %{
       
       # Agents:
         agents: [
@@ -102,7 +102,7 @@ defmodule ValueFlows.Hydrations do
       }, # end Queries
 
       # start Mutation resolvers
-      value_flows_mutation: %{
+      mutation: %{
         create_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.create_intent/2
         ],
