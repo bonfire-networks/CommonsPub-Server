@@ -12,6 +12,13 @@
 # Dynamically supplied by application
 union GeoScope = Collection | Community | Organisation
 
+interface TestingHydrations { # temporary test
+  id: ID 
+}
+type TestPresent implements TestingHydrations {
+  id: ID 
+}
+
 """
 A physical mappable location.
 """

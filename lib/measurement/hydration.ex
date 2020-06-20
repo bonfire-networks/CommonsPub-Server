@@ -5,7 +5,7 @@ defmodule Measurement.Hydration do
 
   alias Organisation
 
-  def hydrate(blueprint) do
+  def hydrate() do
     %{
       unit_context: [
         resolve_type: &__MODULE__.resolve_context_type/2,

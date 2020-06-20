@@ -149,16 +149,28 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   end
 
 
-  # hydate SDL schema with resolvers
+  # hydrate SDL schema with resolvers
+
+  # def hydrate(%Absinthe.Blueprint{}, _) do
+  #   hydrated = %Absinthe.Blueprint{}
+  #   hydrated = Geolocation.GraphQL.Hydration.hydrate(blueprint: hydrated)
+  #   hydrated = Measurement.Hydration.hydrate(blueprint: hydrated)
+  #   IO.inspect(hydrated) # only contains hydrations for Measurement
+  #   hydrated = ValueFlows.Hydrations.hydrate(blueprint: hydrated)
+  #   IO.inspect(hydrated)
+  #   hydrated # FIXME: only the last of ValueFlows hydrations above actually works
+  # end
+
   def hydrate(%Absinthe.Blueprint{}, _) do
-    hydrated = %Absinthe.Blueprint{}
-    hydrated = Geolocation.GraphQL.Hydration.hydrate(blueprint: hydrated)
-    hydrated = Measurement.Hydration.hydrate(blueprint: hydrated)
-    hydrated = ValueFlows.Hydrations.hydrate(blueprint: hydrated)
-    hydrated # FIXME: only the last of the hydrations above actually works
+    hydrated = %{}
+    hydrated = Map.merge(hydrated, Geolocation.GraphQL.Hydration.hydrate()) # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
+    hydrated = Map.merge(hydrated, Measurement.Hydration.hydrate()) # FIXME: Measurement queries/mutations also return null
+    hydrated = Map.merge(hydrated, ValueFlows.Hydrations.hydrate()) # FIXME: only the ValueFlows queries/mutations actually works
+    IO.inspect(merged_hydrations: hydrated) 
+    hydrated
   end
 
-  # fallback
+  # hydrations fallback
   def hydrate(_node, _ancestors) do
     []
   end

@@ -6,7 +6,7 @@ defmodule ValueFlows.Hydrations do
   }
 
   
-  def hydrate(blueprint) do
+  def hydrate() do
 
     agent_fields = %{
       canonical_url: [
@@ -31,7 +31,7 @@ defmodule ValueFlows.Hydrations do
       ],
 
       agent: [
-        resolve_type: &ValueFlows.Agent.GraphQL.agent_resolve_type/2,
+        resolve_type: &__MODULE__.agent_resolve_type/2,
       ],
       person: agent_fields,
       organization: agent_fields,
@@ -108,5 +108,12 @@ defmodule ValueFlows.Hydrations do
     }
   end
 
+   # support for interface type
+   def agent_resolve_type(%{agent_type: :person}, _), do: :person
+   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
+   def agent_resolve_type(%{agent_type: nil}, _), do: :person
+ 
+   # def person_is_type_of(_), do: true
+   # def organization_is_type_of(_), do: true
 
 end
