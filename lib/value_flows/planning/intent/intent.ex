@@ -62,7 +62,7 @@ defmodule ValueFlows.Planning.Intent do
     # has_many(:satisfied_by, Satisfaction)
 
     belongs_to(:creator, User)
-    belongs_to(:community, Community) # optional community as scope
+    belongs_to(:context, Pointer)
 
     field(:finished, :boolean, default: false)
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
@@ -82,7 +82,7 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
         %User{} = creator,
-        %Community{} = community,
+        %{id: _} = context,
         attrs
       ) do
     %Intent{}
@@ -90,8 +90,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      community_id: community.id,
-      # actor_id: actor.id,
+      context_id: context.id,
       is_public: true
     )
     |> common_changeset()
@@ -106,8 +105,6 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      # community_id: community.id,
-      # actor_id: actor.id,
       is_public: true
     )
     |> common_changeset()

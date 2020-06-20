@@ -82,22 +82,6 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
 
-  def community_edge(%Intent{community_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
-        module: __MODULE__,
-        fetcher: :fetch_community_edge,
-        context: id,
-        info: info,
-      }
-    )
-  end
-
-  def fetch_community_edge(_, ids) do
-    {:ok, fields} = Communities.fields(&(&1.id), [:default, id: ids])
-    fields
-  end
-
   def fetch_provider_edge(%{provider: id}, _, info) do
     # IO.inspect(id)
     # Repo.preload(team_users: :user)
@@ -113,14 +97,15 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
-  def create_intent(%{intent: attrs, in_scope_of_community_id: id}, info) do
+  def create_intent(%{intent: attrs, in_scope_of: context_id}, info) do
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, community} <- CommunitiesResolver.community(%{community_id: id}, info),
+           {:ok, pointer} <- Pointers.one(id: context_id),
+           context = Pointers.follow!(pointer),
            {:ok, measures} <- Measurement.Measure.GraphQL.create_measures(attrs, info, @measure_fields),
            attrs = Map.merge(attrs, %{is_public: true}),
-           {:ok, intent} <- Intents.create(user, community, measures, attrs) do
+           {:ok, intent} <- Intents.create(user, context, measures, attrs) do
         {:ok, %{intent: intent}}
       end
     end)

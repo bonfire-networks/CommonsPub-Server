@@ -5,7 +5,6 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
@@ -72,13 +71,13 @@ defmodule ValueFlows.Planning.Intent.Intents do
 
 
   # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, measures, attrs) when is_map(attrs) do
+  def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_intent(creator, community, measures, attrs),
+      with {:ok, item} <- insert_intent(creator, context, measures, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
            :ok <- index(item),
-           :ok <- publish(creator, community, item, activity, :created)
+           :ok <- publish(creator, context, item, activity, :created)
           do
             {:ok, item}
           end
@@ -105,8 +104,8 @@ defmodule ValueFlows.Planning.Intent.Intents do
     |> Repo.insert()
   end
 
-  defp insert_intent(creator, community, measures, attrs) do
-    Intent.create_changeset(creator, community, attrs)
+  defp insert_intent(creator, context, measures, attrs) do
+    Intent.create_changeset(creator, context, attrs)
     |> Intent.change_measures(measures)
     |> Repo.insert()
   end
@@ -120,9 +119,9 @@ defmodule ValueFlows.Planning.Intent.Intents do
       ap_publish("create", intent.id, creator.id)
     end
   end
-  defp publish(creator, community, intent, activity, :created) do
+  defp publish(creator, context, intent, activity, :created) do
     feeds = [
-      community.outbox_id, creator.outbox_id,
+      context.outbox_id, creator.outbox_id,
       Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
@@ -150,7 +149,7 @@ defmodule ValueFlows.Planning.Intent.Intents do
   def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
     Repo.transact_with(fn ->
       intent = Repo.preload(intent, [
-        :community, :available_quantity, :resource_quantity, :effort_quantity
+        :available_quantity, :resource_quantity, :effort_quantity
       ])
 
       cs = intent
