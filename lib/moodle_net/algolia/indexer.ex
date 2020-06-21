@@ -148,7 +148,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "objectID" => hash_url(canonical_url),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
-      "mediaType" => resource.content.media_type
+      "mediaType" => resource.content.media_type,
+      "categories" => resource.categories,
+      "tags" => resource.tags
     }
   end
 
