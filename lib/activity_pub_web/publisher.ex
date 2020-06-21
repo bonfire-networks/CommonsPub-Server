@@ -71,13 +71,6 @@ defmodule ActivityPubWeb.Publisher do
   def publish_one(%{actor_username: username} = params) do
     {:ok, actor} = Actor.get_cached_by_username(username)
 
-    # This is kinda stupid but i can't think of a better way of doing it right now
-    activity = Jason.decode!(params.json)
-
-    if activity["type"] == "Delete" do
-      Actor.invalidate_cache(actor)
-    end
-
     params
     |> Map.delete(:actor_username)
     |> Map.put(:actor, actor)
@@ -111,7 +104,8 @@ defmodule ActivityPubWeb.Publisher do
           "https://mothership.moodle.net/pub/shared_inbox"
       end
 
-    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and activity.public and
+    if System.get_env("CONNECT_WITH_MOTHERSHIP", "false") == "true" and
+         (activity.public or activity.data["type"] == "Delete") and
          activity.data["type"] in ["Create", "Update", "Delete"] do
       recipients ++
         [

@@ -268,7 +268,7 @@ defmodule ActivityPubWeb.Transmogrifier do
   end
 
   def handle_incoming(
-        %{"type" => "Delete", "object" => object_id, "actor" => actor, "id" => _id} = _data
+        %{"type" => "Delete", "object" => object_id, "actor" => _actor, "id" => _id} = _data
       ) do
     object_id = Utils.get_ap_id(object_id)
 
@@ -280,7 +280,11 @@ defmodule ActivityPubWeb.Transmogrifier do
     else
       {:actor, true} ->
         case Actor.get_cached_by_ap_id(object_id) do
-          {:ok, %Actor{data: %{"id" => ^actor}} = actor} ->
+          # FIXME: This is supposed to prevent unauthorized deletes
+          # but we currently use delete activities where the activity
+          # actor isn't the deleted object so we need to disable it.
+          # {:ok, %Actor{data: %{"id" => ^actor}} = actor} ->
+          {:ok, %Actor{} = actor} ->
             ActivityPub.delete(actor, false)
             Actor.delete(actor)
 

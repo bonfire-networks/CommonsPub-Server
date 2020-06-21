@@ -323,9 +323,9 @@ defmodule ActivityPub do
     end
   end
 
-  def delete(object, local \\ true)
+  def delete(object, local \\ true, delete_actor \\ nil)
 
-  def delete(%{data: %{"id" => id, "type" => type}} = actor, local)
+  def delete(%{data: %{"id" => id, "type" => type}} = actor, local, delete_actor)
       when type in [
              "Person",
              "Application",
@@ -339,7 +339,7 @@ defmodule ActivityPub do
 
     with data <- %{
            "type" => "Delete",
-           "actor" => id,
+           "actor" => delete_actor || id,
            "object" => id,
            "to" => to
          },
@@ -350,7 +350,7 @@ defmodule ActivityPub do
     end
   end
 
-  def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local) do
+  def delete(%Object{data: %{"id" => id, "actor" => actor}} = object, local, _delete_actor) do
     to = (object.data["to"] || []) ++ (object.data["cc"] || [])
 
     with {:ok, _object} <- Object.delete(object),

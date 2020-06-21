@@ -49,5 +49,6 @@ defmodule MoodleNet.Algolia.IndexerTest do
     assert json["index_type"] == "Resource"
     assert is_map(json["collection"])
     assert is_map(json["collection"]["community"])
+    assert is_binary(json["licence"])
   end
 end

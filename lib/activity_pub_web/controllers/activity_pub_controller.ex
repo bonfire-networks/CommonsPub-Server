@@ -113,6 +113,16 @@ defmodule ActivityPubWeb.ActivityPubController do
   end
 
   # only accept relayed Creates
+  def inbox(conn, %{"type" => "Create", "object" => %{"type" => "Group"}} = params) do
+    Logger.info(
+      "Signature missing or not from author, relayed Create message, fetching object from source"
+    )
+
+    Actor.get_or_fetch_by_ap_id(params["object"]["id"])
+
+    json(conn, "ok")
+  end
+
   def inbox(conn, %{"type" => "Create"} = params) do
     Logger.info(
       "Signature missing or not from author, relayed Create message, fetching object from source"
