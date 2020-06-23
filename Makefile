@@ -112,6 +112,9 @@ dev-test-psql: init ## Run postgres for tests (without Docker)
 
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
+dev-run: init ## Run a custom command in dev env, eg: `make dev-run cmd="mix deps.update plug`
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web $(cmd)
+
 dev: init ## Run the app in dev 
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
 

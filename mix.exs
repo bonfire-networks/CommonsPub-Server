@@ -109,11 +109,9 @@ defmodule MoodleNet.Mixfile do
       {:gettext, "~> 0.18"}, # localisation
       {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex,
-      git: "https://gitlab.com/moodlenet/servers/furlex",
-      ref: "689c405be6f21ca9c8c7c62c962b20b3afd6b366"}, # webpage summary
+      git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
       {:http_signatures,
-      git: "https://git.pleroma.social/pleroma/http_signatures.git",
-      ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
+      git: "https://git.pleroma.social/pleroma/http_signatures.git"}, # activity signing
       {:oban, "~> 1.2.0"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
