@@ -186,6 +186,7 @@ defmodule MoodleNet.Test.Fake do
     |> Map.put_new_lazy("summary", &summary/0)
     |> Map.put_new_lazy("location", &location/0)
     |> Map.put_new_lazy("website", &website/0)
+    |> Map.put_new_lazy("email", &email/0)
     # |> Map.put_new_lazy("primaryLanguageId", &ulid/0)
     |> Map.put_new_lazy("wantsEmailDigest", &bool/0)
     |> Map.put_new_lazy("wantsNotifications", &bool/0)
