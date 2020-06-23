@@ -30,6 +30,13 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+# LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
+config :moodle_net, MoodleNetWeb.Endpoint,
+   live_view: [
+     signing_salt: "SECRET_SALT"
+   ]
+
+
 # stuff you might need to change to be viable
 
 config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")

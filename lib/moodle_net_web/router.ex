@@ -5,6 +5,8 @@ defmodule MoodleNetWeb.Router do
   @moduledoc """
   MoodleNet Router
   """
+  import Phoenix.LiveView.Router
+
   use MoodleNetWeb, :router
   use Plug.ErrorHandler
   use Sentry.Plug
@@ -13,13 +15,25 @@ defmodule MoodleNetWeb.Router do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 
-  # pipeline :browser do
-  #   plug :accepts, ["html"]
-  #   plug :fetch_session
-  #   plug :fetch_flash
-  #   plug :protect_from_forgery
-  #   plug :put_secure_browser_headers
-  # end
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
+  scope "/", MoodleNetWeb do
+    pipe_through :browser
+
+    live "/", HomeLive, :index
+    live "/discover", DiscoverLive
+    live "/login", LoginLive
+    live "/signup", SignupLive
+    live "/profile", ProfileLive
+    live "/write", WriteLive
+  end
 
   @doc """
   Serve the GraphiQL API browser on /api/graphql

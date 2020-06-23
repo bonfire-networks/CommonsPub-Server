@@ -76,6 +76,7 @@ defmodule MoodleNet.Mixfile do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_integration, "~> 0.8.0"},
       {:phoenix_ecto, "~> 4.0"},
+      {:phoenix_live_view, "~> 0.13.2"},
       {:floki, "~> 0.26.0", override: true},
       # File storage
       {:belt, git: "https://github.com/commonspub/belt"},
@@ -111,9 +112,8 @@ defmodule MoodleNet.Mixfile do
       {:furlex,
       git: "https://gitlab.com/moodlenet/servers/furlex",
       ref: "689c405be6f21ca9c8c7c62c962b20b3afd6b366"}, # webpage summary
-      {:http_signatures,
-      git: "https://git.pleroma.social/pleroma/http_signatures.git",
-      ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
+      # {:http_signatures,
+      # git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"}, # activity signing
       {:oban, "~> 1.2.0"}, # job queue
       {:timex, "~> 3.5"}, # timedate headers
       {:cachex, "~> 3.2"}, # caching
@@ -125,7 +125,7 @@ defmodule MoodleNet.Mixfile do
       # {:retrieval, "~> 0.9.1"}, # taxonomy trees
       # {:redix, "~> 0.10.5"}, # Redis client
       # {:ex_redi, "~> 0.1.1"}, # RediSearch client
-      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client 
+      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:zest, "~> 0.1.1", only: [:dev, :test]},
