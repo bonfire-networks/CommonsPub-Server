@@ -110,7 +110,7 @@ defmodule MoodleNet.Mixfile do
       {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex,
       git: "https://gitlab.com/moodlenet/servers/furlex",
-      ref: "689c405be6f21ca9c8c7c62c962b20b3afd6b366"}, # webpage summary
+      ref: "c8e4e474aa2494285fdc19b133d3ad1ea348add9"}, # webpage summary
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
