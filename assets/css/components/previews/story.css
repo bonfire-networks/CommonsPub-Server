@@ -1,0 +1,33 @@
+
+/* STORY PREVIEW */
+
+.story__preview {
+  display: flex;
+  padding: 16px;
+  border-bottom: var(--border);
+}
+
+.preview__info {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.preview__meta {
+  display: flex;
+  margin-bottom: 8px
+}
+
+.preview__meta .meta__item {
+  margin-right: var(--m3);
+  align-items: center;
+}
+
+.preview__icon {
+  width: 140px;
+  height: 140px;
+  border-radius: 6px;
+}
+
+.preview__info .preview__time {
+  color: var(--gray);
+}

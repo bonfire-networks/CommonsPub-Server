@@ -1,0 +1,14 @@
+
+:root {
+  --fontPrimary: "Fira Sans";
+  --gray: #A0A0A0;
+  --darker: #3C3C3C;
+  --background: #F5F6F7;
+  --lighter: #fff;
+  --primary: #3B99FC;
+  --m1: 4px;
+  --m2: 8px;
+  --m3: 16px;
+  --border: 1px solid rgba(0,0,0,.1);
+}
+

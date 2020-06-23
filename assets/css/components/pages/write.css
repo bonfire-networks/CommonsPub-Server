@@ -1,0 +1,38 @@
+
+.mainContent_write {
+  display: grid;
+  grid-template-rows: 34px 1fr 34px;
+  row-gap: var(--m3);
+  height: calc(100vh - 140px);
+}
+
+.mainContent_write input {
+  display: block;
+  width: 100%;
+  border: none;
+  font-size: 32px;
+  font-weight: 600;
+  text-indent: 0px;
+  letter-spacing: .5px;
+}
+
+.mainContent_write textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  resize:none;
+  overflow:auto;
+  outline: none;
+  border: var(--border);
+  border: none;
+}
+
+.mainContent_write button {
+  width: 120px;
+  background: var(--primary);
+  border: none;
+  color: var(--lighter);
+  border-radius: 4px;
+}

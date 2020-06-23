@@ -1,0 +1,29 @@
+@import "settings/index.css";
+@import "generic/index.css";
+@import "elements/index.css"; 
+@import "components/index.css";
+
+
+.markdown-body:empty:before {
+  font-family: 'feather' !important;
+  content: "\e93e";
+  font-size: 40px;
+  text-align: center;
+  display: block;
+  color: var(--gray);
+}
+
+.markdown-body:empty:after {
+  content: "Nothing to see here...";
+  font-size: 20px;
+  text-align: center;
+  display: block;
+  margin-top: 8px;
+  color: var(--gray);
+}
+
+.markdown-body {
+  width: 100%;
+  padding: var(--m2);
+}
+

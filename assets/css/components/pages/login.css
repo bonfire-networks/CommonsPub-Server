@@ -1,0 +1,86 @@
+
+/* LOGIN */
+.page__login {
+  display: grid;
+  grid-template-areas: "header header"
+  "signin signup"
+  "footer footer";
+  max-width: 900px;
+  column-gap: 16px;
+  margin: 0 auto;
+  margin-top: 40px;
+  grid-template-columns: 1fr 1fr;
+}
+
+
+.login__form {
+  grid-area: signin;
+  background: var(--lighter);
+  border: var(--border);
+  border-radius: 4px;
+  padding: var(--m3);
+  height: fit-content;
+}
+
+.form__wrapper form {
+  margin-bottom: 16px;
+}
+
+.form__wrapper a {
+  color: var(--primary);
+}
+
+.form__wrapper input {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  height: 50px;
+}
+
+.form__wrapper button {
+  height: 34px;
+  padding: 0 16px;
+}
+
+.login__signup {
+  grid-area: signup;
+}
+
+.login__footer {
+  grid-area: footer;
+  height: 50px;
+}
+
+.login__signup a {
+  height: 50px;
+  border-radius: 4px;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  font-size: 14px;
+  text-transform: uppercase;
+  display: block;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signup__background {
+  margin-top: var(--m2);
+}
+
+.signup__background .img {
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.signup__background .background__details {
+  background: var(--lighter);
+  border: var(--border);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  padding: var(--m3);
+}
