@@ -14,3 +14,10 @@ body {
   background-color: var(--background);
   font-size: 14px;
 }
+
+textarea {
+  resize:none;
+  overflow:auto;
+  outline: none;
+  border: var(--border);
+}

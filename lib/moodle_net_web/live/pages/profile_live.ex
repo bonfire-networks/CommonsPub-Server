@@ -3,6 +3,7 @@ defmodule MoodleNetWeb.ProfileLive do
   alias MoodleNetWeb.Component.HeroProfileLive
   alias MoodleNetWeb.Component.NavigationProfileLive
   alias MoodleNetWeb.Component.HeaderLive
+  alias MoodleNetWeb.Component.ActivityLive
 
   use MoodleNetWeb, :live_view
 
@@ -43,6 +44,13 @@ defmodule MoodleNetWeb.ProfileLive do
             <h3>About</h3>
           </div>
           <div class="selected__area">
+            <%= live_component(
+              @socket,
+              ActivityLive
+            )
+            %>
+
+
             <div class="markdown-body"></div>
           </div>
         </div>

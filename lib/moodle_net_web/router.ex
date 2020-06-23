@@ -29,6 +29,7 @@ defmodule MoodleNetWeb.Router do
 
     live "/", HomeLive, :index
     live "/discover", DiscoverLive
+    live "/discussion", DiscussionLive
     live "/login", LoginLive
     live "/signup", SignupLive
     live "/profile", ProfileLive
