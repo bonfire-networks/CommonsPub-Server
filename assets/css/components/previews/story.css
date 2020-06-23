@@ -4,7 +4,8 @@
 .story__preview {
   display: flex;
   padding: 16px;
-  border-bottom: var(--border);
+  border-radius: 4px;
+  border: var(--border);
 }
 
 .preview__info {
