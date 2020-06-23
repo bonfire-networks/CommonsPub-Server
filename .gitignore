@@ -15,6 +15,7 @@
 *.data.sql
 .cache
 .cargo
+.npm
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*

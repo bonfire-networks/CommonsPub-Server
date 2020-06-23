@@ -5,7 +5,7 @@ ENV HOME=/opt/app/ TERM=xterm
 WORKDIR $HOME
 
 RUN apk update && \
-    apk add --no-cache build-base cmake curl git bash openssl-dev inotify-tools rust cargo
+    apk add --no-cache build-base cmake curl git bash openssl-dev inotify-tools rust cargo npm
 
 EXPOSE 4000/tcp
 

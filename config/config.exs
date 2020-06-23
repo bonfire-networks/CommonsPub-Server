@@ -39,7 +39,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 # stuff you might need to change to be viable
 
-config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
+config :moodle_net, :app_name, System.get_env("APP_NAME", "CommonsPub")
 
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
