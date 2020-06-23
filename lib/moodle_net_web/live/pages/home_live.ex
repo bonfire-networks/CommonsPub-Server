@@ -7,6 +7,8 @@ defmodule MoodleNetWeb.HomeLive do
   end
 
   def render(assigns) do
+    instance = MoodleNet.Instance.hostname
+
     ~L"""
     <div class="page">
     <%= live_component(
@@ -18,7 +20,7 @@ defmodule MoodleNetWeb.HomeLive do
     <section class="page__wrapper">
       <div class="instance_hero">
         <h1>My instance</h1>
-        <h4>@home.moodle.net</h4>
+        <h4>@<%=instance%></h4>
       </div>
       <div class="mainContent__navigation home__navigation">
         <a href="#" class="navigation__item">

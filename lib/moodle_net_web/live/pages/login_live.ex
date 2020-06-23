@@ -6,11 +6,14 @@ defmodule MoodleNetWeb.LoginLive do
   end
 
   def render(assigns) do
+    app_name = Application.get_env(:moodle_net, :app_name)
+    desc = MoodleNet.Instance.description
+
     ~L"""
     <div class="page__login">
     <div class="standard__logo">
       <img src="./images/sun_face.png" />
-      <h1>The Roots plays good shit.</h1>
+      <h1><%=app_name%></h1>
     </div>
     <div class="login__form">
       <div class="form__wrapper">
@@ -27,8 +30,8 @@ defmodule MoodleNetWeb.LoginLive do
       <div class="signup__background">
         <div class="img" style="background-image: url('https://i.ytimg.com/vi/_qzacv8dtb4/maxresdefault.jpg')" ></div>
         <div class="background__details">
-          <h4>Instance description</h4>
-          <p>This general-purpose instance of MoodleNet is run by Moodle HQ and is part of the wider network.</p>
+          <h4>About this instance</h4>
+          <p><%=desc%></p>
         </div>
       </div>
     </div>

@@ -37,6 +37,7 @@ defmodule MoodleNetWeb.Endpoint do
 
   plug(MoodleNetWeb.Plugs.Static)
 
+  # Serve at "/" the static files from "priv/static" directory.
   # Liveview customization
   plug Plug.Static,
     at: "/",
