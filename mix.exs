@@ -111,6 +111,7 @@ defmodule MoodleNet.Mixfile do
       {:furlex,
       git: "https://gitlab.com/moodlenet/servers/furlex",
       ref: "d11dc0b9fffc69348849e0769f8828bd382de793"}, # webpage summary
+      {:fast_html, "~> 1.0"}, #html parser
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
       ref: "293d77bb6f4a67ac8bde1428735c3b42f22cbb30"}, # activity signing
