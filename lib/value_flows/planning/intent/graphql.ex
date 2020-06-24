@@ -19,6 +19,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
+  alias MoodleNet.Meta.Pointers
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Planning.Intent
@@ -97,7 +98,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
-  def create_intent(%{intent: attrs, in_scope_of: context_id}, info) do
+  def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info) when is_list(context_ids) do
+    context_id = List.first(context_ids)
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),

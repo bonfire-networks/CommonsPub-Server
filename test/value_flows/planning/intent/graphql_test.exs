@@ -41,10 +41,11 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = create_intent_mutation(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{in_scope_of: another_user.id})}
+      vars = %{intent: intent_input(unit, %{"inScopeOf" => [another_user.id]})}
       assert resp = grumble_post_key(q, conn, :create_intent, vars)["intent"]
       assert_intent(resp)
-      assert resp["inScopeOf"]["__typename"] == "User"
+      assert [context] = resp["inScopeOf"]
+      assert context["__typename"] == "User"
     end
   end
 

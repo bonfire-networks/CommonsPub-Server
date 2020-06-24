@@ -20,9 +20,6 @@ defmodule ValueFlows.Hydrations do
       image: [
         resolve: &UploadResolver.image_content_edge/3
       ],
-      in_scope_of: [
-        resolve: &CommonResolver.context_edge/3
-      ],
     }
 
     %{
