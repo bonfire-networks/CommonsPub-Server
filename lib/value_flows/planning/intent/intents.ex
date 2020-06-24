@@ -164,23 +164,21 @@ defmodule ValueFlows.Planning.Intent.Intents do
       |> changeset_fn.()
       |> Intent.change_measures(measures)
 
-      with {:ok, intent} <- Repo.update(cs) do
-        #  :ok <- publish(intent, :updated) do
-        #   IO.inspect("intent")
-        #   IO.inspect(intent)
+      with {:ok, intent} <- Repo.update(cs),
+           :ok <- publish(intent, :updated) do
         {:ok, intent}
       end
     end)
   end
 
-  # def soft_delete(%Intent{} = intent) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, intent} <- Common.soft_delete(intent),
-  #          :ok <- publish(intent, :deleted) do
-  #       {:ok, intent}
-  #     end
-  #   end)
-  # end
+  def soft_delete(%Intent{} = intent) do
+    Repo.transact_with(fn ->
+      with {:ok, intent} <- Common.soft_delete(intent),
+           :ok <- publish(intent, :deleted) do
+        {:ok, intent}
+      end
+    end)
+  end
 
   defp index(obj) do
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
