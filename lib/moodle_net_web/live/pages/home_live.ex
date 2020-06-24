@@ -9,10 +9,12 @@ defmodule MoodleNetWeb.HomeLive do
     {:ok, communities_pages} = CommunitiesResolver.communities(%{}, %{})
     {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{limit: 10}, %{})
     {:ok, assign(socket,
-    hostname: MoodleNet.Instance.hostname,
-    description: MoodleNet.Instance.description,
-    outbox: outboxes.edges,
-    feed: communities_pages.edges )}
+      page_title: "Home",
+      hostname: MoodleNet.Instance.hostname,
+      description: MoodleNet.Instance.description,
+      outbox: outboxes.edges,
+      feed: communities_pages.edges 
+    )}
   end
 
   def render(assigns) do
