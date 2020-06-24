@@ -165,6 +165,25 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
+  def update(%Intent{} = intent, %{id: id} = context, measures, attrs) when is_map(measures) do
+    Repo.transact_with(fn ->
+      intent = Repo.preload(intent, [
+        :available_quantity, :resource_quantity, :effort_quantity
+      ])
+
+      cs = intent
+      |> Intent.update_changeset(context, attrs)
+      |> Intent.change_measures(measures)
+
+      with {:ok, intent} <- Repo.update(cs) do
+        #  :ok <- publish(intent, :updated) do
+        #   IO.inspect("intent")
+        #   IO.inspect(intent)
+        {:ok, intent}
+      end
+    end)
+  end
+
   # def soft_delete(%Intent{} = intent) do
   #   Repo.transact_with(fn ->
   #     with {:ok, intent} <- Common.soft_delete(intent),

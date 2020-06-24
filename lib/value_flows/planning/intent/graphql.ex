@@ -124,6 +124,23 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
+  # FIXME: duplication!
+  def update_intent(%{intent: %{id: id, in_scope_of: context_ids} = changes}, info) do
+    context_id = List.first(context_ids)
+
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, intent} <- intent(%{id: id}, info),
+           :ok <- ensure_update_permission(user, intent),
+           {:ok, pointer} <- Pointers.one(id: context_id),
+           context = Pointers.follow!(pointer),
+           {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
+           {:ok, intent} <- Intents.update(intent, context, measures, changes) do
+        {:ok, %{intent: intent}}
+      end
+    end)
+  end
+
   def update_intent(%{intent: %{id: id} = changes}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),

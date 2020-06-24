@@ -57,7 +57,7 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
 
       q = update_intent_mutation()
       conn = user_conn(user)
-      vars = %{intent: intent_input(unit, %{id: intent.id})}
+      vars = %{intent: intent_input(unit, %{"id" => intent.id})}
       assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
       assert_intent(resp)
 
@@ -65,6 +65,23 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert updated != intent
       assert_intent(updated, resp)
       assert updated.available_quantity_id != intent.available_quantity_id
+    end
+
+    test "updates an existing intent with a scope" do
+      user = fake_user!()
+      another_user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      q = update_intent_mutation(fields: [in_scope_of: [:__typename]])
+      conn = user_conn(user)
+      vars = %{intent: intent_input(unit, %{
+        "id" => intent.id,
+        "inScopeOf" => [another_user.id]
+      })}
+      assert resp = grumble_post_key(q, conn, :update_intent, vars)["intent"]
+      assert [context] = resp["inScopeOf"]
+      assert context["__typename"] == "User"
     end
   end
 
