@@ -62,7 +62,7 @@ config :moodle_net, Blocks,
   valid_contexts: [Collection, Community, User]
 
 config :moodle_net, Instance,
-  hostname: "moodlenet.local",
+  hostname: "localhost",
   description: "Local development instance",
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 

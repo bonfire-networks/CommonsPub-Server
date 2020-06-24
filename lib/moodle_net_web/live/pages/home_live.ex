@@ -10,7 +10,8 @@ defmodule MoodleNetWeb.HomeLive do
 
   def render(assigns) do
     instance = MoodleNet.Instance.hostname
-    IO.inspect(@feed)
+    {:ok, communities_pages} = assigns.feed
+    IO.inspect(communities_pages)
     ~L"""
     <div class="page">
     <%= live_component(
@@ -42,7 +43,9 @@ defmodule MoodleNetWeb.HomeLive do
           </div>
           <div class="selected__area">
 
-
+            <%= for com <- communities_pages.edges do %>
+              <p><span><%= com.name %>:</span> <%= com.preferred_username %></p>
+            <% end %>
 
             <div class="markdown-body"></div>
           </div>
