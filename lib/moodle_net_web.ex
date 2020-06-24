@@ -30,9 +30,9 @@ defmodule MoodleNetWeb do
     quote do
       use Phoenix.View,
         root: "lib/moodle_net_web/templates",
-        namespace: MoodleNetWeb
         # path: Phoenix.Template.module_to_template_root(__MODULE__, MoodleNetWeb, "View") <> "/templates/",
         # pattern: "*",
+        namespace: MoodleNetWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
