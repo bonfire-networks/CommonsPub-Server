@@ -125,32 +125,35 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   # FIXME: duplication!
-  def update_intent(%{intent: %{id: id, in_scope_of: context_ids} = changes}, info) do
+  def update_intent(%{intent: %{in_scope_of: context_ids} = changes}, info) do
     context_id = List.first(context_ids)
 
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, intent} <- intent(%{id: id}, info),
-           :ok <- ensure_update_permission(user, intent),
-           {:ok, pointer} <- Pointers.one(id: context_id),
-           context = Pointers.follow!(pointer),
-           {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
-           {:ok, intent} <- Intents.update(intent, context, measures, changes) do
-        {:ok, %{intent: intent}}
-      end
+      do_update(changes, info, fn intent, measures ->
+        with {:ok, pointer} <- Pointers.one(id: context_id) do
+          context = Pointers.follow!(pointer)
+          Intents.update(intent, context, measures, changes)
+        end
+      end)
     end)
   end
 
-  def update_intent(%{intent: %{id: id} = changes}, info) do
+  def update_intent(%{intent: changes}, info) do
     Repo.transact_with(fn ->
-      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, intent} <- intent(%{id: id}, info),
-           :ok <- ensure_update_permission(user, intent),
-           {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
-           {:ok, intent} <- Intents.update(intent, measures, changes) do
-        {:ok, %{intent: intent}}
-      end
+      do_update(changes, info, fn intent, measures ->
+        Intents.update(intent, measures, changes)
+      end)
     end)
+  end
+
+  def do_update(%{id: id} = changes, info, update_fn) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, intent} <- intent(%{id: id}, info),
+         :ok <- ensure_update_permission(user, intent),
+         {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
+         {:ok, intent} <- update_fn.(intent, measures) do
+      {:ok, %{intent: intent}}
+    end
   end
 
   def ensure_update_permission(user, intent) do
