@@ -48,7 +48,8 @@ defmodule MoodleNet.GraphQL do
 
   def not_in_list_or_empty_page(info), do: not_in_list_or(info, &empty_page/0)
 
-  def current_user(info), do: info.context.current_user
+  def current_user(%{context: context}), do: context.current_user
+  def current_user(info), do: nil
 
   def current_user_or(info, value), do: lazy_or(current_user(info), value)
 
@@ -161,7 +162,7 @@ defmodule MoodleNet.GraphQL do
     if predicated(p, v),
       do: validate_cursor(ps, vs),
       else: not_found()
-  end  
+  end
   def validate_cursor(_, _), do: not_found()
 
 

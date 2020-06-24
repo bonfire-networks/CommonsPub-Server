@@ -1,14 +1,16 @@
 defmodule MoodleNetWeb.HomeLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.Component.HeaderLive
+  alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :selected, "about")}
+
+    {:ok, assign(socket, :feed, CommunitiesResolver.communities(%{}, %{}))}
   end
 
   def render(assigns) do
     instance = MoodleNet.Instance.hostname
-
+    IO.inspect(@feed)
     ~L"""
     <div class="page">
     <%= live_component(
@@ -39,6 +41,9 @@ defmodule MoodleNetWeb.HomeLive do
             <h3>About</h3>
           </div>
           <div class="selected__area">
+
+
+
             <div class="markdown-body"></div>
           </div>
         </div>
