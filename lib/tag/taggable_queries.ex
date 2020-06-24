@@ -1,18 +1,18 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Taxonomy.TaxonomyTag.Queries do
+defmodule Tag.Taggable.Queries do
   import Ecto.Query
 
-  alias Taxonomy.TaxonomyTag
+  alias Tag.Taggable
 
-  def query(TaxonomyTag) do
-    from t in TaxonomyTag, as: :tag,
+  def query(Taggable) do
+    from t in Taggable, as: :tag,
       left_join: c in assoc(t, :character), as: :character
   end
 
   def query(:count) do
-    from c in TaxonomyTag, as: :tag
+    from c in Taggable, as: :tag
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -65,7 +65,7 @@ defmodule Taxonomy.TaxonomyTag.Queries do
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [tag: c], c.id == ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [tag: c], c.id in ^ids)
 
-  # get children in taxonomy
+  # get children of tag
   def filter(q, {:parent_tag, id}) when is_integer(id), do: where(q, [tag: t], t.parent_tag_id == ^id)
   def filter(q, {:parent_tag, ids}) when is_list(ids), do: where(q, [tag: t], t.parent_tag_id in ^ids)
 

@@ -1,2 +1,2 @@
 DROP TABLE IF EXISTS "taxonomy_tags_related" CASCADE;
-DROP TABLE IF EXISTS "taxonomy_tags" CASCADE;
+DROP TABLE IF EXISTS "taxonomy_tag" CASCADE;

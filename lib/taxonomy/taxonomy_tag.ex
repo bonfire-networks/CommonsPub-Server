@@ -1,11 +1,11 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Taxonomy.Tag do
+defmodule Taxonomy.TaxonomyTag do
   use MoodleNet.Common.Schema
 
   alias Ecto.Changeset
-  alias Taxonomy.Tag
+  alias Taxonomy.TaxonomyTag
 
 
   @type t :: %__MODULE__{}
@@ -14,19 +14,19 @@ defmodule Taxonomy.Tag do
 
 
   @primary_key{:id, :id, autogenerate: true} # primary key is an integer
-  schema "taxonomy_tags" do
+  schema "taxonomy_tag" do
     # field(:id, :string)
     field(:label, :string)
     field(:description, :string)
     # field(:parent_tag_id, :integer)
-    belongs_to(:parent_tag, Tag, type: :id)
+    belongs_to(:parent_tag, TaxonomyTag, type: :id)
     # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
     has_one(:character, Character, references: :pointer_id, foreign_key: :characteristic_id)
   end
 
   def update_changeset(
-      %Tag{} = tag,
+      %TaxonomyTag{} = tag,
       attrs
     ) do
       tag
@@ -43,9 +43,9 @@ defmodule Taxonomy.Tag do
   end
 
 
-  def context_module, do: Taxonomy.Tags
+  def context_module, do: Taxonomy.TaxonomyTags
 
-  def queries_module, do: Taxonomy.Tags.Queries
+  def queries_module, do: Taxonomy.TaxonomyTag.Queries
 
   def follow_filters, do: [:default]
 

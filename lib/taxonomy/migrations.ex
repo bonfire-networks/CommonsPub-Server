@@ -19,7 +19,7 @@ defmodule Taxonomy.Migrations do
   end
 
   def remove_pointer do # cleanup deprecated stuff
-    table = "taxonomy_tags"
+    table = "taxonomy_tag"
 
     alter table(table) do
       remove_if_exists :pointer_id, :uuid

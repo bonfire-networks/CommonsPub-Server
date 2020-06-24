@@ -7,7 +7,7 @@ defmodule Taxonomy.Utils do
     s = "I a,m! the bÉst? 1"
     t = string_to_actor_name(s)
 
-    {:ok, tags} = Taxonomy.Tags.many()
+    {:ok, tags} = Taxonomy.TaxonomyTags.many()
 
     results = []
     for item <- tags do

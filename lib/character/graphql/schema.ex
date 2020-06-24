@@ -29,7 +29,6 @@ defmodule Character.GraphQL.Schema do
   }
 
   alias Character.GraphQL.Resolver
-  alias Taxonomy.Tag
 
   object :character_queries do
 
@@ -231,7 +230,7 @@ defmodule Character.GraphQL.Schema do
       arg :limit, :integer
       arg :before, list_of(non_null(:cursor))
       arg :after, list_of(non_null(:cursor))
-      resolve &Taxonomy.GraphQL.TagsResolver.character_tags_edge/3
+      resolve &Taxonomy.GraphQL.TagResolver.character_tags_edge/3
     end
 
     @desc "Total number of followers, including those we can't see"
@@ -311,7 +310,7 @@ defmodule Character.GraphQL.Schema do
       %Thread{},   _ -> :thread
       %Comment{},   _ -> :comment
       %Geolocation{},   _ -> :spatial_thing
-      %Tag{},   _ -> :tag
+      %Tag.Taggable{},   _ -> :tag
       %Character{},   _ -> :character
       # %{},   _ -> :unexpected_character_trope 
     end

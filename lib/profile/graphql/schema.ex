@@ -29,7 +29,6 @@ defmodule Profile.GraphQL.Schema do
   }
 
   alias Profile.GraphQL.Resolver
-  alias Taxonomy.Tag
 
   object :profile_queries do
 

@@ -29,7 +29,7 @@ defmodule Character.Migrations do
     create_if_not_exists index(:character, :updated_at)
     create_if_not_exists index(:character, :actor_id)
     create_if_not_exists index(:character, :creator_id)
-    create_if_not_exists index(:character, :context_id)
+    # create_if_not_exists index(:character, :context_id)
     # create_if_not_exists index(:character, :primary_language_id)
 
 

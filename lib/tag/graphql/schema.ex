@@ -1,80 +1,86 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Taxonomy.GraphQL.TaxonomySchema do
+defmodule Tag.GraphQL.TagSchema do
 
   use Absinthe.Schema.Notation
   alias MoodleNetWeb.GraphQL.{CommonResolver}
-  alias Taxonomy.GraphQL.{TaxonomyResolver}
+  alias Tag.GraphQL.{TagResolver}
 
-  object :taxonomy_queries do
+  object :tag_queries do
 
     @desc "Get list of tags we know about"
-    field :taxonomy_tags, non_null(:taxonomy_tags_page) do
+    field :tags, non_null(:tags_page) do
       arg :limit, :integer
       arg :before, list_of(non_null(:cursor))
       arg :after, list_of(non_null(:cursor))
-      resolve &TaxonomyResolver.tags/2
+      resolve &TagResolver.tags/2
     end
 
     @desc "Get a tag by ID "
-    field :taxonomy_tag, :taxonomy_tag do
-      arg :tag_id, :integer
-      arg :pointer_id, :string
+    field :tag, :tag do
+      arg :tag_id, :string
+      arg :taxonomy_tag_id, :integer
       # arg :find, :tag_find
-      resolve &TaxonomyResolver.tag/2
+      resolve &TagResolver.tag/2
     end
 
   end
 
-  object :taxonomy_mutations do
+  object :tag_mutations do
 
-    @desc "Create a Character to represents this tag in feeds and federation"
-    field :characterise_tag, :character do
-      arg :tag_id, :integer
-      resolve &TaxonomyResolver.characterise_tag/2
+    @desc "Create a tag out of something else"
+    field :make_taggable, :tag do
+      arg :pointer_id, :string
+      resolve &TagResolver.make_pointer_taggable/2
     end
 
   end
 
-  object :taxonomy_tag do
+  @desc "A tag could be a category or hashtag"
+  object :tag do
 
     @doc "The numeric primary key of the tag"
-    field(:id, :integer)
+    field(:id, :string)
 
-    @doc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
-    field(:pointer_id, :string)
+    @doc "The ID of the corresponding TaxonomyTag, if any."
+    field(:taxonomy_tag_id, :integer)
 
-    field(:label, :string)
-    field(:description, :string)
+    field(:name, :string)
+    field(:summary, :string)
 
     # field(:parent_tag_id, :integer)
 
     @desc "The parent tag (in a tree-based taxonomy)"
-    field :parent_tag, :taxonomy_tag do
-      resolve &TaxonomyResolver.parent_tag/3
+    field :parent_tag, :tag do
+      resolve &TagResolver.parent_tag/3
     end
 
     @desc "List of child tag (in a tree-based taxonomy)"
-    field :tags, list_of(:taxonomy_tags_page) do
-      resolve &TaxonomyResolver.tag_children/3
+    field :tags, list_of(:tags_page) do
+      resolve &TagResolver.tag_children/3
     end
 
-    field(:character_id, :string)
     @desc "The Character that represents this tag in feeds and federation"
     field :character, :character do
       resolve &Character.GraphQL.Resolver.character/3
     end
 
+
+    @desc "The Profile that represents this tag"
+    field :profile, :profile do
+      resolve &Profile.GraphQL.Resolver.profile/3
+    end
+
   end
 
-  object :taxonomy_tags_page do
+  object :tags_page do
     field :page_info, non_null(:page_info)
-    field :edges, non_null(list_of(non_null(:taxonomy_tag)))
+    field :edges, non_null(list_of(non_null(:tag)))
     field :total_count, non_null(:integer)
   end
 
-  input_object :taxonomy_tag_find do
+  input_object :tag_find do
     field :label, non_null(:string)
     field :parent_tag_label, non_null(:string)
   end

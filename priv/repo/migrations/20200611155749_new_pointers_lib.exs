@@ -27,7 +27,7 @@ defmodule MoodleNet.Repo.Migrations.NewPointersLib do
 
     drop(constraint(pt, "mn_pointer_table_id_fkey"))
 
-    alter table(pt do
+    alter table(pt) do
       modify(:table_id, references(ptt, on_delete: :delete_all, on_update: :update_all, type: :uuid), null: false)
     end
   end

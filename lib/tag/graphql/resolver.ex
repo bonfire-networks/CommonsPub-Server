@@ -1,7 +1,7 @@
 # MoodleNet: Connecting and empowering educators worldwide
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Taxonomy.GraphQL.TaxonomyResolver do
+defmodule Tag.GraphQL.TagResolver do
   @moduledoc "GraphQL tag and Country queries"
   alias MoodleNet.{GraphQL, Repo}
   alias MoodleNet.GraphQL.{
@@ -16,7 +16,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     ResolveRootPage,
   }
 
-  alias Taxonomy.{TaxonomyTag, TaxonomyTags}
+  alias Tag.{Taggable, Taggables}
 
   def tag(%{tag_id: id}, info) do
     ResolveField.run(
@@ -55,14 +55,14 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   ## fetchers
 
   def fetch_tag(info, id) do
-    TaxonomyTags.one(
+    Tags.one(
       # user: GraphQL.current_user(info),
       id: id,
     )
   end
 
   def fetch_tag_by_character(info, character_id) do
-    TaxonomyTags.one(
+    Tags.one(
       # user: GraphQL.current_user(info),
       character_id: character_id
     )
@@ -71,9 +71,9 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def fetch_tags(page_opts, info) do
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
-        query: TaxonomyTag,
-        # cursor_fn: TaxonomyTags.cursor,
+        queries: Taggable.Queries,
+        query: Taggable,
+        # cursor_fn: Tags.cursor,
         page_opts: page_opts,
         # base_filters: [user: GraphQL.current_user(info)],
         # data_filters: [page: [desc: [followers: page_opts]]],
@@ -81,7 +81,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     )
   end
 
-  def parent_tag(%TaxonomyTag{parent_tag_id: id}, _, info) do
+  def parent_tag(%Taggable{parent_tag_id: id}, _, info) do
     ResolveFields.run(
       %ResolveFields{
         module: __MODULE__,
@@ -95,8 +95,8 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def fetch_parent_tag(_, ids) do
     FetchFields.run(
       %FetchFields{
-        queries: TaxonomyTags.Queries,
-        query: TaxonomyTag,
+        queries: Taggable.Queries,
+        query: Taggable,
         group_fn: &(&1.id),
         filters: [id: ids],
       }
@@ -121,9 +121,9 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     user = GraphQL.current_user(info)
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
-        query: TaxonomyTag,
-        # cursor_fn: TaxonomyTags.cursor(:followers),
+        queries: Taggable.Queries,
+        query: Taggable,
+        # cursor_fn: Tags.cursor(:followers),
         page_opts: page_opts,
         base_filters: [parent_tag: id, user: user],
         # data_filters: [:default, page: [desc: [id: page_opts]]],
@@ -149,9 +149,9 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     user = GraphQL.current_user(info)
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
-        query: TaxonomyTag,
-        # cursor_fn: TaxonomyTags.cursor(:followers),
+        queries: Taggable.Queries,
+        query: Taggable,
+        # cursor_fn: Tags.cursor(:followers),
         page_opts: page_opts,
         base_filters: [context: ids, user: user],
         # data_filters: [:default, page: [desc: [id: page_opts]]],
@@ -163,8 +163,8 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def characterise_tag(%{tag_id: id}, info) do
     Repo.transact_with fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, tag} <- TaxonomyTags.one(id: id) do
-        TaxonomyTags.tag_characterise(me, tag)  
+           {:ok, tag} <- Taggable.one(id: id) do
+        Tags.tag_characterise(me, tag)  
       end
     end
   end

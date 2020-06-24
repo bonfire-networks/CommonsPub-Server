@@ -1,20 +1,20 @@
-defmodule Taxonomy.Tags do
+defmodule Taxonomy.TaxonomyTags do
   import Ecto.Query
   alias Ecto.Changeset
   alias MoodleNet.{Common, GraphQL, Repo}
   alias MoodleNet.Batching.{Edges, EdgesPage, EdgesPages, NodesPage}
   # alias MoodleNet.Meta.{Pointer, Pointers, TableService}
   alias MoodleNet.Users.User
-  alias Taxonomy.Tag
-  alias Taxonomy.Tags.Queries
+  alias Taxonomy.TaxonomyTag
+  alias Taxonomy.TaxonomyTag.Queries
   alias Character.Characters
 
   def cursor(), do: &[&1.id]
   def test_cursor(), do: &[&1["id"]]
 
-  def one(filters), do: Repo.single(Queries.query(Tag, filters))
+  def one(filters), do: Repo.single(Queries.query(TaxonomyTag, filters))
 
-  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Tag, filters))}
+  def many(filters \\ []), do: {:ok, Repo.all(Queries.query(TaxonomyTag, filters))}
 
   @doc """
   Retrieves an Page of tags according to various filters
@@ -24,7 +24,7 @@ defmodule Taxonomy.Tags do
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
-    base_q = Queries.query(Tag, base_filters)
+    base_q = Queries.query(TaxonomyTag, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
@@ -40,12 +40,12 @@ defmodule Taxonomy.Tags do
   """
   def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Tag,
+    Contexts.pages Queries, TaxonomyTag,
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  @doc "Takes an existing Tag and creates a Character based on it"
-  def tag_characterise(%User{} = user, %Tag{} = tag) do
+  @doc "Takes an existing TaxonomyTag and creates a Character based on it"
+  def tag_characterise(%User{} = user, %TaxonomyTag{} = tag) do
 
     Repo.transact_with(fn ->
       with {:ok, tag} <- pointerise(tag), # add a Pointer ID 
@@ -66,8 +66,8 @@ defmodule Taxonomy.Tags do
 
   end
   
-  @doc "Takes an existing Tag and adds a Pointer ID"
-  def pointerise(%Tag{} = tag) do
+  @doc "Takes an existing TaxonomyTag and adds a Pointer ID"
+  def pointerise(%TaxonomyTag{} = tag) do
 
     if(!is_nil(tag.pointer_id)) do # already has one
       {:ok, tag }
@@ -77,7 +77,7 @@ defmodule Taxonomy.Tags do
 
       Repo.transact_with(fn ->
 
-        with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, %{ pointer_id: pointer_id}))
+        with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, %{ pointer_id: pointer_id}))
               do
                 {:ok, tag }
         end
@@ -87,10 +87,10 @@ defmodule Taxonomy.Tags do
   end
   
   # TODO: take the user who is performing the update
-  @spec update(User.t(), Tag.t(), attrs :: map) :: {:ok, Tag.t()} | {:error, Changeset.t()}
-  def update(%User{} = user, %Tag{} = tag, attrs) do
+  @spec update(User.t(), TaxonomyTag.t(), attrs :: map) :: {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
+  def update(%User{} = user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, tag} <- Repo.update(Tag.update_changeset(tag, attrs)),
+      with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)),
            {:ok, character} <- Character.update(user, tag.character, attrs)
             # :ok <- publish(tag, :updated) 
             do
