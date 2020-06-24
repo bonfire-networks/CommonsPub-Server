@@ -6,6 +6,7 @@ defmodule ValueFlows.Hydrations do
   }
 
   alias MoodleNet.Users.User
+  alias MoodleNet.Communities.Community
 
   
   def hydrate(blueprint) do
@@ -109,10 +110,14 @@ defmodule ValueFlows.Hydrations do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        delete_intent: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
+        ],
       }
     }
   end
 
   def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%User{}, _), do: :user
 end

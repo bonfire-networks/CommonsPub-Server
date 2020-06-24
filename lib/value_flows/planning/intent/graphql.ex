@@ -20,6 +20,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Communities.Community
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Planning.Intent
@@ -62,10 +63,11 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   ## fetchers
 
   def fetch_intent(info, id) do
-    Intents.one(
+    Intents.one([
+      :default,
       user: GraphQL.current_user(info),
       id: id,
-    )
+    ])
   end
 
   def fetch_intents(page_opts, info) do
@@ -76,7 +78,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         # preload: :provider,
         # cursor_fn: Intents.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
+        base_filters: [:default, user: GraphQL.current_user(info)],
         # data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
@@ -156,6 +158,17 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end
   end
 
+  def delete_intent(%{id: id}, info) do
+    Repo.transact_with(fn ->
+      with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+           {:ok, intent} <- intent(%{id: id}, info),
+           :ok <- ensure_update_permission(user, intent),
+           {:ok, _} <- Intents.soft_delete(intent) do
+        {:ok, true}
+      end
+    end)
+  end
+
   def ensure_update_permission(user, intent) do
     if user.local_user.is_instance_admin or intent.creator_id == user.id do
       :ok
@@ -173,7 +186,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   defp valid_contexts() do
-    [User, Organisation]
+    [User, Community, Organisation]
     # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
   end
 

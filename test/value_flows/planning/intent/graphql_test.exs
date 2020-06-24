@@ -17,9 +17,15 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
       assert_intent(grumble_post_key(q, conn, :intent, %{id: intent.id}))
     end
 
-    # TODO: when soft-deletion is done
-    @tag :skip
     test "fails for deleted intent" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+      assert {:ok, intent} = Intents.soft_delete(intent)
+
+      q = intent_query()
+      conn = user_conn(user)
+      assert [%{"status" => 404}] = grumble_post_errors(q, conn, %{id: intent.id})
     end
   end
 
@@ -86,9 +92,14 @@ defmodule ValueFlows.Planning.Intent.GraphQLTest do
   end
 
   describe "delete_intent" do
-    # TODO
-    @tag :skip
     test "deletes an item that is not deleted" do
+      user = fake_user!()
+      unit = fake_unit!(user)
+      intent = fake_intent!(user, unit)
+
+      q = delete_intent_mutation()
+      conn = user_conn(user)
+      assert grumble_post_key(q, conn, :delete_intent, %{id: intent.id})
     end
   end
 end
