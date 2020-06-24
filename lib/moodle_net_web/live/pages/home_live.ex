@@ -1,17 +1,21 @@
 defmodule MoodleNetWeb.HomeLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.Component.HeaderLive
+  alias MoodleNetWeb.Component.ActivityLive
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNetWeb.GraphQL.InstanceResolver
 
   def mount(_params, _session, socket) do
-
-    {:ok, assign(socket, :feed, CommunitiesResolver.communities(%{}, %{}))}
+    {:ok, communities_pages} = CommunitiesResolver.communities(%{}, %{})
+    {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{limit: 10}, %{})
+    {:ok, assign(socket,
+    hostname: MoodleNet.Instance.hostname,
+    description: MoodleNet.Instance.description,
+    outbox: outboxes.edges,
+    feed: communities_pages.edges )}
   end
 
   def render(assigns) do
-    instance = MoodleNet.Instance.hostname
-    {:ok, communities_pages} = assigns.feed
-    IO.inspect(communities_pages)
     ~L"""
     <div class="page">
     <%= live_component(
@@ -22,8 +26,8 @@ defmodule MoodleNetWeb.HomeLive do
     %>
     <section class="page__wrapper">
       <div class="instance_hero">
-        <h1>My instance</h1>
-        <h4>@<%=instance%></h4>
+        <h1><%= @hostname %></h1>
+        <h4><%= @description %></h4>
       </div>
       <div class="mainContent__navigation home__navigation">
         <a href="#" class="navigation__item">
@@ -43,11 +47,16 @@ defmodule MoodleNetWeb.HomeLive do
           </div>
           <div class="selected__area">
 
-            <%= for com <- communities_pages.edges do %>
-              <p><span><%= com.name %>:</span> <%= com.preferred_username %></p>
+            <%= for activity <- @outbox do %>
+              <%= live_component(
+                    @socket,
+                    ActivityLive,
+                    activity: activity
+                  )
+                %>
             <% end %>
 
-            <div class="markdown-body"></div>
+            <!-- div class="markdown-body"></div -->
           </div>
         </div>
       </div>

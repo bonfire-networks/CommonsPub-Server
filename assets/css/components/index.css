@@ -4,6 +4,7 @@
 @import "navigation.css";
 @import "previews/story.css";
 @import "previews/discussion.css";
+@import "previews/community.css";
 @import "previews/comment.css";
 @import "activity/index.css";
 @import "pages/login.css";
