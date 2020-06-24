@@ -13,9 +13,11 @@ defmodule MoodleNetWeb.Component.ActivityLive do
   end
 
   def update(assigns, socket) do
+
     {:ok, pointer} = Pointers.one(id: assigns.activity.context_id)
     context = Pointers.follow!(pointer)
     meta = Kernel.inspect(context.__meta__)
+
     type = cond do
       meta =~ "community" ->
         type = "community"
@@ -26,14 +28,29 @@ defmodule MoodleNetWeb.Component.ActivityLive do
       true ->
         type = "activity"
     end
-    activity_with_creator = Repo.preload(assigns.activity, :creator)
-    {:ok, from_now} = Timex.shift(assigns.activity.published_at, minutes: -3)
-    |> Timex.format("{relative}", :relative)
+
+    activity = Repo.preload(assigns.activity, :creator)
+    creator = activity.creator
+    creator = Repo.preload(creator, :icon)
+
+    icon = if(is_nil(creator.icon)) do
+      MoodleNet.Users.Gravatar.url(creator.id) # TODO: replace with email
+    else
+      creator.icon
+    end
+
+    creator = creator
+    |> Map.merge(%{icon: icon})
+
+    {:ok, from_now} = Timex.shift(activity.published_at, minutes: -3)
+                      |> Timex.format("{relative}", :relative)
+
     {:ok, assign(socket,
-      activity: activity_with_creator
+      activity: activity
         |> Map.merge(%{published_at: from_now})
         |> Map.merge(%{context_type: type})
         |> Map.merge(%{context: context})
+        |> Map.merge(%{creator: creator})
         )}
   end
 
@@ -41,7 +58,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
     ~L"""
     <div class="component__activity">
       <div class="activity__info">
-        <img src="https://docs.moodle.org/dev/images_dev/thumb/2/2b/estrella.jpg/100px-estrella.jpg" alt="icon" />
+        <img src="<%= @activity.creator.icon %>" alt="icon" />
         <div class="info__meta">
           <div class="meta__action">
             <a href="/user/<%= @activity.creator.id %>"><%= @activity.creator.name %></a>
