@@ -13,6 +13,8 @@ defmodule Tag.Migrations do
       add :parent_tag_id, references(:taggable, on_delete: :nilify_all) # eg. Mamals is a parent of Cat
       add :same_as_tag_id, references(:taggable, on_delete: :nilify_all) # eg. Olive Oil is the same as Huile d'olive
 
+      add :taxonomy_tag_id, references(:taxonomy_tag, on_delete: :nilify_all, type: :integer) # 
+
     end
 
   end

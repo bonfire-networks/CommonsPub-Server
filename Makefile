@@ -98,6 +98,9 @@ dev-db-reset: init ## Reset the dev DB
 dev-db-migrate: init ## Run migrations on dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.migrate
 
+dev-db-seeds: init ## Insert some test data in dev DB
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.seeds
+
 dev-test-db: init ## Create or reset the test DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
 

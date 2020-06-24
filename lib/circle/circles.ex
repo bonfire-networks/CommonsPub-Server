@@ -111,16 +111,18 @@ defmodule Circle.Circles do
     {:ok, attrs}
   end
 
+
+  defp insert_circle(attrs, context) do
+    cs = Circle.create_changeset(attrs, context)
+    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle)  }
+  end
+  
   defp insert_circle(attrs) do
     IO.inspect(attrs)
     cs = Circle.create_changeset(attrs)
     with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle) }
   end
 
-  defp insert_circle(attrs, context) do
-    cs = Circle.create_changeset(attrs, context)
-    with {:ok, circle} <- Repo.insert(cs), do: {:ok, IO.inspect(circle)  }
-  end
 
   # TODO: take the user who is performing the update
   @spec update(User.t(), Circle.t(), attrs :: map) :: {:ok, Circle.t()} | {:error, Changeset.t()}

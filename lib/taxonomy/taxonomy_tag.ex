@@ -9,20 +9,23 @@ defmodule Taxonomy.TaxonomyTag do
 
 
   @type t :: %__MODULE__{}
-  @required ~w(label)a
-  @cast @required ++ ~w(description parent_tag_id pointer_id)a
+  @required ~w(name)a
+  @cast @required ++ ~w(summary parent_tag_id pointer_id)a
 
 
   @primary_key{:id, :id, autogenerate: true} # primary key is an integer
   schema "taxonomy_tag" do
     # field(:id, :string)
-    field(:label, :string)
-    field(:description, :string)
+    field(:name, :string)
+    field(:summary, :string)
     # field(:parent_tag_id, :integer)
     belongs_to(:parent_tag, TaxonomyTag, type: :id)
+
+    has_one(:taggable, Tag.Taggable, references: :id, foreign_key: :taxonomy_tag_id)
+
     # field(:pointer_id, Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
-    belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
-    has_one(:character, Character, references: :pointer_id, foreign_key: :characteristic_id)
+    # belongs_to(:pointer, Pointer, references: :pointer_id, type: Ecto.ULID) # optional pointer ID for the tag (only needed once a tage is actually used)
+    # has_one(:character, Character, references: :pointer_id, foreign_key: :characteristic_id)
   end
 
   def update_changeset(
@@ -37,7 +40,7 @@ defmodule Taxonomy.TaxonomyTag do
 
   defp common_changeset(changeset) do
     changeset
-    # |> Changeset.foreign_key_constraint(:pointer_id, name: :taxonomy_tags_pointer_id_fkey)
+    # |> Changeset.foreign_key_constraint(:pointer_id, name: :taxonomy_tag_pointer_id_fkey)
     # |> change_public()
     # |> change_disabled()
   end

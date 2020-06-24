@@ -30,9 +30,9 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
   object :taxonomy_mutations do
 
     @desc "Create a Character to represents this tag in feeds and federation"
-    field :characterise_tag, :character do
-      arg :tag_id, :integer
-      resolve &TaxonomyResolver.characterise_tag/2
+    field :make_taggable_taxonomy_tag, :tag do
+      arg :taxonomy_tag_id, :integer
+      resolve &TaxonomyResolver.make_taggable_taxonomy_tag/2
     end
 
   end
@@ -45,8 +45,8 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
     @doc "The ULID/pointer ID of the tag. Only exists once the tag is used in the app."
     field(:pointer_id, :string)
 
-    field(:label, :string)
-    field(:description, :string)
+    field(:name, :string)
+    field(:summary, :string)
 
     # field(:parent_tag_id, :integer)
 
@@ -75,8 +75,8 @@ defmodule Taxonomy.GraphQL.TaxonomySchema do
   end
 
   input_object :taxonomy_tag_find do
-    field :label, non_null(:string)
-    field :parent_tag_label, non_null(:string)
+    field :name, non_null(:string)
+    field :parent_tag_name, non_null(:string)
   end
 
 

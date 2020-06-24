@@ -8,6 +8,7 @@ defmodule Tag.Taggable.Queries do
 
   def query(Taggable) do
     from t in Taggable, as: :tag,
+      left_join: p in assoc(t, :profile), as: :profile,
       left_join: c in assoc(t, :character), as: :character
   end
 
@@ -58,8 +59,8 @@ defmodule Tag.Taggable.Queries do
     where q, [tag: f], f.id in ^ids
   end
 
-  def filter(q, {:label, label}) when is_binary(label) do
-    where q, [tag: f], f.label == ^label
+  def filter(q, {:name, name}) when is_binary(name) do
+    where q, [tag: f, profile: p], f.name == ^name
   end
 
   def filter(q, {:id, id}) when is_binary(id), do: where(q, [tag: c], c.id == ^id)

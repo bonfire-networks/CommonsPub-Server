@@ -58,6 +58,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     TaxonomyTags.one(
       # user: GraphQL.current_user(info),
       id: id,
+      preload: :parent_tag,
     )
   end
 
@@ -71,17 +72,21 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def fetch_tags(page_opts, info) do
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
+        queries: TaxonomyTag.Queries,
         query: TaxonomyTag,
         # cursor_fn: TaxonomyTags.cursor,
         page_opts: page_opts,
-        # base_filters: [user: GraphQL.current_user(info)],
-        # data_filters: [page: [desc: [followers: page_opts]]],
+        base_filters: [user: GraphQL.current_user(info)],
+        data_filters: [:default, page: [desc: [id: page_opts]]],
       }
     )
   end
 
-  def parent_tag(%TaxonomyTag{parent_tag_id: id}, _, info) do
+  def parent_tag(%TaxonomyTag{parent_tag: parent_tag}, _, info) do
+    {:ok, parent_tag}
+  end
+
+  def parent_tag(%TaxonomyTag{parent_tag_id: id}, _, info) do # in case not preloaded
     ResolveFields.run(
       %ResolveFields{
         module: __MODULE__,
@@ -95,7 +100,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   def fetch_parent_tag(_, ids) do
     FetchFields.run(
       %FetchFields{
-        queries: TaxonomyTags.Queries,
+        queries: TaxonomyTag.Queries,
         query: TaxonomyTag,
         group_fn: &(&1.id),
         filters: [id: ids],
@@ -121,12 +126,12 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     user = GraphQL.current_user(info)
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
+        queries: TaxonomyTag.Queries,
         query: TaxonomyTag,
         # cursor_fn: TaxonomyTags.cursor(:followers),
         page_opts: page_opts,
         base_filters: [parent_tag: id, user: user],
-        # data_filters: [:default, page: [desc: [id: page_opts]]],
+        data_filters: [:default, page: [desc: [id: page_opts]]],
       }
     )
   end  
@@ -149,7 +154,7 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
     user = GraphQL.current_user(info)
     FetchPage.run(
       %FetchPage{
-        queries: TaxonomyTags.Queries,
+        queries: TaxonomyTag.Queries,
         query: TaxonomyTag,
         # cursor_fn: TaxonomyTags.cursor(:followers),
         page_opts: page_opts,
@@ -160,15 +165,14 @@ defmodule Taxonomy.GraphQL.TaxonomyResolver do
   end
 
 
-  def characterise_tag(%{tag_id: id}, info) do
+  def make_taggable_taxonomy_tag(%{taxonomy_tag_id: id}, info) do
     Repo.transact_with fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, tag} <- TaxonomyTags.one(id: id) do
-        TaxonomyTags.tag_characterise(me, tag)  
+           {:ok, tag} <- TaxonomyTags.get(id) do
+        TaxonomyTags.make_taggable(me, tag)  
       end
     end
   end
-
 
   # def tag(%{tag_id: id}, info) do
   #   {:ok, Fake.tag()}

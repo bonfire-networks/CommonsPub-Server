@@ -81,8 +81,8 @@ defmodule Tag.GraphQL.TagSchema do
   end
 
   input_object :tag_find do
-    field :label, non_null(:string)
-    field :parent_tag_label, non_null(:string)
+    field :name, non_null(:string)
+    field :parent_tag_name, non_null(:string)
   end
 
 

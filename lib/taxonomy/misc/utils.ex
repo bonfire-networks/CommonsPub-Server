@@ -11,8 +11,8 @@ defmodule Taxonomy.Utils do
 
     results = []
     for item <- tags do
-      IO.inspect(item.label)
-      IO.inspect(string_to_actor_name(item.label))
+      IO.inspect(item.name)
+      IO.inspect(string_to_actor_name(item.name))
     end
 
     json(conn,t)

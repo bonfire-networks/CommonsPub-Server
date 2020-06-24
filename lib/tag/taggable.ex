@@ -20,9 +20,22 @@ defmodule Tag.Taggable do
     belongs_to(:parent_tag, Taggable, type: Ecto.ULID) # eg. Mamals is a parent of Cat
     belongs_to(:same_as_tag, Taggable, type: Ecto.ULID) # eg. Olive Oil is the same as Huile d'olive
 
+    belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer) # optionally where it came from in the taxonomy
+
     has_one(:profile, Profile, foreign_key: :id) # stores common fields like name/description
     has_one(:character, Character, foreign_key: :id) # allows it to be follow-able and federate activities
   end
+
+  def create_changeset(
+      attrs
+    ) do
+  %Taggable{}
+  # |> Changeset.change(
+  #   id: Ecto.ULID.generate()
+  #   )
+  |> common_changeset()
+  end
+
 
   def update_changeset(
       %Taggable{} = tag,

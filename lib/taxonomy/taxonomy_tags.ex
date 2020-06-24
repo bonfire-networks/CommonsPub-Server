@@ -14,6 +14,8 @@ defmodule Taxonomy.TaxonomyTags do
 
   def one(filters), do: Repo.single(Queries.query(TaxonomyTag, filters))
 
+  def get(id), do: one(id: id, preload: :parent_tag, preload: :taggable) 
+
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(TaxonomyTag, filters))}
 
   @doc """
@@ -44,57 +46,92 @@ defmodule Taxonomy.TaxonomyTags do
       cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
   end
 
-  @doc "Takes an existing TaxonomyTag and creates a Character based on it"
-  def tag_characterise(%User{} = user, %TaxonomyTag{} = tag) do
+  @doc "Takes an existing TaxonomyTag and makes it a Taggable"
+  def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
 
     Repo.transact_with(fn ->
-      with {:ok, tag} <- pointerise(tag), # add a Pointer ID 
-           {:ok, return} <- Character.Characters.characterise(user, tag) 
+      with {:ok, tag} <- pointerise(user, tag) # add a Pointer ID 
             do
-              {:ok, return }
+              {:ok, tag }
       end
     end)
   end
 
-  def characterisation(attrs) do
-
-    # IO.inspect(attrs.label)
-    attrs 
-    |> Map.put(:name, attrs.label)
-    |> Map.put(:summary, attrs.description)
-    # |> maybe_put(:context, tag.parent_tag)
-
-  end
   
   @doc "Takes an existing TaxonomyTag and adds a Pointer ID"
-  def pointerise(%TaxonomyTag{} = tag) do
+  def pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag) do
 
-    if(!is_nil(tag.pointer_id)) do # already has one
-      {:ok, tag }
+    if(!is_nil(parent_tag_id)) do # there is a parent
+
+      {:ok, parent_tag} = if(!Ecto.assoc_loaded?(tag.parent_tag)) do # parent is not loaded
+        get(tag.parent_tag_id)
+      else
+        {:ok, tag.parent_tag}
+      end
+
+      IO.inspect(pointerise_parent: parent_tag)
+      parent_pointer = pointerise(user, parent_tag)
+
+      # tag[:parent_tag] = parent_pointer
+      # tag[:parent_tag_id] = parent_pointer.id
+
+      create_tag = %{tag | parent_tag: parent_pointer, parent_tag_id: parent_pointer.id}
+  
+      pointerise_tag(user, create_tag)
+
     else
 
-      pointer_id = Ecto.ULID.generate()
+      pointerise_tag(user, tag)
+
+    end
+
+  end
+
+  def pointerise(%User{} = user, %TaxonomyTag{} = tag) do
+    pointerise_tag(user, tag)
+  end
+
+  def pointerise_tag(%User{} = user, %TaxonomyTag{} = tag) do
+
+    IO.inspect(pointerise: tag)
+
+    if(!is_nil(tag.taggable)) do # already has one
+      {:ok, tag.taggable }
+    else
+
+      ctag = cleanup(tag)
+
+      IO.inspect(ctag: ctag)
 
       Repo.transact_with(fn ->
 
-        with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, %{ pointer_id: pointer_id}))
+        with {:ok, taggable} <- Tag.Taggables.create(user, ctag)
               do
-                {:ok, tag }
+                {:ok, taggable }
         end
       end)
 
     end
   end
+
+    @doc "Transform the generic fields of anything to be turned into a character."
+    def cleanup(thing) do
+      thing 
+      |> Map.put(:facet, "Tag") # use Thing name as Character facet/trope
+      |> Map.delete(:id) # avoid reusing IDs
+      |> Map.from_struct |> Map.delete(:__meta__) # convert to map
+    end 
+  
   
   # TODO: take the user who is performing the update
   @spec update(User.t(), TaxonomyTag.t(), attrs :: map) :: {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)),
-           {:ok, character} <- Character.update(user, tag.character, attrs)
+      with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs))
+          #  {:ok, character} <- Character.update(user, tag.character, attrs)
             # :ok <- publish(tag, :updated) 
             do
-              {:ok, %{ tag | character: character }}
+              {:ok, tag }
       end
     end)
   end
