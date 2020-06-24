@@ -14,7 +14,7 @@ defmodule MoodleNetWeb.Component.HeaderLive do
         <a class="button button-clear right__discover" href="/discover">Discover</a>
         <a class="button" href="/write"><i class="feather-file-text"></i> New story</a>
         <div class="header__avatar">
-          <a href="/profile"><img src="<%= @icon %>" /></a>
+          <a href="/me"><img src="<%= @icon %>" /></a>
         </div>
       </div>
       </header>

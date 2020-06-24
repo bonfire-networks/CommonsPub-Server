@@ -14,64 +14,118 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
   def update(assigns, socket) do
 
-    {:ok, pointer} = Pointers.one(id: assigns.activity.context_id)
-    context = Pointers.follow!(pointer)
-    meta = Kernel.inspect(context.__meta__)
+    if(Map.has_key?(assigns, :activity)) do
 
-    type = cond do
-      meta =~ "community" ->
-        type = "community"
-      meta =~ "collection" ->
-        type = "collection"
-      meta =~ "comment" ->
-        type = "comment"
-      true ->
-        type = "activity"
-    end
+      activity = if(!is_nil(assigns.activity.context_id)) do
 
-    activity = Repo.preload(assigns.activity, :creator)
-    creator = activity.creator
-    creator = Repo.preload(creator, :icon)
+        {:ok, pointer} = Pointers.one(id: assigns.activity.context_id)
+        context = Pointers.follow!(pointer)
 
-    icon = if(is_nil(creator.icon)) do
-      MoodleNet.Users.Gravatar.url(creator.id) # TODO: replace with email
+        type = context.__struct__
+              |> Module.split
+              |> Enum.at(-1)
+              |> String.downcase
+
+        assigns.activity
+          |> Map.merge(%{context_type: type})
+          |> Map.merge(%{context: context})
+
+      else
+        assigns.activity
+      end
+
+      activity = Repo.preload(activity, :creator)
+      IO.inspect(activity)
+
+      creator = activity.creator
+      creator = Repo.preload(creator, :icon)
+
+      icon = if(is_nil(creator.icon)) do
+        MoodleNet.Users.Gravatar.url(creator.id) # TODO: replace with email
+      else
+        creator.icon
+      end
+
+      creator = creator
+      |> Map.merge(%{icon: icon})
+
+      {:ok, from_now} = Timex.shift(activity.published_at, minutes: -3)
+                        |> Timex.format("{relative}", :relative)
+
+      {:ok, assign(socket,
+        activity: activity
+          |> Map.merge(%{published_at: from_now})
+          |> Map.merge(%{creator: creator})
+          )}
+    
     else
-      creator.icon
+      {:ok, assign(socket, activity: %{})}
     end
+  end
 
-    creator = creator
-    |> Map.merge(%{icon: icon})
+  def activity_verb_object(%{verb: verb, context_type: context_type} = activity) do
+    cond do
+      activity.context_type == "flag" ->
+          "flagged a "<>activity.context_type
+      activity.context_type == "like"->
+          "starred a "<>activity.context_type
+      activity.context_type == "follow"->
+          "followed a "<>activity.context_type
+      activity.context_type == "resource"->
+          "added a "<>activity.context_type
+      activity.context_type == "comment"->
+          cond do
+              activity.context.reply_to_id->
+                  "replied to a discussion"
+              true->
+                  "started a discussion"
+              end
+      activity.verb == "created"->
+          "created a "<>activity.context_type
+      activity.verb == "updated"->
+          "updated a "<>activity.context_type
+      true ->
+            "acted on a "<>activity.context_type
+    end
+  end
+  def activity_verb_object(%{verb: verb} = activity) do
+    verb<>" something"
+  end
+  def activity_verb_object(%{context_type: context_type} = activity) do
+    "did "<>context_type
+  end
+  def activity_verb_object(activity) do
+    "did something"
+  end
 
-    {:ok, from_now} = Timex.shift(activity.published_at, minutes: -3)
-                      |> Timex.format("{relative}", :relative)
-
-    {:ok, assign(socket,
-      activity: activity
-        |> Map.merge(%{published_at: from_now})
-        |> Map.merge(%{context_type: type})
-        |> Map.merge(%{context: context})
-        |> Map.merge(%{creator: creator})
-        )}
+  @doc "Returns a value from a map, or a fallback if not present"
+  def e(map, key, fallback) do
+    Map.get(map, key, fallback)
+  end
+  @doc "Returns a value from a nested map, or a fallback if not present"
+  def e(map, key1, key2, fallback) do
+    e(e(map, key1, %{}), key2, fallback)
   end
 
   def render(assigns) do
     ~L"""
     <div class="component__activity">
       <div class="activity__info">
-        <img src="<%= @activity.creator.icon %>" alt="icon" />
+        <img src="<%= e(@activity, :creator, :icon, MoodleNet.Users.Gravatar.url("default")) %>" alt="icon" />
         <div class="info__meta">
           <div class="meta__action">
-            <a href="/user/<%= @activity.creator.id %>"><%= @activity.creator.name %></a>
-            <p><%= @activity.verb %> a <%= @activity.context_type %></p>
+            <a href="/person/<%= e(@activity, :creator, :id, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>
+            <p><a href="<%= e(@activity, :context, :canonical_url, "/discussion") %>"><%= activity_verb_object(@activity) %></a></p>
           </div>
           <div class="meta__secondary">
-            <%= @activity.published_at %>
+            <%= e(@activity, :published_at, "one day") %>
           </div>
         </div>
       </div>
       <div class="activity__preview">
 
-        <%= cond do
+        <%= if(Map.has_key?(@activity, :context_type)) do
+        cond do
             @activity.context_type == "community" ->
               live_component(
                 @socket,
@@ -84,11 +138,12 @@ defmodule MoodleNetWeb.Component.ActivityLive do
                   CommentPreviewLive,
                   comment: @activity.context
                 )
-                true ->
-                  live_component(
-                    @socket,
-                    StoryPreviewLive
-                  )
+              true ->
+                live_component(
+                  @socket,
+                  StoryPreviewLive
+                )
+            end
           end %>
       </div>
     </div>
