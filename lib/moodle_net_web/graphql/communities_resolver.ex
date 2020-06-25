@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     )
   end
 
-  def collection_count_edge(%Community{id: id}, _, info) do
+  def collection_count_edge(%{id: id}, _, info) do
     ResolveFields.run(
       %ResolveFields{
         module: __MODULE__,
@@ -85,7 +85,7 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     )
   end
 
-  def collections_edge(%Community{id: id}, %{}=page_opts, info) do
+  def collections_edge(%{id: id}, %{}=page_opts, info) do
     ResolvePages.run(
       %ResolvePages{
         module: __MODULE__,
@@ -128,6 +128,34 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
         cursor_fn: Collections.cursor(:followers),
         page_opts: page_opts,
         base_filters: [community: ids, user: user],
+        data_filters: [:default, page: [desc: [followers: page_opts]]],
+      }
+    )
+  end
+
+
+
+  def communities_edge(%{id: id}, %{}=page_opts, info) do
+    ResolvePages.run(
+      %ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_communities_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info,
+      }
+    )
+  end
+
+  def fetch_communities_edge(page_opts, info, ids) do
+    user = GraphQL.current_user(info)
+    FetchPage.run(
+      %FetchPage{
+        queries: Communities.Queries,
+        query: Community,
+        cursor_fn: Communities.cursor(:followers),
+        page_opts: page_opts,
+        base_filters: [context: ids, user: user],
         data_filters: [:default, page: [desc: [followers: page_opts]]],
       }
     )

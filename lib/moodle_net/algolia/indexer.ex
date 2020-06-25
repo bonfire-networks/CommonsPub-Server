@@ -144,7 +144,7 @@ defmodule MoodleNet.Algolia.Indexer do
       "canonicalUrl" => canonical_url,
       "createdAt" => resource.published_at,
       "icon" => icon,
-      "licence" => Map.get(resource, :licence),
+      "licence" => Map.get(resource, :license),
       "likes" => %{
         "totalCount" => likes_count
       },
@@ -156,7 +156,9 @@ defmodule MoodleNet.Algolia.Indexer do
       "objectID" => hash_url(canonical_url),
       "url" => resource_url,
       "author" => Map.get(resource, :author),
-      "mediaType" => resource.content.media_type
+      "mediaType" => resource.content.media_type,
+      "categories" => resource.categories,
+      "tags" => resource.tags
     }
   end
 

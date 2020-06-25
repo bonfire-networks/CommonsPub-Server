@@ -71,6 +71,11 @@ defmodule MoodleNet.Communities.Queries do
   def filter(q, {:id, {:lte, id}}) when is_binary(id), do: where(q, [community: c], c.id <= ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [community: c], c.id in ^ids)
 
+  @doc "filter by parent/context"
+  def filter(q, {:context, id}) when is_binary(id), do: where(q, [community: c], c.context_id == ^id)
+  def filter(q, {:context, ids}) when is_list(ids), do: where(q, [community: c], c.context_id in ^ids)
+
+
   def filter(q, {:creator, id}) when is_binary(id) do
     where(q, [community: c], c.creator_id == ^id)
   end

@@ -24,6 +24,7 @@ defmodule MoodleNet.Communities.Community do
   table_schema "mn_community" do
     belongs_to(:actor, Actor)
     belongs_to(:creator, User)
+    belongs_to(:context, Pointer)
     belongs_to(:inbox_feed, Feed, foreign_key: :inbox_id)
     belongs_to(:outbox_feed, Feed, foreign_key: :outbox_id)
     field(:canonical_url, :string, virtual: true)

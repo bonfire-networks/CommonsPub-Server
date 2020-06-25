@@ -70,8 +70,10 @@ defmodule MoodleNet.ActivityPub.Publisher do
            "summary" => Map.get(resource, :summary),
            "type" => "Document",
            "tag" => resource.license,
-           "author" => Utils.create_author_object(resource)
+           "author" => Utils.create_author_object(resource),
            #  "mediaType" => resource.content.media_type
+           "categories" => resource.categories,
+           "tags" => resource.tags
          },
          params = %{
            actor: actor,
@@ -233,17 +235,6 @@ defmodule MoodleNet.ActivityPub.Publisher do
       # FIXME: this is kinda stupid, need to figure out a better way to handle meta-participating objects
       params =
         case flagged do
-          %{creator_id: id} when not is_nil(id) ->
-            flagged = Repo.preload(flagged, creator: :actor)
-
-            {:ok, account} =
-              ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
-
-            %{
-              statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],
-              account: account
-            }
-
           %{actor_id: id} when not is_nil(id) ->
             flagged = Repo.preload(flagged, :actor)
 
@@ -252,6 +243,17 @@ defmodule MoodleNet.ActivityPub.Publisher do
 
             %{
               statuses: nil,
+              account: account
+            }
+
+          %{creator_id: id} when not is_nil(id) ->
+            flagged = Repo.preload(flagged, creator: :actor)
+
+            {:ok, account} =
+              ActivityPub.Actor.get_or_fetch_by_username(flagged.creator.actor.preferred_username)
+
+            %{
+              statuses: [ActivityPub.Object.get_cached_by_pointer_id(flagged.id)],
               account: account
             }
         end
@@ -290,11 +292,19 @@ defmodule MoodleNet.ActivityPub.Publisher do
     end
   end
 
-  # Works for Users, Collections, Communities (not MN.Actor)
-  def delete_actor(actor) do
+  # Currently broken (it's hard)
+  def delete_user(actor) do
     with actor <- ActivityPub.Actor.format_local_actor(actor) do
       ActivityPub.Actor.set_cache(actor)
       ActivityPub.delete(actor)
+    end
+  end
+
+  def delete_comm_or_coll(actor) do
+    with {:ok, creator} <- ActivityPub.Actor.get_by_local_id(actor.creator_id),
+         actor <- ActivityPub.Actor.format_local_actor(actor) do
+      ActivityPub.Actor.invalidate_cache(actor)
+      ActivityPub.delete(actor, true, creator.ap_id)
     end
   end
 end
