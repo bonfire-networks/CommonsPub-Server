@@ -2,12 +2,12 @@ defmodule MoodleNetWeb.HomeLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.Component.{
     HeaderLive,
-    ActivityLive,
     AboutLive,
     StoryPreviewLive,
     UserPreviewLive,
     DiscussionPreviewLive
   }
+  alias MoodleNetWeb.ActivitiesTabLive
   alias MoodleNetWeb.GraphQL.{
     UsersResolver,
     InstanceResolver
@@ -15,25 +15,40 @@ defmodule MoodleNetWeb.HomeLive do
 
   def mount(_params, _session, socket) do
     {:ok, users} = UsersResolver.users(%{limit: 10}, %{})
-    {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{limit: 10}, %{})
-    {:ok, assign(socket,
-      page_title: "Home",
-      hostname: MoodleNet.Instance.hostname,
-      description: MoodleNet.Instance.description,
-      outbox: outboxes.edges,
-      users: users.edges,
-      selected_tab: "about"
-    )}
-  end
+    {:ok,
+      socket
+      |> assign(
+        page: 1,
+        page_title: "Home",
+        hostname: MoodleNet.Instance.hostname,
+        description: MoodleNet.Instance.description,
+        users: users.edges,
+        selected_tab: "about")
+      }
+      end
 
-  def handle_params(%{"tab" => tab}, _url, socket) do
-    {:noreply, assign(socket, selected_tab: tab)}
-  end
+      # defp fetch(socket) do
+      #   {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{after: socket.assigns.after, before: socket.assigns.before, limit: 10}, %{})
+      #   assign(socket,
+      #     outbox: outboxes,
+      #     has_next_page: outboxes.page_info.has_next_page,
+      #     has_previous_page: outboxes.page_info.has_previous_page,
+      #     after: outboxes.page_info.end_cursor,
+      #     before: outboxes.page_info.start_cursor
+      #   )
+      # end
 
+      # def handle_event("load-more", _, %{assigns: assigns} = socket) do
+      #   {:noreply, socket |> assign(page: 1) |> fetch()}
+      # end
 
-  def handle_params(_, _url, socket) do
-    {:noreply, socket}
-  end
+      def handle_params(%{"tab" => tab}, _url, socket) do
+        {:noreply, assign(socket, selected_tab: tab)}
+      end
+
+      def handle_params(_, _url, socket) do
+        {:noreply, socket}
+      end
 
 
   def render(assigns) do
@@ -46,7 +61,7 @@ defmodule MoodleNetWeb.HomeLive do
       )
     %>
     <section class="page__wrapper">
-      <div class="instance_hero">
+      <div class="instance__hero">
         <h1><%= @hostname %></h1>
       </div>
       <div class="mainContent__navigation home__navigation">
@@ -91,19 +106,16 @@ defmodule MoodleNetWeb.HomeLive do
               %>
             </div>
           <% @selected_tab == "timeline" -> %>
-            <div class="selected__header">
-              <h3><%= @selected_tab %></h3>
-            </div>
-            <div class="selected__area">
-                <%= for activity <- @outbox do %>
-                <%= live_component(
-                      @socket,
-                      ActivityLive,
-                      activity: activity
-                    )
-                  %>
-              <% end %>
-            </div>
+
+          <%= live_component(
+            @socket,
+            ActivitiesTabLive,
+            selected_tab: @selected_tab,
+            id: :timeline
+
+          ) %>
+
+
          <% @selected_tab == "members" -> %>
           <div class="selected__header">
               <h3><%= @selected_tab %></h3>
@@ -124,9 +136,7 @@ defmodule MoodleNetWeb.HomeLive do
           <div class="selected__header">
             <h3>Section not found</h3>
           </div>
-          <div class="selected__area">
-
-            </div>
+          <div class="selected__area"></div>
         <% end %>
         </div>
       </div>
@@ -136,6 +146,9 @@ defmodule MoodleNetWeb.HomeLive do
   end
 
 
+
+
+
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
     ~L"""
@@ -143,5 +156,6 @@ defmodule MoodleNetWeb.HomeLive do
       <%= @name %>
     """
   end
+
 
 end

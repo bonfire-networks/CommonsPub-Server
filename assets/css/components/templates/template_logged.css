@@ -20,7 +20,7 @@
   left: 0;
   top: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 1000;
 }
 
 .header__left {
@@ -83,4 +83,5 @@ width: 34px;
   margin: var(--m3) 0;
   background-color: var(--lighter);
   border: var(--border);
+  border-radius: 4px;
 }

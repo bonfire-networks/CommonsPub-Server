@@ -27,3 +27,16 @@
   padding: var(--m2);
 }
 
+
+.instance__hero h1 {
+  max-width: 100%;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  caret-color: var(--darker);
+  color: var(--darker);
+  font-weight: 700;
+  line-height: 1.2;
+  /* margin-bottom: 4px; */
+  font-size: 40px;
+}

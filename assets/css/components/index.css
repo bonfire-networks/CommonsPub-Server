@@ -2,6 +2,7 @@
 @import "templates/template_logged.css";
 @import "hero.css";
 @import "navigation.css";
+@import "pagination.css";
 @import "previews/story.css";
 @import "previews/discussion.css";
 @import "previews/community.css";

@@ -8,6 +8,7 @@
   grid-template-columns: 1fr 1fr 1fr 1fr;
   column-gap: 16px;
   padding: 0 16px;
+  border-radius: 4px;
 }
 
 .home__navigation {

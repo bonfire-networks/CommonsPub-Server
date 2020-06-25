@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.DiscoverLive do
       )
     %>
     <section class="page__wrapper">
-      <div class="instance_hero">
+      <div class="instance__hero">
         <h1>Fediverse</h1>
       </div>
       <div class="mainContent__navigation home__navigation">

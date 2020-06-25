@@ -130,7 +130,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
 
   def render(assigns) do
     ~L"""
-    <div class="component__activity">
+    <div phx-target="#<%= @activity.id %>"  id="<%= @activity.id %>" class="component__activity">
       <div class="activity__info">
         <img src="<%= e(@activity, :creator, :icon, MoodleNet.Users.Gravatar.url("default")) %>" alt="icon" />
         <div class="info__meta">
