@@ -1,4 +1,4 @@
-defmodule ValueFlows.Hydrations do
+defmodule ValueFlows.Hydration do
 
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,

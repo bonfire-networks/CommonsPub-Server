@@ -162,16 +162,21 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   # end
 
   def hydrate(%Absinthe.Blueprint{}, _) do
-    hydrated = %{}
-    hydrated = hydrate_merge(hydrated, Geolocation.GraphQL.Hydration.hydrate()) # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
-    hydrated = hydrate_merge(hydrated, Measurement.Hydration.hydrate()) # FIXME: Measurement queries/mutations also return null
-    hydrated = hydrate_merge(hydrated, ValueFlows.Hydrations.hydrate()) # FIXME: only the ValueFlows queries/mutations actually works
+    hydrators = [
+      # FIXME: the hydration seems to run, because commenting line 14 in lib/geolocation/hydration.ex results in `Interface type "testing_hydrations" either: * Does not have a `resolve_type` function.` error, but the Geolocation queries/mutations all return null
+      &Geolocation.GraphQL.Hydration.hydrate/0,
+      # FIXME: Measurement queries/mutations also return null
+      &Measurement.Hydration.hydrate/0,
+      # FIXME: only the ValueFlows queries/mutations actually works
+      &ValueFlows.Hydration.hydrate/0,
+    ]
+
+
+    hydrated = Enum.reduce(hydrators, %{}, fn hydrate_fn, hydrated ->
+      hydrate_merge(hydrated, hydrate_fn.())
+    end)
     IO.inspect(merged_hydrations: hydrated) # this does output a merged map of all three hydrations above
     hydrated
-  end
-
-  defp hydrate_merge(a, b) do
-    Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
   end
 
   # hydrations fallback
@@ -179,5 +184,7 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     []
   end
 
-
+  defp hydrate_merge(a, b) do
+    Map.merge(a, b, fn _, a, b -> Map.merge(a, b) end)
+  end
 end
