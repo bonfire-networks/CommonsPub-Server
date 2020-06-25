@@ -377,10 +377,11 @@ defmodule MoodleNetWeb.GraphQL.UsersSchema do
   end
 
   input_object :update_profile_input do
-    field(:name, :string)
-    field(:summary, :string)
-    field(:location, :string)
-    field(:website, :string)
+    field :email, :string
+    field :name, :string
+    field :summary, :string
+    field :location, :string
+    field :website, :string
     # field :primary_language_id, :string
     field(:wants_email_digest, :boolean)
     field(:wants_notifications, :boolean)

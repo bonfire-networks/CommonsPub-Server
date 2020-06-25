@@ -95,7 +95,7 @@ defmodule MoodleNet.Mixfile do
       {:cloak_ecto, "~> 1.0"}, # Username reservation
       {:argon2_elixir, "~> 2.0"}, # Password hashing
       # Outbound HTTP
-      {:hackney, "~> 1.15.2"},
+      {:hackney, "~> 1.16"},
       {:tesla, "~> 1.2"},
       # Email
       {:bamboo, "~> 1.5"}, # sending
@@ -111,7 +111,8 @@ defmodule MoodleNet.Mixfile do
       {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex,
       git: "https://gitlab.com/moodlenet/servers/furlex",
-      ref: "master"}, # webpage summary
+      ref: "d11dc0b9fffc69348849e0769f8828bd382de793"}, # webpage summary
+      {:fast_html, "~> 1.0"}, #html parser
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/elixir-libraries/http_signatures"}, # activity signing
       {:oban, "~> 1.2.0"}, # job queue
