@@ -6,8 +6,9 @@ defmodule Profile.GraphQL.Resolver do
     Activities,
     GraphQL,
     Repo,
-    Resources,
+    Resources
   }
+
   alias MoodleNet.GraphQL.{
     Flow,
     FetchFields,
@@ -16,8 +17,9 @@ defmodule Profile.GraphQL.Resolver do
     ResolveField,
     ResolvePage,
     ResolvePages,
-    ResolveRootPage,
+    ResolveRootPage
   }
+
   alias Profile
   alias Profile.{Profiles, Queries}
   alias MoodleNet.Resources.Resource
@@ -26,37 +28,42 @@ defmodule Profile.GraphQL.Resolver do
 
   ## resolvers
 
+  def profile(%{profile: profile}, _, info) do
+    {:ok, profile}
+  end
+
   def profile(%{profile_id: id}, info) do
     # IO.inspect(id)
-    ResolveField.run(
-      %ResolveField{
-        module: __MODULE__,
-        fetcher: :fetch_profile,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_profile,
+      context: id,
+      info: info
+    })
   end
 
   def profile(%{profile_id: id}, _, info) do
     profile(%{profile_id: id}, info)
   end
 
-  def profile(opts, _, info) do
-    # IO.inspect(opts)
-    {:ok, nil}
+  def profile(%{id: id}, info) do
+    profile(%{profile_id: id}, info)
   end
 
+  # def profile(opts, _, info) do
+  #   IO.inspect(unmatched_profile_resolver, opts)
+  #   {:ok, nil}
+  # end
+
   def profiles(page_opts, info) do
-    ResolveRootPage.run(
-      %ResolveRootPage{
-        module: __MODULE__,
-        fetcher: :fetch_profiles,
-        page_opts: page_opts,
-        info: info,
-        cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1], # popularity
-      }
-    )
+    ResolveRootPage.run(%ResolveRootPage{
+      module: __MODULE__,
+      fetcher: :fetch_profiles,
+      page_opts: page_opts,
+      info: info,
+      # popularity
+      cursor_validators: [&(is_integer(&1) and &1 >= 0), &Ecto.ULID.cast/1]
+    })
   end
 
   ## fetchers
@@ -70,39 +77,33 @@ defmodule Profile.GraphQL.Resolver do
   end
 
   def fetch_profiles(page_opts, info) do
-    FetchPage.run(
-      %FetchPage{
-        queries: Profile.Queries,
-        query: Profile,
-        # cursor_fn: Profiles.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
-        # data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
+    FetchPage.run(%FetchPage{
+      queries: Profile.Queries,
+      query: Profile,
+      # cursor_fn: Profiles.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: GraphQL.current_user(info)]
+      # data_filters: [page: [desc: [followers: page_opts]]],
+    })
   end
 
   # def profileistic_edge(%Profile{profileistic_id: id}, _, info), do: MoodleNetWeb.GraphQL.CommonResolver.context_edge(%{context_id: id}, nil, info)
 
   def resource_count_edge(%Profile{id: id}, _, info) do
-    Flow.fields __MODULE__, :fetch_resource_count_edge, id, info, default: 0
+    Flow.fields(__MODULE__, :fetch_resource_count_edge, id, info, default: 0)
   end
 
   def fetch_resource_count_edge(_, ids) do
-    FetchFields.run(
-      %FetchFields{
-        queries: Resources.Queries,
-        query: Resource,
-        group_fn: &elem(&1, 0),
-        map_fn: &elem(&1, 1),
-        filters: [profile_id: ids, group_count: :profile_id],
-      }
-    )
+    FetchFields.run(%FetchFields{
+      queries: Resources.Queries,
+      query: Resource,
+      group_fn: &elem(&1, 0),
+      map_fn: &elem(&1, 1),
+      filters: [profile_id: ids, group_count: :profile_id]
+    })
   end
 
-
   ## finally the mutations...
-
 
   def create_profile(%{profile: attrs}, info) do
     Repo.transact_with(fn ->
@@ -114,12 +115,12 @@ defmodule Profile.GraphQL.Resolver do
   end
 
   def add_profile_to(%{context_id: id}, info) do
-    Repo.transact_with fn ->
+    Repo.transact_with(fn ->
       with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: id) do
-              Profiles.add_profile_to(me, pointer) 
+        Profiles.add_profile_to(me, pointer)
       end
-    end
+    end)
   end
 
   def update_profile(%{profile: changes, profile_id: id}, info) do
@@ -128,12 +129,13 @@ defmodule Profile.GraphQL.Resolver do
            {:ok, profile} <- profile(%{profile_id: id}, info) do
         cond do
           user.local_user.is_instance_admin ->
-	    Profiles.update(user, profile, changes)
+            Profiles.update(user, profile, changes)
 
           profile.creator_id == user.id ->
-	    Profiles.update(user, profile, changes)
+            Profiles.update(user, profile, changes)
 
-          true -> GraphQL.not_permitted("update")
+          true ->
+            GraphQL.not_permitted("update")
         end
       end
     end)
@@ -172,7 +174,6 @@ defmodule Profile.GraphQL.Resolver do
   defp valid_contexts do
     Keyword.fetch!(Application.get_env(:moodle_net, Profiles), :valid_contexts)
   end
-
 
   def creator_edge(%{profile: %{creator_id: id}}, _, info) do
     ActorsResolver.creator_edge(%{creator_id: id}, nil, info)
