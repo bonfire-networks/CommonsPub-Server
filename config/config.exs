@@ -231,6 +231,8 @@ config :http_signatures, adapter: ActivityPub.Signature
 
 config :moodle_net, ActivityPub.Adapter, adapter: MoodleNet.ActivityPub.Adapter
 
+config :floki, :html_parser, Floki.HTMLParser.FastHtml
+
 config :sentry,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!

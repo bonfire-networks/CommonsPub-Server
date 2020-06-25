@@ -20,9 +20,9 @@ defmodule ValueFlows.Planning.Migrations do
       add :provider_id, references("mn_pointer", on_delete: :nilify_all)
       add :receiver_id, references("mn_pointer", on_delete: :nilify_all)
   
-      add :available_quantity, references("measurement_measure", on_delete: :nilify_all)
-      add :resource_quantity, references("measurement_measure", on_delete: :nilify_all)
-      add :effort_quantity, references("measurement_measure", on_delete: :nilify_all)
+      add :available_quantity_id, references("measurement_measure", on_delete: :nilify_all)
+      add :resource_quantity_id, references("measurement_measure", on_delete: :nilify_all)
+      add :effort_quantity_id, references("measurement_measure", on_delete: :nilify_all)
 
       add :resource_classified_as, {:array, :string} # array of URI
       
@@ -33,8 +33,8 @@ defmodule ValueFlows.Planning.Migrations do
   
       add :action_id, references(:vf_action)
 
-      # optional community as scope
-      add :community_id, references("mn_community", on_delete: :nilify_all)
+      # optional context as scope
+      add :context_id, references("mn_pointer", on_delete: :nilify_all)
 
       add :finished, :boolean, default: false
       # # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?

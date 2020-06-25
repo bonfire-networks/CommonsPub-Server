@@ -152,9 +152,14 @@ defmodule Measurement.Test.Faking do
     |> Map.put_new_lazy(:is_public, &Fake.truth/0)
   end
 
-  def measure_input(overrides \\ %{}) do
-    overrides
-    |> Map.put_new_lazy("hasNumericalValue", &:rand.uniform/0)
+  def measure_input(unit \\ nil, overrides \\ %{}) do
+    overrides = Map.put_new_lazy(overrides, "hasNumericalValue", &:rand.uniform/0)
+
+    if is_nil(unit) do
+      overrides
+    else
+      Map.put_new(overrides, "hasUnit", unit.id)
+    end
   end
 
   def measure_fields(extra \\ []) do

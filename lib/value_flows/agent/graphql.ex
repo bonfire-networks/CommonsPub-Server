@@ -20,13 +20,7 @@ defmodule ValueFlows.Agent.GraphQL do
   #   {:ok, Simulate.agent()}
   # end
 
-  # support for interface type
-  def agent_resolve_type(%{agent_type: :person}, _), do: :person
-  def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-  def agent_resolve_type(%{agent_type: nil}, _), do: :person
-
-  # def person_is_type_of(_), do: true
-  # def organization_is_type_of(_), do: true
+ 
 
   # proper resolvers
 

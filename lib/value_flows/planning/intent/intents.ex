@@ -5,10 +5,10 @@ defmodule ValueFlows.Planning.Intent.Intents do
   alias MoodleNet.{Activities, Actors, Common, Feeds, Follows, Repo}
   alias MoodleNet.GraphQL.{Fields, Page}
   alias MoodleNet.Common.Contexts
-  alias MoodleNet.Communities.Community
   alias MoodleNet.Feeds.FeedActivities
   alias MoodleNet.Users.User
 
+  alias Measurement.Measure
   alias ValueFlows.Planning.Intent
   alias ValueFlows.Planning.Intent.Queries
 
@@ -70,31 +70,27 @@ defmodule ValueFlows.Planning.Intent.Intents do
   ## mutations
 
 
-  @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, %Community{} = community, attrs) when is_map(attrs) do
-
+  # @spec create(User.t(), Community.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, %{id: _id} = context, measures, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, community, attrs),
+      with {:ok, item} <- insert_intent(creator, context, measures, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
            :ok <- index(item),
-           :ok <- publish(creator, community, item, activity, :created)
+           :ok <- publish(creator, context, item, activity, :created)
           do
             {:ok, item}
           end
     end)
   end
 
-  @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
-  def create(%User{} = creator, attrs) when is_map(attrs) do
-
-    IO.inspect(attrs)
-
+  # @spec create(User.t(), attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, measures, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-      with {:ok, item} <- insert_unit(creator, attrs),
+      with {:ok, item} <- insert_intent(creator, measures, attrs),
            act_attrs = %{verb: "created", is_local: true},
            {:ok, activity} <- Activities.create(creator, item, act_attrs), #FIXME
-           :ok <- index(item), 
+           :ok <- index(item),
            :ok <- publish(creator, item, activity, :created)
           do
             {:ok, item}
@@ -102,14 +98,16 @@ defmodule ValueFlows.Planning.Intent.Intents do
     end)
   end
 
-  defp insert_unit(creator, attrs) do
-    cs = ValueFlows.Planning.Intent.create_changeset(creator, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+  defp insert_intent(creator, measures, attrs) do
+    Intent.create_changeset(creator, attrs)
+    |> Intent.change_measures(measures)
+    |> Repo.insert()
   end
 
-  defp insert_unit(creator, community, attrs) do
-    cs = ValueFlows.Planning.Intent.create_changeset(creator, community, attrs)
-    with {:ok, item} <- Repo.insert(cs), do: {:ok, item }
+  defp insert_intent(creator, context, measures, attrs) do
+    Intent.create_changeset(creator, context, attrs)
+    |> Intent.change_measures(measures)
+    |> Repo.insert()
   end
 
   defp publish(creator, intent, activity, :created) do
@@ -118,62 +116,71 @@ defmodule ValueFlows.Planning.Intent.Intents do
       Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(intent.id, creator.id)
+      ap_publish("create", intent.id, creator.id)
     end
   end
-  defp publish(creator, community, intent, activity, :created) do
+  defp publish(creator, context, intent, activity, :created) do
     feeds = [
-      community.outbox_id, creator.outbox_id,
+      context.outbox_id, creator.outbox_id,
       Feeds.instance_outbox_id(),
     ]
     with :ok <- FeedActivities.publish(activity, feeds) do
-      ap_publish(intent.id, creator.id)
+      ap_publish("create", intent.id, creator.id)
     end
   end
   defp publish(intent, :updated) do
-    ap_publish(intent.id, intent.creator_id) # TODO: wrong if edited by admin
+    ap_publish("update", intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
   defp publish(intent, :deleted) do
-    ap_publish(intent.id, intent.creator_id) # TODO: wrong if edited by admin
+    ap_publish("delete", intent.id, intent.creator_id) # TODO: wrong if edited by admin
   end
 
-  defp ap_publish(context_id, user_id) do #FIXME
-    MoodleNet.FeedPublisher.publish(%{
+  defp ap_publish(verb, context_id, user_id) do #FIXME
+    MoodleNet.Workers.APPublishWorker.enqueue(verb, %{
       "context_id" => context_id,
       "user_id" => user_id,
     })
+    :ok
   end
   defp ap_publish(_, _, _), do: :ok
 
   # TODO: take the user who is performing the update
-  @spec update(%Intent{}, attrs :: map) :: {:ok, ValueFlows.Planning.Intent.t()} | {:error, Changeset.t()}
-  def update(%Intent{} = intent, attrs) do
-    Repo.transact_with(fn ->
-      intent = Repo.preload(intent, :community)
-      IO.inspect(intent)
+  # @spec update(%Intent{}, attrs :: map) :: {:ok, Intent.t()} | {:error, Changeset.t()}
+  def update(%Intent{} = intent, measures, attrs) when is_map(measures) do
+    do_update(intent, measures, &Intent.update_changeset(&1, attrs))
+  end
 
-      with {:ok, intent} <- Repo.update(ValueFlows.Planning.Intent.update_changeset(intent, attrs)) do
-          #  :ok <- publish(intent, :updated) do
-          #   IO.inspect("intent")
-          #   IO.inspect(intent)
-            {:ok,  intent }
-       end
+  def update(%Intent{} = intent, %{id: id} = context, measures, attrs) when is_map(measures) do
+    do_update(intent, measures, &Intent.update_changeset(&1, context, attrs))
+  end
+
+  def do_update(intent, measures, changeset_fn) do
+    Repo.transact_with(fn ->
+      intent = Repo.preload(intent, [
+        :available_quantity, :resource_quantity, :effort_quantity
+      ])
+
+      cs = intent
+      |> changeset_fn.()
+      |> Intent.change_measures(measures)
+
+      with {:ok, intent} <- Repo.update(cs),
+           :ok <- publish(intent, :updated) do
+        {:ok, intent}
+      end
     end)
   end
 
-  # def soft_delete(%Intent{} = intent) do
-  #   Repo.transact_with(fn ->
-  #     with {:ok, intent} <- Common.soft_delete(intent),
-  #          :ok <- publish(intent, :deleted) do
-  #       {:ok, intent}
-  #     end
-  #   end)
-  # end
+  def soft_delete(%Intent{} = intent) do
+    Repo.transact_with(fn ->
+      with {:ok, intent} <- Common.soft_delete(intent),
+           :ok <- publish(intent, :deleted) do
+        {:ok, intent}
+      end
+    end)
+  end
 
   defp index(obj) do
-
-    IO.inspect(obj)
-
     # icon = MoodleNet.Uploads.remote_url_from_id(obj.icon_id)
     image = MoodleNet.Uploads.remote_url_from_id(obj.image_id)
 

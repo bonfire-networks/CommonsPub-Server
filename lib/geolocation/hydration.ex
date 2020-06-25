@@ -9,8 +9,9 @@ defmodule Geolocation.GraphQL.Hydration do
 
   alias Organisation
 
-  def hydrate(blueprint) do
+  def hydrate() do
     %{
+      testing_hydrations: [ resolve_type: &__MODULE__.resolve_context_type/2 ],
       spatial_thing: %{
         canonical_url: [
           resolve: &ActorsResolver.canonical_url_edge/3
@@ -22,7 +23,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &CommonResolver.context_edge/3
         ],
       },
-      geolocation_query: %{
+      query: %{
         spatial_thing: [
           resolve: &Geolocation.GraphQL.geolocation/2
         ],
@@ -30,7 +31,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &Geolocation.GraphQL.geolocations/2
         ]
       },
-      geolocation_mutation: %{
+      mutation: %{
         create_spatial_thing: [
           resolve: &Geolocation.GraphQL.create_geolocation/2
         ],

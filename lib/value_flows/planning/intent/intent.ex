@@ -20,7 +20,9 @@ defmodule ValueFlows.Planning.Intent do
   alias MoodleNet.Users.User
   alias MoodleNet.Actors.Actor
   alias MoodleNet.Communities.Community
+  alias ValueFlows.Knowledge.Action
   alias ValueFlows.Planning.Intent
+  alias Measurement.Measure
 
   @type t :: %__MODULE__{}
 
@@ -33,9 +35,9 @@ defmodule ValueFlows.Planning.Intent do
     belongs_to(:provider, Pointer) # TODO - use pointer like context?
     belongs_to(:receiver, Pointer)
 
-    has_one(:available_quantity, Measure)
-    has_one(:resource_quantity, Measure)
-    has_one(:effort_quantity, Measure)
+    belongs_to(:available_quantity, Measure, on_replace: :nilify)
+    belongs_to(:resource_quantity, Measure, on_replace: :nilify)
+    belongs_to(:effort_quantity, Measure, on_replace: :nilify)
 
     field(:has_beginning, :utc_datetime_usec)
     field(:has_end, :utc_datetime_usec)
@@ -60,7 +62,7 @@ defmodule ValueFlows.Planning.Intent do
     # has_many(:satisfied_by, Satisfaction)
 
     belongs_to(:creator, User)
-    belongs_to(:community, Community) # optional community as scope
+    belongs_to(:context, Pointer)
 
     field(:finished, :boolean, default: false)
     # field(:deletable, :boolean) # TODO - virtual field? how is it calculated?
@@ -73,15 +75,14 @@ defmodule ValueFlows.Planning.Intent do
 
     timestamps()
   end
-  
-  
+
+
   @required ~w(name is_public)a
   @cast @required ++ ~w(note is_disabled)a
 
   def create_changeset(
         %User{} = creator,
-        %Community{} = community,
-        # %Actor{} = actor,
+        %{id: _} = context,
         attrs
       ) do
     %Intent{}
@@ -89,8 +90,7 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      community_id: community.id,
-      # actor_id: actor.id,
+      context_id: context.id,
       is_public: true
     )
     |> common_changeset()
@@ -98,8 +98,6 @@ defmodule ValueFlows.Planning.Intent do
 
   def create_changeset(
       %User{} = creator,
-      # %Community{} = community,
-      # %Actor{} = actor,
       attrs
     ) do
     %Intent{}
@@ -107,10 +105,19 @@ defmodule ValueFlows.Planning.Intent do
     |> Changeset.validate_required(@required)
     |> Changeset.change(
       creator_id: creator.id,
-      # community_id: community.id,
-      # actor_id: actor.id,
       is_public: true
     )
+    |> common_changeset()
+  end
+
+  def update_changeset(
+    %Intent{} = intent,
+    %{id: _} = context,
+    attrs
+  ) do
+    intent
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(context_id: context.id)
     |> common_changeset()
   end
 
@@ -118,6 +125,12 @@ defmodule ValueFlows.Planning.Intent do
     intent
     |> Changeset.cast(attrs, @cast)
     |> common_changeset()
+  end
+
+  def change_measures(changeset, measures) when is_map(measures) do
+    Enum.reduce(measures, changeset, fn {field_name, measure}, c ->
+      Changeset.put_assoc(c, field_name, measure)
+    end)
   end
 
   defp common_changeset(changeset) do

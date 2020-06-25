@@ -60,12 +60,24 @@ defmodule MoodleNet.Repo do
   @spec transact_with(fun :: (-> {:ok, any} | {:error, any})) :: {:ok, any} | {:error, any}
   def transact_with(fun) do
     transaction(fn ->
-      case fun.() do
+      ret = fun.()
+      case ret do
         :ok -> :ok
         {:ok, v} -> v
-        {:error, reason} -> rollback(reason)
+        {:error, reason} -> rollback_error(reason)
+        _ -> rollback_unexpected(ret)
       end
     end)
+  end
+
+  defp rollback_error(reason) do
+    IO.inspect(transact_with_error: reason)
+    rollback(reason)
+  end
+
+  defp rollback_unexpected(ret) do
+    IO.inspect(transact_with_unexpected_case: ret)
+    rollback("transact_with_unexpected_case")
   end
 
   def transact_many([]), do: {:ok, []}
