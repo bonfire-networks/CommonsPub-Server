@@ -94,7 +94,7 @@ defmodule MoodleNet.Mixfile do
       {:cloak_ecto, "~> 1.0"}, # Username reservation
       {:argon2_elixir, "~> 2.0"}, # Password hashing
       # Outbound HTTP
-      {:hackney, "~> 1.15.2"},
+      {:hackney, "~> 1.16"},
       {:tesla, "~> 1.2"},
       # Email
       {:bamboo, "~> 1.5"}, # sending
@@ -109,7 +109,9 @@ defmodule MoodleNet.Mixfile do
       {:gettext, "~> 0.18"}, # localisation
       {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex,
-      git: "https://gitlab.com/moodlenet/servers/furlex"}, # webpage summary
+      git: "https://gitlab.com/moodlenet/servers/furlex",
+      ref: "d11dc0b9fffc69348849e0769f8828bd382de793"}, # webpage summary
+      {:fast_html, "~> 1.0"}, #html parser
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git"}, # activity signing
       {:oban, "~> 1.2.0"}, # job queue
@@ -126,7 +128,7 @@ defmodule MoodleNet.Mixfile do
       # {:retrieval, "~> 0.9.1"}, # taxonomy trees
       # {:redix, "~> 0.10.5"}, # Redis client
       # {:ex_redi, "~> 0.1.1"}, # RediSearch client
-      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client 
+      # {:redisgraph, "~> 0.1.0"}, # RedisGraph client
       # dev/test only
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:zest, "~> 0.1.1", only: [:dev, :test]},
