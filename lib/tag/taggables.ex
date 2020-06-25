@@ -85,12 +85,12 @@ defmodule Tag.Taggables do
 
   defp attrs_with_taggable(attrs, taggable) do
     attrs = Map.put(attrs, :id, taggable.id)
-    IO.inspect(attrs)
+    # IO.inspect(attrs)
     {:ok, attrs}
   end
 
   defp insert_taggable(attrs) do
-    IO.inspect(insert_taggable: attrs)
+    # IO.inspect(insert_taggable: attrs)
     cs = Taggable.create_changeset(attrs)
     with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end

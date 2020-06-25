@@ -11,7 +11,7 @@ defmodule Tag.Taggable do
   @required ~w(prefix)a
   @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
 
-  pointable_schema("taggable", "TAGSCANBECATEG0RY0RHASHTAG") do
+  pointable_schema("tags", "TAGSCANBECATEG0RY0RHASHTAG") do
     # eg. @ or + or #
     field(:prefix, :string)
 
@@ -32,6 +32,8 @@ defmodule Tag.Taggable do
 
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
+
+    many_to_many(:things, Pointers.Pointer, join_through: "tags_things", unique: true)
   end
 
   def create_changeset(attrs) do
@@ -40,6 +42,16 @@ defmodule Tag.Taggable do
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
+    |> common_changeset()
+  end
+
+  def tag_things_changeset(
+        %Taggable{} = tag,
+        things
+      ) do
+    tag
+    # Set the association
+    |> Ecto.Changeset.put_assoc(:things, [things])
     |> common_changeset()
   end
 

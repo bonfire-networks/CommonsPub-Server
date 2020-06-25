@@ -20,9 +20,11 @@ defmodule MoodleNet.Mixfile do
       homepage_url: "http://moodle.net/",
       source_url: "https://gitlab.com/moodlenet/backend",
       docs: [
-        main: "readme", # The first page to display from the docs
+        # The first page to display from the docs
+        main: "readme",
         logo: "assets/static/images/moodlenet-logo.png",
-        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"] # extra pages to include
+        # extra pages to include
+        extras: ["README.md", "HACKING.md", "DEPLOY.md", "MRF.md"]
       ],
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
@@ -32,17 +34,18 @@ defmodule MoodleNet.Mixfile do
   # Configuration for the OTP application.
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {MoodleNet.Application, []},
-     extra_applications: [
-       :logger,
-       :runtime_tools,
-       :hackney,
-       :mime,
-       :belt,
-       :cachex,
-       :bamboo,
-       :bamboo_smtp,
-     ]
+    [
+      mod: {MoodleNet.Application, []},
+      extra_applications: [
+        :logger,
+        :runtime_tools,
+        :hackney,
+        :mime,
+        :belt,
+        :cachex,
+        :bamboo,
+        :bamboo_smtp
+      ]
     ]
   end
 
@@ -60,7 +63,8 @@ defmodule MoodleNet.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
-    [ # graphql
+    # graphql
+    [
       {:absinthe, git: "https://github.com/absinthe-graphql/absinthe", override: true},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_error_payload, "~> 1.0"},
@@ -68,7 +72,8 @@ defmodule MoodleNet.Mixfile do
       {:cowboy, "~> 2.6"},
       {:plug_cowboy, "~> 2.2"},
       {:plug, "~> 1.10"},
-      {:cors_plug, "~> 2.0"}, # security (CORS)
+      # security (CORS)
+      {:cors_plug, "~> 2.0"},
       # phoenix
       {:phoenix, "~> 1.5.3"},
       {:phoenix_pubsub, "~> 2.0"},
@@ -87,41 +92,62 @@ defmodule MoodleNet.Mixfile do
       {:ecto, "~> 3.4", override: true},
       {:ecto_sql, "~> 3.4", override: true},
       {:postgrex, "~> 0.14"},
-      {:ecto_ulid,
-       git: "https://github.com/irresponsible/ecto-ulid",
-       branch: "moodlenet"},
+      {:ecto_ulid, git: "https://github.com/irresponsible/ecto-ulid", branch: "moodlenet"},
       # crypto
-      {:cloak_ecto, "~> 1.0"}, # Username reservation
-      {:argon2_elixir, "~> 2.0"}, # Password hashing
+      # Username reservation
+      {:cloak_ecto, "~> 1.0"},
+      # Password hashing
+      {:argon2_elixir, "~> 2.0"},
       # Outbound HTTP
       {:hackney, "~> 1.16"},
       {:tesla, "~> 1.2"},
       # Email
-      {:bamboo, "~> 1.5"}, # sending
-      {:bamboo_smtp, "~> 2.1.0"}, # generic smtp backend
-      {:email_checker, "~> 0.1"}, # checking validity
+      # sending
+      {:bamboo, "~> 1.5"},
+      # generic smtp backend
+      {:bamboo_smtp, "~> 2.1.0"},
+      # checking validity
+      {:email_checker, "~> 0.1"},
       # Monitoring
-      {:telemetry, "~> 0.4.0"}, # stats
-      {:sentry, "~> 7.1", runtime: sentry?()}, # production only
+      # stats
+      {:telemetry, "~> 0.4.0"},
+      # production only
+      {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc
       {:protocol_ex, "~> 0.4.3"},
-      {:jason, "~> 1.2"},    # json
-      {:gettext, "~> 0.18"}, # localisation
-      {:recase, "~> 0.5"},   # camel/snake/kebabification
-      {:furlex,
-      git: "https://gitlab.com/moodlenet/servers/furlex",
-      ref: "d11dc0b9fffc69348849e0769f8828bd382de793"}, # webpage summary
-      {:fast_html, "~> 1.0"}, #html parser
-      {:http_signatures,
-      git: "https://git.pleroma.social/pleroma/http_signatures.git"}, # activity signing
-      {:oban, "~> 1.2.0"}, # job queue
-      {:timex, "~> 3.5"}, # timedate headers
-      {:cachex, "~> 3.2"}, # caching
+      # json
+      {:jason, "~> 1.2"},
+      # localisation
+      {:gettext, "~> 0.18"},
+      # camel/snake/kebabification
+      {:recase, "~> 0.5"},
+      {
+        :furlex,
+        # webpage summary
+        git: "https://gitlab.com/moodlenet/servers/furlex",
+        ref: "d11dc0b9fffc69348849e0769f8828bd382de793"
+      },
+      # html parser
+      {:fast_html, "~> 1.0"},
+      {
+        :http_signatures,
+        # activity signing
+        git: "https://git.pleroma.social/pleroma/http_signatures.git"
+      },
+      # job queue
+      {:oban, "~> 1.2.0"},
+      # timedate headers
+      {:timex, "~> 3.5"},
+      # caching
+      {:cachex, "~> 3.2"},
       # CommonsPub:
       {:pointers, "~> 0.2.1"},
-      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
+      # {:pointers,
+      #  git: "https://github.com/commonspub/pointers.git", branch: "cascade-pointer-deletes"},
       # {:pointers, path: "uploads/many-pointers"},
-      {:geo_postgis, "~> 3.1"}, # geolocation in postgres
+      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
+      # geolocation in postgres
+      {:geo_postgis, "~> 3.1"},
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},
@@ -133,17 +159,23 @@ defmodule MoodleNet.Mixfile do
       {:dbg, "~> 1.0", only: [:dev, :test]},
       {:zest, "~> 0.1.1", only: [:dev, :test]},
       {:grumble, "~> 0.1.3", only: [:dev, :test]},
-      {:faker, "~> 0.12"},                  # fake data generation for moodlenet
-      {:ex_machina, "~> 2.3", only: [:dev, :test]}, # fake data generation for AP
-      {:stream_data, "~> 0.5"},                     # property testing
+      # fake data generation for moodlenet
+      {:faker, "~> 0.12"},
+      # fake data generation for AP
+      {:ex_machina, "~> 2.3", only: [:dev, :test]},
+      # property testing
+      {:stream_data, "~> 0.5"},
       # {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}, # type checking
-      {:ex_doc, "~> 0.22", only: :dev, runtime: false}, # doc gen
-      {:excoveralls, "~> 0.10", only: :test}, # test coverage statistics
-      {:mock, "~> 0.3.3", only: :test} # module mocking
+      # doc gen
+      {:ex_doc, "~> 0.22", only: :dev, runtime: false},
+      # test coverage statistics
+      {:excoveralls, "~> 0.10", only: :test},
+      # module mocking
+      {:mock, "~> 0.3.3", only: :test}
     ]
   end
 
-  defp sentry?(), do: Mix.env not in [:dev, :test]
+  defp sentry?(), do: Mix.env() not in [:dev, :test]
 
   defp aliases do
     [
