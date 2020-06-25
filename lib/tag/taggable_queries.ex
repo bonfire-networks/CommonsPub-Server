@@ -13,6 +13,8 @@ defmodule Tag.Taggable.Queries do
       as: :profile,
       left_join: c in assoc(t, :character),
       as: :character,
+      left_join: pt in assoc(t, :parent_tag),
+      as: :parent_tag,
       select_merge: %{name: p.name},
       select_merge: %{summary: p.summary}
     )
@@ -87,12 +89,51 @@ defmodule Tag.Taggable.Queries do
 
   # join with character
   def filter(q, :default) do
-    filter(q, preload: :character)
+    filter(q, preload: :profile, preload: :character, preload: :parent_tag)
+  end
+
+  def filter(q, {:preload, :profile}) do
+    preload(q, [profile: p], profile: p)
   end
 
   def filter(q, {:preload, :character}) do
     preload(q, [character: c], character: c)
   end
 
+  def filter(q, {:preload, :parent_tag}) do
+    preload(q, [parent_tag: pt], parent_tag: pt)
+  end
+
   def filter(q, {:user, user}), do: q
+
+  # pagination
+
+  def filter(q, {:limit, limit}), do: limit(q, ^limit)
+
+  def filter(q, {:page, [desc: [id: %{after: [id], limit: limit}]]}) do
+    filter(q, order: [desc: :id], id: {:lte, id}, limit: limit + 2)
+  end
+
+  def filter(q, {:page, [desc: [id: %{before: [id], limit: limit}]]}) do
+    filter(q, order: [desc: :id], id: {:gte, id}, limit: limit + 2)
+  end
+
+  def filter(q, {:page, [desc: [id: %{limit: limit}]]}) do
+    filter(q, order: [desc: :id], limit: limit + 1)
+  end
+
+  def filter(q, {:page, [asc: [id: %{after: [id], limit: limit}]]}) do
+    filter(q, order: [asc: :id], id: {:gte, id}, limit: limit + 2)
+  end
+
+  def filter(q, {:page, [asc: [id: %{before: [id], limit: limit}]]}) do
+    filter(q, order: [asc: :id], id: {:lte, id}, limit: limit + 2)
+  end
+
+  def filter(q, {:page, [asc: [id: %{limit: limit}]]}) do
+    filter(q, order: [asc: :id], limit: limit + 1)
+  end
+
+  def filter(q, {:order, [asc: :id]}), do: order_by(q, [tag: r], asc: r.id)
+  def filter(q, {:order, [desc: :id]}), do: order_by(q, [tag: r], desc: r.id)
 end

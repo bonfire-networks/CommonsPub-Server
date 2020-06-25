@@ -15,6 +15,7 @@ defmodule Tag.Taggables do
   def test_cursor(), do: &[&1["id"]]
 
   def one(filters), do: Repo.single(Queries.query(Taggable, filters))
+  def get(id), do: one(id: id, preload: :parent_tag, preload: :profile, preload: :character)
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Taggable, filters))}
 

@@ -135,10 +135,13 @@ defmodule Taxonomy.TaxonomyTags do
   def cleanup(thing) do
     thing
     # convert to map
+    |> Map.put(:taxonomy_tag, thing)
+    |> Map.put(:taxonomy_tag_id, thing.id)
     |> Map.from_struct()
     |> Map.delete(:__meta__)
     # use Thing name as facet/trope
     |> Map.put(:facet, "Tag")
+    |> Map.put(:prefix, "+")
     # avoid reusing IDs
     |> Map.delete(:id)
   end

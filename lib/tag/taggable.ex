@@ -9,7 +9,7 @@ defmodule Tag.Taggable do
 
   @type t :: %__MODULE__{}
   @required ~w(prefix)a
-  @cast @required ++ ~w(context_id parent_tag_id)a
+  @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
 
   pointable_schema("taggable", "TAGSCANBECATEG0RY0RHASHTAG") do
     # eg. @ or + or #
@@ -36,6 +36,7 @@ defmodule Tag.Taggable do
 
   def create_changeset(attrs) do
     %Taggable{}
+    |> Changeset.cast(attrs, @cast)
     # |> Changeset.change(
     #   id: Ecto.ULID.generate()
     #   )
