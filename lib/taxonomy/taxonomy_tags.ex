@@ -14,7 +14,7 @@ defmodule Taxonomy.TaxonomyTags do
 
   def one(filters), do: Repo.single(Queries.query(TaxonomyTag, filters))
 
-  def get(id), do: one(id: id, preload: :parent_tag, preload: :taggable) 
+  def get(id), do: one(id: id, preload: :parent_tag, preload: :taggable)
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(TaxonomyTag, filters))}
 
@@ -25,10 +25,12 @@ defmodule Taxonomy.TaxonomyTags do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(TaxonomyTag, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -40,104 +42,122 @@ defmodule Taxonomy.TaxonomyTags do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, TaxonomyTag,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      TaxonomyTag,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
   @doc "Takes an existing TaxonomyTag and makes it a Taggable"
   def make_taggable(%User{} = user, %TaxonomyTag{} = tag) do
-
     Repo.transact_with(fn ->
-      with {:ok, tag} <- pointerise(user, tag) # add a Pointer ID 
-            do
-              {:ok, tag }
+      # add a Pointer ID
+      with {:ok, tag} <- pointerise(user, tag) do
+        {:ok, tag}
       end
     end)
   end
 
-  
   @doc "Takes an existing TaxonomyTag and adds a Pointer ID"
   def pointerise(%User{} = user, %TaxonomyTag{parent_tag_id: parent_tag_id} = tag) do
-
-    if(!is_nil(parent_tag_id)) do # there is a parent
-
-      {:ok, parent_tag} = if(!Ecto.assoc_loaded?(tag.parent_tag)) do # parent is not loaded
-        get(tag.parent_tag_id)
-      else
-        {:ok, tag.parent_tag}
-      end
+    if(!is_nil(parent_tag_id)) do
+      # there is a parent
+      {:ok, parent_tag} =
+        if(!Ecto.assoc_loaded?(tag.parent_tag)) do
+          # parent is not loaded
+          get(tag.parent_tag_id)
+        else
+          {:ok, tag.parent_tag}
+        end
 
       IO.inspect(pointerise_parent: parent_tag)
-      parent_pointer = pointerise(user, parent_tag)
+      # pointerise the parent(s) first (recursively)
+      {:ok, parent_taggable} = pointerise(user, parent_tag)
+      IO.inspect(parent_taggable: parent_taggable)
 
-      # tag[:parent_tag] = parent_pointer
-      # tag[:parent_tag_id] = parent_pointer.id
+      create_tag =
+        if(parent_taggable) do
+          %{
+            cleanup(tag)
+            | parent_tag: parent_taggable,
+              parent_tag_id: parent_taggable.id
+          }
+        else
+          cleanup(tag)
+        end
 
-      create_tag = %{tag | parent_tag: parent_pointer, parent_tag_id: parent_pointer.id}
-  
+      # finally pointerise the child(ren), in hierarchical order
       pointerise_tag(user, create_tag)
-
     else
-
-      pointerise_tag(user, tag)
-
+      # there's no parent, so just pointerise this one
+      pointerise_tag(user, cleanup(tag))
     end
-
   end
 
   def pointerise(%User{} = user, %TaxonomyTag{} = tag) do
-    pointerise_tag(user, tag)
+    pointerise_tag(user, cleanup(tag))
   end
 
-  def pointerise_tag(%User{} = user, %TaxonomyTag{} = tag) do
+  defp pointerise_tag(%User{} = user, tag) do
+    IO.inspect(pointerise_tag: tag)
 
-    IO.inspect(pointerise: tag)
-
-    if(!is_nil(tag.taggable)) do # already has one
-      {:ok, tag.taggable }
+    # already has an associated taggable
+    if(Ecto.assoc_loaded?(tag.taggable) and !is_nil(tag.taggable) and !is_nil(tag.taggable.id)) do
+      {:ok, tag.taggable}
     else
-
-      ctag = cleanup(tag)
-
-      IO.inspect(ctag: ctag)
+      IO.inspect(create_taggable: tag)
 
       Repo.transact_with(fn ->
-
-        with {:ok, taggable} <- Tag.Taggables.create(user, ctag)
-              do
-                {:ok, taggable }
+        with {:ok, taggable} <- Tag.Taggables.create(user, tag) do
+          {:ok, taggable}
         end
       end)
-
     end
   end
 
-    @doc "Transform the generic fields of anything to be turned into a character."
-    def cleanup(thing) do
-      thing 
-      |> Map.put(:facet, "Tag") # use Thing name as Character facet/trope
-      |> Map.delete(:id) # avoid reusing IDs
-      |> Map.from_struct |> Map.delete(:__meta__) # convert to map
-    end 
-  
-  
+  @doc "Transform the generic fields of anything to be turned into a character."
+  def cleanup(thing) do
+    thing
+    # convert to map
+    |> Map.from_struct()
+    |> Map.delete(:__meta__)
+    # use Thing name as facet/trope
+    |> Map.put(:facet, "Tag")
+    # avoid reusing IDs
+    |> Map.delete(:id)
+  end
+
   # TODO: take the user who is performing the update
-  @spec update(User.t(), TaxonomyTag.t(), attrs :: map) :: {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
+  @spec update(User.t(), TaxonomyTag.t(), attrs :: map) ::
+          {:ok, TaxonomyTag.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %TaxonomyTag{} = tag, attrs) do
     Repo.transact_with(fn ->
-      with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs))
-          #  {:ok, character} <- Character.update(user, tag.character, attrs)
-            # :ok <- publish(tag, :updated) 
-            do
-              {:ok, tag }
+      #  {:ok, character} <- Character.update(user, tag.character, attrs)
+      # :ok <- publish(tag, :updated)
+      with {:ok, tag} <- Repo.update(TaxonomyTag.update_changeset(tag, attrs)) do
+        {:ok, tag}
       end
     end)
   end
 
-  @ doc "conditionally update a map" #TODO move this common module
+  # TODO move this common module
+  @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
-  
 end

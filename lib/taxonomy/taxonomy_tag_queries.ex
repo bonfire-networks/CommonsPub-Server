@@ -7,13 +7,14 @@ defmodule Taxonomy.TaxonomyTag.Queries do
   alias Taxonomy.TaxonomyTag
 
   def query(TaxonomyTag) do
-    from t in TaxonomyTag, as: :tag,
+    from(t in TaxonomyTag, as: :tag,
       left_join: pt in assoc(t, :parent_tag), as: :parent_tag,
       left_join: tb in assoc(t, :taggable), as: :taggable
+    )
   end
 
   def query(:count) do
-    from c in TaxonomyTag, as: :tag
+    from(c in TaxonomyTag, as: :tag)
   end
 
   def query(q, filters), do: filter(query(q), filters)
@@ -33,7 +34,6 @@ defmodule Taxonomy.TaxonomyTag.Queries do
     Enum.reduce(tables, q, &join_to(&2, &1, jq))
   end
 
-
   @doc "Filter the query according to arbitrary criteria"
   def filter(q, filter_or_filters)
 
@@ -52,34 +52,37 @@ defmodule Taxonomy.TaxonomyTag.Queries do
   ## by field values
 
   def filter(q, {:id, id}) when is_integer(id) do
-    where q, [tag: f], f.id == ^id
+    where(q, [tag: f], f.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [tag: f], f.id in ^ids
+    where(q, [tag: f], f.id in ^ids)
   end
 
   def filter(q, {:name, name}) when is_binary(name) do
-    where q, [tag: f], f.name == ^name
+    where(q, [tag: f], f.name == ^name)
   end
 
   def filter(q, {:id, id}) when is_integer(id), do: where(q, [tag: c], c.id == ^id)
   def filter(q, {:id, ids}) when is_list(ids), do: where(q, [tag: c], c.id in ^ids)
 
   # get children in taxonomy
-  def filter(q, {:parent_tag, id}) when is_integer(id), do: where(q, [tag: t], t.parent_tag_id == ^id)
-  def filter(q, {:parent_tag, ids}) when is_list(ids), do: where(q, [tag: t], t.parent_tag_id in ^ids)
+  def filter(q, {:parent_tag, id}) when is_integer(id),
+    do: where(q, [tag: t], t.parent_tag_id == ^id)
+
+  def filter(q, {:parent_tag, ids}) when is_list(ids),
+    do: where(q, [tag: t], t.parent_tag_id in ^ids)
 
   def filter(q, :default) do
-    filter q, [preload: :parent_tag, preload: :taggable]
+    filter(q, preload: :parent_tag, preload: :taggable)
   end
 
   def filter(q, {:preload, :taggable}) do
-    preload q, [taggable: tg], taggable: tg
+    preload(q, [taggable: tg], taggable: tg)
   end
 
   def filter(q, {:preload, :parent_tag}) do
-    preload q, [parent_tag: pt], parent_tag: pt
+    preload(q, [parent_tag: pt], parent_tag: pt)
   end
 
   def filter(q, {:limit, limit}), do: limit(q, ^limit)
@@ -112,7 +115,6 @@ defmodule Taxonomy.TaxonomyTag.Queries do
     filter(q, order: [asc: :id], limit: limit + 1)
   end
 
-  def filter(q, {:order, [asc: :id]}), do: order_by(q, [tag: r], [asc: r.id])
-  def filter(q, {:order, [desc: :id]}), do: order_by(q, [tag: r], [desc: r.id])
-
+  def filter(q, {:order, [asc: :id]}), do: order_by(q, [tag: r], asc: r.id)
+  def filter(q, {:order, [desc: :id]}), do: order_by(q, [tag: r], desc: r.id)
 end

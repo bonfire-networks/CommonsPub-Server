@@ -7,45 +7,49 @@ defmodule Tag.Taggable do
   alias Ecto.Changeset
   alias Tag.Taggable
 
-
   @type t :: %__MODULE__{}
   @required ~w(prefix)a
   @cast @required ++ ~w(context_id parent_tag_id)a
 
   pointable_schema("taggable", "TAGSCANBECATEG0RY0RHASHTAG") do
+    # eg. @ or + or #
+    field(:prefix, :string)
 
-    field(:prefix, :string) # eg. @ or + or #
+    # eg. community who curates this tag
+    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID)
+    # eg. Mamals is a parent of Cat
+    belongs_to(:parent_tag, Taggable, type: Ecto.ULID)
+    # eg. Olive Oil is the same as Huile d'olive
+    belongs_to(:same_as_tag, Taggable, type: Ecto.ULID)
 
-    belongs_to(:context, Pointers.Pointer, type: Ecto.ULID) # eg. community who curates this tag
-    belongs_to(:parent_tag, Taggable, type: Ecto.ULID) # eg. Mamals is a parent of Cat
-    belongs_to(:same_as_tag, Taggable, type: Ecto.ULID) # eg. Olive Oil is the same as Huile d'olive
+    # optionally where it came from in the taxonomy
+    belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer)
 
-    belongs_to(:taxonomy_tag, Taxonomy.TaxonomyTag, type: :integer) # optionally where it came from in the taxonomy
+    # stores common fields like name/description
+    has_one(:profile, Profile, foreign_key: :id)
+    # allows it to be follow-able and federate activities
+    has_one(:character, Character, foreign_key: :id)
 
-    has_one(:profile, Profile, foreign_key: :id) # stores common fields like name/description
-    has_one(:character, Character, foreign_key: :id) # allows it to be follow-able and federate activities
+    field(:name, :string, virtual: true)
+    field(:summary, :string, virtual: true)
   end
 
-  def create_changeset(
-      attrs
-    ) do
-  %Taggable{}
-  # |> Changeset.change(
-  #   id: Ecto.ULID.generate()
-  #   )
-  |> common_changeset()
+  def create_changeset(attrs) do
+    %Taggable{}
+    # |> Changeset.change(
+    #   id: Ecto.ULID.generate()
+    #   )
+    |> common_changeset()
   end
-
 
   def update_changeset(
-      %Taggable{} = tag,
-      attrs
-    ) do
-      tag
-      |> Changeset.cast(attrs, @cast)
-      |> common_changeset()
+        %Taggable{} = tag,
+        attrs
+      ) do
+    tag
+    |> Changeset.cast(attrs, @cast)
+    |> common_changeset()
   end
-
 
   defp common_changeset(changeset) do
     changeset
@@ -54,11 +58,9 @@ defmodule Tag.Taggable do
     # |> change_disabled()
   end
 
-
   def context_module, do: Tag.Taggables
 
   def queries_module, do: Tag.Taggable.Queries
 
   def follow_filters, do: [:default]
-
 end

@@ -25,10 +25,12 @@ defmodule Tag.Taggables do
   * GraphQL resolver single-parent resolution
   """
   def page(cursor_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
-  def page(cursor_fn, %{}=page_opts, base_filters, data_filters, count_filters) do
+
+  def page(cursor_fn, %{} = page_opts, base_filters, data_filters, count_filters) do
     base_q = Queries.query(Taggable, base_filters)
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
+
     with {:ok, [data, counts]} <- Repo.transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
@@ -40,29 +42,40 @@ defmodule Tag.Taggables do
   Used by:
   * GraphQL resolver bulk resolution
   """
-  def pages(cursor_fn, group_fn, page_opts, base_filters \\ [], data_filters \\ [], count_filters \\ [])
+  def pages(
+        cursor_fn,
+        group_fn,
+        page_opts,
+        base_filters \\ [],
+        data_filters \\ [],
+        count_filters \\ []
+      )
+
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Contexts.pages Queries, Taggable,
-      cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters
+    Contexts.pages(
+      Queries,
+      Taggable,
+      cursor_fn,
+      group_fn,
+      page_opts,
+      base_filters,
+      data_filters,
+      count_filters
+    )
   end
 
-
-
   ## mutations
-
 
   @spec create(User.t(), attrs :: map) :: {:ok, Taggable.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, attrs) when is_map(attrs) do
     Repo.transact_with(fn ->
-
       attrs = Map.put(attrs, :facet, @facet_name)
 
       with {:ok, taggable} <- insert_taggable(attrs),
-          {:ok, attrs} <- attrs_with_taggable(attrs, taggable),
-          {:ok, profile} <- Profile.Profiles.create(creator, attrs),
-          {:ok, character} <- Character.Characters.create(creator, attrs)
-           do
-            {:ok, %{ taggable | character: character, profile: profile }}
+           {:ok, attrs} <- attrs_with_taggable(attrs, taggable),
+           {:ok, profile} <- Profile.Profiles.create(creator, attrs),
+           {:ok, character} <- Character.Characters.create(creator, attrs) do
+        {:ok, %{taggable | character: character, profile: profile}}
       end
     end)
   end
@@ -72,29 +85,28 @@ defmodule Tag.Taggables do
     IO.inspect(attrs)
     {:ok, attrs}
   end
-  
+
   defp insert_taggable(attrs) do
-    IO.inspect(attrs)
+    IO.inspect(insert_taggable: attrs)
     cs = Taggable.create_changeset(attrs)
-    with {:ok, taggable} <- Repo.insert(cs), do: {:ok, IO.inspect(taggable) }
+    with {:ok, taggable} <- Repo.insert(cs), do: {:ok, taggable}
   end
 
-
   # TODO: take the user who is performing the update
-  @spec update(User.t(), Taggable.t(), attrs :: map) :: {:ok, Taggable.t()} | {:error, Changeset.t()}
+  @spec update(User.t(), Taggable.t(), attrs :: map) ::
+          {:ok, Taggable.t()} | {:error, Changeset.t()}
   def update(%User{} = user, %Taggable{} = tag, attrs) do
     Repo.transact_with(fn ->
+      # :ok <- publish(tag, :updated)
       with {:ok, tag} <- Repo.update(Taggable.update_changeset(tag, attrs)),
-           {:ok, character} <- Character.update(user, tag.character, attrs)
-            # :ok <- publish(tag, :updated) 
-            do
-              {:ok, %{ tag | character: character }}
+           {:ok, character} <- Character.update(user, tag.character, attrs) do
+        {:ok, %{tag | character: character}}
       end
     end)
   end
 
-  @ doc "conditionally update a map" #TODO move this common module
+  # TODO move this common module
+  @doc "conditionally update a map"
   def maybe_put(map, _key, nil), do: map
   def maybe_put(map, key, value), do: Map.put(map, key, value)
-  
 end
