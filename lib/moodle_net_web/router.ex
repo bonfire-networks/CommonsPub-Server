@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.Router do
   scope "/", MoodleNetWeb do
     pipe_through :browser
 
-    live "/", HomeLive, :index
+    live "/", HomeLive
     live "/discover", DiscoverLive
     live "/discussion", DiscussionLive
     live "/login", LoginLive

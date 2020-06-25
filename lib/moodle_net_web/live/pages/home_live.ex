@@ -1,21 +1,40 @@
 defmodule MoodleNetWeb.HomeLive do
   use MoodleNetWeb, :live_view
-  alias MoodleNetWeb.Component.HeaderLive
-  alias MoodleNetWeb.Component.ActivityLive
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
-  alias MoodleNetWeb.GraphQL.InstanceResolver
+  alias MoodleNetWeb.Component.{
+    HeaderLive,
+    ActivityLive,
+    AboutLive,
+    StoryPreviewLive,
+    UserPreviewLive,
+    DiscussionPreviewLive
+  }
+  alias MoodleNetWeb.GraphQL.{
+    UsersResolver,
+    InstanceResolver
+  }
 
   def mount(_params, _session, socket) do
-    {:ok, communities_pages} = CommunitiesResolver.communities(%{}, %{})
+    {:ok, users} = UsersResolver.users(%{limit: 10}, %{})
     {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{limit: 10}, %{})
     {:ok, assign(socket,
       page_title: "Home",
       hostname: MoodleNet.Instance.hostname,
       description: MoodleNet.Instance.description,
       outbox: outboxes.edges,
-      feed: communities_pages.edges 
+      users: users.edges,
+      selected_tab: "about"
     )}
   end
+
+  def handle_params(%{"tab" => tab}, _url, socket) do
+    {:noreply, assign(socket, selected_tab: tab)}
+  end
+
+
+  def handle_params(_, _url, socket) do
+    {:noreply, socket}
+  end
+
 
   def render(assigns) do
     ~L"""
@@ -29,41 +48,99 @@ defmodule MoodleNetWeb.HomeLive do
     <section class="page__wrapper">
       <div class="instance_hero">
         <h1><%= @hostname %></h1>
-        <h4><%= @description %></h4>
       </div>
       <div class="mainContent__navigation home__navigation">
-        <a href="#" class="navigation__item">
-          <i class="feather-heart"></i>About
-        </a>
-        <a href="#" class="navigation__item active">
-          <i class="feather-activity"></i>Timeline
-        </a>
-        <a href="#" class="navigation__item">
-          <i class="feather-file-text"></i>
-          Members
-        </a>
+          <%= live_patch link_body("About", "feather-book-open"),
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "about"
+              ),
+            class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body("Timeline","feather-activity"),
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "timeline"
+              ),
+            class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
+          %>
+          <%= live_patch link_body("Members", "feather-users"),
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "members"
+              ),
+            class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
+          %>
       </div>
       <div class="mainContent__selected">
+
+          <%= cond do %>
+          <% @selected_tab == "about" ->  %>
+            <div class="selected__header">
+              <h3><%= @selected_tab %></h3>
+            </div>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  AboutLive,
+                  description: @description
+                )
+              %>
+            </div>
+          <% @selected_tab == "timeline" -> %>
+            <div class="selected__header">
+              <h3><%= @selected_tab %></h3>
+            </div>
+            <div class="selected__area">
+                <%= for activity <- @outbox do %>
+                <%= live_component(
+                      @socket,
+                      ActivityLive,
+                      activity: activity
+                    )
+                  %>
+              <% end %>
+            </div>
+         <% @selected_tab == "members" -> %>
           <div class="selected__header">
-            <h3>About</h3>
+              <h3><%= @selected_tab %></h3>
+            </div>
+            <div class="selected__area">
+            <div class="users_list">
+              <%= for user <- @users do %>
+                <%= live_component(
+                  @socket,
+                  UserPreviewLive,
+                  user: user
+                  )
+                %>
+              <% end %>
+            </div>
+            </div>
+          <% true -> %>
+          <div class="selected__header">
+            <h3>Section not found</h3>
           </div>
           <div class="selected__area">
 
-            <%= for activity <- @outbox do %>
-              <%= live_component(
-                    @socket,
-                    ActivityLive,
-                    activity: activity
-                  )
-                %>
-            <% end %>
-
-            <!-- div class="markdown-body"></div -->
-          </div>
+            </div>
+        <% end %>
         </div>
       </div>
     </section>
     </div>
+    """
+  end
+
+
+  defp link_body(name, icon) do
+    assigns = %{name: name, icon: icon}
+    ~L"""
+      <i class="<%= @icon %>"></i>
+      <%= @name %>
     """
   end
 

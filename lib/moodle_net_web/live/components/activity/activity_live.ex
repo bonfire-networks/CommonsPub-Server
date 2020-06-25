@@ -9,6 +9,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
     Meta.Pointers
   }
   def mount(activity, _session, socket) do
+
     {:ok, assign(socket, activity: activity)}
   end
 
@@ -35,7 +36,6 @@ defmodule MoodleNetWeb.Component.ActivityLive do
       end
 
       activity = Repo.preload(activity, :creator)
-      IO.inspect(activity)
 
       creator = activity.creator
       creator = Repo.preload(creator, :icon)
@@ -57,7 +57,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
           |> Map.merge(%{published_at: from_now})
           |> Map.merge(%{creator: creator})
           )}
-    
+
     else
       {:ok, assign(socket, activity: %{})}
     end
@@ -108,6 +108,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
   end
 
   def render(assigns) do
+
     ~L"""
     <div class="component__activity">
       <div class="activity__info">
