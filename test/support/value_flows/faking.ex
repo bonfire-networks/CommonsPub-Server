@@ -124,4 +124,13 @@ defmodule ValueFlows.Test.Faking do
     [intent: var(:intent)]
     |> gen_submutation(:update_intent, &intent_response_fields/1, options)
   end
+
+  def delete_intent_mutation(options \\ []) do
+    [id: type!(:id)]
+    |> gen_mutation(&delete_intent_submutation/1, options)
+  end
+
+  def delete_intent_submutation(options \\ []) do
+    field(:delete_intent, args: [id: var(:id)])
+  end
 end

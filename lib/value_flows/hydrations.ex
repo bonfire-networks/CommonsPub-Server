@@ -6,6 +6,7 @@ defmodule ValueFlows.Hydrations do
   }
 
   alias MoodleNet.Users.User
+  alias MoodleNet.Communities.Community
 
   
   def hydrate() do
@@ -19,9 +20,6 @@ defmodule ValueFlows.Hydrations do
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
-      ],
-      in_scope_of: [
-        resolve: &CommonResolver.context_edge/3
       ],
     }
 
@@ -112,6 +110,9 @@ defmodule ValueFlows.Hydrations do
         update_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.update_intent/2
         ],
+        delete_intent: [
+          resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
+        ],
       }
     }
   end
@@ -125,5 +126,6 @@ defmodule ValueFlows.Hydrations do
    # def organization_is_type_of(_), do: true
 
   def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%User{}, _), do: :user
 end

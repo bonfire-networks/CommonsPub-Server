@@ -19,6 +19,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   }
   # alias MoodleNet.Resources.Resource
   alias MoodleNet.Common.Enums
+  alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Communities.Community
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias ValueFlows.Planning.Intent
@@ -61,10 +63,11 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   ## fetchers
 
   def fetch_intent(info, id) do
-    Intents.one(
+    Intents.one([
+      :default,
       user: GraphQL.current_user(info),
       id: id,
-    )
+    ])
   end
 
   def fetch_intents(page_opts, info) do
@@ -75,7 +78,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
         # preload: :provider,
         # cursor_fn: Intents.cursor(:followers),
         page_opts: page_opts,
-        base_filters: [user: GraphQL.current_user(info)],
+        base_filters: [:default, user: GraphQL.current_user(info)],
         # data_filters: [page: [desc: [followers: page_opts]]],
       }
     )
@@ -97,7 +100,8 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
 
   @measure_fields [:resource_quantity, :effort_quantity, :available_quantity]
 
-  def create_intent(%{intent: attrs, in_scope_of: context_id}, info) do
+  def create_intent(%{intent: %{in_scope_of: context_ids} = attrs}, info) when is_list(context_ids) do
+    context_id = List.first(context_ids)
     # FIXME, need to do something like validate_thread_context to validate the provider/receiver agent ID
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
@@ -122,14 +126,45 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
     end)
   end
 
-  def update_intent(%{intent: %{id: id} = changes}, info) do
+  # FIXME: duplication!
+  def update_intent(%{intent: %{in_scope_of: context_ids} = changes}, info) do
+    context_id = List.first(context_ids)
+
+    Repo.transact_with(fn ->
+      do_update(changes, info, fn intent, measures ->
+        with {:ok, pointer} <- Pointers.one(id: context_id) do
+          context = Pointers.follow!(pointer)
+          Intents.update(intent, context, measures, changes)
+        end
+      end)
+    end)
+  end
+
+  def update_intent(%{intent: changes}, info) do
+    Repo.transact_with(fn ->
+      do_update(changes, info, fn intent, measures ->
+        Intents.update(intent, measures, changes)
+      end)
+    end)
+  end
+
+  def do_update(%{id: id} = changes, info, update_fn) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
+         {:ok, intent} <- intent(%{id: id}, info),
+         :ok <- ensure_update_permission(user, intent),
+         {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
+         {:ok, intent} <- update_fn.(intent, measures) do
+      {:ok, %{intent: intent}}
+    end
+  end
+
+  def delete_intent(%{id: id}, info) do
     Repo.transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, intent} <- intent(%{id: id}, info),
            :ok <- ensure_update_permission(user, intent),
-           {:ok, measures} <- Measurement.Measure.GraphQL.update_measures(changes, info, @measure_fields),
-           {:ok, intent} <- Intents.update(intent, measures, changes) do
-        {:ok, %{intent: intent}}
+           {:ok, _} <- Intents.soft_delete(intent) do
+        {:ok, true}
       end
     end)
   end
@@ -151,7 +186,7 @@ defmodule ValueFlows.Planning.Intent.GraphQL do
   end
 
   defp valid_contexts() do
-    [User, Organisation]
+    [User, Community, Organisation]
     # Keyword.fetch!(Application.get_env(:moodle_net, Threads), :valid_contexts)
   end
 
