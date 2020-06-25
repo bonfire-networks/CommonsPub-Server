@@ -28,11 +28,11 @@ defmodule Tag.GraphQL.TagResolver do
     })
   end
 
-  def tag(%{character_id: character}, info) do
+  def tag(%{taxonomy_tag_id: tid}, info) do
     ResolveField.run(%ResolveField{
       module: __MODULE__,
-      fetcher: :fetch_tag_by_character,
-      context: character,
+      fetcher: :fetch_tag_via_taxonomy,
+      context: tid,
       info: info
     })
   end
@@ -54,10 +54,10 @@ defmodule Tag.GraphQL.TagResolver do
     Taggables.get(id)
   end
 
-  def fetch_tag_by_character(info, character_id) do
-    Tags.one(
+  def fetch_tag_via_taxonomy(info, tid) do
+    Taggables.one(
       # user: GraphQL.current_user(info),
-      character_id: character_id
+      taxonomy_tag_id: tid
     )
   end
 
@@ -90,7 +90,7 @@ defmodule Tag.GraphQL.TagResolver do
     })
   end
 
-  @doc "List all child tags"
+  @doc "List child tags"
   def tag_children(%{id: id}, %{} = page_opts, info) do
     # IO.inspect(info)
     ResolvePages.run(%ResolvePages{
@@ -113,40 +113,6 @@ defmodule Tag.GraphQL.TagResolver do
       base_filters: [parent_tag: id, user: user],
       data_filters: [:default, page: [desc: [id: page_opts]]]
     })
-  end
-
-  @doc "List child tags that already have a character"
-  def character_tags_edge(%{id: id}, %{} = page_opts, info) do
-    # IO.inspect(info)
-    ResolvePages.run(%ResolvePages{
-      module: __MODULE__,
-      fetcher: :fetch_character_tags_edge,
-      context: id,
-      page_opts: page_opts,
-      info: info
-    })
-  end
-
-  def fetch_character_tags_edge(page_opts, info, ids) do
-    user = GraphQL.current_user(info)
-
-    FetchPage.run(%FetchPage{
-      queries: Taggable.Queries,
-      query: Taggable,
-      # cursor_fn: Tags.cursor(:followers),
-      page_opts: page_opts,
-      base_filters: [context: ids, user: user],
-      data_filters: [:default, page: [desc: [id: page_opts]]]
-    })
-  end
-
-  def characterise_tag(%{tag_id: id}, info) do
-    Repo.transact_with(fn ->
-      with {:ok, me} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, tag} <- Taggable.one(id: id) do
-        Tags.tag_characterise(me, tag)
-      end
-    end)
   end
 
   # def tag(%{tag_id: id}, info) do

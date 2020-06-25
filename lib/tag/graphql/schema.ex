@@ -40,6 +40,7 @@ defmodule Tag.GraphQL.TagSchema do
     @doc "The ID of the corresponding TaxonomyTag, if any."
     field(:taxonomy_tag_id, :integer)
 
+    field(:prefix, :string)
     field(:name, :string)
     field(:summary, :string)
 

@@ -94,31 +94,34 @@ defmodule Taxonomy.TaxonomyTags do
       create_tag =
         if(parent_taggable) do
           %{
-            cleanup(tag)
+            tag
             | parent_tag: parent_taggable,
               parent_tag_id: parent_taggable.id
           }
         else
-          cleanup(tag)
+          tag
         end
 
       # finally pointerise the child(ren), in hierarchical order
       pointerise_tag(user, create_tag)
     else
       # there's no parent, so just pointerise this one
-      pointerise_tag(user, cleanup(tag))
+      pointerise_tag(user, tag)
     end
   end
 
   def pointerise(%User{} = user, %TaxonomyTag{} = tag) do
-    pointerise_tag(user, cleanup(tag))
+    pointerise_tag(user, tag)
   end
 
   defp pointerise_tag(%User{} = user, tag) do
     IO.inspect(pointerise_tag: tag)
 
-    # already has an associated taggable
+    tag = Repo.preload(tag, :taggable)
+    tag = cleanup(tag)
+
     if(Ecto.assoc_loaded?(tag.taggable) and !is_nil(tag.taggable) and !is_nil(tag.taggable.id)) do
+      # already has an associated taggable
       {:ok, tag.taggable}
     else
       IO.inspect(create_taggable: tag)

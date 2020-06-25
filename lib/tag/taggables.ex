@@ -72,6 +72,8 @@ defmodule Tag.Taggables do
     Repo.transact_with(fn ->
       attrs = Map.put(attrs, :facet, @facet_name)
 
+      # TODO: check that the tag doesn't already exist (same name and parent)
+
       with {:ok, taggable} <- insert_taggable(attrs),
            {:ok, attrs} <- attrs_with_taggable(attrs, taggable),
            {:ok, profile} <- Profile.Profiles.create(creator, attrs),

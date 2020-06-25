@@ -66,6 +66,14 @@ defmodule Tag.Taggable.Queries do
     where(q, [tag: f], f.id in ^ids)
   end
 
+  def filter(q, {:taxonomy_tag_id, id}) when is_integer(id) do
+    where(q, [tag: f], f.taxonomy_tag_id == ^id)
+  end
+
+  def filter(q, {:taxonomy_tag_id, ids}) when is_list(ids) do
+    where(q, [tag: f], f.taxonomy_tag_id in ^ids)
+  end
+
   def filter(q, {:name, name}) when is_binary(name) do
     where(q, [tag: f, profile: p], f.name == ^name)
   end
