@@ -3,7 +3,7 @@ defmodule MoodleNetWeb.Component.UserPreviewLive do
 
   def render(assigns) do
     ~L"""
-    <a href="/user/@<%= @user.actor.preferred_username %>">
+    <a href="/@<%= @user.actor.preferred_username %>">
       <div class="user__preview">
         <div class="preview__image" style="background-image: url()"></div>
         <div class="preview__info">
@@ -14,5 +14,4 @@ defmodule MoodleNetWeb.Component.UserPreviewLive do
     </a>
     """
   end
-
 end

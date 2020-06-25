@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Router do
   use Plug.ErrorHandler
   use Sentry.Plug
 
-  if Mix.env == :dev do
+  if Mix.env() == :dev do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 
@@ -33,6 +33,7 @@ defmodule MoodleNetWeb.Router do
     live "/login", LoginLive
     live "/signup", SignupLive
     live "/me", ProfileLive
+    live "/@:username", ProfileLive
     live "/write", WriteLive
   end
 
@@ -65,7 +66,6 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/graphql" do
-
     get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
 
     pipe_through :graphql
@@ -75,7 +75,6 @@ defmodule MoodleNetWeb.Router do
       interface: :playground,
       json_codec: Jason,
       pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
-
   end
 
   pipeline :well_known do
