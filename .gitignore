@@ -16,6 +16,7 @@
 .cache
 .cargo
 .npm
+.erlang.cookie
 
 # Prevent committing custom emojis
 /priv/static/emoji/custom/*
