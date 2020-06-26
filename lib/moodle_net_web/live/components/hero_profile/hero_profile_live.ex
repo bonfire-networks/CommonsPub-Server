@@ -1,5 +1,5 @@
 defmodule MoodleNetWeb.Component.HeroProfileLive do
-  use Phoenix.LiveComponent
+  use MoodleNetWeb, :live_component
 
   def render(assigns) do
     ~L"""

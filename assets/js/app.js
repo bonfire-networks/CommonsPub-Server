@@ -17,7 +17,7 @@ import {Socket} from "phoenix"
 import NProgress from "nprogress"
 import {LiveSocket, debug} from "phoenix_live_view"
 
-let Hooks = {}
+
 
 // let scrollAt = () => {
 //   let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
@@ -46,7 +46,7 @@ let Hooks = {}
 // }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
 
 console.log(csrfToken)
 

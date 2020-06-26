@@ -39,13 +39,14 @@ defmodule MoodleNetWeb.Component.ActivityLive do
       creator = activity.creator
       creator = Repo.preload(creator, :icon)
       creator = Repo.preload(creator, :actor)
-
+      icon = Repo.preload(creator.icon, :content_mirror)
+      IO.inspect(icon)
       icon =
-        if(is_nil(creator.icon)) do
+        if(is_nil(icon.content_mirror.url)) do
           # TODO: replace with email
           MoodleNet.Users.Gravatar.url(creator.id)
         else
-          creator.icon
+          icon.content_mirror.url
         end
 
       creator =
@@ -129,8 +130,9 @@ defmodule MoodleNetWeb.Component.ActivityLive do
   end
 
   def render(assigns) do
+    IO.inspect(assigns.activity)
     ~L"""
-    <div phx-target="#<%= @activity.id %>"  id="<%= @activity.id %>" class="component__activity">
+    <div id="<%= @activity.id%>" class="component__activity">
       <div class="activity__info">
         <img src="<%= e(@activity, :creator, :icon, MoodleNet.Users.Gravatar.url("default")) %>" alt="icon" />
         <div class="info__meta">
