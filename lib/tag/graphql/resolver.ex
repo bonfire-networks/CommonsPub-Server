@@ -115,6 +115,19 @@ defmodule Tag.GraphQL.TagResolver do
     })
   end
 
+  def tagged_things_edges(%Taggable{things: things} = tag, %{} = page_opts, info) do
+    tag = Repo.preload(tag, :things)
+    # pointers = for %{id: tid} <- tag.things, do: tid
+    pointers =
+      tag.things
+      |> Enum.map(fn a -> a.id end)
+
+    # |> Map.new()
+
+    IO.inspect(pointers)
+    MoodleNetWeb.GraphQL.CommonResolver.context_edges(%{context_ids: pointers}, page_opts, info)
+  end
+
   # def tag(%{tag_id: id}, info) do
   #   {:ok, Fake.tag()}
   #   |> GraphQL.response(info)

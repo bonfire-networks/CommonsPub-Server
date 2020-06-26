@@ -2,9 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNet.Meta.Pointers do
-
-  alias MoodleNet.Meta.{Pointer, PointersQueries, TableService}
+  alias MoodleNet.Meta.{PointersQueries, TableService}
   alias MoodleNet.Repo
+  alias Pointers.{Pointer}
 
   def one(filters), do: Repo.single(PointersQueries.query(Pointer, filters))
 
@@ -48,49 +48,56 @@ defmodule MoodleNet.Meta.Pointers do
 
   def follow!(pointer_or_pointers) do
     case preload!(pointer_or_pointers) do
-      %Pointer{}=pointer -> pointer.pointed
-      pointers -> Enum.map(pointers, &(&1.pointed))
+      %Pointer{} = pointer -> pointer.pointed
+      pointers -> Enum.map(pointers, & &1.pointed)
     end
   end
 
-  @spec preload!(Pointer.t | [Pointer.t]) :: Pointer.t | [Pointer.t]
-  @spec preload!(Pointer.t | [Pointer.t], list) :: Pointer.t | [Pointer.t]
+  @spec preload!(Pointer.t() | [Pointer.t()]) :: Pointer.t() | [Pointer.t()]
+  @spec preload!(Pointer.t() | [Pointer.t()], list) :: Pointer.t() | [Pointer.t()]
   @doc """
   Follows one or more pointers and adds the pointed records to the `pointed` attrs
   """
   def preload!(pointer_or_pointers, opts \\ [])
-  def preload!(%Pointer{id: id, table_id: table_id}=pointer, opts) do
+
+  def preload!(%Pointer{id: id, table_id: table_id} = pointer, opts) do
     if is_nil(pointer.pointed) or Keyword.get(opts, :force) do
       {:ok, [pointed]} = loader(table_id, id: id)
-      %{ pointer | pointed: pointed }
+      %{pointer | pointed: pointed}
     else
       pointer
     end
   end
+
   def preload!(pointers, opts) when is_list(pointers) do
     pointers
     |> preload_load(opts)
     |> preload_collate(pointers)
   end
-  def preload!(%{__struct__: _}=pointed, _), do: pointed
+
+  def preload!(%{__struct__: _} = pointed, _), do: pointed
 
   defp preload_collate(loaded, pointers), do: Enum.map(pointers, &collate(loaded, &1))
 
   defp collate(_, nil), do: nil
-  defp collate(loaded, %{}=p), do: %{ p | pointed: Map.get(loaded, p.id, %{}) }
+  defp collate(loaded, %{} = p), do: %{p | pointed: Map.get(loaded, p.id, %{})}
 
   defp preload_load(pointers, opts) do
     force = Keyword.get(opts, :force, false)
+
     pointers
-    |> Enum.reduce(%{}, &preload_search(force, &1, &2)) # find ids
-    |> Enum.reduce(%{}, &preload_per_table/2)           # query
+    # find ids
+    |> Enum.reduce(%{}, &preload_search(force, &1, &2))
+    # query
+    |> Enum.reduce(%{}, &preload_per_table/2)
   end
 
   defp preload_search(false, %{pointed: pointed}, acc)
-  when not is_nil(pointed), do: acc
+       when not is_nil(pointed),
+       do: acc
 
   defp preload_search(_force, pointer, acc) do
-    ids = [ pointer.id | Map.get(acc, pointer.table_id, []) ]
+    ids = [pointer.id | Map.get(acc, pointer.table_id, [])]
     Map.put(acc, pointer.table_id, ids)
   end
 
@@ -102,10 +109,10 @@ defmodule MoodleNet.Meta.Pointers do
   defp loader(schema, filters) when not is_atom(schema) do
     loader(TableService.lookup_schema!(schema), filters)
   end
+
   defp loader(schema, filters) do
     module = apply(schema, :queries_module, [])
     filters = apply(schema, :follow_filters, []) ++ filters
     {:ok, Repo.all(apply(module, :query, [schema, filters]))}
   end
-
 end

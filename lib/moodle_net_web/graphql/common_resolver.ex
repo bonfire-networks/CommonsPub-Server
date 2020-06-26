@@ -2,10 +2,9 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
-
   alias Ecto.ULID
   alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{Fields, ResolveFields}
+  alias MoodleNet.GraphQL.{Fields, FetchFields, FetchPage, ResolveFields, ResolvePages}
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Flags.Flag
@@ -15,24 +14,53 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
   def context_edge(%{context_id: id}, _, info) do
-    ResolveFields.run(
-      %ResolveFields{
+    context_edge =
+      ResolveFields.run(%ResolveFields{
         module: __MODULE__,
         fetcher: :fetch_context_edge,
         context: id,
-        info: info,
-      }
-    )
+        info: info
+      })
+
+    IO.inspect(context_edge)
+    context_edge
   end
-  
+
+  # FIXME
+  def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
+    context_edges =
+      ResolvePages.run(%ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_context_edge,
+        context: ids,
+        page_opts: page_opts,
+        info: info
+      })
+
+    IO.inspect(context_edges)
+    context_edges
+  end
+
   def fetch_context_edge(_, ids) do
-    IO.inspect(ids: ids)
-    {:ok, ptrs} = Pointers.many(id: ids)
-    IO.inspect(ptrs: ptrs)
+    IO.inspect(context_ids: ids)
+    flattened_ids = flatten(ids)
+    IO.inspect(flattened: flattened_ids)
+    {:ok, ptrs} = Pointers.many(id: flattened_ids)
+    IO.inspect(context_ptrs: ptrs)
     ptsd = Pointers.follow!(ptrs)
-    IO.inspect(ptsd: ptsd)
-    Fields.new(ptsd, &Map.get(&1,:id))
+    IO.inspect(context_ptsd: ptsd)
+    edge = Fields.new(ptsd, &Map.get(&1, :id))
+    IO.inspect(edge: edge)
+    edge
   end
+
+  @doc """
+  Flattens a list by recursively flattening the head and tail of the list
+  TODO: move to utlity module
+  """
+  def flatten([head | tail]), do: flatten(head) ++ flatten(tail)
+  def flatten([]), do: []
+  def flatten(element), do: [element]
 
   # defp preload_context(%{context: %NotLoaded{}}=me), do: Repo.preload(me, :context)
   # defp preload_context(%{context: %{}}=me), do: me
@@ -76,6 +104,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, pointer} <- Pointers.one(id: id) do
       context = Pointers.follow!(pointer)
+
       if allow_delete?(user, context) do
         apply(context.__struct__, :context_module, [])
         |> apply(:soft_delete, [user, context])
@@ -110,5 +139,4 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
   #   {:ok, Fake.long_edge_list(&Fake.tagging/0)}
   #   |> GraphQL.response(info)
   # end
-
 end

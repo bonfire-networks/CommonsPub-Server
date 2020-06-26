@@ -65,6 +65,11 @@ defmodule Tag.GraphQL.TagSchema do
     field :profile, :profile do
       resolve(&Profile.GraphQL.Resolver.profile/3)
     end
+
+    @desc "Things that were tagged with this tag"
+    field(:tagged_things, :taggable_thing) do
+      resolve(&TagResolver.tagged_things_edges/3)
+    end
   end
 
   object :tags_page do
@@ -76,6 +81,54 @@ defmodule Tag.GraphQL.TagSchema do
   input_object :tag_find do
     field(:name, non_null(:string))
     field(:parent_tag_name, non_null(:string))
+  end
+
+  # TODO generate this based on available modules and/or config
+  @doc "Types of things that can be characters"
+  union :taggable_thing do
+    description("Any kind of thing that can be tagged")
+
+    types([
+      :collection,
+      :community,
+      :circle,
+      :resource,
+      :thread,
+      :comment,
+      :spatial_thing,
+      :character,
+      :user
+    ])
+
+    resolve_type(fn
+      %MoodleNet.Collections.Collection{}, _ ->
+        :collection
+
+      %MoodleNet.Communities.Community{}, _ ->
+        :community
+
+      %Circle{}, _ ->
+        :circle
+
+      %MoodleNet.Resources.Resource{}, _ ->
+        :resource
+
+      %MoodleNet.Threads.Thread{}, _ ->
+        :thread
+
+      %MoodleNet.Threads.Comment{}, _ ->
+        :comment
+
+      %Geolocation{}, _ ->
+        :spatial_thing
+
+      %Character{}, _ ->
+        :character
+
+      %MoodleNet.Users.User{}, _ ->
+        :user
+        # %{},   _ -> :unexpected_character_trope
+    end)
   end
 
   #  @desc "A category is a grouping mechanism for tags"

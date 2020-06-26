@@ -6,6 +6,7 @@ defmodule Tag.Taggable do
 
   alias Ecto.Changeset
   alias Tag.Taggable
+  alias MoodleNet.{Repo}
 
   @type t :: %__MODULE__{}
   @required ~w(prefix)a
@@ -33,7 +34,11 @@ defmodule Tag.Taggable do
     field(:name, :string, virtual: true)
     field(:summary, :string, virtual: true)
 
-    many_to_many(:things, Pointers.Pointer, join_through: "tags_things", unique: true)
+    many_to_many(:things, Pointers.Pointer,
+      join_through: "tags_things",
+      unique: true,
+      join_keys: [tag_id: :id, pointer_id: :id]
+    )
   end
 
   def create_changeset(attrs) do
@@ -50,8 +55,10 @@ defmodule Tag.Taggable do
         things
       ) do
     tag
+    |> Repo.preload(:things)
+    |> Changeset.change()
     # Set the association
-    |> Ecto.Changeset.put_assoc(:things, [things])
+    |> Ecto.Changeset.put_assoc(:things, things)
     |> common_changeset()
   end
 

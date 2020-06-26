@@ -11,14 +11,16 @@ defmodule Tag.TagThings do
 
   ## mutations
 
-  def tag_things_by_id(tag, pointer_id) do
+  def tag_thing_by_id(tag, pointer_id) do
     {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: pointer_id)
-    things = MoodleNet.Meta.Pointers.follow!(pointer)
-    tag_things(tag, [things])
+    # things = MoodleNet.Meta.Pointers.follow!(pointer)
+    tag_things(tag, [pointer])
   end
 
   def tag_things(%Taggable{} = tag, things) do
     Repo.transact_with(fn ->
+      Repo.preload(tag, :things)
+
       with {:ok, r} <- tag_things_save(tag, things) do
         {:ok, r}
       end
@@ -26,7 +28,7 @@ defmodule Tag.TagThings do
   end
 
   def tag_things(tag_id, things) do
-    tag = Tag.Taggables.get(tag_id)
+    {:ok, tag} = Tag.Taggables.get(tag_id)
     tag_things(tag, things)
   end
 
