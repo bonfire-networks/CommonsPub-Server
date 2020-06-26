@@ -67,7 +67,7 @@ defmodule Tag.GraphQL.TagSchema do
     end
 
     @desc "Things that were tagged with this tag"
-    field(:tagged_things, :taggable_thing) do
+    field(:tagged_things, list_of(:taggable_thing)) do
       resolve(&TagResolver.tagged_things_edges/3)
     end
   end

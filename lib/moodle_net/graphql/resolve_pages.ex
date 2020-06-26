@@ -5,6 +5,8 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   finish implementing some things, trading speed for correctness.
   """
 
+  alias MoodleNet.GraphQL.Fields
+
   @enforce_keys [:module, :fetcher, :context, :page_opts, :info]
   defstruct [
     :module,

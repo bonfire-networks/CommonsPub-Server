@@ -4,7 +4,7 @@
 defmodule MoodleNetWeb.GraphQL.CommonResolver do
   alias Ecto.ULID
   alias MoodleNet.GraphQL
-  alias MoodleNet.GraphQL.{Fields, FetchFields, FetchPage, ResolveFields, ResolvePages}
+  alias MoodleNet.GraphQL.{Fields, Pages, FetchFields, FetchPage, ResolveFields, ResolvePages}
   alias MoodleNet.Likes.Like
   alias MoodleNet.Follows.Follow
   alias MoodleNet.Flags.Flag
@@ -26,21 +26,6 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     context_edge
   end
 
-  # FIXME
-  def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
-    context_edges =
-      ResolvePages.run(%ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_context_edge,
-        context: ids,
-        page_opts: page_opts,
-        info: info
-      })
-
-    IO.inspect(context_edges)
-    context_edges
-  end
-
   def fetch_context_edge(_, ids) do
     IO.inspect(context_ids: ids)
     flattened_ids = flatten(ids)
@@ -52,6 +37,35 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
     edge = Fields.new(ptsd, &Map.get(&1, :id))
     IO.inspect(edge: edge)
     edge
+  end
+
+  # FIXME
+  def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
+    context_edges =
+      ResolvePages.run(%ResolvePages{
+        module: __MODULE__,
+        fetcher: :fetch_context_edges,
+        context: ids,
+        page_opts: page_opts,
+        info: info
+      })
+
+    IO.inspect(context_edges: context_edges)
+    context_edges
+  end
+
+  def fetch_context_edges(page_opts, info, ids) do
+    IO.inspect(context_ids: ids)
+    flattened_ids = flatten(ids)
+    IO.inspect(flattened: flattened_ids)
+    {:ok, ptrs} = Pointers.many(id: flattened_ids)
+    IO.inspect(context_ptrs: ptrs)
+    ptsd = Pointers.follow!(ptrs)
+    IO.inspect(context_ptsd: ptsd)
+    {:ok, ptsd}
+    # edge = Fields.new(ptsd, &Map.get(&1, :id))
+    # IO.inspect(edge: edge)
+    # edge
   end
 
   @doc """
