@@ -172,11 +172,9 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     ]
 
 
-    hydrated = Enum.reduce(hydrators, %{}, fn hydrate_fn, hydrated ->
+    Enum.reduce(hydrators, %{}, fn hydrate_fn, hydrated ->
       hydrate_merge(hydrated, hydrate_fn.())
     end)
-    IO.inspect(merged_hydrations: hydrated) # this does output a merged map of all three hydrations above
-    hydrated
   end
 
   # hydrations fallback

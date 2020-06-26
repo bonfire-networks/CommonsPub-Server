@@ -19,7 +19,7 @@ defmodule Measurement.Hydration do
           resolve: &Measurement.Measure.GraphQL.has_unit_edge/3,
         ]
       },
-      query: %{
+      measurement_query: %{
         units: [
           resolve: &Measurement.Unit.GraphQL.all_units/2
         ],
@@ -42,7 +42,7 @@ defmodule Measurement.Hydration do
           resolve: &Measurement.Measure.GraphQL.measure/2
         ]
       },
-      mutation: %{
+      measurement_mutation: %{
         create_unit: [
           resolve: &Measurement.Unit.GraphQL.create_unit/2
         ],
