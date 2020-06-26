@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.Router do
     live "/login", LoginLive
     live "/signup", SignupLive
     live "/me", ProfileLive
-    live "/@:username", ProfileLive
+    live "/@:username", UserLive
     live "/write", WriteLive
   end
 

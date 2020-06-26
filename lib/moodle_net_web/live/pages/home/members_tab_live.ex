@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.MembersTabLive do
+defmodule MoodleNetWeb.Home.MembersTabLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.Component.{
     UserPreviewLive
@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.MembersTabLive do
   end
 
   defp fetch(socket) do
-    {:ok, users} = UsersResolver.users(%{after: socket.assigns.after, limit: 1}, %{})
+    {:ok, users} = UsersResolver.users(%{after: socket.assigns.after, limit: 10}, %{})
     assign(socket,
       members: users.edges,
       has_next_page: users.page_info.has_next_page,
