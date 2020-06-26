@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.ActivitiesTabLive do
+defmodule MoodleNetWeb.Home.ActivitiesTabLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.Component.{
     ActivityLive

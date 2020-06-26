@@ -5,8 +5,10 @@ defmodule MoodleNetWeb.HomeLive do
     AboutLive,
     TabNotFoundLive,
   }
-  alias MoodleNetWeb.ActivitiesTabLive
-  alias MoodleNetWeb.MembersTabLive
+  alias MoodleNetWeb.Home.{
+    ActivitiesTabLive,
+    MembersTabLive
+  }
 
   def mount(_params, _session, socket) do
     {:ok,
