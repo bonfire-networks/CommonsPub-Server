@@ -3,44 +3,21 @@ defmodule MoodleNetWeb.HomeLive do
   alias MoodleNetWeb.Component.{
     HeaderLive,
     AboutLive,
-    StoryPreviewLive,
-    UserPreviewLive,
-    DiscussionPreviewLive
+    TabNotFoundLive,
   }
   alias MoodleNetWeb.ActivitiesTabLive
-  alias MoodleNetWeb.GraphQL.{
-    UsersResolver,
-    InstanceResolver
-  }
+  alias MoodleNetWeb.MembersTabLive
 
   def mount(_params, _session, socket) do
-    {:ok, users} = UsersResolver.users(%{limit: 10}, %{})
     {:ok,
       socket
       |> assign(
-        page: 1,
         page_title: "Home",
         hostname: MoodleNet.Instance.hostname,
         description: MoodleNet.Instance.description,
-        users: users.edges,
         selected_tab: "about")
       }
       end
-
-      # defp fetch(socket) do
-      #   {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{after: socket.assigns.after, before: socket.assigns.before, limit: 10}, %{})
-      #   assign(socket,
-      #     outbox: outboxes,
-      #     has_next_page: outboxes.page_info.has_next_page,
-      #     has_previous_page: outboxes.page_info.has_previous_page,
-      #     after: outboxes.page_info.end_cursor,
-      #     before: outboxes.page_info.start_cursor
-      #   )
-      # end
-
-      # def handle_event("load-more", _, %{assigns: assigns} = socket) do
-      #   {:noreply, socket |> assign(page: 1) |> fetch()}
-      # end
 
       def handle_params(%{"tab" => tab}, _url, socket) do
         {:noreply, assign(socket, selected_tab: tab)}
@@ -49,7 +26,6 @@ defmodule MoodleNetWeb.HomeLive do
       def handle_params(_, _url, socket) do
         {:noreply, socket}
       end
-
 
   def render(assigns) do
     ~L"""
@@ -64,6 +40,7 @@ defmodule MoodleNetWeb.HomeLive do
       <div class="instance__hero">
         <h1><%= @hostname %></h1>
       </div>
+
       <div class="mainContent__navigation home__navigation">
           <%= live_patch link_body("About", "feather-book-open"),
             to: Routes.live_path(
@@ -106,37 +83,24 @@ defmodule MoodleNetWeb.HomeLive do
               %>
             </div>
           <% @selected_tab == "timeline" -> %>
-
-          <%= live_component(
-            @socket,
-            ActivitiesTabLive,
-            selected_tab: @selected_tab,
-            id: :timeline
-
-          ) %>
-
-
+            <%= live_component(
+                @socket,
+                ActivitiesTabLive,
+                selected_tab: @selected_tab,
+                id: :timeline
+              ) %>
          <% @selected_tab == "members" -> %>
-          <div class="selected__header">
-              <h3><%= @selected_tab %></h3>
-            </div>
-            <div class="selected__area">
-            <div class="users_list">
-              <%= for user <- @users do %>
-                <%= live_component(
-                  @socket,
-                  UserPreviewLive,
-                  user: user
-                  )
-                %>
-              <% end %>
-            </div>
-            </div>
+          <%= live_component(
+              @socket,
+              MembersTabLive,
+              selected_tab: @selected_tab,
+              id: :members
+          ) %>
           <% true -> %>
-          <div class="selected__header">
-            <h3>Section not found</h3>
-          </div>
-          <div class="selected__area"></div>
+          <%= live_component(
+              @socket,
+              TabNotFoundLive
+          ) %>
         <% end %>
         </div>
       </div>

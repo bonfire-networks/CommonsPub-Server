@@ -1,10 +1,10 @@
-defmodule MoodleNetWeb.ActivitiesTabLive do
+defmodule MoodleNetWeb.MembersTabLive do
   use MoodleNetWeb, :live_component
   alias MoodleNetWeb.Component.{
-    ActivityLive
+    UserPreviewLive
   }
   alias MoodleNetWeb.GraphQL.{
-    InstanceResolver
+    UsersResolver
   }
 
   def mount(socket) do
@@ -16,16 +16,16 @@ defmodule MoodleNetWeb.ActivitiesTabLive do
         after: [],
         before: []
         )
-      |> fetch(), temporary_assigns: [outbox: []]}
+      |> fetch(), temporary_assigns: [members: []]}
   end
 
   defp fetch(socket) do
-    {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{after: socket.assigns.after, before: socket.assigns.before, limit: 10}, %{})
+    {:ok, users} = UsersResolver.users(%{after: socket.assigns.after, limit: 1}, %{})
     assign(socket,
-      outbox: outboxes.edges,
-      has_next_page: outboxes.page_info.has_next_page,
-      after: outboxes.page_info.end_cursor,
-      before: outboxes.page_info.start_cursor
+      members: users.edges,
+      has_next_page: users.page_info.has_next_page,
+      after: users.page_info.end_cursor,
+      before: users.page_info.start_cursor
     )
   end
 
@@ -35,23 +35,25 @@ defmodule MoodleNetWeb.ActivitiesTabLive do
 
   def render(assigns) do
  ~L"""
-  <div class="selected__header">
+ <div class="selected__header">
     <h3><%= @selected_tab %></h3>
-  </div>
-  <div
-    id="infinte-scroll-activities"
+    </div>
+    <div class="selected__area">
+    <div
+    id="load-more-members"
     phx-update="append"
     data-page="<%= @page %>"
-    class="selected__area">
-      <%= for activity <- @outbox do %>
-        <%= live_component(
-              @socket,
-              ActivityLive,
-              id: "activity-#{activity.id}",
-              activity: activity
-            )
-          %>
-      <% end %>
+    class="users_list">
+    <%= for user <- @members do %>
+      <%= live_component(
+        @socket,
+        UserPreviewLive,
+        id: "member-#{user.id}",
+        user: user
+        )
+      %>
+    <% end %>
+    </div>
     </div>
     <%= if @has_next_page do %>
     <div class="pagination">
