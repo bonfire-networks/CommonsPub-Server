@@ -18,17 +18,30 @@ defmodule MoodleNetWeb.MemberLive do
     Meta.Pointers
   }
 
-  def mount(_params, _session, socket) do
+  # FIXME
+  # def mount(%{auth_token: auth_token}, socket) do
+  #   IO.inspect(live_mount_user: auth_token)
+  #   {:ok, assign_new(socket, :auth_token, fn -> auth_token end)}
+  # end
+
+  def mount(_params, session, socket) do
+    # IO.inspect(live_mount_params: _params)
+    # IO.inspect(live_mount_session: session)
+
+    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+
+    # IO.inspect(session_token_user: session_token.user)
+
     {:ok,
      assign(socket,
        page_title: "User",
        selected_tab: "about",
-       user: nil
+       current_user: session_token.user
      )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    user = Profiles.user_get(params, %{image: true, icon: true, actor: true})
+    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
 
     {:noreply,
      assign(socket,
@@ -38,7 +51,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_params(%{} = params, _url, socket) do
-    user = Profiles.user_get(params, %{image: true, icon: true, actor: true})
+    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
 
     {:noreply,
      assign(socket,

@@ -8,8 +8,39 @@ defmodule MoodleNetWeb.LoginLive do
        app_name: Application.get_env(:moodle_net, :app_name),
        app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png"),
        instance_image: "https://i.ytimg.com/vi/_qzacv8dtb4/maxresdefault.jpg",
-       app_summary: MoodleNet.Instance.description()
+       app_summary: MoodleNet.Instance.description(),
+       # This is the form data to be captured and utilized to create a new client
+       form_fields: %{
+         "login" => "",
+         "password" => ""
+       }
      )}
+  end
+
+  # def handle_event("validate", %{"login" => login, "password" => password} = args, socket) do
+  #   IO.inspect(args, label: "VALIDATE DATA")
+
+  #   {:noreply, socket}
+  # end
+
+  def handle_event("login", %{"login" => login, "password" => password} = args, socket) do
+    IO.inspect(args, label: "LOGIN DATA")
+
+    session = MoodleNetWeb.Helpers.Account.create_session(%{login: login, password: password})
+    IO.inspect(session: session)
+
+    if(is_nil(session)) do
+      {:noreply,
+       socket
+       |> put_flash(:error, "Incorrect details. Please try again...")}
+    else
+      MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+
+      {:noreply,
+       socket
+       |> put_flash(:info, "Logged in!")
+       |> redirect(to: "/?auth_token=" <> session.token)}
+    end
   end
 
   def render(assigns) do
@@ -21,11 +52,14 @@ defmodule MoodleNetWeb.LoginLive do
     </div>
     <div class="login__form">
       <div class="form__wrapper">
-        <form>
-          <input type="text" placeholder="Type your username..." />
-          <input type="password" placeholder="Type your password..." />
-          <button type="submit">Sign in</button>
+        <form action="#" phx-submit="login">
+
+          <input name="login" type="text" placeholder="Type your username or email..." />
+          <input name="password" type="password" placeholder="Type your password..." />
+          <button type="submit" phx-disable-with="Saving...">Sign in</button>
+
         </form>
+
         <a href="#">Trouble logging in?</a>
       </div>
     </div>

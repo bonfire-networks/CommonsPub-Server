@@ -38,9 +38,6 @@ defmodule MoodleNetWeb.InstanceLive.MembersTabLive do
 
   def render(assigns) do
     ~L"""
-    - <div class="selected__header">
-    <h3><%= @selected_tab %></h3>
-    </div>
     <div class="selected__area">
     <div
     id="load-more-members"

@@ -22,6 +22,7 @@ defmodule MoodleNetWeb.Router do
     plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug(MoodleNetWeb.Plugs.Auth)
   end
 
   scope "/", MoodleNetWeb do
@@ -31,16 +32,19 @@ defmodule MoodleNetWeb.Router do
     live "/", InstanceLive
 
     live "/instance/:tab", InstanceLive
-    live "/my/profile", MemberLive
-    live "/my/:tab", MyLive
+
     live "/@:username", MemberLive
     live "/@:username/:tab", MemberLive
     live "/discussion", DiscussionLive
     live "/login", LoginLive
     live "/signup", SignupLive
 
-    live "/proto/me", ProtoProfileLive
+    pipe_through :ensure_authenticated
 
+    live "/my/profile", MemberLive
+    live "/my/:tab", MyLive
+
+    live "/proto/me", ProtoProfileLive
     live "/write", WriteLive
   end
 

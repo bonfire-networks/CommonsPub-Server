@@ -2,7 +2,15 @@ defmodule MoodleNetWeb.PageLive do
   use MoodleNetWeb, :live_view
 
   @impl true
+
+  def mount(%{current_user: current_user}, socket) do
+    IO.inspect(live_mount_user: current_user)
+    {:ok, assign_new(socket, :current_user, fn -> current_user end)}
+  end
+
   def mount(_params, _session, socket) do
+    IO.inspect(live_mount_params: _params)
+    IO.inspect(live_mount_session: _session)
     {:ok, assign(socket, query: "", results: %{})}
   end
 

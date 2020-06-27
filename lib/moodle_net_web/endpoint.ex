@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Endpoint do
 
   @session_options [
     store: :cookie,
-    key: "_moodle_net_key",
+    key: "_session_key",
     signing_salt: "CqAoopA2"
   ]
 
@@ -20,9 +20,7 @@ defmodule MoodleNetWeb.Endpoint do
   end
 
   # Liveview support
-  socket "/live", Phoenix.LiveView.Socket,
-  websocket: [connect_info: [session: @session_options]]
-
+  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
@@ -45,11 +43,11 @@ defmodule MoodleNetWeb.Endpoint do
     gzip: false,
     only: ~w(css fonts images js favicon.ico robots.txt)
 
-
-  {max_file_size, _} = :moodle_net
-  |> Application.fetch_env!(MoodleNet.Uploads)
-  |> Keyword.fetch!(:max_file_size)
-  |> Integer.parse()
+  {max_file_size, _} =
+    :moodle_net
+    |> Application.fetch_env!(MoodleNet.Uploads)
+    |> Keyword.fetch!(:max_file_size)
+    |> Integer.parse()
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],

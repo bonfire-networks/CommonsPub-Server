@@ -12,7 +12,8 @@ defmodule MoodleNetWeb.MyLive do
      socket
      |> assign(
        page_title: "My Timeline",
-       selected_tab: "timeline"
+       selected_tab: "timeline",
+       app_name: Application.get_env(:moodle_net, :app_name)
      )}
   end
 
@@ -34,7 +35,7 @@ defmodule MoodleNetWeb.MyLive do
     %>
     <section class="page__wrapper">
       <div class="instance__hero">
-        <h1>My Timeline</h1>
+        <h1>My <%=@app_name%></h1>
       </div>
       <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),

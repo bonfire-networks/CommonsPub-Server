@@ -54,7 +54,7 @@ defmodule MoodleNetWeb.InstanceLive do
             to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Timeline","feather-activity"),
+          <%= live_patch link_body("Instance Timeline","feather-activity"),
             # to: Routes.live_path(
             #   @socket,
             #   __MODULE__,
@@ -78,7 +78,7 @@ defmodule MoodleNetWeb.InstanceLive do
           <%= cond do %>
           <% @selected_tab == "about" ->  %>
             <div class="selected__header">
-              <h3><%= @selected_tab %></h3>
+              <h3>About this instance</h3>
             </div>
             <div class="selected__area">
               <%= live_component(

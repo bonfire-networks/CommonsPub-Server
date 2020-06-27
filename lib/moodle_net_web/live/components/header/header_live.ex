@@ -21,8 +21,7 @@ defmodule MoodleNetWeb.Component.HeaderLive do
   def update(assigns, socket) do
     # IO.inspect(assigns)
     # TODO: use logged in user here
-    username = "mayel"
-    user = Profiles.user_get(username, %{icon: true, actor: true})
+    user = Profiles.user_load(socket, assigns, %{icon: true, actor: true})
     {:ok, assign(socket, user: user)}
   end
 
@@ -39,7 +38,7 @@ defmodule MoodleNetWeb.Component.HeaderLive do
       <div class="header__right">
         <a class="button" href="/write"><i class="feather-file-text"></i> New story</a>
         <div class="header__avatar">
-          <a href="/@<%= e(@user, :actor, :preferred_username, "") %>"><img src="<%=e(@user, :icon_url, "") %>" /></a>
+          <a href="/my/profile"><img src="<%=e(@user, :icon_url, "") %>" /></a>
         </div>
       </div>
       </header>

@@ -43,9 +43,6 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
 
   def render(assigns) do
     ~L"""
-    <div class="selected__header">
-      <h3><%= @selected_tab %></h3>
-    </div>
     <%= live_component(
         @socket,
         ActivitiesLive,
