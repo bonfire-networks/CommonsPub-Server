@@ -11,6 +11,7 @@ APP_BUILD ?= `git rev-parse --short HEAD`
 
 init: 
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
+	@chmod 700 .erlang.cookie 
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
