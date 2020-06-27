@@ -2,45 +2,43 @@ defmodule MoodleNetWeb.MemberLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-
-  alias MoodleNetWeb.Component.HeroProfileLive
+  alias MoodleNetWeb.Helpers.{Profiles}
+  alias MoodleNetWeb.MemberLive.MemberActivitiesLive
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
+    HeroProfileLive,
     AboutLive,
-    TabNotFoundLive
+    TabNotFoundLive,
+    NavigationProfileLive
   }
-
-  alias MoodleNetWeb.GraphQL.UsersResolver
 
   alias MoodleNet.{
     Repo,
     Meta.Pointers
   }
 
-  alias MoodleNetWeb.Helpers.{Profiles}
-
   def mount(_params, _session, socket) do
     {:ok,
      assign(socket,
        page_title: "User",
-       selected_tab: "about"
+       selected_tab: "about",
+       user: nil
      )}
   end
 
-  def handle_params(%{"tab" => tab}, _url, socket) do
-    {:noreply, assign(socket, selected_tab: tab)}
+  def handle_params(%{"tab" => tab} = params, _url, socket) do
+    user = Profiles.user_load(params, %{image: true})
+
+    {:noreply,
+     assign(socket,
+       selected_tab: tab,
+       user: user
+     )}
   end
 
   def handle_params(%{} = params, _url, socket) do
-    IO.inspect(params)
-
-    # TODO: use logged in user here
-    username = e(params, "username", "mayel")
-    IO.inspect(username)
-
-    {:ok, user} = UsersResolver.user(%{username: username}, nil)
-    user = Profiles.prepare(user, %{image: true})
+    user = Profiles.user_load(params, %{image: true})
 
     {:noreply,
      assign(socket,
@@ -62,16 +60,19 @@ defmodule MoodleNetWeb.MemberLive do
           HeroProfileLive,
           image: e(@user, :icon, ""),
           icon: e(@user, :icon, ""),
-          name: @user.name,
-          username: @user.actor.preferred_username,
-          website: @user.website,
-          location: @user.location,
-          email: ""
+          name: e(@user, :name, ""),
+          username: e(@user, :actor, :preferred_username, ""),
+          website: e(@user, :website, ""),
+          location: e(@user, :location, "")
         )  %>
 
-        <div class="mainContent__navigation home__navigation">
-          Insert navigation here
-        </div>
+        <%= live_component(
+          @socket,
+          NavigationProfileLive,
+          selected: @selected_tab,
+          username: e(@user, :actor, :preferred_username, "")
+        )
+      %>
 
       <div class="mainContent__selected">
         <%= cond do %>
@@ -86,7 +87,32 @@ defmodule MoodleNetWeb.MemberLive do
                 description: @user.summary
               )
             %>
+
+
           </div>
+
+          <% @selected_tab == "timeline" ->  %>
+          <div class="selected__header">
+            <h3><%= @selected_tab %></h3>
+          </div>
+          <div class="selected__area">
+
+            <%= live_component(
+              @socket,
+              MemberActivitiesLive,
+              user: @user,
+              selected_tab: @selected_tab,
+              id: :timeline,
+              # page: 1,
+              # has_next_page: false,
+              # after: [],
+              # before: [],
+              # activities: []
+            ) %>
+          </div>
+
+
+
           <% true -> %>
           <%= live_component(
               @socket,

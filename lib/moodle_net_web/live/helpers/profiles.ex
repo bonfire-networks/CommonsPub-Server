@@ -3,6 +3,8 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     Repo
   }
 
+  alias MoodleNetWeb.GraphQL.UsersResolver
+
   import MoodleNetWeb.Helpers.Common
 
   def prepare(profile, %{image: _}) do
@@ -21,6 +23,17 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
     profile
     |> Map.merge(%{icon: icon})
+  end
+
+  def user_load(page_params, preload) do
+    IO.inspect(page_params)
+
+    # TODO: use logged in user here
+    username = e(page_params, "username", "mayel")
+    IO.inspect(username)
+
+    {:ok, user} = UsersResolver.user(%{username: username}, nil)
+    user = prepare(user, preload)
   end
 
   def image(profile, field_name) do

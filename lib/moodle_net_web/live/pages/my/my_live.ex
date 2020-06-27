@@ -1,6 +1,6 @@
 defmodule MoodleNetWeb.MyLive do
   use MoodleNetWeb, :live_view
-  alias MoodleNetWeb.MyLive.ActivitiesTabLive
+  alias MoodleNetWeb.MyLive.MyTimelineLive
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
@@ -61,7 +61,7 @@ defmodule MoodleNetWeb.MyLive do
           <% @selected_tab == "timeline" -> %>
             <%= live_component(
                 @socket,
-                ActivitiesTabLive,
+                MyTimelineLive,
                 selected_tab: @selected_tab,
                 id: :timeline
               ) %>

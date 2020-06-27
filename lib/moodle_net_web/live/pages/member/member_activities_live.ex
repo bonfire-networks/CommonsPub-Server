@@ -1,30 +1,41 @@
-defmodule MoodleNetWeb.Home.ActivitiesTabLive do
+defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   use MoodleNetWeb, :live_component
+
+  import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
     ActivitiesLive
   }
 
   alias MoodleNetWeb.GraphQL.{
-    InstanceResolver
+    UsersResolver
   }
 
   def mount(socket) do
-    {:ok,
-     socket
-     |> assign(
-       page: 1,
-       has_next_page: false,
-       after: [],
-       before: []
-     )
-     |> fetch(), temporary_assigns: [activities: []]}
+    IO.inspect(socket)
+
+    {
+      :ok,
+      socket
+      |> assign(
+        page: 1,
+        has_next_page: false,
+        after: [],
+        before: [],
+        activities: [],
+        # FIXME, user not found
+        user: socket.assigns.user
+      )
+      |> fetch(),
+      temporary_assigns: [activities: []]
+    }
   end
 
   defp fetch(socket) do
+    # TODO: replace with logged in user's inbox
     {:ok, outboxes} =
-      InstanceResolver.outbox_edge(
-        %{},
+      UsersResolver.outbox_edge(
+        %{outbox_id: socket.assigns.user.outbox_id},
         %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
         %{}
       )
@@ -43,9 +54,6 @@ defmodule MoodleNetWeb.Home.ActivitiesTabLive do
 
   def render(assigns) do
     ~L"""
-    <div class="selected__header">
-      <h3><%= @selected_tab %></h3>
-    </div>
     <%= live_component(
         @socket,
         ActivitiesLive,

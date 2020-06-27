@@ -5,7 +5,7 @@ defmodule MoodleNetWeb.Component.NavigationProfileLive do
     ~L"""
     <div class="mainContent__navigation">
     <a
-      href=""
+      href="/@<%= @username %>/about"
       phx-click="show"
       phx-value-id="about"
       class="navigation__item <%= if "about" == @selected, do: "active" %>"
@@ -16,25 +16,25 @@ defmodule MoodleNetWeb.Component.NavigationProfileLive do
     <a
       phx-click="show"
       phx-value-id="timeline"
-      href="#"
+      href="/@<%= @username %>/timeline"
       class="navigation__item <%= if "timeline" == @selected, do: "active" %>">
       <i class="feather-activity"></i>
       Timeline</a>
     <a
       phx-click="show"
       phx-value-id="stories"
-      href="#"
+      href="/@<%= @username %>/stories"
       class="navigation__item <%= if "stories" == @selected, do: "active" %>">
       <i class="feather-file-text"></i>
       Stories</a>
     <a
       phx-click="show"
       phx-value-id="discussions"
-      href="#"
+      href="/@<%= @username %>/discussions"
       class="navigation__item <%= if "discussions" == @selected, do: "active" %>">
       <i class="feather-message-square"></i>
       Discussions</a>
-  </div>
+    </div>
     """
   end
 end

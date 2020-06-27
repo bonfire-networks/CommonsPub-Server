@@ -34,7 +34,8 @@ defmodule MoodleNetWeb.ProtoProfileLive do
         <%= live_component(
             @socket,
             NavigationProfileLive,
-            selected: @selected
+            selected: @selected,
+            username: "ivan"
           )
         %>
 
