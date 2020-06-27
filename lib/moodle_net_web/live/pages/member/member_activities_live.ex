@@ -12,31 +12,36 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   }
 
   def mount(socket) do
-    IO.inspect(socket)
+    # IO.inspect(assigns)
+
+    {
+      :ok,
+      socket,
+      temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
+    }
+  end
+
+  def update(assigns, socket) do
+    IO.inspect(assigns)
 
     {
       :ok,
       socket
       |> assign(
-        page: 1,
-        has_next_page: false,
-        after: [],
-        before: [],
-        activities: [],
         # FIXME, user not found
-        user: socket.assigns.user
+        user: assigns.user
       )
-      |> fetch(),
-      temporary_assigns: [activities: []]
+      |> fetch()
     }
   end
 
   defp fetch(socket) do
     # TODO: replace with logged in user's inbox
     {:ok, outboxes} =
-      UsersResolver.outbox_edge(
-        %{outbox_id: socket.assigns.user.outbox_id},
-        %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
+      UsersResolver.user_outbox_edge(
+        socket.assigns.user,
+        %{after: socket.assigns.after, limit: 10},
+        # %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
         %{}
       )
 
