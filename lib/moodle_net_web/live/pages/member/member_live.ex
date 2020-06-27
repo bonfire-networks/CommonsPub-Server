@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    user = Profiles.user_load(params, %{image: true})
+    user = Profiles.user_get(params, %{image: true, icon: true, actor: true})
 
     {:noreply,
      assign(socket,
@@ -38,7 +38,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_params(%{} = params, _url, socket) do
-    user = Profiles.user_load(params, %{image: true})
+    user = Profiles.user_get(params, %{image: true, icon: true, actor: true})
 
     {:noreply,
      assign(socket,
@@ -58,12 +58,7 @@ defmodule MoodleNetWeb.MemberLive do
         <%= live_component(
           @socket,
           HeroProfileLive,
-          image: e(@user, :icon, ""),
-          icon: e(@user, :icon, ""),
-          name: e(@user, :name, ""),
-          username: e(@user, :actor, :preferred_username, ""),
-          website: e(@user, :website, ""),
-          location: e(@user, :location, "")
+          user: @user
         )  %>
 
         <%= live_component(

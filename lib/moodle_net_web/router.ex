@@ -27,8 +27,10 @@ defmodule MoodleNetWeb.Router do
   scope "/", MoodleNetWeb do
     pipe_through :browser
 
-    live "/", HomeLive
-    live "/instance/:tab", HomeLive
+    # TODO redirect to instance or user depending on logged in
+    live "/", InstanceLive
+
+    live "/instance/:tab", InstanceLive
     live "/my/profile", MemberLive
     live "/my/:tab", MyLive
     live "/@:username", MemberLive

@@ -31,7 +31,7 @@ defmodule MoodleNetWeb.Component.ActivityLive do
     ~L"""
     <div id="<%= e(@activity, :id, "") %>" class="component__activity">
       <div class="activity__info">
-        <img src="<%= e(@activity, :creator, :icon, "") %>" alt="icon" />
+        <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
         <div class="info__meta">
           <div class="meta__action">
             <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>

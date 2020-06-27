@@ -1,16 +1,21 @@
 defmodule MoodleNetWeb.SignupLive do
   use MoodleNetWeb, :live_view
 
-  def mount(socket) do
-    {:ok, assign(socket, :name, "Ivan")}
+  def mount(_params, _session, socket) do
+    {:ok,
+     socket
+     |> assign(
+       app_name: Application.get_env(:moodle_net, :app_name),
+       app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png")
+     )}
   end
 
   def render(assigns) do
     ~L"""
     <div class="page__signup">
     <div class="standard__logo">
-      <img src="./images/sun_face.png" />
-      <h1>The Roots plays good shit.</h1>
+      <img src="<%=@app_icon%>" />
+      <h1><%=@app_name%></h1>
     </div>
     <div class="login__form">
       <div class="form__wrapper">
@@ -40,7 +45,7 @@ defmodule MoodleNetWeb.SignupLive do
       </div>
     </div>
     <div class="login__footer"></div>
-  </div>
+    </div>
     """
   end
 end

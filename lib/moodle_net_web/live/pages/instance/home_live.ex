@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.HomeLive do
+defmodule MoodleNetWeb.InstanceLive do
   use MoodleNetWeb, :live_view
 
   alias MoodleNetWeb.Component.{
@@ -7,8 +7,8 @@ defmodule MoodleNetWeb.HomeLive do
     TabNotFoundLive
   }
 
-  alias MoodleNetWeb.Home.{
-    ActivitiesTabLive,
+  alias MoodleNetWeb.InstanceLive.{
+    InstanceActivitiesLive,
     MembersTabLive
   }
 
@@ -91,7 +91,7 @@ defmodule MoodleNetWeb.HomeLive do
           <% @selected_tab == "timeline" -> %>
             <%= live_component(
                 @socket,
-                ActivitiesTabLive,
+                InstanceActivitiesLive,
                 selected_tab: @selected_tab,
                 id: :timeline
               ) %>
