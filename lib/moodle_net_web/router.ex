@@ -28,9 +28,11 @@ defmodule MoodleNetWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive
-    live "/discover", DiscoverLive
+    live "/instance/:tab", HomeLive
+    live "/my/profile", MemberLive
+    live "/my/:tab", MyLive
     live "/@:username", MemberLive
-    live "/me", MemberLive
+    live "/@:username/:tab", MemberLive
     live "/discussion", DiscussionLive
     live "/login", LoginLive
     live "/signup", SignupLive

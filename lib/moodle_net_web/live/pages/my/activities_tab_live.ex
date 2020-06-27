@@ -1,26 +1,35 @@
-defmodule MoodleNetWeb.Discover.ActivitiesTabLive do
+defmodule MoodleNetWeb.MyLive.ActivitiesTabLive do
   use MoodleNetWeb, :live_component
+
   alias MoodleNetWeb.Component.{
     ActivityLive
   }
+
   alias MoodleNetWeb.GraphQL.{
     InstanceResolver
   }
 
   def mount(socket) do
     {:ok,
-      socket
-      |> assign(
-        page: 1,
-        has_next_page: false,
-        after: [],
-        before: []
-        )
-      |> fetch(), temporary_assigns: [outbox: []]}
+     socket
+     |> assign(
+       page: 1,
+       has_next_page: false,
+       after: [],
+       before: []
+     )
+     |> fetch(), temporary_assigns: [outbox: []]}
   end
 
   defp fetch(socket) do
-    {:ok, outboxes} = InstanceResolver.outbox_edge(%{}, %{after: socket.assigns.after, before: socket.assigns.before, limit: 10}, %{})
+    # TODO: replace with logged in user's inbox
+    {:ok, outboxes} =
+      InstanceResolver.outbox_edge(
+        %{},
+        %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
+        %{}
+      )
+
     assign(socket,
       outbox: outboxes.edges,
       has_next_page: outboxes.page_info.has_next_page,
@@ -34,11 +43,8 @@ defmodule MoodleNetWeb.Discover.ActivitiesTabLive do
   end
 
   def render(assigns) do
- ~L"""
-  <div class="selected__header">
-    <h3><%= @selected_tab %></h3>
-  </div>
-  <div
+    ~L"""
+    <div
     id="infinte-scroll-activities"
     phx-update="append"
     data-page="<%= @page %>"
@@ -65,5 +71,4 @@ defmodule MoodleNetWeb.Discover.ActivitiesTabLive do
     <% end %>
     """
   end
-
 end

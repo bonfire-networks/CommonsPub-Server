@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.Component.HeaderLive do
         <input placeholder="Search..." />
       </div>
       <div class="header__right">
-        <a class="button button-clear right__discover" href="/discover">Discover</a>
+        <a class="button button-clear right__discover" href="/my/timeline">My Timeline</a>
         <a class="button" href="/write"><i class="feather-file-text"></i> New story</a>
         <div class="header__avatar">
           <a href="/@<%= e(@user, :actor, :preferred_username, "") %>"><img src="<%=e(@user, :icon, "") %>" /></a>

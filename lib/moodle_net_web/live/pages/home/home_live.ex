@@ -46,27 +46,30 @@ defmodule MoodleNetWeb.HomeLive do
 
       <div class="mainContent__navigation home__navigation">
           <%= live_patch link_body("About", "feather-book-open"),
-            to: Routes.live_path(
-              @socket,
-              __MODULE__,
-              tab: "about"
-              ),
+            # to: Routes.live_path(
+            #   @socket,
+            #   __MODULE__,
+            #   tab: "about"
+            #   ),
+            to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
           <%= live_patch link_body("Timeline","feather-activity"),
-            to: Routes.live_path(
-              @socket,
-              __MODULE__,
-              tab: "timeline"
-              ),
+            # to: Routes.live_path(
+            #   @socket,
+            #   __MODULE__,
+            #   tab: "timeline"
+            #   ),
+            to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>
           <%= live_patch link_body("Members", "feather-users"),
-            to: Routes.live_path(
-              @socket,
-              __MODULE__,
-              tab: "members"
-              ),
+            # to: Routes.live_path(
+            #   @socket,
+            #   __MODULE__,
+            #   tab: "members"
+            #   ),
+            to: "/instance/members",
             class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
           %>
       </div>

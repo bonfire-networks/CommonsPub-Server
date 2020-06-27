@@ -1,6 +1,6 @@
-defmodule MoodleNetWeb.DiscoverLive do
+defmodule MoodleNetWeb.MyLive do
   use MoodleNetWeb, :live_view
-  alias MoodleNetWeb.Discover.{ActivitiesTabLive}
+  alias MoodleNetWeb.MyLive.ActivitiesTabLive
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.DiscoverLive do
     {:ok,
      socket
      |> assign(
-       page_title: "Discover",
+       page_title: "My Timeline",
        selected_tab: "timeline"
      )}
   end
@@ -34,17 +34,27 @@ defmodule MoodleNetWeb.DiscoverLive do
     %>
     <section class="page__wrapper">
       <div class="instance__hero">
-        <h1>Fediverse</h1>
+        <h1>My Timeline</h1>
       </div>
       <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),
-        to: Routes.live_path(
-          @socket,
-          __MODULE__,
-          tab: "timeline"
-          ),
+        # to: Routes.live_path(
+        #   @socket,
+        #   __MODULE__,
+        #   tab: "timeline"
+        #   ),
+        to: "/my/timeline",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
       %>
+      <%= live_patch link_body("My Groups", "feather-users"),
+            # to: Routes.live_path(
+            #   @socket,
+            #   __MODULE__,
+            #   tab: "members"
+            #   ),
+            to: "/my/groups",
+            class: if @selected_tab == "groups", do: "navigation__item active", else: "navigation__item"
+          %>
       </div>
       <div class="mainContent__selected">
         <%= cond do %>
