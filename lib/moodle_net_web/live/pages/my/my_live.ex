@@ -7,13 +7,17 @@ defmodule MoodleNetWeb.MyLive do
     TabNotFoundLive
   }
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+    app_name = Application.get_env(:moodle_net, :app_name)
+
     {:ok,
      socket
      |> assign(
-       page_title: "My Timeline",
+       page_title: "My " <> app_name,
        selected_tab: "timeline",
-       app_name: Application.get_env(:moodle_net, :app_name)
+       app_name: Application.get_env(:moodle_net, :app_name),
+       current_user: session_token.user
      )}
   end
 
@@ -26,6 +30,8 @@ defmodule MoodleNetWeb.MyLive do
   end
 
   def render(assigns) do
+    IO.inspect(assigns.current_user)
+
     ~L"""
     <div class="page">
     <%= live_component(
@@ -35,7 +41,7 @@ defmodule MoodleNetWeb.MyLive do
     %>
     <section class="page__wrapper">
       <div class="instance__hero">
-        <h1>My <%=@app_name%></h1>
+        <h1><%=@page_title%></h1>
       </div>
       <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),
@@ -63,8 +69,9 @@ defmodule MoodleNetWeb.MyLive do
             <%= live_component(
                 @socket,
                 MyTimelineLive,
+                current_user: @current_user,
                 selected_tab: @selected_tab,
-                id: :timeline
+                id: :timeline,
               ) %>
           <% true -> %>
           <%= live_component(

@@ -34,7 +34,7 @@ defmodule MoodleNetWeb.LoginLive do
        socket
        |> put_flash(:error, "Incorrect details. Please try again...")}
     else
-      MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
+      # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
 
       {:noreply,
        socket

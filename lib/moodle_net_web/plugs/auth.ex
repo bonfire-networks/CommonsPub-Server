@@ -98,6 +98,10 @@ defmodule MoodleNetWeb.Plugs.Auth do
     end
   end
 
+  defp put_current_user(conn, %MoodleNet.Users.Me{} = user, token) do
+    put_current_user(conn, user.user, token)
+  end
+
   defp put_current_user(conn, %User{} = user, token) do
     conn
     |> Conn.assign(:current_user, user)
