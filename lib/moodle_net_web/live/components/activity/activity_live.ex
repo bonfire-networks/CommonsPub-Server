@@ -1,11 +1,13 @@
 defmodule MoodleNetWeb.Component.ActivityLive do
   use Phoenix.LiveComponent
+
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.CommentPreviewLive
   alias MoodleNetWeb.Component.CommunityPreviewLive
   alias MoodleNetWeb.Component.DiscussionPreviewLive
 
-  import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Activites}
 
   def mount(activity, _session, socket) do

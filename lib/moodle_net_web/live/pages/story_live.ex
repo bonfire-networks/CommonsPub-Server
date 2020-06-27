@@ -11,8 +11,7 @@ defmodule MoodleNetWeb.WriteLive do
     <div class="page">
       <%= live_component(
           @socket,
-          HeaderLive,
-          icon: "https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg"
+          HeaderLive
         )
       %>
       <section class="page__wrapper">

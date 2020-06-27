@@ -1,36 +1,35 @@
 defmodule MoodleNetWeb.DiscoverLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.Discover.{ActivitiesTabLive}
+
   alias MoodleNetWeb.Component.{
     HeaderLive,
-    TabNotFoundLive,
+    TabNotFoundLive
   }
 
   def mount(_params, _session, socket) do
     {:ok,
-      socket
-      |> assign(
-        page_title: "Discover",
-        selected_tab: "timeline")
-      }
-      end
+     socket
+     |> assign(
+       page_title: "Discover",
+       selected_tab: "timeline"
+     )}
+  end
 
-      def handle_params(%{"tab" => tab}, _url, socket) do
-        {:noreply, assign(socket, selected_tab: tab)}
-      end
+  def handle_params(%{"tab" => tab}, _url, socket) do
+    {:noreply, assign(socket, selected_tab: tab)}
+  end
 
-      def handle_params(_, _url, socket) do
-        {:noreply, socket}
-      end
-
+  def handle_params(_, _url, socket) do
+    {:noreply, socket}
+  end
 
   def render(assigns) do
     ~L"""
     <div class="page">
     <%= live_component(
         @socket,
-        HeaderLive,
-        icon: "https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg"
+        HeaderLive
       )
     %>
     <section class="page__wrapper">
@@ -71,11 +70,10 @@ defmodule MoodleNetWeb.DiscoverLive do
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
+
     ~L"""
       <i class="<%= @icon %>"></i>
       <%= @name %>
     """
   end
-
-
 end

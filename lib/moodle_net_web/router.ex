@@ -30,10 +30,12 @@ defmodule MoodleNetWeb.Router do
     live "/", HomeLive
     live "/discover", DiscoverLive
     live "/@:username", MemberLive
+    live "/me", MemberLive
     live "/discussion", DiscussionLive
     live "/login", LoginLive
     live "/signup", SignupLive
-    live "/me", ProfileLive
+
+    live "/proto/me", ProtoProfileLive
 
     live "/write", WriteLive
   end
@@ -56,7 +58,6 @@ defmodule MoodleNetWeb.Router do
   pipeline :ensure_authenticated do
     plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
-
 
   @doc """
   Serve GraphQL API queries
