@@ -33,16 +33,11 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_params(%{} = params, _url, socket) do
-    username =
-      if(Map.has_key?(params, :username)) do
-        params.username
-        |> String.split()
-        |> Enum.at(-1)
-        |> String.downcase()
-      else
-        # TODO: use logged in user here
-        "mayel"
-      end
+    IO.inspect(params)
+
+    # TODO: use logged in user here
+    username = e(params, "username", "mayel")
+    IO.inspect(username)
 
     {:ok, user} = UsersResolver.user(%{username: username}, nil)
     user = Profiles.prepare(user, %{image: true})
