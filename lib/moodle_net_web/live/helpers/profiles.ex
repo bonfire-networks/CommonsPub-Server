@@ -5,6 +5,13 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
   alias MoodleNetWeb.GraphQL.UsersResolver
 
+  alias MoodleNet.GraphQL.{
+    FetchPage,
+    FetchPages,
+    ResolveField,
+    ResolvePages
+  }
+
   import MoodleNetWeb.Helpers.Common
 
   def prepare(profile, %{image: _} = preload) do
@@ -116,5 +123,26 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     else
       MoodleNet.Users.Gravatar.url("default")
     end
+  end
+
+  def creator_threads_edge(%{creator: creator}, %{} = page_opts, user) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_creator_threads_edge,
+      context: creator,
+      page_opts: page_opts,
+      info: user
+    })
+  end
+
+  def fetch_creator_threads_edge(page_opts, user, ids) do
+    FetchPage.run(%FetchPage{
+      queries: Threads.Queries,
+      query: Thread,
+      cursor_fn: Threads.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids],
+      data_filters: [page: [desc: [followers: page_opts]]]
+    })
   end
 end
