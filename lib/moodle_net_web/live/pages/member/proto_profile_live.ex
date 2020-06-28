@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.ProtoProfileLive do
+defmodule MoodleNetWeb.My.ProtoProfileLive do
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.HeroProfileLive
   alias MoodleNetWeb.Component.NavigationProfileLive

@@ -8,12 +8,7 @@ defmodule MoodleNetWeb.LoginLive do
        app_name: Application.get_env(:moodle_net, :app_name),
        app_icon: Application.get_env(:moodle_net, :app_icon, "/images/sun_face.png"),
        instance_image: "https://i.ytimg.com/vi/_qzacv8dtb4/maxresdefault.jpg",
-       app_summary: MoodleNet.Instance.description(),
-       # This is the form data to be captured and utilized to create a new client
-       form_fields: %{
-         "login" => "",
-         "password" => ""
-       }
+       app_summary: MoodleNet.Instance.description()
      )}
   end
 
@@ -56,7 +51,7 @@ defmodule MoodleNetWeb.LoginLive do
 
           <input name="login" type="text" placeholder="Type your username or email..." />
           <input name="password" type="password" placeholder="Type your password..." />
-          <button type="submit" phx-disable-with="Saving...">Sign in</button>
+          <button type="submit" phx-disable-with="Checking...">Sign in</button>
 
         </form>
 

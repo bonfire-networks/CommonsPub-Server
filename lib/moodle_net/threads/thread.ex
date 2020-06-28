@@ -48,6 +48,17 @@ defmodule MoodleNet.Threads.Thread do
     |> common_changeset()
   end
 
+  def create_changeset(%User{id: creator_id}, attrs) do
+    %Thread{}
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.change(
+      creator_id: creator_id,
+      is_public: true
+    )
+    |> Changeset.validate_required(@required)
+    |> common_changeset()
+  end
+
   def update_changeset(%Thread{} = thread, attrs) do
     thread
     |> Changeset.cast(attrs, @cast)
@@ -68,5 +79,4 @@ defmodule MoodleNet.Threads.Thread do
   def queries_module, do: Threads.Queries
 
   def follow_filters, do: []
-
 end

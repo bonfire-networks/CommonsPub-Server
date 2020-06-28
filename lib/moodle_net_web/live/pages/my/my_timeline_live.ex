@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.MyLive.MyTimelineLive do
+defmodule MoodleNetWeb.My.TimelineLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Component.{

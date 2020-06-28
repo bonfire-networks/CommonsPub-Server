@@ -36,16 +36,17 @@ defmodule MoodleNetWeb.Router do
     live "/@:username", MemberLive
     live "/@:username/:tab", MemberLive
     live "/discussion", DiscussionLive
+
     live "/login", LoginLive
     live "/signup", SignupLive
 
     pipe_through :ensure_authenticated
 
     live "/my/profile", MemberLive
-    live "/my/:tab", MyLive
+    live "/my/:tab", My.Live
 
-    live "/proto/me", ProtoProfileLive
-    live "/write", WriteLive
+    live "/proto/me", My.ProtoProfileLive
+    live "/write", My.Publish.WriteLive
   end
 
   @doc """

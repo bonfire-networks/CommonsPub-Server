@@ -1,6 +1,9 @@
-defmodule MoodleNetWeb.MyLive do
+defmodule MoodleNetWeb.My.Live do
   use MoodleNetWeb, :live_view
-  alias MoodleNetWeb.MyLive.MyTimelineLive
+
+  import MoodleNetWeb.Helpers.Common
+
+  alias MoodleNetWeb.My.TimelineLive
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
@@ -9,6 +12,8 @@ defmodule MoodleNetWeb.MyLive do
 
   def mount(_params, session, socket) do
     {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+    user = e(session_token, :user, %{})
+
     app_name = Application.get_env(:moodle_net, :app_name)
 
     {:ok,
@@ -17,7 +22,7 @@ defmodule MoodleNetWeb.MyLive do
        page_title: "My " <> app_name,
        selected_tab: "timeline",
        app_name: Application.get_env(:moodle_net, :app_name),
-       current_user: session_token.user
+       current_user: user
      )}
   end
 
