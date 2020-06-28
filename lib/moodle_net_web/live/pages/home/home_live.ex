@@ -1,7 +1,41 @@
- <div class="page">
+defmodule MoodleNetWeb.HomeLive do
+  use MoodleNetWeb, :live_view
+  alias MoodleNetWeb.Component.{
+    HeaderLive,
+    AboutLive,
+    TabNotFoundLive,
+  }
+  alias MoodleNetWeb.Home.{
+    ActivitiesTabLive,
+    MembersTabLive
+  }
+
+  def mount(_params, _session, socket) do
+    {:ok,
+      socket
+      |> assign(
+        page_title: "Home",
+        hostname: MoodleNet.Instance.hostname,
+        description: MoodleNet.Instance.description,
+        selected_tab: "about")
+      }
+      end
+
+      def handle_params(%{"tab" => tab}, _url, socket) do
+        {:noreply, assign(socket, selected_tab: tab)}
+      end
+
+      def handle_params(_, _url, socket) do
+        {:noreply, socket}
+      end
+
+  def render(assigns) do
+    ~L"""
+    <div class="page">
     <%= live_component(
         @socket,
-        HeaderLive
+        HeaderLive,
+        icon: "https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg"
       )
     %>
     <section class="page__wrapper">
@@ -11,15 +45,27 @@
 
       <div class="mainContent__navigation home__navigation">
           <%= live_patch link_body("About", "feather-book-open"),
-            to: "/instance/about",
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "about"
+              ),
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-          <%= live_patch link_body("Instance Timeline","feather-activity"),
-            to: "/instance/timeline",
+          <%= live_patch link_body("Timeline","feather-activity"),
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "timeline"
+              ),
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>
           <%= live_patch link_body("Members", "feather-users"),
-            to: "/instance/members",
+            to: Routes.live_path(
+              @socket,
+              __MODULE__,
+              tab: "members"
+              ),
             class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
           %>
       </div>
@@ -28,28 +74,27 @@
           <%= cond do %>
           <% @selected_tab == "about" ->  %>
             <div class="selected__header">
-              <h3>About this instance</h3>
+              <h3><%= @selected_tab %></h3>
             </div>
             <div class="selected__area">
               <%= live_component(
                   @socket,
                   AboutLive,
-                  description: @description,
-                  id: :about
+                  description: @description
                 )
               %>
             </div>
           <% @selected_tab == "timeline" -> %>
             <%= live_component(
                 @socket,
-                InstanceActivitiesLive,
+                ActivitiesTabLive,
                 selected_tab: @selected_tab,
                 id: :timeline
               ) %>
          <% @selected_tab == "members" -> %>
           <%= live_component(
               @socket,
-              InstanceMembersLive,
+              MembersTabLive,
               selected_tab: @selected_tab,
               id: :members
           ) %>
@@ -63,3 +108,20 @@
       </div>
     </section>
     </div>
+    """
+  end
+
+
+
+
+
+  defp link_body(name, icon) do
+    assigns = %{name: name, icon: icon}
+    ~L"""
+      <i class="<%= @icon %>"></i>
+      <%= @name %>
+    """
+  end
+
+
+end

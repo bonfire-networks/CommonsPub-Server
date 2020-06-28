@@ -27,7 +27,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
     activity = Repo.preload(activity, :creator)
 
-    creator = Profiles.prepare(activity.creator, %{icon: true, actor: true})
+    creator = Profiles.prepare(activity.creator)
 
     {:ok, from_now} =
       Timex.shift(activity.published_at, minutes: -3)

@@ -86,7 +86,6 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     })
   end
 
-
   def comments_edge(%User{id: id}, page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,
@@ -260,18 +259,14 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     with {:ok, current_user} <- GraphQL.current_user_or_not_logged_in(info),
          :ok <- GraphQL.not_in_list_or_empty_page(info),
          :ok <- GraphQL.equals_or_not_permitted(user.id, current_user.id) do
-      user_inbox_edge(user, page_opts, info)
+      ResolvePage.run(%ResolvePage{
+        module: __MODULE__,
+        fetcher: :fetch_inbox_edge,
+        context: user.inbox_id,
+        page_opts: page_opts,
+        info: info
+      })
     end
-  end
-
-  def user_inbox_edge(%User{} = user, page_opts, info) do
-    ResolvePage.run(%ResolvePage{
-      module: __MODULE__,
-      fetcher: :fetch_inbox_edge,
-      context: user.inbox_id,
-      page_opts: page_opts,
-      info: info
-    })
   end
 
   def fetch_inbox_edge(page_opts, info, id) do
@@ -294,20 +289,16 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     end
   end
 
-  def outbox_edge(%User{outbox_id: id} = user, page_opts, info) do
+  def outbox_edge(%User{outbox_id: id}, page_opts, info) do
     with :ok <- GraphQL.not_in_list_or_empty_page(info) do
-      user_outbox_edge(user, page_opts, info)
+      ResolvePage.run(%ResolvePage{
+        module: __MODULE__,
+        fetcher: :fetch_outbox_edge,
+        context: id,
+        page_opts: page_opts,
+        info: info
+      })
     end
-  end
-
-  def user_outbox_edge(%User{outbox_id: id}, page_opts, info) do
-    ResolvePage.run(%ResolvePage{
-      module: __MODULE__,
-      fetcher: :fetch_outbox_edge,
-      context: id,
-      page_opts: page_opts,
-      info: info
-    })
   end
 
   def fetch_outbox_edge(page_opts, _info, id) do

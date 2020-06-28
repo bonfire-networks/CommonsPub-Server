@@ -9,9 +9,8 @@
 .mainContent_write input {
   display: block;
   width: 100%;
-  border: 1px inset lightgrey;
-  padding: 6px;
-  font-size: 28px;
+  border: none;
+  font-size: 32px;
   font-weight: 600;
   text-indent: 0px;
   letter-spacing: .5px;
@@ -20,15 +19,14 @@
 .mainContent_write textarea {
   display: block;
   width: 100%;
-  min-height: 300px;
-  height: 100%;
-  border: 1px inset lightgrey;
-  padding: 6px;
+  border: none;
   background: transparent;
   font-size: 18px;
   resize:none;
   overflow:auto;
   outline: none;
+  border: var(--border);
+  border: none;
 }
 
 .mainContent_write button {

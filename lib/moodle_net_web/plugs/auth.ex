@@ -29,13 +29,11 @@ defmodule MoodleNetWeb.Plugs.Auth do
   """
   alias Plug.Conn
   alias MoodleNet.Access
-
   alias MoodleNet.Access.{
     MalformedAuthorizationHeaderError,
     Token,
-    TokenNotFoundError
+    TokenNotFoundError,
   }
-
   alias MoodleNet.Users.User
 
   def init(opts), do: opts
@@ -48,16 +46,14 @@ defmodule MoodleNetWeb.Plugs.Auth do
         with {:ok, token} <- get_token(conn),
              {:ok, token} <- Access.fetch_token_and_user(token),
              :ok <- Access.verify_token(token, get_now(opts)) do
-          login(conn, token.user, token)
+          put_current_user(conn, token.user, token)
         else
           {:error, error} ->
             Conn.assign(conn, :auth_error, error)
             |> Conn.assign(:current_user, nil)
             |> Conn.assign(:auth_token, nil)
         end
-
-      _ ->
-        conn
+      _ -> conn
     end
   end
 
@@ -65,12 +61,9 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   @doc false
   def login(conn, user, token) do
-    # IO.inspect(login_user: user)
-    # IO.inspect(login_token: token)
-
     conn
     |> put_current_user(user, token)
-    |> Conn.put_session(:auth_token, token.id)
+    |> Conn.put_session(:auth_token, token)
     |> Conn.configure_session(renew: true)
   end
 
@@ -84,27 +77,17 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   defp get_token_by_header(conn) do
     case Conn.get_req_header(conn, "authorization") do
-      # take the first one if there are multiple
-      ["Bearer " <> token | _] -> {:ok, token}
+      ["Bearer " <> token | _] -> {:ok, token} # take the first one if there are multiple
       [_token] -> {:error, MalformedAuthorizationHeaderError.new()}
-      _ -> get_token_by_param(conn)
-    end
-  end
-
-  defp get_token_by_param(conn) do
-    case conn.params["auth_token"] do
-      token -> {:ok, token}
       _ -> {:error, TokenNotFoundError.new()}
     end
   end
 
-  defp put_current_user(conn, %MoodleNet.Users.Me{} = user, token) do
-    put_current_user(conn, user.user, token)
-  end
-
-  defp put_current_user(conn, %User{} = user, token) do
+  defp put_current_user(conn, %User{}=user, %Token{}=token) do
     conn
     |> Conn.assign(:current_user, user)
     |> Conn.assign(:auth_token, token)
   end
+
 end
+

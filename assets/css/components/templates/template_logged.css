@@ -26,17 +26,11 @@
 .header__left {
   align-self: center;
   display: flex;
-  align-items: center;
 }
 
 .header__left img {
 width: 34px;
 }
-
-.header__left .button {
-margin-bottom: 0
-}
-
 
 .header__left input {
   margin-left: 8px;
@@ -49,13 +43,8 @@ margin-bottom: 0
 .header__right {
   align-self: center;
   display: flex;
-  align-items: center;
 }
 
-
-.header__right .button {
-  margin-bottom: 0
-}
 
 .header__right a.right__discover  {
   font-weight: 600;
