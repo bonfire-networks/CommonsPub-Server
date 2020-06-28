@@ -120,8 +120,8 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
       query: Comment,
       cursor_fn: & &1.id,
       page_opts: page_opts,
-      base_filters: [user: user, creator: ids],
-      data_filters: [order: :timeline_desc]
+      base_filters: [user: user, creator: ids]
+      # data_filters: [order: :timeline_desc]
     })
   end
 
