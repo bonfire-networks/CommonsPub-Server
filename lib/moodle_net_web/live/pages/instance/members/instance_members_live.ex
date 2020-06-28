@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.InstanceLive.MembersTabLive do
+defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Component.{
@@ -36,35 +36,4 @@ defmodule MoodleNetWeb.InstanceLive.MembersTabLive do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
   end
 
-  def render(assigns) do
-    ~L"""
-    <div class="selected__area">
-    <div
-    id="load-more-members"
-    phx-update="append"
-    data-page="<%= @page %>"
-    class="users_list">
-    <%= for user <- @members do %>
-    <%= live_component(
-        @socket,
-        UserPreviewLive,
-        id: "member-#{user.id}",
-        user: user
-      )
-    %>
-    <% end %>
-    </div>
-    </div>
-    <%= if @has_next_page do %>
-    <div class="pagination">
-      <button
-        class="button button-outline"
-        phx-click="load-more"
-        phx-target="<%= @myself %>">
-        load more
-      </button>
-    </div>
-    <% end %>
-    """
-  end
 end

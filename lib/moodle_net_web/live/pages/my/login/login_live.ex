@@ -37,39 +37,4 @@ defmodule MoodleNetWeb.LoginLive do
        |> redirect(to: "/?auth_token=" <> session.token)}
     end
   end
-
-  def render(assigns) do
-    ~L"""
-    <div class="page__login">
-    <div class="standard__logo">
-      <img src="<%=@app_icon%>" />
-      <h1><%=@app_name%></h1>
-    </div>
-    <div class="login__form">
-      <div class="form__wrapper">
-        <form action="#" phx-submit="login">
-
-          <input name="login" type="text" placeholder="Type your username or email..." />
-          <input name="password" type="password" placeholder="Type your password..." />
-          <button type="submit" phx-disable-with="Checking...">Sign in</button>
-
-        </form>
-
-        <a href="#">Trouble logging in?</a>
-      </div>
-    </div>
-    <div class="login__signup">
-      <a href="#">Sign up</a>
-      <div class="signup__background">
-        <div class="img" style="background-image: url('<%=@instance_image%>')" ></div>
-        <div class="background__details">
-          <h4>About this instance</h4>
-          <p><%=@app_summary%></p>
-        </div>
-      </div>
-    </div>
-    <div class="login__footer"></div>
-    </div>
-    """
-  end
 end

@@ -32,8 +32,8 @@ defmodule MoodleNetWeb.Component.HeaderLive do
         <a href="/">
           <img src="<%=@app_icon%>" alt="<%=@app_name%>" />
         </a>
-        <a class="button" href="/my/timeline">My Timeline</a>
         <input placeholder="Search..." />
+        <a class="button button-clear" href="/my/timeline">My Timeline</a>
       </div>
       <div class="header__right">
         <a class="button" href="/write"><i class="feather-file-text"></i> New story</a>

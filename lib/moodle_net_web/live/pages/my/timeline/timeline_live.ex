@@ -2,9 +2,8 @@ defmodule MoodleNetWeb.My.TimelineLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Component.{
-    ActivitiesLive
+    ActivitiesListLive
   }
-
   alias MoodleNetWeb.GraphQL.{
     InstanceResolver
   }
@@ -65,14 +64,11 @@ defmodule MoodleNetWeb.My.TimelineLive do
   def render(assigns) do
     ~L"""
     <%= live_component(
-        @socket,
-        ActivitiesLive,
-        page: @page,
-        myself: @myself,
-        has_next_page: @has_next_page,
-        activities: @activities
+      @socket,
+      ActivitiesListLive,
+      assigns
       )
     %>
-    """
+  """
   end
 end

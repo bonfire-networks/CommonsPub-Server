@@ -86,6 +86,7 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     })
   end
 
+
   def comments_edge(%User{id: id}, page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,

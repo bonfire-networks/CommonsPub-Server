@@ -1,14 +1,10 @@
-defmodule MoodleNetWeb.Component.ActivitiesLive do
-  use Phoenix.LiveComponent
-
-  import MoodleNetWeb.Helpers.Common
-
-  alias MoodleNetWeb.Component.ActivityLive
+defmodule MoodleNetWeb.Component.ActivitiesListLive do
+  use MoodleNetWeb, :live_component
+  alias MoodleNetWeb.Component.{ActivityLive}
 
   def render(assigns) do
     ~L"""
     <div
-    id="infinte-scroll-activities"
     phx-update="append"
     data-page="<%= @page %>"
     class="selected__area">

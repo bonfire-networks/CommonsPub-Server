@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Component.{
-    ActivitiesLive
+    ActivitiesListLive
   }
 
   alias MoodleNetWeb.GraphQL.{
@@ -41,17 +41,18 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
   end
 
+
   def render(assigns) do
     ~L"""
+    <div id="<%= @page %>-activities">
     <%= live_component(
-        @socket,
-        ActivitiesLive,
-        page: @page,
-        myself: @myself,
-        has_next_page: @has_next_page,
-        activities: @activities
+      @socket,
+      ActivitiesListLive,
+      assigns
       )
     %>
-    """
+    </div>
+  """
   end
+
 end

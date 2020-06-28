@@ -3,14 +3,17 @@ defmodule MoodleNetWeb.MemberLive do
 
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
-  alias MoodleNetWeb.MemberLive.MemberActivitiesLive
+  alias MoodleNetWeb.MemberLive.{
+    MemberDiscussionsLive,
+    MemberNavigationLive,
+    MemberActivitiesLive
+  }
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
     HeroProfileLive,
     AboutLive,
-    TabNotFoundLive,
-    NavigationProfileLive
+    TabNotFoundLive
   }
 
   alias MoodleNet.{
@@ -57,85 +60,6 @@ defmodule MoodleNetWeb.MemberLive do
      assign(socket,
        user: user
      )}
-  end
-
-  def render(assigns) do
-    ~L"""
-    <div class="page">
-    <%= live_component(
-        @socket,
-        HeaderLive
-        )
-    %>
-    <section class="page__wrapper">
-        <%= live_component(
-          @socket,
-          HeroProfileLive,
-          user: @user
-        )  %>
-
-        <%= live_component(
-          @socket,
-          NavigationProfileLive,
-          selected: @selected_tab,
-          username: e(@user, :actor, :preferred_username, "")
-        )
-      %>
-
-      <div class="mainContent__selected">
-        <%= cond do %>
-        <% @selected_tab == "about" ->  %>
-          <div class="selected__header">
-            <h3><%= @selected_tab %></h3>
-          </div>
-          <div class="selected__area">
-            <%= live_component(
-                @socket,
-                AboutLive,
-                description: @user.summary
-              )
-            %>
-
-
-          </div>
-
-          <% @selected_tab == "timeline" ->  %>
-          <div class="selected__header">
-            <h3><%= @selected_tab %></h3>
-          </div>
-          <div class="selected__area">
-
-            <%= live_component(
-              @socket,
-              MemberActivitiesLive,
-              user: @user,
-              selected_tab: @selected_tab,
-              id: :timeline,
-              # page: 1,
-              # has_next_page: false,
-              # after: [],
-              # before: [],
-              # activities: []
-            ) %>
-          </div>
-
-
-
-          <% true -> %>
-          <%= live_component(
-              @socket,
-              TabNotFoundLive
-          ) %>
-        <% end %>
-
-          </div>
-        </div>
-      </div>
-
-    </section>
-    </div>
-
-    """
   end
 
   defp link_body(name, icon) do

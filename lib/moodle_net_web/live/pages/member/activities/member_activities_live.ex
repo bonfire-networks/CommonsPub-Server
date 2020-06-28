@@ -1,14 +1,11 @@
 defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   use MoodleNetWeb, :live_component
-
   import MoodleNetWeb.Helpers.Common
-
-  alias MoodleNetWeb.Component.{
-    ActivitiesLive
-  }
-
   alias MoodleNetWeb.GraphQL.{
     UsersResolver
+  }
+  alias MoodleNetWeb.Component.{
+    ActivitiesListLive
   }
 
   def mount(socket) do
@@ -22,8 +19,6 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   end
 
   def update(assigns, socket) do
-    IO.inspect(assigns)
-
     {
       :ok,
       socket
@@ -60,12 +55,9 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   def render(assigns) do
     ~L"""
     <%= live_component(
-        @socket,
-        ActivitiesLive,
-        page: @page,
-        myself: @myself,
-        has_next_page: @has_next_page,
-        activities: @activities
+      @socket,
+      ActivitiesListLive,
+      assigns
       )
     %>
     """
