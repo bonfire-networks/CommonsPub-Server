@@ -38,6 +38,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
 
   alias MoodleNet.Users.User
 
+
   def init(opts), do: opts
 
   # def call(%{assigns: %{current_user: %User{}}} = conn, _), do: conn
@@ -103,6 +104,7 @@ defmodule MoodleNetWeb.Plugs.Auth do
   end
 
   defp put_current_user(conn, %User{} = user, token) do
+
     conn
     |> Conn.assign(:current_user, user)
     |> Conn.assign(:auth_token, token)

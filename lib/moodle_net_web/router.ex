@@ -22,31 +22,32 @@ defmodule MoodleNetWeb.Router do
     plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug(MoodleNetWeb.Plugs.Auth)
+    plug MoodleNetWeb.Plugs.Auth
   end
 
   scope "/", MoodleNetWeb do
     pipe_through :browser
 
     # TODO redirect to instance or user depending on logged in
-    live "/", InstanceLive
+    live "/", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/instance/:tab", InstanceLive
+    live "/instance/:tab", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/@:username", MemberLive
-    live "/@:username/:tab", MemberLive
-    live "/discussion", DiscussionLive
+    live "/@:username", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+    live "/@:username/:tab", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+    live "/discussion", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
     live "/login", LoginLive
     live "/signup", SignupLive
 
     pipe_through :ensure_authenticated
 
-    live "/my/profile", MemberLive
-    live "/my/:tab", My.Live
+    live "/my/profile", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+    live "/my/settings", SettingsLive
+    live "/my/:tab", My.Live, layout: {MoodleNetWeb.LayoutView, :logged}
 
     live "/proto/me", My.ProtoProfileLive
-    live "/write", My.Publish.WriteLive
+    live "/write", My.Publish.WriteLive, layout: {MoodleNetWeb.LayoutView, :logged}
   end
 
   @doc """
