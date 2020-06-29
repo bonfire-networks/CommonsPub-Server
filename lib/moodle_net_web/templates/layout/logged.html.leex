@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <%= csrf_meta_tag() %>
+    <%= live_title_tag assigns[:page_title] || "", suffix: " :: "<>app_name %>
+    <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
+    <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+  </head>
+  <body>
+  <div class="page <%= if !@current_user , do: "guest" %>">
+
+    <%= if @current_user do %>
+      <aside class="settings__panel">
+        <nav>
+          <a href="/my/profile">
+            <div class="panel__user panel__item">
+              <img class="user__image" src="<%= @current_user.icon_url %>" />
+              <h3 class="user__name"><%= @current_user.name %></h3>
+            </div>
+          </a>
+          <a href="/my/settings">
+            <div class="panel__item">
+               <span>⚙️</span> Settings
+            </div>
+          </a>
+          <a href="/my/timeline">
+            <div class="panel__item">
+               <span>👀</span> My Timeline
+            </div>
+          </a>
+          <a href="/">
+            <div class="panel__item">
+               <span>🔥</span> My Instance
+            </div>
+          </a>
+          <a href="/my/notifications">
+            <div class="panel__item">
+               <span>🔔</span> Notifications
+            </div>
+          </a>
+          <a href="/write">
+            <div class="panel__item">
+               <span>✍️</span> Write a new post
+            </div>
+          </a>
+
+        </nav>
+        <h3 class="panel__title">Communities</h3>
+        <nav>
+          <div class="panel__item">
+            <span>😛</span> Community fake 1
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 2
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 3
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 4
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 5
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 6
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 7
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
+        </nav>
+      </aside>
+    <% end %>
+
+    <%= if @current_user == nil do %>
+    <header class="page__header">
+      <div class="header__left">
+        <a href="/">
+          CommonsPub
+        </a>
+        <input placeholder="Search..." />
+      </div>
+      <div class="header__right">
+        <a class="button" href="/login"><i class="feather-file-text"></i> Login</a>
+      </div>
+      </header>
+    <% end %>
+
+  <section class="page__wrapper">
+    <div class="page__mainContent">
+      <%= @inner_content %>
+    </div>
+  </section>
+</div>
+
+  </body>
+</html>
