@@ -5,6 +5,24 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
 
   def render(assigns) do
     ~L"""
+      <div class="suphero">
+        <div class="suphero__left">
+          <img alt="profile pic" src="<%= @user.icon_url %>" />
+          <h4><%= @user.name %></h4>
+        </div>
+        <div class="suphero__actions">
+          <%= if @current_user do %>
+            <a href="/my/settings" class="button">Settings</a>
+          <% else %>
+            <button class="button">Follow</button>
+          <% end %>
+          <button class="button button-outline">
+            <i class="feather-more-horizontal"></i>
+          </button>
+        </div>
+      </div>
+
+
       <div class="mainContent__hero">
         <div class="hero__image">
           <img alt="background image" src="<%= @user.image_url %>" />
