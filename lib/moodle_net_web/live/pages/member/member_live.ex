@@ -52,15 +52,15 @@ defmodule MoodleNetWeb.MemberLive do
 
   end
 
-  # def handle_params(%{"tab" => tab} = params, _url, socket) do
-  #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
+  def handle_params(%{"tab" => tab} = params, _url, socket) do
+    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
 
-  #   {:noreply,
-  #    assign(socket,
-  #      selected_tab: tab,
-  #      user: user
-  #    )}
-  # end
+    {:noreply,
+     assign(socket,
+       selected_tab: tab,
+       user: user
+     )}
+  end
 
   def handle_params(%{} = params, url, socket) do
     user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
