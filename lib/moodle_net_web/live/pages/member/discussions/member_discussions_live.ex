@@ -6,10 +6,7 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   alias MoodleNetWeb.Component.{
     DiscussionLive
   }
-
-  alias MoodleNetWeb.GraphQL.{
-    UsersResolver
-  }
+  alias MoodleNetWeb.Helpers.{Profiles}
 
   def mount(socket) do
     {
@@ -31,16 +28,12 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   end
 
   defp fetch(socket) do
+    IO.inspect(socket.assigns.user)
     # TODO: replace with logged in user's inbox
-    {:ok, comments} = UsersResolver.comments_edge(
-        socket.assigns.user,
-        nil,
-        %{}
-      )
-      IO.inspect(comments)
-
+    comments = user = Profiles.creator_threads_edge(%{creator: nil}, %{limit: 10}, socket.assigns.user)
+    IO.inspect(comments)
     assign(socket,
-      comments: comments,
+      comments: [],
       # has_next_page: comments.page_info.has_next_page,
       # after: comments.page_info.end_cursor,
       # before: comments.page_info.start_cursor

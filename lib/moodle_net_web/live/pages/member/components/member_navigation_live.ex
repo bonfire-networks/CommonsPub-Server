@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
     %>
     <%= live_patch link_body("Discussion", "feather-message-square"),
       to: "/@" <> @username <> "/discussions",
-      class: if @selected == "discussion", do: "navigation__item active", else: "navigation__item"
+      class: if @selected == "discussions", do: "navigation__item active", else: "navigation__item"
       %>
     </div>
     """
