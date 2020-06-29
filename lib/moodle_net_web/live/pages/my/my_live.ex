@@ -2,6 +2,7 @@ defmodule MoodleNetWeb.My.Live do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
+  alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.My.TimelineLive
 
@@ -11,19 +12,31 @@ defmodule MoodleNetWeb.My.Live do
   }
 
   def mount(_params, session, socket) do
-    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-    user = e(session_token, :user, %{})
+
 
     app_name = Application.get_env(:moodle_net, :app_name)
-
-    {:ok,
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+    do
+      {:ok,
      socket
      |> assign(
-       page_title: "My " <> app_name,
-       selected_tab: "timeline",
-       app_name: Application.get_env(:moodle_net, :app_name),
-       current_user: user
+      page_title: "My " <> app_name,
+      selected_tab: "timeline",
+      app_name: Application.get_env(:moodle_net, :app_name),
+      current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
      )}
+    else
+      {:error, _} ->
+        {:ok,
+      socket
+      |> assign(
+        page_title: "My " <> app_name,
+      selected_tab: "timeline",
+      app_name: Application.get_env(:moodle_net, :app_name),
+      current_user: nil
+      )}
+    end
+
   end
 
   def handle_params(%{"tab" => tab}, _url, socket) do
@@ -38,13 +51,7 @@ defmodule MoodleNetWeb.My.Live do
     IO.inspect(assigns.current_user)
 
     ~L"""
-    <div class="page">
-    <%= live_component(
-        @socket,
-        HeaderLive
-      )
-    %>
-    <section class="page__wrapper">
+    <div class="my"
       <div class="instance__hero">
         <h1><%=@page_title%></h1>
       </div>
@@ -76,8 +83,7 @@ defmodule MoodleNetWeb.My.Live do
         <% end %>
       </div>
       </div>
-    </section>
-    </div>
+      </div>
     """
   end
 

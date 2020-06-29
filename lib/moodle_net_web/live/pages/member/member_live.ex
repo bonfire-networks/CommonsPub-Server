@@ -28,19 +28,25 @@ defmodule MoodleNetWeb.MemberLive do
   # end
 
   def mount(_params, session, socket) do
-    # IO.inspect(live_mount_params: _params)
-    # IO.inspect(live_mount_session: session)
-
-    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-
-    # IO.inspect(session_token_user: session_token.user)
-
-    {:ok,
-     assign(socket,
-       page_title: "User",
-       selected_tab: "about",
-       current_user: session_token.user
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+    do
+      {:ok,
+     socket
+     |> assign(
+      page_title: "User",
+      selected_tab: "about",
+      current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
      )}
+    else
+      {:error, _} ->
+        {:ok,
+      socket
+      |> assign(
+        page_title: "User",
+        selected_tab: "about",
+        current_user: nil
+      )}
+    end
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
@@ -53,25 +59,15 @@ defmodule MoodleNetWeb.MemberLive do
      )}
   end
 
-  def handle_params(%{} = params, _url, socket) do
+  def handle_params(%{} = params, url, socket) do
     user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
-
+    current_user = (url =~ "my/profile")
+    IO.inspect(user, label: "USER")
     {:noreply,
      assign(socket,
-       user: user
+     me: current_user,
+     user: user
      )}
   end
 
-  defp link_body(name, icon) do
-    assigns = %{name: name, icon: icon}
-
-    ~L"""
-      <i class="<%= @icon %>"></i>
-      <%= @name %>
-    """
-  end
-
-  def handle_event("test", params, socket) do
-    {:noreply, put_flash(socket, :info, "It worked!")}
-  end
 end

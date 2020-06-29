@@ -2,21 +2,32 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   use MoodleNetWeb, :live_view
 
   import MoodleNetWeb.Helpers.Common
-
+  alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.Component.HeaderLive
 
   def mount(_params, session, socket) do
-    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-    user = e(session_token, :user, %{})
 
-    {:ok,
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"])
+    do
+      {:ok,
      socket
      |> assign(
-       title_placeholder: "An optional title for your story or discussion",
-       summary_placeholder: "Write a story or get a discussion started!",
-       post_label: "Post",
-       current_user: user
+      title_placeholder: "An optional title for your story or discussion",
+      summary_placeholder: "Write a story or get a discussion started!",
+      post_label: "Post",
+      current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
      )}
+    else
+      {:error, _} ->
+        {:ok,
+      socket
+      |> assign(
+        title_placeholder: "An optional title for your story or discussion",
+      summary_placeholder: "Write a story or get a discussion started!",
+      post_label: "Post",
+      current_user: nil
+      )}
+    end
   end
 
   def handle_event("post", %{"content" => content} = data, socket) do
@@ -43,23 +54,13 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
 
   def render(assigns) do
     ~L"""
-    <div class="page">
-      <%= live_component(
-          @socket,
-          HeaderLive
-        )
-      %>
-      <section class="page__wrapper">
-        <div class="page__mainContent">
-          <form action="#" phx-submit="post" class="mainContent_write">
-
-              <input name="name" placeholder="<%= @title_placeholder %>" />
-              <textarea name="content" placeholder="<%= @summary_placeholder %>"></textarea>
-              <button type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
-            </form>
-        </div>
+      <section class="page__write">
+        <form action="#" phx-submit="post" class="mainContent_write">
+            <input name="name" placeholder="<%= @title_placeholder %>" />
+            <textarea name="content" placeholder="<%= @summary_placeholder %>"></textarea>
+            <button type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+          </form>
       </section>
-    </div>
     """
   end
 end
