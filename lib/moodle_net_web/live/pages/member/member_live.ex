@@ -35,6 +35,7 @@ defmodule MoodleNetWeb.MemberLive do
      |> assign(
       page_title: "User",
       selected_tab: "about",
+      me: false,
       current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
      )}
     else
@@ -43,29 +44,31 @@ defmodule MoodleNetWeb.MemberLive do
       socket
       |> assign(
         page_title: "User",
+        me: false,
         selected_tab: "about",
         current_user: nil
       )}
     end
+
   end
 
-  def handle_params(%{"tab" => tab} = params, _url, socket) do
-    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
+  # def handle_params(%{"tab" => tab} = params, _url, socket) do
+  #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
 
-    {:noreply,
-     assign(socket,
-       selected_tab: tab,
-       user: user
-     )}
-  end
+  #   {:noreply,
+  #    assign(socket,
+  #      selected_tab: tab,
+  #      user: user
+  #    )}
+  # end
 
   def handle_params(%{} = params, url, socket) do
     user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
-    current_user = (url =~ "my/profile")
+    logged = (url =~ "my/profile")
     IO.inspect(user, label: "USER")
     {:noreply,
      assign(socket,
-     me: current_user,
+     me: logged,
      user: user
      )}
   end

@@ -131,9 +131,39 @@ margin-bottom: 0
   cursor: pointer;
 }
 
-.panel__user:hover {
-
+.settings__panel {
+  background-color: #F7F6F3;
+  padding: var(--m3);
+  height: 100vh;
+  position: relative;
 }
+
+.settings__panel:hover .panel__burger {
+ display: flex;
+}
+.panel__burger {
+  position: absolute;
+  right: var(--m2);
+  top: var(--m2);
+  font-size: 24px;
+    color: #aaaaaa;
+    top: 16px;
+    display: flex;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;
+  }
+  .panel__burger i {
+    margin: 0 auto;
+  }
+  
+  .panel__burger:hover {
+    /* background: #2e373f; */
+}
+
 
 .panel__user .user__image {
   line-height: initial;
