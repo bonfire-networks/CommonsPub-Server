@@ -1,4 +1,57 @@
 
+.suphero {
+  display: flex;
+  height: 60px;
+  align-items: center;
+  margin-bottom: var(--m3);
+}
+
+.suphero__left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.suphero__left img {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+}
+
+.suphero__left h4 {
+  margin: 0;
+  margin-left: var(--m2);
+  font-weight: 600;
+}
+
+.suphero__actions  {
+  display: flex;
+  align-items: center;
+}
+
+.suphero__actions button {
+  margin: 0;
+}
+
+.suphero__actions button:first-of-type {
+  margin-right: var(--m2);
+}
+
+.suphero__actions a:first-of-type {
+  margin: 0;
+  margin-right: var(--m2);
+}
+
+.suphero__actions .button-outline {
+  width: 38px;
+  padding: 0;
+}
+
+.suphero__actions .button-outline i {
+  font-size: 24px;
+  line-height: 38px;
+}
+
 .mainContent__hero {
   background: var(--lighter);
   border-radius: 4px;
@@ -26,9 +79,9 @@
 }
 
 .info__icon {
-  height: 120px;
-  width: 120px;
-  border-radius: 120px;
+  height: var(--avatar_xl);
+  width: var(--avatar_xl);
+  border-radius: calc(var(--avatar_xl)/2);
   border: 2px solid var(--lighter);
   margin: 0 auto;
   background:antiquewhite
@@ -37,9 +90,9 @@
 
 .info__icon img {
   width: 100%;
-  height: 120px;
+  height: var(--avatar_xl);
   object-fit: cover;
-  border-radius: 120px;
+  border-radius: 75px;
   border: 2px solid var(--lighter)
 }
 

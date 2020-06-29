@@ -1,14 +1,17 @@
 
 .mainContent__navigation {
   margin-top: var(--m2);
-  background-color: var(--lighter);
+  background-color: var(--primary10);
   border: var(--border);
+  border-color:var(--primary40); 
   height: 50px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   column-gap: 16px;
   padding: 0 16px;
   border-radius: 4px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .home__navigation {
