@@ -35,11 +35,7 @@
   height: 250px;
 }
 
-.settings__panel {
-  background-color: #F7F6F3;
-  padding: var(--m3);
-  height: 100vh;
-}
+
 
 .settings__section {
   overflow-y: scroll;

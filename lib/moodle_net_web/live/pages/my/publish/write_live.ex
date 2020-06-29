@@ -51,16 +51,4 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
        |> redirect(to: "/")}
     end
   end
-
-  def render(assigns) do
-    ~L"""
-      <section class="page__write">
-        <form action="#" phx-submit="post" class="mainContent_write">
-            <input name="name" placeholder="<%= @title_placeholder %>" />
-            <textarea name="content" placeholder="<%= @summary_placeholder %>"></textarea>
-            <button type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
-          </form>
-      </section>
-    """
-  end
 end

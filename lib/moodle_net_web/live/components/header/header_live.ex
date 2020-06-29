@@ -25,23 +25,4 @@ defmodule MoodleNetWeb.Component.HeaderLive do
     {:ok, assign(socket, user: user)}
   end
 
-  def render(assigns) do
-    ~L"""
-      <header class="page__header">
-      <div class="header__left">
-        <a href="/">
-          <img src="<%=@app_icon%>" alt="<%=@app_name%>" />
-        </a>
-        <input placeholder="Search..." />
-        <a class="button button-clear" href="/my/timeline">My Timeline</a>
-      </div>
-      <div class="header__right">
-        <a class="button" href="/write"><i class="feather-file-text"></i> New story</a>
-        <div class="header__avatar">
-          <a href="/my/profile"><img src="<%=e(@user, :icon_url, "") %>" /></a>
-        </div>
-      </div>
-      </header>
-    """
-  end
 end
