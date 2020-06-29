@@ -22,20 +22,31 @@ defmodule MoodleNetWeb.Router do
     plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug(MoodleNetWeb.Plugs.Auth)
   end
 
   scope "/", MoodleNetWeb do
     pipe_through :browser
 
-    live "/", HomeLive
-    live "/discover", DiscoverLive
+    # TODO redirect to instance or user depending on logged in
+    live "/", InstanceLive
+
+    live "/instance/:tab", InstanceLive
+
     live "/@:username", MemberLive
+    live "/@:username/:tab", MemberLive
     live "/discussion", DiscussionLive
+
     live "/login", LoginLive
     live "/signup", SignupLive
-    live "/me", ProfileLive
 
-    live "/write", WriteLive
+    pipe_through :ensure_authenticated
+
+    live "/my/profile", MemberLive
+    live "/my/:tab", My.Live
+
+    live "/proto/me", My.ProtoProfileLive
+    live "/write", My.Publish.WriteLive
   end
 
   @doc """
@@ -56,7 +67,6 @@ defmodule MoodleNetWeb.Router do
   pipeline :ensure_authenticated do
     plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
-
 
   @doc """
   Serve GraphQL API queries

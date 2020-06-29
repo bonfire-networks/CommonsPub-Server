@@ -1,4 +1,4 @@
-defmodule MoodleNetWeb.ProfileLive do
+defmodule MoodleNetWeb.My.ProtoProfileLive do
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.HeroProfileLive
   alias MoodleNetWeb.Component.NavigationProfileLive
@@ -16,8 +16,7 @@ defmodule MoodleNetWeb.ProfileLive do
     <div class="page">
     <%= live_component(
         @socket,
-        HeaderLive,
-        icon: "https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg"
+        HeaderLive
       )
     %>
     <section class="page__wrapper">
@@ -35,7 +34,8 @@ defmodule MoodleNetWeb.ProfileLive do
         <%= live_component(
             @socket,
             NavigationProfileLive,
-            selected: @selected
+            selected: @selected,
+            username: "ivan"
           )
         %>
 
@@ -63,7 +63,6 @@ defmodule MoodleNetWeb.ProfileLive do
   end
 
   def handle_event("show", %{"id" => id}, socket) do
-      {:noreply, assign(socket, selected: id)}
+    {:noreply, assign(socket, selected: id)}
   end
-
 end

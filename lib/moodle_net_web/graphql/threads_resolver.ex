@@ -2,26 +2,25 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
-
   alias MoodleNet.{GraphQL, Repo, Threads}
+
   alias MoodleNet.GraphQL.{
     FetchPage,
     FetchPages,
     ResolveField,
-    ResolvePages,
+    ResolvePages
   }
+
   alias MoodleNet.Meta.Pointers
   alias MoodleNet.Threads.{Comments, Thread}
-  
+
   def thread(%{thread_id: id}, info) do
-    ResolveField.run(
-      %ResolveField{
-        module: __MODULE__,
-        fetcher: :fetch_thread,
-        context: id,
-        info: info,
-      }
-    )
+    ResolveField.run(%ResolveField{
+      module: __MODULE__,
+      fetcher: :fetch_thread,
+      context: id,
+      info: info
+    })
   end
 
   def fetch_thread(info, id) do
@@ -29,17 +28,15 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   # edges
-  
-  def threads_edge(%{id: id}, %{}=page_opts, info) do
-    ResolvePages.run(
-      %ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_threads_edge,
-        context: id,
-        page_opts: page_opts,
-        info: info,
-      }
-    )
+
+  def threads_edge(%{id: id}, %{} = page_opts, info) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_threads_edge,
+      context: id,
+      page_opts: page_opts,
+      info: info
+    })
   end
 
   # def fetch_threads_edge({page_opts, info}, ids) do
@@ -60,20 +57,20 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
 
   def fetch_threads_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
-    FetchPage.run(
-      %FetchPage{
-        queries: Threads.Queries,
-        query: Thread,
-        cursor_fn: Threads.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: user, context: ids],
-        data_filters: [page: [desc: [followers: page_opts]]],
-      }
-    )
+
+    FetchPage.run(%FetchPage{
+      queries: Threads.Queries,
+      query: Thread,
+      cursor_fn: Threads.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: user, context: ids],
+      data_filters: [page: [desc: [followers: page_opts]]]
+    })
   end
 
   ## mutations
 
+  @doc "Create a thread in a community or other context"
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
       Repo.transact_with(fn ->
@@ -82,9 +79,16 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
              context = Pointers.follow!(pointer),
              {:ok, thread} <- Threads.create(user, context, %{is_local: true}) do
           attrs = Map.put(attrs, :is_local, true)
-          Comments.create(user, thread, attrs)
+          Comments.create(user, thread, attrs, context)
         end
       end)
+    end
+  end
+
+  @doc "Create a thread with no context, via GraphQL"
+  def create_thread(%{comment: attrs}, info) do
+    with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      Threads.create_with_comment(user, %{comment: attrs})
     end
   end
 
@@ -101,5 +105,4 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   def last_activity_edge(_, _, _info), do: {:ok, DateTime.utc_now()}
-
 end

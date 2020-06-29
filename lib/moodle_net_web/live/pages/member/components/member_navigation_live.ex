@@ -1,5 +1,5 @@
-defmodule MoodleNetWeb.Component.NavigationProfileLive do
-  use Phoenix.LiveComponent
+defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
+  use MoodleNetWeb, :live_component
 
   def render(assigns) do
     ~L"""

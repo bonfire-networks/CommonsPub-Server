@@ -1,11 +1,13 @@
 defmodule MoodleNetWeb.Component.ActivityLive do
   use Phoenix.LiveComponent
+
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Component.StoryPreviewLive
   alias MoodleNetWeb.Component.CommentPreviewLive
   alias MoodleNetWeb.Component.CommunityPreviewLive
   alias MoodleNetWeb.Component.DiscussionPreviewLive
 
-  import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Activites}
 
   def mount(activity, _session, socket) do
@@ -29,7 +31,9 @@ defmodule MoodleNetWeb.Component.ActivityLive do
     ~L"""
     <div id="<%= e(@activity, :id, "") %>" class="component__activity">
       <div class="activity__info">
-        <img src="<%= e(@activity, :creator, :icon, "") %>" alt="icon" />
+      <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>">
+        <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
+      </a>
         <div class="info__meta">
           <div class="meta__action">
             <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>

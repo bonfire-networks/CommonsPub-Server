@@ -3,26 +3,146 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     Repo
   }
 
-  def prepare(profile) do
-    profile = Repo.preload(profile, :actor)
-    profile = Repo.preload(profile, :icon)
-    icon = Repo.preload(profile.icon, :content_upload)
+  alias MoodleNetWeb.GraphQL.UsersResolver
 
-    icon =
-      if(!is_nil(icon) and !is_nil(icon.content_upload) and !is_nil(icon.content_upload.url)) do
+  alias MoodleNet.GraphQL.{
+    FetchPage,
+    FetchPages,
+    ResolveField,
+    ResolvePages
+  }
+
+  import MoodleNetWeb.Helpers.Common
+
+  def prepare(profile, %{image: _} = preload) do
+    profile =
+      if(Map.has_key?(profile, "image_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{image_url: image(profile, :image)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :image)
+    )
+  end
+
+  def prepare(profile, %{icon: _} = preload) do
+    profile =
+      if(Map.has_key?(profile, "icon_url")) do
+        profile
+      else
+        profile
+        |> Map.merge(%{icon_url: image(profile, :icon)})
+      end
+
+    prepare(
+      profile,
+      Map.delete(preload, :icon)
+    )
+  end
+
+  def prepare(profile, preload) do
+    profile =
+      if(Map.has_key?(profile, :__struct__)) do
+        Enum.reduce(preload, profile, fn field, profile ->
+          {preload, included} = field
+
+          if(included) do
+            Map.merge(profile, Repo.preload(profile, preload))
+          else
+            profile
+          end
+        end)
+      else
+        profile
+      end
+
+    prepare(profile)
+  end
+
+  def prepare(profile) do
+    prepare_website(profile)
+  end
+
+  def prepare_website(profile) do
+    if(Map.has_key?(profile, :website) and !is_nil(profile.website)) do
+      url = MoodleNet.File.ensure_valid_url(profile.website)
+
+      # IO.inspect(url)
+
+      profile
+      |> Map.merge(%{website: url |> URI.to_string(), website_friendly: url.host})
+    else
+      profile
+    end
+  end
+
+  def user_load(socket, page_params, preload) do
+    IO.inspect(socket)
+
+    # TODO: use logged in user here
+    username = e(page_params, "username", nil)
+
+    {:ok, user} =
+      if(!is_nil(username)) do
+        UsersResolver.user(%{username: username}, nil)
+      else
+        if(Map.has_key?(socket, :assigns) and Map.has_key?(socket.assigns, :current_user)) do
+          {:ok, socket.assigns.current_user}
+        else
+          {:ok, %{}}
+        end
+      end
+
+    prepare(user, preload)
+  end
+
+  def image(profile, field_name) do
+    if(Map.has_key?(profile, :__struct__)) do
+      profile = Repo.preload(profile, field_name)
+      icon = Repo.preload(Map.get(profile, field_name), :content_upload)
+
+      if(!is_nil(e(icon, :content_upload, :url, nil))) do
+        # use uploaded image
         icon.content_upload.url
       else
-        icon = Repo.preload(profile.icon, :content_mirror)
+        # otherwise external image
+        icon = Repo.preload(Map.get(profile, field_name), :content_mirror)
 
-        if(!is_nil(icon) and !is_nil(icon.content_mirror) and !is_nil(icon.content_mirror.url)) do
+        if(!is_nil(e(icon, :content_mirror, :url, nil))) do
           icon.content_mirror.url
         else
+          # or gravatar
           # TODO: replace with email
           MoodleNet.Users.Gravatar.url(profile.id)
         end
       end
+    else
+      MoodleNet.Users.Gravatar.url("default")
+    end
+  end
 
-    profile
-    |> Map.merge(%{icon: icon})
+  def creator_threads_edge(%{creator: creator}, %{} = page_opts, user) do
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_creator_threads_edge,
+      context: creator,
+      page_opts: page_opts,
+      info: user
+    })
+  end
+
+  def fetch_creator_threads_edge(page_opts, user, ids) do
+    FetchPage.run(%FetchPage{
+      queries: Threads.Queries,
+      query: Thread,
+      cursor_fn: Threads.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids],
+      data_filters: [page: [desc: [followers: page_opts]]]
+    })
   end
 end
