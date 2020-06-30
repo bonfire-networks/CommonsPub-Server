@@ -25,4 +25,17 @@ defmodule MoodleNetWeb.Helpers.Common do
   def e(map, key1, key2, key3, fallback) do
     e(e(map, key1, key2, %{}), key3, fallback)
   end
+
+  def raw(html), do: Phoenix.HTML.raw(html)
+
+  def markdown_to_html(content) do
+    content
+    |> Earmark.as_html!()
+    |> external_links()
+  end
+
+  # open outside links in a new tab
+  def external_links(content) do
+    Regex.replace(~r/(<a href=\"http.+\")>/U, content, "\\1 target=\"_blank\">")
+  end
 end
