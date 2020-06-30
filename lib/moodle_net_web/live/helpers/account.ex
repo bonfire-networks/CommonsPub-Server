@@ -2,6 +2,16 @@ defmodule MoodleNetWeb.Helpers.Account do
   alias MoodleNet.Access
   alias MoodleNet.Users
   alias MoodleNet.Users.{Me}
+  alias MoodleNetWeb.Helpers.{Profiles}
+
+  def current_user_or(fallback, session, preload) do
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
+      Profiles.prepare(session_token.user, preload)
+    else
+      {:error, _} ->
+        fallback
+    end
+  end
 
   def create_session(%{login: login, password: password}) do
     case Users.one([:default, username: login]) do

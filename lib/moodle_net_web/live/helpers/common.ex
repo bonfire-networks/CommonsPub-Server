@@ -28,6 +28,12 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def raw(html), do: Phoenix.HTML.raw(html)
 
+  def markdown(html), do: Phoenix.HTML.raw(markdown_to_html(html))
+
+  def markdown_to_html(nil) do
+    nil
+  end
+
   def markdown_to_html(content) do
     content
     |> Earmark.as_html!()

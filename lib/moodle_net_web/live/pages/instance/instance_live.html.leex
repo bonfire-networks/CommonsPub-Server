@@ -25,7 +25,7 @@
               <%= live_component(
                   @socket,
                   AboutLive,
-                  description: markdown_to_html(@description),
+                  description: @description,
                   id: :about
                 )
               %>
