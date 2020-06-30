@@ -11,7 +11,7 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
           <h4><%= @user.name %></h4>
         </div>
         <div class="suphero__actions">
-          <%= if @current_user do %>
+          <%= if is_map(@current_user) and @user.id==@current_user.id do %>
             <a href="/my/settings" class="button">Settings</a>
           <% else %>
             <button class="button">Follow</button>

@@ -3,14 +3,15 @@
           @socket,
           HeroProfileLive,
           user: @user,
-          current_user: @me
+          current_user: @current_user
         )  %>
 
         <%= live_component(
           @socket,
           MemberNavigationLive,
           selected: @selected_tab,
-          username: e(@user, :actor, :preferred_username, "")
+          username: e(@user, :actor, :preferred_username, ""),
+          current_user: @current_user
         )
       %>
 
