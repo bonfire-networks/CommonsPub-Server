@@ -81,14 +81,15 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def user_load(socket, page_params, preload) do
-    IO.inspect(socket)
+    # IO.inspect(socket)
 
-    # TODO: use logged in user here
     username = e(page_params, "username", nil)
 
     {:ok, user} =
       if(!is_nil(username)) do
-        UsersResolver.user(%{username: username}, nil)
+        UsersResolver.user(%{username: username}, %{
+          context: %{current_user: socket.assigns.current_user}
+        })
       else
         if(Map.has_key?(socket, :assigns) and Map.has_key?(socket.assigns, :current_user)) do
           {:ok, socket.assigns.current_user}
@@ -123,26 +124,5 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     else
       MoodleNet.Users.Gravatar.url("default")
     end
-  end
-
-  def creator_threads_edge(%{creator: creator}, %{} = page_opts, user) do
-    ResolvePages.run(%ResolvePages{
-      module: __MODULE__,
-      fetcher: :fetch_creator_threads_edge,
-      context: creator,
-      page_opts: page_opts,
-      info: user
-    })
-  end
-
-  def fetch_creator_threads_edge(page_opts, user, ids) do
-    FetchPage.run(%FetchPage{
-      queries: Threads.Queries,
-      query: Thread,
-      cursor_fn: Threads.cursor(:followers),
-      page_opts: page_opts,
-      base_filters: [user: user, creator: ids],
-      data_filters: [page: [desc: [followers: page_opts]]]
-    })
   end
 end

@@ -3,6 +3,7 @@ defmodule MoodleNetWeb.MemberLive do
 
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
+
   alias MoodleNetWeb.MemberLive.{
     MemberDiscussionsLive,
     MemberNavigationLive,
@@ -28,28 +29,26 @@ defmodule MoodleNetWeb.MemberLive do
   # end
 
   def mount(_params, session, socket) do
-    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-    do
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
       {:ok,
-     socket
-     |> assign(
-      page_title: "User",
-      selected_tab: "about",
-      me: false,
-      current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
-     )}
+       socket
+       |> assign(
+         page_title: "User",
+         selected_tab: "about",
+         me: false,
+         current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
+       )}
     else
       {:error, _} ->
         {:ok,
-      socket
-      |> assign(
-        page_title: "User",
-        me: false,
-        selected_tab: "about",
-        current_user: nil
-      )}
+         socket
+         |> assign(
+           page_title: "User",
+           me: false,
+           selected_tab: "about",
+           current_user: nil
+         )}
     end
-
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
@@ -58,19 +57,21 @@ defmodule MoodleNetWeb.MemberLive do
     {:noreply,
      assign(socket,
        selected_tab: tab,
-       user: user
+       user: user,
+       current_user: socket.assigns.current_user
      )}
   end
 
   def handle_params(%{} = params, url, socket) do
     user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
-    logged = (url =~ "my/profile")
+    logged_url = url =~ "my/profile"
     IO.inspect(user, label: "USER")
+
     {:noreply,
      assign(socket,
-     me: logged,
-     user: user
+       me: logged_url,
+       user: user,
+       current_user: socket.assigns.current_user
      )}
   end
-
 end

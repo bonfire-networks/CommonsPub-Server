@@ -10,15 +10,20 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   }
 
   def mount(socket) do
-    {:ok,
-     socket
-     |> assign(
-       page: 1,
-       has_next_page: false,
-       after: [],
-       before: []
-     )
-     |> fetch(), temporary_assigns: [activities: []]}
+    {
+      :ok,
+      socket,
+      temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
+    }
+  end
+
+  def update(assigns, socket) do
+    {
+      :ok,
+      socket
+      |> assign(current_user: assigns.current_user)
+      |> fetch()
+    }
   end
 
   defp fetch(socket) do
@@ -26,7 +31,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
       InstanceResolver.outbox_edge(
         %{},
         %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
-        %{}
+        %{context: %{current_user: socket.assigns.current_user}}
       )
 
     assign(socket,
@@ -41,18 +46,16 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
   end
 
-
   def render(assigns) do
     ~L"""
-    <div id="<%= @page %>-activities">
-    <%= live_component(
-      @socket,
-      ActivitiesListLive,
-      assigns
-      )
-    %>
-    </div>
-  """
+      <div id="<%= @page %>-activities">
+      <%= live_component(
+        @socket,
+        ActivitiesListLive,
+        assigns
+        )
+      %>
+      </div>
+    """
   end
-
 end

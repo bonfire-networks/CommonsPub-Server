@@ -35,14 +35,16 @@
                 @socket,
                 InstanceActivitiesLive,
                 selected_tab: @selected_tab,
-                id: :timeline
+                id: :timeline,
+                current_user: @current_user
               ) %>
          <% @selected_tab == "members" -> %>
           <%= live_component(
               @socket,
               InstanceMembersLive,
               selected_tab: @selected_tab,
-              id: :members
+              id: :members,
+              current_user: @current_user
           ) %>
           <% true -> %>
           <%= live_component(

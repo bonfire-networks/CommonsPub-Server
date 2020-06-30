@@ -1,9 +1,11 @@
 defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   use MoodleNetWeb, :live_component
   import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.GraphQL.{
     UsersResolver
   }
+
   alias MoodleNetWeb.Component.{
     ActivitiesListLive
   }
@@ -23,7 +25,7 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
       :ok,
       socket
       |> assign(
-        # FIXME, user not found
+        current_user: assigns.current_user,
         user: assigns.user
       )
       |> fetch()
@@ -37,7 +39,7 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
         socket.assigns.user,
         %{after: socket.assigns.after, limit: 10},
         # %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
-        %{}
+        %{context: %{current_user: socket.assigns.current_user}}
       )
 
     assign(socket,
