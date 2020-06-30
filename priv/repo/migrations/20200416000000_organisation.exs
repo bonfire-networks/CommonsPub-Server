@@ -5,10 +5,10 @@ defmodule MoodleNet.Repo.Migrations.Organisation do
     use Ecto.Migration
 
     def up do
-      Organisation.Migrations.up()
+      # Circle.Migrations.up()
     end
 
     def down do
-      Organisation.Migrations.down()
+      # Circle.Migrations.down()
     end
 end

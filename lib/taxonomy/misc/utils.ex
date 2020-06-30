@@ -7,12 +7,12 @@ defmodule Taxonomy.Utils do
     s = "I a,m! the bÉst? 1"
     t = string_to_actor_name(s)
 
-    {:ok, tags} = Taxonomy.Tags.many()
+    {:ok, tags} = Taxonomy.TaxonomyTags.many()
 
     results = []
     for item <- tags do
-      IO.inspect(item.label)
-      IO.inspect(string_to_actor_name(item.label))
+      IO.inspect(item.name)
+      IO.inspect(string_to_actor_name(item.name))
     end
 
     json(conn,t)

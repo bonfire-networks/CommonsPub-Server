@@ -16,7 +16,7 @@
 
 #     # Create a node
 #     john = Node.new(%{
-#       label: "person",
+#       name: "person",
 #       properties: %{
 #         name: "John Doe",
 #         age: 33,
@@ -34,7 +34,7 @@
 
 #     # Create a second node
 #     japan = Node.new(%{
-#       label: "country",
+#       name: "country",
 #       properties: %{
 #         name: "Japan"
 #       }

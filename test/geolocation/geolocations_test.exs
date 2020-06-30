@@ -7,7 +7,7 @@ defmodule Geolocation.GeolocationsTest do
   alias Geolocation.Geolocations
 
   describe "one" do
-    test "fetches an existing organisation" do
+    test "fetches an existing circle" do
       user = fake_user!()
       comm = fake_community!(user)
       geo = fake_geolocation!(user, comm)

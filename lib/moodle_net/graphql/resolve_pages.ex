@@ -5,6 +5,8 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   finish implementing some things, trading speed for correctness.
   """
 
+  alias MoodleNet.GraphQL.Fields
+
   @enforce_keys [:module, :fetcher, :context, :page_opts, :info]
   defstruct [
     :module,
@@ -24,8 +26,8 @@ defmodule MoodleNet.GraphQL.ResolvePages do
   import Absinthe.Resolution.Helpers, only: [async: 1, batch: 3]
 
   def run(%ResolvePages{info: info} = rp) do
-    IO.inspect(depth: GraphQL.list_depth(info))
-    IO.inspect(info: Map.take(info, [:context]))
+    # IO.inspect(depth: GraphQL.list_depth(info))
+    # IO.inspect(info: Map.take(info, [:context]))
     run(GraphQL.list_depth(info), Map.take(info, [:context]), rp)
   end
 

@@ -6,6 +6,7 @@ services:
     # $ make build
     # $ make tag_latest
     image: "commonspub/commonspub:latest"
+    restart: always
     ports:
       - "4000:4000" # you may want to comment this in production
       - "80:80"

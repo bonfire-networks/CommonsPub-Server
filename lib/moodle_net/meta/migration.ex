@@ -37,7 +37,7 @@ defmodule MoodleNet.Meta.Migration do
     rows_deleted = remove_meta_table(table)
 
     :ok = execute """
-    drop trigger "insert_pointer_#{table}" on "#{table}";
+    drop trigger if exists "insert_pointer_#{table}" on "#{table}";
     """
 
     rows_deleted

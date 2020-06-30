@@ -38,7 +38,7 @@ New functionality is being developed in seperate namespaces in order to make the
 
 - `extension/activitypub` - Implementation of the [ActivityPub](http://activitypub.rocks/) federation protocol.
 - `extension/valueflows` - WIP implementation of the [ValueFlows](https://valueflo.ws/) economic vocabulary, to power distributed economic networks for the next economy.
-- `extension/organisation` - Adds functionality for organisations to maintain a shared profile.
+- `extension/circle` - Adds functionality for circles to maintain a shared profile.
 - `extension/taxonomy` - WIP to enable user-maintained taxonomies and tagging objects with tree-based categories. 
 - `extension/measurement` - Various units and measures for indicating amounts (incl duration).
 - `extension/locales` - Extensive schema of languages/countries/etc. The data is also open and shall be made available oustide the repo.

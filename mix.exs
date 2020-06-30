@@ -11,7 +11,7 @@ defmodule MoodleNet.Mixfile do
       version: "0.9.6-dev",
       elixir: "~> 1.10.0",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: [:phoenix, :gettext] ++ Mix.compilers() ++ [:protocol_ex],
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -115,7 +115,7 @@ defmodule MoodleNet.Mixfile do
       # production only
       {:sentry, "~> 7.1", runtime: sentry?()},
       # Misc
-      # {:protocol_ex, "~> 0.3.0"},
+      {:protocol_ex, "~> 0.4.3"},
       # json
       {:jason, "~> 1.2"},
       # localisation
@@ -145,7 +145,11 @@ defmodule MoodleNet.Mixfile do
       # geolocation in postgres
       {:geo_postgis, "~> 3.1"},
       {:earmark, "~> 1.4"},
-      {:makeup_elixir, "~> 0.14"},
+      {:pointers, "~> 0.2.1"},
+      # {:pointers,
+      #  git: "https://github.com/commonspub/pointers.git", branch: "cascade-pointer-deletes"},
+      # {:pointers, path: "uploads/many-pointers"},
+      # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},
       # {:castore, "~> 0.1.0", optional: true},
       # {:mint, github: "ericmj/mint", branch: "master"},

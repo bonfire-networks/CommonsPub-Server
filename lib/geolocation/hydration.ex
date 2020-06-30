@@ -7,11 +7,11 @@ defmodule Geolocation.GraphQL.Hydration do
   alias MoodleNet.Communities.Community
   alias MoodleNet.Collections.Collection
 
-  alias Organisation
+  alias Circle
 
   def hydrate(blueprint) do
     %{
-      spatial_thing: %{
+      spatial_thing: %{ 
         canonical_url: [
           resolve: &ActorsResolver.canonical_url_edge/3
         ],
@@ -22,7 +22,7 @@ defmodule Geolocation.GraphQL.Hydration do
           resolve: &CommonResolver.context_edge/3
         ],
       },
-      geolocation_query: %{
+      geolocation_query: %{ 
         spatial_thing: [
           resolve: &Geolocation.GraphQL.geolocation/2
         ],
@@ -46,6 +46,6 @@ defmodule Geolocation.GraphQL.Hydration do
 
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%Collection{}, _), do: :collection
-  def resolve_context_type(%Organisation{}, _), do: :organisation
+  def resolve_context_type(%Circle{}, _), do: :circle
   def resolve_context_type(%{}, _), do: :community
 end

@@ -85,7 +85,7 @@ defmodule Measurement.Measure.Measures do
     Repo.insert(Measurement.Measure.create_changeset(creator, unit, attrs))
   end
 
-  # defp publish(creator, measure, activity, :created) do
+  # defp publish(creator, measure, activity, :created) do # TODO
   #   feeds = [
   #     community.outbox_id, creator.outbox_id,
   #     measure.outbox_id, Feeds.instance_outbox_id(),
