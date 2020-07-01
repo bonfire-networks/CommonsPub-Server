@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
     <%= if @has_next_page do %>
     <div class="pagination">
       <button
-        class="button button-outline"
+        class="button--outline"
         phx-click="load-more"
         phx-target="<%= @myself %>">
         load more

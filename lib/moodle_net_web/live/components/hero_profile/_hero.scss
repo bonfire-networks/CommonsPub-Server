@@ -33,44 +33,38 @@
   margin: 0;
 }
 
-.suphero__actions button:first-of-type {
-  margin-right: var(--m2);
-}
-
 .suphero__actions a:first-of-type {
   margin: 0;
-  margin-right: var(--m2);
+  margin-right: var(--m3);
 }
 
-.suphero__actions .button-outline {
-  width: 38px;
-  padding: 0;
-}
 
-.suphero__actions .button-outline i {
-  font-size: 24px;
-  line-height: 38px;
-}
 
 .mainContent__hero {
-  background: var(--lighter);
-  border-radius: 4px;
+  background: var(--color-background);
+  border-radius: var(--radius);
   border: var(--border);
+  padding-bottom: var(--m3);
+  box-shadow: 0 2px 10px 2px rgba(0,0,0,.05);
+}
+
+.mainContent__hero h1 {
+  margin-bottom: var(--m2);
 }
 
 .mainContent__hero .hero__image {
   height: 250px;
   background-color: #eeeeee;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius)
 }
 
 .mainContent__hero .hero__image img {
     object-fit: cover;
     width: 100%;
     height: 250px;
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius)
 }
 
 .mainContent__hero .hero__info {
@@ -91,7 +85,7 @@
   height: var(--avatar_xl);
   width: var(--avatar_xl);
   border-radius: calc(var(--avatar_xl)/2);
-  border: 2px solid var(--lighter);
+  border: 2px solid var(--color-background);
   margin-left:var(--m3);
   background:antiquewhite
 }
@@ -105,24 +99,22 @@
   border: 2px solid var(--lighter)
 }
 
-.mainContent__hero .info__name {
-  font-size: 28px;
-  font-weight: 500;
-  letter-spacing: 0.mainContent__hero .5px;
-  margin-top: 8px;
-}
-
 .mainContent__hero .info__username {
   margin-top: 4px;
-  font-size: 14px;
-  color: var(--gray);
+  /* font-size: 14px; */
+  /* color: var(--gray); */
 }
 
 .mainContent__hero .info__details {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  column-gap: var(--m3);
+  display: flex;
   margin: var(--m3) 0;
-  font-size: 14px;
-  justify-content: center;
+}
+
+.info__details .details__meta {
+  margin-right: var(--m3);
+  @include text-gray()
+}
+
+.info__details .details__meta i {
+  margin-right: var(--m1);
 }

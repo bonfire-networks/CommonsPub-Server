@@ -27,7 +27,7 @@
 }
 
 .form__wrapper a {
-  color: var(--primary);
+  color: var(--color-primary);
 }
 
 .form__wrapper input {
@@ -54,8 +54,8 @@
 .login__signup a {
   height: 50px;
   border-radius: 4px;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
   font-size: 14px;
   text-transform: uppercase;
   display: block;

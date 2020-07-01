@@ -12,11 +12,11 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
         </div>
         <div class="suphero__actions">
           <%= if is_map(@current_user) and @user.id==@current_user.id do %>
-            <a href="/my/settings" class="button">Settings</a>
+            <a href="/my/settings">Settings</a>
           <% else %>
             <button class="button">Follow</button>
           <% end %>
-          <button class="button button-outline">
+          <button class="button-outline-only-icon">
             <i class="feather-more-horizontal"></i>
           </button>
         </div>
@@ -32,8 +32,8 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
             <img alt="profile pic" src="<%= @user.icon_url %>" />
           </div>
           <div class="info__meta">
-            <div class="info__name"><%= @user.name %></div>
-            <div class="info__username">@<%= e(@user, :actor, :preferred_username, "") %></div>
+            <h1><%= @user.name %></h1>
+            <h4 class="info__username">@<%= e(@user, :actor, :preferred_username, "") %></h4>
             <div class="info__details">
               <div class="details__meta"><a href="<%= @user.website %>" target="_blank"><i class="feather-external-link"></i> <%= e(@user, :website_friendly, "") %></a></div>
               <div class="details__meta"><i class="feather-map-pin"></i><%= @user.location %></div>

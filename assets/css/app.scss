@@ -1,5 +1,6 @@
 /* This file is for your main application css. */
-@import "./styles.css";
+@import "base";
+@import "styles";
 @import "../node_modules/nprogress/nprogress.css";
 
 /* LiveView specific classes for your customizations */
@@ -8,6 +9,7 @@
   display: block;
   margin: -1rem 0 2rem;
 }
+
 
 .phx-no-feedback.invalid-feedback, .phx-no-feedback .invalid-feedback {
   display: none;
