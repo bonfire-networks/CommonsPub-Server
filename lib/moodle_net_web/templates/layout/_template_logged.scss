@@ -7,7 +7,6 @@
   grid-template-columns: 260px 1fr;
   &.full {
     grid-template-columns: 1fr;
-
   }
 }
 
@@ -90,7 +89,8 @@ margin-bottom: 0
 .page__wrapper {
   overflow-y: scroll;
   height: 100vh;
-  margin-bottom: var(--m3)
+  margin-bottom: var(--m3);
+  transition: all 0.8s;
 }
 
 .page__mainContent {
@@ -220,15 +220,18 @@ margin-bottom: 0
 
 
 .Drawer {
-  width: 100%;
-  transition: opacity 0.2s ease;
+  width: 260px;
+  transition: margin-left 0.2s ease;
   position: relative;
   padding-bottom: var(--m3);
-  
+  transition: margin-left 0.8s;
 }
 
+
 .Drawer[hidden] {
-  margin-left: -240px;
+  margin-left: -260px;
+  display: block;
+  position: absolute;
 }
 
 .Drawer.is-sliding {
@@ -248,7 +251,7 @@ margin-bottom: 0
 }
 
 .Drawer.is-sliding .Drawer-content {
-  transform: translateX(100%);
+  margin-left: 0;
 }
 
 .Drawer-list {

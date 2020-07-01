@@ -124,50 +124,43 @@
   </section>
 </div>
 <script>
-  const drawer = document.getElementById('drawer');
-  const toggle = document.querySelector('[aria-controls="drawer"]');
-  const main_template = document.getElementById('template');
 
-  function open() {
-    toggle.setAttribute('aria-expanded', true);
-    drawer.classList.add('is-sliding');
-    drawer.hidden = false;
-    drawer.getClientRects(); // Force re-paint so transition occurs
-    drawer.classList.remove('is-sliding');
-    main_template.classList.remove('full');
+const drawer = document.getElementById('drawer');
+const toggle = document.querySelector('[aria-controls="drawer"]');
+const main_template = document.getElementById('template');
+
+function open() {
+  toggle.setAttribute('aria-expanded', true);
+  main_template.classList.remove('full');
+  drawer.classList.add('is-sliding');
+  drawer.hidden = false;
+  drawer.getClientRects(); // Force re-paint so transition occurs
+  drawer.classList.remove('is-sliding');
+}
+
+function close() {
+  toggle.setAttribute('aria-expanded', false);
+  main_template.classList.add('full');
+  drawer.classList.add('is-sliding');
+  drawer.hidden = true;
+  drawer.classList.remove('is-sliding');
+}
+
+toggle.addEventListener('click', () => {
+  const expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+  if (expanded) {
+    close();
+  } else {
+    open();
   }
+});
 
-  function close() {
-    toggle.setAttribute('aria-expanded', false);
-    main_template.classList.add('full');
-
-    const afterClose = event => {
-      if (event.target === drawer) {
-        drawer.removeEventListener('transitionend', afterClose);
-        drawer.hidden = true;
-        drawer.classList.remove('is-sliding');
-      }
-    };
-
-    drawer.addEventListener('transitionend', afterClose);
-    drawer.classList.add('is-sliding');
+drawer.addEventListener('click', event => {
+  if (event.target === drawer) {
+    close();
   }
-
-  toggle.addEventListener('click', () => {
-    const expanded = toggle.getAttribute('aria-expanded') === 'true';
-
-    if (expanded) {
-      close();
-    } else {
-      open();
-    }
-  });
-
-  drawer.addEventListener('click', event => {
-    if (event.target === drawer) {
-      close();
-    }
-  });
+});
   </script>
   </body>
 </html>
