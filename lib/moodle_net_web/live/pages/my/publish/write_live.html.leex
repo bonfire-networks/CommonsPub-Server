@@ -4,7 +4,7 @@
   <form action="#" phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
       <input id="name" name="name" placeholder="<%= @title_placeholder %>" />
       <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
-      <button type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+      <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
     </form>
 </section>
 

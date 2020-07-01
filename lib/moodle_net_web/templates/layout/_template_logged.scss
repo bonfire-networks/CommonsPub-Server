@@ -85,7 +85,8 @@ margin-bottom: 0
 
 .page__wrapper {
   overflow-y: scroll;
-  margin-top: var(--m3)
+  height: 100vh;
+  margin-bottom: var(--m3)
 }
 
 .page__mainContent {

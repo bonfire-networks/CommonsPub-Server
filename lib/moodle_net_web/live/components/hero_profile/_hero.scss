@@ -1,27 +1,8 @@
-
 .suphero {
   display: flex;
   height: 60px;
   align-items: center;
   margin-bottom: var(--m3);
-}
-
-.suphero__left {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.suphero__left img {
-  width: 32px;
-  height: 32px;
-  border-radius: 16px;
-}
-
-.suphero__left h4 {
-  margin: 0;
-  margin-left: var(--m2);
-  font-weight: 600;
 }
 
 .suphero__actions  {

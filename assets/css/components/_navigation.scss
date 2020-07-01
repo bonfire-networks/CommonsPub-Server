@@ -1,9 +1,7 @@
 
 .mainContent__navigation {
   margin-top: var(--m2);
-  background-color: var(--color-primary-ligth-10);
   border: var(--border);
-  border-color:var(--color-primary-light-40); 
   height: 50px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -20,14 +18,13 @@
 
 .navigation__item {
   place-self: center;
-  font-size: 14px;
   position: relative;
   cursor: pointer;
   color: var(--darker);
+  &:hover {text-decoration: none};
 }
 
 .navigation__item.active {
-  font-weight: 500;  
   color: var(--color-primary);
 }
 
@@ -38,7 +35,7 @@
   height: 4px;
   background-color: var(--color-primary);
   display: block;
-  bottom: -14px;
+  bottom: -18px;
 }
 
 .navigation__item i {

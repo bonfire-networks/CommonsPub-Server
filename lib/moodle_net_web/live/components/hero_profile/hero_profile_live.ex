@@ -6,9 +6,9 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
   def render(assigns) do
     ~L"""
       <div class="suphero">
-        <div class="suphero__left">
+        <div class="suphero__left named-avatar">
           <img alt="profile pic" src="<%= @user.icon_url %>" />
-          <h4><%= @user.name %></h4>
+          <h3><%= @user.name %></h3>
         </div>
         <div class="suphero__actions">
           <%= if is_map(@current_user) and @user.id==@current_user.id do %>

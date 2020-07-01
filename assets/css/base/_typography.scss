@@ -27,6 +27,19 @@
 }
 
 
+@mixin text-gray {
+  font-size: 1em;
+  color: lightness(var(--color-surface), 2.5);
+  font-weight: 500;
+}
+
+@mixin sup-title {
+  font-size: 1em;
+  color:var(--color-surface);
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
 :root {
   // font family
   --font-primary: "Fira Sans";
@@ -87,7 +100,7 @@ h2 {
 
 h3 {
   font-size: var(--text-lg, 1.44em);
-  font-weight: 500;
+  @include sup-title;
 }
 
 h4 {
@@ -128,8 +141,3 @@ u {
 // --------------------------------
 
 
-@mixin text-gray {
-  font-size: 1em;
-  color: lightness(var(--color-surface), 2.5);
-  font-weight: 500;
-}
