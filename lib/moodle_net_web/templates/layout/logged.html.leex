@@ -10,18 +10,20 @@
     <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </head>
   <body>
-  <div class="page <%= if !@current_user , do: "guest" %>">
+  <div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
 
     <%= if @current_user do %>
-      <aside class="settings__panel">
-        <span class="panel__burger">
+
+      <nav id="drawer" class="Drawer">
+        <div class="Drawer-content">
+          <span class="panel__burger">
           <i class="feather-chevrons-left"></i>
         </span>
         <nav>
           <a href="/my/profile">
             <div class="panel__user panel__item">
-              <img class="user__image" src="<%= @current_user.icon_url %>" />
-              <h3 class="user__name"><%= @current_user.name %></h3>
+              <img src="<%= @current_user.icon_url %>" />
+              <h3><%= @current_user.name %></h3>
             </div>
           </a>
           <a href="/my/settings">
@@ -77,8 +79,25 @@
           <div class="panel__item">
             <span>😛</span> Community fake 8
           </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
+          <div class="panel__item">
+            <span>😛</span> Community fake 8
+          </div>
         </nav>
-      </aside>
+        </div>
+      </nav>
+
     <% end %>
 
     <%= if @current_user == nil do %>
@@ -97,10 +116,58 @@
 
   <section class="page__wrapper">
     <div class="page__mainContent">
+    <button class="HeaderBar-toggle" aria-expanded="true" aria-controls="drawer">
+      Menu
+    </button>
       <%= @inner_content %>
     </div>
   </section>
 </div>
+<script>
+  const drawer = document.getElementById('drawer');
+  const toggle = document.querySelector('[aria-controls="drawer"]');
+  const main_template = document.getElementById('template');
 
+  function open() {
+    toggle.setAttribute('aria-expanded', true);
+    drawer.classList.add('is-sliding');
+    drawer.hidden = false;
+    drawer.getClientRects(); // Force re-paint so transition occurs
+    drawer.classList.remove('is-sliding');
+    main_template.classList.remove('full');
+  }
+
+  function close() {
+    toggle.setAttribute('aria-expanded', false);
+    main_template.classList.add('full');
+
+    const afterClose = event => {
+      if (event.target === drawer) {
+        drawer.removeEventListener('transitionend', afterClose);
+        drawer.hidden = true;
+        drawer.classList.remove('is-sliding');
+      }
+    };
+
+    drawer.addEventListener('transitionend', afterClose);
+    drawer.classList.add('is-sliding');
+  }
+
+  toggle.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+    if (expanded) {
+      close();
+    } else {
+      open();
+    }
+  });
+
+  drawer.addEventListener('click', event => {
+    if (event.target === drawer) {
+      close();
+    }
+  });
+  </script>
   </body>
 </html>
