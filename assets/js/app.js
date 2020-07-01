@@ -13,10 +13,30 @@ import "../css/app.scss"
 //     import socket from "./socket"
 //
 import "phoenix_html"
-import {Socket} from "phoenix"
+import { Socket } from "phoenix"
 import NProgress from "nprogress"
-import {LiveSocket, debug} from "phoenix_live_view"
+import { LiveSocket, debug } from "phoenix_live_view"
 
+let Hooks = {}
+
+Hooks.TagPick = {
+    tag() {
+        console.log(this.el.dataset)
+        return this.el.dataset.tag
+    },
+    mounted() {
+        this.el.addEventListener("click", e => {
+            const prefix = "+" // TODO: support other triggers
+            const f = document.getElementById(this.el.dataset.target)
+            var text = f.value.split(prefix)
+            text.pop()
+            text.push(this.el.dataset.tag + " ") // terminate with char U+2000
+            f.value = text.join(prefix)
+            const ad = document.getElementById("autocomplete-dropdown");
+            ad.innerHTML = '';
+        })
+    }
+}
 
 
 // let scrollAt = () => {
@@ -46,7 +66,7 @@ import {LiveSocket, debug} from "phoenix_live_view"
 // }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, { hooks: Hooks, params: { _csrf_token: csrfToken } })
 
 console.log(csrfToken)
 

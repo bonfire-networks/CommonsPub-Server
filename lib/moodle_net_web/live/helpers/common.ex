@@ -26,9 +26,9 @@ defmodule MoodleNetWeb.Helpers.Common do
     e(e(map, key1, key2, %{}), key3, fallback)
   end
 
-  def raw(html), do: Phoenix.HTML.raw(html)
+  def r(html), do: Phoenix.HTML.raw(html)
 
-  def markdown(html), do: Phoenix.HTML.raw(markdown_to_html(html))
+  def markdown(html), do: r(markdown_to_html(html))
 
   def markdown_to_html(nil) do
     nil
