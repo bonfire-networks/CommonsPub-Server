@@ -28,6 +28,19 @@
   color: var(--color-primary);
 }
 
+
+.meta__main-menu {
+  .panel__item {
+    padding: 0 var(--m3) !important;
+    i {
+      margin-right: 8px;
+      font-size: 20px;
+      font-weight: 300;
+      color: #3b3b3b;
+    }
+  }
+}
+
 .navigation__item.active::before {
   position: absolute;
   content: "";

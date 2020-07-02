@@ -16,85 +16,80 @@
 
       <nav id="drawer" class="Drawer">
         <div class="Drawer-content">
-          <span class="panel__burger">
-          <i class="feather-chevrons-left"></i>
-        </span>
-        <nav>
-          <a href="/my/profile">
             <div class="panel__user panel__item">
-              <img src="<%= @current_user.icon_url %>" />
-              <h3><%= @current_user.name %></h3>
+              <a href="/my/profile">
+                <img src="<%= @current_user.icon_url %>" />
+                <h3><%= @current_user.name %></h3>
+              </a>
             </div>
-          </a>
-          <a href="/my/settings">
-            <div class="panel__item">
-               <span>⚙️</span> Settings
-            </div>
-          </a>
-          <a href="/my/timeline">
-            <div class="panel__item">
-               <span>👀</span> My Timeline
-            </div>
-          </a>
-          <a href="/">
-            <div class="panel__item">
-               <span>🔥</span> My Instance
-            </div>
-          </a>
-          <a href="/my/notifications">
-            <div class="panel__item">
-               <span>🔔</span> Notifications
-            </div>
-          </a>
-          <a href="/write">
-            <div class="panel__item">
-               <span>✍️</span> Write a new post
-            </div>
-          </a>
+          <div class="content__meta">
+            <nav class="meta__main-menu">
+                <div class="panel__item">
+                  <a href="/my/timeline">
+                    <i class="feather-home"></i> Home
+                  </a>
+                </div>
+                <div class="panel__item">
+                  <a href="/search">
+                    <i class="feather-search"></i> Search
+                  </a>
+                </div>
+                <div class="panel__item">
+                  <a href="/">
+                    <i class="feather-anchor"></i> My Instance
+                  </a>
+                </div>
+                <div class="panel__item">
+                  <a href="/my/notifications">
+                    <i class="feather-bell"></i> Notifications
+                  </a>
+                </div>
 
-        </nav>
-        <h3 class="panel__title">Communities</h3>
-        <nav>
-          <div class="panel__item">
-            <span>😛</span> Community fake 1
+            </nav>
+            <h3 class="panel__title">Communities</h3>
+            <nav class="panel__communities">
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+              <div class="panel__item">
+              <img src="https://picsum.photos/40" /> <h3>ValueFlows UI components</h3>
+              </div>
+            </nav>
           </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 2
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 3
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 4
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 5
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 6
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 7
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-          <div class="panel__item">
-            <span>😛</span> Community fake 8
-          </div>
-        </nav>
+          <button class="button new-community">Create a new community</button>
         </div>
       </nav>
 
@@ -116,8 +111,8 @@
 
   <section class="page__wrapper">
     <div class="page__mainContent">
-    <button class="HeaderBar-toggle" aria-expanded="true" aria-controls="drawer">
-      Menu
+    <button class="button-outline-only-icon" aria-expanded="true" aria-controls="drawer">
+      <i class="feather-chevrons-left"></i>
     </button>
       <%= @inner_content %>
     </div>

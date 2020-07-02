@@ -8,6 +8,9 @@
 .suphero__actions  {
   display: flex;
   align-items: center;
+    .follow {
+      margin-right: var(--m2);
+    }
 }
 
 .suphero__actions button {
