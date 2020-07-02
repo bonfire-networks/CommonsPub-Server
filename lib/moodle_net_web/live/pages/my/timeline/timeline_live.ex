@@ -21,14 +21,15 @@ defmodule MoodleNetWeb.My.TimelineLive do
         page: 1,
         has_next_page: false,
         after: [],
-        before: []
+        before: [],
+        activities: []
       )
       #  |> fetch(), temporary_assigns: [activities: []]
     }
   end
 
   def update(assigns, socket) do
-    IO.inspect(assigns)
+    # IO.inspect(assigns)
 
     {
       :ok,
@@ -39,8 +40,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
 
   defp fetch(socket, assigns) do
     # IO.inspect(ma: assigns)
-    # TODO: replace with logged in user's inbox
-    IO.inspect(assigns.current_user)
+    # IO.inspect(assigns.current_user)
 
     {:ok, inbox} =
       UsersResolver.user_inbox_edge(
@@ -50,7 +50,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(inbox)
+    IO.inspect(inbox: inbox)
 
     assign(socket,
       activities: inbox.edges,

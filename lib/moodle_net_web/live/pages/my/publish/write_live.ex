@@ -5,8 +5,8 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   alias MoodleNetWeb.Helpers.{Profiles, Account}
   alias MoodleNetWeb.Component.HeaderLive
 
-  # terminate tags with char U+2000
-  @tag_terminator " "
+  # terminate tags with space
+  @tag_terminator " "
 
   def mount(_params, session, socket) do
     {:ok,
@@ -24,21 +24,28 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   end
 
   def handle_event("tag_suggest", %{"content" => content}, socket)
-      when byte_size(content) <= 100 do
-    tag_search = tag_prepare(content)
-    matches = tag_search(tag_search)
+      when byte_size(content) >= 1 do
+    IO.inspect(tag_suggest: content)
 
-    {:noreply,
-     assign(socket,
-       tag_search: tag_search,
-       # ID of the input, TODO: handle several inputs
-       tag_target: "content",
-       matches: matches
-     )}
+    tag_search = tag_prepare(content)
+
+    if tag_search do
+      matches = tag_search(tag_search)
+
+      {:noreply,
+       assign(socket,
+         tag_search: tag_search,
+         # ID of the input, TODO: handle several inputs
+         tag_target: "content",
+         matches: matches
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_event("tag_suggest", data, socket) do
-    IO.inspect(data)
+    IO.inspect(ignore_tag_suggest: data)
 
     {:noreply,
      assign(socket,
@@ -52,8 +59,6 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
 
     if length(parts) > 1 do
       List.last(parts)
-    else
-      ""
     end
   end
 
@@ -70,16 +75,6 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   def tag_match(match, tag_search) do
     [head | tail] = String.split(match, tag_search)
     List.to_string([head, "<span>", tag_search, "</span>", tail])
-  end
-
-  def handle_event("tag_pick", %{"tag" => tag}, socket) do
-    IO.inspect(tag)
-
-    {:noreply,
-     assign(socket,
-       tag_search: "",
-       matches: []
-     )}
   end
 
   def handle_event("post", %{"content" => content} = data, socket) do

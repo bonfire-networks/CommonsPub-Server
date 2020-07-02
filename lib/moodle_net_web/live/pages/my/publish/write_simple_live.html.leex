@@ -1,18 +1,7 @@
 <section class="page__write">
   <form action="#" phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
     <input id="name" name="name" placeholder="<%= @title_placeholder %>" />
-    <div id="editor" phx-hook="MarkdownEditor">
-      <div id="editor-visual" phx-ignore="true">
-        <div class="editor-controls">
-          <label>
-            Text <input type=radio name="editor-style" value="raw" checked>
-          </label>
-          <label><input type=radio name="editor-style" id="editor-style-visual" value="visual"> Visual</label>
-        </div>
-        <div id="editor-markdown"></div>
-      </div>
-      <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
-    </div>
+    <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
     <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
   </form>
 </section>

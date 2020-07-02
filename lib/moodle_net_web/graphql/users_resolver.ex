@@ -276,19 +276,21 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
 
   def fetch_inbox_edge(page_opts, info, id) do
     with {:ok, %User{} = user} <- GraphQL.current_user_or_empty_page(info) do
+      IO.inspect(user)
       tables = Users.default_inbox_query_contexts()
+      IO.inspect(tables: tables)
 
       Repo.transact_with(fn ->
         with {:ok, subs} <- Users.feed_subscriptions(user) do
           ids = [id | Enum.map(subs, & &1.feed_id)]
 
-          FetchPage.run(%FetchPage{
+          IO.inspect(FetchPage.run(%FetchPage{
             queries: Activities.Queries,
             query: Activities.Activity,
             page_opts: page_opts,
             base_filters: [deleted: false, feed_timeline: ids, table: tables],
             data_filters: [page: [desc: [created: page_opts]], preload: :context]
-          })
+          }), label: "fetchpage")
         end
       end)
     end
