@@ -10,11 +10,31 @@
               </div>
             </div>
             <div class="head__mainComment">
-              <%# <%= live_component(
-                  @socket,
-                  ActivityLive
-                )
-              %>
+              <div class="component__activity">
+                <div class="activity__info">
+                  <a href="/@<%= e(@thread, :creator, :actor, :preferred_username, "deleted") %>">
+                    <img src="<%= e(@thread, :creator, :icon_url, "") %>" alt="icon" />
+                  </a>
+                  <div class="info__meta">
+                    <div class="meta__action">
+                      <a href="/@<%= e(@thread, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@thread, :creator, :name, "Somebody") %></a>
+                    </div>
+                    <div class="meta__secondary">
+                      <%= e(@thread, :published_at, "one day") %>
+                    </div>
+                  </div>
+                </div>
+      <div class="activity__preview">
+        <div class="comment__preview">
+          <div class="markdown-body">
+            <%= markdown(@thread.creator.summary) %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
             </div>
           </div>
           <div class="discussion__replies">

@@ -1,7 +1,9 @@
 defmodule MoodleNetWeb.DiscussionLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.GraphQL.ThreadsResolver
+  import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Account, Discussion}
+  alias MoodleNetWeb.Component.CommentPreviewLive
 
   def mount(%{"id" => id}, session, socket) do
     current_user= Account.current_user_or(nil, session, %{icon: true, actor: true})

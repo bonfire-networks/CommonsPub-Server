@@ -16,12 +16,29 @@
 
       <nav id="drawer" class="Drawer">
         <div class="Drawer-content">
-            <div class="panel__user panel__item">
-              <a href="/my/profile">
+          <div class="panel__dropdown">
+            <div class="panel__user">
+
+              <button class="button user__dropdown"
+                class="user__button-trigger"
+                data-toggle-class="is-open"
+                data-toggle-target=".user-dropdown-list"
+                data-toggle-outside
+                data-toggle-escape
+              >
                 <img src="<%= @current_user.icon_url %>" />
                 <h3><%= @current_user.name %></h3>
-              </a>
+              </button>
+              <ul class="user-dropdown-list">
+                <li><a href="/my/profile">Profile</a></li>
+                <li><a href="/settings">Settings</a></li>
+                <li><a href="#">Logout</a></li>
+
+                <!-- Several options -->
+              </ul>
             </div>
+
+          </div>
           <div class="content__meta">
             <nav class="meta__main-menu">
                 <div class="panel__item">

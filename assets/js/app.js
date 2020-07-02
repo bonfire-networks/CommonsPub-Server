@@ -17,6 +17,7 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import NProgress from "nprogress";
 import { LiveSocket, debug } from "phoenix_live_view";
+import "easy-toggle-state"
 
 let Hooks = {};
 
