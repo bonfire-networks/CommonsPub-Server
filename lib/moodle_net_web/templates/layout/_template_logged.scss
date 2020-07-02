@@ -170,7 +170,7 @@ margin-bottom: 0
 .Drawer .panel__title {
   color: #989898;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 1px;
   text-transform: uppercase;
   margin: 0;
@@ -181,12 +181,20 @@ margin-bottom: 0
 
 .Drawer .panel__item {
   font-size: 15px;
-  color:#72716f;
   padding: var(--m1) var(--m3);
   height: 40px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  cursor: pointer;
+  a {
+    display: flex;
+    align-items: center;
+    color: var(--color-surface);
+    font-weight: 500;
+    &:hover {
+      text-decoration: none;
+    }
+  }
   
 }
 
@@ -214,11 +222,6 @@ margin-bottom: 0
   margin-right: 4px;
 }
 
-.section__main .section__actions {
-}
-
-
-
 .Drawer {
   width: 260px;
   transition: margin-left 0.2s ease;
@@ -245,9 +248,14 @@ margin-bottom: 0
   height: 100vh;
   position: relative;
   transition: transform 0.2s ease;
-  padding-top: var(--m3);
-  
-  overflow-y: scroll;
+  display: grid;
+  grid-template-rows: 60px 1fr 40px;
+  .content__meta {
+    overflow-y: scroll;
+  }
+  .new-community {
+    border-radius: 0;
+  }
 }
 
 .Drawer.is-sliding .Drawer-content {
@@ -278,3 +286,13 @@ margin-bottom: 0
   border-color: transparent;
   z-index: 1;
 }
+
+.panel__communities {
+  .panel__item {
+    @include named-avatar($squared: true);
+    h3 {
+      @include truncate(160px)
+    }
+  }
+}
+

@@ -212,3 +212,9 @@ $grid-columns: 12 !default;
 }
 
 
+@mixin truncate($width){
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: $width;
+}

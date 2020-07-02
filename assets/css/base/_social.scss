@@ -6,7 +6,7 @@
  </div>
 */
 
-@mixin named-avatar($color: var(--color-surface)) {
+@mixin named-avatar($color: var(--color-surface), $squared: false) {
   flex: 1;
   display: flex;
   align-items: center;
@@ -15,6 +15,10 @@
     height: var(--avatar_m);
     border-radius: var(--avatar_m);
     border: 3px solid lightness(var(--color-primary), 1.5);
+    @if $squared {
+      border-radius: var(--radius);
+      border: none;
+    }
   }
   h3 {
     margin-left: var(--m2);
