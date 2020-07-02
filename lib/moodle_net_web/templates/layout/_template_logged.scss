@@ -188,6 +188,8 @@ margin-bottom: 0
   align-items: center;
   a {
     display: flex;
+    flex: 1;
+    height: 40px;
     align-items: center;
     color: var(--color-surface);
     font-weight: 500;
