@@ -12,22 +12,22 @@
             <div class="head__mainComment">
               <div class="component__activity">
                 <div class="activity__info">
-                  <a href="/@<%= e(@thread, :creator, :actor, :preferred_username, "deleted") %>">
-                    <img src="<%= e(@thread, :creator, :icon_url, "") %>" alt="icon" />
+                  <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>">
+                    <img src="<%= e(@main_comment, :creator, :icon_url, "") %>" alt="icon" />
                   </a>
                   <div class="info__meta">
                     <div class="meta__action">
-                      <a href="/@<%= e(@thread, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@thread, :creator, :name, "Somebody") %></a>
+                      <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@main_comment, :creator, :name, "Somebody") %></a>
                     </div>
                     <div class="meta__secondary">
-                      <%= e(@thread, :published_at, "one day") %>
+                      <%= e(@main_comment, :published_at, "one day") %>
                     </div>
                   </div>
                 </div>
       <div class="activity__preview">
         <div class="comment__preview">
           <div class="markdown-body">
-            <%= markdown(@thread.creator.summary) %>
+            <%= markdown(@main_comment.content) %>
           </div>
         </div>
       </div>

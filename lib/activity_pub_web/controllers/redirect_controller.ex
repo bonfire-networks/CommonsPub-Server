@@ -4,8 +4,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 defmodule ActivityPubWeb.RedirectController do
+  @moduledoc """
+  Redirects canonical URLs to the appropriate page in the LiveView frontend
+  """
+
   use ActivityPubWeb, :controller
   alias MoodleNet.Meta.Pointers
+  alias MoodleNet.Threads.Thread
   alias MoodleNet.Threads.Comment
   alias MoodleNet.Collections.Collection
   alias MoodleNet.Communities.Community
@@ -13,10 +18,35 @@ defmodule ActivityPubWeb.RedirectController do
   alias MoodleNet.Users.User
 
   def object(conn, %{"uuid" => uuid}) do
-    frontend_base = MoodleNet.Config.get!(:frontend_base_url)
+    IO.inspect(RedirectController_uuid: uuid)
 
-    ap_id = ActivityPubWeb.ActivityPubController.ap_route_helper(uuid)
-    object = ActivityPub.Object.get_cached_by_ap_id(ap_id)
+    with {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: uuid) do
+      # try simply using AP id as pointer
+      IO.inspect(RedirectController_pointer: pointer)
+      object_pointer_redirect(conn, pointer)
+    else
+      _ ->
+        ap_id = ActivityPubWeb.ActivityPubController.ap_route_helper(uuid)
+        IO.inspect(RedirectController_ap_id: ap_id)
+        object = ActivityPub.Object.get_cached_by_ap_id(ap_id)
+
+        case object do
+          %ActivityPub.Object{} ->
+            # try using generated AP id
+            object_redirect(conn, object)
+
+          _ ->
+            # try with request URL as AP id
+            url = current_url(conn)
+            IO.inspect(RedirectController_try_url: url)
+            object = ActivityPub.Object.get_cached_by_ap_id(url)
+            object_redirect(conn, object)
+        end
+    end
+  end
+
+  def object_redirect(conn, object) do
+    frontend_base = MoodleNet.Config.get!(:base_url)
 
     case object do
       %ActivityPub.Object{data: %{"type" => "Create"}} ->
@@ -29,27 +59,35 @@ defmodule ActivityPubWeb.RedirectController do
       %ActivityPub.Object{} ->
         with pointer_id when not is_nil(pointer_id) <- Map.get(object, :mn_pointer_id),
              {:ok, pointer} <- MoodleNet.Meta.Pointers.one(id: pointer_id) do
-          mn_object = MoodleNet.Meta.Pointers.follow!(pointer)
-
-          case mn_object do
-            %Comment{} ->
-              redirect(conn, external: frontend_base <> "/thread/" <> mn_object.thread_id)
-
-            %Resource{} ->
-              redirect(conn,
-                external:
-                  frontend_base <> "/collections/" <> mn_object.collection_id
-              )
-
-            _ ->
-              redirect(conn, external: "#{frontend_base}/404")
-          end
+          object_pointer_redirect(conn, pointer)
         else
-          _e -> redirect(conn, external: "#{frontend_base}/404")
+          _e -> redirect(conn, external: "#{frontend_base}/404#pointer_not_found")
         end
 
       _ ->
-        redirect(conn, external: "#{frontend_base}/404")
+        redirect(conn, external: "#{frontend_base}/404#ap_not_found")
+    end
+  end
+
+  def object_pointer_redirect(conn, pointer) do
+    frontend_base = MoodleNet.Config.get!(:base_url)
+
+    mn_object = MoodleNet.Meta.Pointers.follow!(pointer)
+
+    case mn_object do
+      %Thread{} ->
+        redirect(conn, external: frontend_base <> "/discussion/" <> mn_object.id)
+
+      %Comment{} ->
+        redirect(conn, external: frontend_base <> "/discussion/" <> mn_object.thread_id)
+
+      %Resource{} ->
+        redirect(conn,
+          external: frontend_base <> "/collections/" <> mn_object.collection_id
+        )
+
+      _ ->
+        redirect(conn, external: "#{frontend_base}/404#unknown_type")
     end
   end
 
@@ -58,7 +96,7 @@ defmodule ActivityPubWeb.RedirectController do
 
     case ActivityPub.Adapter.get_actor_by_username(username) do
       {:ok, %User{} = actor} ->
-        redirect(conn, external: frontend_base <> "/user/" <> actor.id)
+        redirect(conn, external: frontend_base <> "/@" <> username)
 
       {:ok, %Collection{} = actor} ->
         redirect(conn, external: frontend_base <> "/collections/" <> actor.id)

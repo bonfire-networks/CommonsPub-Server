@@ -4,6 +4,8 @@ import Config
 config :logger, level: :debug
 config :moodle_net, MoodleNet.Repo, log: :debug
 
+port = String.to_integer(System.get_env("PORT", "4000"))
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -11,7 +13,7 @@ config :moodle_net, MoodleNet.Repo, log: :debug
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
 config :moodle_net, MoodleNetWeb.Endpoint,
-  http: [port: 4000],
+  http: [port: port],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -27,7 +29,7 @@ config :moodle_net, MoodleNetWeb.Endpoint,
 
 config :moodle_net, MoodleNetWeb.Endpoint,
   http: [
-    port: 4000,
+    port: port,
     protocol_options: [max_request_line_length: 8192, max_header_value_length: 8192]
   ],
   protocol: "http",
@@ -78,7 +80,6 @@ config :moodle_net, MoodleNetWeb.Endpoint,
     ]
   ]
 
-
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n", truncate: :infinity, level: :debug
 
@@ -88,7 +89,6 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
-
 
 # Configure your database
 config :moodle_net, MoodleNet.Repo,
@@ -104,19 +104,19 @@ base_url = System.get_env("BASE_URL", "http://localhost:4000")
 
 config :moodle_net, :base_url, base_url
 
-config :moodle_net, :ap_base_path,
-  System.get_env("AP_BASE_PATH", "/pub")
+config :moodle_net, :ap_base_path, System.get_env("AP_BASE_PATH", "/pub")
 
-config :moodle_net, :frontend_base_url,
-  System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
+config :moodle_net,
+       :frontend_base_url,
+       System.get_env("FRONTEND_BASE_URL", "http://localhost:3000")
 
 config :moodle_net, MoodleNet.Users,
-  public_registration: true # enable open signups in dev
+  # enable open signups in dev
+  public_registration: true
 
 config :moodle_net, MoodleNet.Mail.Checker, mx: false
 
-config :moodle_net, MoodleNet.Mail.MailService,
-  adapter: Bamboo.LocalAdapter
+config :moodle_net, MoodleNet.Mail.MailService, adapter: Bamboo.LocalAdapter
 
 config :moodle_net, MoodleNet.OAuth,
   client_name: "MoodleNet",
@@ -132,6 +132,4 @@ config :moodle_net, MoodleNet.Uploads,
   path: "/uploads",
   base_url: base_url <> "/uploads"
 
-config :moodle_net, MoodleNet.Workers.ActivityWorker,
-  log_level: :warn
-
+config :moodle_net, MoodleNet.Workers.ActivityWorker, log_level: :warn

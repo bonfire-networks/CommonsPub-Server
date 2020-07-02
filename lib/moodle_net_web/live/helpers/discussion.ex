@@ -6,20 +6,27 @@ defmodule MoodleNetWeb.Helpers.Discussion do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def prepare(thread) do
+  def prepare_comment(comment) do
+    comment = Repo.preload(comment, :creator)
+
+    creator = Profiles.prepare(comment.creator, %{icon: true, actor: true})
+
+    {:ok, from_now} =
+      Timex.shift(comment.published_at, minutes: -3)
+      |> Timex.format("{relative}", :relative)
+
+    comment
+    |> Map.merge(%{published_at: from_now})
+    |> Map.merge(%{creator: creator})
+  end
+
+  def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do
         {:ok, pointer} = Pointers.one(id: thread.context_id)
         context = Pointers.follow!(pointer)
 
-        type =
-          context.__struct__
-          |> Module.split()
-          |> Enum.at(-1)
-          |> String.downcase()
-
         thread
-        |> Map.merge(%{context_type: type})
         |> Map.merge(%{context: context})
       else
         thread
@@ -37,5 +44,4 @@ defmodule MoodleNetWeb.Helpers.Discussion do
     |> Map.merge(%{published_at: from_now})
     |> Map.merge(%{creator: creator})
   end
-
 end

@@ -1,6 +1,6 @@
 defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
-  alias MoodleNetWeb.Helpers.Discussion
+  alias MoodleNetWeb.Helpers.{Discussion}
 
   def mount(thread, _session, socket) do
     {:ok, assign(socket, thread: thread)}
@@ -10,7 +10,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussion.prepare(assigns.thread)
+         thread: Discussion.prepare_comment(assigns.thread)
        )}
     else
       {:ok, assign(socket, thread: %{})}

@@ -5,6 +5,7 @@
 
 .component__activity .activity__info {
   display: flex;
+  align-items: center;
 }
 
 .component__activity img {
@@ -20,6 +21,9 @@
 
 .component__activity .meta__action {
   display: flex;
+  a {
+    font-weight: 500;
+  }
 }
 
 .component__activity .meta__action p {

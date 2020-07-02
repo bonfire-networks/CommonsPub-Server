@@ -2,20 +2,19 @@
       <div class="activity__info">
       <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>">
         <img src="<%= e(@activity, :creator, :icon_url, "") %>" alt="icon" />
-      </a>
-        <div class="info__meta">
-          <div class="meta__action">
-            <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>
-            <p><a href="<%= e(@activity, :context, :canonical_url, "/discussion") %>"><%= e(@activity, :verb_object, "did something") %></a></p>
-          </div>
-          <div class="meta__secondary">
-            <%= e(@activity, :published_at, "one day") %>
-          </div>
-        </div>
-      </div>
-      <div class="activity__preview">
-
-        <%= if(Map.has_key?(@activity, :context_type)) do
+</a>
+<div class="info__meta">
+  <div class="meta__action">
+    <a href="/@<%= e(@activity, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@activity, :creator, :name, "Somebody") %></a>
+    <p><a href="<%= e(@activity, :context, :canonical_url, "") %>"><%= e(@activity, :verb_object, "did something") %></a></p>
+  </div>
+  <div class="meta__secondary">
+    <%= e(@activity, :published_at, "one day") %>
+  </div>
+</div>
+</div>
+<div class="activity__preview">
+  <%= if(Map.has_key?(@activity, :context_type)) do
         cond do
             @activity.context_type == "community" ->
               live_component(
@@ -36,5 +35,5 @@
                 )
             end
           end %>
-      </div>
-    </div>
+</div>
+</div>
