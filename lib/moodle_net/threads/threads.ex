@@ -48,11 +48,11 @@ defmodule MoodleNet.Threads do
   end
 
   @doc "Create a thread with a comment and no context"
-  def create_with_comment(user, %{comment: attrs}) do
+  def create_with_comment(creator, %{comment: attrs}) do
     Repo.transact_with(fn ->
-      with {:ok, thread} <- create(user, %{is_local: true}) do
+      with {:ok, thread} <- create(creator, %{is_local: true}) do
         attrs = Map.put(attrs, :is_local, true)
-        Comments.create(user, thread, attrs)
+        Comments.create(creator, thread, attrs)
       end
     end)
   end

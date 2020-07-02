@@ -26,12 +26,14 @@ Hooks.TagPick = {
     this.el.addEventListener("click", (e) => {
       console.log("tag clicked");
       const prefix = "+"; // TODO: support other triggers
-      const f = document.getElementById(this.el.dataset.target);
-      var ta = f.value.split(prefix);
-      ta.pop();
-      ta.push(this.el.dataset.tag + " "); // terminate with space
-      f.value = ta.join(prefix);
-      document.getElementById("autocomplete-dropdown").innerHTML = "";
+      if (this.el.dataset.target) {
+        const f = document.getElementById(this.el.dataset.target);
+        var ta = f.value.split(prefix);
+        ta.pop();
+        ta.push(this.el.dataset.tag + " "); // terminate with space
+        f.value = ta.join(prefix);
+        document.getElementById("autocomplete-dropdown").innerHTML = "";
+      }
     });
   },
 };
@@ -44,6 +46,7 @@ import {
   defaultMarkdownSerializer,
 } from "prosemirror-markdown";
 import { exampleSetup } from "prosemirror-example-setup";
+import { inputRules, InputRule } from "prosemirror-inputrules";
 
 Hooks.MarkdownEditor = {
   mounted() {
@@ -54,7 +57,17 @@ Hooks.MarkdownEditor = {
         this.view = new EditorView(target, {
           state: EditorState.create({
             doc: defaultMarkdownParser.parse(content),
-            plugins: exampleSetup({ schema }),
+            plugins:
+              // [
+              exampleSetup({ schema }),
+            //   inputRules({
+            //     rules: [
+            //       InputRule("t$", (state, match, start, end) => {
+            //         console.log("tag! ");
+            //       }),
+            //     ],
+            //   }),
+            // ],
           }),
         });
       }
