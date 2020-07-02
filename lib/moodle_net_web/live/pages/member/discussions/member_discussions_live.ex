@@ -4,7 +4,7 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   import MoodleNetWeb.Helpers.Common
 
   alias MoodleNetWeb.Component.{
-    DiscussionLive
+    DiscussionPreviewLive
   }
 
   alias MoodleNetWeb.Helpers.{Profiles}
@@ -28,7 +28,7 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
 
   defp fetch(socket) do
     # IO.inspect(socket.assigns.user)
-    comments =
+    {:ok, threads} =
       user =
       MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(
         %{creator: socket.assigns.user.id},
@@ -36,13 +36,13 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
         %{context: %{current_user: socket.assigns.current_user}}
       )
 
-    IO.inspect(comments)
+    IO.inspect(threads)
 
     assign(socket,
-      comments: comments
-      # has_next_page: comments.page_info.has_next_page,
-      # after: comments.page_info.end_cursor,
-      # before: comments.page_info.start_cursor
+      threads: threads.edges,
+      has_next_page: threads.page_info.has_next_page,
+      after: threads.page_info.end_cursor,
+      before: threads.page_info.start_cursor
     )
   end
 

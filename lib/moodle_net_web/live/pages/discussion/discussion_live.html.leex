@@ -10,7 +10,7 @@
               </div>
             </div>
             <div class="head__mainComment">
-              <%= live_component(
+              <%# <%= live_component(
                   @socket,
                   ActivityLive
                 )
@@ -18,26 +18,7 @@
             </div>
           </div>
           <div class="discussion__replies">
-            <%= live_component(
-              @socket,
-              ActivityLive
-            )
-            %>
-            <%= live_component(
-              @socket,
-              ActivityLive
-            )
-            %>
-            <%= live_component(
-                @socket,
-                ActivityLive
-              )
-            %>
-            <%= live_component(
-              @socket,
-              ActivityLive
-            )
-            %>
+
             <div class="discussion__reply">
               <img src="https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg" alt="logged icon" />
               <div class="reply__box">

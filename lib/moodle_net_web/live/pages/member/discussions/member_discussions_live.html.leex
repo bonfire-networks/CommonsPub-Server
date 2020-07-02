@@ -1,1 +1,24 @@
-<div>ciao</div>
+<div
+    phx-update="append"
+    data-page="<%= @page %>"
+    class="selected__area">
+      <%= for thread <- @threads do %>
+        <%= live_component(
+              @socket,
+              DiscussionPreviewLive,
+              id: "thread-#{thread.id}",
+              thread: thread
+            )
+          %>
+      <% end %>
+    </div>
+    <%= if @has_next_page do %>
+    <div class="pagination">
+      <button
+        class="button--outline"
+        phx-click="load-more"
+        phx-target="<%= @myself %>">
+        load more
+      </button>
+    </div>
+    <% end %>

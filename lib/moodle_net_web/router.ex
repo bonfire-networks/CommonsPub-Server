@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.Router do
 
     live "/@:username", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
     live "/@:username/:tab", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-    live "/discussion", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
+    live "/discussion/:id", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
     live "/login", LoginLive
     live "/signup", SignupLive
