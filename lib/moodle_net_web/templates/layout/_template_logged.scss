@@ -134,7 +134,7 @@ margin-bottom: 0
 	z-index: 1;
 	transform-style: preserve-3d;
   perspective: 1000px;
-  margin: 8px var(--m3);
+  // margin: 8px var(--m3);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -144,6 +144,14 @@ margin-bottom: 0
   @include named-avatar;
   position: relative;
   z-index: 5;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  border-bottom: var(--border);
+}
+
+.content__bottom {
+  margin: var(--m2)
 }
 
 .user__button-trigger {
@@ -178,11 +186,10 @@ margin-bottom: 0
 .user-dropdown-list {
 	position: absolute;
 	top: 100%;
-	left: 0;
+	left: var(--m2);
+	right: var(--m2);
 	z-index: 1;
 	display: block;
-	width: max-content;
-	min-width: 100%;
 	max-width: 15em;
 	max-height: 13em;
 	overflow: auto;
@@ -208,7 +215,7 @@ margin-bottom: 0
 .user-dropdown-list li {
   color: var(--color-surface);
   display: block;
-  border: var(--border);
+  border-bottom: var(--border);
   height: 40px;
   display: flex;
   align-items: center;
@@ -358,12 +365,12 @@ margin-bottom: 0
   position: relative;
   transition: transform 0.2s ease;
   display: grid;
-  grid-template-rows: auto 1fr 40px;
+  grid-template-rows: auto 1fr 50px;
   .content__meta {
     overflow-y: scroll;
   }
   .new-community {
-    border-radius: 0;
+    width: 100%;
   }
 }
 
@@ -400,7 +407,9 @@ margin-bottom: 0
   .panel__item {
     @include named-avatar($squared: true);
     h3 {
-      @include truncate(160px)
+      @include truncate(160px);
+      font-size: 14px;
+      font-weight: 500;
     }
   }
 }

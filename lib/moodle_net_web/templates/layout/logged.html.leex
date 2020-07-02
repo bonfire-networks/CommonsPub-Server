@@ -26,8 +26,14 @@
                 data-toggle-outside
                 data-toggle-escape
               >
-                <img src="<%= @current_user.icon_url %>" />
-                <h3><%= @current_user.name %></h3>
+                <img data-toggle-class="is-open"
+                data-toggle-target=".user-dropdown-list"
+                data-toggle-outside
+                data-toggle-escape src="<%= @current_user.icon_url %>" />
+                <h3 data-toggle-class="is-open"
+                data-toggle-target=".user-dropdown-list"
+                data-toggle-outside
+                data-toggle-escape><%= @current_user.name %></h3>
               </button>
               <ul class="user-dropdown-list">
                 <li><a href="/my/profile">Profile</a></li>
@@ -106,7 +112,9 @@
               </div>
             </nav>
           </div>
-          <button class="button new-community">Create a new community</button>
+          <div class="content__bottom">
+            <button class="button new-community">Create a new community</button>
+          </div>
         </div>
       </nav>
 
