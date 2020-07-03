@@ -30,6 +30,8 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
+alias ValueFlows.Planning.Intent
+
 # stuff you might need to change to be viable
 
 config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
@@ -80,7 +82,7 @@ config :moodle_net, Likes,
   valid_contexts: [Collection, Community, Comment, Resource, User]
 
 config :moodle_net, Threads,
-  valid_contexts: [Collection, Community, Flag, Resource, User]
+  valid_contexts: [Collection, Community, Flag, Resource, User, Intent]
 
 config :moodle_net, Users,
   public_registration: false,
