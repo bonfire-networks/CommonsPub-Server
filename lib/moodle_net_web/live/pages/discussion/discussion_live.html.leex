@@ -1,51 +1,48 @@
-<div class="wrapper__discussion">
-          <div class="discussion__hero">
-            <div class="hero__head">
-              <h1 class="head__title">Do we really need Motivational Design ?</h1>
-              <div class="head__meta">
-                <div class="meta__status">Open</div>
-                <div class="meta__info">
-                  17 Comments - 29 Starred
-                </div>
+<div class="page__mainContent">
+  <div class="wrapper__discussion">
+    <div class="discussion__hero">
+      <div class="hero__head">
+        <h1 class="head__title">Do we really need Motivational Design ?</h1>
+        <div class="head__meta">
+          <div class="meta__status">Open</div>
+          <div class="meta__info">
+            17 Comments - 29 Starred
+          </div>
+        </div>
+      </div>
+      <div class="head__mainComment">
+        <div class="component__activity">
+          <div class="activity__info">
+            <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>">
+              <img src="<%= e(@main_comment, :creator, :icon_url, "") %>" alt="icon" />
+            </a>
+            <div class="info__meta">
+              <div class="meta__action">
+                <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@main_comment, :creator, :name, "Somebody") %></a>
+              </div>
+              <div class="meta__secondary">
+                <%= e(@main_comment, :published_at, "one day") %>
               </div>
             </div>
-            <div class="head__mainComment">
-              <div class="component__activity">
-                <div class="activity__info">
-                  <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>">
-                    <img src="<%= e(@main_comment, :creator, :icon_url, "") %>" alt="icon" />
-                  </a>
-                  <div class="info__meta">
-                    <div class="meta__action">
-                      <a href="/@<%= e(@main_comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(@main_comment, :creator, :name, "Somebody") %></a>
-                    </div>
-                    <div class="meta__secondary">
-                      <%= e(@main_comment, :published_at, "one day") %>
-                    </div>
-                  </div>
-                </div>
-      <div class="activity__preview">
-        <div class="comment__preview">
-          <div class="markdown-body">
-            <%= markdown(@main_comment.content) %>
+          </div>
+          <div class="activity__preview">
+            <div class="comment__preview">
+              <div class="markdown-body">
+                <%= markdown(@main_comment.content) %>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-
-
-            </div>
-          </div>
-          <div class="discussion__replies">
-
-            <div class="discussion__reply">
-              <img src="https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg" alt="logged icon" />
-              <div class="reply__box">
-                <textarea placeholder="Add a reply"></textarea>
-                <button>Comment</button>
-              </div>
-            </div>
-          </div>
+    <div class="discussion__replies">
+      <div class="discussion__reply">
+        <img src="https://home.next.moodle.net/uploads/01E9TQEVAKAVNZCQVE94NJA7TP/moebius4.jpeg" alt="logged icon" />
+        <div class="reply__box">
+          <textarea placeholder="Add a reply"></textarea>
+          <button>Comment</button>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,8 +1,9 @@
-<div class="my">
-      <div class="my__hero">
-        <h1><%=@page_title%></h1>
-      </div>
-      <div class="mainContent__navigation home__navigation">
+<div class="page__mainContent">
+  <div class="my">
+    <div class="my__hero">
+      <h1><%=@page_title%></h1>
+    </div>
+    <div class="mainContent__navigation home__navigation">
       <%= live_patch link_body("Timeline","feather-activity"),
         to: "/my/timeline",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
@@ -29,5 +30,6 @@
           ) %>
         <% end %>
       </div>
-      </div>
-      </div>
+    </div>
+  </div>
+</div>
