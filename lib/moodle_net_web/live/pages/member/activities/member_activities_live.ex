@@ -10,36 +10,32 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
     ActivitiesListLive
   }
 
-  def mount(socket) do
-    # IO.inspect(assigns)
+  # def mount(socket) do
+  #   # IO.inspect(assigns)
 
-    {
-      :ok,
-      socket,
-      temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
-    }
-  end
+  #   {
+  #     :ok,
+  #     socket,
+  #     temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
+  #   }
+  # end
 
   def update(assigns, socket) do
     {
       :ok,
       socket
-      |> assign(
-        current_user: assigns.current_user,
-        user: assigns.user
-      )
-      |> fetch()
+      |> assign(assigns)
+      |> fetch(assigns)
     }
   end
 
-  defp fetch(socket) do
-    # TODO: replace with logged in user's inbox
+  defp fetch(socket, assigns) do
     {:ok, outboxes} =
       UsersResolver.user_outbox_edge(
-        socket.assigns.user,
-        %{after: socket.assigns.after, limit: 10},
+        assigns.user,
+        %{after: assigns.after, limit: 10},
         # %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
-        %{context: %{current_user: socket.assigns.current_user}}
+        %{context: %{current_user: assigns.current_user}}
       )
 
     assign(socket,
@@ -51,17 +47,19 @@ defmodule MoodleNetWeb.MemberLive.MemberActivitiesLive do
   end
 
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
 
   def render(assigns) do
     ~L"""
+    <div id="member-activities">
     <%= live_component(
       @socket,
       ActivitiesListLive,
       assigns
       )
     %>
+    </div>
     """
   end
 end

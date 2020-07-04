@@ -4,6 +4,7 @@
 defmodule MoodleNetWeb.LayoutView do
   use MoodleNetWeb, :view
 
-  def app_name(), do: Application.get_env(:moodle_net, :app_name)
+  import MoodleNetWeb.Helpers.Common
 
+  def app_name(), do: Application.get_env(:moodle_net, :app_name)
 end

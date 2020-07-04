@@ -9,30 +9,41 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
     InstanceResolver
   }
 
-  def mount(socket) do
-    {
-      :ok,
-      socket,
-      temporary_assigns: [activities: [], page: 1, has_next_page: false, after: [], before: []]
-    }
-  end
+  # def mount(socket) do
+  #   {
+  #     :ok,
+  #     socket,
+  #     temporary_assigns: [
+  #       activities: [],
+  #       page: 1,
+  #       has_next_page: false,
+  #       after: [],
+  #       before: [],
+  #       pagination_target: "#instance-activities"
+  #     ]
+  #   }
+  # end
 
   def update(assigns, socket) do
     {
       :ok,
       socket
-      |> assign(current_user: assigns.current_user)
-      |> fetch()
+      |> assign(assigns)
+      |> fetch(assigns)
     }
   end
 
-  defp fetch(socket) do
+  defp fetch(socket, assigns) do
+    IO.inspect(after: assigns.after)
+
     {:ok, outboxes} =
       InstanceResolver.outbox_edge(
         %{},
-        %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
-        %{context: %{current_user: socket.assigns.current_user}}
+        %{after: assigns.after, limit: 10},
+        %{context: %{current_user: assigns.current_user}}
       )
+
+    IO.inspect(outboxes: outboxes)
 
     assign(socket,
       activities: outboxes.edges,
@@ -43,12 +54,12 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   end
 
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
 
   def render(assigns) do
     ~L"""
-      <div id="<%= @page %>-activities">
+      <div id="instance-activities">
       <%= live_component(
         @socket,
         ActivitiesListLive,

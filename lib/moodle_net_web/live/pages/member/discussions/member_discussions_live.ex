@@ -9,34 +9,34 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
 
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def mount(socket) do
-    {
-      :ok,
-      socket,
-      temporary_assigns: [discussions: [], page: 1, has_next_page: false, after: [], before: []]
-    }
-  end
+  # def mount(socket) do
+  #   {
+  #     :ok,
+  #     socket,
+  #     temporary_assigns: [discussions: [], page: 1, has_next_page: false, after: [], before: []]
+  #   }
+  # end
 
   def update(assigns, socket) do
     {
       :ok,
       socket
-      |> assign(current_user: assigns.current_user, user: assigns.user)
-      |> fetch()
+      |> assign(assigns)
+      |> fetch(assigns)
     }
   end
 
-  defp fetch(socket) do
-    # IO.inspect(socket.assigns.user)
+  defp fetch(socket, assigns) do
+    # IO.inspect(assigns.user)
     {:ok, threads} =
       user =
       MoodleNetWeb.GraphQL.ThreadsResolver.creator_threads_edge(
-        %{creator: socket.assigns.user.id},
+        %{creator: assigns.user.id},
         %{limit: 3},
-        %{context: %{current_user: socket.assigns.current_user}}
+        %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(threads)
+    # IO.inspect(threads)
 
     assign(socket,
       threads: threads.edges,
@@ -47,6 +47,6 @@ defmodule MoodleNetWeb.MemberLive.MemberDiscussionsLive do
   end
 
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
 end

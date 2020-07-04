@@ -33,7 +33,7 @@ defmodule MoodleNetWeb.Helpers.Activites do
       Timex.shift(activity.published_at, minutes: -3)
       |> Timex.format("{relative}", :relative)
 
-    IO.inspect(activity)
+    # IO.inspect(activity)
 
     activity
     |> Map.merge(%{published_at: from_now})

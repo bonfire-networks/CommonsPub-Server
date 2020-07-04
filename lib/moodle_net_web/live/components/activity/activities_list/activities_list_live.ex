@@ -23,7 +23,7 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
       <button
         class="button--outline"
         phx-click="load-more"
-        phx-target="<%= @myself %>">
+        phx-target="<%= @pagination_target %>">
         load more
       </button>
     </div>
