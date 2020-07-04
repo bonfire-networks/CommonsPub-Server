@@ -18,7 +18,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
        current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
        meili_host: MoodleNet.Instance.hostname(),
        tag_search: nil,
-       matches: [],
+       tag_results: [],
        tag_target: ""
      )}
   end
@@ -30,14 +30,16 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
     tag_search = tag_prepare(content)
 
     if tag_search do
-      matches = tag_search(tag_search)
+      tag_results = tag_autocomplete(tag_search)
+
+      IO.inspect(tag_results: tag_results)
 
       {:noreply,
        assign(socket,
          tag_search: tag_search,
          # ID of the input, TODO: handle several inputs
          tag_target: "content",
-         matches: matches
+         tag_results: tag_results
        )}
     else
       {:noreply, socket}
@@ -50,7 +52,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
     {:noreply,
      assign(socket,
        tag_search: "",
-       matches: []
+       tag_results: []
      )}
   end
 
@@ -62,18 +64,19 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
     end
   end
 
-  def tag_search(tag_search) do
+  def tag_autocomplete(tag_search) do
     if String.length(tag_search) > 0 and String.length(tag_search) < 20 and
          !(tag_search =~ @tag_terminator) do
-      {words, _} = System.cmd("grep", ~w"^#{tag_search}.* -m 5 /usr/share/dict/words")
-      String.split(words, "\n")
+      Search.Meili.search(tag_search)
+      # {words, _} = System.cmd("grep", ~w"^#{tag_search}.* -m 5 /usr/share/dict/words")
+      # String.split(words, "\n")
     else
       []
     end
   end
 
-  def tag_match(match, tag_search) do
-    [head | tail] = String.split(match, tag_search)
+  def tag_suggestion_display(hit, tag_search) do
+    [head | tail] = String.split(e(hit, "name", ""), tag_search)
     List.to_string([head, "<span>", tag_search, "</span>", tail])
   end
 

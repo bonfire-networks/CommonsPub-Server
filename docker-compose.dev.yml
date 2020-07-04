@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   web:
@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: "Dockerfile.dev"
     ports:
-      - "4004:4000"
+      - "4004:4004"
     env_file:
       - config/docker.dev.env
     depends_on:
@@ -34,7 +34,7 @@ services:
     ports:
       - "8978:8978"
     depends_on:
-        - db
+      - db
     # volumes:
     #   - "/var/log/cloudbeaver.log:/var/log/cloudbeaver/server.log"
   # redis:
