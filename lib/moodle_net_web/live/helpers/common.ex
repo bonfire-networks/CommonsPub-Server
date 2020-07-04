@@ -1,4 +1,7 @@
 defmodule MoodleNetWeb.Helpers.Common do
+  import Phoenix.LiveView
+  alias MoodleNetWeb.Helpers.{Profiles}
+
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
     if(!is_nil(key)) do
@@ -43,5 +46,48 @@ defmodule MoodleNetWeb.Helpers.Common do
   # open outside links in a new tab
   def external_links(content) do
     Regex.replace(~r/(<a href=\"http.+\")>/U, content, "\\1 target=\"_blank\">")
+  end
+
+  @doc """
+  This initializes the socket assigns
+  """
+  def init_assigns(
+        params,
+        %{
+          "auth_token" => auth_token,
+          "current_user" => current_user
+        } = session,
+        %Phoenix.LiveView.Socket{} = socket
+      ) do
+    IO.inspect(session_preloaded: session)
+
+    socket
+    |> assign(:auth_token, fn -> auth_token end)
+    |> assign(:current_user, fn -> current_user end)
+  end
+
+  def init_assigns(
+        params,
+        %{
+          "auth_token" => auth_token
+        } = session,
+        %Phoenix.LiveView.Socket{} = socket
+      ) do
+    IO.inspect(session_load: session)
+
+    current_user =
+      with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
+        Profiles.prepare(session_token.user, %{icon: true, actor: true})
+      end
+
+    IO.inspect(session_load_user: current_user)
+
+    socket
+    |> assign(:auth_token, auth_token)
+    |> assign(:current_user, current_user)
+  end
+
+  def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do
+    socket
   end
 end

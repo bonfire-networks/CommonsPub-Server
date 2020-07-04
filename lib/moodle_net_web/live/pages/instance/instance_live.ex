@@ -15,30 +15,18 @@ defmodule MoodleNetWeb.InstanceLive do
   }
 
   def mount(params, session, socket) do
-    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-    do
-      {:ok,
+    socket = init_assigns(params, session, socket)
+
+    # IO.inspect(socket)
+
+    {:ok,
      socket
      |> assign(
        page_title: "Home",
        hostname: MoodleNet.Instance.hostname(),
        description: MoodleNet.Instance.description(),
-       selected_tab: "about",
-       current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
+       selected_tab: "about"
      )}
-    else
-      {:error, _} ->
-        {:ok,
-      socket
-      |> assign(
-        page_title: "Home",
-        hostname: MoodleNet.Instance.hostname(),
-        description: MoodleNet.Instance.description(),
-        selected_tab: "about",
-        current_user: nil
-      )}
-    end
-
   end
 
   def handle_params(%{"tab" => tab}, _url, socket) do

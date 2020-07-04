@@ -3,7 +3,6 @@ defmodule MoodleNetWeb.SettingsLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
-  alias MoodleNet.Users.User
 
   def mount(_params, session, socket) do
     {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])

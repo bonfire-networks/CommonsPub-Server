@@ -5,8 +5,9 @@ defmodule MoodleNetWeb.DiscussionLive do
   alias MoodleNetWeb.Helpers.{Account, Discussion}
   alias MoodleNetWeb.Component.CommentPreviewLive
 
-  def mount(%{"id" => id}, session, socket) do
-    current_user = Account.current_user_or(nil, session, %{icon: true, actor: true})
+  def mount(%{"id" => id} = params, session, socket) do
+    socket = init_assigns(params, session, socket)
+    current_user = socket.assigns.current_user
 
     {:ok, thread} =
       ThreadsResolver.thread(%{thread_id: id}, %{
@@ -20,9 +21,10 @@ defmodule MoodleNetWeb.DiscussionLive do
       CommentsResolver.comments_edge(thread, %{}, %{
         context: %{current_user: current_user}
       })
-      comments_edges = Enum.map(comments.edges, &Discussion.prepare_comment/1)
-      IO.inspect(comments_edges, label: "COMMENTS")
-      [head | tail] = comments_edges
+
+    comments_edges = Enum.map(comments.edges, &Discussion.prepare_comment/1)
+    IO.inspect(comments_edges, label: "COMMENTS")
+    [head | tail] = comments_edges
 
     {:ok,
      assign(socket,

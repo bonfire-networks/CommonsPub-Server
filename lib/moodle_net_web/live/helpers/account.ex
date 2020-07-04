@@ -4,9 +4,33 @@ defmodule MoodleNetWeb.Helpers.Account do
   alias MoodleNet.Users.{Me}
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def current_user_or(fallback, session, preload) do
-    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
-      Profiles.prepare(session_token.user, preload)
+  def current_user_or(
+        fallback,
+        %{
+          "auth_token" => auth_token,
+          "current_user" => current_user
+        },
+        preload
+      ) do
+    Profiles.prepare(current_user, preload)
+  end
+
+  def current_user_or(
+        fallback,
+        %{
+          "auth_token" => auth_token
+        },
+        preload
+      ) do
+    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(auth_token) do
+      current_user_or(
+        fallback,
+        %{
+          "auth_token" => auth_token,
+          "current_user" => session_token.user
+        },
+        preload
+      )
     else
       {:error, _} ->
         fallback

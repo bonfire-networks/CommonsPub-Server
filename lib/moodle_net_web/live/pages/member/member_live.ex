@@ -28,27 +28,17 @@ defmodule MoodleNetWeb.MemberLive do
   #   {:ok, assign_new(socket, :auth_token, fn -> auth_token end)}
   # end
 
-  def mount(_params, session, socket) do
-    with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
-      {:ok,
-       socket
-       |> assign(
-         page_title: "User",
-         selected_tab: "about",
-         me: false,
-         current_user: Profiles.prepare(session_token.user, %{icon: true, actor: true})
-       )}
-    else
-      {:error, _} ->
-        {:ok,
-         socket
-         |> assign(
-           page_title: "User",
-           me: false,
-           selected_tab: "about",
-           current_user: nil
-         )}
-    end
+  def mount(params, session, socket) do
+    socket = init_assigns(params, session, socket)
+
+    {:ok,
+     socket
+     |> assign(
+       page_title: "User",
+       me: false,
+       selected_tab: "about",
+       current_user: socket.assigns.current_user
+     )}
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do

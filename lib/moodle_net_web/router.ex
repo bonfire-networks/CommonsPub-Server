@@ -15,41 +15,8 @@ defmodule MoodleNetWeb.Router do
     forward "/sent_emails", Bamboo.SentEmailViewerPlug
   end
 
-  pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :fetch_live_flash
-    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
-    plug :protect_from_forgery
-    plug :put_secure_browser_headers
-    plug MoodleNetWeb.Plugs.Auth
-  end
-
-  if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
-    scope "/", MoodleNetWeb do
-      pipe_through :browser
-
-      # TODO redirect to instance or user depending on logged in
-      live "/", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
-
-      live "/instance/:tab", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
-
-      live "/@:username", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-      live "/@:username/:tab", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-      live "/discussion/:id", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
-
-      live "/login", LoginLive
-      live "/signup", SignupLive
-
-      pipe_through :ensure_authenticated
-
-      live "/my/profile", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-      live "/my/settings", SettingsLive
-      live "/my/:tab", My.Live, layout: {MoodleNetWeb.LayoutView, :logged}
-
-      live "/proto/me", My.ProtoProfileLive
-      live "/write", My.Publish.WriteLive, layout: {MoodleNetWeb.LayoutView, :logged}
-    end
+  pipeline :ensure_authenticated do
+    plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
   end
 
   @doc """
@@ -60,15 +27,8 @@ defmodule MoodleNetWeb.Router do
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(MoodleNetWeb.Plugs.SetLocale)
-    # plug(:protect_from_forgery)
-    # plug(:put_secure_browser_headers)
-    plug(MoodleNetWeb.Plugs.Auth)
-  end
-
-  pipe_through(:api_browser)
-
-  pipeline :ensure_authenticated do
-    plug(MoodleNetWeb.Plugs.EnsureAuthenticatedPlug)
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
   end
 
   @doc """
@@ -81,9 +41,10 @@ defmodule MoodleNetWeb.Router do
   end
 
   scope "/api/graphql" do
-    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
-
     pipe_through :graphql
+    pipe_through :api_browser
+
+    get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
 
     forward "/", Absinthe.Plug.GraphiQL,
       schema: MoodleNetWeb.GraphQL.Schema,
@@ -135,8 +96,52 @@ defmodule MoodleNetWeb.Router do
     post "/shared_inbox", ActivityPubController, :inbox
   end
 
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
+    plug MoodleNetWeb.Plugs.SetLocale
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+    plug MoodleNetWeb.Plugs.Auth
+  end
+
   scope "/" do
     get "/", MoodleNetWeb.PageController, :index
     get "/.well-known/nodeinfo/:version", ActivityPubWeb.NodeinfoController, :nodeinfo
+  end
+
+  pipeline :liveview do
+    plug MoodleNetWeb.Live.Plug
+    plug :fetch_live_flash
+  end
+
+  scope "/", MoodleNetWeb do
+    pipe_through :browser
+    pipe_through :liveview
+
+    # TODO redirect to instance or user depending on logged in
+    live "/instance", InstanceLive
+
+    live "/instance/:tab", InstanceLive
+
+    live "/@:username", MemberLive
+    live "/@:username/:tab", MemberLive
+
+    live "/discussion/:id", DiscussionLive
+
+    live "/login", LoginLive
+    live "/signup", SignupLive
+
+    pipe_through :ensure_authenticated
+
+    live "/my", My.Live
+    live "/my/profile", MemberLive
+    live "/my/settings", SettingsLive
+    live "/my/:tab", My.Live
+
+    live "/proto/me", My.ProtoProfileLive
+
+    live "/write", My.Publish.WriteLive
   end
 end
