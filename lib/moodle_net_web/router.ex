@@ -25,29 +25,31 @@ defmodule MoodleNetWeb.Router do
     plug MoodleNetWeb.Plugs.Auth
   end
 
-  scope "/", MoodleNetWeb do
-    pipe_through :browser
+  if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
+    scope "/", MoodleNetWeb do
+      pipe_through :browser
 
-    # TODO redirect to instance or user depending on logged in
-    live "/", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      # TODO redirect to instance or user depending on logged in
+      live "/", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/instance/:tab", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/instance/:tab", InstanceLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/@:username", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-    live "/@:username/:tab", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-    live "/discussion/:id", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/@:username", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/@:username/:tab", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/discussion/:id", DiscussionLive, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/login", LoginLive
-    live "/signup", SignupLive
+      live "/login", LoginLive
+      live "/signup", SignupLive
 
-    pipe_through :ensure_authenticated
+      pipe_through :ensure_authenticated
 
-    live "/my/profile", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
-    live "/my/settings", SettingsLive
-    live "/my/:tab", My.Live, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/my/profile", MemberLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/my/settings", SettingsLive
+      live "/my/:tab", My.Live, layout: {MoodleNetWeb.LayoutView, :logged}
 
-    live "/proto/me", My.ProtoProfileLive
-    live "/write", My.Publish.WriteLive, layout: {MoodleNetWeb.LayoutView, :logged}
+      live "/proto/me", My.ProtoProfileLive
+      live "/write", My.Publish.WriteLive, layout: {MoodleNetWeb.LayoutView, :logged}
+    end
   end
 
   @doc """

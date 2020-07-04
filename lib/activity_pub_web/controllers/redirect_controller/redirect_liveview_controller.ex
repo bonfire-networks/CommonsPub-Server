@@ -3,7 +3,7 @@
 # Contains code from Pleroma <https://pleroma.social/> and CommonsPub <https://commonspub.org/>
 # SPDX-License-Identifier: AGPL-3.0-only
 
-defmodule ActivityPubWeb.RedirectController do
+defmodule ActivityPubWeb.RedirectController.LiveView do
   @moduledoc """
   Redirects canonical URLs to the appropriate page in the LiveView frontend
   """

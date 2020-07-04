@@ -19,8 +19,11 @@ defmodule MoodleNetWeb.Endpoint do
     use Sentry.Phoenix.Endpoint
   end
 
-  # Liveview support
-  socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
+  if System.get_env("LIVEVIEW_ENABLED", "true") == "true" do
+    # Liveview support
+    socket "/live", Phoenix.LiveView.Socket,
+      websocket: [connect_info: [session: @session_options]]
+  end
 
   if code_reloading? do
     socket "/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket
