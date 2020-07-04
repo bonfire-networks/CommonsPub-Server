@@ -171,6 +171,10 @@ defmodule MoodleNetWeb.GraphQL.UsersResolver do
     })
   end
 
+  def user_community_follows_edge(user, %{} = page_opts, info) do
+    community_follows_edge(%{id: user.id}, page_opts, info)
+  end
+
   def community_follows_edge(%{id: id}, %{} = page_opts, info) do
     ResolvePages.run(%ResolvePages{
       module: __MODULE__,

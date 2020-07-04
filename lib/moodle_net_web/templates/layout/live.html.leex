@@ -53,54 +53,13 @@
         <details>
           <summary>Communities</summary>
           <nav class="general__details">
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
+            <%= live_component(
+                @socket,
+                MoodleNetWeb.MemberLive.SidebarGroupsLive,
+                current_user: @current_user,
+                user: @current_user,
+                id: :groups,
+              ) %>
             <div class="panel__item">
               <img src="https://picsum.photos/40" />
               <h3>ValueFlows UI components</h3>
