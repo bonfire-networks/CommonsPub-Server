@@ -27,8 +27,14 @@
                 data-toggle-outside
                 data-toggle-escape
               >
-              <img src="<%= @current_user.icon_url %>" />
-              <h3><%= @current_user.name %></h3>
+              <img data-toggle-class="is-open"
+                data-toggle-target=".user-dropdown-list"
+                data-toggle-outside
+                data-toggle-escape src="<%= @current_user.icon_url %>" />
+              <h3 data-toggle-class="is-open"
+                data-toggle-target=".user-dropdown-list"
+                data-toggle-outside
+                data-toggle-escape><%= @current_user.name %></h3>
             </button>
             <ul class="user-dropdown-list">
               <li><a href="/my/profile">Profile</a></li>
@@ -64,84 +70,167 @@
           <h3 class="panel__title">Communities</h3>
           <nav class="panel__communities">
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
             <div class="panel__item">
-              <img src="https://picsum.photos/40" />
+              <img src="https://picsum.photos/40" /> 
               <h3>ValueFlows UI components</h3>
             </div>
           </nav>
         </div>
-        <button class="button new-community">Create a new community</button>
+        <div class="content__bottom">
+          <button class="button new-community">Create a new community</button>
+        </div>
       </div>
-    </nav>
-  <% end %>
-  <%= if @current_user == nil do %>
-    <header class="page__header">
-      <div class="header__left">
-        <a href="/">
-          CommonsPub
-        </a>
-        <input placeholder="Search..." />
+      <div class="content__meta">
+        <nav class="meta__main-menu">
+          <div class="panel__item">
+            <a href="/my/timeline">
+              <i class="feather-home"></i> Home
+            </a>
+          </div>
+          <div class="panel__item">
+            <a href="/search">
+              <i class="feather-search"></i> Search
+            </a>
+          </div>
+          <div class="panel__item">
+            <a href="/">
+              <i class="feather-anchor"></i> My Instance
+            </a>
+          </div>
+          <div class="panel__item">
+            <a href="/my/notifications">
+              <i class="feather-bell"></i> Notifications
+            </a>
+          </div>
+        </nav>
+        <h3 class="panel__title">Communities</h3>
+        <nav class="panel__communities">
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+          <div class="panel__item">
+            <img src="https://picsum.photos/40" />
+            <h3>ValueFlows UI components</h3>
+          </div>
+        </nav>
       </div>
-      <div class="header__right">
-        <a class="button" href="/login"><i class="feather-file-text"></i> Login</a>
-      </div>
-    </header>
-  <% end %>
-  <section class="page__wrapper">
-    <div class="page__mainContent">
-      <%# <button class="button-outline-only-icon" aria-expanded="true" aria-controls="drawer">
+      <button class="button new-community">Create a new community</button>
+    </div>
+  </nav>
+<% end %>
+<%= if @current_user == nil do %>
+  <header class="page__header">
+    <div class="header__left">
+      <a href="/">
+        CommonsPub
+      </a>
+      <input placeholder="Search..." />
+    </div>
+    <div class="header__right">
+      <a class="button" href="/login"><i class="feather-file-text"></i> Login</a>
+    </div>
+  </header>
+<% end %>
+<section class="page__wrapper">
+  <div class="page__mainContent">
+    <%# <button class="button-outline-only-icon" aria-expanded="true" aria-controls="drawer">
         <i class="feather-chevrons-left"></i>
       </button> %>
-      <%= @inner_content %>
-    </div>
-  </section>
+    <%= @inner_content %>
+  </div>
+</section>
 </div>
 </body>
 </html>
