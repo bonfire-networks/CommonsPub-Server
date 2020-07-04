@@ -1,19 +1,51 @@
 .mainContent_write {
   display: grid;
-  grid-template-rows: 34px 1fr 34px;
+  grid-template-rows: 60px 1fr;
   row-gap: var(--m3);
-  height: calc(100vh - 140px);
+  height: 100vh;
+  .write__header {
+    height: 60px;
+    border-bottom: var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--m3);
+    .header__main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      .left__title {
+        display: flex;
+        align-items: center;
+        i {
+          margin-right: var(--m2);
+
+        }
+      }
+      .header__controls {
+        display: flex;
+        margin-left: var(--m3);
+      }
+    }
+  }
+}
+
+.write__content {
+  width: 760px;
+  margin: 0 auto;
 }
 
 .mainContent_write input[type="text"] {
   display: block;
-  width: 100%;
-  border: 1px inset lightgrey;
-  padding: 6px;
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 600;
   text-indent: 0px;
   letter-spacing: 0.5px;
+  height: auto;
+  padding: var(--m2);
+  display: block;
+  border: none;
+  margin-bottom: var(--m3);
+  width: 100%;
 }
 
 .mainContent_write textarea {
@@ -21,21 +53,10 @@
   width: 100%;
   min-height: 300px;
   height: 100%;
-  border: 1px inset lightgrey;
-  padding: 6px;
   background: transparent;
-  font-size: 18px;
   resize: none;
   overflow: auto;
   outline: none;
-}
-
-.mainContent_write button {
-  width: 120px;
-  background: var(--primary);
-  border: none;
-  color: var(--lighter);
-  border-radius: 4px;
 }
 
 .mainContent_write textarea {
@@ -375,9 +396,10 @@ li.ProseMirror-selectednode:after {
   color: black;
   background-clip: padding-box;
   border-radius: 4px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  padding: 5px 0;
-  margin-bottom: 23px;
+  border: var(--border);
+  // padding: 5px 0;
+  height: calc(100% - 120px);
+
 }
 
 .ProseMirror p:first-child,

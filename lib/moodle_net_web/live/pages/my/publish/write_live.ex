@@ -12,9 +12,9 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
     {:ok,
      socket
      |> assign(
-       title_placeholder: "An optional title for your story or discussion",
+       title_placeholder: "An optional title...",
        summary_placeholder: "Write a story or get a discussion started!",
-       post_label: "Post",
+       post_label: "Publish",
        current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
        meili_host: MoodleNet.Instance.hostname(),
        tag_search: nil,

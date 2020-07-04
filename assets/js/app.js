@@ -96,10 +96,9 @@ Hooks.MarkdownEditor = {
       md_view.focus();
     }
 
-    document.querySelectorAll(".editor-controls input").forEach((button) => {
+    document.querySelectorAll(".header__controls input").forEach((button) => {
       button.addEventListener("change", () => {
-        if (!button.checked) return;
-        if (button.value == "raw") {
+        if (button.checked == false) {
           el_raw.value = md_view.content;
           md_view.destroy();
           el_raw.style.display = "block";

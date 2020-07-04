@@ -1,19 +1,30 @@
 <section class="page__write">
+
   <form action="#" phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
-    <input id="name" name="name" placeholder="<%= @title_placeholder %>" />
-    <div id="editor" phx-hook="MarkdownEditor">
-      <div id="editor-visual" phx-ignore="true">
-        <div class="editor-controls">
-          <label>
-            Text <input type=radio name="editor-style" value="raw" checked>
-          </label>
-          <label><input type=radio name="editor-style" id="editor-style-visual" value="visual"> Visual</label>
+    <header class="write__header">
+      <div class="header__main">
+        <div class="left__title">
+          <i class="feather-edit-3"></i>
+          <h4>Write a new post</h4>
         </div>
-        <div id="editor-markdown"></div>
+        <div class="header__controls">
+          <input name="editor-style" id="editor-style-visual" value="visual" type="checkbox" class="switch">
+          <label for="s1">Enable visual editor </label>
+          <%# <label><input type=radio name="editor-style" value="raw" checked></label>
+          <label><input type=radio name="editor-style" id="editor-style-visual" value="visual"></label> %>
+        </div>
       </div>
-      <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
-    </div>
-    <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+      <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+    </header>
+      <div class="write__content">
+        <input type="text" class="write__title" id="name" name="name" placeholder="<%= @title_placeholder %>" />
+        <div id="editor" phx-hook="MarkdownEditor">
+          <div id="editor-visual" phx-ignore="true">
+            <div id="editor-markdown"></div>
+          </div>
+          <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
+        </div>
+   </div>
   </form>
 </section>
 <div id="autocomplete-dropdown" style="top: 90px; left: 378.5px; position: absolute; display: block;">
