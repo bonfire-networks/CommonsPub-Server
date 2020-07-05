@@ -12,7 +12,11 @@ defmodule MoodleNet.GraphQL do
   end
 
   @doc "Are we in a list (recursively)?"
-  def in_list?(info), do: Enum.any?(Resolution.path(info), &is_integer/1)
+  def in_list?(%{context: %{schema: schema}} = info),
+    do: Enum.any?(Resolution.path(info), &is_integer/1)
+
+  @doc "If we're not actually going through Absinthe, assume not"
+  def in_list?(info), do: false
 
   @doc "How many lists are we in (recursively)?"
   def list_depth(%{context: %{schema: schema}} = info),
