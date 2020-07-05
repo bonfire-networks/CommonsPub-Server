@@ -2,7 +2,6 @@
   display: grid;
   grid-template-rows: 60px 1fr;
   height: 100vh;
-  background-color: var(--color-background);
 }
 
 .community__hero {
@@ -17,26 +16,30 @@
 
 .community__layout {
   display: grid;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr 180px;
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: var(--m3);
+    grid-column-gap: var(--m3);
   .mainContent__selected {
     border: none;
+    padding: var(--m3);
   }
 }
 
 .community__navigation {
-  border: var(--border);
   border-top: 0;
   border-bottom: 0;
   a {
     display: block;
-    height: 60px;
+    height: 50px;
     align-self: center;
     display: flex;
     align-items: center;
     padding: 0 var(--m2);
     font-size: 16px;
     font-weight: 400;
-    line-height: 60px;
+    line-height: 50px;
     align-items: center;
     i {
       margin-right: var(--m2);
@@ -45,16 +48,6 @@
       font-weight: 500;
       &:before {
         display: none;
-      }
-      &:after {
-        content: "";
-        position: absolute;
-        height: 100%;
-        width: 2px;
-        left: 0px;
-        display: block;
-        background: var(--color-primary);
-        top: 0;
       }
     }
   }
