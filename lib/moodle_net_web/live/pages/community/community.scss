@@ -52,3 +52,18 @@
     }
   }
 }
+
+.area__community-hero {
+  margin-bottom: var(--m3);
+  .community-hero__image {
+    height: 200px;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  h1 {
+    margin-bottom: 0;
+  }
+  h4 {
+    margin-top: var(--m1);
+  }
+}

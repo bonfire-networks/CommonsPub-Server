@@ -20,6 +20,11 @@
         <%= cond do %>
           <% @selected_tab == "about" ->  %>
           <div class="selected__area">
+            <div class="area__community-hero">
+              <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
+              <h1><%= @community.name %></h1>
+              <h4><%= @community.actor.preferred_username %>
+            </div>
             <%= live_component(
                     @socket,
                     AboutLive,
