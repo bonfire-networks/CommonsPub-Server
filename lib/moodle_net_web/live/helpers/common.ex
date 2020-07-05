@@ -103,27 +103,31 @@ defmodule MoodleNetWeb.Helpers.Common do
     image(community, field_name, "retro", 50)
   end
 
-  def image(community, field_name, style, size) do
-    if(Map.has_key?(community, :__struct__)) do
-      community = Repo.preload(community, field_name)
-      img = Repo.preload(Map.get(community, field_name), :content_upload)
+  def image(parent, field_name, style, size) do
+    if(Map.has_key?(parent, :__struct__)) do
+      parent = Repo.preload(parent, field_name)
+      img = Repo.preload(Map.get(parent, field_name), :content_upload)
 
       if(!is_nil(e(img, :content_upload, :url, nil))) do
         # use uploaded image
         img.content_upload.url
       else
         # otherwise external image
-        img = Repo.preload(Map.get(community, field_name), :content_mirror)
+        img = Repo.preload(Map.get(parent, field_name), :content_mirror)
 
         if(!is_nil(e(img, :content_mirror, :url, nil))) do
           img.content_mirror.url
         else
           # or a gravatar
-          MoodleNet.Users.Gravatar.url(community.id, style, size)
+          image_gravatar(parent.id, style, size)
         end
       end
     else
-      MoodleNet.Users.Gravatar.url(field_name, style, size)
+      image_gravatar(field_name, style, size)
     end
+  end
+
+  def image_gravatar(seed, style, size) do
+    MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
   end
 end

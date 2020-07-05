@@ -55,15 +55,10 @@
           <nav class="general__details">
             <%= live_component(
                 @socket,
-                MoodleNetWeb.MemberLive.SidebarGroupsLive,
+                MoodleNetWeb.My.SidebarCommunitiesLive,
                 current_user: @current_user,
-                user: @current_user,
-                id: :groups,
+                id: :sidebar_communities,
               ) %>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
           </nav>
         </details>
         <details>

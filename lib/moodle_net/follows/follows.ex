@@ -4,12 +4,13 @@
 defmodule MoodleNet.Follows do
   alias MoodleNet.{Activities, Common, GraphQL, Repo}
   alias MoodleNet.Feeds.{FeedActivities, FeedSubscriptions}
+
   alias MoodleNet.Follows.{
     AlreadyFollowingError,
     Follow,
-    Queries,
+    Queries
   }
-  alias MoodleNet.Meta.{Pointer, Pointers}
+
   alias MoodleNet.Users.{LocalUser, User}
   alias MoodleNet.Workers.APPublishWorker
   alias Ecto.Changeset
@@ -25,13 +26,19 @@ defmodule MoodleNet.Follows do
   @spec create(User.t(), any, map, create_opts) :: {:ok, Follow.t()} | {:error, Changeset.t()}
 
   def create(follower, followed, fields, opts \\ [])
-  def create(%User{} = follower, %Pointer{}=followed, %{}=fields, opts) do
-    create(follower, Pointers.follow!(followed), fields, opts)
+
+  def create(%User{} = follower, %MoodleNet.Meta.Pointer{} = followed, %{} = fields, opts) do
+    create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
   end
-  def create(%User{} = follower, %struct{outbox_id: _}=followed, fields, _opts) do
+
+  def create(%User{} = follower, %Pointers.Pointer{} = followed, %{} = fields, opts) do
+    create(follower, MoodleNet.Meta.Pointers.follow!(followed), fields, opts)
+  end
+
+  def create(%User{} = follower, %struct{outbox_id: _} = followed, fields, _opts) do
     if struct in valid_contexts() do
       Repo.transact_with(fn ->
-        case one([deleted: false, creator: follower.id, context: followed.id]) do
+        case one(deleted: false, creator: follower.id, context: followed.id) do
           {:ok, _} ->
             {:error, AlreadyFollowingError.new("user")}
 
@@ -55,6 +62,7 @@ defmodule MoodleNet.Follows do
 
   defp publish(creator, followed, %Follow{} = follow) do
     attrs = %{verb: "created", is_local: follow.is_local}
+
     with {:ok, activity} <- Activities.create(creator, follow, attrs) do
       FeedActivities.publish(activity, [creator.outbox_id, followed.outbox_id])
     end
@@ -87,7 +95,7 @@ defmodule MoodleNet.Follows do
   end
 
   @spec soft_delete(User.t(), Follow.t()) :: {:ok, Follow.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{}=user, %Follow{} = follow) do
+  def soft_delete(%User{} = user, %Follow{} = follow) do
     Repo.transact_with(fn ->
       with {:ok, follow} <- Common.soft_delete(follow),
            :ok <- chase_delete(user, [follow.id], [follow.context_id]),
@@ -97,19 +105,24 @@ defmodule MoodleNet.Follows do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :id}, {:deleted, false} | filters], deleted_at: DateTime.utc_now())
-        with :ok <- chase_delete(user, ids, []) do
-          ap_publish("delete", ids)
-        end
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:select, :id}, {:deleted, false} | filters],
+                 deleted_at: DateTime.utc_now()
+               )
+
+             with :ok <- chase_delete(user, ids, []) do
+               ap_publish("delete", ids)
+             end
+           end),
+         do: :ok
   end
 
   defp chase_delete(user, follows, contexts) do
-    with {:ok, pointers} <- Pointers.many(id: contexts),
-         contexts = Pointers.follow!(pointers),
+    with {:ok, pointers} <- MoodleNet.Meta.Pointers.many(id: contexts),
+         contexts = MoodleNet.Meta.Pointers.follow!(pointers),
          feeds = get_outbox_ids(contexts, []),
          :ok <- Activities.soft_delete_by(user, context: follows),
          :ok <- FeedSubscriptions.soft_delete_by(user, feed: feeds) do
@@ -119,22 +132,27 @@ defmodule MoodleNet.Follows do
 
   defp get_outbox_ids([], acc), do: acc
   defp get_outbox_ids([%{outbox_id: id} | rest], acc), do: get_outbox_ids(rest, [id | acc])
-  defp get_outbox_ids([_| rest], acc), do: get_outbox_ids(rest, acc)
-
+  defp get_outbox_ids([_ | rest], acc), do: get_outbox_ids(rest, acc)
 
   # we only maintain subscriptions for local users
-  defp subscribe(%User{local_user: %LocalUser{}}=follower, %{outbox_id: outbox_id}, %Follow{muted_at: nil})
-  when is_binary(outbox_id) do
+  defp subscribe(%User{local_user: %LocalUser{}} = follower, %{outbox_id: outbox_id}, %Follow{
+         muted_at: nil
+       })
+       when is_binary(outbox_id) do
     case FeedSubscriptions.one(deleted: false, subscriber: follower.id, feed: outbox_id) do
-      {:ok, _} -> :ok
+      {:ok, _} ->
+        :ok
+
       _ ->
-        with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}), do: :ok
+        with {:ok, _} <- FeedSubscriptions.create(follower, outbox_id, %{is_active: true}),
+             do: :ok
     end
   end
-  defp subscribe(_,_,_), do: :ok
+
+  defp subscribe(_, _, _), do: :ok
 
   # defp unsubscribe(%{creator_id: creator_id, is_local: true, muted_at: nil}=follow) do
-  #   context = Pointers.follow!(Repo.preload(follow, :context).context)
+  #   context = MoodleNet.Meta.Pointers.follow!(Repo.preload(follow, :context).context)
   #   case FeedSubscriptions.one(deleted: false, subscriber: creator_id, feed: context.outbox_id) do
   #     {:ok, sub} -> Common.soft_delete(sub)
   #     _ -> {:ok, []} # shouldn't be here
@@ -147,5 +165,4 @@ defmodule MoodleNet.Follows do
     Application.fetch_env!(:moodle_net, __MODULE__)
     |> Keyword.fetch!(:valid_contexts)
   end
-
 end

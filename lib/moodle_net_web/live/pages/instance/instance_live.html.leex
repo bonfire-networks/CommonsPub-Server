@@ -16,6 +16,10 @@
             to: "/instance/members",
             class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
           %>
+    <%= live_patch link_body("Communities", "feather-users"),
+            to: "/instance/communities",
+            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
+          %>
   </div>
   <div class="mainContent__selected">
     <%= cond do %>

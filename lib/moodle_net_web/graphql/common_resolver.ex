@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
 
   def created_at_edge(%{id: id}, _, _), do: ULID.timestamp(id)
 
-  def context_edge(%{context_id: id}, _, info) do
+  def context_edge(%{context_id: id}, _, %{context: %{schema: schema}} = info) do
     context_edge =
       ResolveFields.run(%ResolveFields{
         module: __MODULE__,
@@ -22,24 +22,30 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
         info: info
       })
 
-    IO.inspect(context_edge)
+    # IO.inspect(context_edge: context_edge)
     context_edge
   end
 
+  @doc """
+  Fetch a context without batching
+  """
+  def context_edge(%{context_id: id}, _, info) do
+    fetch_context_edge(nil, id).data[id]
+  end
+
   def fetch_context_edge(_, ids) do
-    IO.inspect(context_ids: ids)
+    # IO.inspect(context_ids: ids)
     flattened_ids = flatten(ids)
-    IO.inspect(flattened: flattened_ids)
+    # IO.inspect(flattened: flattened_ids)
     {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    IO.inspect(context_ptrs: ptrs)
+    # IO.inspect(context_ptrs: ptrs)
     ptsd = Pointers.follow!(ptrs)
-    IO.inspect(context_ptsd: ptsd)
+    # IO.inspect(context_ptsd: ptsd)
     edge = Fields.new(ptsd, &Map.get(&1, :id))
-    IO.inspect(edge: edge)
+    # IO.inspect(edge: edge)
     edge
   end
 
-  # FIXME
   def context_edges(%{context_ids: ids}, %{} = page_opts, info) do
     context_edges =
       ResolvePages.run(%ResolvePages{
@@ -50,18 +56,18 @@ defmodule MoodleNetWeb.GraphQL.CommonResolver do
         info: info
       })
 
-    IO.inspect(context_edges: context_edges)
+    # IO.inspect(context_edges: context_edges)
     context_edges
   end
 
   def fetch_context_edges(page_opts, info, ids) do
-    IO.inspect(context_ids: ids)
+    # IO.inspect(context_ids: ids)
     flattened_ids = flatten(ids)
-    IO.inspect(flattened: flattened_ids)
+    # IO.inspect(flattened: flattened_ids)
     {:ok, ptrs} = Pointers.many(id: flattened_ids)
-    IO.inspect(context_ptrs: ptrs)
+    # IO.inspect(context_ptrs: ptrs)
     ptsd = Pointers.follow!(ptrs)
-    IO.inspect(context_ptsd: ptsd)
+    # IO.inspect(context_ptsd: ptsd)
     {:ok, ptsd}
     # edge = Fields.new(ptsd, &Map.get(&1, :id))
     # IO.inspect(edge: edge)

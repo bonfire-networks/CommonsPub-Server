@@ -8,9 +8,9 @@
         to: "/my/timeline",
         class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
       %>
-      <%= live_patch link_body("My Groups", "feather-users"),
-            to: "/my/groups",
-            class: if @selected_tab == "groups", do: "navigation__item active", else: "navigation__item"
+      <%= live_patch link_body("My Communities", "feather-users"),
+            to: "/my/communities",
+            class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
           %>
       </div>
       <div class="mainContent__selected">
@@ -22,6 +22,14 @@
                 current_user: @current_user,
                 selected_tab: @selected_tab,
                 id: :timeline,
+              ) %>
+          <% @selected_tab == "communities" -> %>
+              <%= live_component(
+                @socket,
+                MoodleNetWeb.My.SidebarCommunitiesLive,
+                current_user: @current_user,
+                selected_tab: @selected_tab,
+                id: :my_communities,
               ) %>
           <% true -> %>
           <%= live_component(
