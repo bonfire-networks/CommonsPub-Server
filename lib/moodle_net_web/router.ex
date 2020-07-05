@@ -128,7 +128,11 @@ defmodule MoodleNetWeb.Router do
     live "/@:username", MemberLive
     live "/@:username/:tab", MemberLive
 
+    live "/&:username", CommunityLive
+    live "/&:username/:tab", CommunityLive
+
     live "/discussion/:id", DiscussionLive
+
 
     live "/login", LoginLive
     live "/signup", SignupLive

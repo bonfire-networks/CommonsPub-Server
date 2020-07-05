@@ -1,0 +1,65 @@
+<div class="page__fullContent">
+  <section class="page__community">
+    <div class="community__hero">
+      <div class="suphero">
+        <div class="suphero__left named-avatar">
+          <img alt="profile pic" src="<%= @community.image_url %>" />
+          <h3><%= @community.name %></h3>
+        </div>
+        <div class="suphero__actions">
+          <button class="button follow">Follow</button>
+          <button class="button-outline-only-icon">
+            <i class="feather-more-horizontal"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="community__layout">
+
+      <div class="mainContent__selected">
+        <%= cond do %>
+          <% @selected_tab == "about" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    AboutLive,
+                    description: @community.summary
+                  )
+                %>
+          </div>
+          <% @selected_tab == "timeline" ->  %>
+          <div class="selected__area">
+            test
+          </div>
+          <% @selected_tab == "discussions" ->  %>
+          <div class="selected__area">
+            test
+          </div>
+          <% true -> %>
+          <%= live_component(
+                  @socket,
+                  TabNotFoundLive
+              ) %>
+        <% end %>
+      </div>
+      <div class="community__navigation">
+        <%= live_patch link_body("About", "feather-book-open"),
+                to: "/&" <> @community.actor.preferred_username <> "/about",
+                class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
+              %>
+        <%= live_patch link_body("Timeline","feather-activity"),
+                to: "/&" <> @community.actor.preferred_username <>  "/timeline",
+                class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
+              %>
+        <%= live_patch link_body("Discussions","feather-message-square"),
+                to: "/&" <> @community.actor.preferred_username <>  "/discussions",
+                class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
+              %>
+        <%= live_patch link_body("Members", "feather-users"),
+                to: "/&" <> @community.actor.preferred_username <>  "/members",
+                class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
+              %>
+      </div>
+    </div>
+  </section>
+</div>

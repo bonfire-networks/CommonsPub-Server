@@ -32,8 +32,24 @@ defmodule MoodleNetWeb.GraphQL.CommunitiesResolver do
     )
   end
 
+
+  def community(%{username: name}, info) do
+    ResolveField.run(
+      %ResolveField{
+        module: __MODULE__,
+        fetcher: :fetch_community_by_username,
+        context: name,
+        info: info,
+      }
+    )
+  end
+
   def fetch_community(info, id) do
     Communities.one([:default, id: id, user: GraphQL.current_user(info)])
+  end
+
+  def fetch_community_by_username(info, name) do
+    Communities.one([:default, username: name, user: GraphQL.current_user(info)])
   end
 
   def communities(%{}=page_opts, info) do

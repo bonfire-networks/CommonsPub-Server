@@ -2,6 +2,7 @@ defmodule MoodleNetWeb.InstanceLive do
   use MoodleNetWeb, :live_view
   alias MoodleNetWeb.Helpers.{Profiles}
   import MoodleNetWeb.Helpers.Common
+  alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
@@ -17,6 +18,9 @@ defmodule MoodleNetWeb.InstanceLive do
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
+
+    {:ok, c} = CommunitiesResolver.communities(%{limit: 10}, %{})
+    IO.inspect(c)
     # IO.inspect(socket)
 
     {:ok,
@@ -39,7 +43,6 @@ defmodule MoodleNetWeb.InstanceLive do
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
-
     ~L"""
       <i class="<%= @icon %>"></i>
       <%= @name %>

@@ -86,6 +86,7 @@
 .page__wrapper {
   overflow-y: scroll;
   height: 100vh;
+  margin-bottom: var(--m3);
 }
 
 .page__mainContent {
@@ -372,9 +373,8 @@
   left: 0;
 }
 
-
 #slide-sidebar-label {
-  z-index: 10;
+  z-index: 2;
   position: absolute;
   top: 15px;
   left: 220px;

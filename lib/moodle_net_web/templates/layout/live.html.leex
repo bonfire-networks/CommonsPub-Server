@@ -14,7 +14,7 @@
 
     <%= if @current_user do %>
     <input id="slide-sidebar" type="checkbox" role="button" />
-    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-chevrons-left"></i></span></label>
+    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
     <nav class="logged__drawer">
       <details class="drawer__profile" >
         <summary class="button user__dropdown">
@@ -203,7 +203,6 @@
   </header>
 <% end %>
 <section class="page__wrapper">
-  <div class="page__mainContent">
     <p class="alert alert-info" role="alert"
       phx-click="lv:clear-flash"
       phx-value-key="info"><%= live_flash(@flash, :info) %></p>
@@ -211,7 +210,6 @@
       phx-click="lv:clear-flash"
       phx-value-key="error"><%= live_flash(@flash, :error) %></p>
     <%= @inner_content %>
-  </div>
 </section>
 </div>
 </body>
