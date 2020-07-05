@@ -5,11 +5,11 @@ defmodule MoodleNetWeb.CommunityLive do
   alias MoodleNetWeb.Helpers.{Communities}
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
-  # alias MoodleNetWeb.MemberLive.{
-  #   MemberDiscussionsLive,
-  #   MemberNavigationLive,
-  #   MemberActivitiesLive
-  # }
+  alias MoodleNetWeb.CommunityLive.{
+    # CommunityDiscussionsLive,
+    # CommunityNavigationLive,
+    CommunityActivitiesLive
+  }
 
   alias MoodleNetWeb.Component.{
     HeaderLive,
