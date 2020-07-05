@@ -31,6 +31,7 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
+
     {:ok,
      socket
      |> assign(
@@ -53,7 +54,8 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_params(%{} = params, url, socket) do
     community = Communities.community_load(socket, params, %{image: true, actor: true})
-    IO.inspect(community, label: "community")
+
+    # IO.inspect(community, label: "community")
 
     {:noreply,
      assign(socket,
@@ -64,6 +66,7 @@ defmodule MoodleNetWeb.CommunityLive do
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
+
     ~L"""
       <i class="<%= @icon %>"></i>
       <%= @name %>

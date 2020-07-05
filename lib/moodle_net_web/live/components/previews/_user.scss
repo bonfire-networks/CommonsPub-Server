@@ -1,15 +1,13 @@
 .users_list {
   padding: var(--m2);
-
 }
 
-
 .users_list .user__preview {
-  margin-bottom: var(--m2)
+  margin-bottom: var(--m2);
 }
 
 .users_list a:last-of-type .user__preview {
-  margin-bottom: 0
+  margin-bottom: 0;
 }
 
 .user__preview {
@@ -24,13 +22,10 @@
   background-color: aliceblue;
 }
 
-
-
 .user__preview .preview__image {
-  height: 40px;
-  width: 40px;
-  background-color: antiquewhite;
-  border-radius: var(--m2);
+  width: 48px;
+  height: 48px;
+  border-radius: 48px;
 }
 
 .user__preview .preview__info {
@@ -40,9 +35,9 @@
   font-weight: 500;
   margin: 0;
   margin-left: var(--m2);
-  letter-spacing: .5px;
+  letter-spacing: 0.5px;
   font-size: 16px;
-  color: var(--darker)
+  color: var(--darker);
 }
 
 .user__preview .preview__info h4 {
@@ -50,5 +45,5 @@
   margin: 0;
   margin-left: var(--m2);
   font-size: 13px;
-  color: var(--gray)
+  color: var(--gray);
 }

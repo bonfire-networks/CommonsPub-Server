@@ -3,9 +3,9 @@ defmodule MoodleNetWeb.Component.UserPreviewLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
 
-  def update(assigns, socket) do
-    {:ok, assign(socket, user: Profiles.prepare(assigns.user, %{icon: true, actor: true}))}
-  end
+  # def update(assigns, socket) do
+  #   {:ok, assign(socket, user: Profiles.prepare(assigns.user, %{icon: true, actor: true}))} # do this in parent view instead
+  # end
 
   def render(assigns) do
     ~L"""

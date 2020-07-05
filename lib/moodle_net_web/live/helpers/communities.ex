@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
         community
       else
         community
-        |> Map.merge(%{image_url: image(community, :image)})
+        |> Map.merge(%{image_url: image(community, :image, "identicon", 700)})
       end
 
     prepare(
@@ -91,31 +91,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
       else
         {:ok, %{}}
       end
+
     prepare(community, preload)
-  end
-
-  def image(community, field_name) do
-    if(Map.has_key?(community, :__struct__)) do
-      community = Repo.preload(community, field_name)
-      icon = Repo.preload(Map.get(community, field_name), :content_upload)
-
-      if(!is_nil(e(icon, :content_upload, :url, nil))) do
-        # use uploaded image
-        icon.content_upload.url
-      else
-        # otherwise external image
-        icon = Repo.preload(Map.get(community, field_name), :content_mirror)
-
-        if(!is_nil(e(icon, :content_mirror, :url, nil))) do
-          icon.content_mirror.url
-        else
-          # or gravatar
-          # TODO: replace with email
-          MoodleNet.Users.Gravatar.url(community.id)
-        end
-      end
-    else
-      MoodleNet.Users.Gravatar.url("default")
-    end
   end
 end

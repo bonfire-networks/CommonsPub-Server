@@ -1,6 +1,13 @@
 defmodule MoodleNetWeb.Helpers.Common do
   import Phoenix.LiveView
-  alias MoodleNetWeb.Helpers.{Profiles}
+
+  alias MoodleNet.{
+    Repo
+  }
+
+  alias MoodleNetWeb.Helpers.{
+    Profiles
+  }
 
   @doc "Returns a value, or a fallback if not present"
   def e(key, fallback) do
@@ -89,5 +96,34 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do
     socket
+  end
+
+  def image(community, field_name) do
+    # style and size for icons
+    image(community, field_name, "retro", 50)
+  end
+
+  def image(community, field_name, style, size) do
+    if(Map.has_key?(community, :__struct__)) do
+      community = Repo.preload(community, field_name)
+      img = Repo.preload(Map.get(community, field_name), :content_upload)
+
+      if(!is_nil(e(img, :content_upload, :url, nil))) do
+        # use uploaded image
+        img.content_upload.url
+      else
+        # otherwise external image
+        img = Repo.preload(Map.get(community, field_name), :content_mirror)
+
+        if(!is_nil(e(img, :content_mirror, :url, nil))) do
+          img.content_mirror.url
+        else
+          # or a gravatar
+          MoodleNet.Users.Gravatar.url(community.id, style, size)
+        end
+      end
+    else
+      MoodleNet.Users.Gravatar.url(field_name, style, size)
+    end
   end
 end

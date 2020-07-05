@@ -4,17 +4,16 @@ defmodule MoodleNetWeb.SettingsLive do
   alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
 
-  def mount(_params, session, socket) do
-    {:ok, session_token} = MoodleNet.Access.fetch_token_and_user(session["auth_token"])
-    user = e(session_token, :user, %{})
+  def mount(params, session, socket) do
+    socket = init_assigns(params, session, socket)
 
     {:ok,
      socket
      |> assign(
        page_title: "Settings",
-       selected_tab: "general",
-       current_user: user,
-       session: session_token
+       selected_tab: "general"
+       #  current_user: user,
+       #  session: session_token
      )}
   end
 
@@ -34,12 +33,12 @@ defmodule MoodleNetWeb.SettingsLive do
      |> redirect(to: "/my/profile")}
   end
 
-  def handle_params(%{} = params, url, socket) do
-    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
+  # def handle_params(%{} = params, url, socket) do
+  #   user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true})
 
-    {:noreply,
-     assign(socket,
-       user: user
-     )}
-  end
+  #   {:noreply,
+  #    assign(socket,
+  #      user: user
+  #    )}
+  # end
 end

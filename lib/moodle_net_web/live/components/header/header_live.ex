@@ -18,11 +18,10 @@ defmodule MoodleNetWeb.Component.HeaderLive do
      )}
   end
 
-  def update(assigns, socket) do
-    # IO.inspect(assigns)
-    # TODO: use logged in user here
-    user = Profiles.user_load(socket, assigns, %{icon: true, actor: true})
-    {:ok, assign(socket, user: user)}
-  end
-
+  # def update(assigns, socket) do
+  #   # IO.inspect(assigns)
+  #   # TODO: use logged in user here
+  #   user = Profiles.user_load(socket, assigns, %{icon: true, actor: true})
+  #   {:ok, assign(socket, user: user)}
+  # end
 end

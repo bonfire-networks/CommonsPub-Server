@@ -20,7 +20,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         profile
       else
         profile
-        |> Map.merge(%{image_url: image(profile, :image)})
+        |> Map.merge(%{image_url: image(profile, :image, "identicon", 700)})
       end
 
     prepare(
@@ -30,12 +30,16 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def prepare(profile, %{icon: _} = preload) do
+    prepare(profile, preload, 50)
+  end
+
+  def prepare(profile, %{icon: _} = preload, icon_size) do
     profile =
       if(Map.has_key?(profile, "icon_url")) do
         profile
       else
         profile
-        |> Map.merge(%{icon_url: image(profile, :icon)})
+        |> Map.merge(%{icon_url: image(profile, :icon, "retro", icon_size)})
       end
 
     prepare(
@@ -81,16 +85,22 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def user_load(socket, page_params, preload) do
+    user_load(socket, page_params, preload, 50)
+  end
+
+  def user_load(socket, page_params, preload, icon_width) do
     # IO.inspect(socket)
 
     username = e(page_params, "username", nil)
 
+    # load requested user
     {:ok, user} =
       if(!is_nil(username)) do
         UsersResolver.user(%{username: username}, %{
           context: %{current_user: socket.assigns.current_user}
         })
       else
+        # fallback to current user
         if(Map.has_key?(socket, :assigns) and Map.has_key?(socket.assigns, :current_user)) do
           {:ok, socket.assigns.current_user}
         else
@@ -98,31 +108,6 @@ defmodule MoodleNetWeb.Helpers.Profiles do
         end
       end
 
-    prepare(user, preload)
-  end
-
-  def image(profile, field_name) do
-    if(Map.has_key?(profile, :__struct__)) do
-      profile = Repo.preload(profile, field_name)
-      icon = Repo.preload(Map.get(profile, field_name), :content_upload)
-
-      if(!is_nil(e(icon, :content_upload, :url, nil))) do
-        # use uploaded image
-        icon.content_upload.url
-      else
-        # otherwise external image
-        icon = Repo.preload(Map.get(profile, field_name), :content_mirror)
-
-        if(!is_nil(e(icon, :content_mirror, :url, nil))) do
-          icon.content_mirror.url
-        else
-          # or gravatar
-          # TODO: replace with email
-          MoodleNet.Users.Gravatar.url(profile.id)
-        end
-      end
-    else
-      MoodleNet.Users.Gravatar.url("default")
-    end
+    prepare(user, preload, icon_width)
   end
 end
