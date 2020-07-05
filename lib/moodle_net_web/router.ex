@@ -20,37 +20,61 @@ defmodule MoodleNetWeb.Router do
   end
 
   @doc """
-  Serve the GraphiQL API browser on /api/graphql
+  General pipeline for webpage requests
   """
-  pipeline :api_browser do
-    plug(:accepts, ["html", "json", "css", "js", "png", "jpg", "ico"])
-    plug(:fetch_session)
-    plug(:fetch_flash)
-    plug(MoodleNetWeb.Plugs.SetLocale)
-    plug(:protect_from_forgery)
-    plug(:put_secure_browser_headers)
+  pipeline :browser do
+    plug :accepts, ["html", "json", "css", "js"]
+    plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
+    plug :put_secure_browser_headers
+    plug :fetch_session
+    plug MoodleNetWeb.Plugs.Auth
+    plug MoodleNetWeb.Plugs.SetLocale
   end
 
   @doc """
-  Serve GraphQL API queries
+  Used to serve the GraphiQL API browser
   """
-  pipeline :graphql do
-    plug MoodleNetWeb.Plugs.Auth
-    plug MoodleNetWeb.Plugs.GraphQLContext
-    plug :accepts, ["json"]
+  pipeline :graphiql do
+    plug(:fetch_flash)
+    # plug(:protect_from_forgery) # enabling interferes with graphql
   end
 
-  scope "/api/graphql" do
-    pipe_through :graphql
-    pipe_through :api_browser
+  @doc """
+  Used to serve GraphQL API queries
+  """
+  pipeline :graphql do
+    plug :accepts, ["json"]
+    plug :fetch_session
+    plug MoodleNetWeb.Plugs.Auth
+    plug MoodleNetWeb.Plugs.SetLocale
+    plug MoodleNetWeb.Plugs.GraphQLContext
+  end
+
+  scope "/api" do
+    get "/", MoodleNetWeb.PageController, :api
 
     get "/schema", MoodleNetWeb.GraphQL.DevTools, :schema
 
-    forward "/", Absinthe.Plug.GraphiQL,
-      schema: MoodleNetWeb.GraphQL.Schema,
-      interface: :playground,
-      json_codec: Jason,
-      pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+    scope "/explore" do
+      pipe_through :browser
+      pipe_through :graphiql
+      pipe_through :graphql
+
+      forward "/", Absinthe.Plug.GraphiQL,
+        schema: MoodleNetWeb.GraphQL.Schema,
+        json_codec: Jason,
+        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+    end
+
+    scope "/graphql" do
+      pipe_through :graphql
+
+      forward "/", Absinthe.Plug,
+        schema: MoodleNetWeb.GraphQL.Schema,
+        interface: :playground,
+        json_codec: Jason,
+        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+    end
   end
 
   pipeline :well_known do
@@ -98,12 +122,12 @@ defmodule MoodleNetWeb.Router do
 
   pipeline :browser do
     plug :accepts, ["html"]
-    plug :fetch_session
     plug :put_root_layout, {MoodleNetWeb.LayoutView, :root}
-    plug MoodleNetWeb.Plugs.SetLocale
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_session
     plug MoodleNetWeb.Plugs.Auth
+    plug MoodleNetWeb.Plugs.SetLocale
   end
 
   scope "/" do
@@ -112,8 +136,9 @@ defmodule MoodleNetWeb.Router do
   end
 
   pipeline :liveview do
-    plug MoodleNetWeb.Live.Plug
+    plug :protect_from_forgery
     plug :fetch_live_flash
+    plug MoodleNetWeb.Live.Plug
   end
 
   scope "/", MoodleNetWeb do
@@ -132,7 +157,6 @@ defmodule MoodleNetWeb.Router do
     live "/&:username/:tab", CommunityLive
 
     live "/discussion/:id", DiscussionLive
-
 
     live "/login", LoginLive
     live "/signup", SignupLive

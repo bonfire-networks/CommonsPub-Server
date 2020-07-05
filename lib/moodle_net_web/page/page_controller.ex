@@ -18,4 +18,9 @@ defmodule MoodleNetWeb.PageController do
     |> put_status(:moved_permanently)
     |> redirect(external: url)
   end
+
+  def api(conn, _params) do
+    conn
+    |> redirect(external: "/api/explore")
+  end
 end
