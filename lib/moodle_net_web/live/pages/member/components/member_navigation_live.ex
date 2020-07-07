@@ -3,7 +3,6 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
 
   def render(assigns) do
     ~L"""
-    <div class="mainContent__navigation">
     <%= live_patch link_body("About", "feather-book-open"),
       to: "/@" <> @username <> "/about",
       class: if @selected == "about", do: "navigation__item active", else: "navigation__item"
@@ -20,8 +19,6 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
       to: "/@" <> @username <> "/likes",
       class: if @selected == "likes", do: "navigation__item active", else: "navigation__item"
     %>
-
-    </div>
     """
   end
 

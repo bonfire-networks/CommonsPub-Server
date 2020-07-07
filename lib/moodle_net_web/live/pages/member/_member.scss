@@ -1,22 +1,22 @@
-.page__community {
+.page__member {
   @include content;
 }
 
-.community__hero {
+.member__hero {
   .suphero {
     @include content_header;
   }
 }
 
-.community__layout {
+.member__layout {
   @include content_two_sides
 }
 
-.community__navigation {
+.member__navigation {
   @include content_navigation
 }
 
-.area__community-hero {
+.area__member-hero {
   margin-bottom: var(--m3);
   .community-hero__image {
     height: 200px;

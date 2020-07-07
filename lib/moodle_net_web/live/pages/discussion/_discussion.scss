@@ -1,7 +1,10 @@
-.wrapper__discussion .discussion__hero {
-  background: var(--lighter);
-  border: var(--border);
-  border-radius: 4px;
+.wrapper__discussion {
+  margin-top: var(--m3);
+  .discussion__hero {
+    background: #fff;
+    border: var(--border);
+    border-radius: 4px;
+  }
 }
 
 .hero__head {
@@ -22,7 +25,7 @@
 
 .head__meta .meta__status {
   padding: var(--m1) var(--m3);
-  background: var(--success);
+  background: var(--color-success);
   color: var(--lighter);
   border-radius: 4px;
   font-size: 13px;
@@ -36,7 +39,7 @@
 
 .discussion__replies {
   margin-top: var(--m3);
-  background: var(--lighter);
+  background: #fff;
   border: var(--border);
   border-radius: 4px;
 }

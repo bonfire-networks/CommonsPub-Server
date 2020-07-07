@@ -6,13 +6,15 @@
 @import "../../lib/moodle_net_web/templates/layout/template_live";
 @import "../../lib/moodle_net_web/live/components/previews/previews";
 @import "../../lib/moodle_net_web/live/components/activity/activity";
+@import "../../lib/moodle_net_web/live/components/about/about";
 @import "../../lib/moodle_net_web/live/pages/my/login/login";
 @import "../../lib/moodle_net_web/live/pages/my/signup/signup";
 @import "../../lib/moodle_net_web/live/pages/my/settings/settings";
 @import "../../lib/moodle_net_web/live/pages/discussion/discussion";
 @import "../../lib/moodle_net_web/live/pages/my/publish/write";
 @import "../../lib/moodle_net_web/live/pages/community/community.scss";
-@import "../../lib/moodle_net_web/live/pages/instance/instance.scss";
+@import "../../lib/moodle_net_web/live/pages/member/member";
+@import "../../lib/moodle_net_web/live/pages/instance/instance";
 
 .markdown-body:empty:before {
   font-family: "feather" !important;
@@ -34,7 +36,6 @@
 
 .markdown-body {
   width: 100%;
-  padding: 10px;
 }
 
 .my__hero h1 {
