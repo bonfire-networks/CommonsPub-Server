@@ -57,8 +57,14 @@ defmodule MoodleNetWeb.Helpers.Activites do
 
       activity.context_type == "comment" ->
         cond do
+          !is_nil(activity.context.reply_to_id) and length(activity.context.name) > 0 ->
+            "replied to " <> activity.context.name
+
           activity.context.reply_to_id ->
             "replied to a discussion"
+
+          activity.context.name ->
+            "started a discussion: " <> activity.context.name
 
           true ->
             "started a discussion"

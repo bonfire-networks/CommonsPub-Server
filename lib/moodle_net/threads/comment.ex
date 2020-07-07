@@ -17,6 +17,7 @@ defmodule MoodleNet.Threads.Comment do
     belongs_to(:thread, Thread)
     belongs_to(:reply_to, Comment)
     field(:canonical_url, :string)
+    field(:name, :string)
     field(:content, :string)
     field(:is_local, :boolean)
     field(:is_hidden, :boolean, virtual: true)
@@ -28,7 +29,7 @@ defmodule MoodleNet.Threads.Comment do
   end
 
   @required ~w(content is_local creator_id)a
-  @cast @required ++ ~w(canonical_url is_hidden is_public reply_to_id)a
+  @cast @required ++ ~w(name canonical_url is_hidden is_public reply_to_id)a
 
   @spec create_changeset(User.t(), Thread.t(), map) :: Changeset.t()
   def create_changeset(creator, thread, attrs) do
@@ -68,5 +69,4 @@ defmodule MoodleNet.Threads.Comment do
   def queries_module, do: Threads.CommentsQueries
 
   def follow_filters, do: []
-
 end

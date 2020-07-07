@@ -1,40 +1,40 @@
 <div class="page__mainContent">
-<section class="instance">
-  <div class="instance__hero">
-    <h1><%= @hostname %></h1>
-  </div>
-  <div class="mainContent__navigation home__navigation">
-    <%= live_patch link_body("About", "feather-book-open"),
+  <section class="instance">
+    <div class="instance__hero">
+      <h1><%= @hostname %></h1>
+    </div>
+    <div class="mainContent__navigation home__navigation">
+      <%= live_patch link_body("About", "feather-book-open"),
             to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-    <%= live_patch link_body("Instance Timeline","feather-activity"),
+      <%= live_patch link_body("Instance Timeline","feather-activity"),
             to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>
-    <%= live_patch link_body("Members", "feather-users"),
-            to: "/instance/members",
-            class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
-          %>
-    <%= live_patch link_body("Communities", "feather-users"),
+      <%= live_patch link_body("Communities", "feather-users"),
             to: "/instance/communities",
             class: if @selected_tab == "communities", do: "navigation__item active", else: "navigation__item"
           %>
-  </div>
-  <div class="mainContent__selected">
-    <%= cond do %>
-      <% @selected_tab == "about" ->  %>
-      <div class="selected__area">
-        <%= live_component(
+      <%= live_patch link_body("Members", "feather-user"),
+            to: "/instance/members",
+            class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
+          %>
+    </div>
+    <div class="mainContent__selected">
+      <%= cond do %>
+        <% @selected_tab == "about" ->  %>
+        <div class="selected__area">
+          <%= live_component(
                   @socket,
                   AboutLive,
                   description: @description,
                   id: :about
                 )
               %>
-      </div>
-      <% @selected_tab == "timeline" -> %>
-      <%= live_component(
+        </div>
+        <% @selected_tab == "timeline" -> %>
+        <%= live_component(
                 @socket,
                 InstanceActivitiesLive,
                 selected_tab: @selected_tab,
@@ -47,21 +47,21 @@
                 before: [],
                 pagination_target: "#instance-activities"
               ) %>
-      <% @selected_tab == "members" -> %>
-      <%= live_component(
+        <% @selected_tab == "members" -> %>
+        <%= live_component(
               @socket,
               InstanceMembersLive,
               selected_tab: @selected_tab,
               id: :members,
               current_user: @current_user
           ) %>
-      <% true -> %>
-      <%= live_component(
+        <% true -> %>
+        <%= live_component(
               @socket,
               TabNotFoundLive
           ) %>
-    <% end %>
+      <% end %>
+    </div>
   </div>
-</div>
 </section>
 </div>

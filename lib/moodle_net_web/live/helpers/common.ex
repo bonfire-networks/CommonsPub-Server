@@ -96,6 +96,7 @@ defmodule MoodleNetWeb.Helpers.Common do
 
   def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do
     socket
+    |> assign(:current_user, nil)
   end
 
   def image(community, field_name) do

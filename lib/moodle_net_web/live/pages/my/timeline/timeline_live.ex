@@ -39,7 +39,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
   end
 
   defp fetch(socket, assigns) do
-    IO.inspect(inbox_for: assigns.current_user)
+    # IO.inspect(inbox_for: assigns.current_user)
 
     {:ok, inbox} =
       UsersResolver.user_inbox_edge(
@@ -49,7 +49,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(inbox: inbox)
+    # IO.inspect(inbox: inbox)
 
     assign(socket,
       activities: inbox.edges,

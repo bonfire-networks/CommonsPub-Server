@@ -41,7 +41,7 @@ defmodule MoodleNetWeb.My.SidebarCommunitiesLive do
     my_communities =
       Enum.map(my_communities, &Communities.prepare(&1, %{icon: true, image: true, actor: true}))
 
-    IO.inspect(my_communities: my_communities)
+    # IO.inspect(my_communities: my_communities)
 
     assign(socket,
       communities: my_communities,

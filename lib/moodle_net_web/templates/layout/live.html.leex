@@ -1,211 +1,137 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <%= csrf_meta_tag() %>
-    <%= live_title_tag assigns[:page_title] || "", suffix: " :: "<>app_name %>
-    <link phx-track-static rel="stylesheet" href="<%= Routes.static_path(@socket, "/css/app.css") %>"/>
-    <script defer phx-track-static type="text/javascript" src="<%= Routes.static_path(@socket, "/js/app.js") %>"></script>
-  </head>
-  <body>
-    <div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
+<div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
 
-    <%= if @current_user do %>
-    <input id="slide-sidebar" type="checkbox" role="button" />
-    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
-    <nav class="logged__drawer">
-      <details class="drawer__profile" >
-        <summary class="button user__dropdown">
-          <img src="<%= e(@current_user, :icon_url, "") %>" />
-          <h3 ><%= e(@current_user, :name, "Me") %></h3>
-        </summary>
-        <ul class="dropdown__list">
-          <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-          <li><a href="/my/settings">Settings</a></li>
-          <li><a href="#">Logout</a></li>
-        </ul>
-      </details>
-      <div class="drawer__menu">
-        <nav class="menu__general">
-          <div class="panel__item">
-            <a href="/my/timeline">
-              <i class="feather-home"></i> Home
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/search">
-              <i class="feather-search"></i> Search
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/instance">
-              <i class="feather-anchor"></i> My Instance
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/my/notifications">
-              <i class="feather-bell"></i> Notifications
-            </a>
-          </div>
-        </nav>
-        <details>
-          <summary>Communities</summary>
-          <nav class="general__details">
-            <%= live_component(
-                @socket,
-                MoodleNetWeb.My.SidebarCommunitiesLive,
-                current_user: @current_user,
-                id: :sidebar_communities,
-              ) %>
-          </nav>
-        </details>
-        <details>
-          <summary>Direct Messages</summary>
-          <nav class="general__details">
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-            <div class="panel__item">
-              <img src="https://picsum.photos/40" />
-              <h3>ValueFlows UI components</h3>
-            </div>
-          </nav>
-        </details>
-        <!-- h3 class="panel__title">Communities</h3 -->
+<%= if @current_user do %>
+<input id="slide-sidebar" type="checkbox" role="button" />
+<label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
+<nav class="side__drawer">
+  <details class="drawer__profile" >
+    <summary class="button user__dropdown">
+      <img src="<%= e(@current_user, :icon_url, "") %>" />
+      <h3 ><%= e(@current_user, :name, "Me") %></h3>
+    </summary>
+    <ul class="dropdown__list">
+      <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+      <li><a href="/my/settings">Settings</a></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
+  </details>
+
+  <div class="drawer__menu">
+
+    <div class="content__bottom">
+    <a href="/write">
+      <button class="button new-community">Compose a post</button>
+    </a>
+    </div>
+
+    <nav class="menu__general">
+      <div class="panel__item">
+        <a href="/my/timeline">
+          <i class="feather-home"></i> My <%=app_name%>
+        </a>
       </div>
-      <div class="content__bottom">
-        <button class="button new-community">Create a new community</button>
+      <div class="panel__item">
+        <a href="/instance/search">
+          <i class="feather-search"></i> Search
+        </a>
+      </div>
+      <div class="panel__item">
+        <a href="/instance">
+          <i class="feather-anchor"></i> My Instance
+        </a>
+      </div>
+      <div class="panel__item">
+        <a href="/my/notifications">
+          <i class="feather-bell"></i> Notifications
+        </a>
       </div>
     </nav>
-  <% end %>
-  <%= if @current_user == nil do %>
-    <header class="page__header">
-      <div class="header__left">
-        <a href="/">
-          CommonsPub
-        </a>
-        <input placeholder="Search..." />
-      </div>
-      <div class="content__meta">
-        <nav class="meta__main-menu">
-          <div class="panel__item">
-            <a href="/my/timeline">
-              <i class="feather-home"></i> Home
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/search">
-              <i class="feather-search"></i> Search
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/">
-              <i class="feather-anchor"></i> My Instance
-            </a>
-          </div>
-          <div class="panel__item">
-            <a href="/my/notifications">
-              <i class="feather-bell"></i> Notifications
-            </a>
-          </div>
-        </nav>
-        <h3 class="panel__title">Communities</h3>
-        <nav class="panel__communities">
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-          <div class="panel__item">
-            <img src="https://picsum.photos/40" />
-            <h3>ValueFlows UI components</h3>
-          </div>
-        </nav>
-      </div>
-      <button class="button new-community">Create a new community</button>
-    </div>
-  </nav>
+
+
+    <details>
+      <summary>Communities</summary>
+      <nav class="general__details">
+        <%= live_component(
+              @socket,
+              MoodleNetWeb.My.SidebarCommunitiesLive,
+              current_user: @current_user,
+              id: :sidebar_communities,
+            ) %>
+      </nav>
+    </details>
+    <details>
+      <summary>Direct Messages</summary>
+      <nav class="general__details">
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>Hello, would you...</h3>
+        </div>
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>Congratulations on...</h3>
+        </div>
+      </nav>
+    </details>
+    <!-- h3 class="panel__title">Communities</h3 -->
+  </div>
+  <div class="content__bottom">
+    <button class="button new-community">Create a new community</button>
+  </div>
+</nav>
 <% end %>
+
 <%= if @current_user == nil do %>
-  <header class="page__header">
-    <div class="header__left">
-      <a href="/">
-        CommonsPub
-      </a>
-      <input placeholder="Search..." />
-    </div>
-    <div class="header__right">
-      <a class="button" href="/login"><i class="feather-file-text"></i> Login</a>
-    </div>
-  </header>
-<% end %>
-<section class="page__wrapper">
-    <p class="alert alert-info" role="alert"
-      phx-click="lv:clear-flash"
-      phx-value-key="info"><%= live_flash(@flash, :info) %></p>
-    <p class="alert alert-danger" role="alert"
-      phx-click="lv:clear-flash"
-      phx-value-key="error"><%= live_flash(@flash, :error) %></p>
-    <%= @inner_content %>
-</section>
-</div>
-</body>
-</html>
+<input id="slide-sidebar" type="checkbox" role="button" />
+        <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
+        <nav class="side__drawer">
+          <div class="drawer__menu">
+            <nav class="menu__general">
+              <div class="panel__item">
+                <a href="/">
+                  <i class="feather-home"></i> <%=app_name%>
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/signup">
+                  <i class="feather-zap"></i> Sign up
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/login">
+                  <i class="feather-log-in"></i> Log in
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/instance/search">
+                  <i class="feather-search"></i> Search
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/instance">
+                  <i class="feather-anchor"></i> About this Instance
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/instance/timeline">
+                  <i class="feather-activity"></i> Instance Timeline
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/instance/communities">
+                  <i class="feather-users"></i> Instance Communities
+                </a>
+              </div>
+              <div class="panel__item">
+                <a href="/instance/members">
+                  <i class="feather-user"></i> Instance Members
+                </a>
+              </div>
+            </nav>
+          </nav>
+        <% end %>
+        <section class="page__wrapper">
+          <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+          <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+          <%= @inner_content %>
+        </section>
+      </div>

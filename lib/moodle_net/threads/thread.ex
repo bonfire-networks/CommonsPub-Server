@@ -15,6 +15,7 @@ defmodule MoodleNet.Threads.Thread do
   alias MoodleNet.Users.User
 
   table_schema "mn_thread" do
+    field(:name, :string)
     belongs_to(:creator, User)
     belongs_to(:context, Pointer)
     belongs_to(:outbox, Feed)
@@ -34,7 +35,7 @@ defmodule MoodleNet.Threads.Thread do
   end
 
   @required ~w(is_local outbox_id)a
-  @cast @required ++ ~w(canonical_url is_locked is_hidden)a
+  @cast @required ++ ~w(name canonical_url is_locked is_hidden)a
 
   def create_changeset(%User{id: creator_id}, %{id: context_id}, attrs) do
     %Thread{}

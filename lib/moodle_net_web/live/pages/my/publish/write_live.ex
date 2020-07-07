@@ -93,12 +93,16 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
       comment = data |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
 
       thread =
-        MoodleNet.Threads.create_with_comment(socket.assigns.current_user, %{comment: comment})
+        MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
+          %{comment: comment},
+          %{context: %{current_user: socket.assigns.current_user}}
+        )
 
       {:noreply,
        socket
        |> put_flash(:info, "Published!")
-       |> redirect(to: "/")}
+       # change redirect
+       |> redirect(to: "/instance/timeline")}
     end
   end
 end
