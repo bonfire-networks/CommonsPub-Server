@@ -14,7 +14,7 @@
 }
 
 .home__navigation {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 .navigation__item {
@@ -22,6 +22,8 @@
   position: relative;
   cursor: pointer;
   color: var(--darker);
+  font-weight: 500;
+  font-size: 14px;
   &:hover {text-decoration: none};
 }
 

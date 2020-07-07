@@ -8,7 +8,7 @@
             to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-    <%= live_patch link_body("Instance Timeline","feather-activity"),
+    <%= live_patch link_body("Timeline","feather-activity"),
             to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>
@@ -54,6 +54,20 @@
               selected_tab: @selected_tab,
               id: :members,
               current_user: @current_user
+          ) %>
+      <% @selected_tab == "communities" -> %>
+      <%= live_component(
+              @socket,
+              InstanceCommunitiesLive,
+              selected_tab: @selected_tab,
+              id: :communities,
+              current_user: @current_user,
+              communities: [],
+              after: [],
+              before: [],
+              page: 1,
+              has_next_page: false,
+              pagination_target: "#instance-communities"
           ) %>
       <% true -> %>
       <%= live_component(

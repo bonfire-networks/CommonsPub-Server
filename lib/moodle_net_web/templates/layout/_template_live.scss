@@ -182,7 +182,61 @@
   display: grid;
   grid-template-rows: auto 1fr 50px;
   z-index: 2;
-
+  .profile__box {
+    height: 200px;
+    background-image: url(http://thepatternlibrary.com/img/r.png);
+    position: relative;
+    input {
+      position: relative;
+      z-index: 10;
+      background: white;
+      min-width: auto;
+      margin: 16px 8px;
+      border-radius: 8px;
+      width: 236px;
+      font-size: 14px;
+    }
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0px;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 5;
+      display: block;
+    }
+    .box__info {
+      position: absolute;
+      z-index: 6;
+      display: flex;
+      
+      align-items: center;
+      bottom: var(--m2);
+      left: var(--m2);
+      right: var(--m2);  
+      img {
+        width: 60px;
+        height: 60px;
+        border-radius: 20px;
+        box-shadow: 0px 4px 8px 2px rgba(0, 0, 0, 0.2);
+      }
+      .box__meta {
+        margin-left: var(--m2);
+        flex: 1;
+        h3 {
+          color: white;
+          margin: 0;
+          font-size: 18px;
+        }
+        h4 {
+          color: #ffffff9c;
+          font-size: 14px;
+        }
+      }
+    }
+  }
   .drawer__menu {
     overflow-y: scroll;
     details {
@@ -253,19 +307,22 @@
 
 .drawer__profile {
   position: relative;
-  
-  .user__dropdown {
-    @include named-avatar;
-    position: relative;
-    z-index: 5;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    border-bottom: var(--border);
-    &::marker {
-      display: none;
-    }
+  font-size: 20px;
+  /* background: #7effd4; */
+  border-radius: 3px;
+  width: 34px;
+  height: 34px;
+  place-content: center;
+  align-items: center;
+  text-align: center;
+  line-height: 34px;
+  color: white;
+  summary::-webkit-details-marker {
+    display: none;
   }
+  summary {
+    list-style: none;
+  } 
   .dropdown__list {
     &:before {
       position: absolute;
@@ -289,7 +346,7 @@
     }
     position: absolute;
     top: 100%;
-    left: var(--m3);
+    left: 0;
     z-index: 100;
     width: 160px;
     margin: 0;
