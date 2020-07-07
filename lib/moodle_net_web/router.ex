@@ -172,10 +172,10 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    live "/discussion/:id", DiscussionLive
+    live "/«/:id", DiscussionLive
 
-    live "/login", LoginLive
-    live "/signup", SignupLive
+    live "/my/login", LoginLive
+    live "/my/signup", SignupLive
 
     pipe_through :ensure_authenticated
 
@@ -183,9 +183,8 @@ defmodule MoodleNetWeb.Router do
     live "/my/profile", MemberLive
     live "/my/settings", SettingsLive
     live "/my/:tab", My.Live
+    live "/my/write", My.Publish.WriteLive
 
-    live "/proto/me", My.ProtoProfileLive
-
-    live "/write", My.Publish.WriteLive
+    live "/my/proto", My.ProtoProfileLive
   end
 end
