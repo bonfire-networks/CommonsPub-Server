@@ -116,6 +116,7 @@
   text-align: center;
   display: block;
   color: var(--gray);
+  margin-top: var(--m3);
 }
 
 .selected__area:empty:after {
@@ -123,11 +124,23 @@
   font-size: 20px;
   text-align: center;
   display: block;
-  margin-top: 8px;
+  margin-top: var(--m2);
   color: var(--gray);
+  margin-bottom: var(--m3);
 }
 
-
+.area__title {
+  margin: -16px;
+  margin-bottom: 0;
+  height: 40px;
+  font-weight: 400;
+  font-size: 14px;
+  padding-left: var(--m3);
+  text-transform: capitalize;
+  border-bottom: var(--border);
+  align-items: center;
+  display: flex;
+}
 
 
 .settings__panel {

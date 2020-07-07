@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     ~L"""
     <div class="discussion__preview">
       <a href="/discussion/<%= @thread.id %>">
-        <h2 class="discussion__title"><%= e(@thread, :name, "A discussion") %></h2>
+        <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
             Started <%= @thread.published_at %> by <%= @thread.creator.name %>

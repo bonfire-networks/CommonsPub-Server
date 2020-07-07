@@ -47,9 +47,20 @@
                 pagination_target: "#community-activities"
               ) %>
           <% @selected_tab == "discussions" ->  %>
-          <div class="selected__area">
-            test
-          </div>
+           <%= live_component(
+                @socket,
+                CommunityDiscussionsLive,
+                community: @community,
+                selected_tab: @selected_tab,
+                id: :discussions,
+                current_user: @current_user,
+                threads: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#community-threads"
+              ) %>
           <% true -> %>
           <%= live_component(
                   @socket,
