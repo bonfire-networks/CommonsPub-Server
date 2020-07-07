@@ -1,16 +1,13 @@
 defmodule ValueFlows.Hydration do
-
   alias MoodleNetWeb.GraphQL.{
     ActorsResolver,
-    CommonResolver,
+    CommonResolver
   }
 
   alias MoodleNet.Users.User
   alias MoodleNet.Communities.Community
 
-  
   def hydrate() do
-
     agent_fields = %{
       canonical_url: [
         resolve: &ActorsResolver.canonical_url_edge/3
@@ -20,18 +17,17 @@ defmodule ValueFlows.Hydration do
       ],
       image: [
         resolve: &UploadResolver.image_content_edge/3
-      ],
+      ]
     }
 
     %{
       # Type extensions
       uri: [
-          parse: &ValueFlows.Util.GraphQL.parse_cool_scalar/1,
-          serialize: &ValueFlows.Util.GraphQL.serialize_cool_scalar/1
+        parse: &ValueFlows.Util.GraphQL.parse_cool_scalar/1,
+        serialize: &ValueFlows.Util.GraphQL.serialize_cool_scalar/1
       ],
-
       agent: [
-        resolve_type: &__MODULE__.agent_resolve_type/2,
+        resolve_type: &__MODULE__.agent_resolve_type/2
       ],
       accounting_scope: [
         resolve_type: &__MODULE__.resolve_context_type/2
@@ -54,19 +50,17 @@ defmodule ValueFlows.Hydration do
         ],
         in_scope_of: [
           resolve: &CommonResolver.context_edge/3
-        ],
+        ]
       },
 
       # start Query resolvers
       value_flows_query: %{
-      
-      # Agents:
+        # Agents:
         agents: [
           resolve: &ValueFlows.Agent.GraphQL.all_agents/2
         ],
         agent: [
-          resolve: &ValueFlows.Agent.GraphQL.agent/2,
-          
+          resolve: &ValueFlows.Agent.GraphQL.agent/2
         ],
         person: [
           resolve: &ValueFlows.Agent.GraphQL.person/2
@@ -81,7 +75,7 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Agent.GraphQL.all_organizations/2
         ],
 
-      # Knowledge
+        # Knowledge
         action: [
           resolve: &ValueFlows.Knowledge.Action.GraphQL.action/2
         ],
@@ -89,15 +83,16 @@ defmodule ValueFlows.Hydration do
           resolve: &ValueFlows.Knowledge.Action.GraphQL.all_actions/2
         ],
 
-      # Planning
+        # Planning
         intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.intent/2
         ],
         intents: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.all_intents/2
         ]
+      },
 
-      }, # end Queries
+      # end Queries
 
       # start Mutation resolvers
       value_flows_mutation: %{
@@ -112,20 +107,20 @@ defmodule ValueFlows.Hydration do
         ],
         delete_intent: [
           resolve: &ValueFlows.Planning.Intent.GraphQL.delete_intent/2
-        ],
+        ]
       }
     }
   end
 
-   # support for interface type
-   def agent_resolve_type(%{agent_type: :person}, _), do: :person
-   def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
-   def agent_resolve_type(%{agent_type: nil}, _), do: :person
- 
-   # def person_is_type_of(_), do: true
-   # def organization_is_type_of(_), do: true
+  # support for interface type
+  def agent_resolve_type(%{agent_type: :person}, _), do: :person
+  def agent_resolve_type(%{agent_type: :organization}, _), do: :organization
+  def agent_resolve_type(%{agent_type: nil}, _), do: :person
 
-  def resolve_context_type(%Organisation{}, _), do: :organisation
+  # def person_is_type_of(_), do: true
+  # def organization_is_type_of(_), do: true
+
+  # def resolve_context_type(%Organisation{}, _), do: :organisation
   def resolve_context_type(%Community{}, _), do: :community
   def resolve_context_type(%User{}, _), do: :user
 end

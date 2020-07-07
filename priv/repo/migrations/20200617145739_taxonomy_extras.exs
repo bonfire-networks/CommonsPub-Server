@@ -9,8 +9,5 @@ defmodule MoodleNet.Repo.Migrations.TaxonomyExtras do
   end
 
   def down do
-
   end
-
-
 end

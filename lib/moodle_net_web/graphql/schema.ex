@@ -67,13 +67,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
   import_types(UsersSchema)
   import_types(UploadSchema)
 
-  # optional modules:
-  # import_types Organisation.GraphQL.Schema
+  # Extension Modules
+  import_types(Profile.GraphQL.Schema)
+  import_types(Character.GraphQL.Schema)
+  import_types(Circle.GraphQL.Schema)
   import_types(Locales.GraphQL.Schema)
-  import_types(Taxonomy.GraphQL.TagsSchema)
+  import_types(Tag.GraphQL.TagSchema)
+  import_types(Taxonomy.GraphQL.TaxonomySchema)
   import_types(Measurement.Unit.GraphQL)
   import_types(Geolocation.GraphQL)
-
   import_types(ValueFlows.Schema)
 
   query do
@@ -95,16 +97,19 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:threads_queries)
     import_fields(:users_queries)
 
-    # import_fields :organisations_queries
+    # Extension Modules
+    import_fields(:profile_queries)
+    import_fields(:character_queries)
+    import_fields(:circles_queries)
+    import_fields(:tag_queries)
 
     # Taxonomy
     import_fields(:locales_queries)
     import_fields(:taxonomy_queries)
 
+    # ValueFlows
     import_fields(:measurement_query)
     import_fields(:geolocation_query)
-
-    # ValueFlows
     import_fields(:value_flows_query)
     import_fields(:value_flows_extra_queries)
   end
@@ -125,12 +130,15 @@ defmodule MoodleNetWeb.GraphQL.Schema do
     import_fields(:threads_mutations)
     import_fields(:users_mutations)
 
-    # import_fields :organisations_mutations
-
+    # Extension Modules
+    import_fields(:profile_mutations)
+    import_fields(:character_mutations)
+    import_fields(:circles_mutations)
+    import_fields(:tag_mutations)
+    import_fields(:taxonomy_mutations)
+    # ValueFlows
     import_fields(:geolocation_mutation)
     import_fields(:measurement_mutation)
-
-    # ValueFlows
     import_fields(:value_flows_mutation)
 
     @desc "Fetch metadata from webpage"

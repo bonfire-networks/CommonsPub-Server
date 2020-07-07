@@ -11,6 +11,7 @@ APP_BUILD ?= `git rev-parse --short HEAD`
 
 init: 
 	@echo "Running build scripts for $(APP_NAME):$(APP_VSN)-$(APP_BUILD)"
+	@chmod 700 .erlang.cookie 
 
 help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -76,12 +77,13 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) build --no-cache
 
 dev-deps: init ## Prepare dev dependencies
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.rebar --force
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix deps.get
-
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web /bin/sh -c 'cd assets/ && npm install && cd ..'
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
+
+dev-db-admin: init ## Start the dev DB and dbeaver admin UI
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up dbeaver 
 
 dev-db: init ## Create the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.create
@@ -94,6 +96,9 @@ dev-db-reset: init ## Reset the dev DB
 
 dev-db-migrate: init ## Run migrations on dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.migrate
+
+dev-db-seeds: init ## Insert some test data in dev DB
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix ecto.seeds
 
 dev-test-db: init ## Create or reset the test DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run -e MIX_ENV=test web mix ecto.reset
@@ -109,6 +114,9 @@ dev-test-psql: init ## Run postgres for tests (without Docker)
 
 dev-setup: dev-deps dev-db dev-db-migrate ## Prepare dependencies and DB for dev
 
+dev-run: init ## Run a custom command in dev env, eg: `make dev-run cmd="mix deps.update plug`
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web $(cmd)
+
 dev: init ## Run the app in dev 
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run --service-ports web
 
@@ -122,6 +130,8 @@ manual-deps: init ## Prepare dependencies (without Docker)
 	mix local.hex --force
 	mix local.rebar --force
 	mix deps.get
+	cd assets/ && npm install && cd ..
+
 
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset
@@ -134,6 +144,10 @@ good-tests: init
 
 vf-tests: init
 	mix test lib/value_flows/{geolocation}/tests.ex 
+
+prepare: init ## Run the app in Docker
+	docker-compose pull 
+	docker-compose build 
 
 run: init ## Run the app in Docker
 	docker-compose up 

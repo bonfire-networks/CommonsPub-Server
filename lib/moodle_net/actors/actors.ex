@@ -32,25 +32,31 @@ defmodule MoodleNet.Actors do
     Repo.insert(NameReservation.changeset(username))
   end
 
-  
-  @doc "creates a new actor with one of two possible usernames" # FIXME
-  def create(%{:preferred_username => preferred_username, :alternative_username => alternative_username} = attrs) when is_map(attrs) do
-
+  # FIXME
+  @doc "creates a new actor with one of two possible usernames"
+  def create(
+        %{
+          :preferred_username => preferred_username,
+          :alternative_username => alternative_username
+        } = attrs
+      )
+      when is_map(attrs) do
     IO.inspect(is_username_available?(preferred_username))
     IO.inspect(is_username_available?(alternative_username))
 
     if(is_username_available?(preferred_username)) do
-      attrs = attrs
-      |> Map.put("preferred_username", alternative_username)
+      attrs =
+        attrs
+        |> Map.put("preferred_username", alternative_username)
     end
 
-    attrs = attrs
-    |> Map.delete(:alternative_username)
+    attrs =
+      attrs
+      |> Map.delete(:alternative_username)
 
     IO.inspect(attrs)
 
     create(attrs)
-
   end
 
   @doc "creates a new actor from the given attrs"
@@ -81,7 +87,8 @@ defmodule MoodleNet.Actors do
     |> create()
   end
 
-  @spec update(user :: User.t(), actor :: Actor.t(), attrs :: map) :: {:ok, Actor.t()} | {:error, Changeset.t()}
+  @spec update(user :: User.t(), actor :: Actor.t(), attrs :: map) ::
+          {:ok, Actor.t()} | {:error, Changeset.t()}
   def update(%User{}, %Actor{} = actor, attrs) when is_map(attrs) do
     Repo.update(Actor.update_changeset(actor, attrs))
   end
@@ -97,18 +104,18 @@ defmodule MoodleNet.Actors do
   def atomise_username(username) when is_nil(username), do: nil
 
   def atomise_username(username) do
-    username
-    |> String.replace(@wordsplit_regex, "-")
-    |> String.replace(@replacement_regex, "")
-    |> String.replace(~r/--+/, "-")
+    Slugger.slugify(username)
+    # |> String.replace(@wordsplit_regex, "-")
+    # |> String.replace(@replacement_regex, "")
+    # |> String.replace(~r/--+/, "-")
   end
 
   def prepare_username(%{:preferred_username => _} = attrs) do
     Map.put(attrs, :preferred_username, atomise_username(attrs.preferred_username))
   end
 
-  def prepare_username(attrs) do # if no username set, autocreate from name
+  # if no username set, autocreate from name
+  def prepare_username(attrs) do
     Map.put(attrs, :preferred_username, atomise_username(Map.get(attrs, :name)))
   end
-
 end

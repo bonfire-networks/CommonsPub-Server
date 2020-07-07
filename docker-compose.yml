@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 
 services:
   backend:
@@ -14,15 +14,22 @@ services:
       - config/docker.env
     depends_on:
       - db
+      - search
     volumes:
       - type: bind
         source: ./uploads
         target: /var/www/uploads
   db:
-    image: postgis/postgis:9.6-3.0-alpine
+    image: postgis/postgis:12-3.0-alpine
     # volumes:
     #   - "./volumes/postgres:/var/lib/postgresql/data"
     # ports:
     #   - "5432:5432"
     env_file:
       - config/docker.env
+  search:
+    image: getmeili/meilisearch
+    ports:
+      - "7700:7700"
+    volumes:
+      - "./data/search:/data.ms"
