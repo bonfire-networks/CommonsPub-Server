@@ -37,6 +37,7 @@ defmodule MoodleNetWeb.InstanceLive do
 
   defp link_body(name, icon) do
     assigns = %{name: name, icon: icon}
+
     ~L"""
       <i class="<%= @icon %>"></i>
       <%= @name %>

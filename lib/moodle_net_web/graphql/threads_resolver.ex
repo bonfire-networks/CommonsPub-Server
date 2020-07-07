@@ -70,30 +70,32 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   end
 
   def creator_threads_edge(%{creator: creator}, %{} = page_opts, info) do
-    IO.inspect(
-      ResolvePages.run(%ResolvePages{
-        module: __MODULE__,
-        fetcher: :fetch_creator_threads_edge,
-        context: creator,
-        page_opts: page_opts,
-        info: info
-      })
-    )
+    # IO.inspect(
+    ResolvePages.run(%ResolvePages{
+      module: __MODULE__,
+      fetcher: :fetch_creator_threads_edge,
+      context: creator,
+      page_opts: page_opts,
+      info: info
+    })
+
+    # )
   end
 
   def fetch_creator_threads_edge(page_opts, info, ids) do
     user = GraphQL.current_user(info)
 
-    IO.inspect(
-      FetchPage.run(%FetchPage{
-        queries: Threads.Queries,
-        query: Thread,
-        cursor_fn: Threads.cursor(:followers),
-        page_opts: page_opts,
-        base_filters: [user: user, creator: ids],
-        data_filters: [page: [desc: [followers: page_opts]]]
-      })
-    )
+    # IO.inspect(
+    FetchPage.run(%FetchPage{
+      queries: Threads.Queries,
+      query: Thread,
+      cursor_fn: Threads.cursor(:followers),
+      page_opts: page_opts,
+      base_filters: [user: user, creator: ids],
+      data_filters: [page: [desc: [followers: page_opts]]]
+    })
+
+    # )
   end
 
   ## mutations
@@ -101,12 +103,13 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   @doc "Create a thread in a community or other context"
   def create_thread(%{context_id: context_id, comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
+      attrs = Map.put(attrs, :is_local, true)
+
       Repo.transact_with(fn ->
         with {:ok, pointer} = Pointers.one(id: context_id),
              :ok <- validate_thread_context(pointer),
              context = Pointers.follow!(pointer),
-             {:ok, thread} <- Threads.create(user, context, %{is_local: true}) do
-          attrs = Map.put(attrs, :is_local, true)
+             {:ok, thread} <- Threads.create(user, context, attrs) do
           Comments.create(user, thread, attrs, context)
         end
       end)
@@ -116,7 +119,9 @@ defmodule MoodleNetWeb.GraphQL.ThreadsResolver do
   @doc "Create a thread with no context, via GraphQL"
   def create_thread(%{comment: attrs}, info) do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info) do
-      Threads.create_with_comment(user, %{comment: attrs})
+      attrs = Map.put(attrs, :is_local, true)
+
+      Threads.create_with_comment(user, attrs)
     end
   end
 

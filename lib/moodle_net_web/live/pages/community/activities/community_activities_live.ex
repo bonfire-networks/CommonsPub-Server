@@ -25,7 +25,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
   # end
 
   def update(assigns, socket) do
-    IO.inspect(assigns, label: "ASSIGNS:")
+    # IO.inspect(assigns, label: "ASSIGNS:")
     {
       :ok,
       socket
@@ -35,7 +35,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
   end
 
   defp fetch(socket, assigns) do
-    IO.inspect(after: assigns.after)
+    # IO.inspect(after: assigns.after)
 
     {:ok, outboxes} =
       CommunitiesResolver.outbox_edge(
@@ -44,7 +44,7 @@ defmodule MoodleNetWeb.CommunityLive.CommunityActivitiesLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(outboxes, label: "OUTBOX COMMUNITY:")
+    # IO.inspect(outboxes, label: "OUTBOX COMMUNITY:")
 
     assign(socket,
       activities: outboxes.edges,

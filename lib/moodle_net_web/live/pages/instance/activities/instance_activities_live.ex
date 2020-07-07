@@ -34,7 +34,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
   end
 
   defp fetch(socket, assigns) do
-    IO.inspect(after: assigns.after)
+    # IO.inspect(after: assigns.after)
 
     {:ok, outboxes} =
       InstanceResolver.outbox_edge(
@@ -43,7 +43,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceActivitiesLive do
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(outboxes: outboxes)
+    # IO.inspect(outboxes: outboxes)
 
     assign(socket,
       activities: outboxes.edges,

@@ -1,5 +1,7 @@
 defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
+  import MoodleNetWeb.Helpers.Common
+
   alias MoodleNetWeb.Helpers.{Discussion}
 
   def mount(thread, _session, socket) do
@@ -16,12 +18,13 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
       {:ok, assign(socket, thread: %{})}
     end
   end
+
   def render(assigns) do
-    IO.inspect(assigns)
+    # IO.inspect(assigns)
     ~L"""
     <div class="discussion__preview">
       <a href="/discussion/<%= @thread.id %>">
-        <h2 class="discussion__title">Title not implementend yet</h2>
+        <h2 class="discussion__title"><%= e(@thread, :name, "A discussion") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
             Started <%= @thread.published_at %> by <%= @thread.creator.name %>

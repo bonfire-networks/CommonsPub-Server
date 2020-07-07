@@ -60,10 +60,26 @@ defmodule MoodleNetWeb.Router do
       pipe_through :graphiql
       pipe_through :graphql
 
+      get "/simple", Absinthe.Plug.GraphiQL,
+        schema: MoodleNetWeb.GraphQL.Schema,
+        interface: :simple,
+        json_codec: Jason,
+        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        default_url: "/api/graphql"
+
+      get "/playground", Absinthe.Plug.GraphiQL,
+        schema: MoodleNetWeb.GraphQL.Schema,
+        interface: :playground,
+        json_codec: Jason,
+        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        default_url: "/api/graphql"
+
       forward "/", Absinthe.Plug.GraphiQL,
         schema: MoodleNetWeb.GraphQL.Schema,
+        interface: :advanced,
         json_codec: Jason,
-        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline}
+        pipeline: {MoodleNetWeb.GraphQL.Pipeline, :default_pipeline},
+        default_url: "/api/graphql"
     end
 
     scope "/graphql" do

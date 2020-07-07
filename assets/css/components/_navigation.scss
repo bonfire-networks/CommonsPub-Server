@@ -1,4 +1,3 @@
-
 .mainContent__navigation {
   margin-top: var(--m2);
   border: var(--border);
@@ -10,7 +9,7 @@
   border-radius: 4px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  background: #fff //FIXME_CSS
+  background: #fff; //FIXME_CSS
 }
 
 .home__navigation {
@@ -30,7 +29,6 @@
 .navigation__item.active {
   color: var(--color-primary);
 }
-
 
 .meta__main-menu {
   .panel__item {
@@ -71,5 +69,5 @@
   font-weight: 500;
   align-self: center;
   margin: 0;
-  margin-left: var(--m2)
+  margin-left: var(--m2);
 }

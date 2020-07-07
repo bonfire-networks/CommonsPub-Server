@@ -47,7 +47,9 @@ import {
   defaultMarkdownSerializer,
 } from "prosemirror-markdown";
 import { exampleSetup } from "prosemirror-example-setup";
-import { inputRules, InputRule } from "prosemirror-inputrules";
+// import { inputRules, InputRule } from "prosemirror-inputrules";
+
+let md_view = null;
 
 Hooks.MarkdownEditor = {
   mounted() {
@@ -84,9 +86,9 @@ Hooks.MarkdownEditor = {
       }
     }
 
-    let el_md = document.getElementById("editor-markdown");
-    let el_raw = document.getElementById("content");
-    let md_view = null;
+    const el_md = document.getElementById("editor-markdown");
+    const el_raw = document.getElementById("content");
+    const style_switch = document.getElementById("editor-style");
 
     function enable_markdown() {
       console.log("enable_md");
@@ -96,23 +98,23 @@ Hooks.MarkdownEditor = {
       md_view.focus();
     }
 
-    document.querySelectorAll(".header__controls input").forEach((button) => {
-      button.addEventListener("change", () => {
-        if (button.checked == false) {
-          el_raw.value = md_view.content;
-          md_view.destroy();
-          el_raw.style.display = "block";
-          el_raw.focus();
-        } else {
-          // visual
-          enable_markdown();
-        }
-      });
+    style_switch.addEventListener("change", () => {
+      if (!style_switch.checked) {
+        console.log("disable_md");
+        console.log(md_view.content);
+        el_raw.value = md_view.content;
+        md_view.destroy();
+        el_raw.style.display = "block";
+        el_raw.focus();
+      } else {
+        // visual
+        enable_markdown();
+      }
     });
 
     // now enable markdown
-    document.getElementById("editor-style-visual").checked = true;
-    enable_markdown(); // with does checking not suffise?
+    // style_switch.checked = true;
+    // enable_markdown(); // with does checking not suffise?
   },
 };
 
@@ -145,6 +147,7 @@ Hooks.MarkdownEditor = {
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
+
 let liveSocket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
   params: { _csrf_token: csrfToken },

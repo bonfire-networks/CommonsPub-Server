@@ -15,7 +15,8 @@ defmodule MoodleNetWeb.DiscussionLive do
       })
 
     thread = Discussion.prepare_thread(thread)
-    IO.inspect(thread, label: "THREAD")
+
+    # IO.inspect(thread, label: "THREAD")
 
     {:ok, comments} =
       CommentsResolver.comments_edge(thread, %{}, %{
@@ -23,7 +24,7 @@ defmodule MoodleNetWeb.DiscussionLive do
       })
 
     comments_edges = Enum.map(comments.edges, &Discussion.prepare_comment/1)
-    IO.inspect(comments_edges, label: "COMMENTS")
+    # IO.inspect(comments_edges, label: "COMMENTS")
     [head | tail] = comments_edges
 
     {:ok,

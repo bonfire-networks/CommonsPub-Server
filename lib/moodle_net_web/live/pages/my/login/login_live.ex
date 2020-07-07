@@ -1,7 +1,10 @@
 defmodule MoodleNetWeb.LoginLive do
   use MoodleNetWeb, :live_view
+  import MoodleNetWeb.Helpers.Common
 
-  def mount(_params, _session, socket) do
+  def mount(params, session, socket) do
+    socket = init_assigns(params, session, socket)
+
     {:ok,
      socket
      |> assign(
@@ -34,7 +37,7 @@ defmodule MoodleNetWeb.LoginLive do
       {:noreply,
        socket
        |> put_flash(:info, "Logged in!")
-       |> redirect(to: "/?auth_token=" <> session.token)}
+       |> redirect(to: "/my/?auth_token=" <> session.token)}
     end
   end
 end
