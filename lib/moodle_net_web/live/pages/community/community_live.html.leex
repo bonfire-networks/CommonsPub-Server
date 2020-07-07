@@ -7,7 +7,7 @@
           <h3><%= @community.name %></h3>
         </div>
         <div class="suphero__actions">
-          <button class="button follow">Follow</button>
+          <button class="button follow">Join</button>
           <button class="button-outline-only-icon">
             <i class="feather-more-horizontal"></i>
           </button>
@@ -15,7 +15,6 @@
       </div>
     </div>
     <div class="community__layout">
-
       <div class="mainContent__selected">
         <%= cond do %>
           <% @selected_tab == "about" ->  %>

@@ -1,6 +1,9 @@
 .component__activity {
-  padding: 16px;
+  padding: var(--m2);
   border-bottom: var(--border);
+  &:last-of-type {
+    border-bottom: 0;
+  }
 }
 
 .component__activity .activity__info {

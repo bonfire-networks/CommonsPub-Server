@@ -1,83 +1,88 @@
 <div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
 
-<%= if @current_user do %>
-<input id="slide-sidebar" type="checkbox" role="button" />
-<label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
-<nav class="side__drawer">
-  <details class="drawer__profile" >
-    <summary class="button user__dropdown">
-      <img src="<%= e(@current_user, :icon_url, "") %>" />
-      <h3 ><%= e(@current_user, :name, "Me") %></h3>
-    </summary>
-    <ul class="dropdown__list">
-      <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-      <li><a href="/my/settings">Settings</a></li>
-      <li><a href="#">Logout</a></li>
-    </ul>
-  </details>
-
-  <div class="drawer__menu">
-
-    <div class="content__bottom">
-    <a href="/write">
-      <button class="button new-community">Compose a post</button>
-    </a>
-    </div>
-
-    <nav class="menu__general">
-      <div class="panel__item">
-        <a href="/my/timeline">
-          <i class="feather-home"></i> My <%=app_name%>
-        </a>
+    <%= if @current_user do %>
+    <%# <input id="slide-sidebar" type="checkbox" role="button" />
+    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label> %>
+    <nav class="logged__drawer">
+      <div class="profile__box">
+        <input placeholder="Search..." />
+        <div class="box__info">
+          <img src="<%= e(@current_user, :icon_url, "") %>" />
+          <div class="box__meta">
+            <h3 ><%= e(@current_user, :name, "Me") %></h3>
+            <h4 ><%= e(@current_user, :username, "@me") %></h4>
+          </div>
+          <details class="drawer__profile" >
+            <summary class="user__dropdown">
+              <i class="feather-more-horizontal"></i>
+            </summary>
+            <ul class="dropdown__list">
+              <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+              <li><a href="/my/settings">Settings</a></li>
+              <li><a href="#">Logout</a></li>
+            </ul>
+          </details>
+        </div>
       </div>
-      <div class="panel__item">
-        <a href="/instance/search">
-          <i class="feather-search"></i> Search
-        </a>
+      <div class="drawer__menu">
+        <nav class="menu__general">
+          <div class="panel__item">
+            <a href="/my/timeline">
+              <i class="feather-home"></i> Home
+            </a>
+          </div>
+          <div class="panel__item">
+            <a href="/instance">
+              <i class="feather-anchor"></i> My Instance
+            </a>
+          </div>
+          <div class="panel__item">
+            <a href="/my/notifications">
+              <i class="feather-bell"></i> Notifications
+            </a>
+          </div>
+        </nav>
+        <details>
+          <summary>Communities</summary>
+          <nav class="general__details">
+            <%= live_component(
+                @socket,
+                MoodleNetWeb.My.SidebarCommunitiesLive,
+                current_user: @current_user,
+                id: :_sidebar_communities,
+              ) %>
+          </nav>
+        </details>
+        <details>
+          <summary>Direct Messages</summary>
+          <nav class="general__details">
+            <div class="panel__item">
+              <img src="https://picsum.photos/40" />
+              <h3>ValueFlows UI components</h3>
+            </div>
+            <div class="panel__item">
+              <img src="https://picsum.photos/40" />
+              <h3>ValueFlows UI components</h3>
+            </div>
+            <div class="panel__item">
+              <img src="https://picsum.photos/40" />
+              <h3>ValueFlows UI components</h3>
+            </div>
+            <div class="panel__item">
+              <img src="https://picsum.photos/40" />
+              <h3>ValueFlows UI components</h3>
+            </div>
+            <div class="panel__item">
+              <img src="https://picsum.photos/40" />
+              <h3>ValueFlows UI components</h3>
+            </div>
+          </nav>
+        </details>
       </div>
-      <div class="panel__item">
-        <a href="/instance">
-          <i class="feather-anchor"></i> My Instance
-        </a>
-      </div>
-      <div class="panel__item">
-        <a href="/my/notifications">
-          <i class="feather-bell"></i> Notifications
-        </a>
+      <div class="content__bottom">
+        <button class="button new-community">Create a new community</button>
       </div>
     </nav>
-
-
-    <details>
-      <summary>Communities</summary>
-      <nav class="general__details">
-        <%= live_component(
-              @socket,
-              MoodleNetWeb.My.SidebarCommunitiesLive,
-              current_user: @current_user,
-              id: :sidebar_communities,
-            ) %>
-      </nav>
-    </details>
-    <details>
-      <summary>Direct Messages</summary>
-      <nav class="general__details">
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>Hello, would you...</h3>
-        </div>
-        <div class="panel__item">
-          <img src="https://picsum.photos/40" />
-          <h3>Congratulations on...</h3>
-        </div>
-      </nav>
-    </details>
-    <!-- h3 class="panel__title">Communities</h3 -->
-  </div>
-  <div class="content__bottom">
-    <button class="button new-community">Create a new community</button>
-  </div>
-</nav>
 <% end %>
 
 <%= if @current_user == nil do %>

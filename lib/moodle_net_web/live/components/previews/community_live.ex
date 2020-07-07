@@ -7,7 +7,7 @@ defmodule MoodleNetWeb.Component.CommunityPreviewLive do
 
   def render(assigns) do
     ~L"""
-    <a href="/community/<%= @community.id %>">
+    <a href="/&<%= @community.actor.preferred_username %>">
       <div class="community__preview">
         <div class="preview__image" style="background-image: url()"></div>
         <div class="preview__info">
