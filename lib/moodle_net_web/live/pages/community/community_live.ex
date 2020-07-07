@@ -7,6 +7,7 @@ defmodule MoodleNetWeb.CommunityLive do
 
   alias MoodleNetWeb.CommunityLive.{
     CommunityDiscussionsLive,
+    CommunityMembersLive,
     # CommunityNavigationLive,
     CommunityActivitiesLive
   }

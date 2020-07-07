@@ -32,6 +32,7 @@
                 %>
           </div>
           <% @selected_tab == "timeline" ->  %>
+            <h3 class="area__title">timeline</h3>
             <%= live_component(
                 @socket,
                 CommunityActivitiesLive,
@@ -47,6 +48,7 @@
                 pagination_target: "#community-activities"
               ) %>
           <% @selected_tab == "discussions" ->  %>
+          <h3 class="area__title">discussions</h3>
            <%= live_component(
                 @socket,
                 CommunityDiscussionsLive,
@@ -60,6 +62,22 @@
                 after: [],
                 before: [],
                 pagination_target: "#community-threads"
+              ) %>
+          <% @selected_tab == "members" ->  %>
+          <h3 class="area__title">members</h3>
+           <%= live_component(
+                @socket,
+                CommunityMembersLive,
+                community: @community,
+                selected_tab: @selected_tab,
+                id: :members,
+                current_user: @current_user,
+                members: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#community-members"
               ) %>
           <% true -> %>
           <%= live_component(
