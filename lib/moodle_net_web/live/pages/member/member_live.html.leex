@@ -1,72 +1,92 @@
-<div class="page__mainContent">
-<section class="page__member">
-  <%= live_component(
-          @socket,
-          HeroProfileLive,
-          user: @user,
-          current_user: @current_user
-        )  %>
-  <%= live_component(
-          @socket,
-          MemberNavigationLive,
-          selected: @selected_tab,
-          username: e(@user, :actor, :preferred_username, ""),
-          current_user: @current_user
-        )
-      %>
-  <div class="mainContent__selected">
-    <%= cond do %>
-      <% @selected_tab == "about" ->  %>
-      <div class="selected__area">
-        <%= live_component(
-                @socket,
-                AboutLive,
-                description: @user.summary
-              )
-            %>
+<div class="page__fullContent">
+  <section class="page__member">
+    <div class="member__hero">
+      <div class="suphero">
+        <div class="suphero__left named-avatar">
+          <img alt="profile pic" src="<%= @user.icon_url %>" />
+          <h3><%= @user.name %></h3>
+        </div>
+        <div class="suphero__actions">
+          <%= if is_map(@current_user) and @user.id==@current_user.id do %>
+            <a href="/my/settings">Settings</a>
+          <% else %>
+            <button class="button follow">Follow</button>
+          <% end %>
+          <button class="button-outline-only-icon">
+            <i class="feather-more-horizontal"></i>
+          </button>
+        </div>
       </div>
-      <% @selected_tab == "timeline" ->  %>
-      <div class="selected__area">
-        <%= live_component(
-                @socket,
-                MemberActivitiesLive,
-                user: @user,
-                selected_tab: @selected_tab,
-                id: :timeline,
-                current_user: @current_user,
-                activities: [],
-                page: 1,
-                has_next_page: false,
-                after: [],
-                before: [],
-                pagination_target: "#member-activities"
+    </div>
+    <div class="member__layout">
+      <div class="mainContent__selected">
+        <%= cond do %>
+          <% @selected_tab == "about" ->  %>
+            <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  HeroProfileLive,
+                  user: @user,
+                  current_user: @current_user
+                )  %>
+            <%= live_component(
+                    @socket,
+                    AboutLive,
+                    description: @user.summary
+                  )
+                %>
+          </div>
+          <% @selected_tab == "timeline" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    MemberActivitiesLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :timeline,
+                    current_user: @current_user,
+                    activities: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-activities"
+                  ) %>
+          </div>
+          <% @selected_tab == "discussions" ->  %>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    MemberDiscussionsLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :timeline,
+                    current_user: @current_user,
+                    members: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-discussions"
+                  ) %>
+          </div>
+          <% true -> %>
+          <%= live_component(
+                  @socket,
+                  TabNotFoundLive
               ) %>
+        <% end %>
       </div>
-      <% @selected_tab == "discussions" ->  %>
-      <div class="selected__area">
+      <div class="member__navigation">
         <%= live_component(
-                @socket,
-                MemberDiscussionsLive,
-                user: @user,
-                selected_tab: @selected_tab,
-                id: :timeline,
-                current_user: @current_user,
-                members: [],
-                page: 1,
-                has_next_page: false,
-                after: [],
-                before: [],
-                pagination_target: "#member-discussions"
-              ) %>
+            @socket,
+            MemberNavigationLive,
+            selected: @selected_tab,
+            username: e(@user, :actor, :preferred_username, ""),
+            current_user: @current_user
+          )
+        %>
       </div>
-      <% true -> %>
-      <%= live_component(
-              @socket,
-              TabNotFoundLive
-          ) %>
-    <% end %>
-  </div>
-</div>
-</div>
-</section>
+    </div>
+  </section>
 </div>
