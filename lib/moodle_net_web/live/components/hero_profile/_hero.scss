@@ -1,29 +1,3 @@
-.suphero {
-  display: flex;
-  height: 60px;
-  align-items: center;
-  margin-bottom: var(--m3);
-}
-
-.suphero__actions  {
-  display: flex;
-  align-items: center;
-    .follow {
-      margin-right: var(--m2);
-    }
-}
-
-.suphero__actions button {
-  margin: 0;
-}
-
-.suphero__actions a:first-of-type {
-  margin: 0;
-  margin-right: var(--m3);
-}
-
-
-
 .mainContent__hero {
   background: var(--color-background);
   border-radius: var(--radius);

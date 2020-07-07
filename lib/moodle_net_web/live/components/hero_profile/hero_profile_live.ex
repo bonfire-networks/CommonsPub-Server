@@ -5,24 +5,6 @@ defmodule MoodleNetWeb.Component.HeroProfileLive do
 
   def render(assigns) do
     ~L"""
-      <div class="suphero">
-        <div class="suphero__left named-avatar">
-          <img alt="profile pic" src="<%= @user.icon_url %>" />
-          <h3><%= @user.name %></h3>
-        </div>
-        <div class="suphero__actions">
-          <%= if is_map(@current_user) and @user.id==@current_user.id do %>
-            <a href="/my/settings">Settings</a>
-          <% else %>
-            <button class="button follow">Follow</button>
-          <% end %>
-          <button class="button-outline-only-icon">
-            <i class="feather-more-horizontal"></i>
-          </button>
-        </div>
-      </div>
-
-
       <div class="mainContent__hero">
         <div class="hero__image">
           <img alt="background image" src="<%= @user.image_url %>" />
