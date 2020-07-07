@@ -76,10 +76,10 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
 
     case mn_object do
       %Thread{} ->
-        redirect(conn, external: frontend_base <> "/discussion/" <> mn_object.id)
+        redirect(conn, external: frontend_base <> "/«/" <> mn_object.id)
 
       %Comment{} ->
-        redirect(conn, external: frontend_base <> "/discussion/" <> mn_object.thread_id)
+        redirect(conn, external: frontend_base <> "/«/" <> mn_object.thread_id)
 
       %Resource{} ->
         redirect(conn,

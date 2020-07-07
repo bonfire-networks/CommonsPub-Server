@@ -16,7 +16,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
        summary_placeholder: "Write a story or get a discussion started!",
        post_label: "Publish",
        current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
-       meili_host: MoodleNet.Instance.hostname(),
+       meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700"),
        tag_search: nil,
        tag_results: [],
        tag_target: ""

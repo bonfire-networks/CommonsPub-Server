@@ -3,21 +3,21 @@
     <%= if @current_user do %>
     <%# <input id="slide-sidebar" type="checkbox" role="button" />
     <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label> %>
-    <nav class="logged__drawer">
+    <nav class="side__drawer">
       <div class="profile__box">
         <input placeholder="Search..." />
         <div class="box__info">
           <img src="<%= e(@current_user, :icon_url, "") %>" />
-          <div class="box__meta">
-            <h3 ><%= e(@current_user, :name, "Me") %></h3>
-            <h4 ><%= e(@current_user, :username, "@me") %></h4>
-          </div>
-          <details class="drawer__profile" >
-            <summary class="user__dropdown">
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+<div class="box__meta">
+  <h3 ><%= e(@current_user, :name, "Me") %></h3>
+  <h4 ><%= e(@current_user, :username, "@me") %></h4>
+</div>
+<details class="drawer__profile" >
+  <summary class="user__dropdown">
+    <i class="feather-more-horizontal"></i>
+  </summary>
+  <ul class="dropdown__list">
+    <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
               <li><a href="/my/settings">Settings</a></li>
               <li><a href="#">Logout</a></li>
             </ul>
@@ -87,56 +87,56 @@
 
 <%= if @current_user == nil do %>
 <input id="slide-sidebar" type="checkbox" role="button" />
-        <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
-        <nav class="side__drawer">
-          <div class="drawer__menu">
-            <nav class="menu__general">
-              <div class="panel__item">
-                <a href="/">
-                  <i class="feather-home"></i> <%=app_name%>
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/signup">
-                  <i class="feather-zap"></i> Sign up
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/login">
-                  <i class="feather-log-in"></i> Log in
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/instance/search">
-                  <i class="feather-search"></i> Search
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/instance">
-                  <i class="feather-anchor"></i> About this Instance
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/instance/timeline">
-                  <i class="feather-activity"></i> Instance Timeline
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/instance/communities">
-                  <i class="feather-users"></i> Instance Communities
-                </a>
-              </div>
-              <div class="panel__item">
-                <a href="/instance/members">
-                  <i class="feather-user"></i> Instance Members
-                </a>
-              </div>
-            </nav>
+      <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
+      <nav class="side__drawer">
+        <div class="drawer__menu">
+          <nav class="menu__general">
+            <div class="panel__item">
+              <a href="/">
+                <i class="feather-home"></i> <%=app_name%>
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/my/signup">
+                <i class="feather-zap"></i> Sign up
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/my/login">
+                <i class="feather-log-in"></i> Log in
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/instance/search">
+                <i class="feather-search"></i> Search
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/instance">
+                <i class="feather-anchor"></i> About this Instance
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/instance/timeline">
+                <i class="feather-activity"></i> Instance Timeline
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/instance/communities">
+                <i class="feather-users"></i> Instance Communities
+              </a>
+            </div>
+            <div class="panel__item">
+              <a href="/instance/members">
+                <i class="feather-user"></i> Instance Members
+              </a>
+            </div>
           </nav>
-        <% end %>
-        <section class="page__wrapper">
-          <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
-          <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
-          <%= @inner_content %>
-        </section>
-      </div>
+        </nav>
+      <% end %>
+      <section class="page__wrapper">
+        <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+        <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+        <%= @inner_content %>
+      </section>
+    </div>
