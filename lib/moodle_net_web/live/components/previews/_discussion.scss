@@ -1,0 +1,31 @@
+
+/* DISCUSSION PREVIEW */
+
+.discussion__preview {
+  padding: 16px;
+  border-bottom: var(--border);
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
+}
+
+.discussion__preview .discussion__title {
+  font-size: 16px;
+  margin: 0;
+  margin-bottom: 8px
+}
+
+.discussion__meta {
+  display: flex;
+  align-items: center;
+  @include text-gray;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.discussion__meta .meta__time {
+  flex: 1;
+
+}

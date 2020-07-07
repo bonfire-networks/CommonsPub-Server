@@ -26,4 +26,8 @@ defmodule MoodleNetWeb.GraphQL.ActorsResolver do
     {:ok, name}
   end
 
+  def display_username_edge(%{}, _, _) do
+    {:ok, nil}
+  end
+
 end

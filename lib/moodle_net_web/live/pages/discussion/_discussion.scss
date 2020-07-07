@@ -1,0 +1,62 @@
+.wrapper__discussion .discussion__hero {
+  background: var(--lighter);
+  border: var(--border);
+  border-radius: 4px;
+}
+
+.hero__head {
+  border-bottom: var(--border);
+  padding: var(--m3);
+}
+
+.hero__head .head__title {
+  font-weight: 500;
+  margin: 0;
+}
+
+.hero__head .head__meta {
+  display: flex;
+  margin-top: var(--m2);
+  align-items: center;
+}
+
+.head__meta .meta__status {
+  padding: var(--m1) var(--m3);
+  background: var(--success);
+  color: var(--lighter);
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: var(--m2)
+}
+
+.head__meta .meta__info {
+  color: var(--gray);
+  font-size: 13px;
+}
+
+.discussion__replies {
+  margin-top: var(--m3);
+  background: var(--lighter);
+  border: var(--border);
+  border-radius: 4px;
+}
+
+.discussion__reply {
+  padding: var(--m3);
+  display: flex;
+}
+
+.discussion__reply img {
+  width: 48px;
+  height: 48px;
+  border-radius: 48px;
+}
+
+.discussion__reply .reply__box {
+  margin-left: var(--m2);
+  width: 100%;
+}
+
+.discussion__reply .reply__box textarea {
+  min-height: 160px;
+}

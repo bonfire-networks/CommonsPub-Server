@@ -17,8 +17,9 @@ alias MoodleNet.{
   Resources,
   Threads,
   Users,
-  Uploads,
+  Uploads
 }
+
 alias MoodleNet.Blocks.Block
 alias MoodleNet.Collections.Collection
 alias MoodleNet.Communities.Community
@@ -30,11 +31,17 @@ alias MoodleNet.Threads.{Comment, Thread}
 alias MoodleNet.Users.User
 alias MoodleNet.Workers.GarbageCollector
 
-alias ValueFlows.Planning.Intent
+hostname = System.get_env("HOSTNAME", "localhost")
+
+# LiveView support: https://hexdocs.pm/phoenix_live_view/installation.html
+config :moodle_net, MoodleNetWeb.Endpoint,
+  live_view: [
+    signing_salt: "SECRET_SALT"
+  ]
 
 # stuff you might need to change to be viable
 
-config :moodle_net, :app_name, System.get_env("APP_NAME", "MoodleNet")
+config :moodle_net, :app_name, System.get_env("APP_NAME", "CommonsPub")
 
 config :moodle_net, MoodleNetWeb.Gettext, default_locale: "en", locales: ~w(en es)
 
@@ -44,20 +51,30 @@ config :moodle_net, GarbageCollector,
   # Contexts which require a mark phase, in execution order
   mark: [Uploads],
   # Contexts which need to perform maintainance, in execution order
-  sweep: [ Uploads, FeedActivities, FeedSubscriptions, Feeds, Features,
-           Resources, Collections, Communities, Users, Actors ],
+  sweep: [
+    Uploads,
+    FeedActivities,
+    FeedSubscriptions,
+    Feeds,
+    Features,
+    Resources,
+    Collections,
+    Communities,
+    Users,
+    Actors
+  ],
   # We will not sweep content newer than this
-  grace: 302400 # one week
+  # one week
+  grace: 302_400
 
 config :moodle_net, Feeds,
   valid_contexts: [Collection, Comment, Community, Resource, Like],
   default_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Blocks,
-  valid_contexts: [Collection, Community, User]
+config :moodle_net, Blocks, valid_contexts: [Collection, Community, User]
 
 config :moodle_net, Instance,
-  hostname: "moodlenet.local",
+  hostname: hostname,
   description: "Local development instance",
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
@@ -69,37 +86,52 @@ config :moodle_net, Communities,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Features,
-  valid_contexts: [Collection, Community]
+config :moodle_net, Features, valid_contexts: [Collection, Community]
 
 config :moodle_net, Flags,
-  valid_contexts: [Collection, Comment, Community, Resource, User]
+  valid_contexts: [Collection, Comment, Community, Resource, User, Circle, Character]
 
 config :moodle_net, Follows,
-  valid_contexts: [Collection, Community, Thread, User, Geolocation, Organisation]
+  valid_contexts: [Collection, Community, Thread, User, Geolocation, Circle, Character]
 
-config :moodle_net, Likes,
-  valid_contexts: [Collection, Community, Comment, Resource, User]
+config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
 
 config :moodle_net, Threads,
-  valid_contexts: [Collection, Community, Flag, Resource, User, Intent]
+  valid_contexts: [Collection, Community, Flag, Resource, User, Circle, Character, ValueFlows.Planning.Intent]
 
 config :moodle_net, Users,
   public_registration: false,
   default_outbox_query_contexts: [Collection, Comment, Community, Resource, Like],
   default_inbox_query_contexts: [Collection, Comment, Community, Resource, Like]
 
-config :moodle_net, Units,
-  valid_contexts: [Organisation, Community, Collection]
+config :moodle_net, Units, valid_contexts: [Circle, Community, Collection]
+
+config :moodle_net, Circle, valid_contexts: [Circle, Community, Collection]
+
+config :moodle_net, Character,
+  valid_contexts: [Character, Circle, Community, Collection],
+  default_outbox_query_contexts: [
+    Collection,
+    Character,
+    Community,
+    Comment,
+    Community,
+    Resource,
+    Like
+  ]
 
 image_media_types = ~w(image/png image/jpeg image/svg+xml image/gif)
 
 config :moodle_net, Uploads.ResourceUploader,
-  allowed_media_types: ~w(text/plain text/html text/markdown text/rtf text/csv) ++
-      # App formats
+  # App formats
+  # Docs
+  # Images
+  # Audio
+  # Video
+  allowed_media_types:
+    ~w(text/plain text/html text/markdown text/rtf text/csv) ++
       ~w(application/rtf application/pdf application/zip application/gzip) ++
       ~w(application/x-bittorrent application/x-tex) ++
-      # Docs
       ~w(application/epub+zip application/vnd.amazon.mobi8-ebook) ++
       ~w(application/postscript application/msword) ++
       ~w(application/powerpoint application/mspowerpoint application/vnd.ms-powerpoint application/x-mspowerpoint) ++
@@ -108,25 +140,21 @@ config :moodle_net, Uploads.ResourceUploader,
       ~w(application/vnd.oasis.opendocument.graphics application/vnd.oasis.opendocument.image) ++
       ~w(application/vnd.oasis.opendocument.presentation application/vnd.oasis.opendocument.spreadsheet) ++
       ~w(application/vnd.oasis.opendocument.text) ++
-      # Images
       image_media_types ++
-      # Audio
       ~w(audio/mp3 audio/m4a audio/wav audio/flac audio/ogg) ++
-      # Video
       ~w(video/avi video/webm video/mp4)
 
-config :moodle_net, Uploads.IconUploader,
-  allowed_media_types: image_media_types
+config :moodle_net, Uploads.IconUploader, allowed_media_types: image_media_types
 
-config :moodle_net, Uploads.ImageUploader,
-  allowed_media_types: image_media_types
+config :moodle_net, Uploads.ImageUploader, allowed_media_types: image_media_types
 
 config :moodle_net, Uploads,
-  max_file_size: System.get_env("UPLOAD_LIMIT", "20000000") # default to 20mb
+  # default to 20mb
+  max_file_size: System.get_env("UPLOAD_LIMIT", "20000000")
 
- # before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
-  # api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
-  # domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
+# before compilation, replace this with the email deliver service adapter you want to use: https://github.com/thoughtbot/bamboo#available-adapters
+# api_key: System.get_env("MAIL_KEY"), # use API key from runtime environment variable (make sure to set it on the server or CI config), and fallback to build-time env variable
+# domain: System.get_env("MAIL_DOMAIN"), # use sending domain from runtime env, and fallback to build-time env variable
 # config :moodle_net, MoodleNet.Mail.MailService,
 #   adapter: Bamboo.MailgunAdapter
 
@@ -146,7 +174,7 @@ config :moodle_net, Oban,
     federator_incoming: 50,
     federator_outgoing: 50,
     ap_incoming: 10,
-    mn_ap_publish: 30,
+    mn_ap_publish: 30
   ]
 
 config :moodle_net, :workers,
@@ -205,7 +233,8 @@ config :mime, :types, %{
 }
 
 config :argon2_elixir,
-  argon2_type: 2 # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
+  # argon2id, see https://hexdocs.pm/argon2_elixir/Argon2.Stats.html
+  argon2_type: 2
 
 # Configures http settings, upstream proxy etc.
 config :moodle_net, :http,
@@ -220,12 +249,10 @@ config :moodle_net, :http,
     ]
   ]
 
-
 config :phoenix, :format_encoders, json: Jason
 config :phoenix, :json_library, Jason
 
-config :furlex, Furlex.Oembed,
-  oembed_host: "https://oembed.com"
+config :furlex, Furlex.Oembed, oembed_host: "https://oembed.com"
 
 config :tesla, adapter: Tesla.Adapter.Hackney
 
@@ -237,11 +264,16 @@ config :floki, :html_parser, Floki.HTMLParser.FastHtml
 
 config :sentry,
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!
+  root_source_code_path: File.cwd!()
 
 config :moodle_net, :env, Mix.env()
+
+config :pointers,
+  table_table: "mn_table",
+  pointer_table: "mn_pointer",
+  trigger_function: "insert_pointer",
+  trigger_prefix: "insert_pointer_"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
-

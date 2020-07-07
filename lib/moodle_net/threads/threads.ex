@@ -17,23 +17,52 @@ defmodule MoodleNet.Threads do
 
   def many(filters \\ []), do: {:ok, Repo.all(Queries.query(Thread, filters))}
 
-  @spec create(User.t, context :: any, map) :: {:ok, Thread.t} | {:error, Changeset.t}
+  @spec create(User.t(), context :: any, map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
   def create(%User{} = creator, context, attrs) do
     Repo.transact_with(fn ->
       with {:ok, feed} <- Feeds.create(),
            attrs = Map.put(attrs, :outbox_id, feed.id),
            {:ok, thread} <- insert(creator, context, attrs) do
-           # act_attrs = %{verb: "created", is_local: thread.is_local},
-           # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
-           # :ok <- publish(creator, thread, context, :created),
-           # :ok <- ap_publish(creator, thread) do
+        # act_attrs = %{verb: "created", is_local: thread.is_local},
+        # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+        # :ok <- publish(creator, thread, context, :created),
+        # :ok <- ap_publish(creator, thread) do
         {:ok, thread}
+      end
+    end)
+  end
+
+  @spec create(User.t(), map) :: {:ok, Thread.t()} | {:error, Changeset.t()}
+  def create(%User{} = creator, attrs) do
+    Repo.transact_with(fn ->
+      with {:ok, feed} <- Feeds.create(),
+           attrs = Map.put(attrs, :outbox_id, feed.id),
+           {:ok, thread} <- insert(creator, attrs) do
+        # act_attrs = %{verb: "created", is_local: thread.is_local},
+        # {:ok, activity} <- Activities.create(creator, thread, act_attrs),
+        # :ok <- publish(creator, thread, context, :created),
+        # :ok <- ap_publish(creator, thread) do
+        {:ok, thread}
+      end
+    end)
+  end
+
+  @doc "Create a thread with a comment and no context"
+  def create_with_comment(creator, %{comment: attrs}) do
+    Repo.transact_with(fn ->
+      with {:ok, thread} <- create(creator, %{is_local: true}) do
+        attrs = Map.put(attrs, :is_local, true)
+        Comments.create(creator, thread, attrs)
       end
     end)
   end
 
   defp insert(creator, context, attrs) do
     Repo.insert(Thread.create_changeset(creator, context, attrs))
+  end
+
+  defp insert(creator, attrs) do
+    Repo.insert(Thread.create_changeset(creator, attrs))
   end
 
   @doc """
@@ -43,8 +72,8 @@ defmodule MoodleNet.Threads do
   def update(%User{}, %Thread{} = thread, attrs) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Repo.update(Thread.update_changeset(thread, attrs)) do
-           # :ok <- publish(thread, :updated),
-           # :ok <- ap_publish(thread) do
+        # :ok <- publish(thread, :updated),
+        # :ok <- ap_publish(thread) do
         {:ok, thread}
       end
     end)
@@ -55,7 +84,7 @@ defmodule MoodleNet.Threads do
   end
 
   @spec soft_delete(User.t(), Thread.t()) :: {:ok, Thread.t()} | {:error, Changeset.t()}
-  def soft_delete(%User{}=user, %Thread{} = thread) do
+  def soft_delete(%User{} = user, %Thread{} = thread) do
     Repo.transact_with(fn ->
       with {:ok, thread} <- Common.soft_delete(thread),
            :ok <- chase_delete(user, thread.id) do
@@ -64,12 +93,15 @@ defmodule MoodleNet.Threads do
     end)
   end
 
-  def soft_delete_by(%User{}=user, filters) do
+  def soft_delete_by(%User{} = user, filters) do
     with {:ok, _} <-
-      Repo.transact_with(fn ->
-        {_, ids} = update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
-        chase_delete(user, ids)
-      end), do: :ok
+           Repo.transact_with(fn ->
+             {_, ids} =
+               update_by(user, [{:select, :id} | filters], deleted_at: DateTime.utc_now())
+
+             chase_delete(user, ids)
+           end),
+         do: :ok
   end
 
   defp chase_delete(user, ids) do
@@ -91,5 +123,4 @@ defmodule MoodleNet.Threads do
   # defp context_feeds(%Community{outbox_id: id}), do: [id]
   # defp context_feeds(%User{inbox_id: inbox, outbox_id: outbox}), do: [inbox, outbox]
   # defp context_feeds(_), do: []
-
 end

@@ -1,0 +1,61 @@
+@import "./components/logo";
+@import "./components/navigation";
+@import "./components/pagination";
+@import "./components/post/autocomplete";
+@import "../../lib/moodle_net_web/live/components/hero_profile/hero";
+@import "../../lib/moodle_net_web/templates/layout/template_live";
+@import "../../lib/moodle_net_web/live/components/previews/previews";
+@import "../../lib/moodle_net_web/live/components/activity/activity";
+@import "../../lib/moodle_net_web/live/pages/my/login/login";
+@import "../../lib/moodle_net_web/live/pages/my/signup/signup";
+@import "../../lib/moodle_net_web/live/pages/my/settings/settings";
+@import "../../lib/moodle_net_web/live/pages/discussion/discussion";
+@import "../../lib/moodle_net_web/live/pages/my/publish/write";
+@import "../../lib/moodle_net_web/live/pages/community/community.scss";
+
+.markdown-body:empty:before {
+  font-family: "feather" !important;
+  content: "\e93e";
+  font-size: 40px;
+  text-align: center;
+  display: block;
+  color: var(--gray);
+}
+
+.markdown-body:empty:after {
+  content: "Nothing to see here...";
+  font-size: 20px;
+  text-align: center;
+  display: block;
+  margin-top: 8px;
+  color: var(--gray);
+}
+
+.markdown-body {
+  width: 100%;
+}
+
+.my__hero h1 {
+  max-width: 100%;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  caret-color: var(--darker);
+  color: var(--darker);
+  font-weight: 700;
+  line-height: 1.2;
+  /* margin-bottom: 4px; */
+  font-size: 40px;
+}
+.instance__hero h1 {
+  max-width: 100%;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  caret-color: var(--darker);
+  color: var(--darker);
+  font-weight: 700;
+  line-height: 1.2;
+  /* margin-bottom: 4px; */
+  font-size: 40px;
+}

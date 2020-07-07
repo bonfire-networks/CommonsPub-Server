@@ -1,0 +1,42 @@
+:root {
+  --fontPrimary: "Fira Sans";
+  --fontSecondary: "Merriweather";
+  --color-background: hsl(120, 100%, 100%);
+  --color-surface: #3C3C3C;
+  --color-primary: hsl(210,97%,61%);
+  --color-primary-alt: hsl(120, 100%, 100%);
+  --color-success: #3DCC30;
+  --color-warning: yellow;
+  --color-error: red;
+  --m1: 4px;
+  --m2: 8px;
+  --m3: 16px;
+  --m4: 24px;
+  --border: 1px solid rgba(0,0,0,.1);
+  --avatar_xl: 150px;
+  --avatar_m: 34px;
+  --radius: 6px;
+}
+
+:root, [data-theme="default"] {
+  --color-primary: hsl(210, 97%, 61%);
+  --color-primary-h: 210;
+  --color-primary-s: 97%;
+  --color-primary-l: 61%;
+  --color-button-classic: hsl(210,25%,98%);
+  --color-button-classic-h: 210;
+  --color-button-classic-s: 25%;
+  --color-button-classic-l: 98%;
+  --color-surface: hsl(0,0%,24%);
+  --color-surface-h: 0;
+  --color-surface-s: 0%;
+  --color-surface-l: 24%;
+}
+
+/* PRIMARY */
+/* SECONDARY */
+/* BACKGROUND */
+/* SURFACE */
+/* SUCCESS */ 
+/* WARNING */ 
+/* ERROR */

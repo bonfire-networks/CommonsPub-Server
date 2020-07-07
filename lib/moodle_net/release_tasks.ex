@@ -228,10 +228,16 @@ defmodule MoodleNet.ReleaseTasks do
     end)
   end
 
+  @doc "Removes the pointer IDs and pointer of a table"
   def remove_meta_table(table) do
     import Ecto.Query
-    {_rows_deleted, _} =
-      Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
+
+    tt = Repo.one(from(x in MoodleNet.Meta.Table, where: x.table == ^table))
+
+    if(!is_nil(tt) and !is_nil(tt.id)) do {_rows_deleted, _} = Repo.delete_all(from(x in MoodleNet.Meta.Pointer, where: x.table_id == ^tt.id)) end
+
+    {_rows_deleted, _} = Repo.delete_all(from(x in Meta.Table, where: x.table == ^table))
+
   end
 
   @deleted_user %{ id: Users.deleted_user_id(),

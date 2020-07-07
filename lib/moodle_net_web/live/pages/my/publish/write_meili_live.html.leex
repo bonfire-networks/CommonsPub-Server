@@ -1,0 +1,98 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tributejs@latest/dist/tribute.css">
+<section class="page__write">
+  <form action="#" phx-change="tag_suggest" phx-submit="post" class="mainContent_write">
+    <input id="name" name="name" placeholder="<%= @title_placeholder %>" />
+    <textarea id="content" name="content" placeholder="<%= @summary_placeholder %>"></textarea>
+    <button class="button-primary" type="submit" phx-disable-with="Posting..."><%=@post_label%></button>
+  </form>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/tributejs@latest/dist/tribute.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meilisearch@latest/dist/bundles/meilisearch.browser.min.js"></script>
+<script>
+  const meili = {}
+  meili.client = new MeiliSearch({
+    host: 'http://<%=@meili_host%>:7700',
+    apiKey: 'searchAPIKey',
+  })
+  meili.search = {index: meili.client.getIndex('search')}
+  meili.tags = {index: meili.client.getIndex('taxonomy_tags_tree')}
+  
+  
+  var tributeMultipleTriggers = new Tribute({
+    collection: [
+      {
+        // The function that gets call on select that retuns the content to insert
+        selectTemplate: function(item) {
+          if (this.range.isContentEditable(this.current.element)) {
+            return (
+              '<a href="' +
+              item.original.canonicalUrl +
+              '">@' +
+              item.original.name +
+              "</a>"
+            );
+          }
+  
+          return "@" + item.original.name;
+        },
+  
+        // function retrieving an array of objects
+        values: async function(typed, cb) {
+          if(typed.length>0){
+            remoteSearch(typed, meili.search, results => cb(results))
+          }
+        },
+        lookup: "name",
+        fillAttr: "name"
+      },
+      {
+        // The symbol that starts a different lookup
+        trigger: "#",
+        // The function that gets call on select that retuns the content to insert
+        selectTemplate: function(item) {
+          console.log(item)
+          if (this.range.isContentEditable(this.current.element)) {
+            return (
+              '<a href="' +
+              item.original.canonicalUrl +
+              '">#' +
+              item.original.name.replace() +
+              "</a>"
+            );
+          }
+  
+          return "#" + item.original.label;
+        },
+        // function retrieving an array of objects
+        values: async function(typed, cb) {
+          if(typed.length>0){
+            remoteSearch(typed, meili.tags, results => cb(results))
+          }
+        },
+        lookup: "label",
+        fillAttr: "label"
+      }
+    ]
+  });
+  
+  tributeMultipleTriggers.attach(document.getElementById("name"));
+  tributeMultipleTriggers.attach(document.getElementById("content"));
+  
+  async function remoteSearch(typed, meilii, cb) {
+  
+    const search = await meilii.index.search(typed)
+  
+    if (search.hits.length) {
+      cb(search.hits);
+    } else  {
+      cb([]);
+    }
+  }
+</script>
+<div id="autocomplete-dropdown" style="top: 90px; left: 378.5px; position: absolute; display: block;">
+  <ul>
+    <%= for match <- @matches do %>
+      <li data-tag="<%= match %>" phx-hook="TagPick" data-search="<%= @tag_search %>" data-target="<%= @tag_target %>" ><%= r(tag_match(match, @tag_search)) %></li>
+    <% end %>
+  </ul>
+</div>

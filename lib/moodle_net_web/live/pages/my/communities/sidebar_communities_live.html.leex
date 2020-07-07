@@ -1,0 +1,8 @@
+<%= for community <- @communities do %>
+  <div class="panel__item">
+    <a href="/&<%= e(community, :actor, :preferred_username, e(community, :id, ""))%>">
+      <img src="<%= e(community, :icon_url, e(community, :image_url, "https://picsum.photos/40"))%>" />
+      <h3><%= e(community, :name, "Community")%></h3>
+    </a>
+  </div>
+<% end %>
