@@ -86,7 +86,7 @@
 .page__wrapper {
   overflow-y: scroll;
   height: 100vh;
-  background: #f6f8fa!important
+  background: #f6f8fa !important;
 }
 
 .page__mainContent {
@@ -106,7 +106,7 @@
   border-top: 0;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
-  background: #fff //FIXME_CSS;
+  background: #fff; //FIXME_CSS;
 }
 
 .selected__area:empty:before {
@@ -176,15 +176,10 @@
   /* background: #2e373f; */
 }
 
-.Drawer {
-  width: 260px;
-  position: relative;
-  padding-bottom: var(--m3);
-}
-
 // DRAWER
 
-.logged__drawer {
+.side__drawer {
+  width: 260px;
   background: #fff;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
   border-right: 1px solid #fff;
@@ -224,11 +219,11 @@
       position: absolute;
       z-index: 6;
       display: flex;
-      
+
       align-items: center;
       bottom: var(--m2);
       left: var(--m2);
-      right: var(--m2);  
+      right: var(--m2);
       img {
         width: 60px;
         height: 60px;
@@ -251,7 +246,7 @@
     }
   }
   .drawer__menu {
-    overflow-y: scroll;
+    overflow-y: auto;
     details {
       margin-bottom: var(--m3);
       summary {
@@ -288,7 +283,6 @@
           text-decoration: none;
         }
       }
-      
     }
     .menu__general {
       padding-top: var(--m3);
@@ -335,7 +329,7 @@
   }
   summary {
     list-style: none;
-  } 
+  }
   .dropdown__list {
     &:before {
       position: absolute;
@@ -345,7 +339,7 @@
       left: 9px;
       right: auto;
       border: 8px solid transparent;
-      border-bottom-color: rgba(27,31,35,.15);
+      border-bottom-color: rgba(27, 31, 35, 0.15);
     }
     &:after {
       top: -14px;
@@ -372,7 +366,7 @@
     background-clip: padding-box;
     border: 1px solid #e1e4e8;
     border-radius: 6px;
-    box-shadow: 0 8px 24px rgba(149,157,165,.2);
+    box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
     li {
       color: var(--color-surface);
       display: block;
@@ -390,7 +384,7 @@
       }
       a {
         font-weight: 500;
-        color: var(--color-surface)
+        color: var(--color-surface);
       }
     }
   }
@@ -407,16 +401,6 @@
   }
 }
 
-// CSS-only drawer:
-.Drawer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  -moz-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-}
-
 .page__wrapper {
   position: absolute;
   top: 0;
@@ -431,7 +415,7 @@
   display: none;
 }
 
-#slide-sidebar:checked ~ .logged__drawer {
+#slide-sidebar:checked ~ .side__drawer {
   width: 0;
   overflow: hidden;
 }
@@ -443,7 +427,6 @@
 #slide-sidebar:checked ~ #slide-sidebar-label {
   left: 0;
 }
-
 
 #slide-sidebar-label {
   z-index: 10;
