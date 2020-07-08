@@ -222,7 +222,7 @@ config :phoenix, :json_library, Jason
 config :furlex, Furlex.Oembed,
   oembed_host: "https://oembed.com"
 
-config :tesla, adapter: Tesla.Adapter.Hackney
+config :tesla, adapter: Tesla.Adapter.Gun
 
 config :http_signatures, adapter: ActivityPub.Signature
 
@@ -239,4 +239,3 @@ config :moodle_net, :env, Mix.env()
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
-

@@ -66,9 +66,11 @@ defmodule MoodleNet.Mixfile do
       {:absinthe_error_payload, "~> 1.0"},
       # webserver
       {:cowboy, "~> 2.6"},
+      {:cowlib, "~> 2.8", override: true},
       {:plug_cowboy, "~> 2.2"},
       {:plug, "~> 1.10"},
       {:cors_plug, "~> 2.0"}, # security (CORS)
+      {:castore, "~> 0.1"},
       # phoenix
       {:phoenix, "~> 1.5.3"},
       {:phoenix_pubsub, "~> 2.0"},
@@ -94,8 +96,12 @@ defmodule MoodleNet.Mixfile do
       {:cloak_ecto, "~> 1.0"}, # Username reservation
       {:argon2_elixir, "~> 2.0"}, # Password hashing
       # Outbound HTTP
-      {:hackney, "~> 1.16"},
-      {:tesla, "~> 1.2"},
+      {:gun,
+       github: "ninenines/gun", ref: "e1a69b36b180a574c0ac314ced9613fdd52312cc", override: true},
+      {:tesla,
+      git: "https://git.pleroma.social/pleroma/elixir-libraries/tesla.git",
+      ref: "61b7503cef33f00834f78ddfafe0d5d9dec2270b",
+      override: true},
       # Email
       {:bamboo, "~> 1.5"}, # sending
       {:bamboo_smtp, "~> 2.1.0"}, # generic smtp backend
