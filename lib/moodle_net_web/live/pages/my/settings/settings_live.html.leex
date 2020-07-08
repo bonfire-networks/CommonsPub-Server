@@ -38,9 +38,21 @@
           <% @selected_tab == "preferences" ->  %>
             <div class="selected__area"></div>
           <% @selected_tab == "instance" ->  %>
-            <div class="selected__area"></div>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  SettingsInstanceLive,
+                  current_user: @current_user
+                )  %>
+            </div>
           <% @selected_tab == "invites" ->  %>
-            <div class="selected__area"></div>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  SettingsInvitesLive,
+                  current_user: @current_user
+                )  %>
+            </div>
           <% @selected_tab == "flags" ->  %>
             <div class="selected__area"></div>
         <% true -> %>

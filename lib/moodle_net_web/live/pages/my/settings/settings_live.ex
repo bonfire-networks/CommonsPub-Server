@@ -3,7 +3,12 @@ defmodule MoodleNetWeb.SettingsLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
-  alias MoodleNetWeb.SettingsLive.{SettingsNavigationLive, SettingsGeneralLive}
+  alias MoodleNetWeb.SettingsLive.{
+    SettingsNavigationLive,
+    SettingsGeneralLive,
+    SettingsInstanceLive,
+    SettingsInvitesLive
+  }
   alias MoodleNetWeb.Component.{
     TabNotFoundLive
   }
