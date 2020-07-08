@@ -1,0 +1,84 @@
+dialog {
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+}
+
+.dialog__container {
+  width: auto;
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    summary {
+      list-style: none;
+    }
+  &[open] {
+    & > summary:before {
+      content: " ";
+      background: rgba(0, 0, 0, 0.5);
+      display: block;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 1;
+    }
+    &::before {
+      display: block;
+    }
+  }
+}
+.dialog {
+  position: fixed;
+  margin: 10vh auto;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  max-height: 80vh;
+  max-width: 90vw;
+  animation-name: fade-in;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-duration: 300ms;
+  width: 600px;
+  background: #fff;
+  .dialog__header {
+    padding: 16px;
+    background-color: #f6f8fa;
+    border-color: #d1d5da;
+    border-style: solid;
+    border-width: 1px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+  }
+  .dialog__content {
+    padding: 16px;
+    form {
+      input {
+        width: 100%;
+      }
+      textarea {
+        height: 150px;
+      }
+    }
+  }
+  .dialog__footer {
+    margin-top: var(--m2)
+  }
+}
+
+
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateX(-3rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

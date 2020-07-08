@@ -8,6 +8,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     {:ok, assign(socket, thread: thread)}
   end
 
+  @spec update(map, Phoenix.LiveView.Socket.t()) :: {:ok, any}
   def update(assigns, socket) do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
@@ -23,8 +24,8 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     # IO.inspect(assigns)
     ~L"""
     <div class="discussion__preview">
-      <a href="/«/<%= @thread.id %>">
-        <h2 class="discussion__title"><%= e(@thread, :name, "A discussion") %></h2>
+      <a href="/discussion/<%= @thread.id %>">
+        <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
             Started <%= @thread.published_at %> by <%= @thread.creator.name %>

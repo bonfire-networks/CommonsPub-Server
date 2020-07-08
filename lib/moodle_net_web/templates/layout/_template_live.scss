@@ -311,7 +311,7 @@
   .content__bottom {
     margin: var(--m2);
     .new-community {
-      width: 100%;
+      // width: 100%;
     }
   }
 }
@@ -362,6 +362,11 @@
 }
 
 
+.dialog__newCommunity {
+  input {
+    margin-bottom: var(--m2);
+  }
+}
 
 .page__full {
   background: #f6f8fa !important;

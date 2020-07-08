@@ -85,7 +85,21 @@
         </details>
       </div>
       <div class="content__bottom">
-        <button class="button new-community">Create a new community</button>
+        <details class="dialog__container">
+          <summary class="button new-community">Create a new community</summary>
+          <dialog open class="dialog dialog__newCommunity">
+            <header class="dialog__header">Create a new community</header>
+            <section class="dialog__content">
+              <form>
+                <input placeholder="Type the community name..." />
+                <textarea placeholder="Describe your community..."></textarea>
+                <footer class="dialog__footer">
+                  <button id="confirmBtn" value="default">Confirm</button>
+                </footer>
+              </form>
+            </section>
+          </dialog>
+        </details>
       </div>
     </nav>
 <% end %>
