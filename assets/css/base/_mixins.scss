@@ -284,6 +284,7 @@ $grid-columns: 12 !default;
   border: 1px solid #e4e4e4;
   height: fit-content;
   box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+  height: max-content;
   a {
     display: block;
     height: 50px;

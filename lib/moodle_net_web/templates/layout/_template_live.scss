@@ -10,6 +10,11 @@
   }
 }
 
+.guest__container {
+  overflow-y: scroll;
+  height: 100vh;
+}
+
 .page.guest {
   display: grid;
   height: 100vh;
