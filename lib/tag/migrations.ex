@@ -21,7 +21,7 @@ defmodule Tag.Migrations do
       #
       add(
         :taxonomy_tag_id,
-        references(:taxonomy_tag, on_update: :update_all, on_delete: :nilify_all, type: :integer)
+        references("taxonomy_tag", on_update: :update_all, on_delete: :nilify_all, type: :integer)
       )
     end
 

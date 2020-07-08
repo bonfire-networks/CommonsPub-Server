@@ -150,7 +150,7 @@ defmodule MoodleNet.Mixfile do
       # {:pointers, "~> 0.2.2"},
       {:pointers,
        git: "https://github.com/commonspub/pointers.git",
-       ref: "9974bbeb4faecd0a4d3e9ba63deecca77c2d5cb6"},
+       ref: "8bf93a362785bf85fab03ad015f145f73dc6baab"},
       # {:pointers, path: "uploads/many-pointers"},
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},

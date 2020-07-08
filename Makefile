@@ -17,6 +17,7 @@ help: init
 	@perl -nle'print $& if m{^[a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build_without_cache: init ## Build the Docker image
+	@cp lib/*/overlay/* rel/overlays/
 	@docker build \
 		--no-cache \
 		--build-arg APP_NAME=$(APP_NAME) \
@@ -26,6 +27,7 @@ build_without_cache: init ## Build the Docker image
 	@echo $(APP_DOCKER_REPO):$(APP_VSN)-$(APP_BUILD)
 
 build: init ## Build the Docker image using previous cache
+	@cp lib/*/overlay/* rel/overlays/
 	@docker build \
 		--build-arg APP_NAME=$(APP_NAME) \
 		--build-arg APP_VSN=$(APP_VSN) \
