@@ -49,30 +49,38 @@ import {
 import { exampleSetup } from "prosemirror-example-setup";
 // import { inputRules, InputRule } from "prosemirror-inputrules";
 
-let md_view = null;
+var md_view = null;
+var md_last_content = null;
 
 Hooks.MarkdownEditor = {
   mounted() {
-    console.log("MarkdownEditor mounted");
+    console.log("MarkdownEditor ready");
+
+    const el_md = document.getElementById("editor-markdown");
+    const el_raw = document.getElementById("content");
+    const style_switch = document.getElementById("editor-style");
 
     class ProseMirrorView {
       constructor(target, content) {
-        this.view = new EditorView(target, {
+        let view = new EditorView(target, {
           state: EditorState.create({
             doc: defaultMarkdownParser.parse(content),
-            plugins:
-              // [
-              exampleSetup({ schema }),
-            //   inputRules({
-            //     rules: [
-            //       InputRule("t$", (state, match, start, end) => {
-            //         console.log("tag! ");
-            //       }),
-            //     ],
-            //   }),
-            // ],
+            plugins: exampleSetup({ schema }),
           }),
+          dispatchTransaction(tr) {
+            view.updateState(view.state.apply(tr));
+            //current state value:
+            var cur_content = defaultMarkdownSerializer.serialize(
+              view.state.doc
+            );
+            if (md_last_content != cur_content) {
+              // console.log("edited: " + cur_content);
+              el_raw.value = cur_content;
+              md_last_content = cur_content;
+            }
+          },
         });
+        this.view = view;
       }
 
       get content() {
@@ -86,25 +94,24 @@ Hooks.MarkdownEditor = {
       }
     }
 
-    const el_md = document.getElementById("editor-markdown");
-    const el_raw = document.getElementById("content");
-    const style_switch = document.getElementById("editor-style");
-
     function enable_markdown() {
-      console.log("enable_md");
+      console.log("enable md with:");
       console.log(el_raw.value);
       el_raw.style.display = "none";
+      // el_raw.style.visibility = "hidden";
+
       md_view = new ProseMirrorView(el_md, el_raw.value);
       md_view.focus();
     }
 
     style_switch.addEventListener("change", () => {
       if (!style_switch.checked) {
-        console.log("disable_md");
+        console.log("disable md with:");
         console.log(md_view.content);
         el_raw.value = md_view.content;
         md_view.destroy();
         el_raw.style.display = "block";
+        // el_raw.style.visibility = "visible";
         el_raw.focus();
       } else {
         // visual
