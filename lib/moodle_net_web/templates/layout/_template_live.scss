@@ -14,7 +14,6 @@
   display: grid;
   height: 100vh;
   grid-template-rows: 60px auto;
-  row-gap: var(--m3);
   grid-template-columns: 1fr;
 }
 
@@ -326,6 +325,41 @@
       font-weight: 500;
     }
   }
+}
+
+.guest__menu {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-bottom: var(--border);
+  .menu__left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    .left__home {
+      color: var(--color-surface);
+    }
+    input {
+      margin-left: 16px;
+      width: 280px;
+      border-radius: 8px;
+      box-shadow: 1px 1px 1px 0px rgba(0,0,0,.2);
+      background: #f9f9f9;
+      font-size: 14px;
+    }
+  }
+  .menu__right {
+    display: flex;
+    a {
+      margin-left: var(--m2)
+    }
+  }
+}
+
+
+
+.page__full {
+  background: #f6f8fa !important;
 }
 
 .page__wrapper {

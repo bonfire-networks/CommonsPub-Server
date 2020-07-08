@@ -91,55 +91,30 @@
 <% end %>
 
 <%= if @current_user == nil do %>
-<input id="slide-sidebar" type="checkbox" role="button" />
-      <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
-      <nav class="side__drawer">
-        <div class="drawer__menu">
-          <nav class="menu__general">
+        <div class="guest__menu">
+          <div class="menu__left">
             <div class="panel__item">
-              <a href="/">
+              <a class="left__home" href="/">
                 <i class="feather-home"></i> <%=app_name%>
               </a>
             </div>
-            <div class="panel__item">
-              <a href="/my/signup">
-                <i class="feather-zap"></i> Sign up
-              </a>
+            <input placeholder="search in the instance..." />
+          </div>
+            <div class="menu__right">
+              <div class="panel__item">
+                <a class="button" href="/my/login">
+                  <i class="feather-log-in"></i> Log in
+                </a>
+              </div>
+              <div class="panel__item">
+                <a class="button" href="/my/signup">
+                  <i class="feather-zap"></i> Sign up
+                </a>
+              </div>
             </div>
-            <div class="panel__item">
-              <a href="/my/login">
-                <i class="feather-log-in"></i> Log in
-              </a>
-            </div>
-            <div class="panel__item">
-              <a href="/instance/search">
-                <i class="feather-search"></i> Search
-              </a>
-            </div>
-            <div class="panel__item">
-              <a href="/instance">
-                <i class="feather-anchor"></i> About this Instance
-              </a>
-            </div>
-            <div class="panel__item">
-              <a href="/instance/timeline">
-                <i class="feather-activity"></i> Instance Timeline
-              </a>
-            </div>
-            <div class="panel__item">
-              <a href="/instance/communities">
-                <i class="feather-users"></i> Instance Communities
-              </a>
-            </div>
-            <div class="panel__item">
-              <a href="/instance/members">
-                <i class="feather-user"></i> Instance Members
-              </a>
-            </div>
-          </nav>
-        </nav>
+        </div>
       <% end %>
-      <section class="page__wrapper">
+      <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
         <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
         <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
         <%= @inner_content %>
