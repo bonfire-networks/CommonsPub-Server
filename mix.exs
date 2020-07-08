@@ -116,7 +116,7 @@ defmodule MoodleNet.Mixfile do
       {:recase, "~> 0.5"},   # camel/snake/kebabification
       {:furlex,
       git: "https://gitlab.com/moodlenet/servers/furlex",
-      ref: "d11dc0b9fffc69348849e0769f8828bd382de793"}, # webpage summary
+      ref: "589c6a2e15e97606c53f86b466087192de3680fa"}, # webpage summary
       {:fast_html, "~> 1.0"}, #html parser
       {:http_signatures,
       git: "https://git.pleroma.social/pleroma/http_signatures.git",
