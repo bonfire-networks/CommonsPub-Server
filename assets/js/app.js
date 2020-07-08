@@ -74,7 +74,7 @@ Hooks.MarkdownEditor = {
               view.state.doc
             );
             if (md_last_content != cur_content) {
-              console.log("edited: " + cur_content);
+              // console.log("edited: " + cur_content);
               el_raw.value = cur_content;
               md_last_content = cur_content;
             }
@@ -97,8 +97,8 @@ Hooks.MarkdownEditor = {
     function enable_markdown() {
       console.log("enable md with:");
       console.log(el_raw.value);
-      // el_raw.style.display = "none";
-      el_raw.style.visibility = "hidden";
+      el_raw.style.display = "none";
+      // el_raw.style.visibility = "hidden";
 
       md_view = new ProseMirrorView(el_md, el_raw.value);
       md_view.focus();
@@ -110,8 +110,8 @@ Hooks.MarkdownEditor = {
         console.log(md_view.content);
         el_raw.value = md_view.content;
         md_view.destroy();
-        // el_raw.style.display = "block";
-        el_raw.style.visibility = "visible";
+        el_raw.style.display = "block";
+        // el_raw.style.visibility = "visible";
         el_raw.focus();
       } else {
         // visual
