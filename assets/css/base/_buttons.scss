@@ -55,7 +55,16 @@
       outline: none;
       box-shadow: 0 0 0 4px lightness($bg, 0.96);
     }
+}
 
+@mixin button-link ($color: var(--color-primary)) {
+  background: var(--color-background);
+  color: $color;
+  border: none;
+  &:hover {
+    background: inherit;
+    color: lightness($color, 0.8)
+  }
 }
 
 @mixin button-outline (
@@ -143,8 +152,19 @@ button {
   @include button();
 }
 
+.button-link {
+  @include button-link
+}
+
 .button-outline {
   @include button-outline();
+}
+
+
+.button-classic-only-icon {
+ @include button-classic;
+ min-width: auto;
+ width: auto; 
 }
 
 .button-only-icon {

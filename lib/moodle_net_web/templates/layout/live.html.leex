@@ -8,16 +8,16 @@
         <input placeholder="Search..." />
         <div class="box__info">
           <img src="<%= e(@current_user, :icon_url, "") %>" />
-<div class="box__meta">
-  <h3 ><%= e(@current_user, :name, "Me") %></h3>
-  <h4 ><%= e(@current_user, :username, "@me") %></h4>
-</div>
-<details class="drawer__profile" >
-  <summary class="user__dropdown">
-    <i class="feather-more-horizontal"></i>
-  </summary>
-  <ul class="dropdown__list">
-    <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+          <div class="box__meta">
+            <h3 ><%= e(@current_user, :name, "Me") %></h3>
+            <h4 ><%= e(@current_user, :username, "@me") %></h4>
+          </div>
+          <details class="drawer__profile" >
+            <summary class="user__dropdown">
+              <i class="feather-more-horizontal"></i>
+            </summary>
+            <ul class="dropdown__list">
+              <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
               <li><a href="/my/settings">Settings</a></li>
               <li><a href="#">Logout</a></li>
             </ul>

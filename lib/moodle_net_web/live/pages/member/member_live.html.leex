@@ -11,10 +11,16 @@
             <a href="/my/settings">Settings</a>
           <% else %>
             <button class="button follow">Follow</button>
+            <details class="more__dropdown">
+            <summary>
+              <i class="feather-more-horizontal"></i>
+            </summary>
+            <ul class="dropdown__list">
+              <li><button class="button-link" >Report</button></li>
+              <li><button class="button-link" >Block</button></li>
+            </ul>
+          </details>
           <% end %>
-          <button class="button-outline-only-icon">
-            <i class="feather-more-horizontal"></i>
-          </button>
         </div>
       </div>
     </div>
