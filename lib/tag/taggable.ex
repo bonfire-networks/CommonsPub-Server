@@ -2,7 +2,10 @@
 # Copyright © 2018-2019 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Tag.Taggable do
-  use Pointers.Schema
+  use Pointers.Pointable,
+    otp_app: :moodle_net,
+    source: "tags",
+    table_id: "TAGSCANBECATEG0RY0RHASHTAG"
 
   alias Ecto.Changeset
   alias Tag.Taggable
@@ -12,7 +15,7 @@ defmodule Tag.Taggable do
   @required ~w(prefix)a
   @cast @required ++ ~w(context_id parent_tag_id same_as_tag_id taxonomy_tag_id)a
 
-  pointable_schema("tags", "TAGSCANBECATEG0RY0RHASHTAG") do
+  pointable_schema do
     # eg. @ or + or #
     field(:prefix, :string)
 
