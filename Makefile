@@ -78,7 +78,7 @@ dev-rebuild: init ## Rebuild the dev image (without cache)
 
 dev-deps: init ## Prepare dev dependencies
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web mix local.hex --force && mix local.rebar --force && mix deps.get
-	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web /bin/sh -c 'cd assets/ && npm install && cd ..'
+	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) run web npm install --prefix assets
 dev-db-up: init ## Start the dev DB
 	docker-compose -p $(APP_DEV_CONTAINER) -f $(APP_DEV_DOCKERCOMPOSE) up db
 
@@ -130,8 +130,7 @@ manual-deps: init ## Prepare dependencies (without Docker)
 	mix local.hex --force
 	mix local.rebar --force
 	mix deps.get
-	cd assets/ && npm install && cd ..
-
+	npm install --prefix assets
 
 manual-db: init ## Create or reset the DB (without Docker)
 	mix ecto.reset

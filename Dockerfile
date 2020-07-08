@@ -30,12 +30,17 @@ RUN apk add --no-cache build-base cmake curl git rust cargo
 
 # Cache elixir deps
 COPY mix.exs mix.lock ./
-RUN mix do local.hex --force, local.rebar --force, deps.get, deps.compile
+RUN mix do local.hex --force, local.rebar --force, deps.get --only prod, deps.compile
+
+COPY assets/package* ./assets/
+RUN npm install --prefix assets
 
 COPY . .
 
-RUN mix release
+RUN npm run deploy --prefix ./assets
+RUN mix phx.digest
 
+RUN mix release
 
 # Step 2 - Prepare the server image
 # From this line onwards, we're in a new image, which will be the image used in production

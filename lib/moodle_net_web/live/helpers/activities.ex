@@ -1,7 +1,6 @@
 defmodule MoodleNetWeb.Helpers.Activites do
   alias MoodleNet.{
-    Repo,
-    Meta.Pointers
+    Repo
   }
 
   alias MoodleNetWeb.Helpers.{Profiles}
@@ -9,8 +8,8 @@ defmodule MoodleNetWeb.Helpers.Activites do
   def prepare(activity) do
     activity =
       if(!is_nil(activity.context_id)) do
-        {:ok, pointer} = Pointers.one(id: activity.context_id)
-        context = Pointers.follow!(pointer)
+        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: activity.context_id)
+        context = MoodleNet.Meta.Pointers.follow!(pointer)
 
         type =
           context.__struct__
