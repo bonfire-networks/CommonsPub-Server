@@ -1,3 +1,25 @@
+.page__settings {
+  @include content;
+}
+
+.settings__hero {
+  .suphero {
+    @include content_header;
+  }
+}
+
+.settings__layout {
+  @include content_two_sides
+}
+
+.settings__navigation {
+  @include content_navigation
+}
+
+
+
+
+
 .wrapper__settings {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -34,21 +56,4 @@
 .section__item textarea {
   height: 250px;
 }
-
-
-
-.settings__section {
-  overflow-y: scroll;
-  height: 100vh;
-}
-
-.section__main {
-  max-width: 600px;
-  margin: 0 auto;
-}
-.section__main h1 {
-  font-size: 32px;
-  margin-top: var(--m3);
-}
-
 

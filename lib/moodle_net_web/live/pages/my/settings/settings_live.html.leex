@@ -1,64 +1,79 @@
-<div class="wrapper__settings">
-  <aside class="settings__panel">
-    <nav>
-      <div class="panel__back">
-        <a href="/">
-          <i class="feather-home"></i>
-          Back to CommonsPub
-        </a>
+<div class="page__fullContent">
+<div class="page__settings">
+  <div class="settings__hero">
+    <div class="suphero">
+      <div class="suphero__left named-avatar">
+        <img alt="profile pic" src="<%= @current_user.icon_url %>" />
+        <h3><%= @current_user.name %></h3>
       </div>
-    </nav>
-    <h3 class="panel__title">Settings</h3>
-    <nav>
-      <div class="panel__item">
-        <span>😛</span> My account
+      <div class="suphero__actions">
+        <%= if is_map(@current_user) and @current_user.id==@current_user.id do %>
+          <a href="/my/profile">Profile</a>
+        <% else %>
+          <button class="button follow">Follow</button>
+          <details class="more__dropdown">
+          <summary>
+            <i class="feather-more-horizontal"></i>
+          </summary>
+          <ul class="dropdown__list">
+            <li><button class="button-link" >Report</button></li>
+            <li><button class="button-link" >Block</button></li>
+          </ul>
+        </details>
+        <% end %>
       </div>
-    </nav>
-    </aside>
-    <section class="settings__section">
-      <div class="section__main">
-        <h1>My account</h1>
-        <form action="#" phx-submit="post">
-         <div class="section__item">
-          <h4>Edit your background image</h4>
-          <label class="file">
-            <input name="image" value="<%= e(@current_user, :image_url, "") %>" type="file" id="file" aria-label="File browser example">
-            <span class="file-custom"></span>
-          </label>
-        </div>
-        <div class="section__item">
-          <h4>Edit your avatar</h4>
-          <label class="file">
-            <input name="icon" value="<%= e(@current_user, :icon_url, "") %>" type="file" id="file" aria-label="File browser example">
-            <span class="file-custom"></span>
-          </label>
-        </div>
-        <div class="section__item">
-          <h4>Edit your name</h4>
-          <input name="name" type="text" value="<%= @current_user.name %>" placeholder="Type a new name...">
-        </div>
-        <div class="section__item">
-        <h4>Edit your email</h4>
-            <input name="email" value="<%= @current_user.local_user.email %>" type="text" placeholder="Type a new email...">
-        </div>
-        <div class="section__item">
-        <h4>Edit your website</h4>
-            <input name="website" value="<%= @current_user.website %>" type="text" placeholder="Type a new website...">
-        </div>
-        <div class="section__item">
-        <h4>Edit your location</h4>
-            <input name="location" type="text" value="<%= @current_user.location %>" placeholder="Type a new location...">
-        </div>
-        <div class="section__item">
-        <h4>Edit your summary</h4>
-            <textarea name="summary" placeholder="Type your summary..."><%= @current_user.summary %></textarea>
-        </div>
-
-       <div class="section__actions">
-          <button type="submit" phx-disable-with="Updating...">Update</button>
-        </div>
-      </form>
+    </div>
   </div>
-
-  </section>
+  <div class="settings__layout">
+  <div class="mainContent__selected">
+    <%= cond do %>
+          <% @selected_tab == "general" ->  %>
+            <div class="selected__area">
+            <%= live_component(
+                  @socket,
+                  SettingsGeneralLive,
+                  current_user: @current_user
+                )  %>
+          </div>
+          <% @selected_tab == "preferences" ->  %>
+            <div class="selected__area"></div>
+          <% @selected_tab == "instance" ->  %>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  SettingsInstanceLive,
+                  current_user: @current_user
+                )  %>
+            </div>
+          <% @selected_tab == "invites" ->  %>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  SettingsInvitesLive,
+                  current_user: @current_user
+                )  %>
+            </div>
+          <% @selected_tab == "flags" ->  %>
+            <div class="selected__area"></div>
+        <% true -> %>
+          <%= live_component(
+                  @socket,
+                  TabNotFoundLive
+              ) %>
+        <% end %>
   </div>
+  <div class="settings__navigation">
+    <%= live_component(
+            @socket,
+            SettingsNavigationLive,
+            selected: @selected_tab,
+            current_user: @current_user
+          )
+        %>
+  </div>
+   </div>
+
+
+
+  </div>
+</div>

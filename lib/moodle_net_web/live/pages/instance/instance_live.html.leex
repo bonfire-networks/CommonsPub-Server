@@ -24,7 +24,7 @@
     <div class="mainContent__selected">
       <%= cond do %>
         <% @selected_tab == "about" ->  %>
-        <div class="selected__area">
+        <div class="selected__area instance__about">
           <%= live_component(
                   @socket,
                   AboutLive,

@@ -16,6 +16,21 @@
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
+.navigation__title {
+  height: 30px;
+  line-height: 30px;
+  /* border-bottom: var(--border); */
+  margin: 0 -8px;
+  padding: 16px;
+  border-top: var(--border);
+  padding-bottom: 0;
+  padding-top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
 .navigation__item {
   place-self: center;
   position: relative;

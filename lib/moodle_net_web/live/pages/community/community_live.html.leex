@@ -8,9 +8,14 @@
         </div>
         <div class="suphero__actions">
           <button class="button follow">Join</button>
-          <button class="button-outline-only-icon">
-            <i class="feather-more-horizontal"></i>
-          </button>
+          <details class="more__dropdown">
+            <summary>
+              <i class="feather-more-horizontal"></i>
+            </summary>
+            <ul class="dropdown__list">
+              <li><button class="button-link" >Report</button></li>
+            </ul>
+          </details>
         </div>
       </div>
     </div>
@@ -32,6 +37,7 @@
                 %>
           </div>
           <% @selected_tab == "timeline" ->  %>
+            <h3 class="area__title">timeline</h3>
             <%= live_component(
                 @socket,
                 CommunityActivitiesLive,
@@ -47,9 +53,37 @@
                 pagination_target: "#community-activities"
               ) %>
           <% @selected_tab == "discussions" ->  %>
-          <div class="selected__area">
-            test
-          </div>
+          <h3 class="area__title">discussions</h3>
+           <%= live_component(
+                @socket,
+                CommunityDiscussionsLive,
+                community: @community,
+                selected_tab: @selected_tab,
+                id: :discussions,
+                current_user: @current_user,
+                threads: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#community-threads"
+              ) %>
+          <% @selected_tab == "members" ->  %>
+          <h3 class="area__title">members</h3>
+           <%= live_component(
+                @socket,
+                CommunityMembersLive,
+                community: @community,
+                selected_tab: @selected_tab,
+                id: :members,
+                current_user: @current_user,
+                members: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#community-members"
+              ) %>
           <% true -> %>
           <%= live_component(
                   @socket,

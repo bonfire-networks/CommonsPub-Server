@@ -6,7 +6,8 @@ defmodule MoodleNetWeb.CommunityLive do
   alias MoodleNetWeb.GraphQL.CommunitiesResolver
 
   alias MoodleNetWeb.CommunityLive.{
-    # CommunityDiscussionsLive,
+    CommunityDiscussionsLive,
+    CommunityMembersLive,
     # CommunityNavigationLive,
     CommunityActivitiesLive
   }
@@ -43,7 +44,7 @@ defmodule MoodleNetWeb.CommunityLive do
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
     community = Communities.community_load(socket, params, %{image: true, actor: true})
-
+    IO.inspect(community, label: "COMMUNITY")
     {:noreply,
      assign(socket,
        selected_tab: tab,

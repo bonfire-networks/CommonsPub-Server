@@ -1,6 +1,37 @@
+.page__discussion {
+  @include content;
+}
+
+.discussion__hero {
+  .suphero {
+    @include content_header;
+    .button.reply {
+      width: auto;
+      min-width: auto;
+      margin-right: var(--m2);
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}
+
+.more__dropdown {
+  @include icon-dropdown("right");
+}
+
+
+.discussion__layout {
+  @include content_two_sides;
+  grid-template-columns: 1fr;
+}
+
+.discussion__navigation {
+  @include content_navigation
+}
+
 .wrapper__discussion {
-  margin-top: var(--m3);
-  .discussion__hero {
+  .discussion__main {
     background: #fff;
     border: var(--border);
     border-radius: 4px;
@@ -42,6 +73,7 @@
   background: #fff;
   border: var(--border);
   border-radius: 4px;
+  margin-bottom: var(--m3)
 }
 
 .discussion__reply {
