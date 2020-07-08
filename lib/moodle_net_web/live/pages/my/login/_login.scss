@@ -20,6 +20,9 @@
   border-radius: 4px;
   padding: var(--m3);
   height: fit-content;
+  h1 {
+    margin-top: 0;
+  }
 }
 
 .form__wrapper form {
