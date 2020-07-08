@@ -18,8 +18,7 @@ defmodule MoodleNetWeb.MemberLive do
   }
 
   alias MoodleNet.{
-    Repo,
-    Meta.Pointers
+    Repo
   }
 
   # FIXME

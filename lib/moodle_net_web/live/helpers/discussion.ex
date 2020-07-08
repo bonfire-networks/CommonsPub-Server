@@ -1,7 +1,6 @@
 defmodule MoodleNetWeb.Helpers.Discussion do
   alias MoodleNet.{
-    Repo,
-    Meta.Pointers
+    Repo
   }
 
   alias MoodleNetWeb.Helpers.{Profiles}
@@ -23,8 +22,8 @@ defmodule MoodleNetWeb.Helpers.Discussion do
   def prepare_thread(thread) do
     thread =
       if(!is_nil(thread.context_id)) do
-        {:ok, pointer} = Pointers.one(id: thread.context_id)
-        context = Pointers.follow!(pointer)
+        {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: thread.context_id)
+        context = MoodleNet.Meta.Pointers.follow!(pointer)
 
         thread
         |> Map.merge(%{context: context})
