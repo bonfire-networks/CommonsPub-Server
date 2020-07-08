@@ -2,7 +2,6 @@
 # Copyright © 2018-2020 Moodle Pty Ltd <https://moodle.com/moodlenet/>
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Profile.Queries do
-
   alias MoodleNet.Users
   alias Profile
   alias MoodleNet.Follows.{Follow, FollowerCount}
@@ -11,15 +10,15 @@ defmodule Profile.Queries do
   import Ecto.Query
 
   def query(Profile) do
-    from c in Profile, as: :profile
+    from(c in Profile, as: :profile)
   end
 
   def query(:count) do
-    from c in Profile, as: :profile
+    from(c in Profile, as: :profile)
   end
 
   def query(q, filters), do: filter(query(q), filters)
-  
+
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
     base_q = query(query, base_filters)
     data_q = filter(base_q, data_filters)
@@ -33,7 +32,6 @@ defmodule Profile.Queries do
     Enum.reduce(specs, q, &join_to(&2, &1, jq))
   end
 
-
   ### filter/2
 
   ## by many
@@ -45,7 +43,7 @@ defmodule Profile.Queries do
   ## by preset
 
   def filter(q, :default) do
-    filter q, [:deleted]
+    filter(q, [:deleted])
   end
 
   ## by join
@@ -57,10 +55,15 @@ defmodule Profile.Queries do
 
   def filter(q, {:user, match_admin()}), do: q
 
+  # def filter(q, {:user, %User{id: id} = user}) do
+  #   q
+  #   |> join_to(follow: id)
+  #   |> where([profile: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
+  # end
+
   def filter(q, {:user, %User{id: id} = user}) do
     q
-    |> join_to(follow: id)
-    |> where([profile: o, follow: f], not is_nil(o.published_at) or not is_nil(f.id))
+    |> where([profile: o], not is_nil(o.published_at))
   end
 
   def filter(q, {:user, nil}) do
@@ -68,51 +71,49 @@ defmodule Profile.Queries do
   end
 
   ## by status
-  
+
   def filter(q, :deleted) do
-    where q, [profile: o], is_nil(o.deleted_at)
+    where(q, [profile: o], is_nil(o.deleted_at))
   end
 
   def filter(q, :disabled) do
-    where q, [profile: o], is_nil(o.disabled_at)
+    where(q, [profile: o], is_nil(o.disabled_at))
   end
 
   def filter(q, :private) do
-    where q, [profile: o], not is_nil(o.published_at) 
+    where(q, [profile: o], not is_nil(o.published_at))
   end
 
   ## by field values
 
-
   def filter(q, {:id, id}) when is_binary(id) do
-    where q, [profile: c], c.id == ^id
+    where(q, [profile: c], c.id == ^id)
   end
 
   def filter(q, {:id, ids}) when is_list(ids) do
-    where q, [profile: c], c.id in ^ids
+    where(q, [profile: c], c.id in ^ids)
   end
 
-
   def filter(q, {:username, username}) when is_binary(username) do
-    where q, [actor: a], a.preferred_username == ^username
+    where(q, [actor: a], a.preferred_username == ^username)
   end
 
   def filter(q, {:username, usernames}) when is_list(usernames) do
-    where q, [actor: a], a.preferred_username in ^usernames
+    where(q, [actor: a], a.preferred_username in ^usernames)
   end
 
   ## by ordering
 
   def filter(q, {:order, :followers_desc}) do
-    filter q, order: [desc: :followers]
+    filter(q, order: [desc: :followers])
   end
 
   def filter(q, {:order, [desc: :followers]}) do
-    order_by q, [profile: c, follower_count: fc],
+    order_by(q, [profile: c, follower_count: fc],
       desc: coalesce(fc.count, 0),
       desc: c.id
+    )
   end
-
 
   # grouping and counting
 
@@ -128,7 +129,6 @@ defmodule Profile.Queries do
     select(q, [profile: c], {field(c, ^key), count(c.id)})
   end
 
-
   # pagination
 
   def filter(q, {:limit, limit}) do
@@ -137,6 +137,7 @@ defmodule Profile.Queries do
 
   def filter(q, {:paginate_id, %{after: a, limit: limit}}) do
     limit = limit + 2
+
     q
     |> where([profile: c], c.id >= ^a)
     |> limit(^limit)
@@ -155,21 +156,20 @@ defmodule Profile.Queries do
   def filter(q, {:page, [desc: [followers: page_opts]]}) do
     q
     |> filter(join: :follower_count, order: [desc: :followers])
-    |> page(page_opts, [desc: :followers])
+    |> page(page_opts, desc: :followers)
     |> select(
       [profile: c, actor: a, follower_count: fc],
       %{c | follower_count: coalesce(fc.count, 0), actor: a}
     )
   end
 
-  defp page(q, %{after: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:lte, cursor}], limit: limit + 2
+  defp page(q, %{after: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:lte, cursor}], limit: limit + 2)
   end
 
-  defp page(q, %{before: cursor, limit: limit}, [desc: :followers]) do
-    filter q, cursor: [followers: {:gte, cursor}], limit: limit + 2
+  defp page(q, %{before: cursor, limit: limit}, desc: :followers) do
+    filter(q, cursor: [followers: {:gte, cursor}], limit: limit + 2)
   end
 
   defp page(q, %{limit: limit}, _), do: filter(q, limit: limit + 1)
-
 end

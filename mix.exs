@@ -147,9 +147,12 @@ defmodule MoodleNet.Mixfile do
       {:earmark, "~> 1.4"},
       {:slugger, "~> 0.3"},
       # {:pointers, "~> 0.2.2"},
-      {:pointers,
-       git: "https://github.com/commonspub/pointers.git",
-       ref: "8bf93a362785bf85fab03ad015f145f73dc6baab"},
+      {
+        :pointers,
+        # branch: "accept-otp"
+        git: "https://github.com/commonspub/pointers.git",
+        ref: "2e0a8ded508b408d93eb63ef38ce0bcda08a1228"
+      },
       # {:pointers, path: "uploads/many-pointers"},
       # {:pointers_ulid, path: "uploads/pointers_ulid", override: true},
       # {:dlex, "~> 0.4", override: true},

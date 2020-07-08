@@ -97,7 +97,15 @@ config :moodle_net, Follows,
 config :moodle_net, Likes, valid_contexts: [Collection, Community, Comment, Resource]
 
 config :moodle_net, Threads,
-  valid_contexts: [Collection, Community, Flag, Resource, User, Circle, Character]
+  valid_contexts: [
+    Collection,
+    Community,
+    Flag,
+    Resource,
+    User,
+    Circle,
+    Character
+  ]
 
 config :moodle_net, Users,
   public_registration: false,
@@ -273,6 +281,9 @@ config :pointers,
   pointer_table: "mn_pointer",
   trigger_function: "insert_pointer",
   trigger_prefix: "insert_pointer_"
+
+config :pointers, Pointers.Pointer, source: "mn_pointer"
+config :pointers, Pointers.Table, source: "mn_table"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
