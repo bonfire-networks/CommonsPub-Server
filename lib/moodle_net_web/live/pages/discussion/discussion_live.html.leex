@@ -60,7 +60,16 @@
       </div>
 
       <div class="discussion__replies">
+        <%= for comment <- @comments do %>
 
+          <%= live_component(
+              @socket,
+              DiscussionCommentLive,
+              id: "discussion-activity-#{comment.id}",
+              activity: comment
+            )
+          %>
+          <%= end %>
         <div id="reply" class="discussion__reply">
           <form phx-submit="reply">
 
@@ -70,35 +79,7 @@
                       <button>Comment</button>
                     </form>
                   </div>
-                  <%= for comment <- @comments do %>
-                    <div class="discussion__main">
-                      <div class="hero__head">
-                        <h1 class="head__title"><%= e(comment, :name, "") %></h1>
-                      </div>
-                      <div class="head__mainComment">
-                        <div class="component__activity">
-                          <div class="activity__info">
-                            <a href="/@<%= e(comment, :creator, :actor, :preferred_username, "deleted") %>">
-                  <img src="<%= e(comment, :creator, :icon_url, "") %>" alt="icon" />
-                          </a>
-                          <div class="info__meta">
-                            <div class="meta__action">
-                              <a href="/@<%= e(comment, :creator, :actor, :preferred_username, "deleted") %>"><%= e(comment, :creator, :name, "Somebody") %></a>
-                            </div>
-                            <div class="meta__secondary">
-                              <%= e(comment, :published_at, "one day") %>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="activity__preview">
-                          <div class="comment__preview">
-                            <div class="markdown-body">
-                              <%= markdown(comment.content) %>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    <%= end %>
+
                   </div>
                 </div>
               </div>

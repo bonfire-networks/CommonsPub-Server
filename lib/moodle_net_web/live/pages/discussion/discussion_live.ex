@@ -3,7 +3,8 @@ defmodule MoodleNetWeb.DiscussionLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.GraphQL.{ThreadsResolver, CommentsResolver}
   alias MoodleNetWeb.Helpers.{Account, Discussions}
-  alias MoodleNetWeb.Component.CommentPreviewLive
+  alias MoodleNetWeb.Component.{CommentPreviewLive}
+  alias MoodleNetWeb.Discussion.DiscussionCommentLive
 
   def mount(%{"id" => id} = params, session, socket) do
     socket = init_assigns(params, session, socket)

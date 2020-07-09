@@ -79,6 +79,11 @@
 .discussion__reply {
   padding: var(--m3);
   display: flex;
+  form {
+    display: flex;
+    width: 100%;
+    
+  }
 }
 
 .discussion__reply img {
@@ -90,6 +95,7 @@
 .discussion__reply .reply__box {
   margin-left: var(--m2);
   width: 100%;
+  flex: 1;
 }
 
 .discussion__reply .reply__box textarea {
