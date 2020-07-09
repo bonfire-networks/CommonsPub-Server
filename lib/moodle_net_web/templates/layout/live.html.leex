@@ -1,136 +1,40 @@
 <div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
-
-    <%= if @current_user do %>
-    <%# <input id="slide-sidebar" type="checkbox" role="button" />
-    <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label> %>
-    <nav class="side__drawer">
-      <div class="profile__box" style="background-image: url(<%= e(@current_user, :image_url, "http://thepatternlibrary.com/img/r.png") %>)">
-        <input placeholder="Search..." />
-        <div class="box__info">
-          <img src="<%= e(@current_user, :icon_url, "") %>" />
-<div class="box__meta">
-  <h3 ><%= e(@current_user, :name, "Me") %></h3>
-  <h4 ><%= e(@current_user, :username, "@me") %></h4>
-</div>
-<details class="drawer__profile" >
-  <summary class="user__dropdown">
-    <i class="feather-more-horizontal"></i>
-  </summary>
-  <ul class="dropdown__list">
-    <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-    <li><a href="/my/settings">Settings</a></li>
-    <li><a href="#">Logout</a></li>
-  </ul>
-</details>
-</div>
-</div>
-<div class="drawer__menu">
-  <nav class="menu__general">
-    <div class="panel__item">
-      <a href="/my/timeline">
-        <i class="feather-home"></i> Home
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/instance">
-        <i class="feather-anchor"></i> Discover
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/my/notifications">
-        <i class="feather-bell"></i> Notifications
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/my/write">
-        <i class="feather-edit"></i> Write
-      </a>
-    </div>
-  </nav>
-  <details>
-    <summary>Communities</summary>
-    <nav class="general__details">
-      <%= live_component(
-                @socket,
-                MoodleNetWeb.My.SidebarCommunitiesLive,
-                current_user: @current_user,
-                id: :_sidebar_communities,
-                my_communities: @my_communities
-              ) %>
-    </nav>
-  </details>
-  <details>
-    <summary>Direct Messages</summary>
-    <nav class="general__details">
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
+  <%= if @current_user do %>
+    <%= live_component(
+          @socket,
+          MoodleNetWeb.My.MySidebar,
+          current_user: @current_user,
+          my_communities: @my_communities,
+          id: :my_sidebar,
+        ) %>
+  <% end %>
+  <%= if @current_user == nil do %>
+    <div class="guest__menu">
+      <div class="menu__left">
+        <div class="panel__item">
+          <a class="left__home" href="/">
+            <i class="feather-home"></i> <%=app_name%>
+          </a>
+        </div>
+        <input placeholder="search in the instance..." />
       </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-    </nav>
-  </details>
-</div>
-<div class="content__bottom">
-  <details class="dialog__container">
-    <summary class="button new-community">Create a new community</summary>
-    <dialog open class="dialog dialog__newCommunity">
-      <header class="dialog__header">Create a new community</header>
-      <section class="dialog__content">
-        <form>
-          <input placeholder="Type the community name..." />
-          <textarea placeholder="Describe your community..."></textarea>
-          <footer class="dialog__footer">
-            <button id="confirmBtn" value="default">Confirm</button>
-          </footer>
-        </form>
-      </section>
-    </dialog>
-  </details>
-</div>
-</nav>
-<% end %>
-<%= if @current_user == nil do %>
-  <div class="guest__menu">
-    <div class="menu__left">
-      <div class="panel__item">
-        <a class="left__home" href="/">
-          <i class="feather-home"></i> <%=app_name%>
-        </a>
-      </div>
-      <input placeholder="search in the instance..." />
-    </div>
-    <div class="menu__right">
-      <div class="panel__item">
-        <a class="button" href="/my/login">
-          <i class="feather-log-in"></i> Log in
-        </a>
-      </div>
-      <div class="panel__item">
-        <a class="button" href="/my/signup">
-          <i class="feather-zap"></i> Sign up
-        </a>
+      <div class="menu__right">
+        <div class="panel__item">
+          <a class="button" href="/my/login">
+            <i class="feather-log-in"></i> Log in
+          </a>
+        </div>
+        <div class="panel__item">
+          <a class="button" href="/my/signup">
+            <i class="feather-zap"></i> Sign up
+          </a>
+        </div>
       </div>
     </div>
-  </div>
-<% end %>
-<section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
-  <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
-  <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
-  <%= @inner_content %>
-</section>
+  <% end %>
+  <section class="<%= if !@current_user , do: "page__full", else: "page__wrapper" %>">
+    <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+    <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+    <%= @inner_content %>
+  </section>
 </div>
