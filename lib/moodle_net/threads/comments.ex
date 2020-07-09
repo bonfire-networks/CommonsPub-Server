@@ -120,6 +120,9 @@ defmodule MoodleNet.Threads.Comments do
             context = Pointers.follow!(pointer)
             %{thread | context: %{thread.context | pointed: context}}
 
+          nil ->
+            thread
+
           _ ->
             preload_ctx(Repo.preload(thread, :context))
         end

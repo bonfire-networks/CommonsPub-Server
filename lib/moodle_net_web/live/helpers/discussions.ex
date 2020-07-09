@@ -1,9 +1,16 @@
-defmodule MoodleNetWeb.Helpers.Discussion do
+defmodule MoodleNetWeb.Helpers.Discussions do
   alias MoodleNet.{
     Repo
   }
 
   alias MoodleNetWeb.Helpers.{Profiles}
+
+  def prepare_comments(comments) do
+    Enum.map(
+      comments,
+      &prepare_comment/1
+    )
+  end
 
   def prepare_comment(comment) do
     comment = Repo.preload(comment, :creator)

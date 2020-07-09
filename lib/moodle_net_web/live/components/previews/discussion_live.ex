@@ -2,7 +2,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
   use Phoenix.LiveComponent
   import MoodleNetWeb.Helpers.Common
 
-  alias MoodleNetWeb.Helpers.{Discussion}
+  alias MoodleNetWeb.Helpers.{Discussions}
 
   def mount(thread, _session, socket) do
     {:ok, assign(socket, thread: thread)}
@@ -13,7 +13,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     if(Map.has_key?(assigns, :thread)) do
       {:ok,
        assign(socket,
-         thread: Discussion.prepare_comment(assigns.thread)
+         thread: Discussions.prepare_comment(assigns.thread)
        )}
     else
       {:ok, assign(socket, thread: %{})}
@@ -24,7 +24,7 @@ defmodule MoodleNetWeb.Component.DiscussionPreviewLive do
     # IO.inspect(assigns)
     ~L"""
     <div class="discussion__preview">
-      <a href="/discussion/<%= @thread.id %>">
+      <a href="/«<%= @thread.id %>">
         <h2 class="discussion__title"><%= e(@thread, :name, "Thread without title") %></h2>
         <div class="discussion__meta">
           <div class="meta__time">
