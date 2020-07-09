@@ -42,7 +42,7 @@ defmodule MoodleNetWeb.MemberLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    user = user_load(socket, params)
+    user = Profiles.user_load(socket, params)
 
     {:noreply,
      assign(socket,
@@ -55,7 +55,7 @@ defmodule MoodleNetWeb.MemberLive do
   def handle_params(%{} = params, url, socket) do
     logged_url = url =~ "my/profile"
 
-    user = user_load(socket, params)
+    user = Profiles.user_load(socket, params)
 
     {:noreply,
      assign(socket,
@@ -63,11 +63,5 @@ defmodule MoodleNetWeb.MemberLive do
        user: user,
        current_user: socket.assigns.current_user
      )}
-  end
-
-  def user_load(socket, params) do
-    user = Profiles.user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
-    # IO.inspect(user, label: "USER")
-    user
   end
 end

@@ -68,7 +68,7 @@ defmodule MoodleNetWeb.Helpers.Profiles do
   end
 
   def prepare(profile) do
-    prepare_website(profile)
+    prepare_website(prepare_username(profile))
   end
 
   def prepare_website(profile) do
@@ -84,6 +84,10 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     end
   end
 
+  def user_load(socket, params) do
+    user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
+  end
+
   def user_load(socket, page_params, preload) do
     user_load(socket, page_params, preload, 50)
   end
@@ -95,17 +99,17 @@ defmodule MoodleNetWeb.Helpers.Profiles do
 
     # load requested user
     {:ok, user} =
-      if(!is_nil(username)) do
-        UsersResolver.user(%{username: username}, %{
-          context: %{current_user: socket.assigns.current_user}
-        })
-      else
+      if(username == socket.assigns.current_user or is_nil(username)) do
         # fallback to current user
-        if(Map.has_key?(socket, :assigns) and Map.has_key?(socket.assigns, :current_user)) do
+        if(!is_nil(socket.assigns.current_user)) do
           {:ok, socket.assigns.current_user}
         else
           {:ok, %{}}
         end
+      else
+        UsersResolver.user(%{username: username}, %{
+          context: %{current_user: socket.assigns.current_user}
+        })
       end
 
     prepare(user, preload, icon_width)

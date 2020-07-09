@@ -68,7 +68,7 @@ defmodule MoodleNetWeb.Helpers.Communities do
   end
 
   def prepare(community) do
-    prepare_website(community)
+    prepare_website(prepare_username(community))
   end
 
   def prepare_website(community) do

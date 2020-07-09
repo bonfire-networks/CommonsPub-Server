@@ -137,4 +137,9 @@ defmodule MoodleNetWeb.Helpers.Common do
   def image_gravatar(seed, style, size) do
     MoodleNet.Users.Gravatar.url(to_string(seed), style, size)
   end
+
+  def prepare_username(profile) do
+    profile
+    |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile)})
+  end
 end
