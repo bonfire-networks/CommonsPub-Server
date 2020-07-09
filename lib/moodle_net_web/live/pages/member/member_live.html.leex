@@ -44,7 +44,7 @@
       <div class="mainContent__selected">
         <%= cond do %>
           <% @selected_tab == "about" ->  %>
-            <div class="selected__area">
+          <div class="selected__area">
             <%= live_component(
                   @socket,
                   HeroProfileLive,
@@ -111,6 +111,5 @@
           )
         %>
       </div>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
