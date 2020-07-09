@@ -198,6 +198,9 @@
     height: 200px;
     background-image: url(http://thepatternlibrary.com/img/r.png);
     position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     input {
       position: relative;
       z-index: 10;
