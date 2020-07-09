@@ -30,11 +30,12 @@ defmodule MoodleNetWeb.My.TimelineLive do
   end
 
   def update(assigns, socket) do
-    # IO.inspect(assigns)
+    IO.inspect(socket, label: "SOCKET:")
 
     {
       :ok,
       socket
+      |> assign(assigns)
       |> fetch(assigns)
     }
   end

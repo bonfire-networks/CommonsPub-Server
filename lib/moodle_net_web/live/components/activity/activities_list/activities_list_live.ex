@@ -12,7 +12,7 @@ defmodule MoodleNetWeb.Component.ActivitiesListLive do
         <%= live_component(
               @socket,
               ActivityLive,
-              id: "activity-#{activity.id}",
+              id: "timeline-activity-#{activity.id}",
               activity: activity
             )
           %>
