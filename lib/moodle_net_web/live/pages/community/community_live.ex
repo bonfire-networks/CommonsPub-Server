@@ -42,7 +42,9 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_params(%{"tab" => tab} = params, _url, socket) do
-    community = Communities.community_load(socket, params, %{image: true, actor: true})
+    community =
+      Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
+
     IO.inspect(community, label: "COMMUNITY")
 
     {:noreply,
@@ -54,7 +56,8 @@ defmodule MoodleNetWeb.CommunityLive do
   end
 
   def handle_params(%{} = params, url, socket) do
-    community = Communities.community_load(socket, params, %{image: true, actor: true})
+    community =
+      Communities.community_load(socket, params, %{icon: true, image: true, actor: true})
 
     # IO.inspect(community, label: "community")
 

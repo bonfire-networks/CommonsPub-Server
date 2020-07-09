@@ -8,7 +8,7 @@
             to: "/instance/about",
             class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
           %>
-      <%= live_patch link_body("Timeline","feather-activity"),
+      <%= live_patch link_body("Instance Timeline","feather-activity"),
             to: "/instance/timeline",
             class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
           %>

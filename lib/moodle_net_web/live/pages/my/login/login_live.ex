@@ -22,10 +22,10 @@ defmodule MoodleNetWeb.LoginLive do
   # end
 
   def handle_event("login", %{"login" => login, "password" => password} = args, socket) do
-    IO.inspect(args, label: "LOGIN DATA")
+    # IO.inspect(args, label: "LOGIN DATA")
 
     session = MoodleNetWeb.Helpers.Account.create_session(%{login: login, password: password})
-    IO.inspect(session: session)
+    IO.inspect(created_session: session)
 
     if(is_nil(session)) do
       {:noreply,

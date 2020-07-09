@@ -1,40 +1,43 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
+defmodule MoodleNetWeb.My.MyCommunitiesLive do
   use MoodleNetWeb, :live_component
 
   alias MoodleNetWeb.Helpers.{Communities}
 
-  alias MoodleNetWeb.GraphQL.{
-    CommunitiesResolver
-  }
-
   alias MoodleNetWeb.Component.CommunityPreviewLive
+
+  def mount(socket) do
+    {
+      :ok,
+      socket
+      |> assign(
+        page: 1,
+        has_next_page: false,
+        after: [],
+        before: [],
+        # activities: [],
+        pagination_target: "my_communities"
+      )
+      #  |> fetch(), temporary_assigns: [activities: []]
+    }
+  end
 
   def update(assigns, socket) do
     {
       :ok,
       socket
       |> assign(assigns)
-      |> fetch(assigns)
+      # |> fetch(assigns)
     }
   end
 
   defp fetch(socket, assigns) do
-    {:ok, communities} =
-      CommunitiesResolver.communities(
-        %{limit: 10},
-        %{context: %{current_user: assigns.current_user}}
-      )
+    # TODO: pagination
+    communities = Communities.user_communities(assigns.current_user, assigns.current_user)
 
     # IO.inspect(communities: communities)
 
-    communities_list =
-      Enum.map(
-        communities.edges,
-        &Communities.prepare(&1, %{icon: true, image: true, actor: true})
-      )
-
     assign(socket,
-      communities: communities_list,
+      my_communities: communities.edges,
       has_next_page: communities.page_info.has_next_page,
       after: communities.page_info.end_cursor,
       before: communities.page_info.start_cursor
@@ -47,12 +50,12 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
 
   def render(assigns) do
     ~L"""
-      <div id="instance-communities">
+      <div id="my-communities">
         <div
         phx-update="append"
         data-page="<%= @page %>"
         class="selected__area">
-          <%= for community <- @communities do %>
+          <%= for community <- @my_communities do %>
           <div class="preview__wrapper">
             <%= live_component(
                   @socket,

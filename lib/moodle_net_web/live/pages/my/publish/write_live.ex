@@ -8,14 +8,16 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   # terminate tags with space
   @tag_terminator " "
 
-  def mount(_params, session, socket) do
+  def mount(params, session, socket) do
+    socket = init_assigns(params, session, socket)
+
     {:ok,
      socket
      |> assign(
        title_placeholder: "An optional title...",
        summary_placeholder: "Write a story or get a discussion started!",
        post_label: "Publish",
-       current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
+       #  current_user: Account.current_user_or(nil, session, %{icon: true, actor: true}),
        meili_host: System.get_env("SEARCH_MEILI_INSTANCE", "localhost:7700"),
        tag_search: nil,
        tag_results: [],

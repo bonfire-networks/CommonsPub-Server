@@ -15,6 +15,10 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
       to: "/@" <> @username <> "/discussions",
       class: if @selected == "discussions", do: "navigation__item active", else: "navigation__item"
       %>
+    <%= live_patch link_body("Communities", "feather-users"),
+      to: "/@" <> @username <> "/communities",
+      class: if @selected == "communities", do: "navigation__item active", else: "navigation__item"
+      %>
     <%= live_patch link_body("Likes", "feather-file-text"),
       to: "/@" <> @username <> "/likes",
       class: if @selected == "likes", do: "navigation__item active", else: "navigation__item"

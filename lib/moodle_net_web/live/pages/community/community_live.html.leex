@@ -3,7 +3,7 @@
     <div class="community__hero">
       <div class="suphero">
         <div class="suphero__left named-avatar">
-          <img alt="profile pic" src="<%= @community.image_url %>" />
+          <img alt="profile pic" src="<%= e(@community, :icon_url, e(@community, :image_url, "")) %>" />
           <h3><%= @community.name %></h3>
         </div>
         <div class="suphero__actions">
@@ -43,15 +43,15 @@
               <div class="community-hero__image" style="background-image: url(<%= @community.image_url %>)"></div>
               <h1><%= @community.name %></h1>
               <h4><%= @community.actor.preferred_username %>
-            </div>
-            <%= live_component(
+              </div>
+              <%= live_component(
                     @socket,
                     AboutLive,
                     description: @community.summary
                   )
                 %>
-          </div>
-          <% @selected_tab == "timeline" ->  %>
+            </div>
+            <% @selected_tab == "timeline" ->  %>
             <h3 class="area__title">timeline</h3>
             <%= live_component(
                 @socket,
@@ -67,9 +67,9 @@
                 before: [],
                 pagination_target: "#community-activities"
               ) %>
-          <% @selected_tab == "discussions" ->  %>
-          <h3 class="area__title">discussions</h3>
-           <%= live_component(
+            <% @selected_tab == "discussions" ->  %>
+            <h3 class="area__title">discussions</h3>
+            <%= live_component(
                 @socket,
                 CommunityDiscussionsLive,
                 community: @community,
@@ -83,9 +83,9 @@
                 before: [],
                 pagination_target: "#community-threads"
               ) %>
-          <% @selected_tab == "members" ->  %>
-          <h3 class="area__title">members</h3>
-           <%= live_component(
+            <% @selected_tab == "members" ->  %>
+            <h3 class="area__title">members</h3>
+            <%= live_component(
                 @socket,
                 CommunityMembersLive,
                 community: @community,
@@ -99,31 +99,31 @@
                 before: [],
                 pagination_target: "#community-members"
               ) %>
-          <% true -> %>
-          <%= live_component(
+            <% true -> %>
+            <%= live_component(
                   @socket,
                   TabNotFoundLive
               ) %>
-        <% end %>
-      </div>
-      <div class="community__navigation">
-        <%= live_patch link_body("About", "feather-book-open"),
+          <% end %>
+        </div>
+        <div class="community__navigation">
+          <%= live_patch link_body("About", "feather-book-open"),
                 to: "/&" <> @community.actor.preferred_username <> "/about",
                 class: if @selected_tab == "about", do: "navigation__item active", else: "navigation__item"
               %>
-        <%= live_patch link_body("Timeline","feather-activity"),
+          <%= live_patch link_body("Timeline","feather-activity"),
                 to: "/&" <> @community.actor.preferred_username <>  "/timeline",
                 class: if @selected_tab == "timeline", do: "navigation__item active", else: "navigation__item"
               %>
-        <%= live_patch link_body("Discussions","feather-message-square"),
+          <%= live_patch link_body("Discussions","feather-message-square"),
                 to: "/&" <> @community.actor.preferred_username <>  "/discussions",
                 class: if @selected_tab == "discussions", do: "navigation__item active", else: "navigation__item"
               %>
-        <%= live_patch link_body("Members", "feather-users"),
+          <%= live_patch link_body("Members", "feather-users"),
                 to: "/&" <> @community.actor.preferred_username <>  "/members",
                 class: if @selected_tab == "members", do: "navigation__item active", else: "navigation__item"
               %>
+        </div>
       </div>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>

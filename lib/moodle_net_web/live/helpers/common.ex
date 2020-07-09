@@ -1,12 +1,15 @@
 defmodule MoodleNetWeb.Helpers.Common do
   import Phoenix.LiveView
+  require Logger
 
   alias MoodleNet.{
     Repo
   }
 
   alias MoodleNetWeb.Helpers.{
-    Profiles
+    Profiles,
+    Account,
+    Communities
   }
 
   @doc "Returns a value, or a fallback if not present"
@@ -66,7 +69,7 @@ defmodule MoodleNetWeb.Helpers.Common do
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    IO.inspect(session_preloaded: session)
+    Logger.info(session_preloaded: session)
 
     socket
     |> assign(:auth_token, fn -> auth_token end)
@@ -80,18 +83,21 @@ defmodule MoodleNetWeb.Helpers.Common do
         } = session,
         %Phoenix.LiveView.Socket{} = socket
       ) do
-    IO.inspect(session_load: session)
+    Logger.info(session_load: session)
 
-    current_user =
-      with {:ok, session_token} <- MoodleNet.Access.fetch_token_and_user(session["auth_token"]) do
-        Profiles.prepare(session_token.user, %{icon: true, actor: true})
+    current_user = Account.current_user(session["auth_token"])
+
+    IO.inspect(session_loaded_user: current_user)
+
+    communities =
+      if(current_user) do
+        Communities.user_communities(current_user, current_user)
       end
-
-    IO.inspect(session_load_user: current_user)
 
     socket
     |> assign(:auth_token, auth_token)
     |> assign(:current_user, current_user)
+    |> assign(:my_communities, communities)
   end
 
   def init_assigns(params, session, %Phoenix.LiveView.Socket{} = socket) do

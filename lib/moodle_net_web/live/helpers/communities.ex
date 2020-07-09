@@ -3,7 +3,11 @@ defmodule MoodleNetWeb.Helpers.Communities do
     Repo
   }
 
-  alias MoodleNetWeb.GraphQL.CommunitiesResolver
+  alias MoodleNetWeb.GraphQL.{
+    CommonResolver,
+    UsersResolver,
+    CommunitiesResolver
+  }
 
   alias MoodleNet.GraphQL.{
     FetchPage,
@@ -93,5 +97,31 @@ defmodule MoodleNetWeb.Helpers.Communities do
       end
 
     prepare(community, preload)
+  end
+
+  def user_communities(for_user, current_user) do
+    {:ok, communities} =
+      UsersResolver.community_follows_edge(
+        for_user,
+        %{limit: 10},
+        %{context: %{current_user: current_user}}
+      )
+
+    # IO.inspect(my_follows: communities)
+
+    # FIXME: communities should be joined rather than queried one by one
+    communities =
+      Enum.map(
+        communities.edges,
+        &CommonResolver.context_edge(&1, nil, nil)
+      )
+
+    communities =
+      Enum.map(
+        communities,
+        &prepare(&1, %{icon: true, image: true, actor: true})
+      )
+
+    IO.inspect(communities)
   end
 end
