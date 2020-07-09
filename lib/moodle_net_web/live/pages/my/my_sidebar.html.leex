@@ -1,7 +1,5 @@
-<%# <input id="slide-sidebar" type="checkbox" role="button" />
-<label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label> %>
 <nav class="side__drawer">
-  <div class="profile__box" style="background-image: url(<%= e(@current_user, :image_url, "http://thepatternlibrary.com/img/r.png") %>)">
+  <!--div class="profile__box" style="background-image: url(<%= e(@current_user, :image_url, "http://thepatternlibrary.com/img/r.png") %>)">
         <input placeholder="Search..." />
         <div class="box__info">
           <img src="<%= e(@current_user, :icon_url, "") %>" />
@@ -20,9 +18,13 @@
     </ul>
   </details>
 </div>
-</div>
+</div -->
 <div class="drawer__menu">
   <nav class="menu__general">
+    <%# <div class="panel__item">
+      <input id="slide-sidebar" type="checkbox" role="button" />
+      <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
+    </div> %>
     <div class="panel__item">
       <a href="/my/timeline">
         <i class="feather-home"></i> Home

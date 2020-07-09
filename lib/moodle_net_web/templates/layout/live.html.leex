@@ -1,3 +1,26 @@
+<div class="cpub__header">
+  <div class="header__left">
+    <i class="feather-grid"></i>
+    <h3>CommonsPub</h3>
+  </div>
+  <input placeholder="Search in the fediverse..." />
+  <div class="header__right">
+    <div class="box__info">
+      <img src="<%= e(@current_user, :icon_url, "") %>" />
+      <h3 ><%= e(@current_user, :name, "Me") %></h3>
+      <details class="drawer__profile" >
+        <summary class="user__dropdown">
+          <i class="feather-more-horizontal"></i>
+        </summary>
+        <ul class="dropdown__list">
+          <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
+          <li><a href="/my/settings">Settings</a></li>
+          <li><a href="#">Logout</a></li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</div>
 <div id="template" class="page <%= if !@current_user , do: "guest", else: "logged" %>">
   <%= if @current_user do %>
     <%= live_component(
