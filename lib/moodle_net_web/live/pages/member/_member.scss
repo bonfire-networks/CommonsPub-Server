@@ -39,3 +39,12 @@
       margin: 0 -16px;
 }
 
+.dialog__container.member {
+  width: 100%;
+  text-align: left;
+  padding: 0 8px;
+  summary {
+    color: var(--color-surface);
+    font-weight: 500;
+  }
+}

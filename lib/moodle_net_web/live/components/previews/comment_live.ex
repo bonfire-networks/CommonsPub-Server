@@ -16,7 +16,22 @@ defmodule MoodleNetWeb.Component.CommentPreviewLive do
               <i class="feather-more-horizontal"></i>
             </summary>
             <ul class="dropdown__list">
-              <li><button class="button-link" >Report</button></li>
+              <li>
+              <details class="dialog__container member">
+              <summary class="button-link" >Report</summary>
+              <dialog open class="dialog dialog__report">
+                <header class="dialog__header">Report this comment</header>
+                <section class="dialog__content">
+                  <form>
+                    <textarea placeholder="Describe the reason..."></textarea>
+                    <footer class="dialog__footer">
+                      <button id="confirmBtn" value="default">Confirm</button>
+                    </footer>
+                  </form>
+                </section>
+              </dialog>
+            </details>
+              </li>
             </ul>
           </details>
       </div>

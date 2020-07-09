@@ -70,6 +70,12 @@ dialog {
 }
 
 
+.dialog__report {
+  button {
+    color: #fff !important;
+    text-align: center !important;
+  }
+}
 
 @keyframes appear {
   from {
