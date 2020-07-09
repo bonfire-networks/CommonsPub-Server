@@ -64,4 +64,21 @@ defmodule MoodleNetWeb.MemberLive do
        current_user: socket.assigns.current_user
      )}
   end
+
+  def handle_event("follow", data, socket) do
+    f =
+      MoodleNetWeb.GraphQL.FollowsResolver.create_follow(%{context_id: socket.assigns.user.id}, %{
+        context: %{current_user: socket.assigns.current_user}
+      })
+
+    IO.inspect(f)
+
+    # TODO: error handling
+
+    {:noreply,
+     socket
+     |> put_flash(:info, "Followed!")
+     # change redirect
+     |> redirect(to: "/@" <> socket.assigns.user.username)}
+  end
 end

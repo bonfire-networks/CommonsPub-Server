@@ -84,6 +84,13 @@ defmodule MoodleNetWeb.Helpers.Profiles do
     end
   end
 
+  def prepare_am_following(my_user, target_id) do
+    IO.inspect(
+      prepare_am_following:
+        MoodleNetWeb.GraphQL.FollowsResolver.fetch_my_follow_edge(my_user, nil, target_id)
+    )
+  end
+
   def user_load(socket, params) do
     user_load(socket, params, %{image: true, icon: true, actor: true}, 150)
   end
@@ -107,9 +114,14 @@ defmodule MoodleNetWeb.Helpers.Profiles do
           {:ok, %{}}
         end
       else
-        UsersResolver.user(%{username: username}, %{
-          context: %{current_user: socket.assigns.current_user}
-        })
+        {:ok, user} =
+          UsersResolver.user(%{username: username}, %{
+            context: %{current_user: socket.assigns.current_user}
+          })
+
+        prepare_am_following(socket.assigns.current_user, user.id)
+
+        {:ok, user}
       end
 
     prepare(user, preload, icon_width)

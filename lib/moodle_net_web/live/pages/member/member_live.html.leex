@@ -10,7 +10,7 @@
           <%= if is_map(@current_user) and @user.id==@current_user.id do %>
             <a href="/my/settings">Settings</a>
           <% else %>
-            <button class="button follow">Follow</button>
+            <button class="button follow" phx-click="follow">Follow</button>
             <details class="more__dropdown">
               <summary>
                 <i class="feather-more-horizontal"></i>
