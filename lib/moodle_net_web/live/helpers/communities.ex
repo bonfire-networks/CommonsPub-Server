@@ -122,6 +122,6 @@ defmodule MoodleNetWeb.Helpers.Communities do
         &prepare(&1, %{icon: true, image: true, actor: true})
       )
 
-    IO.inspect(communities)
+    # IO.inspect(communities)
   end
 end

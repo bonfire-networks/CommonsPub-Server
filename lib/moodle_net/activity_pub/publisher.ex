@@ -165,7 +165,7 @@ defmodule MoodleNet.ActivityPub.Publisher do
   ## the follow activity is created based on a Follow object that's already in MN database, which is wrong.
   ## For now we just delete the folow and return an error if the followed account is private.
   def follow(follow) do
-    follow = Repo.preload(follow, creator: :actor, context: [])
+    follow = Repo.preload(follow, creator: :actor, context: [:table])
 
     with {:ok, follower} <- Actor.get_cached_by_username(follow.creator.actor.preferred_username),
          followed = Pointers.follow!(follow.context),
