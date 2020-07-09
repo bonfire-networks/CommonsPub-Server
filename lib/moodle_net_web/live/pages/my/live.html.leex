@@ -12,24 +12,23 @@
             to: "/my/groups",
             class: if @selected_tab == "groups", do: "navigation__item active", else: "navigation__item"
           %>
-      </div>
-      <div class="mainContent__selected">
-        <%= cond do %>
-          <% @selected_tab == "timeline" -> %>
-            <%= live_component(
+    </div>
+    <div class="mainContent__selected">
+      <%= cond do %>
+        <% @selected_tab == "timeline" -> %>
+        <%= live_component(
                 @socket,
                 TimelineLive,
                 current_user: @current_user,
                 selected_tab: @selected_tab,
-                id: :timeline,
+                id: :timeline
               ) %>
-          <% true -> %>
-          <%= live_component(
+        <% true -> %>
+        <%= live_component(
               @socket,
               TabNotFoundLive
           ) %>
-        <% end %>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>

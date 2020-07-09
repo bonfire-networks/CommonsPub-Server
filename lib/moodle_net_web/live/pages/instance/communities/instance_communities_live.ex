@@ -4,6 +4,7 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   alias MoodleNetWeb.GraphQL.{
     CommunitiesResolver
   }
+
   alias MoodleNetWeb.Component.CommunityPreviewLive
 
   def update(assigns, socket) do
@@ -16,14 +17,13 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
   end
 
   defp fetch(socket, assigns) do
-
     {:ok, communities} =
       CommunitiesResolver.communities(
         %{limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
 
-    IO.inspect(communities: communities)
+    # IO.inspect(communities: communities)
 
     assign(socket,
       communities: communities.edges,

@@ -12,14 +12,14 @@
           <% else %>
             <button class="button follow">Follow</button>
             <details class="more__dropdown">
-            <summary>
-              <i class="feather-more-horizontal"></i>
-            </summary>
-            <ul class="dropdown__list">
-              <li><button class="button-link" >Report</button></li>
-              <li><button class="button-link" >Block</button></li>
-            </ul>
-          </details>
+              <summary>
+                <i class="feather-more-horizontal"></i>
+              </summary>
+              <ul class="dropdown__list">
+                <li><button class="button-link" >Report</button></li>
+                <li><button class="button-link" >Block</button></li>
+              </ul>
+            </details>
           <% end %>
         </div>
       </div>
@@ -28,7 +28,7 @@
       <div class="mainContent__selected">
         <%= cond do %>
           <% @selected_tab == "about" ->  %>
-            <div class="selected__area">
+          <div class="selected__area">
             <%= live_component(
                   @socket,
                   HeroProfileLive,
@@ -95,6 +95,5 @@
           )
         %>
       </div>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>

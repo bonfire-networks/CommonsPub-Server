@@ -22,7 +22,8 @@ defmodule MoodleNetWeb.My.TimelineLive do
         has_next_page: false,
         after: [],
         before: [],
-        activities: []
+        activities: [],
+        pagination_target: "my_timeline"
       )
       #  |> fetch(), temporary_assigns: [activities: []]
     }
@@ -65,12 +66,14 @@ defmodule MoodleNetWeb.My.TimelineLive do
 
   def render(assigns) do
     ~L"""
+    <div id="my_timeline">
       <%= live_component(
         @socket,
         ActivitiesListLive,
         assigns
         )
       %>
+    </div>
     """
   end
 end
