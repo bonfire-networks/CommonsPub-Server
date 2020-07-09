@@ -85,7 +85,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
   def handle_event("post", %{"content" => content} = data, socket) do
     IO.inspect(data, label: "DATA")
 
-    if(is_nil(content) or !Map.has_key?(socket.assigns, :current_user)) do
+    if(is_nil(content) or is_nil(socket.assigns.current_user)) do
       {:noreply,
        socket
        |> put_flash(:error, "Please write something...")}
