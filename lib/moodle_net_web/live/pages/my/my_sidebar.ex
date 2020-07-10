@@ -21,7 +21,7 @@ defmodule MoodleNetWeb.My.MySidebar do
        socket
        |> put_flash(:error, "Please enter a name...")}
     else
-      community = data |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+      community = input_to_atoms(data)
 
       {:ok, community} =
         MoodleNetWeb.GraphQL.CommunitiesResolver.create_community(

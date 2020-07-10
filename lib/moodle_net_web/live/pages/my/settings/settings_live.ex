@@ -3,15 +3,18 @@ defmodule MoodleNetWeb.SettingsLive do
   import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
   alias MoodleNetWeb.GraphQL.UsersResolver
+
   alias MoodleNetWeb.SettingsLive.{
     SettingsNavigationLive,
     SettingsGeneralLive,
     SettingsInstanceLive,
     SettingsInvitesLive
   }
+
   alias MoodleNetWeb.Component.{
     TabNotFoundLive
   }
+
   def mount(params, session, socket) do
     socket = init_assigns(params, session, socket)
 
@@ -25,7 +28,6 @@ defmodule MoodleNetWeb.SettingsLive do
      )}
   end
 
-
   def handle_params(%{"tab" => tab}, _url, socket) do
     {:noreply, assign(socket, selected_tab: tab)}
   end
@@ -35,7 +37,7 @@ defmodule MoodleNetWeb.SettingsLive do
   end
 
   def handle_event("post", data, socket) do
-    params = data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+    params = input_to_atoms(data)
 
     {:ok, edit_profile} =
       UsersResolver.update_profile(params, %{

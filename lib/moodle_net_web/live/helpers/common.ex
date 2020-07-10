@@ -142,4 +142,8 @@ defmodule MoodleNetWeb.Helpers.Common do
     profile
     |> Map.merge(%{display_username: MoodleNet.Actors.display_username(profile)})
   end
+
+  def input_to_atoms(data) do
+    data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
+  end
 end

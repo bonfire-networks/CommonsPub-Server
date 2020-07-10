@@ -92,7 +92,7 @@ defmodule MoodleNetWeb.My.Publish.WriteLive do
     else
       # MoodleNetWeb.Plugs.Auth.login(socket, session.current_user, session.token)
 
-      comment = data |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+      comment = input_to_atoms(data)
 
       thread =
         MoodleNetWeb.GraphQL.ThreadsResolver.create_thread(
