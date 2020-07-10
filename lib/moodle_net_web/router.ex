@@ -174,6 +174,8 @@ defmodule MoodleNetWeb.Router do
 
     live "/«:id", DiscussionLive
 
+    live "/search/:search", SearchLive
+
     live "/my/login", LoginLive
     live "/my/signup", SignupLive
     live "/my/reset", ResetPasswordLive
