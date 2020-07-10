@@ -23,6 +23,10 @@
   display: grid;
   height: calc(100vh - 50px);
   grid-template-columns: 1fr;
+  overflow: overlay;
+  .page__full {
+    overflow: overlay;
+  }
 }
 
 .page__header {
@@ -401,6 +405,11 @@
   .header__left {
     display: flex;
     align-items: center;
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
     h3 {
       color: #fff;
       margin: 0;
