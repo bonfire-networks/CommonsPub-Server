@@ -262,8 +262,6 @@ $grid-columns: 12 !default;
   margin: 0 auto;
   grid-column-gap: var(--m3);
   margin-top: var(--m3);
-  overflow-y: scroll;
-  height: calc(100vh - 60px);
   .mainContent__selected {
     width: calc(900px - 290px);
     border: none;
