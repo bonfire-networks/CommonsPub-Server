@@ -16,6 +16,7 @@ defmodule MoodleNetWeb.GraphQL.UploadResolver do
 
   def upload(user, %{} = params, _info) do
     params
+    |> Enum.reject(fn {k, v} -> is_nil(v) or v == "" end)
     |> Enum.reduce_while(%{}, &(do_upload(user, &1, &2)))
     |> case do
       {:error, _} = e -> e

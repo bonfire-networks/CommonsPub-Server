@@ -25,11 +25,11 @@ def render(assigns) do
         </div>
         <div class="section__item">
           <h4>Edit your name</h4>
-          <input name="name" type="text" value="<%= @current_user.name %>" placeholder="Type a new name...">
+          <input name="profile[name]" type="text" value="<%= @current_user.name %>" placeholder="Type a new name...">
         </div>
         <div class="section__item">
         <h4>Edit your email</h4>
-            <input name="email" value="<%= @current_user.local_user.email %>" type="text" placeholder="Type a new email...">
+            <input name="profile[email]" value="<%= @current_user.local_user.email %>" type="text" placeholder="Type a new email...">
         </div>
         <div class="section__item">
         <h4>Edit your website</h4>
@@ -37,11 +37,11 @@ def render(assigns) do
         </div>
         <div class="section__item">
         <h4>Edit your location</h4>
-            <input name="location" type="text" value="<%= @current_user.location %>" placeholder="Type a new location...">
+            <input name="profile[location]" type="text" value="<%= @current_user.location %>" placeholder="Type a new location...">
         </div>
         <div class="section__item">
         <h4>Edit your summary</h4>
-            <textarea name="summary" placeholder="Type your summary..."><%= @current_user.summary %></textarea>
+            <textarea name="profile[summary]" placeholder="Type your summary..."><%= @current_user.summary %></textarea>
         </div>
 
         <div class="section__actions">

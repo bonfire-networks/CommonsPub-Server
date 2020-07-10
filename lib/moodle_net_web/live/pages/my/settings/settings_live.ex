@@ -35,10 +35,10 @@ defmodule MoodleNetWeb.SettingsLive do
   end
 
   def handle_event("post", data, socket) do
-    profile = data |> Map.new(fn {k, v} -> {String.to_atom(k), v} end)
+    params = data |> Map.new(fn {k, v} -> {String.to_existing_atom(k), v} end)
 
     {:ok, edit_profile} =
-      UsersResolver.update_profile(%{profile: profile}, %{
+      UsersResolver.update_profile(params, %{
         context: %{current_user: socket.assigns.current_user}
       })
 
