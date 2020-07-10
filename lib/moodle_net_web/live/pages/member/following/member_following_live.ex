@@ -1,6 +1,7 @@
 defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   use MoodleNetWeb, :live_component
 
+  import MoodleNetWeb.Helpers.Common
   alias MoodleNetWeb.Helpers.{Profiles}
 
   alias MoodleNetWeb.Component.UserPreviewLive
@@ -13,6 +14,13 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
       |> fetch(assigns)
     }
   end
+
+  defp fetch_users_from_context(user) do
+    {:ok, pointer} = MoodleNet.Meta.Pointers.one(id: user.context_id)
+    MoodleNet.Meta.Pointers.follow!(pointer) |> Profiles.prepare(%{icon: true, actor: true})
+
+  end
+
   defp fetch(socket, assigns) do
     # IO.inspect(assigns.user)
     {:ok, users} =
@@ -21,11 +29,16 @@ defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
         %{limit: 3},
         %{context: %{current_user: assigns.current_user}}
       )
+      followings = Enum.map(
+        users.edges,
+        &fetch_users_from_context(&1)
+      )
 
-    IO.inspect(users)
-    following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    IO.inspect(users, label: "USER COMMUNITY")
+    # following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
+    # IO.inspect(following_users, label: "USER COMMUNITY")
     assign(socket,
-      users: following_users,
+      users: followings,
       has_next_page: users.page_info.has_next_page,
       after: users.page_info.end_cursor,
       before: users.page_info.start_cursor
