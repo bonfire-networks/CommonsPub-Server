@@ -1,13 +1,9 @@
-defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
+defmodule MoodleNetWeb.MemberLive.MemberFollowingLive do
   use MoodleNetWeb, :live_component
 
-  alias MoodleNetWeb.Helpers.{Communities}
+  alias MoodleNetWeb.Helpers.{Profiles}
 
-  alias MoodleNetWeb.GraphQL.{
-    CommunitiesResolver
-  }
-
-  alias MoodleNetWeb.Component.CommunityPreviewLive
+  alias MoodleNetWeb.Component.UserPreviewLive
 
   def update(assigns, socket) do
     {
@@ -17,27 +13,22 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
       |> fetch(assigns)
     }
   end
-
   defp fetch(socket, assigns) do
-    {:ok, communities} =
-      CommunitiesResolver.communities(
-        %{limit: 10},
+    # IO.inspect(assigns.user)
+    {:ok, users} =
+      MoodleNetWeb.GraphQL.UsersResolver.user_follows_edge(
+        %{id: assigns.user.id},
+        %{limit: 3},
         %{context: %{current_user: assigns.current_user}}
       )
 
-    # IO.inspect(communities: communities)
-
-    communities_list =
-      Enum.map(
-        communities.edges,
-        &Communities.prepare(&1, %{icon: true, image: true, actor: true})
-      )
-
+    IO.inspect(users)
+    following_users = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
     assign(socket,
-      communities: communities_list,
-      has_next_page: communities.page_info.has_next_page,
-      after: communities.page_info.end_cursor,
-      before: communities.page_info.start_cursor
+      users: following_users,
+      has_next_page: users.page_info.has_next_page,
+      after: users.page_info.end_cursor,
+      before: users.page_info.start_cursor
     )
   end
 
@@ -47,19 +38,18 @@ defmodule MoodleNetWeb.InstanceLive.InstanceCommunitiesLive do
 
   def render(assigns) do
     ~L"""
-      <div
-      id="instance-communities">
+      <div id="member-users">
         <div
         phx-update="append"
         data-page="<%= @page %>"
         class="selected__area">
-          <%= for community <- @communities do %>
+          <%= for user <- @users do %>
           <div class="preview__wrapper">
             <%= live_component(
                   @socket,
-                  CommunityPreviewLive,
-                  id: "community-#{community.id}",
-                  community: community
+                  UserPreviewLive,
+                  id: "user-#{user.id}",
+                  user: user
                 )
               %>
             </div>

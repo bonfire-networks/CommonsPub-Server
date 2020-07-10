@@ -1,27 +1,27 @@
- <div class="selected__area">
-    <div
+<div id="instance-activities">
+  <div
     id="load-more-members"
     phx-update="append"
     data-page="<%= @page %>"
-    class="users_list">
-    <%= for user <- @members do %>
-    <%= live_component(
-        @socket,
-        UserPreviewLive,
-        id: "member-#{user.id}",
-        user: user
-      )
-    %>
-    <% end %>
-    </div>
+    class="users_list selected__area">
+      <%= for user <- @members do %>
+        <%= live_component(
+            @socket,
+            UserPreviewLive,
+            id: "member-#{user.id}",
+            user: user
+          )
+        %>
+      <% end %>
     </div>
     <%= if @has_next_page do %>
-    <div class="pagination">
-      <button
-        class="button--outline"
-        phx-click="load-more"
-        phx-target="<%= @myself %>">
-        load more
-      </button>
-    </div>
+      <div class="pagination">
+        <button
+          class="button--outline"
+          phx-click="load-more"
+          phx-target="<%= @myself %>">
+          load more
+        </button>
+      </div>
     <% end %>
+</div>

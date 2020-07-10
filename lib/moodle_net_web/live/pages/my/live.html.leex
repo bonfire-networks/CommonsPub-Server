@@ -19,9 +19,15 @@
         <%= live_component(
                 @socket,
                 TimelineLive,
-                current_user: @current_user,
                 selected_tab: @selected_tab,
-                id: :timeline
+                id: :timeline,
+                current_user: @current_user,
+                activities: [],
+                page: 1,
+                has_next_page: false,
+                after: [],
+                before: [],
+                pagination_target: "#my-timeline"
               ) %>
         <% @selected_tab == "communities" -> %>
         <%= live_component(

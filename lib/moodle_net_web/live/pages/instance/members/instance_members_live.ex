@@ -11,29 +11,20 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
     UsersResolver
   }
 
-  def mount(socket) do
-    {
-      :ok,
-      socket,
-      temporary_assigns: [members: [], page: 1, has_next_page: false, after: [], before: []]
-    }
-  end
-
   def update(assigns, socket) do
     {
       :ok,
       socket
-      |> assign(current_user: assigns.current_user)
-      |> fetch()
+      |> assign(assigns)
+      |> fetch(assigns)
     }
   end
 
-  defp fetch(socket) do
+  defp fetch(socket, assigns) do
     {:ok, users} =
-      UsersResolver.users(%{after: socket.assigns.after, limit: 10}, %{
-        context: %{current_user: socket.assigns.current_user}
+      UsersResolver.users(%{after: assigns.after, limit: 3}, %{
+        context: %{current_user: assigns.current_user}
       })
-
     members = Enum.map(users.edges, &Profiles.prepare(&1, %{icon: true, actor: true}))
 
     assign(socket,
@@ -45,6 +36,6 @@ defmodule MoodleNetWeb.InstanceLive.InstanceMembersLive do
   end
 
   def handle_event("load-more", _, %{assigns: assigns} = socket) do
-    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch()}
+    {:noreply, socket |> assign(page: assigns.page + 1) |> fetch(assigns)}
   end
 end

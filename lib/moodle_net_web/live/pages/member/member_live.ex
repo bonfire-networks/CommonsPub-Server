@@ -8,7 +8,8 @@ defmodule MoodleNetWeb.MemberLive do
     MemberDiscussionsLive,
     MemberNavigationLive,
     MemberActivitiesLive,
-    MemberCommunitiesLive
+    MemberCommunitiesLive,
+    MemberFollowingLive
   }
 
   alias MoodleNetWeb.Component.{

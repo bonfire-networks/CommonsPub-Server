@@ -70,6 +70,12 @@
   margin-bottom: 20px;
   border: 1px solid transparent;
   border-radius: 4px;
+  position: absolute;
+  top: 8px;
+  margin: 0;
+  right: 8px;
+  z-index: 999;
+  min-width: 240px;
 }
 .alert-info {
   color: #31708f;

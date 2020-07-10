@@ -23,6 +23,10 @@ defmodule MoodleNetWeb.MemberLive.MemberNavigationLive do
       to: "/@" <> @username <> "/likes",
       class: if @selected == "likes", do: "navigation__item active", else: "navigation__item"
     %>
+    <%= live_patch link_body("Following", "feather-eye"),
+      to: "/@" <> @username <> "/following",
+      class: if @selected == "following", do: "navigation__item active", else: "navigation__item"
+    %>
     """
   end
 

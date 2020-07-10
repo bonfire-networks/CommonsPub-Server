@@ -13,25 +13,23 @@ defmodule MoodleNetWeb.My.TimelineLive do
     UsersResolver
   }
 
-  def mount(socket) do
-    {
-      :ok,
-      socket
-      |> assign(
-        page: 1,
-        has_next_page: false,
-        after: [],
-        before: [],
-        activities: [],
-        pagination_target: "my_timeline"
-      )
-      #  |> fetch(), temporary_assigns: [activities: []]
-    }
-  end
+  # def mount(socket) do
+  #   {
+  #     :ok,
+  #     socket
+  #     |> assign(
+  #       page: 1,
+  #       has_next_page: false,
+  #       after: [],
+  #       before: [],
+  #       activities: [],
+  #       pagination_target: "my_timeline"
+  #     )
+  #     #  |> fetch(), temporary_assigns: [activities: []]
+  #   }
+  # end
 
   def update(assigns, socket) do
-    IO.inspect(socket, label: "SOCKET:")
-
     {
       :ok,
       socket
@@ -46,8 +44,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
     {:ok, inbox} =
       UsersResolver.user_inbox_edge(
         assigns.current_user,
-        %{after: socket.assigns.after, limit: 10},
-        # %{after: socket.assigns.after, before: socket.assigns.before, limit: 10},
+        %{after: assigns.after, limit: 10},
         %{context: %{current_user: assigns.current_user}}
       )
 
@@ -67,7 +64,7 @@ defmodule MoodleNetWeb.My.TimelineLive do
 
   def render(assigns) do
     ~L"""
-    <div id="my_timeline">
+    <div id="my-timeline">
       <%= live_component(
         @socket,
         ActivitiesListLive,

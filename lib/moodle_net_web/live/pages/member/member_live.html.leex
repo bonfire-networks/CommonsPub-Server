@@ -75,6 +75,24 @@
                     pagination_target: "#member-activities"
                   ) %>
           </div>
+          <% @selected_tab == "following" ->  %>
+          <h3 class="area__title"><%= @user.name %> is following</h3>
+          <div class="selected__area">
+            <%= live_component(
+                    @socket,
+                    MemberFollowingLive,
+                    user: @user,
+                    selected_tab: @selected_tab,
+                    id: :following,
+                    current_user: @current_user,
+                    users: [],
+                    page: 1,
+                    has_next_page: false,
+                    after: [],
+                    before: [],
+                    pagination_target: "#member-users"
+                  ) %>
+          </div>
           <% @selected_tab == "discussions" ->  %>
           <h3 class="area__title">discussions started by <%= @user.name %></h3>
           <div class="selected__area">
@@ -94,23 +112,23 @@
                   ) %>
           </div>
           <% @selected_tab == "communities" ->  %>
-          <h3 class="area__title">communities <%= @user.name %> is following</h3>
-          <div class="selected__area">
-            <%= live_component(
-                    @socket,
-                    MemberCommunitiesLive,
-                    user: @user,
-                    selected_tab: @selected_tab,
-                    id: :timeline,
-                    current_user: @current_user,
-                    member_communities: [],
-                    page: 1,
-                    has_next_page: false,
-                    after: [],
-                    before: [],
-                    pagination_target: "#member_communities"
-                  ) %>
-          </div>
+            <h3 class="area__title">communities <%= @user.name %> is following</h3>
+            <div class="selected__area">
+              <%= live_component(
+                  @socket,
+                  MemberCommunitiesLive,
+                  user: @user,
+                  selected_tab: @selected_tab,
+                  id: :timeline,
+                  current_user: @current_user,
+                  member_communities: [],
+                  page: 1,
+                  has_next_page: false,
+                  after: [],
+                  before: [],
+                  pagination_target: "#member_communities"
+                ) %>
+            </div>
           <% true -> %>
           <%= live_component(
                   @socket,
