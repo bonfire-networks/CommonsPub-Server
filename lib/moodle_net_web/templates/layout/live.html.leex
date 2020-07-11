@@ -18,7 +18,7 @@
             </summary>
             <ul class="dropdown__list">
               <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-              <li><a href="/my/settings">Settings</a></li>
+              <li><a href="/~/settings">Settings</a></li>
               <li><a href="#">Logout</a></li>
             </ul>
           </details>
@@ -26,12 +26,12 @@
       <% end %>
       <%= if @current_user == nil do %>
         <div class="panel__item">
-          <a class="button" href="/my/login">
+          <a class="button" href="/~/login">
             <i class="feather-log-in"></i> Log in
           </a>
         </div>
         <div class="panel__item">
-          <a class="button" href="/my/signup">
+          <a class="button" href="/~/signup">
             <i class="feather-zap"></i> Sign up
           </a>
         </div>

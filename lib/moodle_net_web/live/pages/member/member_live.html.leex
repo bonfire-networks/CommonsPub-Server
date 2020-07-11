@@ -8,7 +8,7 @@
         </div>
         <div class="suphero__actions">
           <%= if is_map(@current_user) and @user.id==@current_user.id do %>
-            <a href="/my/settings">Settings</a>
+            <a href="/~/settings">Settings</a>
           <% else %>
             <button class="button follow" phx-click="follow">Follow</button>
             <details class="more__dropdown">
@@ -112,9 +112,9 @@
                   ) %>
           </div>
           <% @selected_tab == "communities" ->  %>
-            <h3 class="area__title">communities <%= @user.name %> is following</h3>
-            <div class="selected__area">
-              <%= live_component(
+          <h3 class="area__title">communities <%= @user.name %> is following</h3>
+          <div class="selected__area">
+            <%= live_component(
                   @socket,
                   MemberCommunitiesLive,
                   user: @user,
@@ -128,7 +128,7 @@
                   before: [],
                   pagination_target: "#member_communities"
                 ) %>
-            </div>
+          </div>
           <% true -> %>
           <%= live_component(
                   @socket,

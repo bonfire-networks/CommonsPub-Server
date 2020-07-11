@@ -75,14 +75,14 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
 
     case mn_object do
       %Thread{} ->
-        redirect(conn, external: frontend_base <> "/«" <> mn_object.id)
+        redirect(conn, external: frontend_base <> "/!" <> mn_object.id <> "/discuss")
 
       %Comment{} ->
-        redirect(conn, external: frontend_base <> "/«" <> mn_object.thread_id)
+        redirect(conn, external: frontend_base <> "/!" <> mn_object.thread_id <> "/discuss")
 
       %Resource{} ->
         redirect(conn,
-          external: frontend_base <> "/collections/" <> mn_object.collection_id
+          external: frontend_base <> "/+" <> mn_object.collection_id
         )
 
       _ ->
@@ -98,10 +98,10 @@ defmodule ActivityPubWeb.RedirectController.LiveView do
         redirect(conn, external: frontend_base <> "/@" <> actor.preferred_username)
 
       {:ok, %Collection{} = actor} ->
-        redirect(conn, external: frontend_base <> "/collections/" <> actor.id)
+        redirect(conn, external: frontend_base <> "/+" <> actor.id)
 
       {:ok, %Community{} = actor} ->
-        redirect(conn, external: frontend_base <> "/communities/" <> actor.id)
+        redirect(conn, external: frontend_base <> "/&" <> actor.id)
 
       {:error, _e} ->
         redirect(conn, external: "#{frontend_base}/404")

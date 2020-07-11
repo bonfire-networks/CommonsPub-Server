@@ -26,7 +26,7 @@ defmodule MoodleNetWeb.Plugs.EnsureAuthenticatedPlug do
       "html" ->
         conn
         |> put_flash(:error, "You must be logged in to access to this page")
-        |> redirect(to: "/my/login")
+        |> redirect(to: "/~/login")
         |> halt()
     end
   end

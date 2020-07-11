@@ -37,7 +37,7 @@ defmodule MoodleNetWeb.LoginLive do
       {:noreply,
        socket
        |> put_flash(:info, "Logged in!")
-       |> redirect(to: "/my/?auth_token=" <> session.token)}
+       |> redirect(to: "/~/?auth_token=" <> session.token)}
     end
   end
 end

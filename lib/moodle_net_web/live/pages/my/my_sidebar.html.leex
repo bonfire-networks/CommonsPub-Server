@@ -13,94 +13,94 @@
     </summary>
     <ul class="dropdown__list">
       <li><a href="/@<%= e(@current_user, :actor, :preferred_username, "me") %>">Profile</a></li>
-      <li><a href="/my/settings">Settings</a></li>
+      <li><a href="/~/settings">Settings</a></li>
       <li><a href="#">Logout</a></li>
     </ul>
   </details>
 </div>
 </div -->
-<div class="drawer__menu">
-  <nav class="menu__general">
-    <%# <div class="panel__item">
+  <div class="drawer__menu">
+    <nav class="menu__general">
+      <%# <div class="panel__item">
       <input id="slide-sidebar" type="checkbox" role="button" />
       <label id="slide-sidebar-label" for="slide-sidebar"><span><i class="feather-menu"></i></span></label>
     </div> %>
-    <div class="panel__item">
-      <a href="/my/timeline">
-        <i class="feather-home"></i> Home
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/instance">
-        <i class="feather-anchor"></i> Discover
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/my/notifications">
-        <i class="feather-bell"></i> Notifications
-      </a>
-    </div>
-    <div class="panel__item">
-      <a href="/my/write">
-        <i class="feather-edit"></i> Write
-      </a>
-    </div>
-  </nav>
-  <div class="communities__wrapper">
-  <details open>
-    <summary>Communities</summary>
-    <nav class="general__details">
-      <%= live_component(
+      <div class="panel__item">
+        <a href="/~/timeline">
+          <i class="feather-home"></i> Home
+        </a>
+      </div>
+      <div class="panel__item">
+        <a href="/instance">
+          <i class="feather-anchor"></i> Discover
+        </a>
+      </div>
+      <div class="panel__item">
+        <a href="/~/notifications">
+          <i class="feather-bell"></i> Notifications
+        </a>
+      </div>
+      <div class="panel__item">
+        <a href="/~/write">
+          <i class="feather-edit"></i> Write
+        </a>
+      </div>
+    </nav>
+    <div class="communities__wrapper">
+      <details open>
+        <summary>Communities</summary>
+        <nav class="general__details">
+          <%= live_component(
                 @socket,
                 MoodleNetWeb.My.SidebarCommunitiesLive,
                 current_user: @current_user,
                 id: :_sidebar_communities,
                 my_communities: @my_communities
               ) %>
-    </nav>
-  </details>
-  <div class="communities_new">
-  <details class="dialog__container">
-    <summary class="button new-community"><i class="feather-plus"></i></summary>
-    <dialog open class="dialog dialog__newCommunity">
-      <header class="dialog__header">Create a new community</header>
-      <section class="dialog__content">
-        <form phx-submit="new_community" phx-target="<%= @myself %>">
-          <input name="name" placeholder="Type the community name..." />
-          <textarea name="summary" placeholder="Describe your community..."></textarea>
-          <footer class="dialog__footer">
-            <button value="default">Confirm</button>
-          </footer>
-        </form>
-      </section>
-    </dialog>
-  </details>
-</div>
+        </nav>
+      </details>
+      <div class="communities_new">
+        <details class="dialog__container">
+          <summary class="button new-community"><i class="feather-plus"></i></summary>
+          <dialog open class="dialog dialog__newCommunity">
+            <header class="dialog__header">Create a new community</header>
+            <section class="dialog__content">
+              <form phx-submit="new_community" phx-target="<%= @myself %>">
+                <input name="name" placeholder="Type the community name..." />
+                <textarea name="summary" placeholder="Describe your community..."></textarea>
+                <footer class="dialog__footer">
+                  <button value="default">Confirm</button>
+                </footer>
+              </form>
+            </section>
+          </dialog>
+        </details>
+      </div>
+    </div>
+    <details>
+      <summary>Direct Messages</summary>
+      <nav class="general__details">
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>ValueFlows UI components</h3>
+        </div>
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>ValueFlows UI components</h3>
+        </div>
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>ValueFlows UI components</h3>
+        </div>
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>ValueFlows UI components</h3>
+        </div>
+        <div class="panel__item">
+          <img src="https://picsum.photos/40" />
+          <h3>ValueFlows UI components</h3>
+        </div>
+      </nav>
+    </details>
   </div>
-  <details>
-    <summary>Direct Messages</summary>
-    <nav class="general__details">
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-      <div class="panel__item">
-        <img src="https://picsum.photos/40" />
-        <h3>ValueFlows UI components</h3>
-      </div>
-    </nav>
-  </details>
-</div>
 </nav>

@@ -154,6 +154,9 @@ defmodule MoodleNetWeb.Router do
     # TODO redirect to instance or user depending on logged in
     live "/instance", InstanceLive
 
+    live "/instance/search", SearchLive
+    live "/instance/search/:search", SearchLive
+
     live "/instance/:tab", InstanceLive
 
     live "/@:username", MemberLive
@@ -162,24 +165,25 @@ defmodule MoodleNetWeb.Router do
     live "/&:username", CommunityLive
     live "/&:username/:tab", CommunityLive
 
-    live "/«:id", DiscussionLive
+    # live "/+:username", CharacterLive
+    # live "/+:username/:tab", CharacterLive
 
-    live "/search/:search", SearchLive
+    live "/!:id/discuss", DiscussionLive
 
-    live "/my/login", LoginLive
-    live "/my/signup", SignupLive
-    live "/my/reset", ResetPasswordLive
-    live "/my/create-new-password", CreateNewPasswordLive
+    live "/~/login", LoginLive
+    live "/~/signup", SignupLive
+    live "/~/reset", ResetPasswordLive
+    live "/~/create-new-password", CreateNewPasswordLive
 
     pipe_through :ensure_authenticated
 
-    live "/my", My.Live
-    live "/my/profile", MemberLive
-    live "/my/settings", SettingsLive
-    live "/my/settings/:tab", SettingsLive
-    live "/my/write", My.Publish.WriteLive
-    live "/my/:tab", My.Live
+    live "/~", My.Live
+    live "/~/profile", MemberLive
+    live "/~/settings", SettingsLive
+    live "/~/settings/:tab", SettingsLive
+    live "/~/write", My.Publish.WriteLive
+    live "/~/:tab", My.Live
 
-    live "/my/proto", My.ProtoProfileLive
+    live "/~/proto", My.ProtoProfileLive
   end
 end
